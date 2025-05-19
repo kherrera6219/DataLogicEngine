@@ -1345,7 +1345,7 @@ class POVEngine:
                     # Apply adjustment with bounds checking (keep between 0.5 and 1.0)
                     belief_matrix[id2] = max(0.5, min(1.0, belief_matrix[id2] + adjustment))
         
-        return matrix
+        return belief_matrix
     
     def _calculate_confidence(self, context: Dict) -> float:
         """
