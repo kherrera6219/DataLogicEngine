@@ -1,0 +1,552 @@
+{% extends 'base.html' %}
+
+{% block title %}Universal Knowledge Graph - Dashboard{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Welcome to your UKG control center, {{ current_user.username }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Quick Stats Row -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <span class="material-icons">psychology</span>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">10</h3>
+                <p class="stat-label">Cognitive Layers</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <span class="material-icons">lens_blur</span>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">13</h3>
+                <p class="stat-label">Knowledge Axes</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <span class="material-icons">schedule</span>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">4</h3>
+                <p class="stat-label">Active Simulations</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <span class="material-icons">data_object</span>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">1,248</h3>
+                <p class="stat-label">Knowledge Nodes</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Dashboard Content -->
+    <div class="dashboard-content">
+        <!-- Left Side: Quick Actions and Tools -->
+        <div class="dashboard-left">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Quick Actions</h2>
+                </div>
+                <div class="card-body">
+                    <div class="quick-actions">
+                        <a href="{{ url_for('simulations') }}" class="quick-action-btn">
+                            <span class="material-icons">play_arrow</span>
+                            Run Simulation
+                        </a>
+                        <a href="#" class="quick-action-btn">
+                            <span class="material-icons">add_circle</span>
+                            Create Knowledge Node
+                        </a>
+                        <a href="#" class="quick-action-btn">
+                            <span class="material-icons">query_stats</span>
+                            Query Knowledge Base
+                        </a>
+                        <a href="#" class="quick-action-btn">
+                            <span class="material-icons">insights</span>
+                            View Analytics
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">System Status</h2>
+                </div>
+                <div class="card-body">
+                    <div class="system-status">
+                        <div class="status-item">
+                            <span class="status-label">Core Engine</span>
+                            <span class="status-value active">Active</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Quantum Simulation</span>
+                            <span class="status-value active">Active</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Knowledge Graph</span>
+                            <span class="status-value active">Active</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Recursive AGI</span>
+                            <span class="status-value active">Active</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Self-Awareness Module</span>
+                            <span class="status-value idle">Idle</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side: Recent Activity and Simulations -->
+        <div class="dashboard-right">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Simulations</h2>
+                    <a href="{{ url_for('simulations') }}" class="card-link">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="recent-simulations">
+                        {% if simulations %}
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Started</th>
+                                        <th>Status</th>
+                                        <th>Progress</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for sim in simulations %}
+                                    <tr>
+                                        <td>{{ sim.name }}</td>
+                                        <td>{{ sim.started_at|default('Not started', true) }}</td>
+                                        <td>
+                                            <span class="status-badge status-{{ sim.status }}">
+                                                {{ sim.status|capitalize }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="progress-bar">
+                                                <div class="progress" style="width: {{ (sim.current_step / sim.total_steps) * 100 }}%;"></div>
+                                            </div>
+                                            <div class="progress-text">{{ sim.current_step }}/{{ sim.total_steps }}</div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="empty-state">
+                                <span class="material-icons">science</span>
+                                <p>No simulations found. Start a new simulation to begin exploring.</p>
+                                <a href="{{ url_for('simulations') }}" class="btn btn-primary">Run Simulation</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Knowledge Graph Visualization</h2>
+                </div>
+                <div class="card-body">
+                    <div class="graph-preview">
+                        <svg viewBox="0 0 800 400" class="graph-svg">
+                            <!-- Simplified knowledge graph visualization -->
+                            <!-- Central node -->
+                            <circle cx="400" cy="200" r="25" fill="#6a8fff" />
+                            
+                            <!-- Main axes -->
+                            {% for i in range(13) %}
+                                {% set angle = i * (360 / 13) %}
+                                {% set radius = 150 %}
+                                {% set x = 400 + radius * cos(angle * 3.14159 / 180) %}
+                                {% set y = 200 + radius * sin(angle * 3.14159 / 180) %}
+                                
+                                <line 
+                                    x1="400" y1="200" 
+                                    x2="{{ x }}" y2="{{ y }}" 
+                                    stroke="rgba(106, 143, 255, 0.5)" 
+                                    stroke-width="2" />
+                                    
+                                <circle 
+                                    cx="{{ x }}" cy="{{ y }}" 
+                                    r="15" 
+                                    fill="rgba(106, 143, 255, 0.7)" />
+                                    
+                                <text 
+                                    x="{{ x + 20 * cos(angle * 3.14159 / 180) }}" 
+                                    y="{{ y + 20 * sin(angle * 3.14159 / 180) }}" 
+                                    font-size="12" 
+                                    fill="#b0b0b0" 
+                                    text-anchor="middle">
+                                    Axis {{ i+1 }}
+                                </text>
+                            {% endfor %}
+                        </svg>
+                        <div class="graph-overlay">
+                            <a href="#" class="btn btn-outline">Open Full Graph</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Dashboard Layout */
+    .dashboard-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    /* Stats Row */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        background-color: var(--dark-bg-secondary);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 4px 6px var(--dark-shadow);
+        transition: transform var(--transition-speed);
+    }
+    
+    .light-theme .stat-card {
+        background-color: var(--light-bg-secondary);
+        box-shadow: 0 4px 6px var(--light-shadow);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-icon {
+        background-color: rgba(106, 143, 255, 0.15);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dark-accent-primary);
+    }
+    
+    .light-theme .stat-icon {
+        background-color: rgba(76, 110, 245, 0.15);
+        color: var(--light-accent-primary);
+    }
+    
+    .stat-content {
+        flex: 1;
+    }
+    
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem;
+    }
+    
+    .stat-label {
+        margin: 0;
+        color: var(--dark-text-secondary);
+        font-size: 0.875rem;
+    }
+    
+    .light-theme .stat-label {
+        color: var(--light-text-secondary);
+    }
+    
+    /* Dashboard Content Layout */
+    .dashboard-content {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 1.5rem;
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .quick-action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background-color: var(--dark-bg-tertiary);
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        color: var(--dark-text-primary);
+        transition: background-color var(--transition-speed);
+    }
+    
+    .light-theme .quick-action-btn {
+        background-color: var(--light-bg-tertiary);
+        color: var(--light-text-primary);
+    }
+    
+    .quick-action-btn:hover {
+        background-color: rgba(106, 143, 255, 0.15);
+    }
+    
+    .light-theme .quick-action-btn:hover {
+        background-color: rgba(76, 110, 245, 0.15);
+    }
+    
+    .quick-action-btn .material-icons {
+        color: var(--dark-accent-primary);
+    }
+    
+    .light-theme .quick-action-btn .material-icons {
+        color: var(--light-accent-primary);
+    }
+    
+    /* System Status */
+    .system-status {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .status-label {
+        font-weight: 500;
+    }
+    
+    .status-value {
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .status-value.active {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: var(--success);
+    }
+    
+    .status-value.idle {
+        background-color: rgba(255, 193, 7, 0.15);
+        color: var(--warning);
+    }
+    
+    /* Table Styles */
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .table th {
+        text-align: left;
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        color: var(--dark-text-secondary);
+        border-bottom: 1px solid var(--dark-border);
+    }
+    
+    .light-theme .table th {
+        color: var(--light-text-secondary);
+        border-bottom: 1px solid var(--light-border);
+    }
+    
+    .table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--dark-border);
+    }
+    
+    .light-theme .table td {
+        border-bottom: 1px solid var(--light-border);
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-pending {
+        background-color: rgba(255, 193, 7, 0.15);
+        color: var(--warning);
+    }
+    
+    .status-running {
+        background-color: rgba(23, 162, 184, 0.15);
+        color: var(--info);
+    }
+    
+    .status-completed {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: var(--success);
+    }
+    
+    .status-failed {
+        background-color: rgba(220, 53, 69, 0.15);
+        color: var(--danger);
+    }
+    
+    /* Progress Bar */
+    .progress-bar {
+        width: 100%;
+        height: 6px;
+        background-color: var(--dark-bg-tertiary);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 0.25rem;
+    }
+    
+    .light-theme .progress-bar {
+        background-color: var(--light-bg-tertiary);
+    }
+    
+    .progress {
+        height: 100%;
+        background-color: var(--dark-accent-primary);
+        border-radius: 3px;
+    }
+    
+    .light-theme .progress {
+        background-color: var(--light-accent-primary);
+    }
+    
+    .progress-text {
+        font-size: 0.75rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    .light-theme .progress-text {
+        color: var(--light-text-secondary);
+    }
+    
+    /* Card Link */
+    .card-link {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--dark-accent-primary);
+        text-decoration: none;
+    }
+    
+    .light-theme .card-link {
+        color: var(--light-accent-primary);
+    }
+    
+    .card-link:hover {
+        text-decoration: underline;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 2rem 1rem;
+    }
+    
+    .empty-state .material-icons {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    .light-theme .empty-state .material-icons {
+        color: var(--light-text-secondary);
+    }
+    
+    .empty-state p {
+        margin-bottom: 1.5rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    .light-theme .empty-state p {
+        color: var(--light-text-secondary);
+    }
+    
+    /* Graph Visualization */
+    .graph-preview {
+        position: relative;
+        height: 400px;
+        background-color: var(--dark-bg-tertiary);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+    
+    .light-theme .graph-preview {
+        background-color: var(--light-bg-tertiary);
+    }
+    
+    .graph-svg {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .graph-overlay {
+        position: absolute;
+        bottom: 1.5rem;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 1200px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .dashboard-content {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    // This would be replaced with actual data fetching and D3.js in a production environment
+    document.addEventListener('DOMContentLoaded', function() {
+        // Placeholder for graph visualization
+        const graphSvg = document.querySelector('.graph-svg');
+        if (graphSvg) {
+            // We're using a simplified static visualization in the HTML
+            // In a real environment, we would use D3.js to create a dynamic graph
+        }
+    });
+</script>
+{% endblock %}

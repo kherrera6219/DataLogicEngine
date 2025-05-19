@@ -1,0 +1,876 @@
+{% extends 'base.html' %}
+
+{% block title %}Universal Knowledge Graph - Simulations{% endblock %}
+
+{% block page_title %}Simulations{% endblock %}
+{% block page_subtitle %}Run and manage multi-dimensional cognitive simulations{% endblock %}
+
+{% block content %}
+<div class="simulations-container">
+    <div class="actions-bar">
+        <button id="new-simulation-btn" class="btn btn-primary">
+            <span class="material-icons">add</span>
+            New Simulation
+        </button>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label for="status-filter">Status:</label>
+                <select id="status-filter" class="form-control">
+                    <option value="all">All</option>
+                    <option value="pending">Pending</option>
+                    <option value="running">Running</option>
+                    <option value="completed">Completed</option>
+                    <option value="failed">Failed</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="sort-by">Sort by:</label>
+                <select id="sort-by" class="form-control">
+                    <option value="created_desc">Created (newest)</option>
+                    <option value="created_asc">Created (oldest)</option>
+                    <option value="name_asc">Name (A-Z)</option>
+                    <option value="name_desc">Name (Z-A)</option>
+                </select>
+            </div>
+            
+            <div class="search-group">
+                <input type="text" id="search-input" class="form-control" placeholder="Search simulations...">
+                <button class="search-btn">
+                    <span class="material-icons">search</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="simulations-content">
+        {% if simulations %}
+            <div class="simulations-grid">
+                {% for sim in simulations %}
+                <div class="simulation-card status-{{ sim.status }}">
+                    <div class="simulation-header">
+                        <h3 class="simulation-name">{{ sim.name }}</h3>
+                        <span class="status-badge status-{{ sim.status }}">
+                            {{ sim.status|capitalize }}
+                        </span>
+                    </div>
+                    
+                    <div class="simulation-info">
+                        <div class="info-item">
+                            <span class="info-label">Created:</span>
+                            <span class="info-value">{{ sim.created_at|default('N/A')|datetime }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">Started:</span>
+                            <span class="info-value">{{ sim.started_at|default('Not started')|datetime }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">Completed:</span>
+                            <span class="info-value">{{ sim.completed_at|default('In progress')|datetime }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="simulation-progress">
+                        <div class="progress-bar">
+                            <div class="progress" style="width: {{ (sim.current_step / sim.total_steps) * 100 }}%;"></div>
+                        </div>
+                        <div class="progress-text">{{ sim.current_step }}/{{ sim.total_steps }} steps</div>
+                    </div>
+                    
+                    <div class="simulation-description">
+                        {{ sim.description|default('No description provided')|truncate(120) }}
+                    </div>
+                    
+                    <div class="simulation-actions">
+                        {% if sim.status == 'pending' %}
+                            <button class="btn btn-primary sim-action-btn" data-action="start" data-sim-id="{{ sim.id }}">
+                                <span class="material-icons">play_arrow</span>
+                                Start
+                            </button>
+                        {% elif sim.status == 'running' %}
+                            <button class="btn btn-warning sim-action-btn" data-action="pause" data-sim-id="{{ sim.id }}">
+                                <span class="material-icons">pause</span>
+                                Pause
+                            </button>
+                        {% endif %}
+                        
+                        {% if sim.status == 'completed' %}
+                            <button class="btn btn-primary sim-action-btn" data-action="view" data-sim-id="{{ sim.id }}">
+                                <span class="material-icons">visibility</span>
+                                View Results
+                            </button>
+                        {% endif %}
+                        
+                        <button class="btn btn-secondary sim-action-btn" data-action="details" data-sim-id="{{ sim.id }}">
+                            <span class="material-icons">info</span>
+                            Details
+                        </button>
+                        
+                        <button class="btn btn-danger sim-action-btn" data-action="delete" data-sim-id="{{ sim.id }}">
+                            <span class="material-icons">delete</span>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <span class="material-icons">science</span>
+                </div>
+                <h3>No Simulations Found</h3>
+                <p>You haven't run any simulations yet. Start a new simulation to explore the Universal Knowledge Graph system.</p>
+                <button id="empty-new-simulation-btn" class="btn btn-primary">
+                    <span class="material-icons">add</span>
+                    Create Your First Simulation
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- New Simulation Modal -->
+<div id="new-simulation-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create New Simulation</h2>
+            <button class="close-modal">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        
+        <div class="modal-body">
+            <form id="new-simulation-form" action="{{ url_for('create_simulation') }}" method="POST">
+                <div class="form-group">
+                    <label for="sim-name" class="form-label">Simulation Name</label>
+                    <input type="text" id="sim-name" name="name" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sim-description" class="form-label">Description</label>
+                    <textarea id="sim-description" name="description" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Simulation Type</label>
+                    <div class="simulation-types">
+                        <div class="simulation-type-option">
+                            <input type="radio" id="type-quantum" name="sim_type" value="quantum" checked>
+                            <label for="type-quantum">
+                                <span class="type-icon">
+                                    <span class="material-icons">data_object</span>
+                                </span>
+                                <span class="type-name">Quantum Enhanced</span>
+                                <span class="type-description">Simulated quantum computing for probabilistic reasoning</span>
+                            </label>
+                        </div>
+                        
+                        <div class="simulation-type-option">
+                            <input type="radio" id="type-recursive" name="sim_type" value="recursive">
+                            <label for="type-recursive">
+                                <span class="type-icon">
+                                    <span class="material-icons">psychology</span>
+                                </span>
+                                <span class="type-name">Recursive AGI</span>
+                                <span class="type-description">Recursive self-awareness for complex synthesis</span>
+                            </label>
+                        </div>
+                        
+                        <div class="simulation-type-option">
+                            <input type="radio" id="type-quad" name="sim_type" value="quad">
+                            <label for="type-quad">
+                                <span class="type-icon">
+                                    <span class="material-icons">hub</span>
+                                </span>
+                                <span class="type-name">Quad Persona</span>
+                                <span class="type-description">Multi-persona expert simulation for balanced insights</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Advanced Parameters</label>
+                    <div class="advanced-params">
+                        <div class="param-group">
+                            <label for="refinement-steps">Refinement Steps</label>
+                            <input type="number" id="refinement-steps" name="refinement_steps" min="4" max="24" value="12" class="form-control">
+                        </div>
+                        
+                        <div class="param-group">
+                            <label for="confidence-threshold">Confidence Threshold</label>
+                            <input type="range" id="confidence-threshold" name="confidence_threshold" min="0.5" max="1" step="0.05" value="0.85" class="form-range">
+                            <span class="range-value">0.85</span>
+                        </div>
+                        
+                        <div class="param-group">
+                            <label for="entropy-sampling">Entropy Sampling</label>
+                            <label class="switch">
+                                <input type="checkbox" id="entropy-sampling" name="entropy_sampling" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="param-group">
+                            <label for="auto-start">Auto-start Simulation</label>
+                            <label class="switch">
+                                <input type="checkbox" id="auto-start" name="auto_start">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Simulation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Simulations Page Styles */
+    .simulations-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    /* Actions Bar */
+    .actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .filters {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .filter-group, .search-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .search-group {
+        position: relative;
+        min-width: 250px;
+    }
+    
+    .search-btn {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--dark-text-secondary);
+        cursor: pointer;
+    }
+    
+    .light-theme .search-btn {
+        color: var(--light-text-secondary);
+    }
+    
+    /* Simulations Grid */
+    .simulations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    /* Simulation Card */
+    .simulation-card {
+        background-color: var(--dark-bg-secondary);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        box-shadow: 0 4px 8px var(--dark-shadow);
+        border-top: 4px solid var(--dark-accent-primary);
+        transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    }
+    
+    .light-theme .simulation-card {
+        background-color: var(--light-bg-secondary);
+        box-shadow: 0 4px 8px var(--light-shadow);
+        border-top: 4px solid var(--light-accent-primary);
+    }
+    
+    .simulation-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px var(--dark-shadow);
+    }
+    
+    .light-theme .simulation-card:hover {
+        box-shadow: 0 8px 16px var(--light-shadow);
+    }
+    
+    .simulation-card.status-pending {
+        border-top-color: var(--warning);
+    }
+    
+    .simulation-card.status-running {
+        border-top-color: var(--info);
+    }
+    
+    .simulation-card.status-completed {
+        border-top-color: var(--success);
+    }
+    
+    .simulation-card.status-failed {
+        border-top-color: var(--danger);
+    }
+    
+    .simulation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .simulation-name {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .simulation-info {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .info-label {
+        font-size: 0.75rem;
+        color: var(--dark-text-secondary);
+        font-weight: 500;
+    }
+    
+    .light-theme .info-label {
+        color: var(--light-text-secondary);
+    }
+    
+    .info-value {
+        font-size: 0.875rem;
+    }
+    
+    .simulation-progress {
+        margin-bottom: 0.5rem;
+    }
+    
+    .simulation-description {
+        font-size: 0.875rem;
+        color: var(--dark-text-secondary);
+        line-height: 1.5;
+        height: 4.5em;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+    
+    .light-theme .simulation-description {
+        color: var(--light-text-secondary);
+    }
+    
+    .simulation-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: auto;
+    }
+    
+    .sim-action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .sim-action-btn .material-icons {
+        font-size: 1rem;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+        background-color: var(--dark-bg-secondary);
+        border-radius: var(--border-radius);
+    }
+    
+    .light-theme .empty-state {
+        background-color: var(--light-bg-secondary);
+    }
+    
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(106, 143, 255, 0.15);
+    }
+    
+    .light-theme .empty-icon {
+        background-color: rgba(76, 110, 245, 0.15);
+    }
+    
+    .empty-icon .material-icons {
+        font-size: 2.5rem;
+        color: var(--dark-accent-primary);
+    }
+    
+    .light-theme .empty-icon .material-icons {
+        color: var(--light-accent-primary);
+    }
+    
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .empty-state p {
+        max-width: 500px;
+        margin: 0 auto 2rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    .light-theme .empty-state p {
+        color: var(--light-text-secondary);
+    }
+    
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow-y: auto;
+        padding: 2rem 1rem;
+    }
+    
+    .modal-content {
+        background-color: var(--dark-bg-secondary);
+        border-radius: var(--border-radius);
+        max-width: 700px;
+        margin: 0 auto;
+        box-shadow: 0 8px 24px var(--dark-shadow);
+        overflow: hidden;
+    }
+    
+    .light-theme .modal-content {
+        background-color: var(--light-bg-secondary);
+        box-shadow: 0 8px 24px var(--light-shadow);
+    }
+    
+    .modal-header {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--dark-border);
+    }
+    
+    .light-theme .modal-header {
+        border-bottom: 1px solid var(--light-border);
+    }
+    
+    .modal-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+    
+    .close-modal {
+        background: none;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        color: var(--dark-text-secondary);
+        transition: background-color var(--transition-speed);
+    }
+    
+    .light-theme .close-modal {
+        color: var(--light-text-secondary);
+    }
+    
+    .close-modal:hover {
+        background-color: var(--dark-bg-tertiary);
+        color: var(--dark-text-primary);
+    }
+    
+    .light-theme .close-modal:hover {
+        background-color: var(--light-bg-tertiary);
+        color: var(--light-text-primary);
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    /* Simulation Types */
+    .simulation-types {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+    
+    .simulation-type-option {
+        position: relative;
+    }
+    
+    .simulation-type-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .simulation-type-option label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.5rem 1rem;
+        border-radius: var(--border-radius);
+        background-color: var(--dark-bg-tertiary);
+        cursor: pointer;
+        transition: all var(--transition-speed);
+        border: 2px solid transparent;
+        text-align: center;
+    }
+    
+    .light-theme .simulation-type-option label {
+        background-color: var(--light-bg-tertiary);
+    }
+    
+    .simulation-type-option input[type="radio"]:checked + label {
+        border-color: var(--dark-accent-primary);
+        background-color: rgba(106, 143, 255, 0.15);
+    }
+    
+    .light-theme .simulation-type-option input[type="radio"]:checked + label {
+        border-color: var(--light-accent-primary);
+        background-color: rgba(76, 110, 245, 0.15);
+    }
+    
+    .type-icon {
+        background-color: var(--dark-bg-secondary);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dark-accent-primary);
+    }
+    
+    .light-theme .type-icon {
+        background-color: var(--light-bg-secondary);
+        color: var(--light-accent-primary);
+    }
+    
+    .type-name {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+    
+    .type-description {
+        font-size: 0.75rem;
+        color: var(--dark-text-secondary);
+        line-height: 1.4;
+    }
+    
+    .light-theme .type-description {
+        color: var(--light-text-secondary);
+    }
+    
+    /* Advanced Parameters */
+    .advanced-params {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+    
+    .param-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    /* Range Slider */
+    .form-range {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--dark-bg-tertiary);
+        outline: none;
+    }
+    
+    .light-theme .form-range {
+        background: var(--light-bg-tertiary);
+    }
+    
+    .form-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--dark-accent-primary);
+        cursor: pointer;
+    }
+    
+    .light-theme .form-range::-webkit-slider-thumb {
+        background: var(--light-accent-primary);
+    }
+    
+    .range-value {
+        font-size: 0.875rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    .light-theme .range-value {
+        color: var(--light-text-secondary);
+    }
+    
+    /* Toggle Switch */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 46px;
+        height: 24px;
+    }
+    
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--dark-bg-tertiary);
+        -webkit-transition: .3s;
+        transition: .3s;
+        border-radius: 24px;
+    }
+    
+    .light-theme .slider {
+        background-color: var(--light-bg-tertiary);
+    }
+    
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: var(--dark-text-primary);
+        -webkit-transition: .3s;
+        transition: .3s;
+        border-radius: 50%;
+    }
+    
+    .light-theme .slider:before {
+        background-color: var(--light-text-primary);
+    }
+    
+    input:checked + .slider {
+        background-color: var(--dark-accent-primary);
+    }
+    
+    .light-theme input:checked + .slider {
+        background-color: var(--light-accent-primary);
+    }
+    
+    input:checked + .slider:before {
+        -webkit-transform: translateX(22px);
+        -ms-transform: translateX(22px);
+        transform: translateX(22px);
+    }
+    
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    /* Modal State Helpers */
+    .modal.show {
+        display: block;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .simulation-types {
+            grid-template-columns: 1fr;
+        }
+        
+        .advanced-params {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .actions-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filters {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .filter-group, .search-group {
+            width: 100%;
+        }
+        
+        .simulation-info {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Modal Functionality
+        const newSimulationBtn = document.getElementById('new-simulation-btn');
+        const emptyNewSimulationBtn = document.getElementById('empty-new-simulation-btn');
+        const modal = document.getElementById('new-simulation-modal');
+        const closeModal = document.querySelectorAll('.close-modal, .close-modal-btn');
+        
+        // Open modal
+        if (newSimulationBtn) {
+            newSimulationBtn.addEventListener('click', function() {
+                modal.classList.add('show');
+            });
+        }
+        
+        if (emptyNewSimulationBtn) {
+            emptyNewSimulationBtn.addEventListener('click', function() {
+                modal.classList.add('show');
+            });
+        }
+        
+        // Close modal
+        closeModal.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                modal.classList.remove('show');
+            });
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+        
+        // Range slider value display
+        const confidenceThreshold = document.getElementById('confidence-threshold');
+        const rangeValue = document.querySelector('.range-value');
+        
+        if (confidenceThreshold) {
+            confidenceThreshold.addEventListener('input', function() {
+                rangeValue.textContent = this.value;
+            });
+        }
+        
+        // Simulation action buttons
+        const actionButtons = document.querySelectorAll('.sim-action-btn');
+        
+        actionButtons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                const simId = this.getAttribute('data-sim-id');
+                
+                // Handle different actions
+                switch(action) {
+                    case 'start':
+                        console.log('Starting simulation:', simId);
+                        // Add AJAX call to start simulation
+                        break;
+                    case 'pause':
+                        console.log('Pausing simulation:', simId);
+                        // Add AJAX call to pause simulation
+                        break;
+                    case 'view':
+                        console.log('Viewing simulation results:', simId);
+                        // Redirect to simulation results page
+                        window.location.href = `/simulation/${simId}/results`;
+                        break;
+                    case 'details':
+                        console.log('Viewing simulation details:', simId);
+                        // Redirect to simulation details page
+                        window.location.href = `/simulation/${simId}`;
+                        break;
+                    case 'delete':
+                        if (confirm('Are you sure you want to delete this simulation? This action cannot be undone.')) {
+                            console.log('Deleting simulation:', simId);
+                            // Add AJAX call to delete simulation
+                        }
+                        break;
+                }
+            });
+        });
+        
+        // Form submission
+        const newSimulationForm = document.getElementById('new-simulation-form');
+        
+        if (newSimulationForm) {
+            newSimulationForm.addEventListener('submit', function(event) {
+                // Add form validation here if needed
+                // For now, just log the form data
+                const formData = new FormData(this);
+                console.log('Form data:', Object.fromEntries(formData));
+                
+                // If you want to handle form submission via AJAX instead of standard form submission
+                // event.preventDefault();
+                // Add AJAX form submission here
+            });
+        }
+    });
+</script>
+{% endblock %}

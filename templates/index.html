@@ -2,274 +2,411 @@
 
 {% block title %}Universal Knowledge Graph - Home{% endblock %}
 
-{% block page_title %}Welcome to Universal Knowledge Graph{% endblock %}
+{% block page_title %}Universal Knowledge Graph{% endblock %}
+{% block page_subtitle %}Advanced computational intelligence for dynamic multi-perspective knowledge synthesis{% endblock %}
 
 {% block content %}
-<div class="home-container">
-    <div class="hero-section">
-        <h1 class="hero-title">Discover the Universal Knowledge Graph</h1>
-        <p class="hero-subtitle">An advanced computational intelligence system for dynamic multi-perspective knowledge synthesis and expert simulation.</p>
-        
-        {% if current_user.is_authenticated %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Transform Knowledge Through<br>Multi-Dimensional Cognition</h1>
+        <p class="hero-description">
+            The Universal Knowledge Graph (UKG) system employs cutting-edge computational intelligence for dynamic multi-perspective knowledge synthesis and expert simulation across multiple cognitive layers.
+        </p>
         <div class="hero-actions">
-            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
-            <a href="{{ url_for('chatbot') }}" class="btn btn-secondary btn-lg">Try the Chatbot</a>
-        </div>
-        {% else %}
-        <div class="hero-actions">
-            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">Log In</a>
-            <a href="{{ url_for('register') }}" class="btn btn-secondary btn-lg">Register</a>
-        </div>
-        {% endif %}
-    </div>
-    
-    <div class="features-section">
-        <h2>Key Features</h2>
-        
-        <div class="feature-grid">
-            <div class="feature-item">
-                <div class="feature-icon">
-                    <span class="material-icons">hub</span>
-                </div>
-                <h3>13-Axis Knowledge Structure</h3>
-                <p>Organizes information across 13 dimensions including knowledge domains, sectors, methods, and more.</p>
-            </div>
-            
-            <div class="feature-item">
-                <div class="feature-icon">
-                    <span class="material-icons">psychology</span>
-                </div>
-                <h3>Quad Persona Engine</h3>
-                <p>Simulates expertise through multiple perspectives including knowledge roles, sector experts, regulatory experts, and compliance experts.</p>
-            </div>
-            
-            <div class="feature-item">
-                <div class="feature-icon">
-                    <span class="material-icons">insights</span>
-                </div>
-                <h3>10-Layer Simulation Architecture</h3>
-                <p>Processes information through increasingly sophisticated layers of analysis and synthesis.</p>
-            </div>
-            
-            <div class="feature-item">
-                <div class="feature-icon">
-                    <span class="material-icons">autorenew</span>
-                </div>
-                <h3>Recursive Self-Refinement</h3>
-                <p>Continuously improves responses through multiple passes of recursive processing and verification.</p>
-            </div>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+                <a href="{{ url_for('simulations') }}" class="btn btn-outline">Run Simulation</a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
+                <a href="{{ url_for('about') }}" class="btn btn-outline">Learn More</a>
+            {% endif %}
         </div>
     </div>
+    <div class="hero-image">
+        <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+            <!-- Brain network visualization -->
+            <g class="brain-network">
+                <!-- Nodes -->
+                <circle cx="250" cy="250" r="100" fill="none" stroke="var(--dark-accent-primary)" stroke-width="2" />
+                <circle cx="250" cy="250" r="150" fill="none" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
+                <circle cx="250" cy="250" r="200" fill="none" stroke="var(--dark-accent-primary)" stroke-width="1" opacity="0.4" />
+                
+                <!-- Core node -->
+                <circle cx="250" cy="250" r="15" fill="var(--dark-accent-primary)" class="pulse-animation" />
+                
+                <!-- Layer 1 nodes -->
+                <circle cx="180" cy="180" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
+                <circle cx="320" cy="180" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
+                <circle cx="180" cy="320" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
+                <circle cx="320" cy="320" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
+                <circle cx="250" cy="150" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
+                <circle cx="250" cy="350" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
+                <circle cx="150" cy="250" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
+                <circle cx="350" cy="250" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
+                
+                <!-- Layer 2 nodes -->
+                <circle cx="150" cy="150" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
+                <circle cx="350" cy="150" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
+                <circle cx="150" cy="350" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
+                <circle cx="350" cy="350" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
+                <circle cx="200" cy="120" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
+                <circle cx="300" cy="120" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
+                <circle cx="200" cy="380" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
+                <circle cx="300" cy="380" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
+                <circle cx="120" cy="200" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
+                <circle cx="380" cy="200" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
+                <circle cx="120" cy="300" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
+                <circle cx="380" cy="300" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
+                
+                <!-- Connections core to layer 1 -->
+                <line x1="250" y1="250" x2="180" y2="180" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
+                <line x1="250" y1="250" x2="320" y2="180" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
+                <line x1="250" y1="250" x2="180" y2="320" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
+                <line x1="250" y1="250" x2="320" y2="320" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
+                <line x1="250" y1="250" x2="250" y2="150" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
+                <line x1="250" y1="250" x2="250" y2="350" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
+                <line x1="250" y1="250" x2="150" y2="250" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
+                <line x1="250" y1="250" x2="350" y2="250" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
+                
+                <!-- Connections layer 1 to layer 2 -->
+                <line x1="180" y1="180" x2="150" y2="150" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
+                <line x1="320" y1="180" x2="350" y2="150" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
+                <line x1="180" y1="320" x2="150" y2="350" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
+                <line x1="320" y1="320" x2="350" y2="350" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
+                <line x1="250" y1="150" x2="200" y2="120" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
+                <line x1="250" y1="150" x2="300" y2="120" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
+                <line x1="250" y1="350" x2="200" y2="380" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
+                <line x1="250" y1="350" x2="300" y2="380" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
+                <line x1="150" y1="250" x2="120" y2="200" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
+                <line x1="150" y1="250" x2="120" y2="300" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
+                <line x1="350" y1="250" x2="380" y2="200" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
+                <line x1="350" y1="250" x2="380" y2="300" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
+            </g>
+        </svg>
+    </div>
+</div>
+
+<div class="features-section">
+    <h2 class="section-title">Core Capabilities</h2>
     
-    <div class="architecture-section">
-        <h2>System Architecture</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <span class="material-icons">psychology</span>
+            </div>
+            <h3 class="feature-title">10-Layer AGI Simulation</h3>
+            <p class="feature-description">
+                Advanced cognitive architecture with recursive self-awareness mechanisms for complex knowledge synthesis across multiple perspectives.
+            </p>
+        </div>
         
-        <div class="architecture-diagram">
-            <div class="architecture-layer" id="layer-1">
-                <span class="layer-number">Layer 1</span>
-                <span class="layer-name">Entry Layer</span>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <span class="material-icons">data_object</span>
             </div>
-            
-            <div class="architecture-layer" id="layer-2">
-                <span class="layer-number">Layer 2</span>
-                <span class="layer-name">Knowledge Graph</span>
+            <h3 class="feature-title">Quantum-Enhanced Reasoning</h3>
+            <p class="feature-description">
+                Simulated quantum computing principles applied to knowledge processing for probabilistic reasoning and multi-dimensional analysis.
+            </p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <span class="material-icons">lens_blur</span>
             </div>
-            
-            <div class="architecture-layer" id="layer-3">
-                <span class="layer-number">Layer 3</span>
-                <span class="layer-name">Research Simulation</span>
+            <h3 class="feature-title">13-Axis Knowledge Structure</h3>
+            <p class="feature-description">
+                Comprehensive knowledge organization across 13 dimensions including expertise domains, regulatory frameworks, time contexts, and more.
+            </p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <span class="material-icons">hub</span>
             </div>
-            
-            <div class="architecture-layer" id="layer-4">
-                <span class="layer-number">Layer 4</span>
-                <span class="layer-name">Point of View Engine</span>
+            <h3 class="feature-title">Quad Persona Engine</h3>
+            <p class="feature-description">
+                Simulates expert advice through multiple recursive passes across different specialized persona perspectives for balanced insights.
+            </p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <span class="material-icons">memory</span>
             </div>
-            
-            <div class="architecture-layer" id="layer-5">
-                <span class="layer-number">Layer 5</span>
-                <span class="layer-name">Integration & Enhancement</span>
+            <h3 class="feature-title">Layered Memory Systems</h3>
+            <p class="feature-description">
+                Hierarchical memory architecture with long-term knowledge storage and contextual awareness for continuous learning.
+            </p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <span class="material-icons">developer_board</span>
             </div>
-            
-            <div class="architecture-layer" id="layer-7">
-                <span class="layer-number">Layer 7</span>
-                <span class="layer-name">Simulated AGI System</span>
-            </div>
-            
-            <div class="architecture-layer" id="layer-8">
-                <span class="layer-number">Layer 8</span>
-                <span class="layer-name">Quantum Computer</span>
-            </div>
-            
-            <div class="architecture-layer" id="layer-9">
-                <span class="layer-number">Layer 9</span>
-                <span class="layer-name">Recursive AGI Core</span>
-            </div>
-            
-            <div class="architecture-layer" id="layer-10">
-                <span class="layer-number">Layer 10</span>
-                <span class="layer-name">Self-Awareness Engine</span>
-            </div>
+            <h3 class="feature-title">Enterprise Integration</h3>
+            <p class="feature-description">
+                Secure enterprise integration with Microsoft Azure/Entra ID, robust API architecture, and comprehensive security compliance.
+            </p>
         </div>
     </div>
-    
-    <div class="cta-section">
-        <h2>Ready to explore?</h2>
-        <p>Start your journey with the Universal Knowledge Graph system today.</p>
-        
-        {% if current_user.is_authenticated %}
-        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
-        {% else %}
-        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Register Now</a>
-        {% endif %}
+</div>
+
+<div class="cta-section">
+    <div class="cta-content">
+        <h2 class="cta-title">Ready to transform your knowledge systems?</h2>
+        <p class="cta-description">
+            Explore the full capabilities of the Universal Knowledge Graph system and discover how multi-dimensional cognitive processing can revolutionize your understanding.
+        </p>
+        <div class="cta-actions">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
+            {% endif %}
+        </div>
     </div>
 </div>
 
 <style>
-    .home-container {
-        max-width: 1200px;
-        margin: 0 auto;
+    /* Hero Section */
+    .hero-section {
+        display: flex;
+        align-items: center;
+        gap: 3rem;
+        margin-bottom: 4rem;
     }
     
-    .hero-section {
-        text-align: center;
-        padding: 2rem 0 3rem;
+    .hero-content {
+        flex: 1;
     }
     
     .hero-title {
         font-size: 2.5rem;
-        margin-bottom: 1rem;
-        background: linear-gradient(90deg, var(--dark-accent-primary), var(--dark-accent-secondary));
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+        background: linear-gradient(90deg, var(--dark-accent-primary), #a183ff);
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+    }
+    
+    .light-theme .hero-title {
+        background: linear-gradient(90deg, var(--light-accent-primary), #7b5fff);
+        -webkit-background-clip: text;
         background-clip: text;
     }
     
-    .hero-subtitle {
-        font-size: 1.2rem;
-        max-width: 700px;
-        margin: 0 auto 2rem;
+    .hero-description {
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
         color: var(--dark-text-secondary);
+        line-height: 1.6;
+    }
+    
+    .light-theme .hero-description {
+        color: var(--light-text-secondary);
     }
     
     .hero-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .hero-image {
+        flex: 1;
+        max-width: 500px;
+    }
+    
+    /* Animation for pulsing core node */
+    @keyframes pulse {
+        0% {
+            r: 15;
+            opacity: 1;
+        }
+        50% {
+            r: 20;
+            opacity: 0.8;
+        }
+        100% {
+            r: 15;
+            opacity: 1;
+        }
+    }
+    
+    .pulse-animation {
+        animation: pulse 3s infinite ease-in-out;
+    }
+    
+    /* Features Section */
+    .features-section {
+        margin-bottom: 4rem;
+    }
+    
+    .section-title {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 2.5rem;
+        position: relative;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: -0.75rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 6rem;
+        height: 4px;
+        background: linear-gradient(90deg, var(--dark-accent-primary), #a183ff);
+        border-radius: 2px;
+    }
+    
+    .light-theme .section-title:after {
+        background: linear-gradient(90deg, var(--light-accent-primary), #7b5fff);
+    }
+    
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+    
+    .feature-card {
+        background-color: var(--dark-bg-secondary);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        box-shadow: 0 4px 12px var(--dark-shadow);
+    }
+    
+    .light-theme .feature-card {
+        background-color: var(--light-bg-secondary);
+        box-shadow: 0 4px 12px var(--light-shadow);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px var(--dark-shadow);
+    }
+    
+    .light-theme .feature-card:hover {
+        box-shadow: 0 8px 24px var(--light-shadow);
+    }
+    
+    .feature-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin-bottom: 1.25rem;
+        background-color: rgba(106, 143, 255, 0.15);
+        color: var(--dark-accent-primary);
+    }
+    
+    .light-theme .feature-icon {
+        background-color: rgba(76, 110, 245, 0.15);
+        color: var(--light-accent-primary);
+    }
+    
+    .feature-icon .material-icons {
+        font-size: 2rem;
+    }
+    
+    .feature-title {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-description {
+        color: var(--dark-text-secondary);
+        line-height: 1.6;
+    }
+    
+    .light-theme .feature-description {
+        color: var(--light-text-secondary);
+    }
+    
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, rgba(106, 143, 255, 0.15), rgba(161, 131, 255, 0.15));
+        border-radius: var(--border-radius);
+        padding: 3rem;
+        margin-bottom: 2rem;
+    }
+    
+    .light-theme .cta-section {
+        background: linear-gradient(135deg, rgba(76, 110, 245, 0.1), rgba(123, 95, 255, 0.1));
+    }
+    
+    .cta-content {
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .cta-title {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .cta-description {
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    .light-theme .cta-description {
+        color: var(--light-text-secondary);
+    }
+    
+    .cta-actions {
         display: flex;
         justify-content: center;
         gap: 1rem;
     }
     
-    .features-section {
-        padding: 3rem 0;
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .hero-section {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .hero-actions {
+            justify-content: center;
+        }
+        
+        .hero-image {
+            max-width: 100%;
+        }
+        
+        .features-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
     }
     
-    .features-section h2 {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    
-    .feature-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 2rem;
-    }
-    
-    .feature-item {
-        text-align: center;
-        padding: 1.5rem;
-        background-color: var(--dark-bg-secondary);
-        border-radius: 8px;
-        transition: transform 0.3s ease;
-    }
-    
-    .feature-item:hover {
-        transform: translateY(-5px);
-    }
-    
-    .feature-icon {
-        margin-bottom: 1rem;
-    }
-    
-    .feature-icon .material-icons {
-        font-size: 3rem;
-        color: var(--dark-accent-primary);
-    }
-    
-    .feature-item h3 {
-        margin-bottom: 0.75rem;
-    }
-    
-    .feature-item p {
-        color: var(--dark-text-secondary);
-        font-size: 0.95rem;
-    }
-    
-    .architecture-section {
-        padding: 3rem 0;
-    }
-    
-    .architecture-section h2 {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    
-    .architecture-diagram {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        max-width: 700px;
-        margin: 0 auto;
-    }
-    
-    .architecture-layer {
-        display: flex;
-        padding: 1rem;
-        background-color: var(--dark-bg-secondary);
-        border-radius: 8px;
-        border-left: 4px solid var(--dark-accent-primary);
-    }
-    
-    .layer-number {
-        font-weight: bold;
-        min-width: 80px;
-    }
-    
-    #layer-1 { border-left-color: #4299E1; }
-    #layer-2 { border-left-color: #48BB78; }
-    #layer-3 { border-left-color: #ECC94B; }
-    #layer-4 { border-left-color: #ED8936; }
-    #layer-5 { border-left-color: #9F7AEA; }
-    #layer-7 { border-left-color: #38B2AC; }
-    #layer-8 { border-left-color: #F687B3; }
-    #layer-9 { border-left-color: #DD6B20; }
-    #layer-10 { border-left-color: #805AD5; }
-    
-    .cta-section {
-        text-align: center;
-        padding: 3rem 0;
-        background-color: var(--dark-bg-secondary);
-        border-radius: 8px;
-        margin: 2rem 0;
-    }
-    
-    .cta-section h2 {
-        margin-bottom: 1rem;
-    }
-    
-    .cta-section p {
-        margin-bottom: 2rem;
-        color: var(--dark-text-secondary);
-    }
-    
-    @media (max-width: 768px) {
+    @media (max-width: 576px) {
         .hero-title {
             font-size: 2rem;
         }
         
-        .hero-actions {
-            flex-direction: column;
-            gap: 0.75rem;
+        .section-title {
+            font-size: 1.8rem;
         }
         
-        .feature-grid {
+        .cta-section {
+            padding: 2rem;
+        }
+        
+        .cta-title {
+            font-size: 1.8rem;
+        }
+        
+        .features-grid {
             grid-template-columns: 1fr;
         }
     }
