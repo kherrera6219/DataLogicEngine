@@ -42,7 +42,7 @@ class AxisSystem:
             1: {"name": "Pillar Levels", "description": "Hierarchical knowledge organization"},
             2: {"name": "Sectors", "description": "Industry sectors and market segments"},
             3: {"name": "Branches", "description": "Specialization branches within sectors"},
-            4: {"name": "Methods", "description": "Methodologies and approaches"},
+            4: {"name": "Methods", "description": "Methodologies and approaches that cross between sectors and pillars"},
             5: {"name": "Tools", "description": "Tools, applications, and instruments"},
             6: {"name": "Regulatory Frameworks", "description": "Laws and regulations"},
             7: {"name": "Compliance Standards", "description": "Industry standards and best practices"},

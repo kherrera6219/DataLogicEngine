@@ -48,7 +48,10 @@ from core.graph_manager import GraphManager
 from core.structured_memory_manager import StructuredMemoryManager
 from core.axes.axis_system import AxisSystem
 from core.simulation.app_orchestrator import AppOrchestrator
-from core.axes.axis1_identity import KnowledgeManager
+from core.axes.axis1_identity import PillarLevelManager
+from core.axes.axis2_sector import SectorManager
+from core.axes.axis4_methods import MethodsManager
+from core.axes.axis_system import AxisSystem
 
 # Initialize system components
 usm = UnitedSystemManager()
@@ -65,6 +68,9 @@ app_orchestrator = AppOrchestrator(
 # Import API routes
 from backend.api import init_api
 from backend.chat_api import init_chat_api
+from backend.pillar_api import pillar_api
+from backend.methods_api import methods_api
+from backend.api import api
 
 # Initialize API routes
 init_api(app, graph_manager, memory_manager, usm, app_orchestrator)
@@ -100,6 +106,20 @@ register_pillar_api(app)
 # Initialize Knowledge Manager
 knowledge_manager = KnowledgeManager(db_manager=None, graph_manager=graph_manager, config=app.config)
 app.config['KNOWLEDGE_MANAGER'] = knowledge_manager
+
+# Register Axis managers
+pillar_manager = PillarLevelManager(db_manager=db, graph_manager=graph_manager)
+sector_manager = SectorManager(db_manager=db, graph_manager=graph_manager)
+methods_manager = MethodsManager(db_manager=db, graph_manager=graph_manager)
+
+axis_system.register_axis_manager(1, pillar_manager)
+axis_system.register_axis_manager(2, sector_manager)
+axis_system.register_axis_manager(4, methods_manager)
+
+# Register API blueprint
+app.register_blueprint(api)
+app.register_blueprint(pillar_api)
+app.register_blueprint(methods_api)
 
 # Run the application if executed directly
 if __name__ == '__main__':
