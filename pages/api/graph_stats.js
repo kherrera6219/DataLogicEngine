@@ -1,6 +1,9 @@
+
 export default async function handler(req, res) {
   try {
-    // For demonstration, we'll return simulated graph statistics instead of calling Flask backend
+    // In a real implementation, this would call your backend
+    // For demonstration, we'll return simulated graph statistics
+    
     const simulatedGraphStats = {
       total_nodes: 13572,
       total_edges: 46891,
@@ -21,12 +24,9 @@ export default async function handler(req, res) {
       last_updated: new Date().toISOString()
     };
 
-    return res.status(200).json({
-      success: true,
-      data: simulatedGraphStats
-    });
+    return res.status(200).json(simulatedGraphStats);
   } catch (error) {
     console.error('Error fetching graph stats:', error);
-    return res.status(500).json({ success: false, error: 'Failed to fetch graph statistics' });
+    return res.status(500).json({ error: 'Failed to fetch graph statistics' });
   }
 }

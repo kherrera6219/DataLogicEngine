@@ -10,7 +10,7 @@ run = ["sh", "-c", "npm start"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
-runButton = "Build and Start Next.js"
+runButton = "UKG Full-Stack Production"
 
 [[workflows.workflow]]
 name = "Project"
@@ -194,6 +194,47 @@ args = "gunicorn --bind 0.0.0.0:3000 app:app"
 name = "Build and Start Next.js"
 author = 28709262
 mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build && npm start"
+
+[[workflows.workflow]]
+name = "UKG Full-Stack Production"
+author = 28709262
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Kill any existing processes on port 3000 and 5000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pkill -f \"port=3000\" || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pkill -f \"port=5000\" || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = ""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the Flask backend on port 5000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "FLASK_ENV=production python main.py &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = ""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start Next.js in production mode on port 3000"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
