@@ -226,7 +226,7 @@ args = "# Start the Flask backend on port 5000"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "FLASK_ENV=production python main.py &"
+args = "FLASK_ENV=production gunicorn --bind 0.0.0.0:5000 --reuse-port main:app &"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
@@ -235,6 +235,15 @@ args = ""
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "# Start Next.js in production mode on port 3000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build && npm start"
+
+[[workflows.workflow]]
+name = "Next.js Production"
+author = 28709262
+mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"

@@ -8,12 +8,9 @@ export default async function handler(req, res) {
       last_updated: new Date().toISOString()
     };
 
-    return res.status(200).json({
-      success: true,
-      data: simulatedMemoryStats
-    });
+    return res.status(200).json(simulatedMemoryStats);
   } catch (error) {
     console.error('Error fetching memory stats:', error);
-    return res.status(500).json({ success: false, error: 'Failed to fetch memory statistics' });
+    return res.status(500).json({ error: 'Failed to fetch memory statistics' });
   }
 }
