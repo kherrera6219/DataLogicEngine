@@ -90,3 +90,53 @@ main {
 .navbar-brand {
     font-weight: bold;
 }
+/* Main styling for UKG system */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #212529;
+  color: #f8f9fa;
+}
+
+main {
+  flex: 1;
+}
+
+.card {
+  background-color: #2c3034;
+  border-color: #373b3e;
+}
+
+.card-header {
+  border-bottom-color: #373b3e;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+/* Loading indicator */
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem 0;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Graph and memory stats */
+#graph-stats, #memory-stats {
+  font-size: 0.9rem;
+}

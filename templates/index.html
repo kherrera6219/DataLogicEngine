@@ -1,156 +1,4 @@
-
 {% extends "base.html" %}
-
-{% block extra_head %}
-<script>
-  // Handle authentication
-  function checkAuth() {
-    // Check if user is authenticated through JWT
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      document.getElementById('auth-status').textContent = 'Authenticated with JWT';
-      return;
-    }
-    
-    // Check Replit auth via API
-    fetch('/api/auth/replit-auth')
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error('Not authenticated');
-      })
-      .then(data => {
-        localStorage.setItem('access_token', data.access_token);
-        document.getElementById('auth-status').textContent = 'Authenticated with Replit';
-        document.getElementById('auth-container').style.display = 'none';
-      })
-      .catch(error => {
-        console.log('Not authenticated:', error);
-        document.getElementById('auth-status').textContent = 'Not authenticated';
-        document.getElementById('auth-container').style.display = 'block';
-      });
-  }
-
-  // On page load
-  document.addEventListener('DOMContentLoaded', function() {
-    checkAuth();
-  });
-</script>
-{% endblock %}
-
-{% block content %}
-<div class="container mt-4">
-  <div class="row">
-    <div class="col-md-12">
-      <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h2>Universal Knowledge Graph (UKG) System</h2>
-          <p id="auth-status" class="badge bg-secondary">Checking authentication...</p>
-        </div>
-        <div class="card-body">
-          <div id="auth-container">
-            <p>Please authenticate to use the UKG System:</p>
-            <div>
-              <script
-                authed="location.reload()"
-                src="https://auth.util.repl.co/script.js"
-              ></script>
-            </div>
-          </div>
-          
-          <div id="chat-container" class="mt-4">
-            <h3>Ask a question to the UKG System</h3>
-            <div class="mb-3">
-              <textarea id="query-text" class="form-control" rows="3" placeholder="Enter your query here..."></textarea>
-            </div>
-            <div class="mb-3">
-              <label for="confidence-slider" class="form-label">Target Confidence: <span id="confidence-value">0.85</span></label>
-              <input type="range" class="form-range" id="confidence-slider" min="0.5" max="1" step="0.05" value="0.85">
-            </div>
-            <button id="submit-query" class="btn btn-primary">Submit Query</button>
-          </div>
-          
-          <div id="result-container" class="mt-4 d-none">
-            <h3>Results</h3>
-            <div id="loading-indicator" class="text-center d-none">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-            </div>
-            <div id="result-content" class="markdown-content border rounded p-3 bg-light"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Add JavaScript for chat interaction -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const confidenceSlider = document.getElementById('confidence-slider');
-    const confidenceValue = document.getElementById('confidence-value');
-    const queryText = document.getElementById('query-text');
-    const submitButton = document.getElementById('submit-query');
-    const resultContainer = document.getElementById('result-container');
-    const loadingIndicator = document.getElementById('loading-indicator');
-    const resultContent = document.getElementById('result-content');
-    
-    // Update confidence value display
-    confidenceSlider.addEventListener('input', function() {
-      confidenceValue.textContent = this.value;
-    });
-    
-    // Handle query submission
-    submitButton.addEventListener('click', function() {
-      const query = queryText.value.trim();
-      if (!query) return;
-      
-      // Show loading
-      resultContainer.classList.remove('d-none');
-      loadingIndicator.classList.remove('d-none');
-      resultContent.innerHTML = '';
-      
-      // Get access token
-      const token = localStorage.getItem('access_token');
-      
-      // Submit API request
-      fetch('/api/chat/chats', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ title: query.substring(0, 50) })
-      })
-      .then(response => response.json())
-      .then(chat => {
-        return fetch(`/api/chat/chats/${chat.id}/messages`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            content: query,
-            confidence: parseFloat(confidenceSlider.value)
-          })
-        });
-      })
-      .then(response => response.json())
-      .then(data => {
-        // Hide loading
-        loadingIndicator.classList.add('d-none');
-        
-        // Display response
-        const response = data.assistant_message.content;
-        resultContent.innerHTML = marked.parse(response);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        loadingIndicator.classList.add('d-none');
-        resultContent.innerHTML = '{% extends "base.html" %}
 
 {% block title %}UKG System Home{% endblock %}
 
@@ -165,7 +13,7 @@
         <div class="card-body">
           <p class="lead">Welcome to the UKG System, a comprehensive knowledge management platform.</p>
           <p>Explore the graph-based knowledge representation system integrating multiple domains and perspectives.</p>
-          
+
           <h3 class="mt-4">Features</h3>
           <ul>
             <li>Multi-dimensional knowledge representation</li>
@@ -173,14 +21,14 @@
             <li>Persona-based query processing</li>
             <li>Regulatory and compliance framework integration</li>
           </ul>
-          
+
           <div class="mt-4">
             <a href="/chat" class="btn btn-primary">Start Chatting</a>
           </div>
         </div>
       </div>
     </div>
-    
+
     <div class="col-lg-4">
       <div class="card shadow-sm">
         <div class="card-header">
@@ -216,11 +64,12 @@
             <p>Node Types: ${Object.keys(data.data.node_types || {}).length}</p>
           `;
         } else {
-          graphStatsDiv.innerHTML = '<div class="alert alert-danger">Error loading graph statistics</div>';
+          graphStatsDiv.innerHTML = '<div class="alert alert-warning">Error loading graph statistics</div>';
         }
       })
       .catch(error => {
-        document.getElementById('graph-stats').innerHTML = '<div class="alert alert-danger">Error processing your request. Please try again.</div>';
+        console.error('Error fetching graph stats:', error);
+        document.getElementById('graph-stats').innerHTML = '<div class="alert alert-warning">Error loading graph statistics</div>';
       });
 
     // Fetch memory statistics
@@ -234,11 +83,12 @@
             <p>Active Sessions: ${data.data.active_sessions || 0}</p>
           `;
         } else {
-          memoryStatsDiv.innerHTML = '<div class="alert alert-danger">Error loading memory statistics</div>';
+          memoryStatsDiv.innerHTML = '<div class="alert alert-warning">Error loading memory statistics</div>';
         }
       })
       .catch(error => {
-        document.getElementById('memory-stats').innerHTML = '<div class="alert alert-danger">Error processing your request. Please try again.</div>';
+        console.error('Error fetching memory stats:', error);
+        document.getElementById('memory-stats').innerHTML = '<div class="alert alert-warning">Error loading memory statistics</div>';
       });
   });
 </script>

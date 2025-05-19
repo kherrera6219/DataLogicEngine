@@ -95,11 +95,19 @@ mode = "parallel"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python main.py"
+args = "# Kill any existing process on port 3000"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
+args = "pkill -f \"port=3000\" || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the Flask backend"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
 
 [[ports]]
 localPort = 3000
