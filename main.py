@@ -1,4 +1,4 @@
-"""Modified code based on user instructions and provided snippets."""
+"""Modified code based on user instructions and provided snippets, including Axis 6 regulatory registration."""
 import os
 import logging
 from flask import Flask, render_template, request, jsonify
@@ -66,6 +66,7 @@ from backend.chat_api import init_chat_api
 from backend.pillar_api import pillar_api
 from backend.methods_api import methods_api
 from backend.honeycomb_api import honeycomb_api
+from backend.regulatory_api import regulatory_api
 from backend.api import api
 
 # Initialize API routes
@@ -118,6 +119,7 @@ app.register_blueprint(api)
 app.register_blueprint(pillar_api)
 app.register_blueprint(methods_api)
 app.register_blueprint(honeycomb_api)
+app.register_blueprint(regulatory_api)
 
 # Run the application if executed directly
 if __name__ == '__main__':

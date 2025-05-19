@@ -1,80 +1,265 @@
-RegulatoryFrameworks:
-  - reg_id: "REG_GDPR_FRAMEWORK"
-    reg_label: "General Data Protection Regulation (GDPR)"
-    description: "European Union regulation on data protection and privacy for all individuals within the EU and EEA."
+
+# Universal Knowledge Graph (UKG) Regulatory Frameworks
+#
+# This file defines sample regulatory frameworks for Axis 6 of the UKG.
+# The frameworks are organized in an octopus structure with:
+# - Mega regulatory frameworks (central nodes)
+# - Large regulatory frameworks (primary tentacles)
+# - Medium regulatory frameworks (secondary branches)
+# - Small regulatory frameworks (tertiary branches)
+# - Granular requirements (leaf nodes)
+
+# Mega Framework: Global Data Protection
+mega_frameworks:
+  - id: "GDPR_MEGA"
+    label: "Global Data Protection Frameworks"
+    description: "Comprehensive collection of data protection regulations from around the world"
+    framework_type: "regulation"
+    issuing_authority: "International"
     effective_date: "2018-05-25"
-    jurisdiction: "European Union"
-    sector_relevance: ["Information Technology", "Healthcare", "Finance", "Retail", "All"]
-    compliance_standards: ["ISO27001", "DPIA"]
-    
-  - reg_id: "REG_CCPA"
-    reg_label: "California Consumer Privacy Act (CCPA)"
-    description: "State statute intended to enhance privacy rights and consumer protection for residents of California."
-    effective_date: "2020-01-01"
-    jurisdiction: "California, USA"
-    sector_relevance: ["Information Technology", "Healthcare", "Finance", "Retail", "All"]
-    compliance_standards: ["CCPA Compliance Program"]
-    
-  - reg_id: "REG_FAR_SYSTEM"
-    reg_label: "Federal Acquisition Regulation System"
-    description: "The principal set of rules regarding government procurement in the United States."
-    effective_date: "1984-04-01"
-    jurisdiction: "United States"
-    sector_relevance: ["Government Contracting", "Defense", "Information Technology", "Construction"]
-    compliance_standards: ["FAR Compliance"]
-    
-  - reg_id: "REG_EPA_NATIONAL"
-    reg_label: "EPA National Environmental Regulations"
-    description: "Environmental regulations set by the U.S. Environmental Protection Agency."
-    effective_date: "1970-12-02"
-    jurisdiction: "United States"
-    sector_relevance: ["Manufacturing", "Energy", "Chemical", "Waste Management"]
-    compliance_standards: ["Environmental Compliance Audit", "EMS ISO 14001"]
-    
-  - reg_id: "REG_TEXAS_PROCUREMENT_CODE"
-    reg_label: "Texas Procurement and Contract Management Guide"
-    description: "Guidelines for procurement and contract management for Texas state agencies."
-    effective_date: "2019-09-01"
-    jurisdiction: "Texas, USA"
-    sector_relevance: ["Government Contracting", "Public Sector"]
-    compliance_standards: ["Texas Procurement Standards"]
-    
-  - reg_id: "REG_AUSTIN_CITY_ORDINANCE"
-    reg_label: "Austin City Code - Environmental Regulations"
-    description: "Local environmental regulations specific to the City of Austin."
+    large_frameworks:
+      - id: "GDPR_EU"
+        label: "EU General Data Protection Regulation"
+        description: "Regulation on data protection and privacy in the European Union"
+        framework_type: "regulation"
+        issuing_authority: "European Union"
+        effective_date: "2018-05-25"
+        medium_frameworks:
+          - id: "GDPR_PRINCIPLES"
+            label: "GDPR Core Principles"
+            description: "Fundamental principles of data protection under GDPR"
+            framework_type: "regulation"
+            issuing_authority: "European Union"
+            small_frameworks:
+              - id: "GDPR_LAWFULNESS"
+                label: "Lawfulness, Fairness and Transparency"
+                description: "GDPR Article 5(1)(a) - Principles relating to processing of personal data"
+                framework_type: "regulation"
+                issuing_authority: "European Union"
+                granular_requirements:
+                  - id: "GDPR_LAWFUL_BASIS"
+                    label: "Lawful Basis for Processing"
+                    description: "Organizations must have a valid lawful basis for processing personal data"
+                    criticality: "high"
+                  - id: "GDPR_TRANSPARENCY"
+                    label: "Transparency Requirements"
+                    description: "Organizations must provide clear information about data collection and use"
+                    criticality: "high"
+              - id: "GDPR_PURPOSE_LIMITATION"
+                label: "Purpose Limitation"
+                description: "GDPR Article 5(1)(b) - Data collected for specified, explicit and legitimate purposes"
+                framework_type: "regulation"
+                issuing_authority: "European Union"
+                granular_requirements:
+                  - id: "GDPR_SPECIFIED_PURPOSE"
+                    label: "Specified Purpose"
+                    description: "Personal data must be collected for specified purposes"
+                    criticality: "high"
+                  - id: "GDPR_COMPATIBLE_PURPOSE"
+                    label: "Compatible Processing"
+                    description: "Further processing must be compatible with original purpose"
+                    criticality: "medium"
+          - id: "GDPR_RIGHTS"
+            label: "GDPR Data Subject Rights"
+            description: "Rights of individuals under GDPR"
+            framework_type: "regulation"
+            issuing_authority: "European Union"
+            small_frameworks:
+              - id: "GDPR_RIGHT_ACCESS"
+                label: "Right of Access"
+                description: "GDPR Article 15 - Right of data subjects to access their personal data"
+                framework_type: "regulation"
+                issuing_authority: "European Union"
+                granular_requirements:
+                  - id: "GDPR_ACCESS_REQUEST"
+                    label: "Access Request Process"
+                    description: "Process for handling subject access requests"
+                    criticality: "high"
+                  - id: "GDPR_ACCESS_TIMEFRAME"
+                    label: "Response Timeframe"
+                    description: "Organizations must respond to requests within one month"
+                    criticality: "medium"
+              - id: "GDPR_RIGHT_ERASURE"
+                label: "Right to Erasure"
+                description: "GDPR Article 17 - Right to be forgotten"
+                framework_type: "regulation"
+                issuing_authority: "European Union"
+                granular_requirements:
+                  - id: "GDPR_ERASURE_CONDITIONS"
+                    label: "Erasure Conditions"
+                    description: "Conditions under which data must be erased upon request"
+                    criticality: "high"
+                  - id: "GDPR_ERASURE_EXCEPTIONS"
+                    label: "Erasure Exceptions"
+                    description: "Legitimate reasons to deny erasure requests"
+                    criticality: "medium"
+      - id: "CCPA_US"
+        label: "California Consumer Privacy Act"
+        description: "Law enhancing privacy rights and consumer protection for California residents"
+        framework_type: "law"
+        issuing_authority: "California State"
+        effective_date: "2020-01-01"
+        medium_frameworks:
+          - id: "CCPA_RIGHTS"
+            label: "CCPA Consumer Rights"
+            description: "Rights of California consumers under CCPA"
+            framework_type: "law"
+            issuing_authority: "California State"
+            small_frameworks:
+              - id: "CCPA_RIGHT_KNOW"
+                label: "Right to Know"
+                description: "Consumer right to know what personal information is collected"
+                framework_type: "law"
+                issuing_authority: "California State"
+                granular_requirements:
+                  - id: "CCPA_DISCLOSURE_COLLECTION"
+                    label: "Collection Disclosure"
+                    description: "Business must disclose categories of personal information collected"
+                    criticality: "high"
+                  - id: "CCPA_DISCLOSURE_SOURCES"
+                    label: "Source Disclosure"
+                    description: "Business must disclose sources of personal information"
+                    criticality: "medium"
+              - id: "CCPA_RIGHT_DELETE"
+                label: "Right to Delete"
+                description: "Consumer right to deletion of personal information"
+                framework_type: "law"
+                issuing_authority: "California State"
+                granular_requirements:
+                  - id: "CCPA_DELETION_PROCESS"
+                    label: "Deletion Process"
+                    description: "Process for handling deletion requests"
+                    criticality: "high"
+                  - id: "CCPA_DELETION_EXCEPTIONS"
+                    label: "Deletion Exceptions"
+                    description: "Circumstances where deletion is not required"
+                    criticality: "medium"
+
+# Mega Framework: Financial Regulations
+  - id: "FINREG_MEGA"
+    label: "Global Financial Regulatory Frameworks"
+    description: "Comprehensive collection of financial regulations worldwide"
+    framework_type: "regulation"
+    issuing_authority: "International"
     effective_date: "2010-01-01"
-    jurisdiction: "Austin, Texas, USA"
-    sector_relevance: ["Construction", "Waste Management", "Energy"]
-    compliance_standards: ["Austin Green Building Standards"]
+    large_frameworks:
+      - id: "DODD_FRANK"
+        label: "Dodd-Frank Wall Street Reform and Consumer Protection Act"
+        description: "US federal law that reformed financial regulation after the 2008 financial crisis"
+        framework_type: "law"
+        issuing_authority: "United States"
+        effective_date: "2010-07-21"
+        medium_frameworks:
+          - id: "DODD_FRANK_TITLE_IX"
+            label: "Investor Protections"
+            description: "Title IX - Investor Protections and Improvements to Regulation of Securities"
+            framework_type: "law"
+            issuing_authority: "United States"
+            small_frameworks:
+              - id: "DF_WHISTLEBLOWER"
+                label: "Whistleblower Provisions"
+                description: "Section 922 - Whistleblower protections and incentives"
+                framework_type: "law"
+                issuing_authority: "United States"
+                granular_requirements:
+                  - id: "DF_WHISTLEBLOWER_REWARD"
+                    label: "Whistleblower Rewards"
+                    description: "Monetary rewards for whistleblowers who provide original information"
+                    criticality: "medium"
+                  - id: "DF_WHISTLEBLOWER_PROTECTION"
+                    label: "Whistleblower Protection"
+                    description: "Protection against retaliation for whistleblowers"
+                    criticality: "high"
+              - id: "DF_DISCLOSURE"
+                label: "Enhanced Disclosure"
+                description: "Section 951 - Enhanced disclosure of executive compensation"
+                framework_type: "law"
+                issuing_authority: "United States"
+                granular_requirements:
+                  - id: "DF_SAY_ON_PAY"
+                    label: "Say on Pay"
+                    description: "Shareholder vote on executive compensation"
+                    criticality: "medium"
+                  - id: "DF_COMP_DISCLOSURE"
+                    label: "Compensation Disclosure"
+                    description: "Enhanced disclosure of executive compensation packages"
+                    criticality: "medium"
+      - id: "BASEL_III"
+        label: "Basel III"
+        description: "Global regulatory framework on bank capital adequacy, stress testing, and market liquidity risk"
+        framework_type: "standard"
+        issuing_authority: "Basel Committee on Banking Supervision"
+        effective_date: "2013-01-01"
+        medium_frameworks:
+          - id: "BASEL_CAPITAL"
+            label: "Capital Requirements"
+            description: "Requirements for bank capital adequacy"
+            framework_type: "standard"
+            issuing_authority: "Basel Committee on Banking Supervision"
+            small_frameworks:
+              - id: "BASEL_CET1"
+                label: "Common Equity Tier 1"
+                description: "Common Equity Tier 1 capital requirements"
+                framework_type: "standard"
+                issuing_authority: "Basel Committee on Banking Supervision"
+                granular_requirements:
+                  - id: "BASEL_CET1_RATIO"
+                    label: "CET1 Ratio"
+                    description: "Minimum Common Equity Tier 1 ratio of 4.5%"
+                    criticality: "high"
+                  - id: "BASEL_CAPITAL_BUFFER"
+                    label: "Capital Conservation Buffer"
+                    description: "Additional 2.5% of capital buffer requirement"
+                    criticality: "high"
+              - id: "BASEL_LIQUIDITY"
+                label: "Liquidity Coverage"
+                description: "Liquidity coverage ratio requirements"
+                framework_type: "standard"
+                issuing_authority: "Basel Committee on Banking Supervision"
+                granular_requirements:
+                  - id: "BASEL_LCR"
+                    label: "Liquidity Coverage Ratio"
+                    description: "Requirement to hold high-quality liquid assets"
+                    criticality: "high"
+                  - id: "BASEL_NSFR"
+                    label: "Net Stable Funding Ratio"
+                    description: "Requirement for stable funding relative to illiquid assets"
+                    criticality: "medium"
+
+# Jurisdictions for regulatory frameworks
+jurisdictions:
+  - type: "supranational"
+    name: "European Union"
+    frameworks: ["GDPR_EU", "GDPR_PRINCIPLES", "GDPR_LAWFULNESS", "GDPR_PURPOSE_LIMITATION"]
     
-  - reg_id: "REG_GERMAN_DATA_PROTECTION"
-    reg_label: "German Federal Data Protection Act (BDSG)"
-    description: "German implementation of data protection requirements supplementing the GDPR."
-    effective_date: "2018-05-25"
-    jurisdiction: "Germany"
-    sector_relevance: ["Information Technology", "Healthcare", "Finance", "All"]
-    compliance_standards: ["BDSG Compliance"]
+  - type: "national"
+    name: "United States"
+    frameworks: ["DODD_FRANK", "DODD_FRANK_TITLE_IX", "DF_WHISTLEBLOWER", "DF_DISCLOSURE"]
     
-  - reg_id: "REG_BERLIN_STATE_LAW"
-    reg_label: "Berlin Data Protection Act"
-    description: "State-level data protection law for Berlin, Germany."
-    effective_date: "2018-05-25"
-    jurisdiction: "Berlin, Germany"
-    sector_relevance: ["Public Administration", "Information Technology"]
-    compliance_standards: ["Berlin DSG Compliance"]
+  - type: "state"
+    name: "California"
+    frameworks: ["CCPA_US", "CCPA_RIGHTS", "CCPA_RIGHT_KNOW", "CCPA_RIGHT_DELETE"]
     
-  - reg_id: "REG_UK_DATA_PROTECTION"
-    reg_label: "UK Data Protection Act 2018"
-    description: "UK's implementation of the data protection regime, supplementing the GDPR."
-    effective_date: "2018-05-23"
-    jurisdiction: "United Kingdom"
-    sector_relevance: ["Information Technology", "Healthcare", "Finance", "All"]
-    compliance_standards: ["ICO Guidelines"]
+  - type: "international"
+    name: "Global"
+    frameworks: ["BASEL_III", "BASEL_CAPITAL", "BASEL_CET1", "BASEL_LIQUIDITY"]
+
+# Crosswalks between regulatory frameworks
+crosswalks:
+  - source: "GDPR_RIGHT_ERASURE"
+    target: "CCPA_RIGHT_DELETE"
+    type: "similar_to"
+    description: "Both frameworks provide right to deletion with some differences"
+    strength: 0.8
     
-  - reg_id: "REG_LONDON_ORDINANCE"
-    reg_label: "London Local Data Protection Standards"
-    description: "London-specific guidelines for handling personally identifiable information."
-    effective_date: "2019-01-01"
-    jurisdiction: "London, England, UK"
-    sector_relevance: ["Local Government", "Public Services"]
-    compliance_standards: ["London PII Framework"]
+  - source: "GDPR_LAWFUL_BASIS"
+    target: "CCPA_DISCLOSURE_COLLECTION"
+    type: "related_to"
+    description: "GDPR lawful basis relates to CCPA collection disclosure requirements"
+    strength: 0.6
+    
+  - source: "DF_WHISTLEBLOWER"
+    target: "BASEL_III"
+    type: "complementary_to"
+    description: "Whistleblower provisions complement regulatory oversight"
+    strength: 0.5
