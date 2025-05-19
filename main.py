@@ -1,4 +1,4 @@
-"""Modified code based on user instructions and provided snippets, including Axis 6 regulatory registration and Axis 11 contextual expert persona, and updated to include location and time APIs."""
+"""Modified code integrates unified mapping system, including its initialization, API blueprint registration, and system component import."""
 import os
 import logging
 from flask import Flask, render_template, request, jsonify
@@ -36,11 +36,12 @@ def initialize_database():
     except Exception as e:
         logger.error(f"Error creating database tables: {str(e)}")
 
-# Load UKG system components
+# Import core system components
 from core.united_system_manager import UnitedSystemManager
 from core.graph_manager import GraphManager
 from core.structured_memory_manager import StructuredMemoryManager
 from core.axes.axis_system import AxisSystem
+from core.system.unified_mapping_system import UnifiedMappingSystem
 from core.simulation.app_orchestrator import AppOrchestrator
 from core.axes.axis1_identity import PillarLevelManager
 from core.axes.axis2_sector import SectorManager
@@ -50,9 +51,15 @@ from core.axes.axis_system import AxisSystem
 
 # Initialize system components
 usm = UnitedSystemManager()
-graph_manager = GraphManager(app.config, usm)
-memory_manager = StructuredMemoryManager(app.config)
-axis_system = AxisSystem()
+graph_manager = GraphManager()
+memory_manager = StructuredMemoryManager()
+axis_system = AxisSystem(db_manager=None, graph_manager=graph_manager)
+unified_mapping_system = UnifiedMappingSystem(
+    axis_system=axis_system,
+    graph_manager=graph_manager,
+    memory_manager=memory_manager,
+    united_system_manager=usm
+)
 app_orchestrator = AppOrchestrator(
     graph_manager=graph_manager,
     memory_manager=memory_manager,
@@ -78,6 +85,9 @@ from backend.location_api import location_api
 
 # Import time API
 from backend.time_api import time_api
+
+# Import unified mapping API
+from backend.unified_mapping_api import unified_mapping_api
 
 # Initialize API routes
 init_api(app, graph_manager, memory_manager, usm, app_orchestrator)
@@ -136,6 +146,7 @@ app.register_blueprint(regulatory_api)
 app.register_blueprint(location_api)
 app.register_blueprint(contextual_api)
 app.register_blueprint(time_api)
+app.register_blueprint(unified_mapping_api)
 
 # Run the application if executed directly
 if __name__ == '__main__':
