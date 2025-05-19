@@ -171,7 +171,7 @@ class KnowledgeNode(db.Model):
             'pillar_level_id': self.pillar_level_id,
             'domain_id': self.domain_id,
             'location_id': self.location_id,
-            'metadata': self.metadata,
+            'meta_info': self.meta_info,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
