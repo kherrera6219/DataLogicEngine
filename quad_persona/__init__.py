@@ -9,3 +9,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 logger.info("Initializing Quad Persona Subsystem (Axes 8-11)")
+"""
+Universal Knowledge Graph (UKG) System - Quad Persona Engine
+
+This package implements the Quad Persona Engine for the UKG system.
+"""

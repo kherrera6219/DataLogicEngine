@@ -577,3 +577,269 @@ class RefinementWorkflow:
 def create_refinement_workflow() -> RefinementWorkflow:
     """Create a refinement workflow."""
     return RefinementWorkflow()
+"""
+Universal Knowledge Graph (UKG) System - Refinement Workflow
+
+This module implements the Refinement Workflow for validating and refining query responses.
+"""
+
+import logging
+from typing import Dict, List, Any, Optional
+
+logger = logging.getLogger(__name__)
+
+class RefinementWorkflow:
+    """Implements a workflow for refining and validating responses."""
+    
+    def __init__(self):
+        """Initialize the refinement workflow."""
+        self.validators = [
+            self._check_perspective_alignment,
+            self._check_confidence_thresholds,
+            self._check_recommendation_consistency
+        ]
+        logger.info("RefinementWorkflow initialized")
+    
+    def execute_workflow(self, query_state: Any) -> Dict:
+        """
+        Execute the refinement workflow.
+        
+        Args:
+            query_state: Query state from quad persona engine
+            
+        Returns:
+            Refined result dictionary
+        """
+        if not query_state.final_result:
+            logger.warning("No final result to refine")
+            return {"error": "No final result to refine", "confidence": 0.0}
+        
+        result = query_state.final_result.copy()
+        
+        # Execute all validation steps
+        validation_results = []
+        for validator in self.validators:
+            validation_result = validator(result)
+            validation_results.append(validation_result)
+            
+            # Record refinement step
+            query_state.add_refinement_step({
+                "validator": validator.__name__,
+                "result": validation_result
+            })
+            
+            # Apply refinements if needed
+            if "refinements" in validation_result:
+                for refinement in validation_result["refinements"]:
+                    target = refinement["target"]
+                    action = refinement["action"]
+                    value = refinement["value"]
+                    
+                    if action == "set":
+                        result[target] = value
+                    elif action == "adjust":
+                        if target in result and isinstance(result[target], (int, float)):
+                            result[target] += value
+                    elif action == "append":
+                        if target not in result:
+                            result[target] = []
+                        result[target].append(value)
+                    elif action == "remove":
+                        if target in result and value in result[target]:
+                            result[target].remove(value)
+        
+        # Finalize refinement
+        overall_validation = self._combine_validation_results(validation_results)
+        result["validation"] = overall_validation
+        
+        # Adjust confidence based on validation
+        confidence_adjustment = overall_validation.get("confidence_adjustment", 0)
+        result["confidence"] = min(1.0, max(0.0, result["confidence"] + confidence_adjustment))
+        
+        # Add refinement summary
+        result["refinement_summary"] = {
+            "steps": len(query_state.refinement_history),
+            "confidence_change": confidence_adjustment
+        }
+        
+        return result
+    
+    def _check_perspective_alignment(self, result: Dict) -> Dict:
+        """
+        Check alignment between different persona perspectives.
+        
+        Args:
+            result: The result dictionary
+            
+        Returns:
+            Validation result dictionary
+        """
+        perspectives = result.get("perspectives", [])
+        
+        if len(perspectives) < 2:
+            return {
+                "validator": "perspective_alignment",
+                "status": "skipped",
+                "message": "Not enough perspectives to check alignment",
+                "confidence_adjustment": 0.0
+            }
+        
+        # Calculate average confidence
+        avg_confidence = sum(p["confidence"] for p in perspectives) / len(perspectives)
+        
+        # Check confidence deviation
+        max_deviation = max(abs(p["confidence"] - avg_confidence) for p in perspectives)
+        aligned = max_deviation < 0.3  # Threshold for alignment
+        
+        if aligned:
+            return {
+                "validator": "perspective_alignment",
+                "status": "passed",
+                "message": "Perspectives are well-aligned",
+                "confidence_adjustment": 0.05
+            }
+        else:
+            # Find perspectives with high deviation
+            outliers = [p["persona"] for p in perspectives 
+                       if abs(p["confidence"] - avg_confidence) >= 0.3]
+            
+            return {
+                "validator": "perspective_alignment",
+                "status": "warning",
+                "message": f"Perspectives have significant variance: {', '.join(outliers)}",
+                "confidence_adjustment": -0.1,
+                "refinements": [
+                    {
+                        "target": "alignment_warning",
+                        "action": "set",
+                        "value": f"Varying confidence levels among {', '.join(outliers)}"
+                    }
+                ]
+            }
+    
+    def _check_confidence_thresholds(self, result: Dict) -> Dict:
+        """
+        Check if confidence meets minimum thresholds.
+        
+        Args:
+            result: The result dictionary
+            
+        Returns:
+            Validation result dictionary
+        """
+        confidence = result.get("confidence", 0.0)
+        
+        if confidence >= 0.8:
+            return {
+                "validator": "confidence_thresholds",
+                "status": "passed",
+                "message": f"High confidence: {confidence:.2f}",
+                "confidence_adjustment": 0.0
+            }
+        elif confidence >= 0.5:
+            return {
+                "validator": "confidence_thresholds",
+                "status": "passed",
+                "message": f"Moderate confidence: {confidence:.2f}",
+                "confidence_adjustment": 0.0
+            }
+        else:
+            return {
+                "validator": "confidence_thresholds",
+                "status": "warning",
+                "message": f"Low confidence: {confidence:.2f}",
+                "confidence_adjustment": -0.05,
+                "refinements": [
+                    {
+                        "target": "low_confidence_warning",
+                        "action": "set",
+                        "value": "Response has low confidence and may require further verification"
+                    }
+                ]
+            }
+    
+    def _check_recommendation_consistency(self, result: Dict) -> Dict:
+        """
+        Check consistency of recommendations across personas.
+        
+        Args:
+            result: The result dictionary
+            
+        Returns:
+            Validation result dictionary
+        """
+        recommendations = result.get("recommendations", [])
+        perspectives = result.get("perspectives", [])
+        
+        if not recommendations or not perspectives:
+            return {
+                "validator": "recommendation_consistency",
+                "status": "skipped",
+                "message": "No recommendations or perspectives to check",
+                "confidence_adjustment": 0.0
+            }
+        
+        # Simple check for number of recommendations
+        if len(recommendations) >= len(perspectives):
+            return {
+                "validator": "recommendation_consistency",
+                "status": "passed",
+                "message": "Sufficient recommendations provided",
+                "confidence_adjustment": 0.02
+            }
+        else:
+            return {
+                "validator": "recommendation_consistency",
+                "status": "warning",
+                "message": "Limited recommendations provided",
+                "confidence_adjustment": -0.02,
+                "refinements": [
+                    {
+                        "target": "recommendation_note",
+                        "action": "set",
+                        "value": "Consider seeking more diverse recommendations"
+                    }
+                ]
+            }
+    
+    def _combine_validation_results(self, validation_results: List[Dict]) -> Dict:
+        """
+        Combine multiple validation results.
+        
+        Args:
+            validation_results: List of validation result dictionaries
+            
+        Returns:
+            Combined validation result dictionary
+        """
+        status_counts = {"passed": 0, "warning": 0, "error": 0, "skipped": 0}
+        messages = []
+        total_confidence_adjustment = 0.0
+        
+        for result in validation_results:
+            status = result.get("status", "")
+            if status in status_counts:
+                status_counts[status] += 1
+            
+            if "message" in result:
+                messages.append(result["message"])
+            
+            adjustment = result.get("confidence_adjustment", 0.0)
+            total_confidence_adjustment += adjustment
+        
+        # Determine overall status
+        overall_status = "passed"
+        if status_counts["error"] > 0:
+            overall_status = "error"
+        elif status_counts["warning"] > 0:
+            overall_status = "warning"
+        
+        return {
+            "overall_status": overall_status,
+            "passed_checks": status_counts["passed"],
+            "warning_checks": status_counts["warning"],
+            "error_checks": status_counts["error"],
+            "skipped_checks": status_counts["skipped"],
+            "messages": messages,
+            "confidence_adjustment": total_confidence_adjustment
+        }
