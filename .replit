@@ -10,7 +10,7 @@ run = ["sh", "-c", "python run_enterprise_ukg.py --build"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
-runButton = "UKG Enterprise System"
+runButton = "UKG UI Development"
 
 [[workflows.workflow]]
 name = "Project"
@@ -524,6 +524,27 @@ args = "# Start Next.js in production mode"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm start"
+
+[[workflows.workflow]]
+name = "UKG UI Development"
+author = 28709262
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the Flask backend on port 5000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_enterprise_ukg.py --secure &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start Next.js in development mode"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
 
 [[ports]]
 localPort = 3000

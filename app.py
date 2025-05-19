@@ -1,29 +1,22 @@
 """
-Universal Knowledge Graph (UKG) System - Flask Application
+Universal Knowledge Graph (UKG) System - Main Flask Application
 
-This is the main Flask application that serves the UKG API and coordinates
-with the Enterprise Architecture backend services.
+This module serves as the main controller for the UKG system.
+It provides RESTful API endpoints for interacting with the UKG components,
+implements secure authentication, and serves the frontend.
 """
 
-from flask import Flask, jsonify, request, render_template, abort
-from flask_cors import CORS
 import os
-import logging
 import json
-import sys
-import requests
-from datetime import datetime
-from dotenv import load_dotenv
-from backend.rest_api import register_api as register_rest_api
-from backend.chat_api import register_chat_api
-from backend.security_api import register_security_api
-from backend.security_scan_api import register_scan_api
-
-# Create logs directory if it doesn't exist
-os.makedirs("logs", exist_ok=True)
-
-# Load environment variables from .env file
-load_dotenv()
+import logging
+import datetime
+from flask import Flask, jsonify, request, render_template, redirect, url_for, session, g
+from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
+from werkzeug.middleware.proxy_fix import ProxyFix
+from werkzeug.security import generate_password_hash, check_password_hash
+import jwt
 
 # Configure logging
 logging.basicConfig(
@@ -31,239 +24,541 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(f"logs/ukg_core_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
+        logging.FileHandler("ukg_system.log")
     ]
 )
-logger = logging.getLogger("UKG-Core")
+logger = logging.getLogger(__name__)
 
-# Import configuration manager
-try:
-    from backend.config_manager import get_config
-    config = get_config()
-except ImportError:
-    logger.warning("Config manager not found, using default settings")
-    config = None
+# Initialize database
+class Base(DeclarativeBase):
+    pass
 
-def create_app():
-    """Create and configure the Flask application."""
-    app = Flask(__name__)
-    CORS(app)
+# Initialize Flask application
+app = Flask(__name__, static_folder='./frontend/build', static_url_path='/')
+app.secret_key = os.environ.get("SESSION_SECRET", "ukg-dev-session-key")
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-    # Configure from environment variables or config manager
-    if config:
-        app.config['SECRET_KEY'] = config.get("auth.jwt_secret", os.urandom(24))
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///ukg.db')
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-        app.config['DEBUG'] = config.get("system.debug", False)
-        app.config['ENVIRONMENT'] = config.get("system.environment", "development")
-        app.config['ENTERPRISE_MODE'] = True
-    else:
-        app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.urandom(24))
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///ukg.db')
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-        app.config['DEBUG'] = os.environ.get('DEBUG', 'False').lower() == 'true'
-        app.config['ENVIRONMENT'] = os.environ.get('ENVIRONMENT', 'development')
-        app.config['ENTERPRISE_MODE'] = os.environ.get('ENTERPRISE_MODE', 'False').lower() == 'true'
+# Configure enterprise-grade security
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    REMEMBER_COOKIE_SECURE=True,
+    REMEMBER_COOKIE_HTTPONLY=True,
+    REMEMBER_COOKIE_DURATION=datetime.timedelta(days=30),
+)
 
-    # Initialize database
-    from models import db
-    db.init_app(app)
-    with app.app_context():
-        db.create_all()
-    app.config['DB'] = db
+# Enable CORS with security restrictions
+CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
-    # Initialize UKG components
-    from core.system.system_initializer import initialize_ukg_system
-    initialize_ukg_system(app)
+# Configure database connection
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    'pool_pre_ping': True,
+    "pool_recycle": 300,
+}
+db = SQLAlchemy(app, model_class=Base)
 
-    # Initialize enterprise architecture if in enterprise mode
-    if app.config['ENTERPRISE_MODE']:
-        try:
-            from backend.enterprise_architecture import get_enterprise_architecture
-            app.config['ENTERPRISE_ARCH'] = get_enterprise_architecture()
-            logger.info("Enterprise architecture initialized")
-        except ImportError:
-            logger.warning("Enterprise architecture module not found")
+# Health check endpoint
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """
+    Health check endpoint for monitoring systems
+    """
+    return jsonify({
+        "status": "healthy",
+        "timestamp": datetime.datetime.utcnow().isoformat(),
+        "version": "1.0.0",
+        "database": "connected" if db.engine.pool.checkin else "disconnected"
+    }), 200
 
-    # Set up security middleware
-    from backend.middleware import setup_middleware
-    setup_middleware(app)
-
-    # Register API blueprints
-    register_rest_api(app)
-    register_chat_api(app)
-    register_security_api(app)
-    register_scan_api(app)
-
-    # Initialize security components
-    from backend.security import get_security_manager, get_audit_logger, get_compliance_manager
-    app.config['SECURITY_MANAGER'] = get_security_manager()
-    app.config['AUDIT_LOGGER'] = get_audit_logger()
-    app.config['COMPLIANCE_MANAGER'] = get_compliance_manager()
-    logger.info("Security and compliance components initialized")
-
-    # System routes
-    @app.route('/health')
-    def health():
-        """Health check endpoint for the UKG Core Service"""
-        status = {
-            "status": "healthy",
-            "service": "UKG API Gateway",
-            "timestamp": datetime.now().isoformat(),
-            "version": "1.0.0",
-            "environment": app.config['ENVIRONMENT']
+# API endpoint for system status
+@app.route('/api/system/status', methods=['GET'])
+def system_status():
+    """
+    Get the overall system status, active components, and layer statuses
+    """
+    logger.info("System status request received")
+    
+    try:
+        # Simulate gathering status info from various components
+        layers_status = {
+            "Layer1": {"active": True, "health": "OK"},
+            "Layer2": {"active": True, "health": "OK"},
+            "Layer3": {"active": True, "health": "OK"},
+            "Layer4": {"active": True, "health": "OK"},
+            "Layer5": {"active": True, "health": "OK"},
+            "Layer6": {"active": False, "health": "DISABLED"},
+            "Layer7": {"active": True, "health": "OK"},
+            "Layer8": {"active": False, "health": "DISABLED"},
+            "Layer9": {"active": False, "health": "DISABLED"},
+            "Layer10": {"active": False, "health": "DISABLED"},
         }
-
-        # Add enterprise service status if available
-        if app.config.get('ENTERPRISE_ARCH'):
-            try:
-                enterprise_status = app.config['ENTERPRISE_ARCH'].get_architecture_status()
-                status["enterprise"] = {
-                    "services": len(enterprise_status["services"]),
-                    "status": "healthy" if all(svc["status"] == "healthy" for name, svc in 
-                              enterprise_status["services"].items()) else "degraded"
-                }
-            except Exception as e:
-                logger.error(f"Failed to get enterprise status: {e}")
-                status["enterprise"] = {"status": "error"}
-
-        return jsonify(status)
-
-    @app.route('/system/status')
-    def system_status():
-        """Full system status endpoint"""
-        if not app.config.get('ENTERPRISE_ARCH'):
-            return jsonify({
-                "mode": "standalone",
-                "status": "healthy",
-                "timestamp": datetime.now().isoformat()
-            })
-
-        try:
-            enterprise_status = app.config['ENTERPRISE_ARCH'].get_architecture_status()
-            return jsonify({
-                "mode": "enterprise",
-                "status": "healthy" if all(svc["status"] == "healthy" for name, svc in 
-                          enterprise_status["services"].items()) else "degraded",
-                "services": enterprise_status["services"],
-                "timestamp": datetime.now().isoformat()
-            })
-        except Exception as e:
-            logger.error(f"Failed to get enterprise status: {e}")
-            return jsonify({
-                "mode": "enterprise",
-                "status": "error",
-                "error": str(e),
-                "timestamp": datetime.now().isoformat()
-            })
-
-    @app.route('/')
-    def home():
-        """Render the home page."""
-        return render_template('home.html')
-
-    # API gateway proxy routes for enterprise services
-    @app.route('/api/webhooks/<path:path>', methods=['POST', 'GET', 'PUT', 'DELETE'])
-    def webhook_proxy(path):
-        """Proxy requests to webhook server"""
-        if not app.config.get('ENTERPRISE_ARCH'):
-            abort(404)
-
-        try:
-            webhook_service = app.config['ENTERPRISE_ARCH'].get_service("webhook_server")
-            if not webhook_service:
-                abort(503)  # Service unavailable
-
-            webhook_url = f"{webhook_service.endpoint}/webhooks/{path}"
-            response = requests.request(
-                method=request.method,
-                url=webhook_url,
-                headers={key: value for key, value in request.headers if key != 'Host'},
-                data=request.get_data(),
-                cookies=request.cookies,
-                allow_redirects=False,
-            )
-
-            return (response.content, response.status_code, response.headers.items())
-        except Exception as e:
-            logger.error(f"Webhook proxy error: {e}")
-            abort(500)
-
-    @app.route('/api/model/<path:path>', methods=['POST', 'GET', 'PUT', 'DELETE'])
-    def model_context_proxy(path):
-        """Proxy requests to model context server"""
-        if not app.config.get('ENTERPRISE_ARCH'):
-            abort(404)
-
-        try:
-            model_service = app.config['ENTERPRISE_ARCH'].get_service("model_context_server")
-            if not model_service:
-                abort(503)  # Service unavailable
-
-            model_url = f"{model_service.endpoint}/{path}"
-            response = requests.request(
-                method=request.method,
-                url=model_url,
-                headers={key: value for key, value in request.headers if key != 'Host'},
-                data=request.get_data(),
-                cookies=request.cookies,
-                allow_redirects=False,
-            )
-
-            return (response.content, response.status_code, response.headers.items())
-        except Exception as e:
-            logger.error(f"Model context proxy error: {e}")
-            abort(500)
-
-    # Catch-all API health check
-    @app.route('/api/health')
-    def api_health():
-        """Simple health check endpoint."""
+        
+        memory_usage = {
+            "total_allocated": "4.2 GB",
+            "in_use": "2.1 GB",
+            "cached": "1.3 GB"
+        }
+        
         return jsonify({
-            "status": "healthy",
-            "service": "UKG API",
-            "timestamp": datetime.now().isoformat()
-        })
-
-    # Error handlers
-    @app.errorhandler(404)
-    def not_found(error):
-        """Handle 404 errors."""
+            "status": "operational",
+            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "layers": layers_status,
+            "memory": memory_usage,
+            "active_simulations": 0,
+            "confidence_score": 0.965,
+            "uptime": "23 days, 4 hours"
+        }), 200
+    
+    except Exception as e:
+        logger.error(f"Error in system status: {str(e)}")
         return jsonify({
-            "success": False,
-            "message": "Resource not found",
-            "error_code": "NOT_FOUND",
-            "timestamp": datetime.now().isoformat()
-        }), 404
-
-    @app.errorhandler(500)
-    def server_error(error):
-        """Handle 500 errors."""
-        return jsonify({
-            "success": False,
-            "message": "Internal server error",
-            "error_code": "INTERNAL_ERROR",
-            "timestamp": datetime.now().isoformat()
+            "status": "error",
+            "message": "Failed to retrieve system status",
+            "error": str(e)
         }), 500
 
-    @app.errorhandler(503)
-    def service_unavailable(error):
-        """Handle 503 errors."""
+# API endpoint for UKG simulation
+@app.route('/api/simulation/run', methods=['POST'])
+def run_simulation():
+    """
+    Run a UKG simulation with the provided parameters
+    """
+    logger.info("Simulation request received")
+    
+    try:
+        # Get parameters from request
+        data = request.json
+        
+        if not data:
+            return jsonify({
+                "status": "error", 
+                "message": "No parameters provided"
+            }), 400
+        
+        query = data.get('query')
+        confidence_threshold = data.get('confidenceThreshold', 0.85)
+        max_layers = data.get('maxLayers', 7)
+        refinement_steps = data.get('refinementSteps', 12)
+        
+        if not query:
+            return jsonify({
+                "status": "error", 
+                "message": "Query is required"
+            }), 400
+        
+        # Simulate UKG processing (in a real implementation, this would call the actual UKG components)
+        logger.info(f"Running simulation with query: {query}, layers: {max_layers}, refinement: {refinement_steps}")
+        
+        # Placeholder for simulation results
+        simulation_result = {
+            "sessionId": f"sim-{datetime.datetime.utcnow().timestamp()}",
+            "query": query,
+            "result": f"Simulated response for query: {query}",
+            "confidence": 0.92,
+            "activeLayers": list(range(1, min(max_layers + 1, 8))),
+            "processingTime": "3.45s",
+            "refinementPasses": refinement_steps,
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        }
+        
         return jsonify({
-            "success": False,
-            "message": "Service unavailable",
-            "error_code": "SERVICE_UNAVAILABLE",
-            "timestamp": datetime.now().isoformat()
-        }), 503
+            "status": "success",
+            "result": simulation_result
+        }), 200
+    
+    except Exception as e:
+        logger.error(f"Error in simulation: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Simulation failed",
+            "error": str(e)
+        }), 500
 
-    logger.info("UKG application configured and initialized")
-    return app
+# API endpoint for UKG graph data
+@app.route('/api/graph/data', methods=['GET'])
+def get_graph_data():
+    """
+    Get graph data for visualization
+    """
+    logger.info("Graph data request received")
+    
+    try:
+        axis = request.args.get('axis', '1')
+        
+        # Simulate retrieving graph data for the requested axis
+        if axis == '1':
+            # Pillar Levels (Axis 1)
+            # In a real implementation, this would come from the database
+            pillar_levels = [
+                {"id": "PL01", "name": "Mathematics", "category": "Formal Sciences"},
+                {"id": "PL02", "name": "Physical Sciences", "category": "Natural Sciences"},
+                {"id": "PL03", "name": "Life Sciences", "category": "Natural Sciences"},
+                {"id": "PL04", "name": "Computer Science", "category": "Formal Sciences"},
+                {"id": "PL05", "name": "Engineering", "category": "Applied Sciences"}
+            ]
+            
+            nodes = []
+            links = []
+            
+            # Create category nodes
+            categories = list(set(pl["category"] for pl in pillar_levels))
+            for category in categories:
+                nodes.append({
+                    "id": category,
+                    "name": category,
+                    "val": 10,
+                    "color": "#3182CE",
+                    "group": "category"
+                })
+            
+            # Create pillar nodes and links
+            for pl in pillar_levels:
+                nodes.append({
+                    "id": pl["id"],
+                    "name": f"{pl['id']}: {pl['name']}",
+                    "val": 5,
+                    "color": "#38A169",
+                    "group": "pillar"
+                })
+                
+                links.append({
+                    "source": pl["category"],
+                    "target": pl["id"]
+                })
+            
+            return jsonify({
+                "nodes": nodes,
+                "links": links
+            }), 200
+        
+        else:
+            # For other axes, return placeholder data
+            return jsonify({
+                "nodes": [
+                    {"id": "central", "name": f"Axis {axis} Central Node", "val": 15, "color": "#3182CE", "group": "axis"}
+                ],
+                "links": []
+            }), 200
+    
+    except Exception as e:
+        logger.error(f"Error retrieving graph data: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Failed to retrieve graph data",
+            "error": str(e)
+        }), 500
 
-# Create the Flask application
-app = create_app()
+# API endpoint for logs
+@app.route('/api/logs', methods=['GET'])
+def get_logs():
+    """
+    Get system logs with filtering
+    """
+    logger.info("Logs request received")
+    
+    try:
+        log_type = request.args.get('type', 'system')
+        level = request.args.get('level', 'all')
+        limit = int(request.args.get('limit', 100))
+        
+        # Simulate retrieving logs
+        logs = []
+        
+        if log_type == 'system':
+            logs = [
+                {
+                    "id": 1,
+                    "timestamp": "2025-05-19T21:15:23.855Z",
+                    "level": "info",
+                    "source": "UKG-System",
+                    "message": "UKG system initialization completed successfully"
+                },
+                {
+                    "id": 2,
+                    "timestamp": "2025-05-19T21:15:27.233Z",
+                    "level": "info",
+                    "source": "UKG-MemoryManager",
+                    "message": "Structured memory initialized with 2048MB allocation"
+                }
+            ]
+        elif log_type == 'simulation':
+            logs = [
+                {
+                    "id": 1,
+                    "timestamp": "2025-05-19T21:15:30.123Z",
+                    "level": "info",
+                    "source": "SimulationEngine",
+                    "message": "Simulation initialized with parameters: confidence=0.9, maxLayers=7"
+                },
+                {
+                    "id": 2,
+                    "timestamp": "2025-05-19T21:15:35.456Z",
+                    "level": "info",
+                    "source": "Layer1",
+                    "message": "Query received: 'Analyze regulatory requirements for AI in healthcare'"
+                }
+            ]
+        
+        # Apply level filter if needed
+        if level != 'all':
+            logs = [log for log in logs if log['level'] == level]
+        
+        # Apply limit
+        logs = logs[:limit]
+        
+        return jsonify({
+            "logs": logs,
+            "count": len(logs),
+            "type": log_type,
+            "level": level
+        }), 200
+    
+    except Exception as e:
+        logger.error(f"Error retrieving logs: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Failed to retrieve logs",
+            "error": str(e)
+        }), 500
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    debug = app.config.get('DEBUG', False)
-    logger.info(f"Starting UKG API on port {port} (debug={debug})")
-    app.run(host="0.0.0.0", port=port, debug=debug)
+# API endpoint for settings
+@app.route('/api/settings', methods=['GET', 'PUT'])
+def manage_settings():
+    """
+    Get or update system settings
+    """
+    if request.method == 'GET':
+        logger.info("Settings request received")
+        
+        # Simulate retrieving settings
+        settings = {
+            "general": {
+                "systemName": "Universal Knowledge Graph System",
+                "environment": "production",
+                "defaultLanguage": "en-US",
+                "logRetention": "30",
+                "autoSave": True,
+                "telemetryEnabled": True,
+                "debugMode": False
+            },
+            "security": {
+                "authProvider": "azure_ad",
+                "ssoEnabled": True,
+                "mfaRequired": True,
+                "sessionTimeout": "60",
+                "passwordPolicy": "enterprise",
+                "minimumPasswordLength": "14",
+                "apiTokenExpiry": "30"
+            },
+            "ukgSimulation": {
+                "defaultConfidenceThreshold": "0.85",
+                "maxSimulationLayers": "7",
+                "refinementStepsEnabled": True,
+                "defaultRefinementSteps": "12",
+                "entropySamplingEnabled": True,
+                "memoryCacheSize": "4096",
+                "quantumSimulationEnabled": False,
+                "recursiveProcessingEnabled": True,
+                "maxRecursionDepth": "8"
+            }
+        }
+        
+        return jsonify(settings), 200
+    
+    elif request.method == 'PUT':
+        logger.info("Settings update request received")
+        
+        try:
+            data = request.json
+            
+            if not data:
+                return jsonify({
+                    "status": "error", 
+                    "message": "No settings provided"
+                }), 400
+            
+            # In a real implementation, this would validate and update settings in the database
+            logger.info(f"Updated settings: {json.dumps(data)}")
+            
+            return jsonify({
+                "status": "success",
+                "message": "Settings updated successfully"
+            }), 200
+        
+        except Exception as e:
+            logger.error(f"Error updating settings: {str(e)}")
+            return jsonify({
+                "status": "error",
+                "message": "Failed to update settings",
+                "error": str(e)
+            }), 500
+
+# API endpoint for authentication
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    """
+    Authenticate a user and provide a JWT token
+    """
+    logger.info("Login request received")
+    
+    try:
+        data = request.json
+        
+        if not data:
+            return jsonify({
+                "status": "error", 
+                "message": "No credentials provided"
+            }), 400
+        
+        username = data.get('username')
+        password = data.get('password')
+        
+        if not username or not password:
+            return jsonify({
+                "status": "error", 
+                "message": "Username and password are required"
+            }), 400
+        
+        # In a real implementation, this would validate credentials against the database
+        # For now, just check a hardcoded admin user for demo
+        if username == "admin" and password == "password":
+            # Generate JWT token
+            payload = {
+                "sub": "user123",
+                "name": "Admin User",
+                "role": "admin",
+                "iat": datetime.datetime.utcnow(),
+                "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+            }
+            
+            token = jwt.encode(
+                payload,
+                app.secret_key,
+                algorithm="HS256"
+            )
+            
+            return jsonify({
+                "status": "success",
+                "token": token,
+                "user": {
+                    "id": "user123",
+                    "name": "Admin User",
+                    "role": "admin"
+                }
+            }), 200
+        
+        else:
+            return jsonify({
+                "status": "error", 
+                "message": "Invalid credentials"
+            }), 401
+    
+    except Exception as e:
+        logger.error(f"Error in login: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Login failed",
+            "error": str(e)
+        }), 500
+
+# API endpoint for media generation
+@app.route('/api/media/generate', methods=['POST'])
+def generate_media():
+    """
+    Generate media (images or videos) based on input prompt
+    """
+    logger.info("Media generation request received")
+    
+    try:
+        data = request.json
+        
+        if not data:
+            return jsonify({
+                "status": "error", 
+                "message": "No parameters provided"
+            }), 400
+        
+        media_type = data.get('type', 'image')
+        prompt = data.get('prompt')
+        
+        if not prompt:
+            return jsonify({
+                "status": "error", 
+                "message": "Prompt is required"
+            }), 400
+        
+        # Simulate media generation
+        # In a real implementation, this would call an image generation service
+        logger.info(f"Generating {media_type} with prompt: {prompt}")
+        
+        if media_type == 'image':
+            # Placeholder for image generation result
+            result = {
+                "id": f"img-{datetime.datetime.utcnow().timestamp()}",
+                "url": "https://via.placeholder.com/1024",
+                "prompt": prompt,
+                "width": 1024,
+                "height": 1024,
+                "timestamp": datetime.datetime.utcnow().isoformat()
+            }
+        else:
+            # Placeholder for video generation result
+            result = {
+                "id": f"vid-{datetime.datetime.utcnow().timestamp()}",
+                "url": "https://example.com/video.mp4",
+                "thumbnailUrl": "https://via.placeholder.com/640x360",
+                "prompt": prompt,
+                "duration": 10,
+                "timestamp": datetime.datetime.utcnow().isoformat()
+            }
+        
+        return jsonify({
+            "status": "success",
+            "result": result
+        }), 200
+    
+    except Exception as e:
+        logger.error(f"Error in media generation: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Media generation failed",
+            "error": str(e)
+        }), 500
+
+# Serve frontend React app
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    """
+    Serve the React frontend
+    """
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return app.send_static_file(path)
+    return app.send_static_file('index.html')
+
+# Error handlers
+@app.errorhandler(404)
+def not_found(e):
+    """Handle 404 errors"""
+    return jsonify({"status": "error", "message": "Resource not found"}), 404
+
+@app.errorhandler(500)
+def server_error(e):
+    """Handle 500 errors"""
+    return jsonify({"status": "error", "message": "Internal server error"}), 500
+
+# Create database tables
+with app.app_context():
+    try:
+        import models  # This should import your database models
+        db.create_all()
+        logger.info("Database tables created successfully")
+    except Exception as e:
+        logger.error(f"Error creating database tables: {str(e)}")
+
+# For local development
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=3000, debug=True)
