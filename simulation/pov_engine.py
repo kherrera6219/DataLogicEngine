@@ -4,10 +4,23 @@ Point-of-View (POV) Engine
 This module provides the POV Engine for the UKG/USKD multi-layer simulation engine.
 It expands query context by simulating diverse viewpoints and integrating perspectives
 across all 13 axes of the Universal Knowledge Graph.
+
+The POV Engine operates as Layer 4 in the UKG system architecture. It receives
+outputs from Layers 1-3 and expands them by:
+1. Mapping data across the Honeycomb System (Axis 3)
+2. Simulating expert personas (Axes 8-11)
+3. Applying temporal-spatial alignment (Axes 12-13)
+4. Entangling viewpoints across all personas
+5. Passing expanded context to higher simulation layers
+
+This results in multi-perspective reasoning that improves accuracy and context.
 """
 
 import logging
 import uuid
+import json
+import math
+import random
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Tuple, Set, Union
 
@@ -39,8 +52,52 @@ class POVEngine:
         self.enable_temporal_mapping = self.config.get('enable_temporal_mapping', True)
         self.enable_persona_layer = self.config.get('enable_persona_layer', True)
         
-        # Define enabled axes (default: all 13)
-        self.enabled_axes = self.config.get('enabled_axes', list(range(1, 14)))
+        # Define the 13 axes of the UKG
+        self.ukg_axes = {
+            1: {"name": "Pillar Level", "description": "Knowledge domain classification", "enabled": True},
+            2: {"name": "Sector", "description": "Industry or field categorization", "enabled": True},
+            3: {"name": "Honeycomb", "description": "Cross-domain knowledge connections", "enabled": True},
+            4: {"name": "Branch", "description": "Functional or departmental classification", "enabled": True},
+            5: {"name": "Node", "description": "Specific knowledge or entity point", "enabled": True},
+            6: {"name": "Octopus", "description": "Regulatory framework connections", "enabled": True},
+            7: {"name": "Spiderweb", "description": "Compliance framework connections", "enabled": True},
+            8: {"name": "Knowledge Role", "description": "Knowledge expert perspective", "enabled": True},
+            9: {"name": "Sector Role", "description": "Sector expert perspective", "enabled": True},
+            10: {"name": "Regulatory Role", "description": "Regulatory expert perspective", "enabled": True},
+            11: {"name": "Compliance Role", "description": "Compliance expert perspective", "enabled": True},
+            12: {"name": "Location", "description": "Spatial and jurisdictional context", "enabled": True},
+            13: {"name": "Temporal", "description": "Time-based evolution and history", "enabled": True}
+        }
+        
+        # Set enabled axes based on config
+        enabled_axes_config = self.config.get('enabled_axes', list(range(1, 14)))
+        for axis_id in self.ukg_axes:
+            self.ukg_axes[axis_id]["enabled"] = axis_id in enabled_axes_config
+        
+        # Default PL levels mapping (Axis 1)
+        self.pl_levels = {
+            "PL01": "Mathematics and Computation",
+            "PL02": "Biological Sciences",
+            "PL03": "Physical Sciences",
+            "PL04": "Social Sciences",
+            "PL05": "Arts and Humanities",
+            "PL06": "Government and Public Administration",
+            "PL07": "Healthcare and Medicine",
+            "PL08": "Finance and Economics",
+            "PL09": "Engineering",
+            "PL10": "Information Technology",
+            "PL11": "Law and Legal Systems",
+            "PL12": "Education",
+            "PL13": "Agriculture and Natural Resources",
+            "PL14": "Manufacturing",
+            "PL15": "Ethics and Philosophy",
+            "PL16": "Security and Defense",
+            "PL17": "Transportation",
+            "PL18": "Energy",
+            "PL19": "Communication and Media",
+            "PL20": "Hospitality and Tourism",
+            "PL21": "Infrastructure"
+        }
         
         # Track processing state
         self.current_context = None
@@ -49,12 +106,18 @@ class POVEngine:
         self.pass_count = 0
         self.recursion_depth = 0
         
-        # Components
-        self.honeycomb_expander = None
-        self.persona_simulator = None
-        self.temporal_mapper = None
+        # Performance metrics
+        self.execution_time = 0
+        self.nodes_processed = 0
+        self.personas_generated = 0
         
-        logging.info(f"[{datetime.now()}] POVEngine initialized with expansion rate {self.expansion_rate}")
+        # Components and submodules
+        self.honeycomb_expander = self._initialize_honeycomb_expander()
+        self.persona_simulator = self._initialize_persona_simulator()
+        self.temporal_mapper = self._initialize_temporal_mapper()
+        self.belief_analyzer = self._initialize_belief_analyzer()
+        
+        logging.info(f"[{datetime.now()}] POVEngine initialized with {sum(1 for a in self.ukg_axes.values() if a['enabled'])}/13 active axes")
     
     def expand_context(self, query: str, initial_context: Dict) -> Dict:
         """
