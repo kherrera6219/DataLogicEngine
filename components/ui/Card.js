@@ -1,51 +1,44 @@
 
 import React from 'react';
-import { 
-  Card as FluentCard, 
-  CardHeader, 
-  CardPreview, 
-  CardFooter 
-} from '@fluentui/react-components';
 
-const Card = ({ 
-  children, 
-  header,
-  headerMedia,
-  preview,
-  footer,
-  size = 'medium',
-  appearance = 'outline',
-  orientation = 'vertical',
-  ...props 
+const Card = ({
+  children,
+  className = "",
+  title = "",
+  footer = null,
+  shadow = "md",
+  border = false,
+  ...props
 }) => {
+  const shadowClasses = {
+    none: "",
+    sm: "shadow-sm",
+    md: "shadow",
+    lg: "shadow-lg",
+    xl: "shadow-xl"
+  };
+  
+  const shadowClass = shadowClasses[shadow] || shadowClasses.md;
+  
   return (
-    <FluentCard
-      size={size}
-      appearance={appearance}
-      orientation={orientation}
+    <div 
+      className={`bg-white rounded-lg overflow-hidden ${shadowClass} ${border ? 'border border-gray-200' : ''} ${className}`}
       {...props}
     >
-      {(header || headerMedia) && (
-        <CardHeader
-          header={header}
-          media={headerMedia}
-        />
+      {title && (
+        <div className="px-4 py-3 border-b border-gray-200">
+          <h3 className="font-medium text-gray-900">{title}</h3>
+        </div>
       )}
-
-      {preview && (
-        <CardPreview>
-          {preview}
-        </CardPreview>
-      )}
-
-      {children}
-
+      <div className="p-4">
+        {children}
+      </div>
       {footer && (
-        <CardFooter>
+        <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
           {footer}
-        </CardFooter>
+        </div>
       )}
-    </FluentCard>
+    </div>
   );
 };
 
