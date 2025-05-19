@@ -1,0 +1,18 @@
+axis12_location_logic:
+  # Default location context to use when none can be determined
+  default_location_context_uid: "LOC_COUNTRY_USA"
+  
+  # Configuration for extracting locations from queries
+  location_extraction:
+    use_nlp: false  # Set to true to use NLP for location extraction in production
+    confidence_threshold: 0.75  # Minimum confidence for NLP-extracted locations
+    
+  # Configuration for location hierarchy traversal
+  hierarchy:
+    max_levels_up: 5  # Maximum levels to traverse up the location hierarchy
+    include_siblings: false  # Whether to include sibling locations in the hierarchy
+    
+  # Regulatory framework lookup settings
+  regulatory_framework:
+    always_include_global: true  # Always include global regulatory frameworks
+    rank_by_specificity: true  # Rank more specific frameworks higher (City > State > Country)

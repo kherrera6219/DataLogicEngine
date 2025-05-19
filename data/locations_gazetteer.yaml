@@ -1,0 +1,241 @@
+# UKG Location Gazetteer
+# This file contains location data for Axis 12 of the UKG system
+# Format: Hierarchical structure from continents to cities/regions
+
+locations:
+  - id: LOC_GLOBAL
+    type: Global
+    label: Global
+    description: Global entity representing worldwide scope
+    children:
+      - id: LOC_CONTINENT_NORTH_AMERICA
+        type: Continent
+        label: North America
+        description: North American continent
+        children:
+          - id: LOC_COUNTRY_USA
+            type: Country
+            label: United States of America
+            description: United States of America
+            attributes:
+              iso_code: "USA"
+              regulatory_frameworks:
+                - REG_FW_USA_FEDERAL
+            children:
+              - id: LOC_STATE_USA_TX
+                type: State
+                label: Texas
+                description: State of Texas, USA
+                attributes:
+                  state_code: "TX"
+                  capital: "Austin"
+                  regulatory_frameworks:
+                    - REG_FW_USA_TX_STATE
+                children:
+                  - id: LOC_CITY_USA_TX_AUSTIN
+                    type: City
+                    label: Austin
+                    description: City of Austin, Texas
+                    attributes:
+                      is_capital: true
+                      population: 978908
+                      regulatory_frameworks:
+                        - REG_FW_USA_TX_AUSTIN_CITY
+                  - id: LOC_CITY_USA_TX_HOUSTON
+                    type: City
+                    label: Houston
+                    description: City of Houston, Texas
+                    attributes:
+                      is_capital: false
+                      population: 2304580
+                      regulatory_frameworks:
+                        - REG_FW_USA_TX_HOUSTON_CITY
+                  - id: LOC_CITY_USA_TX_DALLAS
+                    type: City
+                    label: Dallas
+                    description: City of Dallas, Texas
+                    attributes:
+                      is_capital: false
+                      population: 1345047
+                      regulatory_frameworks:
+                        - REG_FW_USA_TX_DALLAS_CITY
+              - id: LOC_STATE_USA_CA
+                type: State
+                label: California
+                description: State of California, USA
+                attributes:
+                  state_code: "CA"
+                  capital: "Sacramento"
+                  regulatory_frameworks:
+                    - REG_FW_USA_CA_STATE
+                children:
+                  - id: LOC_CITY_USA_CA_SF
+                    type: City
+                    label: San Francisco
+                    description: City of San Francisco, California
+                    attributes:
+                      is_capital: false
+                      population: 873965
+                      regulatory_frameworks:
+                        - REG_FW_USA_CA_SF_CITY
+                  - id: LOC_CITY_USA_CA_LA
+                    type: City
+                    label: Los Angeles
+                    description: City of Los Angeles, California
+                    attributes:
+                      is_capital: false
+                      population: 3898747
+                      regulatory_frameworks:
+                        - REG_FW_USA_CA_LA_CITY
+                  - id: LOC_CITY_USA_CA_SACRAMENTO
+                    type: City
+                    label: Sacramento
+                    description: City of Sacramento, California
+                    attributes:
+                      is_capital: true
+                      population: 524943
+                      regulatory_frameworks:
+                        - REG_FW_USA_CA_SACRAMENTO_CITY
+              - id: LOC_STATE_USA_NY
+                type: State
+                label: New York
+                description: State of New York, USA
+                attributes:
+                  state_code: "NY"
+                  capital: "Albany"
+                  regulatory_frameworks:
+                    - REG_FW_USA_NY_STATE
+                children:
+                  - id: LOC_CITY_USA_NY_NYC
+                    type: City
+                    label: New York City
+                    description: City of New York, New York
+                    attributes:
+                      is_capital: false
+                      population: 8804190
+                      regulatory_frameworks:
+                        - REG_FW_USA_NY_NYC_CITY
+          - id: LOC_COUNTRY_CAN
+            type: Country
+            label: Canada
+            description: Canada
+            attributes:
+              iso_code: "CAN"
+              regulatory_frameworks:
+                - REG_FW_CAN_FEDERAL
+            children:
+              - id: LOC_PROVINCE_CAN_ON
+                type: Province
+                label: Ontario
+                description: Province of Ontario, Canada
+                attributes:
+                  province_code: "ON"
+                  capital: "Toronto"
+                  regulatory_frameworks:
+                    - REG_FW_CAN_ON_PROVINCE
+                children:
+                  - id: LOC_CITY_CAN_ON_TORONTO
+                    type: City
+                    label: Toronto
+                    description: City of Toronto, Ontario
+                    attributes:
+                      is_capital: true
+                      population: 2731571
+                      regulatory_frameworks:
+                        - REG_FW_CAN_ON_TORONTO_CITY
+              - id: LOC_PROVINCE_CAN_QC
+                type: Province
+                label: Quebec
+                description: Province of Quebec, Canada
+                attributes:
+                  province_code: "QC"
+                  capital: "Quebec City"
+                  regulatory_frameworks:
+                    - REG_FW_CAN_QC_PROVINCE
+                children:
+                  - id: LOC_CITY_CAN_QC_MONTREAL
+                    type: City
+                    label: Montreal
+                    description: City of Montreal, Quebec
+                    attributes:
+                      is_capital: false
+                      population: 1704694
+                      regulatory_frameworks:
+                        - REG_FW_CAN_QC_MONTREAL_CITY
+      - id: LOC_CONTINENT_EUROPE
+        type: Continent
+        label: Europe
+        description: European continent
+        children:
+          - id: LOC_REGION_EU
+            type: SupranationalRegion
+            label: European Union
+            description: European Union
+            attributes:
+              regulatory_frameworks:
+                - REG_FW_EU_COMMUNITY
+            children:
+              - id: LOC_COUNTRY_DEU
+                type: Country
+                label: Germany
+                description: Federal Republic of Germany
+                attributes:
+                  iso_code: "DEU"
+                  regulatory_frameworks:
+                    - REG_FW_DEU_FEDERAL
+                    - REG_FW_EU_COMMUNITY
+                children:
+                  - id: LOC_STATE_DEU_BER
+                    type: State
+                    label: Berlin
+                    description: State of Berlin, Germany
+                    attributes:
+                      state_code: "BE"
+                      is_capital: true
+                      regulatory_frameworks:
+                        - REG_FW_DEU_BER_STATE
+              - id: LOC_COUNTRY_FRA
+                type: Country
+                label: France
+                description: French Republic
+                attributes:
+                  iso_code: "FRA"
+                  regulatory_frameworks:
+                    - REG_FW_FRA_NATIONAL
+                    - REG_FW_EU_COMMUNITY
+                children:
+                  - id: LOC_CITY_FRA_PARIS
+                    type: City
+                    label: Paris
+                    description: City of Paris, France
+                    attributes:
+                      is_capital: true
+                      population: 2161000
+                      regulatory_frameworks:
+                        - REG_FW_FRA_PARIS_CITY
+          - id: LOC_COUNTRY_GBR
+            type: Country
+            label: United Kingdom
+            description: United Kingdom of Great Britain and Northern Ireland
+            attributes:
+              iso_code: "GBR"
+              regulatory_frameworks:
+                - REG_FW_GBR_NATIONAL
+            children:
+              - id: LOC_REGION_GBR_ENG
+                type: Region
+                label: England
+                description: England, part of the United Kingdom
+                attributes:
+                  regulatory_frameworks:
+                    - REG_FW_GBR_ENG_REGION
+                children:
+                  - id: LOC_CITY_GBR_ENG_LON
+                    type: City
+                    label: London
+                    description: City of London, England, UK
+                    attributes:
+                      is_capital: true
+                      population: 8982000
+                      regulatory_frameworks:
+                        - REG_FW_GBR_ENG_LON_CITY

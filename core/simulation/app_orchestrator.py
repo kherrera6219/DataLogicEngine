@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 import uuid
+from core.simulation.location_context_engine import LocationContextEngine
 
 class AppOrchestrator:
     """
@@ -28,6 +29,7 @@ class AppOrchestrator:
         self.usm = united_system_manager
         self.simulation_engine = simulation_engine
         self.ka_loader = ka_loader
+        self.location_context_engine = None
         
         # Get orchestration configuration
         self.max_passes = self.config.get('max_simulation_passes', 3)
@@ -35,7 +37,24 @@ class AppOrchestrator:
         self.enable_gatekeeper = self.config.get('enable_gatekeeper', True)
         self.layer_progression = self.config.get('layer_progression', [1, 2, 3])
         
+        # Initialize LocationContextEngine for Axis 12 location awareness
+        self._initialize_location_context_engine()
+        
         logging.info(f"[{datetime.now()}] AppOrchestrator initialized with max_passes={self.max_passes}, target_confidence={self.target_confidence}")
+        
+    def _initialize_location_context_engine(self):
+        """Initialize the LocationContextEngine for Axis 12 location awareness."""
+        logging.info(f"[{datetime.now()}] Initializing LocationContextEngine (Axis 12)...")
+        axis12_conf = self.config.get('axis12_location_logic', {})
+        if self.gm and self.usm:  # LocationContextEngine needs GM & USM
+            self.location_context_engine = LocationContextEngine(
+                config=self.config,
+                graph_manager=self.gm,
+                united_system_manager=self.usm
+            )
+            logging.info(f"[{datetime.now()}] LocationContextEngine successfully initialized")
+        else:
+            logging.error(f"[{datetime.now()}] ERROR: Dependencies missing for LocationContextEngine. Not initialized.")
     
     def process_request(self, query_text: str, target_confidence: float = None) -> Dict[str, Any]:
         """
@@ -63,6 +82,22 @@ class AppOrchestrator:
         # Create a normalized query (simplified version for processing)
         normalized_query = query_text.strip().lower()
         
+        # Determine active location context for the query
+        active_location_uids = []
+        if self.location_context_engine:
+            logging.info(f"[{datetime.now()}] AppOrch: Determining active location context for session {session_id}...")
+            active_location_uids = self.location_context_engine.determine_active_location_context(
+                query_text=query_text  # Pass raw query to LocationContextEngine
+            )
+            
+            # Get applicable regulatory frameworks for the active locations
+            applicable_reg_uids = []
+            if active_location_uids:
+                applicable_reg_uids = self.location_context_engine.get_applicable_regulations_for_locations(
+                    active_location_uids
+                )
+                logging.info(f"[{datetime.now()}] AppOrch: Found {len(applicable_reg_uids)} applicable regulatory frameworks.")
+        
         # Initialize the simulation data structure
         simulation_data = {
             "session_id": session_id,
@@ -72,6 +107,8 @@ class AppOrchestrator:
             "target_confidence": self.target_confidence,
             "current_confidence": 0.0,
             "initial_ka_outputs": initial_ka_outputs,
+            "active_location_context_uids": active_location_uids,  # Store location context
+            "applicable_regulatory_framework_uids": applicable_reg_uids if 'applicable_reg_uids' in locals() else [],
             "history": [],
             "status": "in_progress"
         }

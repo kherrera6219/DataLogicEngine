@@ -1,0 +1,256 @@
+# UKG Regulatory Frameworks
+# This file contains regulatory framework data for integration with Axis 12 (location) data
+
+regulatory_frameworks:
+  - id: REG_FW_GLOBAL
+    label: Global Regulatory Framework
+    description: Universal regulatory principles applicable worldwide
+    jurisdiction_scope: global
+    attributes:
+      priority_level: 1
+      enforcement_mechanism: "multilateral"
+      ratified_countries: ["global"]
+  
+  # United States Frameworks
+  - id: REG_FW_USA_FEDERAL
+    label: US Federal Regulatory Framework
+    description: Federal regulatory framework of the United States
+    jurisdiction_scope: national
+    attributes:
+      priority_level: 2
+      enforcement_mechanism: "federal"
+      governing_body: "US Federal Government"
+      ratified_date: "1789-03-04"
+  
+  - id: REG_FW_USA_TX_STATE
+    label: Texas State Regulatory Framework
+    description: State regulatory framework of Texas, USA
+    jurisdiction_scope: state
+    attributes:
+      priority_level: 3
+      enforcement_mechanism: "state"
+      governing_body: "Texas State Government"
+      associated_location: "LOC_STATE_USA_TX"
+  
+  - id: REG_FW_USA_TX_AUSTIN_CITY
+    label: Austin City Regulatory Framework
+    description: Municipal regulatory framework of Austin, Texas
+    jurisdiction_scope: municipal
+    attributes:
+      priority_level: 4
+      enforcement_mechanism: "municipal"
+      governing_body: "Austin City Council"
+      associated_location: "LOC_CITY_USA_TX_AUSTIN"
+  
+  - id: REG_FW_USA_TX_HOUSTON_CITY
+    label: Houston City Regulatory Framework
+    description: Municipal regulatory framework of Houston, Texas
+    jurisdiction_scope: municipal
+    attributes:
+      priority_level: 4
+      enforcement_mechanism: "municipal"
+      governing_body: "Houston City Council"
+      associated_location: "LOC_CITY_USA_TX_HOUSTON"
+  
+  - id: REG_FW_USA_TX_DALLAS_CITY
+    label: Dallas City Regulatory Framework
+    description: Municipal regulatory framework of Dallas, Texas
+    jurisdiction_scope: municipal
+    attributes:
+      priority_level: 4
+      enforcement_mechanism: "municipal"
+      governing_body: "Dallas City Council"
+      associated_location: "LOC_CITY_USA_TX_DALLAS"
+  
+  - id: REG_FW_USA_CA_STATE
+    label: California State Regulatory Framework
+    description: State regulatory framework of California, USA
+    jurisdiction_scope: state
+    attributes:
+      priority_level: 3
+      enforcement_mechanism: "state"
+      governing_body: "California State Government"
+      associated_location: "LOC_STATE_USA_CA"
+  
+  - id: REG_FW_USA_CA_SF_CITY
+    label: San Francisco City Regulatory Framework
+    description: Municipal regulatory framework of San Francisco, California
+    jurisdiction_scope: municipal
+    attributes:
+      priority_level: 4
+      enforcement_mechanism: "municipal"
+      governing_body: "San Francisco City Council"
+      associated_location: "LOC_CITY_USA_CA_SF"
+  
+  - id: REG_FW_USA_CA_LA_CITY
+    label: Los Angeles City Regulatory Framework
+    description: Municipal regulatory framework of Los Angeles, California
+    jurisdiction_scope: municipal
+    attributes:
+      priority_level: 4
+      enforcement_mechanism: "municipal"
+      governing_body: "Los Angeles City Council"
+      associated_location: "LOC_CITY_USA_CA_LA"
+  
+  - id: REG_FW_USA_CA_SACRAMENTO_CITY
+    label: Sacramento City Regulatory Framework
+    description: Municipal regulatory framework of Sacramento, California
+    jurisdiction_scope: municipal
+    attributes:
+      priority_level: 4
+      enforcement_mechanism: "municipal"
+      governing_body: "Sacramento City Council"
+      associated_location: "LOC_CITY_USA_CA_SACRAMENTO"
+  
+  - id: REG_FW_USA_NY_STATE
+    label: New York State Regulatory Framework
+    description: State regulatory framework of New York, USA
+    jurisdiction_scope: state
+    attributes:
+      priority_level: 3
+      enforcement_mechanism: "state"
+      governing_body: "New York State Government"
+      associated_location: "LOC_STATE_USA_NY"
+  
+  - id: REG_FW_USA_NY_NYC_CITY
+    label: New York City Regulatory Framework
+    description: Municipal regulatory framework of New York City, New York
+    jurisdiction_scope: municipal
+    attributes:
+      priority_level: 4
+      enforcement_mechanism: "municipal"
+      governing_body: "New York City Council"
+      associated_location: "LOC_CITY_USA_NY_NYC"
+  
+  # Canadian Frameworks
+  - id: REG_FW_CAN_FEDERAL
+    label: Canadian Federal Regulatory Framework
+    description: Federal regulatory framework of Canada
+    jurisdiction_scope: national
+    attributes:
+      priority_level: 2
+      enforcement_mechanism: "federal"
+      governing_body: "Government of Canada"
+      associated_location: "LOC_COUNTRY_CAN"
+  
+  - id: REG_FW_CAN_ON_PROVINCE
+    label: Ontario Provincial Regulatory Framework
+    description: Provincial regulatory framework of Ontario, Canada
+    jurisdiction_scope: provincial
+    attributes:
+      priority_level: 3
+      enforcement_mechanism: "provincial"
+      governing_body: "Government of Ontario"
+      associated_location: "LOC_PROVINCE_CAN_ON"
+  
+  - id: REG_FW_CAN_ON_TORONTO_CITY
+    label: Toronto City Regulatory Framework
+    description: Municipal regulatory framework of Toronto, Ontario
+    jurisdiction_scope: municipal
+    attributes:
+      priority_level: 4
+      enforcement_mechanism: "municipal"
+      governing_body: "Toronto City Council"
+      associated_location: "LOC_CITY_CAN_ON_TORONTO"
+  
+  - id: REG_FW_CAN_QC_PROVINCE
+    label: Quebec Provincial Regulatory Framework
+    description: Provincial regulatory framework of Quebec, Canada
+    jurisdiction_scope: provincial
+    attributes:
+      priority_level: 3
+      enforcement_mechanism: "provincial"
+      governing_body: "Government of Quebec"
+      associated_location: "LOC_PROVINCE_CAN_QC"
+  
+  - id: REG_FW_CAN_QC_MONTREAL_CITY
+    label: Montreal City Regulatory Framework
+    description: Municipal regulatory framework of Montreal, Quebec
+    jurisdiction_scope: municipal
+    attributes:
+      priority_level: 4
+      enforcement_mechanism: "municipal"
+      governing_body: "Montreal City Council"
+      associated_location: "LOC_CITY_CAN_QC_MONTREAL"
+  
+  # European Frameworks
+  - id: REG_FW_EU_COMMUNITY
+    label: European Union Regulatory Framework
+    description: Regulatory framework of the European Union
+    jurisdiction_scope: supranational
+    attributes:
+      priority_level: 2
+      enforcement_mechanism: "community"
+      governing_body: "European Commission"
+      associated_location: "LOC_REGION_EU"
+      member_states: ["DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "LUX", "IRL", "DNK", "GRC", "PRT", "AUT", "FIN", "SWE", "POL", "CZE", "HUN", "SVK", "SVN", "EST", "LVA", "LTU", "CYP", "MLT", "HRV", "BGR", "ROU"]
+  
+  - id: REG_FW_DEU_FEDERAL
+    label: German Federal Regulatory Framework
+    description: Federal regulatory framework of Germany
+    jurisdiction_scope: national
+    attributes:
+      priority_level: 2
+      enforcement_mechanism: "federal"
+      governing_body: "German Federal Government"
+      associated_location: "LOC_COUNTRY_DEU"
+  
+  - id: REG_FW_DEU_BER_STATE
+    label: Berlin State Regulatory Framework
+    description: State regulatory framework of Berlin, Germany
+    jurisdiction_scope: state
+    attributes:
+      priority_level: 3
+      enforcement_mechanism: "state"
+      governing_body: "Berlin State Government"
+      associated_location: "LOC_STATE_DEU_BER"
+  
+  - id: REG_FW_FRA_NATIONAL
+    label: French National Regulatory Framework
+    description: National regulatory framework of France
+    jurisdiction_scope: national
+    attributes:
+      priority_level: 2
+      enforcement_mechanism: "national"
+      governing_body: "French Government"
+      associated_location: "LOC_COUNTRY_FRA"
+  
+  - id: REG_FW_FRA_PARIS_CITY
+    label: Paris City Regulatory Framework
+    description: Municipal regulatory framework of Paris, France
+    jurisdiction_scope: municipal
+    attributes:
+      priority_level: 4
+      enforcement_mechanism: "municipal"
+      governing_body: "Paris City Council"
+      associated_location: "LOC_CITY_FRA_PARIS"
+  
+  - id: REG_FW_GBR_NATIONAL
+    label: UK National Regulatory Framework
+    description: National regulatory framework of the United Kingdom
+    jurisdiction_scope: national
+    attributes:
+      priority_level: 2
+      enforcement_mechanism: "national"
+      governing_body: "UK Government"
+      associated_location: "LOC_COUNTRY_GBR"
+  
+  - id: REG_FW_GBR_ENG_REGION
+    label: England Regional Regulatory Framework
+    description: Regional regulatory framework of England, UK
+    jurisdiction_scope: regional
+    attributes:
+      priority_level: 3
+      enforcement_mechanism: "regional"
+      governing_body: "UK Government (England)"
+      associated_location: "LOC_REGION_GBR_ENG"
+  
+  - id: REG_FW_GBR_ENG_LON_CITY
+    label: London City Regulatory Framework
+    description: Municipal regulatory framework of London, England
+    jurisdiction_scope: municipal
+    attributes:
+      priority_level: 4
+      enforcement_mechanism: "municipal"
+      governing_body: "London City Council"
+      associated_location: "LOC_CITY_GBR_ENG_LON"
