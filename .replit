@@ -10,7 +10,7 @@ run = ["sh", "-c", "bash -c 'gunicorn --bind 0.0.0.0:5000 --workers=2 app:app & 
 build = ["sh", "-c", "npm install && npm run build"]
 
 [workflows]
-runButton = "UKG REST API Server"
+runButton = "UKG Enterprise Architecture"
 
 [[workflows.workflow]]
 name = "Project"
@@ -361,6 +361,67 @@ args = ""
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "# Start Next.js frontend in development mode"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "UKG Enterprise Architecture"
+author = 28709262
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the API Gateway on port 5000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python backend/api_gateway/api_gateway.py &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = ""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the Webhook Server on port 5001"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python backend/webhook_server/webhook_server.py &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = ""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the Model Context Protocol Server on port 5002"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python backend/model_context/model_context_server.py &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = ""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the UKG Core Service on port 5003"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = ""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the frontend on port 3000"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
