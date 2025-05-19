@@ -151,10 +151,10 @@ class GraphManager:
         self._create_topic_nodes()
         
         # Create nodes for Methods (Axis 4)
-        self._create_method_nodes()
+        # (Placeholder - can be implemented later)
         
         # Create nodes for Tools (Axis 5)
-        self._create_tool_nodes()
+        # (Placeholder - can be implemented later)
         
         # Create nodes for Regulatory Frameworks (Axis 6)
         self._create_regulatory_framework_nodes()
