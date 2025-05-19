@@ -118,6 +118,11 @@ def login():
     """Render the login page."""
     return render_template('login.html', title="Login - Universal Knowledge Graph")
 
+@app.route('/persona-demo')
+def persona_demo():
+    """Render the quad persona engine demo page."""
+    return render_template('persona_demo.html', title="Quad Persona Engine Demo - Universal Knowledge Graph")
+
 @app.route('/static/<path:path>')
 def serve_static(path):
     """Serve static files."""
