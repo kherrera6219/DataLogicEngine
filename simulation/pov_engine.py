@@ -1407,13 +1407,6 @@ class POVEngine:
         
         # Apply bounds to final confidence score
         return max(0.0, min(1.0, confidence))
-        
-        # Pass boost
-        if self.pass_count > 1:
-            confidence += min(0.1, 0.02 * self.pass_count)
-        
-        # Cap at 1.0
-        return min(1.0, confidence)
     
     def _calculate_axis_coverage(self, context: Dict) -> Dict:
         """
