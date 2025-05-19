@@ -7,7 +7,23 @@ It initializes the Flask application, database, and routes.
 
 import os
 import logging
+import json
+import pickle
 from datetime import datetime
+from flask import Flask, render_template, request, jsonify, session
+from flask_sqlalchemy import SQLAlchemy
+
+# Initialize Flask app
+app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "ukg_development_key")
+
+# Configure database
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Setup logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 import uuid
 import json
 
@@ -50,6 +66,136 @@ def initialize_database():
 def home():
     """Render the home page."""
     return render_template('index.html', title='Universal Knowledge Graph')
+
+# Simulation Routes
+
+@app.route('/simulation')
+def simulation_page():
+    """Render the simulation page."""
+    return render_template('simulation.html', title='UKG Simulation Engine')
+
+@app.route('/api/simulation/start', methods=['POST'])
+def start_simulation():
+    """Start a new simulation."""
+    try:
+        from core.simulation.memory_simulation import create_sample_simulation
+        
+        # Create simulation engine with sample data
+        engine = create_sample_simulation()
+        
+        # Start simulation
+        result = engine.start_simulation()
+        
+        # Store engine in session
+        session['engine'] = engine
+        
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error starting simulation: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': f"Error starting simulation: {str(e)}",
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/simulation/step', methods=['POST'])
+def run_simulation_step():
+    """Run a simulation step."""
+    try:
+        engine = session.get('engine')
+        if not engine:
+            return jsonify({
+                'status': 'error',
+                'message': 'No active simulation found',
+                'timestamp': datetime.now().isoformat()
+            }), 400
+        
+        # Run simulation step
+        result = engine.run_simulation_step()
+        
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error running simulation step: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': f"Error running simulation step: {str(e)}",
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/simulation/stop', methods=['POST'])
+def stop_simulation():
+    """Stop the current simulation."""
+    try:
+        engine = session.get('engine')
+        if not engine:
+            return jsonify({
+                'status': 'error',
+                'message': 'No active simulation found',
+                'timestamp': datetime.now().isoformat()
+            }), 400
+        
+        # Stop simulation
+        result = engine.stop_simulation()
+        
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error stopping simulation: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': f"Error stopping simulation: {str(e)}",
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/simulation/results', methods=['GET'])
+def get_simulation_results():
+    """Get simulation results."""
+    try:
+        engine = session.get('engine')
+        if not engine:
+            return jsonify({
+                'status': 'error',
+                'message': 'No active simulation found',
+                'timestamp': datetime.now().isoformat()
+            }), 400
+        
+        # Get simulation results
+        result = engine.get_simulation_results()
+        
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error getting simulation results: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': f"Error getting simulation results: {str(e)}",
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/simulation/graph', methods=['GET'])
+def get_simulation_graph():
+    """Get simulation graph."""
+    try:
+        engine = session.get('engine')
+        if not engine:
+            return jsonify({
+                'status': 'error',
+                'message': 'No active simulation found',
+                'timestamp': datetime.now().isoformat()
+            }), 400
+        
+        # Get export format
+        format = request.args.get('format', 'json')
+        
+        # Export graph
+        result = engine.export_graph(format)
+        
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error exporting simulation graph: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': f"Error exporting simulation graph: {str(e)}",
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
 # API Routes
 

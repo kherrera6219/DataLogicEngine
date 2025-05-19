@@ -1,72 +1,104 @@
-/* Main styles for Universal Knowledge Graph */
+/* 
+   Universal Knowledge Graph (UKG) System
+   Core Stylesheet
+*/
 
+/* Base Elements */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
+    line-height: 1.6;
     color: #333;
+    background-color: #f8f9fa;
 }
 
 h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 1rem;
     font-weight: 600;
 }
 
-.card {
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* Custom Classes */
+.ukg-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.knowledge-card {
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.card:hover {
+.knowledge-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
-.card-header {
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+.knowledge-card .card-header {
+    font-weight: bold;
+    padding: 1rem 1.5rem;
 }
 
-.table-responsive {
-    overflow-x: auto;
+.knowledge-card .card-body {
+    padding: 1.5rem;
 }
 
-/* Custom colors for each axis */
-.axis-1-color { background-color: #4287f5; }
-.axis-2-color { background-color: #42f57e; }
-.axis-3-color { background-color: #f5a742; }
-.axis-4-color { background-color: #f54242; }
-.axis-5-color { background-color: #a442f5; }
-.axis-6-color { background-color: #42d9f5; }
-.axis-7-color { background-color: #f542be; }
-.axis-8-color { background-color: #55bb67; }
-.axis-9-color { background-color: #bbaa55; }
-.axis-10-color { background-color: #5567bb; }
-.axis-11-color { background-color: #bb5567; }
-.axis-12-color { background-color: #67bb55; }
-.axis-13-color { background-color: #bb55bb; }
+/* Axis-specific colors */
+.axis-1 { background-color: #4287f5; color: white; }
+.axis-2 { background-color: #42f57e; }
+.axis-3 { background-color: #f5a742; }
+.axis-4 { background-color: #42d7f5; }
+.axis-5 { background-color: #f54242; color: white; }
+.axis-6 { background-color: #8442f5; color: white; }
+.axis-7 { background-color: #f542b3; color: white; }
+.axis-8 { background-color: #42f5c5; }
+.axis-9 { background-color: #f5e642; }
+.axis-10 { background-color: #f58642; }
+.axis-11 { background-color: #42f542; }
+.axis-12 { background-color: #f54275; color: white; }
+.axis-13 { background-color: #7642f5; color: white; }
 
-/* Custom styling for buttons */
-.btn {
-    font-weight: 500;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 1px;
-    transition: all 0.2s ease;
+/* Simulation Page Specific Styles */
+.simulation-canvas {
+    width: 100%;
+    height: 500px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
-.btn:hover:not([disabled]) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.step-controls {
+    margin-bottom: 20px;
 }
 
-/* Footer styling */
-footer {
-    border-top: 1px solid #dee2e6;
+.node {
+    cursor: pointer;
 }
 
-/* Responsive adjustments */
+.link {
+    stroke: #999;
+    stroke-opacity: 0.6;
+}
+
+.axis-1-node { fill: #4287f5; }
+.axis-2-node { fill: #42f57e; }
+.axis-3-node { fill: #f5a742; }
+
+.pillar-to-sector { stroke: #4287f5; }
+.domain-to-pillar { stroke: #f5a742; }
+.has-domain { stroke: #42f57e; }
+.has-sublevel { stroke: #bbbbbb; }
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
-    .card {
-        margin-bottom: 20px;
+    .knowledge-card {
+        margin-bottom: 1rem;
+    }
+    
+    .simulation-canvas {
+        height: 300px;
     }
 }

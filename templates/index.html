@@ -6,184 +6,249 @@
     <title>{{ title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #1e5799, #207cca);
+            color: white;
+            padding: 5rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-card {
+            height: 100%;
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .axis-card {
+            margin-bottom: 1.5rem;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .axis-card .card-header {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header class="my-4">
-            <h1 class="text-center">Universal Knowledge Graph (UKG)</h1>
-            <p class="text-center lead">A 13-axis system for comprehensive knowledge organization and reasoning</p>
-        </header>
-
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0">Axis 1: Knowledge</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Pillar Levels (PL01-PL100) forming the foundation of knowledge organization.</p>
-                        <a href="/api/pillars" class="btn btn-outline-primary btn-sm">View Pillars</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="card-title mb-0">Axis 2: Sector</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Industry and sector categorization across the knowledge graph.</p>
-                        <a href="/api/sectors" class="btn btn-outline-success btn-sm">View Sectors</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="card-title mb-0">Axis 3: Domain</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Branch systems with academic lineage and historical origin.</p>
-                        <a href="/api/domains" class="btn btn-outline-info btn-sm">View Domains</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-header bg-warning">
-                        <h5 class="card-title mb-0">Axis 4: Node</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Knowledge nodes representing sector/discipline crossover points.</p>
-                        <a href="/api/nodes" class="btn btn-outline-warning btn-sm">View Nodes</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-header bg-danger text-white">
-                        <h5 class="card-title mb-0">Axis 5: Honeycomb</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Cross-pillar and cross-sector linkage through honeycomb cells.</p>
-                        <button class="btn btn-outline-danger btn-sm" disabled>Coming Soon</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-header bg-secondary text-white">
-                        <h5 class="card-title mb-0">Axis 6: Octopus Node</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Regulatory framework and multi-dimensional knowledge connection points.</p>
-                        <button class="btn btn-outline-secondary btn-sm" disabled>Coming Soon</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card mb-4">
-                    <div class="card-header bg-dark text-white">
-                        <h5 class="card-title mb-0">All 13 Axes of the Universal Knowledge Graph</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Axis Number</th>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>Knowledge (Pillar Levels)</td>
-                                        <td>Top-level knowledge categories (PL01-PL100)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>Sector</td>
-                                        <td>Industry sector mapping to each pillar</td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td>Domain (Branch)</td>
-                                        <td>Academic lineage and historical origin</td>
-                                    </tr>
-                                    <tr>
-                                        <td>4</td>
-                                        <td>Node</td>
-                                        <td>Sector/discipline crossover points</td>
-                                    </tr>
-                                    <tr>
-                                        <td>5</td>
-                                        <td>Honeycomb</td>
-                                        <td>Cross-pillar & cross-sector linkage</td>
-                                    </tr>
-                                    <tr>
-                                        <td>6</td>
-                                        <td>Octopus Node</td>
-                                        <td>Regulatory framework connections</td>
-                                    </tr>
-                                    <tr>
-                                        <td>7</td>
-                                        <td>Compliance</td>
-                                        <td>Compliance standards and requirements</td>
-                                    </tr>
-                                    <tr>
-                                        <td>8</td>
-                                        <td>Knowledge Expert Persona</td>
-                                        <td>Expert roles mapped to knowledge domains</td>
-                                    </tr>
-                                    <tr>
-                                        <td>9</td>
-                                        <td>Sector Expert Persona</td>
-                                        <td>Industry-specific expert roles</td>
-                                    </tr>
-                                    <tr>
-                                        <td>10</td>
-                                        <td>Octopus Node Expert</td>
-                                        <td>Regulatory experts and specialists</td>
-                                    </tr>
-                                    <tr>
-                                        <td>11</td>
-                                        <td>Spiderweb Expert</td>
-                                        <td>Compliance experts and specialists</td>
-                                    </tr>
-                                    <tr>
-                                        <td>12</td>
-                                        <td>Location</td>
-                                        <td>Geographic context and spatial relationships</td>
-                                    </tr>
-                                    <tr>
-                                        <td>13</td>
-                                        <td>Time</td>
-                                        <td>Temporal context, causality, and evolution</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+    <div class="container-fluid hero-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 offset-md-2 text-center">
+                    <h1 class="display-4">Universal Knowledge Graph</h1>
+                    <p class="lead">A cutting-edge system for dynamically managing and interconnecting complex information spaces through advanced computational intelligence.</p>
+                    <div class="mt-4">
+                        <a href="/simulation" class="btn btn-light btn-lg me-2">Launch Simulation</a>
+                        <a href="#explore" class="btn btn-outline-light btn-lg">Explore Architecture</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="bg-light py-3 mt-4">
-        <div class="container text-center">
-            <p>&copy; 2025 Universal Knowledge Graph (UKG) System</p>
+    <div class="container mb-5">
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">13-Axis Architecture</h5>
+                        <p class="card-text">Comprehensive framework for organizing and navigating complex knowledge spaces across 13 fundamental dimensions of information organization.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Simulation Engine</h5>
+                        <p class="card-text">In-memory nested layered simulation system for modeling knowledge diffusion, sector influence, and domain specialization.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Location Context Engine</h5>
+                        <p class="card-text">Advanced spatial-temporal reasoning system integrating geographic, cultural, and contextual information for nuanced knowledge interpretation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="explore" class="row mt-5 mb-4">
+            <div class="col-12 text-center">
+                <h2>System Architecture</h2>
+                <p class="lead">The Universal Knowledge Graph is built on a 13-axis architecture that provides a comprehensive framework for knowledge representation and reasoning.</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card axis-card">
+                    <div class="card-header bg-primary text-white">Axis 1: Knowledge</div>
+                    <div class="card-body">
+                        <p>The foundational knowledge axis with Pillar Levels 1-100 that provides a comprehensive classification framework for all knowledge domains.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card axis-card">
+                    <div class="card-header bg-success text-white">Axis 2: Sectors</div>
+                    <div class="card-body">
+                        <p>Industry sectors and organizational domains that contextualize knowledge within specific professional and operational environments.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card axis-card">
+                    <div class="card-header bg-warning">Axis 3: Domains</div>
+                    <div class="card-body">
+                        <p>Specialized knowledge domains that represent established fields of study, practice, or expertise within broader sectors.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card axis-card">
+                    <div class="card-header bg-info">Axis 4: Concepts</div>
+                    <div class="card-body">
+                        <p>Abstract ideas, theories, and conceptual frameworks that form the building blocks of knowledge across domains and disciplines.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card axis-card">
+                    <div class="card-header bg-danger text-white">Axis 5: Entities</div>
+                    <div class="card-body">
+                        <p>Concrete objects, organizations, individuals, and other distinct entities that exist in the real world or conceptual spaces.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card axis-card">
+                    <div class="card-header bg-secondary text-white">Axis 6: Regulatory</div>
+                    <div class="card-body">
+                        <p>Legal, compliance, and regulatory frameworks that govern activities, practices, and standards across different jurisdictions and domains.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card axis-card">
+                    <div class="card-header bg-dark text-white">Axis 7: Compliance</div>
+                    <div class="card-body">
+                        <p>Standards, best practices, and compliance requirements that ensure adherence to regulatory frameworks and industry benchmarks.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card axis-card">
+                    <div class="card-header bg-primary text-white">Axis 8: Processes</div>
+                    <div class="card-body">
+                        <p>Procedures, workflows, and systematic approaches to achieving specific outcomes or managing operations across domains.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card axis-card">
+                    <div class="card-header bg-success text-white">Axis 9: Relations</div>
+                    <div class="card-body">
+                        <p>Connections, associations, and relationships between different knowledge elements, entities, concepts, and other components.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card axis-card">
+                    <div class="card-header bg-warning">Axis 10: Time</div>
+                    <div class="card-body">
+                        <p>Temporal dimensions of knowledge, including historical context, chronological development, and time-based relationships.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card axis-card">
+                    <div class="card-header bg-info">Axis 11: Applications</div>
+                    <div class="card-body">
+                        <p>Practical implementations, use cases, and applied frameworks that put knowledge into action for specific purposes.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card axis-card">
+                    <div class="card-header bg-danger text-white">Axis 12: Location</div>
+                    <div class="card-body">
+                        <p>Spatial and geographic dimensions of knowledge, including regional variations, location-specific contexts, and spatial relationships.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card axis-card">
+                    <div class="card-header bg-secondary text-white">Axis 13: Interface</div>
+                    <div class="card-body">
+                        <p>User interaction points, communication channels, and interfaces for accessing, interacting with, and contributing to the knowledge system.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <h2>Core Engine Components</h2>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        Simulation Engine
+                    </div>
+                    <div class="card-body">
+                        <p>An in-memory nested layered simulation system that models complex interactions between knowledge elements across the top three layers of the UKG architecture:</p>
+                        <ul>
+                            <li><strong>Layer 1: Knowledge Diffusion</strong> - Simulates how knowledge spreads and activates across Pillar Levels</li>
+                            <li><strong>Layer 2: Sector Influence</strong> - Models how sectors adapt and contextualize knowledge from different pillars</li>
+                            <li><strong>Layer 3: Domain Specialization</strong> - Represents specialized transformations of knowledge within specific domains</li>
+                        </ul>
+                        <div class="text-center mt-3">
+                            <a href="/simulation" class="btn btn-primary">Launch Simulation</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white">
+                        Knowledge Graph Manager
+                    </div>
+                    <div class="card-body">
+                        <p>A sophisticated graph database management system that handles the persistent storage and retrieval of UKG components:</p>
+                        <ul>
+                            <li><strong>Nodes</strong> - Knowledge elements across all 13 axes</li>
+                            <li><strong>Edges</strong> - Relationships and connections between nodes</li>
+                            <li><strong>Algorithms</strong> - Knowledge processing and transformation methods</li>
+                            <li><strong>Structured Memory</strong> - Organized storage of processed information</li>
+                        </ul>
+                        <p>Built on PostgreSQL with advanced graph capabilities for efficient querying and traversal.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Universal Knowledge Graph (UKG) System</h5>
+                    <p>&copy; 2025 All Rights Reserved</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>A cutting-edge computational intelligence system for complex knowledge management</p>
+                </div>
+            </div>
         </div>
     </footer>
 

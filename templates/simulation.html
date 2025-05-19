@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UKG Simulation Engine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .simulation-canvas {
+            width: 100%;
+            height: 500px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header button {
+            float: right;
+            margin-top: -5px;
+        }
+        
+        .node {
+            cursor: pointer;
+        }
+        
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+        
+        .step-controls {
+            margin-bottom: 20px;
+        }
+        
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .axis-1-node { fill: #4287f5; }
+        .axis-2-node { fill: #42f57e; }
+        .axis-3-node { fill: #f5a742; }
+        
+        .pillar-to-sector { stroke: #4287f5; }
+        .domain-to-pillar { stroke: #f5a742; }
+        .has-domain { stroke: #42f57e; }
+        .has-sublevel { stroke: #bbbbbb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="my-4">
+            <h1 class="text-center">UKG Simulation Engine</h1>
+            <p class="text-center lead">Nested Layered Simulation for Universal Knowledge Graph (Layers 1-3)</p>
+        </header>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">Simulation Controls</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="step-controls">
+                            <div class="d-grid gap-2">
+                                <button id="startSimulation" class="btn btn-success">Start New Simulation</button>
+                                <button id="runStep" class="btn btn-primary" disabled>Run Simulation Step</button>
+                                <button id="stopSimulation" class="btn btn-danger" disabled>Stop Simulation</button>
+                            </div>
+                        </div>
+                        <div class="simulation-status">
+                            <h6>Simulation Status:</h6>
+                            <div id="statusOutput" class="alert alert-secondary">Not started</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info">
+                        <h5 class="card-title mb-0">Simulation Statistics</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="statsOutput">
+                            <p>No simulation running</p>
+                        </div>
+                        <div class="progress mt-3">
+                            <div id="simulationProgress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="card-title mb-0">Knowledge Graph Visualization
+                            <button id="refreshGraph" class="btn btn-sm btn-outline-light" disabled>Refresh Graph</button>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="graphCanvas" class="simulation-canvas"></div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="showAxis1" checked>
+                                    <label class="form-check-label" for="showAxis1">
+                                        Show Axis 1 (Knowledge)
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="showAxis2" checked>
+                                    <label class="form-check-label" for="showAxis2">
+                                        Show Axis 2 (Sector)
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="showAxis3" checked>
+                                    <label class="form-check-label" for="showAxis3">
+                                        Show Axis 3 (Domain)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="card-title mb-0">Simulation Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="resultsTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="layer1-tab" data-bs-toggle="tab" data-bs-target="#layer1" type="button" role="tab" aria-controls="layer1" aria-selected="true">Layer 1: Knowledge</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="layer2-tab" data-bs-toggle="tab" data-bs-target="#layer2" type="button" role="tab" aria-controls="layer2" aria-selected="false">Layer 2: Sector</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="layer3-tab" data-bs-toggle="tab" data-bs-target="#layer3" type="button" role="tab" aria-controls="layer3" aria-selected="false">Layer 3: Domain</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="raw-tab" data-bs-toggle="tab" data-bs-target="#raw" type="button" role="tab" aria-controls="raw" aria-selected="false">Raw Data</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="resultsTabsContent">
+                            <div class="tab-pane fade show active" id="layer1" role="tabpanel" aria-labelledby="layer1-tab">
+                                <div class="mt-3" id="layer1Results">
+                                    <p>Run a simulation to see Layer 1 (Knowledge) results</p>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="layer2" role="tabpanel" aria-labelledby="layer2-tab">
+                                <div class="mt-3" id="layer2Results">
+                                    <p>Run a simulation to see Layer 2 (Sector) results</p>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="layer3" role="tabpanel" aria-labelledby="layer3-tab">
+                                <div class="mt-3" id="layer3Results">
+                                    <p>Run a simulation to see Layer 3 (Domain) results</p>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="raw" role="tabpanel" aria-labelledby="raw-tab">
+                                <div class="mt-3">
+                                    <pre id="rawResults">No simulation data available</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-3 mt-4">
+        <div class="container text-center">
+            <p>&copy; 2025 Universal Knowledge Graph (UKG) System</p>
+        </div>
+    </footer>
+
+    <script>
+        // Simulation state
+        let simulationId = null;
+        let stepCount = 0;
+        let graphData = null;
+        
+        // DOM elements
+        const startBtn = document.getElementById('startSimulation');
+        const runStepBtn = document.getElementById('runStep');
+        const stopBtn = document.getElementById('stopSimulation');
+        const refreshGraphBtn = document.getElementById('refreshGraph');
+        const statusOutput = document.getElementById('statusOutput');
+        const statsOutput = document.getElementById('statsOutput');
+        const simulationProgress = document.getElementById('simulationProgress');
+        const layer1Results = document.getElementById('layer1Results');
+        const layer2Results = document.getElementById('layer2Results');
+        const layer3Results = document.getElementById('layer3Results');
+        const rawResults = document.getElementById('rawResults');
+        
+        // Event listeners
+        startBtn.addEventListener('click', startSimulation);
+        runStepBtn.addEventListener('click', runSimulationStep);
+        stopBtn.addEventListener('click', stopSimulation);
+        refreshGraphBtn.addEventListener('click', refreshGraph);
+        
+        // Simulation functions
+        async function startSimulation() {
+            try {
+                statusOutput.textContent = 'Starting simulation...';
+                statusOutput.className = 'alert alert-info';
+                
+                const response = await fetch('/api/simulation/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    simulationId = data.simulation_id;
+                    stepCount = 0;
+                    
+                    // Update UI
+                    statusOutput.textContent = `Simulation started with ID: ${simulationId}`;
+                    statusOutput.className = 'alert alert-success';
+                    updateStats({
+                        node_count: data.node_count,
+                        edge_count: data.edge_count
+                    });
+                    updateProgress(0);
+                    
+                    // Enable/disable buttons
+                    startBtn.disabled = true;
+                    runStepBtn.disabled = false;
+                    stopBtn.disabled = false;
+                    refreshGraphBtn.disabled = false;
+                    
+                    // Get initial graph
+                    refreshGraph();
+                } else {
+                    statusOutput.textContent = `Error: ${data.message}`;
+                    statusOutput.className = 'alert alert-danger';
+                }
+            } catch (error) {
+                statusOutput.textContent = `Error: ${error.message}`;
+                statusOutput.className = 'alert alert-danger';
+            }
+        }
+        
+        async function runSimulationStep() {
+            try {
+                statusOutput.textContent = 'Running simulation step...';
+                statusOutput.className = 'alert alert-info';
+                
+                const response = await fetch('/api/simulation/step', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    stepCount = data.simulation_step;
+                    
+                    // Update UI
+                    statusOutput.textContent = `Completed simulation step ${stepCount}`;
+                    statusOutput.className = 'alert alert-success';
+                    updateProgress(stepCount * 20); // Assume 5 steps = 100%
+                    
+                    // Update results
+                    updateResults(data.results);
+                    
+                    // Refresh graph
+                    refreshGraph();
+                } else {
+                    statusOutput.textContent = `Error: ${data.message}`;
+                    statusOutput.className = 'alert alert-danger';
+                }
+            } catch (error) {
+                statusOutput.textContent = `Error: ${error.message}`;
+                statusOutput.className = 'alert alert-danger';
+            }
+        }
+        
+        async function stopSimulation() {
+            try {
+                statusOutput.textContent = 'Stopping simulation...';
+                statusOutput.className = 'alert alert-info';
+                
+                const response = await fetch('/api/simulation/stop', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Update UI
+                    statusOutput.textContent = `Simulation stopped after ${data.steps_completed} steps`;
+                    statusOutput.className = 'alert alert-warning';
+                    
+                    // Enable/disable buttons
+                    startBtn.disabled = false;
+                    runStepBtn.disabled = true;
+                    stopBtn.disabled = true;
+                } else {
+                    statusOutput.textContent = `Error: ${data.message}`;
+                    statusOutput.className = 'alert alert-danger';
+                }
+            } catch (error) {
+                statusOutput.textContent = `Error: ${error.message}`;
+                statusOutput.className = 'alert alert-danger';
+            }
+        }
+        
+        async function refreshGraph() {
+            try {
+                const response = await fetch('/api/simulation/graph');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    graphData = data.graph;
+                    renderGraph(graphData);
+                }
+            } catch (error) {
+                console.error('Error refreshing graph:', error);
+            }
+        }
+        
+        // Helper functions
+        function updateStats(stats) {
+            if (!stats) return;
+            
+            statsOutput.innerHTML = `
+                <table class="table table-sm">
+                    <tr>
+                        <th>Nodes:</th>
+                        <td>${stats.node_count}</td>
+                    </tr>
+                    <tr>
+                        <th>Edges:</th>
+                        <td>${stats.edge_count}</td>
+                    </tr>
+                </table>
+            `;
+        }
+        
+        function updateProgress(percent) {
+            simulationProgress.style.width = `${percent}%`;
+            simulationProgress.textContent = `${percent}%`;
+            simulationProgress.setAttribute('aria-valuenow', percent);
+        }
+        
+        function updateResults(results) {
+            if (!results) return;
+            
+            // Update raw results
+            rawResults.textContent = JSON.stringify(results, null, 2);
+            
+            // Update Layer 1 results (Knowledge diffusion)
+            const pillarActivations = results.pillar_activations;
+            let layer1Html = '<h4>Knowledge Diffusion</h4>';
+            
+            if (pillarActivations && Object.keys(pillarActivations).length > 0) {
+                layer1Html += '<div class="table-responsive"><table class="table table-striped">';
+                layer1Html += '<thead><tr><th>Pillar ID</th><th>Activation Level</th><th>Visualization</th></tr></thead>';
+                layer1Html += '<tbody>';
+                
+                for (const [pillarId, activation] of Object.entries(pillarActivations)) {
+                    const percent = (activation * 100).toFixed(2);
+                    layer1Html += `
+                        <tr>
+                            <td>${pillarId}</td>
+                            <td>${activation.toFixed(4)}</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: ${percent}%;" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">${percent}%</div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                layer1Html += '</tbody></table></div>';
+            } else {
+                layer1Html += '<p>No pillar activation data available.</p>';
+            }
+            
+            layer1Results.innerHTML = layer1Html;
+            
+            // Update Layer 2 results (Sector influence)
+            const sectorActivities = results.sector_activities;
+            let layer2Html = '<h4>Sector Influence</h4>';
+            
+            if (sectorActivities && Object.keys(sectorActivities).length > 0) {
+                layer2Html += '<div class="table-responsive"><table class="table table-striped">';
+                layer2Html += '<thead><tr><th>Sector ID</th><th>Name</th><th>Influence</th><th>Knowledge Sources</th></tr></thead>';
+                layer2Html += '<tbody>';
+                
+                for (const [sectorId, data] of Object.entries(sectorActivities)) {
+                    const percent = (data.influence * 100).toFixed(2);
+                    const sources = data.knowledge_sources.map(s => `${s.pillar_id} (${(s.contribution * 100).toFixed(2)}%)`).join(', ');
+                    
+                    layer2Html += `
+                        <tr>
+                            <td>${sectorId}</td>
+                            <td>${data.name}</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: ${percent}%;" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">${percent}%</div>
+                                </div>
+                            </td>
+                            <td>${sources}</td>
+                        </tr>
+                    `;
+                }
+                
+                layer2Html += '</tbody></table></div>';
+            } else {
+                layer2Html += '<p>No sector activity data available.</p>';
+            }
+            
+            layer2Results.innerHTML = layer2Html;
+            
+            // Update Layer 3 results (Domain specialization)
+            const domainActivities = results.domain_activities;
+            let layer3Html = '<h4>Domain Specialization</h4>';
+            
+            if (domainActivities && Object.keys(domainActivities).length > 0) {
+                layer3Html += '<div class="table-responsive"><table class="table table-striped">';
+                layer3Html += '<thead><tr><th>Domain ID</th><th>Name</th><th>Specialization</th><th>Adaptations</th></tr></thead>';
+                layer3Html += '<tbody>';
+                
+                for (const [domainId, data] of Object.entries(domainActivities)) {
+                    const percent = (data.specialization * 100).toFixed(2);
+                    const adaptations = data.knowledge_adaptations.map(a => 
+                        `${a.type}: ${a.name} (${(a.contribution * 100).toFixed(2)}%)`
+                    ).join('<br>');
+                    
+                    layer3Html += `
+                        <tr>
+                            <td>${domainId}</td>
+                            <td>${data.name}</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: ${percent}%;" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">${percent}%</div>
+                                </div>
+                            </td>
+                            <td>${adaptations}</td>
+                        </tr>
+                    `;
+                }
+                
+                layer3Html += '</tbody></table></div>';
+            } else {
+                layer3Html += '<p>No domain activity data available.</p>';
+            }
+            
+            layer3Results.innerHTML = layer3Html;
+        }
+        
+        // Graph visualization with D3.js
+        function renderGraph(data) {
+            if (!data || !data.nodes || !data.edges) return;
+            
+            // Clear previous graph
+            d3.select('#graphCanvas').html('');
+            
+            // Get filter settings
+            const showAxis1 = document.getElementById('showAxis1').checked;
+            const showAxis2 = document.getElementById('showAxis2').checked;
+            const showAxis3 = document.getElementById('showAxis3').checked;
+            
+            // Filter nodes based on settings
+            let nodes = data.nodes.filter(node => {
+                if (node.axis === 1 && !showAxis1) return false;
+                if (node.axis === 2 && !showAxis2) return false;
+                if (node.axis === 3 && !showAxis3) return false;
+                return true;
+            });
+            
+            // Filter edges to include only connections between visible nodes
+            const nodeIds = new Set(nodes.map(n => n.id));
+            let links = data.edges.filter(edge => 
+                nodeIds.has(edge.source) && nodeIds.has(edge.target)
+            );
+            
+            // Set up the simulation
+            const width = document.getElementById('graphCanvas').clientWidth;
+            const height = document.getElementById('graphCanvas').clientHeight;
+            
+            const svg = d3.select('#graphCanvas')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+            
+            // Create a group for the graph
+            const g = svg.append('g');
+            
+            // Add zoom and pan behavior
+            svg.call(d3.zoom()
+                .scaleExtent([0.1, 4])
+                .on('zoom', (event) => {
+                    g.attr('transform', event.transform);
+                })
+            );
+            
+            // Create the links
+            const link = g.append('g')
+                .selectAll('.link')
+                .data(links)
+                .enter()
+                .append('line')
+                .attr('class', 'link')
+                .attr('stroke-width', d => d.weight ? d.weight * 2 : 1)
+                .attr('class', d => `link ${d.type || ''}`);
+            
+            // Create the nodes
+            const node = g.append('g')
+                .selectAll('.node')
+                .data(nodes)
+                .enter()
+                .append('circle')
+                .attr('class', 'node')
+                .attr('r', d => {
+                    // Size by node type
+                    if (d.type === 'pillar_level') return 10;
+                    if (d.type === 'pillar_sublevel') return 5;
+                    if (d.type === 'sector') return 8;
+                    if (d.type === 'domain') return 7;
+                    return 6;
+                })
+                .attr('class', d => `node axis-${d.axis}-node`)
+                .attr('title', d => d.name)
+                .on('mouseover', function(event, d) {
+                    // Show tooltip with node info
+                    const tooltip = d3.select('body')
+                        .append('div')
+                        .attr('class', 'tooltip')
+                        .style('position', 'absolute')
+                        .style('background', 'white')
+                        .style('padding', '5px')
+                        .style('border', '1px solid #ddd')
+                        .style('border-radius', '3px')
+                        .style('pointer-events', 'none')
+                        .style('z-index', 1000)
+                        .style('left', (event.pageX + 10) + 'px')
+                        .style('top', (event.pageY - 10) + 'px');
+                    
+                    tooltip.html(`
+                        <strong>${d.name}</strong><br>
+                        Type: ${d.type}<br>
+                        ID: ${d.id}<br>
+                        Axis: ${d.axis}
+                    `);
+                })
+                .on('mouseout', function() {
+                    // Remove tooltip
+                    d3.selectAll('.tooltip').remove();
+                });
+            
+            // Add labels
+            const label = g.append('g')
+                .selectAll('.label')
+                .data(nodes)
+                .enter()
+                .append('text')
+                .attr('class', 'label')
+                .attr('font-size', '10px')
+                .text(d => {
+                    // Only show labels for main nodes
+                    if (d.type === 'pillar_sublevel') return '';
+                    return d.id;
+                })
+                .attr('dx', 12)
+                .attr('dy', 4);
+            
+            // Set up the force simulation
+            const simulation = d3.forceSimulation(nodes)
+                .force('link', d3.forceLink(links).id(d => d.id).distance(100))
+                .force('charge', d3.forceManyBody().strength(-200))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('x', d3.forceX(width / 2).strength(0.1))
+                .force('y', d3.forceY(height / 2).strength(0.1));
+            
+            // Update positions during simulation
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+                
+                node
+                    .attr('cx', d => d.x)
+                    .attr('cy', d => d.y);
+                
+                label
+                    .attr('x', d => d.x)
+                    .attr('y', d => d.y);
+            });
+        }
+        
+        // Filter visualization when checkboxes change
+        document.getElementById('showAxis1').addEventListener('change', () => {
+            if (graphData) renderGraph(graphData);
+        });
+        
+        document.getElementById('showAxis2').addEventListener('change', () => {
+            if (graphData) renderGraph(graphData);
+        });
+        
+        document.getElementById('showAxis3').addEventListener('change', () => {
+            if (graphData) renderGraph(graphData);
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
