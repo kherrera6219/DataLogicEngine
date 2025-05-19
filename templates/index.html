@@ -150,9 +150,96 @@
       .catch(error => {
         console.error('Error:', error);
         loadingIndicator.classList.add('d-none');
-        resultContent.innerHTML = '<div class="alert alert-danger">Error processing your request. Please try again.</div>';
+        resultContent.innerHTML = '{% extends "base.html" %}
+
+{% block title %}UKG System Home{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h2>Universal Knowledge Graph (UKG) System</h2>
+        </div>
+        <div class="card-body">
+          <p class="lead">Welcome to the UKG System, a comprehensive knowledge management platform.</p>
+          <p>Explore the graph-based knowledge representation system integrating multiple domains and perspectives.</p>
+          
+          <h3 class="mt-4">Features</h3>
+          <ul>
+            <li>Multi-dimensional knowledge representation</li>
+            <li>Context-aware information retrieval</li>
+            <li>Persona-based query processing</li>
+            <li>Regulatory and compliance framework integration</li>
+          </ul>
+          
+          <div class="mt-4">
+            <a href="/chat" class="btn btn-primary">Start Chatting</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h3>UKG System Status</h3>
+        </div>
+        <div class="card-body">
+          <h5>Graph Statistics</h5>
+          <div id="graph-stats">
+            <p>Loading graph statistics...</p>
+          </div>
+          <hr>
+          <h5>Memory Statistics</h5>
+          <div id="memory-stats">
+            <p>Loading memory statistics...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Fetch graph statistics
+    fetch('/api/graph_stats')
+      .then(response => response.json())
+      .then(data => {
+        const graphStatsDiv = document.getElementById('graph-stats');
+        if (data.success) {
+          graphStatsDiv.innerHTML = `
+            <p>Total Nodes: ${data.data.total_nodes || 0}</p>
+            <p>Total Edges: ${data.data.total_edges || 0}</p>
+            <p>Node Types: ${Object.keys(data.data.node_types || {}).length}</p>
+          `;
+        } else {
+          graphStatsDiv.innerHTML = '<div class="alert alert-danger">Error loading graph statistics</div>';
+        }
+      })
+      .catch(error => {
+        document.getElementById('graph-stats').innerHTML = '<div class="alert alert-danger">Error processing your request. Please try again.</div>';
       });
-    });
+
+    // Fetch memory statistics
+    fetch('/api/memory_stats')
+      .then(response => response.json())
+      .then(data => {
+        const memoryStatsDiv = document.getElementById('memory-stats');
+        if (data.success) {
+          memoryStatsDiv.innerHTML = `
+            <p>Memory Entries: ${data.data.total_entries || 0}</p>
+            <p>Active Sessions: ${data.data.active_sessions || 0}</p>
+          `;
+        } else {
+          memoryStatsDiv.innerHTML = '<div class="alert alert-danger">Error loading memory statistics</div>';
+        }
+      })
+      .catch(error => {
+        document.getElementById('memory-stats').innerHTML = '<div class="alert alert-danger">Error processing your request. Please try again.</div>';
+      });
   });
 </script>
 {% endblock %}

@@ -27,8 +27,8 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
-waitForPort = 5000
+args = "gunicorn --bind 0.0.0.0:3000 --reuse-port --reload main:app"
+waitForPort = 3000
 
 [[workflows.workflow]]
 name = "Next.js Dev"
@@ -103,11 +103,11 @@ args = "npm run dev"
 
 [[ports]]
 localPort = 3000
-externalPort = 3000
+externalPort = 80
 
 [[ports]]
-localPort = 5000
-externalPort = 80
+localPort = 3001
+externalPort = 3001
 
 [objectStorage]
 defaultBucketID = "replit-objstore-6e2e7e3d-f093-4c1e-a336-03943eecfd71"
