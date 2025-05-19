@@ -1607,4 +1607,3 @@ class MemoryPatchEngine:
             list: History of applied patches
         """
         return self.patch_history
-"""

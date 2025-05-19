@@ -1,20 +1,20 @@
 {
   "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/api/graph_stats": "pages/api/graph_stats.js",
   "/api/memory_stats": "pages/api/memory_stats.js",
+  "/_error": "pages/_error.js",
+  "/api/query": "pages/api/query.js",
   "/api/security/compliance-check": "pages/api/security/compliance-check.js",
   "/chat": "pages/chat.js",
-  "/api/query": "pages/api/query.js",
   "/compliance-dashboard": "pages/compliance-dashboard.js",
-  "/compliance": "pages/compliance.js",
   "/contextual": "pages/contextual.js",
   "/honeycomb": "pages/honeycomb.js",
+  "/compliance": "pages/compliance.js",
+  "/": "pages/index.js",
   "/locations": "pages/locations.js",
   "/pillars": "pages/pillars.js",
-  "/": "pages/index.js",
+  "/regulatory": "pages/regulatory.js",
   "/timeline": "pages/timeline.js",
-  "/unified-mapping": "pages/unified-mapping.js",
-  "/regulatory": "pages/regulatory.js"
+  "/unified-mapping": "pages/unified-mapping.js"
 }
