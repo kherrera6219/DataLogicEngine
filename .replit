@@ -10,7 +10,7 @@ run = ["sh", "-c", "npm start"]
 build = ["sh", "-c", "npm install && npm run build"]
 
 [workflows]
-runButton = "Run Database Demo"
+runButton = "Run Layer1 Demo"
 
 [[workflows.workflow]]
 name = "Project"
@@ -427,6 +427,28 @@ args = "python simulation/create_database_script.py"
 name = "Run Database Demo"
 author = 28709262
 mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_layered_database_demo.py"
+
+[[workflows.workflow]]
+name = "Run Layer1 Demo"
+author = 28709262
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_layer1_demo.py"
+
+[[workflows.workflow]]
+name = "Run Complete Database Demo"
+author = 28709262
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python simulation/create_database_script.py"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
