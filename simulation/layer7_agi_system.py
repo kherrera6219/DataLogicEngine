@@ -19,11 +19,9 @@ Key components:
 """
 
 import logging
-import math
-import uuid
-import json
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Union, Tuple, Set
+from typing import Dict, List, Optional, Any, Tuple, Set, Union
+
 
 class AGISimulationEngine:
     """
@@ -46,26 +44,28 @@ class AGISimulationEngine:
         self.config = config or {}
         self.system_manager = system_manager
         
-        # Configuration
-        self.goal_expansion_depth = self.config.get('goal_expansion_depth', 3)
-        self.belief_realignment_threshold = self.config.get('belief_realignment_threshold', 0.2)
-        self.conflict_resolution_iterations = self.config.get('conflict_resolution_iterations', 5)
-        self.goal_convergence_threshold = self.config.get('goal_convergence_threshold', 0.75)
-        
-        # Initialize subcomponents
-        self.confidence_drift_monitor = ConfidenceDriftMonitor()
+        # Initialize sub-components
+        self.confidence_monitor = ConfidenceDriftMonitor()
         self.layer_link_handler = LayerLinkHandler()
         self.entropy_scorer = EntropyScorer()
-        self.multi_role_coordinator = MultiRoleCoordinator()
+        self.role_coordinator = MultiRoleCoordinator()
         self.pov_expansion_module = POVExpansionModule()
         self.memory_patch_engine = MemoryPatchEngine()
         
-        # Session tracking
-        self.sessions = {}
-        self.current_session_id = None
+        # Tracking and metrics
+        self.processing_history = []
+        self.simulation_cycles = 0
+        self.goal_history = []
+        
+        # Configure operational parameters
+        self.max_recursion_depth = self.config.get('max_recursion_depth', 3)
+        self.uncertainty_threshold = self.config.get('uncertainty_threshold', 0.15)
+        self.goal_expansion_factor = self.config.get('goal_expansion_factor', 2.0)
+        self.belief_realignment_factor = self.config.get('belief_realignment_factor', 1.5)
+        self.goal_convergence_threshold = self.config.get('goal_convergence_threshold', 0.75)
         
         logging.info(f"[{datetime.now()}] AGISimulationEngine initialized")
-    
+        
     def process(self, context: Dict, pov_engine=None) -> Dict:
         """
         Process a query through the AGI simulation system.
@@ -78,151 +78,186 @@ class AGISimulationEngine:
         Returns:
             dict: Processed and integrated results with enhanced understanding
         """
-        # Generate session ID
-        session_id = context.get('session_id', f"AGI_{str(uuid.uuid4())[:8]}")
-        self.current_session_id = session_id
+        self.simulation_cycles += 1
+        logging.info(f"[{datetime.now()}] AGI Simulation cycle {self.simulation_cycles} started")
         
-        # Start AGI simulation session
+        # Track start time for performance metrics
         start_time = datetime.now()
         
-        # Create session record
-        session = {
-            'session_id': session_id,
-            'context': context,
-            'start_time': start_time.isoformat(),
-            'end_time': None,
-            'status': 'processing',
-            'goals': [],
-            'beliefs': [],
-            'conflicts': [],
-            'convergence': None,
-            'entropy': 0.0,
-            'confidence_drift': 0.0,
-            'error': None
-        }
-        
-        # Store session
-        self.sessions[session_id] = session
-        
         try:
-            # Extract key information from context
-            query = context.get('query', '')
-            original_confidence = context.get('confidence_score', 0.5)
-            belief_vectors = context.get('belief_vectors', [])
-            
-            logging.info(f"[{datetime.now()}] Starting AGI simulation for query: {query}")
-            
-            # Step 1: POV Expansion (integrate with Layer 4)
+            # 1. Expand context with POV Engine if available
             if pov_engine:
-                expanded_context = self.pov_expansion_module.expand_context(pov_engine, context)
-                logging.info(f"[{datetime.now()}] Context expanded using POV Engine")
+                logging.info(f"[{datetime.now()}] Expanding context with POV Engine")
+                context = self.pov_expansion_module.expand_context(pov_engine, context)
             else:
-                expanded_context = context
-                logging.info(f"[{datetime.now()}] No POV Engine provided, using original context")
+                # Use the simulated expansion if POV engine not available
+                context = self.pov_expansion_module._simulate_pov_expansion(context)
+                
+            # 2. Recursively expand goals from the query and context
+            query = context.get('query', '')
+            goals = self._expand_goals(context)
+            logging.info(f"[{datetime.now()}] Expanded {len(goals)} goals from query")
             
-            # Step 2: Recursive Goal Expansion
-            goals = self._expand_goals(expanded_context)
-            session['goals'] = goals
-            logging.info(f"[{datetime.now()}] Generated {len(goals)} recursive goals")
+            # 3. Extract and realign belief vectors
+            belief_vectors = self._extract_belief_vectors(context)
+            realigned_beliefs = self._realign_beliefs(belief_vectors, context)
+            logging.info(f"[{datetime.now()}] Realigned {len(realigned_beliefs)} belief vectors")
             
-            # Step 3: Belief Realignment
-            beliefs = self._realign_beliefs(belief_vectors, expanded_context)
-            session['beliefs'] = beliefs
-            logging.info(f"[{datetime.now()}] Realigned belief vectors")
+            # 4. Arbitrate conflicts between goals and beliefs
+            conflicts = self._arbitrate_conflicts(goals, realigned_beliefs, context)
+            logging.info(f"[{datetime.now()}] Identified {len(conflicts)} conflicts to resolve")
             
-            # Step 4: Confidence Drift Monitoring
-            prev_confidence_values = context.get('historical_confidence', [original_confidence])
-            confidence_drift = self.confidence_drift_monitor.compute_drift(
-                prev_confidence_values, [original_confidence]
+            # 5. Coordinate resolution across multiple expert roles
+            role_resolutions = self.role_coordinator.coordinate_roles(conflicts, context)
+            logging.info(f"[{datetime.now()}] Generated {len(role_resolutions)} role-based resolutions")
+            
+            # 6. Evaluate goal convergence
+            convergence = self._evaluate_goal_convergence(goals, conflicts, role_resolutions)
+            logging.info(f"[{datetime.now()}] Goal convergence evaluation: {convergence['score']:.2f}")
+            
+            # 7. Track confidence drift over time
+            confidence_history = context.get('historical_confidence', [])
+            if confidence_history:
+                confidence_drift = self.confidence_monitor.compute_drift(
+                    confidence_history, [convergence['score']]
+                )
+                context['confidence_drift'] = confidence_drift
+                logging.info(f"[{datetime.now()}] Confidence drift: {confidence_drift:.4f}")
+            else:
+                confidence_drift = 0.0
+                
+            # 8. Calculate entropy score
+            goal_entropy = self.entropy_scorer.compute_goal_entropy(
+                [g.get('probability', 0.5) for g in goals]
             )
-            recursive_decay = self.confidence_drift_monitor.recursive_confidence_decay(
-                [original_confidence], context.get('simulation_pass', 1)
-            )
-            session['confidence_drift'] = confidence_drift
-            logging.info(f"[{datetime.now()}] Computed confidence drift: {confidence_drift:.4f}")
+            belief_entropy = self.entropy_scorer.compute_belief_entropy(realigned_beliefs)
+            conflict_entropy = self.entropy_scorer.compute_conflict_entropy(conflicts)
             
-            # Step 5: Conflict Arbitration
-            conflicts = self._arbitrate_conflicts(goals, beliefs, expanded_context)
-            session['conflicts'] = conflicts
-            logging.info(f"[{datetime.now()}] Arbitrated {len(conflicts)} conflicts")
+            # Overall entropy score (weighted average)
+            entropy = (goal_entropy * 0.4 + belief_entropy * 0.3 + conflict_entropy * 0.3)
+            logging.info(f"[{datetime.now()}] Entropy calculation: {entropy:.4f}")
             
-            # Step 6: Multi-Agent Role Coordination
-            role_resolutions = self.multi_role_coordinator.coordinate_roles(
-                conflicts, expanded_context
-            )
-            session['role_resolutions'] = role_resolutions
-            logging.info(f"[{datetime.now()}] Coordinated resolutions across roles")
-            
-            # Step 7: Entropy Scoring
-            goal_probabilities = [goal.get('probability', 0.5) for goal in goals]
-            entropy = self.entropy_scorer.compute_goal_entropy(goal_probabilities)
-            session['entropy'] = entropy
-            logging.info(f"[{datetime.now()}] Computed goal entropy: {entropy:.4f}")
-            
-            # Step 8: Goal Convergence Evaluation
-            convergence_result = self._evaluate_goal_convergence(goals, conflicts, role_resolutions)
-            session['convergence'] = convergence_result
-            logging.info(f"[{datetime.now()}] Evaluated goal convergence: {convergence_result.get('converged', False)}")
-            
-            # Step 9: Memory Patching
+            # 9. Generate memory patches
             memory_patches = self._generate_memory_patches(
-                expanded_context, goals, beliefs, conflicts, convergence_result
+                context, goals, realigned_beliefs, conflicts, convergence
             )
-            session['memory_patches'] = memory_patches
-            self.memory_patch_engine.apply_patches(expanded_context, memory_patches)
-            logging.info(f"[{datetime.now()}] Applied {len(memory_patches)} memory patches")
+            logging.info(f"[{datetime.now()}] Generated {len(memory_patches)} memory patches")
             
-            # Step 10: Layer Feedback/Escalation
+            # 10. Apply memory patches to context
+            patched_context = self.memory_patch_engine.apply_patches(context, memory_patches)
+            
+            # 11. Calculate emergence score to determine if Layer 8 needed
+            emergence_score = self._calculate_emergence_score(
+                entropy, confidence_drift, convergence
+            )
+            logging.info(f"[{datetime.now()}] Emergence score: {emergence_score:.4f}")
+            
+            # 12. Prepare feedback for Layer 6
             layer6_feedback = self.layer_link_handler.feedback_to_layer6(confidence_drift)
-            session['layer6_feedback'] = layer6_feedback
             
-            emergence_score = self._calculate_emergence_score(entropy, confidence_drift, convergence_result)
+            # 13. Determine if escalation to Layer 8 is needed
             layer8_escalation = None
-            if emergence_score > 0.8:
-                layer8_escalation = self.layer_link_handler.escalate_to_layer8(entropy, emergence_score)
-                session['layer8_escalation'] = layer8_escalation
-                logging.info(f"[{datetime.now()}] Escalated to Layer 8 with emergence score: {emergence_score:.4f}")
-            else:
-                logging.info(f"[{datetime.now()}] No Layer 8 escalation needed, emergence score: {emergence_score:.4f}")
+            if emergence_score > 0.75:  # Configurable threshold
+                layer8_escalation = self.layer_link_handler.escalate_to_layer8(
+                    goal_entropy, emergence_score
+                )
+                logging.info(f"[{datetime.now()}] Escalating to Layer 8 with emergence score {emergence_score:.4f}")
             
-            # Step 11: Prepare results
-            results = {
-                'layer7_processed': True,
-                'goals': goals,
-                'beliefs': beliefs,
-                'conflicts': conflicts,
-                'convergence': convergence_result,
+            # 14. Finalize and return enhanced context
+            processing_time_ms = (datetime.now() - start_time).total_seconds() * 1000
+            
+            # Create summary of AGI processing for content update
+            agi_summary = self._create_agi_summary(
+                goals, realigned_beliefs, conflicts, convergence, 
+                role_resolutions, entropy, emergence_score
+            )
+            
+            # Update context with AGI processing results
+            enhanced_context = patched_context.copy()
+            enhanced_context.update({
+                'confidence_score': convergence['score'],
                 'entropy': entropy,
-                'confidence_drift': confidence_drift,
-                'recursive_decay': recursive_decay,
                 'emergence_score': emergence_score,
+                'goals': goals,
+                'beliefs': realigned_beliefs,
+                'conflicts': conflicts,
+                'convergence': convergence,
                 'layer6_feedback': layer6_feedback,
                 'layer8_escalation': layer8_escalation,
-                'confidence_score': convergence_result.get('confidence', original_confidence)
-            }
+                'processing_time_ms': processing_time_ms,
+                'agi_summary': agi_summary
+            })
             
-            # Update session
-            session['status'] = 'completed'
-            session['end_time'] = datetime.now().isoformat()
-            session.update(results)
+            # Update content if present
+            if 'content' in context and context['content']:
+                enhanced_content = f"{context['content']}\n\n{agi_summary}"
+                enhanced_context['content'] = enhanced_content
+                
+            # Log completion
+            logging.info(f"[{datetime.now()}] AGI Simulation completed in {processing_time_ms:.2f}ms")
             
-            logging.info(f"[{datetime.now()}] AGI simulation completed for session {session_id}")
+            # Store processing history for this cycle
+            self._update_processing_history(enhanced_context)
             
-            return results
+            return enhanced_context
             
         except Exception as e:
-            error_msg = f"Layer 7 AGI simulation error: {str(e)}"
-            logging.error(f"[{datetime.now()}] {error_msg}")
-            
-            # Update session with error
-            session['status'] = 'error'
-            session['error'] = error_msg
-            session['end_time'] = datetime.now().isoformat()
-            
-            # Return context with error information
-            context['layer7_error'] = error_msg
+            logging.error(f"[{datetime.now()}] Error in AGI Simulation: {str(e)}")
+            # On error, return original context with error flag
+            context['agi_error'] = str(e)
             return context
-    
+            
+    def _extract_belief_vectors(self, context: Dict) -> List[Dict]:
+        """
+        Extract belief vectors from context.
+        
+        Args:
+            context: The query context
+            
+        Returns:
+            list: Extracted belief vectors
+        """
+        belief_vectors = []
+        
+        # Extract from persona results if available
+        if 'persona_results' in context:
+            for persona_id, results in context['persona_results'].items():
+                if 'beliefs' in results:
+                    for belief in results['beliefs']:
+                        belief_vectors.append({
+                            'source': persona_id,
+                            'content': belief.get('content', ''),
+                            'confidence': belief.get('confidence', 0.5),
+                            'type': belief.get('type', 'general')
+                        })
+                        
+        # Extract from synthesis if available
+        if 'synthesis' in context and isinstance(context['synthesis'], dict):
+            synthesis = context['synthesis']
+            if 'key_beliefs' in synthesis:
+                for belief in synthesis['key_beliefs']:
+                    belief_vectors.append({
+                        'source': 'synthesis',
+                        'content': belief.get('content', ''),
+                        'confidence': belief.get('confidence', 0.7),
+                        'type': belief.get('type', 'synthesis')
+                    })
+                    
+        # If no beliefs found, generate basic ones from content
+        if not belief_vectors and 'content' in context and context['content']:
+            content = context['content']
+            sentences = content.split('.')
+            for i, sentence in enumerate(sentences[:5]):  # Take up to 5 sentences
+                if len(sentence.strip()) > 10:  # Only meaningful sentences
+                    belief_vectors.append({
+                        'source': 'content',
+                        'content': sentence.strip(),
+                        'confidence': 0.5,
+                        'type': 'extracted'
+                    })
+                    
+        return belief_vectors
+            
     def _expand_goals(self, context: Dict) -> List[Dict]:
         """
         Recursively expand goals from the query context.
@@ -233,55 +268,83 @@ class AGISimulationEngine:
         Returns:
             list: Expanded goal list with metadata
         """
+        # Start with original query as the primary goal
         query = context.get('query', '')
-        goals = []
         
-        # Simple goal expansion logic for demonstration
-        # In a full implementation, this would use complex tree-based goal decomposition
-        primary_goal = {
-            'id': str(uuid.uuid4())[:8],
-            'description': f"Primary goal for query: {query}",
-            'subgoals': [],
-            'probability': 0.9,
-            'complexity': 0.7
-        }
+        # Initialize goal list
+        goals = [{
+            'id': 'g0',
+            'content': query,
+            'source': 'query',
+            'depth': 0,
+            'probability': 1.0,
+            'parent_id': None
+        }]
         
-        # Generate subgoals
-        for i in range(3):
-            subgoal = {
-                'id': str(uuid.uuid4())[:8],
-                'description': f"Subgoal {i+1} for query: {query}",
-                'probability': 0.7 - (i * 0.1),
-                'complexity': 0.5
-            }
-            primary_goal['subgoals'].append(subgoal)
+        # Get maximum recursion depth from parameters
+        max_depth = context.get('agi_params', {}).get('goal_expansion_depth', self.max_recursion_depth)
         
-        goals.append(primary_goal)
-        
-        # Add alternative goals with lower probabilities
-        for i in range(2):
-            alt_goal = {
-                'id': str(uuid.uuid4())[:8],
-                'description': f"Alternative goal {i+1} for query: {query}",
-                'subgoals': [],
-                'probability': 0.5 - (i * 0.2),
-                'complexity': 0.6 + (i * 0.1)
-            }
+        # Recursively expand goals up to max depth
+        for depth in range(max_depth):
+            # Get goals at current depth
+            current_depth_goals = [g for g in goals if g['depth'] == depth]
             
-            # Generate subgoals for alternative
-            for j in range(2):
-                subgoal = {
-                    'id': str(uuid.uuid4())[:8],
-                    'description': f"Subgoal {j+1} for alternative {i+1}",
-                    'probability': 0.4 - (j * 0.1),
-                    'complexity': 0.4
-                }
-                alt_goal['subgoals'].append(subgoal)
-            
-            goals.append(alt_goal)
+            # Expand each goal at current depth
+            for parent_goal in current_depth_goals:
+                # Number of subgoals depends on parent's probability and config
+                num_subgoals = int(parent_goal['probability'] * self.goal_expansion_factor) + 1
+                
+                # Generate subgoals
+                for i in range(num_subgoals):
+                    subgoal_content = self._generate_subgoal(parent_goal['content'], context, i)
+                    
+                    # Probability decays with depth
+                    probability = parent_goal['probability'] * (0.7 ** (depth + 1))
+                    
+                    # Add subgoal to list
+                    subgoal_id = f"g{len(goals)}"
+                    goals.append({
+                        'id': subgoal_id,
+                        'content': subgoal_content,
+                        'source': 'expansion',
+                        'depth': depth + 1,
+                        'probability': probability,
+                        'parent_id': parent_goal['id']
+                    })
+                    
+        # Update goal history
+        self.goal_history.append({
+            'cycle': self.simulation_cycles,
+            'count': len(goals),
+            'max_depth': max_depth
+        })
         
         return goals
     
+    def _generate_subgoal(self, parent_content: str, context: Dict, index: int) -> str:
+        """
+        Generate a subgoal from the parent goal.
+        
+        Args:
+            parent_content: The parent goal's content
+            context: The query context
+            index: Index for this subgoal
+            
+        Returns:
+            str: Generated subgoal content
+        """
+        # For a real implementation, this would use advanced NLP to decompose goals
+        # For this simulation, we'll generate simple variations
+        
+        if index == 0:
+            return f"Understand the key factors in: {parent_content}"
+        elif index == 1:
+            return f"Analyze potential consequences of: {parent_content}"
+        elif index == 2:
+            return f"Evaluate alternative perspectives on: {parent_content}"
+        else:
+            return f"Explore deeper implications of: {parent_content}"
+            
     def _realign_beliefs(self, belief_vectors: List, context: Dict) -> List[Dict]:
         """
         Realign belief vectors based on context.
@@ -293,24 +356,42 @@ class AGISimulationEngine:
         Returns:
             list: Realigned belief vector list with metadata
         """
-        # Simplified belief realignment logic
+        # Get belief realignment threshold from parameters
+        threshold = context.get('agi_params', {}).get(
+            'belief_realignment_threshold', 
+            self.uncertainty_threshold
+        )
+        
         realigned_beliefs = []
         
-        # In a full implementation, this would involve vector mathematics
-        # and embeddings to adjust beliefs across the system
-        
-        for i, vector in enumerate(belief_vectors[:3] if belief_vectors else range(3)):
-            realigned_belief = {
-                'id': str(uuid.uuid4())[:8],
-                'name': f"Belief Vector {i+1}",
-                'drift': 0.1 + (i * 0.05),
-                'confidence': 0.8 - (i * 0.1),
-                'source': f"Layer {7-i}"
-            }
-            realigned_beliefs.append(realigned_belief)
-        
+        # Process each belief vector
+        for belief in belief_vectors:
+            # Copy the original belief
+            realigned = belief.copy()
+            
+            # Calculate confidence adjustment based on source
+            confidence_adj = 0.0
+            if belief['source'] == 'synthesis':
+                confidence_adj = 0.1  # Boost synthesis beliefs
+            elif belief['source'] == 'content':
+                confidence_adj = -0.1  # Reduce extracted beliefs
+                
+            # Only realign if below threshold + adjustment
+            if belief['confidence'] < (threshold + confidence_adj):
+                # Apply realignment formula
+                realigned['confidence'] = min(
+                    1.0, 
+                    belief['confidence'] * self.belief_realignment_factor
+                )
+                realigned['realigned'] = True
+                realigned['original_confidence'] = belief['confidence']
+            else:
+                realigned['realigned'] = False
+                
+            realigned_beliefs.append(realigned)
+            
         return realigned_beliefs
-    
+            
     def _arbitrate_conflicts(self, goals: List[Dict], beliefs: List[Dict], context: Dict) -> List[Dict]:
         """
         Arbitrate conflicts between goals and beliefs.
@@ -323,44 +404,85 @@ class AGISimulationEngine:
         Returns:
             list: Arbitrated conflicts with resolutions
         """
-        # Simple conflict generation and arbitration
         conflicts = []
         
-        # Generate a few sample conflicts
-        for i in range(2):
-            if i < len(goals) and i < len(beliefs):
-                conflict = {
-                    'id': str(uuid.uuid4())[:8],
-                    'type': ['logical', 'ethical', 'factual'][i % 3],
-                    'description': f"Conflict between {goals[i]['description']} and {beliefs[i]['name']}",
-                    'severity': 0.6 - (i * 0.1),
-                    'resolution_attempts': [],
-                    'resolved': False
-                }
-                
-                # Add resolution attempts
-                for j in range(2):
-                    resolution = {
-                        'id': str(uuid.uuid4())[:8],
-                        'method': ['dialectic', 'consensus', 'probabilistic'][j % 3],
-                        'success_probability': 0.7 - (j * 0.2),
-                        'description': f"Resolution attempt {j+1} for conflict {i+1}"
-                    }
-                    conflict['resolution_attempts'].append(resolution)
-                
-                # Mark some conflicts as resolved
-                if i % 2 == 0:
-                    conflict['resolved'] = True
-                    conflict['resolution'] = {
-                        'method': conflict['resolution_attempts'][0]['method'],
-                        'confidence': 0.8,
-                        'description': f"Resolved using {conflict['resolution_attempts'][0]['method']}"
-                    }
-                
-                conflicts.append(conflict)
+        # Get number of conflict resolution iterations from parameters
+        iterations = context.get('agi_params', {}).get('conflict_resolution_iterations', 5)
         
+        # Simplified conflict detection
+        # In a full implementation, this would use semantic analysis to detect conflicts
+        
+        # Check each goal against each belief for potential conflicts
+        for goal in goals:
+            for belief in beliefs:
+                # Simple simulation of conflict detection
+                # High-confidence beliefs are more likely to create conflicts
+                # The deeper the goal, the more likely it conflicts with beliefs
+                
+                # Calculate conflict probability
+                conflict_prob = (belief['confidence'] * 0.5) + (goal['depth'] * 0.1)
+                
+                # Only record significant conflicts
+                if conflict_prob > 0.4:
+                    # Create conflict record
+                    conflict_id = f"c{len(conflicts)}"
+                    conflicts.append({
+                        'id': conflict_id,
+                        'goal_id': goal['id'],
+                        'belief_id': beliefs.index(belief),
+                        'goal_content': goal['content'],
+                        'belief_content': belief['content'],
+                        'probability': conflict_prob,
+                        'resolved': False,
+                        'resolution_iterations': 0,
+                        'resolution': None
+                    })
+        
+        # Simulate conflict resolution over iterations
+        for _ in range(iterations):
+            # Process unresolved conflicts
+            unresolved = [c for c in conflicts if not c['resolved']]
+            if not unresolved:
+                break
+                
+            for conflict in unresolved:
+                # Increment iteration counter
+                conflict['resolution_iterations'] += 1
+                
+                # Calculate resolution probability
+                # Increases with more iterations
+                resolution_prob = 0.2 + (conflict['resolution_iterations'] * 0.15)
+                
+                # Check if conflict is resolved in this iteration
+                if resolution_prob > 0.6:
+                    conflict['resolved'] = True
+                    conflict['resolution'] = self._generate_conflict_resolution(conflict)
+                    
         return conflicts
     
+    def _generate_conflict_resolution(self, conflict: Dict) -> str:
+        """
+        Generate a resolution for a specific conflict.
+        
+        Args:
+            conflict: The conflict to resolve
+            
+        Returns:
+            str: Generated resolution text
+        """
+        # For a real implementation, this would generate contextually appropriate resolutions
+        # Here we're simulating resolution generation
+        
+        templates = [
+            f"The goal '{conflict['goal_content']}' can be reconciled with the belief '{conflict['belief_content']}' by considering a broader context.",
+            f"While '{conflict['belief_content']}' appears to contradict '{conflict['goal_content']}', they can be integrated by focusing on their complementary aspects.",
+            f"The apparent conflict between the goal and belief can be resolved by reinterpreting the goal's scope.",
+            f"This conflict can be addressed by qualifying the belief with additional context."
+        ]
+        
+        import random
+        return random.choice(templates)
+            
     def _evaluate_goal_convergence(self, goals: List[Dict], conflicts: List[Dict], 
                                   role_resolutions: List[Dict]) -> Dict:
         """
@@ -374,37 +496,63 @@ class AGISimulationEngine:
         Returns:
             dict: Convergence evaluation results
         """
-        # Calculate what percentage of conflicts are resolved
-        resolved_count = sum(1 for conflict in conflicts if conflict.get('resolved', False))
-        conflict_resolution_rate = resolved_count / len(conflicts) if conflicts else 1.0
+        # Initial convergence assessment
+        total_goals = len(goals)
+        if total_goals == 0:
+            return {'score': 0.0, 'converged': False, 'reasons': ['No goals to evaluate']}
+            
+        # Calculate conflict impact
+        unresolved_conflicts = len([c for c in conflicts if not c['resolved']])
+        conflict_resolution_rate = 1.0 - (unresolved_conflicts / max(1, len(conflicts)))
         
-        # Calculate goal alignment
-        goal_probabilities = [goal.get('probability', 0.0) for goal in goals]
-        primary_goal_probability = max(goal_probabilities) if goal_probabilities else 0.0
+        # Calculate goal coherence (higher probability goals contribute more)
+        total_probability = sum(g['probability'] for g in goals)
+        coherence_score = total_probability / total_goals if total_goals > 0 else 0
         
-        # Calculate role agreement rate
-        role_agreement_rate = sum(res.get('agreement_rate', 0.5) for res in role_resolutions) / len(role_resolutions) if role_resolutions else 0.5
+        # Calculate role resolution effectiveness
+        role_resolution_factor = 0.0
+        if role_resolutions:
+            successful_resolutions = len([r for r in role_resolutions if r.get('success', False)])
+            role_resolution_factor = successful_resolutions / len(role_resolutions)
         
-        # Calculate overall convergence score
-        convergence_score = (primary_goal_probability * 0.4 + 
-                            conflict_resolution_rate * 0.4 + 
-                            role_agreement_rate * 0.2)
+        # Calculate convergence score using weighted factors
+        convergence_score = (
+            (conflict_resolution_rate * 0.4) +
+            (coherence_score * 0.3) +
+            (role_resolution_factor * 0.3)
+        )
         
         # Determine if converged based on threshold
-        converged = convergence_score >= self.goal_convergence_threshold
+        threshold = self.goal_convergence_threshold
+        converged = convergence_score >= threshold
         
-        # Calculate confidence based on convergence
-        confidence = convergence_score * 0.9 + 0.1  # Ensure minimum confidence of 0.1
+        # Generate reasons for convergence assessment
+        reasons = []
+        if unresolved_conflicts > 0:
+            reasons.append(f"{unresolved_conflicts} unresolved conflicts affecting convergence")
         
+        if coherence_score < 0.5:
+            reasons.append("Low goal coherence reducing convergence probability")
+            
+        if role_resolution_factor < 0.5:
+            reasons.append("Limited success in role-based conflict resolution")
+            
+        if converged:
+            reasons.append(f"Sufficient convergence score ({convergence_score:.2f}) exceeding threshold ({threshold:.2f})")
+        else:
+            reasons.append(f"Insufficient convergence score ({convergence_score:.2f}) below threshold ({threshold:.2f})")
+            
         return {
+            'score': convergence_score,
             'converged': converged,
-            'convergence_score': convergence_score,
-            'conflict_resolution_rate': conflict_resolution_rate,
-            'primary_goal_probability': primary_goal_probability,
-            'role_agreement_rate': role_agreement_rate,
-            'confidence': confidence
+            'reasons': reasons,
+            'metrics': {
+                'conflict_resolution_rate': conflict_resolution_rate,
+                'coherence_score': coherence_score,
+                'role_resolution_factor': role_resolution_factor
+            }
         }
-    
+            
     def _generate_memory_patches(self, context: Dict, goals: List[Dict], 
                                beliefs: List[Dict], conflicts: List[Dict],
                                convergence: Dict) -> List[Dict]:
@@ -423,47 +571,42 @@ class AGISimulationEngine:
         """
         patches = []
         
-        # Generate patches based on converged goals
-        if convergence.get('converged', False):
-            primary_goal = next((goal for goal in goals if goal.get('probability', 0) > 0.7), None)
-            if primary_goal:
-                patches.append({
-                    'key': f"goal_{primary_goal['id']}",
-                    'value': {
-                        'description': primary_goal['description'],
-                        'confidence': convergence.get('confidence', 0.8)
-                    },
-                    'source': 'layer7_goal_convergence'
-                })
-        
-        # Generate patches based on resolved conflicts
-        for conflict in conflicts:
-            if conflict.get('resolved', False):
-                patches.append({
-                    'key': f"conflict_resolution_{conflict['id']}",
-                    'value': {
-                        'description': conflict.get('resolution', {}).get('description', ''),
-                        'method': conflict.get('resolution', {}).get('method', ''),
-                        'confidence': conflict.get('resolution', {}).get('confidence', 0.7)
-                    },
-                    'source': 'layer7_conflict_resolution'
-                })
-        
-        # Add belief adjustments
-        for belief in beliefs:
-            if belief.get('drift', 0) > 0.2:
-                patches.append({
-                    'key': f"belief_adjustment_{belief['id']}",
-                    'value': {
-                        'name': belief['name'],
-                        'drift': belief['drift'],
-                        'confidence': belief['confidence']
-                    },
-                    'source': 'layer7_belief_realignment'
-                })
-        
+        # Only generate patches if convergence reached
+        if not convergence.get('converged', False):
+            return patches
+            
+        # Add key goals to memory
+        high_prob_goals = [g for g in goals if g['probability'] > 0.7]
+        if high_prob_goals:
+            patches.append({
+                'type': 'add_key_goals',
+                'content': high_prob_goals,
+                'confidence': convergence['score'],
+                'timestamp': datetime.now().isoformat()
+            })
+            
+        # Add conflict resolutions to memory
+        resolved_conflicts = [c for c in conflicts if c['resolved']]
+        if resolved_conflicts:
+            patches.append({
+                'type': 'add_conflict_resolutions',
+                'content': resolved_conflicts,
+                'confidence': convergence['score'] * 0.9,  # Slightly lower confidence
+                'timestamp': datetime.now().isoformat()
+            })
+            
+        # Add belief adjustments to memory
+        realigned_beliefs = [b for b in beliefs if b.get('realigned', False)]
+        if realigned_beliefs:
+            patches.append({
+                'type': 'update_beliefs',
+                'content': realigned_beliefs,
+                'confidence': convergence['score'] * 0.8,  # Lower confidence for belief updates
+                'timestamp': datetime.now().isoformat()
+            })
+            
         return patches
-    
+            
     def _calculate_emergence_score(self, entropy: float, confidence_drift: float, 
                                  convergence: Dict) -> float:
         """
@@ -477,17 +620,90 @@ class AGISimulationEngine:
         Returns:
             float: Emergence score (0-1)
         """
-        # Higher entropy, higher drift, and lower convergence all contribute to emergence
-        normalized_entropy = min(1.0, entropy / 2.0)  # Normalize entropy to 0-1 range
-        normalized_drift = min(1.0, confidence_drift * 5.0)  # Normalize drift
-        convergence_inverse = 1.0 - convergence.get('convergence_score', 0.5)  # Invert convergence
+        # Calculate emergence score based on multiple factors
         
-        # Calculate weighted emergence score
-        emergence_score = (normalized_entropy * 0.4 + 
-                          normalized_drift * 0.3 + 
-                          convergence_inverse * 0.3)
+        # Higher entropy increases emergence score
+        entropy_factor = entropy * 0.5
         
-        return emergence_score
+        # Higher confidence drift increases emergence score
+        drift_factor = confidence_drift * 0.3
+        
+        # Lower convergence increases emergence score
+        convergence_factor = (1.0 - convergence['score']) * 0.2
+        
+        # Combine factors
+        emergence_score = entropy_factor + drift_factor + convergence_factor
+        
+        # Ensure in range 0-1
+        return max(0.0, min(1.0, emergence_score))
+    
+    def _create_agi_summary(self, goals, beliefs, conflicts, convergence, 
+                          role_resolutions, entropy, emergence_score) -> str:
+        """
+        Create a summary of AGI processing for inclusion in content.
+        
+        Args:
+            goals: Expanded goals
+            beliefs: Realigned beliefs
+            conflicts: Arbitrated conflicts
+            convergence: Convergence results
+            role_resolutions: Role-based resolutions
+            entropy: Calculated entropy
+            emergence_score: Calculated emergence score
+            
+        Returns:
+            str: Summary text
+        """
+        # Select key goals (high probability)
+        key_goals = [g for g in goals if g['probability'] > 0.7]
+        goal_summary = "\n".join([f"- {g['content']}" for g in key_goals[:3]])
+        
+        # Select key resolutions
+        resolved_conflicts = [c for c in conflicts if c['resolved']]
+        resolution_summary = "\n".join([f"- {c['resolution']}" for c in resolved_conflicts[:3]])
+        
+        # Format summary
+        summary = f"""
+[Layer 7 AGI Analysis Summary]
+Key goal examination:
+{goal_summary}
+
+{'Convergence achieved' if convergence['converged'] else 'Partial convergence'} (confidence: {convergence['score']:.2f})
+
+Key synthesis points:
+{resolution_summary}
+
+Analysis complexity metrics:
+- Entropy: {entropy:.2f}
+- Emergence potential: {emergence_score:.2f}
+"""
+        return summary
+    
+    def _update_processing_history(self, context: Dict) -> None:
+        """
+        Update processing history with the latest AGI cycle results.
+        
+        Args:
+            context: The processed context
+        """
+        # Record key metrics from this processing cycle
+        history_entry = {
+            'cycle': self.simulation_cycles,
+            'timestamp': datetime.now().isoformat(),
+            'confidence': context.get('confidence_score', 0.0),
+            'entropy': context.get('entropy', 0.0),
+            'emergence_score': context.get('emergence_score', 0.0),
+            'goals_count': len(context.get('goals', [])),
+            'conflicts_count': len(context.get('conflicts', [])),
+            'processing_time_ms': context.get('processing_time_ms', 0.0)
+        }
+        
+        # Add to history
+        self.processing_history.append(history_entry)
+        
+        # Limit history size
+        if len(self.processing_history) > 100:
+            self.processing_history = self.processing_history[-100:]
 
 
 class ConfidenceDriftMonitor:
@@ -500,8 +716,9 @@ class ConfidenceDriftMonitor:
     
     def __init__(self):
         """Initialize the Confidence Drift Monitor."""
-        self.historical_drifts = []
-    
+        self.drift_history = []
+        self.decay_history = []
+        
     def compute_drift(self, prev_values: List[float], curr_values: List[float]) -> float:
         """
         Compute drift between previous and current confidence values.
@@ -513,24 +730,33 @@ class ConfidenceDriftMonitor:
         Returns:
             float: Drift value
         """
-        # Ensure we have values to compare
         if not prev_values or not curr_values:
             return 0.0
             
-        # If lists have different lengths, use the shorter one
-        min_length = min(len(prev_values), len(curr_values))
-        prev = prev_values[-min_length:]
-        curr = curr_values[-min_length:]
+        # Use the last value if comparing sequences
+        if isinstance(prev_values, list) and len(prev_values) > 0:
+            prev_val = prev_values[-1]
+        else:
+            prev_val = prev_values
+            
+        if isinstance(curr_values, list) and len(curr_values) > 0:
+            curr_val = curr_values[-1]
+        else:
+            curr_val = curr_values
+            
+        # Calculate drift (absolute change)
+        drift = abs(curr_val - prev_val)
         
-        # Compute Euclidean distance between vectors
-        squared_diffs = [(curr[i] - prev[i])**2 for i in range(min_length)]
-        drift = (sum(squared_diffs) / min_length)**0.5
-        
-        # Store historical drift
-        self.historical_drifts.append(drift)
+        # Record drift in history
+        self.drift_history.append({
+            'timestamp': datetime.now().isoformat(),
+            'previous': prev_val,
+            'current': curr_val,
+            'drift': drift
+        })
         
         return drift
-    
+        
     def recursive_confidence_decay(self, confidences: List[float], t: int) -> float:
         """
         Compute recursive confidence decay over time.
@@ -545,12 +771,31 @@ class ConfidenceDriftMonitor:
         if not confidences:
             return 0.0
             
-        # Compute decay for each confidence value
-        decays = [(1 - c)**t for c in confidences]
+        n = len(confidences)
+        if n < 2:
+            return 0.0
+            
+        # Calculate weighted decay
+        decay = 0.0
+        for i in range(1, n):
+            step_decay = max(0, confidences[i-1] - confidences[i])
+            # More recent decays weighted more heavily
+            weight = (i / n) ** 2
+            decay += step_decay * weight
+            
+        # Scale by time step factor
+        time_factor = min(1.0, (t / 10))  # Normalized to max out at t=10
+        decay = decay * (1 + time_factor)
         
-        # Return average decay
-        return sum(decays) / len(decays)
-    
+        # Record decay
+        self.decay_history.append({
+            'timestamp': datetime.now().isoformat(),
+            'time_step': t,
+            'decay': decay
+        })
+        
+        return decay
+        
     def get_historical_drift_pattern(self) -> Dict:
         """
         Analyze historical drift patterns.
@@ -558,30 +803,92 @@ class ConfidenceDriftMonitor:
         Returns:
             dict: Analysis of drift patterns
         """
-        if not self.historical_drifts:
-            return {'trend': 'unknown', 'stability': 1.0}
+        if not self.drift_history:
+            return {
+                'pattern': 'insufficient_data',
+                'significance': 0.0,
+                'trend': 'unknown'
+            }
             
+        # Extract drift values
+        drifts = [entry['drift'] for entry in self.drift_history]
+        
+        # Calculate statistics
+        avg_drift = sum(drifts) / len(drifts)
+        max_drift = max(drifts)
+        
         # Determine trend
-        if len(self.historical_drifts) < 2:
-            trend = 'stable'
-        elif self.historical_drifts[-1] > self.historical_drifts[-2]:
+        if len(drifts) < 3:
+            trend = 'insufficient_data'
+        elif drifts[-1] > avg_drift:
             trend = 'increasing'
-        elif self.historical_drifts[-1] < self.historical_drifts[-2]:
+        elif drifts[-1] < avg_drift:
             trend = 'decreasing'
         else:
             trend = 'stable'
             
-        # Calculate stability score (lower drift = higher stability)
-        recent_drifts = self.historical_drifts[-5:] if len(self.historical_drifts) >= 5 else self.historical_drifts
-        avg_drift = sum(recent_drifts) / len(recent_drifts)
-        stability = max(0.0, 1.0 - min(1.0, avg_drift * 5.0))
-        
+        # Determine pattern
+        if max_drift < 0.1:
+            pattern = 'minimal_drift'
+        elif avg_drift > 0.3:
+            pattern = 'high_volatility'
+        elif self._is_oscillating(drifts):
+            pattern = 'oscillating'
+        elif self._is_diverging(drifts):
+            pattern = 'diverging'
+        else:
+            pattern = 'normal'
+            
         return {
+            'pattern': pattern,
+            'significance': max_drift,
             'trend': trend,
-            'stability': stability,
-            'avg_drift': avg_drift,
-            'drift_history': self.historical_drifts[-10:] if len(self.historical_drifts) > 10 else self.historical_drifts
+            'avg_drift': avg_drift
         }
+        
+    def _is_oscillating(self, values: List[float]) -> bool:
+        """
+        Check if values show an oscillating pattern.
+        
+        Args:
+            values: List of drift values
+            
+        Returns:
+            bool: True if oscillating
+        """
+        if len(values) < 4:
+            return False
+            
+        # Check for alternating increases and decreases
+        oscillations = 0
+        for i in range(2, len(values)):
+            if (values[i] - values[i-1]) * (values[i-1] - values[i-2]) < 0:
+                oscillations += 1
+                
+        # If more than 50% of transitions are oscillations
+        return oscillations >= (len(values) - 2) / 2
+        
+    def _is_diverging(self, values: List[float]) -> bool:
+        """
+        Check if values show a diverging pattern.
+        
+        Args:
+            values: List of drift values
+            
+        Returns:
+            bool: True if diverging
+        """
+        if len(values) < 3:
+            return False
+            
+        # Check if values are consistently increasing
+        increasing = 0
+        for i in range(1, len(values)):
+            if values[i] > values[i-1]:
+                increasing += 1
+                
+        # If more than 70% of transitions are increases
+        return increasing >= (len(values) - 1) * 0.7
 
 
 class LayerLinkHandler:
@@ -596,7 +903,7 @@ class LayerLinkHandler:
         """Initialize the Layer Link Handler."""
         self.feedback_history = []
         self.escalation_history = []
-    
+        
     def feedback_to_layer6(self, confidence_drift: float) -> Dict:
         """
         Send feedback to Layer 6 based on confidence drift.
@@ -607,21 +914,19 @@ class LayerLinkHandler:
         Returns:
             dict: Feedback parameters for Layer 6
         """
-        # Generate feedback parameters
+        # Create feedback parameters
         feedback = {
-            'drift': confidence_drift,
-            'adjustment_factor': min(1.0, max(0.1, confidence_drift * 2)),
-            'revalidation_required': confidence_drift > 0.2,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now().isoformat(),
+            'confidence_drift': confidence_drift,
+            'adjustment_factor': self._calculate_adjustment_factor(confidence_drift),
+            'suggestions': self._generate_suggestions(confidence_drift)
         }
         
-        # Store in history
+        # Record feedback
         self.feedback_history.append(feedback)
         
-        logging.info(f"[{datetime.now()}] Feedback sent to Layer 6 with drift: {confidence_drift:.4f}")
-        
         return feedback
-    
+        
     def escalate_to_layer8(self, goal_entropy: float, emergence_score: float) -> Dict:
         """
         Escalate processing to Layer 8 based on entropy and emergence score.
@@ -633,22 +938,102 @@ class LayerLinkHandler:
         Returns:
             dict: Escalation parameters for Layer 8
         """
-        # Generate escalation parameters
+        # Create escalation parameters
         escalation = {
-            'entropy': goal_entropy,
+            'timestamp': datetime.now().isoformat(),
+            'goal_entropy': goal_entropy,
             'emergence_score': emergence_score,
-            'priority': 'high' if emergence_score > 0.9 else 'medium',
-            'quantum_fidelity_check': True,
-            'timestamp': datetime.now().isoformat()
+            'escalation_reason': self._determine_escalation_reason(goal_entropy, emergence_score),
+            'priority': self._calculate_priority(emergence_score)
         }
         
-        # Store in history
+        # Record escalation
         self.escalation_history.append(escalation)
         
-        logging.info(f"[{datetime.now()}] Escalating to Layer 8 with entropy: {goal_entropy:.4f} and emergence score: {emergence_score:.4f}")
-        
         return escalation
-    
+        
+    def _calculate_adjustment_factor(self, confidence_drift: float) -> float:
+        """
+        Calculate adjustment factor for Layer 6 feedback.
+        
+        Args:
+            confidence_drift: Confidence drift value
+            
+        Returns:
+            float: Adjustment factor
+        """
+        # Higher drift requires more adjustment
+        if confidence_drift > 0.5:
+            return 2.0  # Major adjustment
+        elif confidence_drift > 0.3:
+            return 1.5  # Significant adjustment
+        elif confidence_drift > 0.1:
+            return 1.2  # Moderate adjustment
+        else:
+            return 1.0  # Minor adjustment
+            
+    def _generate_suggestions(self, confidence_drift: float) -> List[str]:
+        """
+        Generate suggestions for Layer 6 based on confidence drift.
+        
+        Args:
+            confidence_drift: Confidence drift value
+            
+        Returns:
+            list: Suggestions for Layer 6
+        """
+        suggestions = []
+        
+        if confidence_drift > 0.5:
+            suggestions.append("Consider resetting semantic context")
+            suggestions.append("Revalidate core assumptions")
+        elif confidence_drift > 0.3:
+            suggestions.append("Expand role depth analysis")
+            suggestions.append("Adjust semantic weighting factors")
+        elif confidence_drift > 0.1:
+            suggestions.append("Refine context boundaries")
+            
+        return suggestions
+        
+    def _determine_escalation_reason(self, goal_entropy: float, emergence_score: float) -> str:
+        """
+        Determine reason for escalation to Layer 8.
+        
+        Args:
+            goal_entropy: Goal entropy value
+            emergence_score: Emergence score
+            
+        Returns:
+            str: Escalation reason
+        """
+        if emergence_score > 0.8:
+            return "Critical emergence pattern detected"
+        elif emergence_score > 0.6:
+            return "Significant emergence indicators present"
+        elif goal_entropy > 0.7:
+            return "High goal entropy requiring AGI supervision"
+        else:
+            return "Complex pattern requiring enhanced analysis"
+            
+    def _calculate_priority(self, emergence_score: float) -> str:
+        """
+        Calculate priority for Layer 8 escalation.
+        
+        Args:
+            emergence_score: Emergence score
+            
+        Returns:
+            str: Priority level
+        """
+        if emergence_score > 0.8:
+            return "critical"
+        elif emergence_score > 0.6:
+            return "high"
+        elif emergence_score > 0.4:
+            return "medium"
+        else:
+            return "low"
+            
     def get_feedback_history(self) -> List[Dict]:
         """
         Get history of feedback sent to Layer 6.
@@ -657,7 +1042,7 @@ class LayerLinkHandler:
             list: History of feedback parameters
         """
         return self.feedback_history
-    
+        
     def get_escalation_history(self) -> List[Dict]:
         """
         Get history of escalations to Layer 8.
@@ -678,8 +1063,12 @@ class EntropyScorer:
     
     def __init__(self):
         """Initialize the Entropy Scorer."""
-        pass
-    
+        self.recent_scores = {
+            'goal': [],
+            'belief': [],
+            'conflict': []
+        }
+        
     def compute_goal_entropy(self, probabilities: List[float]) -> float:
         """
         Compute entropy for a set of goal probabilities.
@@ -690,17 +1079,34 @@ class EntropyScorer:
         Returns:
             float: Entropy score
         """
+        if not probabilities:
+            return 0.0
+            
         # Filter out invalid probabilities
-        valid_probs = [p for p in probabilities if 0 < p <= 1]
-        
+        valid_probs = [p for p in probabilities if 0.0 < p <= 1.0]
         if not valid_probs:
             return 0.0
             
-        # Compute entropy: -sum(p * log(p))
-        entropy = -sum(p * math.log(p) for p in valid_probs)
+        # Normalize probabilities to sum to 1
+        total = sum(valid_probs)
+        normalized_probs = [p / total for p in valid_probs]
         
-        return entropy
-    
+        # Calculate Shannon entropy
+        import math
+        entropy = -sum(p * math.log2(p) for p in normalized_probs)
+        
+        # Normalize to 0-1 range
+        # Theoretical max entropy for n probabilities is log2(n)
+        max_entropy = math.log2(len(normalized_probs))
+        normalized_entropy = entropy / max_entropy if max_entropy > 0 else 0.0
+        
+        # Record score
+        self.recent_scores['goal'].append(normalized_entropy)
+        if len(self.recent_scores['goal']) > 10:
+            self.recent_scores['goal'] = self.recent_scores['goal'][-10:]
+            
+        return normalized_entropy
+        
     def compute_belief_entropy(self, beliefs: List[Dict]) -> float:
         """
         Compute entropy for a set of beliefs.
@@ -711,20 +1117,34 @@ class EntropyScorer:
         Returns:
             float: Belief entropy score
         """
+        if not beliefs:
+            return 0.0
+            
         # Extract confidence values
-        confidences = [belief.get('confidence', 0.5) for belief in beliefs]
+        confidences = [b.get('confidence', 0.5) for b in beliefs]
         
-        # Convert confidences to probability distribution
-        # For beliefs, we consider both the confidence and its complement
-        probabilities = []
-        for conf in confidences:
-            if 0 < conf < 1:
-                probabilities.append(conf)
-                probabilities.append(1 - conf)
+        # Calculate variance in confidence
+        mean_confidence = sum(confidences) / len(confidences)
+        variance = sum((c - mean_confidence) ** 2 for c in confidences) / len(confidences)
         
-        # Compute entropy using standard method
-        return self.compute_goal_entropy(probabilities)
-    
+        # Calculate entropy factor from confidence distribution
+        # Higher variance indicates higher entropy
+        entropy_factor = min(1.0, variance * 4)  # Scale to 0-1 range
+        
+        # Calculate ratio of realigned beliefs
+        realigned_count = len([b for b in beliefs if b.get('realigned', False)])
+        realignment_ratio = realigned_count / len(beliefs)
+        
+        # Combine factors
+        entropy = (entropy_factor * 0.7) + (realignment_ratio * 0.3)
+        
+        # Record score
+        self.recent_scores['belief'].append(entropy)
+        if len(self.recent_scores['belief']) > 10:
+            self.recent_scores['belief'] = self.recent_scores['belief'][-10:]
+            
+        return entropy
+        
     def compute_conflict_entropy(self, conflicts: List[Dict]) -> float:
         """
         Compute entropy for a set of conflicts.
@@ -735,22 +1155,32 @@ class EntropyScorer:
         Returns:
             float: Conflict entropy score
         """
-        # Extract resolution probabilities
-        resolution_probs = []
-        for conflict in conflicts:
-            # For resolved conflicts, use the resolution confidence
-            if conflict.get('resolved', False) and 'resolution' in conflict:
-                resolution_probs.append(conflict['resolution'].get('confidence', 0.5))
-            # For unresolved conflicts, use the best resolution attempt
-            else:
-                attempts = conflict.get('resolution_attempts', [])
-                if attempts:
-                    best_prob = max(attempt.get('success_probability', 0) for attempt in attempts)
-                    if best_prob > 0:
-                        resolution_probs.append(best_prob)
+        if not conflicts:
+            return 0.0
+            
+        # Calculate resolution rate
+        unresolved_count = len([c for c in conflicts if not c.get('resolved', False)])
+        resolution_ratio = unresolved_count / len(conflicts)
         
-        # Compute entropy
-        return self.compute_goal_entropy(resolution_probs)
+        # Calculate average resolution iterations
+        avg_iterations = sum(c.get('resolution_iterations', 0) for c in conflicts) / len(conflicts)
+        normalized_iterations = min(1.0, avg_iterations / 5)  # Scale to 0-1 range
+        
+        # Calculate probability distribution
+        probabilities = [c.get('probability', 0.5) for c in conflicts]
+        mean_prob = sum(probabilities) / len(probabilities)
+        variance = sum((p - mean_prob) ** 2 for p in probabilities) / len(probabilities)
+        probability_entropy = min(1.0, variance * 4)  # Scale to 0-1 range
+        
+        # Combine factors
+        entropy = (resolution_ratio * 0.4) + (normalized_iterations * 0.3) + (probability_entropy * 0.3)
+        
+        # Record score
+        self.recent_scores['conflict'].append(entropy)
+        if len(self.recent_scores['conflict']) > 10:
+            self.recent_scores['conflict'] = self.recent_scores['conflict'][-10:]
+            
+        return entropy
 
 
 class MultiRoleCoordinator:
@@ -763,13 +1193,15 @@ class MultiRoleCoordinator:
     
     def __init__(self):
         """Initialize the Multi-Role Coordinator."""
-        self.roles = [
-            {'id': 'knowledge', 'axis': 8, 'weight': 1.0},
-            {'id': 'sector', 'axis': 9, 'weight': 1.0},
-            {'id': 'regulatory', 'axis': 10, 'weight': 1.0},
-            {'id': 'compliance', 'axis': 11, 'weight': 1.0}
-        ]
-    
+        self.role_names = ['knowledge', 'sector', 'regulatory', 'compliance']
+        self.role_weights = {
+            'knowledge': 0.25,
+            'sector': 0.25,
+            'regulatory': 0.25,
+            'compliance': 0.25
+        }
+        self.resolution_history = []
+        
     def coordinate_roles(self, conflicts: List[Dict], context: Dict) -> List[Dict]:
         """
         Coordinate resolution across multiple expert roles.
@@ -781,79 +1213,146 @@ class MultiRoleCoordinator:
         Returns:
             list: Role-based resolution results
         """
+        # Extract persona results if available
+        persona_results = context.get('persona_results', {})
+        
+        # Check which roles are present in context
+        available_roles = [role for role in self.role_names if role in persona_results]
+        
+        # Default weights if no roles available
+        if not available_roles:
+            logging.warning(f"[{datetime.now()}] No persona roles available for coordination")
+            available_roles = self.role_names
+            
+        # Calculate adjusted weights for available roles
+        total_weight = sum(self.role_weights[role] for role in available_roles)
+        adjusted_weights = {
+            role: self.role_weights[role] / total_weight for role in available_roles
+        }
+        
         role_resolutions = []
         
-        # In a full implementation, this would interact with the quad persona engine
-        # and other role-specific components
-        
-        # For demonstration, create simulated resolutions
+        # Distribute conflicts to roles
         for conflict in conflicts:
-            resolution = {
-                'conflict_id': conflict.get('id', ''),
-                'role_assessments': [],
-                'agreement_rate': 0.0
+            if not conflict.get('resolved', False):
+                continue  # Skip unresolved conflicts
+                
+            # Generate role-specific resolutions
+            conflict_resolutions = []
+            for role in available_roles:
+                resolution = self._generate_role_resolution(role, conflict, context)
+                resolution['weight'] = adjusted_weights[role]
+                conflict_resolutions.append(resolution)
+                
+            # Determine final resolution through voting
+            final_resolution = self._determine_final_resolution(conflict_resolutions)
+            final_resolution['conflict_id'] = conflict['id']
+            
+            role_resolutions.append(final_resolution)
+            
+        # Record resolution history
+        if role_resolutions:
+            self.resolution_history.append({
+                'timestamp': datetime.now().isoformat(),
+                'conflicts_resolved': len(role_resolutions),
+                'roles_involved': available_roles
+            })
+            
+        return role_resolutions
+        
+    def _generate_role_resolution(self, role: str, conflict: Dict, context: Dict) -> Dict:
+        """
+        Generate a role-specific resolution for a conflict.
+        
+        Args:
+            role: Role name
+            conflict: Conflict to resolve
+            context: Query context
+            
+        Returns:
+            dict: Role-specific resolution
+        """
+        # In a real implementation, this would use role-specific logic
+        # Here we're simulating different role perspectives
+        
+        resolution = {
+            'role': role,
+            'conflict_id': conflict['id'],
+            'resolution': None,
+            'confidence': 0.0,
+            'success': False
+        }
+        
+        # Generate role-specific resolution
+        if role == 'knowledge':
+            # Knowledge role focuses on factual accuracy
+            resolution['resolution'] = f"From a knowledge perspective, this conflict can be resolved by verifying facts about {conflict['goal_content']}"
+            resolution['confidence'] = 0.8
+            resolution['success'] = True
+        elif role == 'sector':
+            # Sector role focuses on domain-specific context
+            resolution['resolution'] = f"In the context of sector expertise, {conflict['belief_content']} should be interpreted within industry standards"
+            resolution['confidence'] = 0.75
+            resolution['success'] = True
+        elif role == 'regulatory':
+            # Regulatory role focuses on compliance and rules
+            resolution['resolution'] = f"From a regulatory standpoint, ensure that {conflict['goal_content']} conforms to relevant regulations"
+            resolution['confidence'] = 0.7
+            resolution['success'] = True
+        elif role == 'compliance':
+            # Compliance role focuses on policy adherence
+            resolution['resolution'] = f"For compliance purposes, {conflict['belief_content']} should be documented according to policy"
+            resolution['confidence'] = 0.65
+            resolution['success'] = True
+        else:
+            # Default resolution
+            resolution['resolution'] = f"Generic resolution for conflict between {conflict['goal_content']} and {conflict['belief_content']}"
+            resolution['confidence'] = 0.5
+            resolution['success'] = False
+            
+        return resolution
+        
+    def _determine_final_resolution(self, resolutions: List[Dict]) -> Dict:
+        """
+        Determine final resolution from multiple role resolutions.
+        
+        Args:
+            resolutions: List of role-specific resolutions
+            
+        Returns:
+            dict: Final resolution
+        """
+        if not resolutions:
+            return {
+                'resolution': None,
+                'confidence': 0.0,
+                'success': False,
+                'roles_involved': []
             }
             
-            agreements = 0
-            total_roles = len(self.roles)
-            
-            # Generate role-specific assessments
-            for role in self.roles:
-                assessment = {
-                    'role': role['id'],
-                    'axis': role['axis'],
-                    'agrees_with_resolution': False,
-                    'confidence': 0.0,
-                    'rationale': ''
-                }
-                
-                # For resolved conflicts, simulate role agreement
-                if conflict.get('resolved', False):
-                    # Different roles have different agreement patterns
-                    if role['id'] == 'knowledge':
-                        agrees = True
-                        confidence = 0.9
-                        rationale = "Knowledge perspective confirms resolution"
-                    elif role['id'] == 'sector':
-                        agrees = True
-                        confidence = 0.85
-                        rationale = "Sector expertise validates approach"
-                    elif role['id'] == 'regulatory':
-                        # Regulatory role sometimes disagrees
-                        agrees = conflict.get('type') != 'ethical'
-                        confidence = 0.8 if agrees else 0.7
-                        rationale = "Regulatory assessment " + ("confirms" if agrees else "raises concerns about") + " resolution"
-                    elif role['id'] == 'compliance':
-                        # Compliance role sometimes disagrees
-                        agrees = conflict.get('type') != 'factual'
-                        confidence = 0.85 if agrees else 0.75
-                        rationale = "Compliance review " + ("approves" if agrees else "flags issues with") + " resolution"
-                    else:
-                        agrees = True
-                        confidence = 0.8
-                        rationale = "Role assessment supports resolution"
-                        
-                    assessment['agrees_with_resolution'] = agrees
-                    assessment['confidence'] = confidence
-                    assessment['rationale'] = rationale
-                    
-                    if agrees:
-                        agreements += 1
-                
-                # For unresolved conflicts, always disagree
-                else:
-                    assessment['agrees_with_resolution'] = False
-                    assessment['confidence'] = 0.6
-                    assessment['rationale'] = f"{role['id'].capitalize()} role cannot confirm unresolved conflict"
-                
-                resolution['role_assessments'].append(assessment)
-            
-            # Calculate agreement rate
-            resolution['agreement_rate'] = agreements / total_roles if total_roles > 0 else 0.0
-            
-            role_resolutions.append(resolution)
+        # Calculate weighted confidence
+        weighted_confidence = sum(r['confidence'] * r['weight'] for r in resolutions)
         
-        return role_resolutions
+        # Collect successful resolutions
+        successful = [r for r in resolutions if r['success']]
+        success_ratio = len(successful) / len(resolutions)
+        
+        # Determine overall success
+        overall_success = success_ratio >= 0.5 and weighted_confidence >= 0.6
+        
+        # Generate combined resolution text
+        resolution_text = "Combined resolution from multiple roles:"
+        for r in resolutions:
+            role_name = r['role'].capitalize()
+            resolution_text += f"\n- {role_name}: {r['resolution']}"
+            
+        return {
+            'resolution': resolution_text,
+            'confidence': weighted_confidence,
+            'success': overall_success,
+            'roles_involved': [r['role'] for r in resolutions],
+            'success_ratio': success_ratio
+        }
 
 
 class POVExpansionModule:
@@ -866,8 +1365,8 @@ class POVExpansionModule:
     
     def __init__(self):
         """Initialize the POV Expansion Module."""
-        pass
-    
+        self.expansion_history = []
+        
     def expand_context(self, pov_engine, context: Dict) -> Dict:
         """
         Expand context using the POV Engine.
@@ -879,29 +1378,27 @@ class POVExpansionModule:
         Returns:
             dict: Expanded context
         """
-        # If no POV engine is provided, return original context
         if not pov_engine:
-            return context
+            return self._simulate_pov_expansion(context)
             
         try:
-            # Attempt to use POV engine's expand_context method
-            if hasattr(pov_engine, 'expand_context'):
-                expanded = pov_engine.expand_context(context)
-                return expanded
+            # Call POV Engine process method
+            # This assumes POVEngine has a process(context) method
+            if hasattr(pov_engine, 'process') and callable(getattr(pov_engine, 'process')):
+                expanded_context = pov_engine.process(context)
                 
-            # If method doesn't exist, try running POV expansion directly
-            elif hasattr(pov_engine, 'expand'):
-                expanded = pov_engine.expand(context)
-                return expanded
+                # Track expansion
+                self._record_expansion(context, expanded_context)
                 
-            # If no suitable method exists, use a simulated expansion
+                return expanded_context
             else:
+                logging.warning(f"[{datetime.now()}] POV Engine does not have a process method")
                 return self._simulate_pov_expansion(context)
                 
         except Exception as e:
-            logging.warning(f"[{datetime.now()}] Error in POV expansion: {str(e)}")
-            return context
-    
+            logging.error(f"[{datetime.now()}] Error in POV expansion: {str(e)}")
+            return self._simulate_pov_expansion(context)
+        
     def _simulate_pov_expansion(self, context: Dict) -> Dict:
         """
         Simulate POV expansion when no POV engine is available.
@@ -915,38 +1412,45 @@ class POVExpansionModule:
         # Create a copy to avoid modifying the original
         expanded = context.copy()
         
-        # Add simulated viewpoints if they don't exist
-        if 'viewpoints' not in expanded:
-            expanded['viewpoints'] = [
-                {
-                    'id': 'vp1',
-                    'name': 'Primary Viewpoint',
-                    'confidence': 0.9,
-                    'beliefs': ['central belief 1', 'central belief 2']
-                },
-                {
-                    'id': 'vp2',
-                    'name': 'Alternative Viewpoint',
-                    'confidence': 0.7,
-                    'beliefs': ['alternative belief 1', 'alternative belief 2']
-                },
-                {
-                    'id': 'vp3',
-                    'name': 'Dissenting Viewpoint',
-                    'confidence': 0.5,
-                    'beliefs': ['dissenting belief 1', 'dissenting belief 2']
-                }
-            ]
+        # Add simulated POV expansion metadata
+        expanded['pov_expanded'] = True
+        expanded['pov_perspectives'] = ['default', 'alternative']
+        expanded['pov_expansion_type'] = 'simulated'
         
-        # Add viewpoint matrix if it doesn't exist
-        if 'viewpoint_matrix' not in expanded:
-            expanded['viewpoint_matrix'] = {
-                'belief_consistency': 0.7,
-                'divergence_score': 0.3,
-                'primary_confidence': 0.8
-            }
+        # Add expanded context attributes
+        if 'content' in expanded and expanded['content']:
+            expanded['pov_expanded_content'] = expanded['content']
+            
+        # Track expansion
+        self._record_expansion(context, expanded)
         
         return expanded
+        
+    def _record_expansion(self, original: Dict, expanded: Dict) -> None:
+        """
+        Record context expansion details.
+        
+        Args:
+            original: Original context
+            expanded: Expanded context
+        """
+        # Extract metrics to track
+        original_size = len(str(original))
+        expanded_size = len(str(expanded))
+        expansion_ratio = expanded_size / original_size if original_size > 0 else 1.0
+        
+        # Record expansion
+        self.expansion_history.append({
+            'timestamp': datetime.now().isoformat(),
+            'original_size': original_size,
+            'expanded_size': expanded_size,
+            'expansion_ratio': expansion_ratio,
+            'perspectives': expanded.get('pov_perspectives', [])
+        })
+        
+        # Limit history size
+        if len(self.expansion_history) > 50:
+            self.expansion_history = self.expansion_history[-50:]
 
 
 class MemoryPatchEngine:
@@ -959,8 +1463,8 @@ class MemoryPatchEngine:
     
     def __init__(self):
         """Initialize the Memory Patch Engine."""
-        self.applied_patches = []
-    
+        self.patch_history = []
+        
     def apply_patches(self, context: Dict, patches: List[Dict]) -> Dict:
         """
         Apply patches to the context memory.
@@ -972,47 +1476,129 @@ class MemoryPatchEngine:
         Returns:
             dict: Updated context with patches applied
         """
-        # Create a copy to avoid modifying the original
+        if not patches:
+            return context
+            
+        # Create a copy of the context to modify
         updated_context = context.copy()
         
-        # Create or update memory section
+        # Initialize memory structure if not present
         if 'memory' not in updated_context:
             updated_context['memory'] = {}
-        
-        # Apply patches
+            
+        if 'agi_memory' not in updated_context['memory']:
+            updated_context['memory']['agi_memory'] = {
+                'key_goals': [],
+                'conflict_resolutions': [],
+                'belief_updates': [],
+                'last_updated': datetime.now().isoformat()
+            }
+            
+        # Apply each patch
+        applied_patches = []
         for patch in patches:
-            key = patch.get('key', '')
-            value = patch.get('value', {})
-            source = patch.get('source', 'unknown')
+            patch_type = patch.get('type', '')
+            content = patch.get('content', [])
             
-            if key:
-                # Apply patch
-                updated_context['memory'][key] = value
+            if patch_type == 'add_key_goals' and content:
+                self._apply_key_goals_patch(updated_context, content)
+                applied_patches.append(patch)
                 
-                # Record patch application
-                self.applied_patches.append({
-                    'key': key,
-                    'source': source,
-                    'timestamp': datetime.now().isoformat()
-                })
+            elif patch_type == 'add_conflict_resolutions' and content:
+                self._apply_conflict_resolutions_patch(updated_context, content)
+                applied_patches.append(patch)
                 
-                logging.debug(f"[{datetime.now()}] Applied memory patch to key: {key} from source: {source}")
+            elif patch_type == 'update_beliefs' and content:
+                self._apply_belief_updates_patch(updated_context, content)
+                applied_patches.append(patch)
+                
+        # Update timestamp
+        if applied_patches:
+            updated_context['memory']['agi_memory']['last_updated'] = datetime.now().isoformat()
+            
+            # Record patch application
+            self.patch_history.append({
+                'timestamp': datetime.now().isoformat(),
+                'patches_applied': len(applied_patches),
+                'patch_types': list(set(p.get('type', '') for p in applied_patches))
+            })
+            
+        return updated_context
         
-        # Add patch metadata
-        if 'patch_history' not in updated_context:
-            updated_context['patch_history'] = []
-            
-        updated_context['patch_history'].extend([
-            {
-                'key': patch.get('key', ''),
-                'source': patch.get('source', 'unknown'),
+    def _apply_key_goals_patch(self, context: Dict, goals: List[Dict]) -> None:
+        """
+        Apply key goals patch to context memory.
+        
+        Args:
+            context: Context to update
+            goals: List of goals to add
+        """
+        # Extract memory section
+        memory = context['memory']['agi_memory']
+        
+        # Add new goals
+        for goal in goals:
+            goal_entry = {
+                'id': goal.get('id', f"g{len(memory['key_goals'])}"),
+                'content': goal.get('content', ''),
+                'confidence': goal.get('probability', 0.5),
                 'timestamp': datetime.now().isoformat()
             }
-            for patch in patches
-        ])
+            memory['key_goals'].append(goal_entry)
+            
+        # Limit size
+        memory['key_goals'] = memory['key_goals'][-20:]
         
-        return updated_context
-    
+    def _apply_conflict_resolutions_patch(self, context: Dict, conflicts: List[Dict]) -> None:
+        """
+        Apply conflict resolutions patch to context memory.
+        
+        Args:
+            context: Context to update
+            conflicts: List of resolved conflicts to add
+        """
+        # Extract memory section
+        memory = context['memory']['agi_memory']
+        
+        # Add new resolutions
+        for conflict in conflicts:
+            resolution_entry = {
+                'id': conflict.get('id', f"c{len(memory['conflict_resolutions'])}"),
+                'goal_content': conflict.get('goal_content', ''),
+                'belief_content': conflict.get('belief_content', ''),
+                'resolution': conflict.get('resolution', ''),
+                'timestamp': datetime.now().isoformat()
+            }
+            memory['conflict_resolutions'].append(resolution_entry)
+            
+        # Limit size
+        memory['conflict_resolutions'] = memory['conflict_resolutions'][-20:]
+        
+    def _apply_belief_updates_patch(self, context: Dict, beliefs: List[Dict]) -> None:
+        """
+        Apply belief updates patch to context memory.
+        
+        Args:
+            context: Context to update
+            beliefs: List of updated beliefs to add
+        """
+        # Extract memory section
+        memory = context['memory']['agi_memory']
+        
+        # Add new belief updates
+        for belief in beliefs:
+            update_entry = {
+                'content': belief.get('content', ''),
+                'original_confidence': belief.get('original_confidence', 0.5),
+                'new_confidence': belief.get('confidence', 0.5),
+                'source': belief.get('source', 'unknown'),
+                'timestamp': datetime.now().isoformat()
+            }
+            memory['belief_updates'].append(update_entry)
+            
+        # Limit size
+        memory['belief_updates'] = memory['belief_updates'][-20:]
+        
     def get_patch_history(self) -> List[Dict]:
         """
         Get history of applied patches.
@@ -1020,4 +1606,5 @@ class MemoryPatchEngine:
         Returns:
             list: History of applied patches
         """
-        return self.applied_patches
+        return self.patch_history
+"""

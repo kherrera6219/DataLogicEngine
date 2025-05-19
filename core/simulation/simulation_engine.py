@@ -109,6 +109,7 @@ class SimulationEngine:
         self.layer_config = self.sim_config.get('layers', {})
         self.pov_engine_enabled = self.layer_config.get('pov_engine_enabled', True)
         self.integration_engine_enabled = self.layer_config.get('integration_engine_enabled', True)
+        self.agi_simulation_enabled = self.layer_config.get('agi_simulation_enabled', True)
         
         # Initialize Layer 5 Integration Engine if enabled
         self.layer5_engine = None
@@ -123,6 +124,20 @@ class SimulationEngine:
             except ImportError as e:
                 logging.warning(f"[{datetime.now()}] Failed to import Layer 5 Integration Engine: {e}")
                 self.integration_engine_enabled = False
+                
+        # Initialize Layer 7 AGI Simulation Engine if enabled
+        self.layer7_engine = None
+        if self.agi_simulation_enabled:
+            try:
+                from simulation.layer7_agi_system import AGISimulationEngine
+                self.layer7_engine = AGISimulationEngine(
+                    config=self.layer_config.get('layer7', {}),
+                    system_manager=None  # Will be set later if system manager is provided
+                )
+                logging.info(f"[{datetime.now()}] Layer 7 AGI Simulation Engine initialized")
+            except ImportError as e:
+                logging.warning(f"[{datetime.now()}] Failed to import Layer 7 AGI Simulation Engine: {e}")
+                self.agi_simulation_enabled = False
         
         # Stats
         self.stats = {
@@ -280,6 +295,108 @@ class SimulationEngine:
         except Exception as e:
             logging.error(f"[{datetime.now()}] Layer 5 integration error for {simulation_id}: {str(e)}")
             # Return original context on error
+            return context
+    
+    def _apply_layer7_agi_processing(self, context: Dict, simulation_id: str) -> Dict:
+        """
+        Apply Layer 7 AGI Simulation Engine processing to the context.
+        
+        Args:
+            context: Simulation context to process
+            simulation_id: Simulation ID
+            
+        Returns:
+            dict: Updated context with Layer 7 AGI simulation applied
+        """
+        # Skip if Layer 7 is not enabled
+        if not self.agi_simulation_enabled or not self.layer7_engine:
+            logging.info(f"[{datetime.now()}] Layer 7 AGI simulation skipped for {simulation_id}")
+            return context
+            
+        # Get simulation details
+        simulation = self.active_simulations.get(simulation_id)
+        if not simulation:
+            logging.warning(f"[{datetime.now()}] Cannot apply Layer 7 AGI simulation - simulation {simulation_id} not found")
+            return context
+            
+        # Check for gatekeeper decision
+        current_pass = simulation.get('current_pass', 1)
+        gatekeeper_decision = context.get('gatekeeper_decision', {})
+        layer7_activation = gatekeeper_decision.get('layer_activations', {}).get('layer_7', {})
+        
+        # Skip if gatekeeper says no activation needed
+        if not layer7_activation.get('activate', False):
+            logging.info(f"[{datetime.now()}] Layer 7 AGI simulation not activated by gatekeeper for {simulation_id}")
+            return context
+            
+        try:
+            # Get Layer 7 parameters from gatekeeper if available
+            layer7_params = None
+            pov_engine = None
+            
+            if 'gatekeeper' in context and hasattr(context['gatekeeper'], 'get_layer7_agi_parameters'):
+                gatekeeper = context['gatekeeper']
+                layer7_params = gatekeeper.get_layer7_agi_parameters(context)
+                
+            # Get POV Engine if available for context expansion
+            if 'pov_engine' in context:
+                pov_engine = context['pov_engine']
+                
+            # Add historical confidence for tracking decay
+            if 'passes' in simulation and simulation['passes']:
+                historical_confidence = [
+                    p.get('confidence', {}).get('overall', 0.0) 
+                    for p in simulation['passes']
+                ]
+                context['historical_confidence'] = historical_confidence
+            
+            # Process through Layer 7 AGI Simulation Engine
+            logging.info(f"[{datetime.now()}] Processing simulation {simulation_id} through Layer 7 AGI Simulation Engine")
+            start_time = datetime.now()
+            
+            # Process through AGI Simulation Engine
+            agi_context = self.layer7_engine.process(context, pov_engine)
+            
+            # Track performance
+            processing_time = (datetime.now() - start_time).total_seconds()
+            logging.info(f"[{datetime.now()}] Layer 7 AGI simulation complete for {simulation_id} in {processing_time:.2f}s")
+            
+            # Update metrics
+            confidence_before = context.get('confidence_score', 0.0)
+            confidence_after = agi_context.get('confidence_score', confidence_before)
+            confidence_delta = confidence_after - confidence_before  # Can be negative with AGI
+            
+            # Track entropy
+            entropy = agi_context.get('entropy', 0.0)
+            
+            # Log results
+            if confidence_delta > 0:
+                logging.info(f"[{datetime.now()}] Layer 7 improved confidence for {simulation_id} by {confidence_delta:.4f}")
+            elif confidence_delta < 0:
+                logging.info(f"[{datetime.now()}] Layer 7 reduced confidence for {simulation_id} by {abs(confidence_delta):.4f}")
+                
+            logging.info(f"[{datetime.now()}] Layer 7 entropy for {simulation_id}: {entropy:.4f}")
+            
+            # Check for Layer 8 escalation
+            if agi_context.get('layer8_escalation'):
+                logging.info(f"[{datetime.now()}] Layer 7 escalated simulation {simulation_id} to Layer 8")
+                
+            # Update the context with AGI processing metadata
+            agi_context['layer7_applied'] = True
+            agi_context['layer7_processing_details'] = {
+                'entropy': entropy,
+                'confidence_delta': confidence_delta,
+                'emergence_score': agi_context.get('emergence_score', 0.0),
+                'processing_time_seconds': processing_time,
+                'escalated_to_layer8': bool(agi_context.get('layer8_escalation'))
+            }
+                
+            return agi_context
+            
+        except Exception as e:
+            logging.error(f"[{datetime.now()}] Layer 7 AGI simulation error for {simulation_id}: {str(e)}")
+            # Return original context on error
+            context['layer7_error'] = str(e)
             return context
     
     def run_simulation_pass(self, simulation_id: str) -> Dict:

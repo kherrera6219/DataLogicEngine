@@ -1,0 +1,13 @@
+{
+  "scan_id": "37ac4bbe-07cd-4061-833e-082d396c4fd5",
+  "timestamp": "2025-05-19T20:51:37.192290",
+  "vulnerabilities": [],
+  "warnings": [
+    {
+      "type": "file_permissions",
+      "description": "File permission checks are simulated in this environment",
+      "severity": "low"
+    }
+  ],
+  "status": "completed"
+}
