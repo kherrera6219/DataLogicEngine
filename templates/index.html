@@ -1,141 +1,158 @@
-{% extends 'base.html' %}
+
+{% extends "base.html" %}
 
 {% block extra_head %}
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+  // Handle authentication
+  function checkAuth() {
+    // Check if user is authenticated through JWT
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      document.getElementById('auth-status').textContent = 'Authenticated with JWT';
+      return;
+    }
+    
+    // Check Replit auth via API
+    fetch('/api/auth/replit-auth')
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error('Not authenticated');
+      })
+      .then(data => {
+        localStorage.setItem('access_token', data.access_token);
+        document.getElementById('auth-status').textContent = 'Authenticated with Replit';
+        document.getElementById('auth-container').style.display = 'none';
+      })
+      .catch(error => {
+        console.log('Not authenticated:', error);
+        document.getElementById('auth-status').textContent = 'Not authenticated';
+        document.getElementById('auth-container').style.display = 'block';
+      });
+  }
+
+  // On page load
+  document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+  });
+</script>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12 text-center mb-5">
-        <h1>Universal Knowledge Graph System</h1>
-        <p class="lead">A comprehensive AI knowledge system with a 13-axis Universal Knowledge Graph</p>
-    </div>
-</div>
-
-<div class="row mb-5">
-    <div class="col-lg-8">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <h3>Ask the UKG</h3>
-            </div>
-            <div class="card-body">
-                <form id="query-form">
-                    <div class="mb-3">
-                        <label for="query-input" class="form-label">Enter your query:</label>
-                        <textarea class="form-control" id="query-input" rows="3" placeholder="What would you like to know?" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="confidence-slider" class="form-label">Target Confidence: <span id="confidence-value">0.85</span></label>
-                        <input type="range" class="form-range" id="confidence-slider" min="0.6" max="0.95" step="0.05" value="0.85">
-                        <small class="text-muted">Higher values may require more processing time but yield more reliable answers.</small>
-                    </div>
-                    <button type="submit" class="btn btn-primary" id="submit-query">Submit Query</button>
-                </form>
-            </div>
-        </div>
-
-        <div class="card shadow-sm mt-4 d-none" id="result-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h3>Response</h3>
-                <div>
-                    <span class="badge bg-info text-dark" id="session-id">Session: -</span>
-                    <span class="badge bg-success" id="confidence-badge">Confidence: -</span>
-                </div>
-            </div>
-            <div class="card-body">
-                <div id="loading-indicator" class="text-center p-5 d-none">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-3">Processing your query... This may take a few moments.</p>
-                </div>
-                <div id="result-content" class="markdown-content"></div>
-            </div>
-            <div class="card-footer">
-                <small class="text-muted" id="result-metadata"></small>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-4">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <h3>UKG System Status</h3>
-            </div>
-            <div class="card-body">
-                <h5>Graph Statistics</h5>
-                <div id="graph-stats">
-                    <p>Loading graph statistics...</p>
-                </div>
-                <hr>
-                <h5>Memory Statistics</h5>
-                <div id="memory-stats">
-                    <p>Loading memory statistics...</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="card shadow-sm mt-4">
-            <div class="card-header">
-                <h3>UKG Architecture</h3>
-            </div>
-            <div class="card-body">
-                <h5>13 Axes of the UKG</h5>
-                <ol>
-                    <li><strong>Pillar Levels</strong>: Knowledge domains and disciplines</li>
-                    <li><strong>Sectors</strong>: Industry sectors and markets</li>
-                    <li><strong>Topics</strong>: Subject matters and interests</li>
-                    <li><strong>Methods</strong>: Methodologies and approaches</li>
-                    <li><strong>Tools</strong>: Software, hardware, and tools</li>
-                    <li><strong>Regulatory Frameworks</strong>: Laws and regulations</li>
-                    <li><strong>Compliance Standards</strong>: Standards and requirements</li>
-                    <li><strong>Knowledge Experts</strong>: Domain expertise</li>
-                    <li><strong>Skill Experts</strong>: Practical skills</li>
-                    <li><strong>Role Experts</strong>: Professional roles</li>
-                    <li><strong>Context Experts</strong>: Situational contexts</li>
-                    <li><strong>Locations</strong>: Geographic and jurisdictional</li>
-                    <li><strong>Time</strong>: Temporal dimensions</li>
-                </ol>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row mb-5" id="about">
+<div class="container mt-4">
+  <div class="row">
     <div class="col-md-12">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <h3>About the UKG System</h3>
-            </div>
-            <div class="card-body">
-                <p>The Universal Knowledge Graph (UKG) system is a comprehensive AI knowledge framework that organizes information along 13 distinct axes, creating a multidimensional representation of knowledge and expertise.</p>
-                
-                <h4>Key Components</h4>
-                <ul>
-                    <li><strong>Graph Manager</strong>: Maintains the structure and relationships in the UKG.</li>
-                    <li><strong>Structured Memory Manager</strong>: Stores and retrieves detailed simulation states and knowledge.</li>
-                    <li><strong>United System Manager</strong>: Handles unique identifiers across the system.</li>
-                    <li><strong>Simulation Engine</strong>: Processes queries through multiple layers of simulation.</li>
-                    <li><strong>Knowledge Algorithms</strong>: Specialized algorithms for specific knowledge tasks.</li>
-                </ul>
-
-                <h4>Simulation Layers</h4>
-                <ol>
-                    <li><strong>Query Contextualization</strong>: Analyzes queries to determine context.</li>
-                    <li><strong>Query Persona Engine & Refinement Orchestrator</strong>: Processes queries through multiple expert personas.</li>
-                    <li><strong>Research Agents</strong>: Conducts targeted research to fill knowledge gaps.</li>
-                </ol>
-            </div>
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h2>Universal Knowledge Graph (UKG) System</h2>
+          <p id="auth-status" class="badge bg-secondary">Checking authentication...</p>
         </div>
+        <div class="card-body">
+          <div id="auth-container">
+            <p>Please authenticate to use the UKG System:</p>
+            <div>
+              <script
+                authed="location.reload()"
+                src="https://auth.util.repl.co/script.js"
+              ></script>
+            </div>
+          </div>
+          
+          <div id="chat-container" class="mt-4">
+            <h3>Ask a question to the UKG System</h3>
+            <div class="mb-3">
+              <textarea id="query-text" class="form-control" rows="3" placeholder="Enter your query here..."></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="confidence-slider" class="form-label">Target Confidence: <span id="confidence-value">0.85</span></label>
+              <input type="range" class="form-range" id="confidence-slider" min="0.5" max="1" step="0.05" value="0.85">
+            </div>
+            <button id="submit-query" class="btn btn-primary">Submit Query</button>
+          </div>
+          
+          <div id="result-container" class="mt-4 d-none">
+            <h3>Results</h3>
+            <div id="loading-indicator" class="text-center d-none">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            <div id="result-content" class="markdown-content border rounded p-3 bg-light"></div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
-{% endblock %}
 
-{% block extra_scripts %}
+<!-- Add JavaScript for chat interaction -->
 <script>
-    // This will be called when the page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        loadSystemStats();
+  document.addEventListener('DOMContentLoaded', function() {
+    const confidenceSlider = document.getElementById('confidence-slider');
+    const confidenceValue = document.getElementById('confidence-value');
+    const queryText = document.getElementById('query-text');
+    const submitButton = document.getElementById('submit-query');
+    const resultContainer = document.getElementById('result-container');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const resultContent = document.getElementById('result-content');
+    
+    // Update confidence value display
+    confidenceSlider.addEventListener('input', function() {
+      confidenceValue.textContent = this.value;
     });
+    
+    // Handle query submission
+    submitButton.addEventListener('click', function() {
+      const query = queryText.value.trim();
+      if (!query) return;
+      
+      // Show loading
+      resultContainer.classList.remove('d-none');
+      loadingIndicator.classList.remove('d-none');
+      resultContent.innerHTML = '';
+      
+      // Get access token
+      const token = localStorage.getItem('access_token');
+      
+      // Submit API request
+      fetch('/api/chat/chats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ title: query.substring(0, 50) })
+      })
+      .then(response => response.json())
+      .then(chat => {
+        return fetch(`/api/chat/chats/${chat.id}/messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            content: query,
+            confidence: parseFloat(confidenceSlider.value)
+          })
+        });
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Hide loading
+        loadingIndicator.classList.add('d-none');
+        
+        // Display response
+        const response = data.assistant_message.content;
+        resultContent.innerHTML = marked.parse(response);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        loadingIndicator.classList.add('d-none');
+        resultContent.innerHTML = '<div class="alert alert-danger">Error processing your request. Please try again.</div>';
+      });
+    });
+  });
 </script>
 {% endblock %}

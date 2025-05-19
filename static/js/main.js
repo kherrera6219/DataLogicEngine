@@ -161,3 +161,61 @@ function loadSystemStats() {
             document.getElementById('memory-stats').innerHTML = '<div class="alert alert-warning">Error loading memory statistics</div>';
         });
 }
+// Check if user is authenticated with JWT
+function checkAuthStatus() {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+        return;
+    }
+
+    // Fetch user info using the token
+    fetch('/api/auth/me', {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            // Token is invalid, remove it
+            localStorage.removeItem('access_token');
+            throw new Error('Invalid token');
+        }
+    })
+    .then(user => {
+        // Display user info in the navbar
+        const userInfo = document.getElementById('user-info');
+        if (userInfo) {
+            userInfo.innerHTML = `
+                <span class="me-2">
+                    <i class="bi bi-person-circle"></i> ${user.username}
+                </span>
+                <button id="logout-btn" class="btn btn-sm btn-outline-light">Logout</button>
+            `;
+            
+            // Add logout handler
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                localStorage.removeItem('access_token');
+                window.location.reload();
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Auth error:', error);
+    });
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Check authentication status
+    checkAuthStatus();
+    
+    // Initialize marked renderer
+    marked.setOptions({
+        breaks: true,
+        gfm: true,
+        headerIds: true,
+        sanitize: false
+    });
+});

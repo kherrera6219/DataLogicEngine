@@ -6,11 +6,11 @@ packages = ["libyaml", "openssl", "postgresql"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "npm run start"]
+run = ["sh", "-c", "python main.py"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
-runButton = "Next.js Dev"
+runButton = "Full-Stack Dev"
 
 [[workflows.workflow]]
 name = "Project"
@@ -65,6 +65,19 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+
+[[workflows.workflow]]
+name = "Full-Stack Dev"
+author = 28709262
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
 
 [[ports]]
 localPort = 3000
