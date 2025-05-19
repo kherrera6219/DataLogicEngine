@@ -1,4 +1,3 @@
-
 """
 Universal Knowledge Graph (UKG) System - Main Application
 
@@ -49,6 +48,7 @@ from core.graph_manager import GraphManager
 from core.structured_memory_manager import StructuredMemoryManager
 from core.axes.axis_system import AxisSystem
 from core.simulation.app_orchestrator import AppOrchestrator
+from core.axes.axis1_identity import KnowledgeManager
 
 # Initialize system components
 usm = UnitedSystemManager()
@@ -90,6 +90,16 @@ def health_check():
         "version": "1.0.0",
         "axes_available": len(axis_system.get_all_axes())
     })
+
+# Register API routes
+from backend.ukg_api import register_api as register_ukg_api
+from backend.pillar_api import register_api as register_pillar_api
+register_ukg_api(app)
+register_pillar_api(app)
+
+# Initialize Knowledge Manager
+knowledge_manager = KnowledgeManager(db_manager=None, graph_manager=graph_manager, config=app.config)
+app.config['KNOWLEDGE_MANAGER'] = knowledge_manager
 
 # Run the application if executed directly
 if __name__ == '__main__':
