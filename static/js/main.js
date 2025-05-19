@@ -1,221 +1,257 @@
-// Main JavaScript for UKG System
+/**
+ * Universal Knowledge Graph (UKG) - Main JavaScript
+ * Handles client-side interactions for the UKG application
+ */
 
-// Update confidence value when slider changes
-document.getElementById('confidence-slider').addEventListener('input', function() {
-    document.getElementById('confidence-value').textContent = this.value;
+document.addEventListener('DOMContentLoaded', function() {
+  // Sidebar toggle
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', function() {
+      document.body.classList.toggle('sidebar-collapsed');
+      
+      // Store preference in localStorage
+      const isSidebarCollapsed = document.body.classList.contains('sidebar-collapsed');
+      localStorage.setItem('sidebar-collapsed', isSidebarCollapsed);
+    });
+    
+    // Check localStorage for sidebar state
+    const storedSidebarState = localStorage.getItem('sidebar-collapsed');
+    if (storedSidebarState === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  
+  // Theme toggle (if present)
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function() {
+      document.body.classList.toggle('light-theme');
+      document.body.classList.toggle('dark-theme');
+      
+      // Store preference in localStorage
+      const isLightTheme = document.body.classList.contains('light-theme');
+      localStorage.setItem('light-theme', isLightTheme);
+    });
+    
+    // Check localStorage for theme preference
+    const storedTheme = localStorage.getItem('light-theme');
+    if (storedTheme === 'true' && document.body.classList.contains('dark-theme')) {
+      document.body.classList.remove('dark-theme');
+      document.body.classList.add('light-theme');
+    }
+  }
+  
+  // Handle alert close buttons
+  const alertCloseButtons = document.querySelectorAll('.close-alert');
+  alertCloseButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const alert = this.closest('.alert');
+      if (alert) {
+        alert.style.opacity = '0';
+        setTimeout(() => {
+          alert.style.display = 'none';
+        }, 300);
+      }
+    });
+  });
+  
+  // Handle mobile sidebar
+  const handleResize = () => {
+    if (window.innerWidth < 992) {
+      document.body.classList.add('sidebar-collapsed');
+      
+      // For mobile, add click handler to show/hide sidebar
+      document.addEventListener('click', function(e) {
+        if (e.target.matches('#sidebar-toggle, #sidebar-toggle *')) {
+          document.body.classList.toggle('sidebar-open');
+          e.stopPropagation();
+        } else if (!e.target.closest('.app-sidebar') && document.body.classList.contains('sidebar-open')) {
+          document.body.classList.remove('sidebar-open');
+        }
+      });
+    }
+  };
+  
+  // Initial check
+  handleResize();
+  
+  // Listen for window resize
+  window.addEventListener('resize', handleResize);
+  
+  // Initialize any Knowledge Graph visualization if present
+  initializeGraphVisualization();
+  
+  // Initialize chatbot if present
+  initializeChatbot();
 });
 
-// Handle form submission
-document.getElementById('query-form').addEventListener('submit', function(e) {
+/**
+ * Initialize Knowledge Graph Visualization if present on the page
+ */
+function initializeGraphVisualization() {
+  const graphContainer = document.getElementById('graph-container');
+  if (!graphContainer) return;
+  
+  // This would normally connect to a library like D3.js or similar
+  // For now, we'll just add a placeholder
+  graphContainer.innerHTML = '<div class="graph-placeholder">Loading graph visualization...</div>';
+  
+  // In a real implementation, this would fetch graph data and render it
+  fetch('/api/graph')
+    .then(response => response.json())
+    .then(data => {
+      console.log('Graph data loaded:', data);
+      // Initialize and render graph with the data
+      // Example: initD3Graph(graphContainer, data);
+    })
+    .catch(error => {
+      console.error('Error loading graph data:', error);
+      graphContainer.innerHTML = '<div class="graph-error">Error loading graph data. Please try again later.</div>';
+    });
+}
+
+/**
+ * Initialize chatbot interface if present
+ */
+function initializeChatbot() {
+  const chatForm = document.getElementById('chat-form');
+  const chatInput = document.getElementById('chat-input');
+  const chatMessages = document.getElementById('chat-messages');
+  
+  if (!chatForm || !chatInput || !chatMessages) return;
+  
+  chatForm.addEventListener('submit', function(e) {
     e.preventDefault();
     
-    const queryText = document.getElementById('query-input').value.trim();
-    const confidenceTarget = document.getElementById('confidence-slider').value;
+    const message = chatInput.value.trim();
+    if (!message) return;
     
-    if (queryText) {
-        processQuery(queryText, confidenceTarget);
-    }
-});
-
-// Process query and get response
-function processQuery(queryText, confidenceTarget) {
-    // Show loading indicator
-    const resultCard = document.getElementById('result-card');
-    resultCard.classList.remove('d-none');
+    // Add user message to chat
+    addChatMessage(message, 'user');
     
-    const loadingIndicator = document.getElementById('loading-indicator');
-    loadingIndicator.classList.remove('d-none');
+    // Clear input
+    chatInput.value = '';
     
-    const resultContent = document.getElementById('result-content');
-    resultContent.innerHTML = '';
+    // Show typing indicator
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'chat-message system typing-indicator';
+    typingIndicator.innerHTML = 'UKG is thinking<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
+    chatMessages.appendChild(typingIndicator);
     
-    document.getElementById('session-id').textContent = 'Session: Processing...';
-    document.getElementById('confidence-badge').textContent = 'Confidence: -';
-    document.getElementById('result-metadata').textContent = '';
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
     
-    // Submit query to API
+    // Make API request to backend
     fetch('/api/query', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            query: queryText,
-            target_confidence: parseFloat(confidenceTarget)
-        })
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ query: message })
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        displayResult(data);
+      // Remove typing indicator
+      chatMessages.removeChild(typingIndicator);
+      
+      // Add response to chat
+      addChatMessage(data.response, 'system');
+      
+      // If there's confidence data, add it
+      if (data.confidenceScore) {
+        const confidenceIndicator = document.createElement('div');
+        confidenceIndicator.className = 'confidence-indicator';
+        confidenceIndicator.innerHTML = `<small>Confidence: ${Math.round(data.confidenceScore * 100)}% (Layer ${data.activeLayer || 1})</small>`;
+        chatMessages.appendChild(confidenceIndicator);
+      }
     })
     .catch(error => {
-        console.error('Error:', error);
-        resultContent.innerHTML = `
-            <div class="alert alert-danger">
-                <h4>Error Processing Query</h4>
-                <p>${error.message}</p>
-            </div>
-        `;
-    })
-    .finally(() => {
-        loadingIndicator.classList.add('d-none');
+      // Remove typing indicator
+      chatMessages.removeChild(typingIndicator);
+      
+      // Add error message
+      addChatMessage('Sorry, there was an error processing your request. Please try again.', 'system error');
+      console.error('Chat error:', error);
     });
+  });
+  
+  /**
+   * Add a message to the chat interface
+   */
+  function addChatMessage(message, type) {
+    const messageElement = document.createElement('div');
+    messageElement.className = `chat-message ${type}`;
+    messageElement.textContent = message;
+    
+    chatMessages.appendChild(messageElement);
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
 }
 
-// Display query result
-function displayResult(data) {
-    const resultContent = document.getElementById('result-content');
-    const sessionIdBadge = document.getElementById('session-id');
-    const confidenceBadge = document.getElementById('confidence-badge');
-    const resultMetadata = document.getElementById('result-metadata');
+/**
+ * Handle Knowledge Graph filtering if present
+ */
+function handleGraphFilters() {
+  const filterForm = document.getElementById('graph-filter-form');
+  if (!filterForm) return;
+  
+  filterForm.addEventListener('submit', function(e) {
+    e.preventDefault();
     
-    // Update session ID
-    sessionIdBadge.textContent = `Session: ${data.session_id.substring(0, 8)}...`;
+    // Get filter values
+    const axis = document.getElementById('filter-axis').value;
+    const nodeType = document.getElementById('filter-node-type').value;
     
-    // Update confidence and style based on value
-    const confidence = data.confidence;
-    confidenceBadge.textContent = `Confidence: ${(confidence * 100).toFixed(1)}%`;
-    
-    if (confidence < 0.7) {
-        confidenceBadge.className = 'badge bg-danger';
-    } else if (confidence < 0.85) {
-        confidenceBadge.className = 'badge bg-warning text-dark';
-    } else {
-        confidenceBadge.className = 'badge bg-success';
-    }
-    
-    // Render answer text with markdown
-    const answerText = data.answer_text || 'No answer provided.';
-    resultContent.innerHTML = marked.parse(answerText);
-    
-    // Add metadata
-    const metadataText = [
-        `Status: ${data.status}`,
-        `Passes: ${data.passes_executed}`,
-        `Processed: ${new Date(data.processing_metadata.timestamp).toLocaleString()}`
-    ].join(' | ');
-    
-    resultMetadata.textContent = metadataText;
+    // Update graph with filters
+    updateGraphVisualization({ axis, nodeType });
+  });
+  
+  // Reset filters button
+  const resetButton = document.getElementById('reset-filters');
+  if (resetButton) {
+    resetButton.addEventListener('click', function() {
+      document.getElementById('filter-axis').value = '0';
+      document.getElementById('filter-node-type').value = 'all';
+      updateGraphVisualization({});
+    });
+  }
 }
 
-// Load system statistics
-function loadSystemStats() {
-    // Load graph statistics
-    fetch('/api/graph_stats')
-        .then(response => response.json())
-        .then(data => {
-            const graphStats = document.getElementById('graph-stats');
-            
-            // Format node types for display
-            let nodeTypesHtml = '<ul class="list-unstyled mb-0">';
-            Object.entries(data.node_types).slice(0, 5).forEach(([type, count]) => {
-                nodeTypesHtml += `<li><span class="badge bg-secondary">${count}</span> ${type}</li>`;
-            });
-            nodeTypesHtml += '</ul>';
-            
-            graphStats.innerHTML = `
-                <div class="d-flex justify-content-between">
-                    <div><strong>Nodes:</strong> ${data.total_nodes}</div>
-                    <div><strong>Edges:</strong> ${data.total_edges}</div>
-                </div>
-                <div class="mt-2">
-                    <strong>Top Node Types:</strong>
-                    ${nodeTypesHtml}
-                </div>
-            `;
-        })
-        .catch(error => {
-            console.error('Error fetching graph stats:', error);
-            document.getElementById('graph-stats').innerHTML = '<div class="alert alert-warning">Error loading graph statistics</div>';
-        });
-    
-    // Load memory statistics
-    fetch('/api/memory_stats')
-        .then(response => response.json())
-        .then(data => {
-            const memoryStats = document.getElementById('memory-stats');
-            
-            // Format entry types for display
-            let entryTypesHtml = '<ul class="list-unstyled mb-0">';
-            Object.entries(data.entry_types).slice(0, 5).forEach(([type, count]) => {
-                entryTypesHtml += `<li><span class="badge bg-secondary">${count}</span> ${type}</li>`;
-            });
-            entryTypesHtml += '</ul>';
-            
-            memoryStats.innerHTML = `
-                <div><strong>Total Entries:</strong> ${data.total_entries}</div>
-                <div><strong>Size:</strong> ${(data.memory_size_bytes / 1024).toFixed(2)} KB</div>
-                <div class="mt-2">
-                    <strong>Entry Types:</strong>
-                    ${entryTypesHtml}
-                </div>
-            `;
-        })
-        .catch(error => {
-            console.error('Error fetching memory stats:', error);
-            document.getElementById('memory-stats').innerHTML = '<div class="alert alert-warning">Error loading memory statistics</div>';
-        });
-}
-// Check if user is authenticated with JWT
-function checkAuthStatus() {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-        return;
-    }
-
-    // Fetch user info using the token
-    fetch('/api/auth/me', {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            // Token is invalid, remove it
-            localStorage.removeItem('access_token');
-            throw new Error('Invalid token');
-        }
-    })
-    .then(user => {
-        // Display user info in the navbar
-        const userInfo = document.getElementById('user-info');
-        if (userInfo) {
-            userInfo.innerHTML = `
-                <span class="me-2">
-                    <i class="bi bi-person-circle"></i> ${user.username}
-                </span>
-                <button id="logout-btn" class="btn btn-sm btn-outline-light">Logout</button>
-            `;
-            
-            // Add logout handler
-            document.getElementById('logout-btn').addEventListener('click', () => {
-                localStorage.removeItem('access_token');
-                window.location.reload();
-            });
-        }
+/**
+ * Update the graph visualization with new filters
+ */
+function updateGraphVisualization(filters) {
+  const graphContainer = document.getElementById('graph-container');
+  if (!graphContainer) return;
+  
+  // Show loading state
+  graphContainer.classList.add('loading');
+  
+  // Build query string from filters
+  const queryParams = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) queryParams.append(key, value);
+  });
+  
+  // Fetch updated graph data
+  fetch(`/api/graph?${queryParams.toString()}`)
+    .then(response => response.json())
+    .then(data => {
+      // Remove loading state
+      graphContainer.classList.remove('loading');
+      
+      // Update graph visualization
+      console.log('Updated graph data:', data);
+      // Example: updateD3Graph(graphContainer, data);
     })
     .catch(error => {
-        console.error('Auth error:', error);
+      // Remove loading state
+      graphContainer.classList.remove('loading');
+      
+      console.error('Error updating graph:', error);
+      // Show error state
     });
 }
-
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Check authentication status
-    checkAuthStatus();
-    
-    // Initialize marked renderer
-    marked.setOptions({
-        breaks: true,
-        gfm: true,
-        headerIds: true,
-        sanitize: false
-    });
-});

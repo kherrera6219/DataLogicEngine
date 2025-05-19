@@ -4,55 +4,216 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Universal Knowledge Graph{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/ukg-icon.png') }}">
+    
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-    {% block additional_head %}{% endblock %}
+    
+    {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-light">
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            {% block sidebar %}
-            <div class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                        <h5 class="text-white">Universal Knowledge Graph</h5>
+<body class="dark-theme">
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <span class="material-icons">menu</span>
+            </button>
+            <div class="logo">
+                <a href="{{ url_for('index') }}">
+                    <span class="logo-text">UKG</span>
+                    <span class="logo-subtext">Universal Knowledge Graph</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            {% if current_user.is_authenticated %}
+            <div class="user-menu">
+                <button class="user-menu-toggle">
+                    <div class="user-avatar">
+                        <span class="material-icons">person</span>
                     </div>
-                    <div class="d-grid mb-3">
-                        <a href="{{ url_for('home') }}" class="btn btn-outline-light mb-2">
-                            <i class="bi bi-plus-circle"></i> New Chat
-                        </a>
-                    </div>
-                    <div class="sidebar-heading text-light ps-3 py-2">
-                        Recent Conversations
-                    </div>
-                    <div class="conversation-list">
-                        <!-- Conversation history will be here -->
-                    </div>
-                    <hr class="border-light">
-                    <div class="sidebar-footer">
-                        <a href="{{ url_for('api_docs') }}" class="text-light text-decoration-none ps-3 py-2 d-block">
-                            <i class="bi bi-file-code"></i> API Documentation
-                        </a>
-                        <a href="{{ url_for('simulation_page') }}" class="text-light text-decoration-none ps-3 py-2 d-block">
-                            <i class="bi bi-graph-up"></i> Simulation
-                        </a>
-                    </div>
+                    <span class="user-name">{{ current_user.username }}</span>
+                    <span class="material-icons">arrow_drop_down</span>
+                </button>
+                <div class="user-dropdown">
+                    <a href="{{ url_for('profile') }}">
+                        <span class="material-icons">account_circle</span>
+                        Profile
+                    </a>
+                    <a href="{{ url_for('settings') }}">
+                        <span class="material-icons">settings</span>
+                        Settings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ url_for('logout') }}">
+                        <span class="material-icons">logout</span>
+                        Logout
+                    </a>
                 </div>
             </div>
-            {% endblock %}
-
-            <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                {% block content %}{% endblock %}
-            </main>
+            {% else %}
+            <div class="auth-buttons">
+                <a href="{{ url_for('login') }}" class="btn btn-text">Log In</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
+            </div>
+            {% endif %}
         </div>
+    </header>
+    
+    <!-- Sidebar & Main Content Container -->
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="app-sidebar">
+            <nav class="sidebar-nav">
+                {% if current_user.is_authenticated %}
+                <div class="nav-section">
+                    <span class="nav-section-title">Core</span>
+                    <ul class="nav-items">
+                        <li>
+                            <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' else '' }}">
+                                <span class="material-icons">dashboard</span>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('knowledge') }}" class="{{ 'active' if request.endpoint == 'knowledge' else '' }}">
+                                <span class="material-icons">hub</span>
+                                Knowledge Graph
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('simulation') }}" class="{{ 'active' if request.endpoint == 'simulation' else '' }}">
+                                <span class="material-icons">insights</span>
+                                Simulations
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('chatbot') }}" class="{{ 'active' if request.endpoint == 'chatbot' else '' }}">
+                                <span class="material-icons">chat</span>
+                                Chatbot
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="nav-section">
+                    <span class="nav-section-title">Analysis</span>
+                    <ul class="nav-items">
+                        <li>
+                            <a href="{{ url_for('graph') }}" class="{{ 'active' if request.endpoint == 'graph' else '' }}">
+                                <span class="material-icons">share</span>
+                                Graph Visualization
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('analytics') }}" class="{{ 'active' if request.endpoint == 'analytics' else '' }}">
+                                <span class="material-icons">assessment</span>
+                                Analytics
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                {% if current_user.is_admin %}
+                <div class="nav-section">
+                    <span class="nav-section-title">Admin</span>
+                    <ul class="nav-items">
+                        <li>
+                            <a href="{{ url_for('admin') }}" class="{{ 'active' if request.endpoint == 'admin' else '' }}">
+                                <span class="material-icons">admin_panel_settings</span>
+                                Admin Panel
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+                
+                {% else %}
+                <div class="nav-section">
+                    <span class="nav-section-title">Welcome</span>
+                    <ul class="nav-items">
+                        <li>
+                            <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' else '' }}">
+                                <span class="material-icons">home</span>
+                                Home
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint == 'login' else '' }}">
+                                <span class="material-icons">login</span>
+                                Log In
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('register') }}" class="{{ 'active' if request.endpoint == 'register' else '' }}">
+                                <span class="material-icons">app_registration</span>
+                                Register
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+                
+                <div class="sidebar-footer">
+                    <span>&copy; 2025 Universal Knowledge Graph</span>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="app-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">{% block page_title %}Page Title{% endblock %}</h1>
+                
+                {% block page_actions %}{% endblock %}
+            </div>
+            
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                <div class="alert-content">{{ message }}</div>
+                                <button class="close-alert">
+                                    <span class="material-icons">close</span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Main Content Area -->
+            <div class="content-wrapper">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    {% block scripts %}{% endblock %}
+    
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <span>&copy; 2025 Universal Knowledge Graph</span>
+            </div>
+            <div class="footer-section">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
