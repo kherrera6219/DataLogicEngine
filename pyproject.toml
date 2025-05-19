@@ -19,4 +19,8 @@ dependencies = [
     "python-dotenv>=1.1.0",
     "requests>=2.32.3",
     "flask-swagger-ui>=5.21.0",
+    "flask-login>=0.6.3",
+    "oauthlib>=3.2.2",
+    "pyjwt>=2.10.1",
+    "flask-dance>=7.1.0",
 ]
