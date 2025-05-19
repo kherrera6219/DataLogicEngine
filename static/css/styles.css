@@ -1,0 +1,92 @@
+/* Custom styles for UKG System */
+
+/* Body styling */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main content area */
+main {
+    flex: 1;
+}
+
+/* Card styling */
+.card {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+/* Markdown content styling */
+.markdown-content {
+    line-height: 1.6;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.markdown-content h1 {
+    font-size: 1.8rem;
+}
+
+.markdown-content h2 {
+    font-size: 1.5rem;
+}
+
+.markdown-content h3 {
+    font-size: 1.3rem;
+}
+
+.markdown-content hr {
+    margin: 1.5rem 0;
+}
+
+.markdown-content code {
+    background-color: rgba(var(--bs-secondary-rgb), 0.2);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+.markdown-content pre {
+    background-color: rgba(var(--bs-secondary-rgb), 0.2);
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+/* Stats styling */
+#graph-stats, #memory-stats {
+    font-size: 0.9rem;
+}
+
+/* Loading indicator */
+#loading-indicator {
+    padding: 2rem 0;
+}
+
+/* Confidence slider styling */
+#confidence-slider {
+    cursor: pointer;
+}
+
+/* Session and confidence badges */
+#session-id, #confidence-badge {
+    font-size: 0.8rem;
+}
+
+/* Navbar styling */
+.navbar-brand {
+    font-weight: bold;
+}

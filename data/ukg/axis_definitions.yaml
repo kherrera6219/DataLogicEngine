@@ -1,0 +1,70 @@
+# Universal Knowledge Graph (UKG) Axis Definitions
+#
+# This file defines the 13 axes that form the foundation of the UKG.
+# Each axis represents a different dimension of knowledge organization.
+
+Axes:
+  - number: 1
+    label: "Pillar Levels"
+    original_id: "Axis1"
+    description: "Represents the hierarchical organization of knowledge domains and disciplines."
+
+  - number: 2
+    label: "Sectors"
+    original_id: "Axis2"
+    description: "Represents different industry sectors and market segments."
+
+  - number: 3
+    label: "Topics"
+    original_id: "Axis3"
+    description: "Represents specific subject matters and areas of interest."
+
+  - number: 4
+    label: "Methods"
+    original_id: "Axis4"
+    description: "Represents methodologies, approaches, and procedures."
+
+  - number: 5
+    label: "Tools"
+    original_id: "Axis5"
+    description: "Represents software, hardware, and other tools used in various domains."
+
+  - number: 6
+    label: "Regulatory Frameworks"
+    original_id: "Axis6"
+    description: "Represents laws, regulations, and legal frameworks."
+
+  - number: 7
+    label: "Compliance Standards"
+    original_id: "Axis7"
+    description: "Represents standards, best practices, and compliance requirements."
+
+  - number: 8
+    label: "Knowledge Experts"
+    original_id: "Axis8"
+    description: "Represents expertise in specific knowledge domains."
+
+  - number: 9
+    label: "Skill Experts"
+    original_id: "Axis9"
+    description: "Represents expertise in specific skills and practical applications."
+
+  - number: 10
+    label: "Role Experts"
+    original_id: "Axis10"
+    description: "Represents expertise in professional roles and responsibilities."
+
+  - number: 11
+    label: "Context Experts"
+    original_id: "Axis11"
+    description: "Represents expertise in situational and environmental contexts."
+
+  - number: 12
+    label: "Locations"
+    original_id: "Axis12"
+    description: "Represents geographic and jurisdictional locations."
+
+  - number: 13
+    label: "Time"
+    original_id: "Axis13"
+    description: "Represents temporal dimensions, historical periods, and time-based context."
