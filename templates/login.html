@@ -2,76 +2,92 @@
 
 {% block title %}Universal Knowledge Graph - Login{% endblock %}
 
-{% block page_title %}Log In{% endblock %}
-
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
-            <h2>Welcome Back</h2>
-            <p>Log in to access your Universal Knowledge Graph dashboard</p>
+            <h2 class="auth-title">Welcome Back</h2>
+            <p class="auth-subtitle">Log in to access the Universal Knowledge Graph system</p>
         </div>
         
-        <form method="POST" action="{{ url_for('login') }}" class="auth-form">
-            <div class="form-group">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" id="username" name="username" class="form-control" required autofocus>
-            </div>
+        <div class="auth-body">
+            <form action="{{ url_for('login') }}" method="POST" class="auth-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                
+                <div class="form-group form-check">
+                    <input type="checkbox" id="remember" name="remember" class="form-check-input">
+                    <label for="remember" class="form-check-label">Remember me</label>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-block">Log In</button>
+                </div>
+            </form>
             
-            <div class="form-group">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" id="password" name="password" class="form-control" required>
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
             </div>
-            
-            <div class="form-check mb-3">
-                <input type="checkbox" id="remember" name="remember" class="form-check-input">
-                <label for="remember" class="form-check-label">Remember me</label>
-            </div>
-            
-            <button type="submit" class="btn btn-primary w-100">Log In</button>
-        </form>
-        
-        <div class="auth-footer">
-            <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
         </div>
     </div>
 </div>
 
 <style>
+    /* Authentication Pages Styles */
     .auth-container {
-        max-width: 400px;
-        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
     }
     
     .auth-card {
         background-color: var(--dark-bg-secondary);
         border-radius: var(--border-radius);
-        padding: 2rem;
-        box-shadow: 0 4px 12px var(--dark-shadow);
+        box-shadow: 0 8px 24px var(--dark-shadow);
+        width: 100%;
+        max-width: 450px;
+        overflow: hidden;
     }
     
     .light-theme .auth-card {
         background-color: var(--light-bg-secondary);
-        box-shadow: 0 4px 12px var(--light-shadow);
+        box-shadow: 0 8px 24px var(--light-shadow);
     }
     
     .auth-header {
+        padding: 2rem;
         text-align: center;
-        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--dark-border);
     }
     
-    .auth-header h2 {
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
+    .light-theme .auth-header {
+        border-bottom: 1px solid var(--light-border);
     }
     
-    .auth-header p {
+    .auth-title {
+        font-size: 1.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .auth-subtitle {
         color: var(--dark-text-secondary);
-        font-size: 0.9rem;
+        margin-bottom: 0;
     }
     
-    .light-theme .auth-header p {
+    .light-theme .auth-subtitle {
         color: var(--light-text-secondary);
+    }
+    
+    .auth-body {
+        padding: 2rem;
     }
     
     .auth-form {
@@ -81,36 +97,38 @@
     .form-check {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        margin-bottom: 1.5rem;
     }
     
     .form-check-input {
-        width: 1em;
-        height: 1em;
-        margin-top: 0;
+        margin-right: 0.5rem;
+    }
+    
+    .form-check-label {
+        font-size: 0.95rem;
+        user-select: none;
+    }
+    
+    .btn-block {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
     }
     
     .auth-footer {
         text-align: center;
-        font-size: 0.9rem;
-        color: var(--dark-text-secondary);
+        padding-top: 1rem;
+        border-top: 1px solid var(--dark-border);
+        margin-top: 1rem;
     }
     
     .light-theme .auth-footer {
-        color: var(--light-text-secondary);
+        border-top: 1px solid var(--light-border);
     }
     
-    .auth-footer a {
-        color: var(--dark-accent-primary);
-        text-decoration: none;
-    }
-    
-    .light-theme .auth-footer a {
-        color: var(--light-accent-primary);
-    }
-    
-    .auth-footer a:hover {
-        text-decoration: underline;
+    .auth-footer p {
+        margin-bottom: 0;
+        font-size: 0.95rem;
     }
 </style>
 {% endblock %}

@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Universal Knowledge Graph - Contact Us{% endblock %}
+
+{% block page_title %}Contact Us{% endblock %}
+{% block page_subtitle %}Get in touch with the Universal Knowledge Graph team{% endblock %}
+
+{% block content %}
+<div class="contact-container">
+    <div class="contact-card">
+        <form action="{{ url_for('contact') }}" method="POST" class="contact-form">
+            <div class="form-group">
+                <label for="name" class="form-label">Your Name</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="subject" class="form-label">Subject</label>
+                <input type="text" id="subject" name="subject" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="message" class="form-label">Message</label>
+                <textarea id="message" name="message" class="form-control" rows="6" required></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Send Message</button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="contact-info">
+        <div class="info-card">
+            <div class="info-header">
+                <span class="material-icons">contact_support</span>
+                <h3>Support</h3>
+            </div>
+            <p>For general inquiries and support requests regarding the Universal Knowledge Graph system.</p>
+            <div class="info-detail">
+                <span class="material-icons">email</span>
+                <span>support@ukg-system.com</span>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-header">
+                <span class="material-icons">business</span>
+                <h3>Enterprise Solutions</h3>
+            </div>
+            <p>For information about enterprise integration and custom solutions.</p>
+            <div class="info-detail">
+                <span class="material-icons">email</span>
+                <span>enterprise@ukg-system.com</span>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-header">
+                <span class="material-icons">security</span>
+                <h3>Security</h3>
+            </div>
+            <p>To report security vulnerabilities or privacy concerns.</p>
+            <div class="info-detail">
+                <span class="material-icons">email</span>
+                <span>security@ukg-system.com</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .contact-container {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .contact-card {
+        background-color: var(--dark-bg-secondary);
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 12px var(--dark-shadow);
+        padding: 2rem;
+    }
+    
+    .light-theme .contact-card {
+        background-color: var(--light-bg-secondary);
+        box-shadow: 0 4px 12px var(--light-shadow);
+    }
+    
+    .contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .form-actions {
+        margin-top: 1rem;
+    }
+    
+    .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .info-card {
+        background-color: var(--dark-bg-secondary);
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 12px var(--dark-shadow);
+        padding: 1.5rem;
+    }
+    
+    .light-theme .info-card {
+        background-color: var(--light-bg-secondary);
+        box-shadow: 0 4px 12px var(--light-shadow);
+    }
+    
+    .info-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .info-header .material-icons {
+        color: var(--dark-accent-primary);
+        font-size: 1.75rem;
+    }
+    
+    .light-theme .info-header .material-icons {
+        color: var(--light-accent-primary);
+    }
+    
+    .info-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+    
+    .info-card p {
+        color: var(--dark-text-secondary);
+        margin-bottom: 1.25rem;
+    }
+    
+    .light-theme .info-card p {
+        color: var(--light-text-secondary);
+    }
+    
+    .info-detail {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+    }
+    
+    .info-detail .material-icons {
+        color: var(--dark-text-secondary);
+        font-size: 1.25rem;
+    }
+    
+    .light-theme .info-detail .material-icons {
+        color: var(--light-text-secondary);
+    }
+    
+    @media (max-width: 992px) {
+        .contact-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
