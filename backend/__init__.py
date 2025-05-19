@@ -22,11 +22,13 @@ def create_app():
     from .auth import auth_bp
     from .chat import chat_bp
     from .admin import admin_bp
+    from .ukg_api import ukg_bp
     from .middleware import log_request_info
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(chat_bp, url_prefix='/api/chat')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
+    app.register_blueprint(ukg_bp, url_prefix='/api/ukg')
     
     # Apply middleware
     log_request_info(app)
