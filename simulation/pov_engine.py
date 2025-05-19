@@ -198,9 +198,51 @@ class POVEngine:
         
         return expanded_context
     
+    def _initialize_honeycomb_expander(self):
+        """Initialize the Honeycomb expansion component."""
+        # This would integrate with the actual Honeycomb system in production
+        logging.info(f"[{datetime.now()}] Initializing Honeycomb Expander with rate {self.expansion_rate}")
+        return {
+            "expansion_rate": self.expansion_rate,
+            "initialized": True
+        }
+    
+    def _initialize_persona_simulator(self):
+        """Initialize the Persona Simulation component."""
+        logging.info(f"[{datetime.now()}] Initializing Persona Simulator for axes 8-11")
+        return {
+            "initialized": True,
+            "active_personas": ["knowledge", "sector", "regulatory", "compliance"],
+            "component_types": ["job_role", "education", "certifications", "skills", 
+                               "training", "career_path", "related_jobs"]
+        }
+    
+    def _initialize_temporal_mapper(self):
+        """Initialize the Temporal-Spatial Mapping component."""
+        logging.info(f"[{datetime.now()}] Initializing Temporal-Spatial Mapper for axes 12-13")
+        return {
+            "initialized": True,
+            "geo_data_enabled": True,
+            "timeline_enabled": True
+        }
+    
+    def _initialize_belief_analyzer(self):
+        """Initialize the Belief Analysis component."""
+        logging.info(f"[{datetime.now()}] Initializing Belief Analysis System")
+        return {
+            "initialized": True,
+            "confidence_weighting": True,
+            "conflict_detection": True
+        }
+        
     def _expand_data_via_honeycomb(self, context: Dict) -> List[Dict]:
         """
         Expand data nodes using the Honeycomb System (Axis 3).
+        
+        The Honeycomb System expands data by:
+        1. Finding related PL (Pillar Level) connections
+        2. Identifying cross-sector relationships
+        3. Discovering indirect connections via domain crosswalks
         
         Args:
             context: Current context
@@ -208,35 +250,240 @@ class POVEngine:
         Returns:
             list: Expanded data nodes
         """
-        # In a real implementation, this would use the actual Honeycomb system
-        # Here we're providing a simplified simulation
+        start_time = datetime.now()
         
+        # Extract initial context data
         initial_data = context.get('initial_data', [])
+        query = context.get('query', '')
+        
+        # Identify primary domains from the context
+        primary_pl_levels = self._extract_pl_levels(context)
+        primary_sectors = self._extract_sectors(context)
+        
+        # If no PL levels or sectors found, use defaults
+        if not primary_pl_levels:
+            primary_pl_levels = ["PL10", "PL15"]  # Default to IT and Ethics
+        if not primary_sectors:
+            primary_sectors = ["Sector1", "Sector2"]  # Default sectors
         
         # Create expanded data nodes (40% new related nodes)
-        expansion_count = max(1, int(len(initial_data) * self.expansion_rate))
+        expansion_count = max(3, int(len(initial_data) * self.expansion_rate))
         expanded_data = initial_data.copy()
         
-        # Add simulated expanded nodes
+        # Expansion types - add variety to the expansion process
+        expansion_types = [
+            "direct_connection",    # Direct connection to an existing node
+            "pl_crossover",         # Connection across PL levels (Axis 1)
+            "sector_bridge",        # Connection across sectors (Axis 2)
+            "octopus_regulatory",   # Regulatory connection (Axis 6)
+            "spiderweb_compliance", # Compliance connection (Axis 7)
+            "cross_domain"          # Completely different domain with indirect relevance
+        ]
+        
+        # Track which PL levels and sectors we're expanding into
+        expanded_pl_levels = set(primary_pl_levels)
+        expanded_sectors = set(primary_sectors)
+        
+        # Add simulated expanded nodes based on content type
         for i in range(expansion_count):
+            # Determine the type of expansion for this node
+            exp_type = expansion_types[i % len(expansion_types)]
+            
+            # Generate PL level - either existing or new related one
+            if exp_type == "pl_crossover" and i > 0:
+                # Create new PL level connection
+                available_pls = [f"PL{j:02d}" for j in range(1, 22) 
+                                if f"PL{j:02d}" not in expanded_pl_levels]
+                if available_pls:
+                    pl_level = random.choice(available_pls)
+                    expanded_pl_levels.add(pl_level)
+                else:
+                    pl_level = random.choice(list(expanded_pl_levels))
+            else:
+                # Use existing PL level
+                pl_level = random.choice(list(expanded_pl_levels)) if expanded_pl_levels else f"PL{(i % 21) + 1:02d}"
+            
+            # Generate sector - either existing or new related one
+            if exp_type == "sector_bridge" and i > 0:
+                # Create new sector connection
+                available_sectors = [f"Sector{j}" for j in range(1, 11)
+                                   if f"Sector{j}" not in expanded_sectors]
+                if available_sectors:
+                    sector = random.choice(available_sectors)
+                    expanded_sectors.add(sector)
+                else:
+                    sector = random.choice(list(expanded_sectors))
+            else:
+                # Use existing sector
+                sector = random.choice(list(expanded_sectors)) if expanded_sectors else f"Sector{(i % 10) + 1}"
+            
+            # Set confidence based on expansion type
+            if exp_type in ["direct_connection", "pl_crossover"]:
+                confidence = 0.85 + (random.random() * 0.1)  # Higher confidence (0.85-0.95)
+            elif exp_type in ["sector_bridge", "octopus_regulatory"]:
+                confidence = 0.75 + (random.random() * 0.1)  # Medium confidence (0.75-0.85)
+            else:
+                confidence = 0.65 + (random.random() * 0.1)  # Lower confidence (0.65-0.75)
+            
+            # Create node with proper axis mappings
             expanded_node = {
-                'node_id': f"exp_node_{i}_{int(datetime.now().timestamp())}",
+                'node_id': f"exp_node_{pl_level}_{sector}_{int(datetime.now().timestamp())}",
                 'node_type': 'expanded',
-                'content': f"Expanded data content {i}",
-                'confidence': 0.8,
+                'expansion_type': exp_type,
+                'content': f"Expanded {exp_type} data for {pl_level} in {sector}",
+                'confidence': min(0.95, confidence),
                 'source': 'honeycomb_expansion',
-                'related_nodes': [node.get('node_id') for node in initial_data[:2]],
-                'pl_level': f"PL{(i % 10) + 1}",
-                'sectors': [f"Sector{(i % 5) + 1}"],
-                'domains': [f"Domain{(i % 3) + 1}"]
+                'related_nodes': [node.get('node_id') for node in initial_data[:min(3, len(initial_data))]],
+                
+                # 13-axis mappings
+                'axis_mappings': {
+                    'axis_1_pillar': pl_level,
+                    'axis_2_sector': sector,
+                    'axis_3_honeycomb': True,
+                    'axis_4_branch': f"Branch{(i % 5) + 1}",
+                    'axis_5_node': f"Node{i}",
+                    'axis_6_octopus': exp_type == "octopus_regulatory",
+                    'axis_7_spiderweb': exp_type == "spiderweb_compliance",
+                }
             }
             expanded_data.append(expanded_node)
         
+        # Record metrics
+        self.nodes_processed += len(expanded_data)
+        self.execution_time += (datetime.now() - start_time).total_seconds()
+        
         return expanded_data
+        
+    def _extract_pl_levels(self, context: Dict) -> List[str]:
+        """
+        Extract Pillar Level (PL) information from context.
+        
+        This identifies which knowledge domains (Axis 1) are relevant.
+        
+        Args:
+            context: Current context dictionary
+            
+        Returns:
+            list: Identified PL levels
+        """
+        pl_levels = []
+        
+        # Extract from any existing data
+        for node in context.get('initial_data', []):
+            if 'pl_level' in node:
+                pl_levels.append(node['pl_level'])
+            elif 'axis_mappings' in node and 'axis_1_pillar' in node['axis_mappings']:
+                pl_levels.append(node['axis_mappings']['axis_1_pillar'])
+        
+        # Extract from query context
+        query = context.get('query', '').lower()
+        
+        # Basic keyword matching (would be enhanced in production)
+        pl_keywords = {
+            "PL01": ["math", "computation", "algorithm", "calculation", "statistics"],
+            "PL02": ["biology", "biological", "organism", "gene", "protein", "cell"],
+            "PL03": ["physics", "physical", "chemistry", "matter", "energy"],
+            "PL04": ["social", "society", "psychology", "behavioral", "economics"],
+            "PL05": ["art", "humanities", "literature", "philosophy", "history"],
+            "PL06": ["government", "public", "administration", "policy", "political"],
+            "PL07": ["health", "medical", "medicine", "diagnostic", "treatment"],
+            "PL08": ["finance", "economic", "banking", "investment", "market"],
+            "PL09": ["engineering", "design", "mechanical", "civil", "electrical"],
+            "PL10": ["information", "technology", "computing", "software", "digital"],
+            "PL11": ["law", "legal", "regulation", "compliance", "court"],
+            "PL12": ["education", "learning", "teaching", "training", "academic"],
+            "PL13": ["agriculture", "farming", "ecosystem", "natural", "resource"],
+            "PL14": ["manufacturing", "production", "industrial", "assembly", "factory"],
+            "PL15": ["ethics", "moral", "philosophy", "values", "principles"],
+            "PL16": ["security", "defense", "military", "protection", "safety"],
+            "PL17": ["transportation", "logistics", "shipping", "vehicle", "transit"],
+            "PL18": ["energy", "power", "electricity", "renewable", "fuel"],
+            "PL19": ["communication", "media", "news", "journalism", "broadcasting"],
+            "PL20": ["hospitality", "tourism", "travel", "hotel", "leisure"],
+            "PL21": ["infrastructure", "construction", "building", "facilities", "utility"]
+        }
+        
+        # Check for keyword matches in query
+        for pl, keywords in pl_keywords.items():
+            for keyword in keywords:
+                if keyword in query:
+                    pl_levels.append(pl)
+                    break
+        
+        # Remove duplicates while preserving order
+        unique_pl_levels = []
+        for pl in pl_levels:
+            if pl not in unique_pl_levels:
+                unique_pl_levels.append(pl)
+        
+        return unique_pl_levels
+    
+    def _extract_sectors(self, context: Dict) -> List[str]:
+        """
+        Extract sector information from context.
+        
+        This identifies which industry or field sectors (Axis 2) are relevant.
+        
+        Args:
+            context: Current context dictionary
+            
+        Returns:
+            list: Identified sectors
+        """
+        sectors = []
+        
+        # Extract from any existing data
+        for node in context.get('initial_data', []):
+            if 'sectors' in node:
+                sectors.extend(node['sectors'])
+            elif 'axis_mappings' in node and 'axis_2_sector' in node['axis_mappings']:
+                sectors.append(node['axis_mappings']['axis_2_sector'])
+        
+        # Extract from query context
+        query = context.get('query', '').lower()
+        
+        # Simple sector mapping (would be more sophisticated in production)
+        sector_keywords = {
+            "Sector1": ["healthcare", "medical", "health", "patient", "hospital"],
+            "Sector2": ["finance", "banking", "investment", "financial", "loan"],
+            "Sector3": ["government", "public sector", "federal", "agency", "administration"],
+            "Sector4": ["education", "school", "university", "college", "academic"],
+            "Sector5": ["manufacturing", "production", "factory", "assembly", "industrial"],
+            "Sector6": ["technology", "tech", "software", "digital", "IT"],
+            "Sector7": ["retail", "commerce", "store", "shopping", "consumer"],
+            "Sector8": ["energy", "utility", "power", "electricity", "oil"],
+            "Sector9": ["transportation", "logistics", "shipping", "aviation", "railway"],
+            "Sector10": ["telecommunications", "telecom", "network", "communication", "wireless"]
+        }
+        
+        # Check for keyword matches in query
+        for sector, keywords in sector_keywords.items():
+            for keyword in keywords:
+                if keyword in query:
+                    sectors.append(sector)
+                    break
+        
+        # Remove duplicates while preserving order
+        unique_sectors = []
+        for sector in sectors:
+            if sector not in unique_sectors:
+                unique_sectors.append(sector)
+        
+        return unique_sectors
     
     def _simulate_personas(self, context: Dict) -> List[Dict]:
         """
         Simulate expert personas across Axes 8-11.
+        
+        This function creates detailed expert personas based on:
+        - Axis 8: Knowledge Role - Expert in theoretical and practical domain knowledge
+        - Axis 9: Sector Role - Expert in industry or sector-specific practices
+        - Axis 10: Regulatory Role - Expert in regulatory frameworks (Octopus connections)
+        - Axis 11: Compliance Role - Expert in compliance requirements (Spiderweb connections)
+        
+        Each persona has 7 components (job_role, education, certifications,
+        skills, training, career_path, related_jobs) that influence their
+        perspective.
         
         Args:
             context: Current context with expanded data
@@ -244,10 +491,21 @@ class POVEngine:
         Returns:
             list: Simulated personas with their perspectives
         """
-        # In a real implementation, this would use sophisticated persona simulation
-        # Here we're providing a simplified simulation of the four persona types
+        start_time = datetime.now()
         
-        personas = []
+        # Track metrics
+        personas_count = 0
+        
+        # Extract relevant data from context
+        query = context.get('query', '')
+        expanded_data = context.get('expanded_data', [])
+        
+        # Get PL levels and sectors for context
+        primary_pl_levels = self._extract_pl_levels(context)
+        primary_sectors = self._extract_sectors(context)
+        
+        # Set expertise areas based on primary PL levels and sectors
+        expertise_areas = self._map_expertise_areas(primary_pl_levels, primary_sectors)
         
         # Common persona components
         components = [
@@ -260,83 +518,347 @@ class POVEngine:
             'related_jobs'
         ]
         
+        # Generate personas with context-appropriate expertise
+        personas = []
+        
+        # Extract regulatory mentions from context for Axis 10 (Regulatory)
+        regulatory_mentions = self._extract_regulatory_mentions(context)
+        
+        # Extract compliance frameworks from context for Axis 11 (Compliance)
+        compliance_frameworks = self._extract_compliance_frameworks(context)
+        
         # 1. Knowledge Expert (Axis 8)
         knowledge_expert = {
-            'persona_id': 'knowledge_expert',
+            'persona_id': f"knowledge_expert_{int(datetime.now().timestamp())}",
             'axis': 8,
-            'name': 'Knowledge Expert',
-            'perspective': self._generate_perspective(context, 'knowledge'),
-            'components': {comp: self._generate_component(comp, 'knowledge') for comp in components},
-            'confidence': 0.85,
-            'expertise_areas': ['knowledge_management', 'data_science', 'information_architecture']
+            'name': 'Knowledge Domain Expert',
+            'perspective': self._generate_perspective(context, 'knowledge', expertise_areas),
+            'components': {
+                comp: self._generate_component(comp, 'knowledge', primary_pl_levels, primary_sectors) 
+                for comp in components
+            },
+            'confidence': 0.82 + (random.random() * 0.08),  # 0.82-0.90
+            'expertise_areas': expertise_areas.get('knowledge', ['knowledge_management', 'data_science']),
+            'pl_relevance': {pl: 0.7 + (random.random() * 0.25) for pl in primary_pl_levels},
+            'sector_relevance': {sector: 0.6 + (random.random() * 0.3) for sector in primary_sectors}
         }
         personas.append(knowledge_expert)
+        personas_count += 1
         
         # 2. Sector Expert (Axis 9)
         sector_expert = {
-            'persona_id': 'sector_expert',
+            'persona_id': f"sector_expert_{int(datetime.now().timestamp())}",
             'axis': 9,
-            'name': 'Sector Expert',
-            'perspective': self._generate_perspective(context, 'sector'),
-            'components': {comp: self._generate_component(comp, 'sector') for comp in components},
-            'confidence': 0.8,
-            'expertise_areas': ['industry_analysis', 'market_trends', 'competitive_intelligence']
+            'name': 'Industry Sector Expert',
+            'perspective': self._generate_perspective(context, 'sector', expertise_areas),
+            'components': {
+                comp: self._generate_component(comp, 'sector', primary_pl_levels, primary_sectors) 
+                for comp in components
+            },
+            'confidence': 0.80 + (random.random() * 0.1),  # 0.80-0.90
+            'expertise_areas': expertise_areas.get('sector', ['industry_analysis', 'market_trends']),
+            'pl_relevance': {pl: 0.5 + (random.random() * 0.3) for pl in primary_pl_levels},
+            'sector_relevance': {sector: 0.8 + (random.random() * 0.15) for sector in primary_sectors}
         }
         personas.append(sector_expert)
+        personas_count += 1
         
         # 3. Regulatory Expert (Axis 10)
         regulatory_expert = {
-            'persona_id': 'regulatory_expert',
+            'persona_id': f"regulatory_expert_{int(datetime.now().timestamp())}",
             'axis': 10,
-            'name': 'Regulatory Expert',
-            'perspective': self._generate_perspective(context, 'regulatory'),
-            'components': {comp: self._generate_component(comp, 'regulatory') for comp in components},
-            'confidence': 0.9,
-            'expertise_areas': ['compliance_frameworks', 'legal_analysis', 'policy_interpretation']
+            'name': 'Regulatory Framework Expert',
+            'perspective': self._generate_perspective(context, 'regulatory', expertise_areas),
+            'components': {
+                comp: self._generate_component(comp, 'regulatory', primary_pl_levels, primary_sectors) 
+                for comp in components
+            },
+            'confidence': 0.85 + (random.random() * 0.1),  # 0.85-0.95
+            'expertise_areas': expertise_areas.get('regulatory', ['compliance_frameworks', 'legal_analysis']),
+            'pl_relevance': {pl: 0.65 + (random.random() * 0.2) for pl in primary_pl_levels},
+            'sector_relevance': {sector: 0.7 + (random.random() * 0.2) for sector in primary_sectors},
+            'regulatory_frameworks': regulatory_mentions or ['General Regulatory Framework'],
+            'octopus_connections': [f"Octopus{i+1}" for i in range(min(3, len(regulatory_mentions or [])))]
         }
         personas.append(regulatory_expert)
+        personas_count += 1
         
         # 4. Compliance Expert (Axis 11)
         compliance_expert = {
-            'persona_id': 'compliance_expert',
+            'persona_id': f"compliance_expert_{int(datetime.now().timestamp())}",
             'axis': 11,
-            'name': 'Compliance Expert',
-            'perspective': self._generate_perspective(context, 'compliance'),
-            'components': {comp: self._generate_component(comp, 'compliance') for comp in components},
-            'confidence': 0.85,
-            'expertise_areas': ['audit_standards', 'control_frameworks', 'risk_management']
+            'name': 'Compliance Standards Expert',
+            'perspective': self._generate_perspective(context, 'compliance', expertise_areas),
+            'components': {
+                comp: self._generate_component(comp, 'compliance', primary_pl_levels, primary_sectors) 
+                for comp in components
+            },
+            'confidence': 0.83 + (random.random() * 0.07),  # 0.83-0.90
+            'expertise_areas': expertise_areas.get('compliance', ['audit_standards', 'control_frameworks']),
+            'pl_relevance': {pl: 0.6 + (random.random() * 0.25) for pl in primary_pl_levels},
+            'sector_relevance': {sector: 0.75 + (random.random() * 0.15) for sector in primary_sectors},
+            'compliance_frameworks': compliance_frameworks or ['General Compliance Framework'],
+            'spiderweb_connections': [f"Spiderweb{i+1}" for i in range(min(3, len(compliance_frameworks or [])))]
         }
         personas.append(compliance_expert)
+        personas_count += 1
+        
+        # Update metrics
+        self.personas_generated += personas_count
+        self.execution_time += (datetime.now() - start_time).total_seconds()
         
         return personas
     
-    def _generate_perspective(self, context: Dict, persona_type: str) -> Dict:
+    def _map_expertise_areas(self, pl_levels: List[str], sectors: List[str]) -> Dict[str, List[str]]:
+        """
+        Map PL levels and sectors to expertise areas for each persona type.
+        
+        Args:
+            pl_levels: List of relevant PL (Pillar Level) identifiers
+            sectors: List of relevant sector identifiers
+            
+        Returns:
+            dict: Expertise areas by persona type
+        """
+        # Define expertise mappings based on PL levels
+        pl_expertise_map = {
+            "PL01": ["mathematical_modeling", "algorithm_design", "theoretical_foundations"],
+            "PL02": ["biological_systems", "genomics", "molecular_biology"],
+            "PL03": ["physical_systems", "chemical_analysis", "material_science"],
+            "PL04": ["social_behavior", "market_analysis", "behavioral_economics"],
+            "PL05": ["creative_expression", "historical_analysis", "cultural_studies"],
+            "PL06": ["public_policy", "governance", "administration"],
+            "PL07": ["medical_diagnostics", "treatment_protocols", "healthcare_delivery"],
+            "PL08": ["financial_analysis", "economic_modeling", "risk_assessment"],
+            "PL09": ["systems_design", "engineering_principles", "technical_standards"],
+            "PL10": ["information_architecture", "systems_integration", "digital_transformation"],
+            "PL11": ["legal_frameworks", "jurisprudence", "regulatory_interpretation"],
+            "PL12": ["learning_methodologies", "educational_assessment", "curriculum_design"],
+            "PL13": ["natural_resource_management", "environmental_systems", "ecological_balance"],
+            "PL14": ["production_systems", "quality_control", "supply_chain"],
+            "PL15": ["ethical_frameworks", "moral_reasoning", "value_systems"],
+            "PL16": ["threat_assessment", "security_protocols", "defense_systems"],
+            "PL17": ["logistics_optimization", "transportation_systems", "mobility_solutions"],
+            "PL18": ["energy_production", "resource_efficiency", "power_distribution"],
+            "PL19": ["information_dissemination", "media_strategy", "communication_theory"],
+            "PL20": ["customer_experience", "service_delivery", "tourism_management"],
+            "PL21": ["infrastructure_planning", "facility_management", "urban_development"]
+        }
+        
+        # Define sector-specific expertise
+        sector_expertise_map = {
+            "Sector1": ["healthcare_operations", "clinical_workflows", "patient_care"],
+            "Sector2": ["banking_operations", "investment_strategy", "financial_services"],
+            "Sector3": ["governmental_processes", "public_administration", "policy_implementation"],
+            "Sector4": ["educational_systems", "academic_administration", "learning_outcomes"],
+            "Sector5": ["production_efficiency", "quality_management", "industrial_processes"],
+            "Sector6": ["digital_innovation", "tech_implementation", "system_architecture"],
+            "Sector7": ["consumer_behavior", "retail_operations", "sales_strategies"],
+            "Sector8": ["energy_markets", "utility_operations", "resource_management"],
+            "Sector9": ["logistics_chains", "transportation_networks", "fleet_management"],
+            "Sector10": ["network_infrastructure", "telecom_operations", "communication_protocols"]
+        }
+        
+        # Collect all expertise areas
+        knowledge_expertise = []
+        sector_expertise = []
+        regulatory_expertise = []
+        compliance_expertise = []
+        
+        # Add expertise based on PL levels
+        for pl in pl_levels:
+            if pl in pl_expertise_map:
+                knowledge_expertise.extend(pl_expertise_map[pl])
+                
+                # Add regulatory and compliance aspects based on PL domain
+                if pl in ["PL06", "PL11", "PL15", "PL16"]:  # Gov, Law, Ethics, Security
+                    regulatory_expertise.extend(["legislative_frameworks", "statutory_requirements"])
+                    compliance_expertise.extend(["compliance_verification", "audit_protocols"])
+        
+        # Add expertise based on sectors
+        for sector in sectors:
+            if sector in sector_expertise_map:
+                sector_expertise.extend(sector_expertise_map[sector])
+                
+                # Add regulatory and compliance aspects based on sector
+                if sector in ["Sector1", "Sector2", "Sector3", "Sector8"]:  # Healthcare, Finance, Gov, Energy
+                    regulatory_expertise.extend(["sector_regulations", "oversight_mechanisms"])
+                    compliance_expertise.extend(["industry_standards", "attestation_requirements"])
+        
+        # Ensure some expertise is always present
+        if not knowledge_expertise:
+            knowledge_expertise = ["knowledge_management", "information_architecture", "domain_expertise"]
+        if not sector_expertise:
+            sector_expertise = ["industry_analysis", "market_trends", "competitive_intelligence"]
+        if not regulatory_expertise:
+            regulatory_expertise = ["regulatory_frameworks", "legal_analysis", "policy_interpretation"]
+        if not compliance_expertise:
+            compliance_expertise = ["compliance_standards", "control_frameworks", "risk_management"]
+            
+        # Remove duplicates
+        knowledge_expertise = list(set(knowledge_expertise))
+        sector_expertise = list(set(sector_expertise))
+        regulatory_expertise = list(set(regulatory_expertise))
+        compliance_expertise = list(set(compliance_expertise))
+            
+        return {
+            "knowledge": knowledge_expertise,
+            "sector": sector_expertise,
+            "regulatory": regulatory_expertise,
+            "compliance": compliance_expertise
+        }
+        
+    def _extract_regulatory_mentions(self, context: Dict) -> List[str]:
+        """
+        Extract regulatory framework mentions from context.
+        
+        Args:
+            context: Current context dictionary
+            
+        Returns:
+            list: Identified regulatory frameworks
+        """
+        query = context.get('query', '').lower()
+        
+        # Common regulatory frameworks by domain
+        regulatory_frameworks = {
+            'finance': ['basel', 'soc2', 'gdpr', 'pci dss', 'aml', 'kyc', 'dodd-frank', 'mifid'],
+            'healthcare': ['hipaa', 'hitrust', 'fda', 'cms', 'hitech'],
+            'general': ['iso', 'nist', 'fedramp', 'fisma', 'cmmc'],
+            'privacy': ['gdpr', 'ccpa', 'cpra', 'privacy shield', 'pipeda'],
+            'tech': ['coppa', 'ferpa', 'ada', 'section 508', 'dpia']
+        }
+        
+        # Check for mentions in the query
+        found_frameworks = []
+        for domain, frameworks in regulatory_frameworks.items():
+            for framework in frameworks:
+                if framework in query:
+                    found_frameworks.append(framework.upper())
+        
+        return found_frameworks
+    
+    def _extract_compliance_frameworks(self, context: Dict) -> List[str]:
+        """
+        Extract compliance framework mentions from context.
+        
+        Args:
+            context: Current context dictionary
+            
+        Returns:
+            list: Identified compliance frameworks
+        """
+        query = context.get('query', '').lower()
+        
+        # Common compliance frameworks by domain
+        compliance_frameworks = {
+            'security': ['iso 27001', 'nist 800-53', 'cis controls', 'cobit', 'soc 2'],
+            'privacy': ['gdpr', 'ccpa', 'hipaa', 'nist privacy framework'],
+            'industry': ['pci dss', 'hitrust', 'fedramp', 'cmmc', 'nerc cip'],
+            'management': ['iso 9001', 'iso 14001', 'iso 31000', 'cmmi']
+        }
+        
+        # Check for mentions in the query
+        found_frameworks = []
+        for domain, frameworks in compliance_frameworks.items():
+            for framework in frameworks:
+                if framework in query:
+                    found_frameworks.append(framework.upper())
+        
+        return found_frameworks
+    
+    def _generate_perspective(self, context: Dict, persona_type: str, expertise_areas: Dict[str, List[str]] = None) -> Dict:
         """
         Generate a perspective for a persona type.
         
         Args:
             context: Current context
-            persona_type: Type of persona
+            persona_type: Type of persona (knowledge, sector, regulatory, compliance)
+            expertise_areas: Dictionary of expertise areas by persona type
             
         Returns:
             dict: Perspective data
         """
-        # In a real implementation, this would generate actual perspectives
-        # based on the persona type and available knowledge
+        # Get query and primary expertise
+        query = context.get('query', '')
+        areas = []
+        if expertise_areas and persona_type in expertise_areas:
+            areas = expertise_areas[persona_type][:3]  # Take top 3 expertise areas
         
-        return {
-            'summary': f"Simulated {persona_type} perspective on the query",
-            'key_points': [
-                f"{persona_type} perspective point 1",
-                f"{persona_type} perspective point 2",
-                f"{persona_type} perspective point 3"
-            ],
-            'confidence': 0.8,
-            'evidence': [
+        # Generate key points relevant to the persona type
+        if persona_type == 'knowledge':
+            key_points = [
+                f"From a {', '.join(areas) if areas else 'knowledge'} perspective, this requires detailed domain expertise.",
+                f"The technical aspects require consideration of underlying principles and methodologies.",
+                f"Current research and established frameworks should be integrated for comprehensive analysis."
+            ]
+        elif persona_type == 'sector':
+            key_points = [
+                f"Industry standards and best practices in {', '.join(areas) if areas else 'the sector'} should be applied.",
+                f"Market trends and competitive dynamics significantly impact this context.",
+                f"Sector-specific operational constraints and opportunities must be considered."
+            ]
+        elif persona_type == 'regulatory':
+            key_points = [
+                f"Several regulatory frameworks including {', '.join(self._extract_regulatory_mentions(context) or ['relevant regulations'])} apply.",
+                f"Legal considerations and statutory requirements create specific constraints.",
+                f"Oversight mechanisms and reporting obligations must be factored into analysis."
+            ]
+        elif persona_type == 'compliance':
+            key_points = [
+                f"Compliance with {', '.join(self._extract_compliance_frameworks(context) or ['applicable standards'])} is essential.",
+                f"Internal controls and audit requirements create verification needs.",
+                f"Documentation and evidence collection processes should be established."
+            ]
+        else:
+            key_points = [
+                f"General perspective point for {persona_type}",
+                f"Additional consideration for {persona_type}",
+                f"Final insight from {persona_type} view"
+            ]
+        
+        # Calculate confidence based on expertise match
+        confidence = 0.75 + (min(len(areas), 3) * 0.05)  # 0.75-0.90 based on expertise
+        
+        # Evidence varies by persona type
+        if persona_type == 'knowledge':
+            evidence = [
+                {'source': 'academic_research', 'relevance': 0.85},
+                {'source': 'technical_documentation', 'relevance': 0.80}
+            ]
+        elif persona_type == 'sector':
+            evidence = [
+                {'source': 'industry_reports', 'relevance': 0.85},
+                {'source': 'market_analysis', 'relevance': 0.80}
+            ]
+        elif persona_type == 'regulatory':
+            evidence = [
+                {'source': 'legal_frameworks', 'relevance': 0.90},
+                {'source': 'regulatory_guidance', 'relevance': 0.85}
+            ]
+        elif persona_type == 'compliance':
+            evidence = [
+                {'source': 'compliance_frameworks', 'relevance': 0.90},
+                {'source': 'audit_guidelines', 'relevance': 0.85}
+            ]
+        else:
+            evidence = [
                 {'source': f"{persona_type}_source_1", 'relevance': 0.85},
                 {'source': f"{persona_type}_source_2", 'relevance': 0.75}
-            ],
-            'belief_weighting': 0.8
+            ]
+        
+        # Generate a summary
+        expertise_phrase = f" with expertise in {', '.join(areas[:2])}" if areas else ""
+        summary = f"{persona_type.capitalize()} perspective{expertise_phrase} on the query: {query[:50] + ('...' if len(query) > 50 else '')}"
+        
+        return {
+            'summary': summary,
+            'key_points': key_points,
+            'confidence': confidence,
+            'evidence': evidence,
+            'belief_weighting': confidence - 0.05,  # Slightly lower than confidence
+            'reasoning': f"Analysis based on {persona_type} expertise and applicable frameworks",
+            'timestamp': datetime.now().isoformat()
         }
     
     def _generate_component(self, component_type: str, persona_type: str) -> Dict:
