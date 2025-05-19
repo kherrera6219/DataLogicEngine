@@ -1,402 +1,462 @@
 import logging
+import os
+import sys
+import json
 from datetime import datetime
-from typing import Dict, Any, List, Optional
-import uuid
-from core.simulation.location_context_engine import LocationContextEngine
+from typing import Dict, List, Any, Optional
+
+# Add parent directory to path to allow imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
+# Import core components
+from core.system.system_initializer import SystemInitializer
+from core.system.united_system_manager import UnitedSystemManager
+from backend.ukg_db import UkgDatabaseManager
 
 class AppOrchestrator:
     """
-    The AppOrchestrator is the main coordinator of the UKG system. It manages the entire
-    workflow from query receipt to final answer generation, coordinating the various
-    components and managing the simulation passes.
+    App Orchestrator
+    
+    This component serves as the main entry point for the UKG system, orchestrating
+    high-level operations and providing a unified API for external interactions.
+    It coordinates the initialization and operation of all system components.
     """
     
-    def __init__(self, config, graph_manager, memory_manager, united_system_manager, simulation_engine, ka_loader):
+    def __init__(self, config_path: Optional[str] = None):
         """
-        Initialize the AppOrchestrator.
+        Initialize the App Orchestrator.
         
         Args:
-            config (dict): Configuration dictionary
-            graph_manager (GraphManager): Reference to the GraphManager
-            memory_manager (StructuredMemoryManager): Reference to the StructuredMemoryManager
-            united_system_manager (UnitedSystemManager): Reference to the UnitedSystemManager
-            simulation_engine (SimulationEngine): Reference to the SimulationEngine
-            ka_loader (KALoader): Reference to the KALoader
+            config_path (str, optional): Path to the configuration file
         """
-        self.config = config
-        self.gm = graph_manager
-        self.smm = memory_manager
-        self.usm = united_system_manager
-        self.simulation_engine = simulation_engine
-        self.ka_loader = ka_loader
-        self.location_context_engine = None
+        logging.info(f"[{datetime.now()}] Initializing AppOrchestrator...")
         
-        # Get orchestration configuration
-        self.max_passes = self.config.get('max_simulation_passes', 3)
-        self.target_confidence = self.config.get('target_confidence_overall', 0.90)
-        self.enable_gatekeeper = self.config.get('enable_gatekeeper', True)
-        self.layer_progression = self.config.get('layer_progression', [1, 2, 3])
+        # Initialize database connection
+        self.db_manager = self._initialize_database()
         
-        # Initialize LocationContextEngine for Axis 12 location awareness
-        self._initialize_location_context_engine()
+        # Initialize the core system
+        self.system_initializer = SystemInitializer(config_path)
         
-        logging.info(f"[{datetime.now()}] AppOrchestrator initialized with max_passes={self.max_passes}, target_confidence={self.target_confidence}")
+        # Get components from system initializer
+        components = self.system_initializer.get_components()
+        self.usm = components.get('usm')
+        self.graph_manager = components.get('gm')
+        self.memory_manager = components.get('smm')
+        self.ka_engine = components.get('ka_engine')
+        self.simulation_engine = components.get('simulation_engine')
+        self.location_context_engine = components.get('location_context_engine')
+        self.sekre_engine = components.get('sekre_engine')
         
-    def _initialize_location_context_engine(self):
-        """Initialize the LocationContextEngine for Axis 12 location awareness."""
-        logging.info(f"[{datetime.now()}] Initializing LocationContextEngine (Axis 12)...")
-        axis12_conf = self.config.get('axis12_location_logic', {})
-        if self.gm and self.usm:  # LocationContextEngine needs GM & USM
-            self.location_context_engine = LocationContextEngine(
-                config=self.config,
-                graph_manager=self.gm,
-                united_system_manager=self.usm
-            )
-            logging.info(f"[{datetime.now()}] LocationContextEngine successfully initialized")
-        else:
-            logging.error(f"[{datetime.now()}] ERROR: Dependencies missing for LocationContextEngine. Not initialized.")
+        # Set up component relationships
+        if self.graph_manager and self.db_manager:
+            self.graph_manager.set_db_manager(self.db_manager)
+        
+        logging.info(f"[{datetime.now()}] AppOrchestrator initialized and system components connected")
     
-    def process_request(self, query_text: str, target_confidence: float = None) -> Dict[str, Any]:
+    def _initialize_database(self) -> Optional[UkgDatabaseManager]:
         """
-        Process a user request through the UKG system.
+        Initialize the database connection.
         
-        Args:
-            query_text (str): The user's query text
-            target_confidence (float, optional): Target confidence level, overrides default
-            
         Returns:
-            dict: Final result package
+            UkgDatabaseManager: Database manager or None if initialization failed
         """
-        # Generate a session ID
-        session_id = str(uuid.uuid4())
-        
-        # Set target confidence (use parameter if provided, otherwise use config default)
-        if target_confidence is not None:
-            self.target_confidence = target_confidence
-        
-        logging.info(f"[{datetime.now()}] AO: Starting new session {session_id[:8]}... for query: '{query_text[:50]}...'")
-        
-        # Initial processing with KA01 and KA02 for query analysis and axis scoring
-        initial_ka_outputs = self._run_initial_kas(query_text, session_id)
-        
-        # Create a normalized query (simplified version for processing)
-        normalized_query = query_text.strip().lower()
-        
-        # Determine active location context for the query
-        active_location_uids = []
-        if self.location_context_engine:
-            logging.info(f"[{datetime.now()}] AppOrch: Determining active location context for session {session_id}...")
-            active_location_uids = self.location_context_engine.determine_active_location_context(
-                query_text=query_text  # Pass raw query to LocationContextEngine
-            )
-            
-            # Get applicable regulatory frameworks for the active locations
-            applicable_reg_uids = []
-            if active_location_uids:
-                applicable_reg_uids = self.location_context_engine.get_applicable_regulations_for_locations(
-                    active_location_uids
-                )
-                logging.info(f"[{datetime.now()}] AppOrch: Found {len(applicable_reg_uids)} applicable regulatory frameworks.")
-        
-        # Initialize the simulation data structure
-        simulation_data = {
-            "session_id": session_id,
-            "original_query": query_text,
-            "normalized_query": normalized_query,
-            "current_pass": 0,
-            "target_confidence": self.target_confidence,
-            "current_confidence": 0.0,
-            "initial_ka_outputs": initial_ka_outputs,
-            "active_location_context_uids": active_location_uids,  # Store location context
-            "applicable_regulatory_framework_uids": applicable_reg_uids if 'applicable_reg_uids' in locals() else [],
-            "history": [],
-            "status": "in_progress"
-        }
-        
-        # Run simulation passes until termination conditions are met
-        while simulation_data["current_pass"] < self.max_passes:
-            simulation_data["current_pass"] += 1
-            
-            # Process the current pass
-            simulation_data = self._process_pass(simulation_data)
-            
-            # Log history of this pass
-            self._log_pass_to_history(simulation_data)
-            
-            # Check termination conditions
-            if self._check_termination_conditions(simulation_data):
-                break
-        
-        # Compile the final answer
-        final_answer_package = self._compile_final_answer(simulation_data)
-        
-        # Log the completion of the session
-        logging.info(f"[{datetime.now()}] AO: Completed session {session_id[:8]}... with status: {simulation_data['status']}, final confidence: {simulation_data.get('current_confidence', 0.0):.3f}")
-        
-        return final_answer_package
-    
-    def _run_initial_kas(self, query_text: str, session_id: str) -> Dict[str, Any]:
-        """
-        Run initial Knowledge Algorithms to analyze the query.
-        
-        Args:
-            query_text (str): The user's query text
-            session_id (str): The session ID
-            
-        Returns:
-            dict: Results from initial KAs
-        """
-        logging.info(f"[{datetime.now()}] AO: Running initial KAs for query analysis")
-        
-        initial_ka_outputs = {}
-        
-        # Run KA01: Query Analyzer
-        ka01_input = {'query_text': query_text}
-        ka01_result = self.ka_loader.execute_ka(
-            ka_id=1,
-            input_data=ka01_input,
-            session_id=session_id,
-            pass_num=0,  # Special pass number 0 for initial KAs
-            layer_num=0   # Special layer number 0 for initial KAs
-        )
-        
-        initial_ka_outputs['ka01'] = ka01_result
-        
-        # Run KA02: Axis Scorer
-        if ka01_result.get('status') == 'success':
-            ka02_input = {
-                'query_text': query_text,
-                'ka01_output': ka01_result
-            }
-            ka02_result = self.ka_loader.execute_ka(
-                ka_id=2,
-                input_data=ka02_input,
-                session_id=session_id,
-                pass_num=0,
-                layer_num=0
-            )
-            
-            initial_ka_outputs['ka02'] = ka02_result
-        
-        # In a full implementation, more initial KAs could be run here
-        
-        return initial_ka_outputs
-    
-    def _process_pass(self, simulation_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Process a simulation pass.
-        
-        Args:
-            simulation_data (dict): Current simulation data
-            
-        Returns:
-            dict: Updated simulation data
-        """
-        pass_num = simulation_data["current_pass"]
-        session_id = simulation_data["session_id"]
-        
-        logging.info(f"[{datetime.now()}] AO: Processing pass {pass_num} for session {session_id[:8]}...")
-        
-        # Create a log entry for the start of this pass
-        self.smm.add_memory_entry(
-            session_id=session_id,
-            pass_num=pass_num,
-            layer_num=0,  # Special layer number 0 for orchestrator
-            entry_type='pass_start',
-            content={
-                'pass_num': pass_num,
-                'start_time': datetime.now().isoformat(),
-                'current_confidence': simulation_data.get('current_confidence', 0.0)
-            },
-            confidence=simulation_data.get('current_confidence', 0.5)
-        )
-        
         try:
-            # Run Layers 1-3 (always run these)
-            simulation_data = self.simulation_engine.run_layers_1_3(simulation_data)
+            # Check for DATABASE_URL environment variable
+            database_url = os.environ.get('DATABASE_URL')
             
-            # Determine if higher layers should be run
-            run_higher_layers = False
-            max_layer = 3  # Default to just running Layers 1-3
+            if not database_url:
+                logging.warning(f"[{datetime.now()}] AO: DATABASE_URL environment variable not found")
+                return None
             
-            if self.enable_gatekeeper:
-                # In a full implementation, this would be a more sophisticated check
-                # For simplicity, just check if confidence is still below target
-                run_higher_layers = simulation_data.get('current_confidence', 0.0) < self.target_confidence
-                
-                # Log the gatekeeper decision
-                logging.info(f"[{datetime.now()}] AO: Gatekeeper decision for session {session_id[:8]}, pass {pass_num}: run_higher_layers={run_higher_layers}")
-            else:
-                # If gatekeeper is disabled, always run higher layers
-                run_higher_layers = True
+            # Create database manager
+            db_manager = UkgDatabaseManager(database_url=database_url)
+            logging.info(f"[{datetime.now()}] AO: Database connection established")
             
-            if run_higher_layers and len(self.layer_progression) > 3:
-                # Find the maximum layer to run
-                max_layer = max(self.layer_progression)
-                
-                # Run higher layers up to max_layer
-                simulation_data = self.simulation_engine.run_layers_up_to(simulation_data, max_layer)
-            
-            # Log the completion of this pass
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=0,
-                entry_type='pass_complete',
-                content={
-                    'pass_num': pass_num,
-                    'max_layer_run': max_layer,
-                    'end_time': datetime.now().isoformat(),
-                    'current_confidence': simulation_data.get('current_confidence', 0.0)
-                },
-                confidence=simulation_data.get('current_confidence', 0.5)
-            )
-            
-            return simulation_data
+            return db_manager
             
         except Exception as e:
-            error_msg = f"Error processing pass {pass_num}: {str(e)}"
-            logging.error(f"[{datetime.now()}] AO: {error_msg}", exc_info=True)
+            logging.error(f"[{datetime.now()}] AO: Error initializing database: {str(e)}")
+            return None
+    
+    def run_simulation(self, query_text: str, location_uids: Optional[List[str]] = None,
+                    target_confidence: Optional[float] = None) -> Dict:
+        """
+        Run a full simulation using the UKG system.
+        
+        Args:
+            query_text: The user's query
+            location_uids: Optional list of location UIDs for context
+            target_confidence: Optional target confidence threshold
             
-            # Update simulation data with error status
-            simulation_data['status'] = 'error'
-            simulation_data['error_message'] = error_msg
+        Returns:
+            dict: Simulation results
+        """
+        logging.info(f"[{datetime.now()}] AO: Running simulation for query: {query_text}")
+        
+        try:
+            # Check for required components
+            if not self.simulation_engine:
+                raise Exception("Simulation Engine not available")
             
-            # Log the error
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=0,
-                entry_type='pass_error',
-                content={
-                    'pass_num': pass_num,
-                    'error': error_msg,
-                    'end_time': datetime.now().isoformat()
-                },
-                confidence=0.0
+            # Start the simulation
+            simulation_result = self.simulation_engine.start_simulation(
+                user_query=query_text,
+                explicit_location_uids=location_uids,
+                target_confidence=target_confidence
             )
             
-            return simulation_data
+            # Get session ID from result
+            session_id = simulation_result.get('session_id')
+            
+            if not session_id:
+                raise Exception("Failed to get session ID from simulation result")
+            
+            # Wait for simulation to complete
+            status = 'running'
+            max_wait_iterations = 600  # Avoid infinite loop
+            iterations = 0
+            
+            while status in ('running', 'initializing') and iterations < max_wait_iterations:
+                # Get current status
+                status_info = self.simulation_engine.get_simulation_status(session_id)
+                status = status_info.get('status', 'unknown')
+                
+                # Break if simulation is complete
+                if status not in ('running', 'initializing'):
+                    break
+                
+                # Wait a bit before checking again
+                import time
+                time.sleep(0.5)
+                iterations += 1
+            
+            # Get final result
+            final_result = self.simulation_engine.get_simulation_result(session_id)
+            
+            if not final_result:
+                raise Exception(f"Failed to get final result for session {session_id}")
+            
+            # Run SEKRE analysis in the background if available
+            if self.sekre_engine:
+                try:
+                    self.sekre_engine.analyze_simulation_results(session_id)
+                except Exception as e:
+                    logging.error(f"[{datetime.now()}] AO: Error in SEKRE analysis: {str(e)}")
+            
+            return {
+                'session_id': session_id,
+                'query': query_text,
+                'result': final_result,
+                'status': 'success'
+            }
+            
+        except Exception as e:
+            logging.error(f"[{datetime.now()}] AO: Error running simulation: {str(e)}")
+            return {
+                'status': 'error',
+                'error': str(e),
+                'query': query_text
+            }
     
-    def _log_pass_to_history(self, simulation_data: Dict[str, Any]) -> None:
+    def get_session_info(self, session_id: str) -> Dict:
         """
-        Log the current pass to the session history.
+        Get information about a simulation session.
         
         Args:
-            simulation_data (dict): Current simulation data
+            session_id: Session ID
+            
+        Returns:
+            dict: Session information
         """
-        pass_num = simulation_data["current_pass"]
+        logging.info(f"[{datetime.now()}] AO: Getting session info for {session_id}")
         
-        # Create a summary of this pass
-        pass_summary = {
-            'pass_num': pass_num,
-            'confidence': simulation_data.get('current_confidence', 0.0),
-            'layer_outputs': {}
-        }
+        try:
+            # Check for required components
+            if not self.simulation_engine:
+                raise Exception("Simulation Engine not available")
+            
+            if not self.memory_manager:
+                raise Exception("Memory Manager not available")
+            
+            # Get simulation status
+            simulation_status = self.simulation_engine.get_simulation_status(session_id)
+            
+            # Get session history from memory
+            session_history = self.memory_manager.get_session_history(session_id)
+            
+            # Combine information
+            return {
+                'session_id': session_id,
+                'simulation_status': simulation_status,
+                'memory_entries_count': len(session_history.get('raw_memory_entries', [])),
+                'user_query': session_history.get('user_query', ''),
+                'final_confidence': session_history.get('final_confidence', 0.0),
+                'status': 'success'
+            }
+            
+        except Exception as e:
+            logging.error(f"[{datetime.now()}] AO: Error getting session info: {str(e)}")
+            return {
+                'session_id': session_id,
+                'status': 'error',
+                'error': str(e)
+            }
+    
+    def get_location_context(self, location_uid: Optional[str] = None, 
+                           query_text: Optional[str] = None) -> Dict:
+        """
+        Get location context information.
         
-        # Add layer outputs to the summary
-        for layer in range(1, 10):  # Up to Layer 9 (adjust as needed)
-            layer_key = f"layer{layer}_output"
-            if layer_key in simulation_data:
-                # Just store the status and other key details, not the full output
-                layer_output = simulation_data[layer_key]
-                pass_summary['layer_outputs'][layer_key] = {
-                    'status': layer_output.get('status'),
-                    'confidence': layer_output.get(f'layer{layer}_confidence', 0.0)
+        Args:
+            location_uid: Optional specific location UID
+            query_text: Optional query text to extract locations from
+            
+        Returns:
+            dict: Location context information
+        """
+        logging.info(f"[{datetime.now()}] AO: Getting location context")
+        
+        try:
+            # Check for required components
+            if not self.location_context_engine:
+                raise Exception("Location Context Engine not available")
+            
+            # If location UID is provided, get info for that location
+            if location_uid:
+                location_info = self.location_context_engine.get_location_info(location_uid)
+                
+                if not location_info:
+                    raise Exception(f"Location with UID {location_uid} not found")
+                
+                # Get child locations
+                child_locations = self.location_context_engine.get_child_locations(location_uid)
+                
+                # Get applicable regulations
+                regulations = self.location_context_engine.get_applicable_regulations([location_uid])
+                
+                return {
+                    'location': location_info,
+                    'child_locations': child_locations,
+                    'applicable_regulations': regulations,
+                    'status': 'success'
                 }
-        
-        # Add this pass summary to the history
-        simulation_data.setdefault('history', []).append(pass_summary)
-    
-    def _check_termination_conditions(self, simulation_data: Dict[str, Any]) -> bool:
-        """
-        Check if any termination conditions are met.
-        
-        Args:
-            simulation_data (dict): Current simulation data
             
-        Returns:
-            bool: True if should terminate, False if should continue
-        """
-        current_confidence = simulation_data.get('current_confidence', 0.0)
-        target_confidence = simulation_data.get('target_confidence', self.target_confidence)
-        status = simulation_data.get('status', 'in_progress')
-        
-        # Condition 1: Target confidence reached
-        if current_confidence >= target_confidence:
-            simulation_data['status'] = 'completed_target_confidence'
-            logging.info(f"[{datetime.now()}] AO: Terminating - Target confidence reached: {current_confidence:.3f} >= {target_confidence:.3f}")
-            return True
-        
-        # Condition 2: Error status set by a layer
-        if status != 'in_progress':
-            logging.info(f"[{datetime.now()}] AO: Terminating - Status changed to: {status}")
-            return True
-        
-        # Condition 3: Maximum passes reached
-        if simulation_data['current_pass'] >= self.max_passes:
-            simulation_data['status'] = 'completed_max_passes'
-            logging.info(f"[{datetime.now()}] AO: Terminating - Maximum passes reached: {simulation_data['current_pass']} >= {self.max_passes}")
-            return True
-        
-        # Continue processing if no termination conditions are met
-        return False
-    
-    def _compile_final_answer(self, simulation_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Compile the final answer package.
-        
-        Args:
-            simulation_data (dict): Current simulation data
+            # If query text is provided, determine context from it
+            elif query_text:
+                # Determine active location context
+                location_uids = self.location_context_engine.determine_active_location_context(
+                    query_text=query_text
+                )
+                
+                # Get location info for each UID
+                locations = []
+                for uid in location_uids:
+                    loc_info = self.location_context_engine.get_location_info(uid)
+                    if loc_info:
+                        locations.append(loc_info)
+                
+                # Get applicable regulations
+                regulations = self.location_context_engine.get_applicable_regulations(location_uids)
+                
+                return {
+                    'active_location_uids': location_uids,
+                    'locations': locations,
+                    'applicable_regulations': regulations,
+                    'status': 'success'
+                }
             
-        Returns:
-            dict: Final answer package
-        """
-        session_id = simulation_data["session_id"]
-        final_confidence = simulation_data.get('current_confidence', 0.0)
-        status = simulation_data.get('status', 'unknown')
-        
-        # Get the refined answer text from the last pass
-        refined_answer_text = simulation_data.get('refined_answer_text_in_progress', '')
-        
-        # If no refined answer text is available, create a basic one
-        if not refined_answer_text:
-            refined_answer_text = f"# Response to Query\n\nQuery: {simulation_data['original_query']}\n\n"
-            
-            if status == 'error':
-                refined_answer_text += f"I encountered an error while processing your query: {simulation_data.get('error_message', 'Unknown error')}"
+            # If neither is provided, return an error
             else:
-                refined_answer_text += "I'm unable to provide a complete answer at this time."
+                raise Exception("Either location_uid or query_text must be provided")
+            
+        except Exception as e:
+            logging.error(f"[{datetime.now()}] AO: Error getting location context: {str(e)}")
+            return {
+                'status': 'error',
+                'error': str(e)
+            }
+    
+    def get_system_health(self) -> Dict:
+        """
+        Get overall system health status.
         
-        # Create the final answer package
-        final_answer = {
-            'session_id': session_id,
-            'query': simulation_data['original_query'],
-            'answer_text': refined_answer_text,
-            'confidence': final_confidence,
-            'status': status,
-            'passes_executed': simulation_data['current_pass'],
-            'processing_metadata': {
-                'target_confidence': simulation_data.get('target_confidence', self.target_confidence),
-                'max_passes': self.max_passes,
+        Returns:
+            dict: System health information
+        """
+        logging.info(f"[{datetime.now()}] AO: Getting system health")
+        
+        try:
+            # Get health info from USM if available
+            if self.usm:
+                return self.usm.get_system_health()
+            
+            # Otherwise, provide basic health info
+            return {
+                'status': 'partial',
+                'message': 'United System Manager not available',
+                'timestamp': datetime.now().isoformat(),
+                'component_status': {
+                    'app_orchestrator': 'healthy',
+                    'db_manager': 'healthy' if self.db_manager else 'unavailable',
+                    'system_initializer': 'healthy' if self.system_initializer else 'unavailable',
+                    'usm': 'unavailable',
+                    'graph_manager': 'healthy' if self.graph_manager else 'unavailable',
+                    'memory_manager': 'healthy' if self.memory_manager else 'unavailable',
+                    'ka_engine': 'healthy' if self.ka_engine else 'unavailable',
+                    'simulation_engine': 'healthy' if self.simulation_engine else 'unavailable',
+                    'location_context_engine': 'healthy' if self.location_context_engine else 'unavailable',
+                    'sekre_engine': 'healthy' if self.sekre_engine else 'unavailable'
+                }
+            }
+            
+        except Exception as e:
+            logging.error(f"[{datetime.now()}] AO: Error getting system health: {str(e)}")
+            return {
+                'status': 'error',
+                'error': str(e),
                 'timestamp': datetime.now().isoformat()
             }
-        }
+    
+    def search_knowledge_graph(self, query: str, node_types: Optional[List[str]] = None,
+                             axis_numbers: Optional[List[int]] = None, limit: int = 100) -> Dict:
+        """
+        Search the knowledge graph.
         
-        # Add error message if status is error
-        if status == 'error':
-            final_answer['error'] = simulation_data.get('error_message', 'Unknown error')
+        Args:
+            query: Search query
+            node_types: Optional list of node types to filter by
+            axis_numbers: Optional list of axis numbers to filter by
+            limit: Maximum number of results to return
+            
+        Returns:
+            dict: Search results
+        """
+        logging.info(f"[{datetime.now()}] AO: Searching knowledge graph for: {query}")
         
-        # Log the final answer
-        self.smm.add_memory_entry(
-            session_id=session_id,
-            pass_num=simulation_data['current_pass'],
-            layer_num=0,
-            entry_type='final_compiled_answer',
-            content=final_answer,
-            confidence=final_confidence
-        )
+        try:
+            # Check for required components
+            if not self.graph_manager:
+                raise Exception("Graph Manager not available")
+            
+            # Search nodes
+            nodes = self.graph_manager.search_nodes(query, node_types, axis_numbers, limit)
+            
+            return {
+                'query': query,
+                'results_count': len(nodes),
+                'nodes': nodes,
+                'status': 'success'
+            }
+            
+        except Exception as e:
+            logging.error(f"[{datetime.now()}] AO: Error searching knowledge graph: {str(e)}")
+            return {
+                'query': query,
+                'status': 'error',
+                'error': str(e)
+            }
+    
+    def get_improvement_proposals(self, status: Optional[str] = None,
+                               proposal_type: Optional[str] = None, limit: int = 100) -> Dict:
+        """
+        Get improvement proposals generated by the SEKRE engine.
         
-        logging.info(f"[{datetime.now()}] AO: Final answer compiled for session {session_id[:8]}... with confidence {final_confidence:.3f}")
+        Args:
+            status: Optional status filter
+            proposal_type: Optional proposal type filter
+            limit: Maximum number of proposals to return
+            
+        Returns:
+            dict: Improvement proposals
+        """
+        logging.info(f"[{datetime.now()}] AO: Getting improvement proposals")
         
-        return final_answer
+        try:
+            # Check for required components
+            if not self.sekre_engine:
+                raise Exception("SEKRE Engine not available")
+            
+            # Get proposals
+            proposals = self.sekre_engine.get_improvement_proposals(status, proposal_type, limit)
+            
+            return {
+                'count': len(proposals),
+                'proposals': proposals,
+                'status': 'success'
+            }
+            
+        except Exception as e:
+            logging.error(f"[{datetime.now()}] AO: Error getting improvement proposals: {str(e)}")
+            return {
+                'status': 'error',
+                'error': str(e)
+            }
+    
+    def approve_improvement(self, proposal_id: str) -> Dict:
+        """
+        Approve and apply an improvement proposal.
+        
+        Args:
+            proposal_id: Proposal ID
+            
+        Returns:
+            dict: Result of approving the improvement
+        """
+        logging.info(f"[{datetime.now()}] AO: Approving improvement proposal {proposal_id}")
+        
+        try:
+            # Check for required components
+            if not self.sekre_engine:
+                raise Exception("SEKRE Engine not available")
+            
+            # Approve proposal
+            result = self.sekre_engine.approve_improvement(proposal_id)
+            
+            return {
+                'proposal_id': proposal_id,
+                'result': result,
+                'status': 'success' if result.get('status') == 'success' else 'error'
+            }
+            
+        except Exception as e:
+            logging.error(f"[{datetime.now()}] AO: Error approving improvement proposal: {str(e)}")
+            return {
+                'proposal_id': proposal_id,
+                'status': 'error',
+                'error': str(e)
+            }
+    
+    def reject_improvement(self, proposal_id: str, reason: Optional[str] = None) -> Dict:
+        """
+        Reject an improvement proposal.
+        
+        Args:
+            proposal_id: Proposal ID
+            reason: Optional reason for rejection
+            
+        Returns:
+            dict: Result of rejecting the improvement
+        """
+        logging.info(f"[{datetime.now()}] AO: Rejecting improvement proposal {proposal_id}")
+        
+        try:
+            # Check for required components
+            if not self.sekre_engine:
+                raise Exception("SEKRE Engine not available")
+            
+            # Reject proposal
+            result = self.sekre_engine.reject_improvement(proposal_id, reason)
+            
+            return {
+                'proposal_id': proposal_id,
+                'result': result,
+                'status': 'success' if result.get('status') == 'success' else 'error'
+            }
+            
+        except Exception as e:
+            logging.error(f"[{datetime.now()}] AO: Error rejecting improvement proposal: {str(e)}")
+            return {
+                'proposal_id': proposal_id,
+                'status': 'error',
+                'error': str(e)
+            }
