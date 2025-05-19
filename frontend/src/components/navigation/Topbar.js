@@ -1,150 +1,211 @@
 import React from 'react';
-import { 
-  Flex, 
-  Box, 
-  Text, 
-  IconButton, 
-  Badge, 
+import {
+  Box,
+  Flex,
+  Heading,
+  IconButton,
+  useColorModeValue,
+  HStack,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
-  Divider,
-  useColorMode,
-  HStack,
-  Button,
-  Icon,
-  Tooltip
+  Avatar,
+  Text,
+  Badge,
+  Tooltip,
+  Button
 } from '@chakra-ui/react';
 import { 
+  FiMenu, 
   FiBell, 
-  FiSettings, 
-  FiMoon, 
-  FiSun,
-  FiInfo,
-  FiCpu
+  FiUser, 
+  FiLogOut, 
+  FiSettings,
+  FiChevronDown,
+  FiSearch
 } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
-function Topbar() {
-  const { colorMode, toggleColorMode } = useColorMode();
+const Topbar = ({ isOpen, toggleSidebar, isMobileOpen, setIsMobileOpen }) => {
+  const navigate = useNavigate();
   
-  // Simulation Status indicator
-  const simulationStatus = "active"; // Could be active, idle, error
-  const confidenceScore = 0.96; // Example confidence score
-  
-  // Get appropriate colors for confidence score
-  const getConfidenceColor = (score) => {
-    if (score >= 0.9) return "green.500";
-    if (score >= 0.75) return "yellow.500";
-    return "red.500";
+  // Placeholder user data - would come from context in real app
+  const user = {
+    name: 'Admin User',
+    email: 'admin@example.com',
+    avatar: null, // Default avatar will be shown
+    role: 'Administrator'
   };
-  
+
+  const handleLogout = () => {
+    // Would use auth context to logout in real app
+    navigate('/logout');
+  };
+
   return (
-    <Flex 
-      h="60px" 
-      px={4} 
-      align="center" 
-      justify="space-between"
-      borderBottom="1px solid"
-      borderColor="gray.700"
-      bg="dark.900"
+    <Box
+      as="header"
+      bg="gray.800"
+      px={4}
+      height="64px"
+      boxShadow="0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
+      position="relative"
+      zIndex="sticky"
     >
-      {/* Left Side - Page Title (dynamically set based on current route) */}
-      <Text fontWeight="bold" fontSize="lg">Universal Knowledge Graph System</Text>
-      
-      {/* Right Side - Controls */}
-      <HStack spacing={4}>
-        {/* Simulation Status */}
-        <Flex align="center">
-          <Tooltip label="Simulation Engine Status">
-            <HStack>
-              <Box 
-                w={3} 
-                h={3} 
-                borderRadius="full" 
-                bg={simulationStatus === 'active' ? 'green.500' : 
-                   simulationStatus === 'idle' ? 'yellow.500' : 'red.500'} 
-              />
-              <Text fontSize="sm" color="gray.400">Simulation</Text>
-            </HStack>
-          </Tooltip>
-        </Flex>
-        
-        {/* Confidence Score */}
-        <Tooltip label="Current Confidence Score">
-          <Button 
-            size="sm" 
-            variant="ghost" 
-            leftIcon={<Icon as={FiCpu} />}
-            borderRadius="full"
+      <Flex h="full" alignItems="center" justifyContent="space-between">
+        <Flex alignItems="center">
+          <IconButton
+            display={{ base: 'flex', md: 'flex' }}
+            onClick={toggleSidebar}
+            variant="ghost"
+            aria-label="Toggle Sidebar"
+            icon={<FiMenu />}
+            size="lg"
+            color="gray.400"
+            _hover={{ color: 'white', bg: 'gray.700' }}
+          />
+          
+          <Heading
+            ml={2}
+            fontSize="xl"
+            fontWeight="bold"
+            color="white"
+            display={{ base: 'none', md: 'flex' }}
           >
-            <Text fontSize="sm">Confidence:</Text>
-            <Badge ml={1} colorScheme={confidenceScore >= 0.9 ? "green" : confidenceScore >= 0.75 ? "yellow" : "red"}>
-              {(confidenceScore * 100).toFixed(1)}%
-            </Badge>
-          </Button>
-        </Tooltip>
-        
-        {/* Notifications */}
-        <Menu>
-          <Tooltip label="Notifications">
-            <MenuButton
-              as={IconButton}
-              aria-label="Notifications"
-              icon={<FiBell />}
+            Universal Knowledge Graph
+          </Heading>
+          
+          <Heading
+            ml={2}
+            fontSize="xl"
+            fontWeight="bold"
+            color="white"
+            display={{ base: 'flex', md: 'none' }}
+          >
+            UKG
+          </Heading>
+        </Flex>
+
+        {/* Search bar - desktop */}
+        <Box display={{ base: 'none', md: 'block' }} flex="1" maxW="600px" mx={4}>
+          <Flex 
+            as="form" 
+            bg="gray.700" 
+            borderRadius="full" 
+            px={4} 
+            alignItems="center"
+          >
+            <IconButton
               variant="ghost"
-              size="md"
-              position="relative"
-            >
-              <Box
-                position="absolute"
-                top="0"
-                right="0"
-                px={1}
-                py={0.5}
-                fontSize="xs"
-                fontWeight="bold"
-                lineHeight="none"
-                color="white"
-                transform="translate(25%, -25%)"
-                bg="accent.500"
-                rounded="full"
-              >
-                3
-              </Box>
-            </MenuButton>
+              aria-label="Search"
+              icon={<FiSearch />}
+              color="gray.400"
+              size="sm"
+              _hover={{ color: 'white' }}
+            />
+            <Box 
+              as="input" 
+              bg="transparent" 
+              border="none" 
+              color="white" 
+              placeholder="Search knowledge graph..." 
+              w="full" 
+              py={2} 
+              px={2}
+              _placeholder={{ color: 'gray.400' }}
+              outline="none"
+            />
+          </Flex>
+        </Box>
+        
+        <HStack spacing={3}>
+          {/* Search button - mobile */}
+          <IconButton
+            display={{ base: 'flex', md: 'none' }}
+            variant="ghost"
+            aria-label="Search"
+            icon={<FiSearch />}
+            color="gray.400"
+            _hover={{ color: 'white', bg: 'gray.700' }}
+          />
+          
+          {/* Notifications */}
+          <Tooltip label="Notifications" placement="bottom" hasArrow>
+            <IconButton
+              variant="ghost"
+              aria-label="Notifications"
+              icon={
+                <>
+                  <FiBell />
+                  <Badge 
+                    colorScheme="red" 
+                    position="absolute" 
+                    top="0" 
+                    right="0" 
+                    borderRadius="full" 
+                    w="14px" 
+                    h="14px"
+                  >
+                    3
+                  </Badge>
+                </>
+              }
+              color="gray.400"
+              _hover={{ color: 'white', bg: 'gray.700' }}
+            />
           </Tooltip>
-          <MenuList bg="dark.800" borderColor="gray.700">
-            <MenuItem _hover={{ bg: 'dark.700' }}>New simulation completed</MenuItem>
-            <MenuItem _hover={{ bg: 'dark.700' }}>System update available</MenuItem>
-            <Divider />
-            <MenuItem _hover={{ bg: 'dark.700' }}>View all notifications</MenuItem>
-          </MenuList>
-        </Menu>
-        
-        {/* Theme Toggle */}
-        <Tooltip label={colorMode === 'dark' ? 'Light Mode' : 'Dark Mode'}>
-          <IconButton
-            aria-label="Toggle color mode"
-            icon={colorMode === 'dark' ? <FiSun /> : <FiMoon />}
-            onClick={toggleColorMode}
-            variant="ghost"
-            size="md"
-          />
-        </Tooltip>
-        
-        {/* Help */}
-        <Tooltip label="Help & Documentation">
-          <IconButton
-            aria-label="Help"
-            icon={<FiInfo />}
-            variant="ghost"
-            size="md"
-          />
-        </Tooltip>
-      </HStack>
-    </Flex>
+          
+          {/* User menu */}
+          <Menu>
+            <MenuButton
+              as={Button}
+              variant="ghost"
+              rightIcon={<FiChevronDown />}
+              _hover={{ bg: 'gray.700' }}
+              _active={{ bg: 'gray.700' }}
+            >
+              <HStack spacing={2}>
+                <Avatar 
+                  size="sm" 
+                  name={user.name} 
+                  src={user.avatar}
+                  bg="brand.500"
+                />
+                <Box display={{ base: 'none', md: 'block' }} textAlign="left">
+                  <Text fontSize="sm" fontWeight="medium">{user.name}</Text>
+                  <Text fontSize="xs" color="gray.400">{user.role}</Text>
+                </Box>
+              </HStack>
+            </MenuButton>
+            <MenuList bg="gray.800" borderColor="gray.700">
+              <MenuItem 
+                icon={<FiUser />} 
+                onClick={() => navigate('/profile')}
+                _hover={{ bg: 'gray.700' }}
+              >
+                Profile
+              </MenuItem>
+              <MenuItem 
+                icon={<FiSettings />} 
+                onClick={() => navigate('/settings')}
+                _hover={{ bg: 'gray.700' }}
+              >
+                Settings
+              </MenuItem>
+              <MenuItem 
+                icon={<FiLogOut />} 
+                onClick={handleLogout}
+                _hover={{ bg: 'gray.700' }}
+              >
+                Logout
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </HStack>
+      </Flex>
+    </Box>
   );
-}
+};
 
 export default Topbar;
