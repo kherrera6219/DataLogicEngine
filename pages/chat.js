@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import Layout from '../components/Layout';
@@ -22,7 +21,7 @@ export default function Chat() {
       ce: true
     }
   });
-  
+
   const messagesEndRef = useRef(null);
   const chatInputRef = useRef(null);
 
@@ -40,9 +39,9 @@ export default function Chat() {
         console.error('Failed to load chat history:', error);
       }
     };
-    
+
     loadChatHistory();
-    
+
     // Add welcome message
     setMessages([{
       id: 'welcome',
@@ -55,7 +54,7 @@ export default function Chat() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-  
+
   // Auto-resize text area
   useEffect(() => {
     if (chatInputRef.current) {
@@ -77,7 +76,7 @@ export default function Chat() {
 
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
-    
+
     // Add user message to chat
     const userMessage = {
       id: Date.now().toString(),
@@ -85,11 +84,11 @@ export default function Chat() {
       content: inputText,
       timestamp: new Date().toISOString()
     };
-    
+
     setMessages(prevMessages => [...prevMessages, userMessage]);
     setInputText('');
     setIsLoading(true);
-    
+
     try {
       // Call API to get response
       const response = await fetch('/api/query', {
@@ -108,13 +107,13 @@ export default function Chat() {
             .map(([key]) => key.toUpperCase())
         }),
       });
-      
+
       const data = await response.json();
-      
+
       // Update chat ID if this is a new conversation
       if (!currentChatId && data.chat_id) {
         setCurrentChatId(data.chat_id);
-        
+
         // Create a new chat history item
         const newChatItem = {
           id: data.chat_id,
@@ -122,14 +121,14 @@ export default function Chat() {
           created: new Date().toISOString(),
           lastUpdated: new Date().toISOString()
         };
-        
+
         setChatHistory(prev => [newChatItem, ...prev]);
         setChatTitle(newChatItem.title);
-        
+
         // Save to local storage (would be an API call in real implementation)
         localStorage.setItem('ukg_chat_history', JSON.stringify([newChatItem, ...chatHistory]));
       }
-      
+
       // Add system response to chat
       const systemResponse = {
         id: `response-${Date.now()}`,
@@ -138,11 +137,11 @@ export default function Chat() {
         confidence: data.confidence,
         timestamp: new Date().toISOString()
       };
-      
+
       setMessages(prevMessages => [...prevMessages, systemResponse]);
     } catch (error) {
       console.error('Error sending message:', error);
-      
+
       // Add error message
       const errorMessage = {
         id: `error-${Date.now()}`,
@@ -150,7 +149,7 @@ export default function Chat() {
         content: 'Sorry, there was an error processing your request. Please try again.',
         timestamp: new Date().toISOString()
       };
-      
+
       setMessages(prevMessages => [...prevMessages, errorMessage]);
     } finally {
       setIsLoading(false);
@@ -208,6 +207,14 @@ export default function Chat() {
       : firstMessage;
   };
 
+  // Import responsive utilities
+  useEffect(() => {
+    import('../utils/responsive').then(module => {
+      const cleanupHandler = module.initResponsiveHandlers();
+      return () => cleanupHandler();
+    });
+  }, []);
+
   return (
     <Layout>
       <Head>
@@ -217,47 +224,56 @@ export default function Chat() {
       <div className="chat-container">
         <div className="chat-sidebar">
           <div className="sidebar-header">
-            <h3>UKG Chat</h3>
-            <button id="new-chat-btn" className="btn btn-sm btn-primary" onClick={handleNewChat}>
-              <i className="bi bi-plus-lg"></i> New Chat
+            <h5 className="mb-0">Chat History</h5>
+            <button className="btn btn-sm btn-outline-light d-flex align-items-center">
+              <i className="bi bi-plus-lg"></i>
             </button>
           </div>
-          <div className="chat-history" id="chat-history">
-            {chatHistory.length > 0 ? (
-              chatHistory.map(chat => (
-                <div 
-                  key={chat.id} 
-                  className={`chat-history-item ${currentChatId === chat.id ? 'active' : ''}`}
-                  onClick={() => handleChatSelect(chat.id)}
-                >
-                  <i className="bi bi-chat-left-text"></i>
-                  <span className="chat-title">{chat.title}</span>
-                </div>
-              ))
-            ) : (
-              <div className="no-history">No chat history</div>
+          <div className="chat-history">
+            {chatHistory.map((chat, index) => (
+              <div 
+                key={index} 
+                className={`chat-history-item ${currentChatId === chat.id ? 'active' : ''}`}
+                onClick={() => handleChatSelect(chat.id)}
+              >
+                <i className="bi bi-chat-left-text"></i>
+                {chat.title}
+              </div>
+            ))}
+            {chatHistory.length === 0 && (
+              <div className="text-center text-muted p-3">
+                <i className="bi bi-chat-square-text fs-3 mb-2"></i>
+                <p>No chat history yet</p>
+              </div>
             )}
           </div>
           <div className="sidebar-footer">
-            <button id="clear-chats-btn" className="btn btn-sm btn-outline-danger" onClick={handleClearChats}>
-              <i className="bi bi-trash"></i> Clear All Chats
+            <button className="btn btn-outline-light btn-sm w-100 d-flex align-items-center justify-content-center">
+              <i className="bi bi-trash me-2"></i>
+              Clear History
             </button>
           </div>
         </div>
+
+        {/* Sidebar toggle button for mobile */}
+        <button className="sidebar-toggle">
+          <i className="bi bi-list"></i>
+        </button>
+
         <div className="chat-main">
           <div className="chat-header">
-            <div className="current-chat-title" id="current-chat-title">{chatTitle}</div>
-            <div className="chat-options">
-              <button id="export-chat-btn" className="btn btn-sm btn-outline-secondary">
-                <i className="bi bi-download"></i> Export
-              </button>
-              <button 
-                id="settings-btn" 
-                className="btn btn-sm btn-outline-secondary"
-                data-bs-toggle="modal" 
-                data-bs-target="#settings-modal"
-              >
+            <h5 className="mb-0 d-flex align-items-center">
+              <i className="bi bi-robot me-2 d-none d-sm-inline"></i>
+              UKG Chat Assistant
+            </h5>
+            <div className="d-flex gap-2">
+              <button className="btn btn-sm btn-outline-light d-flex align-items-center">
                 <i className="bi bi-gear"></i>
+                <span className="ms-1 d-none d-md-inline">Settings</span>
+              </button>
+              <button className="btn btn-sm btn-outline-light d-flex align-items-center">
+                <i className="bi bi-question-circle"></i>
+                <span className="ms-1 d-none d-md-inline">Help</span>
               </button>
             </div>
           </div>
@@ -341,33 +357,57 @@ export default function Chat() {
             <div ref={messagesEndRef} />
           </div>
           <div className="chat-input-container">
-            <textarea 
-              id="chat-input" 
-              placeholder="Type your message here..." 
-              rows="1" 
-              className="form-control"
-              value={inputText}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              ref={chatInputRef}
-              disabled={isLoading}
-            ></textarea>
+            <div className="position-relative w-100">
+              <textarea 
+                id="chat-input" 
+                className="form-control" 
+                placeholder="Ask a question..." 
+                rows="1"
+                value={inputText}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                ref={chatInputRef}
+              />
+              {inputText && (
+                <button 
+                  className="btn btn-sm btn-link position-absolute top-50 end-0 translate-middle-y text-secondary me-2"
+                  type="button"
+                  onClick={() => setInputText('')}
+                  style={{ zIndex: 5 }}
+                >
+                  <i className="bi bi-x-circle"></i>
+                </button>
+              )}
+            </div>
             <div className="input-buttons">
-              <button id="attach-btn" className="btn btn-sm btn-outline-secondary" title="Attach files">
+              <button 
+                className="btn btn-outline-light d-flex align-items-center justify-content-center" 
+                type="button"
+                title="Upload file"
+              >
                 <i className="bi bi-paperclip"></i>
               </button>
               <button 
-                id="send-btn" 
-                className="btn btn-primary"
+                className="btn btn-primary d-flex align-items-center justify-content-center" 
+                type="button"
                 onClick={handleSendMessage}
                 disabled={!inputText.trim() || isLoading}
+                style={{ minWidth: '48px', minHeight: '38px' }}
               >
-                <i className="bi bi-send"></i>
+                {isLoading ? (
+                  <div className="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                ) : (
+                  <i className="bi bi-send"></i>
+                )}
               </button>
             </div>
           </div>
         </div>
-        
+
         {/* Settings Modal */}
         <div className="modal fade" id="settings-modal" tabIndex="-1" aria-hidden="true">
           <div className="modal-dialog">
