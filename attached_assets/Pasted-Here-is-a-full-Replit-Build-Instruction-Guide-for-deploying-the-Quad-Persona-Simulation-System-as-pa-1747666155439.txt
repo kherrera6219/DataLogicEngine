@@ -1,0 +1,572 @@
+Here is a full Replit Build Instruction Guide for deploying the Quad Persona Simulation System as part of the UKG/USKD framework. This is optimized for autonomous simulation execution using FastAPI and OpenAI-compatible agents, and includes memory, recursive reasoning, and dynamic role mapping.
+
+Quad Persona System Replit Build Guide
+1. Project Structure
+css
+Copy
+Edit
+quad_persona_replit/
+├── main.py
+├── requirements.txt
+├
+Thank you — based on that clarification, here's a subsystem-specific implementation guide for integrating the Quad Persona Simulation Engine into your main Replit-hosted Universal Knowledge Graph (UKG)/Universal Simulated Knowledge Database (USKD) app. It is explicitly structured to work with Axes 8 through 11, and is modularly embedded within the larger 13-axis coordinate system.
+
+Quad Persona System (Axes 8–11) – Subsystem Integration Guide for Replit
+System Role
+The Quad Persona Subsystem simulates 4 expert roles dynamically for any UKG/USKD query:
+
+Axis 8: Knowledge Role Expert
+
+Axis 9: Sector Expert
+
+Axis 10: Regulatory Expert (Octopus Node)
+
+Axis 11: Compliance Expert (Spiderweb Node)
+
+This engine self-applies role-based reasoning using job roles, education, certifications, tasks, training, and research to enrich query results.
+
+1. Project Structure Overview
+bash
+Copy
+Edit
+ukg_main_app/
+├── main.py
+├── quad_persona/
+│   ├── __init__.py
+│   ├── quad_engine.py
+│   ├── persona_loader.py
+│   ├── axis_role_mapper.py
+│   └── quad_config.yaml
+├── ukg_axes/
+│   ├── axis1_pillars.py
+│   ├── axis8_knowledge_roles.py
+│   ├── axis9_sector_experts.py
+│   ├── axis10_octopus_node.py
+│   ├── axis11_spiderweb_node.py
+├── simulation/
+│   ├── refinement_workflow.py
+│   ├── simulation_engine.py
+│   └── memory_manager.py
+├── data/
+│   └── personas_db.json
+├── requirements.txt
+└── replit.nix
+2. Quad Persona Core Files
+quad_engine.py
+python
+Copy
+Edit
+from quad_persona.persona_loader import load_personas
+from quad_persona.axis_role_mapper import map_roles_by_axis
+
+def simulate_quad_personas(query_data):
+    roles = map_roles_by_axis(query_data)
+    responses = {}
+    for role_key, role in roles.items():
+        response = role.apply_simulation_logic(query_data)
+        responses[role_key] = response
+    return responses
+axis_role_mapper.py
+This maps roles by Axis 8–11 using their 7-part metadata structure.
+
+python
+Copy
+Edit
+from ukg_axes.axis8_knowledge_roles import get_knowledge_expert
+from ukg_axes.axis9_sector_experts import get_sector_expert
+from ukg_axes.axis10_octopus_node import get_regulatory_expert
+from ukg_axes.axis11_spiderweb_node import get_compliance_expert
+
+def map_roles_by_axis(query):
+    return {
+        "Axis8_KnowledgeExpert": get_knowledge_expert(query),
+        "Axis9_SectorExpert": get_sector_expert(query),
+        "Axis10_RegulatoryExpert": get_regulatory_expert(query),
+        "Axis11_ComplianceExpert": get_compliance_expert(query),
+    }
+persona_loader.py
+Loads metadata like job roles, education, certs, skills, etc. from personas_db.json.
+
+python
+Copy
+Edit
+import json
+from pathlib import Path
+
+def load_personas():
+    with open(Path("data/personas_db.json")) as f:
+        return json.load(f)
+3. Requirements for requirements.txt
+txt
+Copy
+Edit
+fastapi
+uvicorn
+pydantic
+openai
+networkx
+numpy
+4. FastAPI Integration (inside main.py)
+python
+Copy
+Edit
+from fastapi import FastAPI
+from quad_persona.quad_engine import simulate_quad_personas
+
+app = FastAPI()
+
+@app.post("/quad_simulate")
+def run_quad_simulation(query: dict):
+    return simulate_quad_personas(query)
+5. Example YAML Config: quad_config.yaml
+yaml
+Copy
+Edit
+QuadPersonaSystem:
+  Axes:
+    - Axis8: KnowledgeRole
+    - Axis9: SectorExpert
+    - Axis10: RegulatoryExpert
+    - Axis11: ComplianceExpert
+  RoleSchema:
+    - JobRole
+    - Education
+    - Certifications
+    - Skills
+    - JobTraining
+    - CareerPath
+    - RelatedJobs
+  OutputFormat: StructuredPersonaSimulations
+6. How It Fits with the Main App
+Triggered in the simulation pipeline before the 12-Step Refinement Workflow.
+
+Feeds outputs into memory and refinement layers (refinement_workflow.py).
+
+Receives input from UKG Axis 1 and optionally Axis 2 (Sector).
+
+Can run recursively in Passes 1–10 if confidence < 0.995.
+
+7. Replit Tips
+Add environment secrets (e.g., OPENAI_API_KEY) in Replit’s Secrets tab.
+
+Ensure replit.nix has Python dependencies if you’re not using requirements.txt.
+
+Enable “Always On” for persistent agent simulation.
+
+Next Steps
+Would you like:
+
+Docker version of this subsystem?
+
+Integration with the 12-Step refinement pipeline?
+
+Swagger docs exposed from FastAPI for testing?
+
+Let me know which to build next.
+
+
+
+
+
+
+You said:
+Create instructions to build the 13 axis system using
+ChatGPT said:
+Here are detailed instructions for building the full 13-Axis Coordinate System for the Universal Knowledge Graph (UKG) and Universal Simulated Knowledge Database (USKD) using Replit. These instructions focus on modular Python architecture, integration points, axis-specific functions, and readiness for simulation use by your AI agents.
+
+13-Axis Coordinate System – Build Instructions (Replit Implementation)
+Overview
+The 13-Axis system enables multi-dimensional knowledge modeling and reasoning. Each axis represents a critical coordinate dimension used to simulate queries, map roles, resolve compliance, and derive high-confidence answers.
+
+1. Directory Structure
+bash
+Copy
+Edit
+ukg_13_axis/
+├── main.py
+├── ukg_axes/
+│   ├── axis1_pillars.py
+│   ├── axis2_sector.py
+│   ├── axis3_honeycomb.py
+│   ├── axis4_branch_system.py
+│   ├── axis5_node_system.py
+│   ├── axis6_octopus_node.py
+│   ├── axis7_spiderweb_node.py
+│   ├── axis8_knowledge_roles.py
+│   ├── axis9_sector_experts.py
+│   ├── axis10_regulatory_expert.py
+│   ├── axis11_compliance_expert.py
+│   ├── axis12_location.py
+│   ├── axis13_temporal.py
+├── data/
+│   ├── ukg_tree.yaml
+│   ├── roles_db.json
+├── core/
+│   ├── axis_engine.py
+│   ├── coordinate_resolver.py
+│   ├── unified_system_mapper.py
+├── tests/
+│   ├── test_axis_mapping.py
+├── requirements.txt
+└── replit.nix
+2. Axis Function Definitions (Examples)
+axis1_pillars.py
+python
+Copy
+Edit
+def get_pillar_structure(pillar_id: str) -> dict:
+    # Lookup pillar structure from ukg_tree.yaml
+    ...
+axis3_honeycomb.py
+python
+Copy
+Edit
+def crosswalk_pl_relationship(pl_id_a, pl_id_b):
+    # Map and link PLs using Honeycomb mapping logic
+    ...
+axis6_octopus_node.py (Regulatory Expert Trigger)
+python
+Copy
+Edit
+def resolve_regulatory_nodes(pl_id, sector_code):
+    # Lookup Octopus Nodes for mapped roles and regulatory anchors
+    ...
+axis13_temporal.py
+python
+Copy
+Edit
+def get_temporal_pathway(pl_id, time_range):
+    # Resolve temporal dimension (e.g., regulation evolution, tech maturity)
+    ...
+Each axis uses its own lookup and reasoning logic. Axes 6–11 simulate roles and constraints based on:
+
+Formal education
+
+Certifications
+
+Job tasks
+
+Domain rules (from YAML)
+
+3. Core Coordination Engine
+axis_engine.py
+python
+Copy
+Edit
+from ukg_axes import (
+    axis1_pillars, axis2_sector, axis3_honeycomb, axis4_branch_system,
+    axis5_node_system, axis6_octopus_node, axis7_spiderweb_node,
+    axis8_knowledge_roles, axis9_sector_experts, axis10_regulatory_expert,
+    axis11_compliance_expert, axis12_location, axis13_temporal,
+)
+
+def run_full_axis_mapping(query):
+    return {
+        "Pillar": axis1_pillars.get_pillar_structure(query["pl_id"]),
+        "Sector": axis2_sector.get_sector_mapping(query["sector_code"]),
+        "Honeycomb": axis3_honeycomb.crosswalk_pl_relationship(query["pl_id"], query.get("pl_cross")),
+        "Branch": axis4_branch_system.map_branch(query["industry_code"]),
+        "Node": axis5_node_system.resolve_crossover_nodes(query),
+        "Octopus": axis6_octopus_node.resolve_regulatory_nodes(query["pl_id"], query["sector_code"]),
+        "Spiderweb": axis7_spiderweb_node.map_compliance(query),
+        "Roles": axis8_knowledge_roles.get_role_profile(query["job_title"]),
+        "SectorExpert": axis9_sector_experts.resolve(query),
+        "RegExpert": axis10_regulatory_expert.resolve(query),
+        "CompExpert": axis11_compliance_expert.resolve(query),
+        "Location": axis12_location.resolve_geo_layer(query["region"]),
+        "Temporal": axis13_temporal.get_temporal_pathway(query["pl_id"], query["time_range"]),
+    }
+4. coordinate_resolver.py
+This converts all axis outputs into a 13-dimensional vector or matrix.
+
+python
+Copy
+Edit
+def build_coordinate_matrix(axis_outputs: dict):
+    # Output: vector or graph-based multidimensional mapping
+    return {
+        "vector": [axis_outputs[axis] for axis in axis_outputs],
+        "matrix": create_adjacency_matrix(axis_outputs),
+    }
+5. unified_system_mapper.py
+This maps Nuremberg Numbering, SAM.gov Names, and NASA Coordinates.
+
+python
+Copy
+Edit
+def normalize_axis_identity(pl_id):
+    return {
+        "nuremberg": f"PL-{pl_id}",
+        "sam_name": fetch_sam_name(pl_id),
+        "nasa_coords": fetch_spatial_coords(pl_id),
+    }
+6. requirements.txt
+txt
+Copy
+Edit
+fastapi
+uvicorn
+pyyaml
+pydantic
+networkx
+numpy
+7. FastAPI API Endpoint (Optional for Replit)
+In main.py:
+
+python
+Copy
+Edit
+from fastapi import FastAPI
+from core.axis_engine import run_full_axis_mapping
+
+app = FastAPI()
+
+@app.post("/ukg/full-axis")
+def map_ukg_axes(query: dict):
+    return run_full_axis_mapping(query)
+8. Replit Setup Tips
+Use Secrets for secure configuration if needed.
+
+Enable Always On for API responsiveness.
+
+Use unit tests under /tests/ to verify axis accuracy before simulation.
+
+9. Simulation Usage
+This 13-axis system feeds directly into:
+
+The Quad Persona Engine (for Axis 8–11)
+
+The 12-Step Refinement Workflow
+
+The POV Engine (for recursive expansion)
+
+Simulation layers 1 through 10 (as per your system spec)
+
+Would you like a zipped GitHub-ready repo of this entire structure with prewritten code modules? I can generate that next.
+
+You said:
+Create detailed build instructions on each axis
+ChatGPT said:
+Here are detailed build instructions for each of the 13 Axes of the Universal Knowledge Graph (UKG) and Universal Simulated Knowledge Database (USKD) system. These instructions assume you're building the system inside a modular Python project (e.g., on Replit, GitHub, or local) with support for simulation, reasoning, and AI orchestration.
+
+Detailed Build Instructions: UKG/USKD 13-Axis System
+AXIS 1 — Pillar Levels of Knowledge
+Purpose:
+Establishes the vertical hierarchy of all knowledge (PL01–PL87+), including Sublevel 1 and Sublevel 2.
+
+Instructions:
+
+Load ukg_tree.yaml defining:
+
+PLxx: Pillar ID
+
+PLxx.1: Sublevel 1 (major category)
+
+PLxx.1.1: Sublevel 2 (domain-specific fields)
+
+Implement tree traversal functions for hierarchy resolution.
+
+Store node metadata in a structured dictionary or graph.
+
+Module: axis1_pillars.py
+Key Function: get_pillar_structure(pl_id: str) -> dict
+
+AXIS 2 — Sector of Industry
+Purpose:
+Maps every Pillar to an industry using NAICS, SIC, NIC, and PSC codes.
+
+Instructions:
+
+Build or load crosswalk tables: pillar_to_sector.json
+
+Normalize input codes (NAICS → NIC → PSC) with semantic tags.
+
+Provide bi-directional mapping between Pillars and Sectors.
+
+Module: axis2_sector.py
+Key Function: get_sector_mapping(code: str) -> dict
+
+AXIS 3 — Honeycomb System
+Purpose:
+Crosswalks data between PLs across sectors to simulate multidirectional reasoning and shared knowledge.
+
+Instructions:
+
+Implement adjacency list for inter-PL relationships.
+
+Use sector codes to weight relationships.
+
+Support dynamic expansion for recursive simulation.
+
+Module: axis3_honeycomb.py
+Key Function: crosswalk_pl_relationship(pl_id_a, pl_id_b)
+
+AXIS 4 — Branch System
+Purpose:
+Creates taxonomy lineage using official code systems like NAICS, SIC, NIC, and PSC.
+
+Instructions:
+
+Create tree structures for each code system.
+
+Normalize branches under a Unified Schema (Nuremberg + NASA spatial codes).
+
+Map branches to specific roles or jobs.
+
+Module: axis4_branch_system.py
+Key Function: map_branch(industry_code: str)
+
+AXIS 5 — Node System
+Purpose:
+Identifies cross-system (e.g., NAICS ↔ PSC) interaction points for hybrid roles and crossover logic.
+
+Instructions:
+
+Create matrix of shared job functions, certifications, and skills between codes.
+
+Use branch lineage to anchor nodes.
+
+Assign node strength scores for role resolution.
+
+Module: axis5_node_system.py
+Key Function: resolve_crossover_nodes(query_data: dict)
+
+AXIS 6 — Octopus Node (Regulatory Expert)
+Purpose:
+Simulates regulatory knowledge based on role, pillar, sector, and rule databases.
+
+Instructions:
+
+Create rule index by PL and Sector.
+
+Load role metadata: education, certifications, training, research.
+
+Run dynamic mapping engine using deep recursive logic.
+
+Module: axis6_octopus_node.py
+Key Function: resolve_regulatory_nodes(pl_id, sector_code)
+
+AXIS 7 — Spiderweb Node (Compliance Expert)
+Purpose:
+Simulates compliance paths across roles and time based on applicable standards and laws.
+
+Instructions:
+
+Build a regulatory path web (graph with edges = compliance rules).
+
+Link path segments to certifications, audits, and regulatory history.
+
+Score confidence based on legal conformance depth.
+
+Module: axis7_spiderweb_node.py
+Key Function: map_compliance(query_data: dict)
+
+AXIS 8 — Knowledge Role Simulation
+Purpose:
+Simulates human-level roles based on job title, education, certifications, etc.
+
+Instructions:
+
+Use roles_db.json to define:
+
+Job role
+
+Formal education
+
+Technical certifications
+
+Skills
+
+Job training
+
+Career path
+
+Related jobs
+
+Create simulation objects per role.
+
+Module: axis8_knowledge_roles.py
+Key Function: get_role_profile(job_title: str)
+
+AXIS 9 — Sector Expert Simulation
+Purpose:
+Generates sector-specific reasoning from mapped experts.
+
+Instructions:
+
+For each industry (via Axis 2), simulate persona:
+
+Industry-recognized certifications
+
+Specialized training
+
+Field-specific regulations
+
+Include field journals or publications as optional sources.
+
+Module: axis9_sector_experts.py
+Key Function: resolve(query_data: dict)
+
+AXIS 10 — Regulatory Expert Simulation (Octopus Layer)
+Purpose:
+Builds simulated regulatory experts for domain-specific rules.
+
+Instructions:
+
+Reuse Axis 6 regulatory map.
+
+Augment with enforcement logic, legal doctrine matching.
+
+Resolve conflicting rules with priority ranking.
+
+Module: axis10_regulatory_expert.py
+Key Function: resolve(query_data: dict)
+
+AXIS 11 — Compliance Expert Simulation (Spiderweb Layer)
+Purpose:
+Builds personas focused on legal adherence, policy validation, and audit prevention.
+
+Instructions:
+
+Reuse Axis 7 compliance web.
+
+Add:
+
+Compliance documentation templates
+
+Reporting standards (e.g., NIST, ISO, FISMA)
+
+Violations mapping and avoidance logic
+
+Module: axis11_compliance_expert.py
+Key Function: resolve(query_data: dict)
+
+AXIS 12 — Location Layer
+Purpose:
+Adds geospatial reasoning and location-specific policies.
+
+Instructions:
+
+Normalize location input (country → state → city → facility).
+
+Map localized rules, cultural norms, and environmental constraints.
+
+Provide hooks to override or adjust by GPS or jurisdiction.
+
+Module: axis12_location.py
+Key Function: resolve_geo_layer(region: str)
+
+AXIS 13 — Temporal Layer
+Purpose:
+Adds time-based evolution logic — historical shifts, future trends, and compliance timelines.
+
+Instructions:
+
+Map rule validity ranges, temporal constraints, versioning.
+
+Allow simulation forward/backward in time (e.g., 2020 vs 2030 logic).
+
+Use regulatory lifecycle graphs.
+
+Module: axis13_temporal.py
+Key Function: get_temporal_pathway(pl_id: str, time_range: str)

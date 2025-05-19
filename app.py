@@ -26,6 +26,9 @@ from backend.persona_api import persona_api
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "ukg_development_key")
 
+# Register blueprints
+app.register_blueprint(persona_api)
+
 # Configure database
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -386,9 +389,6 @@ Is there a specific axis of knowledge you'd like to explore further?"""
     except Exception as e:
         logger.error(f"Error in fallback response generation: {str(e)}")
         return "I apologize, but I encountered an error processing your request. Please try again with a different question."
-
-# Register blueprints
-app.register_blueprint(persona_api)
 
 # Create database tables
 with app.app_context():

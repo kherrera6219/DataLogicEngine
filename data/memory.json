@@ -1,0 +1,65 @@
+{
+  "streams": {
+    "general": {
+      "stream_id": "general",
+      "name": "General Memory",
+      "stream_type": "system",
+      "metadata": {},
+      "created_at": "2025-05-19T14:54:33.971258",
+      "last_updated": "2025-05-19T14:54:33.974943",
+      "entries": {
+        "fbf2c3d4-712a-42c3-833e-4be4e5f2b336": {
+          "entry_id": "fbf2c3d4-712a-42c3-833e-4be4e5f2b336",
+          "content": "What are the key considerations for implementing a data governance program?",
+          "memory_type": "query",
+          "source": "user",
+          "metadata": {
+            "timestamp": "2025-05-19T14:54:33.974880"
+          },
+          "created_at": "2025-05-19T14:54:33.974940",
+          "last_accessed": "2025-05-19T14:54:33.974940",
+          "access_count": 0,
+          "salience": 1.0,
+          "confidence": 1.0
+        }
+      }
+    },
+    "knowledge_expert": {
+      "stream_id": "knowledge_expert",
+      "name": "Knowledge Expert Memory",
+      "stream_type": "persona",
+      "metadata": {},
+      "created_at": "2025-05-19T14:54:33.971261",
+      "last_updated": "2025-05-19T14:54:33.971261",
+      "entries": {}
+    },
+    "sector_expert": {
+      "stream_id": "sector_expert",
+      "name": "Sector Expert Memory",
+      "stream_type": "persona",
+      "metadata": {},
+      "created_at": "2025-05-19T14:54:33.971265",
+      "last_updated": "2025-05-19T14:54:33.971265",
+      "entries": {}
+    },
+    "regulatory_expert": {
+      "stream_id": "regulatory_expert",
+      "name": "Regulatory Expert Memory",
+      "stream_type": "persona",
+      "metadata": {},
+      "created_at": "2025-05-19T14:54:33.971267",
+      "last_updated": "2025-05-19T14:54:33.971267",
+      "entries": {}
+    },
+    "compliance_expert": {
+      "stream_id": "compliance_expert",
+      "name": "Compliance Expert Memory",
+      "stream_type": "persona",
+      "metadata": {},
+      "created_at": "2025-05-19T14:54:33.971268",
+      "last_updated": "2025-05-19T14:54:33.971268",
+      "entries": {}
+    }
+  },
+  "last_saved": "2025-05-19T14:54:33.975365"
+}
