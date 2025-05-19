@@ -636,6 +636,20 @@ class AxisSystem:
             self.logging.info(f"[{datetime.now()}] Initializing Compliance Manager (Axis 7)")
             self.axis_managers[7] = ComplianceManager(self.db_manager, self.graph_manager)
 
+    def _load_axis(self, axis_number: int, axis_name: str) -> Dict[str, Any]:
+        """
+        Load axis configuration.
+
+        Args:
+            axis_number: The axis number (1-13)
+            axis_name: The axis name
+
+        Returns:
+            Dict containing axis configuration
+        """
+        # Basic implementation - can be extended to load from a database or config file
+        return {"name": axis_name, "description": f"Description for {axis_name} (Axis {axis_number})"}
+
     # Initialize axis managers
         self.axis_managers = {
             1: IdentityManager(db_manager, graph_manager),
@@ -643,4 +657,17 @@ class AxisSystem:
             4: MethodsManager(db_manager, graph_manager),
             5: HoneycombSystem(db_manager, graph_manager),
             6: RegulatoryManager(db_manager, graph_manager)
+        }
+
+        self.axes = {
+            1: self._load_axis(1, "Identity"),
+            2: self._load_axis(2, "Sector"), 
+            3: self._load_axis(3, "Branch"),
+            4: self._load_axis(4, "Method"),
+            5: self._load_axis(5, "Honeycomb"),
+            6: self._load_axis(6, "Regulatory"),
+            7: self._load_axis(7, "Compliance"),
+            # 8-11 are Expert Personas
+            12: self._load_axis(12, "Location"),
+            # 13 will be Time
         }

@@ -72,6 +72,9 @@ from backend.api import api
 # Import compliance API
 from backend.compliance_api import compliance_api
 
+# Import location API
+from backend.location_api import location_api
+
 # Initialize API routes
 init_api(app, graph_manager, memory_manager, usm, app_orchestrator)
 init_chat_api(app, axis_system)
@@ -126,6 +129,7 @@ app.register_blueprint(pillar_api)
 app.register_blueprint(methods_api)
 app.register_blueprint(honeycomb_api)
 app.register_blueprint(regulatory_api)
+app.register_blueprint(location_api)
 
 # Run the application if executed directly
 if __name__ == '__main__':

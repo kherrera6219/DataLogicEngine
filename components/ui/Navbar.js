@@ -150,7 +150,8 @@ Navbar.defaultProps = {
     { href: '/axis4', label: 'Axis 4', icon: '4-circle' },
     { href: '/axis5', label: 'Axis 5', icon: '5-circle' },
     { href: '/axis6', label: 'Axis 6', icon: 'gear' },
-    { href: '/compliance', label: 'Compliance', icon: 'check-circle' }
+    { href: '/compliance', label: 'Compliance', icon: 'check-circle' },
+    { href: '/locations', label: 'Locations', icon: 'geo-alt' }
   ],
 };
 
