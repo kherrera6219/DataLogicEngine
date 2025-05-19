@@ -1,578 +1,435 @@
-import logging
-import uuid
-from datetime import datetime
-from typing import Dict, List, Any, Optional, Union, Tuple
-import sys
-import os
-import importlib.util
-import json
+"""
+Knowledge Algorithm Engine
 
-# Add parent directory to path to allow imports
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+This module provides the core functionality for managing and executing
+Knowledge Algorithms (KAs) within the UKG system.
+"""
+
+import logging
+import json
+import uuid
+import importlib
+import os
+import yaml
+from datetime import datetime
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
 
 class KAEngine:
     """
     Knowledge Algorithm Engine
     
-    This component manages the execution of Knowledge Algorithms (KAs) across all
-    axes of the UKG. It handles algorithm discovery, loading, execution, and result
-    tracking.
+    This component manages the registration, execution, and tracking of
+    Knowledge Algorithms (KAs) in the UKG system.
     """
     
     def __init__(self, config=None, graph_manager=None, memory_manager=None):
         """
-        Initialize the Knowledge Algorithm Engine.
+        Initialize the KA Engine.
         
         Args:
             config (dict, optional): Configuration dictionary
-            graph_manager: Graph Manager reference
-            memory_manager: Structured Memory Manager reference
+            graph_manager: Graph Manager instance
+            memory_manager: Memory Manager instance
         """
         logging.info(f"[{datetime.now()}] Initializing KAEngine...")
         self.config = config or {}
         self.graph_manager = graph_manager
         self.memory_manager = memory_manager
         
-        # Configure KA engine settings
-        self.ka_config = self.config.get('ka_engine', {})
-        self.ka_directory = self.ka_config.get('algorithms_directory', './core/algorithms')
-        self.enable_remote_kas = self.ka_config.get('enable_remote_algorithms', False)
-        self.default_timeout = self.ka_config.get('default_timeout_seconds', 30)
+        # KA registry
+        self.ka_registry = {}
         
-        # Algorithm registry
-        self.registered_algorithms = {}  # ka_id -> algorithm_info
-        self.layer_algorithms = {}  # layer_num -> [ka_id]
+        # Load KA configurations
+        self._load_ka_registry()
         
-        # Initialize algorithm registry
-        self._initialize_algorithm_registry()
+        # Execution history
+        self.execution_history = []
         
-        logging.info(f"[{datetime.now()}] KAEngine initialized with {len(self.registered_algorithms)} algorithms")
+        # Stats
+        self.stats = {
+            'total_executions': 0,
+            'successful_executions': 0,
+            'failed_executions': 0
+        }
+        
+        logging.info(f"[{datetime.now()}] KAEngine initialized with {len(self.ka_registry)} KAs registered")
     
-    def _initialize_algorithm_registry(self):
+    def _load_ka_registry(self):
         """
-        Initialize the algorithm registry from the database and filesystem.
+        Load Knowledge Algorithm registry from configuration files.
         """
+        # Get the KA registry path
+        registry_path = self.config.get('ka_registry_path', 'knowledge_algorithms/ka_registry.yaml')
+        
         try:
-            # First, load algorithms from the database if graph manager is available
-            if self.graph_manager:
-                # Get all KnowledgeAlgorithm nodes
-                db_algorithms = self.graph_manager.get_nodes_by_type('KnowledgeAlgorithm')
-                
-                for alg in db_algorithms:
-                    ka_id = alg.get('ka_id')
-                    if not ka_id:
-                        continue
-                        
-                    self.registered_algorithms[ka_id] = {
-                        'ka_id': ka_id,
-                        'name': alg.get('name', ''),
-                        'description': alg.get('description', ''),
-                        'version': alg.get('version', '1.0.0'),
-                        'input_schema': alg.get('input_schema', {}),
-                        'output_schema': alg.get('output_schema', {}),
-                        'source': 'database',
-                        'instance': None,
-                        'module_path': None,
-                        'source_uid': alg.get('uid')
-                    }
+            # Check if file exists
+            if not os.path.exists(registry_path):
+                logging.warning(f"[{datetime.now()}] KA registry file not found: {registry_path}")
+                return
             
-            # Then, load algorithms from the filesystem
-            self._load_algorithms_from_filesystem()
+            # Load the registry
+            with open(registry_path, 'r') as f:
+                ka_config = yaml.safe_load(f)
             
-            # Build layer to algorithm mappings
-            for ka_id, alg_info in self.registered_algorithms.items():
-                # Get layer associations from algorithm metadata
-                layers = alg_info.get('metadata', {}).get('applicable_layers', [])
-                
-                for layer_num in layers:
-                    if layer_num not in self.layer_algorithms:
-                        self.layer_algorithms[layer_num] = []
-                    
-                    if ka_id not in self.layer_algorithms[layer_num]:
-                        self.layer_algorithms[layer_num].append(ka_id)
+            # Process each KA
+            for ka_id, ka_info in ka_config.get('algorithms', {}).items():
+                self.register_algorithm(
+                    ka_id=ka_id,
+                    name=ka_info.get('name'),
+                    description=ka_info.get('description'),
+                    module_path=ka_info.get('module_path'),
+                    class_name=ka_info.get('class_name'),
+                    version=ka_info.get('version', '1.0.0'),
+                    parameters=ka_info.get('parameters', {})
+                )
             
-            logging.info(f"[{datetime.now()}] KAEngine: Initialized algorithm registry with {len(self.registered_algorithms)} algorithms")
-            
+            logging.info(f"[{datetime.now()}] Loaded {len(self.ka_registry)} KAs from registry")
         except Exception as e:
-            logging.error(f"[{datetime.now()}] KAEngine: Error initializing algorithm registry: {str(e)}")
+            logging.error(f"[{datetime.now()}] Error loading KA registry: {str(e)}")
     
-    def _load_algorithms_from_filesystem(self):
+    def register_algorithm(self, ka_id: str, name: str, description: str, 
+                         module_path: str, class_name: str, version: str = '1.0.0',
+                         parameters: Dict = None) -> bool:
         """
-        Load algorithm modules from the filesystem.
-        """
-        if not os.path.isdir(self.ka_directory):
-            logging.warning(f"[{datetime.now()}] KAEngine: Algorithm directory not found: {self.ka_directory}")
-            return
-        
-        # Scan all Python files in the algorithm directory
-        for root, _, files in os.walk(self.ka_directory):
-            for file in files:
-                if file.endswith('.py') and not file.startswith('__'):
-                    module_path = os.path.join(root, file)
-                    
-                    try:
-                        # Load algorithm module info
-                        module_name = os.path.splitext(file)[0]
-                        module_info = self._inspect_algorithm_module(module_path, module_name)
-                        
-                        if module_info:
-                            # Register all algorithms in the module
-                            for alg_info in module_info:
-                                ka_id = alg_info.get('ka_id')
-                                if ka_id:
-                                    self.registered_algorithms[ka_id] = alg_info
-                                    logging.info(f"[{datetime.now()}] KAEngine: Registered algorithm {ka_id} from {module_path}")
-                    
-                    except Exception as e:
-                        logging.error(f"[{datetime.now()}] KAEngine: Error loading algorithm module {module_path}: {str(e)}")
-    
-    def _inspect_algorithm_module(self, module_path: str, module_name: str) -> List[Dict]:
-        """
-        Inspect an algorithm module to extract algorithm information.
+        Register a Knowledge Algorithm.
         
         Args:
-            module_path: Path to the module file
-            module_name: Name of the module
+            ka_id: Algorithm ID
+            name: Algorithm name
+            description: Algorithm description
+            module_path: Python module path
+            class_name: Algorithm class name
+            version: Algorithm version
+            parameters: Parameter defaults
             
         Returns:
-            list: List of algorithm info dictionaries
+            bool: True if registration was successful
         """
-        try:
-            # Load module spec
-            spec = importlib.util.spec_from_file_location(module_name, module_path)
-            if not spec or not spec.loader:
-                logging.warning(f"[{datetime.now()}] KAEngine: Could not load module spec for {module_path}")
-                return []
-            
-            # Import the module
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            
-            # Look for algorithm classes
-            algorithm_infos = []
-            
-            for name in dir(module):
-                obj = getattr(module, name)
-                
-                # Check if it's a class that has the required attributes for a KA
-                if (isinstance(obj, type) and 
-                    hasattr(obj, 'KA_ID') and 
-                    hasattr(obj, 'execute')):
-                    
-                    # Get algorithm metadata
-                    ka_id = getattr(obj, 'KA_ID')
-                    name = getattr(obj, 'NAME', name)
-                    version = getattr(obj, 'VERSION', '1.0.0')
-                    description = getattr(obj, 'DESCRIPTION', '')
-                    input_schema = getattr(obj, 'INPUT_SCHEMA', {})
-                    output_schema = getattr(obj, 'OUTPUT_SCHEMA', {})
-                    metadata = getattr(obj, 'METADATA', {})
-                    
-                    # Create algorithm info dictionary
-                    alg_info = {
-                        'ka_id': ka_id,
-                        'name': name,
-                        'description': description,
-                        'version': version,
-                        'input_schema': input_schema,
-                        'output_schema': output_schema,
-                        'metadata': metadata,
-                        'source': 'filesystem',
-                        'module_path': module_path,
-                        'class_name': name,
-                        'instance': None
-                    }
-                    
-                    algorithm_infos.append(alg_info)
-            
-            return algorithm_infos
-            
-        except Exception as e:
-            logging.error(f"[{datetime.now()}] KAEngine: Error inspecting algorithm module {module_path}: {str(e)}")
-            return []
+        # Check if already registered
+        if ka_id in self.ka_registry:
+            logging.warning(f"[{datetime.now()}] KA with ID {ka_id} already registered")
+            return False
+        
+        # Create KA entry
+        ka_entry = {
+            'ka_id': ka_id,
+            'name': name,
+            'description': description,
+            'module_path': module_path,
+            'class_name': class_name,
+            'version': version,
+            'parameters': parameters or {},
+            'registered_at': datetime.now().isoformat(),
+            'instance': None
+        }
+        
+        # Add to registry
+        self.ka_registry[ka_id] = ka_entry
+        logging.info(f"[{datetime.now()}] Registered KA: {ka_id} - {name} (v{version})")
+        
+        return True
     
-    def execute_algorithm(self, ka_id: str, input_data: Dict, session_id: Optional[str] = None,
-                        pass_num: int = 0, layer_num: int = 0) -> Dict:
+    def get_algorithm_info(self, ka_id: str) -> Optional[Dict]:
+        """
+        Get information about a registered Knowledge Algorithm.
+        
+        Args:
+            ka_id: Algorithm ID
+            
+        Returns:
+            dict: Algorithm information or None if not found
+        """
+        if ka_id not in self.ka_registry:
+            return None
+        
+        # Return a copy without the instance
+        ka_info = self.ka_registry[ka_id].copy()
+        ka_info.pop('instance', None)
+        
+        return ka_info
+    
+    def list_algorithms(self) -> List[Dict]:
+        """
+        List all registered Knowledge Algorithms.
+        
+        Returns:
+            list: List of algorithm information dictionaries
+        """
+        result = []
+        
+        for ka_id, ka_info in self.ka_registry.items():
+            # Create a copy without the instance
+            info = ka_info.copy()
+            info.pop('instance', None)
+            result.append(info)
+        
+        return result
+    
+    def execute_algorithm(self, ka_id: str, params: Optional[Dict] = None, 
+                        session_id: Optional[str] = None) -> Dict:
         """
         Execute a Knowledge Algorithm.
         
         Args:
             ka_id: Algorithm ID
-            input_data: Input data for the algorithm
+            params: Execution parameters
             session_id: Optional session ID
-            pass_num: Simulation pass number
-            layer_num: Simulation layer number
             
         Returns:
-            dict: Algorithm execution results
+            dict: Execution results
         """
-        # Check if algorithm exists
-        if ka_id not in self.registered_algorithms:
-            return {
-                'error': f"Algorithm not found: {ka_id}",
-                'status': 'error'
-            }
+        execution_id = f"EXEC_{ka_id}_{str(uuid.uuid4())[:8]}_{int(datetime.now().timestamp())}"
+        start_time = datetime.now()
         
-        alg_info = self.registered_algorithms[ka_id]
-        
-        # Prepare execution record
-        execution_start_time = datetime.now()
-        execution_id = f"KAEX_{ka_id}_{str(uuid.uuid4())[:8]}"
-        
-        # Create execution record in database if memory manager is available
-        if self.memory_manager and session_id:
-            execution_record = {
-                'execution_id': execution_id,
-                'ka_id': ka_id,
-                'session_id': session_id,
-                'pass_num': pass_num,
-                'layer_num': layer_num,
-                'input_data': input_data,
-                'status': 'running',
-                'start_time': execution_start_time.isoformat()
-            }
-            
-            # Add execution record to memory
-            self.memory_manager.add_memory_entry(
-                session_id=session_id,
-                entry_type='ka_execution_start',
-                content=execution_record,
-                pass_num=pass_num,
-                layer_num=layer_num
-            )
-        
-        try:
-            # Load algorithm instance if needed
-            instance = alg_info.get('instance')
-            
-            if not instance:
-                # Create instance
-                instance = self._create_algorithm_instance(ka_id)
-                if not instance:
-                    raise Exception(f"Failed to create algorithm instance for {ka_id}")
-                
-                # Store instance for reuse
-                alg_info['instance'] = instance
-            
-            # Execute the algorithm
-            logging.info(f"[{datetime.now()}] KAEngine: Executing algorithm {ka_id}")
-            result = instance.execute(input_data)
-            
-            # Calculate execution time
-            execution_time = (datetime.now() - execution_start_time).total_seconds() * 1000  # ms
-            
-            # Process result
-            if not isinstance(result, dict):
-                result = {'result': result}
-            
-            # Add execution metadata
-            result['execution_id'] = execution_id
-            result['ka_id'] = ka_id
-            result['execution_time'] = execution_time
-            result['status'] = 'success'
-            
-            # Record execution result in database if memory manager is available
-            if self.memory_manager and session_id:
-                execution_record.update({
-                    'output_data': result,
-                    'execution_time': execution_time,
-                    'status': 'success',
-                    'end_time': datetime.now().isoformat()
-                })
-                
-                # Add execution result to memory
-                self.memory_manager.add_memory_entry(
-                    session_id=session_id,
-                    entry_type='ka_execution_complete',
-                    content=execution_record,
-                    pass_num=pass_num,
-                    layer_num=layer_num,
-                    confidence=result.get('confidence', 0.0)
-                )
-            
-            return result
-        
-        except Exception as e:
-            logging.error(f"[{datetime.now()}] KAEngine: Error executing algorithm {ka_id}: {str(e)}")
-            
-            error_result = {
-                'execution_id': execution_id,
-                'ka_id': ka_id,
-                'status': 'error',
-                'error': str(e),
-                'execution_time': (datetime.now() - execution_start_time).total_seconds() * 1000  # ms
-            }
-            
-            # Record execution error in database if memory manager is available
-            if self.memory_manager and session_id:
-                execution_record.update({
-                    'output_data': error_result,
-                    'status': 'error',
-                    'error_message': str(e),
-                    'end_time': datetime.now().isoformat()
-                })
-                
-                # Add execution error to memory
-                self.memory_manager.add_memory_entry(
-                    session_id=session_id,
-                    entry_type='ka_execution_error',
-                    content=execution_record,
-                    pass_num=pass_num,
-                    layer_num=layer_num,
-                    confidence=0.0
-                )
-            
-            return error_result
-    
-    def _create_algorithm_instance(self, ka_id: str) -> Any:
-        """
-        Create an instance of a Knowledge Algorithm.
-        
-        Args:
-            ka_id: Algorithm ID
-            
-        Returns:
-            Any: Algorithm instance
-        """
-        alg_info = self.registered_algorithms.get(ka_id)
-        if not alg_info:
-            return None
-        
-        try:
-            # If the algorithm is from the database, we need to load it from the filesystem
-            if alg_info.get('source') == 'database':
-                # Use the graph database to get implementation details
-                if self.graph_manager:
-                    # Look for the algorithm implementation edge
-                    module_info = None
-                    # In a full implementation, we would use the graph database to get the module path
-                    # For now, assume it's in the standard location
-                    
-                    if not module_info:
-                        # If no implementation edge found, use default location
-                        module_name = f"algorithm_{ka_id}"
-                        module_path = os.path.join(self.ka_directory, f"{module_name}.py")
-                        
-                        # Check if file exists
-                        if not os.path.exists(module_path):
-                            raise Exception(f"Algorithm implementation not found for {ka_id}")
-                        
-                        alg_info['module_path'] = module_path
-                        alg_info['class_name'] = f"Algorithm{ka_id}"
-            
-            # Load module
-            if not alg_info.get('module_path'):
-                raise Exception(f"Module path not specified for algorithm {ka_id}")
-            
-            module_path = alg_info['module_path']
-            module_name = os.path.splitext(os.path.basename(module_path))[0]
-            
-            # Load module spec
-            spec = importlib.util.spec_from_file_location(module_name, module_path)
-            if not spec or not spec.loader:
-                raise Exception(f"Could not load module spec for {module_path}")
-            
-            # Import the module
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            
-            # Get the algorithm class
-            class_name = alg_info.get('class_name')
-            if not class_name:
-                raise Exception(f"Class name not specified for algorithm {ka_id}")
-            
-            algorithm_class = getattr(module, class_name)
-            
-            # Create an instance
-            instance = algorithm_class()
-            
-            return instance
-            
-        except Exception as e:
-            logging.error(f"[{datetime.now()}] KAEngine: Error creating algorithm instance for {ka_id}: {str(e)}")
-            return None
-    
-    def get_available_algorithms(self) -> List[Dict]:
-        """
-        Get a list of all available algorithms.
-        
-        Returns:
-            list: List of algorithm info dictionaries
-        """
-        return [
-            {
-                'ka_id': alg_info['ka_id'],
-                'name': alg_info['name'],
-                'description': alg_info['description'],
-                'version': alg_info['version'],
-                'source': alg_info['source']
-            }
-            for alg_info in self.registered_algorithms.values()
-        ]
-    
-    def get_algorithms_for_layer(self, layer_num: int) -> List[Dict]:
-        """
-        Get algorithms applicable to a specific layer.
-        
-        Args:
-            layer_num: Layer number
-            
-        Returns:
-            list: List of algorithm info dictionaries
-        """
-        # Get algorithm IDs for this layer
-        algorithm_ids = self.layer_algorithms.get(layer_num, [])
-        
-        # Return algorithm info for each ID
-        return [
-            {
-                'ka_id': self.registered_algorithms[ka_id]['ka_id'],
-                'name': self.registered_algorithms[ka_id]['name'],
-                'description': self.registered_algorithms[ka_id]['description'],
-                'version': self.registered_algorithms[ka_id]['version'],
-                'source': self.registered_algorithms[ka_id]['source']
-            }
-            for ka_id in algorithm_ids if ka_id in self.registered_algorithms
-        ]
-    
-    def execute_layer(self, session_id: str, pass_num: int, layer_num: int,
-                    query_text: str, prev_layer_results: Optional[Dict] = None) -> Dict:
-        """
-        Execute all applicable algorithms for a layer.
-        
-        Args:
-            session_id: Session ID
-            pass_num: Pass number
-            layer_num: Layer number
-            query_text: User query text
-            prev_layer_results: Results from the previous layer
-            
-        Returns:
-            dict: Layer execution results
-        """
-        layer_start_time = datetime.now()
-        
-        logging.info(f"[{datetime.now()}] KAEngine: Executing layer {layer_num} for session {session_id}, pass {pass_num}")
-        
-        # Get algorithms for this layer
-        algorithms = self.get_algorithms_for_layer(layer_num)
-        
-        if not algorithms:
-            logging.warning(f"[{datetime.now()}] KAEngine: No algorithms found for layer {layer_num}")
-            return {
-                'layer_num': layer_num,
-                'pass_num': pass_num,
-                'algorithms_executed': 0,
-                'confidence': 0.0,
-                'message': f"No algorithms available for layer {layer_num}",
-                'status': 'warning'
-            }
-        
-        # Prepare input data for algorithms
-        base_input_data = {
-            'query_text': query_text,
+        # Initialize execution record
+        execution_record = {
+            'execution_id': execution_id,
+            'ka_id': ka_id,
             'session_id': session_id,
-            'pass_num': pass_num,
-            'layer_num': layer_num,
-            'timestamp': datetime.now().isoformat(),
-            'prev_layer_results': prev_layer_results
+            'params': params or {},
+            'status': 'started',
+            'start_time': start_time.isoformat(),
+            'end_time': None,
+            'duration_ms': None,
+            'results': None,
+            'error': None
         }
         
-        # Execute algorithms
-        algorithm_results = []
-        overall_confidence = 0.0
-        success_count = 0
-        
-        for alg_info in algorithms:
-            ka_id = alg_info['ka_id']
+        # Check if KA exists
+        if ka_id not in self.ka_registry:
+            end_time = datetime.now()
+            duration = (end_time - start_time).total_seconds() * 1000
             
-            # Execute the algorithm
-            result = self.execute_algorithm(
-                ka_id=ka_id,
-                input_data=base_input_data,
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=layer_num
-            )
-            
-            # Add to results
-            algorithm_results.append({
-                'ka_id': ka_id,
-                'name': alg_info['name'],
-                'result': result
+            execution_record.update({
+                'status': 'failed',
+                'end_time': end_time.isoformat(),
+                'duration_ms': duration,
+                'error': f"KA with ID {ka_id} not found"
             })
             
-            # Update confidence and success count
-            if result.get('status') == 'success':
-                success_count += 1
-                confidence = result.get('confidence', 0.0)
-                overall_confidence = max(overall_confidence, confidence)
+            self.execution_history.append(execution_record)
+            self.stats['total_executions'] += 1
+            self.stats['failed_executions'] += 1
+            
+            return execution_record
         
-        # Calculate layer execution time
-        layer_duration = (datetime.now() - layer_start_time).total_seconds()
+        try:
+            # Get KA info
+            ka_info = self.ka_registry[ka_id]
+            
+            # Load KA class if not already loaded
+            if not ka_info.get('instance'):
+                module = importlib.import_module(ka_info['module_path'])
+                ka_class = getattr(module, ka_info['class_name'])
+                
+                # Initialize with dependencies
+                ka_instance = ka_class(
+                    graph_manager=self.graph_manager,
+                    memory_manager=self.memory_manager
+                )
+                
+                ka_info['instance'] = ka_instance
+            
+            # Merge parameters with defaults
+            merged_params = ka_info['parameters'].copy()
+            if params:
+                merged_params.update(params)
+            
+            # Execute the algorithm
+            results = ka_info['instance'].execute(
+                execution_id=execution_id,
+                params=merged_params,
+                session_id=session_id
+            )
+            
+            # Record successful execution
+            end_time = datetime.now()
+            duration = (end_time - start_time).total_seconds() * 1000
+            
+            execution_record.update({
+                'status': 'completed',
+                'end_time': end_time.isoformat(),
+                'duration_ms': duration,
+                'results': results
+            })
+            
+            self.stats['total_executions'] += 1
+            self.stats['successful_executions'] += 1
+            
+        except Exception as e:
+            # Record failed execution
+            end_time = datetime.now()
+            duration = (end_time - start_time).total_seconds() * 1000
+            
+            execution_record.update({
+                'status': 'failed',
+                'end_time': end_time.isoformat(),
+                'duration_ms': duration,
+                'error': str(e)
+            })
+            
+            self.stats['total_executions'] += 1
+            self.stats['failed_executions'] += 1
+            
+            logging.error(f"[{datetime.now()}] Error executing KA {ka_id}: {str(e)}")
         
-        # Compute final result
-        # This is a simplified version; in a full implementation, we would combine results in a more sophisticated way
-        if success_count == 0:
-            final_status = 'error'
-            final_message = f"All {len(algorithms)} algorithms failed"
-        elif success_count < len(algorithms):
-            final_status = 'partial'
-            final_message = f"{success_count} of {len(algorithms)} algorithms succeeded"
-        else:
-            final_status = 'success'
-            final_message = f"All {len(algorithms)} algorithms succeeded"
+        # Add to execution history
+        self.execution_history.append(execution_record)
         
-        # Aggregate results
-        # In a full implementation, we would have more advanced aggregation logic
-        aggregated_data = {}
-        for alg_result in algorithm_results:
-            if alg_result['result'].get('status') == 'success':
-                # Merge result data
-                result_data = alg_result['result'].get('result', {})
-                if isinstance(result_data, dict):
-                    aggregated_data.update(result_data)
+        # Update execution record in database if connected
+        if hasattr(self, 'db_manager') and self.db_manager:
+            self.db_manager.create_ka_execution(execution_record)
         
-        # Prepare final layer result
-        layer_result = {
-            'layer_num': layer_num,
-            'pass_num': pass_num,
-            'confidence': overall_confidence,
-            'status': final_status,
-            'message': final_message,
-            'duration': layer_duration,
-            'algorithms_executed': len(algorithms),
-            'algorithms_succeeded': success_count,
-            'algorithm_results': algorithm_results,
-            'aggregated_data': aggregated_data
-        }
-        
-        logging.info(f"[{datetime.now()}] KAEngine: Completed layer {layer_num} with confidence {overall_confidence:.4f}, status {final_status}")
-        
-        return layer_result
+        return execution_record
     
-    def get_algorithm_info(self, ka_id: str) -> Optional[Dict]:
+    def execute_pipeline(self, pipeline: List[Dict], session_id: Optional[str] = None) -> Dict:
         """
-        Get information about a specific algorithm.
+        Execute a pipeline of Knowledge Algorithms.
         
         Args:
-            ka_id: Algorithm ID
+            pipeline: List of pipeline steps with 'ka_id' and 'params'
+            session_id: Optional session ID
             
         Returns:
-            dict: Algorithm info or None if not found
+            dict: Pipeline execution results
         """
-        alg_info = self.registered_algorithms.get(ka_id)
+        pipeline_id = f"PIPE_{str(uuid.uuid4())[:8]}_{int(datetime.now().timestamp())}"
+        start_time = datetime.now()
         
-        if not alg_info:
-            return None
+        # Initialize pipeline results
+        pipeline_results = {
+            'pipeline_id': pipeline_id,
+            'session_id': session_id,
+            'start_time': start_time.isoformat(),
+            'end_time': None,
+            'duration_ms': None,
+            'steps': [],
+            'overall_status': 'started',
+            'error': None
+        }
+        
+        try:
+            # Execute each step in the pipeline
+            for i, step in enumerate(pipeline):
+                ka_id = step.get('ka_id')
+                params = step.get('params', {})
+                
+                if not ka_id:
+                    raise ValueError(f"Pipeline step {i+1} missing required 'ka_id'")
+                
+                # Execute the algorithm
+                execution_result = self.execute_algorithm(
+                    ka_id=ka_id,
+                    params=params,
+                    session_id=session_id
+                )
+                
+                # Add to pipeline steps
+                pipeline_results['steps'].append(execution_result)
+                
+                # If step failed and not configured to continue on failure, stop pipeline
+                if execution_result['status'] == 'failed' and not step.get('continue_on_failure', False):
+                    pipeline_results['overall_status'] = 'failed'
+                    pipeline_results['error'] = f"Pipeline failed at step {i+1}: {execution_result['error']}"
+                    break
+            
+            # If we completed all steps and haven't already marked as failed
+            if pipeline_results['overall_status'] != 'failed':
+                pipeline_results['overall_status'] = 'completed'
+            
+        except Exception as e:
+            pipeline_results['overall_status'] = 'failed'
+            pipeline_results['error'] = str(e)
+            logging.error(f"[{datetime.now()}] Error executing pipeline: {str(e)}")
+        
+        # Record end time and duration
+        end_time = datetime.now()
+        duration = (end_time - start_time).total_seconds() * 1000
+        
+        pipeline_results['end_time'] = end_time.isoformat()
+        pipeline_results['duration_ms'] = duration
+        
+        return pipeline_results
+    
+    def get_execution_history(self, ka_id: Optional[str] = None, 
+                           session_id: Optional[str] = None,
+                           limit: int = 100, offset: int = 0) -> List[Dict]:
+        """
+        Get execution history for Knowledge Algorithms.
+        
+        Args:
+            ka_id: Optional Algorithm ID to filter by
+            session_id: Optional session ID to filter by
+            limit: Maximum number of records to return
+            offset: Offset for pagination
+            
+        Returns:
+            list: List of execution records
+        """
+        # If connected to database, query from there
+        if hasattr(self, 'db_manager') and self.db_manager:
+            filters = {}
+            if ka_id:
+                filters['ka_id'] = ka_id
+            if session_id:
+                filters['session_id'] = session_id
+            
+            return self.db_manager.get_ka_executions(filters, limit, offset)
+        
+        # Otherwise, use in-memory history
+        filtered = self.execution_history
+        
+        if ka_id:
+            filtered = [r for r in filtered if r.get('ka_id') == ka_id]
+        
+        if session_id:
+            filtered = [r for r in filtered if r.get('session_id') == session_id]
+        
+        # Apply pagination
+        paginated = filtered[offset:offset+limit]
+        
+        return paginated
+    
+    def clear_execution_history(self) -> bool:
+        """
+        Clear execution history.
+        
+        Returns:
+            bool: True if successful
+        """
+        self.execution_history = []
+        return True
+    
+    def get_algorithm_stats(self, ka_id: Optional[str] = None) -> Dict:
+        """
+        Get execution statistics for Knowledge Algorithms.
+        
+        Args:
+            ka_id: Optional Algorithm ID to filter by
+            
+        Returns:
+            dict: Statistics dictionary
+        """
+        if not ka_id:
+            return self.stats
+        
+        # Calculate stats for a specific KA
+        executions = [r for r in self.execution_history if r.get('ka_id') == ka_id]
+        
+        total = len(executions)
+        successful = len([r for r in executions if r.get('status') == 'completed'])
+        failed = len([r for r in executions if r.get('status') == 'failed'])
+        
+        avg_duration = 0
+        if total > 0:
+            durations = [r.get('duration_ms', 0) for r in executions]
+            avg_duration = sum(durations) / total
         
         return {
-            'ka_id': alg_info['ka_id'],
-            'name': alg_info['name'],
-            'description': alg_info['description'],
-            'version': alg_info['version'],
-            'input_schema': alg_info['input_schema'],
-            'output_schema': alg_info['output_schema'],
-            'source': alg_info['source'],
-            'metadata': alg_info.get('metadata', {})
+            'ka_id': ka_id,
+            'total_executions': total,
+            'successful_executions': successful,
+            'failed_executions': failed,
+            'success_rate': (successful / total) * 100 if total > 0 else 0,
+            'avg_duration_ms': avg_duration
         }

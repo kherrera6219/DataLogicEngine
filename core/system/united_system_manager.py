@@ -1,20 +1,21 @@
-import logging
-import uuid
-from datetime import datetime
-from typing import Dict, List, Any, Optional, Union, Tuple
-import sys
-import os
+"""
+United System Manager
 
-# Add parent directory to path to allow imports
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+This module provides the central coordination mechanism for all UKG system components.
+"""
+
+import logging
+import os
+from datetime import datetime
+from typing import Dict, Any, List, Optional, Callable
 
 class UnitedSystemManager:
     """
-    United System Manager (USM)
+    United System Manager
     
-    This component serves as the central coordinator for the UKG system, managing
-    the connections between different components and providing system-wide services
-    like ID generation, configuration management, and component registration.
+    The central coordinator for all UKG system components. This class manages
+    component registration, inter-component communication, and provides a
+    unified interface for accessing system components.
     """
     
     def __init__(self, config=None):
@@ -27,190 +28,188 @@ class UnitedSystemManager:
         logging.info(f"[{datetime.now()}] Initializing UnitedSystemManager...")
         self.config = config or {}
         
-        # System component registry
+        # Components registry
         self.components = {}
         
-        # ID namespaces for different entity types
-        self.id_namespaces = {
-            'Node': 'ND',
-            'Edge': 'ED',
-            'PillarLevel': 'PL',
-            'Pillar': 'P',
-            'Principle': 'PR',
-            'Perspective': 'PV',
-            'Dimension': 'DM',
-            'Decision': 'DC',
-            'Influence': 'IN',
-            'PointOfView': 'POV',
-            'ParadigmCase': 'PC',
-            'EngagementModel': 'EM',
-            'EpistemologicalConstraint': 'EC',
-            'EthicalConsideration': 'ET',
-            'Location': 'LOC',
-            'Temporal': 'TMP',
-            'Session': 'SS',
-            'Memory': 'MEM',
-            'KnowledgeAlgorithm': 'KA',
-            'KAExecution': 'KAEX',
-            'SimulationPass': 'SP',
-            'SimulationLayer': 'SL',
-            'OntologyProposal': 'PROP'
+        # Event handlers
+        self.event_handlers = {}
+        
+        # System status
+        self.status = {
+            'initialized': True,
+            'start_time': datetime.now().isoformat(),
+            'component_count': 0,
+            'healthy': True
         }
         
-        logging.info(f"[{datetime.now()}] UnitedSystemManager initialized with {len(self.id_namespaces)} ID namespaces")
+        logging.info(f"[{datetime.now()}] UnitedSystemManager initialized")
     
-    def register_component(self, component_name: str, component_instance) -> bool:
+    def register_component(self, name: str, component: Any) -> bool:
         """
-        Register a component with the United System Manager.
+        Register a component with the system.
         
         Args:
-            component_name: Name of the component
-            component_instance: Reference to the component instance
+            name: Component name
+            component: Component instance
             
         Returns:
             bool: True if registration was successful
         """
-        if component_name in self.components:
-            logging.warning(f"[{datetime.now()}] USM: Component {component_name} already registered, replacing...")
+        if name in self.components:
+            logging.warning(f"[{datetime.now()}] USM: Component '{name}' already registered")
+            return False
         
-        self.components[component_name] = component_instance
-        logging.info(f"[{datetime.now()}] USM: Registered component {component_name}")
-        
+        self.components[name] = component
+        self.status['component_count'] += 1
+        logging.info(f"[{datetime.now()}] USM: Component '{name}' registered")
         return True
     
-    def get_component(self, component_name: str) -> Any:
+    def get_component(self, name: str) -> Optional[Any]:
         """
-        Get a registered component.
+        Get a component by name.
         
         Args:
-            component_name: Name of the component
+            name: Component name
             
         Returns:
-            Any: Component instance or None if not registered
+            Component instance or None if not found
         """
-        return self.components.get(component_name)
+        return self.components.get(name)
     
-    def create_unified_id(self, entity_type: str, entity_label: str = "", 
-                        ukg_coords: Optional[Dict] = None) -> Dict:
+    def register_event_handler(self, event_name: str, handler: Callable) -> bool:
         """
-        Create a new unified ID for an entity.
+        Register an event handler.
         
         Args:
-            entity_type: Type of entity (Node, PillarLevel, etc.)
-            entity_label: Human-readable label for the entity
-            ukg_coords: Additional metadata to include in the ID
+            event_name: Event name
+            handler: Handler function
             
         Returns:
-            dict: ID package with various formats of the ID
+            bool: True if registration was successful
         """
-        namespace = self.id_namespaces.get(entity_type, 'GEN')
+        if event_name not in self.event_handlers:
+            self.event_handlers[event_name] = []
         
-        # Generate a UUID
-        raw_uuid = uuid.uuid4()
-        
-        # Create a timestamp component
-        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-        
-        # Create a string representation
-        uid_string = f"{namespace}_{timestamp}_{str(raw_uuid)[:8]}"
-        
-        # Create a short version for display
-        short_uid = f"{namespace}_{str(raw_uuid)[:8]}"
-        
-        # Create a "safe" version for use in URLs, filenames, etc.
-        safe_uid = uid_string.replace('-', '_').lower()
-        
-        # Create the ID package
-        id_package = {
-            'uid_string': uid_string,
-            'short_uid': short_uid,
-            'safe_uid': safe_uid,
-            'raw_uuid': str(raw_uuid),
-            'namespace': namespace,
-            'entity_type': entity_type,
-            'entity_label': entity_label,
-            'timestamp': timestamp,
-            'creation_time': datetime.now().isoformat(),
-            'ukg_coords': ukg_coords or {}
-        }
-        
-        return id_package
+        self.event_handlers[event_name].append(handler)
+        logging.info(f"[{datetime.now()}] USM: Event handler registered for '{event_name}'")
+        return True
     
-    def get_system_health(self) -> Dict:
+    def trigger_event(self, event_name: str, event_data: Dict) -> List[Any]:
         """
-        Get the health status of the UKG system.
+        Trigger an event and call all registered handlers.
+        
+        Args:
+            event_name: Event name
+            event_data: Event data
+            
+        Returns:
+            list: List of handler return values
+        """
+        if event_name not in self.event_handlers:
+            logging.warning(f"[{datetime.now()}] USM: No handlers for event '{event_name}'")
+            return []
+        
+        results = []
+        handlers = self.event_handlers[event_name]
+        for handler in handlers:
+            try:
+                result = handler(event_data)
+                results.append(result)
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] USM: Error in event handler: {str(e)}")
+        
+        return results
+    
+    def get_system_status(self) -> Dict[str, Any]:
+        """
+        Get the current system status.
         
         Returns:
-            dict: System health information
+            dict: System status information
         """
-        # Start with basic health info
-        health_info = {
-            'status': 'healthy',
-            'timestamp': datetime.now().isoformat(),
-            'component_count': len(self.components),
-            'components': {},
-            'registered_components': list(self.components.keys())
-        }
+        # Update component health
+        component_health = {}
+        all_healthy = True
         
-        # Check components
         for name, component in self.components.items():
-            # For components that have a health check method
-            if hasattr(component, 'get_health') and callable(getattr(component, 'get_health')):
-                try:
-                    component_health = component.get_health()
-                    health_info['components'][name] = component_health
-                except Exception as e:
-                    health_info['components'][name] = {
-                        'status': 'error',
-                        'error': str(e)
-                    }
-            else:
-                health_info['components'][name] = {
-                    'status': 'unknown',
-                    'reason': 'No health check method available'
-                }
-        
-        # Determine overall status
-        if any(comp.get('status') == 'error' for comp in health_info['components'].values()):
-            health_info['status'] = 'degraded'
-        
-        return health_info
-    
-    def load_config_from_file(self, config_file_path: str) -> bool:
-        """
-        Load configuration from a file.
-        
-        Args:
-            config_file_path: Path to the configuration file
+            component_health[name] = True
             
+            # Check for health check method
+            if hasattr(component, 'check_health') and callable(component.check_health):
+                try:
+                    health_status = component.check_health()
+                    component_health[name] = health_status.get('healthy', True)
+                    if not health_status.get('healthy', True):
+                        all_healthy = False
+                except Exception as e:
+                    logging.error(f"[{datetime.now()}] USM: Error checking component health: {str(e)}")
+                    component_health[name] = False
+                    all_healthy = False
+        
+        # Update status
+        self.status['healthy'] = all_healthy
+        self.status['component_health'] = component_health
+        self.status['last_updated'] = datetime.now().isoformat()
+        
+        return self.status
+    
+    def initialize_connections(self) -> bool:
+        """
+        Initialize connections between components.
+        
         Returns:
-            bool: True if loading was successful
+            bool: True if initialization was successful
         """
         try:
-            if not os.path.exists(config_file_path):
-                logging.error(f"[{datetime.now()}] USM: Configuration file not found: {config_file_path}")
-                return False
+            # Database manager connection
+            db_manager = self.get_component('db_manager')
+            if db_manager:
+                # Connect graph manager to database
+                graph_manager = self.get_component('graph_manager')
+                if graph_manager:
+                    graph_manager.set_db_manager(db_manager)
+                
+                # Connect memory manager to database
+                memory_manager = self.get_component('memory_manager')
+                if memory_manager:
+                    memory_manager.set_db_manager(db_manager)
             
-            file_ext = os.path.splitext(config_file_path)[1].lower()
+            # Other connections as needed
             
-            if file_ext in ('.yaml', '.yml'):
-                import yaml
-                with open(config_file_path, 'r') as f:
-                    new_config = yaml.safe_load(f)
-            elif file_ext == '.json':
-                import json
-                with open(config_file_path, 'r') as f:
-                    new_config = json.load(f)
-            else:
-                logging.error(f"[{datetime.now()}] USM: Unsupported config file format: {file_ext}")
-                return False
-            
-            # Update configuration
-            self.config.update(new_config)
-            logging.info(f"[{datetime.now()}] USM: Loaded configuration from {config_file_path}")
-            
+            logging.info(f"[{datetime.now()}] USM: Component connections initialized")
             return True
-            
         except Exception as e:
-            logging.error(f"[{datetime.now()}] USM: Error loading configuration: {str(e)}")
+            logging.error(f"[{datetime.now()}] USM: Error initializing connections: {str(e)}")
+            return False
+    
+    def shutdown(self) -> bool:
+        """
+        Shutdown the system.
+        
+        Returns:
+            bool: True if shutdown was successful
+        """
+        try:
+            # Trigger shutdown event
+            self.trigger_event('system_shutdown', {
+                'time': datetime.now().isoformat()
+            })
+            
+            # Shutdown components
+            for name, component in self.components.items():
+                if hasattr(component, 'shutdown') and callable(component.shutdown):
+                    try:
+                        component.shutdown()
+                        logging.info(f"[{datetime.now()}] USM: Component '{name}' shutdown")
+                    except Exception as e:
+                        logging.error(f"[{datetime.now()}] USM: Error shutting down component '{name}': {str(e)}")
+            
+            # Update status
+            self.status['initialized'] = False
+            self.status['shutdown_time'] = datetime.now().isoformat()
+            
+            logging.info(f"[{datetime.now()}] USM: System shutdown complete")
+            return True
+        except Exception as e:
+            logging.error(f"[{datetime.now()}] USM: Error during shutdown: {str(e)}")
             return False

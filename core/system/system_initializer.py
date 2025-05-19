@@ -14,6 +14,40 @@ from core.simulation.simulation_engine import SimulationEngine
 from core.simulation.location_context_engine import LocationContextEngine
 from core.self_evolving.sekre_engine import SekreEngine
 
+
+# Initialize the UKG system
+def initialize_ukg_system(app):
+    """
+    Initialize the Universal Knowledge Graph system and attach it to the Flask application.
+    
+    Args:
+        app: Flask application instance
+    """
+    try:
+        logging.info("Initializing UKG system...")
+        
+        # Get configuration path from environment or use default
+        config_path = os.environ.get('UKG_CONFIG_PATH')
+        
+        # Initialize the system
+        system_initializer = SystemInitializer(config_path)
+        
+        # Get components
+        components = system_initializer.get_components()
+        
+        # Register components in the Flask app config
+        for name, component in components.items():
+            app.config[f'UKG_{name.upper()}'] = component
+        
+        # Add the system initializer itself
+        app.config['UKG_SYSTEM_INITIALIZER'] = system_initializer
+        
+        logging.info("UKG system initialized and attached to Flask app")
+        return True
+    except Exception as e:
+        logging.error(f"Error initializing UKG system: {str(e)}")
+        return False
+
 class SystemInitializer:
     """
     System Initializer
