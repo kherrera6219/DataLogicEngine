@@ -10,7 +10,7 @@ run = ["sh", "-c", "npm start"]
 build = ["sh", "-c", "npm install && npm run build"]
 
 [workflows]
-runButton = "UKG Enterprise System"
+runButton = "Run Database Demo"
 
 [[workflows.workflow]]
 name = "Project"
@@ -413,6 +413,24 @@ args = "# Start the UKG Enterprise system with enhanced security"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python run_enterprise_ukg.py --secure"
+
+[[workflows.workflow]]
+name = "Initialize Database"
+author = 28709262
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python simulation/create_database_script.py"
+
+[[workflows.workflow]]
+name = "Run Database Demo"
+author = 28709262
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_layered_database_demo.py"
 
 [[ports]]
 localPort = 3000
