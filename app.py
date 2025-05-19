@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request, jsonify
 from backend import create_app
 import os
@@ -13,7 +14,13 @@ config = AppConfig()
 @app.route('/')
 def index():
     """Serve the main application page"""
+    logging.info("Rendering index page")
     return render_template('index.html')
+
+@app.route('/health')
+def health():
+    """Health check endpoint"""
+    return jsonify({"status": "healthy"}), 200
 
 # API routes are now handled by the backend blueprints
 

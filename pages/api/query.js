@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     const { query, target_confidence, chat_id } = req.body;
     
     // Make a request to the Flask backend
-    const response = await fetch(`http://localhost:3000/api/query`, {
+    const response = await fetch(`http://localhost:3000/api/ukg/query`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

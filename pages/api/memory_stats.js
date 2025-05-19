@@ -1,12 +1,7 @@
 export default async function handler(req, res) {
   try {
-    // Make request to Flask backend
-    const response = await fetch('http://localhost:3000/api/memory_stats', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    // Call Flask backend
+    const response = await fetch('http://localhost:3000/api/ukg/memory_stats');
     const data = await response.json();
 
     // Return the response from the backend
