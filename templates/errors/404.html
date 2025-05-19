@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Universal Knowledge Graph - Page Not Found{% endblock %}
+
+{% block page_title %}404 - Page Not Found{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-icon">
+        <span class="material-icons">search_off</span>
+    </div>
+    <h2 class="error-title">Page Not Found</h2>
+    <p class="error-message">The page you're looking for doesn't exist or has been moved.</p>
+    <div class="error-actions">
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Return to Home</a>
+        <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+    </div>
+</div>
+
+<style>
+    .error-container {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+    
+    .error-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    .light-theme .error-icon {
+        color: var(--light-text-secondary);
+    }
+    
+    .error-icon .material-icons {
+        font-size: 5rem;
+    }
+    
+    .error-title {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .error-message {
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    .light-theme .error-message {
+        color: var(--light-text-secondary);
+    }
+    
+    .error-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    @media (max-width: 576px) {
+        .error-actions {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+    }
+</style>
+{% endblock %}

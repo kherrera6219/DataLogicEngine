@@ -1,38 +1,44 @@
 {% extends 'base.html' %}
 
-{% block title %}Universal Knowledge Graph - Login{% endblock %}
+{% block title %}Universal Knowledge Graph - Register{% endblock %}
 
-{% block page_title %}Log In{% endblock %}
+{% block page_title %}Register{% endblock %}
 
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
-            <h2>Welcome Back</h2>
-            <p>Log in to access your Universal Knowledge Graph dashboard</p>
+            <h2>Create an Account</h2>
+            <p>Register to access the Universal Knowledge Graph system</p>
         </div>
         
-        <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+        <form method="POST" action="{{ url_for('register') }}" class="auth-form">
             <div class="form-group">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" id="username" name="username" class="form-control" required autofocus>
             </div>
             
             <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" id="password" name="password" class="form-control" required>
+                <small class="form-text">Password must be at least 8 characters long</small>
             </div>
             
-            <div class="form-check mb-3">
-                <input type="checkbox" id="remember" name="remember" class="form-check-input">
-                <label for="remember" class="form-check-label">Remember me</label>
+            <div class="form-group">
+                <label for="confirm_password" class="form-label">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
             </div>
             
-            <button type="submit" class="btn btn-primary w-100">Log In</button>
+            <button type="submit" class="btn btn-primary w-100">Register</button>
         </form>
         
         <div class="auth-footer">
-            <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+            <p>Already have an account? <a href="{{ url_for('login') }}">Log In</a></p>
         </div>
     </div>
 </div>
@@ -78,16 +84,15 @@
         margin-bottom: 1.5rem;
     }
     
-    .form-check {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+    .form-text {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: var(--dark-text-secondary);
     }
     
-    .form-check-input {
-        width: 1em;
-        height: 1em;
-        margin-top: 0;
+    .light-theme .form-text {
+        color: var(--light-text-secondary);
     }
     
     .auth-footer {
@@ -111,6 +116,10 @@
     
     .auth-footer a:hover {
         text-decoration: underline;
+    }
+    
+    .w-100 {
+        width: 100%;
     }
 </style>
 {% endblock %}
