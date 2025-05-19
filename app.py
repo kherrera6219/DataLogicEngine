@@ -16,6 +16,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from backend.rest_api import register_api as register_rest_api
 from backend.chat_api import register_chat_api
+from backend.security_api import register_security_api
 
 # Create logs directory if it doesn't exist
 os.makedirs("logs", exist_ok=True)
@@ -80,10 +81,22 @@ def create_app():
             logger.info("Enterprise architecture initialized")
         except ImportError:
             logger.warning("Enterprise architecture module not found")
+            
+    # Set up security middleware
+    from backend.middleware import setup_middleware
+    setup_middleware(app)
 
     # Register API blueprints
     register_rest_api(app)
     register_chat_api(app)
+    register_security_api(app)
+    
+    # Initialize security components
+    from backend.security import get_security_manager, get_audit_logger, get_compliance_manager
+    app.config['SECURITY_MANAGER'] = get_security_manager()
+    app.config['AUDIT_LOGGER'] = get_audit_logger()
+    app.config['COMPLIANCE_MANAGER'] = get_compliance_manager()
+    logger.info("Security and compliance components initialized")
 
     # System routes
     @app.route('/health')

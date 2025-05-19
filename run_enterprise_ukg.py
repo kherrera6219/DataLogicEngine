@@ -205,6 +205,7 @@ def main():
     parser.add_argument("--no-frontend", action="store_true", help="Run backend services only")
     parser.add_argument("--build", action="store_true", help="Build the frontend before starting")
     parser.add_argument("--config", type=str, help="Path to custom configuration file")
+    parser.add_argument("--secure", action="store_true", help="Enable enhanced security features")
     args = parser.parse_args()
 
     # Load custom config if provided
@@ -219,6 +220,29 @@ def main():
     logger.info("Starting UKG Enterprise Architecture...")
     logger.info(f"Using configuration: {json.dumps(config.as_dict(), indent=2)}")
 
+    # Initialize security components if requested
+    if args.secure:
+        logger.info("Initializing security and compliance components...")
+        try:
+            # Ensure security directories exist
+            os.makedirs("logs/security", exist_ok=True)
+            os.makedirs("logs/compliance", exist_ok=True)
+            os.makedirs("logs/audit", exist_ok=True)
+            os.makedirs("data/security", exist_ok=True)
+            
+            # Import and initialize security components
+            sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+            from backend.security import get_security_manager, get_audit_logger, get_compliance_manager
+            
+            security_manager = get_security_manager(config)
+            audit_logger = get_audit_logger(config)
+            compliance_manager = get_compliance_manager(config)
+            
+            logger.info("Security and compliance components initialized")
+        except Exception as e:
+            logger.error(f"Failed to initialize security components: {e}")
+            logger.warning("Continuing without enhanced security features")
+    
     # Start all backend services
     api_gateway = start_api_gateway()
     if not api_gateway:

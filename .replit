@@ -401,6 +401,19 @@ args = "echo \"Starting UKG Enterprise System...\""
 task = "shell.exec"
 args = "python run_enterprise_ukg.py"
 
+[[workflows.workflow]]
+name = "UKG Enterprise Secure"
+author = 28709262
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the UKG Enterprise system with enhanced security"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_enterprise_ukg.py --secure"
+
 [[ports]]
 localPort = 3000
 externalPort = 80
