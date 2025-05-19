@@ -1,0 +1,351 @@
+
+> ukg-system@0.1.0 build
+  ▲ Next.js 14.2.28
+  - Environments: .env
+
+ ✓ Linting and checking validity of types    
+   Creating an optimized production build ...
+ ⚠ Compiled with warnings
+
+./components/ui/PillarMapping.js
+Attempted import error: 'Text' is not exported from './' (imported as 'Text').
+
+Import trace for requested module:
+./components/ui/PillarMapping.js
+./pages/pillars.js
+
+./components/ui/PillarMapping.js
+Attempted import error: 'Text' is not exported from './' (imported as 'Text').
+
+Import trace for requested module:
+./components/ui/PillarMapping.js
+./pages/pillars.js
+
+./components/ui/PillarMapping.js
+Attempted import error: 'Dropdown' is not exported from './' (imported as 'Dropdown').
+
+Import trace for requested module:
+./components/ui/PillarMapping.js
+./pages/pillars.js
+
+./components/ui/PillarMapping.js
+Attempted import error: 'Text' is not exported from './' (imported as 'Text').
+
+Import trace for requested module:
+./components/ui/PillarMapping.js
+./pages/pillars.js
+
+./components/ui/PillarMapping.js
+Attempted import error: 'Label' is not exported from './' (imported as 'Label').
+
+Import trace for requested module:
+./components/ui/PillarMapping.js
+./pages/pillars.js
+
+./components/ui/PillarMapping.js
+Attempted import error: 'Dropdown' is not exported from './' (imported as 'Dropdown').
+
+Import trace for requested module:
+./components/ui/PillarMapping.js
+./pages/pillars.js
+
+./components/ui/PillarMapping.js
+Attempted import error: 'Dropdown' is not exported from './' (imported as 'Dropdown').
+
+Import trace for requested module:
+./components/ui/PillarMapping.js
+./pages/pillars.js
+
+./components/ui/PillarMapping.js
+Attempted import error: 'Label' is not exported from './' (imported as 'Label').
+
+Import trace for requested module:
+./components/ui/PillarMapping.js
+./pages/pillars.js
+
+./components/ui/PillarMapping.js
+Attempted import error: 'Textarea' is not exported from './' (imported as 'Textarea').
+
+Import trace for requested module:
+./components/ui/PillarMapping.js
+./pages/pillars.js
+
+./components/ui/PillarMapping.js
+Attempted import error: 'Text' is not exported from './' (imported as 'Text').
+
+Import trace for requested module:
+./components/ui/PillarMapping.js
+./pages/pillars.js
+
+./components/ui/PillarMapping.js
+Attempted import error: 'Text' is not exported from './' (imported as 'Text').
+
+Import trace for requested module:
+./components/ui/PillarMapping.js
+./pages/pillars.js
+
+./components/ui/PillarMapping.js
+Attempted import error: 'Text' is not exported from './' (imported as 'Text').
+
+Import trace for requested module:
+./components/ui/PillarMapping.js
+./pages/pillars.js
+
+./components/ui/PillarMapping.js
+Attempted import error: 'Text' is not exported from './' (imported as 'Text').
+
+Import trace for requested module:
+./components/ui/PillarMapping.js
+./pages/pillars.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Card' is not exported from '../components/ui/Card' (imported as 'Card').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Card' is not exported from '../components/ui/Card' (imported as 'Card').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Button' is not exported from '../components/ui/Button' (imported as 'Button').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Card' is not exported from '../components/ui/Card' (imported as 'Card').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Card' is not exported from '../components/ui/Card' (imported as 'Card').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Button' is not exported from '../components/ui/Button' (imported as 'Button').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Button' is not exported from '../components/ui/Button' (imported as 'Button').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Card' is not exported from '../components/ui/Card' (imported as 'Card').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Card' is not exported from '../components/ui/Card' (imported as 'Card').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Card' is not exported from '../components/ui/Card' (imported as 'Card').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Card' is not exported from '../components/ui/Card' (imported as 'Card').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Card' is not exported from '../components/ui/Card' (imported as 'Card').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Badge' is not exported from '../components/ui/Badge' (imported as 'Badge').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Button' is not exported from '../components/ui/Button' (imported as 'Button').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/compliance-dashboard.js
+Attempted import error: 'Button' is not exported from '../components/ui/Button' (imported as 'Button').
+
+Import trace for requested module:
+./pages/compliance-dashboard.js
+
+./pages/pillars.js
+Attempted import error: 'Text' is not exported from '../components/ui' (imported as 'Text').
+
+Import trace for requested module:
+./pages/pillars.js
+
+./pages/pillars.js
+Attempted import error: 'Text' is not exported from '../components/ui' (imported as 'Text').
+
+Import trace for requested module:
+./pages/pillars.js
+
+./pages/pillars.js
+Attempted import error: 'Text' is not exported from '../components/ui' (imported as 'Text').
+
+Import trace for requested module:
+./pages/pillars.js

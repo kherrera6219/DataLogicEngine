@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Dropdown, Input, Textarea, Label, Text, Badge } from './';
 import { useToast } from '@chakra-ui/react';
@@ -41,7 +40,7 @@ export default function PillarMapping({ initialPillarId }) {
 
   const fetchPillarExpansion = async (pillarId, text = null) => {
     if (!pillarId) return;
-    
+
     setLoading(true);
     try {
       const response = await fetch(`/api/pillars/${pillarId}/expand`, {
@@ -51,31 +50,29 @@ export default function PillarMapping({ initialPillarId }) {
         },
         body: JSON.stringify({ context_text: text }),
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setExpansion(data);
-        
+
         // Also fetch existing mappings
         fetchMappings(pillarId);
       } else {
         const errorData = await response.json();
-        toast({
+        showToast({
           title: 'Error',
           description: errorData.error || 'Failed to expand pillar',
           status: 'error',
           duration: 5000,
-          isClosable: true,
         });
       }
     } catch (error) {
       console.error('Error expanding pillar:', error);
-      toast({
+      showToast({
         title: 'Error',
         description: 'An unexpected error occurred',
         status: 'error',
         duration: 5000,
-        isClosable: true,
       });
     } finally {
       setLoading(false);
@@ -107,12 +104,11 @@ export default function PillarMapping({ initialPillarId }) {
     if (selectedPillar) {
       fetchPillarExpansion(selectedPillar, contextText);
     } else {
-      toast({
+      showToast({
         title: 'Warning',
         description: 'Please select a pillar first',
         status: 'warning',
         duration: 3000,
-        isClosable: true,
       });
     }
   };
@@ -134,36 +130,33 @@ export default function PillarMapping({ initialPillarId }) {
           bidirectional: true
         }),
       });
-      
+
       if (response.ok) {
-        toast({
+        showToast({
           title: 'Success',
           description: 'Mapping created successfully',
           status: 'success',
           duration: 3000,
-          isClosable: true,
         });
-        
+
         // Refresh mappings
         fetchMappings(selectedPillar);
       } else {
         const errorData = await response.json();
-        toast({
+        showToast({
           title: 'Error',
           description: errorData.error || 'Failed to create mapping',
           status: 'error',
           duration: 5000,
-          isClosable: true,
         });
       }
     } catch (error) {
       console.error('Error creating mapping:', error);
-      toast({
+      showToast({
         title: 'Error',
         description: 'An unexpected error occurred',
         status: 'error',
         duration: 5000,
-        isClosable: true,
       });
     }
   };
@@ -185,7 +178,7 @@ export default function PillarMapping({ initialPillarId }) {
               <Text ml={2} fontWeight={indent === 0 ? 'bold' : 'normal'}>
                 {sublevel.label || sublevel.name}
               </Text>
-              
+
               {/* Add mapping dropdown for each sublevel */}
               {expansion && expansion.related_pillars && expansion.related_pillars.length > 0 && (
                 <Dropdown 
@@ -217,13 +210,13 @@ export default function PillarMapping({ initialPillarId }) {
                 </Dropdown>
               )}
             </div>
-            
+
             {sublevel.description && (
               <Text fontSize="sm" color="gray.600" ml={3}>
                 {sublevel.description}
               </Text>
             )}
-            
+
             {/* Recursively render nested sublevels */}
             {sublevel.sublevels && renderSublevels(sublevel.sublevels, indent + 1)}
           </div>
@@ -252,7 +245,7 @@ export default function PillarMapping({ initialPillarId }) {
               ))}
             </Dropdown>
           </div>
-          
+
           <div className="mb-4">
             <Label htmlFor="contextText">Context for Expansion:</Label>
             <Textarea
@@ -272,7 +265,7 @@ export default function PillarMapping({ initialPillarId }) {
               </Button>
             </div>
           </div>
-          
+
           {expansion && (
             <>
               <h4 className="mb-3">Pillar Structure: {expansion.pillar_name} ({expansion.pillar_id})</h4>
@@ -280,14 +273,14 @@ export default function PillarMapping({ initialPillarId }) {
                 <h5>Base Sublevels</h5>
                 {renderSublevels(expansion.base_sublevels)}
               </div>
-              
+
               {expansion.expanded_sublevels && expansion.expanded_sublevels.length > 0 && (
                 <div className="mb-4">
                   <h5>Expanded Sublevels</h5>
                   {renderSublevels(expansion.expanded_sublevels)}
                 </div>
               )}
-              
+
               {expansion.related_pillars && expansion.related_pillars.length > 0 && (
                 <div className="mb-4">
                   <h5>Related Pillars</h5>
@@ -308,7 +301,7 @@ export default function PillarMapping({ initialPillarId }) {
                                 Strength: {relatedPillar.strength.toFixed(2)}
                               </Text>
                             </div>
-                            
+
                             {relatedPillar.mappings && relatedPillar.mappings.length > 0 && (
                               <div>
                                 <Text fontSize="sm" fontWeight="bold">Existing Mappings:</Text>
@@ -324,7 +317,7 @@ export default function PillarMapping({ initialPillarId }) {
                                 </ul>
                               </div>
                             )}
-                            
+
                             {relatedPillar.reason && (
                               <Text fontSize="sm" fontStyle="italic" color="gray.500" mt={1}>
                                 {relatedPillar.reason}
@@ -337,7 +330,7 @@ export default function PillarMapping({ initialPillarId }) {
                   </div>
                 </div>
               )}
-              
+
               {mappings && mappings.length > 0 && (
                 <div className="mb-4">
                   <h5>All Dynamic Mappings</h5>

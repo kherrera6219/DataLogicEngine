@@ -366,6 +366,8 @@ class POVEngine:
         Returns:
             list: Identified PL levels
         """
+        if context is None:
+            return []
         pl_levels = []
         
         # Extract from any existing data
@@ -430,6 +432,8 @@ class POVEngine:
         Returns:
             list: Identified sectors
         """
+        if context is None:
+            return []
         sectors = []
         
         # Extract from any existing data
@@ -620,6 +624,10 @@ class POVEngine:
         Returns:
             dict: Expertise areas by persona type
         """
+        if pl_levels is None:
+            pl_levels = []
+        if sectors is None:
+            sectors = []
         # Define expertise mappings based on PL levels
         pl_expertise_map = {
             "PL01": ["mathematical_modeling", "algorithm_design", "theoretical_foundations"],
@@ -718,6 +726,8 @@ class POVEngine:
         Returns:
             list: Identified regulatory frameworks
         """
+        if context is None:
+            return []
         query = context.get('query', '').lower()
         
         # Common regulatory frameworks by domain
@@ -779,6 +789,8 @@ class POVEngine:
         Returns:
             dict: Perspective data
         """
+        if expertise_areas is None:
+            expertise_areas = {}
         # Get query and primary expertise
         query = context.get('query', '')
         areas = []
