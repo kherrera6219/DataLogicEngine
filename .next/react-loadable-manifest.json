@@ -4,5 +4,11 @@
     "files": [
       "static/chunks/702.05b437f3f576114d.js"
     ]
+  },
+  "pages/chat.js -> ../utils/responsive": {
+    "id": 1455,
+    "files": [
+      "static/chunks/455.27a5e60f56811671.js"
+    ]
   }
 }

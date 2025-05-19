@@ -1,326 +1,244 @@
-import logging
-import os
-import sys
-import json
-from datetime import datetime
-from typing import Dict, List, Any, Optional
+"""
+App Orchestrator
 
-# Add parent directory to path to allow imports
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+This module contains the App Orchestrator component of the UKG system, which serves
+as the central coordination point for all system components and functionality.
+"""
+
+import logging
+import uuid
+from datetime import datetime
+from typing import Dict, List, Any, Optional, Union, Tuple
 
 # Import core components
-from core.system.system_initializer import SystemInitializer
-from core.system.united_system_manager import UnitedSystemManager
-from backend.ukg_db import UkgDatabaseManager
+from core.simulation.simulation_engine import SimulationEngine
+from core.simulation.location_context_engine import LocationContextEngine
 
 class AppOrchestrator:
     """
-    App Orchestrator
+    App Orchestrator for the UKG System
     
-    This component serves as the main entry point for the UKG system, orchestrating
-    high-level operations and providing a unified API for external interactions.
-    It coordinates the initialization and operation of all system components.
+    This orchestrator serves as the central integration point for all UKG system
+    components. It coordinates between the different engines and managers to provide
+    a unified interface for external applications.
     """
     
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config=None, db_manager=None):
         """
         Initialize the App Orchestrator.
         
         Args:
-            config_path (str, optional): Path to the configuration file
+            config: Configuration settings
+            db_manager: Database Manager instance
         """
-        logging.info(f"[{datetime.now()}] Initializing AppOrchestrator...")
+        self.config = config or {}
+        self.db_manager = db_manager
+        self.logging = logging.getLogger(__name__)
         
-        # Initialize database connection
-        self.db_manager = self._initialize_database()
+        # Initialize system components
+        self.ka_engine = None  # Knowledge Algorithm Engine
+        self.memory_manager = None  # Structured Memory Manager
+        self.graph_manager = None  # Graph Manager
+        self.simulation_engine = None  # Simulation Engine
+        self.location_context_engine = None  # Location Context Engine
+        self.sekre_engine = None  # Self-Evolving Knowledge Refinement Engine
+        self.system_manager = None  # United System Manager
         
-        # Initialize the core system
-        self.system_initializer = SystemInitializer(config_path)
+        # Initialize system
+        self._initialize_system()
         
-        # Get components from system initializer
-        components = self.system_initializer.get_components()
-        self.usm = components.get('usm')
-        self.graph_manager = components.get('gm')
-        self.memory_manager = components.get('smm')
-        self.ka_engine = components.get('ka_engine')
-        self.simulation_engine = components.get('simulation_engine')
-        self.location_context_engine = components.get('location_context_engine')
-        self.sekre_engine = components.get('sekre_engine')
-        
-        # Set up component relationships
-        if self.graph_manager and self.db_manager:
-            self.graph_manager.set_db_manager(self.db_manager)
-        
-        logging.info(f"[{datetime.now()}] AppOrchestrator initialized and system components connected")
-    
-    def _initialize_database(self) -> Optional[UkgDatabaseManager]:
+    def _initialize_system(self):
         """
-        Initialize the database connection.
-        
-        Returns:
-            UkgDatabaseManager: Database manager or None if initialization failed
+        Initialize all system components.
         """
         try:
-            # Check for DATABASE_URL environment variable
-            database_url = os.environ.get('DATABASE_URL')
+            self.logging.info(f"[{datetime.now()}] Initializing UKG system components")
             
-            if not database_url:
-                logging.warning(f"[{datetime.now()}] AO: DATABASE_URL environment variable not found")
-                return None
+            # Initialize components (order matters for dependencies)
+            # In a full implementation, these would be initialized with actual component classes
             
-            # Create database manager
-            db_manager = UkgDatabaseManager(database_url=database_url)
-            logging.info(f"[{datetime.now()}] AO: Database connection established")
-            
-            return db_manager
-            
-        except Exception as e:
-            logging.error(f"[{datetime.now()}] AO: Error initializing database: {str(e)}")
-            return None
-    
-    def run_simulation(self, query_text: str, location_uids: Optional[List[str]] = None,
-                    target_confidence: Optional[float] = None) -> Dict:
-        """
-        Run a full simulation using the UKG system.
-        
-        Args:
-            query_text: The user's query
-            location_uids: Optional list of location UIDs for context
-            target_confidence: Optional target confidence threshold
-            
-        Returns:
-            dict: Simulation results
-        """
-        logging.info(f"[{datetime.now()}] AO: Running simulation for query: {query_text}")
-        
-        try:
-            # Check for required components
-            if not self.simulation_engine:
-                raise Exception("Simulation Engine not available")
-            
-            # Start the simulation
-            simulation_result = self.simulation_engine.start_simulation(
-                user_query=query_text,
-                explicit_location_uids=location_uids,
-                target_confidence=target_confidence
+            # Initialize engines
+            self.location_context_engine = LocationContextEngine(
+                graph_manager=self.graph_manager,
+                db_manager=self.db_manager
             )
             
-            # Get session ID from result
-            session_id = simulation_result.get('session_id')
+            self.simulation_engine = SimulationEngine(
+                ka_engine=self.ka_engine,
+                memory_manager=self.memory_manager,
+                graph_manager=self.graph_manager,
+                db_manager=self.db_manager
+            )
             
-            if not session_id:
-                raise Exception("Failed to get session ID from simulation result")
-            
-            # Wait for simulation to complete
-            status = 'running'
-            max_wait_iterations = 600  # Avoid infinite loop
-            iterations = 0
-            
-            while status in ('running', 'initializing') and iterations < max_wait_iterations:
-                # Get current status
-                status_info = self.simulation_engine.get_simulation_status(session_id)
-                status = status_info.get('status', 'unknown')
-                
-                # Break if simulation is complete
-                if status not in ('running', 'initializing'):
-                    break
-                
-                # Wait a bit before checking again
-                import time
-                time.sleep(0.5)
-                iterations += 1
-            
-            # Get final result
-            final_result = self.simulation_engine.get_simulation_result(session_id)
-            
-            if not final_result:
-                raise Exception(f"Failed to get final result for session {session_id}")
-            
-            # Run SEKRE analysis in the background if available
-            if self.sekre_engine:
-                try:
-                    self.sekre_engine.analyze_simulation_results(session_id)
-                except Exception as e:
-                    logging.error(f"[{datetime.now()}] AO: Error in SEKRE analysis: {str(e)}")
-            
-            return {
-                'session_id': session_id,
-                'query': query_text,
-                'result': final_result,
-                'status': 'success'
-            }
+            self.logging.info(f"[{datetime.now()}] UKG system components initialized successfully")
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] AO: Error running simulation: {str(e)}")
+            self.logging.error(f"[{datetime.now()}] Error initializing UKG system: {str(e)}")
+            raise
+    
+    def run_simulation(self, query_text: str, 
+                       location_uids: Optional[List[str]] = None,
+                       target_confidence: float = 0.85,
+                       context_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Run a UKG simulation.
+        
+        This method forwards the simulation request to the Simulation Engine.
+        
+        Args:
+            query_text: The user query text
+            location_uids: Optional list of location UIDs for location-specific context
+            target_confidence: Confidence threshold for simulation completion
+            context_data: Additional context data for the simulation
+            
+        Returns:
+            Dict containing simulation results
+        """
+        self.logging.info(f"[{datetime.now()}] Orchestrator: Starting simulation for query: '{query_text}'")
+        
+        if not self.simulation_engine:
             return {
                 'status': 'error',
-                'error': str(e),
-                'query': query_text
+                'message': 'Simulation Engine not available',
+                'timestamp': datetime.now().isoformat()
+            }
+        
+        try:
+            # Run simulation
+            result = self.simulation_engine.run_simulation(
+                query_text=query_text,
+                location_uids=location_uids,
+                target_confidence=target_confidence,
+                context_data=context_data
+            )
+            
+            return result
+            
+        except Exception as e:
+            self.logging.error(f"[{datetime.now()}] Orchestrator: Error running simulation: {str(e)}")
+            return {
+                'status': 'error',
+                'message': f"Error running simulation: {str(e)}",
+                'timestamp': datetime.now().isoformat()
             }
     
-    def get_session_info(self, session_id: str) -> Dict:
+    def get_location_context(self, location_uid: Optional[str] = None,
+                           query_text: Optional[str] = None) -> Dict[str, Any]:
         """
-        Get information about a simulation session.
+        Get location context.
+        
+        This method forwards the request to the Location Context Engine.
+        
+        Args:
+            location_uid: UID of the location node
+            query_text: Optional query text to tailor the context
+            
+        Returns:
+            Dict containing location context
+        """
+        self.logging.info(f"[{datetime.now()}] Orchestrator: Getting location context for {location_uid}")
+        
+        if not self.location_context_engine:
+            return {
+                'status': 'error',
+                'message': 'Location Context Engine not available',
+                'timestamp': datetime.now().isoformat()
+            }
+        
+        if not location_uid and query_text:
+            # Try to detect location from query
+            detection_result = self.location_context_engine.detect_location_from_text(query_text)
+            
+            if detection_result.get('status') == 'success' and detection_result.get('locations'):
+                # Use the first detected location
+                detected_loc = detection_result['locations'][0]
+                if detected_loc.get('resolved') and detected_loc.get('node_uids'):
+                    location_uid = detected_loc['node_uids'][0]
+        
+        if not location_uid:
+            return {
+                'status': 'error',
+                'message': 'No location UID provided and none could be detected from query',
+                'timestamp': datetime.now().isoformat()
+            }
+        
+        try:
+            # Get location context
+            result = self.location_context_engine.get_context_for_location(
+                location_uid=location_uid,
+                query_text=query_text
+            )
+            
+            return result
+            
+        except Exception as e:
+            self.logging.error(f"[{datetime.now()}] Orchestrator: Error getting location context: {str(e)}")
+            return {
+                'status': 'error',
+                'message': f"Error getting location context: {str(e)}",
+                'timestamp': datetime.now().isoformat()
+            }
+    
+    def get_session_info(self, session_id: str) -> Dict[str, Any]:
+        """
+        Get session information.
+        
+        This method retrieves information about a specific session.
         
         Args:
             session_id: Session ID
             
         Returns:
-            dict: Session information
+            Dict containing session information
         """
-        logging.info(f"[{datetime.now()}] AO: Getting session info for {session_id}")
+        self.logging.info(f"[{datetime.now()}] Orchestrator: Getting session info for {session_id}")
         
         try:
-            # Check for required components
-            if not self.simulation_engine:
-                raise Exception("Simulation Engine not available")
+            # Get session data
+            session_data = None
+            if self.db_manager:
+                session_data = self.db_manager.get_session(session_id)
             
-            if not self.memory_manager:
-                raise Exception("Memory Manager not available")
-            
-            # Get simulation status
-            simulation_status = self.simulation_engine.get_simulation_status(session_id)
-            
-            # Get session history from memory
-            session_history = self.memory_manager.get_session_history(session_id)
-            
-            # Combine information
-            return {
-                'session_id': session_id,
-                'simulation_status': simulation_status,
-                'memory_entries_count': len(session_history.get('raw_memory_entries', [])),
-                'user_query': session_history.get('user_query', ''),
-                'final_confidence': session_history.get('final_confidence', 0.0),
-                'status': 'success'
-            }
-            
-        except Exception as e:
-            logging.error(f"[{datetime.now()}] AO: Error getting session info: {str(e)}")
-            return {
-                'session_id': session_id,
-                'status': 'error',
-                'error': str(e)
-            }
-    
-    def get_location_context(self, location_uid: Optional[str] = None, 
-                           query_text: Optional[str] = None) -> Dict:
-        """
-        Get location context information.
-        
-        Args:
-            location_uid: Optional specific location UID
-            query_text: Optional query text to extract locations from
-            
-        Returns:
-            dict: Location context information
-        """
-        logging.info(f"[{datetime.now()}] AO: Getting location context")
-        
-        try:
-            # Check for required components
-            if not self.location_context_engine:
-                raise Exception("Location Context Engine not available")
-            
-            # If location UID is provided, get info for that location
-            if location_uid:
-                location_info = self.location_context_engine.get_location_info(location_uid)
-                
-                if not location_info:
-                    raise Exception(f"Location with UID {location_uid} not found")
-                
-                # Get child locations
-                child_locations = self.location_context_engine.get_child_locations(location_uid)
-                
-                # Get applicable regulations
-                regulations = self.location_context_engine.get_applicable_regulations([location_uid])
-                
+            if not session_data:
                 return {
-                    'location': location_info,
-                    'child_locations': child_locations,
-                    'applicable_regulations': regulations,
-                    'status': 'success'
+                    'status': 'error',
+                    'message': f'Session not found: {session_id}',
+                    'timestamp': datetime.now().isoformat()
                 }
             
-            # If query text is provided, determine context from it
-            elif query_text:
-                # Determine active location context
-                location_uids = self.location_context_engine.determine_active_location_context(
-                    query_text=query_text
-                )
-                
-                # Get location info for each UID
-                locations = []
-                for uid in location_uids:
-                    loc_info = self.location_context_engine.get_location_info(uid)
-                    if loc_info:
-                        locations.append(loc_info)
-                
-                # Get applicable regulations
-                regulations = self.location_context_engine.get_applicable_regulations(location_uids)
-                
-                return {
-                    'active_location_uids': location_uids,
-                    'locations': locations,
-                    'applicable_regulations': regulations,
-                    'status': 'success'
-                }
+            # Get memory entries for this session
+            memory_entries = []
+            if self.memory_manager:
+                memory_entries = self.memory_manager.get_memory_entries(session_id)
             
-            # If neither is provided, return an error
-            else:
-                raise Exception("Either location_uid or query_text must be provided")
-            
-        except Exception as e:
-            logging.error(f"[{datetime.now()}] AO: Error getting location context: {str(e)}")
-            return {
-                'status': 'error',
-                'error': str(e)
-            }
-    
-    def get_system_health(self) -> Dict:
-        """
-        Get overall system health status.
-        
-        Returns:
-            dict: System health information
-        """
-        logging.info(f"[{datetime.now()}] AO: Getting system health")
-        
-        try:
-            # Get health info from USM if available
-            if self.usm:
-                return self.usm.get_system_health()
-            
-            # Otherwise, provide basic health info
-            return {
-                'status': 'partial',
-                'message': 'United System Manager not available',
-                'timestamp': datetime.now().isoformat(),
-                'component_status': {
-                    'app_orchestrator': 'healthy',
-                    'db_manager': 'healthy' if self.db_manager else 'unavailable',
-                    'system_initializer': 'healthy' if self.system_initializer else 'unavailable',
-                    'usm': 'unavailable',
-                    'graph_manager': 'healthy' if self.graph_manager else 'unavailable',
-                    'memory_manager': 'healthy' if self.memory_manager else 'unavailable',
-                    'ka_engine': 'healthy' if self.ka_engine else 'unavailable',
-                    'simulation_engine': 'healthy' if self.simulation_engine else 'unavailable',
-                    'location_context_engine': 'healthy' if self.location_context_engine else 'unavailable',
-                    'sekre_engine': 'healthy' if self.sekre_engine else 'unavailable'
-                }
+            # Prepare result
+            result = {
+                'status': 'success',
+                'session_id': session_id,
+                'session_data': session_data,
+                'memory_entries_count': len(memory_entries),
+                'timestamp': datetime.now().isoformat()
             }
             
+            return result
+            
         except Exception as e:
-            logging.error(f"[{datetime.now()}] AO: Error getting system health: {str(e)}")
+            self.logging.error(f"[{datetime.now()}] Orchestrator: Error getting session info: {str(e)}")
             return {
                 'status': 'error',
-                'error': str(e),
+                'message': f"Error getting session info: {str(e)}",
+                'session_id': session_id,
                 'timestamp': datetime.now().isoformat()
             }
     
-    def search_knowledge_graph(self, query: str, node_types: Optional[List[str]] = None,
-                             axis_numbers: Optional[List[int]] = None, limit: int = 100) -> Dict:
+    def search_knowledge_graph(self, query: str, 
+                             node_types: Optional[List[str]] = None,
+                             axis_numbers: Optional[List[int]] = None,
+                             limit: int = 100) -> Dict[str, Any]:
         """
         Search the knowledge graph.
+        
+        This method forwards the search request to the Graph Manager.
         
         Args:
             query: Search query
@@ -329,134 +247,211 @@ class AppOrchestrator:
             limit: Maximum number of results to return
             
         Returns:
-            dict: Search results
+            Dict containing search results
         """
-        logging.info(f"[{datetime.now()}] AO: Searching knowledge graph for: {query}")
+        self.logging.info(f"[{datetime.now()}] Orchestrator: Searching graph for: '{query}'")
+        
+        if not self.graph_manager:
+            return {
+                'status': 'error',
+                'message': 'Graph Manager not available',
+                'timestamp': datetime.now().isoformat()
+            }
         
         try:
-            # Check for required components
-            if not self.graph_manager:
-                raise Exception("Graph Manager not available")
+            # Search graph
+            search_results = self.graph_manager.search_nodes(
+                query=query,
+                node_types=node_types,
+                axis_numbers=axis_numbers,
+                limit=limit
+            )
             
-            # Search nodes
-            nodes = self.graph_manager.search_nodes(query, node_types, axis_numbers, limit)
-            
-            return {
+            # Prepare result
+            result = {
+                'status': 'success',
                 'query': query,
-                'results_count': len(nodes),
-                'nodes': nodes,
-                'status': 'success'
+                'results': search_results,
+                'result_count': len(search_results),
+                'timestamp': datetime.now().isoformat()
             }
             
+            return result
+            
         except Exception as e:
-            logging.error(f"[{datetime.now()}] AO: Error searching knowledge graph: {str(e)}")
+            self.logging.error(f"[{datetime.now()}] Orchestrator: Error searching graph: {str(e)}")
             return {
-                'query': query,
                 'status': 'error',
-                'error': str(e)
+                'message': f"Error searching graph: {str(e)}",
+                'timestamp': datetime.now().isoformat()
             }
     
     def get_improvement_proposals(self, status: Optional[str] = None,
-                               proposal_type: Optional[str] = None, limit: int = 100) -> Dict:
+                               proposal_type: Optional[str] = None,
+                               limit: int = 100) -> Dict[str, Any]:
         """
-        Get improvement proposals generated by the SEKRE engine.
+        Get improvement proposals from the SEKRE.
+        
+        This method forwards the request to the Self-Evolving Knowledge Refinement Engine.
         
         Args:
-            status: Optional status filter
-            proposal_type: Optional proposal type filter
+            status: Filter by proposal status
+            proposal_type: Filter by proposal type
             limit: Maximum number of proposals to return
             
         Returns:
-            dict: Improvement proposals
+            Dict containing improvement proposals
         """
-        logging.info(f"[{datetime.now()}] AO: Getting improvement proposals")
+        self.logging.info(f"[{datetime.now()}] Orchestrator: Getting improvement proposals")
         
-        try:
-            # Check for required components
-            if not self.sekre_engine:
-                raise Exception("SEKRE Engine not available")
-            
-            # Get proposals
-            proposals = self.sekre_engine.get_improvement_proposals(status, proposal_type, limit)
-            
-            return {
-                'count': len(proposals),
-                'proposals': proposals,
-                'status': 'success'
-            }
-            
-        except Exception as e:
-            logging.error(f"[{datetime.now()}] AO: Error getting improvement proposals: {str(e)}")
+        if not self.sekre_engine:
             return {
                 'status': 'error',
-                'error': str(e)
+                'message': 'SEKRE Engine not available',
+                'timestamp': datetime.now().isoformat()
+            }
+        
+        try:
+            # Get proposals
+            proposals = self.sekre_engine.get_improvement_proposals(
+                status=status,
+                proposal_type=proposal_type,
+                limit=limit
+            )
+            
+            # Prepare result
+            result = {
+                'status': 'success',
+                'proposals': proposals,
+                'proposal_count': len(proposals),
+                'timestamp': datetime.now().isoformat()
+            }
+            
+            return result
+            
+        except Exception as e:
+            self.logging.error(f"[{datetime.now()}] Orchestrator: Error getting improvement proposals: {str(e)}")
+            return {
+                'status': 'error',
+                'message': f"Error getting improvement proposals: {str(e)}",
+                'timestamp': datetime.now().isoformat()
             }
     
-    def approve_improvement(self, proposal_id: str) -> Dict:
+    def approve_improvement(self, proposal_id: str) -> Dict[str, Any]:
         """
-        Approve and apply an improvement proposal.
+        Approve an improvement proposal.
+        
+        This method forwards the approval to the Self-Evolving Knowledge Refinement Engine.
         
         Args:
             proposal_id: Proposal ID
             
         Returns:
-            dict: Result of approving the improvement
+            Dict containing result of the approval
         """
-        logging.info(f"[{datetime.now()}] AO: Approving improvement proposal {proposal_id}")
+        self.logging.info(f"[{datetime.now()}] Orchestrator: Approving improvement proposal {proposal_id}")
+        
+        if not self.sekre_engine:
+            return {
+                'status': 'error',
+                'message': 'SEKRE Engine not available',
+                'timestamp': datetime.now().isoformat()
+            }
         
         try:
-            # Check for required components
-            if not self.sekre_engine:
-                raise Exception("SEKRE Engine not available")
-            
             # Approve proposal
-            result = self.sekre_engine.approve_improvement(proposal_id)
+            result = self.sekre_engine.approve_improvement_proposal(proposal_id)
             
-            return {
-                'proposal_id': proposal_id,
-                'result': result,
-                'status': 'success' if result.get('status') == 'success' else 'error'
-            }
+            return result
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] AO: Error approving improvement proposal: {str(e)}")
+            self.logging.error(f"[{datetime.now()}] Orchestrator: Error approving proposal {proposal_id}: {str(e)}")
             return {
-                'proposal_id': proposal_id,
                 'status': 'error',
-                'error': str(e)
+                'message': f"Error approving improvement proposal: {str(e)}",
+                'proposal_id': proposal_id,
+                'timestamp': datetime.now().isoformat()
             }
     
-    def reject_improvement(self, proposal_id: str, reason: Optional[str] = None) -> Dict:
+    def reject_improvement(self, proposal_id: str, reason: Optional[str] = None) -> Dict[str, Any]:
         """
         Reject an improvement proposal.
+        
+        This method forwards the rejection to the Self-Evolving Knowledge Refinement Engine.
         
         Args:
             proposal_id: Proposal ID
             reason: Optional reason for rejection
             
         Returns:
-            dict: Result of rejecting the improvement
+            Dict containing result of the rejection
         """
-        logging.info(f"[{datetime.now()}] AO: Rejecting improvement proposal {proposal_id}")
+        self.logging.info(f"[{datetime.now()}] Orchestrator: Rejecting improvement proposal {proposal_id}")
+        
+        if not self.sekre_engine:
+            return {
+                'status': 'error',
+                'message': 'SEKRE Engine not available',
+                'timestamp': datetime.now().isoformat()
+            }
         
         try:
-            # Check for required components
-            if not self.sekre_engine:
-                raise Exception("SEKRE Engine not available")
-            
             # Reject proposal
-            result = self.sekre_engine.reject_improvement(proposal_id, reason)
+            result = self.sekre_engine.reject_improvement_proposal(proposal_id, reason)
             
-            return {
-                'proposal_id': proposal_id,
-                'result': result,
-                'status': 'success' if result.get('status') == 'success' else 'error'
-            }
+            return result
             
         except Exception as e:
-            logging.error(f"[{datetime.now()}] AO: Error rejecting improvement proposal: {str(e)}")
+            self.logging.error(f"[{datetime.now()}] Orchestrator: Error rejecting proposal {proposal_id}: {str(e)}")
             return {
-                'proposal_id': proposal_id,
                 'status': 'error',
-                'error': str(e)
+                'message': f"Error rejecting improvement proposal: {str(e)}",
+                'proposal_id': proposal_id,
+                'timestamp': datetime.now().isoformat()
             }
+    
+    def get_system_health(self) -> Dict[str, Any]:
+        """
+        Get system health information.
+        
+        This method checks the health of all system components.
+        
+        Returns:
+            Dict containing system health information
+        """
+        self.logging.info(f"[{datetime.now()}] Orchestrator: Getting system health")
+        
+        component_status = {
+            'simulation_engine': bool(self.simulation_engine),
+            'location_context_engine': bool(self.location_context_engine),
+            'ka_engine': bool(self.ka_engine),
+            'memory_manager': bool(self.memory_manager),
+            'graph_manager': bool(self.graph_manager),
+            'sekre_engine': bool(self.sekre_engine),
+            'system_manager': bool(self.system_manager),
+            'db_manager': bool(self.db_manager)
+        }
+        
+        # Check database connection
+        db_status = 'unavailable'
+        if self.db_manager:
+            try:
+                # Simple validation check
+                db_status = 'connected' if self.db_manager.test_connection() else 'disconnected'
+            except Exception:
+                db_status = 'error'
+        
+        # Determine overall status
+        critical_components = ['simulation_engine', 'db_manager']
+        critical_status = all(component_status[comp] for comp in critical_components)
+        overall_status = 'healthy' if critical_status else 'degraded'
+        
+        if not any(component_status.values()):
+            overall_status = 'critical'
+        
+        return {
+            'status': overall_status,
+            'components': component_status,
+            'database': db_status,
+            'timestamp': datetime.now().isoformat()
+        }
