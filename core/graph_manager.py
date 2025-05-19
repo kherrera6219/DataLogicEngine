@@ -1,453 +1,747 @@
-import os
-import yaml
+
+"""
+Universal Knowledge Graph (UKG) Graph Manager
+
+This module manages the graph database operations for the UKG system,
+providing a unified interface for accessing and modifying the knowledge graph.
+"""
+
 import logging
-import networkx as nx
+import uuid
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Union, Set, Tuple
 
 class GraphManager:
     """
-    Graph Manager for the Universal Knowledge Graph (UKG).
-
-    Manages the 13-axis knowledge graph, handling connections and relationships
-    between nodes across all dimensions of the knowledge space.
+    Graph Manager for the UKG System
+    
+    Responsible for:
+    - Managing the knowledge graph structure
+    - CRUD operations on nodes and edges
+    - Graph traversal and query operations
+    - Ontology management
     """
-
-    def __init__(self, config, united_system_manager=None):
+    
+    def __init__(self, db_manager=None):
         """
         Initialize the Graph Manager.
-
+        
         Args:
-            config: Application configuration
-            united_system_manager: Optional UnitedSystemManager instance
+            db_manager: Database Manager instance
         """
-        self.config = config
-        self.usm = united_system_manager
-        self.logger = logging.getLogger(__name__)
-
-        # Initialize main graph
-        self.graph = nx.DiGraph()
-
-        # Load axis definitions and related data
-        self._load_axis_data()
-
-        # Build the initial graph structure
-        self._build_initial_graph()
-
-        self.logger.info(f"GraphManager initialized with {len(self.graph.nodes)} nodes and {len(self.graph.edges)} edges")
-
-    def _load_axis_data(self):
-        """Load all YAML configuration files for the axes."""
-        # Load axis definitions
-        self.axis_definitions_data = self._load_yaml_file(self.config.axis_definitions_path, "Axis Definitions")
-
-        # Load data for each axis
-        self.pillar_levels_data = self._load_yaml_file(self.config.pillar_levels_path, "Pillar Levels")
-        self.sectors_data = self._load_yaml_file(self.config.sectors_path, "Sectors")
-        self.domains_data = self._load_yaml_file(self.config.topics_path, "Topics/Domains")
-        self.methods_data = self._load_yaml_file(self.config.methods_path, "Methods")
-        self.tools_data = self._load_yaml_file(self.config.tools_path, "Tools")
-        self.regulatory_frameworks_data = self._load_yaml_file(self.config.regulatory_frameworks_path, "Regulatory Frameworks")
-        self.compliance_standards_data = self._load_yaml_file(self.config.compliance_standards_path, "Compliance Standards")
-        self.personas_data = self._load_yaml_file(self.config.personas_path, "Personas")
-        self.locations_data = self._load_yaml_file(self.config.locations_path, "Locations")
-        self.time_periods_data = self._load_yaml_file(self.config.time_periods_path, "Time Periods")
-
-    def _load_yaml_file(self, file_path: str, data_name: str) -> Dict:
+        self.db_manager = db_manager
+        self.logging = logging.getLogger(__name__)
+        
+        # Define node types
+        self.node_types = [
+            "pillar_level", "sector", "branch", "domain", "method", "tool",
+            "regulation", "compliance_standard", "knowledge_expert",
+            "skill_expert", "role_expert", "context_expert", "location",
+            "time_period", "knowledge_node", "classification_code"
+        ]
+        
+        # Define edge types
+        self.edge_types = [
+            "parent_of", "child_of", "related_to", "influences", "implements",
+            "regulates", "complies_with", "located_in", "occurred_during",
+            "authored_by", "has_expertise_in", "applies_to_sector",
+            "uses_method", "uses_tool", "has_branch", "mapped_to_classification",
+            "equivalent_to", "part_of", "broader", "narrower"
+        ]
+    
+    def add_node(self, node_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Load data from a YAML file.
-
+        Add a node to the knowledge graph.
+        
         Args:
-            file_path: Path to the YAML file
-            data_name: Human-readable name for the data
-
+            node_data: Node data dictionary
+            
         Returns:
-            Dict containing the loaded data or empty dict if not found
+            Dict containing the added node
         """
+        self.logging.info(f"[{datetime.now()}] Adding node: {node_data.get('label', 'Unlabeled')}")
+        
         try:
-            if os.path.exists(file_path):
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    data = yaml.safe_load(f)
-                self.logger.info(f"Loaded {data_name} from {file_path}")
-                return data if data else {}
-            else:
-                self.logger.warning(f"{data_name} file not found at {file_path}")
-                return {}
+            if not self.db_manager:
+                return {
+                    'status': 'error',
+                    'message': 'Database manager not available',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Generate UID if not provided
+            if 'uid' not in node_data:
+                node_type = node_data.get('node_type', 'generic')
+                node_data['uid'] = f"{node_type}_{uuid.uuid4()}"
+            
+            # Set creation timestamp
+            if 'created_at' not in node_data:
+                node_data['created_at'] = datetime.now().isoformat()
+            
+            # Add node to database
+            new_node = self.db_manager.add_node(node_data)
+            
+            return {
+                'status': 'success',
+                'node': new_node,
+                'timestamp': datetime.now().isoformat()
+            }
+            
         except Exception as e:
-            self.logger.error(f"Error loading {data_name} from {file_path}: {str(e)}")
-            return {}
-
-    def _build_initial_graph(self):
-        """Build the initial graph structure with all 13 axes."""
-        # Create Axis nodes (1-13)
-        for i in range(1, 14):
-            axis_id = f"Axis{i}"
-            axis_data = next((axis for axis in self.axis_definitions_data.get("Axes", [])
-                             if axis.get("number") == i), {})
-
-            axis_name = axis_data.get("label", f"Axis {i}")
-            axis_description = axis_data.get("description", f"Description for Axis {i}")
-
-            # Generate UID if United System Manager is available
-            if self.usm:
-                axis_uid_pkg = self.usm.create_unified_id(
-                    entity_label=axis_name,
-                    entity_type="AxisNode",
-                    ukg_coords={"AxisNumber": i},
-                    specific_id_part=axis_id
-                )
-                axis_uid = axis_uid_pkg["uid_string"]
-            else:
-                # Fallback if USM not available
-                axis_uid = f"UID_AXIS_{i}"
-
-            # Add to graph
-            self.graph.add_node(
-                axis_uid,
-                name=axis_name,
-                description=axis_description,
-                type="AxisNode",
-                axis_number=i,
-                original_id=axis_id
-            )
-
-            self.logger.info(f"Added Axis {i} node: {axis_name}")
-
-        # Build structures for each axis
-        self._build_pillar_structure()  # Axis 1
-        self._build_sector_structure()  # Axis 2
-        self._build_domain_structure()  # Axis 3
-        # And so on for other axes...
-
-        self.logger.info(f"Initial UKG graph structure built with {len(self.graph.nodes)} nodes")
-
-    def _build_pillar_structure(self):
-        """Build the Pillar Level structure (Axis 1)."""
-        self.logger.info("Building Pillar Level structure (Axis 1)...")
-
-        axis1_uid = self._get_axis_uid_by_number(1)
-        if not axis1_uid:
-            self.logger.warning("Axis 1 UID not found, cannot build Pillar structure")
+            self.logging.error(f"[{datetime.now()}] Error adding node: {str(e)}")
+            return {
+                'status': 'error',
+                'message': f"Error adding node: {str(e)}",
+                'timestamp': datetime.now().isoformat()
+            }
+    
+    def add_edge(self, edge_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Add an edge to the knowledge graph.
+        
+        Args:
+            edge_data: Edge data dictionary
+            
+        Returns:
+            Dict containing the added edge
+        """
+        self.logging.info(f"[{datetime.now()}] Adding edge: {edge_data.get('edge_type', 'Untyped')} from {edge_data.get('source_id', 'Unknown')} to {edge_data.get('target_id', 'Unknown')}")
+        
+        try:
+            if not self.db_manager:
+                return {
+                    'status': 'error',
+                    'message': 'Database manager not available',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Generate UID if not provided
+            if 'uid' not in edge_data:
+                edge_data['uid'] = f"edge_{uuid.uuid4()}"
+            
+            # Set creation timestamp
+            if 'created_at' not in edge_data:
+                edge_data['created_at'] = datetime.now().isoformat()
+            
+            # Verify source and target nodes exist
+            source_id = edge_data.get('source_id')
+            target_id = edge_data.get('target_id')
+            
+            source_node = self.db_manager.get_node(source_id)
+            target_node = self.db_manager.get_node(target_id)
+            
+            if not source_node:
+                return {
+                    'status': 'error',
+                    'message': f'Source node not found: {source_id}',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            if not target_node:
+                return {
+                    'status': 'error',
+                    'message': f'Target node not found: {target_id}',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Add edge to database
+            new_edge = self.db_manager.add_edge(edge_data)
+            
+            return {
+                'status': 'success',
+                'edge': new_edge,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            self.logging.error(f"[{datetime.now()}] Error adding edge: {str(e)}")
+            return {
+                'status': 'error',
+                'message': f"Error adding edge: {str(e)}",
+                'timestamp': datetime.now().isoformat()
+            }
+    
+    def get_node(self, node_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get a node by its ID.
+        
+        Args:
+            node_id: Node ID
+            
+        Returns:
+            Dict containing node data or None if not found
+        """
+        if not self.db_manager:
+            return None
+        
+        return self.db_manager.get_node(node_id)
+    
+    def get_edges_between(self, source_id: str, target_id: str, 
+                        edge_types: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+        """
+        Get edges between two nodes.
+        
+        Args:
+            source_id: Source node ID
+            target_id: Target node ID
+            edge_types: Optional list of edge types to filter by
+            
+        Returns:
+            List of edges
+        """
+        if not self.db_manager:
+            return []
+        
+        return self.db_manager.get_edges_between(source_id, target_id, edge_types)
+    
+    def get_outgoing_edges(self, node_id: str, 
+                         edge_types: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+        """
+        Get outgoing edges from a node.
+        
+        Args:
+            node_id: Node ID
+            edge_types: Optional list of edge types to filter by
+            
+        Returns:
+            List of edges
+        """
+        if not self.db_manager:
+            return []
+        
+        return self.db_manager.get_outgoing_edges(node_id, edge_types)
+    
+    def get_incoming_edges(self, node_id: str, 
+                         edge_types: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+        """
+        Get incoming edges to a node.
+        
+        Args:
+            node_id: Node ID
+            edge_types: Optional list of edge types to filter by
+            
+        Returns:
+            List of edges
+        """
+        if not self.db_manager:
+            return []
+        
+        return self.db_manager.get_incoming_edges(node_id, edge_types)
+    
+    def find_paths(self, source_id: str, target_id: str, 
+                 max_depth: int = 5, 
+                 edge_types: Optional[List[str]] = None) -> List[List[Dict[str, Any]]]:
+        """
+        Find paths between two nodes.
+        
+        Args:
+            source_id: Source node ID
+            target_id: Target node ID
+            max_depth: Maximum path depth
+            edge_types: Optional list of edge types to traverse
+            
+        Returns:
+            List of paths (each path is a list of edges)
+        """
+        if not self.db_manager:
+            return []
+        
+        paths = []
+        visited = set()
+        current_path = []
+        
+        self._dfs_paths(source_id, target_id, visited, current_path, paths, max_depth, edge_types)
+        
+        return paths
+    
+    def _dfs_paths(self, current_id: str, target_id: str, 
+                 visited: Set[str], current_path: List[Dict[str, Any]], 
+                 paths: List[List[Dict[str, Any]]], depth_left: int,
+                 edge_types: Optional[List[str]]) -> None:
+        """
+        Depth-first search to find paths between nodes.
+        
+        Args:
+            current_id: Current node ID
+            target_id: Target node ID
+            visited: Set of visited node IDs
+            current_path: Current path (list of edges)
+            paths: List to store found paths
+            depth_left: Remaining depth
+            edge_types: Optional list of edge types to traverse
+        """
+        if current_id == target_id:
+            paths.append(current_path.copy())
             return
-
-        # Process pillar levels
-        pillars = self.pillar_levels_data.get("PillarLevels", [])
-        for pillar in pillars:
-            pl_id = pillar.get("id")
-            pl_label = pillar.get("label", "Unknown Pillar")
-            pl_description = pillar.get("description", "")
-
-            # Generate UID
-            if self.usm:
-                pl_uid_pkg = self.usm.create_unified_id(
-                    entity_label=pl_label,
-                    entity_type="PillarLevelNode",
-                    ukg_coords={"Axis1": pl_id},
-                    specific_id_part=pl_id
-                )
-                pl_uid = pl_uid_pkg["uid_string"]
-            else:
-                pl_uid = f"UID_PL_{pl_id}"
-
-            # Add pillar node
-            self.graph.add_node(
-                pl_uid,
-                name=pl_label,
-                description=pl_description,
-                type="PillarLevelNode",
-                original_id=pl_id,
-                axis_number=1
-            )
-
-            # Connect to Axis 1
-            self.graph.add_edge(axis1_uid, pl_uid, relationship="has_pillar_level")
-
-            # Process sublevels if available
-            sublevels = pillar.get("sublevels", [])
-            for sublevel in sublevels:
-                self._add_pillar_sublevel(pl_uid, sublevel)
-
-            self.logger.info(f"Added Pillar Level: {pl_label}")
-
-    def _add_pillar_sublevel(self, parent_uid: str, sublevel_data: Dict, level: int = 1):
+        
+        if depth_left <= 0:
+            return
+        
+        visited.add(current_id)
+        
+        outgoing_edges = self.db_manager.get_outgoing_edges(current_id, edge_types)
+        
+        for edge in outgoing_edges:
+            next_id = edge['target_id']
+            
+            if next_id not in visited:
+                current_path.append(edge)
+                self._dfs_paths(next_id, target_id, visited, current_path, paths, depth_left - 1, edge_types)
+                current_path.pop()
+        
+        visited.remove(current_id)
+    
+    def find_nodes_by_properties(self, properties: Dict[str, Any], 
+                               limit: int = 100) -> List[Dict[str, Any]]:
         """
-        Add a sublevel to a pillar level node.
-
+        Find nodes by properties.
+        
         Args:
-            parent_uid: UID of the parent node
-            sublevel_data: Data for the sublevel
-            level: Current sublevel depth
-        """
-        sl_id = sublevel_data.get("id")
-        sl_label = sublevel_data.get("label", "Unknown Sublevel")
-        sl_description = sublevel_data.get("description", "")
-
-        # Generate UID
-        if self.usm:
-            sl_uid_pkg = self.usm.create_unified_id(
-                entity_label=sl_label,
-                entity_type="PillarSublevelNode",
-                ukg_coords={"Axis1": sl_id, "ParentUID": parent_uid, "Level": level},
-                specific_id_part=sl_id
-            )
-            sl_uid = sl_uid_pkg["uid_string"]
-        else:
-            sl_uid = f"UID_SL_{sl_id}"
-
-        # Add sublevel node
-        self.graph.add_node(
-            sl_uid,
-            name=sl_label,
-            description=sl_description,
-            type="PillarSublevelNode",
-            original_id=sl_id,
-            level=level,
-            axis_number=1
-        )
-
-        # Connect to parent
-        self.graph.add_edge(parent_uid, sl_uid, relationship="has_sublevel")
-
-        # Process nested sublevels
-        nested_sublevels = sublevel_data.get("sublevels", [])
-        for nested in nested_sublevels:
-            self._add_pillar_sublevel(sl_uid, nested, level + 1)
-
-    def _build_sector_structure(self):
-        """Build the Sector structure (Axis 2)."""
-        self.logger.info("Building Sector structure (Axis 2)...")
-        # Implementation for building Sectors
-        sectors = self.sectors_data.get("Sectors", [])
-        for sector in sectors:
-            # Process each sector and add to graph
-            # (Implementation details omitted for brevity)
-            pass
-
-    def _build_domain_structure(self):
-        """Build the Domain structure (Axis 3)."""
-        self.logger.info("Building Domain structure (Axis 3)...")
-        # Implementation for building Domains
-        domains = self.domains_data.get("Topics", [])
-        for domain in domains:
-            # Process each domain and add to graph
-            # (Implementation details omitted for brevity)
-            pass
-
-    def _get_axis_uid_by_number(self, axis_number: int) -> Optional[str]:
-        """
-        Get the UID for a specific axis by its number.
-
-        Args:
-            axis_number: The axis number (1-13)
-
+            properties: Dictionary of property keys and values
+            limit: Maximum number of results
+            
         Returns:
-            The axis UID or None if not found
+            List of matching nodes
         """
-        for node, data in self.graph.nodes(data=True):
-            if data.get("type") == "AxisNode" and data.get("axis_number") == axis_number:
-                return node
-        return None
-
-    def get_node_data_by_uid(self, uid: str) -> Optional[Dict]:
-        """
-        Get node data by UID.
-
-        Args:
-            uid: Node's unique identifier
-
-        Returns:
-            Dict containing the node data or None if not found
-        """
-        if uid in self.graph:
-            return dict(self.graph.nodes[uid])
-        return None
-
-    def get_node_data_by_attribute(self, attr_name: str, attr_value: Any, node_type: Optional[str] = None) -> Optional[str]:
-        """
-        Get node UID by a specific attribute value.
-
-        Args:
-            attr_name: Attribute name to search
-            attr_value: Value to match
-            node_type: Optional node type to filter on
-
-        Returns:
-            The matching node UID or None if not found
-        """
-        for node, data in self.graph.nodes(data=True):
-            if attr_name in data and data[attr_name] == attr_value:
-                if node_type is None or data.get("type") == node_type:
-                    return node
-        return None
-
-    def get_pillar_level_uid(self, pillar_id: str) -> Optional[str]:
-        """
-        Get the UID for a specific Pillar Level by its ID.
-
-        Args:
-            pillar_id: The Pillar Level ID (e.g., 'PL01')
-
-        Returns:
-            The UID of the Pillar Level or None if not found
-        """
-        return self.get_node_data_by_attribute("original_id", pillar_id, "PillarLevelNode")
-
-    def get_connected_nodes(self, node_uid: str, relationship_type: Optional[str] = None, direction: str = "outgoing") -> List[Dict]:
-        """
-        Get nodes connected to a specific node.
-
-        Args:
-            node_uid: The UID of the node
-            relationship_type: Optional relationship type filter
-            direction: 'outgoing', 'incoming', or 'both'
-
-        Returns:
-            List of connected node data dictionaries
-        """
-        if node_uid not in self.graph:
+        if not self.db_manager:
             return []
-
-        result = []
-
-        if direction in ["outgoing", "both"]:
-            for _, target in self.graph.out_edges(node_uid):
-                edge_data = self.graph.get_edge_data(node_uid, target)
-                if relationship_type is None or edge_data.get("relationship") == relationship_type:
-                    node_data = self.get_node_data_by_uid(target)
-                    if node_data:
-                        result.append({
-                            "node": node_data,
-                            "relationship": edge_data.get("relationship", "unknown"),
-                            "direction": "outgoing"
+        
+        return self.db_manager.get_nodes_by_properties(properties, limit)
+    
+    def register_branch(self, branch_data: Dict[str, Any], 
+                      parent_branch_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Register a branch in the knowledge graph.
+        
+        Args:
+            branch_data: Branch data dictionary
+            parent_branch_id: Optional parent branch ID
+            
+        Returns:
+            Dict containing registration result
+        """
+        self.logging.info(f"[{datetime.now()}] Registering branch: {branch_data.get('label', 'Unlabeled')}")
+        
+        try:
+            if not self.db_manager:
+                return {
+                    'status': 'error',
+                    'message': 'Database manager not available',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Ensure branch has required fields
+            required_fields = ['label', 'branch_type', 'sector_id']
+            for field in required_fields:
+                if field not in branch_data:
+                    return {
+                        'status': 'error',
+                        'message': f'Missing required field: {field}',
+                        'timestamp': datetime.now().isoformat()
+                    }
+            
+            # Verify branch type
+            valid_branch_types = ['large', 'medium', 'small', 'granular']
+            if branch_data['branch_type'] not in valid_branch_types:
+                return {
+                    'status': 'error',
+                    'message': f'Invalid branch type: {branch_data["branch_type"]}. Must be one of {valid_branch_types}',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Verify sector exists
+            sector_id = branch_data['sector_id']
+            sector_nodes = self.db_manager.get_nodes_by_properties({'id': sector_id, 'node_type': 'sector'})
+            
+            if not sector_nodes:
+                return {
+                    'status': 'error',
+                    'message': f'Sector not found: {sector_id}',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            sector_node = sector_nodes[0]
+            
+            # Generate UID if not provided
+            if 'uid' not in branch_data:
+                branch_type = branch_data['branch_type']
+                label_part = branch_data['label'].lower().replace(' ', '_')[:10]
+                branch_data['uid'] = f"branch_{branch_type}_{label_part}_{uuid.uuid4().hex[:8]}"
+            
+            # Set node type
+            branch_data['node_type'] = 'branch'
+            
+            # Set axis number for Branch (Axis 3)
+            branch_data['axis_number'] = 3
+            
+            # Set creation timestamp
+            if 'created_at' not in branch_data:
+                branch_data['created_at'] = datetime.now().isoformat()
+            
+            # Check if branch with same properties already exists
+            existing_branches = self.db_manager.get_nodes_by_properties({
+                'node_type': 'branch',
+                'branch_type': branch_data['branch_type'],
+                'label': branch_data['label'],
+                'sector_id': branch_data['sector_id']
+            })
+            
+            if existing_branches:
+                return {
+                    'status': 'exists',
+                    'message': 'Branch already exists',
+                    'branch': existing_branches[0],
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Add branch node
+            new_branch = self.db_manager.add_node(branch_data)
+            
+            # Connect branch to sector
+            sector_branch_edge = {
+                'uid': f"edge_{uuid.uuid4()}",
+                'source_id': sector_node['uid'],
+                'target_id': new_branch['uid'],
+                'edge_type': 'has_branch',
+                'attributes': {
+                    'branch_type': branch_data['branch_type']
+                }
+            }
+            
+            self.db_manager.add_edge(sector_branch_edge)
+            
+            # Connect to parent branch if provided
+            if parent_branch_id:
+                parent_nodes = self.db_manager.get_nodes_by_properties({
+                    'id': parent_branch_id,
+                    'node_type': 'branch'
+                })
+                
+                if not parent_nodes:
+                    return {
+                        'status': 'error',
+                        'message': f'Parent branch not found: {parent_branch_id}',
+                        'branch': new_branch,  # Still return the created branch
+                        'timestamp': datetime.now().isoformat()
+                    }
+                
+                parent_node = parent_nodes[0]
+                
+                # Check parent-child branch type relationship
+                parent_type = parent_node['branch_type']
+                child_type = branch_data['branch_type']
+                
+                valid_parent_child = {
+                    'large': 'medium',
+                    'medium': 'small',
+                    'small': 'granular'
+                }
+                
+                if parent_type in valid_parent_child and valid_parent_child[parent_type] == child_type:
+                    # Valid parent-child relationship
+                    parent_child_edge = {
+                        'uid': f"edge_{uuid.uuid4()}",
+                        'source_id': parent_node['uid'],
+                        'target_id': new_branch['uid'],
+                        'edge_type': 'has_branch',
+                        'attributes': {
+                            'parent_type': parent_type,
+                            'child_type': child_type
+                        }
+                    }
+                    
+                    self.db_manager.add_edge(parent_child_edge)
+                else:
+                    return {
+                        'status': 'error',
+                        'message': f'Invalid parent-child branch type relationship. Parent {parent_type} cannot have child {child_type}',
+                        'branch': new_branch,  # Still return the created branch
+                        'timestamp': datetime.now().isoformat()
+                    }
+            
+            return {
+                'status': 'success',
+                'branch': new_branch,
+                'sector': sector_node,
+                'parent_branch_id': parent_branch_id,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            self.logging.error(f"[{datetime.now()}] Error registering branch: {str(e)}")
+            return {
+                'status': 'error',
+                'message': f"Error registering branch: {str(e)}",
+                'timestamp': datetime.now().isoformat()
+            }
+    
+    def get_branch_hierarchy(self, sector_id: str) -> Dict[str, Any]:
+        """
+        Get the branch hierarchy for a sector.
+        
+        Args:
+            sector_id: Sector ID
+            
+        Returns:
+            Dict containing the branch hierarchy
+        """
+        self.logging.info(f"[{datetime.now()}] Getting branch hierarchy for sector: {sector_id}")
+        
+        try:
+            if not self.db_manager:
+                return {
+                    'status': 'error',
+                    'message': 'Database manager not available',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Get sector
+            sector_nodes = self.db_manager.get_nodes_by_properties({'id': sector_id, 'node_type': 'sector'})
+            
+            if not sector_nodes:
+                return {
+                    'status': 'error',
+                    'message': f'Sector not found: {sector_id}',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            sector_node = sector_nodes[0]
+            
+            # Get large branches for sector
+            large_branches = {}
+            large_branch_nodes = self.db_manager.get_nodes_by_properties({
+                'node_type': 'branch',
+                'branch_type': 'large',
+                'sector_id': sector_id
+            })
+            
+            for large_branch in large_branch_nodes:
+                large_branch_id = large_branch.get('id')
+                
+                if large_branch_id:
+                    large_branches[large_branch_id] = {
+                        'branch': large_branch,
+                        'medium_branches': {}
+                    }
+                    
+                    # Get medium branches for large branch
+                    medium_branches = self._get_child_branches(large_branch['uid'], 'medium')
+                    
+                    for medium_branch_id, medium_branch_data in medium_branches.items():
+                        large_branches[large_branch_id]['medium_branches'][medium_branch_id] = medium_branch_data
+                        
+                        # Get small branches for medium branch
+                        small_branches = self._get_child_branches(medium_branch_data['branch']['uid'], 'small')
+                        medium_branch_data['small_branches'] = small_branches
+                        
+                        # Get granular branches for each small branch
+                        for small_branch_id, small_branch_data in small_branches.items():
+                            granular_branches = self._get_child_branches(small_branch_data['branch']['uid'], 'granular')
+                            small_branch_data['granular_branches'] = granular_branches
+            
+            return {
+                'status': 'success',
+                'sector': sector_node,
+                'branch_hierarchy': large_branches,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            self.logging.error(f"[{datetime.now()}] Error getting branch hierarchy: {str(e)}")
+            return {
+                'status': 'error',
+                'message': f"Error getting branch hierarchy: {str(e)}",
+                'sector_id': sector_id,
+                'timestamp': datetime.now().isoformat()
+            }
+    
+    def _get_child_branches(self, parent_uid: str, branch_type: str) -> Dict[str, Dict[str, Any]]:
+        """
+        Get child branches of a specific type for a parent node.
+        
+        Args:
+            parent_uid: Parent node UID
+            branch_type: Branch type to retrieve
+            
+        Returns:
+            Dict mapping branch IDs to branch data
+        """
+        child_branches = {}
+        
+        # Get outgoing edges of type 'has_branch'
+        outgoing_edges = self.db_manager.get_outgoing_edges(parent_uid, ['has_branch'])
+        
+        for edge in outgoing_edges:
+            target_uid = edge['target_id']
+            target_node = self.db_manager.get_node(target_uid)
+            
+            if target_node and target_node.get('node_type') == 'branch' and target_node.get('branch_type') == branch_type:
+                branch_id = target_node.get('id')
+                
+                if branch_id:
+                    child_branches[branch_id] = {
+                        'branch': target_node,
+                        'edge': edge
+                    }
+        
+        return child_branches
+    
+    def find_classification_codes(self, sector_id: str, 
+                               classification_system: str) -> Dict[str, Any]:
+        """
+        Find classification codes for a sector in a specific classification system.
+        
+        Args:
+            sector_id: Sector ID
+            classification_system: Classification system (naics, sic, psc, nic)
+            
+        Returns:
+            Dict containing the classification codes
+        """
+        self.logging.info(f"[{datetime.now()}] Finding {classification_system} codes for sector: {sector_id}")
+        
+        try:
+            if not self.db_manager:
+                return {
+                    'status': 'error',
+                    'message': 'Database manager not available',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Get sector
+            sector_nodes = self.db_manager.get_nodes_by_properties({'id': sector_id, 'node_type': 'sector'})
+            
+            if not sector_nodes:
+                return {
+                    'status': 'error',
+                    'message': f'Sector not found: {sector_id}',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            sector_node = sector_nodes[0]
+            
+            # Find classification codes
+            classification_codes = []
+            
+            # Method 1: Direct classification code properties
+            if 'classification_systems' in sector_node and classification_system.lower() in sector_node['classification_systems']:
+                code = sector_node['classification_systems'][classification_system.lower()]
+                classification_codes.append({
+                    'code': code,
+                    'system': classification_system.upper(),
+                    'source': 'direct_property',
+                    'confidence': 1.0
+                })
+            
+            # Method 2: Find branch mappings
+            branch_nodes = self.db_manager.get_nodes_by_properties({
+                'node_type': 'branch',
+                'sector_id': sector_id
+            })
+            
+            for branch in branch_nodes:
+                # Find classification mappings for branch
+                outgoing_edges = self.db_manager.get_outgoing_edges(branch['uid'], ['mapped_to_classification'])
+                
+                for edge in outgoing_edges:
+                    target_uid = edge['target_id']
+                    code_node = self.db_manager.get_node(target_uid)
+                    
+                    if code_node and code_node.get('node_type') == 'classification_code' and code_node.get('system', '').upper() == classification_system.upper():
+                        classification_codes.append({
+                            'code': code_node.get('code'),
+                            'system': code_node.get('system'),
+                            'source': 'branch_mapping',
+                            'branch': branch,
+                            'confidence': edge.get('attributes', {}).get('confidence', 0.9)
                         })
-
-        if direction in ["incoming", "both"]:
-            for source, _ in self.graph.in_edges(node_uid):
-                edge_data = self.graph.get_edge_data(source, node_uid)
-                if relationship_type is None or edge_data.get("relationship") == relationship_type:
-                    node_data = self.get_node_data_by_uid(source)
-                    if node_data:
-                        result.append({
-                            "node": node_data,
-                            "relationship": edge_data.get("relationship", "unknown"),
-                            "direction": "incoming"
-                        })
-
-        return result
-
-    def get_axis_uid(self, axis_id: str) -> Optional[str]:
+            
+            return {
+                'status': 'success',
+                'sector': sector_node,
+                'classification_system': classification_system.upper(),
+                'codes': classification_codes,
+                'code_count': len(classification_codes),
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            self.logging.error(f"[{datetime.now()}] Error finding classification codes: {str(e)}")
+            return {
+                'status': 'error',
+                'message': f"Error finding classification codes: {str(e)}",
+                'sector_id': sector_id,
+                'classification_system': classification_system,
+                'timestamp': datetime.now().isoformat()
+            }
+    
+    def get_statistics(self) -> Dict[str, Any]:
         """
-        Get the UID for a specific axis by its ID.
-
-        Args:
-            axis_id: The axis ID (e.g., 'Axis1')
-
+        Get statistics about the knowledge graph.
+        
         Returns:
-            The axis UID or None if not found
+            Dict containing graph statistics
         """
-        return self.get_node_data_by_attribute("original_id", axis_id, "AxisNode")
-
-    def search_nodes(self, query: str, node_types: Optional[List[str]] = None, limit: int = 10) -> List[Dict]:
-        """
-        Search for nodes matching a query string.
-
-        Args:
-            query: Search query string
-            node_types: Optional list of node types to filter on
-            limit: Maximum number of results to return
-
-        Returns:
-            List of matching node data dictionaries
-        """
-        query = query.lower()
-        results = []
-
-        for node, data in self.graph.nodes(data=True):
-            if node_types and data.get("type") not in node_types:
-                continue
-
-            # Search in name, description, and other text fields
-            name = str(data.get("name", "")).lower()
-            description = str(data.get("description", "")).lower()
-
-            if query in name or query in description:
-                results.append(dict(data))
-
-            if len(results) >= limit:
-                break
-
-        return results
-
-    def find_location_uids_from_text(self, text):
-        """
-        Find location UIDs based on text references.
-
-        Args:
-            text (str): The text to analyze
-
-        Returns:
-            list: List of matching location UIDs
-        """
-        # This would use more sophisticated NLP in a real implementation
-        # For simplicity, just do basic substring matching
-        text_lower = text.lower()
-        locations = []
-
-        for node, attrs in self.graph.nodes(data=True):
-            if attrs.get('entity_type', '').lower() in ['country', 'state', 'city', 'region']:
-                label = attrs.get('label', '').lower()
-                if label and label in text_lower:
-                    locations.append(node)
-
-        return locations
-
-    def get_graph_statistics(self):
-        """
-        Get statistics about the UKG graph.
-
-        Returns:
-            dict: Various statistics about the graph
-        """
-        node_count = len(self.graph.nodes)
-        edge_count = len(self.graph.edges)
-
-        # Count nodes by type
-        node_types = {}
-        for _, attrs in self.graph.nodes(data=True):
-            entity_type = attrs.get('entity_type', 'Unknown')
-            node_types[entity_type] = node_types.get(entity_type, 0) + 1
-
-        # Count edges by relationship type
-        edge_types = {}
-        for _, _, attrs in self.graph.edges(data=True):
-            rel_type = attrs.get('relationship', 'Unknown')
-            edge_types[rel_type] = edge_types.get(rel_type, 0) + 1
-
-        return {
-            'total_nodes': node_count,
-            'total_edges': edge_count,
-            'node_types': node_types,
-            'edge_types': edge_types
-        }
-
-    def get_node_by_uid(self, uid):
-        """Get a node by its unique ID."""
-        if uid in self.graph.nodes:
-            return self.graph.nodes[uid]
-        return None
-
-    def get_connected_nodes_new(self, uid, edge_type=None):
-        """Get nodes connected to the specified node."""
-        if uid not in self.graph.nodes:
-            return []
-
-        if edge_type:
-            return [target for target in self.graph.neighbors(uid)
-                   if self.graph[uid][target].get('type') == edge_type]
-        else:
-            return list(self.graph.neighbors(uid))
-
-    def get_axis_nodes(self, axis_number):
-        """Get all nodes belonging to a specific axis."""
-        return [node for node, attrs in self.graph.nodes(data=True)
-                if attrs.get('axis_number') == axis_number]
+        self.logging.info(f"[{datetime.now()}] Getting graph statistics")
+        
+        try:
+            if not self.db_manager:
+                return {
+                    'status': 'error',
+                    'message': 'Database manager not available',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Get overall counts
+            total_nodes = len(self.db_manager.get_all_nodes())
+            total_edges = len(self.db_manager.get_all_edges())
+            
+            # Get counts by node type
+            node_type_counts = {}
+            for node_type in self.node_types:
+                nodes = self.db_manager.get_nodes_by_properties({'node_type': node_type})
+                if nodes:
+                    node_type_counts[node_type] = len(nodes)
+            
+            # Get counts by edge type
+            edge_type_counts = {}
+            for edge_type in self.edge_types:
+                edges = self.db_manager.get_edges_by_type(edge_type)
+                if edges:
+                    edge_type_counts[edge_type] = len(edges)
+            
+            # Get axis counts
+            axis_counts = {}
+            for axis_num in range(1, 14):
+                nodes = self.db_manager.get_nodes_by_properties({'axis_number': axis_num})
+                if nodes:
+                    axis_counts[f"axis_{axis_num}"] = len(nodes)
+            
+            # Get branch type counts
+            branch_type_counts = {}
+            for branch_type in ['large', 'medium', 'small', 'granular']:
+                branches = self.db_manager.get_nodes_by_properties({
+                    'node_type': 'branch',
+                    'branch_type': branch_type
+                })
+                if branches:
+                    branch_type_counts[branch_type] = len(branches)
+            
+            return {
+                'status': 'success',
+                'total_nodes': total_nodes,
+                'total_edges': total_edges,
+                'node_type_counts': node_type_counts,
+                'edge_type_counts': edge_type_counts,
+                'axis_counts': axis_counts,
+                'branch_type_counts': branch_type_counts,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            self.logging.error(f"[{datetime.now()}] Error getting graph statistics: {str(e)}")
+            return {
+                'status': 'error',
+                'message': f"Error getting graph statistics: {str(e)}",
+                'timestamp': datetime.now().isoformat()
+            }
