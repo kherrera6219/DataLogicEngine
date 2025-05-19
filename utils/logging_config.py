@@ -1,38 +1,48 @@
+"""
+Universal Knowledge Graph (UKG) System - Logging Configuration
 
-import logging
+This module provides logging configuration for the UKG system.
+"""
+
 import os
-import sys
-from datetime import datetime
 
-def setup_logging(log_level=logging.INFO):
+def get_logging_config():
     """
-    Set up logging configuration for the UKG system.
+    Get the logging configuration dictionary.
     
-    Args:
-        log_level: The logging level to use
+    Returns:
+        Dict with logging configuration
     """
-    # Create logs directory if it doesn't exist
-    logs_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
-    os.makedirs(logs_dir, exist_ok=True)
+    log_level = os.environ.get("LOG_LEVEL", "INFO")
     
-    # Generate log filename with timestamp
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_filename = os.path.join(logs_dir, f"ukg_system_{timestamp}.log")
-    
-    # Configure root logger
-    logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S',
-        handlers=[
-            logging.FileHandler(log_filename),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    
-    # Set third-party library logging to WARNING
-    logging.getLogger("werkzeug").setLevel(logging.WARNING)
-    logging.getLogger("flask").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
-    
-    logging.info(f"Logging initialized. Log file: {log_filename}")
+    return {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "standard": {
+                "format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+            },
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "level": log_level,
+                "formatter": "standard",
+                "stream": "ext://sys.stdout"
+            },
+            "file": {
+                "class": "logging.FileHandler",
+                "level": log_level,
+                "formatter": "standard",
+                "filename": "logs/ukg_system.log",
+                "mode": "a",
+            }
+        },
+        "loggers": {
+            "": {
+                "handlers": ["console", "file"],
+                "level": log_level,
+                "propagate": True
+            }
+        }
+    }
