@@ -6,7 +6,7 @@ packages = ["libyaml", "openssl", "postgresql"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "gunicorn --bind 0.0.0.0:3000 app:app"]
+run = ["sh", "-c", "npm start"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
@@ -142,7 +142,7 @@ mode = "parallel"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "# Start the Flask backend on port 5000"
+args = "# Install Python dependencies"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
@@ -150,7 +150,11 @@ args = "pip install python-dotenv gunicorn"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python main.py"
+args = "# Start the Flask backend on port 5000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py &"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"

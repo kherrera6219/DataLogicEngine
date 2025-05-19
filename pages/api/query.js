@@ -24,11 +24,33 @@ export default async function handler(req, res) {
     // Simulate a backend response for demonstration purposes
     // In a real implementation, you would make a fetch call to your Flask backend
     
+    const generateSimulatedResponse = (query) => {
+      // Simple response generator for demo purposes
+      const responses = {
+        default: `Based on the Universal Knowledge Graph analysis, I can provide information on your query about "${query}". The UKG system has processed your request through multiple expert personas and knowledge axes.`,
+        axes: "The Universal Knowledge Graph operates on 13 distinct axes:\n\n1. **Pillar Levels**: Knowledge domains and disciplines\n2. **Sectors**: Industry sectors and markets\n3. **Topics**: Subject matters and interests\n4. **Methods**: Methodologies and approaches\n5. **Tools**: Software, hardware, and tools\n6. **Regulatory Frameworks**: Laws and regulations\n7. **Compliance Standards**: Standards and requirements\n8. **Knowledge Experts**: Domain expertise\n9. **Skill Experts**: Practical skills\n10. **Role Experts**: Professional roles\n11. **Context Experts**: Situational contexts\n12. **Locations**: Geographic and jurisdictional\n13. **Time**: Temporal dimensions",
+        system: "The UKG system consists of several key components:\n\n- **Graph Manager**: Maintains the structure and relationships in the UKG\n- **Structured Memory Manager**: Stores and retrieves detailed simulation states\n- **United System Manager**: Handles unique identifiers across the system\n- **Simulation Engine**: Processes queries through multiple layers\n- **Knowledge Algorithms**: Specialized algorithms for specific knowledge tasks",
+        help: "You can ask me about:\n\n- The 13 axes of the Universal Knowledge Graph\n- How the UKG system works\n- Specific knowledge domains\n- Contextual information processing\n- Multi-persona reasoning\n\nFeel free to explore different topics and see how the system responds!"
+      };
+
+      // Check for specific query keywords
+      if (query.toLowerCase().includes("axes") || query.toLowerCase().includes("dimensions")) {
+        return responses.axes;
+      } else if (query.toLowerCase().includes("system") || query.toLowerCase().includes("how") || query.toLowerCase().includes("work")) {
+        return responses.system;
+      } else if (query.toLowerCase().includes("help") || query.toLowerCase().includes("what can you do")) {
+        return responses.help;
+      }
+      
+      return responses.default;
+    };
+    
     // For now, let's simulate a response
     const simulatedResponse = {
       chat_id: chat_id || `chat-${Date.now()}`,
       response: generateSimulatedResponse(query),
       confidence: parseFloat((Math.random() * 0.2 + 0.75).toFixed(2)),
+      processing_time_ms: Math.floor(Math.random() * 300) + 200
     };
 
     // Add a delay to simulate processing time

@@ -3,11 +3,12 @@
 .chat-container {
   display: flex;
   height: calc(100vh - 170px);
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   margin-bottom: 2rem;
   background-color: #212529;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .chat-sidebar {
@@ -89,11 +90,17 @@
   margin-bottom: 1.5rem;
   gap: 1rem;
   max-width: 80%;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .message.user {
   margin-left: auto;
   flex-direction: row-reverse;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .message-avatar {
@@ -122,17 +129,45 @@
 
 .message-text {
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 12px;
   background-color: #495057;
   color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.message.system .message-text {
+  border-left: 3px solid #0d6efd;
 }
 
 .message.user .message-text {
   background-color: #0d6efd;
+  border-right: 3px solid #0a58ca;
 }
 
 .message.error .message-text {
   background-color: #dc3545;
+  border-left: 3px solid #b02a37;
+}
+
+.message.system .message-text::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 15px;
+  border-top: 8px solid transparent;
+  border-right: 8px solid #495057;
+  border-bottom: 8px solid transparent;
+}
+
+.message.user .message-text::before {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 15px;
+  border-top: 8px solid transparent;
+  border-left: 8px solid #0d6efd;
+  border-bottom: 8px solid transparent;
 }
 
 .message-metadata {
