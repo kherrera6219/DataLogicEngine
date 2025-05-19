@@ -509,6 +509,68 @@ class RefinementWorkflow:
     def get_current_execution(self) -> Optional[Dict[str, Any]]:
         """Get the current workflow execution state."""
         return self.current_execution
+        
+    def execute_workflow(self, query_state) -> Dict[str, Any]:
+        """
+        Execute the refinement workflow on a query state.
+        
+        This is a compatibility method for the Layer 2 Knowledge Simulator.
+        
+        Args:
+            query_state: The query state object from the quad persona engine
+            
+        Returns:
+            A dictionary with the refinement result
+        """
+        # Convert QueryState to dictionary for processing
+        state_dict = {
+            "query_id": query_state.query_id,
+            "query_text": query_state.query_text,
+            "context": query_state.context,
+            "persona_results": {},
+            "status": query_state.status,
+            "processing_events": query_state.processing_events,
+        }
+        
+        # Convert persona results
+        for persona_type, result in query_state.persona_results.items():
+            if result is not None:
+                state_dict["persona_results"][persona_type] = result
+        
+        # Process through refinement workflow
+        logger.info(f"Executing refinement workflow for query {query_state.query_id}")
+        refined_state = self.process(state_dict)
+        
+        # Extract final response
+        response = refined_state.get("final_response", "")
+        if not response and "persona_results" in refined_state:
+            # Fallback to compliance response if available
+            compliance_result = refined_state["persona_results"].get("compliance", {})
+            if compliance_result:
+                response = compliance_result.get("response", "")
+            
+            # If still no response, use any available persona response
+            if not response:
+                for persona_result in refined_state["persona_results"].values():
+                    if persona_result and "response" in persona_result:
+                        response = persona_result["response"]
+                        break
+        
+        # Calculate confidence
+        confidence = refined_state.get("confidence", 0.0)
+        active_personas = [p for p, r in refined_state.get("persona_results", {}).items() if r is not None]
+        
+        # Construct the final result
+        result = {
+            "query_id": query_state.query_id,
+            "response": response,
+            "confidence": confidence,
+            "processing_time_ms": 0,  # Would be calculated in a real system
+            "active_personas": active_personas,
+            "persona_results": refined_state.get("persona_results", {})
+        }
+        
+        return result
 
 
 # Factory function to create a refinement workflow
