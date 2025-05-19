@@ -266,20 +266,15 @@ def main():
         {"name": "High confidence scenario", "complexity": "low", "confidence": 0.92, "entropy": 0.1}
     ]
     
-    # Ask user to select a scenario
-    print("Please select a test scenario:")
+    # Display available scenarios
+    print("Available test scenarios:")
     for i, scenario in enumerate(test_scenarios):
         print(f"  {i+1}. {scenario['name']} (Complexity: {scenario['complexity']}, "
               f"Confidence: {scenario['confidence']}, Entropy: {scenario['entropy']})")
     
-    try:
-        choice = int(input("\nEnter scenario number (1-3): "))
-        if choice < 1 or choice > len(test_scenarios):
-            print(f"Invalid choice. Using scenario 1.")
-            choice = 1
-    except ValueError:
-        print(f"Invalid input. Using scenario 1.")
-        choice = 1
+    # Automatically select the first scenario for simplicity
+    choice = 1
+    print(f"\nAutomatically selecting scenario 1")
     
     selected_scenario = test_scenarios[choice-1]
     print(f"\nSelected scenario: {selected_scenario['name']}")

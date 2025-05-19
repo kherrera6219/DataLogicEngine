@@ -734,15 +734,20 @@ class ConfidenceDriftMonitor:
             return 0.0
             
         # Use the last value if comparing sequences
+        # Ensure we're working with scalar values
         if isinstance(prev_values, list) and len(prev_values) > 0:
-            prev_val = prev_values[-1]
+            prev_val = float(prev_values[-1])
+        elif prev_values is not None:
+            prev_val = float(prev_values)
         else:
-            prev_val = prev_values
+            prev_val = 0.0
             
         if isinstance(curr_values, list) and len(curr_values) > 0:
-            curr_val = curr_values[-1]
+            curr_val = float(curr_values[-1])
+        elif curr_values is not None:
+            curr_val = float(curr_values)
         else:
-            curr_val = curr_values
+            curr_val = 0.0
             
         # Calculate drift (absolute change)
         drift = abs(curr_val - prev_val)
