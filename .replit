@@ -48,6 +48,24 @@ mode = "sequential"
 task = "shell.exec"
 args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 
+[[workflows.workflow]]
+name = "Next.js Dev"
+author = 28709262
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Flask Backend"
+author = 28709262
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+
 [[ports]]
 localPort = 5000
 externalPort = 80
