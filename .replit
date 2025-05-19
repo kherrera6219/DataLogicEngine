@@ -10,7 +10,7 @@ run = ["sh", "-c", "python main.py"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
-runButton = "Full-Stack Dev"
+runButton = "Deployment Ready"
 
 [[workflows.workflow]]
 name = "Project"
@@ -78,6 +78,15 @@ args = "python main.py"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Deployment Ready"
+author = 28709262
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
 
 [[ports]]
 localPort = 3000
