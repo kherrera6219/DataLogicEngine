@@ -10,7 +10,7 @@ run = ["sh", "-c", "npm start"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
-runButton = "Next.js Deployment"
+runButton = "UKG Production"
 
 [[workflows.workflow]]
 name = "Project"
@@ -176,6 +176,19 @@ args = "# Start Next.js server on port 3000"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm start"
+
+[[workflows.workflow]]
+name = "UKG Production"
+author = 28709262
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the Flask backend on port 3000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --bind 0.0.0.0:3000 app:app"
 
 [[ports]]
 localPort = 3000

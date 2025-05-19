@@ -20,4 +20,6 @@ if __name__ == "__main__":
     app_module.orchestrator = app.orchestrator
     
     logging.info("UKG System components initialized")
-    app.run(host="0.0.0.0", port=3000, debug=True)
+    # For local development use debug=True
+    # For production deployment use debug=False
+    app.run(host="0.0.0.0", port=3000, debug=False)
