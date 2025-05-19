@@ -454,6 +454,28 @@ args = "python simulation/create_database_script.py"
 task = "shell.exec"
 args = "python run_layered_database_demo.py"
 
+[[workflows.workflow]]
+name = "UKG Refinement Workflow"
+author = 28709262
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the UKG System with refinement workflow enabled"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_layered_database_demo.py --enable-refinement"
+
+[[workflows.workflow]]
+name = "Run Refinement Workflow Demo"
+author = 28709262
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_refinement_workflow_demo.py --verbose"
+
 [[ports]]
 localPort = 3000
 externalPort = 80
