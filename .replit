@@ -10,7 +10,7 @@ run = ["sh", "-c", "npm start"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
-runButton = "UKG Full-Stack Dev"
+runButton = "UKG System Development"
 
 [[workflows.workflow]]
 name = "Project"
@@ -269,6 +269,31 @@ args = ""
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "# Start Next.js in development mode"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "UKG System Development"
+author = 28709262
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the Flask backend on port 5000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "FLASK_APP=main.py FLASK_ENV=development PYTHONUNBUFFERED=1 flask run --host=0.0.0.0 --port=5000 &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = ""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start Next.js frontend in development mode"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"

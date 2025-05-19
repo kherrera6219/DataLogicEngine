@@ -1,3 +1,4 @@
+
 """
 Universal Knowledge Graph (UKG) System - Axis System
 
@@ -8,11 +9,47 @@ coordinating access to different dimensions of knowledge.
 import logging
 from typing import Dict, Any, Optional, List
 
-# Import axis handlers
+# Import all axis handlers
 try:
     from core.axes.axis1_knowledge import KnowledgeAxis
 except ImportError:
     KnowledgeAxis = None
+
+try:
+    from core.axes.axis2_sector import SectorAxis
+except ImportError:
+    SectorAxis = None
+
+try:
+    from core.axes.axis3_domain import DomainAxis
+except ImportError:
+    DomainAxis = None
+
+try:
+    from core.axes.axis4_knowledge import MethodAxis
+except ImportError:
+    MethodAxis = None
+
+try:
+    from core.axes.axis5_temporal import TemporalAxis
+except ImportError:
+    TemporalAxis = None
+
+try:
+    from core.axes.axis6_regulatory import RegulatoryAxis
+except ImportError:
+    RegulatoryAxis = None
+
+try:
+    from core.axes.axis7_compliance import ComplianceAxis
+except ImportError:
+    ComplianceAxis = None
+
+# Knowledge expert personas (axes 8-11)
+try:
+    from core.persona.persona_system import PersonaSystem as ExpertAxis
+except ImportError:
+    ExpertAxis = None
 
 try:
     from core.axes.axis12_location import LocationAxis
@@ -32,17 +69,68 @@ class AxisSystem:
         
     def _initialize_axes(self):
         """Initialize available axes."""
-        # Add Axis 1: Knowledge
+        # Add Axis 1: Knowledge (Pillar Levels)
         if KnowledgeAxis:
             self.axes[1] = KnowledgeAxis()
-            logger.info("Initialized Axis 1: Knowledge")
+            logger.info("Initialized Axis 1: Knowledge (Pillar Levels)")
+        
+        # Add Axis 2: Sectors
+        if SectorAxis:
+            self.axes[2] = SectorAxis()
+            logger.info("Initialized Axis 2: Sectors")
+            
+        # Add Axis 3: Domains
+        if DomainAxis:
+            self.axes[3] = DomainAxis()
+            logger.info("Initialized Axis 3: Domains")
+            
+        # Add Axis 4: Methods
+        if MethodAxis:
+            self.axes[4] = MethodAxis()
+            logger.info("Initialized Axis 4: Methods")
+            
+        # Add Axis 5: Temporal
+        if TemporalAxis:
+            self.axes[5] = TemporalAxis()
+            logger.info("Initialized Axis 5: Temporal")
+            
+        # Add Axis 6: Regulatory
+        if RegulatoryAxis:
+            self.axes[6] = RegulatoryAxis()
+            logger.info("Initialized Axis 6: Regulatory Frameworks")
+            
+        # Add Axis 7: Compliance
+        if ComplianceAxis:
+            self.axes[7] = ComplianceAxis()
+            logger.info("Initialized Axis 7: Compliance Standards")
+            
+        # Add Expert Axes (8-11)
+        if ExpertAxis:
+            # Knowledge Expert
+            self.axes[8] = ExpertAxis(expert_type="knowledge")
+            logger.info("Initialized Axis 8: Knowledge Expert")
+            
+            # Skill Expert
+            self.axes[9] = ExpertAxis(expert_type="skill")
+            logger.info("Initialized Axis 9: Skill Expert")
+            
+            # Role Expert
+            self.axes[10] = ExpertAxis(expert_type="role")
+            logger.info("Initialized Axis 10: Role Expert")
+            
+            # Context Expert
+            self.axes[11] = ExpertAxis(expert_type="context")
+            logger.info("Initialized Axis 11: Context Expert")
         
         # Add Axis 12: Location
         if LocationAxis:
             self.axes[12] = LocationAxis()
             logger.info("Initialized Axis 12: Location")
-        
-        # Add other axes as they become available
+            
+        # Add Axis 13: Time (currently using Temporal)
+        if TemporalAxis:
+            self.axes[13] = TemporalAxis(time_focused=True)
+            logger.info("Initialized Axis 13: Time")
     
     def get_axis(self, axis_id: int):
         """Get a specific axis by its ID."""
