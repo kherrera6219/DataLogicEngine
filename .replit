@@ -10,7 +10,7 @@ run = ["sh", "-c", "bash -c 'gunicorn --bind 0.0.0.0:5000 --workers=2 app:app & 
 build = ["sh", "-c", "npm install && npm run build"]
 
 [workflows]
-runButton = "UKG Dev Environment"
+runButton = "UKG REST API Server"
 
 [[workflows.workflow]]
 name = "Project"
@@ -336,6 +336,31 @@ args = "python app.py &"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "# Start Next.js in development mode"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "UKG REST API Server"
+author = 28709262
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the Flask backend on port 5000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "FLASK_ENV=development FLASK_APP=main.py PYTHONUNBUFFERED=1 flask run --host=0.0.0.0 --port=5000 &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = ""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start Next.js frontend in development mode"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
