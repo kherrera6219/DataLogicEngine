@@ -1,14 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
-import dynamic from 'next/dynamic';
 import Layout from '../components/Layout';
 import { Card, Button } from '../components/ui';
-
 // Import force-graph dynamically to avoid SSR issues
-const ForceGraph = dynamic(
-  () => import('force-graph'),
-  { ssr: false }
-);
+import dynamic from 'next/dynamic';
+
+const ForceGraph = dynamic(() => import('force-graph'), {
+  ssr: false
+});
 
 export default function HoneycombPage() {
   const containerRef = useRef(null);

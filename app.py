@@ -66,8 +66,10 @@ def create_app():
         app.config['ENTERPRISE_MODE'] = os.environ.get('ENTERPRISE_MODE', 'False').lower() == 'true'
 
     # Initialize database
-    from backend.ukg_db import init_db
-    db = init_db(app)
+    from models import db
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
     app.config['DB'] = db
 
     # Initialize UKG components
