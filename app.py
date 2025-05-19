@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 from backend.rest_api import register_api as register_rest_api
 from backend.chat_api import register_chat_api
 from backend.security_api import register_security_api
+from backend.security_scan_api import register_scan_api
 
 # Create logs directory if it doesn't exist
 os.makedirs("logs", exist_ok=True)
@@ -81,7 +82,7 @@ def create_app():
             logger.info("Enterprise architecture initialized")
         except ImportError:
             logger.warning("Enterprise architecture module not found")
-            
+
     # Set up security middleware
     from backend.middleware import setup_middleware
     setup_middleware(app)
@@ -90,7 +91,8 @@ def create_app():
     register_rest_api(app)
     register_chat_api(app)
     register_security_api(app)
-    
+    register_scan_api(app)
+
     # Initialize security components
     from backend.security import get_security_manager, get_audit_logger, get_compliance_manager
     app.config['SECURITY_MANAGER'] = get_security_manager()
@@ -109,7 +111,7 @@ def create_app():
             "version": "1.0.0",
             "environment": app.config['ENVIRONMENT']
         }
-        
+
         # Add enterprise service status if available
         if app.config.get('ENTERPRISE_ARCH'):
             try:
@@ -122,7 +124,7 @@ def create_app():
             except Exception as e:
                 logger.error(f"Failed to get enterprise status: {e}")
                 status["enterprise"] = {"status": "error"}
-                
+
         return jsonify(status)
 
     @app.route('/system/status')
@@ -134,7 +136,7 @@ def create_app():
                 "status": "healthy",
                 "timestamp": datetime.now().isoformat()
             })
-            
+
         try:
             enterprise_status = app.config['ENTERPRISE_ARCH'].get_architecture_status()
             return jsonify({
@@ -164,12 +166,12 @@ def create_app():
         """Proxy requests to webhook server"""
         if not app.config.get('ENTERPRISE_ARCH'):
             abort(404)
-            
+
         try:
             webhook_service = app.config['ENTERPRISE_ARCH'].get_service("webhook_server")
             if not webhook_service:
                 abort(503)  # Service unavailable
-                
+
             webhook_url = f"{webhook_service.endpoint}/webhooks/{path}"
             response = requests.request(
                 method=request.method,
@@ -179,7 +181,7 @@ def create_app():
                 cookies=request.cookies,
                 allow_redirects=False,
             )
-            
+
             return (response.content, response.status_code, response.headers.items())
         except Exception as e:
             logger.error(f"Webhook proxy error: {e}")
@@ -190,12 +192,12 @@ def create_app():
         """Proxy requests to model context server"""
         if not app.config.get('ENTERPRISE_ARCH'):
             abort(404)
-            
+
         try:
             model_service = app.config['ENTERPRISE_ARCH'].get_service("model_context_server")
             if not model_service:
                 abort(503)  # Service unavailable
-                
+
             model_url = f"{model_service.endpoint}/{path}"
             response = requests.request(
                 method=request.method,
@@ -205,7 +207,7 @@ def create_app():
                 cookies=request.cookies,
                 allow_redirects=False,
             )
-            
+
             return (response.content, response.status_code, response.headers.items())
         except Exception as e:
             logger.error(f"Model context proxy error: {e}")

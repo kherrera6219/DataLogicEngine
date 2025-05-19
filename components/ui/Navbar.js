@@ -154,7 +154,8 @@ Navbar.defaultProps = {
     { href: '/locations', label: 'Locations', icon: 'geo-alt' },
     { href: '/contextual', label: 'Context Experts', icon: 'person' },
     { href: '/timeline', label: 'Timeline', icon: 'clock-history' },
-    { href: '/unified-mapping', label: 'Unified Mapping', icon: 'geo' }
+    { href: '/unified-mapping', label: 'Unified Mapping', icon: 'geo' },
+    { href: '/compliance-dashboard', label: 'SOC 2 Compliance', icon: 'shield-check' } // Added compliance dashboard link
   ],
 };
 
