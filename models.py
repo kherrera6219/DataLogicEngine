@@ -158,7 +158,10 @@ class KnowledgeNode(db.Model):
     
     # Relationships
     pillar_level = relationship("PillarLevel", back_populates="knowledge_nodes")
+    domain = relationship("Domain", back_populates="knowledge_nodes")
     location = relationship("Location", back_populates="knowledge_nodes")
+    perspectives = relationship("Perspective", back_populates="knowledge_node")
+    integrated_views = relationship("IntegratedView", back_populates="knowledge_node")
     
     def to_dict(self):
         """Convert knowledge node to dictionary."""
