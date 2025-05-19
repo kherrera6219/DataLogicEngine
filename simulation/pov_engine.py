@@ -758,6 +758,8 @@ class POVEngine:
         Returns:
             list: Identified compliance frameworks
         """
+        if context is None:
+            return []
         query = context.get('query', '').lower()
         
         # Common compliance frameworks by domain
@@ -886,6 +888,10 @@ class POVEngine:
         Returns:
             dict: Component data
         """
+        if pl_levels is None:
+            pl_levels = []
+        if sectors is None:
+            sectors = []
         # Default values if none provided
         if not pl_levels:
             pl_levels = []
@@ -1130,6 +1136,8 @@ class POVEngine:
         Returns:
             dict: Entangled viewpoints
         """
+        if context is None:
+            return {}
         start_time = datetime.now()
         
         # Extract personas, query, and relevant context
@@ -1242,6 +1250,8 @@ class POVEngine:
         Returns:
             dict: Belief weight matrix
         """
+        if personas is None:
+            personas = []
         if not personas:
             return {}
             
