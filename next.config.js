@@ -7,9 +7,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: process.env.NODE_ENV === 'production' 
-          ? 'http://localhost:5000/api/:path*'  // In production
-          : 'http://localhost:5000/api/:path*', // In development
+        destination: 'http://0.0.0.0:5000/api/:path*',
       },
     ];
   },
