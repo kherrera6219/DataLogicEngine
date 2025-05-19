@@ -41,6 +41,36 @@ class SimulationEngine:
         self.max_passes = self.sim_config.get('max_simulation_passes', 3)
         self.target_confidence = self.sim_config.get('target_confidence_overall', 0.90)
         
+        # Layer 5 Configuration
+        self.integration_engine_enabled = self.sim_config.get('enable_layer5_integration', True)
+        self.layer5_engine = None
+        if self.integration_engine_enabled:
+            try:
+                from simulation.layer5_integration import Layer5IntegrationEngine
+                self.layer5_engine = Layer5IntegrationEngine(
+                    config=self.config.get('layer5', {}),
+                    system_manager=None  # Will be set later by united_system_manager
+                )
+                logging.info(f"[{datetime.now()}] Layer 5 Integration Engine initialized")
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 5 Integration Engine: {str(e)}")
+                self.integration_engine_enabled = False
+        
+        # Layer 7 Configuration
+        self.agi_simulation_enabled = self.sim_config.get('enable_layer7_agi', True)
+        self.layer7_engine = None
+        if self.agi_simulation_enabled:
+            try:
+                from simulation.layer7_agi_system import AGISimulationEngine
+                self.layer7_engine = AGISimulationEngine(
+                    config=self.config.get('layer7', {}),
+                    system_manager=None  # Will be set later by united_system_manager
+                )
+                logging.info(f"[{datetime.now()}] Layer 7 AGI Simulation Engine initialized with uncertainty threshold 0.15")
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 7 AGI Simulation Engine: {str(e)}")
+                self.agi_simulation_enabled = False
+        
         # Persona configuration
         self.personas = {
             'knowledge': {

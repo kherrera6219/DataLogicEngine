@@ -157,6 +157,60 @@ class GatekeeperAgent:
                 activate = activate or l5_activate
                 if l5_activate and not triggered_by:
                     triggered_by = ["Knowledge gaps, role conflicts, or integration needs detected"]
+                    
+            elif layer == 7:  # Simulated AGI System
+                # Enhanced activation logic for Layer 7
+                # Activate on recursive contradictions, causal failures, or emergence indicators
+                l7_activate = (
+                    "recursive_contradiction" in roles_triggered or 
+                    "causal_failure" in roles_triggered or
+                    "emergence_indicator" in roles_triggered
+                )
+                
+                # New triggers specific to Layer 7 AGI Simulation Engine
+                agi_triggers = [
+                    "goal_conflict", 
+                    "belief_misalignment", 
+                    "recursive_reasoning",
+                    "confidence_decay",
+                    "entropy_spike"
+                ]
+                for trigger in agi_triggers:
+                    if trigger in roles_triggered or trigger in regulatory_flags:
+                        l7_activate = True
+                        if trigger not in triggered_by:
+                            triggered_by.append(trigger)
+                
+                # Check confidence decay and entropy for additional Layer 7 activation
+                confidence_history = context.get("historical_confidence", [])
+                current_confidence = context.get("confidence_score", 0.0)
+                
+                # Calculate confidence decay if history exists
+                if confidence_history and len(confidence_history) > 1:
+                    # Look for significant confidence drop between passes
+                    confidence_decay = max(0, max(confidence_history) - current_confidence)
+                    if confidence_decay > 0.15:  # Significant decay triggers Layer 7
+                        l7_activate = True
+                        if "confidence_decay" not in triggered_by:
+                            triggered_by.append("confidence_decay")
+                
+                # Check entropy level for additional Layer 7 activation
+                entropy_level = context.get("entropy_score", 0.0)
+                if entropy_level > 0.4:  # High entropy triggers Layer 7
+                    l7_activate = True
+                    if "high_entropy" not in triggered_by:
+                        triggered_by.append("high_entropy")
+                
+                # Activate when multiple simulation passes have not improved confidence
+                simulation_pass = context.get("simulation_pass", 1)
+                if simulation_pass > 2 and current_confidence < 0.85:
+                    l7_activate = True
+                    if "multiple_passes_low_confidence" not in triggered_by:
+                        triggered_by.append("multiple_passes_low_confidence")
+                
+                activate = activate or l7_activate
+                if l7_activate and not triggered_by:
+                    triggered_by = ["Recursive contradictions, goal conflicts, or agent belief misalignments detected"]
             
             elif layer == 8:  # Quantum Fidelity Layer
                 # Activate on high entropy or trust issues
@@ -326,3 +380,77 @@ class GatekeeperAgent:
             integration_params['uncertainty_threshold'] = 0.1  # More strict for high entropy
             
         return integration_params
+        
+    def get_layer7_agi_parameters(self, context: Dict) -> Dict:
+        """
+        Get specific parameters for Layer 7 AGI Simulation Engine.
+        
+        This method extracts and configures parameters specifically for the
+        Layer 7 AGI Simulation Engine based on the current context and decision state.
+        
+        Args:
+            context: Context dictionary with simulation results and metrics
+            
+        Returns:
+            dict: Configuration parameters for Layer 7 AGI Simulation Engine
+        """
+        # First ensure we've evaluated the context
+        if not self.current_decision or context != self.decision_log[-1]['context'] if self.decision_log else True:
+            self.evaluate(context)
+            
+        # Check if Layer 7 should be activated
+        layer7_active = False
+        layer7_decision = self.current_decision.get('layer_activations', {}).get('layer_7', {})
+        if layer7_decision.get('activate', False):
+            layer7_active = True
+            
+        # Get confidence history for decay calculations
+        confidence_history = context.get("historical_confidence", [])
+        current_confidence = context.get("confidence_score", 0.0)
+        
+        # Calculate confidence decay if history exists
+        confidence_decay = 0.0
+        if confidence_history and len(confidence_history) > 1:
+            confidence_decay = max(0, max(confidence_history) - current_confidence)
+        
+        # Default parameters for Layer 7
+        agi_params = {
+            'active': layer7_active,
+            'goal_expansion_depth': 3,  # Default recursion depth for goal expansion
+            'belief_realignment_threshold': 0.2,  # Threshold for belief realignment
+            'conflict_resolution_iterations': 5,  # Number of iterations for conflict resolution
+            'goal_convergence_threshold': 0.75,  # Threshold for goal convergence
+            'triggers': layer7_decision.get('triggered_by', []),
+            'context_metrics': {
+                'confidence': current_confidence,
+                'confidence_decay': confidence_decay,
+                'entropy': context.get('entropy_score', 0.0),
+                'simulation_pass': context.get('simulation_pass', 1)
+            }
+        }
+        
+        # Customize based on context
+        if context.get('high_priority', False) or context.get('critical', False):
+            # Deeper goal expansion and more conflict resolution for high priority
+            agi_params['goal_expansion_depth'] = 4
+            agi_params['conflict_resolution_iterations'] = 7
+            
+        # Adjust for high entropy
+        entropy_level = context.get('entropy_score', 0.0)
+        if entropy_level > 0.5:
+            # More strict convergence for high entropy
+            agi_params['goal_convergence_threshold'] = 0.85
+            
+        # Adjust for multiple passes
+        simulation_pass = context.get('simulation_pass', 1)
+        if simulation_pass > 2:
+            # Lower threshold for belief realignment in later passes
+            # to allow more flexibility in restructuring beliefs
+            agi_params['belief_realignment_threshold'] = max(0.1, 0.2 - (simulation_pass - 2) * 0.05)
+            
+        # Add POV expansion settings if POV engine is active
+        if 4 in self.get_active_layers():
+            agi_params['pov_expansion'] = True
+            agi_params['viewpoint_count'] = context.get('viewpoint_count', 3)
+            
+        return agi_params
