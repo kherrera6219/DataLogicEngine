@@ -3,6 +3,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import '../styles/globals.css';
 import '../styles/chat.css';
 import '../styles/timeline.css';
+import '../styles/app.css';
 import { useEffect } from 'react';
 
 function MyApp({ Component, pageProps }) {

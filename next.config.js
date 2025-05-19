@@ -6,11 +6,13 @@ const nextConfig = {
   // Set output to export for better static generation
   output: 'standalone',
   // Transpile specific modules that might cause issues
-  transpilePackages: ['d3'],
+  transpilePackages: ['d3', 'react-force-graph-2d'],
   // Add environment variables
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:5000',
     NEXT_PUBLIC_CORE_UKG_URL: process.env.NEXT_PUBLIC_CORE_UKG_URL || 'http://0.0.0.0:5003',
+    NEXT_PUBLIC_APP_NAME: 'Universal Knowledge Graph System',
+    NEXT_PUBLIC_VERSION: '1.0.0',
   },
   // Disable specific ESLint rules during build
   eslint: {
