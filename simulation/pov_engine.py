@@ -1357,33 +1357,56 @@ class POVEngine:
         Returns:
             float: Confidence score (0.0-1.0)
         """
-        # Base confidence from entangled viewpoints
-        entangled = context.get('entangled_viewpoints', {})
-        base_confidence = entangled.get('overall_confidence', 0.5)
+        if not context:
+            return 0.0
+            
+        # Base confidence starts at 0.65 - neutral confidence
+        confidence = 0.65
         
-        # Reduce confidence based on conflicts
-        conflicts = entangled.get('conflicts', [])
-        conflict_penalty = sum(c.get('conflict_severity', 0.5) for c in conflicts) * 0.05
+        # Extract components that affect confidence
+        personas = context.get('personas', [])
+        belief_matrix = context.get('belief_matrix', {})
+        data_nodes = context.get('expanded_data', [])
+        temporal_mapping = context.get('temporal_mapping', {})
         
-        # Increase confidence based on alignments
-        alignments = entangled.get('alignments', [])
-        alignment_bonus = sum(a.get('alignment_strength', 0.5) for a in alignments) * 0.03
+        # 1. Adjust based on persona count and diversity (more perspectives = higher confidence)
+        if personas:
+            # Count unique persona types
+            persona_types = set()
+            for persona in personas:
+                full_name = persona.get('name', '').lower()
+                persona_type = full_name.split()[0] if full_name else 'generic'
+                persona_types.add(persona_type)
+                
+            # Adjust for persona diversity (0.05 per unique type, max 0.15)
+            diversity_bonus = min(0.15, len(persona_types) * 0.05)
+            confidence += diversity_bonus
         
-        # Data quality factor
-        expanded_data = context.get('expanded_data', [])
-        data_confidence = sum(node.get('confidence', 0.5) for node in expanded_data)
-        if expanded_data:
-            data_confidence /= len(expanded_data)
-        else:
-            data_confidence = 0.5
+        # 2. Adjust based on belief matrix (higher weights = higher confidence)
+        if belief_matrix:
+            belief_values = list(belief_matrix.values())
+            if belief_values:
+                avg_belief = sum(belief_values) / len(belief_values)
+                # Scale belief impact (max 0.10)
+                belief_adjustment = (avg_belief - 0.5) * 0.2  # Maps 0.5-1.0 to 0.0-0.10
+                confidence += belief_adjustment
         
-        # Calculate weighted confidence
-        confidence = (
-            base_confidence * 0.4 +
-            data_confidence * 0.3 +
-            (1.0 - conflict_penalty) * 0.2 +
-            alignment_bonus * 0.1
-        )
+        # 3. Adjust based on data expansion (more data nodes = higher confidence)
+        if data_nodes:
+            # Data nodes impact (max 0.08)
+            data_bonus = min(0.08, len(data_nodes) * 0.01)
+            confidence += data_bonus
+            
+        # 4. Adjust based on temporal mapping (if present)
+        if temporal_mapping:
+            # Temporal context adjustment (max 0.05)
+            if 'temporal_coverage' in temporal_mapping:
+                coverage = temporal_mapping.get('temporal_coverage', 0.5)
+                temporal_adjustment = (coverage - 0.5) * 0.1  # Maps 0.5-1.0 to 0.0-0.05
+                confidence += temporal_adjustment
+        
+        # Apply bounds to final confidence score
+        return max(0.0, min(1.0, confidence))
         
         # Pass boost
         if self.pass_count > 1:
