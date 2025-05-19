@@ -6,11 +6,11 @@ packages = ["libyaml", "openssl", "postgresql"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "npm start"]
-build = ["sh", "-c", "npm install && npm run build"]
+run = ["sh", "-c", "python run_enterprise_ukg.py --build"]
+build = ["sh", "-c", "npm run build"]
 
 [workflows]
-runButton = "UKG Full Production"
+runButton = "UKG Enterprise System"
 
 [[workflows.workflow]]
 name = "Project"
@@ -391,15 +391,27 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "#!/bin/bash"
+args = "# Install dependencies if needed"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "echo \"Starting UKG Enterprise System...\""
+args = "npm install --production=false"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python run_enterprise_ukg.py"
+args = "# Build the Next.js frontend for production"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the enterprise UKG system with build flag"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_enterprise_ukg.py --build"
 
 [[workflows.workflow]]
 name = "UKG Enterprise Secure"

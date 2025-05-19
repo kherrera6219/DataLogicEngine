@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Dropdown, Input, Textarea, Label, Text, Badge } from './';
+import { Card, Button, Textarea, Badge } from './';
+import Text from './Text';
+import Dropdown from './Dropdown';
+import Label from './Label';
 import { useToast } from '@chakra-ui/react';
 
 export default function PillarMapping({ initialPillarId }) {
