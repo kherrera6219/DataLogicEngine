@@ -1,273 +1,354 @@
 """
-Universal Knowledge Graph (UKG) System - Models
+Universal Knowledge Graph (UKG) System - Database Models
 
-This module defines database models for the UKG system.
+This module defines the database models for the UKG system following
+enterprise-grade standards for data integrity and security.
 """
 
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, JSON
-from sqlalchemy.orm import relationship
-from flask_sqlalchemy import SQLAlchemy
+import datetime
+import uuid
+from app import db
+from flask_login import UserMixin
+from sqlalchemy import Column, Integer, String, Text, Float, Boolean, DateTime, ForeignKey, JSON, UniqueConstraint, Table
+from sqlalchemy.orm import relationship, backref
+from werkzeug.security import generate_password_hash, check_password_hash
 
-# Initialize SQLAlchemy
-db = SQLAlchemy()
+# Custom UUID generator
+def generate_uuid():
+    return str(uuid.uuid4())
 
-class Conversation(db.Model):
-    """Model for chat conversations in the UKG system."""
-    __tablename__ = 'ukg_conversations'
+# User model
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
     
     id = Column(Integer, primary_key=True)
-    uid = Column(String(255), unique=True, nullable=False)
-    title = Column(String(255), nullable=False)
-    meta_data = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    uid = Column(String(36), default=generate_uuid, unique=True, nullable=False)
+    username = Column(String(64), unique=True, nullable=False)
+    email = Column(String(120), unique=True, nullable=False)
+    first_name = Column(String(100), nullable=True)
+    last_name = Column(String(100), nullable=True)
+    password_hash = Column(String(256))
+    role = Column(String(20), default='user')  # admin, user, viewer
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    last_login = Column(DateTime, nullable=True)
+    settings = Column(JSON, nullable=True)
     
     # Relationships
-    messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan")
+    api_keys = relationship("APIKey", back_populates="user", cascade="all, delete-orphan")
+    media_items = relationship("MediaItem", back_populates="created_by")
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+        
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
     
     def to_dict(self):
-        """Convert conversation to dictionary."""
         return {
-            'id': self.id,
-            'uid': self.uid,
-            'title': self.title,
-            'metadata': self.meta_data,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
-
-class Message(db.Model):
-    """Model for chat messages in the UKG system."""
-    __tablename__ = 'ukg_messages'
-    
-    id = Column(Integer, primary_key=True)
-    uid = Column(String(255), unique=True, nullable=False)
-    conversation_id = Column(Integer, ForeignKey('ukg_conversations.id'), nullable=False)
-    content = Column(Text, nullable=False)
-    role = Column(String(50), nullable=False)  # e.g., "user", "system"
-    meta_data = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    conversation = relationship("Conversation", back_populates="messages")
-    
-    def to_dict(self):
-        """Convert message to dictionary."""
-        return {
-            'id': self.id,
-            'uid': self.uid,
-            'conversation_id': self.conversation_id,
-            'content': self.content,
+            'id': self.uid,
+            'username': self.username,
+            'email': self.email,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
             'role': self.role,
-            'metadata': self.meta_data,
-            'created_at': self.created_at.isoformat() if self.created_at else None
-        }
-
-class Node(db.Model):
-    """Model for nodes in the UKG knowledge graph."""
-    __tablename__ = 'ukg_nodes'
-    
-    id = Column(Integer, primary_key=True)
-    uid = Column(String(255), unique=True, nullable=False)
-    node_type = Column(String(100), nullable=False)
-    label = Column(String(255), nullable=False)
-    description = Column(Text, nullable=True)
-    original_id = Column(String(255), nullable=True)
-    axis_number = Column(Integer, nullable=True)
-    level = Column(Integer, nullable=True)
-    attributes = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    source_edges = relationship("Edge", foreign_keys="Edge.source_id", back_populates="source", cascade="all, delete-orphan")
-    target_edges = relationship("Edge", foreign_keys="Edge.target_id", back_populates="target", cascade="all, delete-orphan")
-    
-    def to_dict(self):
-        """Convert node to dictionary."""
-        return {
-            'id': self.id,
-            'uid': self.uid,
-            'node_type': self.node_type,
-            'label': self.label,
-            'description': self.description,
-            'original_id': self.original_id,
-            'axis_number': self.axis_number,
-            'level': self.level,
-            'attributes': self.attributes,
+            'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'last_login': self.last_login.isoformat() if self.last_login else None
         }
 
-class Edge(db.Model):
-    """Model for edges in the UKG knowledge graph."""
-    __tablename__ = 'ukg_edges'
+# API Key model
+class APIKey(db.Model):
+    __tablename__ = 'api_keys'
     
     id = Column(Integer, primary_key=True)
-    uid = Column(String(255), unique=True, nullable=False)
-    edge_type = Column(String(100), nullable=False)
-    source_id = Column(Integer, ForeignKey('ukg_nodes.id'), nullable=False)
-    target_id = Column(Integer, ForeignKey('ukg_nodes.id'), nullable=False)
-    label = Column(String(255), nullable=True)
-    weight = Column(Float, default=1.0)
-    attributes = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    uid = Column(String(36), default=generate_uuid, unique=True, nullable=False)
+    name = Column(String(100), nullable=False)
+    key_hash = Column(String(256), nullable=False)
+    service = Column(String(50), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    is_active = Column(Boolean, default=True)
+    expiry_date = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    last_used = Column(DateTime, nullable=True)
     
     # Relationships
-    source = relationship("Node", foreign_keys=[source_id], back_populates="source_edges")
-    target = relationship("Node", foreign_keys=[target_id], back_populates="target_edges")
+    user = relationship("User", back_populates="api_keys")
     
     def to_dict(self):
-        """Convert edge to dictionary."""
         return {
-            'id': self.id,
-            'uid': self.uid,
+            'id': self.uid,
+            'name': self.name,
+            'service': self.service,
+            'is_active': self.is_active,
+            'expiry_date': self.expiry_date.isoformat() if self.expiry_date else None,
+            'created_at': self.created_at.isoformat(),
+            'last_used': self.last_used.isoformat() if self.last_used else None
+        }
+
+# System Log model
+class SystemLog(db.Model):
+    __tablename__ = 'system_logs'
+    
+    id = Column(Integer, primary_key=True)
+    uid = Column(String(36), default=generate_uuid, unique=True, nullable=False)
+    log_type = Column(String(20), nullable=False)  # system, simulation, user
+    level = Column(String(20), nullable=False)     # info, warning, error, debug
+    source = Column(String(100), nullable=False)
+    message = Column(Text, nullable=False)
+    details = Column(JSON, nullable=True)
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    
+    def to_dict(self):
+        return {
+            'id': self.uid,
+            'log_type': self.log_type,
+            'level': self.level,
+            'source': self.source,
+            'message': self.message,
+            'details': self.details,
+            'timestamp': self.timestamp.isoformat()
+        }
+
+# Media Item model (for generated images and videos)
+class MediaItem(db.Model):
+    __tablename__ = 'media_items'
+    
+    id = Column(Integer, primary_key=True)
+    uid = Column(String(36), default=generate_uuid, unique=True, nullable=False)
+    media_type = Column(String(20), nullable=False)  # image, video
+    prompt = Column(Text, nullable=False)
+    url = Column(String(500), nullable=False)
+    thumbnail_url = Column(String(500), nullable=True)
+    metadata = Column(JSON, nullable=True)
+    width = Column(Integer, nullable=True)
+    height = Column(Integer, nullable=True)
+    duration = Column(Float, nullable=True)  # for videos
+    created_by_id = Column(Integer, ForeignKey('users.id'), nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    
+    # Relationships
+    created_by = relationship("User", back_populates="media_items")
+    
+    def to_dict(self):
+        return {
+            'id': self.uid,
+            'media_type': self.media_type,
+            'prompt': self.prompt,
+            'url': self.url,
+            'thumbnail_url': self.thumbnail_url,
+            'metadata': self.metadata,
+            'width': self.width,
+            'height': self.height,
+            'duration': self.duration,
+            'created_at': self.created_at.isoformat()
+        }
+
+# Simulation Session model
+class SimulationSession(db.Model):
+    __tablename__ = 'simulation_sessions'
+    
+    id = Column(Integer, primary_key=True)
+    uid = Column(String(36), default=generate_uuid, unique=True, nullable=False)
+    query = Column(Text, nullable=False)
+    parameters = Column(JSON, nullable=False)
+    result = Column(Text, nullable=True)
+    confidence = Column(Float, nullable=True)
+    active_layers = Column(JSON, nullable=True)
+    processing_time = Column(Float, nullable=True)  # in seconds
+    refinement_passes = Column(Integer, nullable=True)
+    status = Column(String(20), nullable=False, default='pending')  # pending, running, completed, failed
+    error_message = Column(Text, nullable=True)
+    created_by_id = Column(Integer, ForeignKey('users.id'), nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    completed_at = Column(DateTime, nullable=True)
+    
+    def to_dict(self):
+        return {
+            'id': self.uid,
+            'query': self.query,
+            'parameters': self.parameters,
+            'result': self.result,
+            'confidence': self.confidence,
+            'active_layers': self.active_layers,
+            'processing_time': self.processing_time,
+            'refinement_passes': self.refinement_passes,
+            'status': self.status,
+            'error_message': self.error_message,
+            'created_at': self.created_at.isoformat(),
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None
+        }
+
+# System Settings model
+class SystemSetting(db.Model):
+    __tablename__ = 'system_settings'
+    
+    id = Column(Integer, primary_key=True)
+    category = Column(String(50), nullable=False)  # general, security, simulation, layout, integration
+    key = Column(String(100), nullable=False)
+    value = Column(Text, nullable=True)
+    value_type = Column(String(20), nullable=False)  # string, number, boolean, json
+    description = Column(Text, nullable=True)
+    modified_by_id = Column(Integer, ForeignKey('users.id'), nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    
+    __table_args__ = (UniqueConstraint('category', 'key', name='uix_category_key'),)
+    
+    def to_dict(self):
+        return {
+            'category': self.category,
+            'key': self.key,
+            'value': self.value,
+            'value_type': self.value_type,
+            'description': self.description,
+            'updated_at': self.updated_at.isoformat()
+        }
+
+# Knowledge Node model (UKG specific)
+class KnowledgeNode(db.Model):
+    __tablename__ = 'ukg_knowledge_nodes'
+    
+    id = Column(Integer, primary_key=True)
+    uid = Column(String(36), default=generate_uuid, unique=True, nullable=False)
+    node_type = Column(String(50), nullable=False)  # pillar, sector, domain, method, etc.
+    axis = Column(Integer, nullable=False)  # 1-13 representing UKG axes
+    code = Column(String(20), nullable=False)  # e.g., PL01, SEC02
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    attributes = Column(JSON, nullable=True)
+    parent_id = Column(Integer, ForeignKey('ukg_knowledge_nodes.id'), nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    
+    # Relationships
+    children = relationship("KnowledgeNode", backref=backref("parent", remote_side=[id]))
+    source_edges = relationship("KnowledgeEdge", foreign_keys="KnowledgeEdge.source_id", back_populates="source")
+    target_edges = relationship("KnowledgeEdge", foreign_keys="KnowledgeEdge.target_id", back_populates="target")
+    
+    def to_dict(self):
+        return {
+            'id': self.uid,
+            'node_type': self.node_type,
+            'axis': self.axis,
+            'code': self.code,
+            'name': self.name,
+            'description': self.description,
+            'attributes': self.attributes,
+            'parent_id': self.parent.uid if self.parent else None,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
+
+# Knowledge Edge model
+class KnowledgeEdge(db.Model):
+    __tablename__ = 'ukg_knowledge_edges'
+    
+    id = Column(Integer, primary_key=True)
+    uid = Column(String(36), default=generate_uuid, unique=True, nullable=False)
+    edge_type = Column(String(50), nullable=False)  # directed, association, etc.
+    label = Column(String(100), nullable=True)
+    weight = Column(Float, default=1.0)
+    source_id = Column(Integer, ForeignKey('ukg_knowledge_nodes.id'), nullable=False)
+    target_id = Column(Integer, ForeignKey('ukg_knowledge_nodes.id'), nullable=False)
+    attributes = Column(JSON, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    
+    # Relationships
+    source = relationship("KnowledgeNode", foreign_keys=[source_id], back_populates="source_edges")
+    target = relationship("KnowledgeNode", foreign_keys=[target_id], back_populates="target_edges")
+    
+    def to_dict(self):
+        return {
+            'id': self.uid,
             'edge_type': self.edge_type,
-            'source_id': self.source_id,
-            'target_id': self.target_id,
             'label': self.label,
             'weight': self.weight,
+            'source_id': self.source.uid,
+            'target_id': self.target.uid,
             'attributes': self.attributes,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
         }
 
-class KnowledgeAlgorithm(db.Model):
-    """Model for knowledge algorithms in the UKG system."""
-    __tablename__ = 'ukg_knowledge_algorithms'
+# Layer Activation model
+class LayerActivation(db.Model):
+    __tablename__ = 'ukg_layer_activations'
     
     id = Column(Integer, primary_key=True)
-    uid = Column(String(255), unique=True, nullable=False)
-    name = Column(String(255), nullable=False)
-    code = Column(String(10), nullable=False)  # e.g., "KA-01"
-    version = Column(String(50), nullable=False)
-    description = Column(Text, nullable=True)
-    parameters = Column(JSON, nullable=True)
-    meta_data = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    executions = relationship("KAExecution", back_populates="algorithm", cascade="all, delete-orphan")
-    
-    def to_dict(self):
-        """Convert algorithm to dictionary."""
-        return {
-            'id': self.id,
-            'uid': self.uid,
-            'name': self.name,
-            'code': self.code,
-            'version': self.version,
-            'description': self.description,
-            'parameters': self.parameters,
-            'metadata': self.meta_data,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
-
-class KAExecution(db.Model):
-    """Model for knowledge algorithm executions in the UKG system."""
-    __tablename__ = 'ukg_ka_executions'
-    
-    id = Column(Integer, primary_key=True)
-    uid = Column(String(255), unique=True, nullable=False)
-    algorithm_id = Column(Integer, ForeignKey('ukg_knowledge_algorithms.id'), nullable=False)
-    session_id = Column(Integer, ForeignKey('ukg_sessions.id'), nullable=True)
-    status = Column(String(50), nullable=False)  # e.g., "success", "failed"
-    start_time = Column(DateTime, nullable=False, default=datetime.utcnow)
-    end_time = Column(DateTime, nullable=True)
-    duration_ms = Column(Float, nullable=True)
-    input_data = Column(JSON, nullable=True)
-    output_data = Column(JSON, nullable=True)
-    error_message = Column(Text, nullable=True)
-    meta_data = Column(JSON, nullable=True)
-    
-    # Relationships
-    algorithm = relationship("KnowledgeAlgorithm", back_populates="executions")
-    session = relationship("Session", back_populates="executions")
-    
-    def to_dict(self):
-        """Convert execution to dictionary."""
-        return {
-            'id': self.id,
-            'uid': self.uid,
-            'algorithm_id': self.algorithm_id,
-            'session_id': self.session_id,
-            'status': self.status,
-            'start_time': self.start_time.isoformat() if self.start_time else None,
-            'end_time': self.end_time.isoformat() if self.end_time else None,
-            'duration_ms': self.duration_ms,
-            'input_data': self.input_data,
-            'output_data': self.output_data,
-            'error_message': self.error_message,
-            'metadata': self.meta_data
-        }
-
-class Session(db.Model):
-    """Model for UKG simulation sessions."""
-    __tablename__ = 'ukg_sessions'
-    
-    id = Column(Integer, primary_key=True)
-    uid = Column(String(255), unique=True, nullable=False)
-    session_type = Column(String(100), nullable=False)  # e.g., "quad_persona", "refinement"
-    status = Column(String(50), nullable=False)  # e.g., "active", "completed"
-    start_time = Column(DateTime, nullable=False, default=datetime.utcnow)
-    end_time = Column(DateTime, nullable=True)
-    query = Column(Text, nullable=True)
+    uid = Column(String(36), default=generate_uuid, unique=True, nullable=False)
+    layer_number = Column(Integer, nullable=False)  # 1-10 representing simulation layers
+    simulation_session_id = Column(Integer, ForeignKey('simulation_sessions.id'), nullable=False)
+    is_active = Column(Boolean, default=True)
     confidence_score = Column(Float, nullable=True)
-    refinement_cycles = Column(Integer, nullable=True, default=0)
-    meta_data = Column(JSON, nullable=True)
-    
-    # Relationships
-    executions = relationship("KAExecution", back_populates="session")
-    memory_entries = relationship("MemoryEntry", back_populates="session")
+    start_time = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    end_time = Column(DateTime, nullable=True)
+    processing_time = Column(Float, nullable=True)  # in seconds
+    results = Column(JSON, nullable=True)
+    error_message = Column(Text, nullable=True)
     
     def to_dict(self):
-        """Convert session to dictionary."""
         return {
-            'id': self.id,
-            'uid': self.uid,
-            'session_type': self.session_type,
-            'status': self.status,
-            'start_time': self.start_time.isoformat() if self.start_time else None,
-            'end_time': self.end_time.isoformat() if self.end_time else None,
-            'query': self.query,
+            'id': self.uid,
+            'layer_number': self.layer_number,
+            'simulation_session_id': self.simulation_session_id,
+            'is_active': self.is_active,
             'confidence_score': self.confidence_score,
-            'refinement_cycles': self.refinement_cycles,
-            'metadata': self.meta_data
+            'start_time': self.start_time.isoformat(),
+            'end_time': self.end_time.isoformat() if self.end_time else None,
+            'processing_time': self.processing_time,
+            'results': self.results,
+            'error_message': self.error_message
         }
 
-class MemoryEntry(db.Model):
-    """Model for UKG memory entries."""
-    __tablename__ = 'ukg_memory_entries'
+# Device Authentication model (for Microsoft Enterprise security standards)
+class DeviceAuthentication(db.Model):
+    __tablename__ = 'device_authentications'
     
     id = Column(Integer, primary_key=True)
-    uid = Column(String(255), unique=True, nullable=False)
-    session_id = Column(Integer, ForeignKey('ukg_sessions.id'), nullable=True)
-    memory_type = Column(String(100), nullable=False)  # e.g., "knowledge", "context"
-    key = Column(String(255), nullable=True)
-    content = Column(JSON, nullable=False)
-    confidence = Column(Float, nullable=True)
-    timestamp = Column(DateTime, nullable=False, default=datetime.utcnow)
-    expiration = Column(DateTime, nullable=True)
-    meta_data = Column(JSON, nullable=True)
+    uid = Column(String(36), default=generate_uuid, unique=True, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    device_id = Column(String(100), nullable=False)
+    device_name = Column(String(100), nullable=True)
+    device_type = Column(String(50), nullable=False)  # desktop, mobile, tablet
+    ip_address = Column(String(50), nullable=False)
+    user_agent = Column(Text, nullable=True)
+    is_trusted = Column(Boolean, default=False)
+    first_seen = Column(DateTime, default=datetime.datetime.utcnow)
+    last_seen = Column(DateTime, default=datetime.datetime.utcnow)
     
-    # Relationships
-    session = relationship("Session", back_populates="memory_entries")
+    __table_args__ = (UniqueConstraint('user_id', 'device_id', name='uix_user_device'),)
     
     def to_dict(self):
-        """Convert memory entry to dictionary."""
         return {
-            'id': self.id,
-            'uid': self.uid,
-            'session_id': self.session_id,
-            'memory_type': self.memory_type,
-            'key': self.key,
-            'content': self.content,
-            'confidence': self.confidence,
-            'timestamp': self.timestamp.isoformat() if self.timestamp else None,
-            'expiration': self.expiration.isoformat() if self.expiration else None,
-            'metadata': self.meta_data
+            'id': self.uid,
+            'device_id': self.device_id,
+            'device_name': self.device_name,
+            'device_type': self.device_type,
+            'ip_address': self.ip_address,
+            'is_trusted': self.is_trusted,
+            'first_seen': self.first_seen.isoformat(),
+            'last_seen': self.last_seen.isoformat()
         }
+
+# OAuth Tokens model (for Azure AD / Microsoft Entra ID integration)
+class OAuthToken(db.Model):
+    __tablename__ = 'oauth_tokens'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    provider = Column(String(50), nullable=False)  # azure_ad, microsoft_graph, etc.
+    access_token = Column(Text, nullable=False)
+    refresh_token = Column(Text, nullable=True)
+    expires_at = Column(DateTime, nullable=False)
+    scope = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    
+    __table_args__ = (UniqueConstraint('user_id', 'provider', name='uix_user_provider'),)
+    
+    @property
+    def is_expired(self):
+        return datetime.datetime.utcnow() > self.expires_at
