@@ -17,6 +17,10 @@ class GatekeeperAgent:
     Controls access to simulation Layers 4-10 based on data complexity, uncertainty, 
     entropy, or ethical triggers. Evaluates output from Layers 1-3 to decide whether
     to escalate simulation processing.
+    
+    The Gatekeeper Agent determines which layers to activate based on confidence scores,
+    entropy values, role conflicts, and regulatory triggers. It acts as the central
+    controller for the layered simulation architecture.
     """
     
     def __init__(self, config=None):
@@ -130,12 +134,29 @@ class GatekeeperAgent:
                 if pov_activate:
                     triggered_by = ["Multiple viewpoints detected"]
             
-            elif layer == 5:  # Agent Simulation
-                # Activate on knowledge gaps or role conflicts
-                agent_activate = "knowledge_gap" in roles_triggered or "role_conflict" in roles_triggered
-                activate = activate or agent_activate
-                if agent_activate:
-                    triggered_by = ["Knowledge gaps or role conflicts detected"]
+            elif layer == 5:  # Integration Engine
+                # Enhanced activation logic for Layer 5
+                # Activate on knowledge gaps, role conflicts, or uncertainty indicators
+                l5_activate = "knowledge_gap" in roles_triggered or "role_conflict" in roles_triggered
+                
+                # New triggers specific to Layer 5 Integration Engine
+                integration_triggers = ["uncertainty", "validation_needed", "inconsistency"]
+                for trigger in integration_triggers:
+                    if trigger in roles_triggered or trigger in regulatory_flags:
+                        l5_activate = True
+                        if trigger not in triggered_by:
+                            triggered_by.append(trigger)
+                
+                # Check uncertainty level for additional Layer 5 activation
+                uncertainty_level = context.get("uncertainty_level", 0.0)
+                if uncertainty_level > 0.3:  # Moderate uncertainty triggers Layer 5
+                    l5_activate = True
+                    if "high_uncertainty" not in triggered_by:
+                        triggered_by.append("high_uncertainty")
+                
+                activate = activate or l5_activate
+                if l5_activate and not triggered_by:
+                    triggered_by = ["Knowledge gaps, role conflicts, or integration needs detected"]
             
             elif layer == 8:  # Quantum Fidelity Layer
                 # Activate on high entropy or trust issues
@@ -256,3 +277,52 @@ class GatekeeperAgent:
         layer_decision = self.current_decision.get('layer_activations', {}).get(layer_key, {})
         
         return layer_decision
+        
+    def get_layer5_integration_parameters(self, context: Dict) -> Dict:
+        """
+        Get specific parameters for Layer 5 Integration Engine.
+        
+        This method extracts and configures parameters specifically for the
+        Layer 5 Integration Engine based on the current context and decision state.
+        
+        Args:
+            context: Context dictionary with simulation results and metrics
+            
+        Returns:
+            dict: Configuration parameters for Layer 5 Integration Engine
+        """
+        # First ensure we've evaluated the context
+        if not self.current_decision or context != self.decision_log[-1]['context'] if self.decision_log else True:
+            self.evaluate(context)
+            
+        # Check if Layer 5 should be activated
+        layer5_active = False
+        layer5_decision = self.current_decision.get('layer_activations', {}).get('layer_5', {})
+        if layer5_decision.get('activate', False):
+            layer5_active = True
+            
+        # Default parameters for Layer 5
+        integration_params = {
+            'active': layer5_active,
+            'uncertainty_threshold': 0.15,  # Default uncertainty threshold
+            'verification_cycles': max(1, min(3, context.get('simulation_pass', 1))),  # Scale with pass number
+            'refinement_depth': 2,
+            'triggers': layer5_decision.get('triggered_by', []),
+            'context_metrics': {
+                'uncertainty': context.get('uncertainty_level', 0.0),
+                'confidence': context.get('confidence_score', 0.0),
+                'entropy': context.get('entropy_score', 0.0)
+            }
+        }
+        
+        # Customize based on context
+        if context.get('high_priority', False):
+            # Increase verification for high priority queries
+            integration_params['verification_cycles'] += 1
+            integration_params['refinement_depth'] += 1
+            
+        # Adjust for entropy
+        if context.get('entropy_score', 0.0) > 0.5:
+            integration_params['uncertainty_threshold'] = 0.1  # More strict for high entropy
+            
+        return integration_params
