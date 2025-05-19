@@ -8,10 +8,22 @@ from core.knowledge_algorithm.ka_loader import KALoader
 from core.simulation.simulation_engine import SimulationEngine
 from core.simulation.app_orchestrator import AppOrchestrator
 from config import AppConfig
+from models import db
 
 # Initialize Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
+
+# Configure the database
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+}
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Initialize the database with the app
+db.init_app(app)
 
 # Load configuration
 config = AppConfig()
