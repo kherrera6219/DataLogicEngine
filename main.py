@@ -1,4 +1,4 @@
-"""Modified code based on user instructions and provided snippets, including Axis 6 regulatory registration."""
+"""Modified code based on user instructions and provided snippets, including Axis 6 regulatory registration and Axis 11 contextual expert persona."""
 import os
 import logging
 from flask import Flask, render_template, request, jsonify
@@ -68,6 +68,7 @@ from backend.methods_api import methods_api
 from backend.honeycomb_api import honeycomb_api
 from backend.regulatory_api import regulatory_api
 from backend.api import api
+from backend.contextual_api import contextual_api
 
 # Import compliance API
 from backend.compliance_api import compliance_api
@@ -130,6 +131,7 @@ app.register_blueprint(methods_api)
 app.register_blueprint(honeycomb_api)
 app.register_blueprint(regulatory_api)
 app.register_blueprint(location_api)
+app.register_blueprint(contextual_api)
 
 # Run the application if executed directly
 if __name__ == '__main__':

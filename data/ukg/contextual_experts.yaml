@@ -1,0 +1,171 @@
+
+# Universal Knowledge Graph (UKG) Contextual Experts (Axis 11)
+#
+# This file defines the contextual expert personas with 7-part expertise model:
+# A. Role
+# B. Formal Education
+# C. Industry and Corporate Certifications
+# D. Job Training
+# E. Skills
+# F. Related Tasks
+# G. Related Roles
+
+ContextExperts:
+  - id: "CE_BUSINESS"
+    label: "Business Context Expert"
+    description: "Expert in business contexts and applications of knowledge."
+    type: "ContextExpert"
+    related_sectors: ["SECTOR_BUSINESS", "SECTOR_FINANCE", "SECTOR_MANAGEMENT"]
+    formal_education: ["Business Administration", "MBA", "Economics"]
+    certifications: ["PMP", "CAPM", "Six Sigma"]
+    job_training: ["Business Strategy", "Market Analysis", "Corporate Finance"]
+    skills: ["Strategic Planning", "Business Analysis", "Financial Modeling"]
+    related_tasks: ["Business Case Development", "Market Research", "Financial Reporting"]
+    related_roles: ["Business Analyst", "Strategy Consultant", "Financial Analyst"]
+    mega_subtypes:
+      - id: "CE_BUSINESS_STRATEGY"
+        label: "Strategic Business Context Expert"
+        description: "Expert in strategic business contexts and planning."
+        formal_education: ["MBA with Strategy Concentration", "Strategic Management"]
+        certifications: ["Strategic Planning Professional", "CSCP"]
+        job_training: ["Strategic Planning", "Competitive Analysis", "Business Model Development"]
+        skills: ["Strategic Thinking", "SWOT Analysis", "Business Model Canvas"]
+        related_tasks: ["Strategy Formulation", "Competitive Analysis", "Vision and Mission Development"]
+        related_roles: ["Strategy Consultant", "Business Strategist", "Chief Strategy Officer"]
+        large_subtypes:
+          - id: "CE_BUSINESS_GROWTH"
+            label: "Business Growth Context Expert"
+            description: "Expert in business growth and expansion contexts."
+            formal_education: ["Growth Strategy", "Business Development", "Market Expansion"]
+            certifications: ["Growth Strategy Certification", "Business Development Professional"]
+            job_training: ["Market Development", "Growth Hacking", "Expansion Planning"]
+            skills: ["Growth Strategy", "Market Penetration", "Scaling Operations"]
+            related_tasks: ["Growth Planning", "New Market Entry", "Business Scaling"]
+            related_roles: ["Growth Manager", "Business Development Director", "Expansion Strategist"]
+            medium_subtypes:
+              - id: "CE_BUSINESS_MARKET_EXPANSION"
+                label: "Market Expansion Context Expert"
+                description: "Expert in entering and expanding into new markets."
+                formal_education: ["International Business", "Global Marketing", "Cross-cultural Management"]
+                certifications: ["International Trade Professional", "Global Business Certification"]
+                job_training: ["International Market Assessment", "Cross-border Expansion", "Global Strategy"]
+                skills: ["Market Entry Strategy", "International Business Development", "Cross-cultural Negotiation"]
+                related_tasks: ["Foreign Market Analysis", "International Partnership Development", "Global Expansion Planning"]
+                related_roles: ["International Business Developer", "Global Expansion Manager", "Cross-border Strategy Consultant"]
+                small_subtypes: []
+              - id: "CE_BUSINESS_PRODUCT_EXPANSION"
+                label: "Product Expansion Context Expert"
+                description: "Expert in expanding product lines and offerings."
+                formal_education: ["Product Management", "Innovation Management", "New Product Development"]
+                certifications: ["Product Management Certification", "New Product Development Professional"]
+                job_training: ["Product Portfolio Management", "Product Roadmapping", "Product Line Strategy"]
+                skills: ["Product Line Planning", "Product Portfolio Analysis", "New Product Introduction"]
+                related_tasks: ["Product Roadmap Development", "Product Line Extension Planning", "Portfolio Gap Analysis"]
+                related_roles: ["Product Line Manager", "Portfolio Strategist", "Product Expansion Director"]
+                small_subtypes: []
+              - id: "CE_BUSINESS_CHANNEL_EXPANSION"
+                label: "Channel Expansion Context Expert"
+                description: "Expert in expanding through new distribution channels."
+                formal_education: ["Channel Management", "Retail Management", "Distribution Strategy"]
+                certifications: ["Channel Management Professional", "Distribution Strategy Certification"]
+                job_training: ["Omnichannel Strategy", "Channel Partner Development", "Distribution Network Design"]
+                skills: ["Channel Strategy", "Partner Relationship Management", "Distribution Network Optimization"]
+                related_tasks: ["Channel Partner Selection", "Channel Conflict Management", "Omnichannel Integration"]
+                related_roles: ["Channel Manager", "Distribution Director", "Partner Development Executive"]
+                small_subtypes: []
+              - id: "CE_BUSINESS_CUSTOMER_EXPANSION"
+                label: "Customer Segment Expansion Context Expert"
+                description: "Expert in expanding into new customer segments."
+                formal_education: ["Customer Segmentation", "Consumer Behavior", "Market Research"]
+                certifications: ["Market Research Professional", "Customer Insights Certification"]
+                job_training: ["Customer Segmentation Analysis", "Target Market Development", "Customer Journey Mapping"]
+                skills: ["Customer Segmentation", "Persona Development", "Market Sizing"]
+                related_tasks: ["Customer Segment Analysis", "New Segment Targeting Strategy", "Segment-Specific Positioning"]
+                related_roles: ["Market Segment Manager", "Customer Insights Strategist", "Segment Marketing Director"]
+                small_subtypes: []
+
+  - id: "CE_TECHNOLOGY"
+    label: "Technology Context Expert"
+    description: "Expert in technology contexts and applications of knowledge."
+    type: "ContextExpert" 
+    related_sectors: ["SECTOR_IT", "SECTOR_ENGINEERING", "SECTOR_TELECOMMUNICATIONS"]
+    formal_education: ["Computer Science", "Information Technology", "Software Engineering"]
+    certifications: ["MCSE", "AWS Certified Solutions Architect", "CISSP"]
+    job_training: ["Enterprise Architecture", "Cloud Computing", "Cybersecurity"]
+    skills: ["System Design", "Technology Strategy", "IT Governance"]
+    related_tasks: ["Technology Assessment", "IT Strategy Development", "Digital Transformation"]
+    related_roles: ["CTO", "IT Director", "Technology Consultant"]
+    mega_subtypes:
+      - id: "CE_TECH_DIGITAL"
+        label: "Digital Transformation Context Expert"
+        description: "Expert in digital transformation contexts and implementation."
+        formal_education: ["Digital Business", "Information Systems", "Technology Management"]
+        certifications: ["Digital Transformation Professional", "Change Management Certification"]
+        job_training: ["Digital Strategy", "Enterprise Architecture", "Technology Roadmapping"]
+        skills: ["Digital Strategy Development", "Process Digitization", "Change Leadership"]
+        related_tasks: ["Digital Maturity Assessment", "Technology Roadmap Development", "Digital Innovation"]
+        related_roles: ["Digital Transformation Lead", "Chief Digital Officer", "Digital Strategy Consultant"]
+        large_subtypes:
+          - id: "CE_TECH_ENTERPRISE"
+            label: "Enterprise Technology Context Expert"
+            description: "Expert in enterprise-wide technology contexts and solutions."
+            formal_education: ["Enterprise Architecture", "IT Management", "Business Information Systems"]
+            certifications: ["TOGAF", "Zachman Framework Certification", "Enterprise Architecture Professional"]
+            job_training: ["Enterprise Systems Integration", "IT Portfolio Management", "Technology Governance"]
+            skills: ["Enterprise Architecture Design", "Technology Portfolio Management", "IT Governance Framework Development"]
+            related_tasks: ["Architecture Review", "Technology Standards Development", "Enterprise IT Strategy"]
+            related_roles: ["Enterprise Architect", "IT Governance Manager", "Chief Enterprise Architect"]
+            medium_subtypes:
+              - id: "CE_TECH_INTEGRATION"
+                label: "Systems Integration Context Expert"
+                description: "Expert in integrating diverse technology systems and platforms."
+                formal_education: ["Systems Integration", "Enterprise Application Integration", "Middleware Technologies"]
+                certifications: ["Integration Professional Certification", "MuleSoft Certified Developer", "API Management Professional"]
+                job_training: ["API Management", "Microservices Architecture", "Integration Patterns"]
+                skills: ["Integration Architecture Design", "Middleware Configuration", "API Strategy Development"]
+                related_tasks: ["Integration Pattern Selection", "Middleware Implementation", "API Gateway Design"]
+                related_roles: ["Integration Architect", "API Manager", "Middleware Specialist"]
+                small_subtypes: []
+              - id: "CE_TECH_DATA"
+                label: "Enterprise Data Context Expert"
+                description: "Expert in enterprise data management and governance contexts."
+                formal_education: ["Data Management", "Information Architecture", "Data Governance"]
+                certifications: ["CDMP", "Data Governance Professional", "DAMA Certification"]
+                job_training: ["Data Modeling", "Master Data Management", "Data Quality Management"]
+                skills: ["Data Architecture Design", "Data Governance Framework Development", "Data Quality Strategy"]
+                related_tasks: ["Data Model Development", "Data Governance Implementation", "Master Data Management"]
+                related_roles: ["Data Architect", "Data Governance Manager", "Chief Data Officer"]
+                small_subtypes: []
+              - id: "CE_TECH_SECURITY"
+                label: "Enterprise Security Context Expert"
+                description: "Expert in enterprise-wide security contexts and solutions."
+                formal_education: ["Information Security", "Cybersecurity Management", "Risk Management"]
+                certifications: ["CISSP", "CISM", "Security+"]
+                job_training: ["Security Architecture", "Security Operations", "Risk Assessment"]
+                skills: ["Security Strategy Development", "Security Architecture Design", "Risk Management Framework Development"]
+                related_tasks: ["Security Assessment", "Security Policy Development", "Security Governance"]
+                related_roles: ["Chief Information Security Officer", "Security Architect", "Information Security Manager"]
+                small_subtypes: []
+              - id: "CE_TECH_CLOUD"
+                label: "Cloud Computing Context Expert"
+                description: "Expert in cloud computing contexts and implementations."
+                formal_education: ["Cloud Architecture", "Distributed Systems", "Cloud-Native Development"]
+                certifications: ["AWS Certified Solutions Architect", "Azure Solutions Architect", "Google Professional Cloud Architect"]
+                job_training: ["Cloud Migration", "Multi-Cloud Strategy", "Cloud Cost Optimization"]
+                skills: ["Cloud Architecture Design", "Cloud Migration Planning", "Cloud Governance Framework Development"]
+                related_tasks: ["Cloud Readiness Assessment", "Cloud Migration Planning", "Cloud Cost Management"]
+                related_roles: ["Cloud Architect", "Cloud Strategy Manager", "Cloud Operations Director"]
+                small_subtypes: []
+
+  - id: "CE_HEALTHCARE"
+    label: "Healthcare Context Expert"
+    description: "Expert in healthcare contexts and applications of knowledge."
+    type: "ContextExpert"
+    related_sectors: ["SECTOR_HEALTHCARE", "SECTOR_PHARMACEUTICALS", "SECTOR_BIOTECH"]
+    formal_education: ["Healthcare Administration", "Public Health", "Medicine"]
+    certifications: ["CHES", "CPHQ", "Lean Healthcare"]
+    job_training: ["Healthcare Management", "Clinical Operations", "Health Informatics"]
+    skills: ["Healthcare Systems Knowledge", "Clinical Workflow Understanding", "Healthcare Compliance"]
+    related_tasks: ["Healthcare Process Improvement", "Clinical Integration", "Healthcare Strategic Planning"]
+    related_roles: ["Healthcare Administrator", "Clinical Operations Director", "Healthcare Consultant"]
+    mega_subtypes: []
