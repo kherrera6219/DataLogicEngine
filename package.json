@@ -1,20 +1,23 @@
+
 {
-  "name": "workspace",
+  "name": "ukg-nextjs",
   "version": "1.0.0",
+  "description": "Universal Knowledge Graph System with Next.js frontend",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start -p 5000"
   },
-  "keywords": [],
+  "keywords": ["ukg", "knowledge-graph", "next"],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
-    "bootstrap": "^5.3.6",
-    "bootstrap-icons": "^1.13.1",
-    "marked": "^15.0.11",
-    "next": "^15.3.2",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "bootstrap": "^5.3.0",
+    "bootstrap-icons": "^1.11.1",
+    "marked": "^9.0.0",
+    "next": "^13.4.19",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }
