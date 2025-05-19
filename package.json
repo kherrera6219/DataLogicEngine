@@ -16,6 +16,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fluentui/react": "^8.122.18",
+    "@fluentui/react-components": "^9.64.0",
     "bootstrap": "^5.3.2",
     "bootstrap-icons": "^1.11.3",
     "dotenv": "^16.5.0",

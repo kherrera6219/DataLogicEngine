@@ -1,102 +1,119 @@
 
+import React, { useEffect } from 'react';
+import { makeStyles, shorthands, Text, Button, mergeClasses } from '@fluentui/react-components';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import Navbar from './ui/Navbar';
 
-export default function Layout({ children }) {
-  const [scrolled, setScrolled] = useState(false);
+const useStyles = makeStyles({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '100vh',
+  },
+  main: {
+    flex: '1 0 auto',
+    ...shorthands.padding('24px', '0'),
+    width: '100%',
+    maxWidth: '100%',
+    overflowX: 'hidden',
+  },
+  mainContent: {
+    maxWidth: '1400px',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    ...shorthands.padding('0', '16px'),
+    '@media(min-width: 576px)': {
+      ...shorthands.padding('0', '24px'),
+    },
+  },
+  footer: {
+    backgroundColor: 'var(--colorNeutralBackground2)',
+    color: 'var(--colorNeutralForeground2)',
+    ...shorthands.padding('16px', '0'),
+    marginTop: '32px',
+  },
+  footerContent: {
+    maxWidth: '1400px',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    ...shorthands.padding('0', '16px'),
+    '@media(min-width: 576px)': {
+      ...shorthands.padding('0', '24px'),
+    },
+  },
+  footerRow: {
+    display: 'flex',
+    flexDirection: 'column',
+    '@media(min-width: 768px)': {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+  },
+  footerCopyright: {
+    textAlign: 'center',
+    marginBottom: '16px',
+    '@media(min-width: 768px)': {
+      textAlign: 'left',
+      marginBottom: '0',
+    },
+  },
+  socialLinks: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '24px',
+    '@media(min-width: 768px)': {
+      justifyContent: 'flex-end',
+    },
+  },
+  socialLink: {
+    color: 'var(--colorNeutralForeground2)',
+    fontSize: '20px',
+    transition: 'color 0.2s',
+    ':hover': {
+      color: 'var(--colorBrandForeground1)',
+    },
+  },
+});
 
-  // Handle scroll effect for navbar
-  useEffect(() => {
-    const handleScroll = () => {
-      const offset = window.scrollY;
-      if (offset > 50) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
+export default function Layout({ children, className }) {
+  const styles = useStyles();
+  const router = useRouter();
 
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  const navItems = [
+    { label: 'Home', href: '/', icon: 'house-door' },
+    { label: 'Chat', href: '/chat', icon: 'chat-dots' },
+    { label: 'About', href: '#about', icon: 'info-circle' },
+  ];
 
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <header>
-        <nav className={`navbar navbar-expand-lg navbar-dark bg-dark ${scrolled ? 'shadow-sm' : ''}`} 
-             style={{ transition: 'all 0.3s ease' }}>
-          <div className="container">
-            <Link href="/" className="navbar-brand d-flex align-items-center">
-              <i className="bi bi-diagram-3 me-2"></i>
-              <span className="d-none d-sm-inline">Universal Knowledge Graph</span>
-              <span className="d-inline d-sm-none">UKG</span>
-            </Link>
-            <button 
-              className="navbar-toggler" 
-              type="button" 
-              data-bs-toggle="collapse" 
-              data-bs-target="#navbarNav" 
-              aria-controls="navbarNav" 
-              aria-expanded="false" 
-              aria-label="Toggle navigation"
-            >
-              <span className="navbar-toggler-icon"></span>
-            </button>
-            <div className="collapse navbar-collapse" id="navbarNav">
-              <ul className="navbar-nav ms-auto">
-                <li className="nav-item">
-                  <Link href="/" className="nav-link px-3">
-                    <i className="bi bi-house-door me-1 d-inline d-lg-none"></i> Home
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link href="/chat" className="nav-link px-3">
-                    <i className="bi bi-chat-dots me-1 d-inline d-lg-none"></i> Chat
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link px-3" href="#about">
-                    <i className="bi bi-info-circle me-1 d-inline d-lg-none"></i> About
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
-      </header>
+    <div className={styles.container}>
+      <Navbar navItems={navItems} />
       
-      <main className="flex-grow-1">
-        <div className="container py-4">
+      <main className={mergeClasses(styles.main, className)}>
+        <div className={styles.mainContent}>
           {children}
         </div>
       </main>
       
-      <footer className="bg-dark text-light py-3 mt-4">
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-md-6 text-center text-md-start mb-2 mb-md-0">
-              <p className="mb-0">Universal Knowledge Graph System &copy; {new Date().getFullYear()}</p>
+      <footer className={styles.footer}>
+        <div className={styles.footerContent}>
+          <div className={styles.footerRow}>
+            <div className={styles.footerCopyright}>
+              <Text size={200}>Universal Knowledge Graph System &copy; {new Date().getFullYear()}</Text>
             </div>
-            <div className="col-md-6">
-              <ul className="list-inline mb-0 text-center text-md-end">
-                <li className="list-inline-item">
-                  <a href="#" className="text-light">
-                    <i className="bi bi-github"></i>
-                  </a>
-                </li>
-                <li className="list-inline-item ms-3">
-                  <a href="#" className="text-light">
-                    <i className="bi bi-twitter"></i>
-                  </a>
-                </li>
-                <li className="list-inline-item ms-3">
-                  <a href="#" className="text-light">
-                    <i className="bi bi-linkedin"></i>
-                  </a>
-                </li>
-              </ul>
+            
+            <div className={styles.socialLinks}>
+              <a href="#" className={styles.socialLink} aria-label="GitHub">
+                <i className="bi bi-github"></i>
+              </a>
+              <a href="#" className={styles.socialLink} aria-label="Twitter">
+                <i className="bi bi-twitter"></i>
+              </a>
+              <a href="#" className={styles.socialLink} aria-label="LinkedIn">
+                <i className="bi bi-linkedin"></i>
+              </a>
             </div>
           </div>
         </div>
