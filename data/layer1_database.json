@@ -1,0 +1,1446 @@
+{
+  "metadata": {
+    "created_at": "2025-05-19T19:07:38.414986",
+    "exported_at": "2025-05-19T19:07:38.416584",
+    "node_count": 50,
+    "relationship_count": 75
+  },
+  "axes": {
+    "1": {
+      "name": "Pillar Levels",
+      "description": "Knowledge abstraction levels"
+    },
+    "2": {
+      "name": "Sectors",
+      "description": "Industry and domain sectors"
+    },
+    "3": {
+      "name": "Topics",
+      "description": "Subject areas and themes"
+    },
+    "4": {
+      "name": "Methods",
+      "description": "Methodologies and approaches"
+    },
+    "5": {
+      "name": "Tools",
+      "description": "Technologies and resources"
+    },
+    "6": {
+      "name": "Regulatory Frameworks",
+      "description": "Laws and regulations"
+    },
+    "7": {
+      "name": "Compliance Standards",
+      "description": "Compliance requirements"
+    },
+    "8": {
+      "name": "Knowledge Expert",
+      "description": "Domain knowledge expertise"
+    },
+    "9": {
+      "name": "Sector Expert",
+      "description": "Industry expertise"
+    },
+    "10": {
+      "name": "Regulatory Expert",
+      "description": "Regulatory expertise"
+    },
+    "11": {
+      "name": "Compliance Expert",
+      "description": "Compliance expertise"
+    },
+    "12": {
+      "name": "Locations",
+      "description": "Geographic contexts"
+    },
+    "13": {
+      "name": "Time",
+      "description": "Temporal contexts"
+    }
+  },
+  "nodes": {
+    "node_1_1_92c882be": {
+      "node_id": "node_1_1_92c882be",
+      "axis": 1,
+      "label": "Universal",
+      "level": 1,
+      "description": "Universal principles and concepts at the highest abstraction level",
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.415183"
+    },
+    "node_1_2_ca9bb2ce": {
+      "node_id": "node_1_2_ca9bb2ce",
+      "axis": 1,
+      "label": "Conceptual",
+      "level": 2,
+      "description": "Broad conceptual frameworks and theoretical constructs",
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.415204"
+    },
+    "node_1_3_3d57e059": {
+      "node_id": "node_1_3_3d57e059",
+      "axis": 1,
+      "label": "Domain",
+      "level": 3,
+      "description": "Specific knowledge domains and disciplines",
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.415213"
+    },
+    "node_1_4_e5ee7b9f": {
+      "node_id": "node_1_4_e5ee7b9f",
+      "axis": 1,
+      "label": "Applied",
+      "level": 4,
+      "description": "Applied knowledge in specific contexts",
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.415224"
+    },
+    "node_1_5_fb80e12f": {
+      "node_id": "node_1_5_fb80e12f",
+      "axis": 1,
+      "label": "Implementation",
+      "level": 5,
+      "description": "Specific implementations, instances, and concrete applications",
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.415232"
+    },
+    "node_2_1_69191243": {
+      "node_id": "node_2_1_69191243",
+      "axis": 2,
+      "label": "Technology",
+      "level": 1,
+      "description": "Information technology, software, hardware, and digital systems",
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.415248"
+    },
+    "node_2_1_b6a3d64f": {
+      "node_id": "node_2_1_b6a3d64f",
+      "axis": 2,
+      "label": "Healthcare",
+      "level": 1,
+      "description": "Medical services, health systems, and patient care",
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.415259"
+    },
+    "node_2_1_8ec75139": {
+      "node_id": "node_2_1_8ec75139",
+      "axis": 2,
+      "label": "Finance",
+      "level": 1,
+      "description": "Banking, investment, insurance, and financial services",
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.415270"
+    },
+    "node_2_1_ef2a3fad": {
+      "node_id": "node_2_1_ef2a3fad",
+      "axis": 2,
+      "label": "Education",
+      "level": 1,
+      "description": "Academic institutions, learning systems, and educational services",
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.415290"
+    },
+    "node_2_1_a88d3c8b": {
+      "node_id": "node_2_1_a88d3c8b",
+      "axis": 2,
+      "label": "Government",
+      "level": 1,
+      "description": "Public administration, policy, and governance",
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.415297"
+    },
+    "node_2_1_14cb46f5": {
+      "node_id": "node_2_1_14cb46f5",
+      "axis": 2,
+      "label": "Manufacturing",
+      "level": 1,
+      "description": "Production, industrial processes, and manufacturing systems",
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.415304"
+    },
+    "node_3_1_63f39a87": {
+      "node_id": "node_3_1_63f39a87",
+      "axis": 3,
+      "label": "Artificial Intelligence",
+      "level": 1,
+      "description": "Study and development of computer systems that mimic human intelligence",
+      "attributes": {
+        "sector": "Technology"
+      },
+      "created_at": "2025-05-19T19:07:38.415329"
+    },
+    "node_3_1_784a38cd": {
+      "node_id": "node_3_1_784a38cd",
+      "axis": 3,
+      "label": "Cybersecurity",
+      "level": 1,
+      "description": "Protection of computer systems and networks from information disclosure",
+      "attributes": {
+        "sector": "Technology"
+      },
+      "created_at": "2025-05-19T19:07:38.415340"
+    },
+    "node_3_1_badcd74e": {
+      "node_id": "node_3_1_badcd74e",
+      "axis": 3,
+      "label": "Patient Care",
+      "level": 1,
+      "description": "Medical treatment and care of patients in healthcare settings",
+      "attributes": {
+        "sector": "Healthcare"
+      },
+      "created_at": "2025-05-19T19:07:38.415350"
+    },
+    "node_3_1_2f28e8f4": {
+      "node_id": "node_3_1_2f28e8f4",
+      "axis": 3,
+      "label": "Investment Banking",
+      "level": 1,
+      "description": "Financial services for raising capital and providing advisory services",
+      "attributes": {
+        "sector": "Finance"
+      },
+      "created_at": "2025-05-19T19:07:38.415359"
+    },
+    "node_3_1_6d99225e": {
+      "node_id": "node_3_1_6d99225e",
+      "axis": 3,
+      "label": "Higher Education",
+      "level": 1,
+      "description": "Post-secondary education in colleges and universities",
+      "attributes": {
+        "sector": "Education"
+      },
+      "created_at": "2025-05-19T19:07:38.415367"
+    },
+    "node_4_1_d9da922b": {
+      "node_id": "node_4_1_d9da922b",
+      "axis": 4,
+      "label": "Machine Learning",
+      "level": 1,
+      "description": "Algorithms and statistical models for computer systems to perform tasks",
+      "attributes": {
+        "topics": [
+          "Artificial Intelligence"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415389"
+    },
+    "node_4_1_a453e4a3": {
+      "node_id": "node_4_1_a453e4a3",
+      "axis": 4,
+      "label": "Network Security Analysis",
+      "level": 1,
+      "description": "Analysis of networks for vulnerabilities and security issues",
+      "attributes": {
+        "topics": [
+          "Cybersecurity"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415400"
+    },
+    "node_4_1_cb249742": {
+      "node_id": "node_4_1_cb249742",
+      "axis": 4,
+      "label": "Patient-Centered Care",
+      "level": 1,
+      "description": "Approach to healthcare focusing on individual patient needs",
+      "attributes": {
+        "topics": [
+          "Patient Care"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415411"
+    },
+    "node_4_1_0786a5f4": {
+      "node_id": "node_4_1_0786a5f4",
+      "axis": 4,
+      "label": "Financial Modeling",
+      "level": 1,
+      "description": "Creating abstract representations of financial situations",
+      "attributes": {
+        "topics": [
+          "Investment Banking"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415423"
+    },
+    "node_4_1_1438f60d": {
+      "node_id": "node_4_1_1438f60d",
+      "axis": 4,
+      "label": "Active Learning",
+      "level": 1,
+      "description": "Educational approach emphasizing student engagement",
+      "attributes": {
+        "topics": [
+          "Higher Education"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415434"
+    },
+    "node_5_1_a0af4631": {
+      "node_id": "node_5_1_a0af4631",
+      "axis": 5,
+      "label": "TensorFlow",
+      "level": 1,
+      "description": "Open-source machine learning framework",
+      "attributes": {
+        "methods": [
+          "Machine Learning"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415458"
+    },
+    "node_5_1_13674f24": {
+      "node_id": "node_5_1_13674f24",
+      "axis": 5,
+      "label": "Wireshark",
+      "level": 1,
+      "description": "Network protocol analyzer for security testing",
+      "attributes": {
+        "methods": [
+          "Network Security Analysis"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415472"
+    },
+    "node_5_1_60951628": {
+      "node_id": "node_5_1_60951628",
+      "axis": 5,
+      "label": "Electronic Health Records",
+      "level": 1,
+      "description": "Digital version of patients' paper charts in healthcare settings",
+      "attributes": {
+        "methods": [
+          "Patient-Centered Care"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415483"
+    },
+    "node_5_1_12f7e638": {
+      "node_id": "node_5_1_12f7e638",
+      "axis": 5,
+      "label": "Bloomberg Terminal",
+      "level": 1,
+      "description": "Financial software system providing financial data",
+      "attributes": {
+        "methods": [
+          "Financial Modeling"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415493"
+    },
+    "node_5_1_19e3e84c": {
+      "node_id": "node_5_1_19e3e84c",
+      "axis": 5,
+      "label": "Learning Management Systems",
+      "level": 1,
+      "description": "Software applications for administration and delivery of educational courses",
+      "attributes": {
+        "methods": [
+          "Active Learning"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415504"
+    },
+    "node_6_1_e7e45f24": {
+      "node_id": "node_6_1_e7e45f24",
+      "axis": 6,
+      "label": "GDPR",
+      "level": 1,
+      "description": "General Data Protection Regulation for data protection in EU",
+      "attributes": {
+        "sectors": [
+          "Technology",
+          "Healthcare",
+          "Finance"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415526"
+    },
+    "node_6_1_8751e7ae": {
+      "node_id": "node_6_1_8751e7ae",
+      "axis": 6,
+      "label": "HIPAA",
+      "level": 1,
+      "description": "Health Insurance Portability and Accountability Act for healthcare data",
+      "attributes": {
+        "sectors": [
+          "Healthcare"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415538"
+    },
+    "node_6_1_b286e415": {
+      "node_id": "node_6_1_b286e415",
+      "axis": 6,
+      "label": "Basel III",
+      "level": 1,
+      "description": "Global regulatory framework for bank capital adequacy and stress testing",
+      "attributes": {
+        "sectors": [
+          "Finance"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415548"
+    },
+    "node_6_1_3984886f": {
+      "node_id": "node_6_1_3984886f",
+      "axis": 6,
+      "label": "FERPA",
+      "level": 1,
+      "description": "Family Educational Rights and Privacy Act for educational records",
+      "attributes": {
+        "sectors": [
+          "Education"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415559"
+    },
+    "node_6_1_86cdbafb": {
+      "node_id": "node_6_1_86cdbafb",
+      "axis": 6,
+      "label": "FAR",
+      "level": 1,
+      "description": "Federal Acquisition Regulation for government procurement",
+      "attributes": {
+        "sectors": [
+          "Government"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415570"
+    },
+    "node_7_1_87493b26": {
+      "node_id": "node_7_1_87493b26",
+      "axis": 7,
+      "label": "ISO 27001",
+      "level": 1,
+      "description": "Information security management standard",
+      "attributes": {
+        "frameworks": [
+          "GDPR"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415604"
+    },
+    "node_7_1_6bfb5cc0": {
+      "node_id": "node_7_1_6bfb5cc0",
+      "axis": 7,
+      "label": "HITRUST CSF",
+      "level": 1,
+      "description": "Health Information Trust Alliance Common Security Framework",
+      "attributes": {
+        "frameworks": [
+          "HIPAA"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415616"
+    },
+    "node_7_1_d598253d": {
+      "node_id": "node_7_1_d598253d",
+      "axis": 7,
+      "label": "PCI DSS",
+      "level": 1,
+      "description": "Payment Card Industry Data Security Standard",
+      "attributes": {
+        "frameworks": [
+          "Basel III"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415627"
+    },
+    "node_7_1_73460a56": {
+      "node_id": "node_7_1_73460a56",
+      "axis": 7,
+      "label": "SOC 2",
+      "level": 1,
+      "description": "Service Organization Control 2 for data security",
+      "attributes": {
+        "frameworks": [
+          "GDPR",
+          "HIPAA"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415637"
+    },
+    "node_7_1_cc3098ae": {
+      "node_id": "node_7_1_cc3098ae",
+      "axis": 7,
+      "label": "NIST SP 800-53",
+      "level": 1,
+      "description": "Security controls for federal information systems",
+      "attributes": {
+        "frameworks": [
+          "FAR"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415647"
+    },
+    "node_8_1_b88c64a9": {
+      "node_id": "node_8_1_b88c64a9",
+      "axis": 8,
+      "label": "AI Research Scientist",
+      "level": 1,
+      "description": "Expert in artificial intelligence research and development",
+      "attributes": {
+        "topics": [
+          "Artificial Intelligence"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415669"
+    },
+    "node_8_1_2cfa3bc3": {
+      "node_id": "node_8_1_2cfa3bc3",
+      "axis": 8,
+      "label": "Cybersecurity Analyst",
+      "level": 1,
+      "description": "Expert in analyzing and preventing cybersecurity threats",
+      "attributes": {
+        "topics": [
+          "Cybersecurity"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415680"
+    },
+    "node_9_1_27edc5fb": {
+      "node_id": "node_9_1_27edc5fb",
+      "axis": 9,
+      "label": "Healthcare Administrator",
+      "level": 1,
+      "description": "Expert in healthcare management and operations",
+      "attributes": {
+        "sectors": [
+          "Healthcare"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415700"
+    },
+    "node_9_1_3261d425": {
+      "node_id": "node_9_1_3261d425",
+      "axis": 9,
+      "label": "Investment Banker",
+      "level": 1,
+      "description": "Expert in financial investments and capital markets",
+      "attributes": {
+        "sectors": [
+          "Finance"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415712"
+    },
+    "node_10_1_c4544f4f": {
+      "node_id": "node_10_1_c4544f4f",
+      "axis": 10,
+      "label": "Data Protection Officer",
+      "level": 1,
+      "description": "Expert in data protection regulations like GDPR",
+      "attributes": {
+        "frameworks": [
+          "GDPR"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415729"
+    },
+    "node_10_1_cfe2dc8e": {
+      "node_id": "node_10_1_cfe2dc8e",
+      "axis": 10,
+      "label": "Healthcare Compliance Officer",
+      "level": 1,
+      "description": "Expert in healthcare regulations like HIPAA",
+      "attributes": {
+        "frameworks": [
+          "HIPAA"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415735"
+    },
+    "node_11_1_0ed8fc29": {
+      "node_id": "node_11_1_0ed8fc29",
+      "axis": 11,
+      "label": "Information Security Auditor",
+      "level": 1,
+      "description": "Expert in auditing information security compliance",
+      "attributes": {
+        "standards": [
+          "ISO 27001",
+          "SOC 2"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415746"
+    },
+    "node_11_1_ebc54cbb": {
+      "node_id": "node_11_1_ebc54cbb",
+      "axis": 11,
+      "label": "Financial Compliance Specialist",
+      "level": 1,
+      "description": "Expert in financial compliance standards",
+      "attributes": {
+        "standards": [
+          "PCI DSS"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415753"
+    },
+    "node_12_1_11b26354": {
+      "node_id": "node_12_1_11b26354",
+      "axis": 12,
+      "label": "European Union",
+      "level": 1,
+      "description": "Political and economic union of 27 member states in Europe",
+      "attributes": {
+        "frameworks": [
+          "GDPR"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415764"
+    },
+    "node_12_1_c61209b8": {
+      "node_id": "node_12_1_c61209b8",
+      "axis": 12,
+      "label": "United States",
+      "level": 1,
+      "description": "Federal republic of 50 states in North America",
+      "attributes": {
+        "frameworks": [
+          "HIPAA",
+          "FERPA",
+          "FAR"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415769"
+    },
+    "node_12_1_b47bc2fc": {
+      "node_id": "node_12_1_b47bc2fc",
+      "axis": 12,
+      "label": "Global",
+      "level": 1,
+      "description": "Worldwide context covering all regions",
+      "attributes": {
+        "frameworks": [
+          "Basel III"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415774"
+    },
+    "node_13_1_04b991a5": {
+      "node_id": "node_13_1_04b991a5",
+      "axis": 13,
+      "label": "Current",
+      "level": 1,
+      "description": "Present time period (2020s)",
+      "attributes": {
+        "frameworks": [
+          "GDPR",
+          "HIPAA",
+          "Basel III",
+          "FERPA",
+          "FAR"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415785"
+    },
+    "node_13_1_63d1a615": {
+      "node_id": "node_13_1_63d1a615",
+      "axis": 13,
+      "label": "Pre-GDPR Era",
+      "level": 1,
+      "description": "Period before GDPR implementation (before 2018)",
+      "attributes": {
+        "frameworks": [
+          "HIPAA",
+          "Basel III",
+          "FERPA",
+          "FAR"
+        ]
+      },
+      "created_at": "2025-05-19T19:07:38.415790"
+    },
+    "node_13_1_e0abbbe9": {
+      "node_id": "node_13_1_e0abbbe9",
+      "axis": 13,
+      "label": "Future Compliance",
+      "level": 1,
+      "description": "Anticipated future regulatory environment",
+      "attributes": {
+        "evolution": "predicted"
+      },
+      "created_at": "2025-05-19T19:07:38.415795"
+    }
+  },
+  "relationships": {
+    "rel_contains_89df90d5": {
+      "rel_id": "rel_contains_89df90d5",
+      "source_id": "node_1_1_92c882be",
+      "target_id": "node_1_2_ca9bb2ce",
+      "rel_type": "contains",
+      "weight": 0.9,
+      "attributes": {
+        "hierarchical": true
+      },
+      "created_at": "2025-05-19T19:07:38.415994"
+    },
+    "rel_contains_4ce8bb20": {
+      "rel_id": "rel_contains_4ce8bb20",
+      "source_id": "node_1_2_ca9bb2ce",
+      "target_id": "node_1_3_3d57e059",
+      "rel_type": "contains",
+      "weight": 0.9,
+      "attributes": {
+        "hierarchical": true
+      },
+      "created_at": "2025-05-19T19:07:38.416003"
+    },
+    "rel_contains_c18553c3": {
+      "rel_id": "rel_contains_c18553c3",
+      "source_id": "node_1_3_3d57e059",
+      "target_id": "node_1_4_e5ee7b9f",
+      "rel_type": "contains",
+      "weight": 0.9,
+      "attributes": {
+        "hierarchical": true
+      },
+      "created_at": "2025-05-19T19:07:38.416009"
+    },
+    "rel_contains_5281f46b": {
+      "rel_id": "rel_contains_5281f46b",
+      "source_id": "node_1_4_e5ee7b9f",
+      "target_id": "node_1_5_fb80e12f",
+      "rel_type": "contains",
+      "weight": 0.9,
+      "attributes": {
+        "hierarchical": true
+      },
+      "created_at": "2025-05-19T19:07:38.416013"
+    },
+    "rel_contains_c77cabf5": {
+      "rel_id": "rel_contains_c77cabf5",
+      "source_id": "node_2_1_69191243",
+      "target_id": "node_3_1_63f39a87",
+      "rel_type": "contains",
+      "weight": 0.8,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416018"
+    },
+    "rel_contains_b56ac584": {
+      "rel_id": "rel_contains_b56ac584",
+      "source_id": "node_2_1_69191243",
+      "target_id": "node_3_1_784a38cd",
+      "rel_type": "contains",
+      "weight": 0.8,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416023"
+    },
+    "rel_contains_177baa06": {
+      "rel_id": "rel_contains_177baa06",
+      "source_id": "node_2_1_b6a3d64f",
+      "target_id": "node_3_1_badcd74e",
+      "rel_type": "contains",
+      "weight": 0.8,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416027"
+    },
+    "rel_contains_1b8bab14": {
+      "rel_id": "rel_contains_1b8bab14",
+      "source_id": "node_2_1_8ec75139",
+      "target_id": "node_3_1_2f28e8f4",
+      "rel_type": "contains",
+      "weight": 0.8,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416034"
+    },
+    "rel_contains_13393fb1": {
+      "rel_id": "rel_contains_13393fb1",
+      "source_id": "node_2_1_ef2a3fad",
+      "target_id": "node_3_1_6d99225e",
+      "rel_type": "contains",
+      "weight": 0.8,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416039"
+    },
+    "rel_uses_af8b803a": {
+      "rel_id": "rel_uses_af8b803a",
+      "source_id": "node_3_1_63f39a87",
+      "target_id": "node_4_1_d9da922b",
+      "rel_type": "uses",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416044"
+    },
+    "rel_uses_e8ca06b2": {
+      "rel_id": "rel_uses_e8ca06b2",
+      "source_id": "node_3_1_784a38cd",
+      "target_id": "node_4_1_a453e4a3",
+      "rel_type": "uses",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416049"
+    },
+    "rel_uses_c90169c5": {
+      "rel_id": "rel_uses_c90169c5",
+      "source_id": "node_3_1_badcd74e",
+      "target_id": "node_4_1_cb249742",
+      "rel_type": "uses",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416054"
+    },
+    "rel_uses_57246986": {
+      "rel_id": "rel_uses_57246986",
+      "source_id": "node_3_1_2f28e8f4",
+      "target_id": "node_4_1_0786a5f4",
+      "rel_type": "uses",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416058"
+    },
+    "rel_uses_31ff5050": {
+      "rel_id": "rel_uses_31ff5050",
+      "source_id": "node_3_1_6d99225e",
+      "target_id": "node_4_1_1438f60d",
+      "rel_type": "uses",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416078"
+    },
+    "rel_employs_17081e40": {
+      "rel_id": "rel_employs_17081e40",
+      "source_id": "node_4_1_d9da922b",
+      "target_id": "node_5_1_a0af4631",
+      "rel_type": "employs",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416084"
+    },
+    "rel_employs_66776c85": {
+      "rel_id": "rel_employs_66776c85",
+      "source_id": "node_4_1_a453e4a3",
+      "target_id": "node_5_1_13674f24",
+      "rel_type": "employs",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416088"
+    },
+    "rel_employs_c7a9ffc3": {
+      "rel_id": "rel_employs_c7a9ffc3",
+      "source_id": "node_4_1_cb249742",
+      "target_id": "node_5_1_60951628",
+      "rel_type": "employs",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416092"
+    },
+    "rel_employs_538a20a8": {
+      "rel_id": "rel_employs_538a20a8",
+      "source_id": "node_4_1_0786a5f4",
+      "target_id": "node_5_1_12f7e638",
+      "rel_type": "employs",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416097"
+    },
+    "rel_employs_c4786ed1": {
+      "rel_id": "rel_employs_c4786ed1",
+      "source_id": "node_4_1_1438f60d",
+      "target_id": "node_5_1_19e3e84c",
+      "rel_type": "employs",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416101"
+    },
+    "rel_enforces_22f29ced": {
+      "rel_id": "rel_enforces_22f29ced",
+      "source_id": "node_6_1_e7e45f24",
+      "target_id": "node_7_1_87493b26",
+      "rel_type": "enforces",
+      "weight": 0.9,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416105"
+    },
+    "rel_enforces_03393a1f": {
+      "rel_id": "rel_enforces_03393a1f",
+      "source_id": "node_6_1_e7e45f24",
+      "target_id": "node_7_1_73460a56",
+      "rel_type": "enforces",
+      "weight": 0.9,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416110"
+    },
+    "rel_enforces_42224df2": {
+      "rel_id": "rel_enforces_42224df2",
+      "source_id": "node_6_1_8751e7ae",
+      "target_id": "node_7_1_6bfb5cc0",
+      "rel_type": "enforces",
+      "weight": 0.9,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416114"
+    },
+    "rel_enforces_60640ca9": {
+      "rel_id": "rel_enforces_60640ca9",
+      "source_id": "node_6_1_8751e7ae",
+      "target_id": "node_7_1_73460a56",
+      "rel_type": "enforces",
+      "weight": 0.9,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416119"
+    },
+    "rel_enforces_7ca6793d": {
+      "rel_id": "rel_enforces_7ca6793d",
+      "source_id": "node_6_1_b286e415",
+      "target_id": "node_7_1_d598253d",
+      "rel_type": "enforces",
+      "weight": 0.9,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416123"
+    },
+    "rel_enforces_50c679dc": {
+      "rel_id": "rel_enforces_50c679dc",
+      "source_id": "node_6_1_86cdbafb",
+      "target_id": "node_7_1_cc3098ae",
+      "rel_type": "enforces",
+      "weight": 0.9,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416127"
+    },
+    "rel_informs_bf56bd4d": {
+      "rel_id": "rel_informs_bf56bd4d",
+      "source_id": "node_8_1_b88c64a9",
+      "target_id": "node_9_1_27edc5fb",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416131"
+    },
+    "rel_informs_cc3a89db": {
+      "rel_id": "rel_informs_cc3a89db",
+      "source_id": "node_8_1_b88c64a9",
+      "target_id": "node_9_1_3261d425",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416136"
+    },
+    "rel_informs_68892855": {
+      "rel_id": "rel_informs_68892855",
+      "source_id": "node_8_1_2cfa3bc3",
+      "target_id": "node_9_1_27edc5fb",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416140"
+    },
+    "rel_informs_78b266af": {
+      "rel_id": "rel_informs_78b266af",
+      "source_id": "node_8_1_2cfa3bc3",
+      "target_id": "node_9_1_3261d425",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416144"
+    },
+    "rel_informs_169bcb73": {
+      "rel_id": "rel_informs_169bcb73",
+      "source_id": "node_9_1_27edc5fb",
+      "target_id": "node_10_1_c4544f4f",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416148"
+    },
+    "rel_informs_da916570": {
+      "rel_id": "rel_informs_da916570",
+      "source_id": "node_9_1_27edc5fb",
+      "target_id": "node_10_1_cfe2dc8e",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416153"
+    },
+    "rel_informs_19ea9136": {
+      "rel_id": "rel_informs_19ea9136",
+      "source_id": "node_9_1_3261d425",
+      "target_id": "node_10_1_c4544f4f",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416157"
+    },
+    "rel_informs_18ae4a39": {
+      "rel_id": "rel_informs_18ae4a39",
+      "source_id": "node_9_1_3261d425",
+      "target_id": "node_10_1_cfe2dc8e",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416161"
+    },
+    "rel_informs_9415d896": {
+      "rel_id": "rel_informs_9415d896",
+      "source_id": "node_10_1_c4544f4f",
+      "target_id": "node_11_1_0ed8fc29",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416165"
+    },
+    "rel_informs_d4a35629": {
+      "rel_id": "rel_informs_d4a35629",
+      "source_id": "node_10_1_c4544f4f",
+      "target_id": "node_11_1_ebc54cbb",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416169"
+    },
+    "rel_informs_b58be403": {
+      "rel_id": "rel_informs_b58be403",
+      "source_id": "node_10_1_cfe2dc8e",
+      "target_id": "node_11_1_0ed8fc29",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416174"
+    },
+    "rel_informs_b9dc4a86": {
+      "rel_id": "rel_informs_b9dc4a86",
+      "source_id": "node_10_1_cfe2dc8e",
+      "target_id": "node_11_1_ebc54cbb",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416178"
+    },
+    "rel_informs_67d375d1": {
+      "rel_id": "rel_informs_67d375d1",
+      "source_id": "node_11_1_0ed8fc29",
+      "target_id": "node_8_1_b88c64a9",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416182"
+    },
+    "rel_informs_afd110d5": {
+      "rel_id": "rel_informs_afd110d5",
+      "source_id": "node_11_1_0ed8fc29",
+      "target_id": "node_8_1_2cfa3bc3",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416186"
+    },
+    "rel_informs_f593d7aa": {
+      "rel_id": "rel_informs_f593d7aa",
+      "source_id": "node_11_1_ebc54cbb",
+      "target_id": "node_8_1_b88c64a9",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416190"
+    },
+    "rel_informs_4173973d": {
+      "rel_id": "rel_informs_4173973d",
+      "source_id": "node_11_1_ebc54cbb",
+      "target_id": "node_8_1_2cfa3bc3",
+      "rel_type": "informs",
+      "weight": 0.8,
+      "attributes": {
+        "quad_persona_cycle": true
+      },
+      "created_at": "2025-05-19T19:07:38.416195"
+    },
+    "rel_applies_in_2e068ead": {
+      "rel_id": "rel_applies_in_2e068ead",
+      "source_id": "node_6_1_e7e45f24",
+      "target_id": "node_12_1_11b26354",
+      "rel_type": "applies_in",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416199"
+    },
+    "rel_applies_in_edeefa75": {
+      "rel_id": "rel_applies_in_edeefa75",
+      "source_id": "node_6_1_8751e7ae",
+      "target_id": "node_12_1_c61209b8",
+      "rel_type": "applies_in",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416203"
+    },
+    "rel_applies_in_c196d82d": {
+      "rel_id": "rel_applies_in_c196d82d",
+      "source_id": "node_6_1_b286e415",
+      "target_id": "node_12_1_b47bc2fc",
+      "rel_type": "applies_in",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416208"
+    },
+    "rel_applies_in_226e6ec9": {
+      "rel_id": "rel_applies_in_226e6ec9",
+      "source_id": "node_6_1_3984886f",
+      "target_id": "node_12_1_c61209b8",
+      "rel_type": "applies_in",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416212"
+    },
+    "rel_applies_in_c466d458": {
+      "rel_id": "rel_applies_in_c466d458",
+      "source_id": "node_6_1_86cdbafb",
+      "target_id": "node_12_1_c61209b8",
+      "rel_type": "applies_in",
+      "weight": 0.7,
+      "attributes": {},
+      "created_at": "2025-05-19T19:07:38.416216"
+    },
+    "rel_contains_fa77966a": {
+      "rel_id": "rel_contains_fa77966a",
+      "source_id": "node_13_1_04b991a5",
+      "target_id": "node_6_1_e7e45f24",
+      "rel_type": "contains",
+      "weight": 0.7,
+      "attributes": {
+        "temporal": true
+      },
+      "created_at": "2025-05-19T19:07:38.416220"
+    },
+    "rel_contains_10287e9e": {
+      "rel_id": "rel_contains_10287e9e",
+      "source_id": "node_13_1_04b991a5",
+      "target_id": "node_6_1_8751e7ae",
+      "rel_type": "contains",
+      "weight": 0.7,
+      "attributes": {
+        "temporal": true
+      },
+      "created_at": "2025-05-19T19:07:38.416225"
+    },
+    "rel_contains_c6fdaee9": {
+      "rel_id": "rel_contains_c6fdaee9",
+      "source_id": "node_13_1_04b991a5",
+      "target_id": "node_6_1_b286e415",
+      "rel_type": "contains",
+      "weight": 0.7,
+      "attributes": {
+        "temporal": true
+      },
+      "created_at": "2025-05-19T19:07:38.416229"
+    },
+    "rel_contains_e963328b": {
+      "rel_id": "rel_contains_e963328b",
+      "source_id": "node_13_1_04b991a5",
+      "target_id": "node_6_1_3984886f",
+      "rel_type": "contains",
+      "weight": 0.7,
+      "attributes": {
+        "temporal": true
+      },
+      "created_at": "2025-05-19T19:07:38.416233"
+    },
+    "rel_contains_50cf37bb": {
+      "rel_id": "rel_contains_50cf37bb",
+      "source_id": "node_13_1_04b991a5",
+      "target_id": "node_6_1_86cdbafb",
+      "rel_type": "contains",
+      "weight": 0.7,
+      "attributes": {
+        "temporal": true
+      },
+      "created_at": "2025-05-19T19:07:38.416238"
+    },
+    "rel_contains_2f1d49dd": {
+      "rel_id": "rel_contains_2f1d49dd",
+      "source_id": "node_13_1_63d1a615",
+      "target_id": "node_6_1_8751e7ae",
+      "rel_type": "contains",
+      "weight": 0.7,
+      "attributes": {
+        "temporal": true
+      },
+      "created_at": "2025-05-19T19:07:38.416242"
+    },
+    "rel_contains_ede66ed2": {
+      "rel_id": "rel_contains_ede66ed2",
+      "source_id": "node_13_1_63d1a615",
+      "target_id": "node_6_1_b286e415",
+      "rel_type": "contains",
+      "weight": 0.7,
+      "attributes": {
+        "temporal": true
+      },
+      "created_at": "2025-05-19T19:07:38.416246"
+    },
+    "rel_contains_cb918ef2": {
+      "rel_id": "rel_contains_cb918ef2",
+      "source_id": "node_13_1_63d1a615",
+      "target_id": "node_6_1_3984886f",
+      "rel_type": "contains",
+      "weight": 0.7,
+      "attributes": {
+        "temporal": true
+      },
+      "created_at": "2025-05-19T19:07:38.416250"
+    },
+    "rel_contains_27087b64": {
+      "rel_id": "rel_contains_27087b64",
+      "source_id": "node_13_1_63d1a615",
+      "target_id": "node_6_1_86cdbafb",
+      "rel_type": "contains",
+      "weight": 0.7,
+      "attributes": {
+        "temporal": true
+      },
+      "created_at": "2025-05-19T19:07:38.416255"
+    },
+    "rel_relates_to_7fa4d30c": {
+      "rel_id": "rel_relates_to_7fa4d30c",
+      "source_id": "node_7_1_87493b26",
+      "target_id": "node_5_1_13674f24",
+      "rel_type": "relates_to",
+      "weight": 0.6072743566994596,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416259"
+    },
+    "rel_connected_to_c9223156": {
+      "rel_id": "rel_connected_to_c9223156",
+      "source_id": "node_8_1_2cfa3bc3",
+      "target_id": "node_13_1_04b991a5",
+      "rel_type": "connected_to",
+      "weight": 0.8523636800303547,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416263"
+    },
+    "rel_associated_with_a3fc7a12": {
+      "rel_id": "rel_associated_with_a3fc7a12",
+      "source_id": "node_7_1_73460a56",
+      "target_id": "node_8_1_b88c64a9",
+      "rel_type": "associated_with",
+      "weight": 0.8902601578998057,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416267"
+    },
+    "rel_connected_to_2e762988": {
+      "rel_id": "rel_connected_to_2e762988",
+      "source_id": "node_7_1_d598253d",
+      "target_id": "node_3_1_784a38cd",
+      "rel_type": "connected_to",
+      "weight": 0.6430031577836641,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416271"
+    },
+    "rel_influences_923e3d0b": {
+      "rel_id": "rel_influences_923e3d0b",
+      "source_id": "node_12_1_c61209b8",
+      "target_id": "node_11_1_ebc54cbb",
+      "rel_type": "influences",
+      "weight": 0.6883694202832902,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416276"
+    },
+    "rel_associated_with_7d29c01b": {
+      "rel_id": "rel_associated_with_7d29c01b",
+      "source_id": "node_9_1_3261d425",
+      "target_id": "node_13_1_e0abbbe9",
+      "rel_type": "associated_with",
+      "weight": 0.5280509348035568,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416280"
+    },
+    "rel_connected_to_ebc4fd65": {
+      "rel_id": "rel_connected_to_ebc4fd65",
+      "source_id": "node_2_1_69191243",
+      "target_id": "node_3_1_784a38cd",
+      "rel_type": "connected_to",
+      "weight": 0.7653517977208462,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416284"
+    },
+    "rel_associated_with_765d8e8d": {
+      "rel_id": "rel_associated_with_765d8e8d",
+      "source_id": "node_13_1_e0abbbe9",
+      "target_id": "node_9_1_3261d425",
+      "rel_type": "associated_with",
+      "weight": 0.7167761308289763,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416288"
+    },
+    "rel_connected_to_67265015": {
+      "rel_id": "rel_connected_to_67265015",
+      "source_id": "node_5_1_12f7e638",
+      "target_id": "node_6_1_86cdbafb",
+      "rel_type": "connected_to",
+      "weight": 0.5181800823618423,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416292"
+    },
+    "rel_associated_with_e8e42a20": {
+      "rel_id": "rel_associated_with_e8e42a20",
+      "source_id": "node_13_1_63d1a615",
+      "target_id": "node_1_5_fb80e12f",
+      "rel_type": "associated_with",
+      "weight": 0.8090190589523367,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416297"
+    },
+    "rel_connected_to_837ffab3": {
+      "rel_id": "rel_connected_to_837ffab3",
+      "source_id": "node_4_1_cb249742",
+      "target_id": "node_12_1_11b26354",
+      "rel_type": "connected_to",
+      "weight": 0.7599841201469293,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416301"
+    },
+    "rel_associated_with_b448b239": {
+      "rel_id": "rel_associated_with_b448b239",
+      "source_id": "node_5_1_19e3e84c",
+      "target_id": "node_12_1_b47bc2fc",
+      "rel_type": "associated_with",
+      "weight": 0.7491366052464837,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416305"
+    },
+    "rel_influences_62b868c0": {
+      "rel_id": "rel_influences_62b868c0",
+      "source_id": "node_2_1_8ec75139",
+      "target_id": "node_8_1_2cfa3bc3",
+      "rel_type": "influences",
+      "weight": 0.6457908666875467,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416309"
+    },
+    "rel_relates_to_37e20ad2": {
+      "rel_id": "rel_relates_to_37e20ad2",
+      "source_id": "node_6_1_b286e415",
+      "target_id": "node_8_1_b88c64a9",
+      "rel_type": "relates_to",
+      "weight": 0.6486119268664318,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416313"
+    },
+    "rel_connected_to_454dbc85": {
+      "rel_id": "rel_connected_to_454dbc85",
+      "source_id": "node_1_2_ca9bb2ce",
+      "target_id": "node_7_1_d598253d",
+      "rel_type": "connected_to",
+      "weight": 0.6374292013539608,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416317"
+    },
+    "rel_associated_with_d49578be": {
+      "rel_id": "rel_associated_with_d49578be",
+      "source_id": "node_7_1_6bfb5cc0",
+      "target_id": "node_9_1_27edc5fb",
+      "rel_type": "associated_with",
+      "weight": 0.5250576202011163,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416322"
+    },
+    "rel_associated_with_49435b4e": {
+      "rel_id": "rel_associated_with_49435b4e",
+      "source_id": "node_5_1_12f7e638",
+      "target_id": "node_12_1_c61209b8",
+      "rel_type": "associated_with",
+      "weight": 0.6690491460116741,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416326"
+    },
+    "rel_associated_with_f80bbc83": {
+      "rel_id": "rel_associated_with_f80bbc83",
+      "source_id": "node_3_1_63f39a87",
+      "target_id": "node_5_1_12f7e638",
+      "rel_type": "associated_with",
+      "weight": 0.8808607577140523,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416333"
+    },
+    "rel_relates_to_f8879332": {
+      "rel_id": "rel_relates_to_f8879332",
+      "source_id": "node_13_1_e0abbbe9",
+      "target_id": "node_1_4_e5ee7b9f",
+      "rel_type": "relates_to",
+      "weight": 0.5369739032741051,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416343"
+    },
+    "rel_associated_with_abee69b9": {
+      "rel_id": "rel_associated_with_abee69b9",
+      "source_id": "node_5_1_19e3e84c",
+      "target_id": "node_5_1_60951628",
+      "rel_type": "associated_with",
+      "weight": 0.6323950456724967,
+      "attributes": {
+        "generated": true
+      },
+      "created_at": "2025-05-19T19:07:38.416352"
+    }
+  }
+}

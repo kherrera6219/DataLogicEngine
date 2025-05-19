@@ -7,9 +7,8 @@ This module provides API endpoints for the UKG chat interface.
 import uuid
 import logging
 from datetime import datetime
-from flask import Blueprint, request, jsonify
-from models import Conversation, Message
-from app import db
+from flask import Blueprint, request, jsonify, current_app
+from models import Conversation, Message, db
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -18,6 +17,10 @@ chat_api = Blueprint('chat_api', __name__)
 
 def register_chat_api(app):
     """Register chat API endpoints with the application."""
+    # Set up database reference for routes to use
+    global db
+    db = app.config.get('DB')
+    
     app.register_blueprint(chat_api, url_prefix='/api/chat')
     logger.info("Chat API endpoints registered")
 
