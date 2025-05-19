@@ -141,4 +141,17 @@ const Navbar = ({ navItems = [] }) => {
   );
 };
 
+Navbar.defaultProps = {
+  navItems: [
+    { href: '/', label: 'Home', icon: 'house' },
+    { href: '/axis1', label: 'Axis 1', icon: '1-circle' },
+    { href: '/axis2', label: 'Axis 2', icon: '2-circle' },
+    { href: '/axis3', label: 'Axis 3', icon: '3-circle' },
+    { href: '/axis4', label: 'Axis 4', icon: '4-circle' },
+    { href: '/axis5', label: 'Axis 5', icon: '5-circle' },
+    { href: '/axis6', label: 'Axis 6', icon: 'gear' },
+    { href: '/compliance', label: 'Compliance', icon: 'check-circle' }
+  ],
+};
+
 export default Navbar;

@@ -999,3 +999,545 @@ class ComplianceManager:
                 'control_uid': control_uid,
                 'timestamp': datetime.now().isoformat()
             }
+"""
+UKG Axis 7: Compliance Standards
+
+This module implements the Compliance Standards axis of the Universal Knowledge Graph (UKG) system,
+using a spiderweb node structure with branch-style mappings.
+
+The Spiderweb Node System represents how compliance standards branch out with:
+- Mega compliance frameworks (central nodes)
+- Large compliance standards (primary webs)
+- Medium compliance standards (secondary connections)
+- Small compliance requirements (tertiary branches)
+- Granular compliance points (edge nodes)
+"""
+
+import logging
+import uuid
+from datetime import datetime
+from typing import Dict, List, Any, Optional, Union, Set
+
+class ComplianceManager:
+    """
+    Compliance Manager for the UKG System
+    
+    Responsible for managing Axis 7 (Compliance Standards) functionality, including:
+    - Compliance framework creation and management in spiderweb structure
+    - Compliance requirement tracking and mapping
+    - Cross-standard mapping
+    - Compliance validation and crosswalking with Axis 6 (Regulatory)
+    """
+    
+    def __init__(self, db_manager=None, graph_manager=None):
+        """
+        Initialize the Compliance Manager.
+        
+        Args:
+            db_manager: Database Manager instance
+            graph_manager: Graph Manager instance
+        """
+        self.db_manager = db_manager
+        self.graph_manager = graph_manager
+        self.logging = logging.getLogger(__name__)
+        
+        # Spiderweb node structure levels
+        self.node_levels = {
+            "mega": "Top-level compliance architecture (e.g., ISO Compliance System)",
+            "large": "Major compliance framework (e.g., ISO 27001, NIST CSF)",
+            "medium": "Specific compliance domain (e.g., ISO 27001 Sec 8, NIST CSF ID.AM)",
+            "small": "Individual compliance control (e.g., ISO 27001 8.1.1, NIST CSF ID.AM-1)",
+            "granular": "Detailed compliance requirements (e.g., specific implementation points)"
+        }
+        
+        # Common compliance standard types
+        self.standard_types = {
+            "iso": "International Organization for Standardization",
+            "nist": "National Institute of Standards and Technology",
+            "pci": "Payment Card Industry",
+            "hipaa": "Health Insurance Portability and Accountability Act",
+            "gdpr": "General Data Protection Regulation",
+            "cmmc": "Cybersecurity Maturity Model Certification",
+            "fedramp": "Federal Risk and Authorization Management Program",
+            "soc": "System and Organization Controls",
+            "industry": "Industry-specific standards"
+        }
+    
+    def register_compliance_standard(self, standard_data: Dict[str, Any], 
+                                   parent_standard_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Register a compliance standard in the knowledge graph.
+        
+        Args:
+            standard_data: Standard data dictionary
+            parent_standard_id: Optional parent standard ID
+            
+        Returns:
+            Dict containing registration result
+        """
+        self.logging.info(f"[{datetime.now()}] Registering compliance standard: {standard_data.get('label', 'Unlabeled')}")
+        
+        try:
+            if not self.graph_manager:
+                return {
+                    'status': 'error',
+                    'message': 'Graph manager not available',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Ensure standard has required fields
+            required_fields = ['label', 'standard_level', 'standard_type']
+            for field in required_fields:
+                if field not in standard_data:
+                    return {
+                        'status': 'error',
+                        'message': f'Missing required field: {field}',
+                        'timestamp': datetime.now().isoformat()
+                    }
+            
+            # Verify standard level
+            if standard_data['standard_level'] not in self.node_levels:
+                return {
+                    'status': 'error',
+                    'message': f'Invalid standard level: {standard_data["standard_level"]}. Must be one of {list(self.node_levels.keys())}',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Verify standard type
+            if standard_data['standard_type'] not in self.standard_types:
+                return {
+                    'status': 'error',
+                    'message': f'Invalid standard type: {standard_data["standard_type"]}. Must be one of {list(self.standard_types.keys())}',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Generate UID if not provided
+            if 'uid' not in standard_data:
+                standard_level = standard_data['standard_level']
+                standard_type = standard_data['standard_type']
+                label_part = standard_data['label'].lower().replace(' ', '_')[:10]
+                standard_data['uid'] = f"compliance_{standard_level}_{standard_type}_{label_part}_{uuid.uuid4().hex[:8]}"
+            
+            # Set node type
+            standard_data['node_type'] = 'compliance_standard'
+            
+            # Set axis number for Compliance (Axis 7)
+            standard_data['axis_number'] = 7
+            
+            # Set creation timestamp
+            if 'created_at' not in standard_data:
+                standard_data['created_at'] = datetime.now().isoformat()
+            
+            # Check if standard with same properties already exists
+            existing_standards = self.db_manager.get_nodes_by_properties({
+                'node_type': 'compliance_standard',
+                'standard_level': standard_data['standard_level'],
+                'label': standard_data['label'],
+                'standard_type': standard_data['standard_type']
+            })
+            
+            if existing_standards:
+                return {
+                    'status': 'exists',
+                    'message': 'Compliance standard already exists',
+                    'standard': existing_standards[0],
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Add standard node
+            new_standard = self.graph_manager.add_node(standard_data)
+            
+            if new_standard.get('status') != 'success':
+                return new_standard
+            
+            new_standard_node = new_standard.get('node', {})
+            
+            # Connect to parent standard if provided
+            if parent_standard_id:
+                parent_nodes = self.db_manager.get_nodes_by_properties({
+                    'id': parent_standard_id,
+                    'node_type': 'compliance_standard'
+                })
+                
+                if not parent_nodes:
+                    return {
+                        'status': 'error',
+                        'message': f'Parent standard not found: {parent_standard_id}',
+                        'standard': new_standard_node,  # Still return the created standard
+                        'timestamp': datetime.now().isoformat()
+                    }
+                
+                parent_node = parent_nodes[0]
+                
+                # Check parent-child standard level relationship
+                parent_level = parent_node['standard_level']
+                child_level = standard_data['standard_level']
+                
+                valid_parent_child = {
+                    'mega': 'large',
+                    'large': 'medium',
+                    'medium': 'small',
+                    'small': 'granular'
+                }
+                
+                if parent_level in valid_parent_child and valid_parent_child[parent_level] == child_level:
+                    # Valid parent-child relationship
+                    parent_child_edge = {
+                        'uid': f"edge_{uuid.uuid4()}",
+                        'source_id': parent_node['uid'],
+                        'target_id': new_standard_node['uid'],
+                        'edge_type': 'has_standard',
+                        'attributes': {
+                            'parent_level': parent_level,
+                            'child_level': child_level
+                        }
+                    }
+                    
+                    edge_result = self.graph_manager.add_edge(parent_child_edge)
+                    
+                    if edge_result.get('status') != 'success':
+                        return {
+                            'status': 'warning',
+                            'message': f'Standard created but parent connection failed: {edge_result.get("message")}',
+                            'standard': new_standard_node,
+                            'timestamp': datetime.now().isoformat()
+                        }
+                else:
+                    return {
+                        'status': 'error',
+                        'message': f'Invalid parent-child standard level relationship. Parent {parent_level} cannot have child {child_level}',
+                        'standard': new_standard_node,  # Still return the created standard
+                        'timestamp': datetime.now().isoformat()
+                    }
+            
+            return {
+                'status': 'success',
+                'standard': new_standard_node,
+                'parent_standard_id': parent_standard_id,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            self.logging.error(f"[{datetime.now()}] Error registering compliance standard: {str(e)}")
+            return {
+                'status': 'error',
+                'message': f"Error registering compliance standard: {str(e)}",
+                'timestamp': datetime.now().isoformat()
+            }
+    
+    def get_compliance_hierarchy(self, standard_type: str = None) -> Dict[str, Any]:
+        """
+        Get the compliance standard hierarchy, optionally filtered by standard type.
+        
+        Args:
+            standard_type: Optional standard type to filter by (e.g., 'iso', 'nist')
+            
+        Returns:
+            Dict containing the standard hierarchy
+        """
+        self.logging.info(f"[{datetime.now()}] Getting compliance hierarchy for type: {standard_type or 'all'}")
+        
+        try:
+            if not self.db_manager:
+                return {
+                    'status': 'error',
+                    'message': 'Database manager not available',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Build query properties
+            query_props = {'node_type': 'compliance_standard'}
+            if standard_type:
+                query_props['standard_type'] = standard_type
+            
+            # Get mega standards (top level)
+            mega_standards = {}
+            mega_standard_nodes = self.db_manager.get_nodes_by_properties({
+                **query_props,
+                'standard_level': 'mega'
+            })
+            
+            for mega_standard in mega_standard_nodes:
+                mega_standard_id = mega_standard.get('id')
+                
+                if mega_standard_id:
+                    mega_standards[mega_standard_id] = {
+                        'standard': mega_standard,
+                        'large_standards': {}
+                    }
+                    
+                    # Get large standards for mega standard
+                    large_standards = self._get_child_standards(mega_standard['uid'], 'large')
+                    
+                    for large_standard_id, large_standard_data in large_standards.items():
+                        mega_standards[mega_standard_id]['large_standards'][large_standard_id] = large_standard_data
+                        
+                        # Get medium standards for large standard
+                        medium_standards = self._get_child_standards(large_standard_data['standard']['uid'], 'medium')
+                        large_standard_data['medium_standards'] = medium_standards
+                        
+                        # Get small standards for each medium standard
+                        for medium_standard_id, medium_standard_data in medium_standards.items():
+                            small_standards = self._get_child_standards(medium_standard_data['standard']['uid'], 'small')
+                            medium_standard_data['small_standards'] = small_standards
+                            
+                            # Get granular standards for each small standard
+                            for small_standard_id, small_standard_data in small_standards.items():
+                                granular_standards = self._get_child_standards(small_standard_data['standard']['uid'], 'granular')
+                                small_standard_data['granular_standards'] = granular_standards
+            
+            return {
+                'status': 'success',
+                'standard_type': standard_type or 'all',
+                'hierarchy': mega_standards,
+                'total_standards': len(mega_standard_nodes),
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            self.logging.error(f"[{datetime.now()}] Error getting compliance hierarchy: {str(e)}")
+            return {
+                'status': 'error',
+                'message': f"Error getting compliance hierarchy: {str(e)}",
+                'standard_type': standard_type,
+                'timestamp': datetime.now().isoformat()
+            }
+    
+    def _get_child_standards(self, parent_uid: str, standard_level: str) -> Dict[str, Dict[str, Any]]:
+        """
+        Get child standards of a specific level for a parent node.
+        
+        Args:
+            parent_uid: Parent node UID
+            standard_level: Standard level to retrieve
+            
+        Returns:
+            Dict mapping standard IDs to standard data
+        """
+        child_standards = {}
+        
+        # Get outgoing edges of type 'has_standard'
+        outgoing_edges = self.db_manager.get_outgoing_edges(parent_uid, ['has_standard'])
+        
+        for edge in outgoing_edges:
+            target_uid = edge['target_id']
+            target_node = self.db_manager.get_node(target_uid)
+            
+            if target_node and target_node.get('node_type') == 'compliance_standard' and target_node.get('standard_level') == standard_level:
+                standard_id = target_node.get('id')
+                
+                if standard_id:
+                    child_standards[standard_id] = {
+                        'standard': target_node,
+                        'edge': edge
+                    }
+        
+        return child_standards
+    
+    def map_regulatory_to_compliance(self, regulatory_uid: str, compliance_uid: str, 
+                                   relationship_type: str = 'implements',
+                                   confidence: float = 0.9) -> Dict[str, Any]:
+        """
+        Map a regulatory framework element to a compliance standard element.
+        
+        Args:
+            regulatory_uid: UID of the regulatory framework node
+            compliance_uid: UID of the compliance standard node
+            relationship_type: Type of relationship (e.g., 'implements', 'related_to')
+            confidence: Confidence level of the mapping (0.0 to 1.0)
+            
+        Returns:
+            Dict containing the mapping result
+        """
+        self.logging.info(f"[{datetime.now()}] Mapping regulatory {regulatory_uid} to compliance {compliance_uid}")
+        
+        try:
+            if not self.graph_manager:
+                return {
+                    'status': 'error',
+                    'message': 'Graph manager not available',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Verify nodes exist
+            regulatory_node = self.db_manager.get_node(regulatory_uid)
+            compliance_node = self.db_manager.get_node(compliance_uid)
+            
+            if not regulatory_node:
+                return {
+                    'status': 'error',
+                    'message': f'Regulatory node not found: {regulatory_uid}',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            if not compliance_node:
+                return {
+                    'status': 'error',
+                    'message': f'Compliance node not found: {compliance_uid}',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Verify node types
+            if regulatory_node.get('node_type') != 'regulatory_framework':
+                return {
+                    'status': 'error',
+                    'message': f'Node {regulatory_uid} is not a regulatory framework',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            if compliance_node.get('node_type') != 'compliance_standard':
+                return {
+                    'status': 'error',
+                    'message': f'Node {compliance_uid} is not a compliance standard',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Check if edge already exists
+            existing_edges = self.db_manager.get_edges_between(regulatory_uid, compliance_uid)
+            
+            if existing_edges:
+                return {
+                    'status': 'exists',
+                    'message': 'Mapping already exists',
+                    'edge': existing_edges[0],
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Create the edge
+            edge_data = {
+                'uid': f"edge_{uuid.uuid4()}",
+                'source_id': regulatory_uid,
+                'target_id': compliance_uid,
+                'edge_type': relationship_type,
+                'attributes': {
+                    'confidence': confidence,
+                    'mapped_at': datetime.now().isoformat(),
+                    'source_type': 'regulatory_framework',
+                    'target_type': 'compliance_standard',
+                    'source_level': regulatory_node.get('framework_level'),
+                    'target_level': compliance_node.get('standard_level')
+                }
+            }
+            
+            edge_result = self.graph_manager.add_edge(edge_data)
+            
+            return edge_result
+            
+        except Exception as e:
+            self.logging.error(f"[{datetime.now()}] Error mapping regulatory to compliance: {str(e)}")
+            return {
+                'status': 'error',
+                'message': f"Error mapping regulatory to compliance: {str(e)}",
+                'timestamp': datetime.now().isoformat()
+            }
+    
+    def find_compliance_for_sector(self, sector_id: str, 
+                                 standard_type: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Find compliance standards relevant to a specific sector.
+        
+        Args:
+            sector_id: Sector ID
+            standard_type: Optional standard type to filter by
+            
+        Returns:
+            Dict containing the relevant compliance standards
+        """
+        self.logging.info(f"[{datetime.now()}] Finding compliance for sector: {sector_id}, type: {standard_type or 'all'}")
+        
+        try:
+            if not self.db_manager:
+                return {
+                    'status': 'error',
+                    'message': 'Database manager not available',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            # Get sector
+            sector_nodes = self.db_manager.get_nodes_by_properties({'id': sector_id, 'node_type': 'sector'})
+            
+            if not sector_nodes:
+                return {
+                    'status': 'error',
+                    'message': f'Sector not found: {sector_id}',
+                    'timestamp': datetime.now().isoformat()
+                }
+            
+            sector_node = sector_nodes[0]
+            sector_uid = sector_node.get('uid')
+            
+            # Find compliance standards
+            compliance_standards = []
+            
+            # Method 1: Direct connections from sector to compliance
+            direct_edges = self.db_manager.get_outgoing_edges(sector_uid, ['applies_to_sector', 'complies_with'])
+            
+            for edge in direct_edges:
+                target_uid = edge['target_id']
+                compliance_node = self.db_manager.get_node(target_uid)
+                
+                if compliance_node and compliance_node.get('node_type') == 'compliance_standard':
+                    if standard_type and compliance_node.get('standard_type') != standard_type:
+                        continue
+                        
+                    compliance_standards.append({
+                        'standard': compliance_node,
+                        'connection': 'direct',
+                        'edge': edge,
+                        'confidence': edge.get('attributes', {}).get('confidence', 0.9)
+                    })
+            
+            # Method 2: Find compliance via regulatory frameworks
+            # First get regulatory frameworks for the sector
+            reg_edges = self.db_manager.get_outgoing_edges(sector_uid, ['regulated_by'])
+            
+            for reg_edge in reg_edges:
+                reg_uid = reg_edge['target_id']
+                reg_node = self.db_manager.get_node(reg_uid)
+                
+                if reg_node and reg_node.get('node_type') == 'regulatory_framework':
+                    # Then find compliance standards that implement these regulations
+                    impl_edges = self.db_manager.get_outgoing_edges(reg_uid, ['implements'])
+                    
+                    for impl_edge in impl_edges:
+                        comp_uid = impl_edge['target_id']
+                        comp_node = self.db_manager.get_node(comp_uid)
+                        
+                        if comp_node and comp_node.get('node_type') == 'compliance_standard':
+                            if standard_type and comp_node.get('standard_type') != standard_type:
+                                continue
+                                
+                            compliance_standards.append({
+                                'standard': comp_node,
+                                'connection': 'via_regulation',
+                                'regulation': reg_node,
+                                'confidence': impl_edge.get('attributes', {}).get('confidence', 0.8)
+                            })
+            
+            # Method 3: Find compliance via industry classification
+            # This would be a more advanced implementation leveraging the classification codes
+            
+            # Remove duplicates (same standard might appear multiple times via different paths)
+            unique_standards = {}
+            for cs in compliance_standards:
+                standard_uid = cs['standard'].get('uid')
+                if standard_uid not in unique_standards or cs['confidence'] > unique_standards[standard_uid]['confidence']:
+                    unique_standards[standard_uid] = cs
+            
+            return {
+                'status': 'success',
+                'sector': sector_node,
+                'standard_type': standard_type or 'all',
+                'standards': list(unique_standards.values()),
+                'standard_count': len(unique_standards),
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            self.logging.error(f"[{datetime.now()}] Error finding compliance for sector: {str(e)}")
+            return {
+                'status': 'error',
+                'message': f"Error finding compliance for sector: {str(e)}",
+                'sector_id': sector_id,
+                'timestamp': datetime.now().isoformat()
+            }

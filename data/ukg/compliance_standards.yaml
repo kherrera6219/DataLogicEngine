@@ -211,3 +211,224 @@ ComplianceStandards:
         label: "Audit and Accountability Domain"
         number: "AU"
         description: "Controls for tracking, reviewing, and examining system activities."
+# Compliance Standards for UKG (Axis 7)
+# This file defines the compliance standards hierarchy in the spiderweb structure
+
+# Mega Standards (Top Level)
+mega_standards:
+  - uid: compliance_mega_iso_standards
+    label: "ISO Standards Framework"
+    description: "International Organization for Standardization Standards Framework"
+    standard_level: "mega"
+    standard_type: "iso"
+    code: "ISO-FRAMEWORK"
+    
+  - uid: compliance_mega_nist_standards
+    label: "NIST Standards Framework"
+    description: "National Institute of Standards and Technology Standards Framework"
+    standard_level: "mega"
+    standard_type: "nist"
+    code: "NIST-FRAMEWORK"
+    
+  - uid: compliance_mega_pci_standards
+    label: "PCI Standards Framework"
+    description: "Payment Card Industry Standards Framework"
+    standard_level: "mega"
+    standard_type: "pci"
+    code: "PCI-FRAMEWORK"
+
+# Large Standards (Primary Webs)
+large_standards:
+  # ISO Large Standards
+  - uid: compliance_large_iso_27001
+    label: "ISO 27001"
+    description: "Information Security Management Systems"
+    standard_level: "large"
+    standard_type: "iso"
+    code: "ISO-27001"
+    parent_uid: "compliance_mega_iso_standards"
+    
+  - uid: compliance_large_iso_9001
+    label: "ISO 9001"
+    description: "Quality Management Systems"
+    standard_level: "large"
+    standard_type: "iso"
+    code: "ISO-9001"
+    parent_uid: "compliance_mega_iso_standards"
+    
+  # NIST Large Standards
+  - uid: compliance_large_nist_csf
+    label: "NIST Cybersecurity Framework"
+    description: "Framework for improving critical infrastructure cybersecurity"
+    standard_level: "large"
+    standard_type: "nist"
+    code: "NIST-CSF"
+    parent_uid: "compliance_mega_nist_standards"
+    
+  - uid: compliance_large_nist_sp800_53
+    label: "NIST SP 800-53"
+    description: "Security and Privacy Controls for Federal Information Systems and Organizations"
+    standard_level: "large"
+    standard_type: "nist"
+    code: "NIST-SP800-53"
+    parent_uid: "compliance_mega_nist_standards"
+    
+  # PCI Large Standards
+  - uid: compliance_large_pci_dss
+    label: "PCI DSS"
+    description: "Payment Card Industry Data Security Standard"
+    standard_level: "large"
+    standard_type: "pci"
+    code: "PCI-DSS"
+    parent_uid: "compliance_mega_pci_standards"
+
+# Medium Standards (Secondary Connections)
+medium_standards:
+  # ISO 27001 Medium Standards
+  - uid: compliance_medium_iso_27001_sec5
+    label: "ISO 27001 Section 5"
+    description: "Leadership"
+    standard_level: "medium"
+    standard_type: "iso"
+    code: "ISO-27001-5"
+    parent_uid: "compliance_large_iso_27001"
+    
+  - uid: compliance_medium_iso_27001_sec6
+    label: "ISO 27001 Section 6"
+    description: "Planning"
+    standard_level: "medium"
+    standard_type: "iso"
+    code: "ISO-27001-6"
+    parent_uid: "compliance_large_iso_27001"
+    
+  - uid: compliance_medium_iso_27001_sec8
+    label: "ISO 27001 Section 8"
+    description: "Operation"
+    standard_level: "medium"
+    standard_type: "iso"
+    code: "ISO-27001-8"
+    parent_uid: "compliance_large_iso_27001"
+    
+  # NIST CSF Medium Standards
+  - uid: compliance_medium_nist_csf_id
+    label: "NIST CSF Identify"
+    description: "Identify function - develop organizational understanding to manage risk"
+    standard_level: "medium"
+    standard_type: "nist"
+    code: "NIST-CSF-ID"
+    parent_uid: "compliance_large_nist_csf"
+    
+  - uid: compliance_medium_nist_csf_pr
+    label: "NIST CSF Protect"
+    description: "Protect function - develop safeguards to ensure delivery of services"
+    standard_level: "medium"
+    standard_type: "nist"
+    code: "NIST-CSF-PR"
+    parent_uid: "compliance_large_nist_csf"
+    
+  # PCI DSS Medium Standards
+  - uid: compliance_medium_pci_dss_req1
+    label: "PCI DSS Requirement 1"
+    description: "Install and maintain a firewall configuration to protect cardholder data"
+    standard_level: "medium"
+    standard_type: "pci"
+    code: "PCI-DSS-REQ1"
+    parent_uid: "compliance_large_pci_dss"
+    
+  - uid: compliance_medium_pci_dss_req2
+    label: "PCI DSS Requirement 2"
+    description: "Do not use vendor-supplied defaults for system passwords and security parameters"
+    standard_level: "medium"
+    standard_type: "pci"
+    code: "PCI-DSS-REQ2"
+    parent_uid: "compliance_large_pci_dss"
+
+# Small Standards (Tertiary Branches)
+small_standards:
+  # ISO 27001 Section 8 Small Standards
+  - uid: compliance_small_iso_27001_8_1
+    label: "ISO 27001 8.1"
+    description: "Operational planning and control"
+    standard_level: "small"
+    standard_type: "iso"
+    code: "ISO-27001-8.1"
+    parent_uid: "compliance_medium_iso_27001_sec8"
+    
+  - uid: compliance_small_iso_27001_8_2
+    label: "ISO 27001 8.2"
+    description: "Information security risk assessment"
+    standard_level: "small"
+    standard_type: "iso"
+    code: "ISO-27001-8.2"
+    parent_uid: "compliance_medium_iso_27001_sec8"
+    
+  # NIST CSF Identify Small Standards
+  - uid: compliance_small_nist_csf_id_am
+    label: "NIST CSF ID.AM"
+    description: "Asset Management"
+    standard_level: "small"
+    standard_type: "nist"
+    code: "NIST-CSF-ID.AM"
+    parent_uid: "compliance_medium_nist_csf_id"
+    
+  - uid: compliance_small_nist_csf_id_be
+    label: "NIST CSF ID.BE"
+    description: "Business Environment"
+    standard_level: "small"
+    standard_type: "nist"
+    code: "NIST-CSF-ID.BE"
+    parent_uid: "compliance_medium_nist_csf_id"
+    
+  # PCI DSS Requirement 1 Small Standards
+  - uid: compliance_small_pci_dss_1_1
+    label: "PCI DSS 1.1"
+    description: "Establish and implement firewall configuration standards"
+    standard_level: "small"
+    standard_type: "pci"
+    code: "PCI-DSS-1.1"
+    parent_uid: "compliance_medium_pci_dss_req1"
+    
+  - uid: compliance_small_pci_dss_1_2
+    label: "PCI DSS 1.2"
+    description: "Build firewall configuration that restricts connections"
+    standard_level: "small"
+    standard_type: "pci"
+    code: "PCI-DSS-1.2"
+    parent_uid: "compliance_medium_pci_dss_req1"
+
+# Granular Standards (Edge Nodes)
+granular_standards:
+  # ISO 27001 8.1 Granular Standards
+  - uid: compliance_granular_iso_27001_8_1_1
+    label: "ISO 27001 8.1.1"
+    description: "The organization shall plan, implement and control processes needed to meet security requirements"
+    standard_level: "granular"
+    standard_type: "iso"
+    code: "ISO-27001-8.1.1"
+    parent_uid: "compliance_small_iso_27001_8_1"
+    
+  # NIST CSF ID.AM Granular Standards
+  - uid: compliance_granular_nist_csf_id_am_1
+    label: "NIST CSF ID.AM-1"
+    description: "Physical devices and systems are inventoried"
+    standard_level: "granular"
+    standard_type: "nist"
+    code: "NIST-CSF-ID.AM-1"
+    parent_uid: "compliance_small_nist_csf_id_am"
+    
+  - uid: compliance_granular_nist_csf_id_am_2
+    label: "NIST CSF ID.AM-2"
+    description: "Software platforms and applications are inventoried"
+    standard_level: "granular"
+    standard_type: "nist"
+    code: "NIST-CSF-ID.AM-2"
+    parent_uid: "compliance_small_nist_csf_id_am"
+    
+  # PCI DSS 1.1 Granular Standards
+  - uid: compliance_granular_pci_dss_1_1_1
+    label: "PCI DSS 1.1.1"
+    description: "A formal process for approving and testing network connections and changes to firewall configurations"
+    standard_level: "granular"
+    standard_type: "pci"
+    code: "PCI-DSS-1.1.1"
+    parent_uid: "compliance_small_pci_dss_1_1"

@@ -69,9 +69,15 @@ from backend.honeycomb_api import honeycomb_api
 from backend.regulatory_api import regulatory_api
 from backend.api import api
 
+# Import compliance API
+from backend.compliance_api import compliance_api
+
 # Initialize API routes
 init_api(app, graph_manager, memory_manager, usm, app_orchestrator)
 init_chat_api(app, axis_system)
+
+# Register compliance API
+app.register_blueprint(compliance_api)
 
 # Routes
 @app.route('/')

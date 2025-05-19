@@ -15,6 +15,7 @@ from core.axes.axis2_sectors import SectorManager
 from core.axes.axis4_methods import MethodsManager
 from core.axes.axis5_honeycomb import HoneycombSystem
 from core.axes.axis6_regulatory import RegulatoryManager
+from core.axes.axis7_compliance import ComplianceManager
 
 class AxisSystem:
     """
@@ -41,6 +42,9 @@ class AxisSystem:
 
         # Track individual axis managers
         self.axis_managers = {}
+
+        # Initialize compliance manager (Axis 7)
+        self.init_compliance_manager()
 
         # Define the 13 axes
         self.axes = {
@@ -619,6 +623,18 @@ class AxisSystem:
                                             'branch': granular_branch_node,
                                             'relation': gb_edge
                                         }
+
+    def init_regulatory_manager(self):
+        """Initialize the Regulatory Manager (Axis 6)."""
+        if 6 not in self.axis_managers:
+            self.logging.info(f"[{datetime.now()}] Initializing Regulatory Manager (Axis 6)")
+            self.axis_managers[6] = RegulatoryManager(self.db_manager, self.graph_manager)
+
+    def init_compliance_manager(self):
+        """Initialize the Compliance Manager (Axis 7)."""
+        if 7 not in self.axis_managers:
+            self.logging.info(f"[{datetime.now()}] Initializing Compliance Manager (Axis 7)")
+            self.axis_managers[7] = ComplianceManager(self.db_manager, self.graph_manager)
 
     # Initialize axis managers
         self.axis_managers = {
