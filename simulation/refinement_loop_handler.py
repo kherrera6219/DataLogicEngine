@@ -1,850 +1,705 @@
 """
 Refinement Loop Handler
 
-This module implements the 12-step refinement workflow for the UKG/USKD system to
-achieve 99.5% confidence. It serves as the core validation and enhancement
-pipeline for all knowledge processed through the system.
+This module provides the refinement loop mechanism for the UKG system.
+It manages the iterative refinement process across simulation passes and layers.
 """
 
 import logging
+import uuid
 import time
-from typing import Dict, Any, List, Optional, Tuple
+from datetime import datetime
+from typing import Dict, List, Any, Optional, Tuple, Callable
 
-logger = logging.getLogger(__name__)
+from simulation.gatekeeper_agent import GatekeeperAgent
 
 class RefinementLoopHandler:
     """
-    Implements the 12-step refinement workflow for UKG/USKD system.
+    Refinement Loop Handler
     
-    This handler takes data from the Quad Persona Simulation and Axis Traversal 
-    engines and refines it through a series of validation, critical thinking,
-    and enhancement steps to achieve high confidence scores.
+    Manages the iterative refinement process for knowledge simulation.
+    Coordinates with the Gatekeeper Agent to determine which layers to activate
+    for each refinement pass, and processes results through the refinement workflow.
     """
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """Initialize the Refinement Loop Handler."""
+    def __init__(self, config=None, gatekeeper=None, system_manager=None):
+        """
+        Initialize the Refinement Loop Handler.
+        
+        Args:
+            config (dict, optional): Configuration dictionary
+            gatekeeper (GatekeeperAgent, optional): Gatekeeper Agent instance
+            system_manager: United System Manager instance
+        """
         self.config = config or {}
-        self.confidence_threshold = self.config.get("confidence_threshold", 0.995)
-        self.max_iterations = self.config.get("max_iterations", 3)
-        self.metrics = {
-            "steps_executed": 0,
-            "refinement_cycles": 0,
-            "initial_confidence": 0.0,
-            "final_confidence": 0.0,
-            "time_spent": 0.0
-        }
-        logger.info("Refinement Loop Handler initialized")
-    
-    def refine(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Execute the complete 12-step refinement workflow.
         
-        Args:
-            data: Knowledge data to refine
-            
-        Returns:
-            Refined data with enhanced confidence
-        """
-        start_time = time.time()
+        # Configuration
+        self.max_passes = self.config.get('max_refinement_passes', 3)
+        self.convergence_threshold = self.config.get('convergence_threshold', 0.995)
+        self.pass_delay = self.config.get('pass_delay', 0)  # seconds between passes
         
-        # Store initial data for comparison
-        initial_data = data.copy()
-        self.metrics["initial_confidence"] = data.get("confidence", 0.5)
+        # Components
+        self.gatekeeper = gatekeeper or GatekeeperAgent()
+        self.system_manager = system_manager
         
-        # Track refinement cycles
-        cycle = 0
-        current_confidence = self.metrics["initial_confidence"]
-        
-        # Continue refining until confidence threshold is met or max iterations reached
-        while current_confidence < self.confidence_threshold and cycle < self.max_iterations:
-            logger.info(f"Starting refinement cycle {cycle+1} with confidence {current_confidence}")
-            
-            # Execute all 12 steps in sequence
-            refined_data = self._execute_refinement_steps(data)
-            
-            # Update metrics
-            cycle += 1
-            self.metrics["refinement_cycles"] = cycle
-            current_confidence = refined_data.get("confidence", current_confidence)
-            data = refined_data
-            
-            logger.info(f"Completed refinement cycle {cycle} with new confidence {current_confidence}")
-        
-        # Calculate final metrics
-        self.metrics["final_confidence"] = current_confidence
-        self.metrics["time_spent"] = time.time() - start_time
-        
-        # Add refinement metadata to the result
-        data["refinement_metrics"] = self.metrics
-        data["refined"] = True
-        
-        return data
-    
-    def _execute_refinement_steps(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Execute all 12 refinement steps in sequence.
-        
-        Args:
-            data: Knowledge data to refine
-            
-        Returns:
-            Refined data
-        """
-        refined_data = data.copy()
-        
-        # Step 1: Algorithm of Thought
-        refined_data = self._step_algorithm_of_thought(refined_data)
-        
-        # Step 2: Tree of Thought
-        refined_data = self._step_tree_of_thought(refined_data)
-        
-        # Step 3: Data Validation + Sentiment + Analysis
-        refined_data = self._step_data_validation(refined_data)
-        
-        # Step 4: Deep Thinking and Planning
-        refined_data = self._step_deep_thinking(refined_data)
-        
-        # Step 5: Reasoning
-        refined_data = self._step_reasoning(refined_data)
-        
-        # Step 6: Self-Reflection and Criticism
-        refined_data = self._step_self_reflection(refined_data)
-        
-        # Step 7: Advanced NLP, Deep Recursive Learning
-        refined_data = self._step_advanced_nlp(refined_data)
-        
-        # Step 8: AI Ethics, Security, Compliance
-        refined_data = self._step_ethics_compliance(refined_data)
-        
-        # Step 9: Online/API Validation (optional)
-        if self.config.get("enable_external_validation", False):
-            refined_data = self._step_external_validation(refined_data)
-        
-        # Step 10: Answer Compilation
-        refined_data = self._step_answer_compilation(refined_data)
-        
-        # Step 11: Confidence & Accuracy Scoring
-        refined_data = self._step_confidence_scoring(refined_data)
-        
-        # Step 12: Final Export + Save to Memory
-        refined_data = self._step_final_export(refined_data)
-        
-        # Update metrics
-        self.metrics["steps_executed"] += 12
-        
-        return refined_data
-    
-    def _step_algorithm_of_thought(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Step 1: Algorithm of Thought - Validate logic paths from simulated expert role.
-        
-        Args:
-            data: Knowledge data to refine
-            
-        Returns:
-            Refined data
-        """
-        logger.info("Step 1: Algorithm of Thought")
-        
-        # Extract core knowledge data
-        knowledge = data.get("knowledge", {})
-        personas = data.get("personas", [])
-        
-        # Validate logic path for each persona
-        validated_paths = []
-        
-        for persona in personas:
-            persona_type = persona.get("type", "")
-            persona_knowledge = persona.get("knowledge", {})
-            
-            # Simulate logic path validation for this persona
-            logic_path = {
-                "persona": persona_type,
-                "valid_components": [],
-                "invalid_components": [],
-                "confidence": 0.0
-            }
-            
-            # Extract and validate key components based on persona type
-            if persona_type == "Knowledge Expert":
-                # Domain knowledge validation
-                logic_path["valid_components"].append("domain_concepts")
-                logic_path["confidence"] = 0.85
-            elif persona_type == "Sector Expert":
-                # Industry-specific validation
-                logic_path["valid_components"].append("industry_standards")
-                logic_path["confidence"] = 0.88
-            elif persona_type == "Regulatory Expert":
-                # Regulatory validation
-                logic_path["valid_components"].append("regulations")
-                logic_path["confidence"] = 0.92
-            elif persona_type == "Compliance Expert":
-                # Compliance validation
-                logic_path["valid_components"].append("compliance_requirements")
-                logic_path["confidence"] = 0.90
-            
-            validated_paths.append(logic_path)
-        
-        # Add validated logic paths to data
-        data["validated_logic_paths"] = validated_paths
-        
-        # Calculate average logic confidence
-        if validated_paths:
-            avg_confidence = sum(path["confidence"] for path in validated_paths) / len(validated_paths)
-            data["logic_confidence"] = avg_confidence
-        
-        return data
-    
-    def _step_tree_of_thought(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Step 2: Tree of Thought - Branch alternate interpretations or regulatory mappings.
-        
-        Args:
-            data: Knowledge data to refine
-            
-        Returns:
-            Refined data
-        """
-        logger.info("Step 2: Tree of Thought")
-        
-        # Get query and context
-        query = data.get("query", "")
-        context = data.get("context", {})
-        
-        # Generate alternate interpretations
-        interpretations = []
-        
-        # Simulation: Generate 3 alternate interpretations
-        interpretations.append({
-            "interpretation": "Primary interpretation",
-            "confidence": 0.85,
-            "branch_quality": "high"
-        })
-        
-        interpretations.append({
-            "interpretation": "Alternative interpretation 1",
-            "confidence": 0.65,
-            "branch_quality": "medium"
-        })
-        
-        interpretations.append({
-            "interpretation": "Alternative interpretation 2",
-            "confidence": 0.45,
-            "branch_quality": "low"
-        })
-        
-        # Add interpretations to data
-        data["interpretations"] = interpretations
-        
-        # Select highest confidence interpretation
-        if interpretations:
-            best_interpretation = max(interpretations, key=lambda x: x["confidence"])
-            data["selected_interpretation"] = best_interpretation
-        
-        return data
-    
-    def _step_data_validation(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Step 3: Data Validation + Sentiment + Analysis - NLP validation and structured data analysis.
-        
-        Args:
-            data: Knowledge data to refine
-            
-        Returns:
-            Refined data
-        """
-        logger.info("Step 3: Data Validation + Sentiment + Analysis")
-        
-        # Extract content for validation
-        content = data.get("content", "")
-        structured_data = data.get("structured_data", {})
-        
-        # Simulated NLP validation
-        nlp_validation = {
-            "sentiment_score": 0.65,  # Neutral-positive
-            "objectivity_score": 0.82,  # Highly objective
-            "coherence_score": 0.78,  # Good coherence
-            "factual_density": 0.85,  # High factual content
-            "contradictions_detected": False
-        }
-        
-        # Simulated structured data validation
-        data_validation = {
-            "schema_compliance": 0.95,  # High schema compliance
-            "data_completeness": 0.88,  # Good completeness
-            "field_validity": 0.97,     # Very high field validity
-            "reference_integrity": 0.93  # Good reference integrity
-        }
-        
-        # Add validation results to data
-        data["nlp_validation"] = nlp_validation
-        data["data_validation"] = data_validation
-        
-        # Calculate overall validation score
-        nlp_score = (nlp_validation["sentiment_score"] + 
-                     nlp_validation["objectivity_score"] + 
-                     nlp_validation["coherence_score"] + 
-                     nlp_validation["factual_density"]) / 4
-        
-        data_score = (data_validation["schema_compliance"] + 
-                      data_validation["data_completeness"] + 
-                      data_validation["field_validity"] + 
-                      data_validation["reference_integrity"]) / 4
-        
-        # Weighted average (favor structured data slightly)
-        validation_score = (nlp_score * 0.45) + (data_score * 0.55)
-        data["validation_score"] = validation_score
-        
-        return data
-    
-    def _step_deep_thinking(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Step 4: Deep Thinking and Planning - Run recursive planning AI for causal logic.
-        
-        Args:
-            data: Knowledge data to refine
-            
-        Returns:
-            Refined data
-        """
-        logger.info("Step 4: Deep Thinking and Planning")
-        
-        # Extract content requiring deep thinking
-        query = data.get("query", "")
-        knowledge = data.get("knowledge", {})
-        
-        # Simulate deep thinking process
-        thinking_steps = [
-            {
-                "step": 1,
-                "thought": "Analyzing query fundamental requirements",
-                "insight": "Core information need identified",
-                "confidence": 0.82
-            },
-            {
-                "step": 2,
-                "thought": "Exploring causal relationships",
-                "insight": "Key dependencies mapped",
-                "confidence": 0.79
-            },
-            {
-                "step": 3,
-                "thought": "Evaluating long-term implications",
-                "insight": "Future impact considered",
-                "confidence": 0.75
-            }
+        # Refinement workflow steps
+        self.workflow_steps = [
+            self._initial_analysis,
+            self._knowledge_processing,
+            self._sector_processing,
+            self._regulatory_processing,
+            self._compliance_processing,
+            self._cross_persona_analysis,
+            self._conflict_resolution,
+            self._confidence_assessment,
+            self._refinement_determination,
+            self._fact_verification,
+            self._coherence_check,
+            self._final_synthesis
         ]
         
-        # Simulate planning process
-        planning_result = {
-            "action_plan": [
-                "Verify regulatory sources",
-                "Cross-reference with compliance standards",
-                "Validate technical specifications"
-            ],
-            "expected_outcomes": [
-                "Comprehensive regulatory guidance",
-                "Compliant implementation approach",
-                "Robust technical solution"
-            ],
-            "confidence": 0.85
-        }
+        # State tracking
+        self.active_simulations = {}
+        self.simulation_results = {}
+        self.current_simulation_id = None
         
-        # Add thinking and planning results to data
-        data["thinking_steps"] = thinking_steps
-        data["planning_result"] = planning_result
-        
-        # Calculate deep thinking confidence
-        if thinking_steps:
-            thinking_confidence = sum(step["confidence"] for step in thinking_steps) / len(thinking_steps)
-            data["thinking_confidence"] = thinking_confidence
-        
-        return data
+        logging.info(f"[{datetime.now()}] RefinementLoopHandler initialized with max {self.max_passes} passes")
     
-    def _step_reasoning(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def start_refinement(self, query: str, context: Dict = None) -> Dict:
         """
-        Step 5: Reasoning - Apply deductive, abductive, inductive simulation tests.
+        Start a new refinement process.
         
         Args:
-            data: Knowledge data to refine
+            query: The user query or input
+            context: Additional context for the simulation
             
         Returns:
-            Refined data
+            dict: Initial simulation setup with simulation_id
         """
-        logger.info("Step 5: Reasoning")
+        # Generate simulation ID
+        simulation_id = f"sim_{str(uuid.uuid4())[:8]}_{int(datetime.now().timestamp())}"
+        self.current_simulation_id = simulation_id
         
-        # Extract content for reasoning
-        knowledge = data.get("knowledge", {})
-        validated_logic_paths = data.get("validated_logic_paths", [])
-        
-        # Simulate different reasoning methods
-        reasoning_results = {
-            "deductive": {
-                "premises": [
-                    "All federal buildings must comply with FAR regulations",
-                    "This is a federal building project"
-                ],
-                "conclusion": "This project must comply with FAR regulations",
-                "validity": 0.98,
-                "soundness": 0.95
+        # Initialize context
+        context = context or {}
+        full_context = {
+            'simulation_id': simulation_id,
+            'query': query,
+            'start_time': datetime.now().isoformat(),
+            'context': context,
+            'passes': [],
+            'current_pass': 0,
+            'confidence': {
+                'overall': 0.0,
+                'knowledge': 0.0,
+                'sector': 0.0,
+                'regulatory': 0.0,
+                'compliance': 0.0
             },
-            "inductive": {
-                "observations": [
-                    "Previous similar projects required X, Y, Z compliance steps",
-                    "80% of federal projects encounter regulatory challenge A"
-                ],
-                "generalization": "This project will likely require similar compliance approach",
-                "strength": 0.85,
-                "relevance": 0.88
-            },
-            "abductive": {
-                "observation": "The project has specific characteristic B",
-                "hypothesis": "This suggests application of regulatory clause C",
-                "plausibility": 0.79,
-                "explanatory_power": 0.82
+            'entropy': 0.5,  # Start at medium entropy
+            'status': 'initialized',
+            'active_layers': [],
+            'metrics': {
+                'total_passes': 0,
+                'total_layers_activated': 0,
+                'processing_time': 0
             }
         }
         
-        # Add reasoning results to data
-        data["reasoning_results"] = reasoning_results
+        # Store simulation
+        self.active_simulations[simulation_id] = full_context
         
-        # Calculate reasoning confidence
-        deductive_score = (reasoning_results["deductive"]["validity"] + 
-                           reasoning_results["deductive"]["soundness"]) / 2
+        logging.info(f"[{datetime.now()}] Started refinement for simulation {simulation_id}")
         
-        inductive_score = (reasoning_results["inductive"]["strength"] + 
-                           reasoning_results["inductive"]["relevance"]) / 2
-        
-        abductive_score = (reasoning_results["abductive"]["plausibility"] + 
-                           reasoning_results["abductive"]["explanatory_power"]) / 2
-        
-        # Weighted average (favor deductive reasoning)
-        reasoning_confidence = (deductive_score * 0.5) + (inductive_score * 0.3) + (abductive_score * 0.2)
-        
-        data["reasoning_confidence"] = reasoning_confidence
-        
-        return data
+        return {
+            'simulation_id': simulation_id,
+            'status': 'initialized',
+            'message': 'Refinement process initialized'
+        }
     
-    def _step_self_reflection(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def run_refinement(self, simulation_id: str = None) -> Dict:
         """
-        Step 6: Self-Reflection and Criticism - Simulated expert critiques logic.
+        Execute the refinement process for a simulation.
         
         Args:
-            data: Knowledge data to refine
+            simulation_id: ID of simulation to run
             
         Returns:
-            Refined data
+            dict: Final simulation results
         """
-        logger.info("Step 6: Self-Reflection and Criticism")
+        # Use current simulation if none specified
+        simulation_id = simulation_id or self.current_simulation_id
+        if not simulation_id:
+            return {'error': 'No simulation ID specified or available'}
         
-        # Extract content for reflection
-        knowledge = data.get("knowledge", {})
-        personas = data.get("personas", [])
+        # Check if simulation exists
+        if simulation_id not in self.active_simulations:
+            return {'error': f'Simulation {simulation_id} not found'}
         
-        # Simulate self-reflection for each persona
-        reflections = []
+        # Get simulation context
+        simulation = self.active_simulations[simulation_id]
+        simulation['status'] = 'running'
+        start_time = time.time()
         
-        for persona in personas:
-            persona_type = persona.get("type", "")
+        # Run refinement passes
+        for pass_num in range(1, self.max_passes + 1):
+            # Prepare pass context
+            pass_context = self._prepare_pass_context(simulation, pass_num)
             
-            reflection = {
-                "persona": persona_type,
-                "critique_points": [],
-                "strengths": [],
-                "weaknesses": [],
-                "confidence_adjustment": 0.0
+            # Run gatekeeper evaluation to determine active layers
+            gatekeeper_input = {
+                'simulation_id': simulation_id,
+                'simulation_pass': pass_num,
+                'confidence_score': simulation['confidence']['overall'],
+                'entropy_score': simulation['entropy'],
+                'roles_triggered': pass_context.get('roles_triggered', []),
+                'regulatory_flags': pass_context.get('regulatory_flags', [])
             }
             
-            # Generate reflection based on persona type
-            if persona_type == "Knowledge Expert":
-                reflection["critique_points"] = ["Potential knowledge gap in area X"]
-                reflection["strengths"] = ["Strong domain knowledge in area Y"]
-                reflection["weaknesses"] = ["Limited interdisciplinary connection"]
-                reflection["confidence_adjustment"] = -0.05
-            elif persona_type == "Sector Expert":
-                reflection["critique_points"] = ["Industry standard Z not fully addressed"]
-                reflection["strengths"] = ["Comprehensive sector context provided"]
-                reflection["weaknesses"] = ["Some sector-specific terminology is ambiguous"]
-                reflection["confidence_adjustment"] = -0.03
-            elif persona_type == "Regulatory Expert":
-                reflection["critique_points"] = ["Clause A.1.3 interpretation could be challenged"]
-                reflection["strengths"] = ["Thorough regulatory citations"]
-                reflection["weaknesses"] = ["Edge case B not explicitly covered"]
-                reflection["confidence_adjustment"] = -0.07
-            elif persona_type == "Compliance Expert":
-                reflection["critique_points"] = ["Compliance verification step missing"]
-                reflection["strengths"] = ["Clear compliance requirements identified"]
-                reflection["weaknesses"] = ["Compliance timeline not specified"]
-                reflection["confidence_adjustment"] = -0.04
+            gatekeeper_decision = self.gatekeeper.evaluate(gatekeeper_input)
+            active_layers = self.gatekeeper.get_active_layers()
             
-            reflections.append(reflection)
+            # Store active layers in pass context
+            pass_context['active_layers'] = active_layers
+            pass_context['gatekeeper_decision'] = gatekeeper_decision
+            
+            # Check if we should halt due to entropy
+            if self.gatekeeper.should_halt():
+                pass_context['status'] = 'halted'
+                pass_context['halt_reason'] = 'Entropy threshold exceeded'
+                simulation['passes'].append(pass_context)
+                simulation['status'] = 'halted'
+                break
+            
+            # Execute refinement workflow
+            pass_result = self._execute_refinement_workflow(pass_context)
+            
+            # Update simulation with pass results
+            simulation['passes'].append(pass_result)
+            simulation['current_pass'] = pass_num
+            simulation['confidence'] = pass_result.get('confidence', simulation['confidence'])
+            simulation['entropy'] = pass_result.get('entropy', simulation['entropy'])
+            
+            # Check for convergence
+            if simulation['confidence']['overall'] >= self.convergence_threshold:
+                simulation['status'] = 'converged'
+                break
+            
+            # Add delay between passes if configured
+            if self.pass_delay > 0 and pass_num < self.max_passes:
+                time.sleep(self.pass_delay)
         
-        # Add reflections to data
-        data["self_reflections"] = reflections
+        # Finalize simulation
+        if simulation['status'] == 'running':
+            simulation['status'] = 'completed'
         
-        # Apply confidence adjustments
-        if "confidence" in data and reflections:
-            total_adjustment = sum(ref["confidence_adjustment"] for ref in reflections)
-            data["confidence"] = max(0.0, min(1.0, data["confidence"] + total_adjustment))
+        # Calculate metrics
+        end_time = time.time()
+        simulation['metrics']['total_passes'] = len(simulation['passes'])
+        simulation['metrics']['total_layers_activated'] = sum(len(p.get('active_layers', [])) for p in simulation['passes'])
+        simulation['metrics']['processing_time'] = end_time - start_time
         
-        return data
+        # Store results
+        self.simulation_results[simulation_id] = simulation
+        
+        # Clean up active simulation
+        if simulation_id in self.active_simulations:
+            del self.active_simulations[simulation_id]
+        
+        logging.info(f"[{datetime.now()}] Completed refinement for simulation {simulation_id} with status {simulation['status']}")
+        
+        return simulation
     
-    def _step_advanced_nlp(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def get_simulation(self, simulation_id: str) -> Optional[Dict]:
         """
-        Step 7: Advanced NLP, Deep Recursive Learning - LLM-layer enhancements.
+        Get a simulation by ID.
         
         Args:
-            data: Knowledge data to refine
+            simulation_id: Simulation ID
             
         Returns:
-            Refined data
+            dict: Simulation data or None if not found
         """
-        logger.info("Step 7: Advanced NLP, Deep Recursive Learning")
+        if simulation_id in self.active_simulations:
+            return self.active_simulations[simulation_id]
         
-        # Extract content for NLP processing
-        content = data.get("content", "")
-        structured_data = data.get("structured_data", {})
-        
-        # Simulate advanced NLP processing
-        nlp_enhancements = {
-            "entity_recognition": {
-                "identified_entities": [
-                    {"type": "regulation", "name": "FAR 52.236", "confidence": 0.96},
-                    {"type": "standard", "name": "ASHRAE 90.1", "confidence": 0.92},
-                    {"type": "organization", "name": "GSA", "confidence": 0.98}
-                ],
-                "accuracy": 0.94
-            },
-            "semantic_enrichment": {
-                "enriched_concepts": [
-                    {"concept": "energy efficiency", "relevance": 0.87},
-                    {"concept": "compliance verification", "relevance": 0.92},
-                    {"concept": "technical specifications", "relevance": 0.85}
-                ],
-                "coverage": 0.89
-            },
-            "knowledge_graph_integration": {
-                "new_connections": 3,
-                "strengthened_connections": 5,
-                "integration_success": 0.91
-            }
-        }
-        
-        # Simulate deep recursive learning
-        recursive_learning = {
-            "pattern_discovery": {
-                "identified_patterns": 2,
-                "pattern_confidence": 0.83
-            },
-            "recursive_refinement": {
-                "refinement_passes": 3,
-                "improvement_per_pass": 0.06
-            },
-            "learning_outcomes": [
-                "Improved regulatory context understanding",
-                "Enhanced cross-reference accuracy",
-                "Refined technical requirement clarity"
-            ]
-        }
-        
-        # Add NLP and learning results to data
-        data["nlp_enhancements"] = nlp_enhancements
-        data["recursive_learning"] = recursive_learning
-        
-        # Calculate NLP confidence
-        entity_score = nlp_enhancements["entity_recognition"]["accuracy"]
-        semantic_score = nlp_enhancements["semantic_enrichment"]["coverage"]
-        integration_score = nlp_enhancements["knowledge_graph_integration"]["integration_success"]
-        pattern_score = recursive_learning["pattern_discovery"]["pattern_confidence"]
-        
-        # Calculate NLP confidence (weighted average)
-        nlp_confidence = (entity_score * 0.3) + (semantic_score * 0.3) + (integration_score * 0.2) + (pattern_score * 0.2)
-        
-        data["nlp_confidence"] = nlp_confidence
-        
-        return data
+        return self.simulation_results.get(simulation_id)
     
-    def _step_ethics_compliance(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _prepare_pass_context(self, simulation: Dict, pass_num: int) -> Dict:
         """
-        Step 8: AI Ethics, Security, Compliance - Apply regulatory filters and threat scoring.
+        Prepare context for a refinement pass.
         
         Args:
-            data: Knowledge data to refine
+            simulation: Simulation context
+            pass_num: Pass number
             
         Returns:
-            Refined data
+            dict: Pass context
         """
-        logger.info("Step 8: AI Ethics, Security, Compliance")
-        
-        # Extract content for ethics and compliance check
-        content = data.get("content", "")
-        structured_data = data.get("structured_data", {})
-        
-        # Simulate ethics and compliance check
-        ethics_check = {
-            "bias_assessment": {
-                "bias_detected": False,
-                "fairness_score": 0.92
-            },
-            "ethical_alignment": {
-                "aligned_with_principles": True,
-                "alignment_score": 0.95
-            },
-            "recommendation_ethics": {
-                "ethical_conflicts": 0,
-                "ethical_score": 0.97
+        # Basic pass context
+        pass_context = {
+            'pass_num': pass_num,
+            'simulation_id': simulation['simulation_id'],
+            'query': simulation['query'],
+            'start_time': datetime.now().isoformat(),
+            'status': 'running',
+            'confidence': simulation['confidence'].copy(),
+            'entropy': simulation['entropy'],
+            'previous_passes': len(simulation['passes']),
+            'roles_triggered': [],
+            'regulatory_flags': [],
+            'active_layers': [],
+            'persona_results': {},
+            'refinement_workflow': {
+                'current_step': 0,
+                'steps_completed': [],
+                'step_results': {}
             }
         }
         
-        # Simulate security and compliance check
-        security_check = {
-            "privacy_assessment": {
-                "private_data_detected": False,
-                "privacy_score": 0.98
-            },
-            "security_vulnerabilities": {
-                "vulnerabilities_detected": 0,
-                "security_score": 0.99
-            },
-            "compliance_verification": {
-                "compliant_with_standards": True,
-                "compliance_score": 0.96
-            }
-        }
+        # Add triggers and flags based on previous passes
+        if simulation['passes']:
+            last_pass = simulation['passes'][-1]
+            
+            # Extract triggers from previous pass
+            pass_context['roles_triggered'] = last_pass.get('roles_triggered', [])
+            pass_context['regulatory_flags'] = last_pass.get('regulatory_flags', [])
+            
+            # Analyze confidence trend
+            if pass_num > 1:
+                confidence_delta = simulation['confidence']['overall'] - last_pass.get('confidence', {}).get('overall', 0)
+                
+                if confidence_delta < 0:
+                    pass_context['roles_triggered'].append('confidence_decreasing')
+                elif abs(confidence_delta) < 0.05 and pass_num > 2:
+                    pass_context['roles_triggered'].append('confidence_plateau')
+                
+                # Check for oscillations
+                if pass_num > 2 and len(simulation['passes']) >= 2:
+                    prev_confidence = simulation['passes'][-2].get('confidence', {}).get('overall', 0)
+                    if (simulation['confidence']['overall'] - prev_confidence) * (prev_confidence - last_pass.get('confidence', {}).get('overall', 0)) < 0:
+                        pass_context['roles_triggered'].append('confidence_oscillation')
         
-        # Add ethics and security results to data
-        data["ethics_check"] = ethics_check
-        data["security_check"] = security_check
-        
-        # Calculate ethics and compliance confidence
-        ethics_score = (ethics_check["bias_assessment"]["fairness_score"] + 
-                        ethics_check["ethical_alignment"]["alignment_score"] + 
-                        ethics_check["recommendation_ethics"]["ethical_score"]) / 3
-        
-        security_score = (security_check["privacy_assessment"]["privacy_score"] + 
-                          security_check["security_vulnerabilities"]["security_score"] + 
-                          security_check["compliance_verification"]["compliance_score"]) / 3
-        
-        # Combined score (weighted equally)
-        ethics_compliance_confidence = (ethics_score + security_score) / 2
-        data["ethics_compliance_confidence"] = ethics_compliance_confidence
-        
-        return data
+        return pass_context
     
-    def _step_external_validation(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _execute_refinement_workflow(self, pass_context: Dict) -> Dict:
         """
-        Step 9: Online/API Validation - Call external services for validation.
+        Execute the refinement workflow steps for a pass.
         
         Args:
-            data: Knowledge data to refine
+            pass_context: Pass context
             
         Returns:
-            Refined data
+            dict: Updated pass context with results
         """
-        logger.info("Step 9: Online/API Validation")
-        
-        # Extract content for external validation
-        citations = data.get("citations", [])
-        references = data.get("references", [])
-        
-        # Simulate external validation
-        validated_citations = []
-        for citation in citations:
-            # Simulate citation validation
-            validated = {
-                "citation": citation,
-                "verified": True,
-                "verification_source": "simulated_external_api",
-                "verification_time": time.time()
-            }
+        # Execute each refinement step
+        for step_idx, step_func in enumerate(self.workflow_steps):
+            # Update current step
+            pass_context['refinement_workflow']['current_step'] = step_idx + 1
             
-            validated_citations.append(validated)
-        
-        # Simulate reference validation
-        validated_references = []
-        for reference in references:
-            # Simulate reference validation
-            validated = {
-                "reference": reference,
-                "verified": True,
-                "verification_source": "simulated_external_api",
-                "verification_time": time.time()
-            }
+            # Execute step
+            step_name = step_func.__name__.lstrip('_')
+            logging.info(f"[{datetime.now()}] Executing refinement step {step_idx+1}/{len(self.workflow_steps)}: {step_name}")
             
-            validated_references.append(validated)
-        
-        # Add validation results to data
-        data["validated_citations"] = validated_citations
-        data["validated_references"] = validated_references
-        
-        # Calculate validation confidence
-        citation_confidence = 0.97 if validated_citations else 0.5
-        reference_confidence = 0.93 if validated_references else 0.5
-        
-        external_validation_confidence = (citation_confidence + reference_confidence) / 2
-        data["external_validation_confidence"] = external_validation_confidence
-        
-        return data
-    
-    def _step_answer_compilation(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Step 10: Answer Compilation - Merge all validated expansions into final dataset.
-        
-        Args:
-            data: Knowledge data to refine
-            
-        Returns:
-            Refined data
-        """
-        logger.info("Step 10: Answer Compilation")
-        
-        # Gather components for compilation
-        components = {
-            "core_knowledge": data.get("knowledge", {}),
-            "structured_data": data.get("structured_data", {}),
-            "nlp_enhancements": data.get("nlp_enhancements", {}),
-            "validated_references": data.get("validated_references", []),
-            "validated_citations": data.get("validated_citations", []),
-            "reasoning_results": data.get("reasoning_results", {})
-        }
-        
-        # Simulate answer compilation
-        compiled_answer = {
-            "content": "Simulated compiled answer content",
-            "structure": "structured_data_representation",
-            "components_included": list(components.keys()),
-            "compilation_time": time.time()
-        }
-        
-        # Add compilation metadata
-        compilation_metadata = {
-            "completeness": 0.94,
-            "coherence": 0.91,
-            "alignment_with_query": 0.93,
-            "source_diversity": 0.89
-        }
-        
-        # Add compilation to data
-        data["compiled_answer"] = compiled_answer
-        data["compilation_metadata"] = compilation_metadata
-        
-        # Calculate compilation confidence
-        compilation_confidence = sum(compilation_metadata.values()) / len(compilation_metadata)
-        data["compilation_confidence"] = compilation_confidence
-        
-        return data
-    
-    def _step_confidence_scoring(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Step 11: Confidence & Accuracy Scoring - Score overall confidence.
-        
-        Args:
-            data: Knowledge data to refine
-            
-        Returns:
-            Refined data
-        """
-        logger.info("Step 11: Confidence & Accuracy Scoring")
-        
-        # Gather confidence scores from all previous steps
-        confidence_components = {
-            "logic_confidence": data.get("logic_confidence", 0.0),
-            "validation_score": data.get("validation_score", 0.0),
-            "thinking_confidence": data.get("thinking_confidence", 0.0),
-            "reasoning_confidence": data.get("reasoning_confidence", 0.0),
-            "nlp_confidence": data.get("nlp_confidence", 0.0),
-            "ethics_compliance_confidence": data.get("ethics_compliance_confidence", 0.0),
-            "external_validation_confidence": data.get("external_validation_confidence", 0.0),
-            "compilation_confidence": data.get("compilation_confidence", 0.0)
-        }
-        
-        # Filter out missing components
-        valid_components = {k: v for k, v in confidence_components.items() if v > 0.0}
-        
-        # Calculate overall confidence
-        if valid_components:
-            overall_confidence = sum(valid_components.values()) / len(valid_components)
-        else:
-            overall_confidence = 0.5  # Default if no components available
-        
-        # Define confidence threshold
-        threshold_met = overall_confidence >= self.confidence_threshold
-        
-        # Add confidence results to data
-        data["confidence_components"] = valid_components
-        data["confidence"] = overall_confidence
-        data["threshold_met"] = threshold_met
-        
-        # Add confidence metadata
-        confidence_metadata = {
-            "calculation_method": "average_of_components",
-            "components_count": len(valid_components),
-            "threshold": self.confidence_threshold,
-            "threshold_met": threshold_met
-        }
-        
-        data["confidence_metadata"] = confidence_metadata
-        
-        return data
-    
-    def _step_final_export(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Step 12: Final Export + Save to Memory - Prepare for database storage.
-        
-        Args:
-            data: Knowledge data to refine
-            
-        Returns:
-            Refined data
-        """
-        logger.info("Step 12: Final Export + Save to Memory")
-        
-        # Prepare export structure
-        export_data = {
-            "id": data.get("id", str(time.time())),
-            "query": data.get("query", ""),
-            "compiled_answer": data.get("compiled_answer", {}),
-            "confidence": data.get("confidence", 0.0),
-            "metadata": {
-                "refinement_timestamp": time.time(),
-                "refinement_cycles": self.metrics["refinement_cycles"],
-                "steps_executed": self.metrics["steps_executed"],
-                "confidence_journey": {
-                    "initial": self.metrics["initial_confidence"],
-                    "final": data.get("confidence", 0.0)
+            try:
+                step_result = step_func(pass_context)
+                pass_context['refinement_workflow']['step_results'][step_name] = step_result
+                pass_context['refinement_workflow']['steps_completed'].append(step_name)
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Error in refinement step {step_name}: {str(e)}")
+                pass_context['refinement_workflow']['step_results'][step_name] = {
+                    'error': str(e),
+                    'status': 'failed'
                 }
-            },
-            "axis_tags": data.get("axis_tags", {}),
-            "personas": data.get("personas", []),
-            "export_version": "1.0"
+                pass_context['status'] = 'error'
+                break
+        
+        # Set end time
+        pass_context['end_time'] = datetime.now().isoformat()
+        
+        # Calculate processing time
+        try:
+            start_time = datetime.fromisoformat(pass_context['start_time'])
+            end_time = datetime.fromisoformat(pass_context['end_time'])
+            processing_time = (end_time - start_time).total_seconds()
+            pass_context['processing_time'] = processing_time
+        except (ValueError, KeyError):
+            pass_context['processing_time'] = 0
+        
+        # Set pass status if not already set
+        if pass_context['status'] == 'running':
+            pass_context['status'] = 'completed'
+        
+        return pass_context
+    
+    # Refinement workflow steps
+    def _initial_analysis(self, pass_context: Dict) -> Dict:
+        """Analyze query and context to extract initial understanding."""
+        # In a real implementation, this would use the system_manager to call relevant components
+        result = {
+            'status': 'completed',
+            'topics_identified': ['example_topic_1', 'example_topic_2'],
+            'entities_identified': ['example_entity_1', 'example_entity_2'],
+            'domain_classification': {
+                'primary': 'general',
+                'confidence': 0.75
+            }
         }
         
-        # Add export data to result
-        data["export_data"] = export_data
+        # Update pass context with initial analysis results
+        pass_context['topics'] = result['topics_identified']
+        pass_context['entities'] = result['entities_identified']
+        pass_context['domain'] = result['domain_classification']['primary']
         
-        # Add final metadata
-        data["export_timestamp"] = time.time()
-        data["export_status"] = "success" if data.get("threshold_met", False) else "requires_further_refinement"
+        return result
+    
+    def _knowledge_processing(self, pass_context: Dict) -> Dict:
+        """Process query through Knowledge Persona components."""
+        # In a real implementation, this would invoke the appropriate persona engine
+        result = {
+            'status': 'completed',
+            'confidence': 0.8,
+            'knowledge_fragments': [
+                {'id': 'kf1', 'content': 'Example knowledge fragment 1', 'confidence': 0.9},
+                {'id': 'kf2', 'content': 'Example knowledge fragment 2', 'confidence': 0.7}
+            ],
+            'gaps_identified': ['gap1', 'gap2'],
+            'components': {
+                'job_role': {'confidence': 0.85, 'relevance': 0.75},
+                'education': {'confidence': 0.80, 'relevance': 0.60},
+                'certifications': {'confidence': 0.75, 'relevance': 0.50},
+                'skills': {'confidence': 0.85, 'relevance': 0.90},
+                'training': {'confidence': 0.70, 'relevance': 0.40},
+                'career_path': {'confidence': 0.65, 'relevance': 0.30},
+                'related_jobs': {'confidence': 0.75, 'relevance': 0.45}
+            }
+        }
         
-        return data
-
-
-def run_refinement(data: Dict[str, Any], 
-                   config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """
-    Execute refinement workflow on provided data.
-    
-    Args:
-        data: Knowledge data to refine
-        config: Optional configuration for refinement
+        # Update pass context with persona results
+        pass_context['persona_results']['knowledge'] = result
+        pass_context['confidence']['knowledge'] = result['confidence']
         
-    Returns:
-        Refined data with enhanced confidence
-    """
-    # Initialize refinement handler
-    handler = RefinementLoopHandler(config)
+        return result
     
-    # Run refinement
-    refined_data = handler.refine(data)
+    def _sector_processing(self, pass_context: Dict) -> Dict:
+        """Process query through Sector Persona components."""
+        # In a real implementation, this would invoke the appropriate persona engine
+        result = {
+            'status': 'completed',
+            'confidence': 0.75,
+            'sector_insights': [
+                {'id': 'si1', 'content': 'Example sector insight 1', 'confidence': 0.8},
+                {'id': 'si2', 'content': 'Example sector insight 2', 'confidence': 0.7}
+            ],
+            'industry_context': {'primary_sector': 'technology', 'confidence': 0.85},
+            'components': {
+                'job_role': {'confidence': 0.80, 'relevance': 0.70},
+                'education': {'confidence': 0.75, 'relevance': 0.60},
+                'certifications': {'confidence': 0.70, 'relevance': 0.65},
+                'skills': {'confidence': 0.85, 'relevance': 0.90},
+                'training': {'confidence': 0.75, 'relevance': 0.55},
+                'career_path': {'confidence': 0.70, 'relevance': 0.60},
+                'related_jobs': {'confidence': 0.80, 'relevance': 0.75}
+            }
+        }
+        
+        # Update pass context with persona results
+        pass_context['persona_results']['sector'] = result
+        pass_context['confidence']['sector'] = result['confidence']
+        
+        return result
     
-    return refined_data
+    def _regulatory_processing(self, pass_context: Dict) -> Dict:
+        """Process query through Regulatory Persona components."""
+        # In a real implementation, this would invoke the appropriate persona engine
+        result = {
+            'status': 'completed',
+            'confidence': 0.85,
+            'regulatory_factors': [
+                {'id': 'rf1', 'content': 'Example regulatory factor 1', 'confidence': 0.9},
+                {'id': 'rf2', 'content': 'Example regulatory factor 2', 'confidence': 0.8}
+            ],
+            'compliance_requirements': ['req1', 'req2'],
+            'components': {
+                'job_role': {'confidence': 0.90, 'relevance': 0.85},
+                'education': {'confidence': 0.80, 'relevance': 0.70},
+                'certifications': {'confidence': 0.85, 'relevance': 0.80},
+                'skills': {'confidence': 0.80, 'relevance': 0.75},
+                'training': {'confidence': 0.85, 'relevance': 0.80},
+                'career_path': {'confidence': 0.75, 'relevance': 0.65},
+                'related_jobs': {'confidence': 0.80, 'relevance': 0.70}
+            }
+        }
+        
+        # Update pass context with persona results
+        pass_context['persona_results']['regulatory'] = result
+        pass_context['confidence']['regulatory'] = result['confidence']
+        
+        return result
+    
+    def _compliance_processing(self, pass_context: Dict) -> Dict:
+        """Process query through Compliance Persona components."""
+        # In a real implementation, this would invoke the appropriate persona engine
+        result = {
+            'status': 'completed',
+            'confidence': 0.9,
+            'compliance_insights': [
+                {'id': 'ci1', 'content': 'Example compliance insight 1', 'confidence': 0.95},
+                {'id': 'ci2', 'content': 'Example compliance insight 2', 'confidence': 0.85}
+            ],
+            'risk_factors': ['risk1', 'risk2'],
+            'components': {
+                'job_role': {'confidence': 0.95, 'relevance': 0.90},
+                'education': {'confidence': 0.85, 'relevance': 0.75},
+                'certifications': {'confidence': 0.90, 'relevance': 0.85},
+                'skills': {'confidence': 0.85, 'relevance': 0.80},
+                'training': {'confidence': 0.90, 'relevance': 0.85},
+                'career_path': {'confidence': 0.80, 'relevance': 0.70},
+                'related_jobs': {'confidence': 0.85, 'relevance': 0.75}
+            }
+        }
+        
+        # Update pass context with persona results
+        pass_context['persona_results']['compliance'] = result
+        pass_context['confidence']['compliance'] = result['confidence']
+        
+        return result
+    
+    def _cross_persona_analysis(self, pass_context: Dict) -> Dict:
+        """Analyze and integrate outputs from all four personas."""
+        # In a real implementation, this would use cross-persona analysis algorithms
+        
+        # Calculate average confidence
+        persona_confidences = [
+            pass_context['confidence']['knowledge'],
+            pass_context['confidence']['sector'],
+            pass_context['confidence']['regulatory'],
+            pass_context['confidence']['compliance']
+        ]
+        
+        avg_confidence = sum(persona_confidences) / len(persona_confidences)
+        
+        # Detect conflicts between personas
+        conflicts = []
+        # Example conflict detection logic
+        knowledge_fragments = pass_context['persona_results']['knowledge'].get('knowledge_fragments', [])
+        regulatory_factors = pass_context['persona_results']['regulatory'].get('regulatory_factors', [])
+        
+        # For demo purposes, just add a sample conflict
+        if pass_context['pass_num'] == 1:
+            conflicts.append({
+                'id': 'conflict1',
+                'entities': ['knowledge.kf1', 'regulatory.rf2'],
+                'severity': 0.6,
+                'description': 'Example conflict between knowledge and regulatory perspectives'
+            })
+        
+        result = {
+            'status': 'completed',
+            'integrated_confidence': avg_confidence,
+            'conflicts_detected': conflicts,
+            'harmony_score': 0.8 if not conflicts else 0.6,
+            'cross_references': ['xref1', 'xref2']
+        }
+        
+        # Update overall confidence based on cross-persona analysis
+        pass_context['confidence']['overall'] = avg_confidence
+        pass_context['cross_persona_conflicts'] = conflicts
+        
+        return result
+    
+    def _conflict_resolution(self, pass_context: Dict) -> Dict:
+        """Resolve conflicts detected in cross-persona analysis."""
+        # In a real implementation, this would use conflict resolution algorithms
+        conflicts = pass_context.get('cross_persona_conflicts', [])
+        
+        resolved_conflicts = []
+        for conflict in conflicts:
+            # Example resolution logic
+            resolved_conflicts.append({
+                'conflict_id': conflict['id'],
+                'resolution': 'Example resolution for ' + conflict['id'],
+                'confidence': 0.85,
+                'resolution_method': 'weighted_consensus'
+            })
+        
+        result = {
+            'status': 'completed',
+            'conflicts_resolved': len(resolved_conflicts),
+            'total_conflicts': len(conflicts),
+            'resolutions': resolved_conflicts,
+            'confidence_adjustment': 0.05 if resolved_conflicts else 0
+        }
+        
+        # Adjust confidence based on conflict resolutions
+        if result['confidence_adjustment'] > 0:
+            pass_context['confidence']['overall'] += result['confidence_adjustment']
+            # Cap at 1.0
+            pass_context['confidence']['overall'] = min(1.0, pass_context['confidence']['overall'])
+        
+        return result
+    
+    def _confidence_assessment(self, pass_context: Dict) -> Dict:
+        """Assess overall confidence and refine metrics."""
+        # In a real implementation, this would use sophisticated confidence assessment
+        
+        # Calculate entropy based on various factors
+        confidence = pass_context['confidence']['overall']
+        entropy = 1.0 - confidence
+        
+        # Adjust entropy based on conflicts and other factors
+        conflicts = pass_context.get('cross_persona_conflicts', [])
+        if conflicts:
+            entropy += 0.1 * min(1, len(conflicts) / 5)
+        
+        # Cap entropy at 1.0
+        entropy = min(1.0, entropy)
+        
+        result = {
+            'status': 'completed',
+            'final_confidence': confidence,
+            'entropy': entropy,
+            'confidence_factors': {
+                'knowledge_strength': pass_context['confidence']['knowledge'],
+                'sector_alignment': pass_context['confidence']['sector'],
+                'regulatory_clarity': pass_context['confidence']['regulatory'],
+                'compliance_certainty': pass_context['confidence']['compliance'],
+                'conflict_resolution': 0.9 if not conflicts else 0.7
+            }
+        }
+        
+        # Update pass context with refined metrics
+        pass_context['confidence']['overall'] = confidence
+        pass_context['entropy'] = entropy
+        
+        return result
+    
+    def _refinement_determination(self, pass_context: Dict) -> Dict:
+        """Determine if additional refinement passes are needed."""
+        # In a real implementation, this would use convergence analysis
+        confidence = pass_context['confidence']['overall']
+        entropy = pass_context['entropy']
+        pass_num = pass_context['pass_num']
+        
+        # Check convergence threshold
+        converged = confidence >= self.convergence_threshold
+        
+        # Determine if another pass would be beneficial
+        diminishing_returns = pass_num > 1 and abs(confidence - pass_context.get('previous_confidence', 0)) < 0.05
+        
+        result = {
+            'status': 'completed',
+            'converged': converged,
+            'diminishing_returns': diminishing_returns,
+            'recommendation': 'stop' if converged or diminishing_returns else 'continue',
+            'confidence_gain_potential': max(0, min(0.2, 1.0 - confidence) / pass_num)
+        }
+        
+        # Store current confidence for comparison in next pass
+        pass_context['previous_confidence'] = confidence
+        
+        return result
+    
+    def _fact_verification(self, pass_context: Dict) -> Dict:
+        """Verify factual accuracy of the simulation results."""
+        # In a real implementation, this would use fact verification algorithms
+        
+        # Example verification logic
+        verified_facts = []
+        unverified_facts = []
+        
+        # Just for demo purposes
+        verified_facts.append({
+            'statement': 'Example verified statement 1',
+            'source': 'system_database',
+            'confidence': 0.95
+        })
+        
+        if pass_context['pass_num'] == 1:
+            unverified_facts.append({
+                'statement': 'Example unverified statement 1',
+                'reason': 'Cannot be verified with available sources',
+                'confidence': 0.6
+            })
+        
+        result = {
+            'status': 'completed',
+            'verified_facts': verified_facts,
+            'unverified_facts': unverified_facts,
+            'verification_rate': len(verified_facts) / (len(verified_facts) + len(unverified_facts)) if (len(verified_facts) + len(unverified_facts)) > 0 else 1.0,
+            'confidence_adjustment': -0.05 if unverified_facts else 0.02
+        }
+        
+        # Adjust confidence based on fact verification
+        pass_context['confidence']['overall'] += result['confidence_adjustment']
+        # Cap between 0 and 1
+        pass_context['confidence']['overall'] = max(0, min(1.0, pass_context['confidence']['overall']))
+        
+        return result
+    
+    def _coherence_check(self, pass_context: Dict) -> Dict:
+        """Check overall coherence and consistency of simulation results."""
+        # In a real implementation, this would use coherence checking algorithms
+        
+        # Example coherence metrics
+        coherence_metrics = {
+            'narrative_flow': 0.85,
+            'logical_consistency': 0.9,
+            'contextual_relevance': 0.8,
+            'persona_alignment': 0.85,
+            'semantic_coherence': 0.87
+        }
+        
+        # Calculate overall coherence
+        overall_coherence = sum(coherence_metrics.values()) / len(coherence_metrics)
+        
+        result = {
+            'status': 'completed',
+            'overall_coherence': overall_coherence,
+            'coherence_metrics': coherence_metrics,
+            'coherence_issues': [] if overall_coherence > 0.8 else ['Example coherence issue 1'],
+            'confidence_adjustment': 0.02 if overall_coherence > 0.85 else -0.03
+        }
+        
+        # Adjust confidence based on coherence check
+        pass_context['confidence']['overall'] += result['confidence_adjustment']
+        # Cap between 0 and 1
+        pass_context['confidence']['overall'] = max(0, min(1.0, pass_context['confidence']['overall']))
+        
+        return result
+    
+    def _final_synthesis(self, pass_context: Dict) -> Dict:
+        """Create final synthesized output for the refinement pass."""
+        # In a real implementation, this would create a coherent final output
+        
+        # Construct responses from each persona
+        knowledge_response = "Example knowledge response based on simulation."
+        sector_response = "Example sector-specific insights from simulation."
+        regulatory_response = "Example regulatory considerations from simulation."
+        compliance_response = "Example compliance guidelines from simulation."
+        
+        # Integrate perspectives
+        integrated_response = f"""
+        Integrated response synthesizing all perspectives:
+        
+        From a knowledge perspective: {knowledge_response}
+        
+        From a sector expertise perspective: {sector_response}
+        
+        From a regulatory perspective: {regulatory_response}
+        
+        From a compliance perspective: {compliance_response}
+        """
+        
+        result = {
+            'status': 'completed',
+            'integrated_response': integrated_response,
+            'knowledge_response': knowledge_response,
+            'sector_response': sector_response,
+            'regulatory_response': regulatory_response,
+            'compliance_response': compliance_response,
+            'final_confidence': pass_context['confidence']['overall'],
+            'final_entropy': pass_context['entropy']
+        }
+        
+        return result
