@@ -218,6 +218,44 @@ class Location(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
+class TimeContext(db.Model):
+    """Model for Time Contexts (Axis 13: Time)."""
+    __tablename__ = 'ukg_time_contexts'
+
+    id = Column(Integer, primary_key=True)
+    uid = Column(String(255), unique=True, nullable=False)
+    name = Column(String(255), nullable=False)
+    time_type = Column(String(50), nullable=False)  # e.g., "historical", "project", "career_stage"
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=True)  # Null for ongoing or indefinite periods
+    granularity = Column(String(20), nullable=False, default="day")  # e.g., "year", "month", "day"
+    recurring = Column(Boolean, default=False)
+    parent_time_id = Column(Integer, ForeignKey('ukg_time_contexts.id'), nullable=True)
+    attributes = Column(JSON, nullable=True)  # Store additional metadata (e.g., persona_id for career stages)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    parent_time = relationship("TimeContext", remote_side=[id])
+    sub_times = relationship("TimeContext", foreign_keys=[parent_time_id])
+
+    def to_dict(self):
+        """Convert time context to dictionary."""
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'name': self.name,
+            'time_type': self.time_type,
+            'start_date': self.start_date.isoformat() if self.start_date else None,
+            'end_date': self.end_date.isoformat() if self.end_date else None,
+            'granularity': self.granularity,
+            'recurring': self.recurring,
+            'parent_time_id': self.parent_time_id,
+            'attributes': self.attributes or {},
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
 # Knowledge Nodes - Specialized node type for knowledge content
 
 class KnowledgeNode(db.Model):

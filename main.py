@@ -1,4 +1,4 @@
-"""Modified code based on user instructions and provided snippets, including Axis 6 regulatory registration and Axis 11 contextual expert persona."""
+"""Modified code based on user instructions and provided snippets, including Axis 6 regulatory registration and Axis 11 contextual expert persona, and updated to include location and time APIs."""
 import os
 import logging
 from flask import Flask, render_template, request, jsonify
@@ -76,6 +76,9 @@ from backend.compliance_api import compliance_api
 # Import location API
 from backend.location_api import location_api
 
+# Import time API
+from backend.time_api import time_api
+
 # Initialize API routes
 init_api(app, graph_manager, memory_manager, usm, app_orchestrator)
 init_chat_api(app, axis_system)
@@ -132,6 +135,7 @@ app.register_blueprint(honeycomb_api)
 app.register_blueprint(regulatory_api)
 app.register_blueprint(location_api)
 app.register_blueprint(contextual_api)
+app.register_blueprint(time_api)
 
 # Run the application if executed directly
 if __name__ == '__main__':

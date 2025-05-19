@@ -152,7 +152,8 @@ Navbar.defaultProps = {
     { href: '/axis6', label: 'Axis 6', icon: 'gear' },
     { href: '/compliance', label: 'Compliance', icon: 'check-circle' },
     { href: '/locations', label: 'Locations', icon: 'geo-alt' },
-    { href: '/contextual', label: 'Context Experts', icon: 'person' }
+    { href: '/contextual', label: 'Context Experts', icon: 'person' },
+    { href: '/timeline', label: 'Timeline', icon: 'clock-history' }
   ],
 };
 

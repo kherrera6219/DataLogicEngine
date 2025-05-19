@@ -16,6 +16,8 @@ from core.axes.axis4_methods import MethodsManager
 from core.axes.axis5_honeycomb import HoneycombSystem
 from core.axes.axis6_regulatory import RegulatoryManager
 from core.axes.axis7_compliance import ComplianceManager
+from core.axes.axis12_location import LocationAxis
+from core.axes.axis13_time import TimeAxis
 from core.axes.axis11_contextual import Axis11ContextExperts
 
 class AxisSystem:

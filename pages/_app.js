@@ -1,8 +1,8 @@
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import '../styles/globals.css';
 import '../styles/chat.css';
+import '../styles/timeline.css';
 import { useEffect } from 'react';
 
 function MyApp({ Component, pageProps }) {

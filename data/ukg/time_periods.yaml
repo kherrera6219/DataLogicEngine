@@ -260,3 +260,197 @@ TimePeriods:
             description: "Era marked by advances in artificial intelligence and the Internet of Things."
             start_year: 2020
             end_year: 2030  # Projected
+# UKG Time Periods Data
+# This file defines various time contexts for the Time Axis (Axis 13)
+
+historical_periods:
+  - uid: "TIME_HISTORICAL_INFORMATION_AGE"
+    name: "Information Age"
+    time_type: "historical"
+    start_date: "1970-01-01T00:00:00"
+    end_date: null  # Still ongoing
+    granularity: "year"
+    attributes:
+      description: "Post-industrial period characterized by computerization and information technology"
+      key_technologies: ["Internet", "Personal Computers", "Mobile Devices", "Cloud Computing"]
+      
+  - uid: "TIME_HISTORICAL_DIGITAL_REVOLUTION"
+    name: "Digital Revolution"
+    time_type: "historical"
+    start_date: "1980-01-01T00:00:00"
+    end_date: "2010-12-31T23:59:59"
+    granularity: "year"
+    attributes:
+      description: "Transition from analog to digital technology"
+      parent_period: "TIME_HISTORICAL_INFORMATION_AGE"
+      
+  - uid: "TIME_HISTORICAL_WEB1"
+    name: "Web 1.0 Era"
+    time_type: "historical"
+    start_date: "1991-08-06T00:00:00"
+    end_date: "2004-12-31T23:59:59"
+    granularity: "year"
+    attributes:
+      description: "The early 'read-only' web era"
+      parent_period: "TIME_HISTORICAL_INFORMATION_AGE"
+      
+  - uid: "TIME_HISTORICAL_WEB2"
+    name: "Web 2.0 Era"
+    time_type: "historical"
+    start_date: "2004-01-01T00:00:00"
+    end_date: "2015-12-31T23:59:59"
+    granularity: "year"
+    attributes:
+      description: "The 'social web' characterized by user-generated content and social media"
+      parent_period: "TIME_HISTORICAL_INFORMATION_AGE"
+      
+  - uid: "TIME_HISTORICAL_WEB3"
+    name: "Web 3.0 Era"
+    time_type: "historical"
+    start_date: "2015-01-01T00:00:00"
+    end_date: null  # Still ongoing
+    granularity: "year"
+    attributes:
+      description: "The 'semantic web' era characterized by blockchain, decentralization, and AI integration"
+      parent_period: "TIME_HISTORICAL_INFORMATION_AGE"
+
+career_stages:
+  - uid: "TIME_CAREER_ENTRY_LEVEL"
+    name: "Entry-Level Software Developer"
+    time_type: "career_stage"
+    start_date: "2010-06-01T00:00:00"
+    end_date: "2013-05-31T23:59:59"
+    granularity: "month"
+    attributes:
+      persona_id: "PERSONA_KNOWLEDGE_EXPERT_PL2_SE"
+      years_experience: 0
+      skills_gained: ["Java", "HTML/CSS", "SQL", "Basic Testing"]
+      roles: ["Junior Developer", "QA Engineer"]
+      
+  - uid: "TIME_CAREER_MID_LEVEL"
+    name: "Mid-Level Software Engineer"
+    time_type: "career_stage"
+    start_date: "2013-06-01T00:00:00"
+    end_date: "2017-12-31T23:59:59"
+    granularity: "month"
+    attributes:
+      persona_id: "PERSONA_KNOWLEDGE_EXPERT_PL2_SE"
+      years_experience: 3
+      skills_gained: ["System Design", "Architecture", "Team Leadership", "Advanced Testing"]
+      roles: ["Software Engineer", "Team Lead"]
+      
+  - uid: "TIME_CAREER_SENIOR"
+    name: "Senior Software Engineer"
+    time_type: "career_stage"
+    start_date: "2018-01-01T00:00:00"
+    end_date: "2022-12-31T23:59:59"
+    granularity: "month"
+    attributes:
+      persona_id: "PERSONA_KNOWLEDGE_EXPERT_PL2_SE"
+      years_experience: 8
+      skills_gained: ["Enterprise Architecture", "Mentorship", "Project Management", "Cross-functional Leadership"]
+      roles: ["Senior Engineer", "Technical Lead"]
+      
+  - uid: "TIME_CAREER_PRINCIPAL"
+    name: "Principal Engineer"
+    time_type: "career_stage"
+    start_date: "2023-01-01T00:00:00"
+    end_date: null  # Current position
+    granularity: "month"
+    attributes:
+      persona_id: "PERSONA_KNOWLEDGE_EXPERT_PL2_SE"
+      years_experience: 13
+      skills_gained: ["Technology Strategy", "Enterprise Architecture", "Engineering Management"]
+      roles: ["Principal Engineer", "Chief Architect"]
+
+project_timelines:
+  - uid: "TIME_PROJECT_UKG_IMPLEMENTATION"
+    name: "Universal Knowledge Graph Implementation"
+    time_type: "project"
+    start_date: "2025-01-01T00:00:00"
+    end_date: "2025-12-31T23:59:59"
+    granularity: "day"
+    attributes:
+      project_id: "PROJ_UKG_IMPL"
+      description: "Implementation of the 13-Axis Universal Knowledge Graph system"
+      status: "in_progress"
+      
+    tasks:
+      - uid: "TIME_TASK_UKG_DESIGN"
+        name: "UKG System Design"
+        time_type: "task"
+        start_date: "2025-01-01T00:00:00"
+        end_date: "2025-02-15T23:59:59"
+        attributes:
+          status: "completed"
+          assignee: "PERSONA_KNOWLEDGE_EXPERT_PL2_SE"
+          
+      - uid: "TIME_TASK_UKG_DATABASE"
+        name: "Database Implementation"
+        time_type: "task"
+        start_date: "2025-02-16T00:00:00"
+        end_date: "2025-03-31T23:59:59"
+        attributes:
+          status: "completed"
+          assignee: "PERSONA_SECTOR_EXPERT_IT_DBA"
+          
+      - uid: "TIME_TASK_UKG_BACKEND"
+        name: "Backend Development"
+        time_type: "task"
+        start_date: "2025-04-01T00:00:00"
+        end_date: "2025-06-30T23:59:59"
+        attributes:
+          status: "in_progress"
+          assignee: "PERSONA_KNOWLEDGE_EXPERT_PL2_SE"
+          
+      - uid: "TIME_TASK_UKG_FRONTEND"
+        name: "Frontend Development"
+        time_type: "task"
+        start_date: "2025-05-15T00:00:00"
+        end_date: "2025-08-31T23:59:59"
+        attributes:
+          status: "in_progress"
+          assignee: "PERSONA_SECTOR_EXPERT_IT_UXUI"
+          
+      - uid: "TIME_TASK_UKG_TESTING"
+        name: "Testing & Quality Assurance"
+        time_type: "task"
+        start_date: "2025-09-01T00:00:00"
+        end_date: "2025-10-31T23:59:59"
+        attributes:
+          status: "not_started"
+          assignee: "PERSONA_OCTOPUS_EXPERT_QUALITY"
+          
+      - uid: "TIME_TASK_UKG_DEPLOYMENT"
+        name: "Deployment & Integration"
+        time_type: "task"
+        start_date: "2025-11-01T00:00:00"
+        end_date: "2025-12-15T23:59:59"
+        attributes:
+          status: "not_started"
+          assignee: "PERSONA_SPIDERWEB_EXPERT_DEVOPS"
+    
+    milestones:
+      - uid: "TIME_MILESTONE_UKG_ALPHA"
+        name: "Alpha Release"
+        time_type: "milestone"
+        start_date: "2025-06-30T00:00:00"
+        end_date: "2025-06-30T23:59:59"
+        attributes:
+          description: "Initial working prototype with basic functionality"
+          
+      - uid: "TIME_MILESTONE_UKG_BETA"
+        name: "Beta Release"
+        time_type: "milestone"
+        start_date: "2025-09-30T00:00:00"
+        end_date: "2025-09-30T23:59:59"
+        attributes:
+          description: "Feature-complete version for user testing"
+          
+      - uid: "TIME_MILESTONE_UKG_RELEASE"
+        name: "Version 1.0 Release"
+        time_type: "milestone"
+        start_date: "2025-12-31T00:00:00"
+        end_date: "2025-12-31T23:59:59"
+        attributes:
+          description: "Official production release"
