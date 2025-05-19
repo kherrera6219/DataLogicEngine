@@ -1,0 +1,65 @@
+# Universal Knowledge Graph (UKG) System - Knowledge Algorithm Registry
+# This file registers all Knowledge Algorithms and their entry points
+
+# Core Knowledge Algorithms (KA-01 to KA-10)
+"KA-01": "knowledge_algorithms.ka_01_semantic_mapping.run"
+"KA-02": "knowledge_algorithms.ka_02_knowledge_graph_integration.run"
+"KA-03": "knowledge_algorithms.ka_03_decision_support.run"
+"KA-04": "knowledge_algorithms.ka_04_honeycomb_expansion.run"
+"KA-05": "knowledge_algorithms.ka_05_contextual_relevance.run"
+"KA-06": "knowledge_algorithms.ka_06_coordinate_mapper.run"
+"KA-07": "knowledge_algorithms.ka_07_regulatory_expert_simulation.run"
+"KA-08": "knowledge_algorithms.ka_08_compliance_expert_simulation.run"
+"KA-09": "knowledge_algorithms.ka_09_conflict_resolution.run"
+"KA-10": "knowledge_algorithms.ka_10_contractual_logic_validator.run"
+
+# Advanced Reasoning Algorithms (KA-11 to KA-20)
+"KA-11": "knowledge_algorithms.ka_11_reasoning_chain.run"
+"KA-12": "knowledge_algorithms.ka_12_uncertainty_quantification.run"
+"KA-13": "knowledge_algorithms.ka_13_tree_of_thought.run"
+"KA-14": "knowledge_algorithms.ka_14_knowledge_verification.run"
+"KA-15": "knowledge_algorithms.ka_15_temporal_evaluation.run"
+"KA-16": "knowledge_algorithms.ka_16_simulation_memory_patch.run"
+"KA-17": "knowledge_algorithms.ka_17_deep_analysis.run"
+"KA-18": "knowledge_algorithms.ka_18_stakeholder_analysis.run"
+"KA-19": "knowledge_algorithms.ka_19_framework_alignment.run"
+"KA-20": "knowledge_algorithms.ka_20_quad_persona.run"
+
+# Knowledge Enhancement Algorithms (KA-21 to KA-30)
+"KA-21": "knowledge_algorithms.ka_21_multi_hop_reasoning.run"
+"KA-22": "knowledge_algorithms.ka_22_knowledge_fusion.run"
+"KA-23": "knowledge_algorithms.ka_23_analogical_reasoning.run"
+"KA-24": "knowledge_algorithms.ka_24_counterfactual_analysis.run"
+"KA-25": "knowledge_algorithms.ka_25_coherence_verification.run"
+"KA-26": "knowledge_algorithms.ka_26_time_evolving_knowledge.run"
+"KA-27": "knowledge_algorithms.ka_27_validation_logic.run"
+"KA-28": "knowledge_algorithms.ka_28_refinement_workflow.run"
+"KA-29": "knowledge_algorithms.ka_29_online_validation.run"
+"KA-30": "knowledge_algorithms.ka_30_hallucination_filter.run"
+
+# AGI and Emergence Logic Algorithms (KA-31 to KA-38)
+"KA-31": "knowledge_algorithms.ka_31_emergence_probability.run"
+"KA-32": "knowledge_algorithms.ka_32_simulation_orchestration.run"
+"KA-33": "knowledge_algorithms.ka_33_layer_activation.run"
+"KA-34": "knowledge_algorithms.ka_34_recursive_simulation.run"
+"KA-35": "knowledge_algorithms.ka_35_metacognitive_monitor.run"
+"KA-36": "knowledge_algorithms.ka_36_containment_condition.run"
+"KA-37": "knowledge_algorithms.ka_37_belief_trace.run"
+"KA-38": "knowledge_algorithms.ka_38_redundancy_cleaner.run"
+
+# Quantum and Neural Simulation Algorithms (KA-39 to KA-50)
+"KA-39": "knowledge_algorithms.ka_39_quantum_trust_propagation.run"
+"KA-40": "knowledge_algorithms.ka_40_simulated_neural_activation_mapper.run"
+"KA-41": "knowledge_algorithms.ka_41_multi_agent_consensus_resolver.run"
+"KA-42": "knowledge_algorithms.ka_42_agent_sanity_score_calculator.run"
+"KA-43": "knowledge_algorithms.ka_43_confidence_heatmap_visualizer.run"
+"KA-44": "knowledge_algorithms.ka_44_entropy_detection_and_rewind.run"
+"KA-45": "knowledge_algorithms.ka_45_emergence_containment_manager.run"
+"KA-46": "knowledge_algorithms.ka_46_belief_energy_cost_calculator.run"
+"KA-47": "knowledge_algorithms.ka_47_recursive_confidence_optimizer.run"
+"KA-48": "knowledge_algorithms.ka_48_simulated_curriculum_builder.run"
+"KA-49": "knowledge_algorithms.ka_49_explainability_trace_constructor.run"
+"KA-50": "knowledge_algorithms.ka_50_agent_identity_consistency_checker.run"
+
+# Master Controller
+"KA-Master": "knowledge_algorithms.ka_master_controller.run"

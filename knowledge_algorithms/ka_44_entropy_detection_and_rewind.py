@@ -163,6 +163,9 @@ class EntropyDetectionAndRewind:
         rewind_point = None
         rewind_reason = None
         
+        # Initialize rewind index
+        rewind_index = 0
+        
         # Check for anomalies that require rewind
         for i, snapshot_anomalies in enumerate(anomalies):
             if snapshot_anomalies:
@@ -170,6 +173,7 @@ class EntropyDetectionAndRewind:
                 if high_severity_anomalies:
                     rewind_required = True
                     rewind_reason = f"High severity anomaly detected: {high_severity_anomalies[0]['type']}"
+                    rewind_index = i
                     break
         
         # Check for entropy thresholds that require rewind
@@ -178,11 +182,12 @@ class EntropyDetectionAndRewind:
                 if not rewind_required:  # Don't override anomaly rewind
                     rewind_required = True
                     rewind_reason = f"High entropy level detected: {entropy:.2f}"
+                    rewind_index = i
                 break
         
         # Determine rewind point if needed
         if rewind_required:
-            safe_index = max(0, i - rewind_depth)
+            safe_index = max(0, rewind_index - rewind_depth)
             rewind_point = {
                 "index": safe_index,
                 "snapshot": simulation_snapshots[safe_index],
