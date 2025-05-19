@@ -1,34 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Box, Flex, useDisclosure } from '@chakra-ui/react';
 import { Outlet } from 'react-router-dom';
-import { Box, Flex } from '@chakra-ui/react';
 import Sidebar from '../navigation/Sidebar';
 import Topbar from '../navigation/Topbar';
 
-function MainLayout() {
+const MainLayout = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    if (window.innerWidth < 768) {
+      setIsMobileOpen(!isMobileOpen);
+    } else {
+      if (isOpen) {
+        onClose();
+      } else {
+        onOpen();
+      }
+    }
+  };
+
   return (
-    <Flex h="100vh" overflow="hidden">
-      {/* Sidebar Navigation */}
-      <Sidebar />
+    <Flex h="100vh" flexDirection="column">
+      <Topbar 
+        isOpen={isOpen} 
+        toggleSidebar={toggleSidebar} 
+        isMobileOpen={isMobileOpen}
+        setIsMobileOpen={setIsMobileOpen}
+      />
       
-      {/* Main Content Area */}
-      <Box flex="1" display="flex" flexDirection="column" overflow="hidden">
-        {/* Top Navigation Bar */}
-        <Topbar />
+      <Flex flex="1" overflow="hidden">
+        <Sidebar 
+          isOpen={isOpen} 
+          isMobileOpen={isMobileOpen} 
+          onClose={() => setIsMobileOpen(false)}
+        />
         
-        {/* Main Content with Outlet for Routes */}
-        <Box 
-          flex="1" 
-          p={4} 
+        <Box
+          flex="1"
+          p={4}
+          ml={{ base: 0, md: isOpen ? '250px' : '80px' }}
+          transition="margin-left 0.3s"
+          bg="gray.900"
           overflowY="auto"
-          bg="dark.800"
-          borderRadius="md"
-          m={2}
+          position="relative"
         >
           <Outlet />
         </Box>
-      </Box>
+      </Flex>
     </Flex>
   );
-}
+};
 
 export default MainLayout;

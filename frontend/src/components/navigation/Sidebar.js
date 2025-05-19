@@ -1,118 +1,181 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
 import { 
-  VStack, 
   Box, 
-  Text, 
   Flex, 
-  Divider, 
-  Icon,
-  Tooltip
+  VStack, 
+  Icon, 
+  Text, 
+  Divider,
+  useColorModeValue,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerBody,
+  DrawerCloseButton
 } from '@chakra-ui/react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { 
   FiHome, 
   FiMessageSquare, 
-  FiFolder, 
+  FiBriefcase, 
   FiCpu, 
   FiEdit3, 
   FiMic, 
-  FiImage, 
-  FiMap, 
-  FiFileText, 
-  FiSettings 
+  FiFilm,
+  FiMap,
+  FiList,
+  FiSettings
 } from 'react-icons/fi';
 
-// Navigation items mapping
+// Navigation items configuration
 const navItems = [
-  { path: '/', label: 'Home', icon: FiHome },
-  { path: '/chat', label: 'Chatbot', icon: FiMessageSquare },
-  { path: '/project', label: 'Project Mode', icon: FiFolder },
-  { path: '/auto-gpt', label: 'AutoGPT Mode', icon: FiCpu },
-  { path: '/canvas', label: 'Canvas Mode', icon: FiEdit3 },
-  { path: '/voice', label: 'Voice Mode', icon: FiMic },
-  { path: '/media-studio', label: 'Media Studio', icon: FiImage },
-  { path: '/simulation-map', label: 'Simulation Map', icon: FiMap },
-  { path: '/logs', label: 'Logs', icon: FiFileText },
-  { path: '/settings', label: 'Settings', icon: FiSettings }
+  { name: 'Home', icon: FiHome, path: '/' },
+  { name: 'Chatbot', icon: FiMessageSquare, path: '/chat' },
+  { name: 'Project', icon: FiBriefcase, path: '/project' },
+  { name: 'AutoGPT', icon: FiCpu, path: '/autogpt' },
+  { name: 'Canvas', icon: FiEdit3, path: '/canvas' },
+  { name: 'Voice', icon: FiMic, path: '/voice' },
+  { name: 'Media Studio', icon: FiFilm, path: '/media-studio' },
+  { name: 'Simulation Map', icon: FiMap, path: '/simulation-map' },
+  { name: 'Logs', icon: FiList, path: '/logs' },
+  { name: 'Settings', icon: FiSettings, path: '/settings' },
 ];
 
-function Sidebar() {
+// NavItem component
+const NavItem = ({ icon, children, path, isActive, isOpen }) => {
+  return (
+    <Box
+      as={NavLink}
+      to={path}
+      display="flex"
+      alignItems="center"
+      py={3}
+      px={4}
+      mx={2}
+      borderRadius="md"
+      role="group"
+      cursor="pointer"
+      _hover={{
+        bg: 'gray.700',
+        color: 'white',
+      }}
+      bg={isActive ? 'gray.700' : 'transparent'}
+      color={isActive ? 'white' : 'gray.400'}
+      fontWeight={isActive ? 'bold' : 'normal'}
+      transition="all 0.3s"
+    >
+      <Icon
+        as={icon}
+        fontSize="xl"
+        color={isActive ? 'brand.400' : 'gray.400'}
+        _groupHover={{
+          color: 'brand.400',
+        }}
+      />
+      {isOpen && (
+        <Text ml={4} display={{ base: 'block', md: 'block' }}>
+          {children}
+        </Text>
+      )}
+    </Box>
+  );
+};
+
+// Main Sidebar component
+const Sidebar = ({ isOpen, isMobileOpen, onClose }) => {
   const location = useLocation();
   
-  return (
-    <Box 
-      w="240px" 
-      h="100vh"
-      bg="dark.900"
+  // Sidebar content
+  const SidebarContent = () => (
+    <Box
+      bg="gray.800"
       color="white"
-      py={4}
-      display="flex"
-      flexDirection="column"
-      borderRight="1px solid"
-      borderColor="gray.700"
-      flexShrink={0}
+      height="full"
+      w={isOpen ? '250px' : '80px'}
+      transition="width 0.3s ease"
+      overflowY="auto"
+      boxShadow="0 4px 12px 0 rgba(0, 0, 0, 0.5)"
     >
-      {/* Logo & Title */}
-      <Flex px={4} mb={6} alignItems="center">
-        <Box 
-          w={10} 
-          h={10} 
-          borderRadius="md" 
-          bg="brand.500" 
-          display="flex" 
-          alignItems="center" 
-          justifyContent="center" 
-          fontWeight="bold"
-          fontSize="lg"
+      {/* Logo */}
+      <Flex
+        h="20"
+        alignItems="center"
+        justifyContent={isOpen ? "flex-start" : "center"}
+        px={6}
+      >
+        <Text 
+          fontSize="xl" 
+          fontWeight="bold" 
+          color="brand.400"
+          ml={isOpen ? 2 : 0}
         >
-          UKG
-        </Box>
-        <Text ml={3} fontWeight="bold" fontSize="lg">
-          Universal KG
+          {isOpen ? "UKG System" : "UKG"}
         </Text>
       </Flex>
       
-      <Divider mb={4} opacity={0.2} />
+      <Divider borderColor="gray.600" />
       
       {/* Navigation Links */}
-      <VStack spacing={1} align="stretch" flex="1">
+      <VStack align="stretch" spacing={1} mt={4}>
         {navItems.map((item) => (
-          <Tooltip key={item.path} label={item.label} placement="right" hasArrow>
-            <Box>
-              <NavLink 
-                to={item.path} 
-                style={{ textDecoration: 'none' }}
-              >
-                {({ isActive }) => (
-                  <Flex
-                    align="center"
-                    py={2}
-                    px={4}
-                    borderRadius="md"
-                    bg={isActive || location.pathname === item.path ? 'brand.700' : 'transparent'}
-                    color={isActive || location.pathname === item.path ? 'white' : 'gray.400'}
-                    _hover={{ bg: 'brand.800', color: 'white' }}
-                    transition="all 0.2s"
-                  >
-                    <Icon as={item.icon} boxSize={5} mr={3} />
-                    <Text fontSize="sm">{item.label}</Text>
-                  </Flex>
-                )}
-              </NavLink>
-            </Box>
-          </Tooltip>
+          <NavItem 
+            key={item.name} 
+            icon={item.icon} 
+            path={item.path} 
+            isActive={location.pathname === item.path}
+            isOpen={isOpen}
+          >
+            {item.name}
+          </NavItem>
         ))}
       </VStack>
       
-      <Divider mt={4} opacity={0.2} />
+      <Divider my={6} borderColor="gray.600" />
       
-      {/* Version Info */}
-      <Box px={4} pt={4} fontSize="xs" color="gray.500">
-        <Text>UKG System v1.0.0</Text>
-        <Text>Powered by 13-Axis Simulation</Text>
-      </Box>
+      {/* System Info */}
+      {isOpen && (
+        <Box px={4} fontSize="xs" color="gray.500" mb={4}>
+          <Text>Universal Knowledge Graph</Text>
+          <Text>Version 1.0.0</Text>
+        </Box>
+      )}
     </Box>
   );
-}
+
+  // For mobile view: use a drawer
+  if (isMobileOpen) {
+    return (
+      <Drawer
+        isOpen={isMobileOpen}
+        placement="left"
+        onClose={onClose}
+        returnFocusOnClose={false}
+        size="xs"
+      >
+        <DrawerOverlay />
+        <DrawerContent bg="gray.800">
+          <DrawerCloseButton color="white" />
+          <DrawerBody p={0}>
+            <SidebarContent />
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
+  // For desktop view: use fixed sidebar
+  return (
+    <Box
+      position="fixed"
+      left={0}
+      height="full"
+      top="64px"
+      display={{ base: 'none', md: 'block' }}
+      zIndex="sticky"
+    >
+      <SidebarContent />
+    </Box>
+  );
+};
 
 export default Sidebar;

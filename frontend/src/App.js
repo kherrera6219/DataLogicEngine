@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+import React, { useState, useEffect } from 'react';
+import { ChakraProvider, Box } from '@chakra-ui/react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Import layout components
+// Theme
+import theme from './styles/theme';
+
+// Layout Components
 import MainLayout from './components/layouts/MainLayout';
+import AuthLayout from './components/layouts/AuthLayout';
 
-// Import pages
+// Authentication Components
+import LoginPage from './pages/LoginPage';
+import LogoutPage from './pages/LogoutPage';
+
+// Main Application Pages
 import HomePage from './pages/HomePage';
 import ChatbotPage from './pages/ChatbotPage';
 import ProjectPage from './pages/ProjectPage';
@@ -17,79 +25,83 @@ import SimulationMapPage from './pages/SimulationMapPage';
 import LogsPage from './pages/LogsPage';
 import SettingsPage from './pages/SettingsPage';
 
-// Extend the Chakra UI theme for custom styles
-const theme = extendTheme({
-  initialColorMode: 'dark',
-  useSystemColorMode: false,
-  colors: {
-    dark: {
-      900: '#111418',
-      800: '#1A1D23',
-      700: '#22262F',
-      600: '#2D3748',
-    },
-    brand: {
-      900: '#1a365d',
-      800: '#153e75',
-      700: '#2a69ac',
-      600: '#3182ce',
-      500: '#4299e1',
-      400: '#63b3ed',
-    },
-    accent: {
-      500: '#ED8936',
-      600: '#DD6B20',
-    }
-  },
-  fonts: {
-    heading: '"Inter", sans-serif',
-    body: '"Inter", sans-serif',
-  },
-  styles: {
-    global: {
-      body: {
-        bg: 'dark.900',
-        color: 'white',
-      },
-    },
-  },
-  components: {
-    Button: {
-      baseStyle: {
-        borderRadius: 'md',
-      },
-    },
-    Card: {
-      baseStyle: {
-        container: {
-          borderRadius: 'md',
-        },
-      },
-    },
-  },
-});
+// Contexts
+import { AuthProvider } from './contexts/AuthContext';
+import { UKGProvider } from './contexts/UKGContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 
-function App() {
+// Utils
+import { getToken, isValidToken } from './utils/auth';
+
+const App = () => {
+  const [initialized, setInitialized] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check if user is authenticated on initial load
+    const token = getToken();
+    const tokenIsValid = isValidToken(token);
+    setIsAuthenticated(tokenIsValid);
+    setInitialized(true);
+  }, []);
+
+  // Protected route wrapper component
+  const ProtectedRoute = ({ children }) => {
+    if (!initialized) {
+      // Show loading state while checking authentication
+      return <Box p={8}>Loading...</Box>;
+    }
+
+    if (!isAuthenticated) {
+      // Redirect to login if not authenticated
+      return <Navigate to="/login" replace />;
+    }
+
+    return children;
+  };
+
   return (
     <ChakraProvider theme={theme}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<HomePage />} />
-            <Route path="/chat" element={<ChatbotPage />} />
-            <Route path="/project" element={<ProjectPage />} />
-            <Route path="/auto-gpt" element={<AutoGPTPage />} />
-            <Route path="/canvas" element={<CanvasPage />} />
-            <Route path="/voice" element={<VoicePage />} />
-            <Route path="/media-studio" element={<MediaStudioPage />} />
-            <Route path="/simulation-map" element={<SimulationMapPage />} />
-            <Route path="/logs" element={<LogsPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-          </Route>
-        </Routes>
-      </Router>
+      <AuthProvider setIsAuthenticated={setIsAuthenticated}>
+        <UKGProvider>
+          <NotificationProvider>
+            <Router>
+              <Routes>
+                {/* Authentication Routes */}
+                <Route element={<AuthLayout />}>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/logout" element={<LogoutPage />} />
+                </Route>
+
+                {/* Main Application Routes */}
+                <Route
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/chat" element={<ChatbotPage />} />
+                  <Route path="/project" element={<ProjectPage />} />
+                  <Route path="/autogpt" element={<AutoGPTPage />} />
+                  <Route path="/canvas" element={<CanvasPage />} />
+                  <Route path="/voice" element={<VoicePage />} />
+                  <Route path="/media-studio" element={<MediaStudioPage />} />
+                  <Route path="/simulation-map" element={<SimulationMapPage />} />
+                  <Route path="/logs" element={<LogsPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                </Route>
+
+                {/* Fallback Route */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Router>
+          </NotificationProvider>
+        </UKGProvider>
+      </AuthProvider>
     </ChakraProvider>
   );
-}
+};
 
 export default App;
