@@ -1,0 +1,551 @@
+{% extends 'base.html' %}
+
+{% block title %}Universal Knowledge Graph - Simulation Results{% endblock %}
+
+{% block page_title %}Simulation Results{% endblock %}
+{% block page_subtitle %}{{ simulation.name }}{% endblock %}
+
+{% block content %}
+<div class="results-container">
+    <div class="results-header">
+        <div class="header-info">
+            <div class="sim-badge status-{{ simulation.status }}">
+                {{ simulation.status|capitalize }}
+            </div>
+            <div class="sim-id">Simulation ID: {{ simulation.session_id }}</div>
+        </div>
+        
+        <div class="header-actions">
+            <a href="{{ url_for('view_simulation', sim_id=simulation.id) }}" class="btn btn-outline">
+                <span class="material-icons">arrow_back</span> Back to Details
+            </a>
+            <button class="btn btn-primary" id="export-results-btn">
+                <span class="material-icons">file_download</span> Export Results
+            </button>
+        </div>
+    </div>
+    
+    <div class="results-content">
+        <div class="results-card">
+            <div class="card-header">
+                <h2 class="card-title">Summary</h2>
+            </div>
+            <div class="card-body">
+                <div class="summary-content">
+                    <p class="summary-text">{{ simulation.results.summary if simulation.results and simulation.results.summary else 'No summary available.' }}</p>
+                    
+                    <div class="scores-container">
+                        <div class="score-item">
+                            <div class="score-label">Confidence Score</div>
+                            <div class="score-meter">
+                                <div class="meter confidence" style="--score: {{ simulation.results.confidence_score * 100 if simulation.results and simulation.results.confidence_score else 0 }}%">
+                                    <span class="score-value">{{ "%.2f"|format(simulation.results.confidence_score) if simulation.results and simulation.results.confidence_score else 'N/A' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="score-item">
+                            <div class="score-label">Coherence Score</div>
+                            <div class="score-meter">
+                                <div class="meter coherence" style="--score: {{ simulation.results.coherence_score * 100 if simulation.results and simulation.results.coherence_score else 0 }}%">
+                                    <span class="score-value">{{ "%.2f"|format(simulation.results.coherence_score) if simulation.results and simulation.results.coherence_score else 'N/A' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="score-item">
+                            <div class="score-label">Entropy Reduction</div>
+                            <div class="score-meter">
+                                <div class="meter entropy" style="--score: {{ simulation.results.entropy_reduction * 100 if simulation.results and simulation.results.entropy_reduction else 0 }}%">
+                                    <span class="score-value">{{ "%.2f"|format(simulation.results.entropy_reduction) if simulation.results and simulation.results.entropy_reduction else 'N/A' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results-grid">
+            <div class="results-card">
+                <div class="card-header">
+                    <h2 class="card-title">Simulation Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Duration</div>
+                            <div class="info-value">{{ ((simulation.completed_at - simulation.started_at).total_seconds() / 60)|round(1) }} minutes</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Simulation Type</div>
+                            <div class="info-value">
+                                {% if simulation.parameters.simulation_type == 'quantum' %}
+                                    <span class="type-badge type-quantum">Quantum Enhanced</span>
+                                {% elif simulation.parameters.simulation_type == 'recursive' %}
+                                    <span class="type-badge type-recursive">Recursive AGI</span>
+                                {% elif simulation.parameters.simulation_type == 'quad' %}
+                                    <span class="type-badge type-quad">Quad Persona</span>
+                                {% else %}
+                                    <span class="type-badge">{{ simulation.parameters.simulation_type|capitalize }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Started</div>
+                            <div class="info-value">{{ simulation.started_at.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Completed</div>
+                            <div class="info-value">{{ simulation.completed_at.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Refinement Steps</div>
+                            <div class="info-value">{{ simulation.parameters.refinement_steps }}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Confidence Threshold</div>
+                            <div class="info-value">{{ simulation.parameters.confidence_threshold }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-card">
+                <div class="card-header">
+                    <h2 class="card-title">Key Insights</h2>
+                </div>
+                <div class="card-body">
+                    <div class="insights-list">
+                        {% if simulation.results and simulation.results.insights %}
+                            {% for insight in simulation.results.insights %}
+                                <div class="insight-item">
+                                    <div class="insight-icon">
+                                        <span class="material-icons">lightbulb</span>
+                                    </div>
+                                    <div class="insight-content">
+                                        <div class="insight-text">{{ insight.text }}</div>
+                                        {% if insight.confidence %}
+                                            <div class="insight-confidence">Confidence: {{ insight.confidence }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-insights">
+                                <p>No insights available for this simulation.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results-card">
+            <div class="card-header">
+                <h2 class="card-title">Knowledge Graph Visualization</h2>
+            </div>
+            <div class="card-body">
+                <div class="graph-container">
+                    <div class="graph-visualization">
+                        <!-- Placeholder for graph visualization -->
+                        <svg viewBox="0 0 800 400" class="graph-svg">
+                            <!-- Central Node -->
+                            <circle cx="400" cy="200" r="25" fill="#6a8fff" />
+                            
+                            <!-- Main axes -->
+                            {% for i in range(13) %}
+                                {% set angle = i * (360 / 13) %}
+                                {% set radius = 150 %}
+                                {% set x = 400 + radius * cos(angle * 3.14159 / 180) %}
+                                {% set y = 200 + radius * sin(angle * 3.14159 / 180) %}
+                                
+                                <line 
+                                    x1="400" y1="200" 
+                                    x2="{{ x }}" y2="{{ y }}" 
+                                    stroke="rgba(106, 143, 255, 0.5)" 
+                                    stroke-width="2" />
+                                    
+                                <circle 
+                                    cx="{{ x }}" cy="{{ y }}" 
+                                    r="15" 
+                                    fill="rgba(106, 143, 255, 0.7)" />
+                                    
+                                <text 
+                                    x="{{ x + 20 * cos(angle * 3.14159 / 180) }}" 
+                                    y="{{ y + 20 * sin(angle * 3.14159 / 180) }}" 
+                                    font-size="12" 
+                                    fill="#b0b0b0" 
+                                    text-anchor="middle">
+                                    Axis {{ i+1 }}
+                                </text>
+                            {% endfor %}
+                        </svg>
+                        <div class="overlay-message">
+                            This is a simplified visualization. The full interactive graph would be implemented with D3.js or a similar library in production.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Results Page Styles */
+    .results-container {
+        margin-bottom: 3rem;
+    }
+    
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .header-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .sim-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-completed {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: var(--success);
+    }
+    
+    .sim-id {
+        color: var(--dark-text-secondary);
+        font-size: 0.9rem;
+    }
+    
+    .light-theme .sim-id {
+        color: var(--light-text-secondary);
+    }
+    
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .results-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .results-card {
+        background-color: var(--dark-bg-secondary);
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 12px var(--dark-shadow);
+        overflow: hidden;
+    }
+    
+    .light-theme .results-card {
+        background-color: var(--light-bg-secondary);
+        box-shadow: 0 4px 12px var(--light-shadow);
+    }
+    
+    .results-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    /* Summary Content */
+    .summary-content {
+        padding: 1rem;
+    }
+    
+    .summary-text {
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    
+    .scores-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .score-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .score-label {
+        font-weight: 500;
+        color: var(--dark-text-secondary);
+        font-size: 0.9rem;
+    }
+    
+    .light-theme .score-label {
+        color: var(--light-text-secondary);
+    }
+    
+    .score-meter {
+        height: 24px;
+        background-color: var(--dark-bg-tertiary);
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .light-theme .score-meter {
+        background-color: var(--light-bg-tertiary);
+    }
+    
+    .meter {
+        height: 100%;
+        width: var(--score);
+        border-radius: 12px;
+        position: relative;
+    }
+    
+    .meter.confidence {
+        background: linear-gradient(to right, #6a8fff, #4c6ef5);
+    }
+    
+    .meter.coherence {
+        background: linear-gradient(to right, #a183ff, #6f42c1);
+    }
+    
+    .meter.entropy {
+        background: linear-gradient(to right, #12cbc4, #0da2ba);
+    }
+    
+    .score-value {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Info Grid */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .info-item {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--dark-border);
+    }
+    
+    .light-theme .info-item {
+        border-bottom: 1px solid var(--light-border);
+    }
+    
+    .info-item:last-child,
+    .info-item:nth-last-child(2):nth-child(odd) {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        color: var(--dark-text-secondary);
+        font-size: 0.9rem;
+    }
+    
+    .light-theme .info-label {
+        color: var(--light-text-secondary);
+    }
+    
+    /* Type Badges */
+    .type-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        background-color: var(--dark-bg-tertiary);
+    }
+    
+    .light-theme .type-badge {
+        background-color: var(--light-bg-tertiary);
+    }
+    
+    .type-quantum {
+        background-color: rgba(106, 143, 255, 0.15);
+        color: var(--dark-accent-primary);
+    }
+    
+    .light-theme .type-quantum {
+        background-color: rgba(76, 110, 245, 0.15);
+        color: var(--light-accent-primary);
+    }
+    
+    .type-recursive {
+        background-color: rgba(161, 131, 255, 0.15);
+        color: var(--dark-accent-secondary);
+    }
+    
+    .light-theme .type-recursive {
+        background-color: rgba(111, 66, 193, 0.15);
+        color: var(--light-accent-secondary);
+    }
+    
+    .type-quad {
+        background-color: rgba(18, 203, 196, 0.15);
+        color: #12cbc4;
+    }
+    
+    /* Insights List */
+    .insights-list {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .insight-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        background-color: var(--dark-bg-tertiary);
+        border-radius: var(--border-radius);
+    }
+    
+    .light-theme .insight-item {
+        background-color: var(--light-bg-tertiary);
+    }
+    
+    .insight-icon {
+        color: var(--dark-accent-primary);
+    }
+    
+    .light-theme .insight-icon {
+        color: var(--light-accent-primary);
+    }
+    
+    .insight-content {
+        flex: 1;
+    }
+    
+    .insight-text {
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+    
+    .insight-confidence {
+        font-size: 0.85rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    .light-theme .insight-confidence {
+        color: var(--light-text-secondary);
+    }
+    
+    .empty-insights {
+        text-align: center;
+        padding: 2rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    .light-theme .empty-insights {
+        color: var(--light-text-secondary);
+    }
+    
+    /* Graph Visualization */
+    .graph-container {
+        padding: 1rem;
+    }
+    
+    .graph-visualization {
+        position: relative;
+        height: 400px;
+        background-color: var(--dark-bg-tertiary);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+    
+    .light-theme .graph-visualization {
+        background-color: var(--light-bg-tertiary);
+    }
+    
+    .graph-svg {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .overlay-message {
+        position: absolute;
+        bottom: 1rem;
+        left: 0;
+        right: 0;
+        text-align: center;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .light-theme .overlay-message {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .results-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .scores-container {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .results-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .header-actions {
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Export results functionality
+        const exportBtn = document.getElementById('export-results-btn');
+        
+        exportBtn.addEventListener('click', function() {
+            // In a real implementation, this would call an API endpoint to generate
+            // and download the results in a chosen format (JSON, CSV, PDF, etc.)
+            alert('Export functionality would be implemented in production.');
+        });
+    });
+</script>
+{% endblock %}

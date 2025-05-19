@@ -148,6 +148,165 @@ def simulations():
     user_simulations = SimulationSession.query.filter_by(user_id=current_user.id).order_by(SimulationSession.created_at.desc()).all()
     return render_template('simulations.html', simulations=user_simulations)
 
+@app.route('/create_simulation', methods=['POST'])
+@login_required
+def create_simulation():
+    # Get simulation parameters from form
+    name = request.form.get('name')
+    description = request.form.get('description', '')
+    sim_type = request.form.get('sim_type')
+    refinement_steps = int(request.form.get('refinement_steps', 12))
+    confidence_threshold = float(request.form.get('confidence_threshold', 0.85))
+    entropy_sampling = 'entropy_sampling' in request.form
+    auto_start = 'auto_start' in request.form
+    
+    # Validate input
+    if not name or not sim_type:
+        flash('Simulation name and type are required', 'error')
+        return redirect(url_for('simulations'))
+    
+    # Create simulation parameters
+    parameters = {
+        'simulation_type': sim_type,
+        'refinement_steps': refinement_steps,
+        'confidence_threshold': confidence_threshold,
+        'entropy_sampling': entropy_sampling
+    }
+    
+    # Create new simulation session
+    new_simulation = SimulationSession(
+        session_id=str(uuid.uuid4()),
+        user_id=current_user.id,
+        name=name,
+        description=description,
+        parameters=parameters,
+        status='pending' if not auto_start else 'running',
+        current_step=0,
+        total_steps=8,
+        created_at=datetime.utcnow(),
+        started_at=datetime.utcnow() if auto_start else None
+    )
+    
+    try:
+        db.session.add(new_simulation)
+        db.session.commit()
+        
+        if auto_start:
+            flash(f'Simulation "{name}" created and started successfully', 'success')
+        else:
+            flash(f'Simulation "{name}" created successfully', 'success')
+        
+        return redirect(url_for('simulations'))
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error creating simulation: {e}")
+        flash('An error occurred while creating the simulation', 'error')
+        return redirect(url_for('simulations'))
+
+@app.route('/simulation/<int:sim_id>/start', methods=['POST'])
+@login_required
+def start_simulation(sim_id):
+    """Start a pending simulation"""
+    simulation = SimulationSession.query.filter_by(id=sim_id, user_id=current_user.id).first_or_404()
+    
+    if simulation.status != 'pending':
+        flash('Only pending simulations can be started', 'error')
+        return redirect(url_for('simulations'))
+    
+    try:
+        simulation.status = 'running'
+        simulation.started_at = datetime.utcnow()
+        db.session.commit()
+        
+        flash(f'Simulation "{simulation.name}" started successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error starting simulation: {e}")
+        flash('An error occurred while starting the simulation', 'error')
+    
+    return redirect(url_for('simulations'))
+
+@app.route('/simulation/<int:sim_id>/pause', methods=['POST'])
+@login_required
+def pause_simulation(sim_id):
+    """Pause a running simulation"""
+    simulation = SimulationSession.query.filter_by(id=sim_id, user_id=current_user.id).first_or_404()
+    
+    if simulation.status != 'running':
+        flash('Only running simulations can be paused', 'error')
+        return redirect(url_for('simulations'))
+    
+    try:
+        simulation.status = 'paused'
+        db.session.commit()
+        
+        flash(f'Simulation "{simulation.name}" paused successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error pausing simulation: {e}")
+        flash('An error occurred while pausing the simulation', 'error')
+    
+    return redirect(url_for('simulations'))
+
+@app.route('/simulation/<int:sim_id>/resume', methods=['POST'])
+@login_required
+def resume_simulation(sim_id):
+    """Resume a paused simulation"""
+    simulation = SimulationSession.query.filter_by(id=sim_id, user_id=current_user.id).first_or_404()
+    
+    if simulation.status != 'paused':
+        flash('Only paused simulations can be resumed', 'error')
+        return redirect(url_for('simulations'))
+    
+    try:
+        simulation.status = 'running'
+        db.session.commit()
+        
+        flash(f'Simulation "{simulation.name}" resumed successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error resuming simulation: {e}")
+        flash('An error occurred while resuming the simulation', 'error')
+    
+    return redirect(url_for('simulations'))
+
+@app.route('/simulation/<int:sim_id>/delete', methods=['POST'])
+@login_required
+def delete_simulation(sim_id):
+    """Delete a simulation"""
+    simulation = SimulationSession.query.filter_by(id=sim_id, user_id=current_user.id).first_or_404()
+    
+    try:
+        db.session.delete(simulation)
+        db.session.commit()
+        
+        flash(f'Simulation "{simulation.name}" deleted successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error deleting simulation: {e}")
+        flash('An error occurred while deleting the simulation', 'error')
+    
+    return redirect(url_for('simulations'))
+
+@app.route('/simulation/<int:sim_id>')
+@login_required
+def view_simulation(sim_id):
+    """View simulation details"""
+    simulation = SimulationSession.query.filter_by(id=sim_id, user_id=current_user.id).first_or_404()
+    return render_template('simulation_details.html', simulation=simulation)
+
+@app.route('/simulation/<int:sim_id>/results')
+@login_required
+def simulation_results(sim_id):
+    """View simulation results"""
+    simulation = SimulationSession.query.filter_by(id=sim_id, user_id=current_user.id).first_or_404()
+    
+    if simulation.status != 'completed':
+        flash('Results are only available for completed simulations', 'warning')
+        return redirect(url_for('view_simulation', sim_id=sim_id))
+    
+    return render_template('simulation_results.html', simulation=simulation)
+
 @app.route('/about')
 def about():
     return render_template('about.html')

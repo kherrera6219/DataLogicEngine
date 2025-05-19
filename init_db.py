@@ -22,13 +22,12 @@ def create_admin_user():
     
     if admin is None:
         logger.info("Creating admin user")
-        admin = User(
-            username='admin', 
-            email='admin@ukg-system.com',
-            is_active=True,
-            is_admin=True,
-            created_at=datetime.utcnow()
-        )
+        admin = User()
+        admin.username = 'admin'
+        admin.email = 'admin@ukg-system.com'
+        admin.active = True
+        admin.is_admin = True
+        admin.created_at = datetime.utcnow()
         admin.set_password('admin123')  # For development only, would use a strong password in production
         
         db.session.add(admin)
@@ -43,13 +42,12 @@ def create_demo_user():
     
     if demo is None:
         logger.info("Creating demo user")
-        demo = User(
-            username='demo', 
-            email='demo@ukg-system.com',
-            is_active=True,
-            is_admin=False,
-            created_at=datetime.utcnow()
-        )
+        demo = User()
+        demo.username = 'demo'
+        demo.email = 'demo@ukg-system.com'
+        demo.is_active = True
+        demo.is_admin = False
+        demo.created_at = datetime.utcnow()
         demo.set_password('demo123')  # For development only
         
         db.session.add(demo)
