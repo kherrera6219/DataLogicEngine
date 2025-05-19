@@ -151,10 +151,10 @@ class GraphManager:
         self._create_topic_nodes()
         
         # Create nodes for Methods (Axis 4)
-        # (Placeholder - can be implemented later)
+        self._create_method_nodes()
         
         # Create nodes for Tools (Axis 5)
-        # (Placeholder - can be implemented later)
+        self._create_tool_nodes()
         
         # Create nodes for Regulatory Frameworks (Axis 6)
         self._create_regulatory_framework_nodes()
@@ -169,7 +169,7 @@ class GraphManager:
         self._create_location_nodes()
         
         # Create nodes for Time (Axis 13)
-        # (Placeholder - can be implemented later)
+        self._create_time_period_nodes()
     
     def _create_axis_nodes(self, ukg_root_uid):
         """
@@ -670,6 +670,335 @@ class GraphManager:
             
             logging.info(f"[{datetime.now()}] GM: Added {persona_type}: {persona_label} (UID: {persona_uid[:10]}...)")
     
+    def _create_method_nodes(self):
+        """Create nodes for Methods (Axis 4)."""
+        logging.info(f"[{datetime.now()}] GM: Creating Method nodes")
+        
+        axis4_uid_str = self._get_axis_uid_by_number(4)
+        if not axis4_uid_str:
+            logging.warning(f"[{datetime.now()}] GM: Axis 4 UID not found, cannot create Method nodes")
+            return
+        
+        if 'Methods' not in self.methods_data:
+            logging.warning(f"[{datetime.now()}] GM: No Methods defined in methods.yaml")
+            return
+        
+        for method_def in self.methods_data['Methods']:
+            method_original_id = method_def.get('id', 'Unknown_Method')
+            method_label = method_def.get('label', 'Unknown Method')
+            method_description = method_def.get('description', '')
+            
+            # Create UID for Method
+            method_uid_pkg = self.united_system_manager.create_unified_id(
+                entity_label=method_label,
+                entity_type="Method",
+                ukg_coords={"Axis4": method_original_id},
+                specific_id_part=method_original_id
+            )
+            
+            method_uid = method_uid_pkg["uid_string"]
+            
+            # Store UID in definition for later reference
+            method_def['uid_string'] = method_uid
+            
+            # Add node to graph
+            self.graph.add_node(
+                method_uid,
+                label=method_label,
+                description=method_description,
+                original_id=method_original_id,
+                **method_uid_pkg
+            )
+            
+            # Connect to Axis 4
+            self.graph.add_edge(axis4_uid_str, method_uid, relationship="has_method")
+            
+            # Create nodes for method categories if defined
+            if 'categories' in method_def and isinstance(method_def['categories'], list):
+                for category_def in method_def['categories']:
+                    cat_label = category_def.get('label', 'Unknown Category')
+                    cat_id = category_def.get('id', 'Unknown_Category')
+                    cat_description = category_def.get('description', '')
+                    
+                    cat_uid_pkg = self.united_system_manager.create_unified_id(
+                        entity_label=cat_label,
+                        entity_type="MethodCategory",
+                        ukg_coords={"Axis4": method_original_id, "CategoryID": cat_id},
+                        specific_id_part=cat_id
+                    )
+                    
+                    cat_uid = cat_uid_pkg["uid_string"]
+                    
+                    # Add category node
+                    self.graph.add_node(
+                        cat_uid,
+                        label=cat_label,
+                        description=cat_description,
+                        original_id=cat_id,
+                        **cat_uid_pkg
+                    )
+                    
+                    # Connect category to Method
+                    self.graph.add_edge(method_uid, cat_uid, relationship="has_category")
+                    
+                    # Create nodes for techniques if defined
+                    if 'techniques' in category_def and isinstance(category_def['techniques'], list):
+                        for technique_def in category_def['techniques']:
+                            tech_label = technique_def.get('label', 'Unknown Technique')
+                            tech_id = technique_def.get('id', 'Unknown_Technique')
+                            tech_description = technique_def.get('description', '')
+                            
+                            tech_uid_pkg = self.united_system_manager.create_unified_id(
+                                entity_label=tech_label,
+                                entity_type="MethodTechnique",
+                                ukg_coords={"Axis4": method_original_id, "CategoryID": cat_id, "TechniqueID": tech_id},
+                                specific_id_part=tech_id
+                            )
+                            
+                            tech_uid = tech_uid_pkg["uid_string"]
+                            
+                            # Add technique node
+                            self.graph.add_node(
+                                tech_uid,
+                                label=tech_label,
+                                description=tech_description,
+                                original_id=tech_id,
+                                **tech_uid_pkg
+                            )
+                            
+                            # Connect technique to Category
+                            self.graph.add_edge(cat_uid, tech_uid, relationship="has_technique")
+            
+            logging.info(f"[{datetime.now()}] GM: Added Method: {method_label} (UID: {method_uid[:10]}...)")
+
+    def _create_tool_nodes(self):
+        """Create nodes for Tools (Axis 5)."""
+        logging.info(f"[{datetime.now()}] GM: Creating Tool nodes")
+        
+        axis5_uid_str = self._get_axis_uid_by_number(5)
+        if not axis5_uid_str:
+            logging.warning(f"[{datetime.now()}] GM: Axis 5 UID not found, cannot create Tool nodes")
+            return
+        
+        if 'Tools' not in self.tools_data:
+            logging.warning(f"[{datetime.now()}] GM: No Tools defined in tools.yaml")
+            return
+        
+        for tool_def in self.tools_data['Tools']:
+            tool_original_id = tool_def.get('id', 'Unknown_Tool')
+            tool_label = tool_def.get('label', 'Unknown Tool')
+            tool_description = tool_def.get('description', '')
+            
+            # Create UID for Tool
+            tool_uid_pkg = self.united_system_manager.create_unified_id(
+                entity_label=tool_label,
+                entity_type="Tool",
+                ukg_coords={"Axis5": tool_original_id},
+                specific_id_part=tool_original_id
+            )
+            
+            tool_uid = tool_uid_pkg["uid_string"]
+            
+            # Store UID in definition for later reference
+            tool_def['uid_string'] = tool_uid
+            
+            # Add node to graph
+            self.graph.add_node(
+                tool_uid,
+                label=tool_label,
+                description=tool_description,
+                original_id=tool_original_id,
+                **tool_uid_pkg
+            )
+            
+            # Connect to Axis 5
+            self.graph.add_edge(axis5_uid_str, tool_uid, relationship="has_tool")
+            
+            # Create nodes for tool categories if defined
+            if 'categories' in tool_def and isinstance(tool_def['categories'], list):
+                for category_def in tool_def['categories']:
+                    cat_label = category_def.get('label', 'Unknown Category')
+                    cat_id = category_def.get('id', 'Unknown_Category')
+                    cat_description = category_def.get('description', '')
+                    
+                    cat_uid_pkg = self.united_system_manager.create_unified_id(
+                        entity_label=cat_label,
+                        entity_type="ToolCategory",
+                        ukg_coords={"Axis5": tool_original_id, "CategoryID": cat_id},
+                        specific_id_part=cat_id
+                    )
+                    
+                    cat_uid = cat_uid_pkg["uid_string"]
+                    
+                    # Add category node
+                    self.graph.add_node(
+                        cat_uid,
+                        label=cat_label,
+                        description=cat_description,
+                        original_id=cat_id,
+                        **cat_uid_pkg
+                    )
+                    
+                    # Connect category to Tool
+                    self.graph.add_edge(tool_uid, cat_uid, relationship="has_category")
+                    
+                    # Create nodes for specific tools if defined
+                    if 'tools' in category_def and isinstance(category_def['tools'], list):
+                        for specific_tool_def in category_def['tools']:
+                            spec_tool_label = specific_tool_def.get('label', 'Unknown Tool')
+                            spec_tool_id = specific_tool_def.get('id', 'Unknown_Tool')
+                            spec_tool_description = specific_tool_def.get('description', '')
+                            spec_tool_version = specific_tool_def.get('version', '')
+                            
+                            spec_tool_uid_pkg = self.united_system_manager.create_unified_id(
+                                entity_label=spec_tool_label,
+                                entity_type="SpecificTool",
+                                ukg_coords={"Axis5": tool_original_id, "CategoryID": cat_id, "ToolID": spec_tool_id},
+                                specific_id_part=spec_tool_id
+                            )
+                            
+                            spec_tool_uid = spec_tool_uid_pkg["uid_string"]
+                            
+                            # Add specific tool node
+                            self.graph.add_node(
+                                spec_tool_uid,
+                                label=spec_tool_label,
+                                description=spec_tool_description,
+                                version=spec_tool_version,
+                                original_id=spec_tool_id,
+                                **spec_tool_uid_pkg
+                            )
+                            
+                            # Connect specific tool to Category
+                            self.graph.add_edge(cat_uid, spec_tool_uid, relationship="has_specific_tool")
+            
+            logging.info(f"[{datetime.now()}] GM: Added Tool: {tool_label} (UID: {tool_uid[:10]}...)")
+
+    def _create_time_period_nodes(self):
+        """Create nodes for Time Periods (Axis 13)."""
+        logging.info(f"[{datetime.now()}] GM: Creating Time Period nodes")
+        
+        axis13_uid_str = self._get_axis_uid_by_number(13)
+        if not axis13_uid_str:
+            logging.warning(f"[{datetime.now()}] GM: Axis 13 UID not found, cannot create Time Period nodes")
+            return
+        
+        if 'TimePeriods' not in self.time_periods_data:
+            logging.warning(f"[{datetime.now()}] GM: No Time Periods defined in time_periods.yaml")
+            return
+        
+        for period_group_def in self.time_periods_data['TimePeriods']:
+            group_original_id = period_group_def.get('id', 'Unknown_TimeGroup')
+            group_label = period_group_def.get('label', 'Unknown Time Group')
+            group_description = period_group_def.get('description', '')
+            
+            # Create UID for Time Period Group
+            group_uid_pkg = self.united_system_manager.create_unified_id(
+                entity_label=group_label,
+                entity_type="TimePeriodGroup",
+                ukg_coords={"Axis13": group_original_id},
+                specific_id_part=group_original_id
+            )
+            
+            group_uid = group_uid_pkg["uid_string"]
+            
+            # Store UID in definition for later reference
+            period_group_def['uid_string'] = group_uid
+            
+            # Add node to graph
+            self.graph.add_node(
+                group_uid,
+                label=group_label,
+                description=group_description,
+                original_id=group_original_id,
+                **group_uid_pkg
+            )
+            
+            # Connect to Axis 13
+            self.graph.add_edge(axis13_uid_str, group_uid, relationship="has_time_period_group")
+            
+            # Create nodes for periods if defined
+            if 'periods' in period_group_def and isinstance(period_group_def['periods'], list):
+                for period_def in period_group_def['periods']:
+                    period_label = period_def.get('label', 'Unknown Period')
+                    period_id = period_def.get('id', 'Unknown_Period')
+                    period_description = period_def.get('description', '')
+                    start_year = period_def.get('start_year', None)
+                    end_year = period_def.get('end_year', None)
+                    
+                    period_uid_pkg = self.united_system_manager.create_unified_id(
+                        entity_label=period_label,
+                        entity_type="TimePeriod",
+                        ukg_coords={"Axis13": group_original_id, "PeriodID": period_id},
+                        specific_id_part=period_id
+                    )
+                    
+                    period_uid = period_uid_pkg["uid_string"]
+                    
+                    # Add period node
+                    node_attributes = {
+                        "label": period_label,
+                        "description": period_description,
+                        "original_id": period_id,
+                        **period_uid_pkg
+                    }
+                    
+                    # Add start and end years if present
+                    if start_year is not None:
+                        node_attributes["start_year"] = start_year
+                    if end_year is not None:
+                        node_attributes["end_year"] = end_year
+                    
+                    self.graph.add_node(
+                        period_uid,
+                        **node_attributes
+                    )
+                    
+                    # Connect period to Group
+                    self.graph.add_edge(group_uid, period_uid, relationship="has_period")
+                    
+                    # Create nodes for sub-periods if defined
+                    if 'sub_periods' in period_def and isinstance(period_def['sub_periods'], list):
+                        for sub_period_def in period_def['sub_periods']:
+                            sub_period_label = sub_period_def.get('label', 'Unknown Sub-Period')
+                            sub_period_id = sub_period_def.get('id', 'Unknown_SubPeriod')
+                            sub_period_description = sub_period_def.get('description', '')
+                            sub_start_year = sub_period_def.get('start_year', None)
+                            sub_end_year = sub_period_def.get('end_year', None)
+                            
+                            sub_period_uid_pkg = self.united_system_manager.create_unified_id(
+                                entity_label=sub_period_label,
+                                entity_type="TimeSubPeriod",
+                                ukg_coords={"Axis13": group_original_id, "PeriodID": period_id, "SubPeriodID": sub_period_id},
+                                specific_id_part=sub_period_id
+                            )
+                            
+                            sub_period_uid = sub_period_uid_pkg["uid_string"]
+                            
+                            # Add sub-period node
+                            sub_node_attributes = {
+                                "label": sub_period_label,
+                                "description": sub_period_description,
+                                "original_id": sub_period_id,
+                                **sub_period_uid_pkg
+                            }
+                            
+                            # Add start and end years if present
+                            if sub_start_year is not None:
+                                sub_node_attributes["start_year"] = sub_start_year
+                            if sub_end_year is not None:
+                                sub_node_attributes["end_year"] = sub_end_year
+                            
+                            self.graph.add_node(
+                                sub_period_uid,
+                                **sub_node_attributes
+                            )
+                            
+                            # Connect sub-period to Period
+                            self.graph.add_edge(period_uid, sub_period_uid, relationship="has_sub_period")
+                            
+            logging.info(f"[{datetime.now()}] GM: Added Time Period Group: {group_label} (UID: {group_uid[:10]}...)")
+                            
     def _create_location_nodes(self):
         """Create nodes for Locations (Axis 12)."""
         logging.info(f"[{datetime.now()}] GM: Creating Location nodes")
