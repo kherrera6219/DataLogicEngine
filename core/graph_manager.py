@@ -169,7 +169,7 @@ class GraphManager:
         self._create_location_nodes()
         
         # Create nodes for Time (Axis 13)
-        self._create_time_period_nodes()
+        # (Placeholder - can be implemented later)
     
     def _create_axis_nodes(self, ukg_root_uid):
         """
