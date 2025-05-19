@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { Card, Button } from '../components/ui';
-import { Badge } from '../components/ui/Badge';
+import Badge from '../components/ui/Badge';
 
 export default function ComplianceDashboard() {
   const [complianceStatus, setComplianceStatus] = useState(null);

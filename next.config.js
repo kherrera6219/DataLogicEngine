@@ -6,7 +6,7 @@ const nextConfig = {
   // Set output to export for better static generation
   output: 'standalone',
   // Transpile specific modules that might cause issues
-  transpilePackages: ['d3', 'react-force-graph-2d'],
+  transpilePackages: ['d3', 'react-force-graph-2d', 'force-graph'],
   // Add environment variables
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:5000',
