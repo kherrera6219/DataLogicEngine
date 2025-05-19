@@ -10,7 +10,7 @@ run = ["sh", "-c", "python run_enterprise_ukg.py --no-frontend && npm start"]
 build = ["sh", "-c", "npm install && npm run build"]
 
 [workflows]
-runButton = "UKG Enterprise Architecture"
+runButton = "UKG Enterprise Production"
 
 [[workflows.workflow]]
 name = "Project"
@@ -374,6 +374,15 @@ mode = "parallel"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python run_enterprise_ukg.py"
+
+[[workflows.workflow]]
+name = "UKG Enterprise Production"
+author = 28709262
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_enterprise_ukg.py --build"
 
 [[ports]]
 localPort = 3000
