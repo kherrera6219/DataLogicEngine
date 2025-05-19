@@ -27,9 +27,12 @@ class GraphManager:
         self.pillar_levels_data = {}
         self.sector_data = {}
         self.topics_data = {}
+        self.methods_data = {}
+        self.tools_data = {}
         self.regulatory_frameworks_data = {}
         self.compliance_standards_data = {}
         self.personas_data = {}
+        self.time_periods_data = {}
         self.config_or_default_path_for_locations = config.get('ukg_paths', {}).get('locations', 'data/ukg/locations_gazetteer.yaml')
         
         logging.info(f"[{datetime.now()}] GraphManager initialized")
@@ -71,6 +74,16 @@ class GraphManager:
             "Topics"
         )
         
+        self.methods_data = self._load_yaml_file(
+            self.config.get('ukg_paths', {}).get('methods', 'data/ukg/methods.yaml'),
+            "Methods"
+        )
+        
+        self.tools_data = self._load_yaml_file(
+            self.config.get('ukg_paths', {}).get('tools', 'data/ukg/tools.yaml'),
+            "Tools"
+        )
+        
         self.regulatory_frameworks_data = self._load_yaml_file(
             self.config.get('ukg_paths', {}).get('regulatory_frameworks', 'data/ukg/regulatory_frameworks.yaml'),
             "Regulatory Frameworks"
@@ -84,6 +97,11 @@ class GraphManager:
         self.personas_data = self._load_yaml_file(
             self.config.get('ukg_paths', {}).get('personas', 'data/ukg/personas.yaml'),
             "Personas"
+        )
+        
+        self.time_periods_data = self._load_yaml_file(
+            self.config.get('ukg_paths', {}).get('time_periods', 'data/ukg/time_periods.yaml'),
+            "Time Periods"
         )
     
     def _load_yaml_file(self, file_path, description):
@@ -133,10 +151,10 @@ class GraphManager:
         self._create_topic_nodes()
         
         # Create nodes for Methods (Axis 4)
-        # (Placeholder - can be implemented later)
+        self._create_method_nodes()
         
         # Create nodes for Tools (Axis 5)
-        # (Placeholder - can be implemented later)
+        self._create_tool_nodes()
         
         # Create nodes for Regulatory Frameworks (Axis 6)
         self._create_regulatory_framework_nodes()
@@ -151,7 +169,7 @@ class GraphManager:
         self._create_location_nodes()
         
         # Create nodes for Time (Axis 13)
-        # (Placeholder - can be implemented later)
+        self._create_time_period_nodes()
     
     def _create_axis_nodes(self, ukg_root_uid):
         """

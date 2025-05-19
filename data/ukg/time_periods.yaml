@@ -1,0 +1,262 @@
+# Universal Knowledge Graph (UKG) Time Periods (Axis 13)
+#
+# This file defines temporal dimensions, historical periods, and time-based contexts.
+
+TimePeriods:
+  - id: "TP001"
+    label: "Historical Eras"
+    description: "Major historical eras spanning human civilization."
+    periods:
+      - id: "TP001_P01"
+        label: "Ancient History"
+        description: "Historical events from the beginning of recorded human history to the fall of the Western Roman Empire."
+        start_year: -3500  # BCE
+        end_year: 476      # CE
+        sub_periods:
+          - id: "TP001_P01_S01"
+            label: "Bronze Age"
+            description: "Period characterized by the use of bronze, proto-writing, and early urban civilization."
+            start_year: -3300
+            end_year: -1200
+          - id: "TP001_P01_S02"
+            label: "Iron Age"
+            description: "Period characterized by the widespread use of iron tools and weapons."
+            start_year: -1200
+            end_year: 476
+          - id: "TP001_P01_S03"
+            label: "Classical Antiquity"
+            description: "Period of cultural history between the 8th century BCE and the 6th century CE centered on the Mediterranean Sea."
+            start_year: -800
+            end_year: 476
+
+      - id: "TP001_P02"
+        label: "Middle Ages"
+        description: "Period of European history between the fall of the Western Roman Empire and the beginning of the Renaissance."
+        start_year: 476
+        end_year: 1453
+        sub_periods:
+          - id: "TP001_P02_S01"
+            label: "Early Middle Ages"
+            description: "Period from the fall of the Western Roman Empire to around the 11th century."
+            start_year: 476
+            end_year: 1000
+          - id: "TP001_P02_S02"
+            label: "High Middle Ages"
+            description: "Period of European history from around 1000 to 1300."
+            start_year: 1000
+            end_year: 1300
+          - id: "TP001_P02_S03"
+            label: "Late Middle Ages"
+            description: "Period of European history from around 1300 to 1453."
+            start_year: 1300
+            end_year: 1453
+
+      - id: "TP001_P03"
+        label: "Modern Era"
+        description: "Period characterized by significant developments in science, politics, warfare, and technology."
+        start_year: 1453
+        end_year: 2023  # Current year
+        sub_periods:
+          - id: "TP001_P03_S01"
+            label: "Renaissance"
+            description: "Period of European cultural, artistic, political, scientific, and intellectual 'rebirth'."
+            start_year: 1453
+            end_year: 1600
+          - id: "TP001_P03_S02"
+            label: "Industrial Revolution"
+            description: "Transition to new manufacturing processes in the period from 1760 to 1840."
+            start_year: 1760
+            end_year: 1840
+          - id: "TP001_P03_S03"
+            label: "World War Era"
+            description: "Period encompassing World War I and World War II."
+            start_year: 1914
+            end_year: 1945
+          - id: "TP001_P03_S04"
+            label: "Information Age"
+            description: "Period characterized by the ability to transfer information freely and instant access to knowledge."
+            start_year: 1970
+            end_year: 2023
+
+  - id: "TP002"
+    label: "Business Cycles"
+    description: "Time periods related to business and economic cycles."
+    periods:
+      - id: "TP002_P01"
+        label: "Annual Fiscal Periods"
+        description: "Standard fiscal periods used in business and finance."
+        sub_periods:
+          - id: "TP002_P01_S01"
+            label: "Quarter 1"
+            description: "First quarter of the fiscal year."
+            relative_start: "Q1_START"
+            relative_end: "Q1_END"
+          - id: "TP002_P01_S02"
+            label: "Quarter 2"
+            description: "Second quarter of the fiscal year."
+            relative_start: "Q2_START"
+            relative_end: "Q2_END"
+          - id: "TP002_P01_S03"
+            label: "Quarter 3"
+            description: "Third quarter of the fiscal year."
+            relative_start: "Q3_START"
+            relative_end: "Q3_END"
+          - id: "TP002_P01_S04"
+            label: "Quarter 4"
+            description: "Fourth quarter of the fiscal year."
+            relative_start: "Q4_START"
+            relative_end: "Q4_END"
+
+      - id: "TP002_P02"
+        label: "Economic Cycles"
+        description: "Recurring periods of economic expansion and contraction."
+        sub_periods:
+          - id: "TP002_P02_S01"
+            label: "Expansion"
+            description: "Period of economic growth."
+            cycle_phase: "EXPANSION"
+          - id: "TP002_P02_S02"
+            label: "Peak"
+            description: "Highest point of economic activity before recession."
+            cycle_phase: "PEAK"
+          - id: "TP002_P02_S03"
+            label: "Recession"
+            description: "Period of temporary economic decline."
+            cycle_phase: "RECESSION"
+          - id: "TP002_P02_S04"
+            label: "Trough"
+            description: "Lowest point of economic activity before recovery."
+            cycle_phase: "TROUGH"
+
+  - id: "TP003"
+    label: "Regulatory Time Periods"
+    description: "Time periods relevant to regulatory compliance and reporting."
+    periods:
+      - id: "TP003_P01"
+        label: "Regulatory Filing Periods"
+        description: "Standard periods for regulatory filings."
+        sub_periods:
+          - id: "TP003_P01_S01"
+            label: "Annual Filing"
+            description: "Period for annual regulatory filings."
+            frequency: "ANNUAL"
+            typical_deadline: "90 days after period end"
+          - id: "TP003_P01_S02"
+            label: "Quarterly Filing"
+            description: "Period for quarterly regulatory filings."
+            frequency: "QUARTERLY"
+            typical_deadline: "45 days after period end"
+          - id: "TP003_P01_S03"
+            label: "Monthly Filing"
+            description: "Period for monthly regulatory filings."
+            frequency: "MONTHLY"
+            typical_deadline: "15 days after period end"
+
+      - id: "TP003_P02"
+        label: "Retention Periods"
+        description: "Required periods for data and document retention."
+        sub_periods:
+          - id: "TP003_P02_S01"
+            label: "Short-term Retention"
+            description: "Short-term retention period for documents and data."
+            duration_years: 3
+          - id: "TP003_P02_S02"
+            label: "Medium-term Retention"
+            description: "Medium-term retention period for documents and data."
+            duration_years: 7
+          - id: "TP003_P02_S03"
+            label: "Long-term Retention"
+            description: "Long-term retention period for documents and data."
+            duration_years: 25
+          - id: "TP003_P02_S04"
+            label: "Permanent Retention"
+            description: "Permanent retention of documents and data."
+            duration_years: "PERMANENT"
+
+  - id: "TP004"
+    label: "Project Lifecycle Phases"
+    description: "Time periods related to project management and product lifecycles."
+    periods:
+      - id: "TP004_P01"
+        label: "Traditional Project Phases"
+        description: "Phases in traditional project management approaches."
+        sub_periods:
+          - id: "TP004_P01_S01"
+            label: "Initiation"
+            description: "Phase where the project is defined and authorized."
+            phase_order: 1
+          - id: "TP004_P01_S02"
+            label: "Planning"
+            description: "Phase where project scope, objectives, and actions are defined."
+            phase_order: 2
+          - id: "TP004_P01_S03"
+            label: "Execution"
+            description: "Phase where project work is completed according to the plan."
+            phase_order: 3
+          - id: "TP004_P01_S04"
+            label: "Monitoring and Controlling"
+            description: "Phase of tracking, reviewing, and regulating project progress."
+            phase_order: 4
+          - id: "TP004_P01_S05"
+            label: "Closing"
+            description: "Phase where the project is formally completed."
+            phase_order: 5
+
+      - id: "TP004_P02"
+        label: "Product Lifecycle Phases"
+        description: "Phases in the lifecycle of a product or service."
+        sub_periods:
+          - id: "TP004_P02_S01"
+            label: "Development"
+            description: "Phase where a product is created and tested."
+            phase_order: 1
+          - id: "TP004_P02_S02"
+            label: "Introduction"
+            description: "Phase where a product is initially launched to the market."
+            phase_order: 2
+          - id: "TP004_P02_S03"
+            label: "Growth"
+            description: "Phase of increasing sales and market acceptance."
+            phase_order: 3
+          - id: "TP004_P02_S04"
+            label: "Maturity"
+            description: "Phase where sales peak and growth slows."
+            phase_order: 4
+          - id: "TP004_P02_S05"
+            label: "Decline"
+            description: "Phase where sales begin to decrease."
+            phase_order: 5
+
+  - id: "TP005"
+    label: "Technology Evolution Periods"
+    description: "Time periods related to technological evolution and development."
+    periods:
+      - id: "TP005_P01"
+        label: "Computing Eras"
+        description: "Major eras in the evolution of computing technology."
+        sub_periods:
+          - id: "TP005_P01_S01"
+            label: "Mainframe Era"
+            description: "Era dominated by large, centralized computers."
+            start_year: 1950
+            end_year: 1975
+          - id: "TP005_P01_S02"
+            label: "Personal Computing Era"
+            description: "Era characterized by the rise of personal computers."
+            start_year: 1975
+            end_year: 1995
+          - id: "TP005_P01_S03"
+            label: "Internet Era"
+            description: "Era marked by the widespread adoption of the internet."
+            start_year: 1995
+            end_year: 2010
+          - id: "TP005_P01_S04"
+            label: "Mobile and Cloud Era"
+            description: "Era characterized by mobile computing and cloud services."
+            start_year: 2010
+            end_year: 2020
+          - id: "TP005_P01_S05"
+            label: "AI and IoT Era"
+            description: "Era marked by advances in artificial intelligence and the Internet of Things."
+            start_year: 2020
+            end_year: 2030  # Projected

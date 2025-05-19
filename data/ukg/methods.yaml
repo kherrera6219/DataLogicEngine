@@ -1,0 +1,152 @@
+# Universal Knowledge Graph (UKG) Methods (Axis 4)
+#
+# This file defines the methods, approaches, and procedures across various domains.
+
+Methods:
+  - id: "M001"
+    label: "Quantitative Research"
+    description: "Research that focuses on gathering and analyzing numerical data."
+    categories:
+      - id: "M001_C01"
+        label: "Statistical Analysis"
+        description: "Application of statistical methods to analyze collected data."
+        techniques:
+          - id: "M001_C01_T01"
+            label: "Regression Analysis"
+            description: "Statistical method examining relationships between dependent and independent variables."
+          - id: "M001_C01_T02"
+            label: "Time Series Analysis"
+            description: "Analysis of data points collected over time to identify trends and patterns."
+          - id: "M001_C01_T03"
+            label: "ANOVA (Analysis of Variance)"
+            description: "Statistical method used to analyze differences among group means."
+
+      - id: "M001_C02"
+        label: "Experimental Design"
+        description: "Planning of experiments to ensure valid, interpretable results."
+        techniques:
+          - id: "M001_C02_T01"
+            label: "Randomized Controlled Trials"
+            description: "Experimental design where subjects are randomly allocated to treatment groups."
+          - id: "M001_C02_T02"
+            label: "Factorial Design"
+            description: "Experimental design allowing evaluation of multiple factors simultaneously."
+          - id: "M001_C02_T03"
+            label: "Latin Square Design"
+            description: "Experimental design for controlling variability in two directions."
+
+  - id: "M002"
+    label: "Qualitative Research"
+    description: "Research that focuses on gathering non-numerical data to understand concepts, opinions, or experiences."
+    categories:
+      - id: "M002_C01"
+        label: "Interviews"
+        description: "Conversations with research participants to gather detailed information."
+        techniques:
+          - id: "M002_C01_T01"
+            label: "Structured Interviews"
+            description: "Fixed set of questions asked in the same order to all participants."
+          - id: "M002_C01_T02"
+            label: "Semi-structured Interviews"
+            description: "Flexible interview format with predefined themes but adaptable questioning."
+          - id: "M002_C01_T03"
+            label: "Unstructured Interviews"
+            description: "Conversational interviews without predefined questions."
+
+      - id: "M002_C02"
+        label: "Observation"
+        description: "Systematic watching and recording of behavior in natural settings."
+        techniques:
+          - id: "M002_C02_T01"
+            label: "Participant Observation"
+            description: "Researcher participates in the activities being observed."
+          - id: "M002_C02_T02"
+            label: "Non-participant Observation"
+            description: "Researcher observes without participating in the activities."
+          - id: "M002_C02_T03"
+            label: "Structured Observation"
+            description: "Observation of specific, predefined behaviors or events."
+
+  - id: "M003"
+    label: "Mixed Methods Research"
+    description: "Research that combines both quantitative and qualitative approaches."
+    categories:
+      - id: "M003_C01"
+        label: "Sequential Mixed Methods"
+        description: "Qualitative and quantitative phases conducted in sequence."
+        techniques:
+          - id: "M003_C01_T01"
+            label: "Explanatory Sequential Design"
+            description: "Quantitative phase followed by qualitative to explain findings."
+          - id: "M003_C01_T02"
+            label: "Exploratory Sequential Design"
+            description: "Qualitative phase followed by quantitative to explore findings further."
+
+      - id: "M003_C02"
+        label: "Concurrent Mixed Methods"
+        description: "Qualitative and quantitative phases conducted simultaneously."
+        techniques:
+          - id: "M003_C02_T01"
+            label: "Convergent Parallel Design"
+            description: "Simultaneous collection of quantitative and qualitative data with integrated analysis."
+          - id: "M003_C02_T02"
+            label: "Embedded Design"
+            description: "One method embedded within the framework of the other."
+
+  - id: "M004"
+    label: "Data Mining and Analytics"
+    description: "Methods for extracting insights from large datasets."
+    categories:
+      - id: "M004_C01"
+        label: "Descriptive Analytics"
+        description: "Analysis of past data to understand what happened."
+        techniques:
+          - id: "M004_C01_T01"
+            label: "Data Visualization"
+            description: "Graphical representation of data to identify patterns and trends."
+          - id: "M004_C01_T02"
+            label: "Clustering"
+            description: "Grouping similar data points together based on characteristics."
+
+      - id: "M004_C02"
+        label: "Predictive Analytics"
+        description: "Analysis to forecast future outcomes based on historical data."
+        techniques:
+          - id: "M004_C02_T01"
+            label: "Regression"
+            description: "Statistical method for predicting an outcome based on input variables."
+          - id: "M004_C02_T02"
+            label: "Time Series Forecasting"
+            description: "Predicting future values based on previously observed values."
+          - id: "M004_C02_T03"
+            label: "Machine Learning Models"
+            description: "Algorithms that improve through experience and use of data."
+
+  - id: "M005"
+    label: "Project Management"
+    description: "Methods for planning, executing, and controlling projects."
+    categories:
+      - id: "M005_C01"
+        label: "Traditional Project Management"
+        description: "Sequential project management approach."
+        techniques:
+          - id: "M005_C01_T01"
+            label: "Waterfall Method"
+            description: "Linear sequential approach where each phase must be completed before the next begins."
+          - id: "M005_C01_T02"
+            label: "Critical Path Method (CPM)"
+            description: "Technique to identify critical tasks and manage project timelines."
+
+      - id: "M005_C02"
+        label: "Agile Project Management"
+        description: "Iterative approach to project management."
+        techniques:
+          - id: "M005_C02_T01"
+            label: "Scrum"
+            description: "Framework characterized by sprints, daily standups, and iterative development."
+          - id: "M005_C02_T02"
+            label: "Kanban"
+            description: "Visual method for managing workflow focused on continuous delivery."
+          - id: "M005_C02_T03"
+            label: "Extreme Programming (XP)"
+            description: "Agile framework focusing on customer satisfaction, communication, and feedback."
