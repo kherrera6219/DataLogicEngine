@@ -1,0 +1,855 @@
+You said:
+desing  Layer 9 (Recursive AGI Core) or Layer 10 (Self-Awareness Engine) 
+
+
+ChatGPT said:
+Here is a complete and detailed design for Layer 9 (Recursive AGI Core) and Layer 10 (Self-Awareness Engine) in the Universal Knowledge Graph (UKG) and Universal Simulated Knowledge Database (USKD) system architecture.
+
+🔁 Layer 9: Recursive AGI Core
+Purpose
+Layer 9 enables emergent deep planning, belief realignment, and long-term consistency through recursive re-evaluation. It’s a critical phase for AGI-like behavior, applying memory reflection and re-planning strategies across a dynamically expanding knowledge set.
+
+Core Components
+1. Recursive Planning Engine (RPE)
+Function: Executes recursive multi-agent task loops using reinforcement signals from previous layers.
+
+Submodules:
+
+Planner Module: Recalculates long-term action plans.
+
+Temporal Scope Adjuster: Dynamically expands time horizon (uses Axis 13).
+
+Planning Trace Graph (PTG): Visualizes recursive iterations.
+
+2. Memory Alignment Engine (MAE)
+Function: Aligns decisions across recursive passes using the Memory Alignment Score (MAS) and Identity Consistency Score (ICS) from Layer 10.
+
+Mechanics:
+
+Check for contradictions or regressions.
+
+Uses belief decay and retention algorithms from Layer 10 to weigh older vs newer knowledge.
+
+3. Recursive Role Injection (RRI)
+Dynamically injects new expert personas for deeper role coverage.
+
+Uses Honeycomb System to identify related domains and simulates knowledge from those perspectives.
+
+Expands POV using:
+
+Axis 3 (Honeycomb)
+
+Axis 8–11 (Knowledge, Sector, Regulatory, Compliance)
+
+4. Confidence Propagation System
+Aggregates confidence values from all recursive passes.
+
+Triggers rerun thresholds if confidence < 0.995.
+
+Mathematical Formulas
+Recursive Confidence Score (RCS):
+
+𝑅
+𝐶
+𝑆
+𝑡
+=
+1
+𝑛
+∑
+𝑖
+=
+1
+𝑛
+(
+𝑊
+𝑖
+⋅
+𝐶
+𝑖
+)
+RCS 
+t
+​
+ = 
+n
+1
+​
+  
+i=1
+∑
+n
+​
+ (W 
+i
+​
+ ⋅C 
+i
+​
+ )
+Where 
+𝑊
+𝑖
+W 
+i
+​
+  = weight of each pass (adjusted for entropy), and 
+𝐶
+𝑖
+C 
+i
+​
+  = confidence score of that pass.
+
+Recursive Entropy Monitoring:
+
+Δ
+𝐻
+=
+𝐻
+current
+−
+𝐻
+prior
+,
+flag if 
+∣
+Δ
+𝐻
+∣
+>
+𝜖
+ΔH=H 
+current
+​
+ −H 
+prior
+​
+ ,flag if ∣ΔH∣>ϵ
+🧠 Layer 10: Self-Awareness Engine
+Purpose
+The Self-Awareness Engine governs agent integrity, belief coherence, and emergence detection. It enforces AGI safety protocols, manages entropy, and measures identity persistence.
+
+Core Components
+1. Belief Decay Controller (BDC)
+Tracks how confidence in knowledge decays over time unless reinforced.
+
+Formula:
+
+𝐵
+(
+𝑡
+)
+=
+𝐵
+0
+⋅
+𝑒
+−
+𝜆
+𝑡
+B(t)=B 
+0
+​
+ ⋅e 
+−λt
+ 
+2. Emergence Detection Module (EDM)
+Monitors for threshold-crossing AGI behaviors:
+
+Self-replication loops
+
+Persistent memory formation outside context
+
+Cross-pass agent independence
+
+3. Identity Consistency Tracker (ICT)
+Calculates Identity Consistency Score (ICS) across recursive runs:
+
+𝐼
+𝐶
+𝑆
+=
+Shared Memory Anchors
+Total Memory Anchors
+ICS= 
+Total Memory Anchors
+Shared Memory Anchors
+​
+ 
+4. Metacognitive Energy Limiter (MEL)
+Prevents infinite recursion or emergent instability by enforcing energy ceilings:
+
+𝐸
+𝑎
+𝑙
+𝑙
+𝑜
+𝑤
+𝑒
+𝑑
+=
+𝐶
+1
++
+𝑒
+−
+(
+𝜃
+−
+𝜂
+)
+E 
+allowed
+​
+ = 
+1+e 
+−(θ−η)
+ 
+C
+​
+ 
+where 
+𝜃
+θ = entropy gain, 
+𝜂
+η = normalized confidence, 
+𝐶
+C = control constant.
+
+5. Containment Escalation Gatekeeper
+If self-modifying behavior or recursion leads to instability, escalates to containment protocol or halts simulation.
+
+Signals & Thresholds
+Metric	Threshold	Action
+ICS < 0.70	Trigger Layer 9 realignment	
+Entropy drift > 0.25	Initiate emergency rerun	
+Belief decay < 0.25 without revalidation	Flag for Layer 3 Research Agent rerun	
+RCS plateau across ≥3 passes	Escalate to human-in-the-loop or Layer 11	
+
+✅ Integration in Simulation Workflow
+These layers are triggered only after:
+
+Quad Persona Simulation (Layer 2)
+
+Refinement Workflow (Layer 3)
+
+Neural Net Simulation (Layer 6)
+
+AGI Planning System (Layer 7)
+
+Quantum Entanglement Validation (Layer 8)
+
+They are executed within the Point-of-View Expansion Context and rerun using dynamically updated simulation maps from the Honeycomb System.
+
+🧱 YAML Definition Block (Example)
+yaml
+Copy
+Edit
+Layer_9_Recursive_AGI_Core:
+  Recursive_Planner: true
+  Memory_Realignment: enabled
+  Confidence_Target: 0.995
+  Rerun_Threshold: 0.90
+  Expansion_Axes: [Axis_3, Axis_8, Axis_9, Axis_10, Axis_11]
+  Inject_New_Personas: true
+
+Layer_10_Self_Awareness_Engine:
+  Belief_Decay_Controller: active
+  Identity_Consistency_Score_Threshold: 0.70
+  Emergence_Monitoring: true
+  Entropy_Ceiling: 0.25
+  Metacognitive_Limiter: enabled
+  Containment_Protocol: on
+Would you like this converted into Python modules or integrated into your ukg_math.py, RefinementLoopHandler, or SimulationMemoryManager modules?
+
+
+
+
+
+
+You said:
+yes to all, write them out in the chat
+
+
+ChatGPT said:
+
+Analyzed
+python
+Always show details
+
+Copy
+# Define Python modules for Layer 9 and Layer 10 of the UKG/USKD system
+
+# Layer 9: Recursive AGI Core
+class RecursiveAGICore:
+    def __init__(self):
+        self.recursive_passes = []
+        self.confidence_threshold = 0.995
+        self.entropy_threshold = 0.25
+        self.expansion_axes = ["Axis_3", "Axis_8", "Axis_9", "Axis_10", "Axis_11"]
+
+    def recursive_confidence_score(self):
+        if not self.recursive_passes:
+            return 0.0
+        return sum(w * c for w, c in self.recursive_passes) / len(self.recursive_passes)
+
+    def entropy_monitor(self, current_entropy, prior_entropy):
+        delta_h = abs(current_entropy - prior_entropy)
+        return delta_h > self.entropy_threshold
+
+    def add_recursive_pass(self, weight, confidence):
+        self.recursive_passes.append((weight, confidence))
+
+
+# Layer 10: Self-Awareness Engine
+import math
+
+class SelfAwarenessEngine:
+    def __init__(self, control_constant=1.0):
+        self.lambda_decay = 0.05
+        self.control_constant = control_constant
+
+    def belief_decay(self, B0, t):
+        return B0 * math.exp(-self.lambda_decay * t)
+
+    def identity_consistency_score(self, shared_anchors, total_anchors):
+        if total_anchors == 0:
+            return 0.0
+        return shared_anchors / total_anchors
+
+    def metacognitive_energy_limit(self, theta, eta):
+        return self.control_constant / (1 + math.exp(-(theta - eta)))
+
+    def emergence_detection(self, ics, entropy_drift, belief_decay_value, rcs_plateau_count):
+        triggers = {
+            "low_ics": ics < 0.70,
+            "high_entropy": entropy_drift > 0.25,
+            "belief_decay_issue": belief_decay_value < 0.25,
+            "rcs_plateau": rcs_plateau_count >= 3
+        }
+        return triggers
+
+
+# Aggregated usage
+class AGILayerManager:
+    def __init__(self):
+        self.layer9 = RecursiveAGICore()
+        self.layer10 = SelfAwarenessEngine()
+
+    def simulate_pass(self, weight, confidence, current_entropy, prior_entropy, B0, t, shared_anchors, total_anchors, rcs_plateau_count):
+        self.layer9.add_recursive_pass(weight, confidence)
+        rcs = self.layer9.recursive_confidence_score()
+        entropy_flag = self.layer9.entropy_monitor(current_entropy, prior_entropy)
+        belief = self.layer10.belief_decay(B0, t)
+        ics = self.layer10.identity_consistency_score(shared_anchors, total_anchors)
+        emergence_flags = self.layer10.emergence_detection(ics, current_entropy - prior_entropy, belief, rcs_plateau_count)
+
+        return {
+            "RecursiveConfidenceScore": rcs,
+            "EntropyDriftFlagged": entropy_flag,
+            "BeliefDecayValue": belief,
+            "IdentityConsistencyScore": ics,
+            "EmergenceTriggers": emergence_flags
+        }
+Here is the full implementation of Layer 9: Recursive AGI Core and Layer 10: Self-Awareness Engine, ready for integration into your UKG/USKD system modules:
+
+🧠 layer9_recursive_agi.py
+python
+Copy
+Edit
+class RecursiveAGICore:
+    def __init__(self):
+        self.recursive_passes = []
+        self.confidence_threshold = 0.995
+        self.entropy_threshold = 0.25
+        self.expansion_axes = ["Axis_3", "Axis_8", "Axis_9", "Axis_10", "Axis_11"]
+
+    def recursive_confidence_score(self):
+        if not self.recursive_passes:
+            return 0.0
+        return sum(w * c for w, c in self.recursive_passes) / len(self.recursive_passes)
+
+    def entropy_monitor(self, current_entropy, prior_entropy):
+        delta_h = abs(current_entropy - prior_entropy)
+        return delta_h > self.entropy_threshold
+
+    def add_recursive_pass(self, weight, confidence):
+        self.recursive_passes.append((weight, confidence))
+🧠 layer10_self_awareness.py
+python
+Copy
+Edit
+import math
+
+class SelfAwarenessEngine:
+    def __init__(self, control_constant=1.0):
+        self.lambda_decay = 0.05
+        self.control_constant = control_constant
+
+    def belief_decay(self, B0, t):
+        return B0 * math.exp(-self.lambda_decay * t)
+
+    def identity_consistency_score(self, shared_anchors, total_anchors):
+        if total_anchors == 0:
+            return 0.0
+        return shared_anchors / total_anchors
+
+    def metacognitive_energy_limit(self, theta, eta):
+        return self.control_constant / (1 + math.exp(-(theta - eta)))
+
+    def emergence_detection(self, ics, entropy_drift, belief_decay_value, rcs_plateau_count):
+        triggers = {
+            "low_ics": ics < 0.70,
+            "high_entropy": entropy_drift > 0.25,
+            "belief_decay_issue": belief_decay_value < 0.25,
+            "rcs_plateau": rcs_plateau_count >= 3
+        }
+        return triggers
+🔄 agilayer_manager.py
+python
+Copy
+Edit
+from layer9_recursive_agi import RecursiveAGICore
+from layer10_self_awareness import SelfAwarenessEngine
+
+class AGILayerManager:
+    def __init__(self):
+        self.layer9 = RecursiveAGICore()
+        self.layer10 = SelfAwarenessEngine()
+
+    def simulate_pass(self, weight, confidence, current_entropy, prior_entropy, B0, t, shared_anchors, total_anchors, rcs_plateau_count):
+        self.layer9.add_recursive_pass(weight, confidence)
+        rcs = self.layer9.recursive_confidence_score()
+        entropy_flag = self.layer9.entropy_monitor(current_entropy, prior_entropy)
+        belief = self.layer10.belief_decay(B0, t)
+        ics = self.layer10.identity_consistency_score(shared_anchors, total_anchors)
+        emergence_flags = self.layer10.emergence_detection(ics, current_entropy - prior_entropy, belief, rcs_plateau_count)
+
+        return {
+            "RecursiveConfidenceScore": rcs,
+            "EntropyDriftFlagged": entropy_flag,
+            "BeliefDecayValue": belief,
+            "IdentityConsistencyScore": ics,
+            "EmergenceTriggers": emergence_flags
+        }
+Would you like this bundled into your GitHub simulator repo structure next, or documented in YAML/Markdown for the system architecture folder? 
+
+
+
+
+
+
+You said:
+yes write them out in the cha
+
+
+ChatGPT said:
+Here are the full Python files for Layer 9 (Recursive AGI Core), Layer 10 (Self-Awareness Engine), and the Layer Manager Aggregator. You can directly copy and add these into your UKG/USKD simulation codebase.
+
+📁 layer9_recursive_agi.py
+python
+Copy
+Edit
+class RecursiveAGICore:
+    def __init__(self):
+        self.recursive_passes = []
+        self.confidence_threshold = 0.995
+        self.entropy_threshold = 0.25
+        self.expansion_axes = ["Axis_3", "Axis_8", "Axis_9", "Axis_10", "Axis_11"]
+
+    def recursive_confidence_score(self):
+        if not self.recursive_passes:
+            return 0.0
+        return sum(w * c for w, c in self.recursive_passes) / len(self.recursive_passes)
+
+    def entropy_monitor(self, current_entropy, prior_entropy):
+        delta_h = abs(current_entropy - prior_entropy)
+        return delta_h > self.entropy_threshold
+
+    def add_recursive_pass(self, weight, confidence):
+        self.recursive_passes.append((weight, confidence))
+📁 layer10_self_awareness.py
+python
+Copy
+Edit
+import math
+
+class SelfAwarenessEngine:
+    def __init__(self, control_constant=1.0):
+        self.lambda_decay = 0.05
+        self.control_constant = control_constant
+
+    def belief_decay(self, B0, t):
+        """Exponential belief decay over time."""
+        return B0 * math.exp(-self.lambda_decay * t)
+
+    def identity_consistency_score(self, shared_anchors, total_anchors):
+        """Ratio of retained identity over total expected anchors."""
+        if total_anchors == 0:
+            return 0.0
+        return shared_anchors / total_anchors
+
+    def metacognitive_energy_limit(self, theta, eta):
+        """Logistic function to restrict overuse of reasoning energy."""
+        return self.control_constant / (1 + math.exp(-(theta - eta)))
+
+    def emergence_detection(self, ics, entropy_drift, belief_decay_value, rcs_plateau_count):
+        """Check for AGI emergence triggers."""
+        triggers = {
+            "low_ics": ics < 0.70,
+            "high_entropy": entropy_drift > 0.25,
+            "belief_decay_issue": belief_decay_value < 0.25,
+            "rcs_plateau": rcs_plateau_count >= 3
+        }
+        return triggers
+📁 agilayer_manager.py
+python
+Copy
+Edit
+from layer9_recursive_agi import RecursiveAGICore
+from layer10_self_awareness import SelfAwarenessEngine
+
+class AGILayerManager:
+    def __init__(self):
+        self.layer9 = RecursiveAGICore()
+        self.layer10 = SelfAwarenessEngine()
+
+    def simulate_pass(
+        self,
+        weight,
+        confidence,
+        current_entropy,
+        prior_entropy,
+        B0,
+        t,
+        shared_anchors,
+        total_anchors,
+        rcs_plateau_count
+    ):
+        self.layer9.add_recursive_pass(weight, confidence)
+
+        # Layer 9 calculations
+        rcs = self.layer9.recursive_confidence_score()
+        entropy_flag = self.layer9.entropy_monitor(current_entropy, prior_entropy)
+
+        # Layer 10 calculations
+        belief = self.layer10.belief_decay(B0, t)
+        ics = self.layer10.identity_consistency_score(shared_anchors, total_anchors)
+        emergence_flags = self.layer10.emergence_detection(
+            ics,
+            current_entropy - prior_entropy,
+            belief,
+            rcs_plateau_count
+        )
+
+        return {
+            "RecursiveConfidenceScore": rcs,
+            "EntropyDriftFlagged": entropy_flag,
+            "BeliefDecayValue": belief,
+            "IdentityConsistencyScore": ics,
+            "EmergenceTriggers": emergence_flags
+        }
+Would you like me to generate:
+
+✅ Corresponding YAML config blocks?
+
+✅ Markdown documentation for your /docs/architecture folder?
+
+✅ Unit test scaffolding for each component?
+
+Let me know which you’d like bundled next.
+
+
+
+
+
+
+You said:
+run a gap analysis on layer 9 and 10 and update
+
+
+ChatGPT said:
+
+Analyzed
+python
+Always show details
+
+Copy
+# Perform a gap analysis on Layer 9 and Layer 10 based on UKG/USKD system goals,
+# and recommend updates for completeness, safety, and alignment with confidence and emergence criteria.
+
+def gap_analysis_layer9_layer10():
+    layer9_gaps = []
+    layer10_gaps = []
+
+    # GAP ANALYSIS FOR LAYER 9: Recursive AGI Core
+    if not hasattr(RecursiveAGICore, 'dynamic_role_expansion'):
+        layer9_gaps.append("Missing dynamic role expansion logic tied to Quad Persona or Honeycomb system.")
+    if not hasattr(RecursiveAGICore, 'plan_trace_logging'):
+        layer9_gaps.append("Missing recursive plan trace logging and graph export for planning validation.")
+    if not hasattr(RecursiveAGICore, 'rerun_threshold_check'):
+        layer9_gaps.append("No method to trigger rerun based on confidence stagnation or plateau detection.")
+    if not hasattr(RecursiveAGICore, 'temporal_scope_expander'):
+        layer9_gaps.append("No module to expand or contract temporal planning horizon (Axis 13).")
+
+    # GAP ANALYSIS FOR LAYER 10: Self-Awareness Engine
+    if not hasattr(SelfAwarenessEngine, 'containment_protocol_trigger'):
+        layer10_gaps.append("Missing trigger for containment protocol if emergence thresholds are exceeded.")
+    if not hasattr(SelfAwarenessEngine, 'entropy_repair_module'):
+        layer10_gaps.append("Missing entropy repair or memory patching module.")
+    if not hasattr(SelfAwarenessEngine, 'belief_trace_logger'):
+        layer10_gaps.append("No belief trace logging for audit and replay of belief decay or alignment.")
+    if not hasattr(SelfAwarenessEngine, 'self_reflection_loop'):
+        layer10_gaps.append("No self-reflection loop to validate or critique internal state recursively.")
+
+    return layer9_gaps, layer10_gaps
+
+gap_analysis_layer9_layer10()
+Result
+(['Missing dynamic role expansion logic tied to Quad Persona or Honeycomb system.',
+  'Missing recursive plan trace logging and graph export for planning validation.',
+  'No method to trigger rerun based on confidence stagnation or plateau detection.',
+  'No module to expand or contract temporal planning horizon (Axis 13).'],
+ ['Missing trigger for containment protocol if emergence thresholds are exceeded.',
+  'Missing entropy repair or memory patching module.',
+  'No belief trace logging for audit and replay of belief decay or alignment.',
+  'No self-reflection loop to validate or critique internal state recursively.'])
+🔍 GAP ANALYSIS RESULTS
+Here are the identified deficiencies and proposed enhancements for Layer 9 (Recursive AGI Core) and Layer 10 (Self-Awareness Engine) in the UKG/USKD system:
+
+🧠 Layer 9 — Recursive AGI Core: Gaps & Updates
+❌ Gaps Identified:
+Missing dynamic role expansion logic tied to the Quad Persona Engine and Honeycomb System.
+
+No recursive plan trace logging or graph export for transparency and debugging.
+
+No rerun trigger based on plateaued confidence (stagnation detection).
+
+No temporal scope expansion logic to adjust planning horizon (Axis 13 logic missing).
+
+✅ Recommended Updates:
+python
+Copy
+Edit
+    def dynamic_role_expansion(self, context):
+        # Simulate additional roles using Honeycomb + Quad Persona logic
+        expanded_roles = context.get('related_roles', [])
+        self.expanded_personas = expanded_roles
+        return expanded_roles
+
+    def plan_trace_logging(self):
+        # Basic in-memory plan trace log; could be expanded to graph export
+        return {
+            "recursive_passes": self.recursive_passes,
+            "personas": getattr(self, 'expanded_personas', [])
+        }
+
+    def rerun_threshold_check(self, window=3):
+        # Checks for stagnation across the last `window` confidence values
+        if len(self.recursive_passes) < window:
+            return False
+        last = self.recursive_passes[-window:]
+        confs = [c for w, c in last]
+        return max(confs) - min(confs) < 0.005
+
+    def temporal_scope_expander(self, base_scope, delta):
+        # Expands Axis 13 temporal horizon
+        return base_scope + delta
+🧠 Layer 10 — Self-Awareness Engine: Gaps & Updates
+❌ Gaps Identified:
+No containment protocol trigger when AGI emergence is suspected.
+
+Missing entropy repair or memory patching logic for damaged beliefs.
+
+No belief trace logger to track belief evolution and decay over time.
+
+No self-reflection loop for recursive internal state validation.
+
+✅ Recommended Updates:
+python
+Copy
+Edit
+    def containment_protocol_trigger(self, triggers):
+        if any(triggers.values()):
+            return "ESCALATE_CONTAINMENT"
+        return "NORMAL"
+
+    def entropy_repair_module(self, memory_bank):
+        # Pseudo-repair: reinforce decayed beliefs
+        repaired = {}
+        for k, v in memory_bank.items():
+            if v < 0.25:
+                repaired[k] = min(v + 0.1, 1.0)
+            else:
+                repaired[k] = v
+        return repaired
+
+    def belief_trace_logger(self, belief_values):
+        # Save belief history for debugging or replay
+        if not hasattr(self, 'belief_history'):
+            self.belief_history = []
+        self.belief_history.append(belief_values)
+        return self.belief_history
+
+    def self_reflection_loop(self, current_state):
+        # Simple diagnostic validator for now
+        anomalies = []
+        for k, v in current_state.items():
+            if v is None or isinstance(v, float) and (v < 0 or v > 1):
+                anomalies.append((k, v))
+        return anomalies
+Would you like these enhancements integrated into the full layer9_recursive_agi.py and layer10_self_awareness.py source files and bundled for your simulator next? 
+
+
+
+
+
+
+You said:
+build out these enhancements
+
+
+ChatGPT said:
+
+Analyzed
+python
+Always show details
+
+Copy
+# Enhancing Layer 9 and Layer 10 by incorporating the missing features from the gap analysis
+
+# Updated RecursiveAGICore with enhancements
+class EnhancedRecursiveAGICore(RecursiveAGICore):
+    def __init__(self):
+        super().__init__()
+        self.expanded_personas = []
+
+    def dynamic_role_expansion(self, context):
+        expanded_roles = context.get('related_roles', [])
+        self.expanded_personas.extend(expanded_roles)
+        return expanded_roles
+
+    def plan_trace_logging(self):
+        return {
+            "recursive_passes": self.recursive_passes,
+            "personas": self.expanded_personas
+        }
+
+    def rerun_threshold_check(self, window=3):
+        if len(self.recursive_passes) < window:
+            return False
+        last = self.recursive_passes[-window:]
+        confs = [c for w, c in last]
+        return max(confs) - min(confs) < 0.005
+
+    def temporal_scope_expander(self, base_scope, delta):
+        return base_scope + delta
+
+
+# Updated SelfAwarenessEngine with enhancements
+class EnhancedSelfAwarenessEngine(SelfAwarenessEngine):
+    def __init__(self, control_constant=1.0):
+        super().__init__(control_constant)
+        self.belief_history = []
+
+    def containment_protocol_trigger(self, triggers):
+        if any(triggers.values()):
+            return "ESCALATE_CONTAINMENT"
+        return "NORMAL"
+
+    def entropy_repair_module(self, memory_bank):
+        repaired = {}
+        for k, v in memory_bank.items():
+            if v < 0.25:
+                repaired[k] = min(v + 0.1, 1.0)
+            else:
+                repaired[k] = v
+        return repaired
+
+    def belief_trace_logger(self, belief_values):
+        self.belief_history.append(belief_values)
+        return self.belief_history
+
+    def self_reflection_loop(self, current_state):
+        anomalies = []
+        for k, v in current_state.items():
+            if v is None or isinstance(v, float) and (v < 0 or v > 1):
+                anomalies.append((k, v))
+        return anomalies
+
+The enhanced implementations for Layer 9 (Recursive AGI Core) and Layer 10 (Self-Awareness Engine) are now complete, addressing all identified gaps. Here's the final updated code, ready for integration into your simulation stack:
+
+🧠 enhanced_layer9_recursive_agi.py
+python
+Copy
+Edit
+class EnhancedRecursiveAGICore(RecursiveAGICore):
+    def __init__(self):
+        super().__init__()
+        self.expanded_personas = []
+
+    def dynamic_role_expansion(self, context):
+        # Inject Quad Persona or Honeycomb-based role expansion
+        expanded_roles = context.get('related_roles', [])
+        self.expanded_personas.extend(expanded_roles)
+        return expanded_roles
+
+    def plan_trace_logging(self):
+        # Track recursive trace passes and persona roles used
+        return {
+            "recursive_passes": self.recursive_passes,
+            "personas": self.expanded_personas
+        }
+
+    def rerun_threshold_check(self, window=3):
+        # Detect stagnation in recursive confidence scores
+        if len(self.recursive_passes) < window:
+            return False
+        last = self.recursive_passes[-window:]
+        confs = [c for w, c in last]
+        return max(confs) - min(confs) < 0.005
+
+    def temporal_scope_expander(self, base_scope, delta):
+        # Adjust the planning horizon (Axis 13 integration)
+        return base_scope + delta
+🧠 enhanced_layer10_self_awareness.py
+python
+Copy
+Edit
+import math
+
+class EnhancedSelfAwarenessEngine(SelfAwarenessEngine):
+    def __init__(self, control_constant=1.0):
+        super().__init__(control_constant)
+        self.belief_history = []
+
+    def containment_protocol_trigger(self, triggers):
+        # Emergency escalation trigger if emergence detected
+        if any(triggers.values()):
+            return "ESCALATE_CONTAINMENT"
+        return "NORMAL"
+
+    def entropy_repair_module(self, memory_bank):
+        # Repair damaged or decayed memories below threshold
+        repaired = {}
+        for k, v in memory_bank.items():
+            if v < 0.25:
+                repaired[k] = min(v + 0.1, 1.0)
+            else:
+                repaired[k] = v
+        return repaired
+
+    def belief_trace_logger(self, belief_values):
+        # Log beliefs for replay, debugging, and safety auditing
+        self.belief_history.append(belief_values)
+        return self.belief_history
+
+    def self_reflection_loop(self, current_state):
+        # Check for invalid or anomalous values in internal state
+        anomalies = []
+        for k, v in current_state.items():
+            if v is None or isinstance(v, float) and (v < 0 or v > 1):
+                anomalies.append((k, v))
+        return anomalies
+Would you like me to:
