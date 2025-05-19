@@ -1,114 +1,112 @@
 """
-Universal Knowledge Graph (UKG) System - Middleware
+Universal Knowledge Graph (UKG) System - API Middleware
 
-This module provides middleware functionality for the UKG system,
-including request processing, response standardization, and error handling.
+This module provides middleware functions for the UKG API endpoints,
+including response standardization and error handling.
 """
 
-import time
 import json
 import logging
+import traceback
 from functools import wraps
-from flask import request, jsonify, g, current_app
-from werkzeug.exceptions import HTTPException
+from flask import jsonify, request, make_response, current_app
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-class ResponseFormatter:
-    """Response formatting middleware for API standardization."""
-    
-    @staticmethod
-    def standardize_response(data=None, message=None, status="success", status_code=200, errors=None):
-        """
-        Standardize API responses with a consistent format.
-        
-        Args:
-            data: The actual data payload to return
-            message: A human-readable message about the response
-            status: 'success' or 'error'
-            status_code: HTTP status code
-            errors: Dictionary or list of errors if status is 'error'
-            
-        Returns:
-            A standardized response dictionary
-        """
-        response = {
-            "status": status,
-            "code": status_code,
-            "timestamp": int(time.time()),
-            "message": message
-        }
-        
-        if data is not None:
-            response["data"] = data
-            
-        if errors is not None:
-            response["errors"] = errors
-            
-        return response, status_code
-
 def api_response(f):
-    """Decorator to standardize API responses."""
+    """
+    Decorator for standardizing API responses and handling errors.
+    
+    Args:
+        f: The function to wrap
+        
+    Returns:
+        A decorated function that handles standardized responses
+    """
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def decorated(*args, **kwargs):
         try:
+            # Call the API function
             result = f(*args, **kwargs)
             
-            # If the result is already a fully formatted response
-            if isinstance(result, tuple) and len(result) == 2 and isinstance(result[0], dict) and isinstance(result[1], int):
-                return result
-                
-            # If it's just the data, format it properly
-            data = result
-            return ResponseFormatter.standardize_response(data=data)
+            # If the result is a tuple, it contains data and status code
+            if isinstance(result, tuple) and len(result) >= 2:
+                data, status_code = result[0], result[1]
+            else:
+                data, status_code = result, 200
             
-        except HTTPException as e:
-            logger.exception(f"HTTP Exception in {f.__name__}: {str(e)}")
-            return ResponseFormatter.standardize_response(
-                message=str(e),
-                status="error",
-                status_code=e.code,
-                errors=[{"type": e.__class__.__name__, "message": str(e)}]
-            )
+            # Standardize the response format
+            return standardize_response(data, status_code)
+            
         except Exception as e:
-            logger.exception(f"Exception in {f.__name__}: {str(e)}")
-            return ResponseFormatter.standardize_response(
-                message="An internal server error occurred",
-                status="error",
-                status_code=500,
-                errors=[{"type": e.__class__.__name__, "message": str(e)}]
-            )
+            # Log the full exception details for debugging
+            logger.error(f"API Error in {f.__name__}: {str(e)}")
+            logger.debug(traceback.format_exc())
+            
+            # Generate a standardized error response
+            error_data = {
+                'success': False,
+                'error': str(e),
+                'endpoint': request.path,
+                'method': request.method
+            }
+            
+            return standardize_response(error_data, 500)
     
-    return decorated_function
+    return decorated
 
-class RequestLogger:
-    """Middleware for logging all requests."""
+def standardize_response(data, status_code=200):
+    """
+    Standardize API response format.
     
-    @staticmethod
-    def before_request():
-        """Log before request processing."""
-        g.start_time = time.time()
-        logger.debug(f"Request: {request.method} {request.path}")
+    Args:
+        data: Response data
+        status_code: HTTP status code
         
-        if request.method in ['POST', 'PUT'] and request.is_json:
-            logger.debug(f"Request Body: {json.dumps(request.json, indent=2)}")
+    Returns:
+        Standardized response
+    """
+    # If status code is provided in data, extract it
+    if isinstance(data, dict) and 'status_code' in data:
+        status_code = data.pop('status_code')
     
-    @staticmethod
-    def after_request(response):
-        """Log after request processing."""
-        if hasattr(g, 'start_time'):
-            duration = time.time() - g.start_time
-            logger.debug(f"Response: {response.status_code} ({duration:.4f}s)")
-        
-        return response
+    # Ensure we have a valid status code
+    if status_code is None:
+        status_code = 200
+    
+    # Create response
+    response = make_response(jsonify(data), status_code)
+    
+    # Set common headers
+    response.headers['Content-Type'] = 'application/json'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE,OPTIONS'
+    
+    return response
 
 def setup_middleware(app):
-    """Set up all middleware for the application."""
-    # Register request/response logging middleware
-    app.before_request(RequestLogger.before_request)
-    app.after_request(RequestLogger.after_request)
+    """
+    Set up middleware for the Flask application.
     
-    # Add any other middleware setup here
+    Args:
+        app: The Flask application
+    """
+    @app.after_request
+    def after_request(response):
+        """Process response after each request."""
+        # Add CORS headers to every response
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+        return response
     
-    return app
+    @app.before_request
+    def before_request():
+        """Process request before handling."""
+        # Log incoming requests for debugging
+        if current_app.debug:
+            logger.debug(f"Request: {request.method} {request.path}")
+            if request.is_json:
+                logger.debug(f"Request JSON: {json.dumps(request.get_json(), indent=2)}")
