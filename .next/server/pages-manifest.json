@@ -1,1 +1,8 @@
-{}
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/": "pages/index.js",
+  "/api/graph_stats": "pages/api/graph_stats.js",
+  "/api/memory_stats": "pages/api/memory_stats.js"
+}
