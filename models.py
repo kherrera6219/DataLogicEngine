@@ -152,7 +152,7 @@ class KnowledgeNode(db.Model):
     pillar_level_id = Column(Integer, ForeignKey('ukg_pillar_levels.id'), nullable=True)
     domain_id = Column(Integer, ForeignKey('ukg_domains.id'), nullable=True)
     location_id = Column(Integer, ForeignKey('ukg_locations.id'), nullable=True)
-    metadata = Column(JSON, nullable=True)
+    meta_info = Column(JSON, nullable=True)  # Renamed from 'metadata' to avoid reserved name conflict
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

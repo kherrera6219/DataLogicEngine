@@ -1,35 +1,48 @@
+"""
+Universal Knowledge Graph (UKG) System - Configuration
+
+This module provides configuration settings for the UKG system.
+"""
+
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load environment variables from .env file
 load_dotenv()
 
 class AppConfig:
     """Configuration for the UKG application"""
-
+    
     def __init__(self):
-        # Debug mode
-        self.DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-
+        """Initialize configuration."""
+        # Database configuration
+        self.database_url = os.environ.get('DATABASE_URL')
+        
         # Server configuration
-        self.HOST = os.environ.get('HOST', '0.0.0.0')
-        self.PORT = int(os.environ.get('PORT', 5000))
+        self.port = int(os.environ.get('PORT', 8080))
+        self.host = os.environ.get('HOST', '0.0.0.0')
+        self.debug = os.environ.get('DEBUG', 'True').lower() == 'true'
+        
+        # Application configuration
+        self.secret_key = os.environ.get('SECRET_KEY', 'ukg-development-secret-key')
+        
+        # Logging configuration
+        self.log_level = os.environ.get('LOG_LEVEL', 'DEBUG')
+        
+        # Simulation configuration
+        self.simulation_steps = int(os.environ.get('SIMULATION_STEPS', 10))
+        self.simulation_interval = float(os.environ.get('SIMULATION_INTERVAL', 1.0))
+        
+        # API configuration
+        self.api_version = os.environ.get('API_VERSION', 'v1')
+        self.api_prefix = f'/api/{self.api_version}'
+        
+        # Storage configuration
+        self.upload_folder = os.environ.get('UPLOAD_FOLDER', './uploads')
+        self.allowed_extensions = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'csv', 'json', 'xml'}
+        
+        # Security configuration
+        self.cors_origins = os.environ.get('CORS_ORIGINS', '*').split(',')
 
-        # API Configuration
-        self.OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
-        self.OPENAI_MODEL = os.environ.get('OPENAI_MODEL', 'gpt-4')
-
-        # Database Configuration
-        self.DB_URL = os.environ.get('DATABASE_URL', 'sqlite:///ukg.db')
-
-        # JWT Configuration
-        self.JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'ukg-secret-key')
-        self.JWT_EXPIRY_DAYS = int(os.environ.get('JWT_EXPIRY_DAYS', '7'))
-
-        # UKG Configuration
-        self.CONFIDENCE_THRESHOLD = float(os.environ.get('CONFIDENCE_THRESHOLD', '0.85'))
-        self.ENABLE_LOCATION_CONTEXT = os.environ.get('ENABLE_LOCATION_CONTEXT', 'true').lower() == 'true'
-        self.ENABLE_RESEARCH_AGENTS = os.environ.get('ENABLE_RESEARCH_AGENTS', 'true').lower() == 'true'
-
-# Create a global instance
+# Create a configuration instance
 config = AppConfig()
