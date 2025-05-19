@@ -5,9 +5,8 @@ This module defines all database models for the system.
 It acts as a single import point for all models.
 """
 
-# Import models from db_models.py to avoid duplication
-from db_models import Node, Edge, PillarLevel, Sector, Domain
-from db_models import Location, KnowledgeNode, KnowledgeAlgorithm, KAExecution, SimulationSession
+# Import all models from db_models.py
+from db_models import *
 
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, JSON
