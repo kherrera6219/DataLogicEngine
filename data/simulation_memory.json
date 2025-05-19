@@ -1,0 +1,47 @@
+{
+  "sessions": {
+    "healthcare_demo_session": {
+      "queries": [
+        {
+          "query": "What are the HIPAA compliance requirements for storing patient data in cloud services?",
+          "timestamp": "2025-05-19T15:51:37.369953",
+          "result_summary": {
+            "domain": "healthcare"
+          }
+        },
+        {
+          "query": "What are the HIPAA compliance requirements for storing patient data in cloud services?",
+          "timestamp": "2025-05-19T15:51:42.035788",
+          "result_summary": {
+            "domain": "healthcare"
+          }
+        }
+      ],
+      "domain": "healthcare",
+      "created_at": "2025-05-19T15:51:37.369943",
+      "last_updated": "2025-05-19T15:51:42.035780"
+    },
+    "financial_demo_session": {
+      "queries": [
+        {
+          "query": "What regulatory requirements apply to cross-border payments between US and EU financial institutions?",
+          "timestamp": "2025-05-19T15:51:42.053372",
+          "result_summary": {
+            "domain": "finance"
+          }
+        }
+      ],
+      "domain": "finance",
+      "created_at": "2025-05-19T15:51:42.053362",
+      "last_updated": "2025-05-19T15:51:42.053371"
+    }
+  },
+  "entities": {},
+  "concepts": {},
+  "facts": {},
+  "meta": {
+    "last_updated": "2025-05-19T15:51:42.053380",
+    "version": "1.0",
+    "patch_count": 3
+  }
+}
