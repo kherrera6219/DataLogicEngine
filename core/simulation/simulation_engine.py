@@ -217,7 +217,7 @@ class SimulationEngine:
         """
         return self.active_simulations.get(simulation_id)
         
-    def _apply_layer5_integration(self, simulation_id: str, context: Dict) -> Dict:
+    def _apply_layer5_integration(self, context: Dict, simulation_id: str) -> Dict:
         """
         Apply Layer 5 Integration Engine processing to a simulation context.
         
@@ -389,7 +389,7 @@ class SimulationEngine:
             # Apply Layer 5 integration if activated
             if layer5_active:
                 logging.info(f"[{datetime.now()}] Layer 5 Integration Engine activated for simulation {simulation_id}, pass {current_pass}")
-                enhanced_context = self._apply_layer5_integration(simulation_id, context)
+                enhanced_context = self._apply_layer5_integration(context, simulation_id)
                 
                 # Update synthesis with enhanced content if available
                 if 'content' in enhanced_context and enhanced_context['content']:
@@ -398,6 +398,34 @@ class SimulationEngine:
                 # Update confidence scores if improved
                 if 'confidence_score' in enhanced_context:
                     new_confidence = enhanced_context['confidence_score']
+                    
+            # Check if we need to apply Layer 7 AGI simulation (from Gatekeeper)
+            layer7_active = False
+            if self.agi_simulation_enabled and self.layer7_engine:
+                if 'layer_7' in gatekeeper_decision.get('layer_activations', {}):
+                    layer7_active = gatekeeper_decision['layer_activations']['layer_7'].get('activate', False)
+            
+            # Apply Layer 7 AGI simulation if activated
+            if layer7_active:
+                logging.info(f"[{datetime.now()}] Layer 7 AGI Simulation Engine activated for simulation {simulation_id}, pass {current_pass}")
+                agi_context = self._apply_layer7_agi_processing(context, simulation_id)
+                
+                # Update synthesis with AGI-enhanced content if available
+                if 'content' in agi_context and agi_context['content']:
+                    synthesis['content'] = agi_context['content']
+                
+                # Update synthesis with layer7 metadata
+                synthesis['layer7_applied'] = True
+                if 'layer7_processing_details' in agi_context:
+                    synthesis['layer7_processing_details'] = agi_context['layer7_processing_details']
+                    
+                # Record any emergent properties detected
+                if 'emergence_score' in agi_context:
+                    synthesis['emergence_score'] = agi_context['emergence_score']
+                
+                # Update confidence scores - note that AGI can reduce confidence
+                if 'confidence_score' in agi_context:
+                    new_confidence = agi_context['confidence_score']
                     old_confidence = overall_confidence
                     
                     if new_confidence > old_confidence:
