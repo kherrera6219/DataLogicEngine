@@ -7,7 +7,7 @@ This module defines database models for the UKG chat interface.
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, JSON
 from sqlalchemy.orm import relationship
-# We'll import the db instance from where it's used
+from backend.ukg_db import db
 
 class Conversation(db.Model):
     """Model for chat conversations in the UKG system."""

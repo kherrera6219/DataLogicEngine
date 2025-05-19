@@ -1,287 +1,101 @@
-
-import { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
+import dynamic from 'next/dynamic';
 import Layout from '../components/Layout';
-import HoneycombGraph from '../components/ui/HoneycombGraph';
-import { Card, Button, Input, Dropdown } from '../components/ui';
+import { Card, Button } from '../components/ui';
+
+// Import force-graph dynamically to avoid SSR issues
+const ForceGraph = dynamic(
+  () => import('force-graph'),
+  { ssr: false }
+);
 
 export default function HoneycombPage() {
-  const [sectors, setSectors] = useState([]);
-  const [pillars, setPillars] = useState([]);
-  const [selectedNodeId, setSelectedNodeId] = useState('');
-  const [selectedNodeType, setSelectedNodeType] = useState('sector');
-  const [honeycombData, setHoneycombData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [maxConnections, setMaxConnections] = useState(30);
+  const containerRef = useRef(null);
+  const [graphData, setGraphData] = useState({ nodes: [], links: [] });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch sectors and pillars on component mount
-    fetchSectors();
-    fetchPillars();
+    // Fetch graph data
+    fetch('/api/graph_stats')
+      .then(response => response.json())
+      .then(data => {
+        setGraphData(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching graph data:', error);
+        setLoading(false);
+      });
   }, []);
 
-  const fetchSectors = async () => {
-    try {
-      const response = await fetch('/api/sectors');
-      if (response.ok) {
-        const data = await response.json();
-        setSectors(data);
-      }
-    } catch (error) {
-      console.error('Error fetching sectors:', error);
-      setError('Failed to load sectors. Please try again.');
+  useEffect(() => {
+    // Initialize graph once data is loaded and component is mounted
+    if (!loading && containerRef.current && typeof window !== 'undefined') {
+      const Graph = ForceGraph();
+
+      Graph(containerRef.current)
+        .graphData(graphData)
+        .nodeLabel('label')
+        .nodeColor(node => node.color || '#1f77b4')
+        .linkColor(link => link.color || '#999')
+        .nodeRelSize(6)
+        .linkWidth(1.5)
+        .linkDirectionalArrowLength(3.5)
+        .linkDirectionalArrowRelPos(1)
+        .onNodeClick(node => {
+          // Handle node click
+          console.log('Clicked node:', node);
+        });
     }
-  };
-
-  const fetchPillars = async () => {
-    try {
-      const response = await fetch('/api/pillars');
-      if (response.ok) {
-        const data = await response.json();
-        setPillars(data);
-      }
-    } catch (error) {
-      console.error('Error fetching pillars:', error);
-      setError('Failed to load pillars. Please try again.');
-    }
-  };
-
-  const generateHoneycomb = async () => {
-    if (!selectedNodeId) {
-      setError('Please select a node first.');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch('/api/honeycomb/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          node_uid: selectedNodeId,
-          max_connections: parseInt(maxConnections)
-        })
-      });
-
-      const data = await response.json();
-      
-      if (response.ok && data.status === 'success') {
-        setHoneycombData(data);
-      } else {
-        setError(data.message || 'Failed to generate honeycomb. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error generating honeycomb:', error);
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const generateSectorCrosswalk = async () => {
-    if (!selectedNodeId) {
-      setError('Please select a sector first.');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch('/api/honeycomb/sector-crosswalk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sector_id: selectedNodeId
-        })
-      });
-
-      const data = await response.json();
-      
-      if (response.ok && data.status === 'success') {
-        setHoneycombData(data);
-      } else {
-        setError(data.message || 'Failed to generate sector crosswalk. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error generating sector crosswalk:', error);
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleNodeTypeChange = (e) => {
-    setSelectedNodeType(e.target.value);
-    setSelectedNodeId('');
-  };
+  }, [graphData, loading]);
 
   return (
     <Layout>
       <Head>
-        <title>Honeycomb System - UKG</title>
+        <title>UKG - Honeycomb Graph</title>
       </Head>
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6">Knowledge Honeycomb</h1>
 
-      <div className="container my-4">
-        <h1 className="mb-4">Honeycomb System</h1>
-        <p className="lead mb-4">
-          The Honeycomb System enables multi-directional crosswalking between industry sectors,
-          pillar levels, and other axes within the knowledge graph.
-        </p>
+        <Card className="mb-6 p-4">
+          <h2 className="text-xl font-semibold mb-3">Honeycomb Graph Visualization</h2>
+          <p className="mb-4">Explore the interconnected knowledge nodes in the Universal Knowledge Graph.</p>
 
-        <div className="row mb-4">
-          <div className="col-md-4">
-            <Card>
-              <Card.Header>
-                <Card.Title>Generate Honeycomb</Card.Title>
-              </Card.Header>
-              <Card.Body>
-                <div className="mb-3">
-                  <label className="form-label">Node Type</label>
-                  <select 
-                    className="form-select" 
-                    value={selectedNodeType} 
-                    onChange={handleNodeTypeChange}
-                  >
-                    <option value="sector">Sector</option>
-                    <option value="pillar">Pillar Level</option>
-                  </select>
-                </div>
+          {loading ? (
+            <div className="flex justify-center items-center h-96">
+              <p>Loading graph data...</p>
+            </div>
+          ) : (
+            <div 
+              ref={containerRef} 
+              className="w-full h-96 border rounded-lg"
+              style={{ background: '#f8f9fa' }}
+            />
+          )}
+        </Card>
 
-                <div className="mb-3">
-                  <label className="form-label">Select {selectedNodeType === 'sector' ? 'Sector' : 'Pillar Level'}</label>
-                  <select 
-                    className="form-select" 
-                    value={selectedNodeId} 
-                    onChange={(e) => setSelectedNodeId(e.target.value)}
-                  >
-                    <option value="">Select...</option>
-                    {selectedNodeType === 'sector' 
-                      ? sectors.map(sector => (
-                          <option key={sector.id} value={sector.uid}>
-                            {sector.name || sector.label}
-                          </option>
-                        ))
-                      : pillars.map(pillar => (
-                          <option key={pillar.id} value={pillar.uid}>
-                            {pillar.name || pillar.pillar_id}
-                          </option>
-                        ))
-                    }
-                  </select>
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label">Max Connections</label>
-                  <input 
-                    type="number" 
-                    className="form-control" 
-                    value={maxConnections} 
-                    onChange={(e) => setMaxConnections(e.target.value)}
-                    min="5"
-                    max="100"
-                  />
-                </div>
-
-                <div className="d-grid gap-2">
-                  <Button 
-                    onClick={generateHoneycomb} 
-                    disabled={loading || !selectedNodeId}
-                    className="btn btn-primary"
-                  >
-                    {loading ? 'Generating...' : 'Generate Honeycomb'}
-                  </Button>
-                  
-                  {selectedNodeType === 'sector' && (
-                    <Button 
-                      onClick={generateSectorCrosswalk} 
-                      disabled={loading || !selectedNodeId}
-                      className="btn btn-secondary"
-                    >
-                      {loading ? 'Processing...' : 'Generate Pillar Crosswalk'}
-                    </Button>
-                  )}
-                </div>
-
-                {error && (
-                  <div className="alert alert-danger mt-3">
-                    {error}
-                  </div>
-                )}
-              </Card.Body>
-            </Card>
-
-            {honeycombData && (
-              <Card className="mt-3">
-                <Card.Header>
-                  <Card.Title>Honeycomb Stats</Card.Title>
-                </Card.Header>
-                <Card.Body>
-                  <p><strong>Center Node:</strong> {honeycombData.center_node?.name || honeycombData.sector?.name}</p>
-                  <p><strong>Connections:</strong> {honeycombData.connection_count}</p>
-                  <p><strong>Status:</strong> {honeycombData.status}</p>
-                </Card.Body>
-              </Card>
-            )}
+        <Card className="p-4">
+          <h2 className="text-xl font-semibold mb-3">Graph Statistics</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h3 className="text-lg font-medium mb-2">Nodes</h3>
+              <p className="text-2xl font-bold">{graphData.nodes ? graphData.nodes.length : 0}</p>
+            </div>
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h3 className="text-lg font-medium mb-2">Connections</h3>
+              <p className="text-2xl font-bold">{graphData.links ? graphData.links.length : 0}</p>
+            </div>
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <h3 className="text-lg font-medium mb-2">Density</h3>
+              <p className="text-2xl font-bold">
+                {graphData.nodes && graphData.nodes.length > 0 
+                  ? ((graphData.links ? graphData.links.length : 0) / graphData.nodes.length).toFixed(2) 
+                  : '0'}
+              </p>
+            </div>
           </div>
-
-          <div className="col-md-8">
-            <Card>
-              <Card.Header>
-                <Card.Title>Honeycomb Visualization</Card.Title>
-              </Card.Header>
-              <Card.Body>
-                <div className="honeycomb-visualization">
-                  <HoneycombGraph 
-                    data={honeycombData} 
-                    centerNodeId={selectedNodeId}
-                    width={700} 
-                    height={500} 
-                  />
-                </div>
-              </Card.Body>
-            </Card>
-          </div>
-        </div>
-
-        {honeycombData && honeycombData.connections_created && honeycombData.connections_created.length > 0 && (
-          <Card className="mt-4">
-            <Card.Header>
-              <Card.Title>Connection Details</Card.Title>
-            </Card.Header>
-            <Card.Body>
-              <div className="table-responsive">
-                <table className="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Target Node</th>
-                      <th>Axis</th>
-                      <th>Connection Type</th>
-                      <th>Strength</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {honeycombData.connections_created.map((conn, index) => (
-                      <tr key={index}>
-                        <td>
-                          {conn.target?.name || conn.target?.label || 
-                           conn.pillar?.name || conn.pillar?.pillar_id || 
-                           conn.sublevel?.name || conn.sublevel?.id || 'Unknown'}
-                        </td>
-                        <td>{conn.axis || conn.target?.axis_number || 'N/A'}</td>
-                        <td>{conn.connection_type}</td>
-                        <td>{typeof conn.strength === 'number' ? conn.strength.toFixed(2) : 'N/A'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card.Body>
-          </Card>
-        )}
+        </Card>
       </div>
     </Layout>
   );
