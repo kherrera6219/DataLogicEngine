@@ -8,7 +8,7 @@ following Microsoft enterprise standards for security and integration.
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file if present
+# Load environment variables from .env file
 load_dotenv()
 
 class Config:
@@ -36,7 +36,7 @@ class Config:
         "pool_recycle": 300,
     }
     
-    # UKG simulation settings
+    # UKG specific settings
     DEFAULT_CONFIDENCE_THRESHOLD = 0.85
     MAX_SIMULATION_LAYERS = 7
     DEFAULT_REFINEMENT_STEPS = 12
@@ -46,21 +46,21 @@ class Config:
     RECURSIVE_PROCESSING_ENABLED = True
     MAX_RECURSION_DEPTH = 8
     
-    # Microsoft Enterprise integration settings
+    # Azure AD/Entra ID Integration
     AZURE_AD_TENANT_ID = os.environ.get("AZURE_AD_TENANT_ID")
     AZURE_AD_CLIENT_ID = os.environ.get("AZURE_AD_CLIENT_ID")
     AZURE_AD_CLIENT_SECRET = os.environ.get("AZURE_AD_CLIENT_SECRET")
     
-    # Azure OpenAI settings
+    # Azure OpenAI Integration
     AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
     AZURE_OPENAI_API_KEY = os.environ.get("AZURE_OPENAI_API_KEY")
     AZURE_OPENAI_DEPLOYMENT = os.environ.get("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
     
-    # Azure Storage settings
+    # Azure Storage
     AZURE_STORAGE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
     AZURE_STORAGE_CONTAINER = os.environ.get("AZURE_STORAGE_CONTAINER", "ukg-media")
     
-    # Logging settings
+    # Logging
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
     LOG_FILE = os.environ.get("LOG_FILE", "ukg_system.log")
     LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -77,7 +77,7 @@ class DevelopmentConfig(Config):
     SESSION_COOKIE_SECURE = False
     REMEMBER_COOKIE_SECURE = False
     
-    # Override for development
+    # Simplified UKG settings for development
     MAX_SIMULATION_LAYERS = 5
     QUANTUM_SIMULATION_ENABLED = False
     LOG_LEVEL = "DEBUG"
@@ -90,7 +90,7 @@ class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     
-    # For testing purposes
+    # Simplified UKG settings for testing
     MAX_SIMULATION_LAYERS = 3
     DEFAULT_REFINEMENT_STEPS = 3
     JWT_ACCESS_TOKEN_EXPIRES = 300  # 5 minutes
@@ -102,28 +102,26 @@ class ProductionConfig(Config):
     DEBUG = False
     TESTING = False
     
-    # Force secure settings
+    # Enforce secure settings
     SESSION_COOKIE_SECURE = True
     REMEMBER_COOKIE_SECURE = True
     
-    # More strict settings for production
+    # Production settings
     JWT_ACCESS_TOKEN_EXPIRES = 30 * 60  # 30 minutes
     
-    # Enable advanced features in production
+    # Full UKG capabilities
     QUANTUM_SIMULATION_ENABLED = True
     RECURSIVE_PROCESSING_ENABLED = True
     DEFAULT_CONFIDENCE_THRESHOLD = 0.90
 
 
-# Configuration mapping
-config_by_name = {
-    "development": DevelopmentConfig,
-    "testing": TestingConfig,
-    "production": ProductionConfig
-}
-
-# Get current configuration
 def get_config():
     """Get the current configuration based on environment."""
     env = os.environ.get("FLASK_ENV", "development")
-    return config_by_name.get(env, DevelopmentConfig)
+    
+    if env == "production":
+        return ProductionConfig()
+    elif env == "testing":
+        return TestingConfig()
+    else:
+        return DevelopmentConfig()
