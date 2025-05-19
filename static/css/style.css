@@ -1,104 +1,105 @@
-/* 
-   Universal Knowledge Graph (UKG) System
-   Core Stylesheet
-*/
+/* Universal Knowledge Graph System - Main Styles */
 
-/* Base Elements */
+/* Global Styles */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    color: #333;
     background-color: #f8f9fa;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    margin-bottom: 1rem;
-    font-weight: 600;
+.sidebar {
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    padding-top: 20px;
 }
 
-/* Custom Classes */
-.ukg-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
+.sidebar-heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
 }
 
-.knowledge-card {
-    border-radius: 10px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    margin-bottom: 2rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+.conversation-list {
+    max-height: 50vh;
+    overflow-y: auto;
 }
 
-.knowledge-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.knowledge-card .card-header {
-    font-weight: bold;
-    padding: 1rem 1.5rem;
-}
-
-.knowledge-card .card-body {
-    padding: 1.5rem;
-}
-
-/* Axis-specific colors */
-.axis-1 { background-color: #4287f5; color: white; }
-.axis-2 { background-color: #42f57e; }
-.axis-3 { background-color: #f5a742; }
-.axis-4 { background-color: #42d7f5; }
-.axis-5 { background-color: #f54242; color: white; }
-.axis-6 { background-color: #8442f5; color: white; }
-.axis-7 { background-color: #f542b3; color: white; }
-.axis-8 { background-color: #42f5c5; }
-.axis-9 { background-color: #f5e642; }
-.axis-10 { background-color: #f58642; }
-.axis-11 { background-color: #42f542; }
-.axis-12 { background-color: #f54275; color: white; }
-.axis-13 { background-color: #7642f5; color: white; }
-
-/* Simulation Page Specific Styles */
-.simulation-canvas {
-    width: 100%;
-    height: 500px;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.step-controls {
-    margin-bottom: 20px;
-}
-
-.node {
+.conversation-item {
+    padding: 0.5rem 1rem;
+    margin: 0.25rem 0;
+    border-radius: 6px;
+    transition: all 0.2s;
     cursor: pointer;
 }
 
-.link {
-    stroke: #999;
-    stroke-opacity: 0.6;
+.conversation-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
-.axis-1-node { fill: #4287f5; }
-.axis-2-node { fill: #42f57e; }
-.axis-3-node { fill: #f5a742; }
+.sidebar-footer {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    padding-right: 1rem;
+}
 
-.pillar-to-sector { stroke: #4287f5; }
-.domain-to-pillar { stroke: #f5a742; }
-.has-domain { stroke: #42f57e; }
-.has-sublevel { stroke: #bbbbbb; }
+/* Chat Interface */
+.message pre {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .knowledge-card {
-        margin-bottom: 1rem;
+.message code {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #f0f0f0;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+.message h1, .message h2, .message h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.message ul, .message ol {
+    padding-left: 1.5rem;
+}
+
+.message table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+.message th, .message td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.message th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #f8f9fa;
+}
+
+/* Responsive Styles */
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: static;
+        height: auto;
     }
     
-    .simulation-canvas {
-        height: 300px;
+    .sidebar-footer {
+        position: static;
+        margin-top: 1rem;
+    }
+    
+    .chat-container {
+        height: calc(100vh - 200px) !important;
     }
 }

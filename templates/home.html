@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block title %}UKG - Universal Knowledge Graph Chat{% endblock %}
+
+{% block additional_head %}
+<style>
+    .chat-container {
+        height: calc(100vh - 120px);
+        display: flex;
+        flex-direction: column;
+    }
+    .messages-container {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 1rem;
+    }
+    .message {
+        margin-bottom: 1.5rem;
+        max-width: 80%;
+    }
+    .message.user {
+        margin-left: auto;
+        background-color: #e9f5ff;
+        border-radius: 18px 18px 0 18px;
+    }
+    .message.system {
+        margin-right: auto;
+        background-color: #f0f0f0;
+        border-radius: 18px 18px 18px 0;
+    }
+    .message-header {
+        font-weight: bold;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 1rem 0 1rem;
+    }
+    .message-content {
+        padding: 0 1rem 1rem 1rem;
+    }
+    .input-container {
+        position: sticky;
+        bottom: 0;
+        background: #fff;
+        padding: 1rem;
+        border-top: 1px solid #eee;
+    }
+    .welcome-container {
+        text-align: center;
+        padding: 2rem;
+    }
+    .axis-selector {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    .axis-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: #f0f2f5;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .axis-btn:hover {
+        background: #e4e6e8;
+    }
+    .axis-btn.active {
+        background: #007bff;
+        color: white;
+    }
+    .persona-selector {
+        margin-top: 2rem;
+    }
+    .persona-cards {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+    .persona-card {
+        width: 200px;
+        padding: 1rem;
+        border-radius: 12px;
+        background: #f8f9fa;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
+    .persona-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .persona-card.active {
+        border: 2px solid #007bff;
+    }
+    .persona-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="messages-container" id="messages">
+        <!-- Initial welcome message -->
+        <div class="welcome-container" id="welcome-screen">
+            <h1>Welcome to the Universal Knowledge Graph</h1>
+            <p class="lead">Explore the 13-axis system and interact with our quad persona framework</p>
+            
+            <div class="axis-selector mt-4">
+                <h4 class="w-100 text-center mb-3">Select an axis to focus on:</h4>
+                <div class="axis-btn" data-axis="1">
+                    <i class="bi bi-lightbulb"></i> Knowledge
+                </div>
+                <div class="axis-btn" data-axis="2">
+                    <i class="bi bi-grid-3x3"></i> Sector
+                </div>
+                <div class="axis-btn" data-axis="3">
+                    <i class="bi bi-folder"></i> Domain
+                </div>
+                <div class="axis-btn" data-axis="4">
+                    <i class="bi bi-people"></i> Context
+                </div>
+                <div class="axis-btn" data-axis="5">
+                    <i class="bi bi-clock-history"></i> Temporal
+                </div>
+                <div class="axis-btn" data-axis="12">
+                    <i class="bi bi-geo-alt"></i> Location
+                </div>
+                <div class="axis-btn" data-axis="13">
+                    <i class="bi bi-stars"></i> Meta
+                </div>
+            </div>
+            
+            <div class="persona-selector">
+                <h4>Choose a persona lens:</h4>
+                <div class="persona-cards">
+                    <div class="persona-card" data-persona="explorer">
+                        <div class="persona-icon"><i class="bi bi-compass"></i></div>
+                        <h5>Explorer</h5>
+                        <p>Discovers new connections and possibilities</p>
+                    </div>
+                    <div class="persona-card" data-persona="analyst">
+                        <div class="persona-icon"><i class="bi bi-graph-up"></i></div>
+                        <h5>Analyst</h5>
+                        <p>Examines patterns and draws conclusions</p>
+                    </div>
+                    <div class="persona-card" data-persona="critic">
+                        <div class="persona-icon"><i class="bi bi-eye"></i></div>
+                        <h5>Critic</h5>
+                        <p>Identifies limitations and challenges</p>
+                    </div>
+                    <div class="persona-card" data-persona="synthesizer">
+                        <div class="persona-icon"><i class="bi bi-intersect"></i></div>
+                        <h5>Synthesizer</h5>
+                        <p>Integrates diverse perspectives</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Messages will appear here -->
+    </div>
+    
+    <div class="input-container">
+        <form id="chat-form" class="d-flex align-items-end">
+            <div class="flex-grow-1 me-2">
+                <textarea id="message-input" class="form-control" rows="2" placeholder="Ask a question about any knowledge domain..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-send"></i> Send
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const messagesContainer = document.getElementById('messages');
+        const messageInput = document.getElementById('message-input');
+        const chatForm = document.getElementById('chat-form');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        
+        // Current selections
+        let selectedAxis = null;
+        let selectedPersona = null;
+        
+        // Handle axis selection
+        document.querySelectorAll('.axis-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.axis-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedAxis = this.dataset.axis;
+            });
+        });
+        
+        // Handle persona selection
+        document.querySelectorAll('.persona-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.persona-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                selectedPersona = this.dataset.persona;
+            });
+        });
+        
+        // Handle form submission
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (message) {
+                // Hide welcome screen if visible
+                if (welcomeScreen.style.display !== 'none') {
+                    welcomeScreen.style.display = 'none';
+                }
+                
+                // Add user message
+                addMessage('You', message, 'user');
+                
+                // Clear input
+                messageInput.value = '';
+                
+                // Process message
+                processMessage(message);
+            }
+        });
+        
+        // Add a message to the chat
+        function addMessage(sender, content, type = 'system') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type} p-3`;
+            
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'message-header';
+            headerDiv.textContent = sender;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            // If content is markdown, render it
+            if (type === 'system') {
+                contentDiv.innerHTML = marked.parse(content);
+            } else {
+                contentDiv.textContent = content;
+            }
+            
+            messageDiv.appendChild(headerDiv);
+            messageDiv.appendChild(contentDiv);
+            
+            messagesContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Process user message and get response
+        function processMessage(message) {
+            // Show thinking indicator
+            addMessage('UKG System', '*Processing your request...*', 'system');
+            
+            // Call API with message, selected axis and persona
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    axis: selectedAxis,
+                    persona: selectedPersona
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove thinking indicator (last message)
+                messagesContainer.removeChild(messagesContainer.lastChild);
+                
+                // Add system response
+                if (data.success) {
+                    addMessage('UKG System', data.response, 'system');
+                } else {
+                    addMessage('UKG System', 'Sorry, I encountered an error: ' + data.error, 'system');
+                }
+            })
+            .catch(error => {
+                // Remove thinking indicator (last message)
+                messagesContainer.removeChild(messagesContainer.lastChild);
+                
+                // Add error message
+                addMessage('UKG System', 'Sorry, there was an error processing your request. Please try again.', 'system');
+                console.error('Error:', error);
+            });
+        }
+    });
+</script>
+{% endblock %}

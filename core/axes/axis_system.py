@@ -1,164 +1,167 @@
 """
-Universal Knowledge Graph (UKG) System - Complete 13-Axis System
+Universal Knowledge Graph (UKG) System - Axis System
 
-This module defines the comprehensive 13-axis system for the UKG system,
-providing a unified framework for knowledge organization and navigation.
+This module provides the core functionality for the 13-axis system,
+coordinating access to different dimensions of knowledge.
 """
 
-import os
 import logging
-import uuid
-from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, Any, Optional, List
 
+# Import axis handlers
+try:
+    from core.axes.axis1_knowledge import KnowledgeAxis
+except ImportError:
+    KnowledgeAxis = None
+
+try:
+    from core.axes.axis12_location import LocationAxis
+except ImportError:
+    LocationAxis = None
+
+# Set up logging
 logger = logging.getLogger(__name__)
 
 class AxisSystem:
-    """Complete 13-Axis System for the Universal Knowledge Graph."""
+    """Manages the 13-axis system for the UKG."""
     
     def __init__(self):
-        """Initialize the 13-axis system."""
-        self.axes = {
-            1: {"name": "Knowledge", "description": "The core knowledge axis (Pillar Levels 1-100)"},
-            2: {"name": "Sector", "description": "Division of knowledge by economic/social sectors"},
-            3: {"name": "Domain", "description": "Specialized domains within sectors"},
-            4: {"name": "Application", "description": "Practical applications of knowledge"},
-            5: {"name": "Temporal", "description": "Time-based relationships and historical context"},
-            6: {"name": "Process", "description": "Processes, methodologies, and workflows"},
-            7: {"name": "Cultural", "description": "Cultural context and influence on knowledge"},
-            8: {"name": "Contextual", "description": "Context-specific adaptations of knowledge"},
-            9: {"name": "Ethical", "description": "Ethical considerations and principles"},
-            10: {"name": "Stakeholder", "description": "Entities with interest or influence"},
-            11: {"name": "Cognitive", "description": "Cognitive aspects of knowledge processing"},
-            12: {"name": "Location", "description": "Spatial and geographical context"},
-            13: {"name": "Integration", "description": "Integration across other axes"}
-        }
-        self.axis_handlers = {}
-        self._initialize_axis_handlers()
+        """Initialize the axis system."""
+        self.axes = {}
+        self._initialize_axes()
         
-    def _initialize_axis_handlers(self):
-        """Initialize handlers for each axis."""
-        # We'll load these dynamically in a full implementation
-        from core.axes.axis1_knowledge import KnowledgeAxis
-        from core.axes.axis2_sector import SectorAxis
-        from core.axes.axis3_domain import DomainAxis
-        from core.axes.axis12_location import LocationAxis
+    def _initialize_axes(self):
+        """Initialize available axes."""
+        # Add Axis 1: Knowledge
+        if KnowledgeAxis:
+            self.axes[1] = KnowledgeAxis()
+            logger.info("Initialized Axis 1: Knowledge")
         
-        self.axis_handlers[1] = KnowledgeAxis()
-        self.axis_handlers[2] = SectorAxis()
-        self.axis_handlers[3] = DomainAxis()
-        # Additional axis handlers would be initialized here
-        self.axis_handlers[12] = LocationAxis()
+        # Add Axis 12: Location
+        if LocationAxis:
+            self.axes[12] = LocationAxis()
+            logger.info("Initialized Axis 12: Location")
+        
+        # Add other axes as they become available
     
-    def get_axis_definition(self, axis_number: int) -> Dict[str, Any]:
-        """Get the definition of a specific axis."""
-        if axis_number not in self.axes:
-            raise ValueError(f"Invalid axis number: {axis_number}")
-        return self.axes[axis_number]
+    def get_axis(self, axis_id: int):
+        """Get a specific axis by its ID."""
+        if axis_id in self.axes:
+            return self.axes[axis_id]
+        return None
     
-    def get_all_axis_definitions(self) -> Dict[int, Dict[str, Any]]:
-        """Get definitions for all axes."""
+    def get_all_axes(self) -> Dict[int, Any]:
+        """Get all available axes."""
         return self.axes
     
-    def navigate_axis(self, axis_number: int, **kwargs) -> Dict[str, Any]:
-        """Navigate a specific axis based on provided parameters."""
-        if axis_number not in self.axis_handlers:
-            raise ValueError(f"No handler available for axis {axis_number}")
+    def process_query(self, query: str, axis_id: Optional[int] = None) -> Dict[str, Any]:
+        """
+        Process a query through the axis system.
         
-        handler = self.axis_handlers[axis_number]
-        return handler.navigate(**kwargs)
-    
-    def cross_axis_navigation(self, primary_axis: int, secondary_axis: int, 
-                             primary_params: Dict[str, Any], 
-                             secondary_params: Dict[str, Any]) -> Dict[str, Any]:
-        """Navigate across two axes to find intersectional knowledge."""
-        if primary_axis not in self.axis_handlers or secondary_axis not in self.axis_handlers:
-            raise ValueError("One or both axes don't have active handlers")
-        
-        primary_handler = self.axis_handlers[primary_axis]
-        secondary_handler = self.axis_handlers[secondary_axis]
-        
-        # Get results from both axes
-        primary_results = primary_handler.navigate(**primary_params)
-        secondary_results = secondary_handler.navigate(**secondary_params)
-        
-        # Find intersection points (this would be implemented based on specific axis types)
-        intersection = self._find_intersection(primary_results, secondary_results)
-        
-        return {
-            "primary_axis": primary_axis,
-            "secondary_axis": secondary_axis,
-            "primary_results": primary_results,
-            "secondary_results": secondary_results,
-            "intersection": intersection
-        }
-    
-    def _find_intersection(self, primary_results: Dict[str, Any], 
-                          secondary_results: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Find intersection points between two sets of axis results."""
-        # This would contain the logic to find meaningful intersections
-        # between different axis results, based on common ids, tags, or other criteria
-        intersection = []
-        
-        # Simple example: look for common node IDs
-        primary_nodes = primary_results.get("nodes", [])
-        secondary_nodes = secondary_results.get("nodes", [])
-        
-        primary_ids = {node.get("id") for node in primary_nodes if "id" in node}
-        secondary_ids = {node.get("id") for node in secondary_nodes if "id" in node}
-        
-        common_ids = primary_ids.intersection(secondary_ids)
-        
-        # Gather the full node details for the common IDs
-        for node_id in common_ids:
-            for node in primary_nodes:
-                if node.get("id") == node_id:
-                    intersection.append({
-                        "node": node,
-                        "source": "intersection"
-                    })
-        
-        return intersection
-    
-    def multi_axis_query(self, query_params: Dict[int, Dict[str, Any]]) -> Dict[str, Any]:
-        """Execute a query across multiple axes simultaneously."""
+        Args:
+            query: The query to process
+            axis_id: Optional specific axis to use
+            
+        Returns:
+            Dict containing the processing results
+        """
         results = {}
-        intersections = []
         
-        # Execute navigation on each axis
-        for axis_number, params in query_params.items():
-            if axis_number in self.axis_handlers:
-                try:
-                    results[axis_number] = self.navigate_axis(axis_number, **params)
-                except Exception as e:
-                    logger.error(f"Error navigating axis {axis_number}: {str(e)}")
-                    results[axis_number] = {"error": str(e)}
-            else:
-                results[axis_number] = {"error": f"No handler for axis {axis_number}"}
+        # If specific axis requested
+        if axis_id and axis_id in self.axes:
+            axis = self.axes[axis_id]
+            results[f"axis_{axis_id}"] = axis.process_query(query)
+            return results
         
-        # Find multi-dimensional intersections
-        # This would use more sophisticated algorithms in a full implementation
-        if len(query_params) > 1:
-            axis_numbers = list(query_params.keys())
-            for i in range(len(axis_numbers)):
-                for j in range(i + 1, len(axis_numbers)):
+        # Otherwise, process through all available axes
+        for axis_id, axis in self.axes.items():
+            try:
+                results[f"axis_{axis_id}"] = axis.process_query(query)
+            except Exception as e:
+                logger.error(f"Error processing query through Axis {axis_id}: {str(e)}")
+                results[f"axis_{axis_id}"] = f"Error: {str(e)}"
+        
+        return results
+    
+    def get_related_knowledge(self, node_id: Any, across_axes: bool = False) -> Dict[str, Any]:
+        """
+        Get knowledge related to a specific node.
+        
+        Args:
+            node_id: ID of the node to find related knowledge for
+            across_axes: Whether to search across all axes
+            
+        Returns:
+            Dict containing related knowledge
+        """
+        results = {}
+        
+        # Start with knowledge axis as primary
+        if 1 in self.axes:
+            results["primary"] = self.axes[1].get_related_knowledge(node_id)
+        
+        # If searching across axes, include others
+        if across_axes:
+            for axis_id, axis in self.axes.items():
+                if axis_id != 1:  # Skip knowledge axis as it's already included
                     try:
-                        axis1 = axis_numbers[i]
-                        axis2 = axis_numbers[j]
-                        if axis1 in results and axis2 in results:
-                            intersection = self._find_intersection(
-                                results[axis1], 
-                                results[axis2]
-                            )
-                            intersections.append({
-                                "axes": [axis1, axis2],
-                                "intersection": intersection
-                            })
+                        results[f"axis_{axis_id}"] = axis.get_related_knowledge(node_id)
                     except Exception as e:
-                        logger.error(f"Error finding intersection between axes {axis1} and {axis2}: {str(e)}")
+                        logger.error(f"Error getting related knowledge from Axis {axis_id}: {str(e)}")
         
+        return results
+    
+    def coordinate_axis_interaction(self, source_axis_id: int, target_axis_id: int, 
+                                   query: str) -> Dict[str, Any]:
+        """
+        Coordinate interaction between two axes.
+        
+        Args:
+            source_axis_id: ID of the source axis
+            target_axis_id: ID of the target axis
+            query: The query to process
+            
+        Returns:
+            Dict containing the interaction results
+        """
+        if source_axis_id not in self.axes or target_axis_id not in self.axes:
+            return {"error": f"One or both axes ({source_axis_id}, {target_axis_id}) not available"}
+        
+        try:
+            source_axis = self.axes[source_axis_id]
+            target_axis = self.axes[target_axis_id]
+            
+            # Process query in source axis
+            source_result = source_axis.process_query(query)
+            
+            # Use source results to query target axis
+            target_result = target_axis.process_external_query(source_result)
+            
+            return {
+                "source": source_result,
+                "target": target_result,
+                "integrated": self._integrate_results(source_result, target_result)
+            }
+        except Exception as e:
+            logger.error(f"Error coordinating axis interaction: {str(e)}")
+            return {"error": str(e)}
+    
+    def _integrate_results(self, source_result: Any, target_result: Any) -> Dict[str, Any]:
+        """
+        Integrate results from multiple axes.
+        
+        Args:
+            source_result: Result from source axis
+            target_result: Result from target axis
+            
+        Returns:
+            Dict containing integrated results
+        """
+        # Simple integration for now - can be enhanced with more sophisticated algorithms
         return {
-            "query_params": query_params,
-            "results": results,
-            "intersections": intersections
+            "combined_knowledge": {
+                "source": source_result,
+                "target": target_result
+            },
+            "summary": "Integrated view across multiple knowledge axes"
         }

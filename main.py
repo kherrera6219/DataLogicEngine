@@ -36,6 +36,10 @@ register_api(app)
 # Register Persona API
 register_persona_api(app)
 
+# Register Chat API
+from backend.chat_api import register_chat_api
+register_chat_api(app)
+
 # Configure port for the application
 port = int(os.environ.get("PORT", 8080))
 
