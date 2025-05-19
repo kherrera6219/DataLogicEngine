@@ -1,284 +1,245 @@
 import json
 import os
-from datetime import datetime
-import logging
 import uuid
+import logging
+from datetime import datetime
+from typing import Dict, List, Any, Optional
 
 class StructuredMemoryManager:
     """
-    The StructuredMemoryManager (SMM) manages the Universal Simulated Knowledge Database (USKD).
-    It provides methods to store, retrieve, and query simulation states, KA outputs, and other
-    information needed by the UKG system.
+    Manages the Universal Simulated Knowledge Database (USKD).
+    Provides methods to store and retrieve structured memory entries by session, pass,
+    layer, UID, and more.
     """
-    
+
     def __init__(self, config):
         """
-        Initialize the StructuredMemoryManager.
-        
+        Initialize the Structured Memory Manager.
+
         Args:
-            config (dict): Configuration dictionary
+            config: Application configuration
         """
         self.config = config
-        self.memory_file_path = config.get('memory_file_path', 'data/memory_store.json')
-        
-        # Ensure memory directory exists
-        os.makedirs(os.path.dirname(self.memory_file_path), exist_ok=True)
-        
+        self.logger = logging.getLogger(__name__)
+
+        # Define memory store file path
+        self.memory_store_path = os.path.join(config.DATA_DIR, 'memory_store.json')
+
         # Initialize or load memory store
-        if os.path.exists(self.memory_file_path):
-            try:
-                with open(self.memory_file_path, 'r') as f:
-                    self.memory_store = json.load(f)
-                logging.info(f"[{datetime.now()}] SMM: Loaded memory store from {self.memory_file_path}")
-            except Exception as e:
-                logging.error(f"[{datetime.now()}] SMM: Error loading memory store: {str(e)}")
-                self.memory_store = {'entries': []}
-        else:
-            self.memory_store = {'entries': []}
-            logging.info(f"[{datetime.now()}] SMM: Initialized new memory store")
-        
-        self._save_memory_store()  # Ensure it's saved initially
-    
-    def add_memory_entry(self, session_id, entry_type, content, pass_num=0, layer_num=0, uid=None, confidence=1.0):
+        self.memory_store = self._load_memory_store()
+
+        self.logger.info(f"StructuredMemoryManager initialized with {len(self.memory_store)} entries")
+
+    def _load_memory_store(self) -> List[Dict]:
         """
-        Add a new entry to the memory store.
-        
-        Args:
-            session_id (str): ID of the session this entry belongs to
-            entry_type (str): Type of entry (e.g., 'ka_output', 'simulation_state')
-            content (dict): The content to store
-            pass_num (int): Pass number within the session
-            layer_num (int): Layer number
-            uid (str, optional): Optional UID for the entry
-            confidence (float): Confidence score for this entry
-            
+        Load the memory store from the JSON file.
+
         Returns:
-            str: The UID of the created entry
+            List of memory entries
+        """
+        if os.path.exists(self.memory_store_path):
+            try:
+                with open(self.memory_store_path, 'r', encoding='utf-8') as f:
+                    memory_store = json.load(f)
+                self.logger.info(f"Loaded memory store from {self.memory_store_path}")
+                return memory_store
+            except Exception as e:
+                self.logger.error(f"Error loading memory store: {str(e)}")
+                return []
+        else:
+            self.logger.info(f"Memory store file not found, initializing empty store")
+            return []
+
+    def _save_memory_store(self):
+        """
+        Save the memory store to the JSON file.
+        """
+        try:
+            with open(self.memory_store_path, 'w', encoding='utf-8') as f:
+                json.dump(self.memory_store, f, indent=2)
+            self.logger.info(f"Saved memory store to {self.memory_store_path}")
+        except Exception as e:
+            self.logger.error(f"Error saving memory store: {str(e)}")
+
+    def add_memory_entry(self, session_id: str, pass_num: int, layer_num: int, 
+                      entry_type: str, content: Dict, confidence: float = 1.0,
+                      uid: Optional[str] = None) -> Dict:
+        """
+        Add a new entry to the structured memory.
+
+        Args:
+            session_id: ID of the session
+            pass_num: Simulation pass number
+            layer_num: Simulation layer number
+            entry_type: Type of memory entry
+            content: Memory entry content (any JSON-serializable object)
+            confidence: Confidence score (default: 1.0)
+            uid: Optional unique identifier (auto-generated if None)
+
+        Returns:
+            The added memory entry
         """
         if uid is None:
-            uid = str(uuid.uuid4())
-        
+            uid = f"mem_{str(uuid.uuid4())}"
+
+        entry_id = str(uuid.uuid4())
         timestamp = datetime.now().isoformat()
-        
-        entry = {
-            'uid': uid,
-            'session_id': session_id,
-            'pass_num': pass_num,
-            'layer_num': layer_num,
-            'entry_type': entry_type,
-            'timestamp': timestamp,
-            'confidence': confidence,
-            'content': content
+
+        memory_entry = {
+            "id": entry_id,
+            "uid": uid,
+            "session_id": session_id,
+            "pass_num": pass_num,
+            "layer_num": layer_num,
+            "entry_type": entry_type,
+            "content": content,
+            "confidence": confidence,
+            "created_at": timestamp
         }
-        
-        self.memory_store['entries'].append(entry)
+
+        self.memory_store.append(memory_entry)
         self._save_memory_store()
-        
-        logging.debug(f"[{datetime.now()}] SMM: Added memory entry {uid[:8]}... for session {session_id[:8]}..., type: {entry_type}")
-        
-        return uid
-    
-    def get_memory_entry(self, uid):
+
+        self.logger.info(f"Added memory entry: session={session_id}, pass={pass_num}, layer={layer_num}, type={entry_type}")
+
+        return memory_entry
+
+    def query_memory(self, session_id: Optional[str] = None, pass_num: Optional[int] = None,
+                  layer_num: Optional[int] = None, uid: Optional[str] = None,
+                  entry_type: Optional[str] = None, limit: int = 100) -> List[Dict]:
         """
-        Get a memory entry by its UID.
-        
+        Query memory entries by various filters.
+
         Args:
-            uid (str): The UID of the entry to retrieve
-            
+            session_id: Optional session ID filter
+            pass_num: Optional pass number filter
+            layer_num: Optional layer number filter
+            uid: Optional UID filter
+            entry_type: Optional entry type filter
+            limit: Maximum number of entries to return
+
         Returns:
-            dict: The entry or None if not found
+            List of matching memory entries
         """
-        for entry in self.memory_store['entries']:
-            if entry['uid'] == uid:
-                return entry
-        return None
-    
-    def get_session_entries(self, session_id, entry_type=None, max_entries=None):
-        """
-        Get all entries for a session, optionally filtered by type.
-        
-        Args:
-            session_id (str): The session ID
-            entry_type (str, optional): Filter by entry type
-            max_entries (int, optional): Maximum number of entries to return
-            
-        Returns:
-            list: List of matching entries
-        """
-        entries = []
-        for entry in self.memory_store['entries']:
-            if entry['session_id'] == session_id:
-                if entry_type is None or entry['entry_type'] == entry_type:
-                    entries.append(entry)
-        
-        # Sort by timestamp (newest first)
-        entries.sort(key=lambda x: x['timestamp'], reverse=True)
-        
-        if max_entries is not None:
-            entries = entries[:max_entries]
-        
-        return entries
-    
-    def query_memory(self, filters=None, order_by=None, limit=None):
-        """
-        Query the memory store with complex filters.
-        
-        Args:
-            filters (dict, optional): Dictionary of filters to apply
-            order_by (str, optional): Field to order by
-            limit (int, optional): Maximum number of entries to return
-            
-        Returns:
-            list: List of matching entries
-        """
-        if filters is None:
-            filters = {}
-        
         results = []
-        
-        for entry in self.memory_store['entries']:
+
+        for entry in self.memory_store:
+            # Check if entry matches all provided filters
             match = True
-            
-            for key, value in filters.items():
-                if key not in entry:
-                    match = False
-                    break
-                
-                if entry[key] != value:
-                    match = False
-                    break
-            
+
+            if session_id is not None and entry.get("session_id") != session_id:
+                match = False
+
+            if pass_num is not None and entry.get("pass_num") != pass_num:
+                match = False
+
+            if layer_num is not None and entry.get("layer_num") != layer_num:
+                match = False
+
+            if uid is not None and entry.get("uid") != uid:
+                match = False
+
+            if entry_type is not None and entry.get("entry_type") != entry_type:
+                match = False
+
             if match:
                 results.append(entry)
-        
-        # Apply ordering if specified
-        if order_by:
-            reverse = False
-            if order_by.startswith('-'):
-                reverse = True
-                order_by = order_by[1:]
-            
-            results.sort(key=lambda x: x.get(order_by, ''), reverse=reverse)
-        
-        # Apply limit if specified
-        if limit is not None:
-            results = results[:limit]
-        
+
+            if len(results) >= limit:
+                break
+
         return results
-    
-    def update_memory_entry(self, uid, updates):
+
+    def get_memory_by_id(self, entry_id: str) -> Optional[Dict]:
         """
-        Update an existing memory entry.
-        
+        Get a memory entry by its ID.
+
         Args:
-            uid (str): The UID of the entry to update
-            updates (dict): Dictionary of updates to apply
-            
+            entry_id: The memory entry ID
+
         Returns:
-            bool: True if updated successfully, False otherwise
+            The memory entry or None if not found
         """
-        for i, entry in enumerate(self.memory_store['entries']):
-            if entry['uid'] == uid:
-                # Update the entry
-                for key, value in updates.items():
-                    if key == 'uid':  # Don't allow changing the UID
-                        continue
-                    entry[key] = value
-                
-                self.memory_store['entries'][i] = entry
-                self._save_memory_store()
-                
-                logging.debug(f"[{datetime.now()}] SMM: Updated memory entry {uid[:8]}...")
-                
-                return True
-        
-        logging.warning(f"[{datetime.now()}] SMM: Attempted to update non-existent entry {uid[:8]}...")
-        return False
-    
-    def delete_memory_entry(self, uid):
+        for entry in self.memory_store:
+            if entry.get("id") == entry_id:
+                return entry
+        return None
+
+    def get_session_memory(self, session_id: str, limit: int = 100) -> List[Dict]:
         """
-        Delete a memory entry.
-        
+        Get all memory entries for a session.
+
         Args:
-            uid (str): The UID of the entry to delete
-            
+            session_id: Session ID
+            limit: Maximum number of entries to return
+
         Returns:
-            bool: True if deleted successfully, False otherwise
+            List of memory entries for the session
         """
-        for i, entry in enumerate(self.memory_store['entries']):
-            if entry['uid'] == uid:
-                del self.memory_store['entries'][i]
+        return self.query_memory(session_id=session_id, limit=limit)
+
+    def get_latest_memory_by_type(self, entry_type: str, limit: int = 1) -> List[Dict]:
+        """
+        Get the latest memory entries of a specific type.
+
+        Args:
+            entry_type: Type of memory entry
+            limit: Maximum number of entries to return
+
+        Returns:
+            List of latest memory entries of the specified type
+        """
+        entries = self.query_memory(entry_type=entry_type)
+
+        # Sort by creation time (newest first)
+        entries.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+
+        return entries[:limit]
+
+    def delete_memory_entry(self, entry_id: str) -> bool:
+        """
+        Delete a memory entry by its ID.
+
+        Args:
+            entry_id: The memory entry ID
+
+        Returns:
+            True if deleted, False if not found
+        """
+        for i, entry in enumerate(self.memory_store):
+            if entry.get("id") == entry_id:
+                self.memory_store.pop(i)
                 self._save_memory_store()
-                
-                logging.debug(f"[{datetime.now()}] SMM: Deleted memory entry {uid[:8]}...")
-                
+                self.logger.info(f"Deleted memory entry: {entry_id}")
                 return True
-        
-        logging.warning(f"[{datetime.now()}] SMM: Attempted to delete non-existent entry {uid[:8]}...")
+
+        self.logger.warning(f"Memory entry not found for deletion: {entry_id}")
         return False
-    
-    def clear_session_memory(self, session_id):
+
+    def clear_session_memory(self, session_id: str) -> int:
         """
         Clear all memory entries for a session.
-        
+
         Args:
-            session_id (str): The session ID
-            
+            session_id: Session ID
+
         Returns:
-            int: Number of entries deleted
+            Number of entries deleted
         """
-        entries_before = len(self.memory_store['entries'])
-        
-        self.memory_store['entries'] = [
-            entry for entry in self.memory_store['entries']
-            if entry['session_id'] != session_id
-        ]
-        
-        entries_after = len(self.memory_store['entries'])
-        deleted_count = entries_before - entries_after
-        
-        if deleted_count > 0:
+        count = 0
+        indices_to_remove = []
+
+        for i, entry in enumerate(self.memory_store):
+            if entry.get("session_id") == session_id:
+                indices_to_remove.append(i)
+                count += 1
+
+        # Remove entries from highest index to lowest to avoid shifting issues
+        for i in sorted(indices_to_remove, reverse=True):
+            self.memory_store.pop(i)
+
+        if count > 0:
             self._save_memory_store()
-            logging.info(f"[{datetime.now()}] SMM: Cleared {deleted_count} entries for session {session_id[:8]}...")
-        
-        return deleted_count
-    
-    def get_statistics(self):
-        """
-        Get statistics about the memory store.
-        
-        Returns:
-            dict: Various statistics about the memory store
-        """
-        total_entries = len(self.memory_store['entries'])
-        
-        # Count entries by type
-        entry_types = {}
-        for entry in self.memory_store['entries']:
-            entry_type = entry.get('entry_type', 'Unknown')
-            entry_types[entry_type] = entry_types.get(entry_type, 0) + 1
-        
-        # Count entries by session
-        session_counts = {}
-        for entry in self.memory_store['entries']:
-            session_id = entry.get('session_id', 'Unknown')
-            session_counts[session_id] = session_counts.get(session_id, 0) + 1
-        
-        # Get the total size of the memory store (approximation)
-        memory_size = len(json.dumps(self.memory_store))
-        
-        return {
-            'total_entries': total_entries,
-            'entry_types': entry_types,
-            'session_counts': session_counts,
-            'memory_size_bytes': memory_size
-        }
-    
-    def _save_memory_store(self):
-        """Save the memory store to disk."""
-        try:
-            with open(self.memory_file_path, 'w') as f:
-                json.dump(self.memory_store, f)
-            logging.debug(f"[{datetime.now()}] SMM: Saved memory store to {self.memory_file_path}")
-        except Exception as e:
-            logging.error(f"[{datetime.now()}] SMM: Error saving memory store: {str(e)}")
+            self.logger.info(f"Cleared {count} memory entries for session: {session_id}")
+
+        return count

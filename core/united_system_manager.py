@@ -1,3 +1,4 @@
+
 import uuid
 import hashlib
 import json
@@ -20,7 +21,8 @@ class UnitedSystemManager:
         """
         self.config = config
         self.id_namespace = uuid.uuid4()  # Generate a unique namespace for this instance
-        logging.info(f"[{datetime.now()}] UnitedSystemManager initialized with namespace: {self.id_namespace}")
+        self.uid_registry_entry_type = "uid_registry_entry"
+        logging.info(f"UnitedSystemManager initialized with namespace: {self.id_namespace}")
     
     def create_unified_id(self, entity_label, entity_type, ukg_coords=None, specific_id_part=None):
         """

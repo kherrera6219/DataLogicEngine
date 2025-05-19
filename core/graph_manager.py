@@ -1,1190 +1,371 @@
-import networkx as nx
-import yaml
 import os
+import yaml
 import logging
+import networkx as nx
 from datetime import datetime
-from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple
 
 class GraphManager:
     """
-    The GraphManager is responsible for creating and managing the Universal Knowledge Graph (UKG).
-    It handles loading data from YAML files, building the graph structure, and providing
-    methods to query and manipulate the graph.
+    Graph Manager for the Universal Knowledge Graph (UKG).
+
+    Manages the 13-axis knowledge graph, including:
+    - Pillar Levels (Axis 1)
+    - Sectors (Axis 2)
+    - Honeycomb System (Axis 3)
+    - Branch System (Axis 4)
+    - Node System (Axis 5)
+    - Octopus Node (Axis 6)
+    - Spiderweb Node (Axis 7)
+    - Knowledge Role (Axis 8)
+    - Sector Expert (Axis 9)
+    - Regulatory Expert (Axis 10)
+    - Compliance Expert (Axis 11)
+    - Location (Axis 12)
+    - Temporal (Axis 13)
     """
-    
-    def __init__(self, config, united_system_manager):
+
+    def __init__(self, config, united_system_manager=None):
         """
-        Initialize the GraphManager.
-        
+        Initialize the Graph Manager.
+
         Args:
-            config (dict): Configuration dictionary containing paths to data files
-            united_system_manager (UnitedSystemManager): Reference to the UnitedSystemManager
+            config: Application configuration
+            united_system_manager: Optional UnitedSystemManager instance
         """
         self.config = config
-        self.united_system_manager = united_system_manager
-        self.graph = nx.DiGraph()  # Use a directed graph to represent relationships
-        self.axis_definitions_data = {}
-        self.pillar_levels_data = {}
-        self.sector_data = {}
-        self.topics_data = {}
-        self.methods_data = {}
-        self.tools_data = {}
-        self.regulatory_frameworks_data = {}
-        self.compliance_standards_data = {}
-        self.personas_data = {}
-        self.time_periods_data = {}
-        self.config_or_default_path_for_locations = config.get('ukg_paths', {}).get('locations', 'data/ukg/locations_gazetteer.yaml')
-        
-        logging.info(f"[{datetime.now()}] GraphManager initialized")
-    
-    def initialize_graph(self):
-        """Initialize the graph by loading data and building the initial structure."""
-        logging.info(f"[{datetime.now()}] GM: Initializing UKG graph structure")
-        
-        # Load definitions and data
-        self._load_definitions()
-        
-        # Build the initial graph structure
+        self.usm = united_system_manager
+        self.logger = logging.getLogger(__name__)
+
+        # Initialize main graph
+        self.graph = nx.DiGraph()
+
+        # Load axis definitions
+        self.axis_definitions_data = self._load_yaml_file(config.axis_definitions_path, "Axis Definitions")
+
+        # Load pillar levels
+        self.pillar_levels_data = self._load_yaml_file(config.pillar_levels_path, "Pillar Levels")
+
+        # Load regulatory frameworks
+        self.regulatory_frameworks_data = self._load_yaml_file(config.regulatory_frameworks_path, "Regulatory Frameworks")
+
+        # Load locations gazetteer
+        self.locations_gazetteer_data = self._load_yaml_file(config.locations_gazetteer_path, "Locations Gazetteer")
+
+        # Initialize the graph structure
         self._build_initial_graph_structure()
-        
-        # Build connections between nodes
-        self._build_graph_connections()
-        
-        logging.info(f"[{datetime.now()}] GM: UKG initialization complete. Nodes: {len(self.graph.nodes)}, Edges: {len(self.graph.edges)}")
-    
-    def _load_definitions(self):
-        """Load all definition files for the UKG."""
-        self.axis_definitions_data = self._load_yaml_file(
-            self.config.get('ukg_paths', {}).get('axis_definitions', 'data/ukg/axis_definitions.yaml'),
-            "Axis Definitions"
-        )
-        
-        self.pillar_levels_data = self._load_yaml_file(
-            self.config.get('ukg_paths', {}).get('pillar_levels', 'data/ukg/pillar_levels.yaml'),
-            "Pillar Levels"
-        )
-        
-        self.sector_data = self._load_yaml_file(
-            self.config.get('ukg_paths', {}).get('sectors', 'data/ukg/sectors.yaml'),
-            "Sectors"
-        )
-        
-        self.topics_data = self._load_yaml_file(
-            self.config.get('ukg_paths', {}).get('topics', 'data/ukg/topics.yaml'),
-            "Topics"
-        )
-        
-        self.methods_data = self._load_yaml_file(
-            self.config.get('ukg_paths', {}).get('methods', 'data/ukg/methods.yaml'),
-            "Methods"
-        )
-        
-        self.tools_data = self._load_yaml_file(
-            self.config.get('ukg_paths', {}).get('tools', 'data/ukg/tools.yaml'),
-            "Tools"
-        )
-        
-        self.regulatory_frameworks_data = self._load_yaml_file(
-            self.config.get('ukg_paths', {}).get('regulatory_frameworks', 'data/ukg/regulatory_frameworks.yaml'),
-            "Regulatory Frameworks"
-        )
-        
-        self.compliance_standards_data = self._load_yaml_file(
-            self.config.get('ukg_paths', {}).get('compliance_standards', 'data/ukg/compliance_standards.yaml'),
-            "Compliance Standards"
-        )
-        
-        self.personas_data = self._load_yaml_file(
-            self.config.get('ukg_paths', {}).get('personas', 'data/ukg/personas.yaml'),
-            "Personas"
-        )
-        
-        self.time_periods_data = self._load_yaml_file(
-            self.config.get('ukg_paths', {}).get('time_periods', 'data/ukg/time_periods.yaml'),
-            "Time Periods"
-        )
-    
-    def _load_yaml_file(self, file_path, description):
+
+        self.logger.info(f"GraphManager initialized with {len(self.graph.nodes)} nodes and {len(self.graph.edges)} edges")
+
+    def _load_yaml_file(self, file_path: str, data_name: str) -> Dict:
         """
         Load data from a YAML file.
-        
+
         Args:
-            file_path (str): Path to the YAML file
-            description (str): Description of the file for logging
-            
+            file_path: Path to the YAML file
+            data_name: Human-readable name for the data
+
         Returns:
-            dict: The loaded data, or an empty dict if loading failed
+            Dict containing the loaded data or empty dict if not found
         """
         try:
-            if not os.path.exists(file_path):
-                logging.warning(f"[{datetime.now()}] GM: {description} file not found: {file_path}")
+            if os.path.exists(file_path):
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    data = yaml.safe_load(f)
+                self.logger.info(f"Loaded {data_name} from {file_path}")
+                return data if data else {}
+            else:
+                self.logger.warning(f"{data_name} file not found at {file_path}")
                 return {}
-            
-            with open(file_path, 'r') as file:
-                data = yaml.safe_load(file)
-                logging.info(f"[{datetime.now()}] GM: Loaded {description} from {file_path}")
-                return data
         except Exception as e:
-            logging.error(f"[{datetime.now()}] GM: Error loading {description} from {file_path}: {str(e)}")
+            self.logger.error(f"Error loading {data_name} from {file_path}: {str(e)}")
             return {}
-    
+
     def _build_initial_graph_structure(self):
-        """Build the initial graph structure from loaded definitions."""
-        # Create root node for the UKG
-        ukg_root_uid_pkg = self.united_system_manager.create_unified_id(
-            entity_label="UKG_Root",
-            entity_type="RootNode"
-        )
-        ukg_root_uid = ukg_root_uid_pkg["uid_string"]
-        self.graph.add_node(ukg_root_uid, **ukg_root_uid_pkg)
-        
-        # Create nodes for the 13 axes
-        self._create_axis_nodes(ukg_root_uid)
-        
-        # Create nodes for Pillar Levels (Axis 1)
-        self._create_pillar_level_nodes()
-        
-        # Create nodes for Sectors (Axis 2)
-        self._create_sector_nodes()
-        
-        # Create nodes for Topics (Axis 3)
-        self._create_topic_nodes()
-        
-        # Create nodes for Methods (Axis 4)
-        self._create_method_nodes()
-        
-        # Create nodes for Tools (Axis 5)
-        self._create_tool_nodes()
-        
-        # Create nodes for Regulatory Frameworks (Axis 6)
-        self._create_regulatory_framework_nodes()
-        
-        # Create nodes for Compliance Standards (Axis 7)
-        self._create_compliance_standard_nodes()
-        
-        # Create nodes for Personas (Axis 8-11)
-        self._create_persona_nodes()
-        
-        # Create nodes for Locations (Axis 12)
-        self._create_location_nodes()
-        
-        # Create nodes for Time (Axis 13)
-        self._create_time_period_nodes()
-    
-    def _create_axis_nodes(self, ukg_root_uid):
         """
-        Create nodes for the 13 axes of the UKG.
-        
-        Args:
-            ukg_root_uid (str): UID of the UKG root node
+        Build the initial UKG graph structure from loaded data.
         """
-        logging.info(f"[{datetime.now()}] GM: Creating Axis nodes")
-        
-        if 'Axes' not in self.axis_definitions_data:
-            logging.warning(f"[{datetime.now()}] GM: No Axes defined in axis_definitions.yaml")
-            return
-        
-        for axis_def in self.axis_definitions_data['Axes']:
-            axis_label = axis_def.get('label', 'Unknown Axis')
-            axis_number = axis_def.get('number', 0)
-            axis_description = axis_def.get('description', '')
-            axis_original_id = axis_def.get('original_id', f"Axis{axis_number}")
-            
-            axis_uid_pkg = self.united_system_manager.create_unified_id(
-                entity_label=axis_label,
-                entity_type="Axis",
-                ukg_coords={"AxisNumber": axis_number},
-                specific_id_part=axis_original_id
-            )
-            
-            axis_uid = axis_uid_pkg["uid_string"]
-            
-            # Store the UID string in the axis definition for later reference
-            axis_def['uid_string'] = axis_uid
-            
-            # Add axis node to the graph
+        self.logger.info("Building initial UKG graph structure...")
+
+        # Create Axis nodes (1-13)
+        for i in range(1, 14):
+            axis_id = f"Axis{i}"
+            axis_data = self.axis_definitions_data.get(axis_id, {})
+            axis_name = axis_data.get("name", f"Axis {i}")
+
+            # Generate UID if United System Manager is available
+            if self.usm:
+                axis_uid_pkg = self.usm.create_unified_id(
+                    entity_label=axis_name,
+                    entity_type="AxisNode",
+                    ukg_coords={"AxisNumber": i},
+                    specific_id_part=axis_id
+                )
+                axis_uid = axis_uid_pkg["uid_string"]
+                axis_data["uid_string"] = axis_uid
+            else:
+                # Fallback if USM not available
+                axis_uid = f"UID_AXIS_{i}"
+                axis_data["uid_string"] = axis_uid
+
+            # Add to graph
             self.graph.add_node(
                 axis_uid,
-                label=axis_label,
-                number=axis_number,
-                description=axis_description,
-                original_id=axis_original_id,
-                **axis_uid_pkg
+                name=axis_name,
+                type="AxisNode",
+                axis_number=i,
+                original_id=axis_id,
+                **axis_data
             )
-            
-            # Connect axis to UKG root
-            self.graph.add_edge(ukg_root_uid, axis_uid, relationship="has_axis")
-            
-            logging.info(f"[{datetime.now()}] GM: Added Axis {axis_number}: {axis_label} (UID: {axis_uid[:10]}...)")
-    
-    def _create_pillar_level_nodes(self):
-        """Create nodes for Pillar Levels (Axis 1)."""
-        logging.info(f"[{datetime.now()}] GM: Creating Pillar Level nodes")
-        
-        axis1_uid_str = self._get_axis_uid_by_number(1)
-        if not axis1_uid_str:
-            logging.warning(f"[{datetime.now()}] GM: Axis 1 UID not found, cannot create Pillar Level nodes")
+
+            self.logger.info(f"Added Axis {i} node: {axis_name}")
+
+        # Build Pillar Levels from Axis 1
+        self._build_pillar_structure()
+
+        # Build other axis structures
+        # TODO: Implement other axis builders
+
+        self.logger.info(f"Initial UKG graph structure built with {len(self.graph.nodes)} nodes")
+
+    def _build_pillar_structure(self):
+        """
+        Build the Pillar Level structure (Axis 1).
+        """
+        self.logger.info("Building Pillar Level structure (Axis 1)...")
+
+        axis1_uid = self._get_axis_uid_by_number(1)
+        if not axis1_uid:
+            self.logger.warning("Axis 1 UID not found, cannot build Pillar structure")
             return
-        
-        if 'PillarLevels' not in self.pillar_levels_data:
-            logging.warning(f"[{datetime.now()}] GM: No Pillar Levels defined in pillar_levels.yaml")
-            return
-        
-        for pl_def in self.pillar_levels_data['PillarLevels']:
-            pl_original_id = pl_def.get('id', 'Unknown_PL')
-            pl_label = pl_def.get('label', 'Unknown Pillar Level')
-            pl_description = pl_def.get('description', '')
-            
-            # Create UID for Pillar Level
-            pl_uid_pkg = self.united_system_manager.create_unified_id(
-                entity_label=pl_label,
-                entity_type="PillarLevel",
-                ukg_coords={"Axis1": pl_original_id},
-                specific_id_part=pl_original_id
-            )
-            
-            pl_uid = pl_uid_pkg["uid_string"]
-            
-            # Store UID in definition for later reference
-            pl_def['uid_string'] = pl_uid
-            
-            # Add node to graph
+
+        # Process pillar levels
+        pillars = self.pillar_levels_data.get("PillarLevels", [])
+        for pillar in pillars:
+            pl_id = pillar.get("id")
+            pl_label = pillar.get("label", "Unknown Pillar")
+            pl_description = pillar.get("description", "")
+
+            # Generate UID
+            if self.usm:
+                pl_uid_pkg = self.usm.create_unified_id(
+                    entity_label=pl_label,
+                    entity_type="PillarLevelNode",
+                    ukg_coords={"Axis1": pl_id},
+                    specific_id_part=pl_id
+                )
+                pl_uid = pl_uid_pkg["uid_string"]
+            else:
+                pl_uid = f"UID_PL_{pl_id}"
+
+            # Add pillar node
             self.graph.add_node(
                 pl_uid,
-                label=pl_label,
+                name=pl_label,
                 description=pl_description,
-                original_id=pl_original_id,
-                **pl_uid_pkg
+                type="PillarLevelNode",
+                original_id=pl_id,
+                axis_number=1
             )
-            
+
             # Connect to Axis 1
-            self.graph.add_edge(axis1_uid_str, pl_uid, relationship="has_pillar_level")
-            
-            # Create nodes for PL members if defined
-            if 'members' in pl_def and isinstance(pl_def['members'], list):
-                for member_def in pl_def['members']:
-                    member_label = member_def.get('label', 'Unknown Member')
-                    member_id = member_def.get('id', 'Unknown_Member')
-                    
-                    member_uid_pkg = self.united_system_manager.create_unified_id(
-                        entity_label=member_label,
-                        entity_type="PillarLevelMember",
-                        ukg_coords={"Axis1": pl_original_id, "MemberID": member_id},
-                        specific_id_part=member_id
-                    )
-                    
-                    member_uid = member_uid_pkg["uid_string"]
-                    
-                    # Add member node
-                    self.graph.add_node(
-                        member_uid,
-                        label=member_label,
-                        original_id=member_id,
-                        **member_uid_pkg
-                    )
-                    
-                    # Connect member to Pillar Level
-                    self.graph.add_edge(pl_uid, member_uid, relationship="has_member")
-            
-            logging.info(f"[{datetime.now()}] GM: Added Pillar Level: {pl_label} (UID: {pl_uid[:10]}...)")
-    
-    def _create_sector_nodes(self):
-        """Create nodes for Sectors (Axis 2)."""
-        logging.info(f"[{datetime.now()}] GM: Creating Sector nodes")
-        
-        axis2_uid_str = self._get_axis_uid_by_number(2)
-        if not axis2_uid_str:
-            logging.warning(f"[{datetime.now()}] GM: Axis 2 UID not found, cannot create Sector nodes")
-            return
-        
-        if 'Sectors' not in self.sector_data:
-            logging.warning(f"[{datetime.now()}] GM: No Sectors defined in sectors.yaml")
-            return
-        
-        for sector_def in self.sector_data['Sectors']:
-            sector_original_id = sector_def.get('id', 'Unknown_Sector')
-            sector_label = sector_def.get('label', 'Unknown Sector')
-            sector_description = sector_def.get('description', '')
-            sector_code = sector_def.get('code', '')
-            
-            # Create UID for Sector
-            sector_uid_pkg = self.united_system_manager.create_unified_id(
-                entity_label=sector_label,
-                entity_type="Sector",
-                ukg_coords={"Axis2": sector_original_id, "SectorCode": sector_code},
-                specific_id_part=sector_original_id
-            )
-            
-            sector_uid = sector_uid_pkg["uid_string"]
-            
-            # Store UID in definition for later reference
-            sector_def['uid_string'] = sector_uid
-            
-            # Add node to graph
-            self.graph.add_node(
-                sector_uid,
-                label=sector_label,
-                description=sector_description,
-                code=sector_code,
-                original_id=sector_original_id,
-                **sector_uid_pkg
-            )
-            
-            # Connect to Axis 2
-            self.graph.add_edge(axis2_uid_str, sector_uid, relationship="has_sector")
-            
-            # Create subsector nodes if defined
-            if 'subsectors' in sector_def and isinstance(sector_def['subsectors'], list):
-                for subsector_def in sector_def['subsectors']:
-                    subsector_label = subsector_def.get('label', 'Unknown Subsector')
-                    subsector_id = subsector_def.get('id', 'Unknown_Subsector')
-                    subsector_code = subsector_def.get('code', '')
-                    
-                    subsector_uid_pkg = self.united_system_manager.create_unified_id(
-                        entity_label=subsector_label,
-                        entity_type="Subsector",
-                        ukg_coords={"Axis2": sector_original_id, "SubsectorID": subsector_id, "SubsectorCode": subsector_code},
-                        specific_id_part=subsector_id
-                    )
-                    
-                    subsector_uid = subsector_uid_pkg["uid_string"]
-                    
-                    # Add subsector node
-                    self.graph.add_node(
-                        subsector_uid,
-                        label=subsector_label,
-                        code=subsector_code,
-                        original_id=subsector_id,
-                        **subsector_uid_pkg
-                    )
-                    
-                    # Connect subsector to Sector
-                    self.graph.add_edge(sector_uid, subsector_uid, relationship="has_subsector")
-            
-            logging.info(f"[{datetime.now()}] GM: Added Sector: {sector_label} (UID: {sector_uid[:10]}...)")
-    
-    def _create_topic_nodes(self):
-        """Create nodes for Topics (Axis 3)."""
-        logging.info(f"[{datetime.now()}] GM: Creating Topic nodes")
-        
-        axis3_uid_str = self._get_axis_uid_by_number(3)
-        if not axis3_uid_str:
-            logging.warning(f"[{datetime.now()}] GM: Axis 3 UID not found, cannot create Topic nodes")
-            return
-        
-        if 'Topics' not in self.topics_data:
-            logging.warning(f"[{datetime.now()}] GM: No Topics defined in topics.yaml")
-            return
-        
-        for topic_def in self.topics_data['Topics']:
-            topic_original_id = topic_def.get('id', 'Unknown_Topic')
-            topic_label = topic_def.get('label', 'Unknown Topic')
-            topic_description = topic_def.get('description', '')
-            
-            # Create UID for Topic
-            topic_uid_pkg = self.united_system_manager.create_unified_id(
-                entity_label=topic_label,
-                entity_type="Topic",
-                ukg_coords={"Axis3": topic_original_id},
-                specific_id_part=topic_original_id
-            )
-            
-            topic_uid = topic_uid_pkg["uid_string"]
-            
-            # Store UID in definition for later reference
-            topic_def['uid_string'] = topic_uid
-            
-            # Add node to graph
-            self.graph.add_node(
-                topic_uid,
-                label=topic_label,
-                description=topic_description,
-                original_id=topic_original_id,
-                **topic_uid_pkg
-            )
-            
-            # Connect to Axis 3
-            self.graph.add_edge(axis3_uid_str, topic_uid, relationship="has_topic")
-            
-            # Create subtopic nodes if defined
-            if 'subtopics' in topic_def and isinstance(topic_def['subtopics'], list):
-                for subtopic_def in topic_def['subtopics']:
-                    subtopic_label = subtopic_def.get('label', 'Unknown Subtopic')
-                    subtopic_id = subtopic_def.get('id', 'Unknown_Subtopic')
-                    
-                    subtopic_uid_pkg = self.united_system_manager.create_unified_id(
-                        entity_label=subtopic_label,
-                        entity_type="Subtopic",
-                        ukg_coords={"Axis3": topic_original_id, "SubtopicID": subtopic_id},
-                        specific_id_part=subtopic_id
-                    )
-                    
-                    subtopic_uid = subtopic_uid_pkg["uid_string"]
-                    
-                    # Add subtopic node
-                    self.graph.add_node(
-                        subtopic_uid,
-                        label=subtopic_label,
-                        original_id=subtopic_id,
-                        **subtopic_uid_pkg
-                    )
-                    
-                    # Connect subtopic to Topic
-                    self.graph.add_edge(topic_uid, subtopic_uid, relationship="has_subtopic")
-            
-            logging.info(f"[{datetime.now()}] GM: Added Topic: {topic_label} (UID: {topic_uid[:10]}...)")
-    
-    def _create_regulatory_framework_nodes(self):
-        """Create nodes for Regulatory Frameworks (Axis 6)."""
-        logging.info(f"[{datetime.now()}] GM: Creating Regulatory Framework nodes")
-        
-        axis6_uid_str = self._get_axis_uid_by_number(6)
-        if not axis6_uid_str:
-            logging.warning(f"[{datetime.now()}] GM: Axis 6 UID not found, cannot create Regulatory Framework nodes")
-            return
-        
-        if 'RegulatoryFrameworks' not in self.regulatory_frameworks_data:
-            logging.warning(f"[{datetime.now()}] GM: No Regulatory Frameworks defined in regulatory_frameworks.yaml")
-            return
-        
-        for reg_def in self.regulatory_frameworks_data['RegulatoryFrameworks']:
-            reg_original_id = reg_def.get('id', 'Unknown_Regulation')
-            reg_label = reg_def.get('label', 'Unknown Regulatory Framework')
-            reg_description = reg_def.get('description', '')
-            reg_jurisdiction = reg_def.get('jurisdiction', 'Unknown')
-            
-            # Create UID for Regulatory Framework
-            reg_uid_pkg = self.united_system_manager.create_unified_id(
-                entity_label=reg_label,
-                entity_type="RegulatoryFramework",
-                ukg_coords={"Axis6": reg_original_id, "Jurisdiction": reg_jurisdiction},
-                specific_id_part=reg_original_id
-            )
-            
-            reg_uid = reg_uid_pkg["uid_string"]
-            
-            # Store UID in definition for later reference
-            reg_def['uid_string'] = reg_uid
-            
-            # Add node to graph
-            self.graph.add_node(
-                reg_uid,
-                label=reg_label,
-                description=reg_description,
-                jurisdiction=reg_jurisdiction,
-                original_id=reg_original_id,
-                **reg_uid_pkg
-            )
-            
-            # Connect to Axis 6
-            self.graph.add_edge(axis6_uid_str, reg_uid, relationship="has_regulatory_framework")
-            
-            # Create regulation sections if defined
-            if 'sections' in reg_def and isinstance(reg_def['sections'], list):
-                for section_def in reg_def['sections']:
-                    section_label = section_def.get('label', 'Unknown Section')
-                    section_id = section_def.get('id', 'Unknown_Section')
-                    section_number = section_def.get('number', '')
-                    
-                    section_uid_pkg = self.united_system_manager.create_unified_id(
-                        entity_label=section_label,
-                        entity_type="RegulationSection",
-                        ukg_coords={"Axis6": reg_original_id, "SectionID": section_id, "SectionNumber": section_number},
-                        specific_id_part=section_id
-                    )
-                    
-                    section_uid = section_uid_pkg["uid_string"]
-                    
-                    # Add section node
-                    self.graph.add_node(
-                        section_uid,
-                        label=section_label,
-                        number=section_number,
-                        original_id=section_id,
-                        **section_uid_pkg
-                    )
-                    
-                    # Connect section to Regulatory Framework
-                    self.graph.add_edge(reg_uid, section_uid, relationship="has_section")
-            
-            logging.info(f"[{datetime.now()}] GM: Added Regulatory Framework: {reg_label} (UID: {reg_uid[:10]}...)")
-    
-    def _create_compliance_standard_nodes(self):
-        """Create nodes for Compliance Standards (Axis 7)."""
-        logging.info(f"[{datetime.now()}] GM: Creating Compliance Standard nodes")
-        
-        axis7_uid_str = self._get_axis_uid_by_number(7)
-        if not axis7_uid_str:
-            logging.warning(f"[{datetime.now()}] GM: Axis 7 UID not found, cannot create Compliance Standard nodes")
-            return
-        
-        if 'ComplianceStandards' not in self.compliance_standards_data:
-            logging.warning(f"[{datetime.now()}] GM: No Compliance Standards defined in compliance_standards.yaml")
-            return
-        
-        for std_def in self.compliance_standards_data['ComplianceStandards']:
-            std_original_id = std_def.get('id', 'Unknown_Standard')
-            std_label = std_def.get('label', 'Unknown Compliance Standard')
-            std_description = std_def.get('description', '')
-            std_version = std_def.get('version', '')
-            
-            # Create UID for Compliance Standard
-            std_uid_pkg = self.united_system_manager.create_unified_id(
-                entity_label=std_label,
-                entity_type="ComplianceStandard",
-                ukg_coords={"Axis7": std_original_id, "Version": std_version},
-                specific_id_part=std_original_id
-            )
-            
-            std_uid = std_uid_pkg["uid_string"]
-            
-            # Store UID in definition for later reference
-            std_def['uid_string'] = std_uid
-            
-            # Add node to graph
-            self.graph.add_node(
-                std_uid,
-                label=std_label,
-                description=std_description,
-                version=std_version,
-                original_id=std_original_id,
-                **std_uid_pkg
-            )
-            
-            # Connect to Axis 7
-            self.graph.add_edge(axis7_uid_str, std_uid, relationship="has_compliance_standard")
-            
-            # Create control nodes if defined
-            if 'controls' in std_def and isinstance(std_def['controls'], list):
-                for control_def in std_def['controls']:
-                    control_label = control_def.get('label', 'Unknown Control')
-                    control_id = control_def.get('id', 'Unknown_Control')
-                    control_number = control_def.get('number', '')
-                    
-                    control_uid_pkg = self.united_system_manager.create_unified_id(
-                        entity_label=control_label,
-                        entity_type="ComplianceControl",
-                        ukg_coords={"Axis7": std_original_id, "ControlID": control_id, "ControlNumber": control_number},
-                        specific_id_part=control_id
-                    )
-                    
-                    control_uid = control_uid_pkg["uid_string"]
-                    
-                    # Add control node
-                    self.graph.add_node(
-                        control_uid,
-                        label=control_label,
-                        number=control_number,
-                        original_id=control_id,
-                        **control_uid_pkg
-                    )
-                    
-                    # Connect control to Compliance Standard
-                    self.graph.add_edge(std_uid, control_uid, relationship="has_control")
-            
-            logging.info(f"[{datetime.now()}] GM: Added Compliance Standard: {std_label} (UID: {std_uid[:10]}...)")
-    
-    def _create_persona_nodes(self):
-        """Create nodes for Personas (Axis 8-11)."""
-        logging.info(f"[{datetime.now()}] GM: Creating Persona nodes")
-        
-        # Map persona types to axis numbers
-        persona_axis_map = {
-            "KnowledgeExpert": 8,
-            "SkillExpert": 9,
-            "RoleExpert": 10,
-            "ContextExpert": 11
-        }
-        
-        if 'Personas' not in self.personas_data:
-            logging.warning(f"[{datetime.now()}] GM: No Personas defined in personas.yaml")
-            return
-        
-        for persona_def in self.personas_data['Personas']:
-            persona_type = persona_def.get('type', '')
-            if persona_type not in persona_axis_map:
-                logging.warning(f"[{datetime.now()}] GM: Unknown persona type: {persona_type}")
-                continue
-            
-            axis_number = persona_axis_map[persona_type]
-            axis_uid_str = self._get_axis_uid_by_number(axis_number)
-            if not axis_uid_str:
-                logging.warning(f"[{datetime.now()}] GM: Axis {axis_number} UID not found, cannot create {persona_type} nodes")
-                continue
-            
-            persona_original_id = persona_def.get('id', f'Unknown_{persona_type}')
-            persona_label = persona_def.get('label', f'Unknown {persona_type}')
-            persona_description = persona_def.get('description', '')
-            
-            # Create UID for Persona
-            persona_uid_pkg = self.united_system_manager.create_unified_id(
-                entity_label=persona_label,
-                entity_type=persona_type,
-                ukg_coords={f"Axis{axis_number}": persona_original_id},
-                specific_id_part=persona_original_id
-            )
-            
-            persona_uid = persona_uid_pkg["uid_string"]
-            
-            # Store UID in definition for later reference
-            persona_def['uid_string'] = persona_uid
-            
-            # Add node to graph
-            self.graph.add_node(
-                persona_uid,
-                label=persona_label,
-                description=persona_description,
-                type=persona_type,
-                original_id=persona_original_id,
-                **persona_uid_pkg
-            )
-            
-            # Connect to appropriate Axis
-            self.graph.add_edge(axis_uid_str, persona_uid, relationship=f"has_{persona_type.lower()}")
-            
-            # Create subtypes if defined
-            if 'subtypes' in persona_def and isinstance(persona_def['subtypes'], list):
-                for subtype_def in persona_def['subtypes']:
-                    subtype_label = subtype_def.get('label', f'Unknown {persona_type} Subtype')
-                    subtype_id = subtype_def.get('id', f'Unknown_{persona_type}_Subtype')
-                    
-                    subtype_uid_pkg = self.united_system_manager.create_unified_id(
-                        entity_label=subtype_label,
-                        entity_type=f"{persona_type}Subtype",
-                        ukg_coords={f"Axis{axis_number}": persona_original_id, "SubtypeID": subtype_id},
-                        specific_id_part=subtype_id
-                    )
-                    
-                    subtype_uid = subtype_uid_pkg["uid_string"]
-                    
-                    # Add subtype node
-                    self.graph.add_node(
-                        subtype_uid,
-                        label=subtype_label,
-                        original_id=subtype_id,
-                        **subtype_uid_pkg
-                    )
-                    
-                    # Connect subtype to Persona
-                    self.graph.add_edge(persona_uid, subtype_uid, relationship="has_subtype")
-            
-            logging.info(f"[{datetime.now()}] GM: Added {persona_type}: {persona_label} (UID: {persona_uid[:10]}...)")
-    
-    def _create_method_nodes(self):
-        """Create nodes for Methods (Axis 4)."""
-        logging.info(f"[{datetime.now()}] GM: Creating Method nodes")
-        
-        axis4_uid_str = self._get_axis_uid_by_number(4)
-        if not axis4_uid_str:
-            logging.warning(f"[{datetime.now()}] GM: Axis 4 UID not found, cannot create Method nodes")
-            return
-        
-        if 'Methods' not in self.methods_data:
-            logging.warning(f"[{datetime.now()}] GM: No Methods defined in methods.yaml")
-            return
-        
-        for method_def in self.methods_data['Methods']:
-            method_original_id = method_def.get('id', 'Unknown_Method')
-            method_label = method_def.get('label', 'Unknown Method')
-            method_description = method_def.get('description', '')
-            
-            # Create UID for Method
-            method_uid_pkg = self.united_system_manager.create_unified_id(
-                entity_label=method_label,
-                entity_type="Method",
-                ukg_coords={"Axis4": method_original_id},
-                specific_id_part=method_original_id
-            )
-            
-            method_uid = method_uid_pkg["uid_string"]
-            
-            # Store UID in definition for later reference
-            method_def['uid_string'] = method_uid
-            
-            # Add node to graph
-            self.graph.add_node(
-                method_uid,
-                label=method_label,
-                description=method_description,
-                original_id=method_original_id,
-                **method_uid_pkg
-            )
-            
-            # Connect to Axis 4
-            self.graph.add_edge(axis4_uid_str, method_uid, relationship="has_method")
-            
-            # Create nodes for method categories if defined
-            if 'categories' in method_def and isinstance(method_def['categories'], list):
-                for category_def in method_def['categories']:
-                    cat_label = category_def.get('label', 'Unknown Category')
-                    cat_id = category_def.get('id', 'Unknown_Category')
-                    cat_description = category_def.get('description', '')
-                    
-                    cat_uid_pkg = self.united_system_manager.create_unified_id(
-                        entity_label=cat_label,
-                        entity_type="MethodCategory",
-                        ukg_coords={"Axis4": method_original_id, "CategoryID": cat_id},
-                        specific_id_part=cat_id
-                    )
-                    
-                    cat_uid = cat_uid_pkg["uid_string"]
-                    
-                    # Add category node
-                    self.graph.add_node(
-                        cat_uid,
-                        label=cat_label,
-                        description=cat_description,
-                        original_id=cat_id,
-                        **cat_uid_pkg
-                    )
-                    
-                    # Connect category to Method
-                    self.graph.add_edge(method_uid, cat_uid, relationship="has_category")
-                    
-                    # Create nodes for techniques if defined
-                    if 'techniques' in category_def and isinstance(category_def['techniques'], list):
-                        for technique_def in category_def['techniques']:
-                            tech_label = technique_def.get('label', 'Unknown Technique')
-                            tech_id = technique_def.get('id', 'Unknown_Technique')
-                            tech_description = technique_def.get('description', '')
-                            
-                            tech_uid_pkg = self.united_system_manager.create_unified_id(
-                                entity_label=tech_label,
-                                entity_type="MethodTechnique",
-                                ukg_coords={"Axis4": method_original_id, "CategoryID": cat_id, "TechniqueID": tech_id},
-                                specific_id_part=tech_id
-                            )
-                            
-                            tech_uid = tech_uid_pkg["uid_string"]
-                            
-                            # Add technique node
-                            self.graph.add_node(
-                                tech_uid,
-                                label=tech_label,
-                                description=tech_description,
-                                original_id=tech_id,
-                                **tech_uid_pkg
-                            )
-                            
-                            # Connect technique to Category
-                            self.graph.add_edge(cat_uid, tech_uid, relationship="has_technique")
-            
-            logging.info(f"[{datetime.now()}] GM: Added Method: {method_label} (UID: {method_uid[:10]}...)")
+            self.graph.add_edge(axis1_uid, pl_uid, relationship="has_pillar_level")
 
-    def _create_tool_nodes(self):
-        """Create nodes for Tools (Axis 5)."""
-        logging.info(f"[{datetime.now()}] GM: Creating Tool nodes")
-        
-        axis5_uid_str = self._get_axis_uid_by_number(5)
-        if not axis5_uid_str:
-            logging.warning(f"[{datetime.now()}] GM: Axis 5 UID not found, cannot create Tool nodes")
-            return
-        
-        if 'Tools' not in self.tools_data:
-            logging.warning(f"[{datetime.now()}] GM: No Tools defined in tools.yaml")
-            return
-        
-        for tool_def in self.tools_data['Tools']:
-            tool_original_id = tool_def.get('id', 'Unknown_Tool')
-            tool_label = tool_def.get('label', 'Unknown Tool')
-            tool_description = tool_def.get('description', '')
-            
-            # Create UID for Tool
-            tool_uid_pkg = self.united_system_manager.create_unified_id(
-                entity_label=tool_label,
-                entity_type="Tool",
-                ukg_coords={"Axis5": tool_original_id},
-                specific_id_part=tool_original_id
-            )
-            
-            tool_uid = tool_uid_pkg["uid_string"]
-            
-            # Store UID in definition for later reference
-            tool_def['uid_string'] = tool_uid
-            
-            # Add node to graph
-            self.graph.add_node(
-                tool_uid,
-                label=tool_label,
-                description=tool_description,
-                original_id=tool_original_id,
-                **tool_uid_pkg
-            )
-            
-            # Connect to Axis 5
-            self.graph.add_edge(axis5_uid_str, tool_uid, relationship="has_tool")
-            
-            # Create nodes for tool categories if defined
-            if 'categories' in tool_def and isinstance(tool_def['categories'], list):
-                for category_def in tool_def['categories']:
-                    cat_label = category_def.get('label', 'Unknown Category')
-                    cat_id = category_def.get('id', 'Unknown_Category')
-                    cat_description = category_def.get('description', '')
-                    
-                    cat_uid_pkg = self.united_system_manager.create_unified_id(
-                        entity_label=cat_label,
-                        entity_type="ToolCategory",
-                        ukg_coords={"Axis5": tool_original_id, "CategoryID": cat_id},
-                        specific_id_part=cat_id
-                    )
-                    
-                    cat_uid = cat_uid_pkg["uid_string"]
-                    
-                    # Add category node
-                    self.graph.add_node(
-                        cat_uid,
-                        label=cat_label,
-                        description=cat_description,
-                        original_id=cat_id,
-                        **cat_uid_pkg
-                    )
-                    
-                    # Connect category to Tool
-                    self.graph.add_edge(tool_uid, cat_uid, relationship="has_category")
-                    
-                    # Create nodes for specific tools if defined
-                    if 'tools' in category_def and isinstance(category_def['tools'], list):
-                        for specific_tool_def in category_def['tools']:
-                            spec_tool_label = specific_tool_def.get('label', 'Unknown Tool')
-                            spec_tool_id = specific_tool_def.get('id', 'Unknown_Tool')
-                            spec_tool_description = specific_tool_def.get('description', '')
-                            spec_tool_version = specific_tool_def.get('version', '')
-                            
-                            spec_tool_uid_pkg = self.united_system_manager.create_unified_id(
-                                entity_label=spec_tool_label,
-                                entity_type="SpecificTool",
-                                ukg_coords={"Axis5": tool_original_id, "CategoryID": cat_id, "ToolID": spec_tool_id},
-                                specific_id_part=spec_tool_id
-                            )
-                            
-                            spec_tool_uid = spec_tool_uid_pkg["uid_string"]
-                            
-                            # Add specific tool node
-                            self.graph.add_node(
-                                spec_tool_uid,
-                                label=spec_tool_label,
-                                description=spec_tool_description,
-                                version=spec_tool_version,
-                                original_id=spec_tool_id,
-                                **spec_tool_uid_pkg
-                            )
-                            
-                            # Connect specific tool to Category
-                            self.graph.add_edge(cat_uid, spec_tool_uid, relationship="has_specific_tool")
-            
-            logging.info(f"[{datetime.now()}] GM: Added Tool: {tool_label} (UID: {tool_uid[:10]}...)")
+            # Process sublevels if available
+            sublevels = pillar.get("sublevels", [])
+            for sublevel in sublevels:
+                self._add_pillar_sublevel(pl_uid, sublevel)
 
-    def _create_time_period_nodes(self):
-        """Create nodes for Time Periods (Axis 13)."""
-        logging.info(f"[{datetime.now()}] GM: Creating Time Period nodes")
-        
-        axis13_uid_str = self._get_axis_uid_by_number(13)
-        if not axis13_uid_str:
-            logging.warning(f"[{datetime.now()}] GM: Axis 13 UID not found, cannot create Time Period nodes")
-            return
-        
-        if 'TimePeriods' not in self.time_periods_data:
-            logging.warning(f"[{datetime.now()}] GM: No Time Periods defined in time_periods.yaml")
-            return
-        
-        for period_group_def in self.time_periods_data['TimePeriods']:
-            group_original_id = period_group_def.get('id', 'Unknown_TimeGroup')
-            group_label = period_group_def.get('label', 'Unknown Time Group')
-            group_description = period_group_def.get('description', '')
-            
-            # Create UID for Time Period Group
-            group_uid_pkg = self.united_system_manager.create_unified_id(
-                entity_label=group_label,
-                entity_type="TimePeriodGroup",
-                ukg_coords={"Axis13": group_original_id},
-                specific_id_part=group_original_id
+            self.logger.info(f"Added Pillar Level: {pl_label}")
+
+    def _add_pillar_sublevel(self, parent_uid: str, sublevel_data: Dict, level: int = 1):
+        """
+        Add a sublevel to a pillar level node.
+
+        Args:
+            parent_uid: UID of the parent node
+            sublevel_data: Data for the sublevel
+            level: Current sublevel depth
+        """
+        sl_id = sublevel_data.get("id")
+        sl_label = sublevel_data.get("label", "Unknown Sublevel")
+        sl_description = sublevel_data.get("description", "")
+
+        # Generate UID
+        if self.usm:
+            sl_uid_pkg = self.usm.create_unified_id(
+                entity_label=sl_label,
+                entity_type="PillarSublevelNode",
+                ukg_coords={"Axis1": sl_id, "ParentUID": parent_uid, "Level": level},
+                specific_id_part=sl_id
             )
-            
-            group_uid = group_uid_pkg["uid_string"]
-            
-            # Store UID in definition for later reference
-            period_group_def['uid_string'] = group_uid
-            
-            # Add node to graph
-            self.graph.add_node(
-                group_uid,
-                label=group_label,
-                description=group_description,
-                original_id=group_original_id,
-                **group_uid_pkg
-            )
-            
-            # Connect to Axis 13
-            self.graph.add_edge(axis13_uid_str, group_uid, relationship="has_time_period_group")
-            
-            # Create nodes for periods if defined
-            if 'periods' in period_group_def and isinstance(period_group_def['periods'], list):
-                for period_def in period_group_def['periods']:
-                    period_label = period_def.get('label', 'Unknown Period')
-                    period_id = period_def.get('id', 'Unknown_Period')
-                    period_description = period_def.get('description', '')
-                    start_year = period_def.get('start_year', None)
-                    end_year = period_def.get('end_year', None)
-                    
-                    period_uid_pkg = self.united_system_manager.create_unified_id(
-                        entity_label=period_label,
-                        entity_type="TimePeriod",
-                        ukg_coords={"Axis13": group_original_id, "PeriodID": period_id},
-                        specific_id_part=period_id
-                    )
-                    
-                    period_uid = period_uid_pkg["uid_string"]
-                    
-                    # Add period node
-                    node_attributes = {
-                        "label": period_label,
-                        "description": period_description,
-                        "original_id": period_id,
-                        **period_uid_pkg
-                    }
-                    
-                    # Add start and end years if present
-                    if start_year is not None:
-                        node_attributes["start_year"] = start_year
-                    if end_year is not None:
-                        node_attributes["end_year"] = end_year
-                    
-                    self.graph.add_node(
-                        period_uid,
-                        **node_attributes
-                    )
-                    
-                    # Connect period to Group
-                    self.graph.add_edge(group_uid, period_uid, relationship="has_period")
-                    
-                    # Create nodes for sub-periods if defined
-                    if 'sub_periods' in period_def and isinstance(period_def['sub_periods'], list):
-                        for sub_period_def in period_def['sub_periods']:
-                            sub_period_label = sub_period_def.get('label', 'Unknown Sub-Period')
-                            sub_period_id = sub_period_def.get('id', 'Unknown_SubPeriod')
-                            sub_period_description = sub_period_def.get('description', '')
-                            sub_start_year = sub_period_def.get('start_year', None)
-                            sub_end_year = sub_period_def.get('end_year', None)
-                            
-                            sub_period_uid_pkg = self.united_system_manager.create_unified_id(
-                                entity_label=sub_period_label,
-                                entity_type="TimeSubPeriod",
-                                ukg_coords={"Axis13": group_original_id, "PeriodID": period_id, "SubPeriodID": sub_period_id},
-                                specific_id_part=sub_period_id
-                            )
-                            
-                            sub_period_uid = sub_period_uid_pkg["uid_string"]
-                            
-                            # Add sub-period node
-                            sub_node_attributes = {
-                                "label": sub_period_label,
-                                "description": sub_period_description,
-                                "original_id": sub_period_id,
-                                **sub_period_uid_pkg
-                            }
-                            
-                            # Add start and end years if present
-                            if sub_start_year is not None:
-                                sub_node_attributes["start_year"] = sub_start_year
-                            if sub_end_year is not None:
-                                sub_node_attributes["end_year"] = sub_end_year
-                            
-                            self.graph.add_node(
-                                sub_period_uid,
-                                **sub_node_attributes
-                            )
-                            
-                            # Connect sub-period to Period
-                            self.graph.add_edge(period_uid, sub_period_uid, relationship="has_sub_period")
-                            
-            logging.info(f"[{datetime.now()}] GM: Added Time Period Group: {group_label} (UID: {group_uid[:10]}...)")
-                            
-    def _create_location_nodes(self):
-        """Create nodes for Locations (Axis 12)."""
-        logging.info(f"[{datetime.now()}] GM: Creating Location nodes")
-        
-        axis12_uid_str = self._get_axis_uid_by_number(12)
-        if not axis12_uid_str:
-            logging.warning(f"[{datetime.now()}] GM: Axis 12 UID not found, cannot create Location nodes")
-            return
-            
-        location_data_path = self.config_or_default_path_for_locations
-        raw_location_data = self._load_yaml_file(location_data_path, "Locations Gazetteer")
-            
-        if raw_location_data and 'Locations' in raw_location_data:
-            # Process top-level locations first
-            for loc_def in raw_location_data['Locations']:
-                self._add_location_node_recursive(loc_def, axis12_uid_str, parent_loc_uid=None)
+            sl_uid = sl_uid_pkg["uid_string"]
         else:
-            logging.warning(f"[{datetime.now()}] GM: Location gazetteer data not found or invalid at {location_data_path}")
-    
-    def _add_location_node_recursive(self, loc_def, axis12_uid, parent_loc_uid=None):
-        """
-        Recursively adds location nodes and their children to the graph.
-        
-        Args:
-            loc_def (dict): Location definition 
-            axis12_uid (str): UID of Axis 12
-            parent_loc_uid (str, optional): UID of parent location
-        """
-        loc_original_id = loc_def["loc_id"]
-        loc_label = loc_def["loc_label"]
-        
-        loc_uid_pkg = self.united_system_manager.create_unified_id(
-            entity_label=loc_label,
-            entity_type=loc_def.get("type", "Location"),  # Specific type like "Country", "City"
-            ukg_coords={"Axis12": loc_original_id, "ISO": loc_def.get("iso_code","N/A")},  # Main Axis 12 context
-            specific_id_part=loc_original_id
+            sl_uid = f"UID_SL_{sl_id}"
+
+        # Add sublevel node
+        self.graph.add_node(
+            sl_uid,
+            name=sl_label,
+            description=sl_description,
+            type="PillarSublevelNode",
+            original_id=sl_id,
+            level=level,
+            axis_number=1
         )
-        loc_uid = loc_uid_pkg["uid_string"]
-        
-        node_attributes = {
-            "label": loc_label, "type": loc_def.get("type", "Location"), 
-            "original_id": loc_original_id,
-            "iso_code": loc_def.get("iso_code"),
-            "latitude": loc_def.get("latitude"),  # For precise points
-            "longitude": loc_def.get("longitude"),
-            "linked_regulatory_framework_uids": loc_def.get("linked_regulatory_framework_uids", []),
-            **loc_uid_pkg
-        }
-        # Remove None values from attributes before adding node
-        node_attributes = {k:v for k,v in node_attributes.items() if v is not None}
-        self.graph.add_node(loc_uid, **node_attributes)
-        
-        if parent_loc_uid:  # Link to parent location
-            self.graph.add_edge(parent_loc_uid, loc_uid, relationship="contains_sub_location")
-        else:  # Link top-level location to Axis12 node
-            self.graph.add_edge(axis12_uid, loc_uid, relationship="has_location_entry")
-        
-        logging.debug(f"    GM_Axis12: Added Location Node '{loc_label}' (UID {loc_uid[:10]}...)")
-        
-        # Process children
-        for child_loc_def in loc_def.get("children", []):
-            self._add_location_node_recursive(child_loc_def, axis12_uid, parent_loc_uid=loc_uid)
-        # Process precise points if any (not hierarchical children, but associated points)
-        for precise_point_def in loc_def.get("precise_locations", []):
-            self._add_location_node_recursive(precise_point_def, axis12_uid, parent_loc_uid=loc_uid)  # Points are children of their city/region
-    
-    def _build_graph_connections(self):
-        """Build connections between nodes across different axes."""
-        logging.info(f"[{datetime.now()}] GM: Building cross-axis connections")
-        
-        # Build connections from Pillar Levels to Topics
-        self._connect_pillar_levels_to_topics()
-        
-        # Build connections from Sectors to Regulatory Frameworks
-        self._connect_sectors_to_regulatory_frameworks()
-        
-        # Build connections from Regulatory Frameworks to Compliance Standards
-        self._connect_regulatory_to_compliance()
-        
-        # Build connections from Locations to Regulatory Frameworks
-        self._connect_locations_to_regulatory_frameworks()
-    
-    def _connect_pillar_levels_to_topics(self):
-        """Connect Pillar Level nodes to relevant Topic nodes."""
-        # This would be implemented based on relationships defined in YAML files
-        # For simplicity, not fully implemented in this example
-        pass
-    
-    def _connect_sectors_to_regulatory_frameworks(self):
-        """Connect Sector nodes to relevant Regulatory Framework nodes."""
-        # This would be implemented based on relationships defined in YAML files
-        # For simplicity, not fully implemented in this example
-        pass
-    
-    def _connect_regulatory_to_compliance(self):
-        """Connect Regulatory Framework nodes to relevant Compliance Standard nodes."""
-        # This would be implemented based on relationships defined in YAML files
-        # For simplicity, not fully implemented in this example
-        pass
-    
-    def _connect_locations_to_regulatory_frameworks(self):
-        """Connect Location nodes to relevant Regulatory Framework nodes."""
-        # Iterate through all location nodes
-        location_nodes = [node for node, attr in self.graph.nodes(data=True) 
-                         if attr.get('entity_type', '').lower() in ['country', 'state', 'city', 'region', 'supranationalregion']]
-        
-        for loc_uid in location_nodes:
-            # Get linked regulatory framework UIDs
-            linked_reg_uids = self.graph.nodes[loc_uid].get('linked_regulatory_framework_uids', [])
-            
-            # Connect each location to its linked regulatory frameworks
-            for reg_uid in linked_reg_uids:
-                if self.graph.has_node(reg_uid):
-                    self.graph.add_edge(loc_uid, reg_uid, relationship="subject_to_regulation")
-                    logging.debug(f"    GM: Connected Location {self.graph.nodes[loc_uid].get('label')} to Regulatory Framework {reg_uid[:10]}...")
-    
-    def _get_axis_uid_by_number(self, axis_number):
+
+        # Connect to parent
+        self.graph.add_edge(parent_uid, sl_uid, relationship="has_sublevel")
+
+        # Process nested sublevels
+        nested_sublevels = sublevel_data.get("sublevels", [])
+        for nested in nested_sublevels:
+            self._add_pillar_sublevel(sl_uid, nested, level + 1)
+
+    def _get_axis_uid_by_number(self, axis_number: int) -> Optional[str]:
         """
-        Get the UID for an axis by its number.
-        
+        Get the UID for a specific axis by its number.
+
         Args:
-            axis_number (int): The axis number
-            
+            axis_number: The axis number (1-13)
+
         Returns:
-            str: The axis UID or None if not found
+            The axis UID or None if not found
         """
-        for axis_def in self.axis_definitions_data.get('Axes', []):
-            if axis_def.get('number') == axis_number and 'uid_string' in axis_def:
-                return axis_def['uid_string']
+        for node, data in self.graph.nodes(data=True):
+            if data.get("type") == "AxisNode" and data.get("axis_number") == axis_number:
+                return node
         return None
-    
-    def get_node_data_by_uid(self, uid):
+
+    def get_node_data_by_uid(self, uid: str) -> Optional[Dict]:
         """
-        Get all data for a node with the given UID.
-        
+        Get node data by UID.
+
         Args:
-            uid (str): The UID of the node
-            
+            uid: Node's unique identifier
+
         Returns:
-            dict: Node attributes or None if not found
+            Dict containing the node data or None if not found
         """
-        if self.graph.has_node(uid):
+        if uid in self.graph:
             return dict(self.graph.nodes[uid])
         return None
-    
-    def get_node_data_by_attribute(self, attribute_name, attribute_value, node_type=None):
+
+    def get_node_data_by_attribute(self, attr_name: str, attr_value: Any, node_type: Optional[str] = None) -> Optional[str]:
         """
-        Get a node UID that matches the specified attribute.
-        
+        Get node UID by a specific attribute value.
+
         Args:
-            attribute_name (str): The name of the attribute
-            attribute_value (str): The value to match
-            node_type (str, optional): Filter by node type
-            
+            attr_name: Attribute name to search
+            attr_value: Value to match
+            node_type: Optional node type to filter on
+
         Returns:
-            str: The UID of the first matching node, or None if not found
+            The matching node UID or None if not found
         """
-        for node, attrs in self.graph.nodes(data=True):
-            if attribute_name in attrs and attrs[attribute_name] == attribute_value:
-                if node_type is None or attrs.get('entity_type') == node_type:
+        for node, data in self.graph.nodes(data=True):
+            if attr_name in data and data[attr_name] == attr_value:
+                if node_type is None or data.get("type") == node_type:
                     return node
         return None
-    
-    def get_pillar_level_uid(self, pl_original_id):
+
+    def get_pillar_level_uid(self, pillar_id: str) -> Optional[str]:
         """
-        Get the UID for a Pillar Level by its original ID.
-        
+        Get the UID for a specific Pillar Level by its ID.
+
         Args:
-            pl_original_id (str): The original ID of the Pillar Level
-            
+            pillar_id: The Pillar Level ID (e.g., 'PL01')
+
         Returns:
-            str: The UID or None if not found
+            The UID of the Pillar Level or None if not found
         """
-        return self.get_node_data_by_attribute('original_id', pl_original_id, 'PillarLevel')
-    
-    def get_axis_uid(self, axis_original_id):
+        return self.get_node_data_by_attribute("original_id", pillar_id, "PillarLevelNode")
+
+    def get_connected_nodes(self, node_uid: str, relationship_type: Optional[str] = None, direction: str = "outgoing") -> List[Dict]:
         """
-        Get the UID for an Axis by its original ID.
-        
+        Get nodes connected to a specific node.
+
         Args:
-            axis_original_id (str): The original ID of the axis
-            
+            node_uid: The UID of the node
+            relationship_type: Optional relationship type filter
+            direction: 'outgoing', 'incoming', or 'both'
+
         Returns:
-            str: The UID or None if not found
+            List of connected node data dictionaries
         """
-        return self.get_node_data_by_attribute('original_id', axis_original_id, 'Axis')
+        if node_uid not in self.graph:
+            return []
+
+        result = []
+
+        if direction in ["outgoing", "both"]:
+            for _, target in self.graph.out_edges(node_uid):
+                edge_data = self.graph.get_edge_data(node_uid, target)
+                if relationship_type is None or edge_data.get("relationship") == relationship_type:
+                    node_data = self.get_node_data_by_uid(target)
+                    if node_data:
+                        result.append({
+                            "node": node_data,
+                            "relationship": edge_data.get("relationship", "unknown"),
+                            "direction": "outgoing"
+                        })
+
+        if direction in ["incoming", "both"]:
+            for source, _ in self.graph.in_edges(node_uid):
+                edge_data = self.graph.get_edge_data(source, node_uid)
+                if relationship_type is None or edge_data.get("relationship") == relationship_type:
+                    node_data = self.get_node_data_by_uid(source)
+                    if node_data:
+                        result.append({
+                            "node": node_data,
+                            "relationship": edge_data.get("relationship", "unknown"),
+                            "direction": "incoming"
+                        })
+
+        return result
+
+    def get_axis_uid(self, axis_id: str) -> Optional[str]:
+        """
+        Get the UID for a specific axis by its ID.
+
+        Args:
+            axis_id: The axis ID (e.g., 'Axis1')
+
+        Returns:
+            The axis UID or None if not found
+        """
+        return self.get_node_data_by_attribute("original_id", axis_id, "AxisNode")
+
+    def search_nodes(self, query: str, node_types: Optional[List[str]] = None, limit: int = 10) -> List[Dict]:
+        """
+        Search for nodes matching a query string.
+
+        Args:
+            query: Search query string
+            node_types: Optional list of node types to filter on
+            limit: Maximum number of results to return
+
+        Returns:
+            List of matching node data dictionaries
+        """
+        query = query.lower()
+        results = []
+
+        for node, data in self.graph.nodes(data=True):
+            if node_types and data.get("type") not in node_types:
+                continue
+
+            # Search in name, description, and other text fields
+            name = str(data.get("name", "")).lower()
+            description = str(data.get("description", "")).lower()
+
+            if query in name or query in description:
+                results.append(dict(data))
+
+            if len(results) >= limit:
+                break
+
+        return results
     
     def find_location_uids_from_text(self, text):
         """

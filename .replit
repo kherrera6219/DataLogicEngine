@@ -10,7 +10,7 @@ run = ["sh", "-c", "gunicorn --bind 0.0.0.0:3000 app:app"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
-runButton = "Full-Stack Deployment"
+runButton = "UKG System"
 
 [[workflows.workflow]]
 name = "Project"
@@ -116,6 +116,24 @@ args = "# Start Next.js in development mode"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
+
+[[workflows.workflow]]
+name = "UKG System"
+author = 28709262
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
+
+[[workflows.workflow]]
+name = "UKG System"
+author = 28709262
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
 
 [[ports]]
 localPort = 3000
