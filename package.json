@@ -1,12 +1,12 @@
 {
-  "name": "ukg-nextjs",
-  "version": "1.0.0",
-  "description": "Universal Knowledge Graph System with Next.js frontend",
-  "main": "index.js",
+  "name": "ukg-system",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -p 5000"
+    "start": "next start",
+    "lint": "next lint"
   },
   "keywords": [
     "ukg",
@@ -16,22 +16,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "autoprefixer": "^10.4.21",
-    "axios": "^1.9.0",
-    "bootstrap": "^5.3.0",
-    "bootstrap-icons": "^1.11.1",
-    "chart.js": "^4.4.9",
-    "framer-motion": "^12.12.1",
-    "marked": "^9.0.0",
-    "next": "^13.4.19",
-    "postcss": "^8.5.3",
+    "bootstrap": "^5.3.2",
+    "bootstrap-icons": "^1.11.3",
+    "dotenv": "^16.3.1",
+    "marked": "^9.1.5",
+    "next": "^14.0.4",
     "react": "^18.2.0",
-    "react-chartjs-2": "^5.3.0",
-    "react-dom": "^18.2.0",
-    "react-markdown": "^10.1.0",
-    "react-query": "^3.39.3",
-    "react-syntax-highlighter": "^15.6.1",
-    "swr": "^2.3.3",
-    "tailwindcss": "^4.1.7"
+    "react-bootstrap": "^2.9.1",
+    "react-dom": "^18.2.0"
   }
 }
