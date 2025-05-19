@@ -10,7 +10,7 @@ run = ["sh", "-c", "npm start"]
 build = ["sh", "-c", "npm install && npm run build"]
 
 [workflows]
-runButton = "Run Complete Database Demo"
+runButton = "Run Layer1 Demo"
 
 [[workflows.workflow]]
 name = "Project"

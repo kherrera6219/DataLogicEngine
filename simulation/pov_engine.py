@@ -1219,42 +1219,6 @@ class POVEngine:
         self.execution_time += (datetime.now() - start_time).total_seconds()
         
         return result
-        conflicts = []
-        
-        # For demo purposes, create a simulated alignment
-        alignments.append({
-            'topic': 'Example alignment topic',
-            'personas': ['knowledge_expert', 'sector_expert'],
-            'alignment_strength': 0.85,
-            'key_points': ['Aligned point 1', 'Aligned point 2']
-        })
-        
-        # For demo purposes, create a simulated conflict
-        conflicts.append({
-            'topic': 'Example conflict topic',
-            'personas': ['regulatory_expert', 'compliance_expert'],
-            'conflict_severity': 0.7,
-            'key_points': ['Conflicting point 1', 'Conflicting point 2']
-        })
-        
-        # Create entangled points
-        for persona in personas:
-            perspective = persona['perspective']
-            
-            for point in perspective.get('key_points', []):
-                entangled_points.append({
-                    'point': point,
-                    'source_persona': persona['persona_id'],
-                    'confidence': perspective.get('confidence', 0.7) * persona.get('confidence', 0.8),
-                    'supported_by': [p['persona_id'] for p in personas if p['persona_id'] != persona['persona_id']],
-                    'evidence': perspective.get('evidence', [])
-                })
-            
-            # Add to overall confidence
-            overall_confidence += persona.get('confidence', 0.8)
-        
-        # Normalize confidence
-        if personas:
             overall_confidence /= len(personas)
         
         return {
