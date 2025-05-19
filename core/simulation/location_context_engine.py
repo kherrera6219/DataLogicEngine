@@ -1,260 +1,316 @@
 import logging
 from datetime import datetime
-from typing import Dict, List, Optional, Any
-import uuid
+from typing import Dict, List, Any, Optional, Union, Tuple
 import sys
 import os
 
-# Add the parent directory to path to allow imports from backend
+# Add parent directory to path to allow imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from backend.models import UkgNode, UkgEdge
 
 class LocationContextEngine:
     """
-    The LocationContextEngine determines the "active location context" for the UKG system
-    and helps other components filter or prioritize information based on geographic context.
-    This engine integrates with the database to process location information from Axis 12 of the UKG.
+    Location Context Engine
+    
+    This component implements Axis 12 of the UKG, managing spatial relationship logic.
+    It determines the active location context for queries and simulations, helping to
+    filter knowledge based on geographic relevance.
     """
     
-    def __init__(self, config, graph_manager, united_system_manager):
+    def __init__(self, config=None, graph_manager=None, usm=None):
         """
-        Initialize the LocationContextEngine.
+        Initialize the Location Context Engine.
         
         Args:
-            config (dict): Configuration dictionary with location-specific settings
-            graph_manager: Reference to the GraphManager
-            united_system_manager: Reference to the UnitedSystemManager
+            config (dict, optional): Configuration dictionary
+            graph_manager: Graph Manager reference
+            usm: United System Manager reference
         """
-        self.config = config.get('axis12_location_logic', {})
-        self.gm = graph_manager
-        self.usm = united_system_manager
-        self.default_location_uid = self.config.get('default_location_context_uid', 'LOC_COUNTRY_USA')
+        logging.info(f"[{datetime.now()}] Initializing LocationContextEngine...")
+        self.config = config or {}
+        self.graph_manager = graph_manager
+        self.usm = usm
         
-        logging.info(f"[{datetime.now()}] LocationContextEngine (Axis 12 Logic) initialized")
+        # Configure axis12 settings
+        self.axis12_config = self.config.get('axis12_location_logic', {})
+        self.default_location_uid = self.axis12_config.get('default_location_context_uid', 'LOC_COUNTRY_USA')
+        self.use_nlp_extraction = self.axis12_config.get('location_extraction', {}).get('use_nlp', False)
+        self.confidence_threshold = self.axis12_config.get('location_extraction', {}).get('confidence_threshold', 0.75)
+        
+        # Location cache for performance
+        self.location_label_to_uid = {}
+        self.location_uid_to_info = {}
+        self.location_parent_map = {}
+        self.regulation_location_map = {}
+        
+        # Initialize cache if graph manager is available
+        if self.graph_manager:
+            self._initialize_location_cache()
+        
+        logging.info(f"[{datetime.now()}] LocationContextEngine initialized with default location: {self.default_location_uid}")
     
-    def determine_active_location_context(self, 
-                                         query_text: Optional[str] = None, 
-                                         explicit_location_uids: Optional[List[str]] = None,
-                                         user_profile_location_uid: Optional[str] = None) -> List[str]:
+    def _initialize_location_cache(self):
         """
-        Determines the active location context UIDs for the current simulation.
-        Priority: Explicit UIDs > Query Text > User Profile > Default.
+        Initialize the location cache from the graph database.
+        """
+        try:
+            if not self.graph_manager:
+                logging.warning(f"[{datetime.now()}] LCE: Cannot initialize location cache without graph manager")
+                return
+            
+            # Get all location nodes from the graph
+            locations = self.graph_manager.get_nodes_by_type('Location')
+            
+            # Build caches
+            for loc in locations:
+                uid = loc.get('uid')
+                if not uid:
+                    continue
+                    
+                label = loc.get('label', '')
+                self.location_uid_to_info[uid] = loc
+                self.location_label_to_uid[label.lower()] = uid
+            
+            # Build parent-child relationships
+            location_edges = self.graph_manager.get_edges_by_type('LOCATED_WITHIN')
+            for edge in location_edges:
+                child_uid = edge.get('source_uid')
+                parent_uid = edge.get('target_uid')
+                
+                if child_uid and parent_uid:
+                    if child_uid not in self.location_parent_map:
+                        self.location_parent_map[child_uid] = []
+                    self.location_parent_map[child_uid].append(parent_uid)
+            
+            # Build regulation to location map
+            reg_loc_edges = self.graph_manager.get_edges_by_type('APPLIES_TO_LOCATION')
+            for edge in reg_loc_edges:
+                reg_uid = edge.get('source_uid')
+                loc_uid = edge.get('target_uid')
+                
+                if reg_uid and loc_uid:
+                    if reg_uid not in self.regulation_location_map:
+                        self.regulation_location_map[reg_uid] = []
+                    self.regulation_location_map[reg_uid].append(loc_uid)
+            
+            logging.info(f"[{datetime.now()}] LCE: Initialized location cache with {len(self.location_uid_to_info)} locations")
+            
+        except Exception as e:
+            logging.error(f"[{datetime.now()}] LCE: Error initializing location cache: {str(e)}")
+    
+    def determine_active_location_context(self, query_text: Optional[str] = None, 
+                                        explicit_location_uids: Optional[List[str]] = None,
+                                        user_profile_location_uid: Optional[str] = None) -> List[str]:
+        """
+        Determine the active location context for a query.
         
         Args:
-            query_text (str, optional): The user's query text to extract locations from
-            explicit_location_uids (List[str], optional): Explicitly provided location UIDs
-            user_profile_location_uid (str, optional): User's profile location UID
+            query_text: The user's query text
+            explicit_location_uids: Explicitly provided location UIDs
+            user_profile_location_uid: User's profile location UID
             
         Returns:
-            List[str]: A list of relevant location UIDs (e.g., [City_UID, State_UID, Country_UID])
+            list: List of active location UIDs
         """
-        active_loc_uids = []
+        active_locations = []
         
-        # 1. Check explicit location UIDs first (highest priority)
+        # Priority 1: Explicit location UIDs
         if explicit_location_uids:
-            # Validate explicit locations exist in the graph
-            for uid in explicit_location_uids:
-                if self.gm.get_node_data_by_uid(uid) and self.gm.get_node_data_by_uid(uid).get("type") in [
-                    'Location', 'Country', 'State', 'City', 'Region', 'MilitaryInstallation', 'SupranationalRegion'
-                ]:
-                    active_loc_uids.append(uid)
+            active_locations = self._validate_location_uids(explicit_location_uids)
+            if active_locations:
+                logging.info(f"[{datetime.now()}] LCE: Using explicit location UIDs: {active_locations}")
+                return self._expand_location_hierarchy(active_locations)
+        
+        # Priority 2: Extract from query text
+        if query_text and self.use_nlp_extraction:
+            extracted_locations = self._extract_locations_from_text(query_text)
+            if extracted_locations:
+                logging.info(f"[{datetime.now()}] LCE: Extracted locations from query: {extracted_locations}")
+                return self._expand_location_hierarchy(extracted_locations)
+        
+        # Priority 3: User profile location
+        if user_profile_location_uid:
+            valid_uid = self._validate_location_uids([user_profile_location_uid])
+            if valid_uid:
+                logging.info(f"[{datetime.now()}] LCE: Using user profile location: {valid_uid}")
+                return self._expand_location_hierarchy(valid_uid)
+        
+        # Priority 4: Default location
+        logging.info(f"[{datetime.now()}] LCE: Using default location: {self.default_location_uid}")
+        return self._expand_location_hierarchy([self.default_location_uid])
+    
+    def _validate_location_uids(self, location_uids: List[str]) -> List[str]:
+        """
+        Validate that location UIDs exist in the system.
+        
+        Args:
+            location_uids: List of location UIDs to validate
             
-            if active_loc_uids:
-                logging.info(f"[{datetime.now()}] LCE: Using explicit location UIDs: {[uid[:10] for uid in active_loc_uids]}")
-                return self._expand_location_hierarchy(active_loc_uids)
+        Returns:
+            list: List of valid location UIDs
+        """
+        valid_uids = []
         
-        # 2. Extract locations from query text
-        if query_text:
-            # Simple keyword matching for locations in the text
-            # In a production system, this would use NLP/NER for location extraction
-            locations_from_query = self._extract_locations_from_text(query_text)
-            if locations_from_query:
-                active_loc_uids.extend(locations_from_query)
-                logging.info(f"[{datetime.now()}] LCE: Extracted locations from query: {[self._get_location_label(uid) for uid in locations_from_query]}")
-                return self._expand_location_hierarchy(active_loc_uids)
+        for uid in location_uids:
+            # Check in cache first
+            if uid in self.location_uid_to_info:
+                valid_uids.append(uid)
+                continue
+                
+            # If not in cache, check in graph database if available
+            if self.graph_manager:
+                node = self.graph_manager.get_node_by_uid(uid)
+                if node and node.get('node_type') == 'Location':
+                    valid_uids.append(uid)
+                    # Add to cache
+                    self.location_uid_to_info[uid] = node
         
-        # 3. Use user profile location if available
-        if user_profile_location_uid and self.gm.get_node_data_by_uid(user_profile_location_uid):
-            node_data = self.gm.get_node_data_by_uid(user_profile_location_uid)
-            if node_data and node_data.get("type") in ['Location', 'Country', 'State', 'City', 'Region']:
-                logging.info(f"[{datetime.now()}] LCE: Using user profile location: {node_data.get('label')}")
-                return self._expand_location_hierarchy([user_profile_location_uid])
-        
-        # 4. Fall back to default location
-        default_loc_uid = self.gm.get_node_data_by_attribute("original_id", self.default_location_uid)
-        if default_loc_uid:
-            default_node = self.gm.get_node_data_by_uid(default_loc_uid)
-            if default_node:
-                logging.info(f"[{datetime.now()}] LCE: Using default location: {default_node.get('label')}")
-                return self._expand_location_hierarchy([default_loc_uid])
-        
-        logging.info(f"[{datetime.now()}] LCE: No specific location context determined")
-        return []
+        return valid_uids
     
     def _extract_locations_from_text(self, text: str) -> List[str]:
         """
         Extract location references from text.
         
         Args:
-            text (str): The text to analyze for location references
+            text: Text to analyze
             
         Returns:
-            List[str]: List of extracted location UIDs
+            list: List of extracted location UIDs
         """
-        # Convert to lowercase for case-insensitive matching
-        text_lower = text.lower()
+        # This would use a more sophisticated NLP approach in a full implementation
+        # For now, we'll use a simple text matching approach
         
-        # This is a simple keyword matching approach
-        # In a production system, this would use a more sophisticated NER model
         extracted_uids = []
         
-        # Simple keyword matching for locations
-        # For demo, we check for a few common location names
-        common_locations = {
-            "united states": "LOC_COUNTRY_USA",
-            "usa": "LOC_COUNTRY_USA",
-            "us": "LOC_COUNTRY_USA",
-            "america": "LOC_COUNTRY_USA",
-            "texas": "LOC_STATE_USA_TX",
-            "tx": "LOC_STATE_USA_TX",
-            "austin": "LOC_CITY_USA_TX_AUSTIN",
-            "california": "LOC_STATE_USA_CA",
-            "ca": "LOC_STATE_USA_CA",
-            "san francisco": "LOC_CITY_USA_CA_SF",
-            "sf": "LOC_CITY_USA_CA_SF",
-            "european union": "LOC_REGION_EU",
-            "eu": "LOC_REGION_EU",
-            "europe": "LOC_REGION_EU",
-            "germany": "LOC_COUNTRY_DEU",
-            "de": "LOC_COUNTRY_DEU",
-            "berlin": "LOC_STATE_DEU_BER",
-            "united kingdom": "LOC_COUNTRY_GBR",
-            "uk": "LOC_COUNTRY_GBR",
-            "england": "LOC_REGION_GBR_ENG",
-            "london": "LOC_CITY_GBR_ENG_LON"
-        }
+        # Convert text to lowercase for matching
+        text_lower = text.lower()
         
-        for location_name, location_id in common_locations.items():
-            if location_name in text_lower:
-                # Find the node UID by original_id
-                node_uid = self.gm.get_node_data_by_attribute("original_id", location_id)
-                if node_uid:
-                    extracted_uids.append(node_uid)
+        # Check if any location labels appear in the text
+        for label, uid in self.location_label_to_uid.items():
+            if label in text_lower:
+                extracted_uids.append(uid)
         
         return extracted_uids
     
     def _expand_location_hierarchy(self, leaf_location_uids: List[str]) -> List[str]:
         """
-        Given leaf location UIDs, traces up to get their parent location UIDs.
+        Expand location UIDs to include all ancestors in the hierarchy.
         
         Args:
-            leaf_location_uids (List[str]): The starting location UIDs
+            leaf_location_uids: List of leaf location UIDs
             
         Returns:
-            List[str]: Full hierarchy of location UIDs including parents
+            list: List of all location UIDs in the hierarchy
         """
-        full_hierarchy_uids = set(leaf_location_uids)
+        all_locations = set(leaf_location_uids)
         
+        # For each leaf location, traverse up the hierarchy
         for leaf_uid in leaf_location_uids:
-            curr_uid = leaf_uid
-            depth = 0  # Safety limit to prevent infinite loops
+            current_uid = leaf_uid
             
-            while curr_uid and depth < 5:  # Max 5 levels up
-                # Find parent locations (connected by "contains_sub_location" edge)
-                parent_found = False
-                
-                for source_uid, _, edge_data in self.gm.graph.in_edges(curr_uid, data=True):
-                    if edge_data.get("relationship") == "contains_sub_location":
-                        full_hierarchy_uids.add(source_uid)
-                        curr_uid = source_uid
-                        parent_found = True
-                        break
-                
-                if not parent_found:
+            # Continue until we reach a location with no parent
+            while current_uid in self.location_parent_map:
+                for parent_uid in self.location_parent_map[current_uid]:
+                    all_locations.add(parent_uid)
+                    current_uid = parent_uid
+        
+        return list(all_locations)
+    
+    def get_applicable_regulations(self, location_uids: List[str]) -> List[str]:
+        """
+        Get regulations that apply to the given locations.
+        
+        Args:
+            location_uids: List of location UIDs
+            
+        Returns:
+            list: List of applicable regulation UIDs
+        """
+        applicable_regulation_uids = set()
+        
+        # For each regulation, check if it applies to any of the locations
+        for reg_uid, reg_locations in self.regulation_location_map.items():
+            for loc_uid in reg_locations:
+                if loc_uid in location_uids:
+                    applicable_regulation_uids.add(reg_uid)
                     break
-                
-                depth += 1
         
-        return list(full_hierarchy_uids)
+        return list(applicable_regulation_uids)
     
-    def _get_location_label(self, uid: str) -> str:
+    def filter_nodes_by_location(self, nodes: List[Dict], active_location_uids: List[str]) -> List[Dict]:
         """
-        Get the human-readable label for a location UID.
+        Filter nodes based on location relevance.
         
         Args:
-            uid (str): The location UID
+            nodes: List of node dictionaries
+            active_location_uids: List of active location UIDs
             
         Returns:
-            str: The location label or a truncated UID if not found
+            list: Filtered list of nodes
         """
-        node_data = self.gm.get_node_data_by_uid(uid)
-        return node_data.get('label', uid[:10]) if node_data else uid[:10]
-    
-    def get_applicable_regulations_for_locations(self, location_uids: List[str]) -> List[str]:
-        """
-        Given a list of active location UIDs, find all regulatory frameworks linked to them.
-        
-        Args:
-            location_uids (List[str]): List of location UIDs
-            
-        Returns:
-            List[str]: List of applicable regulatory framework UIDs
-        """
-        applicable_reg_uids = set()
-        
-        for loc_uid in location_uids:
-            # Get the location node
-            loc_data = self.gm.get_node_data_by_uid(loc_uid)
-            if not loc_data:
-                continue
-            
-            # Check if the node has linked regulatory frameworks in its attributes
-            if "linked_regulatory_framework_uids" in loc_data:
-                reg_orig_ids = loc_data["linked_regulatory_framework_uids"]
-                
-                # Convert original IDs to UIDs in the graph
-                for reg_orig_id in reg_orig_ids:
-                    reg_uid = self.gm.get_node_data_by_attribute("original_id", reg_orig_id, "RegulatoryFrameworkNode")
-                    if reg_uid:
-                        applicable_reg_uids.add(reg_uid)
-        
-        # Log the found regulations
-        if applicable_reg_uids:
-            reg_labels = []
-            for uid in applicable_reg_uids:
-                node_data = self.gm.get_node_data_by_uid(uid)
-                if node_data:
-                    reg_labels.append(node_data.get('label', uid[:10]))
-            
-            logging.info(f"[{datetime.now()}] LCE: Found {len(applicable_reg_uids)} regulations applicable to locations: {reg_labels}")
-        
-        return list(applicable_reg_uids)
-    
-    def filter_nodes_by_location_context(self, nodes_data: List[Dict], active_location_uids: List[str]) -> List[Dict]:
-        """
-        Filter a list of nodes based on location context relevance.
-        
-        Args:
-            nodes_data (List[Dict]): List of node data dictionaries
-            active_location_uids (List[str]): List of active location UIDs
-            
-        Returns:
-            List[Dict]: Filtered list of nodes relevant to the active locations
-        """
+        # If no active locations, return all nodes
         if not active_location_uids:
-            return nodes_data  # No filtering if no location context
+            return nodes
         
         filtered_nodes = []
         
-        for node_data in nodes_data:
-            # Check if the node has location-specific attributes
-            if 'attributes' in node_data and 'applicable_locations' in node_data['attributes']:
-                # Check if any of the active locations are in the node's applicable locations
-                applicable_locs = node_data['attributes']['applicable_locations']
-                if any(loc_uid in applicable_locs for loc_uid in active_location_uids):
-                    filtered_nodes.append(node_data)
-            else:
-                # If no location constraints, include the node
-                filtered_nodes.append(node_data)
+        for node in nodes:
+            # Get node's location attributes
+            node_locations = node.get('attributes', {}).get('applicable_locations', [])
+            
+            # If node has no location constraints, include it
+            if not node_locations:
+                filtered_nodes.append(node)
+                continue
+            
+            # Check if any of the node's locations overlap with active locations
+            for loc_uid in node_locations:
+                if loc_uid in active_location_uids:
+                    filtered_nodes.append(node)
+                    break
         
         return filtered_nodes
+    
+    def get_location_info(self, location_uid: str) -> Optional[Dict]:
+        """
+        Get information about a location.
+        
+        Args:
+            location_uid: Location UID
+            
+        Returns:
+            dict: Location information or None if not found
+        """
+        # Check cache first
+        if location_uid in self.location_uid_to_info:
+            return self.location_uid_to_info[location_uid]
+            
+        # If not in cache, check graph database if available
+        if self.graph_manager:
+            node = self.graph_manager.get_node_by_uid(location_uid)
+            if node and node.get('node_type') == 'Location':
+                # Add to cache
+                self.location_uid_to_info[location_uid] = node
+                return node
+        
+        return None
+    
+    def get_child_locations(self, parent_uid: str) -> List[Dict]:
+        """
+        Get child locations for a parent location.
+        
+        Args:
+            parent_uid: Parent location UID
+            
+        Returns:
+            list: List of child location dictionaries
+        """
+        child_locations = []
+        
+        # Look through parent map for children
+        for child_uid, parents in self.location_parent_map.items():
+            if parent_uid in parents:
+                location_info = self.get_location_info(child_uid)
+                if location_info:
+                    child_locations.append(location_info)
+        
+        return child_locations

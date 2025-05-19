@@ -1,848 +1,559 @@
 import logging
-from datetime import datetime
-from typing import Dict, List, Any, Optional, Union
 import uuid
+from datetime import datetime
+from typing import Dict, List, Any, Optional, Union, Tuple
 import sys
 import os
 
 # Add parent directory to path to allow imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from backend.ukg_db import UkgDatabaseManager
 
 class SimulationEngine:
     """
-    The SimulationEngine handles the execution of the simulation process across
-    all layers of the UKG system. It coordinates the processing of input data through
-    various knowledge algorithms and simulations to generate high-confidence responses.
+    Simulation Engine
+    
+    The Simulation Engine orchestrates the execution of multi-layered simulations
+    of the UKG system. It manages simulation passes, layers, and the flow of
+    information through the Knowledge Algorithm Engine.
     """
     
-    def __init__(self, config, graph_manager, memory_manager, ka_loader):
+    def __init__(self, config=None, graph_manager=None, memory_manager=None, ka_engine=None):
         """
-        Initialize the SimulationEngine.
+        Initialize the Simulation Engine.
         
         Args:
-            config (dict): Configuration dictionary
-            graph_manager: Reference to the GraphManager
-            memory_manager: Reference to the StructuredMemoryManager
-            ka_loader: Reference to the KALoader
+            config (dict, optional): Configuration dictionary
+            graph_manager: Graph Manager reference
+            memory_manager: Structured Memory Manager reference
+            ka_engine: Knowledge Algorithm Engine reference
         """
-        self.config = config
-        self.gm = graph_manager
-        self.smm = memory_manager
-        self.ka_loader = ka_loader
-        self.db_manager = UkgDatabaseManager()
+        logging.info(f"[{datetime.now()}] Initializing SimulationEngine...")
+        self.config = config or {}
+        self.graph_manager = graph_manager
+        self.memory_manager = memory_manager
+        self.ka_engine = ka_engine
         
-        # Get simulation configuration
-        self.layer_confidence_thresholds = self.config.get('layer_confidence_thresholds', {
-            1: 0.7,  # Layer 1: Retrieval
-            2: 0.75, # Layer 2: Comprehension
-            3: 0.8,  # Layer 3: Reasoning
-            4: 0.85, # Layer 4: Evaluation
-            5: 0.9,  # Layer 5: Reconsideration
-            6: 0.92, # Layer 6: Verification
-            7: 0.95, # Layer 7: Application
-            8: 0.97, # Layer 8: Synthesis
-            9: 0.99  # Layer 9: Integration
-        })
+        # Configure simulation parameters
+        self.max_passes = self.config.get('max_simulation_passes', 3)
+        self.target_confidence = self.config.get('target_confidence_overall', 0.85)
+        self.enable_gatekeeper = self.config.get('enable_gatekeeper', True)
+        self.layer_progression = self.config.get('layer_progression', list(range(1, 10)))  # Default layers 1-9
         
-        # Layer execution timeouts (in seconds)
-        self.layer_timeouts = self.config.get('layer_timeouts', {
-            1: 60,   # Layer 1: Retrieval
-            2: 60,   # Layer 2: Comprehension
-            3: 120,  # Layer 3: Reasoning
-            4: 180,  # Layer 4: Evaluation
-            5: 180,  # Layer 5: Reconsideration
-            6: 240,  # Layer 6: Verification
-            7: 180,  # Layer 7: Application
-            8: 300,  # Layer 8: Synthesis
-            9: 300   # Layer 9: Integration
-        })
+        # Status trackers
+        self.active_sessions = {}  # session_id -> session_state
         
-        logging.info(f"[{datetime.now()}] SimulationEngine initialized")
+        logging.info(f"[{datetime.now()}] SimulationEngine initialized with {len(self.layer_progression)} layers, {self.max_passes} max passes, {self.target_confidence:.2f} target confidence")
     
-    def run_layers_1_3(self, simulation_data: Dict[str, Any]) -> Dict[str, Any]:
+    def start_simulation(self, user_query: str, explicit_location_uids: Optional[List[str]] = None,
+                       target_confidence: Optional[float] = None, session_id: Optional[str] = None) -> Dict:
         """
-        Run simulation Layers 1-3 (Retrieval, Comprehension, Reasoning).
-        These layers are always run for every pass.
+        Start a new UKG simulation.
         
         Args:
-            simulation_data (dict): Current simulation data
+            user_query: The user's query text
+            explicit_location_uids: Explicitly provided location context UIDs
+            target_confidence: Optional custom target confidence level
+            session_id: Optional session ID (auto-generated if None)
             
         Returns:
-            dict: Updated simulation data
+            dict: Simulation session information
         """
-        session_id = simulation_data["session_id"]
-        pass_num = simulation_data["current_pass"]
+        # Generate session ID if needed
+        session_id = session_id or f"SS_{str(uuid.uuid4())[:8]}_{int(datetime.now().timestamp())}"
         
-        logging.info(f"[{datetime.now()}] SimulationEngine: Running Layers 1-3 for session {session_id[:8]}, pass {pass_num}")
+        # Set custom or default target confidence
+        if target_confidence is not None:
+            sim_target_confidence = target_confidence
+        else:
+            sim_target_confidence = self.target_confidence
         
-        # Run Layer 1: Information Retrieval
-        simulation_data = self.run_layer_1(simulation_data)
+        # Create simulation session in memory manager
+        if self.memory_manager:
+            session_data = self.memory_manager.create_session(
+                session_id=session_id,
+                user_query=user_query,
+                target_confidence=sim_target_confidence
+            )
+        else:
+            # If no memory manager, create a minimal session object
+            session_data = {
+                'session_id': session_id,
+                'user_query': user_query,
+                'target_confidence': sim_target_confidence,
+                'status': 'active',
+                'started_at': datetime.now().isoformat()
+            }
         
-        # If Layer 1 failed or didn't provide enough confidence, return early
-        if simulation_data.get('status', 'in_progress') != 'in_progress':
-            return simulation_data
-            
-        # Run Layer 2: Comprehension & Context Building
-        simulation_data = self.run_layer_2(simulation_data)
+        # Initialize active session state
+        self.active_sessions[session_id] = {
+            'session_id': session_id,
+            'user_query': user_query,
+            'target_confidence': sim_target_confidence,
+            'explicit_location_uids': explicit_location_uids,
+            'current_pass': 0,
+            'current_layer': None,
+            'confidence_scores': {},
+            'layer_results': {},
+            'pass_results': {},
+            'final_result': None,
+            'status': 'initializing',
+            'start_time': datetime.now(),
+            'user_profile_location_uid': None  # Could be set based on user profile in a full implementation
+        }
         
-        # If Layer 2 failed or didn't provide enough confidence, return early
-        if simulation_data.get('status', 'in_progress') != 'in_progress':
-            return simulation_data
-            
-        # Run Layer 3: Reasoning & Analysis
-        simulation_data = self.run_layer_3(simulation_data)
+        logging.info(f"[{datetime.now()}] Started simulation session {session_id} with query: {user_query}")
         
-        return simulation_data
+        # Begin the simulation
+        self._run_simulation_pass(session_id)
+        
+        return {
+            'session_id': session_id,
+            'status': self.active_sessions[session_id]['status'],
+            'message': 'Simulation started'
+        }
     
-    def run_layers_up_to(self, simulation_data: Dict[str, Any], max_layer: int) -> Dict[str, Any]:
+    def _run_simulation_pass(self, session_id: str) -> Dict:
         """
-        Run simulation layers up to the specified max layer.
-        This is typically used for higher layers (4-9) after the gatekeeper
-        decides more processing is needed.
+        Run a single simulation pass for a session.
         
         Args:
-            simulation_data (dict): Current simulation data
-            max_layer (int): The highest layer to run (4-9)
+            session_id: The session ID
             
         Returns:
-            dict: Updated simulation data
+            dict: Pass results
         """
-        session_id = simulation_data["session_id"]
-        pass_num = simulation_data["current_pass"]
+        if session_id not in self.active_sessions:
+            logging.error(f"[{datetime.now()}] SimulationEngine: Session {session_id} not found")
+            return {'error': 'Session not found'}
         
-        logging.info(f"[{datetime.now()}] SimulationEngine: Running Layers 4-{max_layer} for session {session_id[:8]}, pass {pass_num}")
+        session = self.active_sessions[session_id]
+        session['current_pass'] += 1
+        current_pass = session['current_pass']
         
-        # Run Layers 4 through max_layer
-        for layer_num in range(4, max_layer + 1):
-            # Check if we should continue processing
-            if simulation_data.get('status', 'in_progress') != 'in_progress':
-                break
-                
-            # Run the current layer
-            method_name = f"run_layer_{layer_num}"
-            if hasattr(self, method_name) and callable(getattr(self, method_name)):
-                layer_method = getattr(self, method_name)
-                simulation_data = layer_method(simulation_data)
-            else:
-                logging.warning(f"[{datetime.now()}] Layer {layer_num} method not implemented")
+        # Check if we've exceeded the maximum number of passes
+        if current_pass > self.max_passes:
+            logging.warning(f"[{datetime.now()}] SimulationEngine: Max passes ({self.max_passes}) exceeded for session {session_id}")
+            self._complete_simulation(session_id, 'max_passes_exceeded')
+            return {'error': 'Max passes exceeded'}
         
-        return simulation_data
-    
-    def run_layer_1(self, simulation_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Run Layer 1: Information Retrieval
-        This layer focuses on retrieving relevant information from the UKG
-        based on the query.
+        # Log pass start
+        logging.info(f"[{datetime.now()}] SimulationEngine: Starting pass {current_pass} for session {session_id}")
+        pass_start_time = datetime.now()
         
-        Args:
-            simulation_data (dict): Current simulation data
-            
-        Returns:
-            dict: Updated simulation data with Layer 1 output
-        """
-        session_id = simulation_data["session_id"]
-        pass_num = simulation_data["current_pass"]
-        original_query = simulation_data["original_query"]
-        active_location_uids = simulation_data.get("active_location_context_uids", [])
+        # Add pass start entry to memory
+        if self.memory_manager:
+            self.memory_manager.add_memory_entry(
+                session_id=session_id,
+                entry_type='pass_start',
+                content={
+                    'pass_num': current_pass,
+                    'timestamp': datetime.now().isoformat()
+                },
+                pass_num=current_pass
+            )
         
-        logging.info(f"[{datetime.now()}] SE: Running Layer 1 for session {session_id[:8]}, pass {pass_num}")
+        # Reset layer tracking for this pass
+        session['current_layer'] = None
+        session['layer_results'][current_pass] = {}
+        session['status'] = 'running_pass'
         
         try:
-            # Record the layer start in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=1,
-                entry_type='layer_start',
-                content={
-                    'layer_name': 'Information Retrieval',
-                    'timestamp': datetime.now().isoformat()
-                }
-            )
+            # Execute layers in sequence
+            overall_confidence = 0.0
+            prev_layer_results = None
             
-            # Execute KA03: Query Expansion
-            ka03_input = {
-                'query_text': original_query,
-                'pass_num': pass_num
-            }
-            
-            ka03_result = self.ka_loader.execute_ka(
-                ka_id=3,
-                input_data=ka03_input,
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=1
-            )
-            
-            # Execute KA04: Node Retrieval
-            expanded_query = original_query
-            if ka03_result.get('status') == 'success':
-                expanded_query = ka03_result.get('expanded_query', original_query)
+            for layer_num in self.layer_progression:
+                # Update current layer
+                session['current_layer'] = layer_num
                 
-            ka04_input = {
-                'original_query': original_query,
-                'expanded_query': expanded_query,
-                'pass_num': pass_num,
-                'active_location_uids': active_location_uids  # Include location context
-            }
-            
-            ka04_result = self.ka_loader.execute_ka(
-                ka_id=4,
-                input_data=ka04_input,
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=1
-            )
-            
-            # Process retrieved nodes and organize by relevance
-            relevant_nodes = []
-            if ka04_result.get('status') == 'success':
-                # If location context active, filter nodes
-                if active_location_uids:
-                    retrieved_nodes = ka04_result.get('retrieved_nodes', [])
-                    # Apply location-based filtering
-                    from core.simulation.location_context_engine import LocationContextEngine
-                    lce = LocationContextEngine(self.config, self.gm, None)
-                    relevant_nodes = lce.filter_nodes_by_location_context(
-                        nodes_data=retrieved_nodes,
-                        active_location_uids=active_location_uids
-                    )
+                # Run the layer
+                layer_result = self._run_simulation_layer(
+                    session_id=session_id,
+                    pass_num=current_pass,
+                    layer_num=layer_num, 
+                    prev_layer_results=prev_layer_results
+                )
+                
+                # Store layer results
+                session['layer_results'][current_pass][layer_num] = layer_result
+                prev_layer_results = layer_result
+                
+                # If layer produced a confidence score, update it
+                if 'confidence' in layer_result:
+                    session['confidence_scores'][(current_pass, layer_num)] = layer_result['confidence']
                     
-                    # Add location context to memory
-                    self.smm.add_memory_entry(
-                        session_id=session_id,
-                        pass_num=pass_num,
-                        layer_num=1,
-                        entry_type='location_filter_applied',
-                        content={
-                            'active_locations': active_location_uids,
-                            'original_node_count': len(retrieved_nodes),
-                            'filtered_node_count': len(relevant_nodes)
-                        }
-                    )
+                    # Update overall confidence (simplified; in a real system this would be more complex)
+                    # Here we just use the confidence of the last layer as the pass confidence
+                    if layer_num == self.layer_progression[-1]:
+                        overall_confidence = layer_result['confidence']
+            
+            # Calculate pass duration
+            pass_duration = (datetime.now() - pass_start_time).total_seconds()
+            
+            # Store pass results
+            pass_result = {
+                'pass_num': current_pass,
+                'confidence': overall_confidence,
+                'duration': pass_duration,
+                'layers_executed': list(session['layer_results'][current_pass].keys()),
+                'final_layer_result': prev_layer_results
+            }
+            session['pass_results'][current_pass] = pass_result
+            
+            # Log pass completion
+            logging.info(f"[{datetime.now()}] SimulationEngine: Completed pass {current_pass} for session {session_id} with confidence {overall_confidence:.4f}")
+            
+            # Add pass complete entry to memory
+            if self.memory_manager:
+                self.memory_manager.add_memory_entry(
+                    session_id=session_id,
+                    entry_type='pass_complete',
+                    content={
+                        'pass_num': current_pass,
+                        'confidence': overall_confidence,
+                        'duration': pass_duration,
+                        'timestamp': datetime.now().isoformat()
+                    },
+                    pass_num=current_pass,
+                    confidence=overall_confidence
+                )
+            
+            # Check if we've reached the target confidence
+            if overall_confidence >= session['target_confidence']:
+                logging.info(f"[{datetime.now()}] SimulationEngine: Target confidence reached for session {session_id}")
+                self._complete_simulation(session_id, 'target_confidence_reached')
+                return pass_result
+            
+            # If we're at the max passes, complete the simulation
+            if current_pass >= self.max_passes:
+                logging.info(f"[{datetime.now()}] SimulationEngine: Max passes reached for session {session_id}")
+                self._complete_simulation(session_id, 'max_passes_reached')
+                return pass_result
+            
+            # Start the next pass
+            return self._run_simulation_pass(session_id)
+            
+        except Exception as e:
+            # Log the error
+            logging.error(f"[{datetime.now()}] SimulationEngine: Error in pass {current_pass} for session {session_id}: {str(e)}")
+            
+            # Add pass error entry to memory
+            if self.memory_manager:
+                self.memory_manager.add_memory_entry(
+                    session_id=session_id,
+                    entry_type='pass_error',
+                    content={
+                        'pass_num': current_pass,
+                        'error': str(e),
+                        'timestamp': datetime.now().isoformat()
+                    },
+                    pass_num=current_pass,
+                    confidence=0.0
+                )
+            
+            # Complete the simulation with error
+            self._complete_simulation(session_id, 'pass_error')
+            return {'error': str(e)}
+    
+    def _run_simulation_layer(self, session_id: str, pass_num: int,
+                            layer_num: int, prev_layer_results: Optional[Dict] = None) -> Dict:
+        """
+        Run a single simulation layer.
+        
+        Args:
+            session_id: The session ID
+            pass_num: Current pass number
+            layer_num: Layer number to execute
+            prev_layer_results: Results from the previous layer
+            
+        Returns:
+            dict: Layer execution results
+        """
+        session = self.active_sessions.get(session_id)
+        if not session:
+            return {'error': 'Session not found'}
+        
+        # Log layer start
+        logging.info(f"[{datetime.now()}] SimulationEngine: Starting layer {layer_num} of pass {pass_num} for session {session_id}")
+        layer_start_time = datetime.now()
+        
+        # Add layer start entry to memory
+        if self.memory_manager:
+            self.memory_manager.add_memory_entry(
+                session_id=session_id,
+                entry_type='layer_start',
+                content={
+                    'pass_num': pass_num,
+                    'layer_num': layer_num,
+                    'timestamp': datetime.now().isoformat()
+                },
+                pass_num=pass_num,
+                layer_num=layer_num
+            )
+        
+        try:
+            # Get the appropriate knowledge algorithms for this layer
+            if self.ka_engine:
+                # Execute layer through the KA Engine
+                layer_result = self.ka_engine.execute_layer(
+                    session_id=session_id,
+                    pass_num=pass_num,
+                    layer_num=layer_num,
+                    query_text=session['user_query'],
+                    prev_layer_results=prev_layer_results
+                )
+            else:
+                # Simplified placeholder if KA Engine is not available
+                layer_result = {
+                    'layer_num': layer_num,
+                    'pass_num': pass_num,
+                    'confidence': 0.5 + (0.1 * layer_num),  # Simplified placeholder confidence
+                    'execution_time': 0.1,
+                    'message': f"Simulated execution of layer {layer_num}"
+                }
+            
+            # Calculate layer duration
+            layer_duration = (datetime.now() - layer_start_time).total_seconds()
+            layer_result['duration'] = layer_duration
+            
+            # Log layer completion
+            confidence = layer_result.get('confidence', 0.0)
+            logging.info(f"[{datetime.now()}] SimulationEngine: Completed layer {layer_num} of pass {pass_num} for session {session_id} with confidence {confidence:.4f}")
+            
+            # Add layer complete entry to memory
+            if self.memory_manager:
+                self.memory_manager.add_memory_entry(
+                    session_id=session_id,
+                    entry_type='layer_complete',
+                    content={
+                        'pass_num': pass_num,
+                        'layer_num': layer_num,
+                        'confidence': confidence,
+                        'duration': layer_duration,
+                        'timestamp': datetime.now().isoformat()
+                    },
+                    pass_num=pass_num,
+                    layer_num=layer_num,
+                    confidence=confidence
+                )
+            
+            return layer_result
+            
+        except Exception as e:
+            # Log the error
+            logging.error(f"[{datetime.now()}] SimulationEngine: Error in layer {layer_num} of pass {pass_num} for session {session_id}: {str(e)}")
+            
+            # Add layer error entry to memory
+            if self.memory_manager:
+                self.memory_manager.add_memory_entry(
+                    session_id=session_id,
+                    entry_type='layer_error',
+                    content={
+                        'pass_num': pass_num,
+                        'layer_num': layer_num,
+                        'error': str(e),
+                        'timestamp': datetime.now().isoformat()
+                    },
+                    pass_num=pass_num,
+                    layer_num=layer_num,
+                    confidence=0.0
+                )
+            
+            # Return error result
+            return {
+                'layer_num': layer_num,
+                'pass_num': pass_num,
+                'error': str(e),
+                'confidence': 0.0
+            }
+    
+    def _complete_simulation(self, session_id: str, reason: str) -> Dict:
+        """
+        Complete a simulation session.
+        
+        Args:
+            session_id: The session ID
+            reason: Reason for completion
+            
+        Returns:
+            dict: Completion results
+        """
+        session = self.active_sessions.get(session_id)
+        if not session:
+            return {'error': 'Session not found'}
+        
+        # Calculate the final confidence score
+        # In a real system, this would be more sophisticated
+        final_confidence = 0.0
+        last_pass = session.get('current_pass', 0)
+        
+        if last_pass > 0 and last_pass in session.get('pass_results', {}):
+            final_confidence = session['pass_results'][last_pass].get('confidence', 0.0)
+        
+        # Determine final status based on reason
+        if reason == 'target_confidence_reached':
+            status = 'completed'
+        elif reason in ('max_passes_reached', 'max_passes_exceeded'):
+            status = 'incomplete'
+        else:
+            status = 'error'
+        
+        # Compile final result
+        final_result = {
+            'session_id': session_id,
+            'user_query': session['user_query'],
+            'final_confidence': final_confidence,
+            'target_confidence': session['target_confidence'],
+            'passes_executed': last_pass,
+            'max_passes': self.max_passes,
+            'completion_reason': reason,
+            'status': status,
+            'duration': (datetime.now() - session['start_time']).total_seconds(),
+            'completion_time': datetime.now().isoformat()
+        }
+        
+        # Add the final compiled answer if available
+        if last_pass in session.get('pass_results', {}) and 'final_layer_result' in session['pass_results'][last_pass]:
+            final_result['answer'] = session['pass_results'][last_pass]['final_layer_result'].get('answer', None)
+        
+        # Store final result
+        session['final_result'] = final_result
+        session['status'] = status
+        
+        # Complete session in memory manager
+        if self.memory_manager:
+            self.memory_manager.complete_session(
+                session_id=session_id,
+                final_confidence=final_confidence,
+                status=status
+            )
+            
+            # Add final compiled answer to memory
+            if 'answer' in final_result:
+                self.memory_manager.add_memory_entry(
+                    session_id=session_id,
+                    entry_type='final_compiled_answer',
+                    content={
+                        'answer': final_result['answer'],
+                        'timestamp': datetime.now().isoformat()
+                    },
+                    pass_num=last_pass,
+                    confidence=final_confidence
+                )
+            
+            # Add confidence assessment to memory
+            self.memory_manager.add_memory_entry(
+                session_id=session_id,
+                entry_type='confidence_assessment',
+                content={
+                    'final_confidence': final_confidence,
+                    'target_confidence': session['target_confidence'],
+                    'passes_executed': last_pass,
+                    'max_passes': self.max_passes,
+                    'completion_reason': reason,
+                    'timestamp': datetime.now().isoformat()
+                },
+                pass_num=last_pass,
+                confidence=final_confidence
+            )
+        
+        # Log completion
+        logging.info(f"[{datetime.now()}] SimulationEngine: Completed session {session_id} with status {status}, reason: {reason}, confidence: {final_confidence:.4f}")
+        
+        return final_result
+    
+    def get_simulation_status(self, session_id: str) -> Dict:
+        """
+        Get the current status of a simulation session.
+        
+        Args:
+            session_id: The session ID
+            
+        Returns:
+            dict: Session status information
+        """
+        # Check active sessions first
+        if session_id in self.active_sessions:
+            session = self.active_sessions[session_id]
+            
+            return {
+                'session_id': session_id,
+                'status': session['status'],
+                'current_pass': session['current_pass'],
+                'current_layer': session['current_layer'],
+                'confidence': session.get('final_result', {}).get('final_confidence', 0.0),
+                'query': session['user_query'],
+                'is_active': True
+            }
+        
+        # If not in active sessions, try to get from memory manager
+        if self.memory_manager:
+            session_data = self.memory_manager.get_session_history(session_id)
+            
+            if session_data and session_data.get('status') != 'not_found':
+                return {
+                    'session_id': session_id,
+                    'status': session_data.get('status', 'unknown'),
+                    'confidence': session_data.get('final_confidence', 0.0),
+                    'query': session_data.get('user_query', ''),
+                    'is_active': False
+                }
+        
+        # If not found anywhere
+        return {
+            'session_id': session_id,
+            'status': 'not_found',
+            'is_active': False
+        }
+    
+    def get_simulation_result(self, session_id: str) -> Optional[Dict]:
+        """
+        Get the final result of a completed simulation.
+        
+        Args:
+            session_id: The session ID
+            
+        Returns:
+            dict: Final simulation result or None if not complete
+        """
+        # Check active sessions first
+        if session_id in self.active_sessions:
+            session = self.active_sessions[session_id]
+            
+            # Only return result if simulation is complete
+            if session['status'] in ('completed', 'incomplete', 'error') and session.get('final_result'):
+                return session['final_result']
+        
+        # If not in active sessions or not complete, try memory manager
+        if self.memory_manager:
+            session_data = self.memory_manager.get_session_history(session_id)
+            
+            if session_data and session_data.get('status') in ('completed', 'incomplete', 'error'):
+                # Try to reconstruct final result from memory entries
+                memory_entries = session_data.get('raw_memory_entries', [])
+                
+                # Look for final compiled answer
+                answer_entries = [e for e in memory_entries if e.get('entry_type') == 'final_compiled_answer']
+                if answer_entries:
+                    answer = answer_entries[-1].get('content', {}).get('answer')
                 else:
-                    relevant_nodes = ka04_result.get('retrieved_nodes', [])
-            
-            # Prepare Layer 1 output
-            confidence = ka04_result.get('confidence', 0.0)
-            layer1_output = {
-                'status': 'success' if confidence >= self.layer_confidence_thresholds.get(1, 0.7) else 'insufficient_confidence',
-                'expanded_query': expanded_query,
-                'relevant_nodes': relevant_nodes,
-                'node_count': len(relevant_nodes),
-                'layer1_confidence': confidence,
-                'ka_executions': [
-                    {'ka_id': 3, 'status': ka03_result.get('status')},
-                    {'ka_id': 4, 'status': ka04_result.get('status')}
-                ]
-            }
-            
-            # Record the layer completion in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=1,
-                entry_type='layer_complete',
-                content={
-                    'layer_name': 'Information Retrieval',
-                    'status': layer1_output['status'],
-                    'confidence': confidence,
-                    'timestamp': datetime.now().isoformat()
-                },
-                confidence=confidence
-            )
-            
-            # Update simulation data
-            simulation_data['layer1_output'] = layer1_output
-            simulation_data['current_confidence'] = confidence
-            
-            # If confidence is too low, update status
-            if layer1_output['status'] == 'insufficient_confidence':
-                simulation_data['status'] = 'insufficient_information'
-                logging.warning(f"[{datetime.now()}] SE: Layer 1 confidence ({confidence:.3f}) below threshold ({self.layer_confidence_thresholds.get(1, 0.7):.3f})")
-            
-            return simulation_data
-            
-        except Exception as e:
-            error_msg = f"Error in Layer 1: {str(e)}"
-            logging.error(f"[{datetime.now()}] {error_msg}")
-            
-            # Record the error in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=1,
-                entry_type='layer_error',
-                content={
-                    'layer_name': 'Information Retrieval',
-                    'error': error_msg,
-                    'timestamp': datetime.now().isoformat()
-                },
-                confidence=0.0
-            )
-            
-            # Update simulation data
-            simulation_data['layer1_output'] = {
-                'status': 'error',
-                'error': error_msg,
-                'layer1_confidence': 0.0
-            }
-            simulation_data['status'] = 'error'
-            simulation_data['error_message'] = error_msg
-            
-            return simulation_data
-    
-    def run_layer_2(self, simulation_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Run Layer 2: Comprehension & Context Building
-        This layer focuses on building context and understanding
-        the retrieved information.
-        
-        Args:
-            simulation_data (dict): Current simulation data
-            
-        Returns:
-            dict: Updated simulation data with Layer 2 output
-        """
-        session_id = simulation_data["session_id"]
-        pass_num = simulation_data["current_pass"]
-        original_query = simulation_data["original_query"]
-        layer1_output = simulation_data.get("layer1_output", {})
-        
-        logging.info(f"[{datetime.now()}] SE: Running Layer 2 for session {session_id[:8]}, pass {pass_num}")
-        
-        try:
-            # Record the layer start in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=2,
-                entry_type='layer_start',
-                content={
-                    'layer_name': 'Comprehension & Context Building',
-                    'timestamp': datetime.now().isoformat()
+                    answer = None
+                
+                # Look for confidence assessment
+                conf_entries = [e for e in memory_entries if e.get('entry_type') == 'confidence_assessment']
+                if conf_entries:
+                    confidence_data = conf_entries[-1].get('content', {})
+                else:
+                    confidence_data = {}
+                
+                return {
+                    'session_id': session_id,
+                    'user_query': session_data.get('user_query', ''),
+                    'final_confidence': session_data.get('final_confidence', 0.0),
+                    'status': session_data.get('status', 'unknown'),
+                    'answer': answer,
+                    **confidence_data
                 }
-            )
-            
-            # Check if Layer 1 was successful
-            if layer1_output.get('status') != 'success':
-                raise ValueError("Layer 1 must be successful to run Layer 2")
-            
-            # Get relevant nodes from Layer 1
-            relevant_nodes = layer1_output.get('relevant_nodes', [])
-            expanded_query = layer1_output.get('expanded_query', original_query)
-            
-            # Execute KA05: Context Builder
-            ka05_input = {
-                'original_query': original_query,
-                'expanded_query': expanded_query,
-                'relevant_nodes': relevant_nodes,
-                'pass_num': pass_num
-            }
-            
-            ka05_result = self.ka_loader.execute_ka(
-                ka_id=5,
-                input_data=ka05_input,
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=2
-            )
-            
-            # Execute KA06: Query Understanding
-            ka06_input = {
-                'original_query': original_query,
-                'expanded_query': expanded_query,
-                'context': ka05_result.get('context', {}),
-                'pass_num': pass_num
-            }
-            
-            ka06_result = self.ka_loader.execute_ka(
-                ka_id=6,
-                input_data=ka06_input,
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=2
-            )
-            
-            # Prepare Layer 2 output
-            confidence = (ka05_result.get('confidence', 0.0) + ka06_result.get('confidence', 0.0)) / 2.0
-            layer2_output = {
-                'status': 'success' if confidence >= self.layer_confidence_thresholds.get(2, 0.75) else 'insufficient_confidence',
-                'context': ka05_result.get('context', {}),
-                'query_understanding': ka06_result.get('understanding', {}),
-                'identified_intents': ka06_result.get('intents', []),
-                'layer2_confidence': confidence,
-                'ka_executions': [
-                    {'ka_id': 5, 'status': ka05_result.get('status')},
-                    {'ka_id': 6, 'status': ka06_result.get('status')}
-                ]
-            }
-            
-            # Record the layer completion in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=2,
-                entry_type='layer_complete',
-                content={
-                    'layer_name': 'Comprehension & Context Building',
-                    'status': layer2_output['status'],
-                    'confidence': confidence,
-                    'timestamp': datetime.now().isoformat()
-                },
-                confidence=confidence
-            )
-            
-            # Update simulation data
-            simulation_data['layer2_output'] = layer2_output
-            simulation_data['current_confidence'] = confidence
-            
-            # If confidence is too low, update status
-            if layer2_output['status'] == 'insufficient_confidence':
-                simulation_data['status'] = 'insufficient_understanding'
-                logging.warning(f"[{datetime.now()}] SE: Layer 2 confidence ({confidence:.3f}) below threshold ({self.layer_confidence_thresholds.get(2, 0.75):.3f})")
-            
-            return simulation_data
-            
-        except Exception as e:
-            error_msg = f"Error in Layer 2: {str(e)}"
-            logging.error(f"[{datetime.now()}] {error_msg}")
-            
-            # Record the error in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=2,
-                entry_type='layer_error',
-                content={
-                    'layer_name': 'Comprehension & Context Building',
-                    'error': error_msg,
-                    'timestamp': datetime.now().isoformat()
-                },
-                confidence=0.0
-            )
-            
-            # Update simulation data
-            simulation_data['layer2_output'] = {
-                'status': 'error',
-                'error': error_msg,
-                'layer2_confidence': 0.0
-            }
-            simulation_data['status'] = 'error'
-            simulation_data['error_message'] = error_msg
-            
-            return simulation_data
-    
-    def run_layer_3(self, simulation_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Run Layer 3: Reasoning & Analysis
-        This layer focuses on reasoning and analyzing the information
-        to generate initial answers.
         
-        Args:
-            simulation_data (dict): Current simulation data
-            
-        Returns:
-            dict: Updated simulation data with Layer 3 output
-        """
-        session_id = simulation_data["session_id"]
-        pass_num = simulation_data["current_pass"]
-        original_query = simulation_data["original_query"]
-        layer1_output = simulation_data.get("layer1_output", {})
-        layer2_output = simulation_data.get("layer2_output", {})
-        active_location_uids = simulation_data.get("active_location_context_uids", [])
-        applicable_reg_uids = simulation_data.get("applicable_regulatory_framework_uids", [])
-        
-        logging.info(f"[{datetime.now()}] SE: Running Layer 3 for session {session_id[:8]}, pass {pass_num}")
-        
-        try:
-            # Record the layer start in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=3,
-                entry_type='layer_start',
-                content={
-                    'layer_name': 'Reasoning & Analysis',
-                    'timestamp': datetime.now().isoformat()
-                }
-            )
-            
-            # Check if Layer 2 was successful
-            if layer2_output.get('status') != 'success':
-                raise ValueError("Layer 2 must be successful to run Layer 3")
-            
-            # Get data from previous layers
-            relevant_nodes = layer1_output.get('relevant_nodes', [])
-            context = layer2_output.get('context', {})
-            query_understanding = layer2_output.get('query_understanding', {})
-            
-            # Execute KA07: Reasoning Algorithm
-            ka07_input = {
-                'original_query': original_query,
-                'relevant_nodes': relevant_nodes,
-                'context': context,
-                'query_understanding': query_understanding,
-                'pass_num': pass_num,
-                'active_location_uids': active_location_uids,
-                'applicable_reg_uids': applicable_reg_uids
-            }
-            
-            ka07_result = self.ka_loader.execute_ka(
-                ka_id=7,
-                input_data=ka07_input,
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=3
-            )
-            
-            # Execute KA08: Initial Answer Generation
-            ka08_input = {
-                'original_query': original_query,
-                'reasoning_output': ka07_result.get('reasoning_output', {}),
-                'context': context,
-                'relevant_nodes': relevant_nodes,
-                'pass_num': pass_num,
-                'active_location_uids': active_location_uids,
-                'applicable_reg_uids': applicable_reg_uids
-            }
-            
-            ka08_result = self.ka_loader.execute_ka(
-                ka_id=8,
-                input_data=ka08_input,
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=3
-            )
-            
-            # Prepare Layer 3 output
-            confidence = (ka07_result.get('confidence', 0.0) + ka08_result.get('confidence', 0.0)) / 2.0
-            layer3_output = {
-                'status': 'success' if confidence >= self.layer_confidence_thresholds.get(3, 0.8) else 'insufficient_confidence',
-                'reasoning_output': ka07_result.get('reasoning_output', {}),
-                'initial_answer': ka08_result.get('answer_text', ''),
-                'evidence_nodes': ka08_result.get('evidence_nodes', []),
-                'layer3_confidence': confidence,
-                'ka_executions': [
-                    {'ka_id': 7, 'status': ka07_result.get('status')},
-                    {'ka_id': 8, 'status': ka08_result.get('status')}
-                ]
-            }
-            
-            # Update in-progress answer text
-            simulation_data['refined_answer_text_in_progress'] = layer3_output['initial_answer']
-            
-            # Record the layer completion in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=3,
-                entry_type='layer_complete',
-                content={
-                    'layer_name': 'Reasoning & Analysis',
-                    'status': layer3_output['status'],
-                    'confidence': confidence,
-                    'timestamp': datetime.now().isoformat()
-                },
-                confidence=confidence
-            )
-            
-            # Update simulation data
-            simulation_data['layer3_output'] = layer3_output
-            simulation_data['current_confidence'] = confidence
-            
-            # If confidence is too low, update status
-            if layer3_output['status'] == 'insufficient_confidence':
-                simulation_data['status'] = 'insufficient_reasoning'
-                logging.warning(f"[{datetime.now()}] SE: Layer 3 confidence ({confidence:.3f}) below threshold ({self.layer_confidence_thresholds.get(3, 0.8):.3f})")
-            
-            return simulation_data
-            
-        except Exception as e:
-            error_msg = f"Error in Layer 3: {str(e)}"
-            logging.error(f"[{datetime.now()}] {error_msg}")
-            
-            # Record the error in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=3,
-                entry_type='layer_error',
-                content={
-                    'layer_name': 'Reasoning & Analysis',
-                    'error': error_msg,
-                    'timestamp': datetime.now().isoformat()
-                },
-                confidence=0.0
-            )
-            
-            # Update simulation data
-            simulation_data['layer3_output'] = {
-                'status': 'error',
-                'error': error_msg,
-                'layer3_confidence': 0.0
-            }
-            simulation_data['status'] = 'error'
-            simulation_data['error_message'] = error_msg
-            
-            return simulation_data
-    
-    def run_layer_4(self, simulation_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Run Layer 4: Evaluation & Assessment
-        This layer focuses on evaluating the initial answer and
-        assessing its quality.
-        
-        Args:
-            simulation_data (dict): Current simulation data
-            
-        Returns:
-            dict: Updated simulation data with Layer 4 output
-        """
-        session_id = simulation_data["session_id"]
-        pass_num = simulation_data["current_pass"]
-        original_query = simulation_data["original_query"]
-        layer3_output = simulation_data.get("layer3_output", {})
-        active_location_uids = simulation_data.get("active_location_context_uids", [])
-        
-        logging.info(f"[{datetime.now()}] SE: Running Layer 4 for session {session_id[:8]}, pass {pass_num}")
-        
-        try:
-            # Record the layer start in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=4,
-                entry_type='layer_start',
-                content={
-                    'layer_name': 'Evaluation & Assessment',
-                    'timestamp': datetime.now().isoformat()
-                }
-            )
-            
-            # Check if Layer 3 was successful
-            if layer3_output.get('status') != 'success':
-                raise ValueError("Layer 3 must be successful to run Layer 4")
-            
-            # Get data from previous layers
-            initial_answer = layer3_output.get('initial_answer', '')
-            reasoning_output = layer3_output.get('reasoning_output', {})
-            evidence_nodes = layer3_output.get('evidence_nodes', [])
-            
-            # Execute KA09: Answer Evaluation
-            ka09_input = {
-                'original_query': original_query,
-                'initial_answer': initial_answer,
-                'reasoning_output': reasoning_output,
-                'evidence_nodes': evidence_nodes,
-                'pass_num': pass_num,
-                'active_location_uids': active_location_uids
-            }
-            
-            ka09_result = self.ka_loader.execute_ka(
-                ka_id=9,
-                input_data=ka09_input,
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=4
-            )
-            
-            # Prepare Layer 4 output
-            confidence = ka09_result.get('confidence', 0.0)
-            layer4_output = {
-                'status': 'success' if confidence >= self.layer_confidence_thresholds.get(4, 0.85) else 'insufficient_confidence',
-                'evaluation': ka09_result.get('evaluation', {}),
-                'identified_gaps': ka09_result.get('identified_gaps', []),
-                'quality_score': ka09_result.get('quality_score', 0.0),
-                'layer4_confidence': confidence,
-                'ka_executions': [
-                    {'ka_id': 9, 'status': ka09_result.get('status')}
-                ]
-            }
-            
-            # Record the layer completion in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=4,
-                entry_type='layer_complete',
-                content={
-                    'layer_name': 'Evaluation & Assessment',
-                    'status': layer4_output['status'],
-                    'confidence': confidence,
-                    'timestamp': datetime.now().isoformat()
-                },
-                confidence=confidence
-            )
-            
-            # Update simulation data
-            simulation_data['layer4_output'] = layer4_output
-            simulation_data['current_confidence'] = (simulation_data['current_confidence'] + confidence) / 2.0
-            
-            # If confidence is too low, update status
-            if layer4_output['status'] == 'insufficient_confidence':
-                simulation_data['status'] = 'insufficient_evaluation'
-                logging.warning(f"[{datetime.now()}] SE: Layer 4 confidence ({confidence:.3f}) below threshold ({self.layer_confidence_thresholds.get(4, 0.85):.3f})")
-            
-            return simulation_data
-            
-        except Exception as e:
-            error_msg = f"Error in Layer 4: {str(e)}"
-            logging.error(f"[{datetime.now()}] {error_msg}")
-            
-            # Record the error in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=4,
-                entry_type='layer_error',
-                content={
-                    'layer_name': 'Evaluation & Assessment',
-                    'error': error_msg,
-                    'timestamp': datetime.now().isoformat()
-                },
-                confidence=0.0
-            )
-            
-            # Update simulation data
-            simulation_data['layer4_output'] = {
-                'status': 'error',
-                'error': error_msg,
-                'layer4_confidence': 0.0
-            }
-            simulation_data['status'] = 'error'
-            simulation_data['error_message'] = error_msg
-            
-            return simulation_data
-    
-    def run_layer_5(self, simulation_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Run Layer 5: Reconsideration & Refinement
-        This layer focuses on reconsidering the initial answer and
-        refining it based on evaluation.
-        
-        Args:
-            simulation_data (dict): Current simulation data
-            
-        Returns:
-            dict: Updated simulation data with Layer 5 output
-        """
-        session_id = simulation_data["session_id"]
-        pass_num = simulation_data["current_pass"]
-        original_query = simulation_data["original_query"]
-        layer3_output = simulation_data.get("layer3_output", {})
-        layer4_output = simulation_data.get("layer4_output", {})
-        
-        logging.info(f"[{datetime.now()}] SE: Running Layer 5 for session {session_id[:8]}, pass {pass_num}")
-        
-        try:
-            # Record the layer start in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=5,
-                entry_type='layer_start',
-                content={
-                    'layer_name': 'Reconsideration & Refinement',
-                    'timestamp': datetime.now().isoformat()
-                }
-            )
-            
-            # Check if Layer 4 was successful
-            if layer4_output.get('status') != 'success':
-                raise ValueError("Layer 4 must be successful to run Layer 5")
-            
-            # Get data from previous layers
-            initial_answer = layer3_output.get('initial_answer', '')
-            evaluation = layer4_output.get('evaluation', {})
-            identified_gaps = layer4_output.get('identified_gaps', [])
-            
-            # Execute KA10: Answer Refinement
-            ka10_input = {
-                'original_query': original_query,
-                'initial_answer': initial_answer,
-                'evaluation': evaluation,
-                'identified_gaps': identified_gaps,
-                'pass_num': pass_num
-            }
-            
-            ka10_result = self.ka_loader.execute_ka(
-                ka_id=10,
-                input_data=ka10_input,
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=5
-            )
-            
-            # Prepare Layer 5 output
-            confidence = ka10_result.get('confidence', 0.0)
-            layer5_output = {
-                'status': 'success' if confidence >= self.layer_confidence_thresholds.get(5, 0.9) else 'insufficient_confidence',
-                'refined_answer': ka10_result.get('refined_answer', initial_answer),
-                'refinement_actions': ka10_result.get('refinement_actions', []),
-                'layer5_confidence': confidence,
-                'ka_executions': [
-                    {'ka_id': 10, 'status': ka10_result.get('status')}
-                ]
-            }
-            
-            # Update in-progress answer text
-            simulation_data['refined_answer_text_in_progress'] = layer5_output['refined_answer']
-            
-            # Record the layer completion in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=5,
-                entry_type='layer_complete',
-                content={
-                    'layer_name': 'Reconsideration & Refinement',
-                    'status': layer5_output['status'],
-                    'confidence': confidence,
-                    'timestamp': datetime.now().isoformat()
-                },
-                confidence=confidence
-            )
-            
-            # Update simulation data
-            simulation_data['layer5_output'] = layer5_output
-            simulation_data['current_confidence'] = (simulation_data['current_confidence'] + confidence) / 2.0
-            
-            # If confidence is too low, update status
-            if layer5_output['status'] == 'insufficient_confidence':
-                simulation_data['status'] = 'insufficient_refinement'
-                logging.warning(f"[{datetime.now()}] SE: Layer 5 confidence ({confidence:.3f}) below threshold ({self.layer_confidence_thresholds.get(5, 0.9):.3f})")
-            
-            return simulation_data
-            
-        except Exception as e:
-            error_msg = f"Error in Layer 5: {str(e)}"
-            logging.error(f"[{datetime.now()}] {error_msg}")
-            
-            # Record the error in memory
-            self.smm.add_memory_entry(
-                session_id=session_id,
-                pass_num=pass_num,
-                layer_num=5,
-                entry_type='layer_error',
-                content={
-                    'layer_name': 'Reconsideration & Refinement',
-                    'error': error_msg,
-                    'timestamp': datetime.now().isoformat()
-                },
-                confidence=0.0
-            )
-            
-            # Update simulation data
-            simulation_data['layer5_output'] = {
-                'status': 'error',
-                'error': error_msg,
-                'layer5_confidence': 0.0
-            }
-            simulation_data['status'] = 'error'
-            simulation_data['error_message'] = error_msg
-            
-            return simulation_data
-    
-    # Additional layers 6-9 can be implemented following the same pattern
+        # If not found or not complete
+        return None
