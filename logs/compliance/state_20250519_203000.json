@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-05-19T20:30:00.100028",
+  "state": {
+    "security": {
+      "status": "compliant",
+      "last_check": "2025-05-19T20:30:00.085444"
+    },
+    "availability": {
+      "status": "compliant",
+      "last_check": "2025-05-19T20:30:00.090385"
+    },
+    "processing_integrity": {
+      "status": "compliant",
+      "last_check": "2025-05-19T20:30:00.096546"
+    },
+    "confidentiality": {
+      "status": "compliant",
+      "last_check": "2025-05-19T20:30:00.098935"
+    },
+    "privacy": {
+      "status": "compliant",
+      "last_check": "2025-05-19T20:30:00.099483"
+    }
+  }
+}

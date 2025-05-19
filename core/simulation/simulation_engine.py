@@ -75,6 +75,25 @@ class SimulationEngine:
         # Active simulations
         self.active_simulations = {}
         
+        # Layer configuration
+        self.layer_config = self.sim_config.get('layers', {})
+        self.pov_engine_enabled = self.layer_config.get('pov_engine_enabled', True)
+        self.integration_engine_enabled = self.layer_config.get('integration_engine_enabled', True)
+        
+        # Initialize Layer 5 Integration Engine if enabled
+        self.layer5_engine = None
+        if self.integration_engine_enabled:
+            try:
+                from simulation.layer5_integration import Layer5IntegrationEngine
+                self.layer5_engine = Layer5IntegrationEngine(
+                    config=self.layer_config.get('layer5', {}),
+                    system_manager=None  # Will be set later if system manager is provided
+                )
+                logging.info(f"[{datetime.now()}] Layer 5 Integration Engine initialized")
+            except ImportError as e:
+                logging.warning(f"[{datetime.now()}] Failed to import Layer 5 Integration Engine: {e}")
+                self.integration_engine_enabled = False
+        
         # Stats
         self.stats = {
             'simulations_started': 0,
@@ -167,6 +186,71 @@ class SimulationEngine:
             dict: Simulation record or None if not found
         """
         return self.active_simulations.get(simulation_id)
+        
+    def _apply_layer5_integration(self, simulation_id: str, context: Dict) -> Dict:
+        """
+        Apply Layer 5 Integration Engine processing to a simulation context.
+        
+        Args:
+            simulation_id: ID of the simulation
+            context: Simulation context with results from Layers 1-4
+            
+        Returns:
+            dict: Enhanced context with Layer 5 integration
+        """
+        # Skip if Layer 5 is not enabled
+        if not self.integration_engine_enabled or not self.layer5_engine:
+            logging.info(f"[{datetime.now()}] Layer 5 integration skipped for {simulation_id}")
+            return context
+            
+        # Get simulation details
+        simulation = self.active_simulations.get(simulation_id)
+        if not simulation:
+            logging.warning(f"[{datetime.now()}] Cannot apply Layer 5 integration - simulation {simulation_id} not found")
+            return context
+            
+        # Check for gatekeeper decision
+        current_pass = simulation.get('current_pass', 1)
+        gatekeeper_decision = context.get('gatekeeper_decision', {})
+        layer5_activation = gatekeeper_decision.get('layer_activations', {}).get('layer_5', {})
+        
+        # Skip if gatekeeper says no activation needed
+        if not layer5_activation.get('activate', False):
+            logging.info(f"[{datetime.now()}] Layer 5 integration not activated by gatekeeper for {simulation_id}")
+            return context
+            
+        try:
+            # Get Layer 5 parameters from gatekeeper if available
+            layer5_params = None
+            if 'gatekeeper' in context and hasattr(context['gatekeeper'], 'get_layer5_integration_parameters'):
+                gatekeeper = context['gatekeeper']
+                layer5_params = gatekeeper.get_layer5_integration_parameters(context)
+                
+            # Process through Layer 5 Integration Engine
+            logging.info(f"[{datetime.now()}] Processing simulation {simulation_id} through Layer 5 Integration Engine")
+            start_time = datetime.now()
+            
+            integrated_context = self.layer5_engine.process(context, layer5_params)
+            
+            # Track performance
+            processing_time = (datetime.now() - start_time).total_seconds()
+            logging.info(f"[{datetime.now()}] Layer 5 integration complete for {simulation_id} in {processing_time:.2f}s")
+            
+            # Update metrics
+            confidence_before = context.get('confidence_score', 0.0)
+            confidence_after = integrated_context.get('confidence_score', confidence_before)
+            confidence_delta = max(0, confidence_after - confidence_before)
+            
+            # Log improvement
+            if confidence_delta > 0:
+                logging.info(f"[{datetime.now()}] Layer 5 improved confidence for {simulation_id} by {confidence_delta:.4f}")
+                
+            return integrated_context
+            
+        except Exception as e:
+            logging.error(f"[{datetime.now()}] Layer 5 integration error for {simulation_id}: {str(e)}")
+            # Return original context on error
+            return context
     
     def run_simulation_pass(self, simulation_id: str) -> Dict:
         """
