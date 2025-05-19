@@ -1,6 +1,5 @@
 {
   "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/api/graph_stats": "pages/api/graph_stats.js",
   "/api/memory_stats": "pages/api/memory_stats.js",
@@ -9,12 +8,13 @@
   "/chat": "pages/chat.js",
   "/compliance-dashboard": "pages/compliance-dashboard.js",
   "/contextual": "pages/contextual.js",
+  "/compliance": "pages/compliance.js",
   "/honeycomb": "pages/honeycomb.js",
   "/": "pages/index.js",
-  "/compliance": "pages/compliance.js",
   "/locations": "pages/locations.js",
   "/pillars": "pages/pillars.js",
   "/regulatory": "pages/regulatory.js",
   "/timeline": "pages/timeline.js",
-  "/unified-mapping": "pages/unified-mapping.js"
+  "/unified-mapping": "pages/unified-mapping.js",
+  "/_error": "pages/_error.js"
 }
