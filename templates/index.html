@@ -1,275 +1,505 @@
 {% extends 'base.html' %}
 
-{% block title %}Universal Knowledge Graph - Home{% endblock %}
-
-{% block page_title %}Universal Knowledge Graph{% endblock %}
-{% block page_subtitle %}Advanced computational intelligence for dynamic multi-perspective knowledge synthesis{% endblock %}
+{% block title %}Universal Knowledge Graph - Advanced Multi-Dimensional Cognitive System{% endblock %}
 
 {% block content %}
-<div class="hero-section">
-    <div class="hero-content">
-        <h1 class="hero-title">Transform Knowledge Through<br>Multi-Dimensional Cognition</h1>
-        <p class="hero-description">
-            The Universal Knowledge Graph (UKG) system employs cutting-edge computational intelligence for dynamic multi-perspective knowledge synthesis and expert simulation across multiple cognitive layers.
-        </p>
-        <div class="hero-actions">
-            {% if current_user.is_authenticated %}
-                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
-                <a href="{{ url_for('simulations') }}" class="btn btn-outline">Run Simulation</a>
-            {% else %}
-                <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
-                <a href="{{ url_for('about') }}" class="btn btn-outline">Learn More</a>
-            {% endif %}
+<div class="home-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Universal Knowledge Graph</h1>
+            <p class="hero-subtitle">Advanced computational intelligence for multi-perspective knowledge synthesis and expert simulation</p>
+            <div class="hero-buttons">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary hero-btn">Go to Dashboard</a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary hero-btn">Get Started</a>
+                <a href="{{ url_for('about') }}" class="btn btn-outline hero-btn">Learn More</a>
+                {% endif %}
+            </div>
         </div>
-    </div>
-    <div class="hero-image">
-        <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-            <!-- Brain network visualization -->
-            <g class="brain-network">
-                <!-- Nodes -->
-                <circle cx="250" cy="250" r="100" fill="none" stroke="var(--dark-accent-primary)" stroke-width="2" />
-                <circle cx="250" cy="250" r="150" fill="none" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
-                <circle cx="250" cy="250" r="200" fill="none" stroke="var(--dark-accent-primary)" stroke-width="1" opacity="0.4" />
-                
-                <!-- Core node -->
-                <circle cx="250" cy="250" r="15" fill="var(--dark-accent-primary)" class="pulse-animation" />
-                
-                <!-- Layer 1 nodes -->
-                <circle cx="180" cy="180" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
-                <circle cx="320" cy="180" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
-                <circle cx="180" cy="320" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
-                <circle cx="320" cy="320" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
-                <circle cx="250" cy="150" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
-                <circle cx="250" cy="350" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
-                <circle cx="150" cy="250" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
-                <circle cx="350" cy="250" r="8" fill="var(--dark-accent-primary)" opacity="0.9" />
-                
-                <!-- Layer 2 nodes -->
-                <circle cx="150" cy="150" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
-                <circle cx="350" cy="150" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
-                <circle cx="150" cy="350" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
-                <circle cx="350" cy="350" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
-                <circle cx="200" cy="120" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
-                <circle cx="300" cy="120" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
-                <circle cx="200" cy="380" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
-                <circle cx="300" cy="380" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
-                <circle cx="120" cy="200" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
-                <circle cx="380" cy="200" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
-                <circle cx="120" cy="300" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
-                <circle cx="380" cy="300" r="6" fill="var(--dark-accent-primary)" opacity="0.7" />
-                
-                <!-- Connections core to layer 1 -->
-                <line x1="250" y1="250" x2="180" y2="180" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
-                <line x1="250" y1="250" x2="320" y2="180" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
-                <line x1="250" y1="250" x2="180" y2="320" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
-                <line x1="250" y1="250" x2="320" y2="320" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
-                <line x1="250" y1="250" x2="250" y2="150" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
-                <line x1="250" y1="250" x2="250" y2="350" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
-                <line x1="250" y1="250" x2="150" y2="250" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
-                <line x1="250" y1="250" x2="350" y2="250" stroke="var(--dark-accent-primary)" stroke-width="2" opacity="0.8" />
-                
-                <!-- Connections layer 1 to layer 2 -->
-                <line x1="180" y1="180" x2="150" y2="150" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
-                <line x1="320" y1="180" x2="350" y2="150" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
-                <line x1="180" y1="320" x2="150" y2="350" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
-                <line x1="320" y1="320" x2="350" y2="350" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
-                <line x1="250" y1="150" x2="200" y2="120" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
-                <line x1="250" y1="150" x2="300" y2="120" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
-                <line x1="250" y1="350" x2="200" y2="380" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
-                <line x1="250" y1="350" x2="300" y2="380" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
-                <line x1="150" y1="250" x2="120" y2="200" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
-                <line x1="150" y1="250" x2="120" y2="300" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
-                <line x1="350" y1="250" x2="380" y2="200" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
-                <line x1="350" y1="250" x2="380" y2="300" stroke="var(--dark-accent-primary)" stroke-width="1.5" opacity="0.6" />
-            </g>
-        </svg>
-    </div>
-</div>
-
-<div class="features-section">
-    <h2 class="section-title">Core Capabilities</h2>
+        <div class="hero-visual">
+            <div class="hero-graph">
+                <!-- Animated Knowledge Graph Visualization -->
+                <svg viewBox="0 0 500 500" class="graph-svg">
+                    <!-- Central Node -->
+                    <circle cx="250" cy="250" r="30" class="central-node"></circle>
+                    
+                    <!-- Primary Nodes -->
+                    <circle cx="150" cy="150" r="20" class="primary-node node-1"></circle>
+                    <circle cx="350" cy="150" r="20" class="primary-node node-2"></circle>
+                    <circle cx="350" cy="350" r="20" class="primary-node node-3"></circle>
+                    <circle cx="150" cy="350" r="20" class="primary-node node-4"></circle>
+                    
+                    <!-- Secondary Nodes -->
+                    <circle cx="180" cy="100" r="12" class="secondary-node node-5"></circle>
+                    <circle cx="320" cy="100" r="12" class="secondary-node node-6"></circle>
+                    <circle cx="400" cy="200" r="12" class="secondary-node node-7"></circle>
+                    <circle cx="400" cy="300" r="12" class="secondary-node node-8"></circle>
+                    <circle cx="320" cy="400" r="12" class="secondary-node node-9"></circle>
+                    <circle cx="180" cy="400" r="12" class="secondary-node node-10"></circle>
+                    <circle cx="100" cy="300" r="12" class="secondary-node node-11"></circle>
+                    <circle cx="100" cy="200" r="12" class="secondary-node node-12"></circle>
+                    
+                    <!-- Tertiary Nodes -->
+                    <circle cx="120" cy="70" r="8" class="tertiary-node node-13"></circle>
+                    <circle cx="200" cy="50" r="8" class="tertiary-node node-14"></circle>
+                    <circle cx="300" cy="50" r="8" class="tertiary-node node-15"></circle>
+                    <circle cx="380" cy="70" r="8" class="tertiary-node node-16"></circle>
+                    <circle cx="440" cy="150" r="8" class="tertiary-node node-17"></circle>
+                    <circle cx="450" cy="250" r="8" class="tertiary-node node-18"></circle>
+                    <circle cx="440" cy="350" r="8" class="tertiary-node node-19"></circle>
+                    <circle cx="380" cy="430" r="8" class="tertiary-node node-20"></circle>
+                    <circle cx="300" cy="450" r="8" class="tertiary-node node-21"></circle>
+                    <circle cx="200" cy="450" r="8" class="tertiary-node node-22"></circle>
+                    <circle cx="120" cy="430" r="8" class="tertiary-node node-23"></circle>
+                    <circle cx="60" cy="350" r="8" class="tertiary-node node-24"></circle>
+                    <circle cx="50" cy="250" r="8" class="tertiary-node node-25"></circle>
+                    <circle cx="60" cy="150" r="8" class="tertiary-node node-26"></circle>
+                    
+                    <!-- Connection Lines -->
+                    <!-- Central to Primary Connections -->
+                    <line x1="250" y1="250" x2="150" y2="150" class="connection central-conn"></line>
+                    <line x1="250" y1="250" x2="350" y2="150" class="connection central-conn"></line>
+                    <line x1="250" y1="250" x2="350" y2="350" class="connection central-conn"></line>
+                    <line x1="250" y1="250" x2="150" y2="350" class="connection central-conn"></line>
+                    
+                    <!-- Primary to Secondary Connections -->
+                    <line x1="150" y1="150" x2="180" y2="100" class="connection primary-conn"></line>
+                    <line x1="150" y1="150" x2="100" y2="200" class="connection primary-conn"></line>
+                    <line x1="350" y1="150" x2="320" y2="100" class="connection primary-conn"></line>
+                    <line x1="350" y1="150" x2="400" y2="200" class="connection primary-conn"></line>
+                    <line x1="350" y1="350" x2="400" y2="300" class="connection primary-conn"></line>
+                    <line x1="350" y1="350" x2="320" y2="400" class="connection primary-conn"></line>
+                    <line x1="150" y1="350" x2="180" y2="400" class="connection primary-conn"></line>
+                    <line x1="150" y1="350" x2="100" y2="300" class="connection primary-conn"></line>
+                    
+                    <!-- Secondary to Tertiary Connections -->
+                    <line x1="180" y1="100" x2="120" y2="70" class="connection secondary-conn"></line>
+                    <line x1="180" y1="100" x2="200" y2="50" class="connection secondary-conn"></line>
+                    <line x1="320" y1="100" x2="300" y2="50" class="connection secondary-conn"></line>
+                    <line x1="320" y1="100" x2="380" y2="70" class="connection secondary-conn"></line>
+                    <line x1="400" y1="200" x2="440" y2="150" class="connection secondary-conn"></line>
+                    <line x1="400" y1="200" x2="450" y2="250" class="connection secondary-conn"></line>
+                    <line x1="400" y1="300" x2="450" y2="250" class="connection secondary-conn"></line>
+                    <line x1="400" y1="300" x2="440" y2="350" class="connection secondary-conn"></line>
+                    <line x1="320" y1="400" x2="380" y2="430" class="connection secondary-conn"></line>
+                    <line x1="320" y1="400" x2="300" y2="450" class="connection secondary-conn"></line>
+                    <line x1="180" y1="400" x2="200" y2="450" class="connection secondary-conn"></line>
+                    <line x1="180" y1="400" x2="120" y2="430" class="connection secondary-conn"></line>
+                    <line x1="100" y1="300" x2="60" y2="350" class="connection secondary-conn"></line>
+                    <line x1="100" y1="300" x2="50" y2="250" class="connection secondary-conn"></line>
+                    <line x1="100" y1="200" x2="50" y2="250" class="connection secondary-conn"></line>
+                    <line x1="100" y1="200" x2="60" y2="150" class="connection secondary-conn"></line>
+                </svg>
+            </div>
+        </div>
+    </section>
     
-    <div class="features-grid">
-        <div class="feature-card">
-            <div class="feature-icon">
-                <span class="material-icons">psychology</span>
+    <!-- Features Section -->
+    <section class="features-section">
+        <h2 class="section-title">Key Capabilities</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <span class="material-icons">psychology</span>
+                </div>
+                <h3 class="feature-title">10-Layer AGI Architecture</h3>
+                <p class="feature-text">Hierarchical cognitive processing from knowledge base to self-awareness for comprehensive simulation capabilities.</p>
             </div>
-            <h3 class="feature-title">10-Layer AGI Simulation</h3>
-            <p class="feature-description">
-                Advanced cognitive architecture with recursive self-awareness mechanisms for complex knowledge synthesis across multiple perspectives.
-            </p>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <span class="material-icons">data_object</span>
+                </div>
+                <h3 class="feature-title">Quantum-Enhanced Reasoning</h3>
+                <p class="feature-text">Probabilistic models for complex knowledge representation using simulated quantum processing techniques.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <span class="material-icons">refresh</span>
+                </div>
+                <h3 class="feature-title">Recursive Self-Awareness</h3>
+                <p class="feature-text">Advanced self-inspection and improvement mechanisms for continuous knowledge refinement and analysis.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <span class="material-icons">view_in_ar</span>
+                </div>
+                <h3 class="feature-title">13-Axis Knowledge Structure</h3>
+                <p class="feature-text">Multi-dimensional knowledge organization across diverse domains, perspectives, and contextual frameworks.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <span class="material-icons">people</span>
+                </div>
+                <h3 class="feature-title">Quad Persona Simulation</h3>
+                <p class="feature-text">Expert perspective synthesis across knowledge, sector, regulatory, and compliance domains for balanced insights.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <span class="material-icons">memory</span>
+                </div>
+                <h3 class="feature-title">Advanced Memory Systems</h3>
+                <p class="feature-text">Hierarchical memory architecture with long-term knowledge storage and dynamic contextual understanding.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Layers Section -->
+    <section class="layers-section">
+        <div class="layers-content">
+            <h2 class="section-title">10-Layer AGI Architecture</h2>
+            <p class="section-subtitle">A sophisticated hierarchical cognitive system for comprehensive knowledge processing and simulation</p>
+            
+            <div class="layers-list">
+                <div class="layer-item">
+                    <div class="layer-number">10</div>
+                    <div class="layer-info">
+                        <h3 class="layer-name">Self-Awareness Engine</h3>
+                        <p class="layer-description">System monitoring, error detection, and uncertainty quantification</p>
+                    </div>
+                </div>
+                
+                <div class="layer-item">
+                    <div class="layer-number">9</div>
+                    <div class="layer-info">
+                        <h3 class="layer-name">Recursive AGI Core</h3>
+                        <p class="layer-description">Self-inspection, recursion, and reasoning process improvement</p>
+                    </div>
+                </div>
+                
+                <div class="layer-item">
+                    <div class="layer-number">8</div>
+                    <div class="layer-info">
+                        <h3 class="layer-name">Quantum Computer Simulation</h3>
+                        <p class="layer-description">Probabilistic reasoning and multi-dimensional analysis</p>
+                    </div>
+                </div>
+                
+                <div class="layer-item">
+                    <div class="layer-number">7</div>
+                    <div class="layer-info">
+                        <h3 class="layer-name">Simulated AGI System</h3>
+                        <p class="layer-description">Goal-oriented reasoning, planning, and problem-solving</p>
+                    </div>
+                </div>
+                
+                <div class="layer-item">
+                    <div class="layer-number">6</div>
+                    <div class="layer-info">
+                        <h3 class="layer-name">Memory Systems</h3>
+                        <p class="layer-description">Hierarchical memory with long-term storage and context awareness</p>
+                    </div>
+                </div>
+                
+                <div class="layer-item">
+                    <div class="layer-number">5</div>
+                    <div class="layer-info">
+                        <h3 class="layer-name">Integration Layer</h3>
+                        <p class="layer-description">Synthesis, conflict resolution, and coherence management</p>
+                    </div>
+                </div>
+                
+                <div class="layer-item">
+                    <div class="layer-number">4</div>
+                    <div class="layer-info">
+                        <h3 class="layer-name">POV Engine</h3>
+                        <p class="layer-description">Perspective-taking and contextual understanding</p>
+                    </div>
+                </div>
+                
+                <div class="layer-item">
+                    <div class="layer-number">3</div>
+                    <div class="layer-info">
+                        <h3 class="layer-name">Research Simulation</h3>
+                        <p class="layer-description">Methodology application and evidence-based reasoning</p>
+                    </div>
+                </div>
+                
+                <div class="layer-item">
+                    <div class="layer-number">2</div>
+                    <div class="layer-info">
+                        <h3 class="layer-name">Quad Persona Engine</h3>
+                        <p class="layer-description">Multi-perspective expert simulation and synthesis</p>
+                    </div>
+                </div>
+                
+                <div class="layer-item">
+                    <div class="layer-number">1</div>
+                    <div class="layer-info">
+                        <h3 class="layer-name">Knowledge Base</h3>
+                        <p class="layer-description">Foundation layer with access to all 13 knowledge axes</p>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <div class="feature-card">
-            <div class="feature-icon">
-                <span class="material-icons">data_object</span>
+        <div class="layers-visual">
+            <div class="layers-stack">
+                <div class="layer layer-10"><span>10</span></div>
+                <div class="layer layer-9"><span>9</span></div>
+                <div class="layer layer-8"><span>8</span></div>
+                <div class="layer layer-7"><span>7</span></div>
+                <div class="layer layer-6"><span>6</span></div>
+                <div class="layer layer-5"><span>5</span></div>
+                <div class="layer layer-4"><span>4</span></div>
+                <div class="layer layer-3"><span>3</span></div>
+                <div class="layer layer-2"><span>2</span></div>
+                <div class="layer layer-1"><span>1</span></div>
             </div>
-            <h3 class="feature-title">Quantum-Enhanced Reasoning</h3>
-            <p class="feature-description">
-                Simulated quantum computing principles applied to knowledge processing for probabilistic reasoning and multi-dimensional analysis.
-            </p>
         </div>
-        
-        <div class="feature-card">
-            <div class="feature-icon">
-                <span class="material-icons">lens_blur</span>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title">Ready to Explore the Universal Knowledge Graph?</h2>
+            <p class="cta-text">Access advanced cognitive simulation capabilities and multi-dimensional knowledge synthesis.</p>
+            <div class="cta-buttons">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary cta-btn">Go to Dashboard</a>
+                <a href="{{ url_for('simulations') }}" class="btn btn-outline cta-btn">Run Simulation</a>
+                {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary cta-btn">Create Account</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline cta-btn">Log In</a>
+                {% endif %}
             </div>
-            <h3 class="feature-title">13-Axis Knowledge Structure</h3>
-            <p class="feature-description">
-                Comprehensive knowledge organization across 13 dimensions including expertise domains, regulatory frameworks, time contexts, and more.
-            </p>
         </div>
-        
-        <div class="feature-card">
-            <div class="feature-icon">
-                <span class="material-icons">hub</span>
-            </div>
-            <h3 class="feature-title">Quad Persona Engine</h3>
-            <p class="feature-description">
-                Simulates expert advice through multiple recursive passes across different specialized persona perspectives for balanced insights.
-            </p>
-        </div>
-        
-        <div class="feature-card">
-            <div class="feature-icon">
-                <span class="material-icons">memory</span>
-            </div>
-            <h3 class="feature-title">Layered Memory Systems</h3>
-            <p class="feature-description">
-                Hierarchical memory architecture with long-term knowledge storage and contextual awareness for continuous learning.
-            </p>
-        </div>
-        
-        <div class="feature-card">
-            <div class="feature-icon">
-                <span class="material-icons">developer_board</span>
-            </div>
-            <h3 class="feature-title">Enterprise Integration</h3>
-            <p class="feature-description">
-                Secure enterprise integration with Microsoft Azure/Entra ID, robust API architecture, and comprehensive security compliance.
-            </p>
-        </div>
-    </div>
-</div>
-
-<div class="cta-section">
-    <div class="cta-content">
-        <h2 class="cta-title">Ready to transform your knowledge systems?</h2>
-        <p class="cta-description">
-            Explore the full capabilities of the Universal Knowledge Graph system and discover how multi-dimensional cognitive processing can revolutionize your understanding.
-        </p>
-        <div class="cta-actions">
-            {% if current_user.is_authenticated %}
-                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
-            {% else %}
-                <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
-            {% endif %}
-        </div>
-    </div>
+    </section>
 </div>
 
 <style>
+    /* Home Page Styles */
+    
     /* Hero Section */
     .hero-section {
-        display: flex;
-        align-items: center;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 3rem;
-        margin-bottom: 4rem;
-    }
-    
-    .hero-content {
-        flex: 1;
+        align-items: center;
+        margin-bottom: 5rem;
+        min-height: 500px;
     }
     
     .hero-title {
-        font-size: 2.5rem;
-        font-weight: 700;
+        font-size: 3rem;
+        font-weight: 800;
         margin-bottom: 1.5rem;
-        line-height: 1.2;
-        background: linear-gradient(90deg, var(--dark-accent-primary), #a183ff);
-        -webkit-background-clip: text;
+        background: linear-gradient(135deg, var(--dark-accent-primary), var(--dark-accent-secondary));
         background-clip: text;
+        -webkit-background-clip: text;
         color: transparent;
     }
     
     .light-theme .hero-title {
-        background: linear-gradient(90deg, var(--light-accent-primary), #7b5fff);
-        -webkit-background-clip: text;
+        background: linear-gradient(135deg, var(--light-accent-primary), var(--light-accent-secondary));
         background-clip: text;
+        -webkit-background-clip: text;
     }
     
-    .hero-description {
-        font-size: 1.1rem;
+    .hero-subtitle {
+        font-size: 1.2rem;
         margin-bottom: 2rem;
         color: var(--dark-text-secondary);
+        max-width: 500px;
         line-height: 1.6;
     }
     
-    .light-theme .hero-description {
+    .light-theme .hero-subtitle {
         color: var(--light-text-secondary);
     }
     
-    .hero-actions {
+    .hero-buttons {
         display: flex;
         gap: 1rem;
     }
     
-    .hero-image {
-        flex: 1;
+    .hero-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .hero-visual {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .hero-graph {
+        width: 100%;
         max-width: 500px;
+        position: relative;
     }
     
-    /* Animation for pulsing core node */
+    /* Graph Animation */
+    .graph-svg {
+        width: 100%;
+        height: auto;
+    }
+    
+    .central-node {
+        fill: var(--dark-accent-primary);
+        filter: drop-shadow(0 0 10px rgba(106, 143, 255, 0.5));
+    }
+    
+    .light-theme .central-node {
+        fill: var(--light-accent-primary);
+        filter: drop-shadow(0 0 10px rgba(76, 110, 245, 0.5));
+    }
+    
+    .primary-node {
+        fill: var(--dark-accent-secondary);
+        opacity: 0.9;
+    }
+    
+    .light-theme .primary-node {
+        fill: var(--light-accent-secondary);
+    }
+    
+    .secondary-node {
+        fill: #4d79ff;
+        opacity: 0.7;
+    }
+    
+    .light-theme .secondary-node {
+        fill: #3b5bd4;
+    }
+    
+    .tertiary-node {
+        fill: #a0bdff;
+        opacity: 0.6;
+    }
+    
+    .light-theme .tertiary-node {
+        fill: #8da7e8;
+    }
+    
+    .connection {
+        stroke-width: 2;
+        stroke-linecap: round;
+    }
+    
+    .central-conn {
+        stroke: var(--dark-accent-primary);
+        stroke-width: 3;
+        opacity: 0.8;
+    }
+    
+    .light-theme .central-conn {
+        stroke: var(--light-accent-primary);
+    }
+    
+    .primary-conn {
+        stroke: var(--dark-accent-secondary);
+        opacity: 0.6;
+    }
+    
+    .light-theme .primary-conn {
+        stroke: var(--light-accent-secondary);
+    }
+    
+    .secondary-conn {
+        stroke: #4d79ff;
+        opacity: 0.4;
+        stroke-width: 1.5;
+    }
+    
+    .light-theme .secondary-conn {
+        stroke: #3b5bd4;
+    }
+    
+    /* Node Animation */
     @keyframes pulse {
-        0% {
-            r: 15;
-            opacity: 1;
-        }
-        50% {
-            r: 20;
-            opacity: 0.8;
-        }
-        100% {
-            r: 15;
-            opacity: 1;
-        }
+        0% { r: 30; filter: drop-shadow(0 0 10px rgba(106, 143, 255, 0.5)); }
+        50% { r: 33; filter: drop-shadow(0 0 15px rgba(106, 143, 255, 0.7)); }
+        100% { r: 30; filter: drop-shadow(0 0 10px rgba(106, 143, 255, 0.5)); }
     }
     
-    .pulse-animation {
-        animation: pulse 3s infinite ease-in-out;
+    @keyframes pulse-primary {
+        0% { r: 20; }
+        50% { r: 22; }
+        100% { r: 20; }
+    }
+    
+    @keyframes pulse-secondary {
+        0% { r: 12; }
+        50% { r: 13; }
+        100% { r: 12; }
+    }
+    
+    @keyframes pulse-tertiary {
+        0% { r: 8; }
+        50% { r: 9; }
+        100% { r: 8; }
+    }
+    
+    .central-node {
+        animation: pulse 3s infinite;
+    }
+    
+    .primary-node {
+        animation: pulse-primary 3s infinite;
+    }
+    
+    .node-1 { animation-delay: 0.2s; }
+    .node-2 { animation-delay: 0.4s; }
+    .node-3 { animation-delay: 0.6s; }
+    .node-4 { animation-delay: 0.8s; }
+    
+    .secondary-node {
+        animation: pulse-secondary 3s infinite;
+    }
+    
+    .node-5 { animation-delay: 0.1s; }
+    .node-6 { animation-delay: 0.3s; }
+    .node-7 { animation-delay: 0.5s; }
+    .node-8 { animation-delay: 0.7s; }
+    .node-9 { animation-delay: 0.9s; }
+    .node-10 { animation-delay: 1.1s; }
+    .node-11 { animation-delay: 1.3s; }
+    .node-12 { animation-delay: 1.5s; }
+    
+    .tertiary-node {
+        animation: pulse-tertiary 3s infinite;
     }
     
     /* Features Section */
     .features-section {
-        margin-bottom: 4rem;
+        margin-bottom: 5rem;
     }
     
     .section-title {
+        font-size: 2.25rem;
         text-align: center;
-        font-size: 2rem;
-        margin-bottom: 2.5rem;
+        margin-bottom: 3rem;
         position: relative;
+        padding-bottom: 1rem;
     }
     
     .section-title:after {
         content: '';
         position: absolute;
-        bottom: -0.75rem;
+        bottom: 0;
         left: 50%;
         transform: translateX(-50%);
-        width: 6rem;
-        height: 4px;
-        background: linear-gradient(90deg, var(--dark-accent-primary), #a183ff);
+        width: 5rem;
+        height: 3px;
+        background: linear-gradient(90deg, var(--dark-accent-primary), var(--dark-accent-secondary));
         border-radius: 2px;
     }
     
     .light-theme .section-title:after {
-        background: linear-gradient(90deg, var(--light-accent-primary), #7b5fff);
+        background: linear-gradient(90deg, var(--light-accent-primary), var(--light-accent-secondary));
     }
     
     .features-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 2rem;
     }
     
@@ -277,75 +507,232 @@
         background-color: var(--dark-bg-secondary);
         border-radius: var(--border-radius);
         padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        box-shadow: 0 8px 16px var(--dark-shadow);
         transition: transform var(--transition-speed), box-shadow var(--transition-speed);
-        box-shadow: 0 4px 12px var(--dark-shadow);
     }
     
     .light-theme .feature-card {
         background-color: var(--light-bg-secondary);
-        box-shadow: 0 4px 12px var(--light-shadow);
+        box-shadow: 0 8px 16px var(--light-shadow);
     }
     
     .feature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 24px var(--dark-shadow);
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px var(--dark-shadow);
     }
     
     .light-theme .feature-card:hover {
-        box-shadow: 0 8px 24px var(--light-shadow);
+        box-shadow: 0 12px 24px var(--light-shadow);
     }
     
     .feature-icon {
-        display: inline-flex;
+        background-color: rgba(106, 143, 255, 0.15);
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
         align-items: center;
         justify-content: center;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        margin-bottom: 1.25rem;
-        background-color: rgba(106, 143, 255, 0.15);
-        color: var(--dark-accent-primary);
+        margin-bottom: 1.5rem;
     }
     
     .light-theme .feature-icon {
         background-color: rgba(76, 110, 245, 0.15);
-        color: var(--light-accent-primary);
     }
     
     .feature-icon .material-icons {
         font-size: 2rem;
+        color: var(--dark-accent-primary);
+    }
+    
+    .light-theme .feature-icon .material-icons {
+        color: var(--light-accent-primary);
     }
     
     .feature-title {
-        font-size: 1.25rem;
+        font-size: 1.3rem;
         margin-bottom: 1rem;
     }
     
-    .feature-description {
+    .feature-text {
         color: var(--dark-text-secondary);
         line-height: 1.6;
+        margin-bottom: 0;
     }
     
-    .light-theme .feature-description {
+    .light-theme .feature-text {
         color: var(--light-text-secondary);
+    }
+    
+    /* Layers Section */
+    .layers-section {
+        margin-bottom: 5rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+    }
+    
+    .section-subtitle {
+        font-size: 1.1rem;
+        text-align: center;
+        margin: -2rem auto 3rem;
+        max-width: 600px;
+        color: var(--dark-text-secondary);
+    }
+    
+    .light-theme .section-subtitle {
+        color: var(--light-text-secondary);
+    }
+    
+    .layers-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .layer-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .layer-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        background-color: var(--dark-bg-tertiary);
+        flex-shrink: 0;
+    }
+    
+    .light-theme .layer-number {
+        background-color: var(--light-bg-tertiary);
+    }
+    
+    .layer-info {
+        flex: 1;
+    }
+    
+    .layer-name {
+        margin-bottom: 0.25rem;
+        font-size: 1.1rem;
+    }
+    
+    .layer-description {
+        margin: 0;
+        color: var(--dark-text-secondary);
+        font-size: 0.9rem;
+    }
+    
+    .light-theme .layer-description {
+        color: var(--light-text-secondary);
+    }
+    
+    .layers-visual {
+        display: flex;
+        justify-content: center;
+    }
+    
+    .layers-stack {
+        position: relative;
+        width: 300px;
+        height: 500px;
+    }
+    
+    .layer {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 40px;
+        border-radius: var(--border-radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        box-shadow: 0 4px 8px var(--dark-shadow);
+        transition: transform var(--transition-speed);
+    }
+    
+    .light-theme .layer {
+        box-shadow: 0 4px 8px var(--light-shadow);
+    }
+    
+    .layer:hover {
+        transform: translateX(10px);
+    }
+    
+    .layer-1 {
+        bottom: 0;
+        background: linear-gradient(to right, #6a8fff, #8da7e8);
+    }
+    
+    .layer-2 {
+        bottom: 50px;
+        background: linear-gradient(to right, #7a8aff, #9db7f8);
+    }
+    
+    .layer-3 {
+        bottom: 100px;
+        background: linear-gradient(to right, #8a8aff, #adc7f8);
+    }
+    
+    .layer-4 {
+        bottom: 150px;
+        background: linear-gradient(to right, #9a8aff, #bdd7f8);
+    }
+    
+    .layer-5 {
+        bottom: 200px;
+        background: linear-gradient(to right, #aa8aff, #cde7f8);
+    }
+    
+    .layer-6 {
+        bottom: 250px;
+        background: linear-gradient(to right, #ba8aff, #ddf7f8);
+    }
+    
+    .layer-7 {
+        bottom: 300px;
+        background: linear-gradient(to right, #ca8aff, #a183ff);
+    }
+    
+    .layer-8 {
+        bottom: 350px;
+        background: linear-gradient(to right, #da8aff, #b193ff);
+    }
+    
+    .layer-9 {
+        bottom: 400px;
+        background: linear-gradient(to right, #ea8aff, #c1a3ff);
+    }
+    
+    .layer-10 {
+        bottom: 450px;
+        background: linear-gradient(to right, #fa8aff, #d1b3ff);
     }
     
     /* CTA Section */
     .cta-section {
-        background: linear-gradient(135deg, rgba(106, 143, 255, 0.15), rgba(161, 131, 255, 0.15));
+        margin-bottom: 3rem;
+        background-color: var(--dark-bg-secondary);
         border-radius: var(--border-radius);
         padding: 3rem;
-        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 8px 24px var(--dark-shadow);
     }
     
     .light-theme .cta-section {
-        background: linear-gradient(135deg, rgba(76, 110, 245, 0.1), rgba(123, 95, 255, 0.1));
-    }
-    
-    .cta-content {
-        text-align: center;
-        max-width: 800px;
-        margin: 0 auto;
+        background-color: var(--light-bg-secondary);
+        box-shadow: 0 8px 24px var(--light-shadow);
     }
     
     .cta-title {
@@ -353,49 +740,69 @@
         margin-bottom: 1rem;
     }
     
-    .cta-description {
+    .cta-text {
         font-size: 1.1rem;
-        margin-bottom: 2rem;
+        max-width: 600px;
+        margin: 0 auto 2rem;
         color: var(--dark-text-secondary);
     }
     
-    .light-theme .cta-description {
+    .light-theme .cta-text {
         color: var(--light-text-secondary);
     }
     
-    .cta-actions {
+    .cta-buttons {
         display: flex;
         justify-content: center;
         gap: 1rem;
     }
     
+    .cta-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 1.1rem;
+    }
+    
     /* Responsive Adjustments */
-    @media (max-width: 992px) {
-        .hero-section {
-            flex-direction: column;
-            text-align: center;
+    @media (max-width: 1200px) {
+        .hero-title {
+            font-size: 2.5rem;
         }
         
-        .hero-actions {
-            justify-content: center;
+        .layers-section {
+            grid-template-columns: 1fr;
         }
         
-        .hero-image {
-            max-width: 100%;
-        }
-        
-        .features-grid {
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        .layers-visual {
+            display: none;
         }
     }
     
-    @media (max-width: 576px) {
-        .hero-title {
-            font-size: 2rem;
+    @media (max-width: 992px) {
+        .hero-section {
+            grid-template-columns: 1fr;
         }
         
-        .section-title {
-            font-size: 1.8rem;
+        .hero-content {
+            text-align: center;
+        }
+        
+        .hero-subtitle {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-buttons {
+            justify-content: center;
+        }
+        
+        .features-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .features-grid {
+            grid-template-columns: 1fr;
         }
         
         .cta-section {
@@ -403,12 +810,59 @@
         }
         
         .cta-title {
-            font-size: 1.8rem;
+            font-size: 1.75rem;
         }
         
-        .features-grid {
-            grid-template-columns: 1fr;
+        .cta-buttons {
+            flex-direction: column;
+            gap: 0.75rem;
         }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to animate SVG elements with random movement
+        function animateGraph() {
+            // Get all the nodes (except the central one)
+            const nodes = document.querySelectorAll('.primary-node, .secondary-node, .tertiary-node');
+            
+            // For each node, apply a small random movement
+            nodes.forEach(node => {
+                // Get current position
+                const cx = parseFloat(node.getAttribute('cx'));
+                const cy = parseFloat(node.getAttribute('cy'));
+                
+                // Calculate small random movement (±3px)
+                const newCx = cx + (Math.random() * 6 - 3);
+                const newCy = cy + (Math.random() * 6 - 3);
+                
+                // Apply smooth transition
+                node.style.transition = 'cx 3s ease-in-out, cy 3s ease-in-out';
+                node.setAttribute('cx', newCx);
+                node.setAttribute('cy', newCy);
+                
+                // Update connecting lines
+                const connectedLines = document.querySelectorAll(`line[x1="${cx}"][y1="${cy}"], line[x2="${cx}"][y2="${cy}"]`);
+                connectedLines.forEach(line => {
+                    if (line.getAttribute('x1') == cx && line.getAttribute('y1') == cy) {
+                        line.style.transition = 'x1 3s ease-in-out, y1 3s ease-in-out';
+                        line.setAttribute('x1', newCx);
+                        line.setAttribute('y1', newCy);
+                    } else {
+                        line.style.transition = 'x2 3s ease-in-out, y2 3s ease-in-out';
+                        line.setAttribute('x2', newCx);
+                        line.setAttribute('y2', newCy);
+                    }
+                });
+            });
+            
+            // Continue animation
+            setTimeout(animateGraph, 3000);
+        }
+        
+        // Start the animation
+        setTimeout(animateGraph, 1000);
+    });
+</script>
 {% endblock %}
