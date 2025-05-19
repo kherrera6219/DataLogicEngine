@@ -1219,17 +1219,7 @@ class POVEngine:
         self.execution_time += (datetime.now() - start_time).total_seconds()
         
         return result
-            overall_confidence /= len(personas)
-        
-        return {
-            'status': 'entangled',
-            'entangled_points': entangled_points,
-            'alignments': alignments,
-            'conflicts': conflicts,
-            'overall_confidence': overall_confidence,
-            'belief_weight_matrix': self._generate_belief_matrix(personas)
-        }
-    
+
     def _generate_belief_matrix(self, personas: List[Dict]) -> Dict:
         """
         Generate a belief weight matrix for personas.
@@ -1240,22 +1230,120 @@ class POVEngine:
         Returns:
             dict: Belief weight matrix
         """
-        # Simplified belief matrix generation
-        matrix = {}
-        
-        for persona in personas:
-            persona_id = persona['persona_id']
-            matrix[persona_id] = {}
+        if not personas:
+            return {}
             
-            for other in personas:
-                other_id = other['persona_id']
+        # Initialize belief matrix with default weights
+        belief_matrix = {}
+        
+        # Base weights by persona type 
+        type_weights = {
+            'knowledge': 0.85,  # Knowledge Role (Axis 8)
+            'sector': 0.82,     # Sector Role (Axis 9)
+            'regulatory': 0.90, # Regulatory Role (Axis 10)
+            'compliance': 0.88  # Compliance Role (Axis 11)
+        }
+        
+        # Extract persona IDs and calculate base weights
+        for persona in personas:
+            persona_id = persona.get('persona_id', '')
+            if not persona_id:
+                continue
                 
-                if persona_id == other_id:
-                    # Self-belief is 1.0
-                    matrix[persona_id][other_id] = 1.0
-                else:
-                    # Simulate belief weight between personas
-                    matrix[persona_id][other_id] = 0.7 + (0.2 * (hash(persona_id + other_id) % 10) / 10)
+            # Get persona type (first word in name, e.g., 'knowledge' from 'knowledge expert')
+            full_name = persona.get('name', '').lower()
+            persona_type = full_name.split()[0] if full_name else 'generic'
+            
+            # Calculate base weight from type or default to 0.8
+            base_weight = type_weights.get(persona_type, 0.8)
+            
+            # Start with base weight
+            belief_matrix[persona_id] = base_weight
+            
+        # Adjust weights based on expertise areas and confidence
+        for persona in personas:
+            persona_id = persona.get('persona_id', '')
+            if not persona_id or persona_id not in belief_matrix:
+                continue
+                
+            # Use confidence to adjust weight
+            confidence = persona.get('confidence', 0.8)
+            
+            # Adjust by amount of expertise areas (more areas = higher credibility)
+            expertise_areas = persona.get('expertise_areas', [])
+            expertise_bonus = min(0.08, len(expertise_areas) * 0.01)  # Cap at 0.08
+            
+            # Apply adjustments (maximum total weight is 1.0)
+            belief_matrix[persona_id] = min(1.0, belief_matrix[persona_id] * confidence + expertise_bonus)
+            
+        # Add cross-persona relationships (how personas modify each others' weights)
+        self._apply_cross_persona_relationships(personas, belief_matrix)
+            
+        return belief_matrix
+        
+    def _apply_cross_persona_relationships(self, personas: List[Dict], belief_matrix: Dict) -> None:
+        """
+        Apply cross-persona relationships to refine belief weights.
+        
+        This implements a key aspect of the 13-axis system by accounting for how
+        different expertise areas interact across the UKG axes.
+        
+        Args:
+            personas: List of simulated personas
+            belief_matrix: Current belief matrix to be modified
+        """
+        # Skip if too few personas for meaningful relationships
+        if len(personas) < 2:
+            return
+            
+        # Extract persona types for relationship calculation
+        persona_types = {}
+        for persona in personas:
+            persona_id = persona.get('persona_id', '')
+            if not persona_id:
+                continue
+                
+            full_name = persona.get('name', '').lower()
+            persona_type = full_name.split()[0] if full_name else 'generic'
+            persona_types[persona_id] = persona_type
+            
+        # Define relationship adjustments based on 13-axis integration
+        # These adjustments reflect how different axes influence each other
+        relationship_adjustments = {
+            # Regulatory experts boost compliance experts' credibility
+            ('regulatory', 'compliance'): 0.05,
+            
+            # Compliance experts slightly reduce knowledge experts' credibility (practicality vs theory)
+            ('compliance', 'knowledge'): -0.03,
+            
+            # Knowledge experts slightly boost sector experts' credibility
+            ('knowledge', 'sector'): 0.04,
+            
+            # Sector experts boost regulatory experts' credibility (practical implementation knowledge)
+            ('sector', 'regulatory'): 0.03
+        }
+        
+        # Apply relationship adjustments
+        for persona1 in personas:
+            id1 = persona1.get('persona_id', '')
+            if not id1 or id1 not in persona_types:
+                continue
+                
+            type1 = persona_types[id1]
+            
+            for persona2 in personas:
+                id2 = persona2.get('persona_id', '')
+                if not id2 or id2 not in persona_types or id1 == id2:
+                    continue
+                    
+                type2 = persona_types[id2]
+                
+                # Look up relationship adjustment
+                adjustment = relationship_adjustments.get((type1, type2), 0)
+                
+                if adjustment != 0 and id2 in belief_matrix:
+                    # Apply adjustment with bounds checking (keep between 0.5 and 1.0)
+                    belief_matrix[id2] = max(0.5, min(1.0, belief_matrix[id2] + adjustment))
         
         return matrix
     
