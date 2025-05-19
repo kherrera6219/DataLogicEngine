@@ -419,11 +419,10 @@ class NestedLayerDatabase:
         # Add to graph
         self.graph.add_edge(
             source_id, 
-            target_id, 
-            rel_id=rel_id,
+            target_id,
             rel_type=rel_type,
             weight=weight,
-            **relationship.to_dict()
+            attributes=attributes
         )
         
         logger.debug(f"Added relationship: {rel_id} from {source_id} to {target_id} of type {rel_type}")
