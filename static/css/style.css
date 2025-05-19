@@ -1,0 +1,72 @@
+/* Main styles for Universal Knowledge Graph */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+}
+
+.card {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* Custom colors for each axis */
+.axis-1-color { background-color: #4287f5; }
+.axis-2-color { background-color: #42f57e; }
+.axis-3-color { background-color: #f5a742; }
+.axis-4-color { background-color: #f54242; }
+.axis-5-color { background-color: #a442f5; }
+.axis-6-color { background-color: #42d9f5; }
+.axis-7-color { background-color: #f542be; }
+.axis-8-color { background-color: #55bb67; }
+.axis-9-color { background-color: #bbaa55; }
+.axis-10-color { background-color: #5567bb; }
+.axis-11-color { background-color: #bb5567; }
+.axis-12-color { background-color: #67bb55; }
+.axis-13-color { background-color: #bb55bb; }
+
+/* Custom styling for buttons */
+.btn {
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+}
+
+.btn:hover:not([disabled]) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer styling */
+footer {
+    border-top: 1px solid #dee2e6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 20px;
+    }
+}

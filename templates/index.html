@@ -1,95 +1,192 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="my-4">
+            <h1 class="text-center">Universal Knowledge Graph (UKG)</h1>
+            <p class="text-center lead">A 13-axis system for comprehensive knowledge organization and reasoning</p>
+        </header>
 
-{% block title %}UKG System Home{% endblock %}
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">Axis 1: Knowledge</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Pillar Levels (PL01-PL100) forming the foundation of knowledge organization.</p>
+                        <a href="/api/pillars" class="btn btn-outline-primary btn-sm">View Pillars</a>
+                    </div>
+                </div>
+            </div>
 
-{% block content %}
-<div class="container mt-5">
-  <div class="row">
-    <div class="col-lg-8">
-      <div class="card shadow-sm">
-        <div class="card-header">
-          <h2>Universal Knowledge Graph (UKG) System</h2>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">Axis 2: Sector</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Industry and sector categorization across the knowledge graph.</p>
+                        <a href="/api/sectors" class="btn btn-outline-success btn-sm">View Sectors</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">Axis 3: Domain</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Branch systems with academic lineage and historical origin.</p>
+                        <a href="/api/domains" class="btn btn-outline-info btn-sm">View Domains</a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-          <p class="lead">Welcome to the UKG System, a comprehensive knowledge management platform.</p>
-          <p>Explore the graph-based knowledge representation system integrating multiple domains and perspectives.</p>
 
-          <h3 class="mt-4">Features</h3>
-          <ul>
-            <li>Multi-dimensional knowledge representation</li>
-            <li>Context-aware information retrieval</li>
-            <li>Persona-based query processing</li>
-            <li>Regulatory and compliance framework integration</li>
-          </ul>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-warning">
+                        <h5 class="card-title mb-0">Axis 4: Node</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Knowledge nodes representing sector/discipline crossover points.</p>
+                        <a href="/api/nodes" class="btn btn-outline-warning btn-sm">View Nodes</a>
+                    </div>
+                </div>
+            </div>
 
-          <div class="mt-4">
-            <a href="/chat" class="btn btn-primary">Start Chatting</a>
-          </div>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="card-title mb-0">Axis 5: Honeycomb</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Cross-pillar and cross-sector linkage through honeycomb cells.</p>
+                        <button class="btn btn-outline-danger btn-sm" disabled>Coming Soon</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="card-title mb-0">Axis 6: Octopus Node</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Regulatory framework and multi-dimensional knowledge connection points.</p>
+                        <button class="btn btn-outline-secondary btn-sm" disabled>Coming Soon</button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="card-title mb-0">All 13 Axes of the Universal Knowledge Graph</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Axis Number</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>Knowledge (Pillar Levels)</td>
+                                        <td>Top-level knowledge categories (PL01-PL100)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>Sector</td>
+                                        <td>Industry sector mapping to each pillar</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>Domain (Branch)</td>
+                                        <td>Academic lineage and historical origin</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4</td>
+                                        <td>Node</td>
+                                        <td>Sector/discipline crossover points</td>
+                                    </tr>
+                                    <tr>
+                                        <td>5</td>
+                                        <td>Honeycomb</td>
+                                        <td>Cross-pillar & cross-sector linkage</td>
+                                    </tr>
+                                    <tr>
+                                        <td>6</td>
+                                        <td>Octopus Node</td>
+                                        <td>Regulatory framework connections</td>
+                                    </tr>
+                                    <tr>
+                                        <td>7</td>
+                                        <td>Compliance</td>
+                                        <td>Compliance standards and requirements</td>
+                                    </tr>
+                                    <tr>
+                                        <td>8</td>
+                                        <td>Knowledge Expert Persona</td>
+                                        <td>Expert roles mapped to knowledge domains</td>
+                                    </tr>
+                                    <tr>
+                                        <td>9</td>
+                                        <td>Sector Expert Persona</td>
+                                        <td>Industry-specific expert roles</td>
+                                    </tr>
+                                    <tr>
+                                        <td>10</td>
+                                        <td>Octopus Node Expert</td>
+                                        <td>Regulatory experts and specialists</td>
+                                    </tr>
+                                    <tr>
+                                        <td>11</td>
+                                        <td>Spiderweb Expert</td>
+                                        <td>Compliance experts and specialists</td>
+                                    </tr>
+                                    <tr>
+                                        <td>12</td>
+                                        <td>Location</td>
+                                        <td>Geographic context and spatial relationships</td>
+                                    </tr>
+                                    <tr>
+                                        <td>13</td>
+                                        <td>Time</td>
+                                        <td>Temporal context, causality, and evolution</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="col-lg-4">
-      <div class="card shadow-sm">
-        <div class="card-header">
-          <h3>UKG System Status</h3>
+    <footer class="bg-light py-3 mt-4">
+        <div class="container text-center">
+            <p>&copy; 2025 Universal Knowledge Graph (UKG) System</p>
         </div>
-        <div class="card-body">
-          <h5>Graph Statistics</h5>
-          <div id="graph-stats">
-            <p>Loading graph statistics...</p>
-          </div>
-          <hr>
-          <h5>Memory Statistics</h5>
-          <div id="memory-stats">
-            <p>Loading memory statistics...</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+    </footer>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Fetch graph statistics
-    fetch('/api/graph_stats')
-      .then(response => response.json())
-      .then(data => {
-        const graphStatsDiv = document.getElementById('graph-stats');
-        if (data.success) {
-          graphStatsDiv.innerHTML = `
-            <p>Total Nodes: ${data.data.total_nodes || 0}</p>
-            <p>Total Edges: ${data.data.total_edges || 0}</p>
-            <p>Node Types: ${Object.keys(data.data.node_types || {}).length}</p>
-          `;
-        } else {
-          graphStatsDiv.innerHTML = '<div class="alert alert-warning">Error loading graph statistics</div>';
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching graph stats:', error);
-        document.getElementById('graph-stats').innerHTML = '<div class="alert alert-warning">Error loading graph statistics</div>';
-      });
-
-    // Fetch memory statistics
-    fetch('/api/memory_stats')
-      .then(response => response.json())
-      .then(data => {
-        const memoryStatsDiv = document.getElementById('memory-stats');
-        if (data.success) {
-          memoryStatsDiv.innerHTML = `
-            <p>Memory Entries: ${data.data.total_entries || 0}</p>
-            <p>Active Sessions: ${data.data.active_sessions || 0}</p>
-          `;
-        } else {
-          memoryStatsDiv.innerHTML = '<div class="alert alert-warning">Error loading memory statistics</div>';
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching memory stats:', error);
-        document.getElementById('memory-stats').innerHTML = '<div class="alert alert-warning">Error loading memory statistics</div>';
-      });
-  });
-</script>
-{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
