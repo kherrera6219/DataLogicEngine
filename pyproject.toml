@@ -24,4 +24,6 @@ dependencies = [
     "pyjwt>=2.10.1",
     "flask-dance>=7.1.0",
     "openai>=1.79.0",
+    "numpy>=2.2.6",
+    "tabulate>=0.9.0",
 ]
