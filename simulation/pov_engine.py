@@ -861,25 +861,217 @@ class POVEngine:
             'timestamp': datetime.now().isoformat()
         }
     
-    def _generate_component(self, component_type: str, persona_type: str) -> Dict:
+    def _generate_component(self, component_type: str, persona_type: str, pl_levels: List[str] = None, sectors: List[str] = None) -> Dict:
         """
         Generate a component for a persona.
         
         Args:
             component_type: Type of component (job_role, education, etc.)
             persona_type: Type of persona
+            pl_levels: List of relevant PL (Pillar Level) identifiers
+            sectors: List of relevant sector identifiers
             
         Returns:
             dict: Component data
         """
-        # In a real implementation, this would generate actual components
-        # based on the component type and persona type
+        # Default values if none provided
+        if not pl_levels:
+            pl_levels = []
+        if not sectors:
+            sectors = []
+            
+        # Tailor the component to the persona type and contextual areas
+        component_value = ""
+        component_desc = ""
+        relevance = 0.7 + (random.random() * 0.2)  # 0.7-0.9 base relevance
         
+        # Adjust by persona type
+        if persona_type == 'knowledge':
+            # Knowledge domain expert components
+            if component_type == 'job_role':
+                component_value = "Domain Knowledge Specialist"
+                if pl_levels:
+                    if "PL10" in pl_levels:
+                        component_value = "Technical Knowledge Architect"
+                    elif "PL08" in pl_levels or "PL02" in pl_levels:
+                        component_value = "Research Lead & Knowledge Domain Expert"
+                component_desc = "Expert in theoretical and practical domain knowledge"
+                
+            elif component_type == 'education':
+                component_value = "PhD in Information Sciences"
+                if pl_levels:
+                    if "PL01" in pl_levels:
+                        component_value = "PhD in Mathematics and Computational Science"
+                    elif "PL02" in pl_levels:
+                        component_value = "PhD in Biological Sciences"
+                component_desc = "Specialized academic background in relevant domains"
+                
+            elif component_type == 'certifications':
+                component_value = "Knowledge Management Professional (KMP)"
+                if pl_levels:
+                    if "PL10" in pl_levels:
+                        component_value = "Certified Knowledge Architect (CKA), Data Science Professional"
+                component_desc = "Industry-recognized credentials in knowledge management"
+                
+            elif component_type == 'skills':
+                component_value = "Deep domain expertise, knowledge mapping, ontology development"
+                component_desc = "Core capabilities for organizing and analyzing domain knowledge"
+                
+            elif component_type == 'training':
+                component_value = "Knowledge Organization Systems, Advanced Research Methods"
+                component_desc = "Formal training in knowledge structures and research approaches"
+                
+            elif component_type == 'career_path':
+                component_value = "Subject Matter Expert → Knowledge Architect → Chief Knowledge Officer"
+                component_desc = "Career progression emphasizing depth of domain expertise"
+                
+            elif component_type == 'related_jobs':
+                component_value = "Research Scientist, Knowledge Engineer, Domain Specialist"
+                component_desc = "Related roles that contribute knowledge domain perspectives"
+                
+        elif persona_type == 'sector':
+            # Sector expert components
+            sector_focus = "cross-industry" if not sectors else sectors[0].replace("Sector", "")
+            
+            if component_type == 'job_role':
+                component_value = f"Industry Sector Advisor - {sector_focus}"
+                if sectors and "Sector2" in sectors:
+                    component_value = "Financial Sector Consultant"
+                elif sectors and "Sector1" in sectors:
+                    component_value = "Healthcare Industry Specialist"
+                component_desc = "Expert in industry practices and sector-specific operations"
+                
+            elif component_type == 'education':
+                component_value = "MBA with Industry Specialization"
+                if sectors and "Sector2" in sectors:
+                    component_value = "MBA in Finance, CFA"
+                elif sectors and "Sector6" in sectors:
+                    component_value = "MS in Computer Science with Industry Certification"
+                component_desc = "Educational background focused on business and sector applications"
+                
+            elif component_type == 'certifications':
+                component_value = "Industry Certified Professional (ICP)"
+                if sectors:
+                    if "Sector1" in sectors:
+                        component_value = "Healthcare Information Management Systems Professional"
+                    elif "Sector2" in sectors:
+                        component_value = "Certified Financial Analyst, Banking Operations Certified"
+                component_desc = "Specialized certifications for the relevant industry sector"
+                
+            elif component_type == 'skills':
+                component_value = "Market analysis, industry benchmarking, operational excellence"
+                component_desc = "Skills required for success in industry-specific contexts"
+                
+            elif component_type == 'training':
+                component_value = "Industry Standards & Practices, Sector-Specific Operations"
+                component_desc = "Formal training in sector-specific methodologies"
+                
+            elif component_type == 'career_path':
+                component_value = "Industry Specialist → Practice Lead → Industry Director"
+                component_desc = "Career progression within specialized industry contexts"
+                
+            elif component_type == 'related_jobs':
+                component_value = "Industry Analyst, Business Development, Strategy Consultant"
+                component_desc = "Related roles that contribute sector-specific perspectives"
+                
+        elif persona_type == 'regulatory':
+            # Regulatory expert components
+            if component_type == 'job_role':
+                component_value = "Regulatory Affairs Specialist"
+                if sectors:
+                    if "Sector2" in sectors:
+                        component_value = "Financial Compliance Officer"
+                    elif "Sector1" in sectors:
+                        component_value = "Healthcare Regulatory Affairs Director"
+                component_desc = "Expert in regulatory frameworks and compliance requirements"
+                
+            elif component_type == 'education':
+                component_value = "JD with Regulatory Focus"
+                if sectors:
+                    if "Sector2" in sectors:
+                        component_value = "JD with Financial Regulation Specialization"
+                component_desc = "Legal education with emphasis on regulatory frameworks"
+                
+            elif component_type == 'certifications':
+                component_value = "Certified Regulatory Compliance Manager (CRCM)"
+                if sectors:
+                    if "Sector1" in sectors:
+                        component_value = "Regulatory Affairs Certification (RAC)"
+                component_desc = "Professional certification in regulatory oversight"
+                
+            elif component_type == 'skills':
+                component_value = "Regulatory interpretation, compliance planning, policy analysis"
+                component_desc = "Skills for navigating complex regulatory landscapes"
+                
+            elif component_type == 'training':
+                component_value = "Regulatory Frameworks, Compliance Systems, Policy Implementation"
+                component_desc = "Formal training in regulatory systems and requirements"
+                
+            elif component_type == 'career_path':
+                component_value = "Regulatory Specialist → Compliance Director → Chief Compliance Officer"
+                component_desc = "Career trajectory in regulatory compliance and oversight"
+                
+            elif component_type == 'related_jobs':
+                component_value = "Legal Counsel, Policy Advisor, Government Affairs"
+                component_desc = "Related roles that contribute regulatory perspectives"
+                
+        elif persona_type == 'compliance':
+            # Compliance expert components
+            if component_type == 'job_role':
+                component_value = "Compliance Standards Expert"
+                if sectors:
+                    if "Sector2" in sectors:
+                        component_value = "Financial Audit & Compliance Manager"
+                    elif "Sector6" in sectors:
+                        component_value = "IT Compliance & Security Specialist"
+                component_desc = "Expert in compliance frameworks and audit procedures"
+                
+            elif component_type == 'education':
+                component_value = "Masters in Compliance Management"
+                if sectors:
+                    if "Sector2" in sectors:
+                        component_value = "MBA, Certified Internal Auditor"
+                component_desc = "Specialized education in compliance systems"
+                
+            elif component_type == 'certifications':
+                component_value = "Certified Compliance & Ethics Professional (CCEP)"
+                if sectors:
+                    if "Sector1" in sectors:
+                        component_value = "HITRUST CCSFP, Healthcare Compliance Certification"
+                    elif "Sector6" in sectors:
+                        component_value = "CISSP, Certified ISO 27001 Lead Implementer"
+                component_desc = "Professional certification in compliance standards"
+                
+            elif component_type == 'skills':
+                component_value = "Audit planning, control assessment, compliance verification"
+                component_desc = "Skills for implementing and assessing compliance controls"
+                
+            elif component_type == 'training':
+                component_value = "Compliance Frameworks, Audit Methodologies, Control Systems"
+                component_desc = "Formal training in compliance frameworks and methodologies"
+                
+            elif component_type == 'career_path':
+                component_value = "Compliance Analyst → Audit Manager → Chief Audit Executive"
+                component_desc = "Career progression in compliance and control functions"
+                
+            elif component_type == 'related_jobs':
+                component_value = "Internal Auditor, Risk Manager, Controls Specialist"
+                component_desc = "Related roles that contribute compliance perspectives"
+                
+        else:
+            # Generic fallback components
+            component_value = f"Simulated {persona_type} {component_type}"
+            component_desc = f"This is a simulated {component_type} for the {persona_type} persona"
+            
         return {
             'type': component_type,
-            'content': f"Simulated {component_type} for {persona_type} expert",
-            'confidence': 0.85,
-            'relevance': 0.8
+            'value': component_value,
+            'description': component_desc,
+            'relevance': relevance,
+            'axis_alignment': 7 + (persona_type == 'knowledge' and 1 or 
+                                  persona_type == 'sector' and 2 or 
+                                  persona_type == 'regulatory' and 3 or 
+                                  persona_type == 'compliance' and 4 or 0)
         }
     
     def _apply_temporal_spatial_mapping(self, context: Dict) -> Dict:
@@ -926,20 +1118,107 @@ class POVEngine:
         Returns:
             dict: Entangled viewpoints
         """
+        start_time = datetime.now()
+        
+        # Extract personas, query, and relevant context
         personas = context.get('simulated_personas', [])
+        query = context.get('query', '')
+        expanded_data = context.get('expanded_data', [])
         
         if not personas:
-            return {'status': 'no_personas', 'entangled_points': []}
+            # No personas to entangle
+            return {
+                'entangled': False,
+                'summary': "No personas available for entanglement",
+                'confidence': 0.5,
+                'timestamp': datetime.now().isoformat(),
+                'entangled_points': []
+            }
         
-        # Extract perspectives from each persona
-        perspectives = {persona['persona_id']: persona['perspective'] for persona in personas}
+        # Generate belief matrix to weight each persona's input
+        belief_matrix = self._generate_belief_matrix(personas)
         
-        # Simplified entanglement process
-        entangled_points = []
-        overall_confidence = 0.0
+        # Extract key perspectives and data points
+        perspective_points = []
         
-        # Simulate alignment and conflict detection between personas
-        alignments = []
+        for persona in personas:
+            persona_type = persona.get('name', '').lower().split()[0]
+            confidence = persona.get('confidence', 0.75)
+            perspective = persona.get('perspective', {})
+            expertise_areas = persona.get('expertise_areas', [])
+            
+            # Weight based on confidence and belief matrix
+            weight = confidence * belief_matrix.get(persona.get('persona_id', ''), 0.8)
+            
+            # Extract key points from perspective
+            for point in perspective.get('key_points', []):
+                perspective_points.append({
+                    'point': point,
+                    'source': persona_type,
+                    'weight': weight,
+                    'expertise': ", ".join(expertise_areas[:2]) if expertise_areas else persona_type,
+                    'confidence': confidence
+                })
+        
+        # Sort by weight (highest first)
+        perspective_points.sort(key=lambda x: x['weight'], reverse=True)
+        
+        # Create comprehensive view by combining top weighted points
+        # Avoid duplication by checking semantic similarity
+        selected_points = []
+        seen_themes = set()
+        
+        for point in perspective_points:
+            # Simple theme extraction (would use more sophisticated NLP in production)
+            words = point['point'].lower().split()
+            theme = " ".join([w for w in words if len(w) > 5][:3])
+            
+            if theme not in seen_themes:
+                selected_points.append(point)
+                seen_themes.add(theme)
+                
+                # Limit to top 7-10 most relevant points
+                if len(selected_points) >= min(10, len(personas) * 2.5):
+                    break
+        # Calculate consensus and confidence
+        if selected_points:
+            avg_weight = sum(p['weight'] for p in selected_points) / len(selected_points)
+            avg_confidence = sum(p['confidence'] for p in selected_points) / len(selected_points)
+            
+            # Higher confidence if more personas agree (less variance in weights)
+            weights = [p['weight'] for p in selected_points]
+            weight_variance = sum((w - avg_weight) ** 2 for w in weights) / max(0.001, len(weights))
+            normalized_variance = min(1.0, weight_variance * 5.0)  # Scale for sensitivity
+            
+            # Consensus confidence - higher when variance is lower
+            consensus_confidence = avg_confidence * (1.0 - (normalized_variance * 0.3))
+        else:
+            avg_weight = 0.6
+            consensus_confidence = 0.6
+            
+        # Generate summary from weighted points
+        summary_points = [f"● {p['point']} (from {p['source']} with {p['expertise']})" 
+                         for p in selected_points[:5]]
+        
+        if not summary_points:
+            summary = "No meaningful consensus found across personas"
+        else:
+            summary = "Multi-perspective consensus across the 13-axis system:\n" + "\n".join(summary_points)
+            
+        result = {
+            'entangled': True,
+            'summary': summary,
+            'confidence': consensus_confidence,
+            'points': selected_points,
+            'source_count': len(personas),
+            'timestamp': datetime.now().isoformat(),
+            'entangled_points': selected_points
+        }
+        
+        # Update metrics
+        self.execution_time += (datetime.now() - start_time).total_seconds()
+        
+        return result
         conflicts = []
         
         # For demo purposes, create a simulated alignment
