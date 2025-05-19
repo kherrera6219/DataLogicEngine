@@ -1,0 +1,128 @@
+---
+# Universal Knowledge Graph (UKG) System - Quad Persona Configuration
+
+# General quad persona engine settings
+engine:
+  max_recursive_passes: 3
+  min_confidence_threshold: 0.7
+  enable_memory_integration: true
+  default_persona_weights:
+    knowledge: 1.0
+    sector: 1.0
+    regulatory: 1.0
+    compliance: 1.0
+
+# Memory management settings
+memory:
+  working_memory_capacity: 20
+  enable_semantic_search: false  # Set to true if using embedding-based search
+  max_memory_age_days: 30
+  salience_decay_rate: 0.1
+
+# Refinement workflow settings
+refinement:
+  enable_refinement: true
+  min_refinement_confidence: 0.6
+  refinement_steps:
+    - id: initial_analysis
+      optional: false
+      threshold: 0.0
+    - id: knowledge_processing
+      optional: false
+      threshold: 0.0
+    - id: sector_processing
+      optional: false
+      threshold: 0.0
+    - id: regulatory_processing
+      optional: false
+      threshold: 0.0
+    - id: compliance_processing
+      optional: false
+      threshold: 0.0
+    - id: cross_persona_analysis
+      optional: false
+      threshold: 0.0
+    - id: conflict_resolution
+      optional: true
+      threshold: 0.0
+    - id: confidence_assessment
+      optional: false
+      threshold: 0.0
+    - id: refinement_pass
+      optional: true
+      threshold: 0.6
+    - id: fact_verification
+      optional: true
+      threshold: 0.7
+    - id: coherence_check
+      optional: false
+      threshold: 0.0
+    - id: final_synthesis
+      optional: false
+      threshold: 0.0
+
+# Axis mapping settings
+axis_mapping:
+  dominant_axes:
+    - 8  # Knowledge Expert
+    - 9  # Sector Expert
+    - 10 # Regulatory Expert (Octopus Node)
+    - 11 # Compliance Expert (Spiderweb Node)
+  influencing_axes:
+    - 1  # Knowledge Framework (Pillar Levels)
+    - 2  # Sectors
+    - 3  # Domains
+    - 4  # Methods
+    - 5  # Temporal Context
+    - 6  # Regulatory
+    - 7  # Compliance
+
+# Domain-specific settings
+domains:
+  healthcare:
+    relevant_personas:
+      knowledge: ["healthcare_knowledge_expert"]
+      sector: ["healthcare_sector_expert"]
+      regulatory: ["healthcare_regulatory_expert"]
+      compliance: ["healthcare_compliance_expert"]
+    regulations:
+      - "HIPAA"
+      - "FDA Medical Device Regulations"
+      - "HITECH Act"
+      - "21st Century Cures Act"
+    standards:
+      - "HL7 FHIR"
+      - "ICD-10"
+      - "DICOM"
+
+  finance:
+    relevant_personas:
+      knowledge: ["finance_knowledge_expert"]
+      sector: ["finance_sector_expert"]
+      regulatory: ["finance_regulatory_expert"]
+      compliance: ["finance_compliance_expert"]
+    regulations:
+      - "Dodd-Frank Act"
+      - "Basel Accords"
+      - "SEC Regulations"
+      - "Anti-Money Laundering Laws"
+    standards:
+      - "PCI DSS"
+      - "SWIFT Standards"
+      - "ISO 20022"
+
+  technology:
+    relevant_personas:
+      knowledge: ["technology_knowledge_expert"]
+      sector: ["technology_sector_expert"]
+      regulatory: ["technology_regulatory_expert"]
+      compliance: ["technology_compliance_expert"]
+    regulations:
+      - "GDPR"
+      - "CCPA/CPRA"
+      - "NIST Cybersecurity Framework"
+      - "Export Control Regulations"
+    standards:
+      - "ISO 27001"
+      - "NIST 800-53"
+      - "SOC 2"

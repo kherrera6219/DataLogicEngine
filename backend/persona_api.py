@@ -1,249 +1,194 @@
 """
 Universal Knowledge Graph (UKG) System - Persona API
 
-This module provides REST API endpoints for interacting with the Quad Persona Engine.
+This module implements the API endpoints for interacting with the
+Quad Persona Simulation Engine.
 """
 
-import json
 import logging
-from flask import Blueprint, request, jsonify
+import os
+import json
+from typing import Dict, Any, Optional
+from datetime import datetime
 
-from core.persona.persona_manager import get_persona_manager
+from flask import Blueprint, request, jsonify, current_app
+from flask_login import login_required, current_user
+
+from simulation.simulation_engine import create_simulation_engine
+from quad_persona.quad_engine import create_quad_persona_engine
 
 logger = logging.getLogger(__name__)
 
-# Create a Blueprint for the persona API
-persona_api = Blueprint('persona_api', __name__)
+# Create blueprint
+persona_api = Blueprint('persona_api', __name__, url_prefix='/api/persona')
 
-@persona_api.route('/api/persona/query', methods=['POST'])
+# Initialize simulation engine
+simulation_engine = create_simulation_engine()
+
+@persona_api.route('/query', methods=['POST'])
+@login_required
 def process_query():
     """
-    Process a query through the Quad Persona Engine.
+    Process a query through the Quad Persona Simulation Engine.
     
-    POST body:
+    Expected JSON payload:
     {
-        "query": "The query to process",
+        "query": "The query text to process",
         "context": {
             "conversation_id": "optional_conversation_id",
-            "additional_context": "any additional context"
+            "domain": "optional_domain",
+            ...
         }
     }
     """
-    try:
-        # Parse request data
-        data = request.get_json()
-        if not data:
-            return jsonify({
-                'status': 'error',
-                'message': 'No data provided'
-            }), 400
-        
-        # Extract query and context
-        query = data.get('query')
-        context = data.get('context', {})
-        
-        if not query:
-            return jsonify({
-                'status': 'error',
-                'message': 'No query provided'
-            }), 400
-        
-        # Get the persona manager
-        persona_manager = get_persona_manager()
-        
-        # Process the query
-        response_data = persona_manager.generate_response(query, context)
-        
-        # Return the response
+    data = request.json
+    if not data or 'query' not in data:
         return jsonify({
-            'status': 'success',
-            'response': response_data['content'],
-            'metadata': {
-                'generated_by': response_data.get('generated_by', 'unknown'),
-                'active_personas': response_data.get('active_personas', []),
-                'confidence': response_data.get('confidence', 0),
-                'used_memories': response_data.get('used_memories', False),
-                'memory_contexts': response_data.get('memory_contexts', [])
-            }
-        })
+            'error': 'Invalid request format, query is required'
+        }), 400
+    
+    query = data['query']
+    context = data.get('context', {})
+    
+    # Add user to context
+    if current_user and current_user.is_authenticated:
+        context['user_id'] = current_user.id
+    
+    # Add conversation ID if not provided
+    if 'conversation_id' not in context:
+        context['conversation_id'] = f"conv_{datetime.utcnow().timestamp()}"
+    
+    try:
+        # Process the query with the simulation engine
+        result = simulation_engine.process_query(query, context)
+        
+        return jsonify(result)
     except Exception as e:
         logger.error(f"Error processing query: {str(e)}")
         return jsonify({
-            'status': 'error',
-            'message': f'Error processing query: {str(e)}'
+            'error': 'Failed to process query',
+            'details': str(e)
         }), 500
 
-@persona_api.route('/api/persona/add-memory', methods=['POST'])
-def add_memory():
+@persona_api.route('/direct-query', methods=['POST'])
+@login_required
+def direct_query():
     """
-    Add a memory to the system.
+    Process a query directly through the Quad Persona Engine without additional simulation components.
     
-    POST body:
+    This endpoint is useful for testing and debugging the core persona engine.
+    
+    Expected JSON payload:
     {
-        "content": "The memory content",
-        "memory_type": "fact|insight|rule|feedback",
-        "source": "user|system|knowledge_expert|sector_expert|regulatory_expert|compliance_expert",
-        "context_name": "optional context name (default: general)",
-        "metadata": {}
+        "query": "The query text to process",
+        "context": { ... }
     }
     """
-    try:
-        # Parse request data
-        data = request.get_json()
-        if not data:
-            return jsonify({
-                'status': 'error',
-                'message': 'No data provided'
-            }), 400
-        
-        # Extract memory data
-        content = data.get('content')
-        memory_type = data.get('memory_type', 'fact')
-        source = data.get('source', 'user')
-        context_name = data.get('context_name', 'general')
-        metadata = data.get('metadata', {})
-        
-        if not content:
-            return jsonify({
-                'status': 'error',
-                'message': 'No content provided'
-            }), 400
-        
-        # Get the persona manager
-        persona_manager = get_persona_manager()
-        
-        # Add the memory
-        success = persona_manager.add_memory(content, memory_type, source, context_name, metadata)
-        
-        if success:
-            return jsonify({
-                'status': 'success',
-                'message': 'Memory added successfully'
-            })
-        else:
-            return jsonify({
-                'status': 'error',
-                'message': f'Error adding memory: context "{context_name}" not found'
-            }), 400
-    except Exception as e:
-        logger.error(f"Error adding memory: {str(e)}")
+    data = request.json
+    if not data or 'query' not in data:
         return jsonify({
-            'status': 'error',
-            'message': f'Error adding memory: {str(e)}'
-        }), 500
-
-@persona_api.route('/api/persona/status', methods=['GET'])
-def get_status():
-    """Get the status of the Quad Persona Engine."""
+            'error': 'Invalid request format, query is required'
+        }), 400
+    
+    query = data['query']
+    context = data.get('context', {})
+    
     try:
-        # Get the persona manager
-        persona_manager = get_persona_manager()
+        # Create a new quad persona engine for this request
+        engine = create_quad_persona_engine()
         
-        # Get the status
-        status = persona_manager.get_status()
+        # Process the query directly
+        result = engine.process_query(query, context)
         
-        # Return the status
         return jsonify({
-            'status': 'success',
-            'persona_engine': status
+            'query': query,
+            'response': result,
+            'timestamp': datetime.utcnow().isoformat()
         })
     except Exception as e:
-        logger.error(f"Error getting status: {str(e)}")
+        logger.error(f"Error processing direct query: {str(e)}")
         return jsonify({
-            'status': 'error',
-            'message': f'Error getting status: {str(e)}'
+            'error': 'Failed to process query',
+            'details': str(e)
         }), 500
 
-@persona_api.route('/api/persona/clear-working-memory', methods=['POST'])
-def clear_working_memory():
-    """Clear the working memory of the Quad Persona Engine."""
-    try:
-        # Get the persona manager
-        persona_manager = get_persona_manager()
-        
-        # Clear the working memory
-        persona_manager.clear_working_memory()
-        
-        # Return success
-        return jsonify({
-            'status': 'success',
-            'message': 'Working memory cleared successfully'
-        })
-    except Exception as e:
-        logger.error(f"Error clearing working memory: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': f'Error clearing working memory: {str(e)}'
-        }), 500
-
-@persona_api.route('/api/persona/toggle-memory', methods=['POST'])
-def toggle_memory():
-    """Enable or disable memory usage in the Quad Persona Engine."""
-    try:
-        # Parse request data
-        data = request.get_json()
-        if not data:
-            return jsonify({
-                'status': 'error',
-                'message': 'No data provided'
-            }), 400
-        
-        # Extract enable flag
-        enable = data.get('enable')
-        if enable is None:
-            return jsonify({
-                'status': 'error',
-                'message': 'No enable flag provided'
-            }), 400
-        
-        # Get the persona manager
-        persona_manager = get_persona_manager()
-        
-        # Enable or disable memory
-        if enable:
-            persona_manager.enable_memory()
-            message = 'Memory enabled'
-        else:
-            persona_manager.disable_memory()
-            message = 'Memory disabled'
-        
-        # Return success
-        return jsonify({
-            'status': 'success',
-            'message': message
-        })
-    except Exception as e:
-        logger.error(f"Error toggling memory: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': f'Error toggling memory: {str(e)}'
-        }), 500
-
-@persona_api.route('/api/persona/get-personas', methods=['GET'])
+@persona_api.route('/personas', methods=['GET'])
+@login_required
 def get_personas():
-    """Get the list of available personas and their details."""
+    """
+    Get information about available personas in the system.
+    """
     try:
-        # Get the persona manager
-        persona_manager = get_persona_manager()
+        # For now, return a static list of available personas
+        # In a real implementation, this would query the persona loader
+        personas = {
+            'knowledge': [{
+                'id': 'knowledge_default',
+                'name': 'Knowledge Expert',
+                'description': 'Expert in domain-specific knowledge and academic concepts',
+                'axis_number': 8
+            }],
+            'sector': [{
+                'id': 'sector_default',
+                'name': 'Sector Expert',
+                'description': 'Expert in industry-specific practices and standards',
+                'axis_number': 9
+            }],
+            'regulatory': [{
+                'id': 'regulatory_default',
+                'name': 'Regulatory Expert',
+                'description': 'Expert in legal frameworks, regulations, and policy',
+                'axis_number': 10
+            }],
+            'compliance': [{
+                'id': 'compliance_default',
+                'name': 'Compliance Expert',
+                'description': 'Expert in ensuring adherence to standards and requirements',
+                'axis_number': 11
+            }]
+        }
         
-        # Get the persona types
-        persona_types = persona_manager.get_persona_types()
-        
-        # Get details for each persona
-        personas = {}
-        for persona_type in persona_types:
-            persona_details = persona_manager.get_persona_details(persona_type)
-            if persona_details:
-                personas[persona_type] = persona_details
-        
-        # Return the personas
-        return jsonify({
-            'status': 'success',
-            'personas': personas
-        })
+        return jsonify(personas)
     except Exception as e:
         logger.error(f"Error getting personas: {str(e)}")
         return jsonify({
-            'status': 'error',
-            'message': f'Error getting personas: {str(e)}'
+            'error': 'Failed to get personas',
+            'details': str(e)
+        }), 500
+
+@persona_api.route('/axis-map', methods=['GET'])
+@login_required
+def get_axis_map():
+    """
+    Get information about the 13-axis coordinate system.
+    """
+    try:
+        axis_map = {
+            'core_axes': {
+                1: 'Knowledge Framework (Pillar Levels)',
+                2: 'Sectors',
+                3: 'Domains',
+                4: 'Methods',
+                5: 'Temporal Context',
+                6: 'Regulatory',
+                7: 'Compliance'
+            },
+            'persona_axes': {
+                8: 'Knowledge Expert',
+                9: 'Sector Expert',
+                10: 'Regulatory Expert (Octopus Node)',
+                11: 'Compliance Expert (Spiderweb Node)'
+            },
+            'integration_axes': {
+                12: 'Integration Context',
+                13: 'Application Context'
+            }
+        }
+        
+        return jsonify(axis_map)
+    except Exception as e:
+        logger.error(f"Error getting axis map: {str(e)}")
+        return jsonify({
+            'error': 'Failed to get axis map',
+            'details': str(e)
         }), 500
