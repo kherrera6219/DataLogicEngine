@@ -1,0 +1,317 @@
+
+Okay, this is a very important axis that adds significant realism and complexity: Axis 12 - Location.
+This axis will influence virtually all other axes because laws, regulations, industry practices, available knowledge, and even ethical interpretations can vary drastically by geographic location (country, state/province, city, and even precise Lat/Long if available).
+Key Design Goals for Axis 12 - Location:
+Represent Locations: Store location data in the UKG, from broad (Country) to specific (Lat/Long).
+Contextual Influence: The "active location context" for a simulation must influence:
+Axis 6 (Regulatory): Which specific jurisdictional versions of laws apply (e.g., GDPR in EU vs. CCPA in California).
+Axis 7 (Compliance): Which industry standards or local compliance norms are active.
+Axis 2 (Sector): Which industry codes (e.g., NAICS vs. NACE vs. local business licenses) and sector practices are relevant.
+Axis 8-11 (Personas): The "experience" or "jurisdictional expertise" of simulated personas. A "Contract Law KE" in Germany is different from one in Texas.
+Axis 1 (Pillar Level Members): The relevance or interpretation of knowledge can change (e.g., "Environmental Science" practices in Brazil vs. Canada).
+Dynamic Activation: The active location context can be set by the query, user profile, or discovered during simulation.
+Precise Location (Lat/Long): If available, this can trigger highly specific local data overlays (e.g., local ordinances, site-specific environmental data, geofenced operational zones).
+Build Plan for Axis 12: Location System
+Phase 1: Enhancing GraphManager for Location Data
+1.1. Data Source for Locations: data/ukg/locations_gazetteer.yaml (New)
+This file will store a hierarchy of locations. For a production system, you'd integrate with a real GIS database or gazetteer service (like GeoNames).
+# data/ukg/locations_gazetteer.yaml
+Locations:
+  - loc_id: "LOC_COUNTRY_USA"
+    loc_label: "United States of America"
+    type: "Country"
+    iso_code: "US"
+    continent_uid: "UID_CONTINENT_NORTH_AMERICA"
+    # Links to top-level federal regulatory frameworks (Axis 6)
+    linked_regulatory_framework_uids: ["REG_FAR_SYSTEM", "REG_EPA_NATIONAL"]
+    children: # States/Territories
+      - loc_id: "LOC_STATE_USA_TX"
+        loc_label: "Texas, USA"
+        type: "State"
+        iso_code: "US-TX"
+        # Links to state-level regulations
+        linked_regulatory_framework_uids: ["REG_TEXAS_PROCUREMENT_CODE_MOCK"] 
+        children:
+          - loc_id: "LOC_CITY_USA_TX_AUSTIN"
+            loc_label: "Austin, Texas, USA"
+            type: "City"
+            county: "Travis"
+            # Links to city ordinances
+            linked_regulatory_framework_uids: ["REG_AUSTIN_CITY_ORDINANCE_MOCK"]
+            precise_locations: # Examples of precise points within Austin
+              - point_id: "LOC_POINT_CAMP_MABRY"
+                point_label: "Camp Mabry, Austin, TX"
+                type: "MilitaryInstallation"
+                latitude: 30.3118
+                longitude: -97.7673
+                # Specific site rules or environmental data could be linked here
+
+  - loc_id: "LOC_REGION_EU"
+    loc_label: "European Union"
+    type: "SupranationalRegion"
+    member_country_uids: ["LOC_COUNTRY_DEU", "LOC_COUNTRY_FRA", ...] # UIDs of member countries
+    linked_regulatory_framework_uids: ["REG_GDPR_FRAMEWORK"]
+
+  - loc_id: "LOC_COUNTRY_DEU" # Germany
+    loc_label: "Germany"
+    type: "Country"
+    iso_code: "DE"
+    continent_uid: "UID_CONTINENT_EUROPE"
+    parent_region_uids: ["LOC_REGION_EU"]
+    # ... children (Länder - states) ...
+
+  # ... more countries, regions, cities, specific points ...
+Use code with caution.
+Yaml
+1.2. Modify GraphManager._build_initial_graph_structure():
+Create Location nodes under the Axis 12 UID, building the hierarchy.
+# In GraphManager._build_initial_graph_structure()
+
+        axis12_uid_str = self.axis_definitions_data.get("Axis12", {}).get("uid_string")
+        if axis12_uid_str:
+            print(f"[{datetime.now()}] GM: Populating Axis 12 (Location Nodes)...")
+            location_data_path = self.config_or_default_path_for_locations # ukg_app_config['ukg_paths']['locations']
+            raw_location_data = self._load_yaml_file(location_data_path, "Locations Gazetteer")
+            
+            if raw_location_data and 'Locations' in raw_location_data:
+                # This needs a recursive helper to build the location hierarchy
+                for loc_def in raw_location_data['Locations']: # Process top-level locations first
+                    self._add_location_node_recursive(loc_def, axis12_uid_str, parent_loc_uid=None) # Link top levels to Axis12
+            else:
+                print(f"[{datetime.now()}] GM: WARNING - Location gazetteer data not found or invalid.")
+        else:
+            print(f"[{datetime.now()}] GM: WARNING - UID for Axis12 not found. Cannot add Location nodes.")
+
+# New recursive helper in GraphManager
+    def _add_location_node_recursive(self, loc_def: Dict, axis12_uid: str, parent_loc_uid: str = None):
+        """Recursively adds location nodes and their children to the graph."""
+        loc_original_id = loc_def["loc_id"]
+        loc_label = loc_def["loc_label"]
+        
+        loc_uid_pkg = self.united_system_manager.create_unified_id(
+            entity_label=loc_label,
+            entity_type=loc_def.get("type", "Location"), # Specific type like "Country", "City"
+            ukg_coords={"Axis12": loc_original_id, "ISO": loc_def.get("iso_code","N/A")}, # Main Axis 12 context
+            specific_id_part=loc_original_id
+        )
+        loc_uid = loc_uid_pkg["uid_string"]
+        
+        node_attributes = {
+            "label": loc_label, "type": loc_def.get("type", "Location"), 
+            "original_id": loc_original_id,
+            "iso_code": loc_def.get("iso_code"),
+            "latitude": loc_def.get("latitude"), # For precise points
+            "longitude": loc_def.get("longitude"),
+            "linked_regulatory_framework_uids": loc_def.get("linked_regulatory_framework_uids", []),
+            **loc_uid_pkg
+        }
+        # Remove None values from attributes before adding node
+        node_attributes = {k:v for k,v in node_attributes.items() if v is not None}
+        self.graph.add_node(loc_uid, **node_attributes)
+
+        if parent_loc_uid: # Link to parent location
+            self.graph.add_edge(parent_loc_uid, loc_uid, relationship="contains_sub_location")
+        else: # Link top-level location to Axis12 node
+            self.graph.add_edge(axis12_uid, loc_uid, relationship="has_location_entry")
+        
+        # print(f"    GM_Axis12: Added Location Node '{loc_label}' (UID {loc_uid[:10]}).") # Can be verbose
+
+        # Process children
+        for child_loc_def in loc_def.get("children", []):
+            self._add_location_node_recursive(child_loc_def, axis12_uid, parent_loc_uid=loc_uid)
+        # Process precise points if any (not hierarchical children, but associated points)
+        for precise_point_def in loc_def.get("precise_locations", []):
+            self._add_location_node_recursive(precise_point_def, axis12_uid, parent_loc_uid=loc_uid) # Points are children of their city/region
+Use code with caution.
+Python
+Note: Update ukg_app_config.yaml with ukg_paths.locations.
+Phase 2: LocationContextEngine (New Module for Axis 12 Logic)
+This engine determines the "active location context" and helps other components filter or prioritize information based on it.
+location_context_engine.py (New File)
+# location_context_engine.py
+from datetime import datetime
+from typing import Dict, List, Optional
+
+class LocationContextEngine:
+    def __init__(self, config: dict, graph_manager, united_system_manager):
+        self.config = config.get('axis12_location_logic', {})
+        self.gm = graph_manager
+        self.usm = united_system_manager
+        print(f"[{datetime.now()}] LocationContextEngine (Axis 12 Logic) initialized.")
+
+    def determine_active_location_context(self, query_text: Optional[str] = None, 
+                                          explicit_location_uids: List[str] = None,
+                                          user_profile_location_uid: Optional[str] = None) -> List[str]:
+        """
+        Determines the active location context UIDs for the current simulation.
+        Priority: Explicit UIDs > Query Text > User Profile > Default.
+        Returns a list of relevant location UIDs (e.g., [City_UID, State_UID, Country_UID]).
+        """
+        active_loc_uids = []
+        if explicit_location_uids:
+            for uid in explicit_location_uids:
+                if self.gm.graph.has_node(uid) and self.gm.get_node_data_by_uid(uid).get("type") in ["Country", "State", "City", "Region", "MilitaryInstallation", "SupranationalRegion"]: # Check type
+                    active_loc_uids.append(uid)
+            if active_loc_uids:
+                 print(f"    LCE: Using explicit location UIDs: {[uid[:10] for uid in active_loc_uids]}.")
+                 return self._expand_location_hierarchy(active_loc_uids)
+
+
+        if query_text:
+            # NLP/KA to extract locations from query_text. For mock, simple keyword match against GM labels.
+            # This should query self.gm for nodes of type Country, State, City with matching labels.
+            # mock_found_loc_uids = self.gm.find_location_uids_from_text(query_text)
+            # For simplicity:
+            if "texas" in query_text.lower() or "camp mabry" in query_text.lower():
+                austin_uid = self.gm.get_node_data_by_attribute("original_id", "LOC_CITY_USA_TX_AUSTIN", "City")
+                if austin_uid: active_loc_uids.append(austin_uid)
+            if "germany" in query_text.lower():
+                 de_uid = self.gm.get_node_data_by_attribute("original_id", "LOC_COUNTRY_DEU", "Country")
+                 if de_uid: active_loc_uids.append(de_uid)
+
+            if active_loc_uids:
+                print(f"    LCE: Location context from query text: {[self.gm.get_node_data_by_uid(uid).get('label') for uid in active_loc_uids]}.")
+                return self._expand_location_hierarchy(active_loc_uids)
+
+        if user_profile_location_uid and self.gm.graph.has_node(user_profile_location_uid):
+            print(f"    LCE: Using user profile location UID: {user_profile_location_uid[:10]}.")
+            return self._expand_location_hierarchy([user_profile_location_uid])
+
+        default_loc_uid_str = self.config.get("default_location_context_uid", "LOC_COUNTRY_USA") # Original ID
+        default_loc_uid = self.gm.get_node_data_by_attribute("original_id", default_loc_uid_str) if default_loc_uid_str else None
+
+        if default_loc_uid:
+            print(f"    LCE: Using default location context: {self.gm.get_node_data_by_uid(default_loc_uid).get('label')}.")
+            return self._expand_location_hierarchy([default_loc_uid])
+        
+        print(f"    LCE: No specific location context determined.")
+        return []
+
+    def _expand_location_hierarchy(self, leaf_location_uids: List[str]) -> List[str]:
+        """Given leaf location UIDs, traces up to get their parent Country/Region UIDs."""
+        full_hierarchy_uids = set(leaf_location_uids)
+        for leaf_uid in leaf_location_uids:
+            curr_uid = leaf_uid
+            depth = 0 # Safety break
+            while curr_uid and depth < 5: # Max 5 levels up
+                # Find parent location (node linked by "contains_sub_location" incoming edge)
+                parent_found = False
+                for source_uid, _, edge_data in self.gm.graph.in_edges(curr_uid, data=True):
+                    if edge_data.get("relationship") == "contains_sub_location":
+                        full_hierarchy_uids.add(source_uid)
+                        curr_uid = source_uid
+                        parent_found = True
+                        break # Assume only one primary parent of this type for hierarchy
+                if not parent_found: break # No more parents in this relationship type
+                depth += 1
+        return list(full_hierarchy_uids)
+
+
+    def get_applicable_regulations_for_locations(self, location_uids: List[str]) -> List[str]:
+        """
+        Given a list of active location UIDs (e.g., City, State, Country),
+        finds all RegulatoryFramework UIDs linked to them.
+        """
+        applicable_reg_uids = set()
+        for loc_uid in location_uids:
+            loc_data = self.gm.get_node_data_by_uid(loc_uid)
+            if loc_data and "linked_regulatory_framework_uids" in loc_data:
+                # These stored UIDs in YAML should be original_ids. We need to convert them to graph UIDs.
+                for reg_orig_id in loc_data["linked_regulatory_framework_uids"]:
+                    reg_uid = self.gm.get_node_data_by_attribute("original_id", reg_orig_id, "RegulatoryFrameworkNode")
+                    if reg_uid: applicable_reg_uids.add(reg_uid)
+        
+        print(f"    LCE: Found {len(applicable_reg_uids)} regulations applicable to locations: {[self.gm.get_node_data_by_uid(uid).get('label') for uid in applicable_reg_uids]}.")
+        return list(applicable_reg_uids)
+Use code with caution.
+Python
+Phase 3: Integration into System Workflow
+3.1. Configuration in ukg_app_config.yaml:
+# ukg_app_config.yaml
+# ...
+ukg_paths:
+  # ...
+  locations: "data/ukg/locations_gazetteer.yaml" # NEW
+# ...
+axis12_location_logic: # NEW section for LocationContextEngine config
+  default_location_context_uid: "LOC_COUNTRY_USA" # Original ID of default location
+  # Could add params for NLP location extraction if using a KA
+# ...
+Use code with caution.
+Yaml
+3.2. Initialize LocationContextEngine in AppOrchestrator:
+# app_orchestrator.py
+# ... (import LocationContextEngine)
+from location_context_engine import LocationContextEngine
+
+class AppOrchestrator:
+    def __init__(self, config_path="ukg_app_config.yaml"):
+        # ...
+        self.location_context_engine = None
+        self._initialize_systems()
+        # ...
+
+    def _initialize_systems(self):
+        # ... (other inits)
+        print(f"[{datetime.now()}] Initializing LocationContextEngine (Axis 12)...")
+        axis12_conf = self.config.get('axis12_location_logic')
+        if axis12_conf and self.ukg_graph_manager and self.united_system_manager: # LCE needs GM & USM
+            self.location_context_engine = LocationContextEngine(axis12_conf, self.ukg_graph_manager, self.united_system_manager)
+        else:
+            print(f"[{datetime.now()}] ERROR: Dependencies missing for LocationContextEngine. Not initialized.")
+        # ...
+Use code with caution.
+Python
+3.3. Usage in AppOrchestrator.process_request (Early Stage):
+After initial query processing and UID generation, determine active location.
+# In AppOrchestrator.process_request, after initial KA runs and initial_ka_outputs
+        # ...
+        print(f"\n[{datetime.now()}] AppOrch: Determining active location context for session {session_id}...")
+        # Location can be hinted by query, user profile, or params
+        explicit_loc_uids_from_params = simulation_params.get("location_uids_override") if simulation_params else None
+        # user_profile_loc_uid = get_user_profile_location(user_id) # Conceptual
+        
+        active_location_uids_hierarchy = self.location_context_engine.determine_active_location_context(
+            query_text=user_query, # Pass raw query to LCE
+            explicit_location_uids=explicit_loc_uids_from_params
+            # user_profile_location_uid=user_profile_loc_uid
+        )
+        simulation_data["active_location_context_uids"] = active_location_uids_hierarchy # Store full hierarchy
+        if active_location_uids_hierarchy:
+            simulation_data["primary_location_label_for_display"] = self.gm.get_node_data_by_uid(active_location_uids_hierarchy[0]).get("label") # For display
+        
+        # This active_location_context_uids is now part of simulation_data and can be used by:
+        # - KASelectionEngine: To pick location-sensitive KAs.
+        # - QuadPersonaEngine: To select location-aware persona templates or adjust their expertise.
+        # - OctopusEngine/SpiderwebEngine: To filter applicable regulations/standards by jurisdiction.
+        # - GraphManager: To prioritize paths in UKG relevant to these locations.
+        print(f"[{datetime.now()}] AppOrch: Active location context set to UIDs: {[uid[:10] for uid in active_location_uids_hierarchy]}.")
+
+        # ... (rest of the process_request loop: for pass_num in range(...))
+        # SimulationEngine and its layers will receive simulation_data containing this active location context.
+Use code with caution.
+Python
+3.4. How Other Components Use Location Context:
+KASelectionEngine: Can check simulation_data["active_location_context_uids"] and boost relevance of KAs that are tagged as "location-sensitive" or specific to those regions.
+QuadPersonaEngine:
+When selecting KE, SE, RE, CE templates, it can filter or score templates based on their declared jurisdictional expertise matching the active_location_context_uids.
+Persona belief formation can be influenced by location (e.g., a Regulatory Expert defaults to US FAR if location is USA, but to EU GDPR if location is Germany).
+OctopusEngine & SpiderwebEngine:
+Crucially, they will use location_context_engine.get_applicable_regulations_for_locations(...) (or a similar direct GM query filtered by location) to determine which RegulatoryFrameworkNodes or ComplianceStandardNodes are actually in scope for the current query.
+KAs: Individual KAs, when executed, can receive the active_location_context_uids as part of their ka_input_data and tailor their logic accordingly.
+Key Features of this Axis 12 Design:
+Hierarchical Gazetteer: Locations are structured (Country -> State -> City -> Precise Point), allowing for reasoning at different granularities.
+Dynamic Context Determination: LocationContextEngine resolves the most specific relevant location(s) for a query from multiple hints (explicit, query text, user profile, default).
+Influence on Regulation/Compliance: Location context directly filters which Axis 6/7 frameworks are considered by Octopus/Spiderweb. This is a major step towards realistic regulatory simulation.
+Persona Adaptation: Personas (especially RE and CE, but also SE and KE) can now be instantiated or have their knowledge retrieval biased by the active location.
+Precise Location Ready: The structure supports Lat/Long, enabling future integration with GIS data or site-specific rules.
+To Complete This:
+Populate locations_gazetteer.yaml: This needs to be comprehensive for the jurisdictions your system will handle.
+GM get_node_data_by_attribute: Ensure this utility method is robust in GraphManager for finding nodes like "REG_FAR_SYSTEM" by their original_id.
+NLP for Location Extraction: The mock location extraction in LocationContextEngine needs to be replaced with a proper NER tool or KA call.
+Integration in All Relevant Modules: Systematically go through QuadPersonaEngine, OctopusEngine, SpiderwebEngine, KASelectionEngine, and individual KAs to make them "location-aware" by checking simulation_data["active_location_context_uids"].
+Axis 12 adds a powerful layer of real-world grounding to your simulations.
+What's next?
+Build Axis 7 (Spiderweb Node - Compliance System with Branching & Engine)? (Axis 6 Octopus was sketched, Axis 7 would be similar).
+Refine the KASelectionEngine to use active_location_context_uids?
+Implement the first few actual KAs (e.g., KA01, KA09) with their refined __init__ and run methods using GM, SMM, USM and location context?
