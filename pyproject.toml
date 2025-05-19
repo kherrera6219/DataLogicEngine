@@ -23,4 +23,5 @@ dependencies = [
     "oauthlib>=3.2.2",
     "pyjwt>=2.10.1",
     "flask-dance>=7.1.0",
+    "openai>=1.79.0",
 ]

@@ -267,12 +267,38 @@ def create_message(conversation_id):
         }), 500
 
 def generate_system_response(conversation, user_message):
-    """Generate a system response based on user input."""
+    """Generate a system response based on user input using the quad persona engine."""
     try:
-        # Define response categories based on the 13-axis system
-        greeting_phrases = ["hello", "hi", "hey", "greetings"]
-        greeting_response = "Hello! I'm your UKG assistant, powered by the 13-axis knowledge framework. How can I help you explore our universal knowledge graph today?"
+        # Import here to avoid circular imports
+        from core.persona.persona_manager import get_persona_manager
         
+        # Get the persona manager
+        persona_manager = get_persona_manager()
+        
+        # Simple greeting detection for immediate responses without persona analysis
+        greeting_phrases = ["hello", "hi", "hey", "greetings"]
+        if any(phrase in user_message.lower() for phrase in greeting_phrases):
+            return "Hello! I'm your UKG assistant, powered by the 13-axis knowledge framework and quad persona engine. How can I help you explore our universal knowledge graph today?"
+        
+        # Process the query through the quad persona engine
+        response_data = persona_manager.generate_response(user_message, {
+            "conversation_id": conversation.uid if conversation else None,
+            "conversation_context": [msg.to_dict() for msg in conversation.messages] if conversation and conversation.messages else []
+        })
+        
+        # Return the generated content
+        return response_data["content"]
+        
+    except ImportError as e:
+        logger.warning(f"PersonaManager not available, falling back to basic response: {str(e)}")
+        return fallback_generate_response(user_message)
+    except Exception as e:
+        logger.error(f"Error generating system response: {str(e)}")
+        return "I apologize, but I encountered an error processing your request through the UKG system. Please try rephrasing your question."
+
+def fallback_generate_response(user_message):
+    """Generate a basic response when the persona engine is not available."""
+    try:
         # Knowledge axis responses (Axis 1)
         knowledge_phrases = ["what is", "how does", "explain", "tell me about", "can you describe"]
         ukg_concepts = ["universal knowledge graph", "knowledge graph", "ukg", "knowledge framework", "13 axis", "13-axis"]
@@ -289,10 +315,6 @@ def generate_system_response(conversation, user_message):
         
         # Time responses (Axis 13)
         time_phrases = ["when", "time", "temporal", "history", "future", "chronological", "timeline"]
-        
-        # Check for greetings
-        if any(phrase in user_message.lower() for phrase in greeting_phrases):
-            return greeting_response
         
         # Check for UKG concept explanations
         if any(phrase in user_message.lower() for phrase in knowledge_phrases) and any(concept in user_message.lower() for concept in ukg_concepts):
@@ -354,8 +376,8 @@ In a fully implemented system, I would:
 
 Is there a specific axis of knowledge you'd like to explore further?"""
     except Exception as e:
-        logger.error(f"Error generating system response: {str(e)}")
-        return "I apologize, but I encountered an error processing your request through the UKG system. Please try rephrasing your question."
+        logger.error(f"Error in fallback response generation: {str(e)}")
+        return "I apologize, but I encountered an error processing your request. Please try again with a different question."
 
 # Create database tables
 with app.app_context():
