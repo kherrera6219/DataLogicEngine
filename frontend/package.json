@@ -1,0 +1,53 @@
+{
+  "name": "universal-knowledge-graph-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for the Universal Knowledge Graph (UKG) System",
+  "private": true,
+  "dependencies": {
+    "@chakra-ui/react": "^2.8.0",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@fluentui/react": "^8.110.8",
+    "@fluentui/react-components": "^9.30.0",
+    "axios": "^1.4.0",
+    "bootstrap": "^5.3.1",
+    "bootstrap-icons": "^1.10.5",
+    "d3": "^7.8.5",
+    "dotenv": "^16.3.1",
+    "framer-motion": "^10.15.0",
+    "jwt-decode": "^3.1.2",
+    "marked": "^7.0.2",
+    "prismjs": "^1.29.0",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.8.0",
+    "react-dom": "^18.2.0",
+    "react-force-graph-2d": "^1.25.0",
+    "react-icons": "^4.10.1",
+    "react-router-dom": "^6.14.2",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
