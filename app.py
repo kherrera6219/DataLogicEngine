@@ -62,7 +62,7 @@ def index():
 
 @app.route('/api/query', methods=['POST'])
 def process_query():
-    data = request.json
+    data = request.json or {}
     query_text = data.get('query', '')
     target_confidence = float(data.get('target_confidence', 0.85))
     
@@ -94,7 +94,12 @@ def get_memory_stats():
 # Initialize the UKG on startup
 with app.app_context():
     try:
+        # Create database tables
+        db.create_all()
+        logging.info("Database tables created successfully")
+        
+        # Initialize the graph
         graph_manager.initialize_graph()
         logging.info("UKG initialized successfully")
     except Exception as e:
-        logging.error(f"Failed to initialize UKG: {str(e)}", exc_info=True)
+        logging.error(f"Failed to initialize: {str(e)}", exc_info=True)

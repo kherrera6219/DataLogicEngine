@@ -2,8 +2,8 @@ import os
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Column, Integer, String, Text, Float, Boolean, DateTime, ForeignKey, JSON, text
-from sqlalchemy.orm import relationship, Query
+from sqlalchemy import Column, Integer, String, Text, Float, Boolean, DateTime, ForeignKey, JSON
+from sqlalchemy.orm import relationship
 
 # Setup base class for SQLAlchemy models
 class Base(DeclarativeBase):
@@ -17,12 +17,12 @@ class Node(db.Model):
     __tablename__ = 'nodes'
     
     id = Column(Integer, primary_key=True)
-    uid = Column(String(255), unique=True, nullable=False)
-    node_type = Column(String(100), nullable=False)
+    uid = Column(String(255), unique=True, nullable=False, index=True)
+    node_type = Column(String(100), nullable=False, index=True)
     label = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    original_id = Column(String(255), nullable=True)
-    axis_number = Column(Integer, nullable=True)
+    original_id = Column(String(255), nullable=True, index=True)
+    axis_number = Column(Integer, nullable=True, index=True)
     level = Column(Integer, nullable=True)
     attributes = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -106,7 +106,7 @@ class Session(db.Model):
     
     id = Column(Integer, primary_key=True)
     session_id = Column(String(255), unique=True, nullable=False)
-    query_text = Column(Text, nullable=True)
+    user_query = Column(Text, nullable=True)
     target_confidence = Column(Float, default=0.85)
     final_confidence = Column(Float, nullable=True)
     status = Column(String(50), default='active')
