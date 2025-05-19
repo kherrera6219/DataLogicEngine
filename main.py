@@ -16,11 +16,12 @@ from flask import request, jsonify, render_template, redirect, url_for, session,
 from app import app, db, logger
 
 # Import models
-import db_models
+from models import *
 
 # Import API and middleware components
 from backend.middleware import setup_middleware
 from backend.ukg_api import register_api
+from core.persona.persona_api import register_persona_api
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -31,6 +32,9 @@ setup_middleware(app)
 
 # Register API blueprints
 register_api(app)
+
+# Register Persona API
+register_persona_api(app)
 
 # Configure port for the application
 port = int(os.environ.get("PORT", 8080))
@@ -57,12 +61,12 @@ def serve_static(path):
     return send_from_directory('static', path)
 
 # Initialize seed data if needed
-@app.before_first_request
+# Flask 2.x deprecated before_first_request, use with app.app_context() instead
 def initialize_seed_data():
     """Initialize seed data if tables are empty."""
     try:
         # Import models here to make sure they're loaded
-        from db_models import PillarLevel, Sector, Domain
+        from models import PillarLevel, Sector, Domain
         
         # Check if we need to seed pillar levels
         if PillarLevel.query.count() == 0:
@@ -83,6 +87,10 @@ def initialize_seed_data():
             seed_domains()
     except Exception as e:
         logger.error(f"Error initializing seed data: {str(e)}")
+
+# Call seed data initialization with app context
+with app.app_context():
+    initialize_seed_data()
 
 # Run the application
 if __name__ == "__main__":

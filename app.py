@@ -5,6 +5,9 @@ This is the main application file for the UKG system,
 handling database setup and application initialization.
 """
 
+# This file is the central entry point for the UKG application and should initialize
+# the core Flask app, database connection, and all necessary components.
+
 import os
 import logging
 import json
@@ -56,7 +59,7 @@ def create_tables():
     """Create database tables."""
     with app.app_context():
         # Import models to ensure they're registered with SQLAlchemy
-        import db_models
+        from models import PillarLevel, Sector, Domain, Location, KnowledgeNode, SimulationSession
         
         # Create tables
         db.create_all()

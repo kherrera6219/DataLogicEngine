@@ -12,7 +12,7 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 from backend.middleware import api_response
 from app import db
-import db_models
+from models import *
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -28,14 +28,14 @@ ukg_api = Blueprint('ukg_api', __name__, url_prefix='/api')
 @api_response
 def get_pillars():
     """Get all pillar levels."""
-    pillars = db_models.PillarLevel.query.all()
+    pillars = PillarLevel.query.all()
     return [pillar.to_dict() for pillar in pillars]
 
 @ukg_api.route('/pillars/<pillar_id>', methods=['GET'])
 @api_response
 def get_pillar(pillar_id):
     """Get a specific pillar level."""
-    pillar = db_models.PillarLevel.query.filter_by(pillar_id=pillar_id).first_or_404()
+    pillar = PillarLevel.query.filter_by(pillar_id=pillar_id).first_or_404()
     return pillar.to_dict()
 
 @ukg_api.route('/pillars', methods=['POST'])
@@ -44,7 +44,7 @@ def create_pillar():
     """Create a new pillar level."""
     data = request.json
     
-    pillar = db_models.PillarLevel(
+    pillar = PillarLevel(
         uid=str(uuid.uuid4()),
         pillar_id=data['pillar_id'],
         name=data['name'],
@@ -65,14 +65,14 @@ def create_pillar():
 @api_response
 def get_sectors():
     """Get all sectors."""
-    sectors = db_models.Sector.query.all()
+    sectors = Sector.query.all()
     return [sector.to_dict() for sector in sectors]
 
 @ukg_api.route('/sectors/<sector_id>', methods=['GET'])
 @api_response
 def get_sector(sector_id):
     """Get a specific sector."""
-    sector = db_models.Sector.query.filter_by(id=sector_id).first_or_404()
+    sector = Sector.query.filter_by(id=sector_id).first_or_404()
     return sector.to_dict()
 
 @ukg_api.route('/sectors', methods=['POST'])
@@ -81,7 +81,7 @@ def create_sector():
     """Create a new sector."""
     data = request.json
     
-    sector = db_models.Sector(
+    sector = Sector(
         uid=str(uuid.uuid4()),
         sector_code=data['sector_code'],
         name=data['name'],
@@ -102,14 +102,14 @@ def create_sector():
 @api_response
 def get_domains():
     """Get all domains."""
-    domains = db_models.Domain.query.all()
+    domains = Domain.query.all()
     return [domain.to_dict() for domain in domains]
 
 @ukg_api.route('/domains/<domain_id>', methods=['GET'])
 @api_response
 def get_domain(domain_id):
     """Get a specific domain."""
-    domain = db_models.Domain.query.filter_by(id=domain_id).first_or_404()
+    domain = Domain.query.filter_by(id=domain_id).first_or_404()
     return domain.to_dict()
 
 @ukg_api.route('/domains', methods=['POST'])
@@ -118,7 +118,7 @@ def create_domain():
     """Create a new domain."""
     data = request.json
     
-    domain = db_models.Domain(
+    domain = Domain(
         uid=str(uuid.uuid4()),
         domain_code=data['domain_code'],
         name=data['name'],
@@ -140,14 +140,14 @@ def create_domain():
 @api_response
 def get_knowledge_nodes():
     """Get all knowledge nodes."""
-    nodes = db_models.KnowledgeNode.query.all()
+    nodes = KnowledgeNode.query.all()
     return [node.to_dict() for node in nodes]
 
 @ukg_api.route('/knowledge/<node_id>', methods=['GET'])
 @api_response
 def get_knowledge_node(node_id):
     """Get a specific knowledge node."""
-    node = db_models.KnowledgeNode.query.filter_by(id=node_id).first_or_404()
+    node = KnowledgeNode.query.filter_by(id=node_id).first_or_404()
     return node.to_dict()
 
 @ukg_api.route('/knowledge', methods=['POST'])
@@ -156,7 +156,7 @@ def create_knowledge_node():
     """Create a new knowledge node."""
     data = request.json
     
-    node = db_models.KnowledgeNode(
+    node = KnowledgeNode(
         uid=str(uuid.uuid4()),
         title=data['title'],
         content=data['content'],
@@ -180,14 +180,14 @@ def create_knowledge_node():
 @api_response
 def get_nodes():
     """Get all nodes."""
-    nodes = db_models.Node.query.all()
+    nodes = Node.query.all()
     return [node.to_dict() for node in nodes]
 
 @ukg_api.route('/nodes/<node_id>', methods=['GET'])
 @api_response
 def get_node(node_id):
     """Get a specific node."""
-    node = db_models.Node.query.filter_by(id=node_id).first_or_404()
+    node = Node.query.filter_by(id=node_id).first_or_404()
     return node.to_dict()
 
 @ukg_api.route('/nodes', methods=['POST'])
@@ -196,7 +196,7 @@ def create_node():
     """Create a new node."""
     data = request.json
     
-    node = db_models.Node(
+    node = Node(
         uid=str(uuid.uuid4()),
         node_type=data['node_type'],
         label=data['label'],
@@ -214,14 +214,14 @@ def create_node():
 @api_response
 def get_edges():
     """Get all edges."""
-    edges = db_models.Edge.query.all()
+    edges = Edge.query.all()
     return [edge.to_dict() for edge in edges]
 
 @ukg_api.route('/edges/<edge_id>', methods=['GET'])
 @api_response
 def get_edge(edge_id):
     """Get a specific edge."""
-    edge = db_models.Edge.query.filter_by(id=edge_id).first_or_404()
+    edge = Edge.query.filter_by(id=edge_id).first_or_404()
     return edge.to_dict()
 
 @ukg_api.route('/edges', methods=['POST'])
@@ -230,7 +230,7 @@ def create_edge():
     """Create a new edge."""
     data = request.json
     
-    edge = db_models.Edge(
+    edge = Edge(
         uid=str(uuid.uuid4()),
         edge_type=data['edge_type'],
         weight=data.get('weight', 1.0),
@@ -252,14 +252,14 @@ def create_edge():
 @api_response
 def get_simulations():
     """Get all simulation sessions."""
-    sessions = db_models.SimulationSession.query.all()
+    sessions = SimulationSession.query.all()
     return [session.to_dict() for session in sessions]
 
 @ukg_api.route('/simulations/<session_id>', methods=['GET'])
 @api_response
 def get_simulation(session_id):
     """Get a specific simulation session."""
-    session = db_models.SimulationSession.query.filter_by(session_id=session_id).first_or_404()
+    session = SimulationSession.query.filter_by(session_id=session_id).first_or_404()
     return session.to_dict()
 
 @ukg_api.route('/simulations', methods=['POST'])
@@ -268,7 +268,7 @@ def create_simulation():
     """Create a new simulation session."""
     data = request.json
     
-    session = db_models.SimulationSession(
+    session = SimulationSession(
         uid=str(uuid.uuid4()),
         session_id=f"sim-{uuid.uuid4().hex[:8]}",
         name=data.get('name'),
@@ -288,7 +288,7 @@ def create_simulation():
 @api_response
 def run_simulation_step(session_id):
     """Run a step for a simulation session."""
-    session = db_models.SimulationSession.query.filter_by(session_id=session_id).first_or_404()
+    session = SimulationSession.query.filter_by(session_id=session_id).first_or_404()
     
     if session.status != "active":
         return {"error": f"Simulation is in {session.status} state"}, 400
@@ -319,7 +319,7 @@ def run_simulation_step(session_id):
 @api_response
 def stop_simulation(session_id):
     """Stop a simulation session."""
-    session = db_models.SimulationSession.query.filter_by(session_id=session_id).first_or_404()
+    session = SimulationSession.query.filter_by(session_id=session_id).first_or_404()
     
     if session.status != "active":
         return {"error": f"Simulation is already in {session.status} state"}, 400
@@ -339,81 +339,81 @@ def stop_simulation(session_id):
 def seed_pillar_levels():
     """Seed initial pillar level data."""
     # Delete existing data
-    db_models.PillarLevel.query.delete()
+    PillarLevel.query.delete()
     
     # Create seed data
     pillars = [
-        db_models.PillarLevel(
+        PillarLevel(
             uid=str(uuid.uuid4()),
             pillar_id="PL01",
             name="Data",
             description="Raw data, unprocessed information",
             sublevels={"ranges": ["1-5"]}
         ),
-        db_models.PillarLevel(
+        PillarLevel(
             uid=str(uuid.uuid4()),
             pillar_id="PL10",
             name="Information",
             description="Organized data with structure",
             sublevels={"ranges": ["6-15"]}
         ),
-        db_models.PillarLevel(
+        PillarLevel(
             uid=str(uuid.uuid4()),
             pillar_id="PL20",
             name="Knowledge",
             description="Information with context and meaning",
             sublevels={"ranges": ["16-25"]}
         ),
-        db_models.PillarLevel(
+        PillarLevel(
             uid=str(uuid.uuid4()),
             pillar_id="PL30",
             name="Understanding",
             description="Knowledge with patterns and insights",
             sublevels={"ranges": ["26-35"]}
         ),
-        db_models.PillarLevel(
+        PillarLevel(
             uid=str(uuid.uuid4()),
             pillar_id="PL40",
             name="Wisdom",
             description="Understanding with experience and judgment",
             sublevels={"ranges": ["36-45"]}
         ),
-        db_models.PillarLevel(
+        PillarLevel(
             uid=str(uuid.uuid4()),
             pillar_id="PL50",
             name="Integration",
             description="Wisdom across multiple domains",
             sublevels={"ranges": ["46-55"]}
         ),
-        db_models.PillarLevel(
+        PillarLevel(
             uid=str(uuid.uuid4()),
             pillar_id="PL60",
             name="Synthesis",
             description="Integration with creative combinations",
             sublevels={"ranges": ["56-65"]}
         ),
-        db_models.PillarLevel(
+        PillarLevel(
             uid=str(uuid.uuid4()),
             pillar_id="PL70",
             name="Insight",
             description="Synthesis with novel applications",
             sublevels={"ranges": ["66-75"]}
         ),
-        db_models.PillarLevel(
+        PillarLevel(
             uid=str(uuid.uuid4()),
             pillar_id="PL80",
             name="Innovation",
             description="Insights driving new paradigms",
             sublevels={"ranges": ["76-85"]}
         ),
-        db_models.PillarLevel(
+        PillarLevel(
             uid=str(uuid.uuid4()),
             pillar_id="PL90",
             name="Transformation",
             description="Innovations changing knowledge systems",
             sublevels={"ranges": ["86-95"]}
         ),
-        db_models.PillarLevel(
+        PillarLevel(
             uid=str(uuid.uuid4()),
             pillar_id="PL100",
             name="Transcendence",
@@ -434,47 +434,47 @@ def seed_pillar_levels():
 def seed_sectors():
     """Seed initial sector data."""
     # Delete existing data
-    db_models.Sector.query.delete()
+    Sector.query.delete()
     
     # Create seed data
     sectors = [
-        db_models.Sector(
+        Sector(
             uid=str(uuid.uuid4()),
             sector_code="GOV",
             name="Government",
             description="Government and public administration sector"
         ),
-        db_models.Sector(
+        Sector(
             uid=str(uuid.uuid4()),
             sector_code="TECH",
             name="Technology",
             description="Information technology sector"
         ),
-        db_models.Sector(
+        Sector(
             uid=str(uuid.uuid4()),
             sector_code="HEALTH",
             name="Healthcare",
             description="Healthcare and medical sector"
         ),
-        db_models.Sector(
+        Sector(
             uid=str(uuid.uuid4()),
             sector_code="FIN",
             name="Finance",
             description="Financial services sector"
         ),
-        db_models.Sector(
+        Sector(
             uid=str(uuid.uuid4()),
             sector_code="EDU",
             name="Education",
             description="Education and research sector"
         ),
-        db_models.Sector(
+        Sector(
             uid=str(uuid.uuid4()),
             sector_code="MANUF",
             name="Manufacturing",
             description="Manufacturing and production sector"
         ),
-        db_models.Sector(
+        Sector(
             uid=str(uuid.uuid4()),
             sector_code="ENERGY",
             name="Energy",
@@ -494,12 +494,12 @@ def seed_sectors():
 def seed_domains():
     """Seed initial domain data."""
     # Ensure sectors are already seeded
-    sectors = db_models.Sector.query.all()
+    sectors = Sector.query.all()
     if not sectors:
         return {"error": "Please seed sectors first"}, 400
     
     # Delete existing data
-    db_models.Domain.query.delete()
+    Domain.query.delete()
     
     # Get sector mappings
     sector_map = {s.sector_code: s.id for s in sectors}
@@ -507,14 +507,14 @@ def seed_domains():
     # Create seed data
     domains = [
         # Government domains
-        db_models.Domain(
+        Domain(
             uid=str(uuid.uuid4()),
             domain_code="FEDGOV",
             name="Federal Government",
             description="Federal government agencies and operations",
             sector_id=sector_map.get("GOV")
         ),
-        db_models.Domain(
+        Domain(
             uid=str(uuid.uuid4()),
             domain_code="STGOV",
             name="State Government",
@@ -523,21 +523,21 @@ def seed_domains():
         ),
         
         # Technology domains
-        db_models.Domain(
+        Domain(
             uid=str(uuid.uuid4()),
             domain_code="CLOUD",
             name="Cloud Computing",
             description="Cloud infrastructure and services",
             sector_id=sector_map.get("TECH")
         ),
-        db_models.Domain(
+        Domain(
             uid=str(uuid.uuid4()),
             domain_code="CSEC",
             name="Cybersecurity",
             description="Information security and cyber defense",
             sector_id=sector_map.get("TECH")
         ),
-        db_models.Domain(
+        Domain(
             uid=str(uuid.uuid4()),
             domain_code="AI",
             name="Artificial Intelligence",
@@ -546,14 +546,14 @@ def seed_domains():
         ),
         
         # Healthcare domains
-        db_models.Domain(
+        Domain(
             uid=str(uuid.uuid4()),
             domain_code="HPROV",
             name="Healthcare Providers",
             description="Hospitals, clinics, and medical practices",
             sector_id=sector_map.get("HEALTH")
         ),
-        db_models.Domain(
+        Domain(
             uid=str(uuid.uuid4()),
             domain_code="PHARMA",
             name="Pharmaceuticals",
