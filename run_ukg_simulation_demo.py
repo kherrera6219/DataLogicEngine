@@ -71,7 +71,7 @@ def run_simulation_demo():
     united_system_manager.register_component('sekre_engine', sekre_engine)
     
     print(f"UKG System initialized with components:")
-    for component_name in united_system_manager.list_components():
+    for component_name in united_system_manager.components.keys():
         print(f"  - {component_name}")
     
     # Step 2: Set up the simulation components
