@@ -2,701 +2,542 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Flex,
-  Text,
   Heading,
+  Text,
+  Select,
+  Button,
   HStack,
   VStack,
-  Button,
-  IconButton,
-  Select,
-  Badge,
   Card,
+  CardHeader,
   CardBody,
   Tabs,
   TabList,
   TabPanels,
   Tab,
   TabPanel,
+  IconButton,
   Tooltip,
+  Badge,
+  Spinner,
   Grid,
-  GridItem,
-  Divider,
-  Progress,
-  useToast
+  GridItem
 } from '@chakra-ui/react';
-import {
-  FiZoomIn,
-  FiZoomOut,
-  FiRefreshCw,
-  FiDownload,
-  FiInfo,
-  FiSettings,
-  FiCpu,
-  FiLayers,
-  FiActivity,
-  FiGrid,
-  FiMap,
-  FiMaximize,
-  FiSearch,
-  FiPlus,
-  FiMinus
-} from 'react-icons/fi';
+import { FiZoomIn, FiZoomOut, FiRefreshCw, FiDownload, FiFilter } from 'react-icons/fi';
+import ForceGraph2D from 'react-force-graph-2d';
+import { useUKG } from '../contexts/UKGContext';
+import { useNotification } from '../contexts/NotificationContext';
 
-// Attempt to load ForceGraph if running in browser
-let ForceGraph2D = null;
-if (typeof window !== 'undefined') {
-  try {
-    // Dynamic import for the force graph
-    ForceGraph2D = require('react-force-graph-2d').default;
-  } catch (e) {
-    console.error("Failed to load ForceGraph component", e);
-  }
-}
+// Constants for axis colors
+const AXIS_COLORS = {
+  1: '#4299E1', // Knowledge (blue)
+  2: '#48BB78', // Sectors (green)
+  3: '#ECC94B', // Domains (yellow)
+  4: '#ED8936', // Methods (orange)
+  5: '#9F7AEA', // Contexts (purple)
+  6: '#F56565', // Problems (red)
+  7: '#38B2AC', // Solutions (teal)
+  8: '#F687B3', // Roles (pink)
+  9: '#DD6B20', // Experts (orange-dark)
+  10: '#805AD5', // Regulations (purple-dark)
+  11: '#D53F8C', // Compliance (pink-dark)
+  12: '#718096', // Location (gray)
+  13: '#2D3748'  // Time (gray-dark)
+};
+
+// Node types
+const NODE_TYPES = [
+  'All',
+  'Knowledge',
+  'Sector',
+  'Domain',
+  'Method',
+  'Context',
+  'Problem',
+  'Solution',
+  'Role',
+  'Expert',
+  'Regulation',
+  'Compliance',
+  'Location',
+  'Time'
+];
 
 const SimulationMapPage = () => {
-  const toast = useToast();
-  const graphRef = useRef(null);
-  const [activeAxis, setActiveAxis] = useState(1);
-  const [viewMode, setViewMode] = useState('2d');
-  const [graphData, setGraphData] = useState({
-    nodes: [],
-    links: []
-  });
+  // Graph state
+  const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [selectedNode, setSelectedNode] = useState(null);
-  const [simulating, setSimulating] = useState(false);
-  const [simulationProgress, setSimulationProgress] = useState(0);
+  const [selectedAxis, setSelectedAxis] = useState(0); // 0 = all axes
+  const [selectedType, setSelectedType] = useState('All');
+  const [graphLoading, setGraphLoading] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [layoutStopped, setLayoutStopped] = useState(false);
   
-  // Pillar level data (Axis 1)
-  const pillarLevels = [
-    { id: 'PL01', name: 'Mathematics', category: 'Formal Sciences' },
-    { id: 'PL02', name: 'Physical Sciences', category: 'Natural Sciences' },
-    { id: 'PL03', name: 'Life Sciences', category: 'Natural Sciences' },
-    { id: 'PL04', name: 'Computer Science', category: 'Formal Sciences' },
-    { id: 'PL05', name: 'Engineering', category: 'Applied Sciences' },
-    { id: 'PL10', name: 'Economics', category: 'Social Sciences' },
-    { id: 'PL15', name: 'Psychology', category: 'Social Sciences' },
-    { id: 'PL20', name: 'Law', category: 'Humanities' },
-    { id: 'PL25', name: 'Philosophy', category: 'Humanities' },
-    { id: 'PL30', name: 'Management', category: 'Applied Sciences' },
-    { id: 'PL35', name: 'Politics', category: 'Social Sciences' },
-    { id: 'PL40', name: 'Medicine', category: 'Applied Sciences' },
-    { id: 'PL45', name: 'Art', category: 'Humanities' },
-    { id: 'PL48', name: 'Multi-dimensional Systems', category: 'Meta-discipline' }
-  ];
+  // References
+  const graphRef = useRef(null);
   
-  // Sector data (Axis 2)
-  const sectors = [
-    { id: 'SEC01', name: 'Government', subsectors: ['Federal', 'State', 'Local'] },
-    { id: 'SEC02', name: 'Technology', subsectors: ['Software', 'Hardware', 'Services'] },
-    { id: 'SEC03', name: 'Healthcare', subsectors: ['Providers', 'Insurance', 'Pharma'] },
-    { id: 'SEC04', name: 'Finance', subsectors: ['Banking', 'Investment', 'Insurance'] },
-    { id: 'SEC05', name: 'Education', subsectors: ['K-12', 'Higher Ed', 'Corporate'] },
-    { id: 'SEC06', name: 'Manufacturing', subsectors: ['Automotive', 'Electronics', 'Consumer Goods'] },
-    { id: 'SEC07', name: 'Energy', subsectors: ['Oil & Gas', 'Renewable', 'Utilities'] },
-    { id: 'SEC08', name: 'Defense', subsectors: ['Military', 'Intelligence', 'Aerospace'] },
-    { id: 'SEC09', name: 'Transportation', subsectors: ['Air', 'Rail', 'Road', 'Maritime'] },
-    { id: 'SEC10', name: 'Agriculture', subsectors: ['Farming', 'Processing', 'Distribution'] }
-  ];
+  // Contexts
+  const { getGraphData } = useUKG();
+  const { error: showError, success } = useNotification();
   
-  // Domain data (Axis 3)
-  const domains = [
-    { id: 'DOM01', name: 'Federal Government', sector: 'SEC01' },
-    { id: 'DOM02', name: 'State Government', sector: 'SEC01' },
-    { id: 'DOM03', name: 'Software Development', sector: 'SEC02' },
-    { id: 'DOM04', name: 'Cloud Services', sector: 'SEC02' },
-    { id: 'DOM05', name: 'Hospitals', sector: 'SEC03' },
-    { id: 'DOM06', name: 'Pharmaceutical Companies', sector: 'SEC03' },
-    { id: 'DOM07', name: 'Commercial Banking', sector: 'SEC04' },
-    { id: 'DOM08', name: 'Investment Banking', sector: 'SEC04' },
-    { id: 'DOM09', name: 'K-12 Education', sector: 'SEC05' },
-    { id: 'DOM10', name: 'Higher Education', sector: 'SEC05' },
-    { id: 'DOM11', name: 'Automotive Manufacturing', sector: 'SEC06' },
-    { id: 'DOM12', name: 'Electronics Manufacturing', sector: 'SEC06' },
-    { id: 'DOM13', name: 'Renewable Energy', sector: 'SEC07' },
-    { id: 'DOM14', name: 'Oil & Gas', sector: 'SEC07' },
-    { id: 'DOM15', name: 'Military Defense', sector: 'SEC08' },
-    { id: 'DOM16', name: 'Intelligence', sector: 'SEC08' },
-    { id: 'DOM17', name: 'Air Transportation', sector: 'SEC09' },
-    { id: 'DOM18', name: 'Rail Transportation', sector: 'SEC09' },
-    { id: 'DOM19', name: 'Crop Farming', sector: 'SEC10' },
-    { id: 'DOM20', name: 'Food Processing', sector: 'SEC10' }
-  ];
-  
-  // Method data (Axis 4)
-  const methods = [
-    { id: 'MTH01', name: 'Research Methods', type: 'mega' },
-    { id: 'MTH02', name: 'Analysis Methods', type: 'mega' },
-    { id: 'MTH03', name: 'Design Methods', type: 'mega' },
-    { id: 'MTH04', name: 'Implementation Methods', type: 'mega' },
-    { id: 'MTH05', name: 'Evaluation Methods', type: 'mega' }
-  ];
-  
-  // Simulated UKG axes
-  const ukgAxes = [
-    { id: 1, name: 'Knowledge (Pillar Levels)', entityCount: pillarLevels.length },
-    { id: 2, name: 'Sectors', entityCount: sectors.length },
-    { id: 3, name: 'Domains', entityCount: domains.length },
-    { id: 4, name: 'Methods', entityCount: methods.length },
-    { id: 5, name: 'Roles', entityCount: 24 },
-    { id: 6, name: 'Problems', entityCount: 53 },
-    { id: 7, name: 'Solutions', entityCount: 67 },
-    { id: 8, name: 'Knowledge Expert', entityCount: 42 },
-    { id: 9, name: 'Sector Expert', entityCount: 32 },
-    { id: 10, name: 'Regulatory Expert', entityCount: 38 },
-    { id: 11, name: 'Compliance Expert', entityCount: 29 },
-    { id: 12, name: 'Location', entityCount: 187 },
-    { id: 13, name: 'Time', entityCount: 35 }
-  ];
-  
-  // Generate graph data based on active axis
+  // Load graph data on initial render
   useEffect(() => {
-    let nodes = [];
-    let links = [];
-    
-    switch (activeAxis) {
-      case 1: // Pillar Levels (Axis 1)
-        // Create category nodes
-        const categories = [...new Set(pillarLevels.map(pl => pl.category))];
-        nodes = [
-          ...categories.map(category => ({
-            id: category,
-            name: category,
-            val: 10,
-            color: '#3182CE',
-            group: 'category'
-          })),
-          ...pillarLevels.map(pl => ({
-            id: pl.id,
-            name: `${pl.id}: ${pl.name}`,
-            val: 5,
-            color: '#38A169',
-            group: 'pillar'
-          }))
-        ];
-        
-        // Create links from categories to pillars
-        links = pillarLevels.map(pl => ({
-          source: pl.category,
-          target: pl.id
-        }));
-        break;
-        
-      case 2: // Sectors (Axis 2)
-        nodes = sectors.map(sector => ({
-          id: sector.id,
-          name: sector.name,
-          val: 8,
-          color: '#DD6B20',
-          group: 'sector'
-        }));
-        
-        // Add subsector nodes
-        sectors.forEach(sector => {
-          sector.subsectors.forEach((subsector, idx) => {
-            const subsectorId = `${sector.id}_SUB${idx + 1}`;
-            nodes.push({
-              id: subsectorId,
-              name: subsector,
-              val: 4,
-              color: '#ED8936',
-              group: 'subsector'
-            });
-            
-            links.push({
-              source: sector.id,
-              target: subsectorId
-            });
-          });
-        });
-        break;
-        
-      case 3: // Domains (Axis 3)
-        // Add sectors first
-        nodes = sectors.map(sector => ({
-          id: sector.id,
-          name: sector.name,
-          val: 8,
-          color: '#DD6B20',
-          group: 'sector'
-        }));
-        
-        // Add domains
-        domains.forEach(domain => {
-          nodes.push({
-            id: domain.id,
-            name: domain.name,
-            val: 5,
-            color: '#805AD5',
-            group: 'domain'
-          });
-          
-          links.push({
-            source: domain.sector,
-            target: domain.id
-          });
-        });
-        break;
-        
-      default:
-        // For other axes, create a placeholder visualization
-        // Central node
-        nodes.push({
-          id: 'axis',
-          name: `Axis ${activeAxis}: ${ukgAxes.find(a => a.id === activeAxis)?.name}`,
-          val: 15,
-          color: '#3182CE',
-          group: 'axis'
-        });
-        
-        // Create sample entities
-        for (let i = 1; i <= 15; i++) {
-          const entityId = `entity${i}`;
-          nodes.push({
-            id: entityId,
-            name: `Sample Entity ${i}`,
-            val: 5 + Math.random() * 5,
-            color: ['#38A169', '#DD6B20', '#805AD5', '#E53E3E', '#F6AD55'][Math.floor(Math.random() * 5)],
-            group: 'entity'
-          });
-          
-          links.push({
-            source: 'axis',
-            target: entityId
-          });
-          
-          // Add some cross-connections
-          if (i > 1 && Math.random() > 0.7) {
-            links.push({
-              source: entityId,
-              target: `entity${Math.floor(Math.random() * (i - 1)) + 1}`
-            });
-          }
-        }
-        break;
-    }
-    
-    setGraphData({ nodes, links });
-    
-  }, [activeAxis]);
+    loadGraphData();
+  }, []);
   
-  // Run a simulation
-  const runUkgSimulation = () => {
-    setSimulating(true);
-    setSimulationProgress(0);
-    
-    toast({
-      title: 'UKG Simulation Started',
-      description: `Running simulation across Axis ${activeAxis} and related dimensions`,
-      status: 'info',
-      duration: 3000,
-      isClosable: true
-    });
-    
-    // Simulate progress updates
-    const interval = setInterval(() => {
-      setSimulationProgress(prev => {
-        const newProgress = prev + Math.random() * 10;
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          
-          toast({
-            title: 'Simulation Complete',
-            description: 'UKG simulation completed successfully',
-            status: 'success',
-            duration: 3000,
-            isClosable: true
-          });
-          
-          setSimulating(false);
-          return 100;
-        }
-        return newProgress;
+  // Load graph data with optional filters
+  const loadGraphData = async (filters = {}) => {
+    setGraphLoading(true);
+    try {
+      const result = await getGraphData({
+        axis: selectedAxis > 0 ? selectedAxis : undefined,
+        nodeType: selectedType !== 'All' ? selectedType.toLowerCase() : undefined,
+        ...filters
       });
-    }, 600);
+      
+      if (result.success) {
+        setGraphData(result.data);
+        success('Graph data loaded successfully');
+      } else {
+        showError('Failed to load graph data');
+      }
+    } catch (err) {
+      console.error('Error loading graph data:', err);
+      showError('Error loading graph data');
+    } finally {
+      setGraphLoading(false);
+    }
   };
   
-  // Download current visualization
-  const downloadVisualization = () => {
+  // Apply filters
+  const applyFilters = () => {
+    loadGraphData();
+  };
+  
+  // Reset filters
+  const resetFilters = () => {
+    setSelectedAxis(0);
+    setSelectedType('All');
+    loadGraphData({ axis: undefined, nodeType: undefined });
+  };
+  
+  // Handle node click
+  const handleNodeClick = (node) => {
+    setSelectedNode(node);
+  };
+  
+  // Zoom in
+  const zoomIn = () => {
+    if (graphRef.current) {
+      const newZoom = zoomLevel * 1.2;
+      setZoomLevel(newZoom);
+      graphRef.current.zoom(newZoom);
+    }
+  };
+  
+  // Zoom out
+  const zoomOut = () => {
+    if (graphRef.current) {
+      const newZoom = zoomLevel * 0.8;
+      setZoomLevel(newZoom);
+      graphRef.current.zoom(newZoom);
+    }
+  };
+  
+  // Export graph as PNG
+  const exportGraph = () => {
     if (graphRef.current) {
       const canvas = document.querySelector('canvas');
-      if (canvas) {
-        const image = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.href = image;
-        link.download = `ukg-axis-${activeAxis}-visualization.png`;
-        link.click();
+      const link = document.createElement('a');
+      link.download = 'ukg-graph.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  };
+  
+  // Custom node paint function
+  const paintNode = (node, ctx) => {
+    const size = node.size || 8;
+    ctx.beginPath();
+    
+    // Node fill color based on axis
+    const axisNum = node.axis_number || 1;
+    ctx.fillStyle = AXIS_COLORS[axisNum] || '#888';
+    
+    // Draw node
+    ctx.arc(node.x, node.y, size, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    // Draw node border
+    ctx.strokeStyle = node === selectedNode ? '#fff' : '#222';
+    ctx.lineWidth = node === selectedNode ? 2 : 1;
+    ctx.stroke();
+    
+    // Add text label for nodes
+    if (size > 6 || node === selectedNode) {
+      ctx.font = `${size > 12 ? 'bold ' : ''}${Math.max(size, 10)}px Inter`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#ffffff';
+      // Draw text with background
+      const textWidth = ctx.measureText(node.label).width;
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(node.x - textWidth/2 - 2, node.y + size + 2, textWidth + 4, size + 4);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(node.label, node.x, node.y + size + size/2 + 2);
+    }
+  };
+  
+  // Custom link paint function
+  const paintLink = (link, ctx) => {
+    const sourceNode = link.source;
+    const targetNode = link.target;
+    
+    // Draw link
+    ctx.beginPath();
+    ctx.moveTo(sourceNode.x, sourceNode.y);
+    ctx.lineTo(targetNode.x, targetNode.y);
+    
+    // Link style based on type
+    ctx.strokeStyle = link.color || '#ffffff30';
+    ctx.lineWidth = link.width || 1;
+    
+    // Draw arrow
+    const dx = targetNode.x - sourceNode.x;
+    const dy = targetNode.y - sourceNode.y;
+    const angle = Math.atan2(dy, dx);
+    const length = Math.sqrt(dx * dx + dy * dy);
+    const size = targetNode.size || 8;
+    
+    if (length > 0) {
+      ctx.stroke();
+      
+      // Draw arrowhead if needed
+      if (link.directed) {
+        const arrowLength = Math.min(size, length / 3);
+        const arrowWidth = arrowLength / 2;
         
-        toast({
-          title: 'Download Complete',
-          description: 'Visualization downloaded as PNG image',
-          status: 'success',
-          duration: 2000,
-          isClosable: true
-        });
+        const x_end = targetNode.x - (size * Math.cos(angle));
+        const y_end = targetNode.y - (size * Math.sin(angle));
+        
+        ctx.beginPath();
+        ctx.moveTo(x_end, y_end);
+        ctx.lineTo(
+          x_end - arrowLength * Math.cos(angle - Math.PI / 6),
+          y_end - arrowLength * Math.sin(angle - Math.PI / 6)
+        );
+        ctx.lineTo(
+          x_end - arrowLength * Math.cos(angle + Math.PI / 6),
+          y_end - arrowLength * Math.sin(angle + Math.PI / 6)
+        );
+        ctx.closePath();
+        ctx.fillStyle = link.color || '#ffffff50';
+        ctx.fill();
       }
     }
   };
   
-  // Zoom controls
-  const zoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 0.2, 2.5));
-    if (graphRef.current) {
-      graphRef.current.zoom(zoomLevel + 0.2);
-    }
-  };
-  
-  const zoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - 0.2, 0.5));
-    if (graphRef.current) {
-      graphRef.current.zoom(zoomLevel - 0.2);
-    }
-  };
-  
-  const resetView = () => {
-    setZoomLevel(1);
-    if (graphRef.current) {
-      graphRef.current.centerAt();
-      graphRef.current.zoom(1);
-    }
-  };
-  
-  // Render node information panel
-  const renderNodeInfo = () => {
-    if (!selectedNode) {
-      return (
-        <Box p={4} textAlign="center" color="gray.500">
-          <Text>Select a node to view details</Text>
-        </Box>
-      );
-    }
-    
-    return (
-      <VStack spacing={4} align="stretch">
-        <Flex justify="space-between" align="center">
-          <Heading size="md">{selectedNode.name}</Heading>
-          <Badge colorScheme="blue">{selectedNode.group}</Badge>
-        </Flex>
-        
-        <Divider />
-        
-        <Box>
-          <Text fontWeight="bold" mb={1}>Node ID</Text>
-          <Text>{selectedNode.id}</Text>
-        </Box>
-        
-        <Box>
-          <Text fontWeight="bold" mb={1}>Group</Text>
-          <Text>{selectedNode.group}</Text>
-        </Box>
-        
-        <Box>
-          <Text fontWeight="bold" mb={1}>Connected Nodes</Text>
-          <Text>
-            {graphData.links.filter(link => link.source.id === selectedNode.id || link.target.id === selectedNode.id).length}
-          </Text>
-        </Box>
-        
-        <Divider />
-        
-        <HStack spacing={4}>
-          <Button
-            leftIcon={<FiCpu />}
-            colorScheme="brand"
-            onClick={() => {
-              toast({
-                title: 'Node Simulation',
-                description: `Running UKG simulation on ${selectedNode.name}`,
-                status: 'info',
-                duration: 2000,
-                isClosable: true
-              });
-            }}
-            size="sm"
-          >
-            Simulate This Node
-          </Button>
-          
-          <Button
-            leftIcon={<FiMaximize />}
-            onClick={() => {
-              if (graphRef.current) {
-                graphRef.current.centerAt(selectedNode.x, selectedNode.y, 1000);
-                graphRef.current.zoom(1.5, 1000);
-              }
-            }}
-            size="sm"
-          >
-            Focus
-          </Button>
-        </HStack>
-        
-        <Divider />
-        
-        <Box>
-          <Text fontWeight="bold" mb={2}>UKG Cross-Axis Connections</Text>
-          
-          <VStack align="stretch" spacing={2}>
-            {[...Array(3)].map((_, i) => {
-              const randomAxis = ukgAxes[Math.floor(Math.random() * ukgAxes.length)];
-              return (
-                <HStack key={i} bg="dark.800" p={2} borderRadius="md">
-                  <Badge>Axis {randomAxis.id}</Badge>
-                  <Text fontSize="sm" flex="1">
-                    {randomAxis.name}
-                  </Text>
-                  <Badge colorScheme="green">
-                    {Math.floor(Math.random() * 10) + 1} links
-                  </Badge>
-                </HStack>
-              );
-            })}
-          </VStack>
-        </Box>
-      </VStack>
-    );
-  };
-  
   return (
-    <Box h="100%" display="flex" flexDirection="column">
-      <HStack mb={4} justify="space-between">
-        <Heading size="lg">Universal Knowledge Graph Simulation Map</Heading>
-        
-        <HStack>
-          <Select 
-            value={activeAxis} 
-            onChange={(e) => setActiveAxis(parseInt(e.target.value))}
-            bg="dark.800"
-            minW="260px"
-          >
-            {ukgAxes.map(axis => (
-              <option key={axis.id} value={axis.id}>
-                Axis {axis.id}: {axis.name}
-              </option>
-            ))}
-          </Select>
-          
-          <Button
-            leftIcon={<FiCpu />}
-            colorScheme="brand"
-            onClick={runUkgSimulation}
-            isLoading={simulating}
-            loadingText="Simulating..."
-          >
-            Run UKG Simulation
-          </Button>
-        </HStack>
-      </HStack>
-      
-      {simulating && (
-        <Box mb={4}>
-          <Text mb={1}>Simulating UKG across axes... {Math.round(simulationProgress)}%</Text>
-          <Progress
-            value={simulationProgress}
-            size="sm"
-            colorScheme="brand"
-            hasStripe
-            isAnimated
-          />
-        </Box>
-      )}
-      
-      <Flex flex="1" gap={4}>
+    <Box h="full">
+      <Grid templateColumns={{ base: '1fr', lg: '3fr 1fr' }} gap={4} h="full">
         {/* Graph Visualization */}
-        <Box flex="1" position="relative" bg="dark.800" borderRadius="md" overflow="hidden">
-          {/* When ForceGraph2D is loaded */}
-          {ForceGraph2D && (
-            <ForceGraph2D
-              ref={graphRef}
-              graphData={graphData}
-              nodeLabel="name"
-              nodeColor={node => node.color}
-              nodeVal={node => node.val}
-              linkColor={() => '#5A6268'}
-              onNodeClick={node => setSelectedNode(node)}
-              cooldownTicks={100}
-              onEngineStop={() => console.log('Engine stopped')}
-              width={window.innerWidth - 600}
-              height={600}
-              backgroundColor="#1A1D23"
-            />
-          )}
-          
-          {/* Fall back when ForceGraph2D is not loaded */}
-          {!ForceGraph2D && (
-            <Flex h="100%" align="center" justify="center" direction="column">
-              <Text fontSize="lg" mb={4}>Graph Visualization</Text>
-              <Text color="gray.500">
-                Force Graph component not loaded. Please refresh or check dependencies.
-              </Text>
+        <GridItem position="relative" bg="gray.800" borderRadius="md" overflow="hidden">
+          {graphLoading && (
+            <Flex 
+              position="absolute" 
+              top="0" 
+              left="0" 
+              right="0" 
+              bottom="0" 
+              bg="blackAlpha.700" 
+              zIndex="1" 
+              justify="center" 
+              align="center"
+            >
+              <VStack>
+                <Spinner size="xl" color="brand.500" thickness="4px" />
+                <Text>Loading Knowledge Graph...</Text>
+              </VStack>
             </Flex>
           )}
           
-          {/* Control panel overlay */}
-          <HStack 
-            position="absolute" 
-            top="10px" 
-            right="10px"
-            bg="rgba(0, 0, 0, 0.6)"
-            p={2}
-            borderRadius="md"
-            spacing={2}
-          >
-            <Tooltip label="Zoom In">
-              <IconButton
-                icon={<FiZoomIn />}
-                onClick={zoomIn}
-                size="sm"
-                variant="ghost"
-                aria-label="Zoom in"
-              />
-            </Tooltip>
-            
-            <Tooltip label="Zoom Out">
-              <IconButton
-                icon={<FiZoomOut />}
-                onClick={zoomOut}
-                size="sm"
-                variant="ghost"
-                aria-label="Zoom out"
-              />
-            </Tooltip>
-            
-            <Tooltip label="Reset View">
-              <IconButton
-                icon={<FiRefreshCw />}
-                onClick={resetView}
-                size="sm"
-                variant="ghost"
-                aria-label="Reset view"
-              />
-            </Tooltip>
-            
-            <Tooltip label="Download Visualization">
-              <IconButton
-                icon={<FiDownload />}
-                onClick={downloadVisualization}
-                size="sm"
-                variant="ghost"
-                aria-label="Download"
-              />
-            </Tooltip>
-          </HStack>
-          
-          {/* Legend overlay */}
-          <Box
-            position="absolute"
-            bottom="10px"
-            left="10px"
-            bg="rgba(0, 0, 0, 0.6)"
-            p={3}
-            borderRadius="md"
-            maxW="300px"
-          >
-            <Text fontWeight="bold" mb={2}>Legend</Text>
-            
-            <Grid templateColumns="1fr 3fr" gap={2}>
-              <Box w="16px" h="16px" borderRadius="full" bg="#3182CE" />
-              <Text fontSize="sm">Category / Axis</Text>
-              
-              <Box w="16px" h="16px" borderRadius="full" bg="#38A169" />
-              <Text fontSize="sm">Pillar Level</Text>
-              
-              <Box w="16px" h="16px" borderRadius="full" bg="#DD6B20" />
-              <Text fontSize="sm">Sector</Text>
-              
-              <Box w="16px" h="16px" borderRadius="full" bg="#ED8936" />
-              <Text fontSize="sm">Subsector</Text>
-              
-              <Box w="16px" h="16px" borderRadius="full" bg="#805AD5" />
-              <Text fontSize="sm">Domain</Text>
-            </Grid>
+          {/* Graph Controls */}
+          <Box position="absolute" top="10px" right="10px" zIndex="1">
+            <VStack spacing={2}>
+              <Tooltip label="Zoom In" placement="left">
+                <IconButton 
+                  icon={<FiZoomIn />} 
+                  aria-label="Zoom In" 
+                  onClick={zoomIn} 
+                  colorScheme="gray" 
+                  size="sm"
+                />
+              </Tooltip>
+              <Tooltip label="Zoom Out" placement="left">
+                <IconButton 
+                  icon={<FiZoomOut />} 
+                  aria-label="Zoom Out" 
+                  onClick={zoomOut} 
+                  colorScheme="gray" 
+                  size="sm"
+                />
+              </Tooltip>
+              <Tooltip label="Reset Graph" placement="left">
+                <IconButton 
+                  icon={<FiRefreshCw />} 
+                  aria-label="Reset Graph" 
+                  onClick={() => graphRef.current && graphRef.current.zoomToFit(400)} 
+                  colorScheme="gray" 
+                  size="sm"
+                />
+              </Tooltip>
+              <Tooltip label="Export as PNG" placement="left">
+                <IconButton 
+                  icon={<FiDownload />} 
+                  aria-label="Export" 
+                  onClick={exportGraph} 
+                  colorScheme="gray" 
+                  size="sm"
+                />
+              </Tooltip>
+              <Tooltip label={layoutStopped ? "Resume Layout" : "Pause Layout"} placement="left">
+                <IconButton 
+                  icon={<FiFilter />} 
+                  aria-label="Toggle Layout" 
+                  onClick={() => setLayoutStopped(!layoutStopped)} 
+                  colorScheme={layoutStopped ? "brand" : "gray"} 
+                  size="sm"
+                />
+              </Tooltip>
+            </VStack>
           </Box>
-        </Box>
+          
+          {/* Force Graph Component */}
+          {graphData.nodes.length > 0 && (
+            <ForceGraph2D
+              ref={graphRef}
+              graphData={graphData}
+              nodeLabel={node => `${node.label} (${NODE_TYPES[node.axis_number || 1]})`}
+              linkLabel={link => link.label || 'link'}
+              nodeRelSize={8}
+              nodeVal={node => node.value || 1}
+              nodeColor={() => 'rgba(0,0,0,0)'}  // Use custom painting
+              linkColor={() => 'rgba(0,0,0,0)'}  // Use custom painting
+              linkWidth={1}
+              nodeCanvasObjectMode={() => 'replace'}
+              nodeCanvasObject={paintNode}
+              linkCanvasObjectMode={() => 'replace'}
+              linkCanvasObject={paintLink}
+              onNodeClick={handleNodeClick}
+              cooldownTicks={layoutStopped ? 0 : Infinity}
+              onEngineStop={() => console.log('Engine stopped')}
+              linkDirectionalArrowLength={3}
+              linkDirectionalArrowRelPos={1}
+              warmupTicks={100}
+              onNodeHover={node => {
+                document.body.style.cursor = node ? 'pointer' : 'default';
+              }}
+              width={800}
+              height={600}
+            />
+          )}
+        </GridItem>
         
-        {/* Right Panel - Details & Controls */}
-        <Card w="300px" bg="dark.700" variant="outline">
-          <Tabs variant="soft-rounded" colorScheme="brand" size="sm">
-            <TabList px={4} pt={4}>
-              <Tab>Details</Tab>
-              <Tab>UKG Layers</Tab>
-            </TabList>
-            
-            <TabPanels>
-              <TabPanel>
-                {renderNodeInfo()}
-              </TabPanel>
-              
-              <TabPanel>
-                <VStack align="stretch" spacing={4}>
-                  <Heading size="sm">Simulation Layers</Heading>
-                  
-                  <VStack align="stretch" spacing={2}>
-                    {[...Array(10)].map((_, i) => {
-                      const layerNum = i + 1;
-                      return (
-                        <HStack key={layerNum} bg="dark.800" p={2} borderRadius="md">
-                          <Badge colorScheme="brand">L{layerNum}</Badge>
-                          <Text fontSize="sm" flex="1">
-                            {
-                              layerNum === 1 ? "Entry Layer" :
-                              layerNum === 2 ? "Knowledge Layer" :
-                              layerNum === 3 ? "Research Agents" :
-                              layerNum === 4 ? "POV Engine" :
-                              layerNum === 5 ? "Integration Layer" :
-                              layerNum === 6 ? "Analysis Layer" :
-                              layerNum === 7 ? "AGI System" :
-                              layerNum === 8 ? "Quantum Computer" :
-                              layerNum === 9 ? "Recursive AGI Core" :
-                              "Self-Awareness Engine"
-                            }
-                          </Text>
-                          <Badge colorScheme={layerNum <= 7 ? "green" : "gray"}>
-                            {layerNum <= 7 ? "Active" : "Standby"}
-                          </Badge>
-                        </HStack>
-                      );
-                    })}
-                  </VStack>
-                  
-                  <Divider />
-                  
+        {/* Node Details & Controls Panel */}
+        <GridItem>
+          <VStack spacing={4} align="stretch" h="full">
+            <Card variant="outline" bg="gray.800">
+              <CardHeader pb={1}>
+                <Heading size="md">Graph Controls</Heading>
+              </CardHeader>
+              <CardBody>
+                <VStack spacing={4} align="stretch">
                   <Box>
-                    <Heading size="sm" mb={3}>UKG Axes Overview</Heading>
-                    
-                    <VStack align="stretch" spacing={2}>
-                      <Text fontSize="sm">
-                        The Universal Knowledge Graph uses a 13-axis system to organize and synthesize knowledge across multiple domains and perspectives.
-                      </Text>
-                      
-                      <Text fontSize="sm">
-                        Current visualization shows Axis {activeAxis}: {ukgAxes.find(a => a.id === activeAxis)?.name} with {ukgAxes.find(a => a.id === activeAxis)?.entityCount} mapped entities.
-                      </Text>
-                    </VStack>
+                    <Text mb={2} fontWeight="medium">Filter by Axis</Text>
+                    <Select 
+                      value={selectedAxis} 
+                      onChange={(e) => setSelectedAxis(Number(e.target.value))}
+                      bg="gray.700"
+                    >
+                      <option value={0}>All Axes</option>
+                      <option value={1}>Axis 1: Knowledge</option>
+                      <option value={2}>Axis 2: Sectors</option>
+                      <option value={3}>Axis 3: Domains</option>
+                      <option value={4}>Axis 4: Methods</option>
+                      <option value={5}>Axis 5: Contexts</option>
+                      <option value={6}>Axis 6: Problems</option>
+                      <option value={7}>Axis 7: Solutions</option>
+                      <option value={8}>Axis 8: Roles</option>
+                      <option value={9}>Axis 9: Experts</option>
+                      <option value={10}>Axis 10: Regulations</option>
+                      <option value={11}>Axis 11: Compliance</option>
+                      <option value={12}>Axis 12: Location</option>
+                      <option value={13}>Axis 13: Time</option>
+                    </Select>
                   </Box>
                   
-                  <Button
-                    leftIcon={<FiActivity />}
-                    colorScheme="brand"
-                    size="sm"
-                    onClick={() => {
-                      toast({
-                        title: "Layer Activation",
-                        description: "This would activate additional UKG layers for deeper analysis",
-                        status: "info",
-                        duration: 2000,
-                        isClosable: true
-                      });
-                    }}
-                  >
-                    Activate Layer 8-10
-                  </Button>
+                  <Box>
+                    <Text mb={2} fontWeight="medium">Filter by Node Type</Text>
+                    <Select 
+                      value={selectedType} 
+                      onChange={(e) => setSelectedType(e.target.value)}
+                      bg="gray.700"
+                    >
+                      {NODE_TYPES.map((type, index) => (
+                        <option key={index} value={type}>{type}</option>
+                      ))}
+                    </Select>
+                  </Box>
+                  
+                  <HStack spacing={2}>
+                    <Button colorScheme="brand" flex="1" onClick={applyFilters}>
+                      Apply Filters
+                    </Button>
+                    <Button variant="outline" flex="1" onClick={resetFilters}>
+                      Reset
+                    </Button>
+                  </HStack>
                 </VStack>
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-        </Card>
-      </Flex>
+              </CardBody>
+            </Card>
+            
+            <Card variant="outline" bg="gray.800" flex="1">
+              <CardHeader pb={1}>
+                <Heading size="md">Node Details</Heading>
+              </CardHeader>
+              <CardBody overflow="auto">
+                {selectedNode ? (
+                  <Tabs variant="enclosed" size="sm">
+                    <TabList>
+                      <Tab>Overview</Tab>
+                      <Tab>Properties</Tab>
+                      <Tab>Connections</Tab>
+                    </TabList>
+                    
+                    <TabPanels>
+                      <TabPanel>
+                        <VStack align="stretch" spacing={3}>
+                          <Box>
+                            <Heading size="sm" mb={1}>{selectedNode.label}</Heading>
+                            <HStack>
+                              <Badge 
+                                colorScheme={Object.keys(AXIS_COLORS)[selectedNode.axis_number - 1] || 'gray'}
+                              >
+                                {NODE_TYPES[selectedNode.axis_number || 1]}
+                              </Badge>
+                              <Badge>ID: {selectedNode.id}</Badge>
+                            </HStack>
+                          </Box>
+                          
+                          <Text fontSize="sm">
+                            {selectedNode.description || 'No description available for this node.'}
+                          </Text>
+                          
+                          {selectedNode.attributes && (
+                            <Box>
+                              <Text fontWeight="medium" fontSize="sm">Key Attributes:</Text>
+                              {Object.entries(selectedNode.attributes).slice(0, 5).map(([key, value]) => (
+                                <Text key={key} fontSize="xs">
+                                  <strong>{key}:</strong> {String(value).substring(0, 60)}
+                                  {String(value).length > 60 ? '...' : ''}
+                                </Text>
+                              ))}
+                            </Box>
+                          )}
+                        </VStack>
+                      </TabPanel>
+                      
+                      <TabPanel>
+                        <VStack align="stretch" spacing={2}>
+                          {selectedNode.attributes ? (
+                            Object.entries(selectedNode.attributes).map(([key, value]) => (
+                              <Box key={key} p={2} bg="gray.700" borderRadius="md">
+                                <Text fontSize="xs" color="gray.400">{key}</Text>
+                                <Text fontSize="sm" wordBreak="break-word">
+                                  {typeof value === 'object' 
+                                    ? JSON.stringify(value, null, 2) 
+                                    : String(value)
+                                  }
+                                </Text>
+                              </Box>
+                            ))
+                          ) : (
+                            <Text color="gray.500">No properties available</Text>
+                          )}
+                        </VStack>
+                      </TabPanel>
+                      
+                      <TabPanel>
+                        <VStack align="stretch" spacing={2}>
+                          <Text fontWeight="medium">Connected Nodes:</Text>
+                          {graphData.links
+                            .filter(link => 
+                              link.source.id === selectedNode.id || 
+                              link.target.id === selectedNode.id
+                            )
+                            .map((link, index) => {
+                              const isSource = link.source.id === selectedNode.id;
+                              const connectedNode = isSource ? link.target : link.source;
+                              
+                              return (
+                                <Box 
+                                  key={index} 
+                                  p={2} 
+                                  bg="gray.700" 
+                                  borderRadius="md"
+                                  _hover={{ bg: 'gray.600', cursor: 'pointer' }}
+                                  onClick={() => setSelectedNode(connectedNode)}
+                                >
+                                  <HStack>
+                                    <Box 
+                                      w="3" 
+                                      h="3" 
+                                      borderRadius="full" 
+                                      bg={AXIS_COLORS[connectedNode.axis_number || 1]}
+                                    />
+                                    <Text>{connectedNode.label}</Text>
+                                    <Badge ml="auto" fontSize="xs">
+                                      {isSource ? 'outgoing' : 'incoming'}
+                                    </Badge>
+                                  </HStack>
+                                  <Text fontSize="xs" color="gray.400" ml="5">
+                                    {link.label || (isSource ? 'connects to' : 'connected from')}
+                                  </Text>
+                                </Box>
+                              );
+                            })}
+                          
+                          {graphData.links.filter(link => 
+                            link.source.id === selectedNode.id || 
+                            link.target.id === selectedNode.id
+                          ).length === 0 && (
+                            <Text color="gray.500">No connections</Text>
+                          )}
+                        </VStack>
+                      </TabPanel>
+                    </TabPanels>
+                  </Tabs>
+                ) : (
+                  <Flex 
+                    direction="column" 
+                    align="center" 
+                    justify="center" 
+                    h="full" 
+                    color="gray.500"
+                    textAlign="center"
+                    p={4}
+                  >
+                    <Text mb={2}>No node selected</Text>
+                    <Text fontSize="sm">
+                      Click on a node in the graph to view its details and properties.
+                    </Text>
+                  </Flex>
+                )}
+              </CardBody>
+            </Card>
+          </VStack>
+        </GridItem>
+      </Grid>
     </Box>
   );
 };

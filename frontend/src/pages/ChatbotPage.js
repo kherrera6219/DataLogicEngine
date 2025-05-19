@@ -1,461 +1,371 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Box, 
-  VStack, 
-  HStack, 
-  Input, 
-  Button, 
-  IconButton, 
-  Text, 
-  Avatar, 
+import {
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Input,
+  IconButton,
   Flex,
-  Divider,
-  useColorModeValue,
+  Avatar,
   Textarea,
-  Select,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
+  Button,
+  useColorModeValue,
+  Divider,
   Badge,
+  Tooltip,
   Card,
-  CardBody
+  CardBody,
+  CardHeader,
+  Heading,
+  Select,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderMark,
+  Collapse
 } from '@chakra-ui/react';
-import { FiSend, FiMic, FiUpload, FiMaximize, FiInfo } from 'react-icons/fi';
+import { FiSend, FiSettings, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { useUKG } from '../contexts/UKGContext';
+import { useNotification } from '../contexts/NotificationContext';
+import marked from 'marked';
 
 const ChatbotPage = () => {
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      role: 'system',
-      content: 'Welcome to the Universal Knowledge Graph System. How can I assist you today?',
-      timestamp: new Date().toISOString(),
-      confidence: 0.97,
-      perspectives: [
-        { role: 'Knowledge', agreement: 'high' },
-        { role: 'Sector', agreement: 'high' },
-        { role: 'Regulatory', agreement: 'medium' },
-        { role: 'Compliance', agreement: 'high' }
-      ]
-    }
-  ]);
-  
   const [input, setInput] = useState('');
-  const [selectedPersona, setSelectedPersona] = useState('auto');
+  const [messages, setMessages] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const messagesEndRef = useRef(null);
   
-  const endOfMessagesRef = useRef(null);
+  // UKG Context
+  const { 
+    runQuery, 
+    activeLayer,
+    setActiveLayer,
+    confidenceThreshold,
+    setConfidenceThreshold,
+    refinementSteps,
+    setRefinementSteps,
+    lastQuery,
+    lastResponse
+  } = useUKG();
   
-  // Scroll to bottom whenever messages change
+  // Notification Context
+  const { success, error: showError } = useNotification();
+  
+  // Scroll to the bottom of the chat on new messages
   useEffect(() => {
-    if (endOfMessagesRef.current) {
-      endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   
-  const handleSendMessage = () => {
-    if (input.trim() === '') return;
+  // When context updates from external actions
+  useEffect(() => {
+    if (lastQuery && lastResponse && lastQuery !== messages[messages.length - 2]?.content) {
+      setMessages(prev => [
+        ...prev,
+        { role: 'user', content: lastQuery },
+        { role: 'assistant', content: lastResponse }
+      ]);
+    }
+  }, [lastQuery, lastResponse, messages]);
+  
+  // Handle sending a message
+  const handleSendMessage = async () => {
+    if (!input.trim()) return;
     
-    // Add user message
     const userMessage = {
-      id: messages.length + 1,
       role: 'user',
-      content: input,
-      timestamp: new Date().toISOString()
+      content: input
     };
     
-    setMessages([...messages, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsProcessing(true);
     
-    // Simulate response from UKG system (replace with actual API call)
-    setTimeout(() => {
-      const systemResponse = {
-        id: messages.length + 2,
-        role: 'system',
-        content: getSimulatedResponse(input, selectedPersona),
-        timestamp: new Date().toISOString(),
-        confidence: Math.random() * 0.1 + 0.89, // Random confidence between 0.89 and 0.99
-        perspectives: [
-          { role: 'Knowledge', agreement: getRandomAgreement() },
-          { role: 'Sector', agreement: getRandomAgreement() },
-          { role: 'Regulatory', agreement: getRandomAgreement() },
-          { role: 'Compliance', agreement: getRandomAgreement() }
-        ],
-        refinementPasses: Math.floor(Math.random() * 3) + 1,
-        layersActivated: getRandomLayers()
+    try {
+      const result = await runQuery(userMessage.content, {
+        confidenceThreshold,
+        refinementSteps,
+        maxLayer: activeLayer
+      });
+      
+      if (result.success) {
+        const assistantMessage = {
+          role: 'assistant',
+          content: result.data.response,
+          metadata: {
+            confidenceScore: result.data.confidenceScore,
+            activeLayer: result.data.activeLayer,
+            elapsedTime: result.data.elapsedTime
+          }
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+        
+        if (result.data.activeLayer > 3) {
+          success(`Query required Layer ${result.data.activeLayer} processing for optimal confidence.`);
+        }
+      } else {
+        const errorMessage = {
+          role: 'assistant',
+          content: `I'm sorry, I encountered a problem while processing your request: ${result.error}`,
+          error: true
+        };
+        
+        setMessages(prev => [...prev, errorMessage]);
+        showError(result.error);
+      }
+    } catch (err) {
+      console.error('Error in query processing:', err);
+      
+      const errorMessage = {
+        role: 'assistant',
+        content: 'I apologize, but I experienced an unexpected error while processing your request. Please try again.',
+        error: true
       };
       
-      setMessages(prevMessages => [...prevMessages, systemResponse]);
+      setMessages(prev => [...prev, errorMessage]);
+      showError('Unexpected error in query processing');
+    } finally {
       setIsProcessing(false);
-    }, 2000);
-  };
-  
-  // Helper function to get random agreement level
-  const getRandomAgreement = () => {
-    const levels = ['high', 'medium', 'low'];
-    return levels[Math.floor(Math.random() * levels.length)];
-  };
-  
-  // Helper function to get random activated layers
-  const getRandomLayers = () => {
-    const allLayers = [1, 2, 3, 4, 5, 6, 7];
-    const layerCount = Math.floor(Math.random() * 4) + 3; // Between 3-7 layers
-    const layers = [];
-    
-    while (layers.length < layerCount) {
-      const layer = allLayers[Math.floor(Math.random() * allLayers.length)];
-      if (!layers.includes(layer)) {
-        layers.push(layer);
-      }
-    }
-    
-    return layers.sort((a, b) => a - b);
-  };
-  
-  // Simple response generation for demo purposes
-  const getSimulatedResponse = (query, persona) => {
-    if (query.toLowerCase().includes('compliance') || query.toLowerCase().includes('regulatory')) {
-      return 'Based on the Universal Knowledge Graph analysis, compliance requirements include documentation of algorithms, regular testing procedures, kill switches for emergency situations, and comprehensive audit trails. Organizations must demonstrate that their systems cannot manipulate markets and adhere to SEC Rule 15c3-5 and MiFID II regulations.';
-    } else if (query.toLowerCase().includes('data') || query.toLowerCase().includes('privacy')) {
-      return 'The UKG simulation indicates that data privacy regulations like GDPR, CCPA, and emerging global standards require data minimization, explicit consent mechanisms, and data portability. There are inherent tensions between extensive AI data collection needs and privacy compliance that organizations must navigate through privacy-by-design principles.';
-    } else {
-      return 'According to the Universal Knowledge Graph analysis across all 13 axes, this query involves multiple domains and regulatory frameworks. The simulated experts recommend considering both technical implementation challenges and compliance requirements. Further details can be provided by activating specific expert personas or requesting a deeper simulation pass.';
     }
   };
   
-  // Format the timestamp
-  const formatTime = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  // Handle input change
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
   };
   
-  // Get agreement color
-  const getAgreementColor = (agreement) => {
-    switch (agreement) {
-      case 'high': return 'green.500';
-      case 'medium': return 'yellow.500';
-      case 'low': return 'red.500';
-      default: return 'gray.500';
+  // Handle key press (Enter to send)
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
   };
   
-  // Get confidence color
-  const getConfidenceColor = (score) => {
-    if (score >= 0.95) return 'green.500';
-    if (score >= 0.85) return 'yellow.500';
-    return 'red.500';
+  // Toggle settings panel
+  const toggleSettings = () => {
+    setShowSettings(!showSettings);
+  };
+  
+  // Render message with markdown support
+  const renderMessage = (content) => {
+    return (
+      <Box 
+        dangerouslySetInnerHTML={{ 
+          __html: marked.parse(content) 
+        }} 
+        sx={{
+          'p': { my: 2 },
+          'pre': { bg: 'gray.700', p: 2, borderRadius: 'md', overflowX: 'auto' },
+          'code': { fontFamily: 'monospace', fontSize: 'sm' },
+          'blockquote': { borderLeftWidth: '2px', borderLeftColor: 'gray.600', pl: 2, ml: 0 },
+          'ul, ol': { pl: 4 },
+          'a': { color: 'brand.400', textDecoration: 'underline' },
+          'table': { borderCollapse: 'collapse', width: 'full', my: 2 },
+          'th, td': { borderWidth: '1px', borderColor: 'gray.600', p: 2 }
+        }}
+      />
+    );
   };
   
   return (
-    <Box h="100%" display="flex" flexDirection="column">
-      <Flex mb={4}>
-        <Text fontSize="2xl" fontWeight="bold">UKG Chat Interface</Text>
-      </Flex>
-      
-      <Flex flex="1" overflow="hidden">
-        {/* Left Panel - Chat Window */}
-        <Box 
-          flex="1" 
-          borderRadius="md" 
-          bg="dark.700" 
-          p={4}
-          display="flex"
-          flexDirection="column"
-          mr={4}
-          overflow="hidden"
-        >
-          {/* Messages Area */}
-          <Box flex="1" overflowY="auto" mb={4} px={2}>
-            <VStack spacing={4} align="stretch">
-              {messages.map((msg) => (
-                <Box key={msg.id}>
-                  <HStack spacing={3} alignItems="flex-start">
-                    <Avatar 
-                      bg={msg.role === 'system' ? 'brand.500' : 'gray.500'} 
-                      icon={<Text fontSize="sm">{msg.role === 'system' ? 'UKG' : 'You'}</Text>}
-                      size="sm"
-                    />
-                    <Box flex="1">
-                      <HStack mb={1}>
-                        <Text fontWeight="bold">
-                          {msg.role === 'system' ? 'Universal Knowledge Graph' : 'You'}
-                        </Text>
-                        <Text fontSize="xs" color="gray.500">
-                          {formatTime(msg.timestamp)}
-                        </Text>
-                        {msg.confidence && (
-                          <Badge colorScheme={msg.confidence >= 0.95 ? "green" : "yellow"}>
-                            {(msg.confidence * 100).toFixed(1)}%
-                          </Badge>
-                        )}
-                      </HStack>
-                      <Text>{msg.content}</Text>
-                      
-                      {/* Perspective Agreement (for system messages) */}
-                      {msg.role === 'system' && msg.perspectives && (
-                        <HStack mt={2} spacing={2}>
-                          {msg.perspectives.map((perspective, idx) => (
-                            <Badge 
-                              key={idx} 
-                              variant="outline" 
-                              colorScheme={perspective.agreement === 'high' ? 'green' : 
-                                          perspective.agreement === 'medium' ? 'yellow' : 'red'}
-                              size="sm"
-                            >
-                              {perspective.role}
-                            </Badge>
-                          ))}
-                        </HStack>
-                      )}
-                      
-                      {/* Simulation Details */}
-                      {msg.role === 'system' && msg.layersActivated && (
-                        <HStack mt={1} fontSize="xs" color="gray.500">
-                          <Text>Passes: {msg.refinementPasses}</Text>
-                          <Text>•</Text>
-                          <Text>Layers: {msg.layersActivated.join(', ')}</Text>
-                        </HStack>
-                      )}
-                    </Box>
-                  </HStack>
-                  <Divider mt={4} mb={2} opacity={0.2} />
-                </Box>
-              ))}
-              <div ref={endOfMessagesRef} />
-            </VStack>
-            
-            {isProcessing && (
-              <Flex align="center" mt={4}>
-                <Text fontSize="sm" color="gray.500">UKG System thinking...</Text>
-                <Box
-                  as="span"
-                  display="inline-block"
-                  ml={2}
-                  h="6px"
-                  w="6px"
-                  borderRadius="full"
-                  bg="brand.500"
-                  animation="pulse 1.5s infinite"
-                />
-              </Flex>
-            )}
-          </Box>
-          
-          {/* Input Area */}
-          <HStack spacing={2} mt={2}>
-            <Select 
-              size="md" 
-              w="180px" 
-              value={selectedPersona} 
-              onChange={(e) => setSelectedPersona(e.target.value)}
-              bg="dark.800"
-              borderColor="gray.600"
-            >
-              <option value="auto">Auto-Detect Personas</option>
-              <option value="knowledge">Knowledge Expert</option>
-              <option value="sector">Sector Expert</option>
-              <option value="regulatory">Regulatory Expert</option>
-              <option value="compliance">Compliance Expert</option>
-              <option value="quad">Quad Persona Mode</option>
-            </Select>
-            
-            <Box flex="1" position="relative">
-              <Textarea
-                placeholder="Ask the Universal Knowledge Graph..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-                size="md"
-                resize="none"
-                rows={1}
-                bg="dark.800"
-                borderColor="gray.600"
+    <Box h="full" display="flex" flexDirection="column">
+      <Card variant="outline" bg="gray.800" mb={4}>
+        <CardHeader pb={2}>
+          <Flex justify="space-between" align="center">
+            <Heading size="md">Universal Knowledge Graph - Interactive Mode</Heading>
+            <Tooltip label={showSettings ? "Hide Settings" : "Show Settings"}>
+              <IconButton
+                icon={showSettings ? <FiChevronUp /> : <FiChevronDown />}
+                variant="ghost"
+                onClick={toggleSettings}
+                aria-label="Toggle Settings"
               />
-            </Box>
-
-            <IconButton
-              aria-label="Send message"
-              icon={<FiSend />}
-              onClick={handleSendMessage}
-              colorScheme="brand"
-              size="md"
-            />
-            
-            <IconButton
-              aria-label="Voice input"
-              icon={<FiMic />}
-              variant="outline"
-              size="md"
-            />
-            
-            <IconButton
-              aria-label="Upload file"
-              icon={<FiUpload />}
-              variant="outline"
-              size="md"
-            />
-          </HStack>
-        </Box>
+            </Tooltip>
+          </Flex>
+        </CardHeader>
         
-        {/* Right Panel - Context & Simulation Details */}
-        <Box 
-          w="300px" 
-          borderRadius="md" 
-          bg="dark.700" 
-          p={4}
-          overflowY="auto"
-        >
-          <Tabs size="sm" variant="enclosed" colorScheme="brand">
-            <TabList>
-              <Tab>Simulation</Tab>
-              <Tab>Context</Tab>
-              <Tab>Agents</Tab>
-            </TabList>
-            
-            <TabPanels>
-              {/* Simulation Panel */}
-              <TabPanel>
-                <VStack spacing={4} align="stretch">
-                  <Card variant="outline" size="sm" bg="dark.800">
-                    <CardBody>
-                      <Text fontWeight="semibold" mb={2}>Active Simulation Layers</Text>
-                      <Box>
-                        {[1, 2, 3, 4, 5, 6, 7].map((layer) => (
-                          <Badge 
-                            key={layer}
-                            m={1}
-                            colorScheme={layer <= 5 ? 'green' : layer <= 7 ? 'blue' : 'purple'}
-                          >
-                            Layer {layer}
-                          </Badge>
-                        ))}
-                      </Box>
-                    </CardBody>
-                  </Card>
-                  
-                  <Card variant="outline" size="sm" bg="dark.800">
-                    <CardBody>
-                      <Text fontWeight="semibold" mb={2}>Confidence Score</Text>
-                      <Flex align="center" justify="space-between">
-                        <Text fontSize="2xl" fontWeight="bold" color="green.500">96.5%</Text>
-                        <Badge colorScheme="green">High</Badge>
-                      </Flex>
-                      <Text fontSize="xs" color="gray.500" mt={1}>
-                        Based on 3 refinement passes
-                      </Text>
-                    </CardBody>
-                  </Card>
-                  
-                  <Card variant="outline" size="sm" bg="dark.800">
-                    <CardBody>
-                      <Text fontWeight="semibold" mb={2}>Simulation Stats</Text>
-                      <VStack align="stretch" spacing={1} fontSize="sm">
-                        <Flex justify="space-between">
-                          <Text>Entropy Score:</Text>
-                          <Text>0.243</Text>
-                        </Flex>
-                        <Flex justify="space-between">
-                          <Text>Emergence:</Text>
-                          <Text>0.112</Text>
-                        </Flex>
-                        <Flex justify="space-between">
-                          <Text>Memory Anchors:</Text>
-                          <Text>27</Text>
-                        </Flex>
-                        <Flex justify="space-between">
-                          <Text>Identity Consistency:</Text>
-                          <Text>0.925</Text>
-                        </Flex>
-                      </VStack>
-                    </CardBody>
-                  </Card>
-                </VStack>
-              </TabPanel>
+        <Collapse in={showSettings} animateOpacity>
+          <CardBody pt={0}>
+            <Divider mb={4} />
+            <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
+              <Box flex="1">
+                <Text mb={2} fontWeight="medium">Active Layer</Text>
+                <Select 
+                  value={activeLayer} 
+                  onChange={(e) => setActiveLayer(Number(e.target.value))}
+                  bg="gray.700"
+                >
+                  <option value={0}>Layer 0 - Basic Knowledge</option>
+                  <option value={1}>Layer 1 - Entity Recognition</option>
+                  <option value={2}>Layer 2 - Quad Persona Integration</option>
+                  <option value={3}>Layer 3 - Research Simulation</option>
+                  <option value={4}>Layer 4 - POV Processing</option>
+                  <option value={5}>Layer 5 - Enhanced Capabilities</option>
+                  <option value={7}>Layer 7 - Simulated AGI</option>
+                  <option value={8}>Layer 8 - Quantum Simulation</option>
+                  <option value={9}>Layer 9 - Recursive Processing</option>
+                  <option value={10}>Layer 10 - Self-Monitoring</option>
+                </Select>
+              </Box>
               
-              {/* Context Panel */}
-              <TabPanel>
-                <VStack spacing={4} align="stretch">
-                  <Card variant="outline" size="sm" bg="dark.800">
-                    <CardBody>
-                      <Text fontWeight="semibold" mb={2}>Active UKG Axes</Text>
-                      <Box>
-                        {[2, 3, 8, 9, 10, 11, 13].map((axis) => (
-                          <Badge 
-                            key={axis}
-                            m={1}
-                          >
-                            Axis {axis}
-                          </Badge>
-                        ))}
-                      </Box>
-                    </CardBody>
-                  </Card>
-                  
-                  <Card variant="outline" size="sm" bg="dark.800">
-                    <CardBody>
-                      <Text fontWeight="semibold" mb={2}>Domain Context</Text>
-                      <VStack align="stretch" spacing={1} fontSize="sm">
-                        <Flex justify="space-between">
-                          <Text>Pillar Level:</Text>
-                          <Text>PL32</Text>
-                        </Flex>
-                        <Flex justify="space-between">
-                          <Text>Sector Code:</Text>
-                          <Text>NAICS 5182</Text>
-                        </Flex>
-                        <Flex justify="space-between">
-                          <Text>Branch:</Text>
-                          <Text>Technology</Text>
-                        </Flex>
-                      </VStack>
-                    </CardBody>
-                  </Card>
-                </VStack>
-              </TabPanel>
+              <Box flex="1">
+                <Text mb={2} fontWeight="medium">Confidence Threshold: {confidenceThreshold}</Text>
+                <Slider 
+                  min={0.5} 
+                  max={0.99} 
+                  step={0.01} 
+                  value={confidenceThreshold}
+                  onChange={(val) => setConfidenceThreshold(val)}
+                >
+                  <SliderTrack bg="gray.700">
+                    <SliderFilledTrack bg="brand.500" />
+                  </SliderTrack>
+                  <SliderThumb />
+                  <SliderMark value={0.5} mt={2} ml={-2} fontSize="xs">0.5</SliderMark>
+                  <SliderMark value={0.75} mt={2} ml={-2} fontSize="xs">0.75</SliderMark>
+                  <SliderMark value={0.99} mt={2} ml={-2} fontSize="xs">0.99</SliderMark>
+                </Slider>
+              </Box>
               
-              {/* Agents Panel */}
-              <TabPanel>
-                <VStack spacing={4} align="stretch">
-                  <Card variant="outline" size="sm" bg="dark.800">
-                    <CardBody>
-                      <Text fontWeight="semibold" mb={2}>Active Agents</Text>
-                      <VStack align="stretch" spacing={1} fontSize="sm">
-                        <Flex justify="space-between" align="center">
-                          <Text>Gatekeeper</Text>
-                          <Badge colorScheme="green">Active</Badge>
-                        </Flex>
-                        <Flex justify="space-between" align="center">
-                          <Text>Knowledge Expert</Text>
-                          <Badge colorScheme="green">Active</Badge>
-                        </Flex>
-                        <Flex justify="space-between" align="center">
-                          <Text>Sector Expert</Text>
-                          <Badge colorScheme="green">Active</Badge>
-                        </Flex>
-                        <Flex justify="space-between" align="center">
-                          <Text>Regulatory Expert</Text>
-                          <Badge colorScheme="green">Active</Badge>
-                        </Flex>
-                        <Flex justify="space-between" align="center">
-                          <Text>Compliance Expert</Text>
-                          <Badge colorScheme="green">Active</Badge>
-                        </Flex>
-                      </VStack>
-                    </CardBody>
-                  </Card>
-                </VStack>
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-        </Box>
-      </Flex>
+              <Box flex="1">
+                <Text mb={2} fontWeight="medium">Refinement Steps: {refinementSteps}</Text>
+                <Slider 
+                  min={1} 
+                  max={24} 
+                  step={1} 
+                  value={refinementSteps}
+                  onChange={(val) => setRefinementSteps(val)}
+                >
+                  <SliderTrack bg="gray.700">
+                    <SliderFilledTrack bg="brand.500" />
+                  </SliderTrack>
+                  <SliderThumb />
+                  <SliderMark value={1} mt={2} ml={-1} fontSize="xs">1</SliderMark>
+                  <SliderMark value={12} mt={2} ml={-2} fontSize="xs">12</SliderMark>
+                  <SliderMark value={24} mt={2} ml={-2} fontSize="xs">24</SliderMark>
+                </Slider>
+              </Box>
+            </Flex>
+          </CardBody>
+        </Collapse>
+      </Card>
+      
+      {/* Messages container */}
+      <Box
+        flex="1"
+        overflowY="auto"
+        bg="gray.900"
+        borderRadius="md"
+        p={4}
+        mb={4}
+      >
+        {messages.length === 0 ? (
+          <Flex
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
+            h="full"
+            textAlign="center"
+            color="gray.500"
+            p={8}
+          >
+            <Heading size="md" mb={4}>Welcome to the Universal Knowledge Graph</Heading>
+            <Text mb={4}>
+              Interact with the 13-axis knowledge system to access multi-perspective insights 
+              across various domains and knowledge levels.
+            </Text>
+            <Text fontStyle="italic">
+              Try asking questions like: "Explain the relationship between quantum computing and machine learning" 
+              or "Analyze cybersecurity regulations across financial and healthcare sectors."
+            </Text>
+          </Flex>
+        ) : (
+          <VStack spacing={4} align="stretch">
+            {messages.map((message, index) => (
+              <Box
+                key={index}
+                bg={message.role === 'user' ? 'gray.800' : message.error ? 'red.900' : 'gray.700'}
+                p={4}
+                borderRadius="md"
+                maxW="100%"
+                alignSelf={message.role === 'user' ? 'flex-end' : 'flex-start'}
+                boxShadow="sm"
+              >
+                <HStack spacing={3} align="flex-start" mb={2}>
+                  <Avatar
+                    size="sm"
+                    name={message.role === 'user' ? 'User' : 'UKG'}
+                    bg={message.role === 'user' ? 'purple.500' : 'brand.500'}
+                  />
+                  <Box>
+                    <Text fontWeight="bold">
+                      {message.role === 'user' ? 'You' : 'Universal Knowledge Graph'}
+                    </Text>
+                    {message.metadata && (
+                      <HStack spacing={2} mt={1}>
+                        <Badge colorScheme="blue">
+                          Layer {message.metadata.activeLayer}
+                        </Badge>
+                        <Badge 
+                          colorScheme={
+                            message.metadata.confidenceScore > 0.9 ? 'green' : 
+                            message.metadata.confidenceScore > 0.75 ? 'yellow' : 'red'
+                          }
+                        >
+                          Confidence: {Math.round(message.metadata.confidenceScore * 100)}%
+                        </Badge>
+                        <Badge colorScheme="gray">
+                          {message.metadata.elapsedTime}ms
+                        </Badge>
+                      </HStack>
+                    )}
+                  </Box>
+                </HStack>
+                
+                <Box ml={10}>
+                  {renderMessage(message.content)}
+                </Box>
+              </Box>
+            ))}
+            <div ref={messagesEndRef} />
+          </VStack>
+        )}
+      </Box>
+      
+      {/* Input box */}
+      <Box>
+        <Flex>
+          <Textarea
+            value={input}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyPress}
+            placeholder="Ask a question or enter a prompt..."
+            resize="none"
+            bg="gray.800"
+            borderRadius="md"
+            border="none"
+            _focus={{ border: 'none', boxShadow: '0 0 0 1px #3182ce' }}
+            mr={2}
+            rows={2}
+          />
+          <IconButton
+            colorScheme="brand"
+            aria-label="Send message"
+            icon={<FiSend />}
+            onClick={handleSendMessage}
+            alignSelf="flex-end"
+            isLoading={isProcessing}
+            isDisabled={!input.trim() || isProcessing}
+          />
+        </Flex>
+        <Text fontSize="xs" color="gray.500" mt={1} textAlign="right">
+          Press Enter to send, Shift+Enter for new line
+        </Text>
+      </Box>
     </Box>
   );
 };
