@@ -1,157 +1,72 @@
-# Universal Knowledge Graph (UKG) Locations Gazetteer (Axis 12)
-#
-# This file defines a hierarchy of locations that provide geographical
-# and jurisdictional context in the UKG.
-
 Locations:
   - loc_id: "LOC_COUNTRY_USA"
     loc_label: "United States of America"
     type: "Country"
     iso_code: "US"
-    continent_uid: "UID_CONTINENT_NORTH_AMERICA"
-    # Links to top-level federal regulatory frameworks
-    linked_regulatory_framework_uids: ["REG_FAR", "REG_EPA_NATIONAL"]
+    continent: "North America"
+    linked_regulatory_framework_uids: ["REG_FAR_SYSTEM", "REG_EPA_NATIONAL"]
     children:
       - loc_id: "LOC_STATE_USA_TX"
         loc_label: "Texas, USA"
         type: "State"
         iso_code: "US-TX"
-        # Links to state-level regulations
-        linked_regulatory_framework_uids: ["REG_TEXAS_PROCUREMENT_CODE_MOCK"]
+        linked_regulatory_framework_uids: ["REG_TEXAS_PROCUREMENT_CODE"]
         children:
           - loc_id: "LOC_CITY_USA_TX_AUSTIN"
             loc_label: "Austin, Texas, USA"
             type: "City"
             county: "Travis"
-            # Links to city ordinances
-            linked_regulatory_framework_uids: ["REG_AUSTIN_CITY_ORDINANCE_MOCK"]
+            linked_regulatory_framework_uids: ["REG_AUSTIN_CITY_ORDINANCE"]
             precise_locations:
               - loc_id: "LOC_POINT_CAMP_MABRY"
                 loc_label: "Camp Mabry, Austin, TX"
                 type: "MilitaryInstallation"
                 latitude: 30.3118
                 longitude: -97.7673
-                # Specific site rules or environmental data could be linked here
       
       - loc_id: "LOC_STATE_USA_CA"
         loc_label: "California, USA"
         type: "State"
         iso_code: "US-CA"
-        # Links to state-level regulations specific to California
         linked_regulatory_framework_uids: ["REG_CCPA"]
         children:
           - loc_id: "LOC_CITY_USA_CA_SF"
             loc_label: "San Francisco, California, USA"
             type: "City"
             county: "San Francisco"
-            
-          - loc_id: "LOC_CITY_USA_CA_LA"
-            loc_label: "Los Angeles, California, USA"
-            type: "City"
-            county: "Los Angeles"
-      
-      - loc_id: "LOC_STATE_USA_NY"
-        loc_label: "New York, USA"
-        type: "State"
-        iso_code: "US-NY"
-        children:
-          - loc_id: "LOC_CITY_USA_NY_NYC"
-            loc_label: "New York City, New York, USA"
-            type: "City"
-            county: "Various (5 boroughs)"
-  
-  # European Union as a supranational region
+            linked_regulatory_framework_uids: ["REG_SF_CITY_ORDINANCE"]
+
   - loc_id: "LOC_REGION_EU"
     loc_label: "European Union"
     type: "SupranationalRegion"
-    member_country_uids: ["LOC_COUNTRY_DEU", "LOC_COUNTRY_FRA", "LOC_COUNTRY_ITA", "LOC_COUNTRY_ESP", "LOC_COUNTRY_NLD"]
-    linked_regulatory_framework_uids: ["REG_GDPR"]
-  
-  # Germany
+    member_countries: ["LOC_COUNTRY_DEU", "LOC_COUNTRY_FRA", "LOC_COUNTRY_ITA", "LOC_COUNTRY_ESP"]
+    linked_regulatory_framework_uids: ["REG_GDPR_FRAMEWORK"]
+
   - loc_id: "LOC_COUNTRY_DEU"
     loc_label: "Germany"
     type: "Country"
     iso_code: "DE"
-    continent_uid: "UID_CONTINENT_EUROPE"
-    parent_region_uids: ["LOC_REGION_EU"]
+    continent: "Europe"
+    parent_regions: ["LOC_REGION_EU"]
+    linked_regulatory_framework_uids: ["REG_GDPR_FRAMEWORK", "REG_GERMAN_DATA_PROTECTION"]
     children:
-      - loc_id: "LOC_STATE_DEU_BY"
-        loc_label: "Bavaria, Germany"
-        type: "State"
-        iso_code: "DE-BY"
-        children:
-          - loc_id: "LOC_CITY_DEU_BY_MUC"
-            loc_label: "Munich, Bavaria, Germany"
-            type: "City"
-      
-      - loc_id: "LOC_STATE_DEU_BE"
+      - loc_id: "LOC_STATE_DEU_BER"
         loc_label: "Berlin, Germany"
         type: "State"
-        iso_code: "DE-BE"
-  
-  # France
-  - loc_id: "LOC_COUNTRY_FRA"
-    loc_label: "France"
-    type: "Country"
-    iso_code: "FR"
-    continent_uid: "UID_CONTINENT_EUROPE"
-    parent_region_uids: ["LOC_REGION_EU"]
-    children:
-      - loc_id: "LOC_REGION_FRA_IDF"
-        loc_label: "Île-de-France, France"
-        type: "Region"
-        iso_code: "FR-IDF"
-        children:
-          - loc_id: "LOC_CITY_FRA_IDF_PAR"
-            loc_label: "Paris, Île-de-France, France"
-            type: "City"
-  
-  # Canada
-  - loc_id: "LOC_COUNTRY_CAN"
-    loc_label: "Canada"
-    type: "Country"
-    iso_code: "CA"
-    continent_uid: "UID_CONTINENT_NORTH_AMERICA"
-    children:
-      - loc_id: "LOC_PROVINCE_CAN_ON"
-        loc_label: "Ontario, Canada"
-        type: "Province"
-        iso_code: "CA-ON"
-        children:
-          - loc_id: "LOC_CITY_CAN_ON_TOR"
-            loc_label: "Toronto, Ontario, Canada"
-            type: "City"
-      
-      - loc_id: "LOC_PROVINCE_CAN_QC"
-        loc_label: "Quebec, Canada"
-        type: "Province"
-        iso_code: "CA-QC"
-        children:
-          - loc_id: "LOC_CITY_CAN_QC_MTL"
-            loc_label: "Montreal, Quebec, Canada"
-            type: "City"
-  
-  # United Kingdom
+        linked_regulatory_framework_uids: ["REG_BERLIN_STATE_LAW"]
+
   - loc_id: "LOC_COUNTRY_GBR"
     loc_label: "United Kingdom"
     type: "Country"
     iso_code: "GB"
-    continent_uid: "UID_CONTINENT_EUROPE"
+    continent: "Europe"
+    linked_regulatory_framework_uids: ["REG_UK_DATA_PROTECTION"]
     children:
       - loc_id: "LOC_REGION_GBR_ENG"
-        loc_label: "England, United Kingdom"
+        loc_label: "England, UK"
         type: "Region"
-        iso_code: "GB-ENG"
         children:
           - loc_id: "LOC_CITY_GBR_ENG_LON"
-            loc_label: "London, England, United Kingdom"
+            loc_label: "London, England, UK"
             type: "City"
-      
-      - loc_id: "LOC_REGION_GBR_SCT"
-        loc_label: "Scotland, United Kingdom"
-        type: "Region"
-        iso_code: "GB-SCT"
-        children:
-          - loc_id: "LOC_CITY_GBR_SCT_EDI"
-            loc_label: "Edinburgh, Scotland, United Kingdom"
-            type: "City"
+            linked_regulatory_framework_uids: ["REG_LONDON_ORDINANCE"]
