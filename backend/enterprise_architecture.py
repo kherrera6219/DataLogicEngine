@@ -125,33 +125,72 @@ class EnterpriseArchitecture:
         
     def initialize_architecture(self) -> None:
         """Initialize the enterprise architecture components"""
+        # Try to import config manager
+        try:
+            from backend.config_manager import get_config
+            config = get_config()
+            
+            # Use ports from config
+            api_port = config.get_port("api_gateway")
+            webhook_port = config.get_port("webhook_server")
+            model_context_port = config.get_port("model_context")
+            core_ukg_port = config.get_port("core_ukg")
+            dotnet_port = config.get_port("dotnet_service")
+            frontend_port = config.get_port("frontend")
+            
+            logger.info(f"Using configuration from config manager")
+        except ImportError:
+            # Use default ports from instance variables
+            api_port = self.gateway_port
+            webhook_port = self.webhook_port
+            model_context_port = self.model_context_port
+            core_ukg_port = 5003
+            dotnet_port = 5005
+            frontend_port = 3000
+            
+            logger.info(f"Using default port configuration")
+            
         # Register core services
         self.register_service(ServiceRegistry(
             name="api_gateway",
-            endpoint=f"http://0.0.0.0:{self.gateway_port}",
+            endpoint=f"http://0.0.0.0:{api_port}",
             health_check_path="/health",
             service_type="python"
         ))
         
         self.register_service(ServiceRegistry(
             name="webhook_server",
-            endpoint=f"http://0.0.0.0:{self.webhook_port}",
+            endpoint=f"http://0.0.0.0:{webhook_port}",
             health_check_path="/health",
             service_type="python"
         ))
         
         self.register_service(ServiceRegistry(
             name="model_context_server",
-            endpoint=f"http://0.0.0.0:{self.model_context_port}",
+            endpoint=f"http://0.0.0.0:{model_context_port}",
             health_check_path="/health",
             service_type="python"
         ))
         
         self.register_service(ServiceRegistry(
-            name="dotnet_core_service",
-            endpoint=f"http://0.0.0.0:5005",
+            name="core_ukg",
+            endpoint=f"http://0.0.0.0:{core_ukg_port}",
+            health_check_path="/health",
+            service_type="python"
+        ))
+        
+        self.register_service(ServiceRegistry(
+            name="dotnet_service",
+            endpoint=f"http://0.0.0.0:{dotnet_port}",
             health_check_path="/health",
             service_type="dotnet"
+        ))
+        
+        self.register_service(ServiceRegistry(
+            name="frontend",
+            endpoint=f"http://0.0.0.0:{frontend_port}",
+            health_check_path="/api/health",  # Next.js exposes this via proxy
+            service_type="nodejs"
         ))
         
         # Start service discovery
