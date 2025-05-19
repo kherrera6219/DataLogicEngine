@@ -19,6 +19,9 @@ from sqlalchemy.orm import relationship
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# Import the persona API blueprint
+from backend.persona_api import persona_api
+
 # Create the Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "ukg_development_key")
@@ -378,6 +381,9 @@ Is there a specific axis of knowledge you'd like to explore further?"""
     except Exception as e:
         logger.error(f"Error in fallback response generation: {str(e)}")
         return "I apologize, but I encountered an error processing your request. Please try again with a different question."
+
+# Register blueprints
+app.register_blueprint(persona_api)
 
 # Create database tables
 with app.app_context():

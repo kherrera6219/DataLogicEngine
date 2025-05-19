@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UKG Quad Persona Engine Demo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --ukg-primary: #0066cc;
+            --ukg-secondary: #5a87d0;
+            --ukg-accent: #ff9900;
+            --ukg-dark: #333333;
+            --ukg-light: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--ukg-light);
+            color: var(--ukg-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar {
+            background-color: var(--ukg-primary);
+        }
+        
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        
+        .main-container {
+            flex-grow: 1;
+            padding: 2rem 0;
+        }
+        
+        .persona-card {
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            border-left: 5px solid var(--ukg-primary);
+        }
+        
+        .persona-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .persona-knowledge {
+            border-left-color: var(--ukg-primary);
+        }
+        
+        .persona-sector {
+            border-left-color: var(--ukg-accent);
+        }
+        
+        .persona-regulatory {
+            border-left-color: #28a745;
+        }
+        
+        .persona-compliance {
+            border-left-color: #dc3545;
+        }
+        
+        .query-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .response-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .memory-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+        
+        .badge-memory {
+            background-color: var(--ukg-secondary);
+            color: white;
+        }
+        
+        .badge-persona {
+            background-color: var(--ukg-accent);
+            color: white;
+        }
+        
+        pre {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+        
+        .axis-badge {
+            background-color: #e9ecef;
+            color: var(--ukg-dark);
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+        
+        .footer {
+            background-color: var(--ukg-dark);
+            color: white;
+            padding: 1rem 0;
+            margin-top: auto;
+        }
+        
+        /* Loading spinner */
+        .spinner-container {
+            display: none;
+            margin-top: 1rem;
+        }
+        
+        /* Persona icons */
+        .persona-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-diagram-3-fill me-2"></i>
+                Universal Knowledge Graph
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/chat">Chat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/persona-demo">Quad Persona Demo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="container">
+            <h1 class="mb-4">UKG Quad Persona Engine Demo</h1>
+            <p class="lead">This demo showcases the Universal Knowledge Graph's Quad Persona Engine, which processes queries through four different expert personas, each with seven components, and uses deep recursive learning to simulate expert advice.</p>
+            
+            <!-- Persona Overview -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card persona-card persona-knowledge">
+                        <div class="card-body text-center">
+                            <i class="bi bi-lightbulb persona-icon text-primary"></i>
+                            <h5 class="card-title">Knowledge Expert</h5>
+                            <p class="card-text">Domain-specific knowledge and academic expertise</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card persona-card persona-sector">
+                        <div class="card-body text-center">
+                            <i class="bi bi-building persona-icon text-warning"></i>
+                            <h5 class="card-title">Sector Expert</h5>
+                            <p class="card-text">Industry-specific practices and standards</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card persona-card persona-regulatory">
+                        <div class="card-body text-center">
+                            <i class="bi bi-journal-text persona-icon text-success"></i>
+                            <h5 class="card-title">Regulatory Expert</h5>
+                            <p class="card-text">Legal frameworks and compliance requirements</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card persona-card persona-compliance">
+                        <div class="card-body text-center">
+                            <i class="bi bi-shield-check persona-icon text-danger"></i>
+                            <h5 class="card-title">Compliance Expert</h5>
+                            <p class="card-text">Standards adherence and verification</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Query Form -->
+            <div class="query-container">
+                <h3>Ask a Question</h3>
+                <form id="query-form">
+                    <div class="mb-3">
+                        <label for="query-input" class="form-label">Enter your query:</label>
+                        <input type="text" class="form-control" id="query-input" placeholder="e.g., What are the regulatory implications of AI in healthcare?">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="enable-memory" checked>
+                        <label class="form-check-label" for="enable-memory">Enable memory system</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="conversation-id" class="form-label">Conversation ID (optional):</label>
+                        <input type="text" class="form-control" id="conversation-id" placeholder="Enter to maintain context across multiple queries">
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send me-2"></i>Process Query
+                    </button>
+                    <button type="button" class="btn btn-secondary ms-2" id="clear-memory">
+                        <i class="bi bi-trash me-2"></i>Clear Memory
+                    </button>
+                    <div class="spinner-container" id="spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span class="ms-2">Processing query through personas...</span>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Response Display -->
+            <div class="response-container" id="response-container" style="display: none;">
+                <h3>Quad Persona Response</h3>
+                <div class="mb-3">
+                    <div id="active-personas"></div>
+                </div>
+                <div class="border-top pt-3 mt-3">
+                    <div id="response-content"></div>
+                </div>
+                <div class="border-top pt-3 mt-3">
+                    <h5>Response Metadata</h5>
+                    <div id="response-metadata"></div>
+                </div>
+            </div>
+            
+            <!-- Memory Status -->
+            <div class="memory-container">
+                <h3>Memory System Status</h3>
+                <div id="memory-status">Loading memory status...</div>
+                <button type="button" class="btn btn-primary mt-3" id="refresh-status">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Refresh Status
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-0">Universal Knowledge Graph System &copy; 2025</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const queryForm = document.getElementById('query-form');
+            const queryInput = document.getElementById('query-input');
+            const conversationId = document.getElementById('conversation-id');
+            const enableMemory = document.getElementById('enable-memory');
+            const spinner = document.getElementById('spinner');
+            const responseContainer = document.getElementById('response-container');
+            const responseContent = document.getElementById('response-content');
+            const activePersonas = document.getElementById('active-personas');
+            const responseMetadata = document.getElementById('response-metadata');
+            const memoryStatus = document.getElementById('memory-status');
+            const clearMemoryBtn = document.getElementById('clear-memory');
+            const refreshStatusBtn = document.getElementById('refresh-status');
+            
+            // Load initial memory status
+            fetchMemoryStatus();
+            
+            // Query form submission
+            queryForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const query = queryInput.value.trim();
+                if (!query) {
+                    alert('Please enter a query');
+                    return;
+                }
+                
+                // Show loading spinner
+                spinner.style.display = 'block';
+                
+                // Prepare query data
+                const queryData = {
+                    query: query,
+                    context: {}
+                };
+                
+                // Add conversation ID if provided
+                if (conversationId.value.trim()) {
+                    queryData.context.conversation_id = conversationId.value.trim();
+                }
+                
+                // Process query
+                fetch('/api/persona/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(queryData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide spinner
+                    spinner.style.display = 'none';
+                    
+                    if (data.status === 'success') {
+                        // Display response
+                        responseContainer.style.display = 'block';
+                        responseContent.innerHTML = `<p>${data.response}</p>`;
+                        
+                        // Display active personas
+                        const personas = data.metadata.active_personas || [];
+                        activePersonas.innerHTML = '';
+                        if (personas.length > 0) {
+                            personas.forEach(persona => {
+                                const badge = document.createElement('span');
+                                badge.className = 'badge badge-persona me-2';
+                                badge.innerText = persona;
+                                activePersonas.appendChild(badge);
+                            });
+                        } else {
+                            activePersonas.innerHTML = '<span class="text-muted">No specific personas were activated for this query.</span>';
+                        }
+                        
+                        // Display metadata
+                        responseMetadata.innerHTML = `
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Confidence
+                                    <span class="badge bg-primary rounded-pill">${Math.round(data.metadata.confidence * 100)}%</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Memory Used
+                                    <span class="badge bg-${data.metadata.used_memories ? 'success' : 'secondary'} rounded-pill">
+                                        ${data.metadata.used_memories ? 'Yes' : 'No'}
+                                    </span>
+                                </li>
+                                <li class="list-group-item">
+                                    <div>Memory Contexts</div>
+                                    <div class="mt-2">
+                                        ${data.metadata.memory_contexts && data.metadata.memory_contexts.length > 0 
+                                            ? data.metadata.memory_contexts.map(ctx => `<span class="badge badge-memory me-2">${ctx}</span>`).join('') 
+                                            : '<span class="text-muted">No memory contexts were used</span>'}
+                                    </div>
+                                </li>
+                            </ul>
+                        `;
+                        
+                        // Refresh memory status
+                        fetchMemoryStatus();
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    spinner.style.display = 'none';
+                    alert(`Error: ${error.message}`);
+                });
+            });
+            
+            // Toggle memory usage
+            enableMemory.addEventListener('change', function() {
+                fetch('/api/persona/toggle-memory', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        enable: this.checked
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Refresh memory status
+                        fetchMemoryStatus();
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    alert(`Error: ${error.message}`);
+                });
+            });
+            
+            // Clear memory
+            clearMemoryBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear the working memory?')) {
+                    fetch('/api/persona/clear-working-memory', {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            alert('Working memory cleared successfully');
+                            // Refresh memory status
+                            fetchMemoryStatus();
+                        } else {
+                            alert(`Error: ${data.message}`);
+                        }
+                    })
+                    .catch(error => {
+                        alert(`Error: ${error.message}`);
+                    });
+                }
+            });
+            
+            // Refresh status
+            refreshStatusBtn.addEventListener('click', function() {
+                fetchMemoryStatus();
+            });
+            
+            // Fetch memory status
+            function fetchMemoryStatus() {
+                fetch('/api/persona/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const status = data.persona_engine;
+                        
+                        // Update memory status
+                        let statusHtml = `
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Persona Engine
+                                    <span class="badge bg-${status.enabled ? 'success' : 'danger'} rounded-pill">
+                                        ${status.enabled ? 'Enabled' : 'Disabled'}
+                                    </span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Memory System
+                                    <span class="badge bg-${status.use_memory ? 'success' : 'danger'} rounded-pill">
+                                        ${status.use_memory ? 'Enabled' : 'Disabled'}
+                                    </span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Working Memory Size
+                                    <span class="badge bg-info rounded-pill">${status.working_memory_size} items</span>
+                                </li>
+                            </ul>
+                            <h5 class="mt-3">Memory Contexts</h5>
+                            <ul class="list-group">
+                        `;
+                        
+                        // Add memory contexts
+                        for (const [context, count] of Object.entries(status.memory_contexts)) {
+                            statusHtml += `
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    ${context}
+                                    <span class="badge bg-primary rounded-pill">${count} memories</span>
+                                </li>
+                            `;
+                        }
+                        
+                        statusHtml += '</ul>';
+                        memoryStatus.innerHTML = statusHtml;
+                        
+                        // Update enable memory checkbox
+                        enableMemory.checked = status.use_memory;
+                    } else {
+                        memoryStatus.innerHTML = `<div class="alert alert-danger">Error: ${data.message}</div>`;
+                    }
+                })
+                .catch(error => {
+                    memoryStatus.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
