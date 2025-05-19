@@ -1,20 +1,38 @@
 """
-Universal Knowledge Graph (UKG) System - Simulation App
+Universal Knowledge Graph (UKG) System - Main Application
 
-This is a simplified version of the UKG system that focuses on the
-nested layered simulation for layers 1-3 of the knowledge graph.
+This is the main application file for the UKG system,
+handling database setup and application initialization.
 """
 
 import os
 import logging
 import json
-import pickle
 from datetime import datetime
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
 
-# Initialize Flask app
+
+class Base(DeclarativeBase):
+    pass
+
+
+db = SQLAlchemy(model_class=Base)
+# create the app
 app = Flask(__name__)
+# setup a secret key, required by sessions
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "ukg_development_key")
+# configure the database, relative to the app instance folder
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+}
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# initialize the app with the extension, flask-sqlalchemy >= 3.0.x
+db.init_app(app)
 
 # Setup logging
 logging.basicConfig(level=logging.DEBUG)

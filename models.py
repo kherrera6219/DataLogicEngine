@@ -9,6 +9,9 @@ from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, 
 from sqlalchemy.orm import relationship
 from app import db
 
+# Import app context to ensure all models are created correctly
+import app
+
 # Base models for all UKG entities
 
 class Node(db.Model):

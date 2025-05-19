@@ -1,34 +1,21 @@
 """
-Universal Knowledge Graph (UKG) System
+Universal Knowledge Graph (UKG) System - Routes
 
-This is the main application file for the UKG system.
-It initializes the Flask application, database, and routes.
+This file defines all the routes for the UKG system.
+It imports the Flask application instance and database from app.py.
 """
 
 import os
 import logging
-import json
-import pickle
-from datetime import datetime
-from flask import Flask, render_template, request, jsonify, session
-from flask_sqlalchemy import SQLAlchemy
-
-# Initialize Flask app
-app = Flask(__name__)
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "ukg_development_key")
-
-# Configure database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-# Setup logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 import uuid
 import json
+from datetime import datetime
+from flask import request, jsonify, render_template, redirect, url_for, session
 
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session
-from app import app, db
+# Import app and db from app.py
+from app import app, db, logger
+
+# Import models
 import models
 
 # Set up logging
