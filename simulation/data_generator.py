@@ -521,3 +521,195 @@ def generate_relationships(nodes_by_axis):
         })
     
     return relationships
+"""
+Data Generator Module
+
+This module provides functions to generate sample data for the UKG database.
+"""
+
+import random
+import logging
+from typing import List, Dict, Any, Optional
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def generate_sample_data(db, num_nodes: int = 50, num_relationships: int = 75):
+    """
+    Generate sample data for the UKG database.
+    
+    Args:
+        db: Database instance
+        num_nodes: Number of nodes to generate (default: 50)
+        num_relationships: Number of relationships to generate (default: 75)
+    """
+    # Define sample data for each axis
+    sample_data = {
+        1: [  # Pillar Levels
+            {"label": "Strategic Level", "description": "High-level strategic planning and visioning"},
+            {"label": "Tactical Level", "description": "Mid-level planning and coordination"},
+            {"label": "Operational Level", "description": "Day-to-day operations and execution"},
+            {"label": "Foundation Level", "description": "Core knowledge and infrastructure"},
+            {"label": "Integration Level", "description": "Integration across domains and systems"}
+        ],
+        2: [  # Sectors
+            {"label": "Healthcare", "description": "Medical services and healthcare systems"},
+            {"label": "Finance", "description": "Banking, investments, and financial services"},
+            {"label": "Education", "description": "Educational institutions and learning systems"},
+            {"label": "Technology", "description": "Information technology and digital systems"},
+            {"label": "Government", "description": "Public administration and governance"},
+            {"label": "Manufacturing", "description": "Production and industrial processes"}
+        ],
+        3: [  # Topics
+            {"label": "Artificial Intelligence", "description": "Study and development of computer systems that mimic human intelligence"},
+            {"label": "Cybersecurity", "description": "Protection of computer systems from theft or damage"},
+            {"label": "Data Analytics", "description": "Analysis of data to derive insights and inform decisions"},
+            {"label": "Blockchain", "description": "Distributed ledger technology for secure transactions"},
+            {"label": "Cloud Computing", "description": "Delivery of computing services over the internet"}
+        ],
+        4: [  # Methods
+            {"label": "Machine Learning", "description": "Algorithms that improve through experience"},
+            {"label": "Data Mining", "description": "Process of discovering patterns in large data sets"},
+            {"label": "Statistical Analysis", "description": "Collection and interpretation of data"},
+            {"label": "User-Centered Design", "description": "Design process focused on user needs"},
+            {"label": "Agile Development", "description": "Iterative approach to software development"}
+        ],
+        5: [  # Tools
+            {"label": "TensorFlow", "description": "Open-source machine learning framework"},
+            {"label": "Tableau", "description": "Data visualization software"},
+            {"label": "Bloomberg Terminal", "description": "Financial data and analytics platform"},
+            {"label": "GitHub", "description": "Version control and code collaboration platform"},
+            {"label": "Hadoop", "description": "Framework for distributed storage and processing"}
+        ],
+        6: [  # Regulatory Frameworks
+            {"label": "GDPR", "description": "General Data Protection Regulation for data protection in EU"},
+            {"label": "HIPAA", "description": "Health Insurance Portability and Accountability Act for healthcare data"},
+            {"label": "Basel III", "description": "Global regulatory framework for bank capital adequacy and stress testing"},
+            {"label": "FERPA", "description": "Family Educational Rights and Privacy Act for educational records"},
+            {"label": "FAR", "description": "Federal Acquisition Regulation for government procurement"}
+        ],
+        7: [  # Compliance Standards
+            {"label": "ISO 27001", "description": "Information security management standard"},
+            {"label": "SOC 2", "description": "Service Organization Control reporting for service organizations"},
+            {"label": "PCI DSS", "description": "Payment Card Industry Data Security Standard"},
+            {"label": "CMMC", "description": "Cybersecurity Maturity Model Certification for defense contractors"},
+            {"label": "FedRAMP", "description": "Federal Risk and Authorization Management Program for cloud services"}
+        ],
+        8: [  # Knowledge Expert
+            {"label": "Data Scientist", "description": "Expert in data analysis and modeling"},
+            {"label": "AI Research Scientist", "description": "Expert in artificial intelligence research and development"}
+        ],
+        9: [  # Sector Expert
+            {"label": "Financial Analyst", "description": "Expert in financial markets and analysis"},
+            {"label": "Healthcare Administrator", "description": "Expert in healthcare systems and administration"}
+        ],
+        10: [  # Regulatory Expert
+            {"label": "Compliance Officer", "description": "Expert in regulatory compliance"},
+            {"label": "Privacy Attorney", "description": "Expert in privacy law and regulations"}
+        ],
+        11: [  # Compliance Expert
+            {"label": "Security Auditor", "description": "Expert in security auditing and compliance"},
+            {"label": "ISO Consultant", "description": "Expert in ISO standards and implementation"}
+        ],
+        12: [  # Locations
+            {"label": "North America", "description": "Countries in North America"},
+            {"label": "European Union", "description": "Member states of the European Union"},
+            {"label": "Asia-Pacific", "description": "Countries in the Asia-Pacific region"}
+        ],
+        13: [  # Time
+            {"label": "Past", "description": "Historical time periods"},
+            {"label": "Current", "description": "Present time period"},
+            {"label": "Future", "description": "Projected future time periods"}
+        ]
+    }
+    
+    # Relationship types with descriptions
+    relationship_types = [
+        {"type": "contains", "description": "Hierarchical containment relationship"},
+        {"type": "informs", "description": "Knowledge flow between nodes"},
+        {"type": "associated_with", "description": "General association between nodes"},
+        {"type": "enforces", "description": "Enforcement or regulation relationship"},
+        {"type": "connected_to", "description": "Direct connection between nodes"},
+        {"type": "uses", "description": "Usage or utilization relationship"},
+        {"type": "employs", "description": "Employment of a method or tool"},
+        {"type": "applies_in", "description": "Application in a specific context"},
+        {"type": "relates_to", "description": "General relationship between nodes"},
+        {"type": "influences", "description": "Influence relationship between nodes"}
+    ]
+    
+    # Add nodes for each axis
+    print("Generating sample data for all 13 axes...")
+    nodes_by_axis = {}
+    
+    for axis_id, axis_data in sample_data.items():
+        print(f"Adding data for Axis {axis_id}: {db.get_axis_name(axis_id)}...")
+        nodes_by_axis[axis_id] = []
+        
+        for item in axis_data:
+            node_id = f"A{axis_id}_N{len(nodes_by_axis[axis_id])}"
+            db.add_node(node_id, axis_id, item["label"], item["description"])
+            nodes_by_axis[axis_id].append(node_id)
+    
+    # Generate relationships
+    print("Generating relationships between nodes...")
+    rel_count = 0
+    
+    # 1. Create some logical connections between axes
+    # Pillar Levels contain Topics
+    for pillar_id in nodes_by_axis[1]:
+        for _ in range(min(3, len(nodes_by_axis[3]))):
+            topic_id = random.choice(nodes_by_axis[3])
+            rel_id = f"R{rel_count}"
+            db.add_relationship(rel_id, pillar_id, topic_id, "contains", random.uniform(0.7, 0.9))
+            rel_count += 1
+    
+    # Sectors contain Topics
+    for sector_id in nodes_by_axis[2]:
+        for _ in range(min(2, len(nodes_by_axis[3]))):
+            topic_id = random.choice(nodes_by_axis[3])
+            rel_id = f"R{rel_count}"
+            db.add_relationship(rel_id, sector_id, topic_id, "contains", random.uniform(0.7, 0.9))
+            rel_count += 1
+    
+    # Topics use Methods
+    for topic_id in nodes_by_axis[3]:
+        for _ in range(min(1, len(nodes_by_axis[4]))):
+            method_id = random.choice(nodes_by_axis[4])
+            rel_id = f"R{rel_count}"
+            db.add_relationship(rel_id, topic_id, method_id, "uses", random.uniform(0.6, 0.8))
+            rel_count += 1
+    
+    # Regulatory frameworks enforce Compliance standards
+    for reg_id in nodes_by_axis[6]:
+        for _ in range(min(2, len(nodes_by_axis[7]))):
+            comp_id = random.choice(nodes_by_axis[7])
+            rel_id = f"R{rel_count}"
+            db.add_relationship(rel_id, reg_id, comp_id, "enforces", random.uniform(0.8, 1.0))
+            rel_count += 1
+    
+    # Time contains other entities
+    for time_id in nodes_by_axis[13]:
+        for axis_id in range(1, 13):
+            if axis_id != 13 and nodes_by_axis.get(axis_id):
+                node_id = random.choice(nodes_by_axis[axis_id])
+                rel_id = f"R{rel_count}"
+                db.add_relationship(rel_id, time_id, node_id, "contains", random.uniform(0.6, 0.8))
+                rel_count += 1
+    
+    # 2. Generate random relationships to reach the desired number
+    all_node_ids = [node_id for axis_nodes in nodes_by_axis.values() for node_id in axis_nodes]
+    
+    while rel_count < num_relationships:
+        source = random.choice(all_node_ids)
+        target = random.choice(all_node_ids)
+        
+        if source != target:
+            rel_type = random.choice(relationship_types)["type"]
+            weight = random.uniform(0.6, 0.9)
+            rel_id = f"R{rel_count}"
+            db.add_relationship(rel_id, source, target, rel_type, weight)
+            rel_count += 1
+    
+    logger.info(f"Generated {len(all_node_ids)} nodes and {rel_count} relationships")
+    return db

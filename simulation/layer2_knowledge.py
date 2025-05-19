@@ -1095,3 +1095,633 @@ def create_layer2_simulator(layer3_handler=None) -> Layer2KnowledgeSimulator:
     """
     simulator = Layer2KnowledgeSimulator(layer3_handler)
     return simulator
+"""
+Layer 2 Knowledge Graph Database Module
+
+This module implements the Layer 2 database that parses and processes
+the 13-axis knowledge graph into a simulated in-memory database.
+"""
+
+import logging
+import json
+import os
+import networkx as nx
+import yaml
+from datetime import datetime
+from typing import Dict, List, Any, Optional, Tuple, Set
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class Layer2KnowledgeGraph:
+    """
+    Layer 2 Knowledge Graph Database that processes and indexes the 13-axis
+    knowledge graph for efficient querying and knowledge extraction.
+    """
+    
+    def __init__(self, layer1_db=None, data_dir: str = "data/ukg"):
+        """
+        Initialize the Layer 2 Knowledge Graph Database.
+        
+        Args:
+            layer1_db: Optional Layer1Database instance to build upon
+            data_dir: Directory containing UKG data files
+        """
+        self.data_dir = data_dir
+        self.layer1_db = layer1_db
+        self.graph = nx.MultiDiGraph()
+        self.axis_data = {}
+        self.indexes = {}
+        self.metadata = {
+            "creation_time": datetime.now().isoformat(),
+            "version": "1.0.0",
+            "axes_loaded": [],
+            "node_count": 0,
+            "edge_count": 0,
+            "last_modified": datetime.now().isoformat()
+        }
+        logger.info("Layer2KnowledgeGraph initialized")
+    
+    def load_axis_data(self, axis_id: int, filename: str) -> Dict:
+        """
+        Load data for a specific knowledge axis from YAML file.
+        
+        Args:
+            axis_id: The axis ID (1-13)
+            filename: YAML file containing axis data
+            
+        Returns:
+            Dictionary containing the loaded axis data
+        """
+        filepath = os.path.join(self.data_dir, filename)
+        
+        if not os.path.exists(filepath):
+            logger.warning(f"Axis {axis_id} data file {filepath} not found")
+            return {}
+            
+        try:
+            with open(filepath, 'r') as file:
+                data = yaml.safe_load(file)
+                logger.info(f"Loaded axis {axis_id} data from {filepath}")
+                return data
+        except Exception as e:
+            logger.error(f"Error loading axis {axis_id} data: {str(e)}")
+            return {}
+    
+    def build_from_layer1(self):
+        """
+        Build the Layer 2 knowledge graph using data from Layer 1.
+        """
+        if not self.layer1_db:
+            logger.error("No Layer 1 database provided for building Layer 2")
+            return False
+        
+        # Copy nodes from Layer 1, enhancing with knowledge graph properties
+        for node_id, node_data in self.layer1_db.nodes.items():
+            axis_id = node_data.get('axis_id')
+            enhanced_data = {**node_data, 'processed_by': 'layer2'}
+            
+            # Add semantic properties based on axis type
+            if axis_id == 4:  # Methods
+                enhanced_data['application_contexts'] = ['research', 'practice', 'education']
+            elif axis_id == 5:  # Tools
+                enhanced_data['compatibility'] = {'os': ['Windows', 'Linux', 'MacOS'], 'version': '1.0'}
+            
+            self.graph.add_node(node_id, **enhanced_data)
+        
+        # Copy and enhance relationships
+        for rel_id, rel_data in self.layer1_db.relationships.items():
+            source = rel_data.get('source')
+            target = rel_data.get('target')
+            rel_type = rel_data.get('type')
+            weight = rel_data.get('weight', 0.5)
+            
+            # Add more metadata to relationships
+            enhanced_rel = {
+                **rel_data,
+                'confidence': min(weight + 0.1, 1.0),
+                'timestamp': datetime.now().isoformat(),
+                'layer': 2
+            }
+            
+            self.graph.add_edge(source, target, key=rel_id, **enhanced_rel)
+        
+        self.metadata['node_count'] = self.graph.number_of_nodes()
+        self.metadata['edge_count'] = self.graph.number_of_edges()
+        self.metadata['last_modified'] = datetime.now().isoformat()
+        self.metadata['built_from_layer1'] = True
+        
+        logger.info(f"Built Layer 2 knowledge graph from Layer 1 database with "
+                  f"{self.metadata['node_count']} nodes and {self.metadata['edge_count']} edges")
+        return True
+    
+    def process_all_axes(self):
+        """
+        Process and integrate data from all 13 axes into the knowledge graph.
+        """
+        # Axis file mapping
+        axis_files = {
+            1: "pillar_levels.yaml",
+            2: "sectors.yaml",
+            3: "topics.yaml",
+            4: "methods.yaml",
+            5: "tools.yaml",
+            6: "regulatory_frameworks.yaml",
+            7: "compliance_standards.yaml",
+            8: "contextual_experts.yaml",
+            9: "sectors.yaml",  # Using sectors as proxy for sector experts
+            10: "regulatory_frameworks.yaml",  # Using regulatory as proxy for experts
+            11: "compliance_standards.yaml",  # Using compliance as proxy for experts
+            12: "locations_gazetteer.yaml",
+            13: "time_periods.yaml"
+        }
+        
+        for axis_id, filename in axis_files.items():
+            try:
+                axis_data = self.load_axis_data(axis_id, filename)
+                if axis_data:
+                    self.integrate_axis_data(axis_id, axis_data)
+                    self.axis_data[axis_id] = axis_data
+                    self.metadata['axes_loaded'].append(axis_id)
+            except Exception as e:
+                logger.error(f"Error processing axis {axis_id}: {str(e)}")
+                
+        # Create indexes for efficient querying
+        self.create_indexes()
+        
+        # Update metadata
+        self.metadata['node_count'] = self.graph.number_of_nodes()
+        self.metadata['edge_count'] = self.graph.number_of_edges()
+        self.metadata['last_modified'] = datetime.now().isoformat()
+        self.metadata['axes_processed'] = len(self.metadata['axes_loaded'])
+        
+        logger.info(f"Processed {len(self.metadata['axes_loaded'])} axes with "
+                  f"{self.metadata['node_count']} nodes and {self.metadata['edge_count']} edges")
+    
+    def integrate_axis_data(self, axis_id: int, axis_data: Dict):
+        """
+        Integrate data from a specific axis into the knowledge graph.
+        
+        Args:
+            axis_id: The axis ID (1-13)
+            axis_data: Dictionary containing axis data
+        """
+        # Implementation varies by axis type
+        if axis_id == 1:  # Pillar Levels
+            self._integrate_pillar_levels(axis_data)
+        elif axis_id == 2:  # Sectors
+            self._integrate_sectors(axis_data)
+        elif axis_id == 3:  # Topics
+            self._integrate_topics(axis_data)
+        elif axis_id == 4:  # Methods
+            self._integrate_methods(axis_data)
+        elif axis_id == 5:  # Tools
+            self._integrate_tools(axis_data)
+        elif axis_id in [6, 10]:  # Regulatory Frameworks
+            self._integrate_regulatory(axis_data, is_expert=(axis_id == 10))
+        elif axis_id in [7, 11]:  # Compliance Standards
+            self._integrate_compliance(axis_data, is_expert=(axis_id == 11))
+        elif axis_id == 8:  # Knowledge Experts
+            self._integrate_knowledge_experts(axis_data)
+        elif axis_id == 9:  # Sector Experts
+            self._integrate_sector_experts(axis_data)
+        elif axis_id == 12:  # Locations
+            self._integrate_locations(axis_data)
+        elif axis_id == 13:  # Time
+            self._integrate_time_periods(axis_data)
+    
+    # Individual axis integration methods
+    def _integrate_pillar_levels(self, data):
+        # Implementation for Pillar Levels (Axis 1)
+        for item in data.get('levels', []):
+            node_id = f"PL_{item.get('id', '')}"
+            self.graph.add_node(node_id, 
+                                axis_id=1,
+                                label=item.get('label', ''),
+                                description=item.get('description', ''),
+                                level=item.get('level', 0),
+                                type='pillar_level')
+            
+            # Add relationships to parent levels
+            if 'parent' in item and item['parent']:
+                parent_id = f"PL_{item['parent']}"
+                rel_id = f"rel_pl_{item.get('id', '')}_{item['parent']}"
+                self.graph.add_edge(parent_id, node_id, key=rel_id,
+                                   type='contains',
+                                   weight=0.9,
+                                   description='Hierarchical relationship between pillar levels')
+    
+    def _integrate_sectors(self, data):
+        # Implementation for Sectors (Axis 2)
+        for item in data.get('sectors', []):
+            node_id = f"SEC_{item.get('id', '')}"
+            self.graph.add_node(node_id,
+                               axis_id=2,
+                               label=item.get('label', ''),
+                               description=item.get('description', ''),
+                               type='sector')
+            
+            # Add relationships to categories
+            for category in item.get('categories', []):
+                cat_id = f"SECCAT_{category.get('id', '')}"
+                self.graph.add_node(cat_id,
+                                   axis_id=2,
+                                   label=category.get('label', ''),
+                                   description=category.get('description', ''),
+                                   type='sector_category')
+                
+                # Sector contains category
+                rel_id = f"rel_sec_{item.get('id', '')}_{category.get('id', '')}"
+                self.graph.add_edge(node_id, cat_id, key=rel_id,
+                                   type='contains',
+                                   weight=0.8,
+                                   description='Sector contains category')
+    
+    def _integrate_tools(self, data):
+        # Process tools from the data file
+        for tool_category in data:
+            category_id = tool_category.get('id', '')
+            category_node_id = f"TOOL_CAT_{category_id}"
+            
+            # Add category node
+            self.graph.add_node(category_node_id,
+                               axis_id=5,
+                               label=tool_category.get('label', ''),
+                               description=tool_category.get('description', ''),
+                               type='tool_category')
+            
+            # Process subcategories
+            for subcategory in tool_category.get('categories', []):
+                subcat_id = subcategory.get('id', '')
+                subcat_node_id = f"TOOL_SUBCAT_{subcat_id}"
+                
+                # Add subcategory node
+                self.graph.add_node(subcat_node_id,
+                                   axis_id=5,
+                                   label=subcategory.get('label', ''),
+                                   description=subcategory.get('description', ''),
+                                   type='tool_subcategory')
+                
+                # Category contains subcategory
+                rel_id = f"rel_toolcat_{category_id}_{subcat_id}"
+                self.graph.add_edge(category_node_id, subcat_node_id, key=rel_id,
+                                   type='contains',
+                                   weight=0.9,
+                                   description='Tool category contains subcategory')
+                
+                # Process individual tools
+                for tool in subcategory.get('tools', []):
+                    tool_id = tool.get('id', '')
+                    tool_node_id = f"TOOL_{tool_id}"
+                    
+                    # Add tool node
+                    self.graph.add_node(tool_node_id,
+                                       axis_id=5,
+                                       label=tool.get('label', ''),
+                                       description=tool.get('description', ''),
+                                       version=tool.get('version', ''),
+                                       type='tool')
+                    
+                    # Subcategory contains tool
+                    rel_id = f"rel_toolsubcat_{subcat_id}_{tool_id}"
+                    self.graph.add_edge(subcat_node_id, tool_node_id, key=rel_id,
+                                       type='contains',
+                                       weight=0.9,
+                                       description='Tool subcategory contains tool')
+    
+    def _integrate_methods(self, data):
+        # Implementation for Methods (Axis 4) - similar structure to tools
+        pass
+    
+    def _integrate_topics(self, data):
+        # Implementation for Topics (Axis 3)
+        pass
+    
+    def _integrate_regulatory(self, data, is_expert=False):
+        # Implementation for Regulatory Frameworks (Axis 6/10)
+        pass
+    
+    def _integrate_compliance(self, data, is_expert=False):
+        # Implementation for Compliance Standards (Axis 7/11)
+        pass
+    
+    def _integrate_knowledge_experts(self, data):
+        # Implementation for Knowledge Experts (Axis 8)
+        pass
+    
+    def _integrate_sector_experts(self, data):
+        # Implementation for Sector Experts (Axis 9)
+        pass
+    
+    def _integrate_locations(self, data):
+        # Implementation for Locations (Axis 12)
+        pass
+    
+    def _integrate_time_periods(self, data):
+        # Implementation for Time Periods (Axis 13)
+        pass
+    
+    def create_indexes(self):
+        """
+        Create indexes for efficient querying of the knowledge graph.
+        """
+        # Index nodes by axis
+        axis_index = {}
+        for node, data in self.graph.nodes(data=True):
+            axis_id = data.get('axis_id')
+            if axis_id not in axis_index:
+                axis_index[axis_id] = []
+            axis_index[axis_id].append(node)
+        self.indexes['by_axis'] = axis_index
+        
+        # Index nodes by type
+        type_index = {}
+        for node, data in self.graph.nodes(data=True):
+            node_type = data.get('type')
+            if node_type not in type_index:
+                type_index[node_type] = []
+            type_index[node_type].append(node)
+        self.indexes['by_type'] = type_index
+        
+        # Index for text search (labels and descriptions)
+        text_index = {}
+        for node, data in self.graph.nodes(data=True):
+            label = data.get('label', '').lower()
+            desc = data.get('description', '').lower()
+            
+            # Index by words in label
+            for word in label.split():
+                if word not in text_index:
+                    text_index[word] = []
+                if node not in text_index[word]:
+                    text_index[word].append(node)
+            
+            # Index by words in description
+            for word in desc.split():
+                if word not in text_index:
+                    text_index[word] = []
+                if node not in text_index[word]:
+                    text_index[word].append(node)
+                    
+        self.indexes['text_search'] = text_index
+        
+        logger.info(f"Created indexes for {len(self.indexes)} query types")
+    
+    def query_by_axis(self, axis_id: int) -> List[Dict]:
+        """
+        Query nodes by axis ID.
+        
+        Args:
+            axis_id: The axis ID (1-13)
+            
+        Returns:
+            List of nodes belonging to the specified axis
+        """
+        if 'by_axis' not in self.indexes or axis_id not in self.indexes['by_axis']:
+            return []
+        
+        results = []
+        for node_id in self.indexes['by_axis'][axis_id]:
+            node_data = self.graph.nodes[node_id]
+            results.append({'id': node_id, **node_data})
+            
+        return results
+    
+    def search_text(self, query: str) -> List[Dict]:
+        """
+        Search for nodes by text in label or description.
+        
+        Args:
+            query: Search text
+            
+        Returns:
+            List of matching nodes
+        """
+        if 'text_search' not in self.indexes:
+            return []
+            
+        query_words = query.lower().split()
+        matches = set()
+        
+        # Find nodes that match any query word
+        for word in query_words:
+            if word in self.indexes['text_search']:
+                for node_id in self.indexes['text_search'][word]:
+                    matches.add(node_id)
+        
+        # Score and sort results
+        scored_results = []
+        for node_id in matches:
+            node_data = self.graph.nodes[node_id]
+            label = node_data.get('label', '').lower()
+            desc = node_data.get('description', '').lower()
+            
+            # Calculate relevance score
+            score = 0
+            for word in query_words:
+                if word in label:
+                    score += 2  # Higher weight for label matches
+                if word in desc:
+                    score += 1  # Lower weight for description matches
+                    
+            scored_results.append({
+                'id': node_id,
+                'score': score,
+                **node_data
+            })
+            
+        # Sort by score (descending)
+        return sorted(scored_results, key=lambda x: x['score'], reverse=True)
+    
+    def get_node_connections(self, node_id: str) -> Dict:
+        """
+        Get all incoming and outgoing connections for a node.
+        
+        Args:
+            node_id: ID of the node
+            
+        Returns:
+            Dictionary with incoming and outgoing connections
+        """
+        if node_id not in self.graph:
+            return {'incoming': [], 'outgoing': []}
+            
+        incoming = []
+        for source, _, edge_data in self.graph.in_edges(node_id, data=True):
+            incoming.append({
+                'source': source,
+                'source_data': self.graph.nodes[source],
+                'relationship': edge_data
+            })
+            
+        outgoing = []
+        for _, target, edge_data in self.graph.out_edges(node_id, data=True):
+            outgoing.append({
+                'target': target,
+                'target_data': self.graph.nodes[target],
+                'relationship': edge_data
+            })
+            
+        return {
+            'incoming': incoming,
+            'outgoing': outgoing
+        }
+    
+    def compute_path(self, source: str, target: str) -> List[Dict]:
+        """
+        Compute the shortest path between two nodes.
+        
+        Args:
+            source: Source node ID
+            target: Target node ID
+            
+        Returns:
+            List of nodes and edges in the path
+        """
+        if source not in self.graph or target not in self.graph:
+            return []
+            
+        try:
+            # Try to find shortest path
+            path_nodes = nx.shortest_path(self.graph, source, target)
+            
+            # Convert to detailed path
+            detailed_path = []
+            for i in range(len(path_nodes) - 1):
+                curr_node = path_nodes[i]
+                next_node = path_nodes[i + 1]
+                
+                # Get edge data (there may be multiple edges)
+                edges = list(self.graph.get_edge_data(curr_node, next_node).values())
+                edge_data = edges[0] if edges else {}
+                
+                detailed_path.append({
+                    'source': curr_node,
+                    'source_data': self.graph.nodes[curr_node],
+                    'target': next_node,
+                    'target_data': self.graph.nodes[next_node],
+                    'edge': edge_data
+                })
+                
+            return detailed_path
+        except nx.NetworkXNoPath:
+            return []
+    
+    def export_to_json(self, filepath: str = "data/layer2_knowledge_graph.json") -> bool:
+        """
+        Export the knowledge graph to a JSON file.
+        
+        Args:
+            filepath: Path to save the JSON file
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            # Convert graph to serializable format
+            serialized_graph = {
+                "metadata": self.metadata,
+                "nodes": [],
+                "edges": []
+            }
+            
+            # Add nodes
+            for node, data in self.graph.nodes(data=True):
+                serialized_graph["nodes"].append({
+                    "id": node,
+                    **data
+                })
+                
+            # Add edges
+            for source, target, key, data in self.graph.edges(data=True, keys=True):
+                serialized_graph["edges"].append({
+                    "source": source,
+                    "target": target,
+                    "id": key,
+                    **data
+                })
+                
+            # Save to file
+            with open(filepath, 'w') as file:
+                json.dump(serialized_graph, file, indent=2)
+                
+            logger.info(f"Exported knowledge graph to {filepath}")
+            return True
+        except Exception as e:
+            logger.error(f"Error exporting knowledge graph: {str(e)}")
+            return False
+    
+    def import_from_json(self, filepath: str = "data/layer2_knowledge_graph.json") -> bool:
+        """
+        Import the knowledge graph from a JSON file.
+        
+        Args:
+            filepath: Path to the JSON file
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            with open(filepath, 'r') as file:
+                data = json.load(file)
+                
+            # Clear existing graph
+            self.graph.clear()
+            
+            # Load metadata
+            self.metadata = data.get("metadata", {})
+            
+            # Load nodes
+            for node_data in data.get("nodes", []):
+                node_id = node_data.pop("id")
+                self.graph.add_node(node_id, **node_data)
+                
+            # Load edges
+            for edge_data in data.get("edges", []):
+                source = edge_data.pop("source")
+                target = edge_data.pop("target")
+                edge_id = edge_data.pop("id")
+                self.graph.add_edge(source, target, key=edge_id, **edge_data)
+                
+            # Recreate indexes
+            self.create_indexes()
+            
+            logger.info(f"Imported knowledge graph from {filepath} with "
+                      f"{self.graph.number_of_nodes()} nodes and {self.graph.number_of_edges()} edges")
+            return True
+        except Exception as e:
+            logger.error(f"Error importing knowledge graph: {str(e)}")
+            return False
+    
+    def get_statistics(self) -> Dict:
+        """
+        Get statistics about the knowledge graph.
+        
+        Returns:
+            Dictionary with graph statistics
+        """
+        # Node statistics by axis
+        nodes_by_axis = {}
+        for node, data in self.graph.nodes(data=True):
+            axis_id = data.get('axis_id')
+            if axis_id not in nodes_by_axis:
+                nodes_by_axis[axis_id] = 0
+            nodes_by_axis[axis_id] += 1
+            
+        # Edge statistics by type
+        edges_by_type = {}
+        for _, _, edge_data in self.graph.edges(data=True):
+            edge_type = edge_data.get('type')
+            if edge_type not in edges_by_type:
+                edges_by_type[edge_type] = 0
+            edges_by_type[edge_type] += 1
+            
+        return {
+            "metadata": self.metadata,
+            "node_count": self.graph.number_of_nodes(),
+            "edge_count": self.graph.number_of_edges(),
+            "nodes_by_axis": nodes_by_axis,
+            "edges_by_type": edges_by_type,
+            "density": nx.density(self.graph.to_undirected())
+        }

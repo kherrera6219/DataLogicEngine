@@ -334,3 +334,168 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+#!/usr/bin/env python
+"""
+UKG Layered Database Demo
+
+This script demonstrates the layered database system of the UKG,
+showing how data flows from Layer 1 to Layer 2.
+"""
+
+import os
+import time
+import logging
+import json
+from datetime import datetime
+from simulation.layer1_database import Layer1Database
+from simulation.layer2_knowledge import Layer2KnowledgeGraph
+from simulation.data_generator import generate_sample_data
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def print_header(text, width=80):
+    """Print a formatted header."""
+    print("\n" + "=" * width)
+    print(text.center(width))
+    print("=" * width)
+
+def print_section(text, width=80):
+    """Print a formatted section header."""
+    print("\n" + "-" * width)
+    print(text.center(width))
+    print("-" * width)
+
+def run_demo():
+    """Run the UKG Layered Database Demo."""
+    start_time = time.time()
+    
+    print_header("UKG LAYERED DATABASE SYSTEM DEMO")
+    print("This demo showcases the multi-layered database capabilities of the UKG system.")
+    
+    # Step 1: Initialize and populate Layer 1 Database
+    print_section("Layer 1: Base Database Initialization")
+    layer1_db = Layer1Database()
+    print("Layer 1 database initialized")
+    
+    # Generate sample data if needed
+    if not layer1_db.has_data():
+        print("Generating sample data for Layer 1...")
+        generate_sample_data(layer1_db, num_nodes=50, num_relationships=75)
+        layer1_db.export_to_json()
+    else:
+        print("Using existing Layer 1 data")
+    
+    # Show Layer 1 statistics
+    stats = layer1_db.get_statistics()
+    print(f"\nLayer 1 Database Statistics:")
+    print(f"  Total nodes: {stats['total_nodes']}")
+    print(f"  Total relationships: {stats['total_relationships']}")
+    print("\nNodes per axis:")
+    for axis, count in stats['nodes_per_axis'].items():
+        print(f"  Axis {axis} ({stats['axis_names'].get(axis, 'Unknown')}): {count} nodes")
+    
+    # Step 2: Build Layer 2 Knowledge Graph
+    print_section("Layer 2: Knowledge Graph Processing")
+    layer2_kg = Layer2KnowledgeGraph(layer1_db=layer1_db)
+    print("Layer 2 knowledge graph initialized")
+    
+    # Build from Layer 1 data
+    print("Building Layer 2 from Layer 1 data...")
+    layer2_kg.build_from_layer1()
+    
+    # Process all axes from UKG data files
+    print("Processing all 13 axes from data files...")
+    layer2_kg.process_all_axes()
+    
+    # Export the knowledge graph
+    layer2_kg.export_to_json()
+    
+    # Show Layer 2 statistics
+    kg_stats = layer2_kg.get_statistics()
+    print(f"\nLayer 2 Knowledge Graph Statistics:")
+    print(f"  Total nodes: {kg_stats['node_count']}")
+    print(f"  Total edges: {kg_stats['edge_count']}")
+    print(f"  Graph density: {kg_stats['density']:.6f}")
+    
+    print("\nNodes by axis:")
+    for axis, count in kg_stats['nodes_by_axis'].items():
+        axis_name = {
+            1: "Pillar Levels", 2: "Sectors", 3: "Topics", 4: "Methods",
+            5: "Tools", 6: "Regulatory Frameworks", 7: "Compliance Standards",
+            8: "Knowledge Expert", 9: "Sector Expert", 10: "Regulatory Expert",
+            11: "Compliance Expert", 12: "Locations", 13: "Time"
+        }.get(axis, "Unknown")
+        print(f"  Axis {axis} ({axis_name}): {count} nodes")
+    
+    print("\nEdges by type:")
+    for edge_type, count in kg_stats['edges_by_type'].items():
+        print(f"  {edge_type}: {count} edges")
+    
+    # Step 3: Demonstrate querying capabilities
+    print_section("Knowledge Graph Querying Capabilities")
+    
+    # Example 1: Search by text
+    query = "artificial intelligence"
+    print(f"Searching for '{query}':")
+    results = layer2_kg.search_text(query)
+    for i, result in enumerate(results[:5], 1):  # Show top 5
+        print(f"  {i}. [{result.get('type', 'Unknown')}] {result.get('label', 'Unnamed')}")
+        print(f"     {result.get('description', '')}")
+        print(f"     Score: {result.get('score', 0)}")
+    
+    # Example 2: Find connections between nodes
+    print("\nFinding connections between nodes:")
+    # Find tools related to methods
+    tools = layer2_kg.query_by_axis(5)[:3]  # Get first 3 tools
+    methods = layer2_kg.query_by_axis(4)[:3]  # Get first 3 methods
+    
+    if tools and methods:
+        tool = tools[0]
+        method = methods[0]
+        print(f"  Checking connections between '{tool.get('label')}' and '{method.get('label')}'")
+        
+        path = layer2_kg.compute_path(tool['id'], method['id'])
+        if path:
+            print(f"  Found path with {len(path)} steps:")
+            for i, step in enumerate(path, 1):
+                source_label = step['source_data'].get('label', 'Unnamed')
+                target_label = step['target_data'].get('label', 'Unnamed')
+                edge_type = step['edge'].get('type', 'connected_to')
+                print(f"    {i}. {source_label} --[{edge_type}]--> {target_label}")
+        else:
+            print("  No direct path found.")
+    
+    # Example 3: Show regulatory framework applications
+    print("\nRegulatory framework applications by location:")
+    regulatory = layer2_kg.query_by_axis(6)
+    locations = layer2_kg.query_by_axis(12)
+    
+    if regulatory and locations:
+        reg = regulatory[0]
+        print(f"  For {reg.get('label', 'Unnamed')}:")
+        
+        connections = layer2_kg.get_node_connections(reg['id'])
+        applied_in = []
+        
+        for conn in connections['outgoing']:
+            if conn['relationship'].get('type') == 'applies_in':
+                target_data = conn['target_data']
+                applied_in.append(target_data.get('label', 'Unnamed Location'))
+        
+        if applied_in:
+            print(f"  Applied in locations: {', '.join(applied_in)}")
+        else:
+            print("  No location applications found.")
+    
+    # Demo completion
+    end_time = time.time()
+    print_header("DEMO COMPLETE")
+    print(f"Total time: {end_time - start_time:.2f} seconds")
+
+if __name__ == "__main__":
+    run_demo()

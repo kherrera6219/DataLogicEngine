@@ -344,3 +344,388 @@ class Layer1Database:
             "nodes_per_axis": axis_counts,
             "relationship_types": rel_types
         }
+"""
+Layer 1 Database Module
+
+This module implements the base layer database for the UKG system.
+"""
+
+import os
+import json
+import logging
+import random
+from datetime import datetime
+from typing import Dict, List, Any, Optional, Union
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class Layer1Database:
+    """
+    Layer 1 Database for the UKG system, providing basic storage and
+    retrieval of nodes and relationships.
+    """
+    
+    def __init__(self, load_from_file: bool = False, filepath: str = "data/layer1_database.json"):
+        """
+        Initialize the Layer 1 Database.
+        
+        Args:
+            load_from_file: Whether to load data from a file
+            filepath: Path to the JSON file to load from or save to
+        """
+        self.nodes = {}  # node_id -> node_data
+        self.relationships = {}  # rel_id -> rel_data
+        self.filepath = filepath
+        self.axis_names = {
+            1: "Pillar Levels",
+            2: "Sectors",
+            3: "Topics",
+            4: "Methods",
+            5: "Tools",
+            6: "Regulatory Frameworks",
+            7: "Compliance Standards",
+            8: "Knowledge Expert",
+            9: "Sector Expert",
+            10: "Regulatory Expert",
+            11: "Compliance Expert",
+            12: "Locations",
+            13: "Time"
+        }
+        
+        if load_from_file and os.path.exists(filepath):
+            self.import_from_json(filepath)
+            
+        logger.info("Layer1Database initialized")
+    
+    def add_node(self, node_id: str, axis_id: int, label: str, description: str, **attributes) -> str:
+        """
+        Add a node to the database.
+        
+        Args:
+            node_id: Unique identifier for the node
+            axis_id: Axis ID (1-13)
+            label: Display name
+            description: Description
+            **attributes: Additional attributes
+            
+        Returns:
+            The node ID
+        """
+        self.nodes[node_id] = {
+            'id': node_id,
+            'axis_id': axis_id,
+            'label': label,
+            'description': description,
+            'created_at': datetime.now().isoformat(),
+            **attributes
+        }
+        return node_id
+    
+    def add_relationship(self, rel_id: str, source: str, target: str, 
+                         rel_type: str, weight: float = 0.5, **attributes) -> str:
+        """
+        Add a relationship between nodes.
+        
+        Args:
+            rel_id: Unique identifier for the relationship
+            source: Source node ID
+            target: Target node ID
+            rel_type: Type of relationship
+            weight: Strength of relationship (0.0 to 1.0)
+            **attributes: Additional attributes
+            
+        Returns:
+            The relationship ID
+        """
+        if source not in self.nodes or target not in self.nodes:
+            logger.warning(f"Cannot create relationship: source or target not found")
+            return None
+            
+        self.relationships[rel_id] = {
+            'id': rel_id,
+            'source': source,
+            'target': target,
+            'type': rel_type,
+            'weight': weight,
+            'created_at': datetime.now().isoformat(),
+            **attributes
+        }
+        return rel_id
+    
+    def get_node(self, node_id: str) -> Dict:
+        """
+        Get a node by ID.
+        
+        Args:
+            node_id: The node ID
+            
+        Returns:
+            Node data or None if not found
+        """
+        return self.nodes.get(node_id, None)
+    
+    def get_relationship(self, rel_id: str) -> Dict:
+        """
+        Get a relationship by ID.
+        
+        Args:
+            rel_id: The relationship ID
+            
+        Returns:
+            Relationship data or None if not found
+        """
+        return self.relationships.get(rel_id, None)
+    
+    def get_nodes_by_axis(self, axis_id: int) -> List[Dict]:
+        """
+        Get all nodes for a specific axis.
+        
+        Args:
+            axis_id: The axis ID (1-13)
+            
+        Returns:
+            List of nodes
+        """
+        return [node for node in self.nodes.values() if node['axis_id'] == axis_id]
+    
+    def get_relationships_by_type(self, rel_type: str) -> List[Dict]:
+        """
+        Get all relationships of a specific type.
+        
+        Args:
+            rel_type: The relationship type
+            
+        Returns:
+            List of relationships
+        """
+        return [rel for rel in self.relationships.values() if rel['type'] == rel_type]
+    
+    def get_relationships_for_node(self, node_id: str) -> List[Dict]:
+        """
+        Get all relationships for a node.
+        
+        Args:
+            node_id: The node ID
+            
+        Returns:
+            List of relationships
+        """
+        result = []
+        
+        # Get outgoing relationships
+        for rel in self.relationships.values():
+            if rel['source'] == node_id:
+                target_node = self.get_node(rel['target'])
+                if target_node:
+                    result.append({
+                        **rel,
+                        'direction': 'outgoing',
+                        'other_node_id': rel['target'],
+                        'other_node_label': target_node['label'],
+                        'other_node_axis_id': target_node['axis_id'],
+                        'other_node_axis_name': self.get_axis_name(target_node['axis_id'])
+                    })
+        
+        # Get incoming relationships
+        for rel in self.relationships.values():
+            if rel['target'] == node_id:
+                source_node = self.get_node(rel['source'])
+                if source_node:
+                    result.append({
+                        **rel,
+                        'direction': 'incoming',
+                        'other_node_id': rel['source'],
+                        'other_node_label': source_node['label'],
+                        'other_node_axis_id': source_node['axis_id'],
+                        'other_node_axis_name': self.get_axis_name(source_node['axis_id'])
+                    })
+        
+        return result
+    
+    def get_outgoing_relationships(self, node_id: str) -> List[Dict]:
+        """
+        Get outgoing relationships for a node.
+        
+        Args:
+            node_id: The node ID
+            
+        Returns:
+            List of outgoing relationships
+        """
+        return [rel for rel in self.relationships.values() if rel['source'] == node_id]
+    
+    def get_incoming_relationships(self, node_id: str) -> List[Dict]:
+        """
+        Get incoming relationships for a node.
+        
+        Args:
+            node_id: The node ID
+            
+        Returns:
+            List of incoming relationships
+        """
+        return [rel for rel in self.relationships.values() if rel['target'] == node_id]
+    
+    def search(self, query: str) -> List[Dict]:
+        """
+        Search for nodes by text in label or description.
+        
+        Args:
+            query: Search text
+            
+        Returns:
+            List of matching nodes
+        """
+        query = query.lower()
+        results = []
+        
+        for node in self.nodes.values():
+            label = node['label'].lower()
+            desc = node['description'].lower()
+            
+            if query in label or query in desc:
+                # Calculate relevance score
+                score = 0
+                if query in label:
+                    score += 2  # Higher weight for label matches
+                if query in desc:
+                    score += 1  # Lower weight for description matches
+                
+                results.append({
+                    **node,
+                    'score': score,
+                    'axis_name': self.get_axis_name(node['axis_id'])
+                })
+        
+        # Sort by score (descending)
+        return sorted(results, key=lambda x: x['score'], reverse=True)
+    
+    def get_axis_name(self, axis_id: int) -> str:
+        """
+        Get the name of an axis.
+        
+        Args:
+            axis_id: The axis ID (1-13)
+            
+        Returns:
+            Axis name
+        """
+        return self.axis_names.get(axis_id, "Unknown Axis")
+    
+    def get_statistics(self) -> Dict:
+        """
+        Get statistics about the database.
+        
+        Returns:
+            Dictionary with statistics
+        """
+        nodes_per_axis = {}
+        for node in self.nodes.values():
+            axis_id = node['axis_id']
+            if axis_id not in nodes_per_axis:
+                nodes_per_axis[axis_id] = 0
+            nodes_per_axis[axis_id] += 1
+        
+        relationships_per_type = {}
+        for rel in self.relationships.values():
+            rel_type = rel['type']
+            if rel_type not in relationships_per_type:
+                relationships_per_type[rel_type] = 0
+            relationships_per_type[rel_type] += 1
+        
+        return {
+            'total_nodes': len(self.nodes),
+            'total_relationships': len(self.relationships),
+            'nodes_per_axis': nodes_per_axis,
+            'relationships_per_type': relationships_per_type,
+            'axis_names': self.axis_names
+        }
+    
+    def export_to_json(self, filepath: str = None) -> bool:
+        """
+        Export the database to a JSON file.
+        
+        Args:
+            filepath: Path to save JSON file (uses self.filepath if None)
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        if filepath is None:
+            filepath = self.filepath
+            
+        try:
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            
+            data = {
+                'metadata': {
+                    'exported_at': datetime.now().isoformat(),
+                    'nodes_count': len(self.nodes),
+                    'relationships_count': len(self.relationships)
+                },
+                'nodes': list(self.nodes.values()),
+                'relationships': list(self.relationships.values())
+            }
+            
+            with open(filepath, 'w') as f:
+                json.dump(data, f, indent=2)
+                
+            logger.info(f"Exported database to {filepath}")
+            return True
+        except Exception as e:
+            logger.error(f"Error exporting database: {str(e)}")
+            return False
+    
+    def import_from_json(self, filepath: str = None) -> bool:
+        """
+        Import the database from a JSON file.
+        
+        Args:
+            filepath: Path to JSON file (uses self.filepath if None)
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        if filepath is None:
+            filepath = self.filepath
+            
+        try:
+            with open(filepath, 'r') as f:
+                data = json.load(f)
+                
+            # Clear existing data
+            self.nodes.clear()
+            self.relationships.clear()
+            
+            # Import nodes
+            for node in data.get('nodes', []):
+                node_id = node['id']
+                self.nodes[node_id] = node
+                
+            # Import relationships
+            for rel in data.get('relationships', []):
+                rel_id = rel['id']
+                self.relationships[rel_id] = rel
+                
+            logger.info(f"Imported database from {filepath} with {len(self.nodes)} nodes and {len(self.relationships)} relationships")
+            return True
+        except Exception as e:
+            logger.error(f"Error importing database: {str(e)}")
+            return False
+    
+    def has_data(self) -> bool:
+        """
+        Check if the database has data.
+        
+        Returns:
+            True if database has data, False otherwise
+        """
+        return len(self.nodes) > 0 and len(self.relationships) > 0
+    
+    def clear(self) -> None:
+        """Clear all data in the database."""
+        self.nodes.clear()
+        self.relationships.clear()
+        logger.info("Database cleared")

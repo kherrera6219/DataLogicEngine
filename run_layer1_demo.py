@@ -220,3 +220,131 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+#!/usr/bin/env python
+"""
+UKG Layer 1 Database Demo
+
+This script demonstrates the Layer 1 database capabilities of the UKG system.
+"""
+
+import os
+import time
+import logging
+from datetime import datetime
+from simulation.layer1_database import Layer1Database
+from simulation.data_generator import generate_sample_data
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def print_header(text, width=80):
+    """Print a formatted header."""
+    print("\n" + "=" * width)
+    print(text.center(width))
+    print("=" * width)
+
+def print_section(text, width=80):
+    """Print a formatted section header."""
+    print("\n" + "-" * width)
+    print(text.center(width))
+    print("-" * width)
+
+def run_demo():
+    """Run the UKG Layer 1 Database Demo."""
+    start_time = time.time()
+    
+    print_header("UKG LAYER 1 DATABASE DEMO")
+    print("This demo showcases the Layer 1 database capabilities of the UKG system.")
+    
+    # Initialize the database
+    print_section("Initializing Layer 1 Database")
+    db = Layer1Database()
+    print("Layer 1 database initialized")
+    
+    # Generate sample data
+    print("Generating sample data for all 13 axes...")
+    generate_sample_data(db, num_nodes=50, num_relationships=75)
+    
+    # Export database to JSON
+    db.export_to_json()
+    
+    # Print statistics
+    stats = db.get_statistics()
+    
+    print(f"\nDatabase populated with {stats['total_nodes']} nodes and {stats['total_relationships']} relationships")
+    
+    print("\nNodes per axis:")
+    for axis, count in stats['nodes_per_axis'].items():
+        axis_name = stats['axis_names'].get(axis, 'Unknown')
+        print(f"  Axis {axis} ({axis_name}): {count} nodes")
+    
+    print("\nRelationship types:")
+    for rel_type, count in stats['relationships_per_type'].items():
+        print(f"  {rel_type}: {count} relationships")
+    
+    # Demonstrate querying capabilities
+    print_section("Database Querying Capabilities")
+    
+    # Example 1: Text search
+    query = "artificial intelligence"
+    print(f"Searching for '{query}':")
+    results = db.search(query)
+    for i, result in enumerate(results, 1):
+        print(f"  {i}. [{result['axis_name']}] {result['label']}")
+        print(f"     {result['description']}")
+    
+    # Example 2: Get nodes by axis
+    axis_id = 6  # Regulatory Frameworks
+    print(f"\nGetting all nodes for Axis {axis_id} ({db.get_axis_name(axis_id)}):")
+    nodes = db.get_nodes_by_axis(axis_id)
+    for i, node in enumerate(nodes, 1):
+        print(f"  {i}. {node['label']}: {node['description']}")
+    
+    # Example 3: Get relationships for a node
+    if nodes:
+        node = nodes[0]
+        print(f"\nGetting relationships for {node['label']}:")
+        rels = db.get_relationships_for_node(node['id'])
+        for i, rel in enumerate(rels, 1):
+            direction = "→" if rel['direction'] == 'outgoing' else "←"
+            print(f"  {i}. {direction} [{rel['other_node_axis_name']}] {rel['other_node_label']} "
+                  f"({rel['type']}, weight: {rel['weight']})")
+    
+    # Example 4: Graph traversal
+    print_section("Graph Traversal")
+    
+    # Find a sector node to start with
+    sectors = db.get_nodes_by_axis(2)  # Axis 2: Sectors
+    if sectors:
+        start_node = sectors[0]
+        print(f"Starting traversal from {start_node['label']} (Axis {start_node['axis_id']}: {db.get_axis_name(start_node['axis_id'])})")
+        
+        # Get outgoing relationships
+        outgoing = db.get_outgoing_relationships(start_node['id'])
+        print(f"\nFound {len(outgoing)} outgoing relationships:")
+        
+        for i, rel in enumerate(outgoing, 1):
+            target_node = db.get_node(rel['target'])
+            print(f"  {i}. → [{db.get_axis_name(target_node['axis_id'])}] {target_node['label']} "
+                  f"({rel['type']}, weight: {rel['weight']})")
+            
+            # Get second-level relationships
+            second_level = db.get_outgoing_relationships(target_node['id'])
+            if second_level:
+                print(f"\n    Found {len(second_level)} second-level relationships from {target_node['label']}:")
+                for j, rel2 in enumerate(second_level, 1):
+                    target2 = db.get_node(rel2['target'])
+                    print(f"    {j}. → [{db.get_axis_name(target2['axis_id'])}] {target2['label']} "
+                          f"({rel2['type']}, weight: {rel2['weight']})")
+    
+    # Demo completion
+    end_time = time.time()
+    print_header("DEMO COMPLETE")
+    print(f"Total time: {end_time - start_time:.2f} seconds")
+
+if __name__ == "__main__":
+    run_demo()
