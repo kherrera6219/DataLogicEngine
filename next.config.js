@@ -20,6 +20,14 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Optimize images
+  images: {
+    unoptimized: process.env.NODE_ENV !== 'production',
+  },
+  // Improve build optimization
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
   async rewrites() {
     // Get the API URLs from environment variables or use defaults
     const apiGatewayUrl = process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:5000';

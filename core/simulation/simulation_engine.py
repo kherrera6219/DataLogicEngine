@@ -327,6 +327,62 @@ class SimulationEngine:
                 current_pass
             )
             
+            # Create context object for gatekeeper and Layer 5
+            context = {
+                'simulation_id': simulation_id,
+                'simulation_pass': current_pass,
+                'query': simulation['query'],
+                'context': simulation['context'],
+                'persona_results': pass_record['persona_results'],
+                'synthesis': synthesis,
+                'confidence_score': overall_confidence,
+                'confidence': pass_record['confidence'],
+                'uncertainty_level': max(0.0, 1.0 - overall_confidence),
+                'entropy_score': 0.0  # Will be calculated in future implementation
+            }
+            
+            # Create or use existing Gatekeeper Agent
+            from simulation.gatekeeper_agent import GatekeeperAgent
+            gatekeeper = GatekeeperAgent()
+            
+            # Pass through Gatekeeper to determine layer activation
+            gatekeeper_decision = gatekeeper.evaluate(context)
+            context['gatekeeper_decision'] = gatekeeper_decision
+            context['gatekeeper'] = gatekeeper
+            
+            # Check if we need to apply Layer 5 integration (from Gatekeeper)
+            layer5_active = False
+            if self.integration_engine_enabled and self.layer5_engine:
+                if 'layer_5' in gatekeeper_decision.get('layer_activations', {}):
+                    layer5_active = gatekeeper_decision['layer_activations']['layer_5'].get('activate', False)
+            
+            # Apply Layer 5 integration if activated
+            if layer5_active:
+                logging.info(f"[{datetime.now()}] Layer 5 Integration Engine activated for simulation {simulation_id}, pass {current_pass}")
+                enhanced_context = self._apply_layer5_integration(simulation_id, context)
+                
+                # Update synthesis with enhanced content if available
+                if 'content' in enhanced_context and enhanced_context['content']:
+                    synthesis['content'] = enhanced_context['content']
+                
+                # Update confidence scores if improved
+                if 'confidence_score' in enhanced_context:
+                    new_confidence = enhanced_context['confidence_score']
+                    old_confidence = overall_confidence
+                    
+                    if new_confidence > old_confidence:
+                        logging.info(f"[{datetime.now()}] Layer 5 improved confidence from {old_confidence:.4f} to {new_confidence:.4f}")
+                        overall_confidence = new_confidence
+                        pass_record['confidence']['overall'] = overall_confidence
+                
+                # Add Layer 5 metadata to synthesis
+                synthesis['layer5_applied'] = True
+                synthesis['layer5_enhancements'] = enhanced_context.get('layer5_enhancements', [])
+                synthesis['layer5_processing_type'] = enhanced_context.get('layer5_processing_type', 'none')
+            else:
+                logging.info(f"[{datetime.now()}] Layer 5 Integration not activated for simulation {simulation_id}, pass {current_pass}")
+                synthesis['layer5_applied'] = False
+            
             pass_record['synthesis'] = synthesis
             
             # Calculate duration

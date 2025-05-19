@@ -10,7 +10,7 @@ run = ["sh", "-c", "npm start"]
 build = ["sh", "-c", "npm install && npm run build"]
 
 [workflows]
-runButton = "Run Layer1 Demo"
+runButton = "UKG Full Production"
 
 [[workflows.workflow]]
 name = "Project"
@@ -475,6 +475,43 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python run_refinement_workflow_demo.py --verbose"
+
+[[workflows.workflow]]
+name = "UKG Full Production"
+author = 28709262
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Install dependencies if needed"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install --production=false"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Build the Next.js frontend"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start the Flask backend on port 5000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_enterprise_ukg.py --production &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Start Next.js in production mode"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm start"
 
 [[ports]]
 localPort = 3000

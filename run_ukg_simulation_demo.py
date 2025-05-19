@@ -213,6 +213,28 @@ def run_simulation_demo():
         for i, p in enumerate(passes):
             active = p.get('active_layers', [])
             print(f"  Pass {i+1}: {active}")
+            
+        # Add Layer 5 enhancement summary
+        print("\nLayer 5 Integration details:")
+        for i, p in enumerate(passes):
+            synthesis = p.get('synthesis', {})
+            layer5_applied = synthesis.get('layer5_applied', False)
+            if layer5_applied:
+                layer5_type = synthesis.get('layer5_processing_type', 'unknown')
+                layer5_enhancements = synthesis.get('layer5_enhancements', [])
+                
+                enhancement_count = len(layer5_enhancements)
+                print(f"  Pass {i+1}: Applied ({layer5_type}) with {enhancement_count} enhancements")
+                
+                # Show top enhancements if available
+                if layer5_enhancements and isinstance(layer5_enhancements, list) and len(layer5_enhancements) > 0:
+                    for j, enh in enumerate(layer5_enhancements[:3]):  # Show up to 3 enhancements
+                        if isinstance(enh, dict):
+                            enh_type = enh.get('type', 'unknown')
+                            enh_desc = enh.get('description', 'No description')
+                            print(f"    - {enh_type}: {enh_desc}")
+            else:
+                print(f"  Pass {i+1}: Not applied")
     
     # Final remarks
     print("\n" + "="*80)

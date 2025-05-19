@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
+import { Card, Button } from '../components/ui';
 import { Badge } from '../components/ui/Badge';
 
 export default function ComplianceDashboard() {
