@@ -7,7 +7,7 @@ packages = ["libyaml", "openssl", "postgresql"]
 [deployment]
 deploymentTarget = "autoscale"
 run = ["sh", "-c", "npm start"]
-build = ["sh", "-c", "npm run build"]
+build = ["sh", "-c", "npm install && npm run build"]
 
 [workflows]
 runButton = "UKG System Development"
