@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   makeStyles, 
@@ -98,7 +97,7 @@ const Navbar = ({ navItems = [] }) => {
         <span className={styles.title}>Universal Knowledge Graph</span>
         <span className={styles.titleShort}>UKG</span>
       </Link>
-      
+
       <div className={styles.navItems}>
         {navItems.map((item, index) => (
           <Tooltip content={item.label} key={index}>
@@ -112,7 +111,7 @@ const Navbar = ({ navItems = [] }) => {
           </Tooltip>
         ))}
       </div>
-      
+
       <div className={styles.mobileMenu}>
         <Menu>
           <MenuTrigger disableButtonEnhancement>

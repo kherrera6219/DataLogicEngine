@@ -1,10 +1,4 @@
-"""
-Universal Knowledge Graph (UKG) System - Main Application
-
-This is the entry point for the UKG system, initializing all components
-and starting the web server.
-"""
-
+"""Modified code based on user instructions and provided snippets."""
 import os
 import logging
 from flask import Flask, render_template, request, jsonify
@@ -51,6 +45,7 @@ from core.simulation.app_orchestrator import AppOrchestrator
 from core.axes.axis1_identity import PillarLevelManager
 from core.axes.axis2_sector import SectorManager
 from core.axes.axis4_methods import MethodsManager
+from core.axes.axis5_honeycomb import HoneycombSystem
 from core.axes.axis_system import AxisSystem
 
 # Initialize system components
@@ -70,6 +65,7 @@ from backend.api import init_api
 from backend.chat_api import init_chat_api
 from backend.pillar_api import pillar_api
 from backend.methods_api import methods_api
+from backend.honeycomb_api import honeycomb_api
 from backend.api import api
 
 # Initialize API routes
@@ -115,11 +111,13 @@ methods_manager = MethodsManager(db_manager=db, graph_manager=graph_manager)
 axis_system.register_axis_manager(1, pillar_manager)
 axis_system.register_axis_manager(2, sector_manager)
 axis_system.register_axis_manager(4, methods_manager)
+axis_system.register_axis_manager(5, HoneycombSystem(db_manager=db, graph_manager=graph_manager))
 
 # Register API blueprint
 app.register_blueprint(api)
 app.register_blueprint(pillar_api)
 app.register_blueprint(methods_api)
+app.register_blueprint(honeycomb_api)
 
 # Run the application if executed directly
 if __name__ == '__main__':
