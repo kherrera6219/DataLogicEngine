@@ -1,214 +1,258 @@
 """
-Gatekeeper Agent Controller
+Gatekeeper Agent
 
-This module implements the Gatekeeper Agent, a critical Layer Control System (LCS)
-that controls access to higher simulation layers based on data complexity, 
-uncertainty, entropy, and ethical triggers.
+This module provides the Gatekeeper Agent for the UKG/USKD multi-layer simulation engine.
+It controls access to simulation layers based on confidence scores, entropy values,
+role conflicts, and regulatory triggers.
 """
 
 import logging
-import yaml
-import time
-from typing import Dict, Any, List, Optional
-
-logger = logging.getLogger(__name__)
+from datetime import datetime
+from typing import Dict, List, Any, Optional, Union, Set
 
 class GatekeeperAgent:
     """
-    Gatekeeper Agent for UKG/USKD multi-layer simulation engine.
+    Gatekeeper Agent
     
-    Controls access to simulation Layers 4-10 based on data complexity,
-    uncertainty, entropy, and ethical triggers. Evaluates output from
-    initial layers to decide whether to escalate simulation processing.
+    Controls access to simulation Layers 4-10 based on data complexity, uncertainty, 
+    entropy, or ethical triggers. Evaluates output from Layers 1-3 to decide whether
+    to escalate simulation processing.
     """
     
-    def __init__(self, confidence_threshold=0.995, entropy_threshold=0.75):
-        """Initialize the Gatekeeper Agent."""
-        self.confidence_threshold = confidence_threshold
-        self.entropy_threshold = entropy_threshold
-        self.log = []
-        logger.info("Gatekeeper Agent initialized")
-    
-    def evaluate(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    def __init__(self, config=None):
         """
-        Evaluate Layer 1-3 results and return decisions for Layers 4-10.
+        Initialize the Gatekeeper Agent.
         
         Args:
-            context: Dictionary with inputs including confidence_score, 
-                    entropy_score, roles_triggered, regulatory_flags
-                    
+            config (dict, optional): Configuration dictionary with thresholds
+        """
+        self.config = config or {}
+        
+        # Default thresholds
+        self.confidence_threshold = self.config.get('confidence_threshold', 0.995)
+        self.entropy_threshold = self.config.get('entropy_threshold', 0.75)
+        self.role_conflict_threshold = self.config.get('role_conflict_threshold', 0.80)
+        self.regulatory_threshold = self.config.get('regulatory_threshold', 0.85)
+        
+        # Layer activation thresholds (confidence scores below these trigger activation)
+        self.layer_thresholds = {
+            4: self.config.get('layer_4_threshold', 0.95),  # POV Engine
+            5: self.config.get('layer_5_threshold', 0.90),  # Agent Simulation System
+            6: self.config.get('layer_6_threshold', 0.85),  # Neural Logic Reconstructor
+            7: self.config.get('layer_7_threshold', 0.80),  # Simulated AGI Core
+            8: self.config.get('layer_8_threshold', 0.75),  # Quantum Fidelity Layer
+            9: self.config.get('layer_9_threshold', 0.70),  # Recursive Planning Engine
+            10: self.config.get('layer_10_threshold', 0.65),  # Emergence Detector
+        }
+        
+        # Layer activation triggers (specific conditions that trigger layer activation)
+        self.layer_triggers = {
+            4: ["multirole", "viewpoint_plurality"],  # POV Engine Triggers
+            5: ["knowledge_gap", "role_conflict"],    # Agent Simulation System Triggers
+            6: ["low_cohesion", "belief_drift"],      # Neural Logic Reconstructor Triggers
+            7: ["recursive_contradiction", "causal_failure"],  # Simulated AGI Core Triggers
+            8: ["trust_entropy", "identity_inconsistency"],    # Quantum Fidelity Layer Triggers
+            9: ["convergence_failure", "confidence_oscillation"],  # Recursive Planning Engine Triggers
+            10: ["cross_agent_instability", "hallucination_drift"]  # Emergence Detector Triggers
+        }
+        
+        # Decision log
+        self.decision_log = []
+        
+        # Current decision
+        self.current_decision = {}
+        
+        logging.info(f"[{datetime.now()}] GatekeeperAgent initialized with confidence threshold {self.confidence_threshold}")
+    
+    def evaluate(self, context: Dict) -> Dict:
+        """
+        Evaluate output from Layers 1-3 and determine which higher layers to activate.
+        
+        Args:
+            context: Context dictionary with simulation results and metrics
+                Required keys:
+                - confidence_score: float (0.0-1.0)
+                - entropy_score: float (0.0-1.0)
+                Optional keys:
+                - roles_triggered: list of role flags
+                - regulatory_flags: list of regulatory flags
+                - simulation_id: string identifier
+                - simulation_pass: current pass number
+                
         Returns:
-            Dictionary with activation flags for each layer and control flags
+            dict: Activation decisions for layers 4-10
         """
         # Extract metrics from context
-        confidence = context.get("confidence_score", 0.0)
-        entropy = context.get("entropy_score", 0.0)
-        roles_triggered = context.get("roles_triggered", [])
-        regulatory_flags = context.get("regulatory_flags", [])
+        confidence = context.get('confidence_score', 0.0)
+        entropy = context.get('entropy_score', 0.0)
+        roles_triggered = set(context.get('roles_triggered', []))
+        regulatory_flags = set(context.get('regulatory_flags', []))
+        simulation_id = context.get('simulation_id', f"SIM_{datetime.now().timestamp()}")
+        simulation_pass = context.get('simulation_pass', 1)
         
-        # Initialize activation flags
-        flags = {
-            "activate_layer_4": False,  # POV Engine
-            "activate_layer_5": False,  # Agent Simulation System
-            "activate_layer_6": False,  # Neural Logic Reconstructor
-            "activate_layer_7": False,  # Simulated AGI Core
-            "activate_layer_8": False,  # Quantum Fidelity Layer
-            "activate_layer_9": False,  # Recursive Planning Engine
-            "activate_layer_10": False, # Emergence Detector
-            "halt_due_to_entropy": False,
-            "require_rerun": False
+        # Initialize decision dictionary
+        decision = {
+            'timestamp': datetime.now().isoformat(),
+            'simulation_id': simulation_id,
+            'simulation_pass': simulation_pass,
+            'layer_activations': {},
+            'halt_due_to_entropy': entropy > self.entropy_threshold,
+            'metrics': {
+                'confidence': confidence,
+                'entropy': entropy,
+                'roles_triggered': list(roles_triggered),
+                'regulatory_flags': list(regulatory_flags)
+            }
         }
         
-        # Apply decision rules
-        # Layer 4 (POV Engine): Triggered when multiple viewpoints or entity roles are detected
-        flags["activate_layer_4"] = "multirole" in roles_triggered or confidence < 0.95
+        # Determine layer activations based on confidence thresholds
+        for layer in range(4, 11):
+            layer_key = f"layer_{layer}"
+            
+            # Default activation based on confidence threshold
+            activate = confidence < self.layer_thresholds[layer]
+            
+            # Check for specific triggers for this layer
+            layer_specific_triggers = self.layer_triggers[layer]
+            trigger_activated = False
+            triggered_by = []
+            
+            for trigger in layer_specific_triggers:
+                if trigger in roles_triggered or trigger in regulatory_flags:
+                    trigger_activated = True
+                    triggered_by.append(trigger)
+            
+            # Special logic for specific layers
+            if layer == 4:  # POV Engine
+                # Activate if multiple viewpoints detected
+                pov_activate = "multirole" in roles_triggered or "viewpoint_plurality" in roles_triggered
+                activate = activate or pov_activate
+                if pov_activate:
+                    triggered_by = ["Multiple viewpoints detected"]
+            
+            elif layer == 5:  # Agent Simulation
+                # Activate on knowledge gaps or role conflicts
+                agent_activate = "knowledge_gap" in roles_triggered or "role_conflict" in roles_triggered
+                activate = activate or agent_activate
+                if agent_activate:
+                    triggered_by = ["Knowledge gaps or role conflicts detected"]
+            
+            elif layer == 8:  # Quantum Fidelity Layer
+                # Activate on high entropy or trust issues
+                qf_activate = entropy > 0.65 or "trust_entropy" in roles_triggered
+                activate = activate or qf_activate
+                if qf_activate and not triggered_by:
+                    triggered_by = ["High entropy or trust issues detected"]
+            
+            elif layer == 10:  # Emergence Detector
+                # Activate on very low confidence or special emergence flags
+                emergence_activate = confidence < 0.60 or "emergence" in regulatory_flags
+                activate = activate or emergence_activate
+                if emergence_activate and not triggered_by:
+                    triggered_by = ["Very low confidence or emergence indicators"]
+            
+            # Record decision for this layer
+            decision['layer_activations'][layer_key] = {
+                'activate': activate,
+                'confidence_based': confidence < self.layer_thresholds[layer],
+                'trigger_based': trigger_activated,
+                'triggered_by': triggered_by
+            }
         
-        # Layer 5 (Agent Simulation System): Triggered on knowledge gaps or conflicting roles
-        flags["activate_layer_5"] = "conflict" in regulatory_flags or confidence < 0.90
+        # Log decision
+        self.decision_log.append({
+            'context': context,
+            'decision': decision
+        })
         
-        # Layer 6 (Neural Logic Reconstructor): Triggered on low cohesion or belief drift
-        flags["activate_layer_6"] = confidence < 0.85 or "belief_drift" in regulatory_flags
+        # Update current decision
+        self.current_decision = decision
         
-        # Layer 7 (Simulated AGI Core): Triggered by recursive contradiction or causal failure
-        flags["activate_layer_7"] = confidence < 0.80 or "causal_failure" in regulatory_flags
+        logging.info(f"[{datetime.now()}] GatekeeperAgent evaluated simulation {simulation_id}, pass {simulation_pass}")
         
-        # Layer 8 (Quantum Fidelity Layer): Triggered by trust entropy or identity inconsistencies
-        flags["activate_layer_8"] = entropy > 0.80 or "trust_issue" in regulatory_flags
-        
-        # Layer 9 (Recursive Planning Engine): Triggered by failure to converge to high confidence
-        flags["activate_layer_9"] = confidence < 0.75 or "planning_conflict" in regulatory_flags
-        
-        # Layer 10 (Emergence Detector): Triggered by signs of cross-agent belief instability
-        flags["activate_layer_10"] = (confidence < 0.70 or entropy > 0.90 or 
-                                   "emergence" in regulatory_flags or
-                                   "hallucination_drift" in regulatory_flags)
-        
-        # Halt execution if entropy is too high (safety measure)
-        flags["halt_due_to_entropy"] = entropy > self.entropy_threshold
-        
-        # Determine if we need to rerun
-        flags["require_rerun"] = (confidence < self.confidence_threshold and 
-                                not flags["halt_due_to_entropy"])
-        
-        # Log the decision
-        decision_log = {
-            "timestamp": time.time(),
-            "input": context,
-            "decision": flags
-        }
-        self.log.append(decision_log)
-        
-        # Log the decision
-        logger.info(f"Gatekeeper Decision: {flags}")
-        
-        return flags
+        return decision
     
-    def save_decision(self, output_path: str, context: Dict[str, Any], decision: Dict[str, Any]) -> None:
+    def get_active_layers(self) -> List[int]:
         """
-        Save the gatekeeper decision to a YAML file.
+        Get list of currently active layers.
+        
+        Returns:
+            list: List of active layer numbers
+        """
+        active_layers = []
+        
+        if not self.current_decision:
+            return active_layers
+        
+        layer_activations = self.current_decision.get('layer_activations', {})
+        
+        for layer_key, activation in layer_activations.items():
+            if activation.get('activate', False):
+                try:
+                    layer_num = int(layer_key.split('_')[1])
+                    active_layers.append(layer_num)
+                except (ValueError, IndexError):
+                    pass
+        
+        return sorted(active_layers)
+    
+    def should_halt(self) -> bool:
+        """
+        Check if simulation should halt based on current decision.
+        
+        Returns:
+            bool: True if simulation should halt
+        """
+        if not self.current_decision:
+            return False
+        
+        return self.current_decision.get('halt_due_to_entropy', False)
+    
+    def get_decision_log(self, limit: int = None) -> List[Dict]:
+        """
+        Get log of past decisions.
         
         Args:
-            output_path: Path to output YAML file
-            context: Input context
-            decision: Decision output
+            limit: Optional limit on number of log entries to return
             
         Returns:
-            None
+            list: List of decision log entries
         """
-        with open(output_path, 'w') as f:
-            yaml.dump({"input": context, "decision": decision}, f)
+        if limit is None:
+            return self.decision_log
         
-        logger.info(f"Gatekeeper decision saved to {output_path}")
+        return self.decision_log[-limit:]
     
-    def get_decision_log(self) -> List[Dict[str, Any]]:
+    def reset(self) -> None:
         """
-        Get the decision log history.
+        Reset the Gatekeeper Agent state.
+        """
+        self.decision_log = []
+        self.current_decision = {}
+        logging.info(f"[{datetime.now()}] GatekeeperAgent reset")
+    
+    def check_layer_conditions(self, context: Dict, layer: int) -> Dict:
+        """
+        Check specific conditions for activating a single layer.
         
+        Args:
+            context: Context dictionary with simulation results and metrics
+            layer: Layer number to check
+            
         Returns:
-            List of decision log entries
+            dict: Layer activation decision with reasons
         """
-        return self.log
-
-
-def load_simulation_routing(path: str) -> Dict[str, Any]:
-    """
-    Load simulation routing configuration from YAML.
-    
-    Args:
-        path: Path to YAML routing file
+        if layer < 4 or layer > 10:
+            return {
+                'activate': False,
+                'reason': "Layer number out of range (must be 4-10)"
+            }
         
-    Returns:
-        Dictionary with routing configuration
-    """
-    with open(path, 'r') as f:
-        return yaml.safe_load(f)
-
-
-def simulate_pass(input_yaml_path: str, output_yaml_path: str, 
-                  config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """
-    Perform a simulation pass using the Gatekeeper Agent.
-    
-    Args:
-        input_yaml_path: Path to input context YAML
-        output_yaml_path: Path to output decision YAML
-        config: Optional configuration for Gatekeeper
+        # Evaluate full context
+        self.evaluate(context)
         
-    Returns:
-        Dictionary with simulation results
-    """
-    # Create default config if not provided
-    if config is None:
-        config = {
-            "confidence_threshold": 0.995,
-            "entropy_threshold": 0.75
-        }
-    
-    # Initialize Gatekeeper
-    gk = GatekeeperAgent(
-        confidence_threshold=config.get("confidence_threshold", 0.995),
-        entropy_threshold=config.get("entropy_threshold", 0.75)
-    )
-    
-    # Load input context
-    try:
-        with open(input_yaml_path, 'r') as f:
-            context = yaml.safe_load(f)
-    except Exception as e:
-        logger.error(f"Error loading input YAML: {e}")
-        return {
-            "success": False,
-            "error": f"Error loading input YAML: {e}"
-        }
-    
-    # Evaluate context
-    decision = gk.evaluate(context)
-    
-    # Save decision
-    try:
-        gk.save_decision(output_yaml_path, context, decision)
-    except Exception as e:
-        logger.error(f"Error saving decision YAML: {e}")
-        return {
-            "success": False,
-            "error": f"Error saving decision YAML: {e}",
-            "decision": decision
-        }
-    
-    return {
-        "success": True,
-        "decision": decision
-    }
-
-
-if __name__ == "__main__":
-    # Configure logging
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    
-    # Run a simulation pass with example input
-    result = simulate_pass("input_sample.yaml", "gatekeeper_output.yaml")
-    
-    # Display result
-    print(f"Simulation complete: {result['success']}")
-    if result['success']:
-        print("Decision:", result['decision'])
+        # Extract layer-specific decision
+        layer_key = f"layer_{layer}"
+        layer_decision = self.current_decision.get('layer_activations', {}).get(layer_key, {})
+        
+        return layer_decision
