@@ -6,7 +6,7 @@ packages = ["libyaml", "openssl", "postgresql"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "python run_enterprise_ukg.py --no-frontend && npm start"]
+run = ["sh", "-c", "npm start"]
 build = ["sh", "-c", "npm install && npm run build"]
 
 [workflows]
