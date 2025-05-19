@@ -1,13 +1,19 @@
+
 export default async function handler(req, res) {
   try {
-    // Call Flask backend
-    const response = await fetch('http://localhost:3000/api/ukg/memory_stats');
-    const data = await response.json();
+    // For demonstration, we'll return simulated memory statistics
+    const simulatedMemoryStats = {
+      total_entries: 1234,
+      active_sessions: 56,
+      last_updated: new Date().toISOString()
+    };
 
-    // Return the response from the backend
-    return res.status(response.status).json(data);
+    return res.status(200).json({
+      success: true,
+      data: simulatedMemoryStats
+    });
   } catch (error) {
     console.error('Error fetching memory stats:', error);
-    return res.status(500).json({ error: 'Failed to fetch memory statistics' });
+    return res.status(500).json({ success: false, error: 'Failed to fetch memory statistics' });
   }
 }

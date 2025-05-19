@@ -10,7 +10,7 @@ run = ["sh", "-c", "npm start"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
-runButton = "UKG Production"
+runButton = "Next.js Deployment"
 
 [[workflows.workflow]]
 name = "Project"
@@ -171,11 +171,11 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "# Start Next.js server on port 3000"
+args = "# Start Next.js in production mode on port 3000"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm start"
+args = "npm run build && npm start"
 
 [[workflows.workflow]]
 name = "UKG Production"
