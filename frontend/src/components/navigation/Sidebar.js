@@ -24,7 +24,16 @@ import {
   FiFilm,
   FiMap,
   FiList,
-  FiSettings
+  FiSettings,
+  FiBell,
+  FiGitBranch,
+  FiUser,
+  FiBookOpen,
+  FiUsers,
+  FiServer,
+  FiBarChart2,
+  FiLayers,
+  FiActivity
 } from 'react-icons/fi';
 
 // Navigation items configuration
@@ -39,6 +48,16 @@ const navItems = [
   { name: 'Simulation Map', icon: FiMap, path: '/simulation-map' },
   { name: 'Logs', icon: FiList, path: '/logs' },
   { name: 'Settings', icon: FiSettings, path: '/settings' },
+  { name: 'Notifications', icon: FiBell, path: '/notifications' },
+  { name: 'Compare Simulations', icon: FiGitBranch, path: '/compare' },
+  { name: 'Coverage Map', icon: FiMap, path: '/coverage-map' },
+  { name: 'AGI Dashboard', icon: FiCpu, path: '/agi-dashboard' },
+  { name: 'Agent Builder', icon: FiLayers, path: '/agents/builder' },
+  { name: 'Status', icon: FiActivity, path: '/status' },
+  { name: 'Profile', icon: FiUser, path: '/profile' },
+  { name: 'Admin: Users', icon: FiUsers, path: '/admin/users' },
+  { name: 'Admin: Integrations', icon: FiSettings, path: '/admin/integrations' },
+  { name: 'MCP Console', icon: FiServer, path: '/mcp-console' },
 ];
 
 // NavItem component
