@@ -24,6 +24,16 @@ import MediaStudioPage from './pages/MediaStudioPage';
 import SimulationMapPage from './pages/SimulationMapPage';
 import LogsPage from './pages/LogsPage';
 import SettingsPage from './pages/SettingsPage';
+import NotificationsPage from './pages/NotificationsPage';
+import CompareSimulationsPage from './pages/CompareSimulationsPage';
+import CoverageMapPage from './pages/CoverageMapPage';
+import AGIDashboardPage from './pages/AGIDashboardPage';
+import AgentBuilderPage from './pages/AgentBuilderPage';
+import AuthoringAndEvaluationPage from './pages/AuthoringAndEvaluationPage';
+import SimulationDashboardPage from './pages/SimulationDashboardPage';
+import AdminIntegrationsPage from './pages/AdminIntegrationsPage';
+import MCPConsolePage from './pages/MCPConsolePage';
+import ProfilePage from './pages/ProfilePage';
 
 // Contexts
 import { AuthProvider } from './contexts/AuthContext';
@@ -91,6 +101,16 @@ const App = () => {
                   <Route path="/simulation-map" element={<SimulationMapPage />} />
                   <Route path="/logs" element={<LogsPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/notifications" element={<NotificationsPage />} />
+                  <Route path="/compare" element={<CompareSimulationsPage />} />
+                  <Route path="/coverage-map" element={<CoverageMapPage />} />
+                  <Route path="/agi-dashboard" element={<AGIDashboardPage />} />
+                  <Route path="/agents/builder" element={<AgentBuilderPage />} />
+                  <Route path="/authoring-and-evaluation" element={<AuthoringAndEvaluationPage />} />
+                  <Route path="/simulation-dashboard" element={<SimulationDashboardPage />} />
+                  <Route path="/admin/integrations" element={<AdminIntegrationsPage />} />
+                  <Route path="/mcp-console" element={<MCPConsolePage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
                 </Route>
 
                 {/* Fallback Route */}

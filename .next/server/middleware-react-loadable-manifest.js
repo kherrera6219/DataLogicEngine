@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST='{"pages/_app.js -> bootstrap/dist/js/bootstrap.bundle.min.js":{"id":8702,"files":["static/chunks/69.268a2ca5afd67dc4.js"]},"pages/chat.js -> ../utils/responsive":{"id":1455,"files":["static/chunks/455.27a5e60f56811671.js"]},"pages/honeycomb.js -> ../components/ui/HoneycombGraph":{"id":943,"files":[]},"pages/knowledge-graph.js -> ../components/ui/HoneycombGraph":{"id":943,"files":[]},"pages/regulatory.js -> ../components/ui/RegulatoryOctopus":{"id":4226,"files":[]}}';

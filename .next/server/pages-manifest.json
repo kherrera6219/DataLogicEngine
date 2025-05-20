@@ -1,1 +1,23 @@
-{}
+{
+  "/_app": "pages/_app.js",
+  "/_document": "pages/_document.js",
+  "/api/graph_stats": "pages/api/graph_stats.js",
+  "/_error": "pages/_error.js",
+  "/api/memory_stats": "pages/api/memory_stats.js",
+  "/api/query": "pages/api/query.js",
+  "/api/security/compliance-check": "pages/api/security/compliance-check.js",
+  "/chat": "pages/chat.js",
+  "/compliance-dashboard": "pages/compliance-dashboard.js",
+  "/compliance": "pages/compliance.js",
+  "/contextual": "pages/contextual.js",
+  "/honeycomb": "pages/honeycomb.js",
+  "/": "pages/index.js",
+  "/knowledge-graph": "pages/knowledge-graph.js",
+  "/locations": "pages/locations.js",
+  "/login": "pages/login.js",
+  "/pillar-mapping": "pages/pillar-mapping.js",
+  "/pillars": "pages/pillars.js",
+  "/regulatory": "pages/regulatory.js",
+  "/timeline": "pages/timeline.js",
+  "/unified-mapping": "pages/unified-mapping.js"
+}
