@@ -16,48 +16,48 @@ export default function TimelinePage() {
   const [personaId, setPersonaId] = useState('PERSONA_KNOWLEDGE_EXPERT_PL2_SE');
 
   useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Fetch historical periods
+        const historicalResponse = await fetch('/api/time/historical');
+        const historicalJson = await historicalResponse.json();
+
+        if (historicalJson.success) {
+          setHistoricalData(historicalJson.periods || []);
+        }
+
+        // Fetch project data for default project
+        const projectResponse = await fetch(`/api/time/project/${projectId}`);
+        const projectJson = await projectResponse.json();
+
+        if (projectJson.success) {
+          setProjectData({
+            project: projectJson.project,
+            tasks: projectJson.tasks || [],
+            milestones: projectJson.milestones || [],
+            completionPercentage: projectJson.completion_percentage || 0
+          });
+        }
+
+        // Fetch career data for default persona
+        const careerResponse = await fetch(`/api/time/career/${personaId}`);
+        const careerJson = await careerResponse.json();
+
+        if (careerJson.success) {
+          setCareerData(careerJson.career_stages || []);
+        }
+      } catch (err) {
+        setError(`Error fetching timeline data: ${err.message}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Fetch historical periods
-      const historicalResponse = await fetch('/api/time/historical');
-      const historicalJson = await historicalResponse.json();
-      
-      if (historicalJson.success) {
-        setHistoricalData(historicalJson.periods || []);
-      }
-
-      // Fetch project data for default project
-      const projectResponse = await fetch(`/api/time/project/${projectId}`);
-      const projectJson = await projectResponse.json();
-      
-      if (projectJson.success) {
-        setProjectData({
-          project: projectJson.project,
-          tasks: projectJson.tasks || [],
-          milestones: projectJson.milestones || [],
-          completionPercentage: projectJson.completion_percentage || 0
-        });
-      }
-
-      // Fetch career data for default persona
-      const careerResponse = await fetch(`/api/time/career/${personaId}`);
-      const careerJson = await careerResponse.json();
-      
-      if (careerJson.success) {
-        setCareerData(careerJson.career_stages || []);
-      }
-    } catch (err) {
-      setError(`Error fetching timeline data: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [projectId, personaId]);
 
   const handleProjectChange = async (e) => {
     e.preventDefault();

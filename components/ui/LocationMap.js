@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Button, Card, Form, Spinner } from 'react-bootstrap';
 
 const LocationMap = ({ initialLocations }) => {
@@ -20,39 +20,7 @@ const LocationMap = ({ initialLocations }) => {
   const googleMapRef = useRef(null);
   const markersRef = useRef([]);
 
-  // Fetch locations on initial load
-  useEffect(() => {
-    fetchLocations();
-  }, []);
-
-  // Initialize map when locations are loaded
-  useEffect(() => {
-    if (locations.length > 0 && viewMode === 'map' && window.google && window.google.maps) {
-      initializeMap();
-    }
-  }, [locations, viewMode]);
-
-  // Load Google Maps API
-  useEffect(() => {
-    if (viewMode === 'map' && !window.google) {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        if (locations.length > 0) {
-          initializeMap();
-        }
-      };
-      document.head.appendChild(script);
-
-      return () => {
-        document.head.removeChild(script);
-      };
-    }
-  }, [viewMode]);
-
-  const fetchLocations = async (params = {}) => {
+  const fetchLocations = useCallback(async (params = {}) => {
     setLoading(true);
     setError(null);
 
@@ -76,48 +44,14 @@ const LocationMap = ({ initialLocations }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchHierarchy = async (rootUid = null) => {
-    setLoading(true);
-    setError(null);
+  // Fetch locations on initial load
+  useEffect(() => {
+    fetchLocations();
+  }, [fetchLocations]);
 
-    try {
-      const queryParams = new URLSearchParams();
-      if (rootUid) {
-        queryParams.append('root_uid', rootUid);
-      }
-
-      const response = await fetch(`/api/locations/hierarchy?${queryParams.toString()}`);
-      const data = await response.json();
-
-      if (data.success) {
-        setHierarchy(data.hierarchies || [data.hierarchy] || []);
-        setViewMode('hierarchy');
-      } else {
-        setError(data.error || 'Failed to fetch location hierarchy');
-      }
-    } catch (err) {
-      setError('Error fetching hierarchy: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    fetchLocations(searchCriteria);
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setSearchCriteria(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const initializeMap = () => {
+  const initializeMap = useCallback(() => {
     if (!mapRef.current) return;
 
     // Get center coordinates from first location or use default
@@ -166,6 +100,72 @@ const LocationMap = ({ initialLocations }) => {
     if (hasValidCoordinates) {
       googleMapRef.current.fitBounds(bounds);
     }
+  }, [locations]);
+
+  // Initialize map when locations are loaded
+  useEffect(() => {
+    if (locations.length > 0 && viewMode === 'map' && window.google && window.google.maps) {
+      initializeMap();
+    }
+  }, [locations, viewMode, initializeMap]);
+
+  // Load Google Maps API
+  useEffect(() => {
+    if (viewMode === 'map' && !window.google) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        if (locations.length > 0) {
+          initializeMap();
+        }
+      };
+      document.head.appendChild(script);
+
+      return () => {
+        document.head.removeChild(script);
+      };
+    }
+  }, [viewMode, initializeMap, locations.length]);
+
+  const fetchHierarchy = async (rootUid = null) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const queryParams = new URLSearchParams();
+      if (rootUid) {
+        queryParams.append('root_uid', rootUid);
+      }
+
+      const response = await fetch(`/api/locations/hierarchy?${queryParams.toString()}`);
+      const data = await response.json();
+
+      if (data.success) {
+        setHierarchy(data.hierarchies || [data.hierarchy] || []);
+        setViewMode('hierarchy');
+      } else {
+        setError(data.error || 'Failed to fetch location hierarchy');
+      }
+    } catch (err) {
+      setError('Error fetching hierarchy: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetchLocations(searchCriteria);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSearchCriteria(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const renderHierarchyNode = (node, level = 0) => {

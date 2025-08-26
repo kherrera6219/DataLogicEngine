@@ -10,30 +10,30 @@ const ContextualExpertWeb = () => {
   const [expertiseModel, setExpertiseModel] = useState(null);
 
   useEffect(() => {
+    const fetchExperts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/contextual/experts');
+        const data = await response.json();
+
+        if (data.success) {
+          setExperts(data.experts);
+          if (data.experts.length > 0) {
+            setSelectedExpert(data.experts[0]);
+            fetchExpertiseModel(data.experts[0].id);
+          }
+        } else {
+          setError(data.error || 'Failed to fetch contextual experts');
+        }
+      } catch (err) {
+        setError('Error fetching contextual experts: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchExperts();
   }, []);
-
-  const fetchExperts = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/contextual/experts');
-      const data = await response.json();
-      
-      if (data.success) {
-        setExperts(data.experts);
-        if (data.experts.length > 0) {
-          setSelectedExpert(data.experts[0]);
-          fetchExpertiseModel(data.experts[0].id);
-        }
-      } else {
-        setError(data.error || 'Failed to fetch contextual experts');
-      }
-    } catch (err) {
-      setError('Error fetching contextual experts: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const fetchExpertiseModel = async (expertId) => {
     try {

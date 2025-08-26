@@ -9,38 +9,36 @@ const RegulatoryOctopus = ({ frameworkUid, onNodeClick }) => {
   const [expandedNodes, setExpandedNodes] = useState({});
 
   useEffect(() => {
-    if (frameworkUid) {
-      fetchOctopusData();
-    }
-  }, [frameworkUid]);
-
-  const fetchOctopusData = async () => {
     if (!frameworkUid) return;
-    
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const response = await fetch(`/api/regulatory/octopus/${frameworkUid}`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch octopus data: ${response.statusText}`);
+
+    const fetchOctopusData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`/api/regulatory/octopus/${frameworkUid}`);
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch octopus data: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+          setOctopusData(data.octopus);
+        } else {
+          setError(data.message || 'Failed to load regulatory octopus data');
+        }
+      } catch (err) {
+        setError(err.message || 'An error occurred while fetching the octopus data');
+        console.error('Error fetching octopus data:', err);
+      } finally {
+        setLoading(false);
       }
-      
-      const data = await response.json();
-      
-      if (data.status === 'success') {
-        setOctopusData(data.octopus);
-      } else {
-        setError(data.message || 'Failed to load regulatory octopus data');
-      }
-    } catch (err) {
-      setError(err.message || 'An error occurred while fetching the octopus data');
-      console.error('Error fetching octopus data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchOctopusData();
+  }, [frameworkUid]);
 
   const toggleExpandNode = (nodeId, level) => {
     setExpandedNodes(prev => ({

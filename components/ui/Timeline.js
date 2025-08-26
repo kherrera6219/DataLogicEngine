@@ -11,54 +11,54 @@ const Timeline = ({ initialData, timelineType }) => {
   
   // Fetch timeline data if not provided initially
   useEffect(() => {
-    if (!initialData) {
-      fetchTimelineData();
-    }
-  }, [initialData, timelineType]);
-  
-  const fetchTimelineData = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // Determine endpoint based on timelineType
-      let endpoint = '/api/time';
-      
-      if (timelineType === 'historical') {
-        endpoint = '/api/time/historical';
-      } else if (timelineType === 'career') {
-        endpoint = `/api/time/career/${timelineType.split('_')[1]}`;
-      } else if (timelineType === 'project') {
-        endpoint = `/api/time/project/${timelineType.split('_')[1]}`;
-      }
-      
-      const response = await fetch(endpoint);
-      const data = await response.json();
-      
-      if (data.success) {
+    if (initialData) return;
+
+    const fetchTimelineData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Determine endpoint based on timelineType
+        let endpoint = '/api/time';
+
         if (timelineType === 'historical') {
-          setTimelineData(data.periods || []);
+          endpoint = '/api/time/historical';
         } else if (timelineType === 'career') {
-          setTimelineData(data.career_stages || []);
+          endpoint = `/api/time/career/${timelineType.split('_')[1]}`;
         } else if (timelineType === 'project') {
-          setTimelineData({
-            project: data.project,
-            tasks: data.tasks || [],
-            milestones: data.milestones || [],
-            completionPercentage: data.completion_percentage || 0
-          });
-        } else {
-          setTimelineData(data.time_contexts || []);
+          endpoint = `/api/time/project/${timelineType.split('_')[1]}`;
         }
-      } else {
-        setError(data.error || 'Error fetching timeline data');
+
+        const response = await fetch(endpoint);
+        const data = await response.json();
+
+        if (data.success) {
+          if (timelineType === 'historical') {
+            setTimelineData(data.periods || []);
+          } else if (timelineType === 'career') {
+            setTimelineData(data.career_stages || []);
+          } else if (timelineType === 'project') {
+            setTimelineData({
+              project: data.project,
+              tasks: data.tasks || [],
+              milestones: data.milestones || [],
+              completionPercentage: data.completion_percentage || 0
+            });
+          } else {
+            setTimelineData(data.time_contexts || []);
+          }
+        } else {
+          setError(data.error || 'Error fetching timeline data');
+        }
+      } catch (err) {
+        setError(`Error: ${err.message}`);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError(`Error: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchTimelineData();
+  }, [initialData, timelineType]);
   
   const formatDate = (dateString) => {
     if (!dateString) return 'Present';

@@ -19,11 +19,49 @@ export default function CompliancePage() {
   
   useEffect(() => {
     // Fetch standards when selected type changes
-    if (selectedType) {
-      fetchStandards(selectedType);
-    }
-  }, [selectedType]);
-  
+    if (!selectedType) return;
+
+    const fetchStandards = async (type) => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/compliance/standards?type=${type}`);
+        const data = await response.json();
+
+        if (data.status === 'success') {
+          const standardsList = [];
+
+          // Extract standards from hierarchy
+          if (data.hierarchy) {
+            Object.values(data.hierarchy).forEach(mega => {
+              standardsList.push(mega.standard);
+
+              if (mega.large_standards) {
+                Object.values(mega.large_standards).forEach(large => {
+                  standardsList.push(large.standard);
+                });
+              }
+            });
+          }
+
+          setStandards(standardsList);
+
+          // Select the first standard by default
+          if (standardsList.length > 0 && !selectedStandard) {
+            setSelectedStandard(standardsList[0].id);
+          }
+        } else {
+          setError(data.message || 'Failed to load standards');
+        }
+      } catch (err) {
+        setError('Error fetching standards: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStandards(selectedType);
+  }, [selectedType, selectedStandard]);
+
   const fetchStandardTypes = async () => {
     try {
       setLoading(true);
@@ -39,44 +77,6 @@ export default function CompliancePage() {
       setSelectedType(types[0].id);
     } catch (err) {
       setError('Error fetching standard types: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const fetchStandards = async (type) => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/compliance/standards?type=${type}`);
-      const data = await response.json();
-      
-      if (data.status === 'success') {
-        const standardsList = [];
-        
-        // Extract standards from hierarchy
-        if (data.hierarchy) {
-          Object.values(data.hierarchy).forEach(mega => {
-            standardsList.push(mega.standard);
-            
-            if (mega.large_standards) {
-              Object.values(mega.large_standards).forEach(large => {
-                standardsList.push(large.standard);
-              });
-            }
-          });
-        }
-        
-        setStandards(standardsList);
-        
-        // Select the first standard by default
-        if (standardsList.length > 0 && !selectedStandard) {
-          setSelectedStandard(standardsList[0].id);
-        }
-      } else {
-        setError(data.message || 'Failed to load standards');
-      }
-    } catch (err) {
-      setError('Error fetching standards: ' + err.message);
     } finally {
       setLoading(false);
     }
