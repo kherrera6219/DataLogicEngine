@@ -56,9 +56,9 @@ const Dropdown = ({
 Dropdown.Item = ({ children, onClick, className = "" }) => {
   return (
     <li>
-      <button 
-        className={`dropdown-item ${className}`} 
-        type="button" 
+      <button
+        className={`dropdown-item ${className}`}
+        type="button"
         onClick={onClick}
       >
         {children}
@@ -66,5 +66,8 @@ Dropdown.Item = ({ children, onClick, className = "" }) => {
     </li>
   );
 };
+
+// Provide a display name for the subcomponent to satisfy ESLint
+Dropdown.Item.displayName = "DropdownItem";
 
 export default Dropdown;

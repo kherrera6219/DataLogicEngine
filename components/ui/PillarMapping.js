@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Button, Textarea, Badge } from './';
 import Text from './Text';
 import Dropdown from './Dropdown';
@@ -16,32 +16,36 @@ export default function PillarMapping({ initialPillarId }) {
 
   // Load all pillars on component mount
   useEffect(() => {
+    const fetchPillars = async () => {
+      try {
+        const response = await fetch('/api/pillars/');
+        if (response.ok) {
+          const data = await response.json();
+          setPillars(data);
+        } else {
+          console.error('Failed to fetch pillars');
+        }
+      } catch (error) {
+        console.error('Error fetching pillars:', error);
+      }
+    };
+
     fetchPillars();
   }, []);
 
-  // Load selected pillar if provided
-  useEffect(() => {
-    if (initialPillarId) {
-      setSelectedPillar(initialPillarId);
-      fetchPillarExpansion(initialPillarId);
-    }
-  }, [initialPillarId]);
-
-  const fetchPillars = async () => {
+  const fetchMappings = useCallback(async (pillarId) => {
     try {
-      const response = await fetch('/api/pillars/');
+      const response = await fetch(`/api/pillars/mappings?pillar_id=${pillarId}`);
       if (response.ok) {
         const data = await response.json();
-        setPillars(data);
-      } else {
-        console.error('Failed to fetch pillars');
+        setMappings(data);
       }
     } catch (error) {
-      console.error('Error fetching pillars:', error);
+      console.error('Error fetching mappings:', error);
     }
-  };
+  }, []);
 
-  const fetchPillarExpansion = async (pillarId, text = null) => {
+  const fetchPillarExpansion = useCallback(async (pillarId, text = null) => {
     if (!pillarId) return;
 
     setLoading(true);
@@ -80,19 +84,15 @@ export default function PillarMapping({ initialPillarId }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchMappings]);
 
-  const fetchMappings = async (pillarId) => {
-    try {
-      const response = await fetch(`/api/pillars/mappings?pillar_id=${pillarId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setMappings(data);
-      }
-    } catch (error) {
-      console.error('Error fetching mappings:', error);
+  // Load selected pillar if provided
+  useEffect(() => {
+    if (initialPillarId) {
+      setSelectedPillar(initialPillarId);
+      fetchPillarExpansion(initialPillarId);
     }
-  };
+  }, [initialPillarId, fetchPillarExpansion]);
 
   const handlePillarSelect = (pillarId) => {
     setSelectedPillar(pillarId);
