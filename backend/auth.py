@@ -1,5 +1,10 @@
 
-from flask import Blueprint, request, jsonify
+import hashlib
+import hmac
+import os
+import secrets
+
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from datetime import timedelta
 from .models import db, User
@@ -73,36 +78,57 @@ def get_current_user():
 @auth_bp.route('/replit-auth', methods=['GET'])
 def replit_auth():
     """Handle Replit Auth integration"""
+    if os.environ.get('REPLIT_AUTH_ENABLED', 'false').lower() != 'true':
+        return jsonify({'error': 'Replit authentication is disabled'}), 503
+
+    shared_secret = os.environ.get('REPLIT_AUTH_SHARED_SECRET')
+    if not shared_secret:
+        current_app.logger.error('REPLIT_AUTH_SHARED_SECRET is not configured; rejecting request')
+        return jsonify({'error': 'Replit authentication is not configured'}), 503
+
+    user_id = request.headers.get('X-Replit-User-Id')
+    username = request.headers.get('X-Replit-User-Name')
+    signature = request.headers.get('X-Replit-Signature')
+
+    if not user_id or not username:
+        return jsonify({'error': 'Not authenticated with Replit'}), 401
+
+    if not signature:
+        return jsonify({'error': 'Missing Replit signature header'}), 401
+
+    payload = f"{user_id}:{username}"
+    expected_signature = hmac.new(
+        shared_secret.encode('utf-8'),
+        payload.encode('utf-8'),
+        hashlib.sha256,
+    ).hexdigest()
+
+    if not hmac.compare_digest(signature, expected_signature):
+        current_app.logger.warning('Replit signature verification failed for user %s', username)
+        return jsonify({'error': 'Invalid Replit signature'}), 401
+
     try:
-        user_id = request.headers.get('X-Replit-User-Id')
-        username = request.headers.get('X-Replit-User-Name')
-        
-        if not user_id or not username:
-            return jsonify({'error': 'Not authenticated with Replit'}), 401
-        
-        # Check if user exists
         user = User.query.filter_by(username=username).first()
-        
+
         if not user:
-            # Create new user from Replit credentials
             user = User(
                 username=username,
-                email=f"{username}@replit.user",  # Placeholder email
+                email=f"{username}@replit.user",
             )
-            user.set_password(f"replit_{user_id}")  # Set a password they can reset later
+            user.set_password(secrets.token_urlsafe(32))
             db.session.add(user)
             db.session.commit()
-        
-        # Create access token
+
         access_token = create_access_token(
             identity=user.id,
-            expires_delta=timedelta(days=1)
+            expires_delta=timedelta(minutes=15)
         )
-        
+
         return jsonify({
             'access_token': access_token,
             'user': user.to_dict()
         }), 200
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+
+    except Exception as exc:  # pragma: no cover - defensive logging
+        current_app.logger.exception('Error processing Replit authentication')
+        return jsonify({'error': str(exc)}), 500

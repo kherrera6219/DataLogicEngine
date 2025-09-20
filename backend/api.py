@@ -9,7 +9,14 @@ import json
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 from app import db
-from models import PillarLevel, Sector, Domain, Location, KnowledgeNode, SimulationSession
+from db_models import (
+    PillarLevel,
+    Sector,
+    Domain,
+    Location,
+    KnowledgeNode,
+    SimulationSession,
+)
 
 # Create API Blueprint
 api = Blueprint('api', __name__, url_prefix='/api')
