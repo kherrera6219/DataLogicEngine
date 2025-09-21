@@ -1,10 +1,5 @@
-
 import React from 'react';
-import { 
-  Avatar as FluentAvatar,
-  makeStyles,
-  mergeClasses
-} from '@fluentui/react-components';
+import { Avatar as FluentAvatar, makeStyles, mergeClasses } from '@fluentui/react-components';
 
 const useStyles = makeStyles({
   avatar: {
@@ -12,29 +7,26 @@ const useStyles = makeStyles({
   },
 });
 
-const Avatar = ({ 
+const Avatar = ({
   size = 40,
   name,
   image,
   icon,
   initials,
-  color = 'neutral', // 'brand', 'neutral', 'danger', etc.
+  color = 'neutral',
   badge,
   shape = 'circular',
   className,
-  ...props 
+  ...props
 }) => {
   const styles = useStyles();
-  
-  let iconElement = null;
-  if (icon) {
-    iconElement = <i className={`bi bi-${icon}`}></i>;
-  }
-  
+
+  const iconElement = React.isValidElement(icon) ? icon : undefined;
+
   return (
     <FluentAvatar
       name={name}
-      image={{ src: image }}
+      image={image ? { src: image } : undefined}
       icon={iconElement}
       initials={initials}
       size={size}

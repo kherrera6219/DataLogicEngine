@@ -1,56 +1,58 @@
-
 import React from 'react';
+import { Text as FluentText } from '@fluentui/react-components';
 
-const Text = ({ 
-  children, 
-  fontSize = "md", 
-  fontWeight = "normal", 
-  color = "default",
-  className = "", 
-  as = "p",
-  ...props 
+const sizeMap = {
+  xs: 100,
+  sm: 200,
+  md: 300,
+  lg: 400,
+  xl: 500,
+  '2xl': 600,
+  '3xl': 700,
+};
+
+const weightMap = {
+  light: 'regular',
+  normal: 'regular',
+  medium: 'medium',
+  semibold: 'semibold',
+  bold: 'bold',
+};
+
+const colorMap = {
+  default: undefined,
+  muted: 'var(--colorNeutralForeground3)',
+  success: 'var(--colorPaletteGreenForeground2)',
+  warning: 'var(--colorPaletteGoldForeground2)',
+  danger: 'var(--colorPaletteRedForeground2)',
+  info: 'var(--colorPaletteBlueForeground2)',
+};
+
+const Text = ({
+  children,
+  fontSize = 'md',
+  fontWeight = 'normal',
+  color = 'default',
+  as,
+  truncate = false,
+  style,
+  ...props
 }) => {
-  const sizeClasses = {
-    xs: "text-xs",
-    sm: "text-sm",
-    md: "text-base",
-    lg: "text-lg",
-    xl: "text-xl",
-    "2xl": "text-2xl",
-    "3xl": "text-3xl"
-  };
-  
-  const weightClasses = {
-    light: "font-light",
-    normal: "font-normal",
-    medium: "font-medium",
-    semibold: "font-semibold",
-    bold: "font-bold"
-  };
-  
-  const colorClasses = {
-    default: "text-gray-800",
-    muted: "text-gray-600",
-    light: "text-gray-400",
-    primary: "text-blue-600",
-    success: "text-green-600",
-    warning: "text-yellow-600",
-    danger: "text-red-600"
-  };
-  
-  const sizeClass = sizeClasses[fontSize] || sizeClasses.md;
-  const weightClass = weightClasses[fontWeight] || weightClasses.normal;
-  const colorClass = colorClasses[color] || colorClasses.default;
-  
-  const Component = as;
-  
+  const size = sizeMap[fontSize] || sizeMap.md;
+  const weight = weightMap[fontWeight] || 'regular';
+  const resolvedColor = colorMap[color] || undefined;
+
   return (
-    <Component 
-      className={`${sizeClass} ${weightClass} ${colorClass} ${className}`} 
+    <FluentText
+      as={as}
+      size={size}
+      weight={weight}
+      truncate={truncate}
+      style={{ color: resolvedColor, ...style }}
       {...props}
     >
       {children}
-    </Component>
+    </FluentText>
   );
 };
 

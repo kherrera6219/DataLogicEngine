@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -21,7 +22,7 @@ class User(UserMixin, db.Model):
     def is_active(self):
         return self.active
     
-    # Relationships can be added here
+    conversations = db.relationship('Conversation', back_populates='user', lazy='dynamic')
     
     def set_password(self, password):
         """Set password hash"""
@@ -72,6 +73,76 @@ class SimulationSession(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'started_at': self.started_at.isoformat() if self.started_at else None,
             'completed_at': self.completed_at.isoformat() if self.completed_at else None
+        }
+
+
+class Conversation(db.Model):
+    """Conversation container for chat history."""
+
+    __tablename__ = 'conversations'
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
+    title = db.Column(db.String(128), nullable=False, default='New Conversation')
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    metadata = db.Column(db.JSON, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship('User', back_populates='conversations')
+    messages = db.relationship(
+        'ConversationMessage',
+        back_populates='conversation',
+        cascade='all, delete-orphan',
+        lazy='dynamic',
+    )
+
+    def to_dict(self, include_messages: bool = True):
+        """Convert conversation details to a serializable structure."""
+
+        data = {
+            'id': self.id,
+            'uid': self.uid,
+            'title': self.title,
+            'user_id': self.user_id,
+            'metadata': self.metadata or {},
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'message_count': self.messages.count() if self.messages else 0,
+        }
+
+        if include_messages:
+            data['messages'] = [message.to_dict() for message in self.messages.order_by(ConversationMessage.created_at)]
+
+        return data
+
+
+class ConversationMessage(db.Model):
+    """Individual message within a conversation."""
+
+    __tablename__ = 'conversation_messages'
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
+    conversation_id = db.Column(db.Integer, db.ForeignKey('conversations.id'), nullable=False)
+    role = db.Column(db.String(20), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    metadata = db.Column(db.JSON, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    conversation = db.relationship('Conversation', back_populates='messages')
+
+    def to_dict(self):
+        """Convert message to dictionary."""
+
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'conversation_id': self.conversation_id,
+            'role': self.role,
+            'content': self.content,
+            'metadata': self.metadata or {},
+            'created_at': self.created_at.isoformat() if self.created_at else None,
         }
 
 

@@ -1,24 +1,55 @@
-
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Layout from '../components/Layout';
-import ComplianceSpiderweb from '../components/ui/ComplianceSpiderweb';
+import { makeStyles, shorthands, Spinner } from '@fluentui/react-components';
+import Card from '../components/ui/Card';
+import Dropdown from '../components/ui/Dropdown';
+import Text from '../components/ui/Text';
+
+const useStyles = makeStyles({
+  page: {
+    display: 'grid',
+    gap: '24px',
+  },
+  content: {
+    display: 'grid',
+    gridTemplateColumns: '320px 1fr',
+    gap: '24px',
+    '@media(max-width: 992px)': {
+      gridTemplateColumns: '1fr',
+    },
+  },
+  infoCard: {
+    display: 'grid',
+    gap: '12px',
+  },
+  list: {
+    margin: 0,
+    paddingLeft: '18px',
+    lineHeight: 1.6,
+  },
+  message: {
+    borderRadius: '16px',
+    backgroundColor: 'rgba(117,172,242,0.12)',
+    border: '1px solid rgba(117,172,242,0.25)',
+    ...shorthands.padding('16px'),
+  },
+});
 
 export default function CompliancePage() {
+  const styles = useStyles();
   const [standardTypes, setStandardTypes] = useState([]);
   const [selectedType, setSelectedType] = useState('');
   const [standards, setStandards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedStandard, setSelectedStandard] = useState(null);
-  
+
   useEffect(() => {
-    // Fetch all standard types when component mounts
     fetchStandardTypes();
   }, []);
-  
+
   useEffect(() => {
-    // Fetch standards when selected type changes
     if (!selectedType) return;
 
     const fetchStandards = async (type) => {
@@ -29,14 +60,11 @@ export default function CompliancePage() {
 
         if (data.status === 'success') {
           const standardsList = [];
-
-          // Extract standards from hierarchy
           if (data.hierarchy) {
-            Object.values(data.hierarchy).forEach(mega => {
+            Object.values(data.hierarchy).forEach((mega) => {
               standardsList.push(mega.standard);
-
               if (mega.large_standards) {
-                Object.values(mega.large_standards).forEach(large => {
+                Object.values(mega.large_standards).forEach((large) => {
                   standardsList.push(large.standard);
                 });
               }
@@ -44,136 +72,117 @@ export default function CompliancePage() {
           }
 
           setStandards(standardsList);
-
-          // Select the first standard by default
-          if (standardsList.length > 0 && !selectedStandard) {
+          if (standardsList.length > 0) {
             setSelectedStandard(standardsList[0].id);
           }
         } else {
           setError(data.message || 'Failed to load standards');
         }
       } catch (err) {
-        setError('Error fetching standards: ' + err.message);
+        setError(`Error fetching standards: ${err.message}`);
       } finally {
         setLoading(false);
       }
     };
 
     fetchStandards(selectedType);
-  }, [selectedType, selectedStandard]);
+  }, [selectedType]);
 
   const fetchStandardTypes = async () => {
     try {
       setLoading(true);
-      // In a real implementation, you would fetch this from the API
       const types = [
         { id: 'iso', name: 'ISO Standards' },
         { id: 'nist', name: 'NIST Standards' },
         { id: 'pci', name: 'PCI Standards' },
         { id: 'hipaa', name: 'HIPAA Standards' },
-        { id: 'gdpr', name: 'GDPR Standards' }
+        { id: 'gdpr', name: 'GDPR Standards' },
       ];
       setStandardTypes(types);
       setSelectedType(types[0].id);
     } catch (err) {
-      setError('Error fetching standard types: ' + err.message);
+      setError(`Error fetching standard types: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
-  
-  const handleTypeChange = (e) => {
-    setSelectedType(e.target.value);
-    setSelectedStandard(null);
-  };
-  
-  const handleStandardChange = (e) => {
-    setSelectedStandard(e.target.value);
-  };
-  
+
   return (
     <Layout>
       <Head>
         <title>Compliance Standards | UKG System</title>
       </Head>
-      
-      <div className="container mt-4">
-        <h1>Compliance Standards</h1>
-        <p className="lead">Explore the Spiderweb structure of Compliance Standards (Axis 7)</p>
-        
-        <div className="row mt-4">
-          <div className="col-md-3">
-            <div className="card">
-              <div className="card-header">
-                <h5 className="card-title mb-0">Filters</h5>
+
+      <div className={styles.page}>
+        <div>
+          <Text fontSize="3xl" fontWeight="bold">
+            Compliance standards atlas
+          </Text>
+          <Text color="muted">
+            Explore the spiderweb hierarchy aligning Microsoft enterprise controls with regulatory frameworks.
+          </Text>
+        </div>
+
+        <div className={styles.content}>
+          <Card>
+            <Card.Body className={styles.infoCard}>
+              <Text fontWeight="semibold">Filters</Text>
+              <Dropdown
+                placeholder="Select a standard type"
+                options={standardTypes.map((type) => ({ value: type.id, label: type.name }))}
+                value={selectedType}
+                onChange={(value) => {
+                  setSelectedType(value);
+                  setSelectedStandard(null);
+                }}
+              />
+              <Dropdown
+                placeholder="Select a standard"
+                options={standards.map((std) => ({ value: std.id, label: std.label }))}
+                value={selectedStandard}
+                onChange={(value) => setSelectedStandard(value)}
+                disabled={loading || standards.length === 0}
+              />
+
+              <div className={styles.message}>
+                <Text fontSize="sm" color="muted">
+                  The spiderweb model organizes standards by Mega, Large, Medium, Small, and Granular nodes to map coverage across controls.
+                </Text>
               </div>
-              <div className="card-body">
-                <div className="mb-3">
-                  <label htmlFor="standardType" className="form-label">Standard Type</label>
-                  <select 
-                    id="standardType" 
-                    className="form-select"
-                    value={selectedType}
-                    onChange={handleTypeChange}
-                  >
-                    <option value="">Select a type</option>
-                    {standardTypes.map(type => (
-                      <option key={type.id} value={type.id}>{type.name}</option>
-                    ))}
-                  </select>
+            </Card.Body>
+          </Card>
+
+          <Card>
+            <Card.Body>
+              {loading ? (
+                <Spinner size="large" label="Loading compliance data" />
+              ) : error ? (
+                <div className={styles.message}>
+                  <Text color="danger">{error}</Text>
                 </div>
-                
-                <div className="mb-3">
-                  <label htmlFor="standard" className="form-label">Standard</label>
-                  <select 
-                    id="standard" 
-                    className="form-select"
-                    value={selectedStandard || ''}
-                    onChange={handleStandardChange}
-                    disabled={loading || standards.length === 0}
-                  >
-                    <option value="">Select a standard</option>
-                    {standards.map(std => (
-                      <option key={std.id} value={std.id}>{std.label}</option>
-                    ))}
-                  </select>
+              ) : selectedStandard ? (
+                <div>
+                  <Text fontWeight="semibold" fontSize="lg">
+                    Spiderweb structure
+                  </Text>
+                  <Text fontSize="sm" color="muted">
+                    Mega → Large → Medium → Small → Granular
+                  </Text>
+                  <div style={{ marginTop: '16px' }}>
+                    <iframe
+                      title="Compliance spiderweb"
+                      src={`/api/compliance/spiderweb/${selectedStandard}`}
+                      style={{ width: '100%', minHeight: '420px', border: 'none', borderRadius: '16px' }}
+                    />
+                  </div>
                 </div>
-              </div>
-            </div>
-            
-            <div className="card mt-3">
-              <div className="card-header">
-                <h5 className="card-title mb-0">Spiderweb Structure</h5>
-              </div>
-              <div className="card-body">
-                <p className="small">The spiderweb structure represents compliance standards with:</p>
-                <ul className="small">
-                  <li><strong>Mega:</strong> Top-level frameworks</li>
-                  <li><strong>Large:</strong> Primary standards</li>
-                  <li><strong>Medium:</strong> Standard domains</li>
-                  <li><strong>Small:</strong> Individual controls</li>
-                  <li><strong>Granular:</strong> Detailed requirements</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          
-          <div className="col-md-9">
-            {loading ? (
-              <div className="text-center p-5">
-                <div className="spinner-border" role="status">
-                  <span className="visually-hidden">Loading...</span>
+              ) : (
+                <div className={styles.message}>
+                  <Text>Select a standard to view its spiderweb structure.</Text>
                 </div>
-                <p className="mt-2">Loading compliance data...</p>
-              </div>
-            ) : error ? (
-              <div className="alert alert-danger">{error}</div>
-            ) : selectedStandard ? (
-              <ComplianceSpiderweb standardId={selectedStandard} />
-            ) : (
-              <div className="alert alert-info">Select a standard to view its spiderweb structure</div>
-            )}
-          </div>
+              )}
+            </Card.Body>
+          </Card>
         </div>
       </div>
     </Layout>

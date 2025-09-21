@@ -1,41 +1,194 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Layout from '../components/Layout';
-import { Card, Button, Dropdown } from '../components/ui';
+import { Card, Button, Text } from '../components/ui';
 import dynamic from 'next/dynamic';
+import {
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
+  Spinner,
+  makeStyles,
+  mergeClasses,
+  shorthands,
+} from '@fluentui/react-components';
+import {
+  bundleIcon,
+  AppsList24Filled,
+  AppsList24Regular,
+  Building24Filled,
+  Building24Regular,
+  HexagonThree24Filled,
+  HexagonThree24Regular,
+  Branch24Filled,
+  Branch24Regular,
+  Circle24Filled,
+  Circle24Regular,
+  PersonSupport24Filled,
+  PersonSupport24Regular,
+  ShieldGlobe24Filled,
+  ShieldGlobe24Regular,
+  ShieldCheckmark24Filled,
+  ShieldCheckmark24Regular,
+  Beaker24Filled,
+  Beaker24Regular,
+  BookOpen24Filled,
+  BookOpen24Regular,
+  Layer24Filled,
+  Layer24Regular,
+  Location24Filled,
+  Location24Regular,
+  Clock24Filled,
+  Clock24Regular,
+  ZoomIn24Filled,
+  ZoomIn24Regular,
+  ZoomOut24Filled,
+  ZoomOut24Regular,
+  ArrowCounterclockwise24Filled,
+  ArrowCounterclockwise24Regular,
+  MoreHorizontal20Filled,
+  MoreHorizontal20Regular,
+} from '@fluentui/react-icons';
 
-// Import force-graph dynamically to avoid SSR issues
-const ForceGraph = dynamic(() => import('../components/ui/HoneycombGraph'), {
-  ssr: false,
-  loading: () => <div className="text-center p-5">Loading graph visualization...</div>
+const useStyles = makeStyles({
+  page: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '28px',
+    ...shorthands.padding('32px', '24px', '56px'),
+  },
+  header: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  badge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(117, 172, 242, 0.16)',
+    color: '#9cc2f7',
+    fontWeight: 600,
+    ...shorthands.padding('4px', '12px'),
+    borderRadius: '999px',
+    letterSpacing: '0.04em',
+  },
+  layout: {
+    display: 'grid',
+    gap: '24px',
+    gridTemplateColumns: '1fr',
+    '@media (min-width: 1200px)': {
+      gridTemplateColumns: '320px 1fr',
+    },
+  },
+  axisPanel: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+  },
+  axisList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+  },
+  axisButton: {
+    justifyContent: 'flex-start',
+    width: '100%',
+  },
+  axisButtonActive: {
+    boxShadow: '0 12px 30px rgba(28, 90, 163, 0.25)',
+  },
+  mainPanel: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
+  },
+  toolbar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: '12px',
+  },
+  graphContainer: {
+    position: 'relative',
+    minHeight: '520px',
+  },
+  nodePanel: {
+    position: 'absolute',
+    top: '24px',
+    right: '24px',
+    width: '320px',
+    maxWidth: 'calc(100% - 48px)',
+    zIndex: 10,
+  },
+  emptyState: {
+    minHeight: '420px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '12px',
+    textAlign: 'center',
+    color: 'var(--colorNeutralForeground3)',
+  },
 });
 
+const HoneycombGraph = dynamic(() => import('../components/ui/HoneycombGraph'), {
+  ssr: false,
+  loading: () => (
+    <div style={{ minHeight: 480, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Spinner appearance="primary" size="large" />
+    </div>
+  ),
+});
+
+const axisIcons = {
+  pillar: bundleIcon(AppsList24Filled, AppsList24Regular),
+  sector: bundleIcon(Building24Filled, Building24Regular),
+  honeycomb: bundleIcon(HexagonThree24Filled, HexagonThree24Regular),
+  branch: bundleIcon(Branch24Filled, Branch24Regular),
+  node: bundleIcon(Circle24Filled, Circle24Regular),
+  expert: bundleIcon(PersonSupport24Filled, PersonSupport24Regular),
+  regulatory: bundleIcon(ShieldGlobe24Filled, ShieldGlobe24Regular),
+  compliance: bundleIcon(ShieldCheckmark24Filled, ShieldCheckmark24Regular),
+  method: bundleIcon(Beaker24Filled, Beaker24Regular),
+  topic: bundleIcon(BookOpen24Filled, BookOpen24Regular),
+  context: bundleIcon(Layer24Filled, Layer24Regular),
+  location: bundleIcon(Location24Filled, Location24Regular),
+  time: bundleIcon(Clock24Filled, Clock24Regular),
+};
+
+const ZoomInIcon = bundleIcon(ZoomIn24Filled, ZoomIn24Regular);
+const ZoomOutIcon = bundleIcon(ZoomOut24Filled, ZoomOut24Regular);
+const ResetIcon = bundleIcon(ArrowCounterclockwise24Filled, ArrowCounterclockwise24Regular);
+const MenuIcon = bundleIcon(MoreHorizontal20Filled, MoreHorizontal20Regular);
+
+const axes = [
+  { id: 'pillar', name: 'Pillar Levels (Axis 1)' },
+  { id: 'sector', name: 'Sectors of Industry (Axis 2)' },
+  { id: 'honeycomb', name: 'Honeycomb (Axis 3)' },
+  { id: 'branch', name: 'Branch (Axis 4)' },
+  { id: 'node', name: 'Node (Axis 5)' },
+  { id: 'expert', name: 'Expert Role (Axis 6)' },
+  { id: 'regulatory', name: 'Regulatory (Axis 7)' },
+  { id: 'compliance', name: 'Compliance (Axis 8)' },
+  { id: 'method', name: 'Method (Axis 9)' },
+  { id: 'topic', name: 'Topic (Axis 10)' },
+  { id: 'context', name: 'Context (Axis 11)' },
+  { id: 'location', name: 'Location (Axis 12)' },
+  { id: 'time', name: 'Time (Axis 13)' },
+];
+
 export default function KnowledgeGraphExplorer() {
+  const styles = useStyles();
   const [activeAxis, setActiveAxis] = useState('pillar');
   const [graphData, setGraphData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedNode, setSelectedNode] = useState(null);
 
-  // Simulated axes for the sidebar
-  const axes = [
-    { id: 'pillar', name: 'Pillar Levels (Axis 1)', icon: 'bi-stack' },
-    { id: 'sector', name: 'Sectors of Industry (Axis 2)', icon: 'bi-building' },
-    { id: 'honeycomb', name: 'Honeycomb (Axis 3)', icon: 'bi-hexagon' },
-    { id: 'branch', name: 'Branch (Axis 4)', icon: 'bi-diagram-3' },
-    { id: 'node', name: 'Node (Axis 5)', icon: 'bi-circle' },
-    { id: 'expert', name: 'Expert Role (Axis 6)', icon: 'bi-person-badge' },
-    { id: 'regulatory', name: 'Regulatory (Axis 7)', icon: 'bi-shield' },
-    { id: 'compliance', name: 'Compliance (Axis 8)', icon: 'bi-check-circle' },
-    { id: 'method', name: 'Method (Axis 9)', icon: 'bi-gear' },
-    { id: 'topic', name: 'Topic (Axis 10)', icon: 'bi-bookmark' },
-    { id: 'context', name: 'Context (Axis 11)', icon: 'bi-layers' },
-    { id: 'location', name: 'Location (Axis 12)', icon: 'bi-geo-alt' },
-    { id: 'time', name: 'Time (Axis 13)', icon: 'bi-clock' },
-  ];
-
   useEffect(() => {
-    // Fetch graph data based on selected axis
     const fetchGraphData = async () => {
       setLoading(true);
       try {
@@ -44,151 +197,171 @@ export default function KnowledgeGraphExplorer() {
           const data = await response.json();
           setGraphData(data);
         } else {
-          console.error('Failed to fetch graph data');
-          // Use mock data for demo
-          setGraphData({
-            nodes: Array.from({ length: 30 }, (_, i) => ({
-              id: `node-${i}`,
-              name: `Node ${i}`,
-              group: Math.floor(i / 5),
-              value: 10 + Math.random() * 20
-            })),
-            links: Array.from({ length: 40 }, (_, i) => ({
-              source: `node-${Math.floor(Math.random() * 30)}`,
-              target: `node-${Math.floor(Math.random() * 30)}`,
-              value: 1 + Math.random() * 5
-            }))
-          });
+          setGraphData(generateMockGraph());
         }
       } catch (error) {
-        console.error('Error fetching graph data:', error);
-        // Use mock data for demo
-        setGraphData({
-          nodes: Array.from({ length: 30 }, (_, i) => ({
-            id: `node-${i}`,
-            name: `Node ${i}`,
-            group: Math.floor(i / 5),
-            value: 10 + Math.random() * 20
-          })),
-          links: Array.from({ length: 40 }, (_, i) => ({
-            source: `node-${Math.floor(Math.random() * 30)}`,
-            target: `node-${Math.floor(Math.random() * 30)}`,
-            value: 1 + Math.random() * 5
-          }))
-        });
+        setGraphData(generateMockGraph());
       } finally {
         setLoading(false);
+        setSelectedNode(null);
       }
     };
 
     fetchGraphData();
   }, [activeAxis]);
 
-  const handleNodeClick = (node) => {
-    setSelectedNode(node);
-  };
+  const axisTitle = useMemo(() => axes.find((axis) => axis.id === activeAxis)?.name, [activeAxis]);
+  const AxisIcon = axisIcons[activeAxis] || axisIcons.pillar;
 
   return (
     <Layout>
       <Head>
         <title>Knowledge Graph Explorer - UKG</title>
       </Head>
-      
-      <div className="container-fluid h-100">
-        <div className="row h-100">
-          {/* Left Sidebar - Axis Selector */}
-          <div className="col-md-3 col-lg-2 bg-dark border-end border-secondary p-0">
-            <div className="p-3 border-bottom border-secondary">
-              <h5 className="mb-0">13-Axis Selector</h5>
+
+      <div className={styles.page}>
+        <header className={styles.header}>
+          <span className={styles.badge}>Universal Knowledge Graph</span>
+          <Text as="h1" fontSize="3xl" fontWeight="semibold">
+            Context-rich knowledge navigation
+          </Text>
+          <Text color="muted">
+            Traverse the 13-axis Microsoft-aligned knowledge fabric, surface connected insights, and pivot
+            across compliance, operational telemetry, and subject matter expertise.
+          </Text>
+        </header>
+
+        <section className={styles.layout}>
+          <Card className={styles.axisPanel} appearance="subtle">
+            <Card.Header
+              header={<Text fontWeight="semibold">Axis selector</Text>}
+              description="Choose an axis to focus the graph visualisation and contextual analytics."
+            />
+            <div className={styles.axisList}>
+              {axes.map((axis) => {
+                const Icon = axisIcons[axis.id] || axisIcons.pillar;
+                const isActive = activeAxis === axis.id;
+                return (
+                  <Button
+                    key={axis.id}
+                    variant={isActive ? 'primary' : 'subtle'}
+                    icon={<Icon />}
+                    className={mergeClasses(styles.axisButton, isActive && styles.axisButtonActive)}
+                    onClick={() => setActiveAxis(axis.id)}
+                  >
+                    {axis.name}
+                  </Button>
+                );
+              })}
             </div>
-            <div className="axis-list overflow-auto" style={{ maxHeight: 'calc(100vh - 120px)' }}>
-              {axes.map(axis => (
-                <div 
-                  key={axis.id}
-                  className={`p-3 border-bottom border-secondary d-flex align-items-center cursor-pointer ${activeAxis === axis.id ? 'bg-primary bg-opacity-10' : ''}`}
-                  onClick={() => setActiveAxis(axis.id)}
-                >
-                  <i className={`${axis.icon} me-2`}></i>
-                  <div>{axis.name}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Main Content - Graph Visualization */}
-          <div className="col-md-9 col-lg-10 p-0 d-flex flex-column">
-            {/* Graph Controls */}
-            <div className="p-3 border-bottom border-secondary d-flex justify-content-between align-items-center">
-              <h4 className="mb-0">Universal Knowledge Graph Explorer - {axes.find(a => a.id === activeAxis)?.name}</h4>
-              <div>
-                <Button className="me-2" size="sm">
-                  <i className="bi bi-zoom-in me-1"></i> Zoom In
-                </Button>
-                <Button className="me-2" size="sm">
-                  <i className="bi bi-zoom-out me-1"></i> Zoom Out
-                </Button>
-                <Button size="sm">
-                  <i className="bi bi-arrow-counterclockwise me-1"></i> Reset
-                </Button>
-              </div>
-            </div>
-            
-            {/* Graph Visualization */}
-            <div className="flex-grow-1 position-relative">
-              {loading ? (
-                <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
+          </Card>
+
+          <div className={styles.mainPanel}>
+            <Card appearance="subtle">
+              <Card.Header
+                header={
+                  <div className={styles.toolbar}>
+                    <div>
+                      <Text fontWeight="semibold">{axisTitle}</Text>
+                      <Text fontSize="sm" color="muted">
+                        Interactive graph visualisation with contextual analytics and export actions.
+                      </Text>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <Button variant="subtle" icon={<ZoomInIcon />} disabled={loading}>
+                        Zoom in
+                      </Button>
+                      <Button variant="subtle" icon={<ZoomOutIcon />} disabled={loading}>
+                        Zoom out
+                      </Button>
+                      <Button variant="subtle" icon={<ResetIcon />} disabled={loading}>
+                        Reset view
+                      </Button>
+                      <Menu positioning="below-end">
+                        <MenuTrigger>
+                          <MenuButton appearance="transparent" icon={<MenuIcon />} disabled={loading}>
+                            Actions
+                          </MenuButton>
+                        </MenuTrigger>
+                        <MenuPopover>
+                          <MenuList>
+                            <MenuItem disabled={loading}>Export to Power BI</MenuItem>
+                            <MenuItem disabled={loading}>Sync with Microsoft Purview</MenuItem>
+                            <MenuItem disabled={loading}>Open crosswalk matrix</MenuItem>
+                          </MenuList>
+                        </MenuPopover>
+                      </Menu>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <ForceGraph 
-                  graphData={graphData} 
-                  onNodeClick={handleNodeClick}
-                />
-              )}
-              
-              {/* Node Context Panel */}
-              {selectedNode && (
-                <div className="position-absolute top-0 end-0 m-3" style={{ width: '300px', zIndex: 1000 }}>
-                  <Card>
-                    <Card.Header>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <Card.Title className="mb-0">Node Details</Card.Title>
-                        <Button 
-                          variant="text" 
-                          size="sm" 
+                }
+                action={<AxisIcon />}
+              />
+
+              <div className={styles.graphContainer}>
+                {loading ? (
+                  <div className={styles.emptyState}>
+                    <Spinner appearance="primary" size="large" />
+                    <Text color="muted">Building contextual layout for {axisTitle}</Text>
+                  </div>
+                ) : (
+                  <HoneycombGraph
+                    graphData={graphData}
+                    width="100%"
+                    height={520}
+                    emptyMessage="No graph data available for this axis."
+                    onNodeClick={(node) => setSelectedNode(node)}
+                  />
+                )}
+
+                {selectedNode && (
+                  <Card className={styles.nodePanel} appearance="subtle">
+                    <Card.Header
+                      header={<Text fontWeight="semibold">{selectedNode.name || selectedNode.id}</Text>}
+                      description={<Text fontSize="sm">ID: {selectedNode.id}</Text>}
+                      action={
+                        <Button
+                          variant="transparent"
+                          icon={<ResetIcon />}
                           onClick={() => setSelectedNode(null)}
                         >
-                          <i className="bi bi-x-lg"></i>
+                          Close
                         </Button>
-                      </div>
-                    </Card.Header>
+                      }
+                    />
                     <Card.Body>
-                      <h5>{selectedNode.name || selectedNode.id}</h5>
-                      <p className="small text-muted">ID: {selectedNode.id}</p>
-                      
-                      <div className="d-grid gap-2 mt-3">
-                        <Dropdown title="Node Actions" className="w-100">
-                          <Dropdown.Item>
-                            <i className="bi bi-person-fill me-2"></i> Simulate Expert
-                          </Dropdown.Item>
-                          <Dropdown.Item>
-                            <i className="bi bi-search me-2"></i> Run Query
-                          </Dropdown.Item>
-                          <Dropdown.Item>
-                            <i className="bi bi-hexagon-fill me-2"></i> Expand Honeycomb Crosswalk
-                          </Dropdown.Item>
-                        </Dropdown>
-                      </div>
+                      <Text fontSize="sm" color="muted">
+                        Group: {selectedNode.group ?? 'N/A'}
+                      </Text>
+                      <Text fontSize="sm" color="muted">
+                        Value: {selectedNode.value ? selectedNode.value.toFixed(2) : 'N/A'}
+                      </Text>
+                      <Button variant="primary" style={{ marginTop: '12px' }}>
+                        Launch detailed analysis
+                      </Button>
                     </Card.Body>
                   </Card>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            </Card>
           </div>
-        </div>
+        </section>
       </div>
     </Layout>
   );
+}
+
+function generateMockGraph() {
+  const nodes = Array.from({ length: 28 }, (_, i) => ({
+    id: `node-${i}`,
+    name: `Node ${i}`,
+    group: Math.floor(i / 4) + 1,
+    axis: (i % 5) + 1,
+    value: 10 + Math.random() * 15,
+  }));
+  const links = Array.from({ length: 38 }, () => ({
+    source: `node-${Math.floor(Math.random() * nodes.length)}`,
+    target: `node-${Math.floor(Math.random() * nodes.length)}`,
+    value: 1 + Math.random() * 4,
+  }));
+  return { nodes, links };
 }

@@ -1,185 +1,243 @@
-"""
-Universal Knowledge Graph (UKG) System - Chat API
+"""Universal Knowledge Graph (UKG) System - Chat API."""
 
-This module provides API endpoints for the UKG chat interface.
-"""
-
-import uuid
 import logging
 from datetime import datetime
-from flask import Blueprint, request, jsonify, current_app
-from models import Conversation, Message, db
 
-# Set up logging
+from flask import Blueprint, jsonify, request
+from sqlalchemy.exc import SQLAlchemyError
+
+from app import db
+from models import Conversation, ConversationMessage, User
+
 logger = logging.getLogger(__name__)
 
-chat_api = Blueprint('chat_api', __name__)
+
+chat_api = Blueprint("chat_api", __name__)
+
 
 def register_chat_api(app):
     """Register chat API endpoints with the application."""
-    # Set up database reference for routes to use
-    global db
-    db = app.config.get('DB')
-    
-    app.register_blueprint(chat_api, url_prefix='/api/chat')
+
+    app.register_blueprint(chat_api, url_prefix="/api/chat")
     logger.info("Chat API endpoints registered")
 
-@chat_api.route('/conversations', methods=['GET'])
-def get_conversations():
-    """Get all conversations."""
-    try:
-        conversations = Conversation.query.order_by(Conversation.created_at.desc()).all()
-        return jsonify({
-            'conversations': [conversation.to_dict() for conversation in conversations]
-        }), 200
-    except Exception as e:
-        logger.error(f"Error getting conversations: {str(e)}")
-        return jsonify({
-            'error': 'Error getting conversations',
-            'message': str(e)
-        }), 500
 
-@chat_api.route('/conversations', methods=['POST'])
-def create_conversation():
-    """Create a new conversation."""
+@chat_api.route("/conversations", methods=["GET"])
+def get_conversations():
+    """Return all stored conversations ordered by most recent activity."""
+
     try:
-        data = request.json
-        title = data.get('title', 'New Conversation')
-        metadata = data.get('metadata', {})
-        
-        conversation = Conversation(
-            uid=str(uuid.uuid4()),
-            title=title,
-            meta_data=metadata,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
+        conversations = (
+            Conversation.query.order_by(Conversation.updated_at.desc()).all()
         )
-        
+        return (
+            jsonify(
+                {
+                    "conversations": [
+                        conversation.to_dict(include_messages=False)
+                        for conversation in conversations
+                    ]
+                }
+            ),
+            200,
+        )
+    except SQLAlchemyError as exc:
+        logger.exception("Error getting conversations")
+        return (
+            jsonify(
+                {
+                    "error": "Error getting conversations",
+                    "message": str(exc),
+                }
+            ),
+            500,
+        )
+
+
+@chat_api.route("/conversations", methods=["POST"])
+def create_conversation():
+    """Create a new conversation optionally associated with a user."""
+
+    payload = request.get_json(silent=True) or {}
+    title = payload.get("title") or "New Conversation"
+    metadata = payload.get("metadata") or {}
+    user_id = payload.get("user_id")
+
+    conversation = Conversation(title=title, metadata=metadata)
+
+    if user_id is not None:
+        user = db.session.get(User, user_id)
+        if user is None:
+            return (
+                jsonify(
+                    {
+                        "error": "User not found",
+                        "message": f"No user exists with id {user_id}",
+                    }
+                ),
+                404,
+            )
+        conversation.user_id = user.id
+
+    try:
         db.session.add(conversation)
         db.session.commit()
-        
-        return jsonify({
-            'conversation': conversation.to_dict()
-        }), 201
-    except Exception as e:
-        logger.error(f"Error creating conversation: {str(e)}")
-        return jsonify({
-            'error': 'Error creating conversation',
-            'message': str(e)
-        }), 500
-
-@chat_api.route('/conversations/<conversation_id>', methods=['GET'])
-def get_conversation(conversation_id):
-    """Get a conversation by ID."""
-    try:
-        conversation = Conversation.query.filter_by(uid=conversation_id).first()
-        if not conversation:
-            return jsonify({
-                'error': 'Conversation not found',
-                'message': f'No conversation found with ID {conversation_id}'
-            }), 404
-        
-        messages = Message.query.filter_by(conversation_id=conversation.id).order_by(Message.created_at).all()
-        
-        return jsonify({
-            'conversation': conversation.to_dict(),
-            'messages': [message.to_dict() for message in messages]
-        }), 200
-    except Exception as e:
-        logger.error(f"Error getting conversation: {str(e)}")
-        return jsonify({
-            'error': 'Error getting conversation',
-            'message': str(e)
-        }), 500
-
-@chat_api.route('/conversations/<conversation_id>/messages', methods=['POST'])
-def create_message(conversation_id):
-    """Create a new message in a conversation."""
-    try:
-        data = request.json
-        content = data.get('content')
-        role = data.get('role', 'user')
-        metadata = data.get('metadata', {})
-        
-        if not content:
-            return jsonify({
-                'error': 'Missing content',
-                'message': 'Message content is required'
-            }), 400
-        
-        conversation = Conversation.query.filter_by(uid=conversation_id).first()
-        if not conversation:
-            return jsonify({
-                'error': 'Conversation not found',
-                'message': f'No conversation found with ID {conversation_id}'
-            }), 404
-        
-        message = Message(
-            uid=str(uuid.uuid4()),
-            conversation_id=conversation.id,
-            content=content,
-            role=role,
-            meta_data=metadata,
-            created_at=datetime.utcnow()
+    except SQLAlchemyError as exc:
+        db.session.rollback()
+        logger.exception("Error creating conversation")
+        return (
+            jsonify(
+                {
+                    "error": "Error creating conversation",
+                    "message": str(exc),
+                }
+            ),
+            500,
         )
-        
+
+    return jsonify({"conversation": conversation.to_dict()}), 201
+
+
+@chat_api.route("/conversations/<string:conversation_uid>", methods=["GET"])
+def get_conversation(conversation_uid):
+    """Return a conversation and its messages by UID."""
+
+    conversation = Conversation.query.filter_by(uid=conversation_uid).first()
+    if conversation is None:
+        return (
+            jsonify(
+                {
+                    "error": "Conversation not found",
+                    "message": f"No conversation found with ID {conversation_uid}",
+                }
+            ),
+            404,
+        )
+
+    messages = (
+        ConversationMessage.query.filter_by(conversation_id=conversation.id)
+        .order_by(ConversationMessage.created_at)
+        .all()
+    )
+
+    return (
+        jsonify(
+            {
+                "conversation": conversation.to_dict(include_messages=False),
+                "messages": [message.to_dict() for message in messages],
+            }
+        ),
+        200,
+    )
+
+
+@chat_api.route(
+    "/conversations/<string:conversation_uid>/messages", methods=["POST"]
+)
+def create_message(conversation_uid):
+    """Store a new message in the specified conversation."""
+
+    payload = request.get_json(silent=True) or {}
+    content = payload.get("content")
+    role = payload.get("role", "user")
+    metadata = payload.get("metadata") or {}
+
+    if not content:
+        return (
+            jsonify(
+                {
+                    "error": "Missing content",
+                    "message": "Message content is required",
+                }
+            ),
+            400,
+        )
+
+    conversation = Conversation.query.filter_by(uid=conversation_uid).first()
+    if conversation is None:
+        return (
+            jsonify(
+                {
+                    "error": "Conversation not found",
+                    "message": f"No conversation found with ID {conversation_uid}",
+                }
+            ),
+            404,
+        )
+
+    message = ConversationMessage(
+        conversation_id=conversation.id,
+        content=content,
+        role=role,
+        metadata=metadata,
+    )
+
+    conversation.updated_at = datetime.utcnow()
+
+    try:
         db.session.add(message)
-        
-        # Update conversation
-        conversation.updated_at = datetime.utcnow()
-        
         db.session.commit()
-        
-        # Generate system response if the message is from a user
-        if role == 'user':
-            system_response = generate_system_response(conversation, content)
-            
-            system_message = Message(
-                uid=str(uuid.uuid4()),
-                conversation_id=conversation.id,
-                content=system_response,
-                role='system',
-                meta_data={},
-                created_at=datetime.utcnow()
-            )
-            
+    except SQLAlchemyError as exc:
+        db.session.rollback()
+        logger.exception("Error creating message")
+        return (
+            jsonify({"error": "Error creating message", "message": str(exc)}),
+            500,
+        )
+
+    response_payload = {
+        "message": message.to_dict(),
+        "conversation": conversation.to_dict(include_messages=False),
+    }
+
+    if role == "user":
+        system_response = generate_system_response(content)
+        system_message = ConversationMessage(
+            conversation_id=conversation.id,
+            content=system_response,
+            role="system",
+            metadata={},
+        )
+
+        try:
             db.session.add(system_message)
             db.session.commit()
-        
-        messages = Message.query.filter_by(conversation_id=conversation.id).order_by(Message.created_at).all()
-        
-        return jsonify({
-            'message': message.to_dict(),
-            'conversation': conversation.to_dict(),
-            'messages': [msg.to_dict() for msg in messages]
-        }), 201
-    except Exception as e:
-        logger.error(f"Error creating message: {str(e)}")
-        return jsonify({
-            'error': 'Error creating message',
-            'message': str(e)
-        }), 500
+            response_payload["messages"] = [
+                message.to_dict(),
+                system_message.to_dict(),
+            ]
+        except SQLAlchemyError as exc:
+            db.session.rollback()
+            logger.exception("Error storing system response")
+            response_payload["system_error"] = str(exc)
 
-def generate_system_response(conversation, user_message):
-    """Generate a system response based on user input."""
+    return jsonify(response_payload), 201
+
+
+def generate_system_response(user_message: str) -> str:
+    """Generate a simple canned system response for demonstration purposes."""
+
     try:
-        # Simple response for demonstration purposes
-        greeting_phrases = ["hello", "hi", "hey", "greetings"]
-        greeting_response = "Hello! I'm your UKG assistant. How can I help you today?"
-        
-        knowledge_phrases = ["what is", "how does", "explain", "tell me about"]
-        knowledge_response = "The Universal Knowledge Graph (UKG) system is designed to manage and interconnect complex information across 13 axes of knowledge. It provides a framework for organizing, accessing, and reasoning with diverse types of information."
-        
-        # Check for greetings
-        if any(phrase in user_message.lower() for phrase in greeting_phrases):
-            return greeting_response
-        
-        # Check for knowledge queries
-        if any(phrase in user_message.lower() for phrase in knowledge_phrases):
-            return knowledge_response
-        
-        # Default response
-        return "I'm processing your request through the UKG system. This is a demonstration of the chat functionality. In a production environment, this would connect to sophisticated knowledge processing algorithms."
-    except Exception as e:
-        logger.error(f"Error generating system response: {str(e)}")
+        normalized_message = user_message.lower()
+        greeting_phrases = {"hello", "hi", "hey", "greetings"}
+        knowledge_phrases = {"what is", "how does", "explain", "tell me about"}
+
+        if any(phrase in normalized_message for phrase in greeting_phrases):
+            return "Hello! I'm your UKG assistant. How can I help you today?"
+
+        if any(phrase in normalized_message for phrase in knowledge_phrases):
+            return (
+                "The Universal Knowledge Graph (UKG) system is designed to manage and "
+                "interconnect complex information across 13 axes of knowledge. It "
+                "provides a framework for organizing, accessing, and reasoning with "
+                "diverse types of information."
+            )
+    except Exception:  # pragma: no cover - defensive fallback
+        logger.exception("Error generating system response")
         return "I apologize, but I encountered an error processing your request."
+
+    return (
+        "I'm processing your request through the UKG system. This is a demonstration "
+        "of the chat functionality. In a production environment, this would connect "
+        "to sophisticated knowledge processing algorithms."
+    )

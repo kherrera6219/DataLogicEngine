@@ -1,73 +1,55 @@
 import React from 'react';
+import { Dropdown as FluentDropdown, Option } from '@fluentui/react-components';
 
-const Dropdown = ({ 
-  id, 
-  name, 
-  value, 
-  onChange, 
-  options = [], 
-  placeholder = "Select an option", 
-  className = "",
-  title,
+const Dropdown = ({
+  id,
+  name,
+  value,
+  onChange,
+  options = [],
+  placeholder = 'Select an option',
+  multiselect = false,
   children,
-  ...props 
+  ...props
 }) => {
-  // If children are provided, render a dropdown menu component
+  const selectedOptions = Array.isArray(value) ? value : value ? [value] : [];
+
+  const handleChange = (event, data) => {
+    if (onChange) {
+      if (multiselect) {
+        onChange(data.selectedOptions);
+      } else {
+        onChange(data.optionValue || data.optionText || '');
+      }
+    }
+  };
+
+  const dropdownProps = {
+    id,
+    'aria-label': placeholder,
+    name,
+    multiselect,
+    selectedOptions,
+    placeholder,
+    onOptionSelect: handleChange,
+    ...props,
+  };
+
   if (children) {
-    return (
-      <div className="dropdown">
-        <button 
-          className={`btn dropdown-toggle ${className}`} 
-          type="button" 
-          id={id} 
-          data-bs-toggle="dropdown" 
-          aria-expanded="false"
-        >
-          {title || "Dropdown"}
-        </button>
-        <ul className="dropdown-menu" aria-labelledby={id}>
-          {children}
-        </ul>
-      </div>
-    );
+    return <FluentDropdown {...dropdownProps}>{children}</FluentDropdown>;
   }
-  
-  // Otherwise render a select component
+
   return (
-    <select
-      id={id}
-      name={name}
-      value={value}
-      onChange={onChange}
-      className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${className}`}
-      {...props}
-    >
-      <option value="" disabled>{placeholder}</option>
+    <FluentDropdown {...dropdownProps}>
       {options.map((option) => (
-        <option key={option.value} value={option.value}>
+        <Option key={option.value} value={option.value} text={option.label}>
           {option.label}
-        </option>
+        </Option>
       ))}
-    </select>
+    </FluentDropdown>
   );
 };
 
-// Add Item subcomponent for dropdown menus
-Dropdown.Item = ({ children, onClick, className = "" }) => {
-  return (
-    <li>
-      <button
-        className={`dropdown-item ${className}`}
-        type="button"
-        onClick={onClick}
-      >
-        {children}
-      </button>
-    </li>
-  );
-};
-
-// Provide a display name for the subcomponent to satisfy ESLint
-Dropdown.Item.displayName = "DropdownItem";
+Dropdown.Option = Option;
 
 export default Dropdown;

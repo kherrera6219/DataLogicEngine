@@ -2,14 +2,144 @@ import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import Layout from '../components/Layout';
 import { marked } from 'marked';
+import {
+  makeStyles,
+  shorthands,
+  Button as FluentButton,
+  Dialog,
+  DialogTrigger,
+  DialogSurface,
+  DialogTitle,
+  DialogBody,
+  DialogContent,
+  DialogActions,
+  Slider,
+  Switch,
+  Checkbox,
+  Field,
+  Spinner,
+  tokens,
+} from '@fluentui/react-components';
+import { bundleIcon, ChatSparkle24Filled, ChatSparkle24Regular, Settings24Filled, Settings24Regular, History24Filled, History24Regular, Delete24Regular, Send24Regular } from '@fluentui/react-icons';
+import Sidebar, { SidebarItem } from '../components/ui/Sidebar';
+import ChatMessage from '../components/ui/ChatMessage';
+import Button from '../components/ui/Button';
+import Textarea from '../components/ui/Textarea';
+import Text from '../components/ui/Text';
+
+const useStyles = makeStyles({
+  layout: {
+    display: 'grid',
+    gridTemplateColumns: '320px 1fr',
+    gap: '24px',
+    minHeight: 'calc(100vh - 200px)',
+    position: 'relative',
+    '@media(max-width: 992px)': {
+      gridTemplateColumns: '1fr',
+    },
+  },
+  sidebarToggle: {
+    position: 'fixed',
+    bottom: '32px',
+    right: '32px',
+    display: 'none',
+    zIndex: 1300,
+    '@media(max-width: 992px)': {
+      display: 'block',
+    },
+  },
+  chatSurface: {
+    backgroundColor: 'var(--colorNeutralBackground2)',
+    borderRadius: '24px',
+    boxShadow: '0 25px 60px rgba(8, 14, 30, 0.5)',
+    border: '1px solid rgba(255,255,255,0.04)',
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '600px',
+    overflow: 'hidden',
+  },
+  chatHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    ...shorthands.padding('20px', '24px'),
+    borderBottom: '1px solid rgba(255,255,255,0.04)',
+  },
+  chatTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  messagePane: {
+    flex: 1,
+    overflowY: 'auto',
+    ...shorthands.padding('24px', '24px', '0', '24px'),
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  emptyState: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    gap: '16px',
+    color: 'var(--colorNeutralForeground2)',
+  },
+  suggestions: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: '12px',
+  },
+  inputArea: {
+    borderTop: '1px solid rgba(255,255,255,0.04)',
+    backgroundColor: 'var(--colorNeutralBackground3)',
+    ...shorthands.padding('20px', '24px'),
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  inputRow: {
+    display: 'flex',
+    gap: '12px',
+    alignItems: 'flex-end',
+    '@media(max-width: 640px)': {
+      flexDirection: 'column',
+      alignItems: 'stretch',
+    },
+  },
+  textField: {
+    flex: 1,
+  },
+  historyHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '8px',
+  },
+  personaList: {
+    display: 'grid',
+    gap: '8px',
+  },
+});
+
+const ChatIcon = bundleIcon(ChatSparkle24Filled, ChatSparkle24Regular);
+const SettingsIcon = bundleIcon(Settings24Filled, Settings24Regular);
+const HistoryIcon = bundleIcon(History24Filled, History24Regular);
 
 export default function Chat() {
+  const styles = useStyles();
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [currentChatId, setCurrentChatId] = useState(null);
-  const [chatTitle, setChatTitle] = useState('New Conversation');
+  const [chatTitle, setChatTitle] = useState('New conversation');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState({
     confidenceThreshold: 0.85,
     enableLocationContext: true,
@@ -17,80 +147,55 @@ export default function Chat() {
     personas: {
       ke: true,
       se: true,
-      re: true, 
-      ce: true
-    }
+      re: true,
+      ce: true,
+    },
   });
 
   const messagesEndRef = useRef(null);
   const chatInputRef = useRef(null);
 
-  // Initialize chat
   useEffect(() => {
-    // Load chat history from local storage or API
-    const loadChatHistory = async () => {
-      try {
-        // This would be replaced with an API call in a real implementation
-        const savedHistory = localStorage.getItem('ukg_chat_history');
-        if (savedHistory) {
-          setChatHistory(JSON.parse(savedHistory));
-        }
-      } catch (error) {
-        console.error('Failed to load chat history:', error);
-      }
-    };
-
-    loadChatHistory();
-
-    // Add welcome message
-    setMessages([{
-      id: 'welcome',
-      type: 'system',
-      content: `# Welcome to the UKG Chat System\n\nA comprehensive AI knowledge system with a 13-axis Universal Knowledge Graph. How can I help you today?`
-    }]);
+    const savedHistory = typeof window !== 'undefined' ? window.localStorage.getItem('ukg_chat_history') : null;
+    if (savedHistory) {
+      setChatHistory(JSON.parse(savedHistory));
+    }
+    setMessages([
+      {
+        id: 'welcome',
+        type: 'system',
+        content: marked.parse('# Welcome to the UKG Chat System\n\nHow can the enterprise assistants help today?'),
+        timestamp: new Date().toISOString(),
+      },
+    ]);
   }, []);
 
-  // Scroll to bottom of messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Auto-resize text area
   useEffect(() => {
     if (chatInputRef.current) {
       chatInputRef.current.style.height = 'auto';
-      chatInputRef.current.style.height = chatInputRef.current.scrollHeight + 'px';
+      chatInputRef.current.style.height = `${chatInputRef.current.scrollHeight}px`;
     }
   }, [inputText]);
-
-  const handleInputChange = (e) => {
-    setInputText(e.target.value);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
 
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
 
-    // Add user message to chat
     const userMessage = {
       id: Date.now().toString(),
       type: 'user',
-      content: inputText,
-      timestamp: new Date().toISOString()
+      content: marked.parse(inputText),
+      timestamp: new Date().toISOString(),
     };
 
-    setMessages(prevMessages => [...prevMessages, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputText('');
     setIsLoading(true);
 
     try {
-      // Call API to get response
       const response = await fetch('/api/query', {
         method: 'POST',
         headers: {
@@ -103,117 +208,129 @@ export default function Chat() {
           use_location_context: settings.enableLocationContext,
           use_research_agents: settings.enableResearchAgents,
           active_personas: Object.entries(settings.personas)
-            .filter(([_, isActive]) => isActive)
-            .map(([key]) => key.toUpperCase())
+            .filter(([, isActive]) => isActive)
+            .map(([key]) => key.toUpperCase()),
         }),
       });
 
       const data = await response.json();
 
-      // Update chat ID if this is a new conversation
       if (!currentChatId && data.chat_id) {
         setCurrentChatId(data.chat_id);
-
-        // Create a new chat history item
         const newChatItem = {
           id: data.chat_id,
           title: generateChatTitle(inputText),
           created: new Date().toISOString(),
-          lastUpdated: new Date().toISOString()
+          lastUpdated: new Date().toISOString(),
         };
-
-        setChatHistory(prev => [newChatItem, ...prev]);
+        setChatHistory((prev) => {
+          const updated = [newChatItem, ...prev];
+          window.localStorage.setItem('ukg_chat_history', JSON.stringify(updated));
+          return updated;
+        });
         setChatTitle(newChatItem.title);
-
-        // Save to local storage (would be an API call in real implementation)
-        localStorage.setItem('ukg_chat_history', JSON.stringify([newChatItem, ...chatHistory]));
       }
 
-      // Add system response to chat
       const systemResponse = {
         id: `response-${Date.now()}`,
-        type: 'system',
-        content: data.error ? `Error: ${data.error}` : data.response,
+        type: data.error ? 'error' : 'system',
+        content: marked.parse(data.error ? `**Error:** ${data.error}` : data.response || 'No response received.'),
         confidence: data.confidence,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
-      setMessages(prevMessages => [...prevMessages, systemResponse]);
+      setMessages((prev) => [...prev, systemResponse]);
     } catch (error) {
-      console.error('Error sending message:', error);
-
-      // Add error message
       const errorMessage = {
         id: `error-${Date.now()}`,
         type: 'error',
-        content: 'Sorry, there was an error processing your request. Please try again.',
-        timestamp: new Date().toISOString()
+        content: marked.parse('Sorry, there was an error processing your request. Please try again.'),
+        timestamp: new Date().toISOString(),
       };
-
-      setMessages(prevMessages => [...prevMessages, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleNewChat = () => {
-    setMessages([{
-      id: 'welcome',
-      type: 'system',
-      content: `# Welcome to the UKG Chat System\n\nA comprehensive AI knowledge system with a 13-axis Universal Knowledge Graph. How can I help you today?`
-    }]);
-    setCurrentChatId(null);
-    setChatTitle('New Conversation');
+  const generateChatTitle = (message) => {
+    if (!message) return 'New conversation';
+    return message.length > 42 ? `${message.substring(0, 42)}…` : message;
   };
 
   const handleChatSelect = (chatId) => {
-    // In a real implementation, this would load messages from the API
-    const selectedChat = chatHistory.find(chat => chat.id === chatId);
-    if (selectedChat) {
+    const selected = chatHistory.find((chat) => chat.id === chatId);
+    if (selected) {
       setCurrentChatId(chatId);
-      setChatTitle(selectedChat.title);
+      setChatTitle(selected.title);
       setMessages([
         {
-          id: 'welcome',
+          id: 'resume',
           type: 'system',
-          content: `# ${selectedChat.title}\n\nContinuing your previous conversation.`
-        }
+          content: marked.parse(`# ${selected.title}\n\nLoading previous insights…`),
+          timestamp: new Date().toISOString(),
+        },
       ]);
+      setIsSidebarOpen(false);
     }
   };
 
   const handleClearChats = () => {
-    if (confirm('Are you sure you want to clear all chat history? This cannot be undone.')) {
+    if (typeof window !== 'undefined' && window.confirm('Clear all stored conversations?')) {
       setChatHistory([]);
-      localStorage.removeItem('ukg_chat_history');
-      handleNewChat();
+      window.localStorage.removeItem('ukg_chat_history');
+      setCurrentChatId(null);
+      setChatTitle('New conversation');
+      setMessages([
+        {
+          id: 'welcome',
+          type: 'system',
+          content: marked.parse('# Welcome to the UKG Chat System\n\nHow can the enterprise assistants help today?'),
+          timestamp: new Date().toISOString(),
+        },
+      ]);
     }
   };
 
-  const handleSaveSettings = () => {
-    // In a real implementation, this would save settings to the API
-    const modal = document.getElementById('settings-modal');
-    if (modal) {
-      const bootstrapModal = bootstrap.Modal.getInstance(modal);
-      bootstrapModal.hide();
+  const renderMessages = () => {
+    if (messages.length === 0) {
+      return (
+        <div className={styles.emptyState}>
+          <ChatIcon fontSize={28} />
+          <Text fontSize="lg" fontWeight="semibold">
+            Start a conversation
+          </Text>
+          <Text fontSize="sm" color="muted">
+            Ask about compliance status, regional operations, or contextual personas to activate Microsoft-aligned insights.
+          </Text>
+          <div className={styles.suggestions}>
+            {['How does the UKG system work?', 'Tell me about the 13 axes of knowledge', 'What are knowledge algorithms?'].map((prompt) => (
+              <Button key={prompt} variant="subtle" onClick={() => setInputText(prompt)}>
+                {prompt}
+              </Button>
+            ))}
+          </div>
+        </div>
+      );
     }
+
+    return messages.map((message) => (
+      <ChatMessage
+        key={message.id}
+        type={message.type}
+        content={message.content}
+        timestamp={message.timestamp}
+        metadata={message.confidence ? `Confidence: ${message.confidence}` : undefined}
+      />
+    ));
   };
 
-  const generateChatTitle = (firstMessage) => {
-    if (!firstMessage) return 'New Conversation';
-    // Truncate and clean up the message to create a title
-    return firstMessage.length > 30 
-      ? firstMessage.substring(0, 30) + '...' 
-      : firstMessage;
-  };
-
-  // Import responsive utilities
-  useEffect(() => {
-    import('../utils/responsive').then(module => {
-      const cleanupHandler = module.initResponsiveHandlers();
-      return () => cleanupHandler();
-    });
-  }, []);
+  const personaToggles = [
+    { id: 'ke', label: 'Knowledge Expert' },
+    { id: 'se', label: 'Skill Expert' },
+    { id: 're', label: 'Role Expert' },
+    { id: 'ce', label: 'Context Expert' },
+  ];
 
   return (
     <Layout>
@@ -221,338 +338,175 @@ export default function Chat() {
         <title>UKG Chat Interface</title>
       </Head>
 
-      <div className="chat-container">
-        <div className="chat-sidebar">
-          <div className="sidebar-header">
-            <h5 className="mb-0">Chat History</h5>
-            <button className="btn btn-sm btn-outline-light d-flex align-items-center">
-              <i className="bi bi-plus-lg"></i>
-            </button>
+      <div className={styles.layout}>
+        <Sidebar
+          headerTitle="Conversations"
+          headerActions={
+            <Button variant="subtle" size="sm" icon={<HistoryIcon />} onClick={() => setIsSidebarOpen(false)}>
+              Close
+            </Button>
+          }
+          isOpen={isSidebarOpen}
+        >
+          <div className={styles.historyHeader}>
+            <Text fontWeight="semibold">Chat history</Text>
+            <Button variant="subtle" size="sm" icon={<Delete24Regular />} onClick={handleClearChats}>
+              Clear
+            </Button>
           </div>
-          <div className="chat-history">
-            {chatHistory.map((chat, index) => (
-              <div 
-                key={index} 
-                className={`chat-history-item ${currentChatId === chat.id ? 'active' : ''}`}
-                onClick={() => handleChatSelect(chat.id)}
-              >
-                <i className="bi bi-chat-left-text"></i>
-                {chat.title}
-              </div>
-            ))}
+
+          <div>
             {chatHistory.length === 0 && (
-              <div className="text-center text-muted p-3">
-                <i className="bi bi-chat-square-text fs-3 mb-2"></i>
-                <p>No chat history yet</p>
-              </div>
+              <Text fontSize="sm" color="muted">
+                New conversations will be saved here for quick retrieval.
+              </Text>
             )}
+            {chatHistory.map((chat) => (
+              <SidebarItem
+                key={chat.id}
+                label={chat.title}
+                icon={<HistoryIcon />}
+                isActive={currentChatId === chat.id}
+                onClick={() => handleChatSelect(chat.id)}
+              />
+            ))}
           </div>
-          <div className="sidebar-footer">
-            <button className="btn btn-outline-light btn-sm w-100 d-flex align-items-center justify-content-center">
-              <i className="bi bi-trash me-2"></i>
-              Clear History
-            </button>
-          </div>
-        </div>
+        </Sidebar>
 
-        {/* Sidebar toggle button for mobile */}
-        <button className="sidebar-toggle">
-          <i className="bi bi-list"></i>
-        </button>
-
-        <div className="chat-main">
-          <div className="chat-header">
-            <h5 className="mb-0 d-flex align-items-center">
-              <i className="bi bi-robot me-2 d-none d-sm-inline"></i>
-              UKG Chat Assistant
-            </h5>
-            <div className="d-flex gap-2">
-              <button className="btn btn-sm btn-outline-light d-flex align-items-center">
-                <i className="bi bi-gear"></i>
-                <span className="ms-1 d-none d-md-inline">Settings</span>
-              </button>
-              <button className="btn btn-sm btn-outline-light d-flex align-items-center">
-                <i className="bi bi-question-circle"></i>
-                <span className="ms-1 d-none d-md-inline">Help</span>
-              </button>
+        <div className={styles.chatSurface}>
+          <div className={styles.chatHeader}>
+            <div className={styles.chatTitle}>
+              <ChatIcon fontSize={22} />
+              <div>
+                <Text fontSize="lg" fontWeight="semibold">
+                  UKG Copilot
+                </Text>
+                <Text fontSize="sm" color="muted">
+                  {chatTitle}
+                </Text>
+              </div>
             </div>
+
+            <Dialog open={settingsOpen} onOpenChange={(event, data) => setSettingsOpen(data.open)}>
+              <DialogTrigger disableButtonEnhancement>
+                <FluentButton appearance="transparent" icon={<SettingsIcon />}>
+                  Conversation settings
+                </FluentButton>
+              </DialogTrigger>
+              <DialogSurface>
+                <DialogBody>
+                  <DialogTitle>Conversation tuning</DialogTitle>
+                  <DialogContent>
+                    <Field label="Target confidence">
+                      <Slider
+                        min={0.6}
+                        max={0.95}
+                        step={0.05}
+                        value={settings.confidenceThreshold}
+                        onChange={(event, data) =>
+                          setSettings((prev) => ({ ...prev, confidenceThreshold: data.value }))
+                        }
+                      />
+                      <Text fontSize="sm" color="muted">
+                        {Math.round(settings.confidenceThreshold * 100)}% precision target
+                      </Text>
+                    </Field>
+
+                    <Switch
+                      checked={settings.enableLocationContext}
+                      label="Enable location context"
+                      onChange={(event, data) =>
+                        setSettings((prev) => ({ ...prev, enableLocationContext: data.checked }))
+                      }
+                    />
+                    <Switch
+                      checked={settings.enableResearchAgents}
+                      label="Enable research agents"
+                      onChange={(event, data) =>
+                        setSettings((prev) => ({ ...prev, enableResearchAgents: data.checked }))
+                      }
+                    />
+
+                    <Field label="Active personas">
+                      <div className={styles.personaList}>
+                        {personaToggles.map((persona) => (
+                          <Checkbox
+                            key={persona.id}
+                            label={persona.label}
+                            checked={settings.personas[persona.id]}
+                            onChange={(event, data) =>
+                              setSettings((prev) => ({
+                                ...prev,
+                                personas: {
+                                  ...prev.personas,
+                                  [persona.id]: data.checked,
+                                },
+                              }))
+                            }
+                          />
+                        ))}
+                      </div>
+                    </Field>
+                  </DialogContent>
+                  <DialogActions>
+                    <FluentButton appearance="secondary" onClick={() => setSettingsOpen(false)}>
+                      Done
+                    </FluentButton>
+                  </DialogActions>
+                </DialogBody>
+              </DialogSurface>
+            </Dialog>
           </div>
-          <div className="chat-messages" id="chat-messages">
-            {messages.length === 0 ? (
-              <div className="welcome-message">
-                <h2>Welcome to the UKG Chat System</h2>
-                <p>A comprehensive AI knowledge system with a 13-axis Universal Knowledge Graph.</p>
-                <div className="suggestion-chips">
-                  <div 
-                    className="chip" 
-                    onClick={() => setInputText("How does the UKG system work?")}
-                  >
-                    How does the UKG system work?
-                  </div>
-                  <div 
-                    className="chip"
-                    onClick={() => setInputText("Tell me about the 13 axes of knowledge")}
-                  >
-                    Tell me about the 13 axes of knowledge
-                  </div>
-                  <div 
-                    className="chip"
-                    onClick={() => setInputText("What are knowledge algorithms?")}
-                  >
-                    What are knowledge algorithms?
-                  </div>
-                </div>
-              </div>
-            ) : (
-              messages.map(message => (
-                <div key={message.id} className={`message ${message.type}`}>
-                  {message.type === 'user' ? (
-                    <>
-                      <div className="message-avatar">
-                        <i className="bi bi-person-circle"></i>
-                      </div>
-                      <div className="message-content">
-                        <div className="message-text">{message.content}</div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="message-avatar system-avatar">
-                        <i className="bi bi-robot"></i>
-                      </div>
-                      <div className="message-content">
-                        <div 
-                          className="message-text markdown-content"
-                          dangerouslySetInnerHTML={{ __html: marked.parse(message.content) }}
-                        ></div>
-                        {message.confidence && (
-                          <div className="message-metadata">
-                            <span className="confidence-badge">
-                              Confidence: {message.confidence}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))
-            )}
+
+          <div className={styles.messagePane}>
+            {renderMessages()}
             {isLoading && (
-              <div className="message system">
-                <div className="message-avatar system-avatar">
-                  <i className="bi bi-robot"></i>
-                </div>
-                <div className="message-content">
-                  <div className="message-text">
-                    <div className="typing-indicator">
-                      <span></span>
-                      <span></span>
-                      <span></span>
-                    </div>
-                  </div>
-                </div>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <Spinner size="medium" />
+                <Text color="muted">Synthesizing response…</Text>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
-          <div className="chat-input-container">
-            <div className="position-relative w-100">
-              <textarea 
-                id="chat-input" 
-                className="form-control" 
-                placeholder="Ask a question..." 
-                rows="1"
-                value={inputText}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
+
+          <div className={styles.inputArea}>
+            <div className={styles.inputRow}>
+              <Textarea
                 ref={chatInputRef}
+                value={inputText}
+                onChange={(event, data) => setInputText(data.value)}
+                placeholder="Ask a question about compliance, locations, or knowledge pillars…"
+                size="large"
+                className={styles.textField}
+                rows={1}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
               />
-              {inputText && (
-                <button 
-                  className="btn btn-sm btn-link position-absolute top-50 end-0 translate-middle-y text-secondary me-2"
-                  type="button"
-                  onClick={() => setInputText('')}
-                  style={{ zIndex: 5 }}
-                >
-                  <i className="bi bi-x-circle"></i>
-                </button>
-              )}
-            </div>
-            <div className="input-buttons">
-              <button 
-                className="btn btn-outline-light d-flex align-items-center justify-content-center" 
-                type="button"
-                title="Upload file"
-              >
-                <i className="bi bi-paperclip"></i>
-              </button>
-              <button 
-                className="btn btn-primary d-flex align-items-center justify-content-center" 
-                type="button"
+              <Button
+                variant="primary"
+                icon={<Send24Regular />}
                 onClick={handleSendMessage}
                 disabled={!inputText.trim() || isLoading}
-                style={{ minWidth: '48px', minHeight: '38px' }}
               >
-                {isLoading ? (
-                  <div className="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                ) : (
-                  <i className="bi bi-send"></i>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Settings Modal */}
-        <div className="modal fade" id="settings-modal" tabIndex="-1" aria-hidden="true">
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Chat Settings</h5>
-                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div className="modal-body">
-                <div className="mb-3">
-                  <label htmlFor="confidence-threshold" className="form-label">
-                    Target Confidence: <span id="confidence-value">{settings.confidenceThreshold}</span>
-                  </label>
-                  <input 
-                    type="range" 
-                    className="form-range" 
-                    id="confidence-threshold" 
-                    min="0.6" 
-                    max="0.95" 
-                    step="0.05" 
-                    value={settings.confidenceThreshold}
-                    onChange={(e) => setSettings({
-                      ...settings,
-                      confidenceThreshold: parseFloat(e.target.value)
-                    })}
-                  />
-                </div>
-                <div className="mb-3 form-check form-switch">
-                  <input 
-                    className="form-check-input" 
-                    type="checkbox" 
-                    id="enable-location-context"
-                    checked={settings.enableLocationContext}
-                    onChange={(e) => setSettings({
-                      ...settings,
-                      enableLocationContext: e.target.checked
-                    })}
-                  />
-                  <label className="form-check-label" htmlFor="enable-location-context">
-                    Enable Location Context
-                  </label>
-                </div>
-                <div className="mb-3 form-check form-switch">
-                  <input 
-                    className="form-check-input" 
-                    type="checkbox" 
-                    id="enable-research-agents"
-                    checked={settings.enableResearchAgents}
-                    onChange={(e) => setSettings({
-                      ...settings,
-                      enableResearchAgents: e.target.checked
-                    })}
-                  />
-                  <label className="form-check-label" htmlFor="enable-research-agents">
-                    Enable Research Agents
-                  </label>
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Active Personas</label>
-                  <div className="persona-toggles">
-                    <div className="form-check form-switch">
-                      <input 
-                        className="form-check-input" 
-                        type="checkbox" 
-                        id="persona-ke"
-                        checked={settings.personas.ke}
-                        onChange={(e) => setSettings({
-                          ...settings,
-                          personas: {
-                            ...settings.personas,
-                            ke: e.target.checked
-                          }
-                        })}
-                      />
-                      <label className="form-check-label" htmlFor="persona-ke">
-                        Knowledge Expert
-                      </label>
-                    </div>
-                    <div className="form-check form-switch">
-                      <input 
-                        className="form-check-input" 
-                        type="checkbox" 
-                        id="persona-se"
-                        checked={settings.personas.se}
-                        onChange={(e) => setSettings({
-                          ...settings,
-                          personas: {
-                            ...settings.personas,
-                            se: e.target.checked
-                          }
-                        })}
-                      />
-                      <label className="form-check-label" htmlFor="persona-se">
-                        Skill Expert
-                      </label>
-                    </div>
-                    <div className="form-check form-switch">
-                      <input 
-                        className="form-check-input" 
-                        type="checkbox" 
-                        id="persona-re"
-                        checked={settings.personas.re}
-                        onChange={(e) => setSettings({
-                          ...settings,
-                          personas: {
-                            ...settings.personas,
-                            re: e.target.checked
-                          }
-                        })}
-                      />
-                      <label className="form-check-label" htmlFor="persona-re">
-                        Role Expert
-                      </label>
-                    </div>
-                    <div className="form-check form-switch">
-                      <input 
-                        className="form-check-input" 
-                        type="checkbox" 
-                        id="persona-ce"
-                        checked={settings.personas.ce}
-                        onChange={(e) => setSettings({
-                          ...settings,
-                          personas: {
-                            ...settings.personas,
-                            ce: e.target.checked
-                          }
-                        })}
-                      />
-                      <label className="form-check-label" htmlFor="persona-ce">
-                        Context Expert
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" className="btn btn-primary" id="save-settings" onClick={handleSaveSettings}>
-                  Save changes
-                </button>
-              </div>
+                Send
+              </Button>
             </div>
           </div>
         </div>
       </div>
+
+      <Button
+        className={styles.sidebarToggle}
+        variant="primary"
+        icon={<HistoryIcon />}
+        onClick={() => setIsSidebarOpen((open) => !open)}
+      >
+        Conversation history
+      </Button>
     </Layout>
   );
 }

@@ -1,34 +1,23 @@
-
 import React from 'react';
-import { 
-  Badge as FluentBadge,
-  makeStyles,
-  mergeClasses
-} from '@fluentui/react-components';
+import { Badge as FluentBadge, makeStyles, mergeClasses } from '@fluentui/react-components';
 
 const useStyles = makeStyles({
-  badge: {
-    // Custom styling if needed
-  },
+  badge: {},
 });
 
-const Badge = ({ 
+const Badge = ({
   children,
   appearance = 'filled',
-  color = 'brand', // 'brand', 'danger', 'important', 'informative', 'severe', 'subtle', 'success', 'warning'
+  color = 'brand',
   shape = 'rounded',
   size = 'medium',
   icon,
   className,
-  ...props 
+  ...props
 }) => {
   const styles = useStyles();
-  
-  let iconElement = null;
-  if (icon) {
-    iconElement = <i className={`bi bi-${icon}`}></i>;
-  }
-  
+  const iconElement = React.isValidElement(icon) ? icon : undefined;
+
   return (
     <FluentBadge
       appearance={appearance}
