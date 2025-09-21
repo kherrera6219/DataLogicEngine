@@ -1,12 +1,7 @@
-
 import React from 'react';
-import { 
-  makeStyles, 
-  shorthands,
-  Text,
-  mergeClasses
-} from '@fluentui/react-components';
+import { makeStyles, shorthands, Text, mergeClasses } from '@fluentui/react-components';
 import Avatar from './Avatar';
+import { bundleIcon, Person24Filled, Person24Regular, Bot24Filled, Bot24Regular, ErrorCircle24Regular } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
   message: {
@@ -32,30 +27,29 @@ const useStyles = makeStyles({
   },
   textBubble: {
     ...shorthands.padding('16px'),
-    ...shorthands.borderRadius('12px', '12px', '12px', '0'),
+    ...shorthands.borderRadius('16px'),
     backgroundColor: 'var(--colorNeutralBackground4)',
     color: 'var(--colorNeutralForeground1)',
-    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 8px 24px rgba(10, 17, 35, 0.35)',
     position: 'relative',
   },
   userTextBubble: {
     backgroundColor: 'var(--colorBrandBackground)',
-    color: 'var(--colorNeutralForegroundInverted)',
-    ...shorthands.borderRadius('12px', '12px', '0', '12px'),
+    color: 'var(--colorNeutralForegroundOnBrand)',
   },
   errorTextBubble: {
-    backgroundColor: 'var(--colorPaletteRedBackground2)',
-    color: 'var(--colorPaletteRedForeground2)',
-    ...shorthands.borderRadius('12px', '12px', '12px', '0'),
+    backgroundColor: 'rgba(219, 54, 77, 0.12)',
+    color: '#ff8593',
+    border: '1px solid rgba(255, 133, 147, 0.35)',
   },
   metadata: {
-    marginTop: '4px',
+    marginTop: '6px',
     fontSize: '12px',
     color: 'var(--colorNeutralForeground3)',
   },
   '@keyframes fadeIn': {
     from: { opacity: 0, transform: 'translateY(10px)' },
-    to: { opacity: 1, transform: 'translateY(0)' }
+    to: { opacity: 1, transform: 'translateY(0)' },
   },
   markdown: {
     lineHeight: 1.6,
@@ -78,15 +72,15 @@ const useStyles = makeStyles({
       marginLeft: '20px',
     },
     '& code': {
-      backgroundColor: 'rgba(0, 0, 0, 0.1)',
+      backgroundColor: 'rgba(255, 255, 255, 0.08)',
       ...shorthands.padding('2px', '4px'),
-      ...shorthands.borderRadius('4px'),
+      ...shorthands.borderRadius('6px'),
       fontFamily: 'monospace',
     },
     '& pre': {
-      backgroundColor: 'rgba(0, 0, 0, 0.1)',
+      backgroundColor: 'rgba(0, 0, 0, 0.2)',
       ...shorthands.padding('12px'),
-      ...shorthands.borderRadius('4px'),
+      ...shorthands.borderRadius('8px'),
       overflowX: 'auto',
     },
     '& a': {
@@ -99,62 +93,72 @@ const useStyles = makeStyles({
   },
 });
 
-const ChatMessage = ({ 
-  type = 'system',  // 'system', 'user', 'error'
+const UserIcon = bundleIcon(Person24Filled, Person24Regular);
+const BotIcon = bundleIcon(Bot24Filled, Bot24Regular);
+
+const ChatMessage = ({
+  type = 'system',
   content,
   timestamp,
-  avatarIcon = '',
-  avatarInitials = '',
-  avatarImage = '',
   metadata,
-  ...props 
+  icon,
+  ...props
 }) => {
   const styles = useStyles();
-  
+
   const isUser = type === 'user';
   const isError = type === 'error';
+  const resolvedIcon = icon || (isUser ? <UserIcon /> : isError ? <ErrorCircle24Regular /> : <BotIcon />);
 
-  const formattedTime = new Date(timestamp).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-  
+  const formattedTime = timestamp
+    ? new Date(timestamp).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : null;
+
   return (
-    <div 
+    <div
       className={mergeClasses(
         styles.message,
         isUser && styles.userMessage,
         isError && styles.errorMessage,
-        !isUser && !isError && styles.systemMessage
+        !isUser && !isError && styles.systemMessage,
       )}
       {...props}
     >
-      <Avatar 
-        icon={avatarIcon || (isUser ? 'person' : isError ? 'exclamation-triangle' : 'robot')}
-        initials={avatarInitials}
-        image={avatarImage}
+      <Avatar
+        icon={resolvedIcon}
         color={isUser ? 'brand' : isError ? 'danger' : 'neutral'}
+        size={40}
       />
-      
+
       <div className={styles.content}>
-        <div 
+        <div
           className={mergeClasses(
             styles.textBubble,
             isUser && styles.userTextBubble,
-            isError && styles.errorTextBubble
+            isError && styles.errorTextBubble,
           )}
         >
           <div className={styles.markdown} dangerouslySetInnerHTML={{ __html: content }} />
         </div>
-        
-        <div className={styles.metadata}>
-          {timestamp && (
-            <Text size={100} weight="regular">{formattedTime}</Text>
-          )}
-          {metadata && (
-            <Text size={100} weight="regular"> · {metadata}</Text>
-          )}
-        </div>
+
+        {(formattedTime || metadata) && (
+          <div className={styles.metadata}>
+            {formattedTime && (
+              <Text size={100} weight="regular">
+                {formattedTime}
+              </Text>
+            )}
+            {metadata && (
+              <Text size={100} weight="regular">
+                {formattedTime ? ' · ' : ''}
+                {metadata}
+              </Text>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

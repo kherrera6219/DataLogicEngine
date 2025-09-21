@@ -1,20 +1,91 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Button, Textarea, Badge } from './';
-import Text from './Text';
-import Dropdown from './Dropdown';
-import Label from './Label';
-import { useToast } from '@chakra-ui/react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Card, Button, Text, Dropdown, Textarea, Badge } from './';
+import {
+  MessageBar,
+  MessageBarBody,
+  MessageBarTitle,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
+  Spinner,
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+  makeStyles,
+  shorthands,
+} from '@fluentui/react-components';
+
+const useStyles = makeStyles({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
+  },
+  controls: {
+    display: 'grid',
+    gap: '16px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+  },
+  notification: {
+    marginTop: '4px',
+  },
+  sublevelList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+    marginTop: '12px',
+  },
+  sublevelCard: {
+    borderRadius: '16px',
+    backgroundColor: 'var(--colorNeutralBackground3)',
+    border: '1px solid rgba(255,255,255,0.04)',
+    ...shorthands.padding('12px', '16px'),
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  sublevelHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '12px',
+  },
+  sublevelMeta: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+  },
+  relatedGrid: {
+    display: 'grid',
+    gap: '16px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+  },
+  loadingPanel: {
+    minHeight: '200px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '12px',
+    flexDirection: 'column',
+  },
+});
 
 export default function PillarMapping({ initialPillarId }) {
+  const styles = useStyles();
   const [pillars, setPillars] = useState([]);
   const [selectedPillar, setSelectedPillar] = useState(initialPillarId || '');
   const [expansion, setExpansion] = useState(null);
   const [contextText, setContextText] = useState('');
   const [loading, setLoading] = useState(false);
   const [mappings, setMappings] = useState([]);
-  const toast = useToast();
+  const [notification, setNotification] = useState(null);
 
-  // Load all pillars on component mount
   useEffect(() => {
     const fetchPillars = async () => {
       try {
@@ -23,14 +94,30 @@ export default function PillarMapping({ initialPillarId }) {
           const data = await response.json();
           setPillars(data);
         } else {
-          console.error('Failed to fetch pillars');
+          setNotification({ intent: 'error', title: 'Unable to load pillars', description: 'Failed to fetch pillars.' });
         }
       } catch (error) {
-        console.error('Error fetching pillars:', error);
+        setNotification({ intent: 'error', title: 'Unable to load pillars', description: error.message });
       }
     };
 
     fetchPillars();
+  }, []);
+
+  useEffect(() => {
+    if (!initialPillarId) return;
+    setSelectedPillar(initialPillarId);
+    fetchPillarExpansion(initialPillarId);
+  }, [initialPillarId, fetchPillarExpansion]);
+
+  useEffect(() => {
+    if (!notification) return;
+    const timer = setTimeout(() => setNotification(null), 5000);
+    return () => clearTimeout(timer);
+  }, [notification]);
+
+  const showNotification = useCallback((intent, title, description) => {
+    setNotification({ intent, title, description });
   }, []);
 
   const fetchMappings = useCallback(async (pillarId) => {
@@ -41,88 +128,57 @@ export default function PillarMapping({ initialPillarId }) {
         setMappings(data);
       }
     } catch (error) {
-      console.error('Error fetching mappings:', error);
+      showNotification('error', 'Mapping retrieval failed', error.message);
     }
-  }, []);
+  }, [showNotification]);
 
   const fetchPillarExpansion = useCallback(async (pillarId, text = null) => {
     if (!pillarId) return;
-
     setLoading(true);
     try {
       const response = await fetch(`/api/pillars/${pillarId}/expand`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ context_text: text }),
       });
-
       if (response.ok) {
         const data = await response.json();
         setExpansion(data);
-
-        // Also fetch existing mappings
         fetchMappings(pillarId);
       } else {
         const errorData = await response.json();
-        showToast({
-          title: 'Error',
-          description: errorData.error || 'Failed to expand pillar',
-          status: 'error',
-          duration: 5000,
-        });
+        showNotification('error', 'Expansion failed', errorData.error || 'Unable to expand pillar');
       }
     } catch (error) {
-      console.error('Error expanding pillar:', error);
-      showToast({
-        title: 'Error',
-        description: 'An unexpected error occurred',
-        status: 'error',
-        duration: 5000,
-      });
+      showNotification('error', 'Expansion failed', error.message);
     } finally {
       setLoading(false);
     }
-  }, [fetchMappings]);
-
-  // Load selected pillar if provided
-  useEffect(() => {
-    if (initialPillarId) {
-      setSelectedPillar(initialPillarId);
-      fetchPillarExpansion(initialPillarId);
-    }
-  }, [initialPillarId, fetchPillarExpansion]);
+  }, [fetchMappings, showNotification]);
 
   const handlePillarSelect = (pillarId) => {
     setSelectedPillar(pillarId);
     setContextText('');
     setExpansion(null);
+    setMappings([]);
     if (pillarId) {
       fetchPillarExpansion(pillarId);
     }
   };
 
   const handleExpandWithContext = () => {
-    if (selectedPillar) {
-      fetchPillarExpansion(selectedPillar, contextText);
-    } else {
-      showToast({
-        title: 'Warning',
-        description: 'Please select a pillar first',
-        status: 'warning',
-        duration: 3000,
-      });
+    if (!selectedPillar) {
+      showNotification('warning', 'Select a pillar', 'Choose a pillar before running a contextual expansion.');
+      return;
     }
+    fetchPillarExpansion(selectedPillar, contextText);
   };
 
   const createMapping = async (sourceSublevelId, targetPillarId, targetSublevelId) => {
     try {
       const response = await fetch('/api/pillars/mappings', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           source_pillar_id: selectedPillar,
           source_sublevel_id: sourceSublevelId,
@@ -130,245 +186,252 @@ export default function PillarMapping({ initialPillarId }) {
           target_sublevel_id: targetSublevelId,
           mapping_type: 'related_to',
           strength: 0.7,
-          bidirectional: true
+          bidirectional: true,
         }),
       });
-
       if (response.ok) {
-        showToast({
-          title: 'Success',
-          description: 'Mapping created successfully',
-          status: 'success',
-          duration: 3000,
-        });
-
-        // Refresh mappings
+        showNotification('success', 'Mapping created', 'The dynamic mapping was created successfully.');
         fetchMappings(selectedPillar);
       } else {
         const errorData = await response.json();
-        showToast({
-          title: 'Error',
-          description: errorData.error || 'Failed to create mapping',
-          status: 'error',
-          duration: 5000,
-        });
+        showNotification('error', 'Mapping failed', errorData.error || 'Unable to create mapping');
       }
     } catch (error) {
-      console.error('Error creating mapping:', error);
-      showToast({
-        title: 'Error',
-        description: 'An unexpected error occurred',
-        status: 'error',
-        duration: 5000,
-      });
+      showNotification('error', 'Mapping failed', error.message);
     }
   };
 
-  // Render sublevel tree with optional nesting
-  const renderSublevels = (sublevels, indent = 0) => {
-    if (!sublevels || !Array.isArray(sublevels) || sublevels.length === 0) {
-      return <Text color="gray.500" ml={indent * 4}>No sublevels defined</Text>;
-    }
-
-    return (
-      <div>
-        {sublevels.map((sublevel) => (
-          <div key={sublevel.id} style={{ marginLeft: `${indent * 20}px`, marginBottom: '8px' }}>
-            <div className="d-flex align-items-center">
-              <Badge color={indent === 0 ? 'primary' : indent === 1 ? 'info' : 'secondary'}>
-                {sublevel.id}
-              </Badge>
-              <Text ml={2} fontWeight={indent === 0 ? 'bold' : 'normal'}>
-                {sublevel.label || sublevel.name}
-              </Text>
-
-              {/* Add mapping dropdown for each sublevel */}
-              {expansion && expansion.related_pillars && expansion.related_pillars.length > 0 && (
-                <Dropdown 
-                  className="ms-auto" 
-                  title="Map to..." 
-                  variant="outline-secondary" 
-                  size="sm"
-                >
-                  {expansion.related_pillars.map(relatedPillar => (
-                    <div key={relatedPillar.pillar_id} className="dropdown-item">
-                      <strong>{relatedPillar.pillar_id}</strong>
-                      {relatedPillar.mappings && relatedPillar.mappings.map(mapping => (
-                        <Button
-                          key={`${mapping.target_sublevel}`}
-                          size="sm"
-                          variant="link"
-                          className="d-block text-start"
-                          onClick={() => createMapping(
-                            sublevel.id, 
-                            relatedPillar.pillar_id, 
-                            mapping.target_sublevel
-                          )}
-                        >
-                          Map to {mapping.target_sublevel}
-                        </Button>
-                      ))}
-                    </div>
-                  ))}
-                </Dropdown>
-              )}
-            </div>
-
-            {sublevel.description && (
-              <Text fontSize="sm" color="gray.600" ml={3}>
-                {sublevel.description}
-              </Text>
-            )}
-
-            {/* Recursively render nested sublevels */}
-            {sublevel.sublevels && renderSublevels(sublevel.sublevels, indent + 1)}
-          </div>
-        ))}
-      </div>
-    );
-  };
+  const pillarOptions = useMemo(
+    () =>
+      pillars.map((pillar) => ({
+        value: pillar.id,
+        label: `${pillar.id} — ${pillar.label || pillar.name}`,
+      })),
+    [pillars]
+  );
 
   return (
-    <div>
-      <Card className="mb-4">
-        <Card.Header>
-          <Card.Title>Knowledge Pillar Dynamic Mapping</Card.Title>
-        </Card.Header>
-        <Card.Body>
-          <div className="mb-4">
-            <Label htmlFor="pillarSelect">Select Pillar Level:</Label>
-            <Dropdown title={selectedPillar || "Select a Pillar"} id="pillarSelect">
-              {pillars.map(pillar => (
-                <Dropdown.Item 
-                  key={pillar.id} 
-                  onClick={() => handlePillarSelect(pillar.id)}
-                >
-                  {pillar.id}: {pillar.label || pillar.name}
-                </Dropdown.Item>
-              ))}
-            </Dropdown>
+    <div className={styles.container}>
+      {notification && (
+        <MessageBar intent={notification.intent} className={styles.notification}>
+          <MessageBarBody>
+            {notification.title && <MessageBarTitle>{notification.title}</MessageBarTitle>}
+            {notification.description}
+          </MessageBarBody>
+        </MessageBar>
+      )}
+
+      <div className={styles.controls}>
+        <div>
+          <Text fontWeight="semibold">Select pillar level</Text>
+          <Dropdown
+            placeholder="Choose a pillar"
+            options={pillarOptions}
+            value={selectedPillar}
+            onChange={(value) => handlePillarSelect(value)}
+          />
+        </div>
+        <div>
+          <Text fontWeight="semibold">Context for expansion</Text>
+          <Textarea
+            value={contextText}
+            onChange={(_, data) => setContextText(data.value)}
+            placeholder="Provide contextual details to refine the expansion"
+            rows={4}
+          />
+          <Button
+            style={{ marginTop: '8px' }}
+            variant="primary"
+            onClick={handleExpandWithContext}
+            disabled={!selectedPillar || loading}
+          >
+            {expansion ? 'Re-expand with context' : 'Expand with context'}
+          </Button>
+        </div>
+      </div>
+
+      {loading ? (
+        <Card appearance="subtle">
+          <div className={styles.loadingPanel}>
+            <Spinner appearance="primary" size="large" />
+            <Text color="muted">Generating dynamic mapping suggestions…</Text>
           </div>
+        </Card>
+      ) : (
+        expansion && (
+          <>
+            <Card appearance="subtle">
+              <Card.Header
+                header={<Text fontWeight="semibold">Pillar structure: {expansion.pillar_name} ({expansion.pillar_id})</Text>}
+                description={<Text fontSize="sm">Explore the base and expanded sublevels for this pillar.</Text>}
+              />
+              <Card.Body>
+                <Text fontWeight="semibold">Base sublevels</Text>
+                {renderSublevels(expansion.base_sublevels, 0, expansion, createMapping, styles)}
 
-          <div className="mb-4">
-            <Label htmlFor="contextText">Context for Expansion:</Label>
-            <Textarea
-              id="contextText"
-              value={contextText}
-              onChange={(e) => setContextText(e.target.value)}
-              placeholder="Enter text to provide context for dynamic mapping expansion..."
-              rows={4}
-            />
-            <div className="mt-2">
-              <Button 
-                onClick={handleExpandWithContext} 
-                disabled={!selectedPillar || loading}
-                isLoading={loading}
-              >
-                {expansion ? 'Re-expand with Context' : 'Expand with Context'}
-              </Button>
-            </div>
-          </div>
+                {expansion.expanded_sublevels && expansion.expanded_sublevels.length > 0 && (
+                  <>
+                    <Text fontWeight="semibold" style={{ marginTop: '16px' }}>
+                      Expanded sublevels
+                    </Text>
+                    {renderSublevels(expansion.expanded_sublevels, 0, expansion, createMapping, styles)}
+                  </>
+                )}
+              </Card.Body>
+            </Card>
 
-          {expansion && (
-            <>
-              <h4 className="mb-3">Pillar Structure: {expansion.pillar_name} ({expansion.pillar_id})</h4>
-              <div className="mb-4">
-                <h5>Base Sublevels</h5>
-                {renderSublevels(expansion.base_sublevels)}
-              </div>
-
-              {expansion.expanded_sublevels && expansion.expanded_sublevels.length > 0 && (
-                <div className="mb-4">
-                  <h5>Expanded Sublevels</h5>
-                  {renderSublevels(expansion.expanded_sublevels)}
-                </div>
-              )}
-
-              {expansion.related_pillars && expansion.related_pillars.length > 0 && (
-                <div className="mb-4">
-                  <h5>Related Pillars</h5>
-                  <div className="row">
-                    {expansion.related_pillars.map(relatedPillar => (
-                      <div key={relatedPillar.pillar_id} className="col-md-6 mb-3">
-                        <Card>
-                          <Card.Body>
-                            <div className="d-flex align-items-center mb-2">
-                              <h6 className="mb-0">{relatedPillar.pillar_id}</h6>
-                              <Badge 
-                                className="ms-2" 
-                                color={relatedPillar.suggested ? 'warning' : 'success'}
-                              >
-                                {relatedPillar.suggested ? 'Suggested' : 'Mapped'}
-                              </Badge>
-                              <Text className="ms-auto">
-                                Strength: {relatedPillar.strength.toFixed(2)}
-                              </Text>
-                            </div>
-
-                            {relatedPillar.mappings && relatedPillar.mappings.length > 0 && (
-                              <div>
-                                <Text fontSize="sm" fontWeight="bold">Existing Mappings:</Text>
-                                <ul className="list-unstyled ms-3">
-                                  {relatedPillar.mappings.map((mapping, idx) => (
-                                    <li key={idx}>
-                                      <Text fontSize="sm">
-                                        {mapping.source_sublevel || 'source'} → {mapping.target_sublevel || 'target'}
-                                        {mapping.mapping_type && ` (${mapping.mapping_type})`}
-                                      </Text>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-
-                            {relatedPillar.reason && (
-                              <Text fontSize="sm" fontStyle="italic" color="gray.500" mt={1}>
-                                {relatedPillar.reason}
-                              </Text>
-                            )}
-                          </Card.Body>
-                        </Card>
-                      </div>
+            {expansion.related_pillars && expansion.related_pillars.length > 0 && (
+              <Card appearance="subtle">
+                <Card.Header
+                  header={<Text fontWeight="semibold">Related pillars</Text>}
+                  description={<Text fontSize="sm">Suggested crosswalk opportunities based on semantic similarity.</Text>}
+                />
+                <Card.Body>
+                  <div className={styles.relatedGrid}>
+                    {expansion.related_pillars.map((related) => (
+                      <Card key={related.pillar_id} appearance="subtle">
+                        <Card.Body>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
+                            <Text fontWeight="semibold">{related.pillar_id}</Text>
+                            <Badge appearance="tint" color={related.suggested ? 'warning' : 'brand'}>
+                              {related.suggested ? 'Suggested' : 'Mapped'}
+                            </Badge>
+                          </div>
+                          <Text fontSize="sm" color="muted">
+                            Strength: {related.strength?.toFixed(2) || 'N/A'}
+                          </Text>
+                          {related.reason && (
+                            <Text fontSize="sm" color="muted" style={{ marginTop: '8px' }}>
+                              {related.reason}
+                            </Text>
+                          )}
+                        </Card.Body>
+                      </Card>
                     ))}
                   </div>
-                </div>
-              )}
+                </Card.Body>
+              </Card>
+            )}
 
-              {mappings && mappings.length > 0 && (
-                <div className="mb-4">
-                  <h5>All Dynamic Mappings</h5>
-                  <div className="table-responsive">
-                    <table className="table table-sm">
-                      <thead>
-                        <tr>
-                          <th>Source</th>
-                          <th>Target</th>
-                          <th>Type</th>
-                          <th>Strength</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {mappings.map((mapping, idx) => (
-                          <tr key={idx}>
-                            <td>
-                              {mapping.source.pillar_id}.{mapping.source.sublevel_id}
-                            </td>
-                            <td>
-                              {mapping.target.pillar_id}.{mapping.target.sublevel_id}
-                            </td>
-                            <td>{mapping.mapping_type}</td>
-                            <td>{mapping.strength.toFixed(2)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </Card.Body>
-      </Card>
+            {mappings && mappings.length > 0 && (
+              <Card appearance="subtle">
+                <Card.Header
+                  header={<Text fontWeight="semibold">Dynamic mappings</Text>}
+                  description={<Text fontSize="sm">Existing relationships generated from prior expansions.</Text>}
+                />
+                <Card.Body>
+                  <Table aria-label="Pillar mappings">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHeaderCell>Source</TableHeaderCell>
+                        <TableHeaderCell>Target</TableHeaderCell>
+                        <TableHeaderCell>Type</TableHeaderCell>
+                        <TableHeaderCell>Strength</TableHeaderCell>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {mappings.map((mapping, index) => (
+                        <TableRow key={`${mapping.source?.pillar_id}-${mapping.target?.pillar_id}-${index}`}>
+                          <TableCell>
+                            {mapping.source?.pillar_id}.{mapping.source?.sublevel_id}
+                          </TableCell>
+                          <TableCell>
+                            {mapping.target?.pillar_id}.{mapping.target?.sublevel_id}
+                          </TableCell>
+                          <TableCell>{mapping.mapping_type}</TableCell>
+                          <TableCell>{mapping.strength?.toFixed(2)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </Card.Body>
+              </Card>
+            )}
+          </>
+        )
+      )}
     </div>
   );
+}
+
+function renderSublevels(sublevels, depth, expansion, createMapping, styles) {
+  if (!sublevels || !Array.isArray(sublevels) || sublevels.length === 0) {
+    return <Text color="muted">No sublevels defined.</Text>;
+  }
+
+  return (
+    <div className={styles.sublevelList} style={{ marginLeft: depth * 16 }}>
+      {sublevels.map((sublevel) => (
+        <div key={sublevel.id} className={styles.sublevelCard}>
+          <div className={styles.sublevelHeader}>
+            <div className={styles.sublevelMeta}>
+              <Badge appearance="tint" color={depth === 0 ? 'brand' : 'neutral'}>
+                {sublevel.id}
+              </Badge>
+              <Text fontWeight={depth === 0 ? 'semibold' : 'medium'}>{sublevel.label || sublevel.name}</Text>
+            </div>
+            {hasMappingOptions(expansion) && (
+              <Menu positioning="below-end">
+                <MenuTrigger>
+                  <MenuButton appearance="transparent" size="small">
+                    Map to…
+                  </MenuButton>
+                </MenuTrigger>
+                <MenuPopover>
+                  <MenuList>
+                    {renderMappingOptions(expansion, sublevel, createMapping)}
+                  </MenuList>
+                </MenuPopover>
+              </Menu>
+            )}
+          </div>
+          {sublevel.description && (
+            <Text fontSize="sm" color="muted">
+              {sublevel.description}
+            </Text>
+          )}
+          {sublevel.sublevels &&
+            sublevel.sublevels.length > 0 &&
+            renderSublevels(sublevel.sublevels, depth + 1, expansion, createMapping, styles)}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function hasMappingOptions(expansion) {
+  return Boolean(
+    expansion &&
+      expansion.related_pillars &&
+      expansion.related_pillars.some((related) => Array.isArray(related.mappings) && related.mappings.length > 0)
+  );
+}
+
+function renderMappingOptions(expansion, sublevel, createMapping) {
+  if (!expansion?.related_pillars) {
+    return <MenuItem disabled>No mapping options available</MenuItem>;
+  }
+
+  const options = [];
+  expansion.related_pillars.forEach((related) => {
+    if (Array.isArray(related.mappings) && related.mappings.length > 0) {
+      related.mappings.forEach((mapping) => {
+        options.push({
+          key: `${related.pillar_id}-${mapping.target_sublevel}`,
+          label: `${related.pillar_id} → ${mapping.target_sublevel}`,
+          action: () => createMapping(sublevel.id, related.pillar_id, mapping.target_sublevel),
+        });
+      });
+    }
+  });
+
+  if (options.length === 0) {
+    return <MenuItem disabled>No mapping options available</MenuItem>;
+  }
+
+  return options.map((option) => (
+    <MenuItem key={option.key} onClick={option.action}>
+      {option.label}
+    </MenuItem>
+  ));
 }

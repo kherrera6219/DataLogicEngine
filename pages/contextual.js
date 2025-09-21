@@ -1,25 +1,37 @@
-
 import React from 'react';
 import Head from 'next/head';
 import Layout from '../components/Layout';
+import { makeStyles } from '@fluentui/react-components';
 import ContextualExpertWeb from '../components/ui/ContextualExpertWeb';
+import Text from '../components/ui/Text';
+
+const useStyles = makeStyles({
+  page: {
+    display: 'grid',
+    gap: '24px',
+  },
+});
 
 export default function ContextualExpertsPage() {
+  const styles = useStyles();
+
   return (
     <Layout>
       <Head>
         <title>Context Experts (Axis 11) - Universal Knowledge Graph</title>
         <meta name="description" content="Explore the contextual experts in the Universal Knowledge Graph system" />
       </Head>
-      
-      <div className="container mt-4 mb-5">
-        <h1 className="mb-4">Contextual Experts (Axis 11)</h1>
-        <p className="lead">
-          Axis 11 represents expert personas with specialized contextual knowledge. 
-          These experts embody real-world application contexts and provide specialized perspectives 
-          based on their role, education, certifications, training, skills, tasks, and related roles.
-        </p>
-        
+
+      <div className={styles.page}>
+        <div>
+          <Text fontSize="3xl" fontWeight="bold">
+            Contextual experts (Axis 11)
+          </Text>
+          <Text color="muted">
+            Personas representing situational awareness, education, certifications, and role-based decision making across the UKG.
+          </Text>
+        </div>
+
         <ContextualExpertWeb />
       </div>
     </Layout>

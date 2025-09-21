@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { 
-  makeStyles, 
+import {
+  makeStyles,
   shorthands,
   Button,
   Menu,
@@ -12,6 +12,19 @@ import {
 } from '@fluentui/react-components';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import {
+  bundleIcon,
+  Grid24Regular,
+  Grid24Filled,
+  Home24Filled,
+  Home24Regular,
+  Comment24Regular,
+  Comment24Filled,
+  Info24Regular,
+  Info24Filled,
+  Navigation24Filled,
+  Navigation24Regular
+} from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
   navbar: {
@@ -19,29 +32,39 @@ const useStyles = makeStyles({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'var(--colorNeutralBackground1)',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    ...shorthands.padding('8px', '16px'),
-    height: '60px',
+    backgroundColor: 'var(--colorNeutralBackground2)',
+    boxShadow: '0 10px 30px rgba(5, 9, 20, 0.45)',
+    ...shorthands.padding('10px', '24px'),
+    height: '72px',
     width: '100%',
     position: 'sticky',
     top: 0,
-    zIndex: 100,
+    zIndex: 120,
+    backdropFilter: 'blur(14px)',
+    borderBottom: `1px solid rgba(255, 255, 255, 0.06)`,
   },
   brand: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
     textDecoration: 'none',
-    color: 'var(--colorBrandForeground1)',
+    color: 'var(--colorNeutralForeground1)',
     fontWeight: 600,
   },
   logo: {
     display: 'flex',
-    fontSize: '24px',
+    fontSize: '28px',
+    width: '40px',
+    height: '40px',
+    borderRadius: '12px',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'linear-gradient(135deg, rgba(50, 116, 198, 0.85), rgba(14, 53, 103, 0.85))',
+    color: '#ffffff',
   },
   title: {
     fontSize: '18px',
+    letterSpacing: '0.02em',
     '@media(max-width: 576px)': {
       display: 'none',
     },
@@ -57,31 +80,48 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    '@media(max-width: 768px)': {
+    '@media(max-width: 900px)': {
       display: 'none',
     },
   },
   mobileMenu: {
     display: 'none',
-    '@media(max-width: 768px)': {
+    '@media(max-width: 900px)': {
       display: 'block',
     },
   },
   navLink: {
     color: 'var(--colorNeutralForeground1)',
     textDecoration: 'none',
-    ...shorthands.padding('8px', '12px'),
-    borderRadius: '4px',
-    transition: 'background-color 0.2s',
+    ...shorthands.padding('10px', '14px'),
+    borderRadius: '10px',
+    transition: 'background-color 0.25s, color 0.25s',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontWeight: 500,
     ':hover': {
-      backgroundColor: 'var(--colorNeutralBackground2)',
+      backgroundColor: 'rgba(117, 172, 242, 0.18)',
+      color: '#dce9ff',
     },
   },
   activeNavLink: {
-    backgroundColor: 'var(--colorNeutralBackground2)',
+    backgroundColor: 'rgba(117, 172, 242, 0.28)',
+    color: '#ffffff',
     fontWeight: 600,
   },
+  navIcon: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
 });
+
+const HomeIcon = bundleIcon(Home24Filled, Home24Regular);
+const ChatIcon = bundleIcon(Comment24Filled, Comment24Regular);
+const InfoIcon = bundleIcon(Info24Filled, Info24Regular);
+const GridIcon = bundleIcon(Grid24Filled, Grid24Regular);
+const MenuIcon = bundleIcon(Navigation24Filled, Navigation24Regular);
 
 const Navbar = ({ navItems = [] }) => {
   const styles = useStyles();
@@ -93,19 +133,21 @@ const Navbar = ({ navItems = [] }) => {
   return (
     <nav className={styles.navbar}>
       <Link href="/" className={styles.brand}>
-        <span className={styles.logo}><i className="bi bi-diagram-3"></i></span>
+        <span className={styles.logo}>
+          <GridIcon fontSize={20} />
+        </span>
         <span className={styles.title}>Universal Knowledge Graph</span>
         <span className={styles.titleShort}>UKG</span>
       </Link>
 
       <div className={styles.navItems}>
-        {navItems.map((item, index) => (
-          <Tooltip content={item.label} key={index}>
-            <Link 
-              href={item.href} 
+        {navItems.map((item) => (
+          <Tooltip content={item.label} key={item.href} relationship="label">
+            <Link
+              href={item.href}
               className={`${styles.navLink} ${isActiveLink(item.href) ? styles.activeNavLink : ''}`}
             >
-              {item.icon && <i className={`bi bi-${item.icon} me-2`}></i>}
+              {item.icon && <span className={styles.navIcon}>{item.icon}</span>}
               {item.label}
             </Link>
           </Tooltip>
@@ -113,22 +155,24 @@ const Navbar = ({ navItems = [] }) => {
       </div>
 
       <div className={styles.mobileMenu}>
-        <Menu>
+        <Menu open={isOpen} onOpenChange={(e, data) => setIsOpen(data.open)}>
           <MenuTrigger disableButtonEnhancement>
-            <Button 
-              icon={<i className="bi bi-list"></i>}
-              iconOnly
-              appearance="subtle"
-              aria-label="Menu"
+            <Button
+              icon={<MenuIcon />}
+              appearance="transparent"
+              aria-label="Open navigation menu"
             />
           </MenuTrigger>
           <MenuPopover>
             <MenuList>
-              {navItems.map((item, index) => (
-                <MenuItem 
-                  key={index} 
-                  onClick={() => router.push(item.href)}
-                  icon={<i className={`bi bi-${item.icon}`}></i>}
+              {navItems.map((item) => (
+                <MenuItem
+                  key={item.href}
+                  onClick={() => {
+                    setIsOpen(false);
+                    router.push(item.href);
+                  }}
+                  icon={item.icon}
                 >
                   {item.label}
                 </MenuItem>
@@ -143,19 +187,10 @@ const Navbar = ({ navItems = [] }) => {
 
 Navbar.defaultProps = {
   navItems: [
-    { href: '/', label: 'Home', icon: 'house' },
-    { href: '/axis1', label: 'Axis 1', icon: '1-circle' },
-    { href: '/axis2', label: 'Axis 2', icon: '2-circle' },
-    { href: '/axis3', label: 'Axis 3', icon: '3-circle' },
-    { href: '/axis4', label: 'Axis 4', icon: '4-circle' },
-    { href: '/axis5', label: 'Axis 5', icon: '5-circle' },
-    { href: '/axis6', label: 'Axis 6', icon: 'gear' },
-    { href: '/compliance', label: 'Compliance', icon: 'check-circle' },
-    { href: '/locations', label: 'Locations', icon: 'geo-alt' },
-    { href: '/contextual', label: 'Context Experts', icon: 'person' },
-    { href: '/timeline', label: 'Timeline', icon: 'clock-history' },
-    { href: '/unified-mapping', label: 'Unified Mapping', icon: 'geo' },
-    { href: '/compliance-dashboard', label: 'SOC 2 Compliance', icon: 'shield-check' } // Added compliance dashboard link
+    { href: '/', label: 'Home', icon: <HomeIcon /> },
+    { href: '/chat', label: 'Chat', icon: <ChatIcon /> },
+    { href: '/knowledge-graph', label: 'Knowledge Graph', icon: <GridIcon /> },
+    { href: '/contextual', label: 'Context Experts', icon: <InfoIcon /> },
   ],
 };
 

@@ -2,21 +2,21 @@
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-import os
+
+from config import get_config
 
 def create_app():
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///chatbot.db')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key')
+
+    config_obj = get_config()
+    app.config.from_object(config_obj)
     
     # Initialize extensions
     from .models import db
     db.init_app(app)
     
     jwt = JWTManager(app)
-    CORS(app)
+    CORS(app, origins=app.config.get('CORS_ORIGINS'))
     
     # Register blueprints
     from .auth import auth_bp
