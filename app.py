@@ -1,17 +1,32 @@
 import os
 import uuid
 import logging
+import logging.config
 from datetime import datetime
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, flash, g, redirect, render_template, request, url_for
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from werkzeug.middleware.proxy_fix import ProxyFix
 from sqlalchemy.orm import DeclarativeBase
+from werkzeug.middleware.proxy_fix import ProxyFix
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
+from backend.observability import configure_application_insights
+from backend.security import apply_enterprise_security
+from config.enterprise_settings import (
+    clear_correlation_id,
+    get_settings,
+    set_correlation_id,
+)
+
+settings = get_settings()
+
+logging.config.dictConfig(settings.logging_config())
 logger = logging.getLogger(__name__)
+request_logger = logging.getLogger("datalogic.request")
+_app_insights_resources = configure_application_insights(
+    settings.app_insights_connection_string,
+    logging.getLogger("datalogic.app"),
+)
 
 # Database setup
 class Base(DeclarativeBase):
@@ -19,11 +34,17 @@ class Base(DeclarativeBase):
 
 # Create Flask app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "ukg-dev-secret-key-replace-in-production")
+app.secret_key = settings.session_secret
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
+apply_enterprise_security(app, settings)
 
 # Configure database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+if settings.database_url:
+    app.config["SQLALCHEMY_DATABASE_URI"] = settings.database_url
+else:
+    fallback_db = "sqlite:///datalogic.db"
+    logger.warning("DATABASE_URL is not configured; defaulting to %s", fallback_db)
+    app.config["SQLALCHEMY_DATABASE_URI"] = fallback_db
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
@@ -51,6 +72,41 @@ def load_user(user_id):
 with app.app_context():
     db.create_all()
     logger.info("Database tables created")
+
+
+@app.before_request
+def _prepare_request_context():
+    correlation_id = request.headers.get("X-Correlation-ID") or str(uuid.uuid4())
+    g.correlation_id = correlation_id
+    set_correlation_id(correlation_id)
+    if settings.request_logging_enabled:
+        request_logger.info(
+            "Incoming %s request for %s from %s",
+            request.method,
+            request.full_path if request.query_string else request.path,
+            request.remote_addr,
+            extra={"correlation_id": correlation_id},
+        )
+
+
+@app.after_request
+def _finalize_response(response):
+    correlation_id = g.get("correlation_id", "-")
+    response.headers.setdefault("X-Correlation-ID", correlation_id)
+    if settings.request_logging_enabled:
+        request_logger.info(
+            "Completed %s %s with status %s",
+            request.method,
+            request.full_path if request.query_string else request.path,
+            response.status_code,
+            extra={"correlation_id": correlation_id},
+        )
+    return response
+
+
+@app.teardown_request
+def _clear_request_context(_):
+    clear_correlation_id()
 
 # Routes
 @app.route('/')
