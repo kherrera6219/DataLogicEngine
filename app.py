@@ -3,14 +3,16 @@ import uuid
 import logging
 from datetime import datetime
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 from sqlalchemy.orm import DeclarativeBase
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
+from config import get_config
+
+# Configure logging (level updated once configuration is loaded)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Database setup
@@ -19,16 +21,22 @@ class Base(DeclarativeBase):
 
 # Create Flask app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "ukg-dev-secret-key-replace-in-production")
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
 
-# Configure database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_pre_ping": True,
-    "pool_recycle": 300,
-}
+# Load configuration and secrets
+config_obj = get_config()
+app.config.from_object(config_obj)
+
+session_secret = os.environ.get("SESSION_SECRET")
+if session_secret:
+    app.config["SECRET_KEY"] = session_secret
+
+app.secret_key = app.config["SECRET_KEY"]
+
+# Update logging level based on configuration
+log_level_name = str(app.config.get("LOG_LEVEL", "INFO")).upper()
+logger.setLevel(getattr(logging, log_level_name, logging.INFO))
+logging.getLogger().setLevel(getattr(logging, log_level_name, logging.INFO))
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
 
 # Initialize extensions
 db = SQLAlchemy(app, model_class=Base)
@@ -47,10 +55,12 @@ from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEd
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
-# Create tables
-with app.app_context():
-    db.create_all()
-    logger.info("Database tables created")
+def initialize_database() -> None:
+    """Ensure database tables exist without relying on import-time side effects."""
+
+    with app.app_context():
+        db.create_all()
+        logger.info("Database tables ensured")
 
 # Routes
 @app.route('/')
@@ -345,4 +355,5 @@ def server_error(e):
 
 # Run the application
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3000, debug=True)
+    initialize_database()
+    app.run(host='0.0.0.0', port=3000, debug=app.config.get("DEBUG", False))

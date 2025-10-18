@@ -1,22 +1,14 @@
-
 import React from 'react';
-import { 
-  makeStyles, 
-  shorthands,
-  Button,
-  Text,
-  Divider,
-  mergeClasses
-} from '@fluentui/react-components';
+import { makeStyles, shorthands, Text, mergeClasses } from '@fluentui/react-components';
 
 const useStyles = makeStyles({
   sidebar: {
     display: 'flex',
     flexDirection: 'column',
-    width: '280px',
+    width: '320px',
     height: '100%',
-    backgroundColor: 'var(--colorNeutralBackground2)',
-    ...shorthands.borderRight('1px', 'solid', 'var(--colorNeutralStroke2)'),
+    backgroundColor: 'var(--colorNeutralBackground3)',
+    ...shorthands.borderRight('1px', 'solid', 'rgba(255,255,255,0.06)'),
     transition: 'transform 0.3s ease',
     '@media(max-width: 767px)': {
       position: 'fixed',
@@ -27,9 +19,9 @@ const useStyles = makeStyles({
       height: '60%',
       width: '100%',
       transform: 'translateY(100%)',
-      boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.2)',
+      boxShadow: '0 -2px 18px rgba(0, 0, 0, 0.25)',
       ...shorthands.borderRight('0'),
-      ...shorthands.borderTop('1px', 'solid', 'var(--colorNeutralStroke2)'),
+      ...shorthands.borderTop('1px', 'solid', 'rgba(255,255,255,0.06)'),
     },
   },
   sidebarShow: {
@@ -39,114 +31,91 @@ const useStyles = makeStyles({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    ...shorthands.padding('16px'),
-    ...shorthands.borderBottom('1px', 'solid', 'var(--colorNeutralStroke2)'),
+    ...shorthands.padding('20px'),
+    ...shorthands.borderBottom('1px', 'solid', 'rgba(255,255,255,0.06)'),
   },
   content: {
     flex: 1,
     overflowY: 'auto',
-    ...shorthands.padding('8px'),
+    ...shorthands.padding('12px', '20px'),
   },
   footer: {
-    ...shorthands.padding('16px'),
-    ...shorthands.borderTop('1px', 'solid', 'var(--colorNeutralStroke2)'),
+    ...shorthands.padding('20px'),
+    ...shorthands.borderTop('1px', 'solid', 'rgba(255,255,255,0.06)'),
   },
   listItem: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    ...shorthands.padding('12px'),
-    ...shorthands.borderRadius('4px'),
-    marginBottom: '4px',
+    ...shorthands.padding('12px', '16px'),
+    ...shorthands.borderRadius('10px'),
+    marginBottom: '6px',
     cursor: 'pointer',
-    transition: 'background-color 0.2s',
-    ':hover': {
-      backgroundColor: 'var(--colorNeutralBackground3)',
-    },
+    transition: 'background-color 0.2s ease, transform 0.2s ease',
     color: 'var(--colorNeutralForeground1)',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
+    ':hover': {
+      backgroundColor: 'rgba(117, 172, 242, 0.12)',
+      transform: 'translateX(2px)',
+    },
   },
   activeItem: {
-    backgroundColor: 'var(--colorBrandBackground2)',
+    backgroundColor: 'rgba(117, 172, 242, 0.22)',
+    color: '#ffffff',
     fontWeight: 600,
-    ':hover': {
-      backgroundColor: 'var(--colorBrandBackground2Hover)',
-    },
   },
   icon: {
-    fontSize: '16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '18px',
     color: 'var(--colorNeutralForeground3)',
   },
   activeIcon: {
-    color: 'var(--colorBrandForeground1)',
+    color: 'var(--colorBrandForegroundLink)',
   },
 });
 
-const Sidebar = ({ 
-  children, 
+const Sidebar = ({
+  children,
   headerTitle = 'Sidebar',
   headerActions,
   footerContent,
   isOpen = false,
   className,
-  ...props 
+  ...props
 }) => {
   const styles = useStyles();
-  
+
   return (
-    <div 
-      className={mergeClasses(
-        styles.sidebar, 
-        isOpen && styles.sidebarShow,
-        className
-      )} 
+    <div
+      className={mergeClasses(styles.sidebar, isOpen && styles.sidebarShow, className)}
       {...props}
     >
       <div className={styles.header}>
-        <Text weight="semibold" size={400}>{headerTitle}</Text>
+        <Text weight="semibold" size={400}>
+          {headerTitle}
+        </Text>
         {headerActions}
       </div>
-      
-      <div className={styles.content}>
-        {children}
-      </div>
-      
-      {footerContent && (
-        <div className={styles.footer}>
-          {footerContent}
-        </div>
-      )}
+
+      <div className={styles.content}>{children}</div>
+
+      {footerContent && <div className={styles.footer}>{footerContent}</div>}
     </div>
   );
 };
 
-// Helper component for sidebar items
-export const SidebarItem = ({ 
-  label, 
-  icon, 
-  isActive = false, 
-  onClick,
-  ...props 
-}) => {
+export const SidebarItem = ({ label, icon, isActive = false, onClick, className, ...props }) => {
   const styles = useStyles();
-  
+
   return (
-    <div 
-      className={mergeClasses(
-        styles.listItem, 
-        isActive && styles.activeItem
-      )}
+    <div
+      className={mergeClasses(styles.listItem, isActive && styles.activeItem, className)}
       onClick={onClick}
       {...props}
     >
       {icon && (
-        <i className={mergeClasses(
-          `bi bi-${icon}`, 
-          styles.icon,
-          isActive && styles.activeIcon
-        )}></i>
+        <span className={mergeClasses(styles.icon, isActive && styles.activeIcon)}>{icon}</span>
       )}
       <Text>{label}</Text>
     </div>

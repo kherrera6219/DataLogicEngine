@@ -5,11 +5,56 @@ This module provides configuration settings for the UKG system
 following Microsoft enterprise standards for security and integration.
 """
 
+import logging
 import os
+import secrets
+from pathlib import Path
+
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+
+logger = logging.getLogger(__name__)
+
+
+def _generate_ephemeral_secret(env_key: str) -> str:
+    """Return a secure secret for the provided environment key."""
+
+    value = os.environ.get(env_key)
+    if value:
+        return value
+
+    # Fallback to a strong, process-unique secret so development runs remain safe.
+    generated = secrets.token_hex(32)
+    logger.warning(
+        "%s not configured. Using a generated, ephemeral secret; set the environment "
+        "variable to persist sessions across restarts.",
+        env_key,
+    )
+    return generated
+
+
+def _default_sqlite_uri() -> str:
+    """Provide a safe SQLite URI when no database URL is configured."""
+
+    db_path = Path(os.environ.get("UKG_SQLITE_PATH", "ukg_system.db")).resolve()
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    return f"sqlite:///{db_path}"
+
+
+def _parse_cors_origins(value: str | None) -> list[str]:
+    """Parse the configured CORS origins with sensible defaults."""
+
+    if value:
+        return [origin.strip() for origin in value.split(",") if origin.strip()]
+
+    # Restrict defaults to common local development hosts rather than wildcard access.
+    return [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+
 
 class Config:
     """Base configuration class for UKG system."""
@@ -19,8 +64,8 @@ class Config:
     APP_VERSION = "1.0.0"
     
     # Security settings
-    SECRET_KEY = os.environ.get("SECRET_KEY", "ukg-dev-key-replace-in-production")
-    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "ukg-jwt-dev-key-replace-in-production")
+    SECRET_KEY = _generate_ephemeral_secret("SECRET_KEY")
+    JWT_SECRET_KEY = _generate_ephemeral_secret("JWT_SECRET_KEY")
     JWT_ACCESS_TOKEN_EXPIRES = 60 * 60  # 1 hour
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
@@ -29,7 +74,7 @@ class Config:
     REMEMBER_COOKIE_HTTPONLY = True
     
     # Database settings
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///ukg_system.db")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or _default_sqlite_uri()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_pre_ping": True,
@@ -66,7 +111,7 @@ class Config:
     LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     
     # CORS settings
-    CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*").split(",")
+    CORS_ORIGINS = _parse_cors_origins(os.environ.get("CORS_ORIGINS"))
 
 
 class DevelopmentConfig(Config):
