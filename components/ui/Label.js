@@ -1,23 +1,15 @@
-
 import React from 'react';
+import { Label as FluentLabel } from '@fluentui/react-components';
 
-const Label = ({ 
-  children, 
-  htmlFor, 
-  className = "", 
-  required = false, 
-  ...props 
-}) => {
+const Label = React.forwardRef(function EnterpriseLabel(
+  { children, required = false, size = 'medium', className, ...props },
+  ref
+) {
   return (
-    <label 
-      htmlFor={htmlFor} 
-      className={`block text-sm font-medium text-gray-700 ${className}`} 
-      {...props}
-    >
+    <FluentLabel ref={ref} required={required} size={size} className={className} {...props}>
       {children}
-      {required && <span className="text-red-500 ml-1">*</span>}
-    </label>
+    </FluentLabel>
   );
-};
+});
 
 export default Label;

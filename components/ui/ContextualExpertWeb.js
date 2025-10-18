@@ -1,8 +1,48 @@
-
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Spinner, Alert, Nav, Tab, Accordion } from 'react-bootstrap';
+import {
+  makeStyles,
+  shorthands,
+  Spinner,
+  Accordion,
+  AccordionItem,
+  AccordionHeader,
+  AccordionPanel,
+} from '@fluentui/react-components';
+import Card from './Card';
+import Button from './Button';
+import Text from './Text';
+
+const useStyles = makeStyles({
+  container: {
+    display: 'grid',
+    gap: '24px',
+    gridTemplateColumns: '280px 1fr',
+    '@media(max-width: 992px)': {
+      gridTemplateColumns: '1fr',
+    },
+  },
+  menu: {
+    display: 'grid',
+    gap: '8px',
+  },
+  details: {
+    display: 'grid',
+    gap: '16px',
+  },
+  infoSection: {
+    display: 'grid',
+    gap: '8px',
+  },
+  hierarchyCard: {
+    ...shorthands.padding('16px'),
+    borderRadius: '16px',
+    backgroundColor: 'rgba(117,172,242,0.12)',
+    border: '1px solid rgba(117,172,242,0.25)',
+  },
+});
 
 const ContextualExpertWeb = () => {
+  const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [experts, setExperts] = useState([]);
@@ -39,7 +79,7 @@ const ContextualExpertWeb = () => {
     try {
       const response = await fetch(`/api/contextual/expertise-model/${expertId}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setExpertiseModel(data.expertise_model);
       } else {
@@ -50,126 +90,91 @@ const ContextualExpertWeb = () => {
     }
   };
 
-  const handleExpertSelect = (expert) => {
-    setSelectedExpert(expert);
-    fetchExpertiseModel(expert.id);
-  };
+  if (loading) {
+    return <Spinner size="large" label="Loading contextual experts" />;
+  }
 
-  const renderExpertsMenu = () => {
+  if (error) {
     return (
-      <Nav variant="pills" className="flex-column">
-        {experts.map((expert) => (
-          <Nav.Item key={expert.id}>
-            <Nav.Link 
-              active={selectedExpert && selectedExpert.id === expert.id}
-              onClick={() => handleExpertSelect(expert)}
-            >
-              {expert.label}
-            </Nav.Link>
-          </Nav.Item>
-        ))}
-      </Nav>
-    );
-  };
-
-  const renderExpertiseModel = () => {
-    if (!expertiseModel) return null;
-
-    return (
-      <div className="expertise-model mt-3">
-        <h4>7-Part Expertise Model</h4>
-        
-        <Accordion defaultActiveKey="0">
-          <Accordion.Item eventKey="0">
-            <Accordion.Header>Role</Accordion.Header>
-            <Accordion.Body>
-              <p>{expertiseModel.role}</p>
-            </Accordion.Body>
-          </Accordion.Item>
-          
-          <Accordion.Item eventKey="1">
-            <Accordion.Header>Formal Education</Accordion.Header>
-            <Accordion.Body>
-              <ul>
-                {expertiseModel.formal_education.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </Accordion.Body>
-          </Accordion.Item>
-          
-          <Accordion.Item eventKey="2">
-            <Accordion.Header>Industry & Corporate Certifications</Accordion.Header>
-            <Accordion.Body>
-              <ul>
-                {expertiseModel.certifications.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </Accordion.Body>
-          </Accordion.Item>
-          
-          <Accordion.Item eventKey="3">
-            <Accordion.Header>Job Training</Accordion.Header>
-            <Accordion.Body>
-              <ul>
-                {expertiseModel.job_training.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </Accordion.Body>
-          </Accordion.Item>
-          
-          <Accordion.Item eventKey="4">
-            <Accordion.Header>Skills</Accordion.Header>
-            <Accordion.Body>
-              <ul>
-                {expertiseModel.skills.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </Accordion.Body>
-          </Accordion.Item>
-          
-          <Accordion.Item eventKey="5">
-            <Accordion.Header>Related Tasks</Accordion.Header>
-            <Accordion.Body>
-              <ul>
-                {expertiseModel.related_tasks.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </Accordion.Body>
-          </Accordion.Item>
-          
-          <Accordion.Item eventKey="6">
-            <Accordion.Header>Related Roles</Accordion.Header>
-            <Accordion.Body>
-              <ul>
-                {expertiseModel.related_roles.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </Accordion.Body>
-          </Accordion.Item>
-        </Accordion>
+      <div className={styles.hierarchyCard}>
+        <Text color="danger">{error}</Text>
       </div>
     );
-  };
+  }
 
-  const renderExpertDetails = () => {
-    if (!selectedExpert) return null;
+  const renderExpertiseAccordion = () => {
+    if (!expertiseModel) return null;
+
+    const sections = [
+      { key: 'role', label: 'Role', content: expertiseModel.role },
+      { key: 'formal_education', label: 'Formal education', content: expertiseModel.formal_education },
+      { key: 'certifications', label: 'Certifications', content: expertiseModel.certifications },
+      { key: 'job_training', label: 'Job training', content: expertiseModel.job_training },
+      { key: 'skills', label: 'Skills', content: expertiseModel.skills },
+      { key: 'related_tasks', label: 'Related tasks', content: expertiseModel.related_tasks },
+      { key: 'related_roles', label: 'Related roles', content: expertiseModel.related_roles },
+    ];
 
     return (
-      <div className="expert-details">
-        <h3>{selectedExpert.label}</h3>
-        <p>{selectedExpert.description}</p>
-        
-        {renderExpertiseModel()}
-        
-        <div className="branch-structure mt-4">
-          <h4>Branch Structure</h4>
-          <p>The contextual expert hierarchy follows the branch pattern:</p>
+      <Accordion collapsible>
+        {sections.map((section) => (
+          <AccordionItem key={section.key} value={section.key}>
+            <AccordionHeader>{section.label}</AccordionHeader>
+            <AccordionPanel>
+              {Array.isArray(section.content) ? (
+                <ul>
+                  {section.content.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              ) : (
+                <Text>{section.content}</Text>
+              )}
+            </AccordionPanel>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    );
+  };
+
+  return (
+    <div className={styles.container}>
+      <Card>
+        <Card.Body className={styles.menu}>
+          <Text fontWeight="semibold">Contextual experts</Text>
+          {experts.map((expert) => (
+            <Button
+              key={expert.id}
+              variant={selectedExpert?.id === expert.id ? 'primary' : 'subtle'}
+              onClick={() => {
+                setSelectedExpert(expert);
+                fetchExpertiseModel(expert.id);
+              }}
+            >
+              {expert.label}
+            </Button>
+          ))}
+        </Card.Body>
+      </Card>
+
+      <div className={styles.details}>
+        {selectedExpert && (
+          <Card>
+            <Card.Body className={styles.infoSection}>
+              <Text fontSize="lg" fontWeight="semibold">
+                {selectedExpert.label}
+              </Text>
+              <Text color="muted">{selectedExpert.description}</Text>
+              {renderExpertiseAccordion()}
+            </Card.Body>
+          </Card>
+        )}
+
+        <div className={styles.hierarchyCard}>
+          <Text fontWeight="semibold">Branch structure</Text>
+          <Text fontSize="sm" color="muted">
+            Context experts follow the UKG branch pattern:
+          </Text>
           <ul>
             <li>Mega branches (4)</li>
             <li>Large branches (4 per mega)</li>
@@ -179,48 +184,6 @@ const ContextualExpertWeb = () => {
           </ul>
         </div>
       </div>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="text-center p-5">
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert variant="danger">
-        {error}
-      </Alert>
-    );
-  }
-
-  return (
-    <div className="contextual-expert-web">
-      <Card className="mb-4">
-        <Card.Header>
-          <h2>Contextual Expert Web (Axis 11)</h2>
-          <p className="text-muted">
-            Contextual experts provide specialized perspectives based on real-world application contexts.
-            Each expert has a comprehensive 7-part expertise model.
-          </p>
-        </Card.Header>
-        <Card.Body>
-          <Row>
-            <Col md={4}>
-              {renderExpertsMenu()}
-            </Col>
-            <Col md={8}>
-              {renderExpertDetails()}
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
     </div>
   );
 };

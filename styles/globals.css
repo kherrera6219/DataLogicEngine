@@ -1,31 +1,84 @@
-/* Global styles for the UKG Next.js application - Fluent UI version */
-
 :root {
-  /* System variables using Fluent UI tokens - these will be overridden by FluentProvider */
-  --header-height: 60px;
-  --footer-height: 60px;
-  --sidebar-width: 280px;
+  color-scheme: dark;
+  --page-max-width: 1400px;
+  --page-gutter: 24px;
+  --surface-radius: 16px;
+  --surface-shadow: 0 20px 60px rgba(9, 15, 30, 0.45);
 }
 
-/* Root styles */
-html, body {
-  height: 100%;
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
   margin: 0;
-  font-family: 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
-  overflow-x: hidden;
+  padding: 0;
+  font-family: 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont,
+    'Roboto', 'Helvetica Neue', sans-serif;
+  background-color: var(--colorNeutralBackground1);
+  color: var(--colorNeutralForeground1);
 }
 
-/* Ensure SVGs inherit their parent's color */
-svg {
-  fill: currentColor;
+body {
+  display: flex;
+  flex-direction: column;
 }
 
-/* Markdown content styling */
+#__next {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: inherit;
+}
+
+a:hover {
+  color: var(--colorBrandForegroundLinkHover);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--colorBrandBackground);
+  outline-offset: 2px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+main {
+  width: 100%;
+}
+
+::selection {
+  background-color: rgba(117, 172, 242, 0.35);
+  color: var(--colorNeutralForeground1);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
 .markdown-content {
   line-height: 1.6;
   width: 100%;
   overflow-wrap: break-word;
-  word-wrap: break-word;
 }
 
 .markdown-content h1,
@@ -39,43 +92,19 @@ svg {
   font-weight: 600;
 }
 
-.markdown-content h1 {
-  font-size: clamp(1.5rem, 4vw, 1.8rem);
-}
-
-.markdown-content h2 {
-  font-size: clamp(1.3rem, 3vw, 1.5rem);
-}
-
-.markdown-content h3 {
-  font-size: clamp(1.1rem, 2.5vw, 1.3rem);
-}
-
-.markdown-content hr {
-  margin: 1.5rem 0;
-  border: 0;
-  border-top: 1px solid var(--colorNeutralStroke2);
-}
-
 .markdown-content code {
   font-family: 'Cascadia Code', Consolas, 'Courier New', monospace;
-  background-color: var(--colorNeutralBackground3);
+  background-color: rgba(255, 255, 255, 0.08);
   padding: 0.2rem 0.4rem;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.9em;
 }
 
 .markdown-content pre {
-  background-color: var(--colorNeutralBackground3);
+  background-color: rgba(0, 0, 0, 0.25);
   padding: 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
   overflow-x: auto;
-  max-width: 100%;
-}
-
-.markdown-content pre code {
-  background-color: transparent;
-  padding: 0;
 }
 
 .markdown-content a {
@@ -87,149 +116,79 @@ svg {
   text-decoration: underline;
 }
 
-.markdown-content blockquote {
-  border-left: 4px solid var(--colorBrandStroke1);
-  padding-left: 1rem;
-  color: var(--colorNeutralForeground2);
-  margin-left: 0;
-  margin-right: 0;
-}
-
 .markdown-content table {
-  border-collapse: collapse;
   width: 100%;
-  margin: 1rem 0;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
 }
 
 .markdown-content th,
 .markdown-content td {
-  padding: 0.5rem;
-  border: 1px solid var(--colorNeutralStroke2);
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .markdown-content th {
-  background-color: var(--colorNeutralBackground2);
+  background-color: rgba(255, 255, 255, 0.04);
   font-weight: 600;
 }
 
-/* Loading indicator */
-.typing-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.typing-indicator span {
-  width: 8px;
-  height: 8px;
-  background-color: var(--colorNeutralForeground3);
-  border-radius: 50%;
-  animation: typing 1s infinite ease-in-out;
-}
-
-.typing-indicator span:nth-child(1) {
-  animation-delay: 0.1s;
-}
-
-.typing-indicator span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.typing-indicator span:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-@keyframes typing {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
-/* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--colorNeutralBackground1);
+  background: rgba(17, 23, 35, 0.75);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--colorNeutralBackground4);
-  border-radius: 4px;
+  background: rgba(59, 120, 203, 0.45);
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--colorNeutralBackground4Hover);
+  background: rgba(59, 120, 203, 0.75);
 }
 
-/* Utility classes */
-.visually-hidden {
-  position: absolute !important;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-  clip: rect(1px, 1px, 1px, 1px);
-  white-space: nowrap;
-}
-
-/* Responsive grid utilities compatible with Bootstrap */
-.container {
-  width: 100%;
-  max-width: 1320px;
-  margin-right: auto;
-  margin-left: auto;
-  padding-right: 1rem;
-  padding-left: 1rem;
-}
-
-.row {
+.layout-shell {
   display: flex;
-  flex-wrap: wrap;
-  margin-right: -0.5rem;
-  margin-left: -0.5rem;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.col {
-  flex: 1 0 0%;
-  padding-right: 0.5rem;
-  padding-left: 0.5rem;
+.layout-content {
+  flex: 1 0 auto;
+  padding: 48px 0;
 }
 
-/* Responsive columns similar to Bootstrap's grid system */
-@media (min-width: 576px) {
-  .container {
-    max-width: 540px;
+.layout-inner {
+  width: min(100% - (var(--page-gutter) * 2), var(--page-max-width));
+  margin: 0 auto;
+}
+
+.page-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.surface-card {
+  background-color: var(--colorNeutralBackground2);
+  border-radius: var(--surface-radius);
+  box-shadow: var(--surface-shadow);
+  padding: 24px;
+}
+
+.surface-card + .surface-card {
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .layout-content {
+    padding: 32px 0;
   }
-}
 
-@media (min-width: 768px) {
-  .container {
-    max-width: 720px;
-  }
-}
-
-@media (min-width: 992px) {
-  .container {
-    max-width: 960px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .container {
-    max-width: 1140px;
-  }
-}
-
-@media (min-width: 1400px) {
-  .container {
-    max-width: 1320px;
+  .layout-inner {
+    width: min(100% - (var(--page-gutter) * 1.5), var(--page-max-width));
   }
 }
