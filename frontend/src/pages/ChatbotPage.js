@@ -29,7 +29,7 @@ import {
 import { FiSend, FiSettings, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { useUKG } from '../contexts/UKGContext';
 import { useNotification } from '../contexts/NotificationContext';
-import marked from 'marked';
+import { marked } from 'marked';
 
 const ChatbotPage = () => {
   const [input, setInput] = useState('');

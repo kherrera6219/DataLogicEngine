@@ -33,6 +33,7 @@ import {
   PopoverArrow,
   PopoverCloseButton,
   Portal,
+  Tooltip,
   useDisclosure,
   useToast
 } from '@chakra-ui/react';
@@ -55,7 +56,8 @@ import {
   FiSettings,
   FiPlusCircle,
   FiLayers,
-  FiMoreVertical
+  FiMoreVertical,
+  FiCpu
 } from 'react-icons/fi';
 
 const CanvasPage = () => {

@@ -2,12 +2,16 @@ import os
 import uuid
 import logging
 from datetime import datetime
+from dotenv import load_dotenv
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 from sqlalchemy.orm import DeclarativeBase
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -19,11 +23,12 @@ class Base(DeclarativeBase):
 
 # Create Flask app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "ukg-dev-secret-key-replace-in-production")
+app.secret_key = os.environ.get("SECRET_KEY", os.environ.get("SESSION_SECRET", "ukg-dev-secret-key-replace-in-production"))
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
 
 # Configure database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+database_url = os.environ.get("DATABASE_URL", "sqlite:///ukg_database.db")
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
@@ -345,4 +350,5 @@ def server_error(e):
 
 # Run the application
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
