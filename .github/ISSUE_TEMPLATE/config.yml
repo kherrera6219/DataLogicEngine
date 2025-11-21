@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/kherrera6219/DataLogicEngine/tree/main/docs
+    about: Check our documentation for help
+  - name: Discussions
+    url: https://github.com/kherrera6219/DataLogicEngine/discussions
+    about: Ask questions and discuss with the community
+  - name: Security Vulnerability
+    url: https://github.com/kherrera6219/DataLogicEngine/security/advisories/new
+    about: Report a security vulnerability (private)
