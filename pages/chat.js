@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import Layout from '../components/Layout';
 import { marked } from 'marked';
+import DOMPurify from 'isomorphic-dompurify';
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
@@ -321,9 +322,9 @@ export default function Chat() {
                         <i className="bi bi-robot"></i>
                       </div>
                       <div className="message-content">
-                        <div 
+                        <div
                           className="message-text markdown-content"
-                          dangerouslySetInnerHTML={{ __html: marked.parse(message.content) }}
+                          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(message.content)) }}
                         ></div>
                         {message.confidence && (
                           <div className="message-metadata">

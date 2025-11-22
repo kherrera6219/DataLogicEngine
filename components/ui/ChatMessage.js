@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { 
-  makeStyles, 
+import {
+  makeStyles,
   shorthands,
   Text,
   mergeClasses
 } from '@fluentui/react-components';
+import DOMPurify from 'isomorphic-dompurify';
 import Avatar from './Avatar';
 
 const useStyles = makeStyles({
@@ -99,7 +100,7 @@ const useStyles = makeStyles({
   },
 });
 
-const ChatMessage = ({ 
+const ChatMessage = ({
   type = 'system',  // 'system', 'user', 'error'
   content,
   timestamp,
@@ -107,16 +108,22 @@ const ChatMessage = ({
   avatarInitials = '',
   avatarImage = '',
   metadata,
-  ...props 
+  ...props
 }) => {
   const styles = useStyles();
-  
+
   const isUser = type === 'user';
   const isError = type === 'error';
 
   const formattedTime = new Date(timestamp).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit'
+  });
+
+  // Sanitize HTML content to prevent XSS attacks
+  const sanitizedContent = DOMPurify.sanitize(content, {
+    ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'ul', 'ol', 'li', 'code', 'pre', 'a', 'strong', 'em', 'br'],
+    ALLOWED_ATTR: ['href', 'target', 'rel']
   });
   
   return (
@@ -137,14 +144,14 @@ const ChatMessage = ({
       />
       
       <div className={styles.content}>
-        <div 
+        <div
           className={mergeClasses(
             styles.textBubble,
             isUser && styles.userTextBubble,
             isError && styles.errorTextBubble
           )}
         >
-          <div className={styles.markdown} dangerouslySetInnerHTML={{ __html: content }} />
+          <div className={styles.markdown} dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
         </div>
         
         <div className={styles.metadata}>

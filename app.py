@@ -19,7 +19,20 @@ class Base(DeclarativeBase):
 
 # Create Flask app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "ukg-dev-secret-key-replace-in-production")
+
+# Secure secret key handling
+if os.environ.get("FLASK_ENV") == "production":
+    # In production, require a secret key to be set
+    if not os.environ.get("SECRET_KEY"):
+        raise ValueError("SECRET_KEY environment variable must be set in production")
+    app.secret_key = os.environ.get("SECRET_KEY")
+else:
+    # In development, allow a default key but warn about it
+    app.secret_key = os.environ.get("SECRET_KEY")
+    if not app.secret_key:
+        app.secret_key = "dev-only-insecure-key-" + os.urandom(24).hex()
+        logger.warning("Using auto-generated development secret key. Set SECRET_KEY in production!")
+
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
 
 # Configure database

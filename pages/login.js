@@ -7,6 +7,10 @@ import { Card, Button, Input, Label } from '../components/ui';
 export default function LoginPage() {
   const [selectedRole, setSelectedRole] = useState('');
   const [isSimulationMode, setIsSimulationMode] = useState(true);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
   const roles = [
@@ -16,12 +20,47 @@ export default function LoginPage() {
     { id: 'compliance', name: 'Compliance Expert', icon: 'bi-clipboard-check' }
   ];
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Store selected role in sessionStorage
-    sessionStorage.setItem('userRole', selectedRole);
-    sessionStorage.setItem('simulationMode', isSimulationMode);
-    router.push('/knowledge-graph');
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password,
+          role: selectedRole,
+          simulationMode: isSimulationMode
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setError(data.error || 'Login failed. Please check your credentials.');
+        return;
+      }
+
+      // Store user preferences in localStorage (non-sensitive data only)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('userRole', selectedRole);
+        localStorage.setItem('simulationMode', isSimulationMode);
+        localStorage.setItem('username', data.user.username);
+      }
+
+      // Redirect to knowledge graph
+      router.push('/knowledge-graph');
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('An error occurred during login. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -36,7 +75,13 @@ export default function LoginPage() {
         </Card.Header>
         <Card.Body>
           <h4 className="mb-4 text-center">Role Selection & Login</h4>
-          
+
+          {error && (
+            <div className="alert alert-danger" role="alert">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleLogin}>
             <div className="mb-4">
               <Label>Select Your Role</Label>
@@ -57,20 +102,26 @@ export default function LoginPage() {
             
             <div className="mb-4">
               <Label htmlFor="username">Username</Label>
-              <Input 
-                id="username" 
+              <Input
+                id="username"
                 placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
-            
+
             <div className="mb-4">
               <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" 
-                type="password" 
+              <Input
+                id="password"
+                type="password"
                 placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
             
@@ -88,8 +139,8 @@ export default function LoginPage() {
             </div>
             
             <div className="d-grid">
-              <Button type="submit" disabled={!selectedRole}>
-                Login & Continue
+              <Button type="submit" disabled={!selectedRole || !username || !password || isLoading}>
+                {isLoading ? 'Logging in...' : 'Login & Continue'}
               </Button>
             </div>
           </form>
