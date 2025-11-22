@@ -70,7 +70,8 @@ import {
   FiUpload,
   FiDownload,
   FiCpu,
-  FiCloud
+  FiCloud,
+  FiEdit2
 } from 'react-icons/fi';
 
 const SettingsPage = () => {

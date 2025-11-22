@@ -1,0 +1,65 @@
+# DataLogicEngine / Universal Knowledge Graph System
+# Main Python Dependencies
+
+# Core Flask Framework
+flask>=3.1.1
+flask-sqlalchemy>=3.1.1
+flask-login>=0.6.2
+flask-cors>=6.0.0
+flask-migrate>=4.0.5
+werkzeug>=3.0.0
+
+# Database
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+alembic>=1.12.0
+
+# Web Server
+gunicorn>=21.2.0
+
+# Authentication & Security
+pyjwt>=2.10.1
+cryptography>=41.0.0
+bcrypt>=4.0.1
+
+# AI/ML & Knowledge Graph
+networkx>=3.4.2
+openai>=1.79.0
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Azure Integration (Enterprise)
+azure-identity>=1.15.0
+azure-storage-blob>=12.19.0
+msal>=1.25.0
+
+# HTTP & API
+requests>=2.31.0
+httpx>=0.24.0
+aiohttp>=3.8.5
+
+# Data Processing
+pandas>=2.0.0
+python-dateutil>=2.8.2
+
+# Configuration & Environment
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+
+# Utilities
+click>=8.1.7
+colorama>=0.4.6
+python-json-logger>=2.0.7
+
+# Optional: FastAPI (for enterprise architecture)
+fastapi>=0.95.0
+uvicorn[standard]>=0.22.0
+python-multipart>=0.0.6
+python-jose[cryptography]>=3.3.0
+pydantic>=2.0.0
+
+# Development & Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+black>=23.7.0
+flake8>=6.1.0
