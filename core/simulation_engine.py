@@ -333,14 +333,66 @@ class SimulationEngine:
     
     def _compile_final_answer(self, simulation_data: Dict) -> Dict:
         """Compile final answer and add to simulation data"""
-        # TODO: Implement answer compilation logic
-        
-        # Placeholder
+        # Extract key information from simulation
+        query = simulation_data.get("query", "")
+        final_confidence = simulation_data.get("current_confidence", 0.0)
+        esi_score = simulation_data.get("esi_score", 0.0)
+        status = simulation_data.get("status", "UNKNOWN")
+        num_passes = simulation_data.get("current_pass", 0)
+        history = simulation_data.get("history", [])
+
+        # Calculate confidence progression
+        confidence_progression = []
+        if history:
+            initial_confidence = history[0].get("confidence", 0.65)
+            confidence_gain = final_confidence - initial_confidence
+            confidence_progression = [h.get("confidence", 0.0) for h in history]
+        else:
+            initial_confidence = 0.65
+            confidence_gain = final_confidence - initial_confidence
+
+        # Determine success level
+        if status == "COMPLETED_SUCCESS":
+            success_level = "Success"
+            result_summary = f"Query successfully processed with {final_confidence:.2%} confidence."
+        elif status.startswith("CONTAINED_"):
+            success_level = "Contained"
+            result_summary = f"Query processing was contained due to: {status.replace('CONTAINED_', '').replace('_', ' ').lower()}."
+        elif status == "MAX_PASSES_REACHED":
+            success_level = "Partial"
+            result_summary = f"Maximum iterations reached ({num_passes} passes) with {final_confidence:.2%} confidence."
+        else:
+            success_level = "Unknown"
+            result_summary = f"Query processing completed with status: {status}."
+
+        # Build detailed analysis text
+        analysis_parts = [
+            f"Query Analysis: '{query}'",
+            f"\nResult: {result_summary}",
+            f"\nProcessing Details:",
+            f"  - Total Passes: {num_passes}",
+            f"  - Final Confidence: {final_confidence:.2%}",
+            f"  - Confidence Gain: {confidence_gain:+.2%}",
+            f"  - ESI Score: {esi_score:.4f}"
+        ]
+
+        if confidence_progression:
+            analysis_parts.append(f"  - Confidence Progression: {' → '.join([f'{c:.2%}' for c in confidence_progression])}")
+
+        analysis_text = "\n".join(analysis_parts)
+
+        # Compile final answer structure
         simulation_data["final_answer"] = {
-            "text": f"This is a placeholder answer for: {simulation_data['query']}",
-            "confidence": simulation_data["current_confidence"],
-            "esi_score": simulation_data.get("esi_score", 0.0),
-            "final_status": simulation_data["status"]
+            "text": analysis_text,
+            "query": query,
+            "confidence": final_confidence,
+            "confidence_gain": confidence_gain,
+            "esi_score": esi_score,
+            "final_status": status,
+            "success_level": success_level,
+            "num_passes": num_passes,
+            "confidence_progression": confidence_progression,
+            "summary": result_summary
         }
-        
+
         return simulation_data
