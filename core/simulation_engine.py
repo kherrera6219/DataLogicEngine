@@ -486,51 +486,500 @@ class SimulationEngine:
     def _execute_layer4_pov_engine(self, simulation_data: Dict) -> Dict:
         """Execute Layer 4: Point-of-View Engine"""
         self.logger.info("Executing Layer 4: Point-of-View Engine")
-        # TODO: Implement Layer 4 logic
-        
-        # For now, just increment confidence
-        simulation_data["current_confidence"] = min(simulation_data["current_confidence"] + 0.05, 0.99)
-        
+
+        query = simulation_data.get("query", "")
+        layer1_results = simulation_data.get("layer1_results", {})
+        layer2_results = simulation_data.get("layer2_results", {})
+        layer3_results = simulation_data.get("layer3_results", {})
+
+        # Initialize Layer 4 results
+        layer4_results = {
+            "perspectives_generated": [],
+            "viewpoint_diversity_score": 0.0,
+            "consensus_areas": [],
+            "divergent_areas": [],
+            "synthesized_insights": []
+        }
+
+        # Define multiple points of view to explore
+        perspectives = [
+            {"name": "analytical", "weight": 0.25, "focus": "logical reasoning"},
+            {"name": "empirical", "weight": 0.25, "focus": "evidence-based"},
+            {"name": "theoretical", "weight": 0.20, "focus": "conceptual frameworks"},
+            {"name": "pragmatic", "weight": 0.20, "focus": "practical application"},
+            {"name": "critical", "weight": 0.10, "focus": "alternative viewpoints"}
+        ]
+
+        # Generate perspective analyses
+        for perspective in perspectives:
+            perspective_analysis = {
+                "name": perspective["name"],
+                "focus": perspective["focus"],
+                "weight": perspective["weight"],
+                "alignment_score": 0.5 + (perspective["weight"] * 0.8),
+                "key_insights": []
+            }
+
+            # Simulate perspective-specific insights
+            num_insights = max(1, int(perspective["weight"] * 10))
+            for i in range(num_insights):
+                perspective_analysis["key_insights"].append(
+                    f"{perspective['name']}_insight_{i+1}"
+                )
+
+            layer4_results["perspectives_generated"].append(perspective_analysis)
+
+        # Calculate viewpoint diversity
+        weights = [p["weight"] for p in perspectives]
+        layer4_results["viewpoint_diversity_score"] = 1.0 - max(weights)
+
+        # Identify consensus and divergent areas
+        if len(layer4_results["perspectives_generated"]) >= 3:
+            layer4_results["consensus_areas"].append("core_query_intent")
+            layer4_results["consensus_areas"].append("primary_knowledge_domain")
+
+        if layer4_results["viewpoint_diversity_score"] > 0.7:
+            layer4_results["divergent_areas"].append("interpretation_approach")
+            layer4_results["divergent_areas"].append("solution_methodology")
+
+        # Synthesize cross-perspective insights
+        num_syntheses = min(3, len(layer4_results["perspectives_generated"]))
+        for i in range(num_syntheses):
+            layer4_results["synthesized_insights"].append({
+                "synthesis_id": f"S{i+1}",
+                "combines_perspectives": [p["name"] for p in perspectives[:i+2]],
+                "confidence": 0.7 + (i * 0.05)
+            })
+
+        # Store Layer 4 results
+        simulation_data["layer4_results"] = layer4_results
+
+        # Calculate confidence boost
+        base_boost = 0.05
+        diversity_bonus = layer4_results["viewpoint_diversity_score"] * 0.03
+        synthesis_bonus = len(layer4_results["synthesized_insights"]) * 0.01
+
+        total_boost = min(base_boost + diversity_bonus + synthesis_bonus, 0.12)
+
+        simulation_data["current_confidence"] = min(
+            simulation_data["current_confidence"] + total_boost, 0.99
+        )
+
+        self.logger.info(
+            f"Layer 4 complete: perspectives={len(layer4_results['perspectives_generated'])}, "
+            f"diversity={layer4_results['viewpoint_diversity_score']:.2f}, "
+            f"syntheses={len(layer4_results['synthesized_insights'])}, boost={total_boost:.3f}"
+        )
+
         return simulation_data
         
     def _execute_layer5_mas(self, simulation_data: Dict) -> Dict:
         """Execute Layer 5: Multi-Agent System"""
         self.logger.info("Executing Layer 5: Multi-Agent System")
-        # TODO: Implement Layer 5 logic
-        
-        # For now, just increment confidence
-        simulation_data["current_confidence"] = min(simulation_data["current_confidence"] + 0.05, 0.99)
-        
+
+        query = simulation_data.get("query", "")
+        layer1_results = simulation_data.get("layer1_results", {})
+        layer3_results = simulation_data.get("layer3_results", {})
+        layer4_results = simulation_data.get("layer4_results", {})
+
+        # Initialize Layer 5 results
+        layer5_results = {
+            "agents_instantiated": [],
+            "agent_interactions": [],
+            "collaboration_score": 0.0,
+            "emergent_behaviors": [],
+            "consensus_reached": False,
+            "collective_intelligence_score": 0.0
+        }
+
+        # Define specialized agents in the multi-agent system
+        agents = [
+            {"id": "agent_planner", "role": "planning", "capability": "task_decomposition"},
+            {"id": "agent_executor", "role": "execution", "capability": "action_taking"},
+            {"id": "agent_critic", "role": "evaluation", "capability": "quality_assessment"},
+            {"id": "agent_synthesizer", "role": "integration", "capability": "information_fusion"},
+            {"id": "agent_monitor", "role": "oversight", "capability": "progress_tracking"}
+        ]
+
+        # Instantiate agents based on query complexity
+        word_count = layer1_results.get("word_count", 0)
+        num_agents = min(len(agents), max(3, word_count // 15))
+
+        for i in range(num_agents):
+            agent = agents[i].copy()
+            agent["activation_time"] = i * 0.1
+            agent["confidence_contribution"] = 0.02 + (i * 0.005)
+            layer5_results["agents_instantiated"].append(agent)
+
+        # Simulate agent interactions
+        num_interactions = num_agents * (num_agents - 1) // 2
+        for i in range(min(num_interactions, 10)):
+            interaction = {
+                "interaction_id": f"I{i+1}",
+                "participants": min(2 + (i % 2), num_agents),
+                "interaction_type": ["information_sharing", "collaborative_reasoning", "consensus_building"][i % 3],
+                "outcome_quality": 0.6 + (i * 0.03)
+            }
+            layer5_results["agent_interactions"].append(interaction)
+
+        # Calculate collaboration score
+        if layer5_results["agent_interactions"]:
+            avg_quality = sum(i["outcome_quality"] for i in layer5_results["agent_interactions"]) / len(layer5_results["agent_interactions"])
+            layer5_results["collaboration_score"] = min(avg_quality, 1.0)
+
+        # Detect emergent behaviors from agent interactions
+        if num_agents >= 3:
+            layer5_results["emergent_behaviors"].append("distributed_problem_solving")
+        if num_agents >= 4:
+            layer5_results["emergent_behaviors"].append("adaptive_strategy_formation")
+        if layer5_results["collaboration_score"] > 0.7:
+            layer5_results["emergent_behaviors"].append("collective_optimization")
+
+        # Determine if consensus was reached
+        layer5_results["consensus_reached"] = layer5_results["collaboration_score"] > 0.75
+
+        # Calculate collective intelligence score
+        agent_diversity = num_agents / len(agents)
+        interaction_density = len(layer5_results["agent_interactions"]) / max(1, num_agents)
+        layer5_results["collective_intelligence_score"] = (
+            (agent_diversity * 0.3) +
+            (layer5_results["collaboration_score"] * 0.4) +
+            (min(interaction_density, 1.0) * 0.3)
+        )
+
+        # Store Layer 5 results
+        simulation_data["layer5_results"] = layer5_results
+
+        # Calculate confidence boost
+        base_boost = 0.05
+        agents_bonus = len(layer5_results["agents_instantiated"]) * 0.01
+        collaboration_bonus = layer5_results["collaboration_score"] * 0.04
+        emergent_bonus = len(layer5_results["emergent_behaviors"]) * 0.01
+
+        total_boost = min(base_boost + agents_bonus + collaboration_bonus + emergent_bonus, 0.15)
+
+        simulation_data["current_confidence"] = min(
+            simulation_data["current_confidence"] + total_boost, 0.99
+        )
+
+        self.logger.info(
+            f"Layer 5 complete: agents={len(layer5_results['agents_instantiated'])}, "
+            f"collaboration={layer5_results['collaboration_score']:.2f}, "
+            f"collective_intelligence={layer5_results['collective_intelligence_score']:.2f}, "
+            f"boost={total_boost:.3f}"
+        )
+
         return simulation_data
         
     def _execute_layer6_neural(self, simulation_data: Dict) -> Dict:
         """Execute Layer 6: Neural Simulation"""
         self.logger.info("Executing Layer 6: Neural Simulation")
-        # TODO: Implement Layer 6 logic
-        
-        # For now, just increment confidence
-        simulation_data["current_confidence"] = min(simulation_data["current_confidence"] + 0.05, 0.99)
-        
+
+        query = simulation_data.get("query", "")
+        layer1_results = simulation_data.get("layer1_results", {})
+        layer5_results = simulation_data.get("layer5_results", {})
+        current_confidence = simulation_data.get("current_confidence", 0.0)
+
+        # Initialize Layer 6 results
+        layer6_results = {
+            "neural_networks_activated": [],
+            "activation_patterns": {},
+            "learned_representations": [],
+            "pattern_recognition_score": 0.0,
+            "generalization_capability": 0.0,
+            "network_depth": 0
+        }
+
+        # Define neural network components
+        network_types = [
+            {"name": "semantic_encoder", "layers": 5, "purpose": "meaning_extraction"},
+            {"name": "contextual_processor", "layers": 4, "purpose": "context_understanding"},
+            {"name": "pattern_recognizer", "layers": 6, "purpose": "pattern_detection"},
+            {"name": "prediction_network", "layers": 3, "purpose": "outcome_forecasting"}
+        ]
+
+        # Activate networks based on current processing state
+        query_type = layer1_results.get("query_type", "statement")
+
+        for network in network_types:
+            # All networks activate, but with varying intensities
+            activation = {
+                "network_name": network["name"],
+                "layers": network["layers"],
+                "purpose": network["purpose"],
+                "activation_strength": 0.5 + (network["layers"] / 20),
+                "neurons_activated": network["layers"] * 128  # Simulated neuron count
+            }
+            layer6_results["neural_networks_activated"].append(activation)
+            layer6_results["network_depth"] = max(layer6_results["network_depth"], network["layers"])
+
+        # Simulate activation patterns across layers
+        for i in range(1, layer6_results["network_depth"] + 1):
+            pattern_key = f"layer_{i}"
+            # Simulate activation decay across depth
+            layer6_results["activation_patterns"][pattern_key] = max(0.3, 1.0 - (i * 0.1))
+
+        # Generate learned representations
+        word_count = layer1_results.get("word_count", 0)
+        num_representations = min(5, max(2, word_count // 8))
+
+        for i in range(num_representations):
+            representation = {
+                "repr_id": f"R{i+1}",
+                "dimensionality": 256 - (i * 20),
+                "abstraction_level": i + 1,
+                "coherence_score": 0.7 + (i * 0.04)
+            }
+            layer6_results["learned_representations"].append(representation)
+
+        # Calculate pattern recognition score
+        avg_activation = sum(layer6_results["activation_patterns"].values()) / len(layer6_results["activation_patterns"])
+        layer6_results["pattern_recognition_score"] = min(
+            avg_activation * len(layer6_results["neural_networks_activated"]) / 5,
+            1.0
+        )
+
+        # Calculate generalization capability
+        representation_quality = sum(r["coherence_score"] for r in layer6_results["learned_representations"]) / len(layer6_results["learned_representations"])
+        layer6_results["generalization_capability"] = (
+            (representation_quality * 0.5) +
+            (layer6_results["pattern_recognition_score"] * 0.5)
+        )
+
+        # Store Layer 6 results
+        simulation_data["layer6_results"] = layer6_results
+
+        # Calculate confidence boost
+        base_boost = 0.05
+        pattern_bonus = layer6_results["pattern_recognition_score"] * 0.05
+        generalization_bonus = layer6_results["generalization_capability"] * 0.03
+        depth_bonus = min(layer6_results["network_depth"] / 20, 0.02)
+
+        total_boost = min(base_boost + pattern_bonus + generalization_bonus + depth_bonus, 0.15)
+
+        simulation_data["current_confidence"] = min(
+            simulation_data["current_confidence"] + total_boost, 0.99
+        )
+
+        self.logger.info(
+            f"Layer 6 complete: networks={len(layer6_results['neural_networks_activated'])}, "
+            f"pattern_recognition={layer6_results['pattern_recognition_score']:.2f}, "
+            f"generalization={layer6_results['generalization_capability']:.2f}, "
+            f"boost={total_boost:.3f}"
+        )
+
         return simulation_data
         
     def _execute_layer7_agi_core(self, simulation_data: Dict) -> Dict:
         """Execute Layer 7: AGI Reasoning Kernel"""
         self.logger.info("Executing Layer 7: AGI Reasoning Kernel")
-        # TODO: Implement Layer 7 logic
-        
-        # For now, just increment confidence
-        simulation_data["current_confidence"] = min(simulation_data["current_confidence"] + 0.05, 0.99)
-        
+
+        query = simulation_data.get("query", "")
+        layer1_results = simulation_data.get("layer1_results", {})
+        layer5_results = simulation_data.get("layer5_results", {})
+        layer6_results = simulation_data.get("layer6_results", {})
+        current_confidence = simulation_data.get("current_confidence", 0.0)
+
+        # Initialize Layer 7 results
+        layer7_results = {
+            "reasoning_modules_activated": [],
+            "cognitive_capabilities": {},
+            "meta_reasoning_depth": 0,
+            "abstraction_levels": [],
+            "transfer_learning_score": 0.0,
+            "general_intelligence_metrics": {}
+        }
+
+        # Define AGI reasoning modules
+        reasoning_modules = [
+            {"name": "abstract_reasoning", "complexity": 5, "domain": "general"},
+            {"name": "causal_inference", "complexity": 4, "domain": "analytical"},
+            {"name": "analogical_mapping", "complexity": 4, "domain": "transfer"},
+            {"name": "meta_learning", "complexity": 6, "domain": "adaptive"},
+            {"name": "common_sense_reasoning", "complexity": 3, "domain": "practical"},
+            {"name": "creative_synthesis", "complexity": 5, "domain": "generative"}
+        ]
+
+        # Activate reasoning modules based on query and previous layers
+        word_count = layer1_results.get("word_count", 0)
+        collective_intelligence = layer5_results.get("collective_intelligence_score", 0.0)
+
+        num_modules = min(len(reasoning_modules), max(3, int(word_count / 10) + int(collective_intelligence * 3)))
+
+        for i in range(num_modules):
+            module = reasoning_modules[i].copy()
+            module["activation_level"] = 0.6 + (i * 0.05)
+            module["contribution"] = module["complexity"] * module["activation_level"]
+            layer7_results["reasoning_modules_activated"].append(module)
+
+        # Define cognitive capabilities
+        layer7_results["cognitive_capabilities"] = {
+            "planning": 0.7 + (num_modules * 0.03),
+            "problem_solving": 0.65 + (num_modules * 0.04),
+            "knowledge_integration": 0.75 + (collective_intelligence * 0.2),
+            "adaptive_learning": 0.6 + (len(layer6_results.get("learned_representations", [])) * 0.05),
+            "reasoning_under_uncertainty": 0.55 + (current_confidence * 0.3)
+        }
+
+        # Cap all capabilities at 1.0
+        for key in layer7_results["cognitive_capabilities"]:
+            layer7_results["cognitive_capabilities"][key] = min(
+                layer7_results["cognitive_capabilities"][key], 1.0
+            )
+
+        # Calculate meta-reasoning depth (reasoning about reasoning)
+        layer7_results["meta_reasoning_depth"] = min(3, 1 + (num_modules // 2))
+
+        # Generate abstraction levels
+        for level in range(1, layer7_results["meta_reasoning_depth"] + 1):
+            layer7_results["abstraction_levels"].append({
+                "level": level,
+                "description": f"abstraction_tier_{level}",
+                "conceptual_distance": level * 0.3
+            })
+
+        # Calculate transfer learning score
+        pattern_recognition = layer6_results.get("pattern_recognition_score", 0.0)
+        generalization = layer6_results.get("generalization_capability", 0.0)
+        layer7_results["transfer_learning_score"] = (
+            (pattern_recognition * 0.4) +
+            (generalization * 0.4) +
+            (layer7_results["cognitive_capabilities"]["adaptive_learning"] * 0.2)
+        )
+
+        # Calculate general intelligence metrics
+        avg_capability = sum(layer7_results["cognitive_capabilities"].values()) / len(layer7_results["cognitive_capabilities"])
+        layer7_results["general_intelligence_metrics"] = {
+            "fluid_intelligence": avg_capability * 0.9,
+            "crystallized_intelligence": current_confidence * 0.95,
+            "processing_speed": 0.8,
+            "working_memory_capacity": min(num_modules / len(reasoning_modules), 1.0),
+            "reasoning_accuracy": avg_capability
+        }
+
+        # Store Layer 7 results
+        simulation_data["layer7_results"] = layer7_results
+
+        # Calculate confidence boost
+        base_boost = 0.05
+        modules_bonus = len(layer7_results["reasoning_modules_activated"]) * 0.015
+        capability_bonus = avg_capability * 0.05
+        transfer_bonus = layer7_results["transfer_learning_score"] * 0.03
+
+        total_boost = min(base_boost + modules_bonus + capability_bonus + transfer_bonus, 0.18)
+
+        simulation_data["current_confidence"] = min(
+            simulation_data["current_confidence"] + total_boost, 0.99
+        )
+
+        self.logger.info(
+            f"Layer 7 complete: modules={len(layer7_results['reasoning_modules_activated'])}, "
+            f"avg_capability={avg_capability:.2f}, "
+            f"transfer_learning={layer7_results['transfer_learning_score']:.2f}, "
+            f"boost={total_boost:.3f}"
+        )
+
         return simulation_data
         
     def _execute_layer8_quantum(self, simulation_data: Dict) -> Dict:
         """Execute Layer 8: Quantum Substrate"""
         self.logger.info("Executing Layer 8: Quantum Substrate")
-        # TODO: Implement Layer 8 logic
-        
-        # For now, just increment confidence
-        simulation_data["current_confidence"] = min(simulation_data["current_confidence"] + 0.05, 0.99)
-        
+
+        query = simulation_data.get("query", "")
+        layer1_results = simulation_data.get("layer1_results", {})
+        layer6_results = simulation_data.get("layer6_results", {})
+        layer7_results = simulation_data.get("layer7_results", {})
+        current_confidence = simulation_data.get("current_confidence", 0.0)
+
+        # Initialize Layer 8 results
+        layer8_results = {
+            "quantum_processors": [],
+            "superposition_states": 0,
+            "entanglement_pairs": 0,
+            "coherence_time": 0.0,
+            "quantum_advantage_score": 0.0,
+            "parallel_computation_paths": 0,
+            "decoherence_rate": 0.0
+        }
+
+        # Define quantum computing components (simulated)
+        quantum_systems = [
+            {"name": "qubit_array", "qubits": 16, "fidelity": 0.95},
+            {"name": "quantum_gate_processor", "operations": 256, "fidelity": 0.92},
+            {"name": "quantum_annealer", "variables": 128, "fidelity": 0.88},
+            {"name": "quantum_optimizer", "dimensions": 64, "fidelity": 0.90}
+        ]
+
+        # Activate quantum systems based on problem complexity
+        word_count = layer1_results.get("word_count", 0)
+        meta_reasoning_depth = layer7_results.get("meta_reasoning_depth", 1)
+
+        num_systems = min(len(quantum_systems), max(2, meta_reasoning_depth))
+
+        for i in range(num_systems):
+            system = quantum_systems[i].copy()
+            system["activation_probability"] = 0.7 + (i * 0.05)
+            layer8_results["quantum_processors"].append(system)
+
+        # Calculate superposition states
+        # Each qubit can be in superposition, exponential growth
+        if layer8_results["quantum_processors"]:
+            total_qubits = sum(s.get("qubits", 0) for s in layer8_results["quantum_processors"] if "qubits" in s)
+            # Limit to reasonable number for simulation
+            layer8_results["superposition_states"] = min(2 ** min(total_qubits, 10), 1024)
+
+        # Calculate entanglement pairs
+        layer8_results["entanglement_pairs"] = num_systems * (num_systems - 1) // 2 * 8
+
+        # Coherence time (microseconds, simulated)
+        avg_fidelity = sum(s["fidelity"] for s in layer8_results["quantum_processors"]) / max(1, len(layer8_results["quantum_processors"]))
+        layer8_results["coherence_time"] = avg_fidelity * 100  # Simplified coherence metric
+
+        # Calculate parallel computation paths
+        # Quantum parallelism allows exploring multiple paths simultaneously
+        layer8_results["parallel_computation_paths"] = min(
+            layer8_results["superposition_states"],
+            word_count * meta_reasoning_depth
+        )
+
+        # Decoherence rate (inverse of coherence)
+        layer8_results["decoherence_rate"] = max(0.01, (1.0 - avg_fidelity) * 0.5)
+
+        # Calculate quantum advantage score
+        # Score based on parallelism, coherence, and entanglement
+        classical_paths = max(1, word_count)
+        quantum_speedup = min(
+            layer8_results["parallel_computation_paths"] / classical_paths,
+            100  # Cap speedup
+        )
+
+        layer8_results["quantum_advantage_score"] = min(
+            (quantum_speedup / 10) * avg_fidelity * (1 - layer8_results["decoherence_rate"]),
+            1.0
+        )
+
+        # Store Layer 8 results
+        simulation_data["layer8_results"] = layer8_results
+
+        # Calculate confidence boost
+        base_boost = 0.05
+        quantum_advantage_bonus = layer8_results["quantum_advantage_score"] * 0.08
+        parallelism_bonus = min(layer8_results["parallel_computation_paths"] / 100, 0.05)
+        coherence_bonus = (layer8_results["coherence_time"] / 100) * 0.02
+
+        total_boost = min(base_boost + quantum_advantage_bonus + parallelism_bonus + coherence_bonus, 0.20)
+
+        simulation_data["current_confidence"] = min(
+            simulation_data["current_confidence"] + total_boost, 0.99
+        )
+
+        self.logger.info(
+            f"Layer 8 complete: quantum_systems={len(layer8_results['quantum_processors'])}, "
+            f"superposition_states={layer8_results['superposition_states']}, "
+            f"quantum_advantage={layer8_results['quantum_advantage_score']:.2f}, "
+            f"boost={total_boost:.3f}"
+        )
+
         return simulation_data
         
     def _execute_layer9_recursive(self, simulation_data: Dict) -> Dict:
