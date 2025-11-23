@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Card, Button, Input, Label } from '../components/ui';
@@ -7,7 +7,13 @@ import { Card, Button, Input, Label } from '../components/ui';
 export default function LoginPage() {
   const [selectedRole, setSelectedRole] = useState('');
   const [isSimulationMode, setIsSimulationMode] = useState(true);
+  const [isClient, setIsClient] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const roles = [
     { id: 'acquisition', name: 'Acquisition Expert', icon: 'bi-briefcase' },
@@ -18,10 +24,30 @@ export default function LoginPage() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Store selected role in sessionStorage
-    sessionStorage.setItem('userRole', selectedRole);
-    sessionStorage.setItem('simulationMode', isSimulationMode);
-    router.push('/knowledge-graph');
+    setErrorMessage('');
+
+    if (!selectedRole) {
+      setErrorMessage('Please select a role before continuing.');
+      return;
+    }
+
+    if (!isClient) {
+      setErrorMessage('Login is not available until the page finishes loading.');
+      return;
+    }
+
+    try {
+      if (typeof window === 'undefined' || !window.sessionStorage) {
+        throw new Error('Session storage is not available.');
+      }
+
+      window.sessionStorage.setItem('userRole', selectedRole);
+      window.sessionStorage.setItem('simulationMode', JSON.stringify(isSimulationMode));
+      router.push('/knowledge-graph');
+    } catch (err) {
+      console.error('Unable to persist login preferences:', err);
+      setErrorMessage('We could not save your login preferences. Please check your browser settings and try again.');
+    }
   };
 
   return (
@@ -38,23 +64,32 @@ export default function LoginPage() {
           <h4 className="mb-4 text-center">Role Selection & Login</h4>
           
           <form onSubmit={handleLogin}>
-            <div className="mb-4">
-              <Label>Select Your Role</Label>
-              <div className="row g-3 mt-2">
-                {roles.map(role => (
-                  <div key={role.id} className="col-6">
-                    <div 
-                      className={`role-card p-3 text-center border rounded cursor-pointer ${selectedRole === role.id ? 'border-primary bg-primary bg-opacity-10' : 'border-secondary'}`}
-                      onClick={() => setSelectedRole(role.id)}
-                    >
-                      <i className={`bi ${role.icon} fs-1 mb-2`}></i>
-                      <div>{role.name}</div>
+            <fieldset className="mb-4">
+              <legend className="form-label">Select Your Role</legend>
+              <div className="row g-3 mt-2" role="radiogroup" aria-label="Available user roles">
+                {roles.map(role => {
+                  const isSelected = selectedRole === role.id;
+                  return (
+                    <div key={role.id} className="col-6">
+                      <button
+                        type="button"
+                        className={`role-card w-100 p-3 text-center border rounded ${isSelected ? 'border-primary bg-primary bg-opacity-10' : 'border-secondary bg-dark bg-opacity-25'}`}
+                        onClick={() => {
+                          setSelectedRole(role.id);
+                          setErrorMessage('');
+                        }}
+                        aria-pressed={isSelected}
+                        aria-label={role.name}
+                      >
+                        <i className={`bi ${role.icon} fs-1 mb-2`} aria-hidden="true"></i>
+                        <div id={`role-${role.id}-label`} className="fw-semibold">{role.name}</div>
+                      </button>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-            </div>
-            
+            </fieldset>
+
             <div className="mb-4">
               <Label htmlFor="username">Username</Label>
               <Input 
@@ -81,12 +116,19 @@ export default function LoginPage() {
                 id="simulationToggle"
                 checked={isSimulationMode}
                 onChange={() => setIsSimulationMode(!isSimulationMode)}
+                aria-describedby="simulation-toggle-description"
               />
-              <label className="form-check-label" htmlFor="simulationToggle">
+              <label className="form-check-label" htmlFor="simulationToggle" id="simulation-toggle-description">
                 Live Agent Simulation Mode {isSimulationMode ? 'On' : 'Off'}
               </label>
             </div>
-            
+
+            {errorMessage && (
+              <div className="alert alert-warning" role="alert" aria-live="assertive">
+                {errorMessage}
+              </div>
+            )}
+
             <div className="d-grid">
               <Button type="submit" disabled={!selectedRole}>
                 Login & Continue

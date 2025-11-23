@@ -1,6 +1,8 @@
 
-from flask_sqlalchemy import SQLAlchemy
+import uuid
 from datetime import datetime
+
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.dialects.postgresql import JSON
 
@@ -38,40 +40,50 @@ class User(db.Model):
 
 class Chat(db.Model):
     __tablename__ = 'chats'
-    
+
     id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     title = db.Column(db.String(100), nullable=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    meta_data = db.Column(JSON, default=dict)
+
     messages = db.relationship('Message', backref='chat', lazy='dynamic')
-    
+
     def to_dict(self):
         return {
             'id': self.id,
+            'uid': self.uid,
             'title': self.title,
             'user_id': self.user_id,
             'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'meta_data': self.meta_data or {},
             'messages_count': self.messages.count()
         }
 
 
 class Message(db.Model):
     __tablename__ = 'messages'
-    
+
     id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     chat_id = db.Column(db.Integer, db.ForeignKey('chats.id'), nullable=False)
     role = db.Column(db.String(20), nullable=False)  # 'user' or 'assistant'
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+    meta_data = db.Column(JSON, default=dict)
+
     def to_dict(self):
         return {
             'id': self.id,
+            'uid': self.uid,
             'chat_id': self.chat_id,
             'role': self.role,
             'content': self.content,
-            'created_at': self.created_at.isoformat()
+            'created_at': self.created_at.isoformat(),
+            'meta_data': self.meta_data or {}
         }
 
 
