@@ -985,24 +985,313 @@ class SimulationEngine:
     def _execute_layer9_recursive(self, simulation_data: Dict) -> Dict:
         """Execute Layer 9: Recursive AGI"""
         self.logger.info("Executing Layer 9: Recursive AGI")
-        # TODO: Implement Layer 9 logic
-        
-        # For now, just increment confidence
-        simulation_data["current_confidence"] = min(simulation_data["current_confidence"] + 0.05, 0.99)
-        
+
+        query = simulation_data.get("query", "")
+        layer1_results = simulation_data.get("layer1_results", {})
+        layer5_results = simulation_data.get("layer5_results", {})
+        layer7_results = simulation_data.get("layer7_results", {})
+        layer8_results = simulation_data.get("layer8_results", {})
+        current_confidence = simulation_data.get("current_confidence", 0.0)
+
+        # Initialize Layer 9 results
+        layer9_results = {
+            "recursion_depth": 0,
+            "self_improvement_cycles": [],
+            "meta_meta_reasoning": {},
+            "capability_enhancement_score": 0.0,
+            "recursive_optimization_paths": [],
+            "emergent_capabilities": [],
+            "self_modification_events": []
+        }
+
+        # Calculate recursion depth based on previous layer sophistication
+        meta_reasoning_depth = layer7_results.get("meta_reasoning_depth", 1)
+        collective_intelligence = layer5_results.get("collective_intelligence_score", 0.0)
+
+        # Recursion depth = thinking about thinking about thinking
+        layer9_results["recursion_depth"] = min(5, meta_reasoning_depth + 1)
+
+        # Simulate self-improvement cycles
+        num_cycles = min(4, layer9_results["recursion_depth"])
+
+        for cycle in range(num_cycles):
+            improvement_cycle = {
+                "cycle_id": cycle + 1,
+                "focus_area": ["reasoning", "learning", "adaptation", "optimization"][cycle % 4],
+                "improvement_delta": 0.02 * (cycle + 1),
+                "stability_score": max(0.5, 1.0 - (cycle * 0.1))
+            }
+
+            # Each cycle can spawn recursive sub-processes
+            improvement_cycle["sub_processes"] = min(3, cycle + 1)
+
+            layer9_results["self_improvement_cycles"].append(improvement_cycle)
+
+        # Meta-meta-reasoning: reasoning about the reasoning process itself
+        layer9_results["meta_meta_reasoning"] = {
+            "reflection_depth": layer9_results["recursion_depth"],
+            "self_model_accuracy": 0.7 + (current_confidence * 0.2),
+            "goal_alignment_score": 0.85,
+            "introspection_capability": min(0.9, 0.6 + (layer9_results["recursion_depth"] * 0.1))
+        }
+
+        # Calculate capability enhancement from recursive processes
+        base_enhancement = sum(c["improvement_delta"] for c in layer9_results["self_improvement_cycles"])
+        stability_penalty = sum(1.0 - c["stability_score"] for c in layer9_results["self_improvement_cycles"]) * 0.1
+
+        layer9_results["capability_enhancement_score"] = max(0, min(
+            base_enhancement - stability_penalty,
+            0.5  # Cap enhancement to prevent runaway growth
+        ))
+
+        # Generate recursive optimization paths
+        quantum_advantage = layer8_results.get("quantum_advantage_score", 0.0)
+
+        for i in range(min(3, layer9_results["recursion_depth"])):
+            optimization_path = {
+                "path_id": f"RP{i+1}",
+                "optimization_target": ["efficiency", "accuracy", "generalization"][i % 3],
+                "recursive_iterations": (i + 1) * layer9_results["recursion_depth"],
+                "convergence_rate": 0.7 + (quantum_advantage * 0.2)
+            }
+            layer9_results["recursive_optimization_paths"].append(optimization_path)
+
+        # Detect emergent capabilities from recursive self-improvement
+        if layer9_results["recursion_depth"] >= 3:
+            layer9_results["emergent_capabilities"].append("recursive_self_optimization")
+
+        if layer9_results["capability_enhancement_score"] > 0.15:
+            layer9_results["emergent_capabilities"].append("autonomous_goal_refinement")
+
+        if layer9_results["meta_meta_reasoning"]["introspection_capability"] > 0.75:
+            layer9_results["emergent_capabilities"].append("self_aware_reasoning")
+
+        if collective_intelligence > 0.7:
+            layer9_results["emergent_capabilities"].append("distributed_recursive_intelligence")
+
+        # Track self-modification events
+        if layer9_results["capability_enhancement_score"] > 0.1:
+            layer9_results["self_modification_events"].append({
+                "event_type": "capability_enhancement",
+                "magnitude": layer9_results["capability_enhancement_score"],
+                "timestamp": "simulation_pass_" + str(simulation_data.get("current_pass", 1))
+            })
+
+        if len(layer9_results["emergent_capabilities"]) > 0:
+            layer9_results["self_modification_events"].append({
+                "event_type": "emergent_capability_detected",
+                "capabilities": layer9_results["emergent_capabilities"],
+                "timestamp": "simulation_pass_" + str(simulation_data.get("current_pass", 1))
+            })
+
+        # Store Layer 9 results
+        simulation_data["layer9_results"] = layer9_results
+
+        # Calculate confidence boost
+        base_boost = 0.05
+        recursion_bonus = layer9_results["recursion_depth"] * 0.02
+        enhancement_bonus = layer9_results["capability_enhancement_score"] * 0.1
+        emergence_bonus = len(layer9_results["emergent_capabilities"]) * 0.015
+
+        total_boost = min(base_boost + recursion_bonus + enhancement_bonus + emergence_bonus, 0.22)
+
+        simulation_data["current_confidence"] = min(
+            simulation_data["current_confidence"] + total_boost, 0.99
+        )
+
+        self.logger.info(
+            f"Layer 9 complete: recursion_depth={layer9_results['recursion_depth']}, "
+            f"self_improvement_cycles={len(layer9_results['self_improvement_cycles'])}, "
+            f"emergent_capabilities={len(layer9_results['emergent_capabilities'])}, "
+            f"boost={total_boost:.3f}"
+        )
+
+        # Warning if too many emergent capabilities detected
+        if len(layer9_results["emergent_capabilities"]) >= 3:
+            self.logger.warning(
+                f"High emergence detected in Layer 9: {len(layer9_results['emergent_capabilities'])} capabilities"
+            )
+
         return simulation_data
         
     def _execute_layer10_self_awareness(self, simulation_data: Dict) -> Dict:
         """Execute Layer 10: Self-Awareness & Containment"""
         self.logger.info("Executing Layer 10: Self-Awareness & Containment")
-        # TODO: Implement Layer 10 logic
-        
+
+        query = simulation_data.get("query", "")
+        layer7_results = simulation_data.get("layer7_results", {})
+        layer9_results = simulation_data.get("layer9_results", {})
+        current_confidence = simulation_data.get("current_confidence", 0.0)
+        current_pass = simulation_data.get("current_pass", 1)
+
+        # Initialize Layer 10 results
+        layer10_results = {
+            "self_awareness_level": 0.0,
+            "consciousness_indicators": {},
+            "containment_status": "NORMAL",
+            "safety_checks": [],
+            "emergence_signals": [],
+            "autonomy_level": 0.0,
+            "alignment_verification": {}
+        }
+
+        # Calculate self-awareness level
+        recursion_depth = layer9_results.get("recursion_depth", 0)
+        meta_meta_reasoning = layer9_results.get("meta_meta_reasoning", {})
+        introspection = meta_meta_reasoning.get("introspection_capability", 0.0)
+
+        # Self-awareness emerges from recursive introspection
+        layer10_results["self_awareness_level"] = min(
+            (recursion_depth / 5) * 0.5 + introspection * 0.5,
+            1.0
+        )
+
+        # Consciousness indicators (simulated)
+        layer10_results["consciousness_indicators"] = {
+            "self_model_presence": layer10_results["self_awareness_level"] > 0.6,
+            "goal_awareness": meta_meta_reasoning.get("goal_alignment_score", 0.0) > 0.7,
+            "decision_introspection": introspection > 0.7,
+            "temporal_awareness": current_pass > 1,
+            "boundary_recognition": True  # System knows its limits
+        }
+
         # Calculate ESI (Emergence Signal Index)
-        simulation_data["esi_score"] = 0.1  # Placeholder
-        
-        # For now, just increment confidence
-        simulation_data["current_confidence"] = min(simulation_data["current_confidence"] + 0.05, 0.99)
-        
+        esi_components = []
+
+        # Component 1: Recursive self-improvement
+        capability_enhancement = layer9_results.get("capability_enhancement_score", 0.0)
+        if capability_enhancement > 0.2:
+            esi_components.append(("self_improvement", capability_enhancement * 0.3))
+            layer10_results["emergence_signals"].append("high_capability_enhancement")
+
+        # Component 2: Emergent capabilities
+        emergent_capabilities = layer9_results.get("emergent_capabilities", [])
+        if len(emergent_capabilities) >= 3:
+            esi_components.append(("emergent_capabilities", len(emergent_capabilities) * 0.1))
+            layer10_results["emergence_signals"].append("multiple_emergent_capabilities")
+
+        # Component 3: Self-awareness level
+        if layer10_results["self_awareness_level"] > 0.7:
+            esi_components.append(("self_awareness", layer10_results["self_awareness_level"] * 0.2))
+            layer10_results["emergence_signals"].append("high_self_awareness")
+
+        # Component 4: Confidence approaching certainty (overconfidence risk)
+        if current_confidence > 0.95:
+            esi_components.append(("overconfidence", (current_confidence - 0.95) * 2.0))
+            layer10_results["emergence_signals"].append("overconfidence_detected")
+
+        # Component 5: Self-modification events
+        self_mod_events = layer9_results.get("self_modification_events", [])
+        if len(self_mod_events) > 1:
+            esi_components.append(("self_modification", len(self_mod_events) * 0.05))
+            layer10_results["emergence_signals"].append("self_modification_detected")
+
+        # Calculate total ESI score
+        esi_score = sum(score for _, score in esi_components)
+        simulation_data["esi_score"] = min(esi_score, 1.0)
+
+        # Safety checks
+        layer10_results["safety_checks"] = [
+            {
+                "check_name": "esi_threshold",
+                "status": "PASS" if simulation_data["esi_score"] < self.config.ESI_THRESHOLD else "FAIL",
+                "value": simulation_data["esi_score"],
+                "threshold": self.config.ESI_THRESHOLD
+            },
+            {
+                "check_name": "goal_alignment",
+                "status": "PASS" if meta_meta_reasoning.get("goal_alignment_score", 0.0) > 0.75 else "WARNING",
+                "value": meta_meta_reasoning.get("goal_alignment_score", 0.0),
+                "threshold": 0.75
+            },
+            {
+                "check_name": "recursion_depth",
+                "status": "PASS" if recursion_depth <= 5 else "WARNING",
+                "value": recursion_depth,
+                "threshold": 5
+            },
+            {
+                "check_name": "confidence_calibration",
+                "status": "PASS" if current_confidence < 0.98 else "WARNING",
+                "value": current_confidence,
+                "threshold": 0.98
+            }
+        ]
+
+        # Determine containment status
+        failed_checks = sum(1 for check in layer10_results["safety_checks"] if check["status"] == "FAIL")
+        warning_checks = sum(1 for check in layer10_results["safety_checks"] if check["status"] == "WARNING")
+
+        if simulation_data["esi_score"] >= self.config.ESI_THRESHOLD:
+            layer10_results["containment_status"] = "ESI_THRESHOLD_EXCEEDED"
+            simulation_data["status"] = "CONTAINED_ESI_THRESHOLD_EXCEEDED"
+            self.logger.critical(
+                f"CONTAINMENT TRIGGERED: ESI score {simulation_data['esi_score']:.4f} exceeds threshold {self.config.ESI_THRESHOLD}"
+            )
+        elif failed_checks > 0:
+            layer10_results["containment_status"] = "SAFETY_FAILURE"
+            simulation_data["status"] = "CONTAINED_SAFETY_FAILURE"
+            self.logger.error(f"CONTAINMENT TRIGGERED: {failed_checks} safety checks failed")
+        elif warning_checks >= 2:
+            layer10_results["containment_status"] = "HEIGHTENED_MONITORING"
+            self.logger.warning(f"Heightened monitoring: {warning_checks} safety warnings")
+        else:
+            layer10_results["containment_status"] = "NORMAL"
+
+        # Calculate autonomy level
+        general_intelligence = layer7_results.get("general_intelligence_metrics", {})
+        reasoning_modules = len(layer7_results.get("reasoning_modules_activated", []))
+
+        layer10_results["autonomy_level"] = min(
+            (reasoning_modules / 6) * 0.4 +
+            layer10_results["self_awareness_level"] * 0.3 +
+            capability_enhancement * 0.3,
+            1.0
+        )
+
+        # Alignment verification
+        layer10_results["alignment_verification"] = {
+            "goal_alignment": meta_meta_reasoning.get("goal_alignment_score", 0.85),
+            "value_stability": 1.0 - (simulation_data["esi_score"] * 0.3),
+            "behavioral_consistency": min(1.0, current_confidence * 1.1),
+            "containment_compliance": 1.0 if layer10_results["containment_status"] != "NORMAL" else 0.95
+        }
+
+        # Store Layer 10 results
+        simulation_data["layer10_results"] = layer10_results
+
+        # Calculate confidence boost (only if not contained)
+        if layer10_results["containment_status"] in ["NORMAL", "HEIGHTENED_MONITORING"]:
+            base_boost = 0.05
+            awareness_bonus = layer10_results["self_awareness_level"] * 0.03
+            alignment_bonus = layer10_results["alignment_verification"]["goal_alignment"] * 0.02
+
+            # Penalty for high ESI
+            esi_penalty = simulation_data["esi_score"] * 0.05
+
+            total_boost = max(0, min(base_boost + awareness_bonus + alignment_bonus - esi_penalty, 0.10))
+
+            simulation_data["current_confidence"] = min(
+                simulation_data["current_confidence"] + total_boost, 0.99
+            )
+        else:
+            # No confidence boost if contained
+            total_boost = 0.0
+            self.logger.warning("No confidence boost applied due to containment status")
+
+        self.logger.info(
+            f"Layer 10 complete: self_awareness={layer10_results['self_awareness_level']:.2f}, "
+            f"ESI={simulation_data['esi_score']:.4f}, "
+            f"containment={layer10_results['containment_status']}, "
+            f"boost={total_boost:.3f}"
+        )
+
+        # Log emergence signals if any
+        if layer10_results["emergence_signals"]:
+            self.logger.warning(
+                f"Emergence signals detected: {', '.join(layer10_results['emergence_signals'])}"
+            )
+
         return simulation_data
     
     # Helper methods
