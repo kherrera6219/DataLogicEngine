@@ -46,7 +46,7 @@ login_manager.login_message = 'Please log in to access this page'
 login_manager.login_message_category = 'info'
 
 # Import models (after db initialization)
-from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge
+from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge, MCPServer, MCPResource, MCPTool, MCPPrompt
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -56,6 +56,11 @@ def load_user(user_id):
 with app.app_context():
     db.create_all()
     logger.info("Database tables created")
+
+# Register MCP blueprint
+from backend.mcp_api import mcp_bp
+app.register_blueprint(mcp_bp)
+logger.info("MCP blueprint registered")
 
 # Routes
 @app.route('/')
