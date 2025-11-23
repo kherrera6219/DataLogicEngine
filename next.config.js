@@ -14,14 +14,6 @@ const nextConfig = {
     NEXT_PUBLIC_APP_NAME: 'Universal Knowledge Graph System',
     NEXT_PUBLIC_VERSION: '1.0.0',
   },
-  // Disable specific ESLint rules during build
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  // Ignore TypeScript errors during build
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   // Optimize images
   images: {
     unoptimized: process.env.NODE_ENV !== 'production',
@@ -29,6 +21,56 @@ const nextConfig = {
   // Improve build optimization
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
+  },
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()'
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: https:",
+              "font-src 'self' data:",
+              "connect-src 'self' http://localhost:* http://0.0.0.0:*",
+              "frame-ancestors 'self'",
+            ].join('; ')
+          }
+        ],
+      },
+    ]
   },
   async rewrites() {
     // Get the API URLs from environment variables or use defaults
