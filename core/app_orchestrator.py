@@ -42,6 +42,7 @@ class AppOrchestrator:
             from core.graph_manager import GraphManager
             from core.structured_memory_manager import StructuredMemoryManager
             from core.simulation_engine import SimulationEngine
+            from core.knowledge_algorithm.ka_loader import KALoader
             
             # Initialize UnitedSystemManager first (for UID generation)
             self.logger.info("Initializing UnitedSystemManager...")
@@ -54,7 +55,16 @@ class AppOrchestrator:
             # Initialize StructuredMemoryManager
             self.logger.info("Initializing StructuredMemoryManager...")
             self.uskd_memory_manager = StructuredMemoryManager(self.config)
-            
+
+            # Initialize KALoader
+            self.logger.info("Initializing KALoader...")
+            self.ka_loader = KALoader(
+                self.config,
+                self.ukg_graph_manager,
+                self.uskd_memory_manager,
+                self.united_system_manager
+            )
+
             # Initialize SimulationEngine
             self.logger.info("Initializing SimulationEngine...")
             self.simulation_engine = SimulationEngine(
@@ -62,10 +72,8 @@ class AppOrchestrator:
                 self.ukg_graph_manager,
                 self.uskd_memory_manager,
                 self.united_system_manager,
-                self.ka_loader  # None for now
+                self.ka_loader
             )
-            
-            # TODO: Initialize KALoader when implemented
             
         except Exception as e:
             self.logger.error(f"Error initializing systems: {str(e)}")
