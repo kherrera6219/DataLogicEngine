@@ -27,8 +27,10 @@ class AppOrchestrator:
         self.united_system_manager = None
         self.simulation_engine = None
         self.ka_loader = None
-        
+        self.mcp_manager = None
+
         self._initialize_systems()
+        self._initialize_mcp()
         
         self.logger.info("AppOrchestrator initialized")
     
@@ -78,7 +80,27 @@ class AppOrchestrator:
         except Exception as e:
             self.logger.error(f"Error initializing systems: {str(e)}")
             # Continue with the available systems
-    
+
+    def _initialize_mcp(self):
+        """
+        Initialize the Model Context Protocol (MCP) manager and setup default servers.
+        """
+        try:
+            from core.mcp import MCPManager
+
+            self.logger.info("Initializing MCP Manager...")
+            self.mcp_manager = MCPManager(app_orchestrator=self)
+
+            # Setup default MCP servers
+            self.logger.info("Setting up default MCP servers...")
+            ukg_server = self.mcp_manager.setup_default_servers()
+
+            self.logger.info(f"MCP Manager initialized with {len(self.mcp_manager.servers)} server(s)")
+
+        except Exception as e:
+            self.logger.error(f"Error initializing MCP Manager: {str(e)}")
+            # MCP is optional, continue without it
+
     def process_request(self, user_query: str, user_id: Optional[str] = None, 
                       session_id: Optional[str] = None, 
                       simulation_params: Optional[Dict] = None) -> Dict:
