@@ -29,9 +29,12 @@ instance/
 frontend/build/
 frontend/dist/
 
-# Environment
+# Environment variables - NEVER commit these files
+.env
 .env.local
 .env.*.local
+.env.production
+.env.development
 
 # IDE
 .vscode/

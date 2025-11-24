@@ -1,127 +1,123 @@
 """
-Universal Knowledge Graph (UKG) System - Configuration
+Configuration module for the Universal Knowledge Graph (UKG) System
 
-This module provides configuration settings for the UKG system
-following Microsoft enterprise standards for security and integration.
+SECURITY: All sensitive values should be loaded from environment variables.
+Never commit secrets to version control.
 """
 
 import os
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
+from datetime import timedelta
 
 class Config:
-    """Base configuration class for UKG system."""
+    """Base configuration"""
     
-    # Application settings
-    APP_NAME = "Universal Knowledge Graph"
-    APP_VERSION = "1.0.0"
+    # Flask configuration
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    if not SECRET_KEY:
+        raise ValueError("SECRET_KEY environment variable must be set")
     
-    # Security settings
-    SECRET_KEY = os.environ.get("SECRET_KEY", "ukg-dev-key-replace-in-production")
-    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "ukg-jwt-dev-key-replace-in-production")
-    JWT_ACCESS_TOKEN_EXPIRES = 60 * 60  # 1 hour
-    SESSION_COOKIE_SECURE = True
-    SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = "Lax"
-    REMEMBER_COOKIE_SECURE = True
-    REMEMBER_COOKIE_HTTPONLY = True
+    # JWT Configuration
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
+    if not JWT_SECRET_KEY:
+        raise ValueError("JWT_SECRET_KEY environment variable must be set")
     
-    # Database settings
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///ukg_system.db")
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
+    
+    # Session configuration
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
+    SESSION_COOKIE_SECURE = True  # Only send cookies over HTTPS
+    SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access
+    SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
+    SESSION_REFRESH_EACH_REQUEST = True
+    
+    # Database configuration
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///ukg_database.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_pre_ping": True,
         "pool_recycle": 300,
+        "pool_size": 10,
+        "max_overflow": 20
     }
     
-    # UKG specific settings
-    DEFAULT_CONFIDENCE_THRESHOLD = 0.85
-    MAX_SIMULATION_LAYERS = 7
-    DEFAULT_REFINEMENT_STEPS = 12
-    ENTROPY_SAMPLING_ENABLED = True
-    MEMORY_CACHE_SIZE = 4096  # MB
-    QUANTUM_SIMULATION_ENABLED = False
-    RECURSIVE_PROCESSING_ENABLED = True
-    MAX_RECURSION_DEPTH = 8
+    # Security headers
+    SECURITY_HEADERS = {
+        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'SAMEORIGIN',
+        'X-XSS-Protection': '1; mode=block',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+    }
     
-    # Azure AD/Entra ID Integration
-    AZURE_AD_TENANT_ID = os.environ.get("AZURE_AD_TENANT_ID")
-    AZURE_AD_CLIENT_ID = os.environ.get("AZURE_AD_CLIENT_ID")
-    AZURE_AD_CLIENT_SECRET = os.environ.get("AZURE_AD_CLIENT_SECRET")
+    # Content Security Policy
+    CONTENT_SECURITY_POLICY = {
+        'default-src': ["'self'"],
+        'script-src': ["'self'", "'unsafe-inline'"],  # TODO: Remove unsafe-inline
+        'style-src': ["'self'", "'unsafe-inline'"],   # TODO: Remove unsafe-inline
+        'img-src': ["'self'", 'data:', 'https:'],
+        'font-src': ["'self'"],
+        'connect-src': ["'self'"],
+        'frame-ancestors': ["'none'"],
+    }
     
-    # Azure OpenAI Integration
-    AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
-    AZURE_OPENAI_API_KEY = os.environ.get("AZURE_OPENAI_API_KEY")
-    AZURE_OPENAI_DEPLOYMENT = os.environ.get("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
+    # Password policy
+    PASSWORD_MIN_LENGTH = 12
+    PASSWORD_REQUIRE_UPPERCASE = True
+    PASSWORD_REQUIRE_LOWERCASE = True
+    PASSWORD_REQUIRE_DIGIT = True
+    PASSWORD_REQUIRE_SPECIAL = True
     
-    # Azure Storage
-    AZURE_STORAGE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
-    AZURE_STORAGE_CONTAINER = os.environ.get("AZURE_STORAGE_CONTAINER", "ukg-media")
+    # Rate limiting
+    RATELIMIT_STORAGE_URL = os.environ.get('REDIS_URL', 'memory://')
+    RATELIMIT_DEFAULT = "200 per day, 50 per hour"
+    RATELIMIT_LOGIN = "5 per minute"
+    RATELIMIT_API = "100 per minute"
     
-    # Logging
-    LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
-    LOG_FILE = os.environ.get("LOG_FILE", "ukg_system.log")
-    LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    # CORS configuration
+    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '').split(',') if os.environ.get('CORS_ORIGINS') else []
+    CORS_SUPPORTS_CREDENTIALS = True
     
-    # CORS settings
-    CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*").split(",")
+    # Azure/OpenAI Configuration (if needed)
+    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+    AZURE_OPENAI_API_KEY = os.environ.get('AZURE_OPENAI_API_KEY')
+    AZURE_OPENAI_ENDPOINT = os.environ.get('AZURE_OPENAI_ENDPOINT')
 
 
 class DevelopmentConfig(Config):
-    """Development environment configuration."""
-    
+    """Development configuration"""
     DEBUG = True
     TESTING = False
-    SESSION_COOKIE_SECURE = False
-    REMEMBER_COOKIE_SECURE = False
-    
-    # Simplified UKG settings for development
-    MAX_SIMULATION_LAYERS = 5
-    QUANTUM_SIMULATION_ENABLED = False
-    LOG_LEVEL = "DEBUG"
-
-
-class TestingConfig(Config):
-    """Testing environment configuration."""
-    
-    DEBUG = False
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-    
-    # Simplified UKG settings for testing
-    MAX_SIMULATION_LAYERS = 3
-    DEFAULT_REFINEMENT_STEPS = 3
-    JWT_ACCESS_TOKEN_EXPIRES = 300  # 5 minutes
+    SESSION_COOKIE_SECURE = False  # Allow HTTP in development
+    RATELIMIT_ENABLED = False  # Disable rate limiting in dev
 
 
 class ProductionConfig(Config):
-    """Production environment configuration with enhanced security."""
-    
+    """Production configuration"""
     DEBUG = False
     TESTING = False
-    
-    # Enforce secure settings
-    SESSION_COOKIE_SECURE = True
-    REMEMBER_COOKIE_SECURE = True
-    
-    # Production settings
-    JWT_ACCESS_TOKEN_EXPIRES = 30 * 60  # 30 minutes
-    
-    # Full UKG capabilities
-    QUANTUM_SIMULATION_ENABLED = True
-    RECURSIVE_PROCESSING_ENABLED = True
-    DEFAULT_CONFIDENCE_THRESHOLD = 0.90
+    # All security features enabled by default
+
+
+class TestingConfig(Config):
+    """Testing configuration"""
+    TESTING = True
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    WTF_CSRF_ENABLED = False  # Disable CSRF for testing
+    SESSION_COOKIE_SECURE = False
+
+
+# Configuration dictionary
+config = {
+    'development': DevelopmentConfig,
+    'production': ProductionConfig,
+    'testing': TestingConfig,
+    'default': DevelopmentConfig
+}
 
 
 def get_config():
-    """Get the current configuration based on environment."""
-    env = os.environ.get("FLASK_ENV", "development")
-    
-    if env == "production":
-        return ProductionConfig()
-    elif env == "testing":
-        return TestingConfig()
-    else:
-        return DevelopmentConfig()
+    """Get configuration based on environment"""
+    env = os.environ.get('FLASK_ENV', 'development')
+    return config.get(env, config['default'])

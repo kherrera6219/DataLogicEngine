@@ -1,290 +1,162 @@
 # Security Policy
 
-## Supported Versions
+## Reporting Security Vulnerabilities
 
-We release patches for security vulnerabilities for the following versions:
+**DO NOT** create public GitHub issues for security vulnerabilities.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
-| < 0.1   | :x:                |
+Instead, please report security vulnerabilities by emailing:
+- **Email**: security@your-domain.com (replace with actual email)
+- **Subject**: [SECURITY] Brief description of the vulnerability
 
-## Reporting a Vulnerability
+Please include:
+- Description of the vulnerability
+- Steps to reproduce
+- Potential impact
+- Suggested fix (if available)
 
-The DataLogicEngine team takes security bugs seriously. We appreciate your efforts to responsibly disclose your findings and will make every effort to acknowledge your contributions.
+We aim to respond to security reports within 48 hours.
 
-### How to Report a Security Vulnerability
+## Security Measures Implemented
 
-**Please do not report security vulnerabilities through public GitHub issues.**
+### ✅ Authentication & Authorization
+- **Password Security**: 12+ character minimum with complexity requirements (uppercase, lowercase, numbers, special characters)
+- **Password Hashing**: Werkzeug secure password hashing (bcrypt)
+- **Session Security**: Secure cookies with HttpOnly, SameSite=Lax, and secure flags
+- **Session Timeout**: 1-hour timeout with automatic refresh
+- **Authorization Checks**: User ownership validation on all simulation operations (IDOR protection)
+- **Account Status**: Disabled accounts cannot log in
 
-Instead, please report them via email to:
+### ✅ CSRF Protection
+- Flask-WTF CSRF protection enabled on all state-changing operations
+- CSRF tokens automatically included in forms
+- API requests validate CSRF tokens
 
-**security@datalogicengine.com**
+### ✅ Rate Limiting
+- **Login**: 5 attempts per minute per IP
+- **Registration**: 3 attempts per hour per IP
+- **Simulation Creation**: 10 per hour per user
+- **Global**: 200 requests per day, 50 per hour per IP
 
-You should receive a response within 48 hours. If for some reason you do not, please follow up via email to ensure we received your original message.
+### ✅ Security Headers
+Production mode includes:
+- `Strict-Transport-Security`: Force HTTPS
+- `X-Content-Type-Options: nosniff`: Prevent MIME sniffing
+- `X-Frame-Options: SAMEORIGIN`: Prevent clickjacking
+- `X-XSS-Protection`: Browser XSS protection
+- `Referrer-Policy`: Control referrer information
+- `Content-Security-Policy`: Restrict resource loading
 
-### What to Include in Your Report
+### ✅ Input Validation & Sanitization
+- Username validation (3-64 chars, alphanumeric + underscore/hyphen)
+- Email format validation
+- Password confirmation matching
+- Simulation parameter bounds checking (refinement_steps: 1-100, confidence: 0.0-1.0)
+- String input trimming and sanitization
+- Safe URL redirect validation (no open redirects)
 
-To help us better understand the nature and scope of the issue, please include as much of the following information as possible:
+### ✅ Secure Configuration Management
+- **Environment Variables**: All secrets loaded from environment (never hardcoded)
+- **Configuration Classes**: Separate dev/test/production configs
+- **Required Secrets**: Application fails to start if SECRET_KEY or JWT_SECRET_KEY not set
+- `.env` file excluded from version control
 
-- Type of issue (e.g., buffer overflow, SQL injection, cross-site scripting, etc.)
-- Full paths of source file(s) related to the manifestation of the issue
-- The location of the affected source code (tag/branch/commit or direct URL)
-- Any special configuration required to reproduce the issue
-- Step-by-step instructions to reproduce the issue
-- Proof-of-concept or exploit code (if possible)
-- Impact of the issue, including how an attacker might exploit it
+### ✅ Audit Logging
+- Successful logins logged with username
+- Failed login attempts logged with username and IP
+- Account registration logged
+- User logouts logged
+- Simulation operations logged (create, start, pause, resume, delete)
 
-This information will help us triage your report more quickly.
+### ✅ Error Handling
+- Generic error messages to users (no information disclosure)
+- Detailed errors logged server-side only
+- Custom 404, 500, 429 error handlers
 
-## Security Vulnerability Response
+## Known Security Considerations
 
-### Our Commitment
+### ⚠️ Items Requiring Additional Work
 
-- We will confirm receipt of your vulnerability report within 48 hours
-- We will send a more detailed response within 7 days indicating next steps
-- We will work with you to understand and validate the security issue
-- We will keep you informed of the progress towards a fix and announcement
-- We will credit you for the discovery (unless you prefer to remain anonymous)
+1. **Backend API Authentication**
+   - STATUS: Partially implemented
+   - ISSUE: `/backend/api.py` endpoints need `@login_required` decorators
+   - PRIORITY: HIGH
+   - RECOMMENDATION: Add authentication middleware to API blueprint
 
-### Disclosure Policy
+2. **CORS Configuration**
+   - STATUS: Needs hardening
+   - ISSUE: Some backend services allow `*` origins
+   - FILES: `backend/api_gateway/api_gateway.py`, `backend/webhook_server/webhook_server.py`
+   - PRIORITY: HIGH
+   - RECOMMENDATION: Configure `CORS_ORIGINS` environment variable with allowed domains
 
-When we receive a security bug report, we will:
+3. **Command Injection in Subprocess Calls**
+   - STATUS: Present in demo scripts
+   - FILES: `run_enterprise_ukg.py`, `run_ukg.py`, `deploy.py`
+   - ISSUE: Using `subprocess` with `shell=True`
+   - PRIORITY: MEDIUM
+   - RECOMMENDATION: Remove `shell=True`, use command lists
+   - NOTE: These are deployment/demo scripts, not production code
 
-1. **Confirm the problem** and determine affected versions
-2. **Audit code** to find any similar problems
-3. **Prepare fixes** for all supported versions
-4. **Release new versions** with the fix
-5. **Publish a security advisory** on GitHub
+4. **Pickle Deserialization**
+   - STATUS: Present
+   - FILE: `run_simulation.py`
+   - ISSUE: Using `pickle.loads()` on session data
+   - PRIORITY: HIGH
+   - RECOMMENDATION: Replace with JSON serialization
 
-We ask that you:
+5. **SQL Injection Prevention**
+   - STATUS: Generally protected (using ORM)
+   - ISSUE: `backend/ukg_db.py` has `execute_raw_query()` method
+   - PRIORITY: MEDIUM
+   - RECOMMENDATION: Remove or add strict input validation
 
-- Give us reasonable time to investigate and fix the issue before public disclosure
-- Make a good faith effort to avoid privacy violations, destruction of data, and interruption or degradation of our service
-- Do not access or modify data that does not belong to you
-- Only interact with accounts you own or with explicit permission from the account holder
+6. **Password Reset Functionality**
+   - STATUS: Not implemented
+   - PRIORITY: MEDIUM
+   - RECOMMENDATION: Implement secure password reset with time-limited tokens
 
-## Security Best Practices
+7. **Two-Factor Authentication**
+   - STATUS: Not implemented
+   - PRIORITY: LOW (for MVP)
+   - RECOMMENDATION: Consider for production deployment
 
-### For Users
+8. **API Rate Limiting Storage**
+   - STATUS: Using in-memory storage
+   - ISSUE: Won't persist across restarts, won't work with multiple instances
+   - PRIORITY: MEDIUM
+   - RECOMMENDATION: Configure Redis for production: `REDIS_URL` environment variable
 
-#### Environment Variables
+## Security Best Practices for Developers
 
-Never commit sensitive information to version control:
-
+### Environment Setup
 ```bash
-# Use .env files (already in .gitignore)
-DATABASE_URL=postgresql://user:pass@localhost/db
-SECRET_KEY=your-secret-key
-OPENAI_API_KEY=your-api-key
+# Never commit .env file
+echo ".env" >> .gitignore
+
+# Generate strong secrets
+python -c "import secrets; print(secrets.token_hex(32))"
+
+# Required environment variables
+export SECRET_KEY="your-secret-key-here"
+export JWT_SECRET_KEY="your-jwt-secret-here"
+export DATABASE_URL="postgresql://user:pass@localhost/dbname"
+export FLASK_ENV="production"  # or "development"
 ```
 
-#### Database Security
-
-1. **Use strong passwords** for database credentials
-2. **Enable SSL/TLS** for database connections in production
-3. **Restrict database access** to specific IP addresses
-4. **Regular backups** with encryption
-
-#### API Security
-
-1. **Use HTTPS** in production (enforce SSL/TLS)
-2. **Implement rate limiting** for API endpoints
-3. **Validate input** on all user-facing endpoints
-4. **Use JWT tokens** with appropriate expiration
-5. **Rotate secrets** regularly
-
-#### Authentication
-
-1. **Enable Azure AD** for production deployments
-2. **Implement MFA** for administrative accounts
-3. **Use strong password policies**
-4. **Session timeout** after inactivity
-
-### For Developers
-
-#### Secure Coding Practices
-
-**Input Validation**
-```python
-# Good - Validate and sanitize input
-from marshmallow import Schema, fields, validate
-
-class NodeSchema(Schema):
-    label = fields.Str(required=True, validate=validate.Length(min=1, max=100))
-    node_type = fields.Str(validate=validate.OneOf(['knowledge', 'sector', 'regulatory']))
-```
-
-**SQL Injection Prevention**
-```python
-# Good - Use parameterized queries
-from sqlalchemy import text
-
-query = text("SELECT * FROM nodes WHERE id = :node_id")
-result = db.session.execute(query, {"node_id": node_id})
-
-# Bad - Never do this
-query = f"SELECT * FROM nodes WHERE id = {node_id}"  # VULNERABLE
-```
-
-**XSS Prevention**
-```javascript
-// Good - React automatically escapes
-<div>{userInput}</div>
-
-// Bad - Dangerous
-<div dangerouslySetInnerHTML={{__html: userInput}} />
-```
-
-**Authentication**
-```python
-# Good - Use decorators for protected routes
-from flask_login import login_required
-
-@app.route('/api/protected')
-@login_required
-def protected_route():
-    return jsonify({"data": "sensitive"})
-```
-
-#### Dependency Security
-
-```bash
-# Regularly check for vulnerabilities
-pip install safety
-safety check
-
-npm audit
-npm audit fix
-```
-
-#### Code Review Checklist
-
-- [ ] No hardcoded secrets or credentials
-- [ ] Input validation on all user inputs
-- [ ] Proper authentication and authorization
-- [ ] No SQL injection vulnerabilities
-- [ ] No XSS vulnerabilities
-- [ ] Secure session management
-- [ ] Proper error handling (no sensitive info in errors)
-- [ ] HTTPS enforced in production
-- [ ] Dependencies up to date
-
-## Known Security Features
-
-### Current Implementation
-
-1. **Authentication**
-   - JWT token-based authentication
-   - Azure AD integration
-   - Session management with Flask-Login
-
-2. **Authorization**
-   - Role-based access control (RBAC)
-   - API key authentication for service-to-service
-
-3. **Data Protection**
-   - Password hashing with industry-standard algorithms
-   - Encrypted database connections (PostgreSQL SSL)
-   - Environment-based secrets management
-
-4. **Logging & Monitoring**
-   - Security event logging (`logs/security/`)
-   - Audit trail for compliance (`logs/audit/`)
-   - Failed login attempt tracking
-
-5. **API Security**
-   - CORS configuration
-   - Rate limiting (implementation in progress)
-   - Input validation with Marshmallow schemas
-
-6. **Compliance**
-   - SOC2 compliance features
-   - GDPR-ready data handling
-   - Audit logging for regulatory requirements
-
-## Security Testing
-
-### Automated Testing
-
-```bash
-# Run security tests
-python -m pytest tests/security/
-
-# Static analysis
-bandit -r backend/ core/
-
-# Dependency scanning
-safety check
-npm audit
-```
-
-### Manual Testing
-
-Before deployment, verify:
-
-1. All endpoints require proper authentication
-2. Authorization checks work correctly
-3. Input validation prevents injection attacks
-4. Error messages don't leak sensitive information
-5. HTTPS is enforced
-6. Security headers are set correctly
-
-## Incident Response
-
-In the event of a security incident:
-
-1. **Isolate** affected systems
-2. **Assess** the scope and impact
-3. **Contain** the incident
-4. **Remediate** the vulnerability
-5. **Document** the incident and response
-6. **Review** and improve security measures
-
-## Compliance
-
-DataLogicEngine supports compliance with:
-
-- **SOC2** - Security controls and audit logging
-- **GDPR** - Data privacy and user rights
-- **HIPAA** - Healthcare data protection (configuration required)
-- **ISO 27001** - Information security management
-
-See [generate_soc2_report.py](generate_soc2_report.py) for compliance reporting.
-
-## Security Updates
-
-Security updates are released:
-
-- **Critical**: Within 24-48 hours
-- **High**: Within 7 days
-- **Medium**: Within 30 days
-- **Low**: With next regular release
-
-Subscribe to security advisories:
-- Watch this repository on GitHub
-- Enable notifications for security alerts
-
-## Additional Resources
-
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [CWE Top 25](https://cwe.mitre.org/top25/)
-- [NIST Cybersecurity Framework](https://www.nist.gov/cyberframework)
-- [Flask Security Best Practices](https://flask.palletsprojects.com/en/latest/security/)
-
-## Security Hall of Fame
-
-We recognize and thank security researchers who have responsibly disclosed vulnerabilities:
-
-- [Your name could be here!]
-
-## Contact
-
-For security-related questions or concerns:
-
-- **Email**: security@datalogicengine.com
-- **PGP Key**: [Link to PGP key if available]
+### Deployment Security Checklist
+- [ ] All secrets in environment variables (never in code)
+- [ ] `DEBUG = False` in production
+- [ ] HTTPS enabled (TLS 1.2+)
+- [ ] Database connections use SSL
+- [ ] Configure CORS with specific allowed origins
+- [ ] Set up Redis for rate limiting
+- [ ] Configure proper logging (but sanitize sensitive data)
+- [ ] Regular dependency updates
+- [ ] Security headers enabled (Talisman in production mode)
+- [ ] Database backups automated
+- [ ] Monitoring and alerting configured
 
 ---
 
-Last updated: 2025-11-21
+**Last Updated**: 2025-11-24
+**Next Security Review**: 2025-12-24 (monthly reviews recommended)

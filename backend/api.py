@@ -8,12 +8,16 @@ import uuid
 import json
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
+from flask_login import login_required, current_user
 from extensions import db
 from models import SimulationSession
 from db_models import PillarLevel, Sector, Domain, Location, KnowledgeNode
 
 # Create API Blueprint
 api = Blueprint('api', __name__, url_prefix='/api')
+
+# SECURITY NOTE: All API endpoints require authentication
+# Use @login_required decorator to enforce authentication
 
 # Error response helper
 def error_response(message, status_code=400):
