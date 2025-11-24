@@ -31,13 +31,20 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configure CORS
+# Configure CORS - use environment variable for allowed origins
+# SECURITY: Never use allow_origins=["*"] with allow_credentials=True in production
+allowed_origins = os.environ.get("CORS_ORIGINS", "").split(",") if os.environ.get("CORS_ORIGINS") else []
+if not allowed_origins:
+    # Development fallback - but log warning
+    logger.warning("CORS_ORIGINS not set! Using development defaults. Set CORS_ORIGINS in production!")
+    allowed_origins = ["http://localhost:3000", "http://localhost:5000"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Webhook-Signature"],
 )
 
 # Setup logging

@@ -161,7 +161,7 @@ def collect_static_files():
         subprocess.run(
             ["cp", "-r", f"{frontend_build_dir}/*", static_dir], 
             check=True,
-            shell=True
+            shell=False  # SECURITY: Prevents command injection
         )
         
         logger.info("Static files collected successfully")

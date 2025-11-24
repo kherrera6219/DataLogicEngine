@@ -1293,38 +1293,66 @@ class UkgDatabaseManager:
     def execute_raw_query(self, query: str, params: Optional[Dict] = None) -> List[Dict]:
         """
         Execute a raw SQL query.
-        
+
+        SECURITY WARNING: This method allows raw SQL queries which can be dangerous.
+        Use with extreme caution and only with trusted, validated queries.
+        Always use parameterized queries with the 'params' argument.
+
         Args:
-            query: SQL query string
-            params: Optional parameters dictionary
-            
+            query: SQL query string (should use :param_name placeholders)
+            params: Optional parameters dictionary (REQUIRED for user input)
+
         Returns:
             list: List of result dictionaries
         """
+        # SECURITY: Basic SQL injection prevention checks
+        # This is NOT comprehensive - prefer ORM queries whenever possible
+        suspicious_patterns = [
+            ';--',  # SQL comment
+            'DROP TABLE',  # Destructive operation
+            'DELETE FROM',  # Bulk deletion without WHERE is dangerous
+            'TRUNCATE',  # Clear table
+            'ALTER TABLE',  # Schema modification
+            'CREATE TABLE',  # Schema creation
+            'EXEC',  # Stored procedure execution
+            'EXECUTE',  # Command execution
+        ]
+
+        query_upper = query.upper()
+        for pattern in suspicious_patterns:
+            if pattern in query_upper:
+                logging.error(f"[{datetime.now()}] UKGDB: Suspicious SQL pattern detected: {pattern}")
+                raise ValueError(f"Query contains forbidden pattern: {pattern}. Use ORM methods instead.")
+
+        # Warn if no parameters provided with user-controlled query
+        if not params and any(word in query_upper for word in ['WHERE', 'HAVING', 'LIKE']):
+            logging.warning(f"[{datetime.now()}] UKGDB: Raw query without parameters - potential SQL injection risk!")
+
         session = self.Session()
-        
+
         try:
             # Execute query
             result = session.execute(text(query), params or {})
-            
+
             # Convert results to dictionaries
             rows = []
             for row in result:
                 row_dict = dict(row._mapping)
-                
+
                 # Convert datetime objects to ISO strings
                 for key, value in row_dict.items():
                     if isinstance(value, datetime):
                         row_dict[key] = value.isoformat()
-                
+
                 rows.append(row_dict)
-            
+
+            logging.info(f"[{datetime.now()}] UKGDB: Executed raw query successfully, returned {len(rows)} rows")
             return rows
-            
+
         except SQLAlchemyError as e:
             logging.error(f"[{datetime.now()}] UKGDB: Error executing raw query: {str(e)}")
             return []
-            
+
         finally:
             session.close()
     

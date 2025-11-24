@@ -2,10 +2,12 @@
 Universal Knowledge Graph (UKG) System - API Routes
 
 This module defines the API routes for the UKG system.
+All endpoints require authentication.
 """
 
 import uuid
 import json
+from functools import wraps
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
@@ -17,7 +19,18 @@ from db_models import PillarLevel, Sector, Domain, Location, KnowledgeNode
 api = Blueprint('api', __name__, url_prefix='/api')
 
 # SECURITY NOTE: All API endpoints require authentication
-# Use @login_required decorator to enforce authentication
+# POST/PUT/DELETE operations require admin privileges
+
+# Admin required decorator
+def admin_required(f):
+    """Decorator to require admin privileges"""
+    @wraps(f)
+    @login_required
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_admin:
+            return error_response("Admin privileges required", 403)
+        return f(*args, **kwargs)
+    return decorated_function
 
 # Error response helper
 def error_response(message, status_code=400):
@@ -36,12 +49,14 @@ def success_response(data, message="Operation successful", status_code=200):
 
 # Pillar Level Routes
 @api.route('/pillar-levels', methods=['GET'])
+@login_required
 def get_pillar_levels():
     """Get all pillar levels."""
     pillar_levels = PillarLevel.query.all()
     return success_response([p.to_dict() for p in pillar_levels])
 
 @api.route('/pillar-levels/<pillar_id>', methods=['GET'])
+@login_required
 def get_pillar_level(pillar_id):
     """Get a specific pillar level."""
     pillar_level = PillarLevel.query.filter_by(pillar_id=pillar_id).first()
@@ -50,8 +65,13 @@ def get_pillar_level(pillar_id):
     return success_response(pillar_level.to_dict())
 
 @api.route('/pillar-levels', methods=['POST'])
+@login_required
 def create_pillar_level():
-    """Create a new pillar level."""
+    """Create a new pillar level. Admin only."""
+    # Check if user is admin
+    if not current_user.is_admin:
+        return error_response("Admin privileges required", 403)
+
     data = request.json
     
     if not data:
@@ -89,12 +109,14 @@ def create_pillar_level():
 
 # Sector Routes
 @api.route('/sectors', methods=['GET'])
+@login_required
 def get_sectors():
     """Get all sectors."""
     sectors = Sector.query.all()
     return success_response([s.to_dict() for s in sectors])
 
 @api.route('/sectors/<sector_code>', methods=['GET'])
+@login_required
 def get_sector(sector_code):
     """Get a specific sector."""
     sector = Sector.query.filter_by(sector_code=sector_code).first()
@@ -103,6 +125,7 @@ def get_sector(sector_code):
     return success_response(sector.to_dict())
 
 @api.route('/sectors', methods=['POST'])
+@admin_required
 def create_sector():
     """Create a new sector."""
     data = request.json
@@ -142,12 +165,14 @@ def create_sector():
 
 # Domain Routes
 @api.route('/domains', methods=['GET'])
+@login_required
 def get_domains():
     """Get all domains."""
     domains = Domain.query.all()
     return success_response([d.to_dict() for d in domains])
 
 @api.route('/domains/<domain_code>', methods=['GET'])
+@login_required
 def get_domain(domain_code):
     """Get a specific domain."""
     domain = Domain.query.filter_by(domain_code=domain_code).first()
@@ -156,6 +181,7 @@ def get_domain(domain_code):
     return success_response(domain.to_dict())
 
 @api.route('/domains', methods=['POST'])
+@admin_required
 def create_domain():
     """Create a new domain."""
     data = request.json
@@ -196,12 +222,14 @@ def create_domain():
 
 # Knowledge Node Routes
 @api.route('/knowledge-nodes', methods=['GET'])
+@login_required
 def get_knowledge_nodes():
     """Get all knowledge nodes."""
     knowledge_nodes = KnowledgeNode.query.all()
     return success_response([n.to_dict() for n in knowledge_nodes])
 
 @api.route('/knowledge-nodes/<uid>', methods=['GET'])
+@login_required
 def get_knowledge_node(uid):
     """Get a specific knowledge node."""
     node = KnowledgeNode.query.filter_by(uid=uid).first()
@@ -210,6 +238,7 @@ def get_knowledge_node(uid):
     return success_response(node.to_dict())
 
 @api.route('/knowledge-nodes', methods=['POST'])
+@admin_required
 def create_knowledge_node():
     """Create a new knowledge node."""
     data = request.json
@@ -247,12 +276,14 @@ def create_knowledge_node():
 
 # Simulation Routes
 @api.route('/simulations', methods=['GET'])
+@login_required
 def get_simulations():
     """Get all simulation sessions."""
     simulations = SimulationSession.query.all()
     return success_response([s.to_dict() for s in simulations])
 
 @api.route('/simulations/<uid>', methods=['GET'])
+@login_required
 def get_simulation(uid):
     """Get a specific simulation session."""
     simulation = SimulationSession.query.filter_by(uid=uid).first()
@@ -261,6 +292,7 @@ def get_simulation(uid):
     return success_response(simulation.to_dict())
 
 @api.route('/simulations', methods=['POST'])
+@admin_required
 def create_simulation():
     """Create a new simulation session."""
     data = request.json
@@ -295,6 +327,7 @@ def create_simulation():
         return error_response(f"Error creating simulation: {str(e)}", 500)
 
 @api.route('/simulations/<uid>/step', methods=['POST'])
+@admin_required
 def run_simulation_step(uid):
     """Run a step for a simulation session."""
     simulation = SimulationSession.query.filter_by(uid=uid).first()
@@ -327,6 +360,7 @@ def run_simulation_step(uid):
         return error_response(f"Error running simulation step: {str(e)}", 500)
 
 @api.route('/simulations/<uid>/stop', methods=['POST'])
+@admin_required
 def stop_simulation(uid):
     """Stop a simulation session."""
     simulation = SimulationSession.query.filter_by(uid=uid).first()
@@ -350,6 +384,7 @@ def stop_simulation(uid):
 
 # Seed Data Routes
 @api.route('/seed/pillar-levels', methods=['POST'])
+@admin_required
 def seed_pillar_levels():
     """Seed initial pillar level data."""
     pillar_levels = [
@@ -402,6 +437,7 @@ def seed_pillar_levels():
         return error_response(f"Error seeding pillar levels: {str(e)}", 500)
 
 @api.route('/seed/sectors', methods=['POST'])
+@admin_required
 def seed_sectors():
     """Seed initial sector data."""
     sectors = [
@@ -454,6 +490,7 @@ def seed_sectors():
         return error_response(f"Error seeding sectors: {str(e)}", 500)
 
 @api.route('/seed/domains', methods=['POST'])
+@admin_required
 def seed_domains():
     """Seed initial domain data."""
     domains = [

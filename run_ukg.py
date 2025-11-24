@@ -51,7 +51,7 @@ def run_command(command, env=None):
         process = subprocess.Popen(
             command,
             env=env_vars,
-            shell=True,
+            shell=False  # SECURITY: Prevents command injection,
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT

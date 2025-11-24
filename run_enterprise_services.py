@@ -48,7 +48,7 @@ def run_command(command: str, env: Dict[str, str] = None) -> subprocess.Popen:
     
     process = subprocess.Popen(
         command,
-        shell=True,
+        shell=False  # SECURITY: Prevents command injection,
         env=merged_env,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,

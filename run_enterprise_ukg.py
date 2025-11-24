@@ -47,23 +47,34 @@ except ImportError:
 processes = []
 
 def run_command(cmd, env=None, cwd=None, name=None):
-    """Run a command in a subprocess and return the process"""
+    """Run a command in a subprocess and return the process
+
+    SECURITY: Commands are now executed as lists without shell=True to prevent command injection
+    """
     merged_env = os.environ.copy()
     if env:
         merged_env.update(env)
 
-    logger.info(f"Running command: {cmd}")
+    # Convert string command to list if needed (safer execution)
+    if isinstance(cmd, str):
+        # Split command string into list (simple split - production should use shlex.split)
+        import shlex
+        cmd_list = shlex.split(cmd)
+    else:
+        cmd_list = cmd
+
+    logger.info(f"Running command: {' '.join(cmd_list)}")
     try:
         process = subprocess.Popen(
-            cmd,
-            shell=True,
+            cmd_list,
+            shell=False,  # SECURITY: Never use shell=True
             env=merged_env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             universal_newlines=True,
             cwd=cwd
         )
-        processes.append((process, name or cmd))
+        processes.append((process, name or ' '.join(cmd_list)))
         return process
     except Exception as e:
         logger.error(f"Failed to start process: {e}")
