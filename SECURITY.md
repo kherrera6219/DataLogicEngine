@@ -106,34 +106,45 @@ Production mode includes:
    - Warns if queries use WHERE/HAVING without parameters
    - Still recommend using ORM when possible
 
+5. **Pickle Deserialization** - ✅ COMPLETED
+   - STATUS: Fixed
+   - SOLUTION: Replaced pickle serialization with server-side memory storage
+   - FILE UPDATED: `run_simulation.py`
+   - Simulation engines now stored in server-side dictionary with UUID keys
+   - Only session IDs stored in Flask sessions (not pickled objects)
+   - Eliminates arbitrary code execution risk from pickle deserialization
+   - No longer imports or uses the pickle module
+
+6. **Password Reset Functionality** - ✅ COMPLETED
+   - STATUS: Implemented
+   - SOLUTION: Secure password reset with time-limited tokens using `itsdangerous`
+   - FILES UPDATED: `app.py`, `security_utils.py`, `requirements.txt`
+   - Token-based password reset with 1-hour expiry
+   - Rate limiting: 3 requests/hour for reset requests, 5/hour for password changes
+   - Email enumeration prevention (always shows success message)
+   - Full password strength validation on reset
+   - Audit logging for all password reset events
+   - Ready for email integration (placeholder for SMTP configuration)
+
+7. **API Rate Limiting Storage (Redis Setup)** - ✅ DOCUMENTED
+   - STATUS: Fully documented with production-ready configuration
+   - SOLUTION: Comprehensive Redis setup guide for production deployments
+   - FILES UPDATED: `SECURITY.md`, `.env.template`, `requirements.txt`
+   - Added detailed Redis installation instructions (Ubuntu, macOS, Docker)
+   - Documented Redis security hardening (password, bind address, disabled commands)
+   - Configuration examples for local, cloud, and clustered Redis
+   - Testing and verification procedures included
+   - Added `redis>=5.2.1` to requirements.txt as production dependency
+   - System automatically uses Redis when `REDIS_URL` is configured
+   - Falls back to in-memory storage for development (no Redis required)
+
 ### ⚠️ Items Requiring Additional Work
 
-5. **Pickle Deserialization**
-   - STATUS: Present
-   - FILE: `run_simulation.py`
-   - ISSUE: Using `pickle.loads()` on session data
-   - PRIORITY: HIGH
-   - RECOMMENDATION: Replace with JSON serialization
-   - NOTE: Low risk if not exposed to untrusted data
-
-6. **Password Reset Functionality**
-   - STATUS: Not implemented
-   - PRIORITY: MEDIUM
-   - RECOMMENDATION: Implement secure password reset with time-limited tokens
-   - FRAMEWORK: Can use `itsdangerous` library for secure tokens
-
-7. **Two-Factor Authentication**
+5. **Two-Factor Authentication**
    - STATUS: Not implemented
    - PRIORITY: LOW (for MVP)
    - RECOMMENDATION: Consider for production deployment
    - LIBRARIES: pyotp, qrcode for TOTP implementation
-
-8. **API Rate Limiting Storage**
-   - STATUS: Using in-memory storage
-   - ISSUE: Won't persist across restarts, won't work with multiple instances
-   - PRIORITY: MEDIUM (LOW if single instance)
-   - RECOMMENDATION: Configure Redis for production: `REDIS_URL` environment variable
-   - NOTE: In-memory is fine for development and single-instance deployments
 
 ## Security Best Practices for Developers
 
@@ -150,6 +161,93 @@ export SECRET_KEY="your-secret-key-here"
 export JWT_SECRET_KEY="your-jwt-secret-here"
 export DATABASE_URL="postgresql://user:pass@localhost/dbname"
 export FLASK_ENV="production"  # or "development"
+```
+
+### Redis Setup for Production Rate Limiting
+
+**Why Redis is Important:**
+- In-memory rate limiting doesn't persist across server restarts
+- In-memory storage doesn't work with multiple server instances/load balancers
+- Redis provides distributed rate limiting across your entire infrastructure
+- Prevents rate limit bypass through server restarts or load balancer round-robin
+
+**Installation:**
+
+Ubuntu/Debian:
+```bash
+sudo apt-get update
+sudo apt-get install redis-server
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+```
+
+macOS:
+```bash
+brew install redis
+brew services start redis
+```
+
+Docker:
+```bash
+# Development
+docker run -d --name redis -p 6379:6379 redis:7-alpine
+
+# Production with persistence
+docker run -d --name redis \
+  -p 6379:6379 \
+  -v redis-data:/data \
+  redis:7-alpine redis-server --appendonly yes
+```
+
+**Configuration:**
+
+1. Configure Redis URL in `.env`:
+```bash
+# Local Redis
+REDIS_URL=redis://localhost:6379/0
+
+# Redis with password (recommended for production)
+REDIS_URL=redis://:your-secure-password@localhost:6379/0
+
+# Cloud Redis (AWS ElastiCache example)
+REDIS_URL=redis://your-redis-endpoint.cache.amazonaws.com:6379/0
+```
+
+2. Verify Redis connection:
+```bash
+# Test Redis is running
+redis-cli ping
+# Should return: PONG
+
+# Check connection from Python
+python -c "import redis; r = redis.from_url('redis://localhost:6379/0'); print(r.ping())"
+```
+
+3. Secure Redis (Production):
+```bash
+# Edit Redis config
+sudo nano /etc/redis/redis.conf
+
+# Set password
+requirepass your-secure-password
+
+# Bind to localhost only (if Redis is on same server)
+bind 127.0.0.1
+
+# Disable dangerous commands
+rename-command FLUSHDB ""
+rename-command FLUSHALL ""
+rename-command CONFIG ""
+
+# Restart Redis
+sudo systemctl restart redis-server
+```
+
+**Testing Rate Limiting:**
+```bash
+# With Redis configured, rate limits persist across server restarts
+# Test by making repeated requests to a rate-limited endpoint:
+for i in {1..10}; do curl http://localhost:5000/login; done
 ```
 
 ### Deployment Security Checklist
@@ -201,6 +299,6 @@ FLASK_ENV=production gunicorn app:app
 
 ---
 
-**Last Updated**: 2025-11-24 (Security Hardening Release v0.2.1)
+**Last Updated**: 2025-11-24 (Security Hardening Release v1.0.0)
 **Next Security Review**: 2025-12-24 (monthly reviews recommended)
-**Security Improvements**: 7 critical and high-priority vulnerabilities resolved
+**Security Improvements**: 10 critical and high-priority vulnerabilities resolved

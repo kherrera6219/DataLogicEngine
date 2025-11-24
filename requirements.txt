@@ -24,6 +24,7 @@ bcrypt>=4.2.1
 flask-wtf>=1.2.1
 flask-limiter>=3.10.0
 flask-talisman>=1.1.0
+itsdangerous>=2.2.0
 
 # AI/ML & Knowledge Graph
 networkx>=3.4.2
@@ -60,6 +61,11 @@ uvicorn[standard]>=0.34.0
 python-multipart>=0.0.20
 python-jose[cryptography]>=3.3.0
 pydantic>=2.10.3
+
+# Redis (Optional - for production rate limiting)
+# HIGHLY RECOMMENDED for production deployments
+# Required for persistent rate limiting across server restarts and multiple instances
+redis>=5.2.1
 
 # Development & Testing
 pytest>=8.3.4

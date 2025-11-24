@@ -68,7 +68,7 @@ login_manager.init_app(app)
 
 # Import models (after extensions initialization)
 from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge, MCPServer, MCPResource, MCPTool, MCPPrompt
-from security_utils import PasswordValidator, URLValidator, InputSanitizer, validate_simulation_parameters
+from security_utils import PasswordValidator, URLValidator, InputSanitizer, validate_simulation_parameters, PasswordResetManager
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -213,6 +213,110 @@ def register():
             flash('An error occurred during registration. Please try again.', 'error')
 
     return render_template('register.html')
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+@limiter.limit("3 per hour")  # Rate limit password reset requests
+def forgot_password():
+    """Request a password reset"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+
+        # Validate email
+        if not email:
+            flash('Email address is required', 'error')
+            return render_template('forgot_password.html')
+
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, email):
+            flash('Invalid email address', 'error')
+            return render_template('forgot_password.html')
+
+        # Look up user by email
+        user = User.query.filter_by(email=email).first()
+
+        # SECURITY: Always show success message even if email doesn't exist
+        # This prevents email enumeration attacks
+        if user:
+            # Generate reset token
+            token = PasswordResetManager.generate_reset_token(user.email)
+
+            # TODO: Send email with reset link
+            # For now, log the token (in production, this should send an email)
+            reset_url = url_for('reset_password', token=token, _external=True)
+            logger.info(f"Password reset requested for {email}")
+            logger.info(f"Reset URL (EMAIL NOT CONFIGURED): {reset_url}")
+
+            # In production, send email here:
+            # send_password_reset_email(user.email, reset_url)
+
+        flash('If an account exists with that email, a password reset link has been sent.', 'info')
+        return redirect(url_for('login'))
+
+    return render_template('forgot_password.html')
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+@limiter.limit("5 per hour")  # Rate limit password reset attempts
+def reset_password(token):
+    """Reset password using a valid token"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+
+    if request.method == 'POST':
+        # Verify token
+        email = PasswordResetManager.verify_reset_token(token, max_age=3600)  # 1 hour expiry
+        if not email:
+            flash('Invalid or expired password reset link', 'error')
+            return redirect(url_for('forgot_password'))
+
+        # Get new password from form
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+
+        # Validate passwords
+        if not password or not confirm_password:
+            flash('All fields are required', 'error')
+            return render_template('reset_password.html', token=token)
+
+        if password != confirm_password:
+            flash('Passwords do not match', 'error')
+            return render_template('reset_password.html', token=token)
+
+        # Validate password strength
+        is_valid, message = PasswordValidator.validate(password)
+        if not is_valid:
+            flash(f'Password validation failed: {message}', 'error')
+            return render_template('reset_password.html', token=token)
+
+        # Look up user and update password
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            flash('User not found', 'error')
+            return redirect(url_for('login'))
+
+        # Update password
+        user.set_password(password)
+
+        try:
+            db.session.commit()
+            logger.info(f"Password reset successful for {email}")
+            flash('Your password has been reset successfully. You can now log in.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error resetting password for {email}: {e}")
+            flash('An error occurred while resetting your password. Please try again.', 'error')
+            return render_template('reset_password.html', token=token)
+
+    # GET request - verify token and show form
+    email = PasswordResetManager.verify_reset_token(token, max_age=3600)
+    if not email:
+        flash('Invalid or expired password reset link', 'error')
+        return redirect(url_for('forgot_password'))
+
+    return render_template('reset_password.html', token=token)
 
 @app.route('/logout')
 @login_required

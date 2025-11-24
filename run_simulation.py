@@ -9,7 +9,7 @@ import os
 import sys
 import logging
 import json
-import pickle
+import uuid
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, session
 
@@ -23,6 +23,11 @@ app.secret_key = "ukg_simulation_key"
 # Setup logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+# Server-side storage for simulation engines
+# SECURITY: Store engines in server memory instead of using pickle in sessions
+# This prevents pickle deserialization attacks
+simulation_engines = {}
 
 # Import the simulation engine
 from core.simulation.memory_simulation import create_sample_simulation
@@ -45,13 +50,19 @@ def start_simulation():
     try:
         # Create simulation engine with sample data
         engine = create_sample_simulation()
-        
+
         # Start simulation
         result = engine.start_simulation()
-        
-        # Store engine in session
-        session['engine'] = pickle.dumps(engine)
-        
+
+        # Generate unique session ID for this simulation
+        sim_session_id = str(uuid.uuid4())
+
+        # Store engine in server-side memory (SECURITY: avoids pickle deserialization)
+        simulation_engines[sim_session_id] = engine
+
+        # Store only the session ID in the Flask session
+        session['simulation_id'] = sim_session_id
+
         return jsonify(result)
     except Exception as e:
         logger.error(f"Error starting simulation: {str(e)}")
@@ -65,23 +76,29 @@ def start_simulation():
 def run_simulation_step():
     """Run a simulation step."""
     try:
-        engine_pickle = session.get('engine')
-        if not engine_pickle:
+        # Get simulation ID from session
+        sim_session_id = session.get('simulation_id')
+        if not sim_session_id:
             return jsonify({
                 'status': 'error',
                 'message': 'No active simulation found',
                 'timestamp': datetime.now().isoformat()
             }), 400
-        
-        # Unpickle the engine
-        engine = pickle.loads(engine_pickle)
-        
+
+        # Retrieve engine from server-side memory (SECURITY: avoids pickle deserialization)
+        engine = simulation_engines.get(sim_session_id)
+        if not engine:
+            return jsonify({
+                'status': 'error',
+                'message': 'Simulation session expired or invalid',
+                'timestamp': datetime.now().isoformat()
+            }), 400
+
         # Run simulation step
         result = engine.run_simulation_step()
-        
-        # Store updated engine in session
-        session['engine'] = pickle.dumps(engine)
-        
+
+        # Engine is already stored in server memory, no need to update
+
         return jsonify(result)
     except Exception as e:
         logger.error(f"Error running simulation step: {str(e)}")
@@ -95,23 +112,31 @@ def run_simulation_step():
 def stop_simulation():
     """Stop the current simulation."""
     try:
-        engine_pickle = session.get('engine')
-        if not engine_pickle:
+        # Get simulation ID from session
+        sim_session_id = session.get('simulation_id')
+        if not sim_session_id:
             return jsonify({
                 'status': 'error',
                 'message': 'No active simulation found',
                 'timestamp': datetime.now().isoformat()
             }), 400
-        
-        # Unpickle the engine
-        engine = pickle.loads(engine_pickle)
-        
+
+        # Retrieve engine from server-side memory (SECURITY: avoids pickle deserialization)
+        engine = simulation_engines.get(sim_session_id)
+        if not engine:
+            return jsonify({
+                'status': 'error',
+                'message': 'Simulation session expired or invalid',
+                'timestamp': datetime.now().isoformat()
+            }), 400
+
         # Stop simulation
         result = engine.stop_simulation()
-        
-        # Store updated engine in session
-        session['engine'] = pickle.dumps(engine)
-        
+
+        # Optionally clean up the engine from memory
+        # simulation_engines.pop(sim_session_id, None)
+        # session.pop('simulation_id', None)
+
         return jsonify(result)
     except Exception as e:
         logger.error(f"Error stopping simulation: {str(e)}")
@@ -125,20 +150,27 @@ def stop_simulation():
 def get_simulation_results():
     """Get simulation results."""
     try:
-        engine_pickle = session.get('engine')
-        if not engine_pickle:
+        # Get simulation ID from session
+        sim_session_id = session.get('simulation_id')
+        if not sim_session_id:
             return jsonify({
                 'status': 'error',
                 'message': 'No active simulation found',
                 'timestamp': datetime.now().isoformat()
             }), 400
-        
-        # Unpickle the engine
-        engine = pickle.loads(engine_pickle)
-        
+
+        # Retrieve engine from server-side memory (SECURITY: avoids pickle deserialization)
+        engine = simulation_engines.get(sim_session_id)
+        if not engine:
+            return jsonify({
+                'status': 'error',
+                'message': 'Simulation session expired or invalid',
+                'timestamp': datetime.now().isoformat()
+            }), 400
+
         # Get simulation results
         result = engine.get_simulation_results()
-        
+
         return jsonify(result)
     except Exception as e:
         logger.error(f"Error getting simulation results: {str(e)}")
@@ -152,23 +184,30 @@ def get_simulation_results():
 def get_simulation_graph():
     """Get simulation graph."""
     try:
-        engine_pickle = session.get('engine')
-        if not engine_pickle:
+        # Get simulation ID from session
+        sim_session_id = session.get('simulation_id')
+        if not sim_session_id:
             return jsonify({
                 'status': 'error',
                 'message': 'No active simulation found',
                 'timestamp': datetime.now().isoformat()
             }), 400
-        
-        # Unpickle the engine
-        engine = pickle.loads(engine_pickle)
-        
+
+        # Retrieve engine from server-side memory (SECURITY: avoids pickle deserialization)
+        engine = simulation_engines.get(sim_session_id)
+        if not engine:
+            return jsonify({
+                'status': 'error',
+                'message': 'Simulation session expired or invalid',
+                'timestamp': datetime.now().isoformat()
+            }), 400
+
         # Get export format
         format = request.args.get('format', 'json')
-        
+
         # Export graph
         result = engine.export_graph(format)
-        
+
         return jsonify(result)
     except Exception as e:
         logger.error(f"Error exporting simulation graph: {str(e)}")

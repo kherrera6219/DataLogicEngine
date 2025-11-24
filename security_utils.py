@@ -7,9 +7,10 @@ Provides password validation, input sanitization, and other security functions.
 import re
 import secrets
 import string
-from typing import Tuple
+from typing import Tuple, Optional
 from urllib.parse import urlparse, urljoin
-from flask import request
+from flask import request, current_app
+from itsdangerous import URLSafeTimedSerializer
 
 
 class PasswordValidator:
@@ -247,3 +248,49 @@ def validate_simulation_parameters(params: dict) -> Tuple[bool, str]:
         params['confidence_threshold'] = value
 
     return True, "Valid"
+
+
+class PasswordResetManager:
+    """Manages secure password reset tokens"""
+
+    @staticmethod
+    def get_serializer() -> URLSafeTimedSerializer:
+        """Get the password reset token serializer"""
+        return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+
+    @staticmethod
+    def generate_reset_token(email: str) -> str:
+        """
+        Generate a secure, time-limited password reset token.
+
+        Args:
+            email: User's email address
+
+        Returns:
+            Secure reset token
+        """
+        serializer = PasswordResetManager.get_serializer()
+        return serializer.dumps(email, salt='password-reset-salt')
+
+    @staticmethod
+    def verify_reset_token(token: str, max_age: int = 3600) -> Optional[str]:
+        """
+        Verify a password reset token and return the email if valid.
+
+        Args:
+            token: Reset token to verify
+            max_age: Maximum age of token in seconds (default: 3600 = 1 hour)
+
+        Returns:
+            Email address if token is valid, None otherwise
+        """
+        serializer = PasswordResetManager.get_serializer()
+        try:
+            email = serializer.loads(
+                token,
+                salt='password-reset-salt',
+                max_age=max_age
+            )
+            return email
+        except Exception:
+            return None
