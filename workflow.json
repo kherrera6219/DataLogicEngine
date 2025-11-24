@@ -1,0 +1,304 @@
+{
+  "step1": {
+    "name": "Input Parsing & Simulation Initialization",
+    "purpose": "Parse the user query, validate inputs, and initialize simulation memory.",
+    "subWorkflows": {
+      "1.1": "NLP Preprocessing: Tokenization; Lemmatization; POS tagging; Intent detection.",
+      "1.2": "Context Extraction: Extract domain, sector, regulatory, location, and temporal cues.",
+      "1.3": "Input Validation: Syntax/grammar checks; Ambiguity detection; Security filtering.",
+      "1.4": "Coordinate Seeding: Populate 13-axis vector with initial guesses.",
+      "1.5": "Memory Bootstrapping: Load relevant session or persistent context into working memory."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 20,
+      "retryPolicy": "Up to 2 retries on transient NLP errors"
+    },
+    "observability": {
+      "traceId": "propagate",
+      "metrics": ["nlp.latency", "validation.errorRate"],
+      "alerts": { "validation.errorRate": ">1% / 5 min" }
+    }
+  },
+  "step2": {
+    "name": "13-Axis System Mapping & Knowledge Assembly",
+    "purpose": "Locate the query in 13D coordinate space and build the working subgraph.",
+    "subWorkflows": {
+      "2.1": "Axis Value Assignment for axes 1–13.",
+      "2.2": "Knowledge Node Retrieval from vector and graph DBs.",
+      "2.3": "Relationship & Subgraph Construction.",
+      "2.4": "Metadata Extraction for regulatory, temporal, and spatial data.",
+      "2.5": "Honeycomb & Cross-Axis Expansion.",
+      "2.6": "Initial Confidence & Coverage Scoring."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 30,
+      "retryPolicy": "Graph/Vector lookup retry ×2 on 100‑level errors"
+    },
+    "dynamicAxisMapping": {
+      "axis1": {
+        "name": "Pillar Level",
+        "process": [
+          "Load Pillar taxonomy tree (PL01–PL107).",
+          "Match query domain keywords to Pillar IDs.",
+          "Score and select Pillar and sublevels via embedding similarity.",
+          "Populate sublevel1 and sublevel2 fields."
+        ]
+      },
+      "axis2": {
+        "name": "Sector of Industry",
+        "subLevel1": [
+          "Extract industry keywords.",
+          "Match against NAICS/SIC/PSC/NIC schemes.",
+          "Score candidates and choose classification system."
+        ],
+        "subLevel2": [
+          "List top-level codes (e.g., NAICS 52xx).",
+          "Filter by semantic overlap with query.",
+          "Rank and select top code (e.g., 541512)."
+        ]
+      },
+      "axis3": {
+        "name": "Honeycomb Cross-Domain Links",
+        "process": [
+          "Identify semantically adjacent domains from Axis1+2.",
+          "Fetch cross-domain link nodes (e.g., Healthcare ↔ AI).",
+          "Rank by co-occurrence and regulatory relevance.",
+          "Select top honeycomb coordinates."
+        ]
+      },
+      "axis4": {
+        "name": "Branch System",
+        "process": [
+          "Load domain taxonomy under selected sector.",
+          "Traverse to Branch level matching query subdomain.",
+          "Use term‑frequency and embedding similarity for SubBranch.",
+          "Record path (e.g., 4.3.2)."
+        ]
+      },
+      "axis5": {
+        "name": "Node System",
+        "process": [
+          "Identify intersection nodes between branches and other axes.",
+          "Query for focal nodes (e.g., bioinformatics).",
+          "Score by link strength and co‑occurrence.",
+          "Select Node/SubNode for detailed mapping."
+        ]
+      },
+      "axis6": {
+        "name": "Octopus Regulatory Crosswalk",
+        "process": [
+          "Fetch high‑level regulatory frameworks tied to Axis2+4+5.",
+          "Identify hub nodes that map multiple regulations.",
+          "Evaluate connectivity degree.",
+          "Select OctopusNode (e.g., small‑business hub)."
+        ]
+      },
+      "axis7": {
+        "name": "Spiderweb Compliance Crosswalk",
+        "process": [
+          "Detect overlapping compliance across jurisdictions.",
+          "Retrieve mesh nodes linking requirements.",
+          "Compute interdependency density.",
+          "Select SpiderNode with highest mesh score."
+        ]
+      },
+      "axis8": {
+        "name": "Knowledge Expert Persona Role",
+        "process": [
+          "Map Axis8 value to expert role.",
+          "Fetch role template and skill matrix."
+        ]
+      },
+      "axis9": {
+        "name": "Sector/Industry Expert Persona Role",
+        "process": [
+          "Map Axis9 value to practitioner role.",
+          "Load credentials and domain experience."
+        ]
+      },
+      "axis10": {
+        "name": "Octopus Regulatory Expert Persona",
+        "process": [
+          "Map Axis10 value to regulatory authority role.",
+          "Load framework expertise."
+        ]
+      },
+      "axis11": {
+        "name": "Spiderweb Compliance Expert Persona",
+        "process": [
+          "Map Axis11 value to compliance officer role.",
+          "Load standards and policy expertise."
+        ]
+      },
+      "axis12": {
+        "name": "Location Context",
+        "process": [
+          "Extract geographic mentions.",
+          "Geocode to jurisdiction codes.",
+          "Select local regulations."
+        ]
+      },
+      "axis13": {
+        "name": "Temporal Context",
+        "process": [
+          "Extract temporal cues.",
+          "Normalize to ISO date/time.",
+          "Select time‑bound regulations and snapshots."
+        ]
+      }
+    }
+  },
+  "step3": {
+    "name": "Quad Persona System",
+    "purpose": "Orchestrate four expert personas for multi‑angle reasoning.",
+    "subWorkflows": {
+      "3.1": "Identify personas from axes 8–11 with cosine similarity.",
+      "3.2": "Build 7‑part profiles.",
+      "3.3": "Inject memory and context.",
+      "3.4": "Independent persona reasoning and drafts.",
+      "3.5": "Peer review, recursive self‑application.",
+      "3.6": "Weighted consensus or minority‑report spawning."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 50,
+      "parallelAgents": 4
+    }
+  },
+  "step4": {
+    "name": "Deep Research Agent Activation",
+    "purpose": "Spawn specialized agents for detailed data gathering.",
+    "subWorkflows": {
+      "4.1": "Decompose query into sub‑questions.",
+      "4.2": "Spawn research agents.",
+      "4.3": "Query mirrored external sources.",
+      "4.4": "Rank sources by trust.",
+      "4.5": "Deduplicate data."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 60,
+      "retryPolicy": "External source timeout → fallback to cached corpus"
+    }
+  },
+  "step5": {
+    "name": "POV Engine Expansion",
+    "purpose": "Add new expert perspectives for coverage gaps.",
+    "subWorkflows": {
+      "5.1": "Axis gap analysis.",
+      "5.2": "Spawn additional personas.",
+      "5.3": "Generate majority/minority viewpoints.",
+      "5.4": "Cross‑persona validation.",
+      "5.5": "Synthesize multi‑perspective draft."
+    },
+    "performanceTargets": { "maxLatencyMs": 40 }
+  },
+  "step6": {
+    "name": "Multi‑Agent Synthesis & Arbitration",
+    "purpose": "Structure debates, resolve conflicts, aggregate answers.",
+    "subWorkflows": {
+      "6.1": "Inter‑agent debate.",
+      "6.2": "Conflict detection & resolution.",
+      "6.3": "Weighted aggregation.",
+      "6.4": "Produce consensus draft."
+    },
+    "performanceTargets": { "maxLatencyMs": 50 }
+  },
+  "step7": {
+    "name": "Deep Neural Analysis & Recursive Learning",
+    "purpose": "Discover hidden patterns and monitor confidence drift.",
+    "subWorkflows": {
+      "7.1": "Deep semantic parsing.",
+      "7.2": "Latent relationship detection.",
+      "7.3": "Recursive refinement loops.",
+      "7.4": "Entropy/confidence monitoring.",
+      "7.5": "Meta‑cognitive diagnostics."
+    },
+    "performanceTargets": { "maxLatencyMs": 45 }
+  },
+  "step8": {
+    "name": "Simulated AGI Reasoning & Emergence Planning",
+    "purpose": "Meta‑reasoning, trust calibration, emergence detection.",
+    "subWorkflows": {
+      "8.1": "Alternative solution planning.",
+      "8.2": "Belief realignment.",
+      "8.3": "Entropy & trust calibration.",
+      "8.4": "Emergence signal detection.",
+      "8.5": "Containment pre‑check."
+    },
+    "performanceTargets": { "maxLatencyMs": 30 }
+  },
+  "step9": {
+    "name": "Simulated Quantum Substrate",
+    "purpose": "Superposition, entanglement, probabilistic branching.",
+    "subWorkflows": {
+      "9.1": "Initialize probability distributions.",
+      "9.2": "Maintain parallel reasoning states.",
+      "9.3": "Entanglement mapping.",
+      "9.4": "Collapse to likely answers.",
+      "9.5": "Drift/noise monitoring."
+    },
+    "performanceTargets": { "maxLatencyMs": 25 }
+  },
+  "step10": {
+    "name": "Recursive AGI Kernel & Self‑Awareness Engine",
+    "purpose": "Recursive belief realignment and self‑awareness safeguards.",
+    "subWorkflows": {
+      "10.1": "Recursive role replay.",
+      "10.2": "Identity/memory alignment.",
+      "10.3": "Epistemic audit.",
+      "10.4": "Self‑awareness detection.",
+      "10.5": "Containment pre‑escalation."
+    },
+    "performanceTargets": { "maxLatencyMs": 30 }
+  },
+  "step11": {
+    "name": "Emergence Detection, AGI Guardrails, Containment & Final Output",
+    "purpose": "Final safety check and answer release or exception handling.",
+    "subWorkflows": {
+      "11.1": "Emergence detection.",
+      "11.2": "Guardrail enforcement.",
+      "11.3": "Containment logic execution.",
+      "11.4": "Explainability trace & logging.",
+      "11.5": "Output or escalate."
+    },
+    "optionalHumanInTheLoop": {
+      "trigger": "Unresolved containment/confidence issues or regulatory mandate.",
+      "handoff": "Package trace, metrics, and flagged issues for human review.",
+      "ingestion": "Integrate human feedback as high‑authority learning signals."
+    },
+    "performanceTargets": { "maxLatencyMs": 20 }
+  },
+  "step12": {
+    "name": "Continuous Self‑Learning Feedback Loop & Knowledge Offload",
+    "purpose": "Patch memory, offload validated data, seed future runs.",
+    "subWorkflows": {
+      "12.1": "Patch findings into memory.",
+      "12.2": "Recursive self‑application of final answers.",
+      "12.3": "Track performance metrics & tune workflow.",
+      "12.4": "Gate high‑confidence facts for promotion.",
+      "12.5": "Validate facts for redundancy & schema compliance.",
+      "12.6": "Offload to validated‑data KB with provenance.",
+      "12.7": "Audit promotion logs.",
+      "12.8": "Autonomous re‑validation & schema evolution.",
+      "12.9": "Seed future simulations from validated KB.",
+      "12.10": "Meta‑learning: tune algorithms & prompts."
+    },
+    "performanceTargets": {
+      "offloadLatencyMs": 100,
+      "revalidationIntervalDays": 30
+    }
+  },
+  "twelveStepRefinementWorkflow": {
+    "1": "Algorithm of Thought: Task decomposition and structured logic.",
+    "2": "Tree of Thought: Parallel branch exploration and selection.",
+    "3": "Gap & Data Analysis: Identify and verify missing information.",
+    "4": "Deep Reasoning: Extended reflection for analogy formation.",
+    "5": "Self‑Reflection & Critique: Introspective error and bias checks.",
+    "6": "Ethics/Security/Compliance Checks: Enforce all policies.",
+    "7": "Recursive Learning: Update memory with lessons learned.",
+    "8": "Advanced NLP Parsing: Final semantic and contextual pass.",
+    "9": "External Validation: Cross‑check against trusted sources.",
+    "10": "Answer Synthesis & Scoring: Integrate and compute confidence.",
+    "11": "Output or Escalate: Produce answer or trigger exception workflow.",
+    "12": "Memory Patch: Persist all new knowledge and trace logs."
+  }
+}
