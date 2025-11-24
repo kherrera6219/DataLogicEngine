@@ -5,21 +5,16 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
-from sqlalchemy.orm import DeclarativeBase
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
+# Configure logging - use INFO in production, DEBUG in development
+log_level = logging.DEBUG if os.environ.get("FLASK_ENV") == "development" else logging.INFO
+logging.basicConfig(level=log_level)
 logger = logging.getLogger(__name__)
-
-# Database setup
-class Base(DeclarativeBase):
-    pass
 
 # Create Flask app
 app = Flask(__name__)
@@ -35,17 +30,12 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
 }
 
-# Initialize extensions
-db = SQLAlchemy(app, model_class=Base)
-
-# Setup Flask-Login
-login_manager = LoginManager()
+# Initialize extensions with app
+from extensions import db, login_manager
+db.init_app(app)
 login_manager.init_app(app)
-login_manager.login_view = 'login'
-login_manager.login_message = 'Please log in to access this page'
-login_manager.login_message_category = 'info'
 
-# Import models (after db initialization)
+# Import models (after extensions initialization)
 from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge, MCPServer, MCPResource, MCPTool, MCPPrompt
 
 @login_manager.user_loader
@@ -356,4 +346,5 @@ def server_error(e):
 # Run the application
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    debug_mode = os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)

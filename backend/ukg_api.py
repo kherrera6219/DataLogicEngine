@@ -11,8 +11,9 @@ import logging
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 from backend.middleware import api_response
-from app import db
-from models import *
+from extensions import db
+from models import User, SimulationSession
+from db_models import *
 
 # Set up logging
 logger = logging.getLogger(__name__)

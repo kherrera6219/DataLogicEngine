@@ -8,7 +8,7 @@ and provide a proper structure for the 13-axis knowledge graph system.
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, JSON
 from sqlalchemy.orm import relationship, backref
-from app import db
+from extensions import db
 
 # Base Models for UKG Core Components
 

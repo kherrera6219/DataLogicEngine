@@ -1,10 +1,7 @@
-
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.dialects.postgresql import JSON
-
-db = SQLAlchemy()
+from extensions import db
 
 class User(db.Model):
     __tablename__ = 'users'
