@@ -8,8 +8,9 @@ import uuid
 import json
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
-from app import db
-from models import PillarLevel, Sector, Domain, Location, KnowledgeNode, SimulationSession
+from extensions import db
+from models import SimulationSession
+from db_models import PillarLevel, Sector, Domain, Location, KnowledgeNode
 
 # Create API Blueprint
 api = Blueprint('api', __name__, url_prefix='/api')

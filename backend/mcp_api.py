@@ -11,7 +11,7 @@ from datetime import datetime
 import asyncio
 import logging
 
-from app import db
+from extensions import db
 from models import MCPServer as MCPServerModel, MCPResource, MCPTool, MCPPrompt
 from core.mcp import MCPManager
 

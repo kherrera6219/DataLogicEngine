@@ -2,6 +2,10 @@
 Universal Knowledge Graph (UKG) System - Database Initialization Script
 
 This script initializes the database with required tables and sample data.
+
+SECURITY WARNING: This script contains hardcoded development credentials.
+These should NEVER be used in production. Always use strong, unique passwords
+and consider using environment variables or a secrets management system.
 """
 
 import os
@@ -9,7 +13,8 @@ import logging
 from datetime import datetime
 import uuid
 
-from app import app, db
+from app import app
+from extensions import db
 from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge
 
 # Configure logging
@@ -28,7 +33,8 @@ def create_admin_user():
         admin.active = True
         admin.is_admin = True
         admin.created_at = datetime.utcnow()
-        admin.set_password('admin123')  # For development only, would use a strong password in production
+        # SECURITY WARNING: Change this default password immediately in production!
+        admin.set_password('admin123')  # DEVELOPMENT ONLY - Use strong passwords in production
         
         db.session.add(admin)
         db.session.commit()
@@ -48,7 +54,8 @@ def create_demo_user():
         demo.active = True
         demo.is_admin = False
         demo.created_at = datetime.utcnow()
-        demo.set_password('demo123')  # For development only
+        # SECURITY WARNING: Change this default password immediately in production!
+        demo.set_password('demo123')  # DEVELOPMENT ONLY - Use strong passwords in production
         
         db.session.add(demo)
         db.session.commit()

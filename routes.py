@@ -9,33 +9,20 @@ import logging
 import datetime
 import json
 import uuid
-import jwt
 from flask import (
-    render_template, request, redirect, url_for, 
+    render_template, request, redirect, url_for,
     flash, jsonify, session, abort, send_from_directory
 )
-from flask_login import LoginManager, current_user, login_user, logout_user, login_required
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import current_user, login_user, logout_user, login_required
+from sqlalchemy import text, select
 
-from app import app, db
-from models import (
-    User, APIKey, Node, Edge, KnowledgeNode, SectorNode, DomainNode, 
-    MethodNode, ContextNode, ProblemNode, SolutionNode, RoleNode, 
-    ExpertNode, RegulationNode, ComplianceNode, LocationNode, TimeNode,
-    KnowledgeAlgorithm, KnowledgeAlgorithmExecution, SimulationSession
-)
+from app import app
+from extensions import db
+from models import User, SimulationSession
+from db_models import Node, Edge, KnowledgeNode, MethodNode, KnowledgeAlgorithm, Sector, Domain
 
 # Configure logging
 logger = logging.getLogger(__name__)
-
-# Initialize login manager
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
 
 # Public Routes
 @app.route('/')
@@ -133,8 +120,8 @@ def dashboard():
     # Get some summary statistics
     stats = {
         'knowledge_count': KnowledgeNode.query.count(),
-        'sector_count': SectorNode.query.count(),
-        'domain_count': DomainNode.query.count(),
+        'sector_count': Sector.query.count(),
+        'domain_count': Domain.query.count(),
         'simulation_count': SimulationSession.query.filter_by(user_id=current_user.id).count(),
         'algorithm_count': KnowledgeAlgorithm.query.count()
     }
@@ -152,18 +139,19 @@ def dashboard():
 @login_required
 def profile():
     """Render the user profile page."""
-    # Get user's API keys
-    api_keys = APIKey.query.filter_by(user_id=current_user.id).all()
-    
+    # TODO: Implement APIKey model for API key management
+    # api_keys = APIKey.query.filter_by(user_id=current_user.id).all()
+    api_keys = []  # Placeholder until APIKey model is implemented
+
     # Get user activity stats
     simulation_count = SimulationSession.query.filter_by(user_id=current_user.id).count()
     completed_simulations = SimulationSession.query.filter_by(
-        user_id=current_user.id, 
+        user_id=current_user.id,
         status='completed'
     ).count()
-    
-    return render_template('profile.html', 
-                          api_keys=api_keys, 
+
+    return render_template('profile.html',
+                          api_keys=api_keys,
                           simulation_count=simulation_count,
                           completed_simulations=completed_simulations)
 
@@ -265,7 +253,7 @@ def admin():
     # Get some admin stats
     stats = {
         'user_count': User.query.count(),
-        'active_users': User.query.filter_by(is_active_status=True).count(),
+        'active_users': User.query.filter_by(active=True).count(),
         'node_count': Node.query.count(),
         'edge_count': Edge.query.count(),
         'simulation_count': SimulationSession.query.count(),
@@ -291,7 +279,7 @@ def api_health():
     """API health check endpoint."""
     try:
         # Check database connection
-        db.session.execute(db.select(db.text('1')))
+        db.session.execute(select(text('1')))
         db_status = "healthy"
     except Exception as e:
         logger.error(f"Database health check failed: {str(e)}")
