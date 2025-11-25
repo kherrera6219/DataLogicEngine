@@ -79,6 +79,8 @@ The system provides:
 
 ### Installation (5 minutes)
 
+For a detailed readiness checklist and known gaps, see [docs/runtime_gap_analysis.md](docs/runtime_gap_analysis.md).
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/kherrera6219/DataLogicEngine.git
@@ -98,18 +100,21 @@ cd ..
 # 5. Initialize database
 python3 -c "from app import app, db; app.app_context().push(); db.create_all()"
 
-# 6. Start the backend (Terminal 1)
-python main.py
+# 6. Run a quick environment precheck (optional but recommended)
+python scripts/runtime_precheck.py
 
-# 7. Start the frontend (Terminal 2)
-cd frontend && npm start
+# 7. Start the backend (Terminal 1)
+python main.py  # serves on http://localhost:8080 by default
+
+# 8. Start the frontend (Terminal 2)
+cd frontend && npm run dev
 ```
 
 ### Access the Application
 
 - **Frontend:** http://localhost:3000
-- **Backend API:** http://localhost:5000
-- **API Documentation:** http://localhost:5000/swagger
+- **Backend API:** http://localhost:8080
+- **API Documentation:** http://localhost:8080/swagger
 - **Default Login:** Username: `admin`, Password: `admin123`
 
 ## Architecture

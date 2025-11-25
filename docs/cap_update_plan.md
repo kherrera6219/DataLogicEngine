@@ -2,6 +2,8 @@
 
 This plan sequences the work needed to remediate gaps identified in the Universal Knowledge Graph (UKG) application and to harden the platform. Each phase is scoped to be independently deliverable while building momentum toward the full target state.
 
+> For a runtime-focused gap analysis and the current Phase 1 runbook, see [runtime_gap_analysis.md](runtime_gap_analysis.md).
+
 ## Phase 1 – Runtime stabilization (in progress)
 - **Goal:** Remove immediate deployment blockers and ensure the backend runs consistently without port collisions or duplicate entry points.
 - **Scope:**
