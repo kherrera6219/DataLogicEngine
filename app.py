@@ -16,6 +16,9 @@ log_level = logging.DEBUG if os.environ.get("FLASK_ENV") == "development" else l
 logging.basicConfig(level=log_level)
 logger = logging.getLogger(__name__)
 
+# Server configuration
+DEFAULT_PORT = int(os.environ.get("PORT", os.environ.get("BACKEND_PORT", 8080)))
+
 # Create Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", os.environ.get("SESSION_SECRET", "ukg-dev-secret-key-replace-in-production"))
@@ -345,6 +348,5 @@ def server_error(e):
 
 # Run the application
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
     debug_mode = os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
-    app.run(host='0.0.0.0', port=port, debug=debug_mode)
+    app.run(host='0.0.0.0', port=DEFAULT_PORT, debug=debug_mode)
