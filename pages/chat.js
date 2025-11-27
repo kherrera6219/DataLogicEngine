@@ -22,6 +22,26 @@ export default function Chat() {
     }
   });
 
+  const quickPrompts = [
+    'Summarize the 13 axes with one example per axis.',
+    'Draft a SOC 2 control checklist for a new vendor.',
+    'Map these requirements to the honeycomb crosswalk.',
+    'Show me the regulatory spiderweb for healthcare.'
+  ];
+
+  const personaOptions = [
+    { id: 'ke', label: 'Knowledge Expert', icon: 'book' },
+    { id: 'se', label: 'Skill Expert', icon: 'tools' },
+    { id: 're', label: 'Role Expert', icon: 'person-badge' },
+    { id: 'ce', label: 'Context Expert', icon: 'geo-alt' }
+  ];
+
+  const liveSignals = [
+    { label: 'Latency', value: '42ms', tone: 'success' },
+    { label: 'Token stream', value: '2.1k/s', tone: 'info' },
+    { label: 'Confidence', value: `${Math.round(settings.confidenceThreshold * 100)}%`, tone: 'warning' }
+  ];
+
   const messagesEndRef = useRef(null);
   const chatInputRef = useRef(null);
 
@@ -190,20 +210,11 @@ export default function Chat() {
     }
   };
 
-  const handleSaveSettings = () => {
-    // In a real implementation, this would save settings to the API
-    const modal = document.getElementById('settings-modal');
-    if (modal) {
-      const bootstrapModal = bootstrap.Modal.getInstance(modal);
-      bootstrapModal.hide();
-    }
-  };
-
   const generateChatTitle = (firstMessage) => {
     if (!firstMessage) return 'New Conversation';
     // Truncate and clean up the message to create a title
-    return firstMessage.length > 30 
-      ? firstMessage.substring(0, 30) + '...' 
+    return firstMessage.length > 30
+      ? firstMessage.substring(0, 30) + '...'
       : firstMessage;
   };
 
@@ -220,157 +231,143 @@ export default function Chat() {
       <Head>
         <title>UKG Chat Interface</title>
       </Head>
-
-      <div className="chat-container">
-        <div className="chat-sidebar">
-          <div className="sidebar-header">
-            <h5 className="mb-0">Chat History</h5>
-            <button className="btn btn-sm btn-outline-light d-flex align-items-center">
-              <i className="bi bi-plus-lg"></i>
-            </button>
-          </div>
-          <div className="chat-history">
-            {chatHistory.map((chat, index) => (
-              <div 
-                key={index} 
-                className={`chat-history-item ${currentChatId === chat.id ? 'active' : ''}`}
-                onClick={() => handleChatSelect(chat.id)}
-              >
-                <i className="bi bi-chat-left-text"></i>
-                {chat.title}
-              </div>
-            ))}
-            {chatHistory.length === 0 && (
-              <div className="text-center text-muted p-3">
-                <i className="bi bi-chat-square-text fs-3 mb-2"></i>
-                <p>No chat history yet</p>
-              </div>
-            )}
-          </div>
-          <div className="sidebar-footer">
-            <button className="btn btn-outline-light btn-sm w-100 d-flex align-items-center justify-content-center">
-              <i className="bi bi-trash me-2"></i>
-              Clear History
-            </button>
-          </div>
-        </div>
-
-        {/* Sidebar toggle button for mobile */}
-        <button className="sidebar-toggle">
-          <i className="bi bi-list"></i>
-        </button>
-
-        <div className="chat-main">
-          <div className="chat-header">
-            <h5 className="mb-0 d-flex align-items-center">
-              <i className="bi bi-robot me-2 d-none d-sm-inline"></i>
-              UKG Chat Assistant
-            </h5>
+      <div className="chat-shell">
+        <aside className="chat-sidebar p-3 d-flex flex-column gap-3">
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <p className="section-title mb-1">Sessions</p>
+              <h5 className="mb-0">AI Workbench</h5>
+            </div>
             <div className="d-flex gap-2">
-              <button className="btn btn-sm btn-outline-light d-flex align-items-center">
-                <i className="bi bi-gear"></i>
-                <span className="ms-1 d-none d-md-inline">Settings</span>
+              <button className="btn btn-outline-light btn-sm rounded-pill" onClick={handleNewChat}>
+                <i className="bi bi-plus-lg"></i>
               </button>
-              <button className="btn btn-sm btn-outline-light d-flex align-items-center">
-                <i className="bi bi-question-circle"></i>
-                <span className="ms-1 d-none d-md-inline">Help</span>
+              <button className="btn btn-outline-light btn-sm rounded-pill" onClick={() => setInputText('/cmd ')}>
+                <i className="bi bi-command"></i>
               </button>
             </div>
           </div>
-          <div className="chat-messages" id="chat-messages">
+
+          <div className="d-grid gap-2">
+            {chatHistory.length === 0 && (
+              <div className="glass-border p-3 text-center text-white-50">
+                <i className="bi bi-chat-square-text fs-3 d-block mb-2"></i>
+                Start a new conversation
+              </div>
+            )}
+            {chatHistory.map((chat) => (
+              <div
+                key={chat.id}
+                className={`glass-border p-3 cursor-pointer ${currentChatId === chat.id ? 'bg-primary bg-opacity-10' : ''}`}
+                onClick={() => handleChatSelect(chat.id)}
+              >
+                <div className="d-flex justify-content-between align-items-center">
+                  <div className="d-flex align-items-center gap-2">
+                    <i className="bi bi-chat-left-text"></i>
+                    <strong>{chat.title}</strong>
+                  </div>
+                  <span className="badge bg-secondary">{new Date(chat.created).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="d-grid gap-2">
+            <button className="btn btn-outline-light btn-sm rounded-pill" onClick={handleClearChats}>
+              <i className="bi bi-trash me-2"></i> Clear history
+            </button>
+            <button className="btn btn-outline-light btn-sm rounded-pill">
+              <i className="bi bi-cloud-download me-2"></i> Export transcript
+            </button>
+          </div>
+        </aside>
+
+        <section className="chat-window">
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+              <p className="section-title mb-1">Streaming chat</p>
+              <h5 className="mb-0 text-white">{chatTitle}</h5>
+            </div>
+            <div className="d-flex gap-2 flex-wrap">
+              {liveSignals.map((signal) => (
+                <span key={signal.label} className={`badge bg-${signal.tone} bg-opacity-25 text-${signal.tone}`}>
+                  {signal.label}: {signal.value}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="d-flex gap-2 flex-wrap mb-2">
+            <span className="action-chip"><i className="bi bi-mic me-2"></i>Voice input</span>
+            <span className="action-chip"><i className="bi bi-paperclip me-2"></i>Attachments</span>
+            <span className="action-chip"><i className="bi bi-diagram-3 me-2"></i>Graph context</span>
+            <span className="action-chip"><i className="bi bi-shield-lock me-2"></i>Audit trail</span>
+          </div>
+
+          <div className="flex-grow-1 overflow-auto" style={{ minHeight: '320px' }}>
             {messages.length === 0 ? (
-              <div className="welcome-message">
-                <h2>Welcome to the UKG Chat System</h2>
-                <p>A comprehensive AI knowledge system with a 13-axis Universal Knowledge Graph.</p>
-                <div className="suggestion-chips">
-                  <div 
-                    className="chip" 
-                    onClick={() => setInputText("How does the UKG system work?")}
-                  >
-                    How does the UKG system work?
-                  </div>
-                  <div 
-                    className="chip"
-                    onClick={() => setInputText("Tell me about the 13 axes of knowledge")}
-                  >
-                    Tell me about the 13 axes of knowledge
-                  </div>
-                  <div 
-                    className="chip"
-                    onClick={() => setInputText("What are knowledge algorithms?")}
-                  >
-                    What are knowledge algorithms?
-                  </div>
+              <div className="glass-border p-4 text-center">
+                <h4 className="text-white">Welcome to the UKG Chat System</h4>
+                <p className="text-white-50">Pick a persona mix, provide a prompt, or jump into a knowledge graph query.</p>
+                <div className="d-flex gap-2 flex-wrap justify-content-center">
+                  {quickPrompts.map((prompt) => (
+                    <button key={prompt} className="btn btn-outline-light btn-sm rounded-pill" onClick={() => setInputText(prompt)}>
+                      {prompt}
+                    </button>
+                  ))}
                 </div>
               </div>
             ) : (
-              messages.map(message => (
-                <div key={message.id} className={`message ${message.type}`}>
-                  {message.type === 'user' ? (
-                    <>
-                      <div className="message-avatar">
-                        <i className="bi bi-person-circle"></i>
-                      </div>
-                      <div className="message-content">
-                        <div className="message-text">{message.content}</div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="message-avatar system-avatar">
-                        <i className="bi bi-robot"></i>
-                      </div>
-                      <div className="message-content">
-                        <div 
-                          className="message-text markdown-content"
-                          dangerouslySetInnerHTML={{ __html: marked.parse(message.content) }}
-                        ></div>
-                        {message.confidence && (
-                          <div className="message-metadata">
-                            <span className="confidence-badge">
-                              Confidence: {message.confidence}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  )}
+              messages.map((message) => (
+                <div key={message.id} className={`message-bubble ${message.type} mb-2`}>
+                  <div className="d-flex align-items-start gap-2">
+                    <div className="avatar bg-primary bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px' }}>
+                      <i className={`bi ${message.type === 'user' ? 'bi-person' : 'bi-robot'}`}></i>
+                    </div>
+                    <div className="flex-grow-1">
+                      <div
+                        className="markdown-content"
+                        dangerouslySetInnerHTML={{ __html: marked.parse(message.content) }}
+                      ></div>
+                      {message.confidence && (
+                        <small className="text-white-50">Confidence: {message.confidence}</small>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))
             )}
             {isLoading && (
-              <div className="message system">
-                <div className="message-avatar system-avatar">
-                  <i className="bi bi-robot"></i>
-                </div>
-                <div className="message-content">
-                  <div className="message-text">
-                    <div className="typing-indicator">
-                      <span></span>
-                      <span></span>
-                      <span></span>
-                    </div>
-                  </div>
+              <div className="message-bubble system mb-2">
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
-          <div className="chat-input-container">
-            <div className="position-relative w-100">
-              <textarea 
-                id="chat-input" 
-                className="form-control" 
-                placeholder="Ask a question..." 
-                rows="1"
+
+          <div className="glass-border p-3 input-rail">
+            <div className="d-flex gap-2 align-items-center mb-2 flex-wrap">
+              <span className="badge bg-secondary">Cmd/Ctrl + K: Command palette</span>
+              <span className="badge bg-secondary">Shift + Enter: New line</span>
+              <span className="badge bg-secondary">Streaming on</span>
+            </div>
+            <div className="position-relative">
+              <textarea
+                className="form-control bg-dark text-white"
+                placeholder="Ask a question, paste context, or use /commands..."
+                rows="2"
                 value={inputText}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 ref={chatInputRef}
               />
               {inputText && (
-                <button 
-                  className="btn btn-sm btn-link position-absolute top-50 end-0 translate-middle-y text-secondary me-2"
+                <button
+                  className="btn btn-sm btn-link position-absolute top-0 end-0 text-secondary"
                   type="button"
                   onClick={() => setInputText('')}
                   style={{ zIndex: 5 }}
@@ -379,179 +376,116 @@ export default function Chat() {
                 </button>
               )}
             </div>
-            <div className="input-buttons">
-              <button 
-                className="btn btn-outline-light d-flex align-items-center justify-content-center" 
-                type="button"
-                title="Upload file"
-              >
-                <i className="bi bi-paperclip"></i>
-              </button>
-              <button 
-                className="btn btn-primary d-flex align-items-center justify-content-center" 
-                type="button"
-                onClick={handleSendMessage}
-                disabled={!inputText.trim() || isLoading}
-                style={{ minWidth: '48px', minHeight: '38px' }}
-              >
-                {isLoading ? (
-                  <div className="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                ) : (
-                  <i className="bi bi-send"></i>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Settings Modal */}
-        <div className="modal fade" id="settings-modal" tabIndex="-1" aria-hidden="true">
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Chat Settings</h5>
-                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div className="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+              <div className="d-flex gap-2 flex-wrap">
+                <button className="btn btn-outline-light btn-sm rounded-pill"><i className="bi bi-upload"></i> Upload</button>
+                <button className="btn btn-outline-light btn-sm rounded-pill"><i className="bi bi-mic"></i> Voice</button>
+                <button className="btn btn-outline-light btn-sm rounded-pill"><i className="bi bi-braces"></i> Code</button>
               </div>
-              <div className="modal-body">
-                <div className="mb-3">
-                  <label htmlFor="confidence-threshold" className="form-label">
-                    Target Confidence: <span id="confidence-value">{settings.confidenceThreshold}</span>
-                  </label>
-                  <input 
-                    type="range" 
-                    className="form-range" 
-                    id="confidence-threshold" 
-                    min="0.6" 
-                    max="0.95" 
-                    step="0.05" 
-                    value={settings.confidenceThreshold}
-                    onChange={(e) => setSettings({
-                      ...settings,
-                      confidenceThreshold: parseFloat(e.target.value)
-                    })}
-                  />
-                </div>
-                <div className="mb-3 form-check form-switch">
-                  <input 
-                    className="form-check-input" 
-                    type="checkbox" 
-                    id="enable-location-context"
-                    checked={settings.enableLocationContext}
-                    onChange={(e) => setSettings({
-                      ...settings,
-                      enableLocationContext: e.target.checked
-                    })}
-                  />
-                  <label className="form-check-label" htmlFor="enable-location-context">
-                    Enable Location Context
-                  </label>
-                </div>
-                <div className="mb-3 form-check form-switch">
-                  <input 
-                    className="form-check-input" 
-                    type="checkbox" 
-                    id="enable-research-agents"
-                    checked={settings.enableResearchAgents}
-                    onChange={(e) => setSettings({
-                      ...settings,
-                      enableResearchAgents: e.target.checked
-                    })}
-                  />
-                  <label className="form-check-label" htmlFor="enable-research-agents">
-                    Enable Research Agents
-                  </label>
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Active Personas</label>
-                  <div className="persona-toggles">
-                    <div className="form-check form-switch">
-                      <input 
-                        className="form-check-input" 
-                        type="checkbox" 
-                        id="persona-ke"
-                        checked={settings.personas.ke}
-                        onChange={(e) => setSettings({
-                          ...settings,
-                          personas: {
-                            ...settings.personas,
-                            ke: e.target.checked
-                          }
-                        })}
-                      />
-                      <label className="form-check-label" htmlFor="persona-ke">
-                        Knowledge Expert
-                      </label>
-                    </div>
-                    <div className="form-check form-switch">
-                      <input 
-                        className="form-check-input" 
-                        type="checkbox" 
-                        id="persona-se"
-                        checked={settings.personas.se}
-                        onChange={(e) => setSettings({
-                          ...settings,
-                          personas: {
-                            ...settings.personas,
-                            se: e.target.checked
-                          }
-                        })}
-                      />
-                      <label className="form-check-label" htmlFor="persona-se">
-                        Skill Expert
-                      </label>
-                    </div>
-                    <div className="form-check form-switch">
-                      <input 
-                        className="form-check-input" 
-                        type="checkbox" 
-                        id="persona-re"
-                        checked={settings.personas.re}
-                        onChange={(e) => setSettings({
-                          ...settings,
-                          personas: {
-                            ...settings.personas,
-                            re: e.target.checked
-                          }
-                        })}
-                      />
-                      <label className="form-check-label" htmlFor="persona-re">
-                        Role Expert
-                      </label>
-                    </div>
-                    <div className="form-check form-switch">
-                      <input 
-                        className="form-check-input" 
-                        type="checkbox" 
-                        id="persona-ce"
-                        checked={settings.personas.ce}
-                        onChange={(e) => setSettings({
-                          ...settings,
-                          personas: {
-                            ...settings.personas,
-                            ce: e.target.checked
-                          }
-                        })}
-                      />
-                      <label className="form-check-label" htmlFor="persona-ce">
-                        Context Expert
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" className="btn btn-primary" id="save-settings" onClick={handleSaveSettings}>
-                  Save changes
+              <div className="d-flex gap-2">
+                <button className="btn btn-outline-light rounded-pill" onClick={handleNewChat}>New chat</button>
+                <button
+                  className="btn btn-primary rounded-pill"
+                  type="button"
+                  onClick={handleSendMessage}
+                  disabled={!inputText.trim() || isLoading}
+                >
+                  {isLoading ? 'Streaming…' : 'Send'}
                 </button>
               </div>
             </div>
           </div>
-        </div>
+        </section>
+
+        <aside className="context-panel p-3 d-flex flex-column gap-3">
+          <div>
+            <p className="section-title mb-1">Context</p>
+            <h6 className="mb-2">Personas</h6>
+            <div className="d-grid gap-2">
+              {personaOptions.map((persona) => (
+                <label key={persona.id} className="d-flex align-items-center justify-content-between glass-border p-2">
+                  <div className="d-flex align-items-center gap-2">
+                    <i className={`bi bi-${persona.icon}`}></i>
+                    {persona.label}
+                  </div>
+                  <div className="form-check form-switch m-0">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      checked={settings.personas[persona.id]}
+                      onChange={(e) => setSettings({
+                        ...settings,
+                        personas: {
+                          ...settings.personas,
+                          [persona.id]: e.target.checked
+                        }
+                      })}
+                    />
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="glass-border p-3">
+            <p className="section-title mb-1">Telemetry</p>
+            <div className="d-grid gap-2">
+              <div className="d-flex justify-content-between align-items-center">
+                <span>Confidence target</span>
+                <strong>{settings.confidenceThreshold}</strong>
+              </div>
+              <input
+                type="range"
+                className="form-range"
+                min="0.6"
+                max="0.95"
+                step="0.05"
+                value={settings.confidenceThreshold}
+                onChange={(e) => setSettings({ ...settings, confidenceThreshold: parseFloat(e.target.value) })}
+              />
+              <div className="form-check form-switch">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="enable-location-context"
+                  checked={settings.enableLocationContext}
+                  onChange={(e) => setSettings({ ...settings, enableLocationContext: e.target.checked })}
+                />
+                <label className="form-check-label" htmlFor="enable-location-context">Location context</label>
+              </div>
+              <div className="form-check form-switch">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="enable-research-agents"
+                  checked={settings.enableResearchAgents}
+                  onChange={(e) => setSettings({ ...settings, enableResearchAgents: e.target.checked })}
+                />
+                <label className="form-check-label" htmlFor="enable-research-agents">Research agents</label>
+              </div>
+            </div>
+          </div>
+
+          <div className="glass-border p-3">
+            <p className="section-title mb-1">Recent prompts</p>
+            <ul className="list-unstyled mb-0">
+              {quickPrompts.slice(0, 3).map((prompt) => (
+                <li key={prompt} className="mb-2 small">
+                  <i className="bi bi-lightning-charge me-2 text-primary"></i>{prompt}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="glass-border p-3">
+            <p className="section-title mb-1">Actions</p>
+            <div className="d-grid gap-2">
+              <button className="btn btn-outline-light btn-sm rounded-pill"><i className="bi bi-shield-check me-2"></i>Compliance scan</button>
+              <button className="btn btn-outline-light btn-sm rounded-pill"><i className="bi bi-diagram-2 me-2"></i>Open knowledge graph</button>
+              <button className="btn btn-outline-light btn-sm rounded-pill"><i className="bi bi-file-earmark-text me-2"></i>Generate report</button>
+            </div>
+          </div>
+        </aside>
       </div>
     </Layout>
   );
