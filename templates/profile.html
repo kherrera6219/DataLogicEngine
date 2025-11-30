@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Universal Knowledge Graph - Profile{% endblock %}
+{% block page_title %}Profile & API Keys{% endblock %}
+{% block page_subtitle %}Manage your account and programmatic access tokens{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-header">
+                <h3>User Overview</h3>
+                <p class="muted">Activity summary for {{ current_user.username }}</p>
+            </div>
+            <div class="card-body">
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <span class="material-icons">smart_toy</span>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">{{ simulation_count }}</h3>
+                            <p class="stat-label">Simulations Started</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <span class="material-icons">check_circle</span>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">{{ completed_simulations }}</h3>
+                            <p class="stat-label">Completed Runs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Create API Key</h3>
+                <p class="muted">Generate a new key for programmatic access.</p>
+            </div>
+            <div class="card-body">
+                {% if new_api_key %}
+                <div class="alert success">
+                    <strong>{{ new_api_key_name or 'New API Key' }}</strong><br>
+                    <code>{{ new_api_key }}</code>
+                    <p class="muted">Copy this key now. For security reasons, it will not be shown again.</p>
+                </div>
+                {% endif %}
+                <form method="post" class="form-grid">
+                    <input type="hidden" name="action" value="create">
+                    <label class="form-control">
+                        <span>Label</span>
+                        <input type="text" name="label" placeholder="e.g., Data Pipeline" required>
+                    </label>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-icons">add</span>
+                        Generate Key
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>API Keys</h3>
+            <p class="muted">View, copy, and revoke your API keys.</p>
+        </div>
+        <div class="card-body">
+            {% if api_keys %}
+            <div class="table">
+                <div class="table-row table-header">
+                    <div>Label</div>
+                    <div>Status</div>
+                    <div>Created</div>
+                    <div>Last Used</div>
+                    <div>Actions</div>
+                </div>
+                {% for key in api_keys %}
+                <div class="table-row">
+                    <div>
+                        <strong>{{ key.name }}</strong>
+                        <p class="muted">ID: {{ key.id }}</p>
+                    </div>
+                    <div>
+                        {% if key.is_active %}
+                        <span class="badge success">Active</span>
+                        {% else %}
+                        <span class="badge danger">Revoked</span>
+                        {% endif %}
+                    </div>
+                    <div>{{ key.created_at.strftime('%Y-%m-%d %H:%M UTC') if key.created_at else '-' }}</div>
+                    <div>
+                        {% if key.last_used_at %}
+                            {{ key.last_used_at.strftime('%Y-%m-%d %H:%M UTC') }}
+                        {% else %}
+                            <span class="muted">No requests yet</span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {% if key.is_active %}
+                        <form method="post" style="display:inline;">
+                            <input type="hidden" name="action" value="revoke">
+                            <input type="hidden" name="key_id" value="{{ key.id }}">
+                            <button type="submit" class="btn btn-danger btn-small">Revoke</button>
+                        </form>
+                        {% else %}
+                        <span class="muted">Revoked {{ key.revoked_at.strftime('%Y-%m-%d') if key.revoked_at else '' }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert info">No API keys created yet. Generate your first key to enable API access.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
