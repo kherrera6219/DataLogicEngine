@@ -3,6 +3,35 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from extensions import db
 
+
+class APIKey(db.Model):
+    """API key used for authenticating programmatic requests."""
+
+    __tablename__ = 'api_keys'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    name = db.Column(db.String(120), nullable=False, default='Default Key')
+    key = db.Column(db.String(128), unique=True, nullable=False, index=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_used_at = db.Column(db.DateTime)
+    revoked_at = db.Column(db.DateTime)
+
+    user = db.relationship('User', backref=db.backref('api_keys', lazy='dynamic'))
+
+    def to_dict(self):
+        """Serialize the API key metadata (without exposing the secret)."""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'name': self.name,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_used_at': self.last_used_at.isoformat() if self.last_used_at else None,
+            'revoked_at': self.revoked_at.isoformat() if self.revoked_at else None,
+        }
+
 class User(UserMixin, db.Model):
     """User model for authentication"""
     __tablename__ = 'users'

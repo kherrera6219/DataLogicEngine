@@ -8,6 +8,7 @@ import os
 import logging
 import datetime
 import json
+import secrets
 import uuid
 from flask import (
     render_template, request, redirect, url_for,
@@ -18,7 +19,7 @@ from sqlalchemy import text, select
 
 from app import app
 from extensions import db
-from models import User, SimulationSession
+from models import APIKey, User, SimulationSession
 from db_models import Node, Edge, KnowledgeNode, MethodNode, KnowledgeAlgorithm, Sector, Domain
 
 # Configure logging
@@ -135,25 +136,59 @@ def dashboard():
                           stats=stats, 
                           recent_simulations=recent_simulations)
 
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    """Render the user profile page."""
-    # TODO: Implement APIKey model for API key management
-    # api_keys = APIKey.query.filter_by(user_id=current_user.id).all()
-    api_keys = []  # Placeholder until APIKey model is implemented
+    """Render the user profile page and manage API keys."""
+    new_api_key = None
 
-    # Get user activity stats
+    if request.method == 'POST':
+        action = request.form.get('action')
+
+        if action == 'create':
+            label = request.form.get('label', 'New API Key').strip() or 'New API Key'
+            new_api_key = APIKey(
+                user_id=current_user.id,
+                name=label,
+                key=secrets.token_hex(32)
+            )
+            db.session.add(new_api_key)
+            db.session.commit()
+            session['generated_api_key'] = new_api_key.key
+            session['generated_api_key_name'] = new_api_key.name
+            flash('New API key created. Copy it now; it will only be shown once.', 'success')
+
+        elif action == 'revoke':
+            key_id = request.form.get('key_id', type=int)
+            api_key = APIKey.query.filter_by(id=key_id, user_id=current_user.id, is_active=True).first()
+            if api_key:
+                api_key.is_active = False
+                api_key.revoked_at = datetime.datetime.utcnow()
+                db.session.commit()
+                flash('API key revoked successfully.', 'info')
+            else:
+                flash('API key not found or already revoked.', 'warning')
+
+        return redirect(url_for('profile'))
+
+    new_api_key_value = session.pop('generated_api_key', None)
+    new_api_key_name = session.pop('generated_api_key_name', None)
+    api_keys = APIKey.query.filter_by(user_id=current_user.id).order_by(APIKey.created_at.desc()).all()
+
     simulation_count = SimulationSession.query.filter_by(user_id=current_user.id).count()
     completed_simulations = SimulationSession.query.filter_by(
         user_id=current_user.id,
         status='completed'
     ).count()
 
-    return render_template('profile.html',
-                          api_keys=api_keys,
-                          simulation_count=simulation_count,
-                          completed_simulations=completed_simulations)
+    return render_template(
+        'profile.html',
+        api_keys=api_keys,
+        new_api_key=new_api_key_value,
+        new_api_key_name=new_api_key_name,
+        simulation_count=simulation_count,
+        completed_simulations=completed_simulations,
+    )
 
 @app.route('/knowledge')
 @login_required
