@@ -1,11 +1,14 @@
 import os
+import re
 import uuid
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Load environment variables from .env file
@@ -24,6 +27,14 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", os.environ.get("SESSION_SECRET", "ukg-dev-secret-key-replace-in-production"))
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
 
+# Session hardening
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = os.environ.get("SESSION_COOKIE_SAMESITE", "Lax")
+app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SESSION_COOKIE_SECURE", "False").lower() == "true"
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(
+    minutes=int(os.environ.get("SESSION_LIFETIME_MINUTES", 30))
+)
+
 # Configure database
 database_url = os.environ.get("DATABASE_URL", "sqlite:///ukg_database.db")
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
@@ -32,6 +43,14 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
     "pool_recycle": 300,
 }
+
+# Rate limiting
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=[os.environ.get("GLOBAL_RATE_LIMIT", "200 per hour")],
+    storage_uri=os.environ.get("RATELIMIT_STORAGE_URI", "memory://"),
+)
 
 # Initialize extensions with app
 from extensions import db, login_manager
@@ -44,6 +63,17 @@ from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEd
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
+
+
+def password_meets_policy(password: str) -> bool:
+    """Enforce a basic password policy for initial hardening."""
+    if not password or len(password) < 12:
+        return False
+    has_upper = re.search(r"[A-Z]", password)
+    has_lower = re.search(r"[a-z]", password)
+    has_digit = re.search(r"\d", password)
+    has_symbol = re.search(r"[^A-Za-z0-9]", password)
+    return all([has_upper, has_lower, has_digit, has_symbol])
 
 # Create tables
 with app.app_context():
@@ -61,6 +91,7 @@ def index():
     return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("10 per minute")
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
@@ -73,6 +104,7 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and user.check_password(password):
             login_user(user, remember=remember)
+            session.permanent = True
             user.last_login = datetime.utcnow()
             db.session.commit()
             
@@ -87,6 +119,7 @@ def login():
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
@@ -104,6 +137,10 @@ def register():
         
         if password != confirm_password:
             flash('Passwords do not match', 'error')
+            return render_template('register.html')
+
+        if not password_meets_policy(password):
+            flash('Password must be at least 12 characters and include upper, lower, digit, and symbol characters.', 'error')
             return render_template('register.html')
         
         # Check for existing user
@@ -152,6 +189,7 @@ def simulations():
     return render_template('simulations.html', simulations=user_simulations)
 
 @app.route('/create_simulation', methods=['POST'])
+@limiter.limit("30 per minute")
 @login_required
 def create_simulation():
     # Get simulation parameters from form
@@ -207,6 +245,7 @@ def create_simulation():
         return redirect(url_for('simulations'))
 
 @app.route('/simulation/<int:sim_id>/start', methods=['POST'])
+@limiter.limit("30 per minute")
 @login_required
 def start_simulation(sim_id):
     """Start a pending simulation"""
@@ -230,6 +269,7 @@ def start_simulation(sim_id):
     return redirect(url_for('simulations'))
 
 @app.route('/simulation/<int:sim_id>/pause', methods=['POST'])
+@limiter.limit("30 per minute")
 @login_required
 def pause_simulation(sim_id):
     """Pause a running simulation"""
@@ -252,6 +292,7 @@ def pause_simulation(sim_id):
     return redirect(url_for('simulations'))
 
 @app.route('/simulation/<int:sim_id>/resume', methods=['POST'])
+@limiter.limit("30 per minute")
 @login_required
 def resume_simulation(sim_id):
     """Resume a paused simulation"""
@@ -274,6 +315,7 @@ def resume_simulation(sim_id):
     return redirect(url_for('simulations'))
 
 @app.route('/simulation/<int:sim_id>/delete', methods=['POST'])
+@limiter.limit("10 per minute")
 @login_required
 def delete_simulation(sim_id):
     """Delete a simulation"""

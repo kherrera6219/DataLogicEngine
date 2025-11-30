@@ -21,6 +21,7 @@ gunicorn>=23.0.0
 pyjwt>=2.10.1
 cryptography>=44.0.0
 bcrypt>=4.2.1
+flask-limiter>=3.10.1
 
 # AI/ML & Knowledge Graph
 networkx>=3.4.2
