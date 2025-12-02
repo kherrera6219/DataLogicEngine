@@ -7,8 +7,11 @@
 - [Environment Configuration](#environment-configuration)
 - [Deployment Methods](#deployment-methods)
   - [Local Development](#local-development)
+  - [GitHub Codespaces](#github-codespaces)
+  - [Cursor Workspace](#cursor-workspace)
   - [Docker Deployment](#docker-deployment)
   - [Replit Deployment](#replit-deployment)
+  - [Azure DevOps & Visual Studio](#azure-devops--visual-studio)
   - [Cloud Deployment](#cloud-deployment)
 - [Database Setup](#database-setup)
 - [Security Configuration](#security-configuration)
@@ -88,8 +91,11 @@ SESSION_SECRET=your-session-secret
 
 # API Keys
 OPENAI_API_KEY=sk-your-openai-key
-AZURE_OPENAI_KEY=your-azure-openai-key
+AZURE_OPENAI_API_KEY=your-azure-openai-key
 AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+ANTHROPIC_API_KEY=your-claude-api-key
+GOOGLE_API_KEY=your-gemini-api-key
+MODEL_PROVIDER=openai  # openai | azure | anthropic | gemini
 
 # Azure AD (Optional)
 AZURE_AD_CLIENT_ID=your-client-id
@@ -111,6 +117,15 @@ ENABLE_RATE_LIMITING=true
 # Logging
 LOG_LEVEL=INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 ```
+
+### Model Provider Selection
+
+- **OpenAI GPT (default):** Set `MODEL_PROVIDER=openai` and `OPENAI_API_KEY`.
+- **Azure OpenAI:** Set `MODEL_PROVIDER=azure` with `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, and optionally `AZURE_OPENAI_DEPLOYMENT`.
+- **Anthropic Claude:** Set `MODEL_PROVIDER=anthropic` with `ANTHROPIC_API_KEY` for Claude 3.x endpoints.
+- **Google Gemini:** Set `MODEL_PROVIDER=gemini` with `GOOGLE_API_KEY`.
+
+Ensure the chosen provider variables are present in CI/CD secrets for Codespaces, Cursor, Azure DevOps, or other platforms before running builds.
 
 ### Generating Secret Keys
 
@@ -190,6 +205,47 @@ npm run dev
 - Frontend: http://localhost:3000
 - API: http://localhost:5000
 - Swagger Docs: http://localhost:5000/swagger
+
+---
+
+### GitHub Codespaces
+
+Run the full stack inside a Codespace using the existing Docker tooling.
+
+1. **Create Codespace**
+   - From the GitHub repository, click **Code > Codespaces > Create codespace on main**.
+   - Choose a machine size with at least 4 cores and 8 GB RAM for Compose builds.
+
+2. **Launch the devcontainer**
+   - On first start Codespaces will build the devcontainer automatically.
+   - Verify Docker is available: `docker --version` and `docker compose version`.
+
+3. **Start services**
+   ```bash
+   docker compose pull  # warm cache for base images
+   docker compose up -d
+   docker compose logs -f backend frontend
+   ```
+
+4. **Ports and forwarding**
+   - Codespaces automatically forwards ports 3000 and 5000; mark them **public** if team access is needed.
+   - Use the forwarded URLs provided in the Codespaces ports panel.
+
+5. **Persist data**
+   - PostgreSQL volume `postgres_data` persists within the Codespace; export with `docker compose down -v` when cleaning up.
+
+### Cursor Workspace
+
+Cursor can build and run the stack with the existing Docker Compose definition.
+
+1. **Open the repository in Cursor** and ensure **Remote Mode** is enabled for projects with Docker.
+2. **Configure environment** via `.env` or Cursor Secrets for keys such as `DATABASE_URL`, `OPENAI_API_KEY`, `AZURE_OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, and `GOOGLE_API_KEY`.
+3. **Start containers** inside the integrated terminal:
+   ```bash
+   docker compose up -d
+   ```
+4. **Preview** using Cursor’s port panel (expose 3000 for the frontend and 5000 for the API).
+5. **Export builds** by running `npm run build` for the frontend and `docker compose build` for backend images; Cursor’s deploy panel can publish the resulting images to your chosen registry.
 
 ---
 
@@ -384,6 +440,64 @@ python init_db.py
 #### 4. Run Application
 
 The `.replit` file is pre-configured. Just click "Run".
+
+---
+
+### Azure DevOps & Visual Studio
+
+Use Azure DevOps pipelines and Visual Studio publishing to target Azure Kubernetes Service (AKS) or App Service.
+
+#### Prerequisites
+- Azure subscription with ACR and AKS or App Service
+- Azure CLI (`az`), Docker, and `kubectl` installed locally or in the build agent
+- Service connection from Azure DevOps to the target subscription
+
+#### Sample `azure-pipelines.yml`
+
+```yaml
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  imageName: 'datalogicengine'
+  registry: '$(ACR_NAME).azurecr.io'
+
+steps:
+  - task: Checkout@1
+
+  - task: AzureCLI@2
+    displayName: 'Build and push image'
+    inputs:
+      azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        az acr login --name $(ACR_NAME)
+        docker build -t $(registry)/$(imageName):$(Build.BuildId) .
+        docker push $(registry)/$(imageName):$(Build.BuildId)
+
+  - task: AzureCLI@2
+    displayName: 'Deploy to AKS'
+    inputs:
+      azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        az aks get-credentials --resource-group $(AKS_RG) --name $(AKS_NAME)
+        kubectl set image deployment/datalogicengine backend=$(registry)/$(imageName):$(Build.BuildId) --namespace $(AKS_NAMESPACE)
+        kubectl apply -f k8s/ --namespace $(AKS_NAMESPACE)
+```
+
+#### Visual Studio deployment options
+- Create a **Container Orchestration Support** profile and point to the `k8s/` manifests for AKS.
+- Use **Publish > Azure > Azure Kubernetes Service** to generate a publish profile that reuses the ACR image built during the pipeline.
+- For App Service, select **Publish > Azure > Linux Web App (Container)** and reference the same ACR image tag.
+- Add pipeline variables for `OPENAI_API_KEY`, `AZURE_OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, and `GOOGLE_API_KEY` so deployments can swap model providers per environment.
 
 ---
 

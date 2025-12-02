@@ -226,8 +226,11 @@ JWT_SECRET_KEY=<generated>
 
 # API Keys
 OPENAI_API_KEY=your-openai-key
-AZURE_OPENAI_KEY=your-azure-key
+AZURE_OPENAI_API_KEY=your-azure-key
 AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+ANTHROPIC_API_KEY=your-claude-key
+GOOGLE_API_KEY=your-gemini-key
+MODEL_PROVIDER=openai  # openai | azure | anthropic | gemini
 
 # Azure AD (Optional)
 AZURE_AD_CLIENT_ID=your-client-id
@@ -471,11 +474,22 @@ For detailed contributing guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ### Deployment Options
 
-- **Docker:** Docker Compose configuration available
+- **GitHub Codespaces:** Launch a full Docker-backed devcontainer with forwarded ports and Compose orchestration
+- **Cursor:** Run and ship from the cloud IDE using the included Docker Compose file or static exports
+- **Docker:** Docker Compose configuration available for local or remote hosts
+- **Kubernetes:** Apply the manifests in `k8s/` (AKS/GKE/EKS compatible) or use Helm overlays
+- **Azure DevOps & Visual Studio:** Build CI/CD pipelines to AKS or App Service directly from Visual Studio publish profiles
 - **Replit:** Pre-configured for Replit deployment
 - **AWS:** Elastic Beanstalk or ECS deployment
 - **Azure:** App Service or AKS deployment
 - **GCP:** Cloud Run deployment
+
+### Model Provider Options
+
+- **OpenAI GPT:** Use `OPENAI_API_KEY` for direct API access
+- **Azure OpenAI:** Configure `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, and `AZURE_OPENAI_DEPLOYMENT`
+- **Anthropic Claude:** Provide `ANTHROPIC_API_KEY` for enterprise Claude endpoints
+- **Google Gemini:** Provide `GOOGLE_API_KEY` for Gemini models
 
 For detailed deployment instructions, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 
