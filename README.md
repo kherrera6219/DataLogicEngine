@@ -27,6 +27,42 @@
 - [License](#license)
 - [Support](#support)
 
+## 🔴 Production Readiness Status
+
+**Current Status:** ⚠️ **NOT READY FOR PRODUCTION**
+**Review Date:** December 2, 2025
+**Next Review:** After Phase 0 completion
+
+### Quick Assessment
+
+| Category | Status |
+|----------|--------|
+| Architecture | ✅ Excellent (9/10) |
+| Security Configuration | 🔴 Critical Issues |
+| Testing | 🔴 Minimal Coverage (~2%) |
+| Implementation | ⚠️ Partial (Core features incomplete) |
+
+### Critical Issues Identified
+
+1. 🔴 Default credentials (admin/admin123) - **FIX IMMEDIATELY**
+2. 🔴 Debug mode enabled - **FIX IMMEDIATELY**
+3. 🔴 Secrets in version control - **FIX IMMEDIATELY**
+4. 🔴 Minimal test coverage - **Requires 80%+**
+5. 🔴 Simulation engine incomplete - **Core features needed**
+
+### Production Documentation
+
+**→ [PRODUCTION REVIEW SUMMARY](PRODUCTION_REVIEW_SUMMARY.md)** - Start here!
+
+Detailed documentation:
+- **[Production Code Review](docs/PRODUCTION_CODE_REVIEW.md)** - Complete findings (26 issues)
+- **[Production Readiness Guide](docs/PRODUCTION_READINESS.md)** - Deployment preparation
+- **[Remediation Plan](docs/REMEDIATION_PLAN.md)** - 12-week phased fix plan
+
+**Timeline to Production:** 12 weeks (with full team)
+
+---
+
 ## Overview
 
 DataLogicEngine is a sophisticated full-stack enterprise application that implements a **Universal Knowledge Graph (UKG)** system. It combines advanced knowledge organization, multi-dimensional analysis, regulatory compliance tracking, and AI-powered expert persona simulation into a unified platform.
@@ -115,7 +151,9 @@ cd frontend && npm run dev
 - **Frontend:** http://localhost:3000
 - **Backend API:** http://localhost:8080
 - **API Documentation:** http://localhost:8080/swagger
-- **Default Login:** Username: `admin`, Password: `admin123`
+- **Default Login:** 🔴 **WARNING:** Default credentials must be changed before any deployment!
+  - Development only: `admin` / `admin123`
+  - See [Production Readiness Guide](docs/PRODUCTION_READINESS.md) for secure setup
 
 ## Architecture
 
