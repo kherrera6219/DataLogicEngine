@@ -1,43 +1,37 @@
-
 import React from 'react';
 
-const Card = ({
-  children,
-  className = "",
-  title = "",
-  footer = null,
-  shadow = "md",
-  border = false,
-  ...props
-}) => {
-  const shadowClasses = {
-    none: "",
-    sm: "shadow-sm",
-    md: "shadow",
-    lg: "shadow-lg",
-    xl: "shadow-xl"
-  };
-  
-  const shadowClass = shadowClasses[shadow] || shadowClasses.md;
-  
+const baseClass = 'card shadow-sm border-0 glass-panel';
+
+const Card = ({ children, className = '', ...props }) => (
+  <div className={`${baseClass} ${className}`.trim()} {...props}>
+    {children}
+  </div>
+);
+
+Card.Header = function CardHeader({ children, className = '' }) {
   return (
-    <div 
-      className={`bg-white rounded-lg overflow-hidden ${shadowClass} ${border ? 'border border-gray-200' : ''} ${className}`}
-      {...props}
-    >
-      {title && (
-        <div className="px-4 py-3 border-b border-gray-200">
-          <h3 className="font-medium text-gray-900">{title}</h3>
-        </div>
-      )}
-      <div className="p-4">
-        {children}
-      </div>
-      {footer && (
-        <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
-          {footer}
-        </div>
-      )}
+    <div className={`card-header bg-transparent border-0 pb-0 d-flex align-items-center ${className}`.trim()}>
+      {children}
+    </div>
+  );
+};
+
+Card.Body = function CardBody({ children, className = '' }) {
+  return (
+    <div className={`card-body ${className}`.trim()}>
+      {children}
+    </div>
+  );
+};
+
+Card.Title = function CardTitle({ children, className = '' }) {
+  return <h5 className={`card-title mb-0 ${className}`.trim()}>{children}</h5>;
+};
+
+Card.Footer = function CardFooter({ children, className = '' }) {
+  return (
+    <div className={`card-footer bg-transparent border-0 pt-0 ${className}`.trim()}>
+      {children}
     </div>
   );
 };
