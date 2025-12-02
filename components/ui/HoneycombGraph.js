@@ -1,10 +1,42 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import ForceGraph2D from 'react-force-graph-2d';
+
+// ForceGraph2D relies on the browser window and canvas APIs. Import it lazily
+// so that Next.js can safely render pages during SSR/static generation without
+// encountering "window is not defined" errors.
+let ForceGraph2D = null;
 
 const HoneycombGraph = ({ data, centerNodeId, width = 800, height = 600 }) => {
   const graphRef = useRef();
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
+  const [isGraphReady, setIsGraphReady] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadGraphLib() {
+      if (typeof window === 'undefined') {
+        return;
+      }
+
+      if (!ForceGraph2D) {
+        const module = await import('react-force-graph-2d');
+        if (isMounted) {
+          ForceGraph2D = module.default;
+        }
+      }
+
+      if (isMounted) {
+        setIsGraphReady(true);
+      }
+    }
+
+    loadGraphLib();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (data) {
@@ -116,7 +148,7 @@ const HoneycombGraph = ({ data, centerNodeId, width = 800, height = 600 }) => {
 
   return (
     <div className="honeycomb-graph-container" style={{ width, height }}>
-      {graphData.nodes.length > 0 ? (
+      {isGraphReady && graphData.nodes.length > 0 ? (
         <ForceGraph2D
           ref={graphRef}
           graphData={graphData}
@@ -133,7 +165,11 @@ const HoneycombGraph = ({ data, centerNodeId, width = 800, height = 600 }) => {
         />
       ) : (
         <div className="text-center p-5">
-          <p>No honeycomb data available. Generate a honeycomb network first.</p>
+          <p>
+            {isGraphReady
+              ? 'No honeycomb data available. Generate a honeycomb network first.'
+              : 'Loading visualization engine...'}
+          </p>
         </div>
       )}
     </div>
