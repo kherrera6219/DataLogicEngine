@@ -17,6 +17,7 @@ if __name__ == "__main__":
     # Get port configuration with fallback to 8080
     port = int(os.environ.get("PORT", 8080))
     logger.info(f"Starting UKG application on port {port}")
-    
-    # Run the application with debug mode
-    app.run(host="0.0.0.0", port=port, debug=True)
+
+    # Run the application with debug mode based on environment
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)

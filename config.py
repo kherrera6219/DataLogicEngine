@@ -19,8 +19,10 @@ class Config:
     APP_VERSION = "1.0.0"
     
     # Security settings
-    SECRET_KEY = os.environ.get("SECRET_KEY", "ukg-dev-key-replace-in-production")
-    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "ukg-jwt-dev-key-replace-in-production")
+    # SECURITY: These MUST be set via environment variables
+    # No fallback values for production safety
+    SECRET_KEY = os.environ.get("SECRET_KEY")
+    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
     JWT_ACCESS_TOKEN_EXPIRES = 60 * 60  # 1 hour
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
@@ -66,17 +68,24 @@ class Config:
     LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     
     # CORS settings
-    CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*").split(",")
+    # SECURITY: Never use wildcard (*) - specify exact domains
+    # Default to localhost for development only
+    CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
 
 
 class DevelopmentConfig(Config):
     """Development environment configuration."""
-    
+
     DEBUG = True
     TESTING = False
     SESSION_COOKIE_SECURE = False
     REMEMBER_COOKIE_SECURE = False
-    
+
+    # Development-only fallback secrets (for local development only)
+    # NEVER use these in production!
+    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-for-local-development-only")
+    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "dev-jwt-key-for-local-development-only")
+
     # Simplified UKG settings for development
     MAX_SIMULATION_LAYERS = 5
     QUANTUM_SIMULATION_ENABLED = False

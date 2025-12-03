@@ -18,7 +18,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Initialize Flask app
 app = Flask(__name__)
-app.secret_key = "ukg_simulation_key"
+# Security: Get secret key from environment
+if os.environ.get('FLASK_ENV') == 'development':
+    app.secret_key = os.environ.get("SECRET_KEY", "dev-simulation-key-for-local-development-only")
+else:
+    app.secret_key = os.environ.get("SECRET_KEY")
+    if not app.secret_key:
+        raise ValueError("SECRET_KEY environment variable must be set for production!")
 
 # Setup logging
 logging.basicConfig(level=logging.DEBUG)
@@ -330,4 +336,5 @@ def get_domains():
 
 if __name__ == "__main__":
     # Run the Flask app on port 8080 to avoid conflicts
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    app.run(host='0.0.0.0', port=8080, debug=debug_mode)
