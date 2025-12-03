@@ -45,6 +45,9 @@ frontend/dist/
 *.log
 logs/
 
+# Security Reports
+security-reports/
+
 # OS
 .DS_Store
 Thumbs.db

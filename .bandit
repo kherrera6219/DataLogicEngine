@@ -1,0 +1,72 @@
+# Bandit Configuration for DataLogicEngine
+# Static security analysis for Python code
+# https://bandit.readthedocs.io/en/latest/config.html
+
+[bandit]
+# Recursively scan all directories
+recursive = true
+
+# Paths to exclude from scanning
+exclude_dirs = [
+    '/tests',
+    '/migrations',
+    '/.git',
+    '/.venv',
+    '/venv',
+    '/node_modules',
+    '/__pycache__',
+    '/.pytest_cache'
+]
+
+# Test IDs to skip
+# Format: B### where ### is the test ID
+skips = [
+    # B104: hardcoded_bind_all_interfaces
+    # Temporarily allowed for development, but should be environment-specific in production
+    # Remove this skip after verifying all bind addresses are configurable
+
+    # B201: flask_debug_true
+    # Already handled by environment-based debug mode in app.py
+    # Can skip this check since we validate FLASK_ENV
+]
+
+# Severity level: LOW, MEDIUM, HIGH
+# Tests must be at least this severity to be reported
+# Use 'LOW' for comprehensive scanning, 'MEDIUM' for production
+exclude_severity = []
+
+# Confidence level: LOW, MEDIUM, HIGH
+# Tests must be at least this confidence to be reported
+# Use 'LOW' for comprehensive scanning, 'MEDIUM' for fewer false positives
+exclude_confidence = []
+
+# Test IDs to include (empty = all tests)
+# Format: B### where ### is the test ID
+tests = []
+
+[bandit.formatters]
+# Output format: csv, json, txt, html, screen
+# Default: screen (colorized output)
+
+[bandit.plugins]
+# Plugin configurations can be added here
+
+# Example: Configure password length requirements
+# [bandit.password_min_length]
+# min_length = 12
+
+[bandit.assert_used]
+# Skip assert statements check (commonly used in tests)
+skips = ['**/tests/**']
+
+[bandit.blacklist_imports]
+# Warn about dangerous imports
+# Already configured in defaults
+
+[bandit.hardcoded_password_string]
+# Check for hardcoded passwords
+# This is critical for security
+
+[bandit.sql_statements]
+# Check for SQL injection vulnerabilities
+# We use SQLAlchemy ORM, but raw queries should still be checked
