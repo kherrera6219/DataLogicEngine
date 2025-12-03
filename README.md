@@ -52,6 +52,8 @@
 
 **Phase 0 Complete!** See [SECRETS.md](SECRETS.md) for secrets management guide.
 
+**Phase 1 In Progress:** Security hardening implementation ongoing. **⚠️ Database migration required** - see [MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md).
+
 ### Production Documentation
 
 **→ [PRODUCTION REVIEW SUMMARY](PRODUCTION_REVIEW_SUMMARY.md)** - Start here!

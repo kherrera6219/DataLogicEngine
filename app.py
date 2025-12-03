@@ -60,8 +60,13 @@ limiter = Limiter(
 
 # Initialize extensions with app
 from extensions import db, login_manager
+from flask_migrate import Migrate
+
 db.init_app(app)
 login_manager.init_app(app)
+
+# Initialize Flask-Migrate for database migrations (Phase 1)
+migrate = Migrate(app, db)
 
 # Initialize security headers (Phase 1 security hardening)
 from backend.security.security_headers import configure_security_headers
