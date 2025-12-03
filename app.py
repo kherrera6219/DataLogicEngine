@@ -63,6 +63,10 @@ from extensions import db, login_manager
 db.init_app(app)
 login_manager.init_app(app)
 
+# Initialize security headers (Phase 1 security hardening)
+from backend.security.security_headers import configure_security_headers
+configure_security_headers(app, {'ENV': os.environ.get('FLASK_ENV', 'production')})
+
 # Import models (after extensions initialization)
 from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge, MCPServer, MCPResource, MCPTool, MCPPrompt
 
