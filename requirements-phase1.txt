@@ -12,10 +12,9 @@ requests==2.31.0
 # HTML Sanitization (ACTIVE)
 bleach==6.1.0
 
-# Future Phase 1 Tasks (install when implementing):
-# Multi-Factor Authentication
-# pyotp==2.9.0
-# qrcode[pil]==7.4.2
+# Multi-Factor Authentication (ACTIVE)
+pyotp==2.9.0
+qrcode[pil]==7.4.2
 
 # Security Testing (ACTIVE)
 bandit==1.7.5
