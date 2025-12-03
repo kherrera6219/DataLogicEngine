@@ -44,11 +44,13 @@
 
 ### Critical Issues Identified
 
-1. 🔴 Default credentials (admin/admin123) - **FIX IMMEDIATELY**
-2. 🔴 Debug mode enabled - **FIX IMMEDIATELY**
-3. 🔴 Secrets in version control - **FIX IMMEDIATELY**
-4. 🔴 Minimal test coverage - **Requires 80%+**
-5. 🔴 Simulation engine incomplete - **Core features needed**
+1. ✅ ~~Default credentials (admin/admin123)~~ - **FIXED (Phase 0)**
+2. ✅ ~~Debug mode enabled~~ - **FIXED (Phase 0)**
+3. ✅ ~~Secrets in version control~~ - **FIXED (Phase 0)**
+4. 🔴 Minimal test coverage - **Requires 80%+ (Phase 3)**
+5. 🔴 Simulation engine incomplete - **Core features needed (Phase 2)**
+
+**Phase 0 Complete!** See [SECRETS.md](SECRETS.md) for secrets management guide.
 
 ### Production Documentation
 
@@ -151,9 +153,10 @@ cd frontend && npm run dev
 - **Frontend:** http://localhost:3000
 - **Backend API:** http://localhost:8080
 - **API Documentation:** http://localhost:8080/swagger
-- **Default Login:** 🔴 **WARNING:** Default credentials must be changed before any deployment!
-  - Development only: `admin` / `admin123`
-  - See [Production Readiness Guide](docs/PRODUCTION_READINESS.md) for secure setup
+- **Admin Setup:** 🔐 **SECURITY:** Set secure admin credentials in your `.env` file
+  - Generate credentials using: `python3 -c "import secrets, string; print(f'Username: admin_{secrets.token_hex(6)}'); alphabet = string.ascii_letters + string.digits + string.punctuation; print(f'Password: {repr(''.join(secrets.choice(alphabet) for _ in range(32)))}')"`
+  - See [SECRETS.md](SECRETS.md) for complete secrets management guide
+  - See [Production Readiness Guide](docs/PRODUCTION_READINESS.md) for deployment preparation
 
 ## Architecture
 

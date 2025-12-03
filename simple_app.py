@@ -15,7 +15,13 @@ logger = logging.getLogger(__name__)
 
 # Create app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "ukg_development_key")
+# Security: Get secret key from environment
+if os.environ.get('FLASK_ENV') == 'development':
+    app.secret_key = os.environ.get("SECRET_KEY", "dev-simple-app-key-for-local-development-only")
+else:
+    app.secret_key = os.environ.get("SECRET_KEY")
+    if not app.secret_key:
+        raise ValueError("SECRET_KEY environment variable must be set for production!")
 
 # Import quad persona components for direct implementation
 try:
@@ -236,4 +242,5 @@ def get_axis_map():
         }), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    app.run(host='0.0.0.0', port=5001, debug=debug_mode)

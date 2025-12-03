@@ -25,7 +25,8 @@ if __name__ == "__main__":
     try:
         port = int(os.environ.get("PORT", 8080))
         logger.info(f"Starting UKG application on port {port}")
-        app.run(host="0.0.0.0", port=port, debug=True)
+        debug_mode = os.environ.get('FLASK_ENV') == 'development'
+        app.run(host="0.0.0.0", port=port, debug=debug_mode)
     except Exception as e:
         logger.error(f"Error starting UKG application: {str(e)}")
         sys.exit(1)
