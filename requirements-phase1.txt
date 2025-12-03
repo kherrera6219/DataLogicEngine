@@ -1,0 +1,26 @@
+# Phase 1: Security Hardening - Additional Requirements
+# Install these in addition to base requirements.txt
+
+# Input Validation
+marshmallow==3.20.1
+flask-marshmallow==0.15.0
+marshmallow-sqlalchemy==0.29.0
+
+# Password Security - Breach Detection
+requests==2.31.0
+
+# Future Phase 1 Tasks (install when implementing):
+# Multi-Factor Authentication
+# pyotp==2.9.0
+# qrcode[pil]==7.4.2
+
+# HTML Sanitization
+# bleach==6.1.0
+
+# Session Management (Redis)
+# redis==5.0.1
+# flask-session==0.5.0
+
+# Security Testing
+# bandit==1.7.5
+# safety==2.3.5

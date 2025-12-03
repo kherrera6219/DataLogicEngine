@@ -67,8 +67,14 @@ login_manager.init_app(app)
 from backend.security.security_headers import configure_security_headers
 configure_security_headers(app, {'ENV': os.environ.get('FLASK_ENV', 'production')})
 
+# Initialize request limits (Phase 1 security hardening)
+from backend.middleware.request_limits import configure_request_limits
+configure_request_limits(app, {
+    'MAX_CONTENT_LENGTH': int(os.environ.get('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))
+})
+
 # Import models (after extensions initialization)
-from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge, MCPServer, MCPResource, MCPTool, MCPPrompt
+from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge, MCPServer, MCPResource, MCPTool, MCPPrompt, PasswordHistory
 
 @login_manager.user_loader
 def load_user(user_id):
