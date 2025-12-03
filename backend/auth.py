@@ -36,28 +36,74 @@ def register():
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    
+
     # Validate input
     if not data or not data.get('username') or not data.get('password'):
         return jsonify({'error': 'Missing username or password'}), 400
-    
+
     # Find user
     user = User.query.filter_by(username=data['username']).first()
-    
-    # Check password
-    if not user or not user.check_password(data['password']):
+
+    # Check if user exists
+    if not user:
         return jsonify({'error': 'Invalid username or password'}), 401
-    
-    # Create access token
+
+    # Check if account is locked
+    if user.is_account_locked():
+        return jsonify({
+            'error': 'Account is temporarily locked due to multiple failed login attempts. Please try again later.',
+            'locked_until': user.locked_until.isoformat() if user.locked_until else None
+        }), 403
+
+    # Check password
+    if not user.check_password(data['password']):
+        # Record failed login attempt
+        user.record_failed_login()
+        db.session.commit()
+
+        return jsonify({
+            'error': 'Invalid username or password',
+            'attempts_remaining': max(0, 5 - user.failed_login_attempts)
+        }), 401
+
+    # Check if password is expired
+    if user.is_password_expired():
+        return jsonify({
+            'error': 'Password has expired. Please reset your password.',
+            'force_password_change': True,
+            'user_id': user.id
+        }), 403
+
+    # Check if password change is forced
+    if user.force_password_change:
+        return jsonify({
+            'error': 'Password change required. Please change your password.',
+            'force_password_change': True,
+            'user_id': user.id
+        }), 403
+
+    # Record successful login
+    user.record_successful_login()
+    db.session.commit()
+
+    # Create access token (15 minutes for enhanced security)
     access_token = create_access_token(
         identity=user.id,
-        expires_delta=timedelta(days=1)
+        expires_delta=timedelta(minutes=15)
     )
-    
-    return jsonify({
+
+    # Prepare response
+    response_data = {
         'access_token': access_token,
         'user': user.to_dict()
-    }), 200
+    }
+
+    # Warn if password is expiring soon (within 7 days)
+    days_until_expiry = user.days_until_password_expiry()
+    if days_until_expiry is not None and 0 < days_until_expiry <= 7:
+        response_data['warning'] = f'Your password will expire in {days_until_expiry} days. Please change it soon.'
+
+    return jsonify(response_data), 200
 
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()

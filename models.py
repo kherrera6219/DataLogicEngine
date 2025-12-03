@@ -32,10 +32,26 @@ class APIKey(db.Model):
             'revoked_at': self.revoked_at.isoformat() if self.revoked_at else None,
         }
 
+class PasswordHistory(db.Model):
+    """Password history for preventing password reuse"""
+    __tablename__ = 'password_history'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    password_hash = db.Column(db.String(256), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationship
+    user = db.relationship('User', backref=db.backref('password_history', lazy='dynamic', order_by='PasswordHistory.created_at.desc()'))
+
+    def __repr__(self):
+        return f'<PasswordHistory user_id={self.user_id} created={self.created_at}>'
+
+
 class User(UserMixin, db.Model):
     """User model for authentication"""
     __tablename__ = 'users'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False, index=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
@@ -44,22 +60,135 @@ class User(UserMixin, db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
-    
+
+    # Phase 1: Enhanced password security
+    password_changed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    password_expires_at = db.Column(db.DateTime)
+    force_password_change = db.Column(db.Boolean, default=False)
+    failed_login_attempts = db.Column(db.Integer, default=0)
+    locked_until = db.Column(db.DateTime)
+
+    # Phase 1: Multi-Factor Authentication
+    mfa_enabled = db.Column(db.Boolean, default=False)
+    mfa_secret = db.Column(db.String(32))
+    mfa_backup_codes = db.Column(db.JSON)  # Hashed backup codes
+
     # Override UserMixin's is_active property
     @property
     def is_active(self):
         return self.active
-    
+
     # Relationships can be added here
-    
+
+    def check_password_history(self, password):
+        """Check if password was used in the last N passwords"""
+        from backend.security.password_security import PasswordSecurity
+
+        # Get last N passwords from history
+        history_count = PasswordSecurity.PASSWORD_HISTORY_COUNT
+        recent_passwords = self.password_history.limit(history_count).all()
+
+        # Check against each historical password
+        for history in recent_passwords:
+            if check_password_hash(history.password_hash, password):
+                return False  # Password was recently used
+
+        return True  # Password is new
+
     def set_password(self, password):
-        """Set password hash"""
+        """Set password hash with security enhancements"""
+        from backend.security.password_security import PasswordSecurity
+
+        # Validate password strength
+        is_valid, errors = PasswordSecurity.validate_password_strength(password)
+        if not is_valid:
+            raise ValueError(f"Password does not meet security requirements: {', '.join(errors)}")
+
+        # Check password history (prevent reuse)
+        if self.id and not self.check_password_history(password):
+            raise ValueError(f"Password was used recently. Please choose a different password. Cannot reuse last {PasswordSecurity.PASSWORD_HISTORY_COUNT} passwords.")
+
+        # Check password breach (warning only, don't block)
+        is_breached, count = PasswordSecurity.check_password_breach(password)
+        if is_breached and count and count > 10:
+            # Log warning but allow - user should be notified
+            import logging
+            logging.warning(f"User {self.username} setting password found in {count} breaches")
+
+        # Save current password to history before changing (if user exists)
+        if self.id and self.password_hash:
+            history_entry = PasswordHistory(
+                user_id=self.id,
+                password_hash=self.password_hash
+            )
+            db.session.add(history_entry)
+
+            # Keep only last N passwords in history
+            old_entries = self.password_history.offset(PasswordSecurity.PASSWORD_HISTORY_COUNT).all()
+            for old_entry in old_entries:
+                db.session.delete(old_entry)
+
+        # Set the password hash
         self.password_hash = generate_password_hash(password)
-    
+        self.password_changed_at = datetime.utcnow()
+
+        # Set expiration date (90 days from now)
+        self.password_expires_at = datetime.utcnow() + timedelta(days=PasswordSecurity.PASSWORD_EXPIRY_DAYS)
+
+        # Reset failed login attempts
+        self.failed_login_attempts = 0
+        self.locked_until = None
+        self.force_password_change = False
+
     def check_password(self, password):
         """Check password against hash"""
         return check_password_hash(self.password_hash, password)
-    
+
+    def is_password_expired(self):
+        """Check if password has expired"""
+        from backend.security.password_security import PasswordSecurity
+        return PasswordSecurity.is_password_expired(self.password_changed_at)
+
+    def days_until_password_expiry(self):
+        """Get days until password expires"""
+        from backend.security.password_security import PasswordSecurity
+        return PasswordSecurity.days_until_expiry(self.password_changed_at)
+
+    def is_account_locked(self):
+        """Check if account is locked due to failed login attempts"""
+        if self.locked_until and datetime.utcnow() < self.locked_until:
+            return True
+        return False
+
+    def record_failed_login(self):
+        """Record a failed login attempt and lock account if threshold exceeded"""
+        self.failed_login_attempts += 1
+
+        # Lock account after 5 failed attempts for 30 minutes
+        if self.failed_login_attempts >= 5:
+            self.locked_until = datetime.utcnow() + timedelta(minutes=30)
+
+    def record_successful_login(self):
+        """Record a successful login"""
+        self.last_login = datetime.utcnow()
+        self.failed_login_attempts = 0
+        self.locked_until = None
+
+    def to_dict(self):
+        """Convert user to dictionary (excluding sensitive data)"""
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'is_active': self.is_active,
+            'is_admin': self.is_admin,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_login': self.last_login.isoformat() if self.last_login else None,
+            'mfa_enabled': self.mfa_enabled,
+            'password_expires_in_days': self.days_until_password_expiry(),
+            'force_password_change': self.force_password_change
+        }
+
     def __repr__(self):
         return f'<User {self.username}>'
 
