@@ -41,35 +41,8 @@ class SimulationEngine:
         self.max_passes = self.sim_config.get('max_simulation_passes', 3)
         self.target_confidence = self.sim_config.get('target_confidence_overall', 0.90)
         
-        # Layer 5 Configuration
-        self.integration_engine_enabled = self.sim_config.get('enable_layer5_integration', True)
-        self.layer5_engine = None
-        if self.integration_engine_enabled:
-            try:
-                from simulation.layer5_integration import Layer5IntegrationEngine
-                self.layer5_engine = Layer5IntegrationEngine(
-                    config=self.config.get('layer5', {}),
-                    system_manager=None  # Will be set later by united_system_manager
-                )
-                logging.info(f"[{datetime.now()}] Layer 5 Integration Engine initialized")
-            except Exception as e:
-                logging.error(f"[{datetime.now()}] Failed to initialize Layer 5 Integration Engine: {str(e)}")
-                self.integration_engine_enabled = False
-        
-        # Layer 7 Configuration
-        self.agi_simulation_enabled = self.sim_config.get('enable_layer7_agi', True)
-        self.layer7_engine = None
-        if self.agi_simulation_enabled:
-            try:
-                from simulation.layer7_agi_system import AGISimulationEngine
-                self.layer7_engine = AGISimulationEngine(
-                    config=self.config.get('layer7', {}),
-                    system_manager=None  # Will be set later by united_system_manager
-                )
-                logging.info(f"[{datetime.now()}] Layer 7 AGI Simulation Engine initialized with uncertainty threshold 0.15")
-            except Exception as e:
-                logging.error(f"[{datetime.now()}] Failed to initialize Layer 7 AGI Simulation Engine: {str(e)}")
-                self.agi_simulation_enabled = False
+        # Initialize all simulation layers (4-10)
+        self._initialize_simulation_layers()
         
         # Persona configuration
         self.personas = {
@@ -148,7 +121,111 @@ class SimulationEngine:
         }
         
         logging.info(f"[{datetime.now()}] SimulationEngine initialized")
-    
+
+    def _initialize_simulation_layers(self):
+        """Initialize all simulation layer engines (Layers 4-10)."""
+        layer_config = self.sim_config.get('layers', {})
+
+        # Layer 4: Reasoning & Logic Engine
+        self.layer4_enabled = layer_config.get('enable_layer4_reasoning', True)
+        self.layer4_engine = None
+        if self.layer4_enabled:
+            try:
+                from core.simulation.layer4_reasoning import Layer4ReasoningEngine
+                self.layer4_engine = Layer4ReasoningEngine(
+                    config=self.config.get('layer4', {})
+                )
+                logging.info(f"[{datetime.now()}] Layer 4 Reasoning Engine initialized")
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 4 Reasoning Engine: {str(e)}")
+                self.layer4_enabled = False
+
+        # Layer 5: Memory & Analysis Integration
+        self.layer5_enabled = layer_config.get('enable_layer5_integration', True)
+        self.layer5_engine = None
+        if self.layer5_enabled:
+            try:
+                from core.simulation.layer5_integration import Layer5IntegrationEngine
+                self.layer5_engine = Layer5IntegrationEngine(
+                    config=self.config.get('layer5', {}),
+                    system_manager=None  # Will be set later by united_system_manager
+                )
+                logging.info(f"[{datetime.now()}] Layer 5 Integration Engine initialized")
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 5 Integration Engine: {str(e)}")
+                self.layer5_enabled = False
+
+        # Layer 6: Knowledge Enhancement
+        self.layer6_enabled = layer_config.get('enable_layer6_enhancement', True)
+        self.layer6_engine = None
+        if self.layer6_enabled:
+            try:
+                from core.simulation.layer6_enhancement import Layer6EnhancementEngine
+                self.layer6_engine = Layer6EnhancementEngine(
+                    config=self.config.get('layer6', {})
+                )
+                logging.info(f"[{datetime.now()}] Layer 6 Enhancement Engine initialized")
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 6 Enhancement Engine: {str(e)}")
+                self.layer6_enabled = False
+
+        # Layer 7: AGI Simulation
+        self.layer7_enabled = layer_config.get('enable_layer7_agi', True)
+        self.layer7_engine = None
+        if self.layer7_enabled:
+            try:
+                from core.simulation.layer7_agi_system import AGISimulationEngine
+                self.layer7_engine = AGISimulationEngine(
+                    config=self.config.get('layer7', {}),
+                    system_manager=None  # Will be set later by united_system_manager
+                )
+                logging.info(f"[{datetime.now()}] Layer 7 AGI Simulation Engine initialized")
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 7 AGI Simulation Engine: {str(e)}")
+                self.layer7_enabled = False
+
+        # Layer 8: Quantum Simulation
+        self.layer8_enabled = layer_config.get('enable_layer8_quantum', True)
+        self.layer8_engine = None
+        if self.layer8_enabled:
+            try:
+                from core.simulation.layer8_quantum import Layer8QuantumEngine
+                self.layer8_engine = Layer8QuantumEngine(
+                    config=self.config.get('layer8', {})
+                )
+                logging.info(f"[{datetime.now()}] Layer 8 Quantum Simulation Engine initialized")
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 8 Quantum Engine: {str(e)}")
+                self.layer8_enabled = False
+
+        # Layer 9: Recursive Processing
+        self.layer9_enabled = layer_config.get('enable_layer9_recursive', True)
+        self.layer9_engine = None
+        if self.layer9_enabled:
+            try:
+                from core.simulation.layer9_recursive import Layer9RecursiveEngine
+                self.layer9_engine = Layer9RecursiveEngine(
+                    config=self.config.get('layer9', {})
+                )
+                logging.info(f"[{datetime.now()}] Layer 9 Recursive Processing Engine initialized")
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 9 Recursive Engine: {str(e)}")
+                self.layer9_enabled = False
+
+        # Layer 10: Final Synthesis
+        self.layer10_enabled = layer_config.get('enable_layer10_synthesis', True)
+        self.layer10_engine = None
+        if self.layer10_enabled:
+            try:
+                from core.simulation.layer10_synthesis import Layer10SynthesisEngine
+                self.layer10_engine = Layer10SynthesisEngine(
+                    config=self.config.get('layer10', {})
+                )
+                logging.info(f"[{datetime.now()}] Layer 10 Final Synthesis Engine initialized")
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Failed to initialize Layer 10 Synthesis Engine: {str(e)}")
+                self.layer10_enabled = False
+
     def start_simulation(self, query: str, context: Optional[Dict] = None, 
                        session_id: Optional[str] = None, 
                        simulation_params: Optional[Dict] = None) -> Dict:
@@ -398,7 +475,90 @@ class SimulationEngine:
             # Return original context on error
             context['layer7_error'] = str(e)
             return context
-    
+
+    def _process_simulation_layers(self, context: Dict, simulation_id: str, current_pass: int) -> Dict:
+        """
+        Process context through all simulation layers (4-10) in sequence.
+
+        Args:
+            context: Simulation context
+            simulation_id: Simulation ID
+            current_pass: Current simulation pass number
+
+        Returns:
+            Enhanced context after processing through all layers
+        """
+        logging.info(f"[{datetime.now()}] Processing simulation layers 4-10 for {simulation_id}, pass {current_pass}")
+
+        enhanced_context = context.copy()
+
+        # Layer 4: Reasoning & Logic Engine
+        if self.layer4_enabled and self.layer4_engine:
+            try:
+                logging.info(f"[{datetime.now()}] Applying Layer 4: Reasoning & Logic Engine")
+                enhanced_context = self.layer4_engine.process(enhanced_context)
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Layer 4 processing error: {str(e)}")
+                enhanced_context['layer4_error'] = str(e)
+
+        # Layer 5: Memory & Analysis Integration
+        if self.layer5_enabled and self.layer5_engine:
+            try:
+                logging.info(f"[{datetime.now()}] Applying Layer 5: Memory & Analysis Integration")
+                enhanced_context = self.layer5_engine.process(enhanced_context)
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Layer 5 processing error: {str(e)}")
+                enhanced_context['layer5_error'] = str(e)
+
+        # Layer 6: Knowledge Enhancement
+        if self.layer6_enabled and self.layer6_engine:
+            try:
+                logging.info(f"[{datetime.now()}] Applying Layer 6: Knowledge Enhancement")
+                enhanced_context = self.layer6_engine.process(enhanced_context)
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Layer 6 processing error: {str(e)}")
+                enhanced_context['layer6_error'] = str(e)
+
+        # Layer 7: AGI Simulation
+        if self.layer7_enabled and self.layer7_engine:
+            try:
+                logging.info(f"[{datetime.now()}] Applying Layer 7: AGI Simulation")
+                pov_engine = enhanced_context.get('pov_engine', None)
+                enhanced_context = self.layer7_engine.process(enhanced_context, pov_engine)
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Layer 7 processing error: {str(e)}")
+                enhanced_context['layer7_error'] = str(e)
+
+        # Layer 8: Quantum Simulation
+        if self.layer8_enabled and self.layer8_engine:
+            try:
+                logging.info(f"[{datetime.now()}] Applying Layer 8: Quantum Simulation")
+                enhanced_context = self.layer8_engine.process(enhanced_context)
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Layer 8 processing error: {str(e)}")
+                enhanced_context['layer8_error'] = str(e)
+
+        # Layer 9: Recursive Processing
+        if self.layer9_enabled and self.layer9_engine:
+            try:
+                logging.info(f"[{datetime.now()}] Applying Layer 9: Recursive Processing")
+                enhanced_context = self.layer9_engine.process(enhanced_context)
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Layer 9 processing error: {str(e)}")
+                enhanced_context['layer9_error'] = str(e)
+
+        # Layer 10: Final Synthesis
+        if self.layer10_enabled and self.layer10_engine:
+            try:
+                logging.info(f"[{datetime.now()}] Applying Layer 10: Final Synthesis")
+                enhanced_context = self.layer10_engine.process(enhanced_context)
+            except Exception as e:
+                logging.error(f"[{datetime.now()}] Layer 10 processing error: {str(e)}")
+                enhanced_context['layer10_error'] = str(e)
+
+        logging.info(f"[{datetime.now()}] Completed processing all simulation layers for {simulation_id}")
+        return enhanced_context
+
     def run_simulation_pass(self, simulation_id: str) -> Dict:
         """
         Run a single pass of the simulation.
@@ -497,66 +657,16 @@ class SimulationEngine:
             context['gatekeeper_decision'] = gatekeeper_decision
             context['gatekeeper'] = gatekeeper
             
-            # Check if we need to apply Layer 5 integration (from Gatekeeper)
-            layer5_active = False
-            if self.integration_engine_enabled and self.layer5_engine:
-                if 'layer_5' in gatekeeper_decision.get('layer_activations', {}):
-                    layer5_active = gatekeeper_decision['layer_activations']['layer_5'].get('activate', False)
-            
-            # Apply Layer 5 integration if activated
-            if layer5_active:
-                logging.info(f"[{datetime.now()}] Layer 5 Integration Engine activated for simulation {simulation_id}, pass {current_pass}")
-                enhanced_context = self._apply_layer5_integration(context, simulation_id)
-                
-                # Update synthesis with enhanced content if available
-                if 'content' in enhanced_context and enhanced_context['content']:
-                    synthesis['content'] = enhanced_context['content']
-                
-                # Update confidence scores if improved
-                if 'confidence_score' in enhanced_context:
-                    new_confidence = enhanced_context['confidence_score']
-                    
-            # Check if we need to apply Layer 7 AGI simulation (from Gatekeeper)
-            layer7_active = False
-            if self.agi_simulation_enabled and self.layer7_engine:
-                if 'layer_7' in gatekeeper_decision.get('layer_activations', {}):
-                    layer7_active = gatekeeper_decision['layer_activations']['layer_7'].get('activate', False)
-            
-            # Apply Layer 7 AGI simulation if activated
-            if layer7_active:
-                logging.info(f"[{datetime.now()}] Layer 7 AGI Simulation Engine activated for simulation {simulation_id}, pass {current_pass}")
-                agi_context = self._apply_layer7_agi_processing(context, simulation_id)
-                
-                # Update synthesis with AGI-enhanced content if available
-                if 'content' in agi_context and agi_context['content']:
-                    synthesis['content'] = agi_context['content']
-                
-                # Update synthesis with layer7 metadata
-                synthesis['layer7_applied'] = True
-                if 'layer7_processing_details' in agi_context:
-                    synthesis['layer7_processing_details'] = agi_context['layer7_processing_details']
-                    
-                # Record any emergent properties detected
-                if 'emergence_score' in agi_context:
-                    synthesis['emergence_score'] = agi_context['emergence_score']
-                
-                # Update confidence scores - note that AGI can reduce confidence
-                if 'confidence_score' in agi_context:
-                    new_confidence = agi_context['confidence_score']
-                    old_confidence = overall_confidence
-                    
-                    if new_confidence > old_confidence:
-                        logging.info(f"[{datetime.now()}] Layer 5 improved confidence from {old_confidence:.4f} to {new_confidence:.4f}")
-                        overall_confidence = new_confidence
-                        pass_record['confidence']['overall'] = overall_confidence
-                
-                # Add Layer 5 metadata to synthesis
-                synthesis['layer5_applied'] = True
-                synthesis['layer5_enhancements'] = enhanced_context.get('layer5_enhancements', [])
-                synthesis['layer5_processing_type'] = enhanced_context.get('layer5_processing_type', 'none')
-            else:
-                logging.info(f"[{datetime.now()}] Layer 5 Integration not activated for simulation {simulation_id}, pass {current_pass}")
-                synthesis['layer5_applied'] = False
+            # Apply simulation layers 4-10 in sequence
+            context = self._process_simulation_layers(context, simulation_id, current_pass)
+
+            # Update synthesis and confidence from layer processing
+            if 'final_output' in context:
+                synthesis['content'] = context['final_output'].get('content', synthesis['content'])
+                final_confidence = context.get('final_confidence', overall_confidence)
+                if final_confidence > overall_confidence:
+                    overall_confidence = final_confidence
+                    pass_record['confidence']['overall'] = overall_confidence
             
             pass_record['synthesis'] = synthesis
             
