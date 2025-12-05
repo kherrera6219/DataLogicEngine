@@ -426,15 +426,15 @@ class QueryPersonaEngine:
         # Build the final answer
         answer = f"# {persona_name} Analysis\n\n"
         answer += f"As a {persona_name} with focus on {persona_focus}, I provide the following insights on the query:\n\n"
-        answer += f"## Query Analysis\n\n"
+        answer += "## Query Analysis\n\n"
         
         if entity_names:
             answer += f"Key entities identified: {', '.join(entity_names)}\n\n"
         
         if topic_names:
             answer += f"Relevant topics: {', '.join(topic_names)}\n\n"
-        
-        answer += f"## Detailed Response\n\n"
+
+        answer += "## Detailed Response\n\n"
         
         if component_sections:
             answer += "\n\n".join(component_sections)
@@ -443,8 +443,8 @@ class QueryPersonaEngine:
         
         # Add location context if available
         if active_location_context:
-            answer += f"\n\n## Contextual Considerations\n\n"
-            answer += f"This analysis considers the specific regulatory and geographical context of the locations mentioned."
+            answer += "\n\n## Contextual Considerations\n\n"
+            answer += "This analysis considers the specific regulatory and geographical context of the locations mentioned."
         
         return answer
     

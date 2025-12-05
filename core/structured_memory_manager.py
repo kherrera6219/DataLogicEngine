@@ -47,7 +47,7 @@ class StructuredMemoryManager:
                 self.logger.error(f"Error loading memory store: {str(e)}")
                 return []
         else:
-            self.logger.info(f"Memory store file not found, initializing empty store")
+            self.logger.info("Memory store file not found, initializing empty store")
             return []
 
     def _save_memory_store(self):

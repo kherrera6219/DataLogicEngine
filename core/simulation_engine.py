@@ -334,7 +334,8 @@ class SimulationEngine:
                 layer2_results["perspective_scores"][persona_name] = min(base_score, 0.95)
 
         # Simulate 12-Step Refinement process
-        refinement_steps = [
+        # Note: refinement_steps list documents the process stages
+        _refinement_steps = [
             "query_decomposition",
             "intent_analysis",
             "context_mapping",
@@ -389,10 +390,11 @@ class SimulationEngine:
         """Execute Layer 3: Research Agents"""
         self.logger.info("Executing Layer 3: Research Agents")
 
-        query = simulation_data.get("query", "")
-        normalized_query = simulation_data.get("normalized_query", "")
+        # Extract simulation data (some for future use)
+        _query = simulation_data.get("query", "")
+        _normalized_query = simulation_data.get("normalized_query", "")
         layer1_results = simulation_data.get("layer1_results", {})
-        layer2_results = simulation_data.get("layer2_results", {})
+        _layer2_results = simulation_data.get("layer2_results", {})
 
         # Initialize Layer 3 results
         layer3_results = {
@@ -487,10 +489,11 @@ class SimulationEngine:
         """Execute Layer 4: Point-of-View Engine"""
         self.logger.info("Executing Layer 4: Point-of-View Engine")
 
-        query = simulation_data.get("query", "")
-        layer1_results = simulation_data.get("layer1_results", {})
-        layer2_results = simulation_data.get("layer2_results", {})
-        layer3_results = simulation_data.get("layer3_results", {})
+        # Extract simulation data (some for future use)
+        _query = simulation_data.get("query", "")
+        _layer1_results = simulation_data.get("layer1_results", {})
+        _layer2_results = simulation_data.get("layer2_results", {})
+        _layer3_results = simulation_data.get("layer3_results", {})
 
         # Initialize Layer 4 results
         layer4_results = {
@@ -577,10 +580,11 @@ class SimulationEngine:
         """Execute Layer 5: Multi-Agent System"""
         self.logger.info("Executing Layer 5: Multi-Agent System")
 
-        query = simulation_data.get("query", "")
+        # Extract simulation data (some for future use)
+        _query = simulation_data.get("query", "")
         layer1_results = simulation_data.get("layer1_results", {})
-        layer3_results = simulation_data.get("layer3_results", {})
-        layer4_results = simulation_data.get("layer4_results", {})
+        _layer3_results = simulation_data.get("layer3_results", {})
+        _layer4_results = simulation_data.get("layer4_results", {})
 
         # Initialize Layer 5 results
         layer5_results = {
@@ -675,10 +679,11 @@ class SimulationEngine:
         """Execute Layer 6: Neural Simulation"""
         self.logger.info("Executing Layer 6: Neural Simulation")
 
-        query = simulation_data.get("query", "")
+        # Extract simulation data (some for future use)
+        _query = simulation_data.get("query", "")
         layer1_results = simulation_data.get("layer1_results", {})
-        layer5_results = simulation_data.get("layer5_results", {})
-        current_confidence = simulation_data.get("current_confidence", 0.0)
+        _layer5_results = simulation_data.get("layer5_results", {})
+        _current_confidence = simulation_data.get("current_confidence", 0.0)
 
         # Initialize Layer 6 results
         layer6_results = {
@@ -699,7 +704,8 @@ class SimulationEngine:
         ]
 
         # Activate networks based on current processing state
-        query_type = layer1_results.get("query_type", "statement")
+        # Note: query_type extracted for potential future filtering logic
+        _query_type = layer1_results.get("query_type", "statement")
 
         for network in network_types:
             # All networks activate, but with varying intensities
@@ -774,7 +780,8 @@ class SimulationEngine:
         """Execute Layer 7: AGI Reasoning Kernel"""
         self.logger.info("Executing Layer 7: AGI Reasoning Kernel")
 
-        query = simulation_data.get("query", "")
+        # Extract simulation data (some for future use)
+        _query = simulation_data.get("query", "")
         layer1_results = simulation_data.get("layer1_results", {})
         layer5_results = simulation_data.get("layer5_results", {})
         layer6_results = simulation_data.get("layer6_results", {})
@@ -885,11 +892,12 @@ class SimulationEngine:
         """Execute Layer 8: Quantum Substrate"""
         self.logger.info("Executing Layer 8: Quantum Substrate")
 
-        query = simulation_data.get("query", "")
-        layer1_results = simulation_data.get("layer1_results", {})
-        layer6_results = simulation_data.get("layer6_results", {})
-        layer7_results = simulation_data.get("layer7_results", {})
-        current_confidence = simulation_data.get("current_confidence", 0.0)
+        # Extract simulation data (some for future use)
+        _query = simulation_data.get("query", "")
+        _layer1_results = simulation_data.get("layer1_results", {})
+        _layer6_results = simulation_data.get("layer6_results", {})
+        _layer7_results = simulation_data.get("layer7_results", {})
+        _current_confidence = simulation_data.get("current_confidence", 0.0)
 
         # Initialize Layer 8 results
         layer8_results = {
@@ -986,8 +994,9 @@ class SimulationEngine:
         """Execute Layer 9: Recursive AGI"""
         self.logger.info("Executing Layer 9: Recursive AGI")
 
-        query = simulation_data.get("query", "")
-        layer1_results = simulation_data.get("layer1_results", {})
+        # Extract simulation data (some for future use)
+        _query = simulation_data.get("query", "")
+        _layer1_results = simulation_data.get("layer1_results", {})
         layer5_results = simulation_data.get("layer5_results", {})
         layer7_results = simulation_data.get("layer7_results", {})
         layer8_results = simulation_data.get("layer8_results", {})
@@ -1118,11 +1127,12 @@ class SimulationEngine:
         """Execute Layer 10: Self-Awareness & Containment"""
         self.logger.info("Executing Layer 10: Self-Awareness & Containment")
 
-        query = simulation_data.get("query", "")
+        # Extract simulation data (some for future use)
+        _query = simulation_data.get("query", "")
         layer7_results = simulation_data.get("layer7_results", {})
         layer9_results = simulation_data.get("layer9_results", {})
         current_confidence = simulation_data.get("current_confidence", 0.0)
-        current_pass = simulation_data.get("current_pass", 1)
+        _current_pass = simulation_data.get("current_pass", 1)
 
         # Initialize Layer 10 results
         layer10_results = {
@@ -1239,7 +1249,8 @@ class SimulationEngine:
             layer10_results["containment_status"] = "NORMAL"
 
         # Calculate autonomy level
-        general_intelligence = layer7_results.get("general_intelligence_metrics", {})
+        # Note: general_intelligence extracted for potential future use
+        _general_intelligence = layer7_results.get("general_intelligence_metrics", {})
         reasoning_modules = len(layer7_results.get("reasoning_modules_activated", []))
 
         layer10_results["autonomy_level"] = min(
@@ -1299,7 +1310,7 @@ class SimulationEngine:
     def _check_escalation_needed(self, simulation_data: Dict) -> bool:
         """Check if escalation to higher layers is needed"""
         current_confidence = simulation_data.get("current_confidence", 0.0)
-        current_pass = simulation_data.get("current_pass", 1)
+        _current_pass = simulation_data.get("current_pass", 1)  # For future use
         history = simulation_data.get("history", [])
 
         # Primary condition: confidence below target

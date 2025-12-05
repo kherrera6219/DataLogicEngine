@@ -329,9 +329,9 @@ class SimulationEngine:
         if not simulation:
             logging.warning(f"[{datetime.now()}] Cannot apply Layer 5 integration - simulation {simulation_id} not found")
             return context
-            
+
         # Check for gatekeeper decision
-        current_pass = simulation.get('current_pass', 1)
+        _current_pass = simulation.get('current_pass', 1)  # For future use
         gatekeeper_decision = context.get('gatekeeper_decision', {})
         layer5_activation = gatekeeper_decision.get('layer_activations', {}).get('layer_5', {})
         
@@ -394,9 +394,9 @@ class SimulationEngine:
         if not simulation:
             logging.warning(f"[{datetime.now()}] Cannot apply Layer 7 AGI simulation - simulation {simulation_id} not found")
             return context
-            
+
         # Check for gatekeeper decision
-        current_pass = simulation.get('current_pass', 1)
+        _current_pass = simulation.get('current_pass', 1)  # For future use
         gatekeeper_decision = context.get('gatekeeper_decision', {})
         layer7_activation = gatekeeper_decision.get('layer_activations', {}).get('layer_7', {})
         
@@ -407,12 +407,12 @@ class SimulationEngine:
             
         try:
             # Get Layer 7 parameters from gatekeeper if available
-            layer7_params = None
+            _layer7_params = None  # For future use
             pov_engine = None
-            
+
             if 'gatekeeper' in context and hasattr(context['gatekeeper'], 'get_layer7_agi_parameters'):
                 gatekeeper = context['gatekeeper']
-                layer7_params = gatekeeper.get_layer7_agi_parameters(context)
+                _layer7_params = gatekeeper.get_layer7_agi_parameters(context)
                 
             # Get POV Engine if available for context expansion
             if 'pov_engine' in context:
