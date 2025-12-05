@@ -5,7 +5,7 @@ import logging
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -74,7 +74,8 @@ configure_request_limits(app, {
 })
 
 # Import models (after extensions initialization)
-from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge, MCPServer, MCPResource, MCPTool, MCPPrompt, PasswordHistory
+# Note: Importing models ensures SQLAlchemy creates their tables during db.create_all()
+from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge, MCPServer, MCPResource, MCPTool, MCPPrompt, PasswordHistory  # noqa: F401
 
 @login_manager.user_loader
 def load_user(user_id):

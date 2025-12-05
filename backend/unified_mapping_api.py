@@ -8,7 +8,6 @@ allowing access to Nuremberg numbering, SAM.gov naming, and 13D coordinate syste
 
 from flask import Blueprint, request, jsonify
 import logging
-import json
 import numpy as np
 from datetime import datetime
 

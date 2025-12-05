@@ -6,10 +6,9 @@ including expert persona simulation and knowledge refinement.
 """
 
 import logging
-import json
 import uuid
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, Optional
 
 class SimulationEngine:
     """

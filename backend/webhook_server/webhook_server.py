@@ -6,18 +6,16 @@ This server handles incoming webhooks from external services and integrations,
 processing events and triggering appropriate actions in the UKG system.
 """
 
-from fastapi import FastAPI, Request, Response, HTTPException, status
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import httpx
 import os
 import sys
 import logging
 import time
-import json
 import hmac
 import hashlib
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any
 from datetime import datetime
 
 # Add parent directory to path for imports
@@ -195,7 +193,7 @@ async def process_webhook(integration_name: str, request: Request):
             status_code=200,
             content={
                 "success": True,
-                "message": f"Webhook processed successfully",
+                "message": "Webhook processed successfully",
                 "result": result,
                 "timestamp": datetime.now().isoformat()
             }
@@ -206,7 +204,7 @@ async def process_webhook(integration_name: str, request: Request):
             status_code=500,
             content={
                 "success": False,
-                "message": f"Error processing webhook",
+                "message": "Error processing webhook",
                 "error": str(e),
                 "timestamp": datetime.now().isoformat()
             }
