@@ -6,12 +6,10 @@ Quad Persona Simulation Engine.
 """
 
 import logging
-import os
-import json
-from typing import Dict, Any, Optional
+from typing import Optional
 from datetime import datetime
 
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 
 from simulation.simulation_engine import create_simulation_engine

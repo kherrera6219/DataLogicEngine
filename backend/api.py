@@ -5,12 +5,11 @@ This module defines the API routes for the UKG system.
 """
 
 import uuid
-import json
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 from extensions import db
 from models import SimulationSession
-from db_models import PillarLevel, Sector, Domain, Location, KnowledgeNode
+from db_models import PillarLevel, Sector, Domain, KnowledgeNode
 
 # Create API Blueprint
 api = Blueprint('api', __name__, url_prefix='/api')

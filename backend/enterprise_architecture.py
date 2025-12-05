@@ -8,7 +8,6 @@ integrating Python and .NET components through an API Gateway pattern.
 
 import os
 import logging
-import asyncio
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional, Union
 from datetime import datetime
@@ -138,7 +137,7 @@ class EnterpriseArchitecture:
             dotnet_port = config.get_port("dotnet_service")
             frontend_port = config.get_port("frontend")
             
-            logger.info(f"Using configuration from config manager")
+            logger.info("Using configuration from config manager")
         except ImportError:
             # Use default ports from instance variables
             api_port = self.gateway_port
@@ -148,7 +147,7 @@ class EnterpriseArchitecture:
             dotnet_port = 5005
             frontend_port = 3000
             
-            logger.info(f"Using default port configuration")
+            logger.info("Using default port configuration")
             
         # Register core services
         self.register_service(ServiceRegistry(

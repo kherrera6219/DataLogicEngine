@@ -8,7 +8,7 @@ Provides centralized configuration for all UKG enterprise services.
 import os
 import logging
 import json
-from pathlib import Path
+# pathlib not needed
 from typing import Dict, Any, Optional
 
 logger = logging.getLogger("UKG-Config")
@@ -65,7 +65,7 @@ class ConfigManager:
                 },
                 "frontend": {
                     "host": "0.0.0.0",
-                    "api_url": f"http://0.0.0.0:5000"
+                    "api_url": "http://0.0.0.0:5000"
                 }
             },
             "system": {

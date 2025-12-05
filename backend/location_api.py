@@ -8,8 +8,6 @@ from models import Location, db
 import logging
 import uuid
 from datetime import datetime
-import json
-from sqlalchemy import func
 from geopy.distance import geodesic
 
 # Create blueprint
