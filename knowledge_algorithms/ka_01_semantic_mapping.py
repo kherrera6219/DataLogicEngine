@@ -6,7 +6,7 @@ Pillar Levels and axes in the Universal Knowledge Graph system.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Tuple
 import re
 
 logger = logging.getLogger(__name__)

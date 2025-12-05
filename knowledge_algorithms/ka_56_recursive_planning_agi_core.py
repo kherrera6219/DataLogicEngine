@@ -7,9 +7,8 @@ into manageable sub-goals with dependency tracking.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Set, Tuple
+from typing import Dict, List, Any, Set, Tuple
 import time
-import math
 import random
 import uuid
 import copy

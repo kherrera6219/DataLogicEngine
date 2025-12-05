@@ -6,9 +6,8 @@ generating heatmap data to display confidence evolution and decision boundaries.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 import time
-import math
 
 logger = logging.getLogger(__name__)
 

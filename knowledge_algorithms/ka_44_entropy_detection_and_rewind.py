@@ -6,7 +6,7 @@ identifying safe rollback points when simulations diverge into instability.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 import time
 import re
 

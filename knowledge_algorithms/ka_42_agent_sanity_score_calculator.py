@@ -6,7 +6,7 @@ assigning a score based on logical consistency and validity markers.
 """
 
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 import time
 import re
 

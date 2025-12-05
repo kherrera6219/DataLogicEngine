@@ -6,7 +6,7 @@ providing transparency into how conclusions and decisions are formed.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any
 import time
 import json
 
@@ -383,9 +383,9 @@ class BeliefTraceExporter:
             # Format step
             lines.extend([
                 f"  <div class='step' id='step-{step_num}'>",
-                f"    <div class='step-header'>",
+                "    <div class='step-header'>",
                 f"      <h2>Step {step_num}: {step_type.title()}</h2>",
-                f"    </div>",
+                "    </div>",
                 f"    <p>{step_text}</p>"
             ])
             
