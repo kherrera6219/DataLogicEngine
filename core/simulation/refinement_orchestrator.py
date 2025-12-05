@@ -279,13 +279,13 @@ class RefinementOrchestrator:
             # Synthesize a draft from all persona answers
             # In a full implementation, this would use more sophisticated NLP techniques
             draft = "# Synthesized Answer\n\n"
-            
+
             # Add an introduction
-            draft += f"## Introduction\n\n"
+            draft += "## Introduction\n\n"
             draft += f"This response addresses the query: \"{state['query_text']}\"\n\n"
-            
+
             # Add insights from each persona
-            draft += f"## Key Insights\n\n"
+            draft += "## Key Insights\n\n"
             
             for persona_type in successful_personas:
                 persona_output = personas_output.get(persona_type, {})
@@ -1041,7 +1041,7 @@ class RefinementOrchestrator:
                         if f"compliance with {reg['id']}" not in current_draft.lower():
                             legal_issues.append({
                                 'regulation': reg['id'],
-                                'issue': f"Mentioned without proper compliance context"
+                                'issue': "Mentioned without proper compliance context"
                             })
             
             # Security check
@@ -1057,7 +1057,8 @@ class RefinementOrchestrator:
                     })
             
             # Overall governance assessment
-            governance_issues = {
+            # Note: governance_issues dict prepared for future logging/debugging
+            _governance_issues = {
                 'ethics_flags': ethics_flags,
                 'legal_issues': legal_issues,
                 'security_flags': security_flags
