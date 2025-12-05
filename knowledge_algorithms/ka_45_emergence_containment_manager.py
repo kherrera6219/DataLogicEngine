@@ -6,7 +6,7 @@ enforcing boundaries and safety constraints on complex simulations.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 import time
 
 logger = logging.getLogger(__name__)
@@ -315,7 +315,7 @@ class EmergenceContainmentManager:
                             restricted_params[param] = value
                     
                     contained_state["parameters"] = restricted_params
-                    applied_actions.append(f"Applied parameter restrictions")
+                    applied_actions.append("Applied parameter restrictions")
             
             elif strategy == "energy_limitation":
                 # Implement energy limitation
@@ -323,21 +323,21 @@ class EmergenceContainmentManager:
                 if "energy" in contained_state:
                     contained_state["energy"] = min(contained_state["energy"], 100.0)
                 
-                applied_actions.append(f"Applied energy limitation (cap: 100)")
+                applied_actions.append("Applied energy limitation (cap: 100)")
             
             elif strategy == "dimension_reduction":
                 # Implement dimension reduction
                 if "dimensions" in contained_state:
                     contained_state["dimensions"] = min(contained_state["dimensions"], 3)
                 
-                applied_actions.append(f"Reduced dimensions to maximum of 3")
+                applied_actions.append("Reduced dimensions to maximum of 3")
             
             elif strategy == "emergency_halt":
                 # Implement emergency halt
                 contained_state["halted"] = True
                 contained_state["running"] = False
                 
-                applied_actions.append(f"EMERGENCY HALT triggered")
+                applied_actions.append("EMERGENCY HALT triggered")
             
             # Other strategies would be implemented similarly
         

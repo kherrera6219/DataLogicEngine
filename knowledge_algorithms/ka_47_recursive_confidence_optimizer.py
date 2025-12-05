@@ -6,10 +6,9 @@ improving certainty through multiple refinement iterations until targets are met
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any
 import time
 import math
-import random
 
 logger = logging.getLogger(__name__)
 

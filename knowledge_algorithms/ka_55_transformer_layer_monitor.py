@@ -7,12 +7,10 @@ across layers.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Tuple
 import time
 import math
 import random
-import copy
-import uuid
 
 logger = logging.getLogger(__name__)
 

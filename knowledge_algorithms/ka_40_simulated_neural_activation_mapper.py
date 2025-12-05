@@ -6,7 +6,7 @@ mapping conceptual relationships in a simplified neural network style.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Set, Tuple
+from typing import Dict, List, Any, Optional
 import time
 import random
 import math

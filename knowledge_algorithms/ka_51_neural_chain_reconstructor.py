@@ -6,9 +6,8 @@ rebuilding complete neural pathways for Layer 6 simulation with continuity.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Tuple, Set
+from typing import Dict, List, Any, Tuple, Set
 import time
-import math
 import random
 
 logger = logging.getLogger(__name__)
@@ -151,7 +150,7 @@ class NeuralChainReconstructor:
         if reconstruction_method not in self.reconstruction_strategies:
             reconstruction_method = "interpolation"  # Default to interpolation if invalid
         
-        strategy_info = self.reconstruction_strategies[reconstruction_method]
+        _strategy_info = self.reconstruction_strategies[reconstruction_method]  # noqa: F841 - For future use
         
         # Determine desired length if not provided
         if desired_length is None:

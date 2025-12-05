@@ -6,7 +6,7 @@ focus points, attention weights, and cross-connections between information strea
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 import time
 import math
 import random

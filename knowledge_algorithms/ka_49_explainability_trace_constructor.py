@@ -6,7 +6,7 @@ creating transparent, human-readable pathways through complex reasoning processe
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Tuple
 import time
 
 logger = logging.getLogger(__name__)

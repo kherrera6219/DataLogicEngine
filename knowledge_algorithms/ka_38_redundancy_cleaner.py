@@ -6,7 +6,7 @@ from simulation outputs, ensuring concise and balanced results.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Set, Tuple
+from typing import Dict, List, Any, Set, Tuple
 import time
 import re
 from collections import Counter
