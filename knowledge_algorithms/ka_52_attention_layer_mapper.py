@@ -468,7 +468,7 @@ class AttentionLayerMapper:
             for i in range(num_inputs):
                 window_start = max(0, i - 1)
                 window_end = min(num_inputs, i + look_ahead + 1)
-                window_size = window_end - window_start
+                _window_size = window_end - window_start  # noqa: F841 - For future use
                 
                 for j in range(window_start, window_end):
                     # Decreasing attention with distance

@@ -640,9 +640,9 @@ class NeuralPathOptimizer:
         
         # Get connection weights
         weights = [conn.get("weight", 0.5) for conn in path_connections]
-        avg_weight = sum(weights) / len(weights)
+        _avg_weight = sum(weights) / len(weights)  # noqa: F841 - For future analysis
         max_weight = max(weights)
-        min_weight = min(weights)
+        _min_weight = min(weights)  # noqa: F841 - For future analysis
         
         # Classify each connection
         for i, connection in enumerate(path_connections):
@@ -890,7 +890,6 @@ class NeuralPathOptimizer:
                 next_node = path_nodes[i + 1]
                 
                 # Try to find any path from prev to next that doesn't include this node
-                alternative_exists = False
                 alt_paths = []
                 self._find_paths_between(
                     network, prev_node, next_node, [], set([node_id]), alt_paths, max_depth=3
