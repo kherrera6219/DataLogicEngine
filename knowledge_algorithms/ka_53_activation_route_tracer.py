@@ -766,7 +766,7 @@ class ActivationRouteTracer:
         
         # Initialize structures for tracking recursion
         paths = []
-        visited = set()
+        _visited = set()  # noqa: F841 - Reserved for future node tracking
         loops_found = set()
         
         # For recursive detection, we need to track paths that include the same node multiple times
@@ -1294,7 +1294,7 @@ def generate_sample_network(template: str, size: str) -> Dict[str, Any]:
     elif template == "fan_out":
         # First layer single node
         nodes.append({
-            "id": f"node_0_0",
+            "id": "node_0_0",
             "layer": 0,
             "position": 0,
             "type": "input"

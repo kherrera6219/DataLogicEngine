@@ -1231,9 +1231,9 @@ class GoalAlignmentMonitor:
         for method_name in methods_to_use:
             if method_name not in self.verification_methods:
                 continue
-                
-            method_info = self.verification_methods[method_name]
-            
+
+            _method_info = self.verification_methods[method_name]  # noqa: F841 - For future use
+
             # Apply this method if applicable
             if self._is_method_applicable(method_name, goal, execution_plan):
                 result = self._apply_verification_method(
@@ -2060,9 +2060,9 @@ class GoalAlignmentMonitor:
         Returns:
             Dictionary with detailed analysis
         """
-        # Extract goal information
-        goal_type = goal.get("type", "achievement")
-        goal_desc = goal.get("description", "")
+        # Extract goal information (for future detailed analysis)
+        _goal_type = goal.get("type", "achievement")  # noqa: F841
+        _goal_desc = goal.get("description", "")  # noqa: F841
         
         # Identify strengths and weaknesses
         strengths = []
