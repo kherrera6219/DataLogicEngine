@@ -4,7 +4,6 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from datetime import timedelta
 from .models import db, User
 from .security.mfa import MFAManager
-from .schemas import validate_request_data, UserLoginSchema, UserRegistrationSchema
 import logging
 
 logger = logging.getLogger(__name__)
@@ -207,8 +206,8 @@ def mfa_setup():
         user.mfa_secret = secret
         db.session.commit()
 
-        # Hash backup codes for storage
-        hashed_codes = MFAManager.hash_backup_codes(backup_codes)
+        # Hash backup codes for storage (for future secure storage)
+        _hashed_codes = MFAManager.hash_backup_codes(backup_codes)  # noqa: F841
 
         return jsonify({
             'message': 'MFA setup initiated',

@@ -7,7 +7,6 @@ This module provides API endpoints for working with the Regulatory Framework axi
 
 from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime
-import logging
 
 regulatory_api = Blueprint('regulatory_api', __name__)
 

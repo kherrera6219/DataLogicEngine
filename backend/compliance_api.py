@@ -6,7 +6,6 @@ This module provides API endpoints for managing and accessing compliance standar
 in the Universal Knowledge Graph (UKG) system.
 """
 
-import logging
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 

@@ -7,7 +7,7 @@ This module provides API endpoints for the UKG chat interface.
 import uuid
 import logging
 from datetime import datetime
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify
 from models import Conversation, Message, db
 
 # Set up logging

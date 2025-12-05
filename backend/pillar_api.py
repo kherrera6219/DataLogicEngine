@@ -6,10 +6,8 @@ This module provides API endpoints for managing the Pillar Levels (Axis 1)
 and the dynamic mapping between pillar sublevels.
 """
 
-import json
 import logging
-from datetime import datetime
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, current_app
 from backend.middleware import api_response
 
 # Set up logging

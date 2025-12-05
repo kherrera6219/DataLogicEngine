@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 from .models import db, UkgNode, UkgEdge
 from .ukg_db import UkgDatabaseManager
 

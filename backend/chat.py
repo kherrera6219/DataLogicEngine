@@ -1,7 +1,7 @@
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .models import db, Chat, Message, User
+from .models import db, Chat, Message
 
 chat_bp = Blueprint('chat', __name__)
 

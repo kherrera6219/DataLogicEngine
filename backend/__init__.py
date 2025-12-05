@@ -14,8 +14,8 @@ def create_app():
     # Initialize extensions
     from .models import db
     db.init_app(app)
-    
-    jwt = JWTManager(app)
+
+    JWTManager(app)  # Initialize JWT extension
     CORS(app)
     
     # Register blueprints

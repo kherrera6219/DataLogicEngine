@@ -66,7 +66,6 @@ This module provides middleware functions for the Flask application.
 """
 
 import logging
-import time
 import uuid
 from flask import request, g
 from functools import wraps
