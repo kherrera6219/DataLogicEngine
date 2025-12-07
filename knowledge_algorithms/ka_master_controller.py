@@ -10,8 +10,12 @@ import logging
 import time
 import os
 import yaml
-from typing import Dict, List, Any, Optional, Union
+import hashlib
+import json
+from typing import Dict, List, Any, Optional, Union, Set
 import traceback
+from datetime import datetime, timedelta
+from collections import defaultdict
 
 # Configure logging
 logging.basicConfig(
@@ -30,20 +34,46 @@ class KAMasterController:
     complex processing pipelines.
     """
     
-    def __init__(self, registry_path: Optional[str] = None):
+    def __init__(self, registry_path: Optional[str] = None, enable_caching: bool = True, cache_ttl: int = 3600):
         """
         Initialize the Master Controller.
-        
+
         Args:
             registry_path: Optional path to KA registry file (YAML)
+            enable_caching: Enable result caching
+            cache_ttl: Cache time-to-live in seconds (default: 3600)
         """
         self.algorithms = {}
         self.execution_history = []
         self.registry_path = registry_path or self._find_registry_path()
-        
+
+        # Caching configuration
+        self.enable_caching = enable_caching
+        self.cache_ttl = cache_ttl
+        self.cache = {}  # Simple in-memory cache (can be replaced with Redis)
+        self.cache_hits = 0
+        self.cache_misses = 0
+
+        # Dependency tracking
+        self.dependencies = defaultdict(set)  # ka_id -> set of dependency ka_ids
+        self.dependents = defaultdict(set)  # ka_id -> set of dependent ka_ids
+
+        # Versioning
+        self.algorithm_versions = {}  # ka_id -> version string
+
+        # Metrics
+        self.metrics = {
+            'total_executions': 0,
+            'successful_executions': 0,
+            'failed_executions': 0,
+            'total_execution_time': 0.0,
+            'cache_hit_rate': 0.0,
+            'algorithms_by_usage': defaultdict(int)
+        }
+
         # Load registry and register algorithms
         self._load_registry()
-        logger.info(f"Initialized Master Controller with {len(self.algorithms)} algorithms")
+        logger.info(f"Initialized Master Controller with {len(self.algorithms)} algorithms (caching: {enable_caching})")
     
     def _find_registry_path(self) -> str:
         """Find registry path based on common locations."""
@@ -178,22 +208,269 @@ class KAMasterController:
             logger.error(f"Error registering algorithm {ka_id}: {e}")
             return False
     
+    def add_dependency(self, ka_id: str, depends_on: Union[str, List[str]]) -> bool:
+        """
+        Add dependency for a Knowledge Algorithm.
+
+        Args:
+            ka_id: Algorithm identifier
+            depends_on: Algorithm ID(s) that ka_id depends on
+
+        Returns:
+            True if successful
+        """
+        if ka_id not in self.algorithms:
+            logger.error(f"Algorithm {ka_id} not registered")
+            return False
+
+        # Convert to list if single string
+        if isinstance(depends_on, str):
+            depends_on = [depends_on]
+
+        # Add dependencies
+        for dep_id in depends_on:
+            if dep_id not in self.algorithms:
+                logger.warning(f"Dependency {dep_id} not registered, skipping")
+                continue
+
+            self.dependencies[ka_id].add(dep_id)
+            self.dependents[dep_id].add(ka_id)
+
+        logger.debug(f"Added dependencies for {ka_id}: {depends_on}")
+        return True
+
+    def get_dependencies(self, ka_id: str, recursive: bool = False) -> Set[str]:
+        """
+        Get dependencies for a Knowledge Algorithm.
+
+        Args:
+            ka_id: Algorithm identifier
+            recursive: Include transitive dependencies
+
+        Returns:
+            Set of dependency algorithm IDs
+        """
+        if ka_id not in self.algorithms:
+            return set()
+
+        if not recursive:
+            return self.dependencies.get(ka_id, set())
+
+        # Recursively get all dependencies
+        all_deps = set()
+        to_process = list(self.dependencies.get(ka_id, set()))
+
+        while to_process:
+            dep_id = to_process.pop(0)
+            if dep_id not in all_deps:
+                all_deps.add(dep_id)
+                to_process.extend(self.dependencies.get(dep_id, set()))
+
+        return all_deps
+
+    def resolve_dependencies(self, ka_ids: List[str]) -> List[str]:
+        """
+        Resolve dependencies and return execution order.
+
+        Args:
+            ka_ids: List of algorithm IDs to execute
+
+        Returns:
+            Ordered list of algorithm IDs (dependencies first)
+        """
+        # Build execution order using topological sort
+        result = []
+        visited = set()
+        temp_mark = set()
+
+        def visit(ka_id: str):
+            if ka_id in temp_mark:
+                raise ValueError(f"Circular dependency detected involving {ka_id}")
+
+            if ka_id not in visited:
+                temp_mark.add(ka_id)
+
+                # Visit dependencies first
+                for dep_id in self.dependencies.get(ka_id, set()):
+                    visit(dep_id)
+
+                temp_mark.remove(ka_id)
+                visited.add(ka_id)
+                result.append(ka_id)
+
+        # Visit all requested algorithms
+        for ka_id in ka_ids:
+            if ka_id not in visited:
+                visit(ka_id)
+
+        return result
+
+    def set_version(self, ka_id: str, version: str) -> bool:
+        """
+        Set version for a Knowledge Algorithm.
+
+        Args:
+            ka_id: Algorithm identifier
+            version: Version string (e.g., "1.0.0")
+
+        Returns:
+            True if successful
+        """
+        if ka_id not in self.algorithms:
+            logger.error(f"Algorithm {ka_id} not registered")
+            return False
+
+        self.algorithm_versions[ka_id] = version
+        logger.debug(f"Set version for {ka_id}: {version}")
+        return True
+
+    def get_version(self, ka_id: str) -> Optional[str]:
+        """
+        Get version for a Knowledge Algorithm.
+
+        Args:
+            ka_id: Algorithm identifier
+
+        Returns:
+            Version string or None
+        """
+        return self.algorithm_versions.get(ka_id)
+
+    def _get_cache_key(self, ka_id: str, data: Dict[str, Any]) -> str:
+        """
+        Generate cache key for algorithm execution.
+
+        Args:
+            ka_id: Algorithm identifier
+            data: Input data
+
+        Returns:
+            Cache key string
+        """
+        # Create deterministic hash of input data
+        data_str = json.dumps(data, sort_keys=True)
+        data_hash = hashlib.sha256(data_str.encode()).hexdigest()[:16]
+
+        # Include version in cache key
+        version = self.algorithm_versions.get(ka_id, "1.0.0")
+
+        return f"{ka_id}:v{version}:{data_hash}"
+
+    def _get_from_cache(self, cache_key: str) -> Optional[Dict[str, Any]]:
+        """
+        Get result from cache.
+
+        Args:
+            cache_key: Cache key
+
+        Returns:
+            Cached result or None
+        """
+        if not self.enable_caching:
+            return None
+
+        cache_entry = self.cache.get(cache_key)
+        if cache_entry is None:
+            self.cache_misses += 1
+            return None
+
+        # Check if cache entry is still valid
+        cached_time, result = cache_entry
+        if time.time() - cached_time > self.cache_ttl:
+            # Cache expired
+            del self.cache[cache_key]
+            self.cache_misses += 1
+            return None
+
+        self.cache_hits += 1
+        logger.debug(f"Cache hit for {cache_key}")
+        return result
+
+    def _save_to_cache(self, cache_key: str, result: Dict[str, Any]) -> None:
+        """
+        Save result to cache.
+
+        Args:
+            cache_key: Cache key
+            result: Result to cache
+        """
+        if not self.enable_caching:
+            return
+
+        self.cache[cache_key] = (time.time(), result)
+        logger.debug(f"Cached result for {cache_key}")
+
+    def clear_cache(self, ka_id: Optional[str] = None) -> int:
+        """
+        Clear cache.
+
+        Args:
+            ka_id: Optional algorithm ID to clear cache for (clears all if None)
+
+        Returns:
+            Number of cache entries cleared
+        """
+        if ka_id is None:
+            count = len(self.cache)
+            self.cache.clear()
+            logger.info(f"Cleared all cache ({count} entries)")
+            return count
+
+        # Clear cache for specific algorithm
+        count = 0
+        keys_to_delete = [key for key in self.cache.keys() if key.startswith(f"{ka_id}:")]
+        for key in keys_to_delete:
+            del self.cache[key]
+            count += 1
+
+        logger.info(f"Cleared cache for {ka_id} ({count} entries)")
+        return count
+
+    def get_metrics(self) -> Dict[str, Any]:
+        """
+        Get controller metrics.
+
+        Returns:
+            Dictionary of metrics
+        """
+        # Update cache hit rate
+        total_requests = self.cache_hits + self.cache_misses
+        if total_requests > 0:
+            self.metrics['cache_hit_rate'] = self.cache_hits / total_requests
+
+        # Calculate average execution time
+        if self.metrics['total_executions'] > 0:
+            self.metrics['average_execution_time'] = (
+                self.metrics['total_execution_time'] / self.metrics['total_executions']
+            )
+        else:
+            self.metrics['average_execution_time'] = 0.0
+
+        return {
+            **self.metrics,
+            'cache_hits': self.cache_hits,
+            'cache_misses': self.cache_misses,
+            'cache_size': len(self.cache),
+            'registered_algorithms': len(self.algorithms),
+            'loaded_algorithms': sum(1 for alg in self.algorithms.values() if alg['loaded'])
+        }
+
     def load_algorithm(self, ka_id: str) -> bool:
         """
         Load a registered algorithm.
-        
+
         Args:
             ka_id: Algorithm identifier
-            
+
         Returns:
             True if loading was successful, False otherwise
         """
         if ka_id not in self.algorithms:
             logger.error(f"Algorithm {ka_id} not registered")
             return False
-        
+
         algorithm = self.algorithms[ka_id]
-        
+
         if algorithm["loaded"] and algorithm["function"] is not None:
             return True
         
@@ -215,14 +492,15 @@ class KAMasterController:
             logger.error(f"Error loading algorithm {ka_id}: {e}")
             return False
     
-    def execute_algorithm(self, ka_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
+    def execute_algorithm(self, ka_id: str, data: Dict[str, Any], use_cache: bool = True) -> Dict[str, Any]:
         """
         Execute a Knowledge Algorithm.
-        
+
         Args:
             ka_id: Algorithm identifier
             data: Input data for the algorithm
-            
+            use_cache: Whether to use caching (default: True)
+
         Returns:
             Algorithm result dictionary
         """
@@ -235,60 +513,87 @@ class KAMasterController:
                 "success": False,
                 "error": error_msg
             }
-        
+
+        # Check cache first
+        cache_key = self._get_cache_key(ka_id, data)
+        if use_cache:
+            cached_result = self._get_from_cache(cache_key)
+            if cached_result is not None:
+                cached_result["from_cache"] = True
+                return cached_result
+
         # Load algorithm if needed
         if not self.algorithms[ka_id]["loaded"]:
             if not self.load_algorithm(ka_id):
                 error_msg = f"Failed to load algorithm {ka_id}"
                 logger.error(error_msg)
+                self.metrics['failed_executions'] += 1
                 return {
                     "ka_id": ka_id,
                     "success": False,
                     "error": error_msg
                 }
-        
+
         # Execute algorithm
         start_time = time.time()
         execution_id = f"{ka_id}-{int(start_time * 1000)}"
-        
+
         try:
             # Get algorithm function
             function = self.algorithms[ka_id]["function"]
-            
+
             # Execute function
             result = function(data)
-            
+
             # Record execution
             execution_time = time.time() - start_time
+            success = result.get("success", True) if isinstance(result, dict) else True
+
             execution_record = {
                 "execution_id": execution_id,
                 "ka_id": ka_id,
                 "timestamp": start_time,
                 "duration": execution_time,
-                "success": result.get("success", True),
+                "success": success,
                 "input_data_keys": list(data.keys()),
-                "result_keys": list(result.keys() if isinstance(result, dict) else [])
+                "result_keys": list(result.keys() if isinstance(result, dict) else []),
+                "from_cache": False
             }
-            
+
             self.execution_history.append(execution_record)
-            
+
+            # Update metrics
+            self.metrics['total_executions'] += 1
+            self.metrics['total_execution_time'] += execution_time
+            self.metrics['algorithms_by_usage'][ka_id] += 1
+
+            if success:
+                self.metrics['successful_executions'] += 1
+            else:
+                self.metrics['failed_executions'] += 1
+
             # Add execution metadata to result
             if isinstance(result, dict):
                 result["execution_id"] = execution_id
                 result["execution_time"] = execution_time
-            
-            logger.info(f"Executed {ka_id} in {execution_time:.3f}s")
+                result["from_cache"] = False
+
+                # Cache result if successful
+                if success and use_cache:
+                    self._save_to_cache(cache_key, result)
+
+            logger.info(f"Executed {ka_id} in {execution_time:.3f}s (success: {success})")
             return result
-            
+
         except Exception as e:
             # Handle execution error
             execution_time = time.time() - start_time
             error_message = str(e)
             error_traceback = traceback.format_exc()
-            
+
             logger.error(f"Error executing {ka_id}: {error_message}")
             logger.debug(error_traceback)
-            
+
             # Record failed execution
             execution_record = {
                 "execution_id": execution_id,
@@ -297,17 +602,25 @@ class KAMasterController:
                 "duration": execution_time,
                 "success": False,
                 "error": error_message,
-                "input_data_keys": list(data.keys())
+                "input_data_keys": list(data.keys()),
+                "from_cache": False
             }
-            
+
             self.execution_history.append(execution_record)
-            
+
+            # Update metrics
+            self.metrics['total_executions'] += 1
+            self.metrics['failed_executions'] += 1
+            self.metrics['total_execution_time'] += execution_time
+            self.metrics['algorithms_by_usage'][ka_id] += 1
+
             return {
                 "ka_id": ka_id,
                 "execution_id": execution_id,
                 "success": False,
                 "error": error_message,
-                "execution_time": execution_time
+                "execution_time": execution_time,
+                "from_cache": False
             }
     
     def execute_sequence(self, sequence: List[Dict[str, Any]], 
@@ -563,14 +876,158 @@ def run(data: Dict[str, Any]) -> Dict[str, Any]:
                 "success": False,
                 "error": "Missing task parameter"
             }
-        
+
         algorithms = data.get("algorithms")
-        
+
         return {
             "success": True,
             "plan": controller.create_execution_plan(task, algorithms)
         }
-    
+
+    elif command == "metrics":
+        # Get controller metrics
+        return {
+            "success": True,
+            "metrics": controller.get_metrics()
+        }
+
+    elif command == "cache":
+        # Cache management
+        cache_action = data.get("action", "status")
+
+        if cache_action == "clear":
+            ka_id = data.get("algorithm")
+            count = controller.clear_cache(ka_id)
+            return {
+                "success": True,
+                "cleared": count
+            }
+        elif cache_action == "status":
+            return {
+                "success": True,
+                "enabled": controller.enable_caching,
+                "ttl": controller.cache_ttl,
+                "size": len(controller.cache),
+                "hits": controller.cache_hits,
+                "misses": controller.cache_misses
+            }
+        else:
+            return {
+                "success": False,
+                "error": f"Unknown cache action: {cache_action}"
+            }
+
+    elif command == "dependency":
+        # Dependency management
+        dep_action = data.get("action", "get")
+
+        if dep_action == "add":
+            ka_id = data.get("algorithm")
+            depends_on = data.get("depends_on")
+
+            if not ka_id or not depends_on:
+                return {
+                    "success": False,
+                    "error": "Missing algorithm or depends_on parameter"
+                }
+
+            success = controller.add_dependency(ka_id, depends_on)
+            return {
+                "success": success,
+                "algorithm": ka_id,
+                "dependencies": list(controller.get_dependencies(ka_id))
+            }
+
+        elif dep_action == "get":
+            ka_id = data.get("algorithm")
+
+            if not ka_id:
+                return {
+                    "success": False,
+                    "error": "Missing algorithm parameter"
+                }
+
+            recursive = data.get("recursive", False)
+            dependencies = controller.get_dependencies(ka_id, recursive)
+
+            return {
+                "success": True,
+                "algorithm": ka_id,
+                "dependencies": list(dependencies),
+                "recursive": recursive
+            }
+
+        elif dep_action == "resolve":
+            algorithms = data.get("algorithms")
+
+            if not algorithms:
+                return {
+                    "success": False,
+                    "error": "Missing algorithms parameter"
+                }
+
+            try:
+                execution_order = controller.resolve_dependencies(algorithms)
+                return {
+                    "success": True,
+                    "algorithms": algorithms,
+                    "execution_order": execution_order
+                }
+            except ValueError as e:
+                return {
+                    "success": False,
+                    "error": str(e)
+                }
+
+        else:
+            return {
+                "success": False,
+                "error": f"Unknown dependency action: {dep_action}"
+            }
+
+    elif command == "version":
+        # Version management
+        version_action = data.get("action", "get")
+
+        if version_action == "set":
+            ka_id = data.get("algorithm")
+            version = data.get("version")
+
+            if not ka_id or not version:
+                return {
+                    "success": False,
+                    "error": "Missing algorithm or version parameter"
+                }
+
+            success = controller.set_version(ka_id, version)
+            return {
+                "success": success,
+                "algorithm": ka_id,
+                "version": version
+            }
+
+        elif version_action == "get":
+            ka_id = data.get("algorithm")
+
+            if not ka_id:
+                return {
+                    "success": False,
+                    "error": "Missing algorithm parameter"
+                }
+
+            version = controller.get_version(ka_id)
+            return {
+                "success": True,
+                "algorithm": ka_id,
+                "version": version or "unknown"
+            }
+
+        else:
+            return {
+                "success": False,
+                "error": f"Unknown version action: {version_action}"
+            }
+
     else:
         return {
             "success": False,
