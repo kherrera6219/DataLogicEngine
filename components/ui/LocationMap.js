@@ -52,7 +52,7 @@ const LocationMap = ({ initialLocations }) => {
   }, [fetchLocations]);
 
   const initializeMap = useCallback(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || typeof window === 'undefined' || !window.google) return;
 
     // Get center coordinates from first location or use default
     let center = { lat: 0, lng: 0 };
@@ -111,6 +111,8 @@ const LocationMap = ({ initialLocations }) => {
 
   // Load Google Maps API
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     if (viewMode === 'map' && !window.google) {
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places`;
@@ -527,12 +529,12 @@ const LocationMap = ({ initialLocations }) => {
                 <Card>
                   <Card.Header>Location Map</Card.Header>
                   <Card.Body className="p-0">
-                    <div 
-                      ref={mapRef} 
+                    <div
+                      ref={mapRef}
                       style={{ height: '600px', width: '100%' }}
                       className="location-map"
                     >
-                      {!window.google && (
+                      {(typeof window === 'undefined' || !window.google) && (
                         <div className="text-center p-5">
                           <p>Loading map...</p>
                           <Spinner animation="border" />

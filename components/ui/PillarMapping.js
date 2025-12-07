@@ -3,7 +3,6 @@ import { Card, Button, Textarea, Badge } from './';
 import Text from './Text';
 import Dropdown from './Dropdown';
 import Label from './Label';
-import { useToast } from '@chakra-ui/react';
 
 export default function PillarMapping({ initialPillarId }) {
   const [pillars, setPillars] = useState([]);
@@ -12,7 +11,11 @@ export default function PillarMapping({ initialPillarId }) {
   const [contextText, setContextText] = useState('');
   const [loading, setLoading] = useState(false);
   const [mappings, setMappings] = useState([]);
-  const toast = useToast();
+
+  // Simple toast replacement using console
+  const showToast = ({ title, description, status }) => {
+    console.log(`[${status.toUpperCase()}] ${title}: ${description}`);
+  };
 
   // Load all pillars on component mount
   useEffect(() => {
