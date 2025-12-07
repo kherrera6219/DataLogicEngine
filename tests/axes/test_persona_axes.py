@@ -4,10 +4,10 @@ Tests validate Phase 2 persona system implementation.
 """
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from core.axes.axis8_knowledge_expert import Axis8KnowledgeExpert
-from core.axes.axis9_sector_expert import Axis9SectorExpert
-from core.axes.axis10_regulatory_expert import Axis10RegulatoryExpert
-from core.axes.axis11_compliance_expert import Axis11ComplianceExpert
+from core.axes.axis8_knowledge_expert import KnowledgeExpertAxis
+from core.axes.axis9_sector_expert import SectorExpertAxis
+from core.axes.axis10_regulatory_expert import RegulatoryExpertAxis
+from core.axes.axis11_compliance_expert import ComplianceExpertAxis
 
 
 class TestAxis8KnowledgeExpert:
@@ -15,7 +15,7 @@ class TestAxis8KnowledgeExpert:
 
     def setup_method(self):
         """Setup test fixtures."""
-        self.axis = Axis8KnowledgeExpert()
+        self.axis = KnowledgeExpertAxis()
         self.mock_context = {
             'query': 'What is quantum computing?',
             'domain': 'technology',
@@ -64,7 +64,7 @@ class TestAxis9SectorExpert:
 
     def setup_method(self):
         """Setup test fixtures."""
-        self.axis = Axis9SectorExpert()
+        self.axis = SectorExpertAxis()
         self.mock_context = {
             'query': 'What are the key trends in healthcare?',
             'sector': 'healthcare',
@@ -111,7 +111,7 @@ class TestAxis10RegulatoryExpert:
 
     def setup_method(self):
         """Setup test fixtures."""
-        self.axis = Axis10RegulatoryExpert()
+        self.axis = RegulatoryExpertAxis()
         self.mock_context = {
             'query': 'What are GDPR requirements for data processing?',
             'framework': 'GDPR',
@@ -163,7 +163,7 @@ class TestAxis11ComplianceExpert:
 
     def setup_method(self):
         """Setup test fixtures."""
-        self.axis = Axis11ComplianceExpert()
+        self.axis = ComplianceExpertAxis()
         self.mock_context = {
             'query': 'How to implement SOC2 controls?',
             'standard': 'SOC2',
@@ -221,10 +221,10 @@ class TestPersonaIntegration:
 
     def test_all_personas_can_be_instantiated(self):
         """Test all persona axes can be instantiated together."""
-        axis8 = Axis8KnowledgeExpert()
-        axis9 = Axis9SectorExpert()
-        axis10 = Axis10RegulatoryExpert()
-        axis11 = Axis11ComplianceExpert()
+        axis8 = KnowledgeExpertAxis()
+        axis9 = SectorExpertAxis()
+        axis10 = RegulatoryExpertAxis()
+        axis11 = ComplianceExpertAxis()
 
         assert axis8 is not None
         assert axis9 is not None
@@ -240,10 +240,10 @@ class TestPersonaIntegration:
             'framework': 'HIPAA'
         }
 
-        axis8 = Axis8KnowledgeExpert()
-        axis9 = Axis9SectorExpert()
-        axis10 = Axis10RegulatoryExpert()
-        axis11 = Axis11ComplianceExpert()
+        axis8 = KnowledgeExpertAxis()
+        axis9 = SectorExpertAxis()
+        axis10 = RegulatoryExpertAxis()
+        axis11 = ComplianceExpertAxis()
 
         result8 = axis8.generate_response(context)
         result9 = axis9.generate_response(context)
@@ -264,10 +264,10 @@ class TestPersonaIntegration:
         context = {'query': 'Test query for all personas'}
 
         personas = [
-            Axis8KnowledgeExpert(),
-            Axis9SectorExpert(),
-            Axis10RegulatoryExpert(),
-            Axis11ComplianceExpert()
+            KnowledgeExpertAxis(),
+            SectorExpertAxis(),
+            RegulatoryExpertAxis(),
+            ComplianceExpertAxis()
         ]
 
         results = []
@@ -284,10 +284,10 @@ class TestPersonaIntegration:
         context = {'query': 'Multi-persona query'}
 
         personas = [
-            Axis8KnowledgeExpert(),
-            Axis9SectorExpert(),
-            Axis10RegulatoryExpert(),
-            Axis11ComplianceExpert()
+            KnowledgeExpertAxis(),
+            SectorExpertAxis(),
+            RegulatoryExpertAxis(),
+            ComplianceExpertAxis()
         ]
 
         confidences = []
@@ -310,10 +310,10 @@ class TestPersonaEdgeCases:
         empty_context = {'query': ''}
 
         personas = [
-            Axis8KnowledgeExpert(),
-            Axis9SectorExpert(),
-            Axis10RegulatoryExpert(),
-            Axis11ComplianceExpert()
+            KnowledgeExpertAxis(),
+            SectorExpertAxis(),
+            RegulatoryExpertAxis(),
+            ComplianceExpertAxis()
         ]
 
         for persona in personas:
@@ -325,10 +325,10 @@ class TestPersonaEdgeCases:
         minimal_context = {}
 
         personas = [
-            Axis8KnowledgeExpert(),
-            Axis9SectorExpert(),
-            Axis10RegulatoryExpert(),
-            Axis11ComplianceExpert()
+            KnowledgeExpertAxis(),
+            SectorExpertAxis(),
+            RegulatoryExpertAxis(),
+            ComplianceExpertAxis()
         ]
 
         for persona in personas:
@@ -340,7 +340,7 @@ class TestPersonaEdgeCases:
         long_query = "Test query " * 1000  # Very long query
         context = {'query': long_query}
 
-        axis8 = Axis8KnowledgeExpert()
+        axis8 = KnowledgeExpertAxis()
         result = axis8.generate_response(context)
         assert result is not None
 

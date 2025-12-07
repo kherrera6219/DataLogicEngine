@@ -7,10 +7,10 @@ from unittest.mock import Mock, patch, MagicMock
 from core.simulation.layer4_reasoning import Layer4ReasoningEngine
 from core.simulation.layer5_integration import Layer5IntegrationEngine
 from core.simulation.layer6_enhancement import Layer6EnhancementEngine
-from core.simulation.layer7_agi_system import Layer7AGISystem
-from core.simulation.layer8_quantum import Layer8QuantumSimulation
-from core.simulation.layer9_recursive import Layer9RecursiveProcessing
-from core.simulation.layer10_synthesis import Layer10FinalSynthesis
+from core.simulation.layer7_agi_system import AGISimulationEngine
+from core.simulation.layer8_quantum import Layer8QuantumEngine
+from core.simulation.layer9_recursive import Layer9RecursiveEngine
+from core.simulation.layer10_synthesis import Layer10SynthesisEngine
 
 
 class TestLayer4ReasoningEngine:
@@ -135,7 +135,7 @@ class TestLayer7AGISystem:
 
     def setup_method(self):
         """Setup test fixtures."""
-        self.engine = Layer7AGISystem()
+        self.engine = AGISimulationEngine()
         self.mock_context = {
             'query': 'Complex multi-domain question',
             'enhanced_knowledge': {
@@ -175,7 +175,7 @@ class TestLayer8QuantumSimulation:
 
     def setup_method(self):
         """Setup test fixtures."""
-        self.engine = Layer8QuantumSimulation()
+        self.engine = Layer8QuantumEngine()
         self.mock_context = {
             'query': 'Parallel state exploration needed',
             'uncertainty': 0.3
@@ -208,7 +208,7 @@ class TestLayer9RecursiveProcessing:
 
     def setup_method(self):
         """Setup test fixtures."""
-        self.engine = Layer9RecursiveProcessing()
+        self.engine = Layer9RecursiveEngine()
         self.mock_context = {
             'query': 'Needs refinement',
             'confidence': 0.7,
@@ -263,7 +263,7 @@ class TestLayer10FinalSynthesis:
 
     def setup_method(self):
         """Setup test fixtures."""
-        self.engine = Layer10FinalSynthesis()
+        self.engine = Layer10SynthesisEngine()
         self.mock_context = {
             'query': 'Original query',
             'all_layers': {
