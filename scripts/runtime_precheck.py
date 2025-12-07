@@ -12,6 +12,8 @@ import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
+from dotenv import dotenv_values
+
 BACKEND_PORT = int(os.environ.get("PORT", os.environ.get("BACKEND_PORT", 8080)))
 FRONTEND_PORT = int(os.environ.get("FRONTEND_PORT", 3000))
 ROOT = Path(__file__).resolve().parents[1]
@@ -95,6 +97,21 @@ def check_env_files() -> list[CheckResult]:
         results.append(CheckResult("OK", f"SQLite database file present at {sqlite_path}"))
     else:
         results.append(CheckResult("ACTION", "Initialize the database: `python -c \"from app import app, db; app.app_context().push(); db.create_all()\"`"))
+
+    env_values: dict[str, str | None] = {}
+    for path in existing:
+        env_values.update(dotenv_values(path))
+
+    required_keys = ("SECRET_KEY", "DATABASE_URL")
+    missing_keys = [key for key in required_keys if not env_values.get(key)]
+    if missing_keys:
+        missing_display = ", ".join(missing_keys)
+        results.append(
+            CheckResult(
+                "ACTION",
+                f"Missing recommended configuration values: {missing_display}. Populate them in .env for stable startup.",
+            )
+        )
 
     for item in results:
         print(f"[{item.level}] {item.message}")

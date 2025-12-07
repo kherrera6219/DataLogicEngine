@@ -2,10 +2,10 @@ import os
 import re
 import uuid
 import logging
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from dotenv import load_dotenv
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -75,6 +75,8 @@ configure_request_limits(app, {
 
 # Import models (after extensions initialization)
 # Note: Importing models ensures SQLAlchemy creates their tables during db.create_all()
+from sqlalchemy import text
+
 from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge, MCPServer, MCPResource, MCPTool, MCPPrompt, PasswordHistory  # noqa: F401
 
 @login_manager.user_loader
@@ -106,6 +108,55 @@ logger.info("MCP blueprint registered")
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+def _config_health() -> dict:
+    """Summarize configuration readiness for lightweight health checks."""
+
+    secret_key_status = "set" if app.secret_key else "missing"
+    environment = os.environ.get("FLASK_ENV", "production")
+    return {
+        "environment": environment,
+        "secret_key": secret_key_status,
+    }
+
+
+def _database_health() -> dict:
+    """Confirm database connectivity with a trivial query."""
+
+    try:
+        db.session.execute(text("SELECT 1"))
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Database connectivity check failed", exc_info=exc)
+        return {"status": "error", "detail": str(exc)}
+
+    return {"status": "ok"}
+
+
+@app.route("/health", methods=["GET"])
+def health() -> tuple:
+    """Lightweight health endpoint for runtime monitoring."""
+
+    config_state = _config_health()
+    database_state = _database_health()
+
+    overall_status = "ok"
+    http_status = 200
+
+    if database_state.get("status") != "ok":
+        overall_status = "error"
+        http_status = 503
+    elif config_state.get("secret_key") == "missing":
+        overall_status = "degraded"
+
+    payload = {
+        "status": overall_status,
+        "config": config_state,
+        "database": database_state,
+        "timestamp": datetime.now(UTC).isoformat(),
+    }
+
+    return jsonify(payload), http_status
 
 @app.route('/login', methods=['GET', 'POST'])
 @limiter.limit("10 per minute")

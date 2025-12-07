@@ -35,7 +35,9 @@ Identify blockers preventing the Universal Knowledge Graph application from runn
 
 ## Phase 1 Deliverables (implemented in this update)
 - **Runtime precheck script** (`scripts/runtime_precheck.py`) to flag missing tools, config, DB initialization, and port conflicts for backend (8080) and frontend (3000).
+- **Configuration validation in precheck** to surface missing `SECRET_KEY` and `DATABASE_URL` values early.
 - **Documentation alignment** so Quick Start and runtime expectations match the backend’s 8080 default.
+- **Backend health endpoint** (`/health`) that reports configuration readiness, database connectivity, and timestamped status for monitoring.
 - **Actionable runbook** in this file to guide developers from clone to first successful run.
 
 ## Phase 1 Runbook (execute in order)
