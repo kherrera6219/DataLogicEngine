@@ -2,7 +2,14 @@
 
 ## Overview
 
-This directory contains comprehensive wireframes and design specifications for the DataLogicEngine (Universal Knowledge Graph) frontend redesign to meet 2025 web application design standards.
+This directory contains comprehensive wireframes and design specifications for the DataLogicEngine (Universal Knowledge Graph) frontend redesign to meet 2025 web application design standards with explicit alignment to Microsoft enterprise (Fluent 2) patterns.
+
+## Microsoft Enterprise Alignment (Fluent 2)
+
+- Azure/Microsoft brand tokens integrated into the design system (neutral palette, focus ring, communication blue primary).
+- Fluent 2 navigation shell with command bar, app launcher, environment pill, and user presence carried across all page wireframes.
+- Enterprise compliance affordances (privacy links, audit exports, accessibility focus states) annotated in each page wireframe.
+- Typography updated to Segoe UI Variable families with responsive scale and focus-visible behaviors that satisfy WCAG 2.2.
 
 ## Documents in This Collection
 
@@ -425,6 +432,11 @@ All wireframes are provided in markdown format with ASCII art representations fo
 
 ## Version History
 
+### v1.1.0 (2026-02-16)
+- Refreshed wireframes with Microsoft enterprise (Fluent 2) navigation shell, focus states, and compliance affordances
+- Updated design system tokens to match Azure communication blue, Segoe UI Variable typography, and Fluent neutral palette
+- Added Microsoft-specific guidance to each page wireframe for command bar placement and enterprise telemetry/export controls
+
 ### v1.0.0 (2025-11-23)
 - Initial comprehensive wireframe documentation
 - 2025 design system specifications
@@ -467,6 +479,6 @@ For questions, suggestions, or feedback on these wireframes:
 
 ---
 
-**Last Updated**: November 23, 2025
-**Version**: 1.0.0
-**Status**: ✅ Complete and ready for implementation
+**Last Updated**: February 16, 2026
+**Version**: 1.1.0
+**Status**: ✅ Updated for Microsoft enterprise (Fluent 2) alignment

@@ -3,6 +3,18 @@
 ## Overview
 Interactive knowledge graph visualization with 13-axis navigation, real-time data exploration, and comprehensive compliance dashboard with modern data visualization.
 
+## Microsoft Enterprise Updates (Fluent 2)
+- Fluent command bar at top with app launcher, environment selector (Prod/Sandbox), search, help, notifications, and presence.
+- Segoe UI Variable typography and Fluent neutral cards for graph controls and dashboard widgets; focus-visible rings on all filters and sliders.
+- Export controls updated to "Open in Excel", "Export to Power BI", and "Download CSV" to match Microsoft enterprise workflows.
+- Compliance dashboard includes "Data residency" and "Sensitivity label" badges (Purview-style) plus privacy/terms links in the footer.
+
+### Fluent Command Bar Overlay
+```
+┌ waffle │ Knowledge Graph │ Environment: Prod │ Search nodes... │ Open in Excel │ Help │ 🔔 │ 👤 │ ⋮ ┐
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ## Knowledge Graph Explorer - Desktop (1920x1080)

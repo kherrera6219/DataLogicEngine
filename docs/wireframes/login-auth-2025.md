@@ -3,6 +3,18 @@
 ## Overview
 Modern, secure, and user-friendly authentication flow with role-based access, SSO integration, biometric support, and seamless onboarding experience.
 
+## Microsoft Enterprise Updates (Fluent 2)
+- Microsoft Entra (Azure AD) primary, Okta/SAML secondary; command bar shows tenant + conditional access status (e.g., "MFA required").
+- Segoe UI Variable typography, neutral cards, and 3px communication-blue focus halo on all inputs and buttons.
+- Add "Report suspicious activity" and "View audit log" links beneath the primary CTA to support enterprise SOC processes.
+- Login card footer surfaces "Privacy", "Terms", and "Accessibility" links to align with Microsoft compliance baselines.
+
+### Fluent Command Bar (pre-auth)
+```
+┌ waffle │ DataLogicEngine │ Tenant: Contoso Gov │ Status: MFA required │ Help │ Privacy │ 🔔 │ 👤 │ ⋮ ┐
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ## Desktop View (1920x1080) - Main Login

@@ -3,6 +3,18 @@
 ## Overview
 Modern, AI-first landing page with glassmorphic elements, animated gradients, and immersive experience.
 
+## Microsoft Enterprise Updates (Fluent 2)
+- Fluent command bar at the top with app launcher (waffle), environment pill (Prod/Preview), global search, and user presence/avatar.
+- Segoe UI Variable typography and Fluent neutral surfaces replace the prior dark shell for stronger readability and WCAG 2.2 focus-visible states.
+- Primary CTAs use communication blue (#0f6cbd) with a 3px halo focus ring; secondary CTAs use neutral outline buttons with hover elevation.
+- Add privacy, security, and compliance links in the footer plus an export-to-PDF control on the interactive demo card for enterprise review workflows.
+
+### Fluent Command Bar (applies to desktop & mobile)
+```
+┌ Microsoft 365 waffle │ DataLogicEngine │ Environment: Prod │ Search [🔍] │ ? │ 🔔 │ 👤 │ ⋮ ┐
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ## Desktop View (1920x1080)

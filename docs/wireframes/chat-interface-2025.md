@@ -3,6 +3,18 @@
 ## Overview
 Modern AI-first chat interface with advanced features: streaming responses, voice input, file upload, code syntax highlighting, regeneration, and contextual actions.
 
+## Microsoft Enterprise Updates (Fluent 2)
+- Fluent command bar persistent across desktop/tablet/mobile with app launcher, environment pill, tenant indicator, help, notifications, and presence avatar.
+- Segoe UI Variable typography, neutral panels, and 3px focus halos for all inputs (message box, search, filters) to satisfy WCAG 2.2 focus-visible.
+- Command bar quick actions include "Export chat (Word/PDF)", "Open in Teams", and "Compliance log" buttons for enterprise handoff.
+- Context rail gains "Data residency" and "Sensitivity label" badges consistent with Microsoft Purview patterns.
+
+### Fluent Command Bar Overlay
+```
+┌ waffle │ DataLogicEngine Assistant │ Tenant: Contoso Gov │ Search chats... │ ? │ 🔔 │ 👤 │ ⋮ ┐
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ## Desktop View (1920x1080)
