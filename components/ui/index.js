@@ -5,13 +5,13 @@ export { default as Badge } from './Badge';
 export { default as Button } from './Button';
 export { default as Card } from './Card';
 export { default as ChatMessage } from './ChatMessage';
-export { default as ComplianceSpiderweb } from './ComplianceSpiderweb';
+// ComplianceSpiderweb uses react-force-graph - import directly with dynamic() where needed
 export { default as ContextualExpertWeb } from './ContextualExpertWeb';
 export { default as Dropdown } from './Dropdown';
-export { default as HoneycombGraph } from './HoneycombGraph';
+// HoneycombGraph uses react-force-graph-2d - import directly with dynamic() where needed
 export { default as Input } from './Input';
 export { default as Label } from './Label';
-export { default as LocationMap } from './LocationMap';
+// LocationMap uses window.google.maps - import directly where needed
 export { default as Navbar } from './Navbar';
 export { default as PillarMapping } from './PillarMapping';
 export { default as RegulatoryOctopus } from './RegulatoryOctopus';

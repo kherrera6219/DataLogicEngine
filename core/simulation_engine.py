@@ -894,9 +894,9 @@ class SimulationEngine:
 
         # Extract simulation data (some for future use)
         _query = simulation_data.get("query", "")
-        _layer1_results = simulation_data.get("layer1_results", {})
+        layer1_results = simulation_data.get("layer1_results", {})
         _layer6_results = simulation_data.get("layer6_results", {})
-        _layer7_results = simulation_data.get("layer7_results", {})
+        layer7_results = simulation_data.get("layer7_results", {})
         _current_confidence = simulation_data.get("current_confidence", 0.0)
 
         # Initialize Layer 8 results
@@ -1132,7 +1132,7 @@ class SimulationEngine:
         layer7_results = simulation_data.get("layer7_results", {})
         layer9_results = simulation_data.get("layer9_results", {})
         current_confidence = simulation_data.get("current_confidence", 0.0)
-        _current_pass = simulation_data.get("current_pass", 1)
+        current_pass = simulation_data.get("current_pass", 1)
 
         # Initialize Layer 10 results
         layer10_results = {

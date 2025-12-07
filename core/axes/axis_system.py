@@ -652,27 +652,3 @@ class AxisSystem:
         """
         # Basic implementation - can be extended to load from a database or config file
         return {"name": axis_name, "description": f"Description for {axis_name} (Axis {axis_number})"}
-
-    # Initialize axis managers
-        self.axis_managers = {
-            1: IdentityManager(db_manager, graph_manager),
-            2: SectorManager(db_manager, graph_manager),
-            4: MethodsManager(db_manager, graph_manager),
-            5: HoneycombSystem(db_manager, graph_manager),
-            6: RegulatoryManager(db_manager, graph_manager),
-            11: Axis11ContextExperts(db_manager, graph_manager)
-        }
-
-        self.axes = {
-            1: self._load_axis(1, "Identity"),
-            2: self._load_axis(2, "Sector"), 
-            3: self._load_axis(3, "Branch"),
-            4: self._load_axis(4, "Method"),
-            5: self._load_axis(5, "Honeycomb"),
-            6: self._load_axis(6, "Regulatory"),
-            7: self._load_axis(7, "Compliance"),
-            # 8-11 are Expert Personas
-            11: self._load_axis(11, "Context"),
-            12: self._load_axis(12, "Location"),
-            # 13 will be Time
-        }
