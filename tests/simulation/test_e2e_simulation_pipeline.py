@@ -4,13 +4,13 @@ Tests complete simulation flow from query to final synthesis.
 """
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from core.simulation.simulation_engine import UniversalSimulationEngine
-from core.simulation.memory_simulation import MemorySimulation
+from core.simulation.simulation_engine import SimulationEngine
+
 from core.simulation.layer4_reasoning import Layer4ReasoningEngine
 from core.simulation.layer5_integration import Layer5IntegrationEngine
 from core.simulation.layer6_enhancement import Layer6EnhancementEngine
-from core.simulation.layer7_agi_system import Layer7AGISystem
-from core.simulation.layer10_synthesis import Layer10FinalSynthesis
+from core.simulation.layer7_agi_system import AGISimulationEngine
+from core.simulation.layer10_synthesis import Layer10SynthesisEngine
 
 
 class TestE2ESimulationPipeline:
@@ -18,7 +18,7 @@ class TestE2ESimulationPipeline:
 
     def setup_method(self):
         """Setup test fixtures."""
-        self.simulation_engine = UniversalSimulationEngine()
+        self.simulation_engine = SimulationEngine()
 
     def test_simulation_engine_exists(self):
         """Test simulation engine can be instantiated."""
@@ -121,7 +121,7 @@ class TestLayerSequencing:
             process_layer2=Mock(side_effect=mock_layer_process('layer2')),
             process_layer3=Mock(side_effect=mock_layer_process('layer3'))
         ):
-            engine = UniversalSimulationEngine()
+            engine = SimulationEngine()
             query = {
                 'query': 'Test sequencing',
                 'max_layers': 3
@@ -142,7 +142,7 @@ class TestLayerSequencing:
                 'result': 'High confidence result'
             }
 
-            engine = UniversalSimulationEngine()
+            engine = SimulationEngine()
             query = {
                 'query': 'Simple query',
                 'confidence_threshold': 0.9,
@@ -169,7 +169,7 @@ class TestPersonaIntegration:
             'activate_personas': True
         }
 
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
         result = engine.simulate(domain_query)
 
         assert result is not None
@@ -183,7 +183,7 @@ class TestPersonaIntegration:
             'activate_personas': True
         }
 
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
         result = engine.simulate(compliance_query)
 
         assert result is not None
@@ -199,7 +199,7 @@ class TestPersonaIntegration:
             'personas': ['knowledge', 'sector', 'regulatory', 'compliance']
         }
 
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
         result = engine.simulate(multi_perspective_query)
 
         assert result is not None
@@ -216,7 +216,7 @@ class TestKnowledgeAlgorithmIntegration:
             'use_knowledge_algorithms': True
         }
 
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
         result = engine.simulate(ka_query)
 
         assert result is not None
@@ -229,7 +229,7 @@ class TestKnowledgeAlgorithmIntegration:
             'knowledge_algorithms': ['ka_01', 'ka_04', 'ka_20']
         }
 
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
         result = engine.simulate(specific_ka_query)
 
         assert result is not None
@@ -244,7 +244,7 @@ class TestSimulationMetrics:
             'query': 'Performance test query'
         }
 
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
         result = engine.simulate(query)
 
         assert result is not None
@@ -259,7 +259,7 @@ class TestSimulationMetrics:
             'track_metrics': True
         }
 
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
         result = engine.simulate(query)
 
         assert result is not None
@@ -274,7 +274,7 @@ class TestSimulationMetrics:
             'track_confidence': True
         }
 
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
         result = engine.simulate(query)
 
         assert result is not None
@@ -292,7 +292,7 @@ class TestEdgeCases:
             'query': ''
         }
 
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
         result = engine.simulate(empty_query)
 
         # Should handle gracefully
@@ -304,7 +304,7 @@ class TestEdgeCases:
             'query': 'Test query ' * 10000  # Very long
         }
 
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
         result = engine.simulate(long_query)
 
         # Should handle or truncate appropriately
@@ -318,7 +318,7 @@ class TestEdgeCases:
             'confidence_threshold': 2.0  # Invalid (> 1.0)
         }
 
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
 
         # Should either fix invalid config or raise error
         try:
@@ -332,7 +332,7 @@ class TestEdgeCases:
         """Test multiple concurrent simulations."""
         import threading
 
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
         results = []
 
         def run_simulation(query_text):
@@ -371,7 +371,7 @@ class TestRegressionTests:
             'max_layers': 10
         }
 
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
 
         # Set timeout (Unix only)
         try:
@@ -389,7 +389,7 @@ class TestRegressionTests:
 
     def test_memory_leak_prevention(self):
         """Test that repeated simulations don't leak memory."""
-        engine = UniversalSimulationEngine()
+        engine = SimulationEngine()
 
         # Run many simulations
         for i in range(100):

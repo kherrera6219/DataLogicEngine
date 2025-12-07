@@ -5,12 +5,7 @@ Tests validate Phase 2 KA integration completeness.
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime, timedelta
-from knowledge_algorithms.ka_master_controller import (
-    KAMasterController,
-    AlgorithmMetadata,
-    AlgorithmDependency,
-    ExecutionResult
-)
+from knowledge_algorithms.ka_master_controller import KAMasterController
 
 
 class TestKAMasterController:
