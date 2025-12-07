@@ -510,6 +510,61 @@ def seed_domains():
         current_app.logger.error(f"Error seeding domains: {str(e)}")
         return error_response(f"Error seeding domains: {str(e)}", 500)
 
+# Error Logging Route
+@api.route('/log-error', methods=['POST'])
+def log_frontend_error():
+    """
+    Log frontend errors for monitoring and debugging.
+    Accepts error data from the frontend error tracking service.
+    """
+    try:
+        error_data = request.json
+
+        if not error_data:
+            return error_response("No error data provided")
+
+        # Extract error information
+        error_info = {
+            'timestamp': error_data.get('timestamp', datetime.utcnow().isoformat()),
+            'type': error_data.get('type', 'unknown'),
+            'message': error_data.get('message', 'No message'),
+            'stack': error_data.get('stack'),
+            'url': error_data.get('url'),
+            'user_agent': error_data.get('userAgent'),
+            'severity': error_data.get('severity', 'error'),
+            'source': error_data.get('source', 'frontend'),
+            'boundary_name': error_data.get('boundaryName'),
+            'boundary_type': error_data.get('boundaryType'),
+            'page': error_data.get('page'),
+            'context': error_data.get('context', {})
+        }
+
+        # Log to application logger with appropriate level
+        severity = error_info['severity']
+        log_message = f"Frontend Error - {error_info['type']}: {error_info['message']} | URL: {error_info['url']}"
+
+        if severity == 'critical':
+            current_app.logger.critical(log_message, extra=error_info)
+        elif severity == 'error':
+            current_app.logger.error(log_message, extra=error_info)
+        elif severity == 'warning':
+            current_app.logger.warning(log_message, extra=error_info)
+        else:
+            current_app.logger.info(log_message, extra=error_info)
+
+        # In production, you would also send to external monitoring service
+        # Example: send_to_sentry(error_info), send_to_datadog(error_info)
+
+        return success_response(
+            {"logged": True, "timestamp": error_info['timestamp']},
+            "Error logged successfully"
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"Error logging frontend error: {str(e)}")
+        # Don't return error response to avoid error loops
+        return jsonify({"success": True, "logged": False}), 200
+
 # Register the blueprint
 def register_api(app):
     """Register the API blueprint with the Flask application."""
