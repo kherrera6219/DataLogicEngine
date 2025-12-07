@@ -2,7 +2,7 @@
   "pages/_app.js -> bootstrap/dist/js/bootstrap.bundle.min.js": {
     "id": 8702,
     "files": [
-      "static/chunks/69.268a2ca5afd67dc4.js"
+      "static/chunks/69.c978cc47d8e321a8.js"
     ]
   },
   "pages/chat.js -> ../utils/responsive": {
@@ -13,11 +13,19 @@
   },
   "pages/honeycomb.js -> ../components/ui/HoneycombGraph": {
     "id": 943,
-    "files": []
+    "files": [
+      "static/chunks/591-706a7d4e533a5acc.js",
+      "static/chunks/290.f8e5af14df018573.js",
+      "static/chunks/943.ea8140561c20238e.js"
+    ]
   },
   "pages/knowledge-graph.js -> ../components/ui/HoneycombGraph": {
     "id": 943,
-    "files": []
+    "files": [
+      "static/chunks/591-706a7d4e533a5acc.js",
+      "static/chunks/290.f8e5af14df018573.js",
+      "static/chunks/943.ea8140561c20238e.js"
+    ]
   },
   "pages/regulatory.js -> ../components/ui/RegulatoryOctopus": {
     "id": 4226,
