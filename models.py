@@ -315,7 +315,7 @@ class MCPServer(db.Model):
 
     # Configuration
     config = db.Column(db.JSON)
-    metadata = db.Column(db.JSON)
+    server_metadata = db.Column(db.JSON)
 
     # Stats
     total_requests = db.Column(db.Integer, default=0)
@@ -349,7 +349,7 @@ class MCPServer(db.Model):
                 'logging': self.supports_logging
             },
             'config': self.config,
-            'metadata': self.metadata,
+            'metadata': self.server_metadata,
             'stats': {
                 'total_requests': self.total_requests,
                 'successful_requests': self.successful_requests,
@@ -373,7 +373,7 @@ class MCPResource(db.Model):
     mime_type = db.Column(db.String(64))
 
     # Resource metadata
-    metadata = db.Column(db.JSON)
+    resource_metadata = db.Column(db.JSON)
 
     # Access stats
     access_count = db.Column(db.Integer, default=0)
@@ -392,7 +392,7 @@ class MCPResource(db.Model):
             'name': self.name,
             'description': self.description,
             'mime_type': self.mime_type,
-            'metadata': self.metadata,
+            'metadata': self.resource_metadata,
             'access_count': self.access_count,
             'last_accessed': self.last_accessed.isoformat() if self.last_accessed else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
@@ -413,7 +413,7 @@ class MCPTool(db.Model):
     input_schema = db.Column(db.JSON, nullable=False)
 
     # Tool metadata
-    metadata = db.Column(db.JSON)
+    tool_metadata = db.Column(db.JSON)
 
     # Execution stats
     execution_count = db.Column(db.Integer, default=0)
@@ -433,7 +433,7 @@ class MCPTool(db.Model):
             'name': self.name,
             'description': self.description,
             'input_schema': self.input_schema,
-            'metadata': self.metadata,
+            'metadata': self.tool_metadata,
             'stats': {
                 'execution_count': self.execution_count,
                 'success_count': self.success_count,
@@ -458,7 +458,7 @@ class MCPPrompt(db.Model):
     arguments = db.Column(db.JSON)  # List of argument definitions
 
     # Prompt metadata
-    metadata = db.Column(db.JSON)
+    prompt_metadata = db.Column(db.JSON)
 
     # Usage stats
     usage_count = db.Column(db.Integer, default=0)
@@ -476,7 +476,7 @@ class MCPPrompt(db.Model):
             'name': self.name,
             'description': self.description,
             'arguments': self.arguments,
-            'metadata': self.metadata,
+            'metadata': self.prompt_metadata,
             'usage_count': self.usage_count,
             'last_used': self.last_used.isoformat() if self.last_used else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
