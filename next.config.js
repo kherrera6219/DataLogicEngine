@@ -9,7 +9,7 @@ const nextConfig = {
   transpilePackages: ['d3', 'react-force-graph-2d', 'force-graph'],
   // Add environment variables
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:5000',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8080',
     NEXT_PUBLIC_CORE_UKG_URL: process.env.NEXT_PUBLIC_CORE_UKG_URL || 'http://0.0.0.0:5003',
     NEXT_PUBLIC_APP_NAME: 'Universal Knowledge Graph System',
     NEXT_PUBLIC_VERSION: '1.0.0',
@@ -32,7 +32,7 @@ const nextConfig = {
   },
   async rewrites() {
     // Get the API URLs from environment variables or use defaults
-    const apiGatewayUrl = process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:5000';
+    const apiGatewayUrl = process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8080';
     const coreUkgUrl = process.env.NEXT_PUBLIC_CORE_UKG_URL || 'http://0.0.0.0:5003';
 
     return [
