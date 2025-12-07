@@ -25,6 +25,7 @@
 - [Contributing](#contributing)
 - [Security](#security)
 - [License](#license)
+- [Supporting Documents](#supporting-documents)
 - [Support](#support)
 
 ## 🔴 Production Readiness Status
@@ -406,7 +407,8 @@ DataLogicEngine/
 │   ├── ARCHITECTURE.md         # System architecture
 │   ├── API.md                  # API documentation
 │   ├── DEPLOYMENT.md           # Deployment guide
-│   └── style-guide.md          # UI/UX design system
+│   ├── style-guide.md          # UI/UX design system
+│   └── supporting-documents/   # White papers, technical reports, and reference materials (24 PDFs)
 │
 ├── .github/                    # GitHub configuration
 │   ├── workflows/              # CI/CD workflows
@@ -642,11 +644,32 @@ To report security vulnerabilities, please see [SECURITY.md](SECURITY.md)
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## Supporting Documents
+
+Comprehensive technical documentation, white papers, and reference materials are available in the [docs/supporting-documents/](docs/supporting-documents/) directory.
+
+**Quick Links:**
+- **[Supporting Documents Index](docs/supporting-documents/README.md)** - Complete catalog of all 24 PDFs organized by category
+- **Core Theory**: Universal Knowledge Graph theoretical framework and white papers
+- **Technical Specs**: Mathematical formulations and technical specifications
+- **Architecture**: 10-layer simulation stack and system architecture
+- **Implementation**: MVP plans, development guides, and blueprints
+- **Research**: AI optimization and algorithm research papers
+
+These documents provide in-depth coverage of:
+- 13-Axis Knowledge Framework
+- 10-Layer Simulation Architecture
+- 56+ Knowledge Algorithms
+- Mathematical foundations
+- Enterprise workflows
+- Integration patterns
+
 ## Support
 
 For issues and questions:
 
 - **Documentation**: See [docs/](docs/) directory
+- **Supporting Documents**: See [docs/supporting-documents/](docs/supporting-documents/)
 - **Issues**: [GitHub Issues](https://github.com/kherrera6219/DataLogicEngine/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/kherrera6219/DataLogicEngine/discussions)
 - **Email**: support@datalogicengine.com
@@ -696,4 +719,4 @@ For issues and questions:
 
 **Built with ❤️ by the DataLogicEngine Team**
 
-Last Updated: December 3, 2025
+Last Updated: December 7, 2025
