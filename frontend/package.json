@@ -4,7 +4,7 @@
   "description": "Frontend for the Universal Knowledge Graph (UKG) System",
   "private": true,
   "dependencies": {
-    "@chakra-ui/react": "^2.11.2",
+    "@chakra-ui/react": "^2.10.9",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@fluentui/react": "^8.124.0",
@@ -26,7 +26,7 @@
     "react-router-dom": "^7.1.1",
     "react-scripts": "5.0.1"
   },
-  "proxy": "http://localhost:5000",
+  "proxy": "http://localhost:8080",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
