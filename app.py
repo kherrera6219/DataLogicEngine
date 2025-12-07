@@ -76,8 +76,19 @@ configure_request_limits(app, {
 # Import models (after extensions initialization)
 # Note: Importing models ensures SQLAlchemy creates their tables during db.create_all()
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
-from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge, MCPServer, MCPResource, MCPTool, MCPPrompt, PasswordHistory  # noqa: F401
+from models import (
+    User,
+    SimulationSession,
+    KnowledgeGraphNode,
+    KnowledgeGraphEdge,
+    MCPServer,
+    MCPResource,
+    MCPTool,
+    MCPPrompt,
+    PasswordHistory,
+)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -125,8 +136,10 @@ def _database_health() -> dict:
     """Confirm database connectivity with a trivial query."""
 
     try:
-        db.session.execute(text("SELECT 1"))
-    except Exception as exc:  # noqa: BLE001
+        with db.engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+    except SQLAlchemyError as exc:
+        db.session.rollback()
         logger.error("Database connectivity check failed", exc_info=exc)
         return {"status": "error", "detail": str(exc)}
 
