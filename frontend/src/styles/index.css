@@ -1,4 +1,19 @@
-/* Universal Knowledge Graph (UKG) System - Global Styles */
+/* Universal Knowledge Graph (UKG) System - Global Styles (Microsoft Enterprise alignment) */
+
+:root {
+  --ms-brand-50: #eff6fc;
+  --ms-brand-100: #dceefb;
+  --ms-brand-400: #62a8e5;
+  --ms-brand-500: #0f6cbd;
+  --ms-brand-600: #0d5ba5;
+  --ms-neutral-0: #ffffff;
+  --ms-neutral-50: #f8f9fa;
+  --ms-neutral-100: #f3f2f1;
+  --ms-neutral-200: #e6e6e6;
+  --ms-neutral-400: #b3b0ad;
+  --ms-neutral-900: #323130;
+  --ms-focus: 0 0 0 3px rgba(15, 108, 189, 0.35);
+}
 
 /* Reset and Base Styles */
 * {
@@ -8,12 +23,12 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #111418;
-  color: #fff;
+  background-color: var(--ms-neutral-100);
+  color: var(--ms-neutral-900);
   height: 100vh;
   overflow: hidden;
 }
@@ -28,23 +43,29 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-/* Custom Scrollbar */
+*:focus-visible {
+  outline: var(--ms-focus);
+  border-radius: 4px;
+  transition: outline-color 0.1s ease, box-shadow 0.1s ease;
+}
+
+/* Custom Scrollbar (Fluent-inspired) */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1A1D23;
+  background: var(--ms-neutral-100);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #4299e1;
+  background: var(--ms-brand-400);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3182ce;
+  background: var(--ms-brand-500);
 }
 
 /* Animation Utility Classes */

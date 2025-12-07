@@ -2,19 +2,20 @@
 
 ## Executive Summary
 
-This document outlines the comprehensive redesign of the DataLogicEngine (Universal Knowledge Graph) frontend to meet 2025 web application design standards. The redesign focuses on AI-first interaction patterns, advanced visual design, enhanced accessibility, and modern user experience principles.
+This document outlines the comprehensive redesign of the DataLogicEngine (Universal Knowledge Graph) frontend to meet 2025 web application design standards. The redesign focuses on AI-first interaction patterns, advanced visual design, enhanced accessibility, and modern user experience principles grounded in Microsoft enterprise (Fluent 2) guidelines.
 
 ---
 
 ## Table of Contents
 
 1. [Design Philosophy](#design-philosophy)
-2. [Visual Design Language](#visual-design-language)
-3. [Component System](#component-system)
-4. [Interaction Patterns](#interaction-patterns)
-5. [Accessibility & Inclusivity](#accessibility--inclusivity)
-6. [Performance & Optimization](#performance--optimization)
-7. [Technical Implementation](#technical-implementation)
+2. [Microsoft Enterprise & Fluent 2 Alignment](#microsoft-enterprise--fluent-2-alignment)
+3. [Visual Design Language](#visual-design-language)
+4. [Component System](#component-system)
+5. [Interaction Patterns](#interaction-patterns)
+6. [Accessibility & Inclusivity](#accessibility--inclusivity)
+7. [Performance & Optimization](#performance--optimization)
+8. [Technical Implementation](#technical-implementation)
 
 ---
 
@@ -54,6 +55,16 @@ This document outlines the comprehensive redesign of the DataLogicEngine (Univer
 
 ---
 
+## Microsoft Enterprise & Fluent 2 Alignment
+
+- **Fluent Shell**: Command bar with app launcher (waffle), environment pill, global search, and user presence surfaces across landing, chat, login, and graph flows.
+- **Brand Tokens**: Azure communication blue primary (`#0f6cbd`), Fluent neutral ramp for surfaces, Segoe UI Variable typography, and WCAG 2.2-compliant focus ring (`rgba(15, 108, 189, 0.35)`).
+- **Enterprise Controls**: Export to Excel/CSV, audit trails, and privacy links appear in page-level CTAs; all dialogs include "Report a concern" and "Need help" entry points.
+- **Security Defaults**: MFA-first authentication copy, device trust indicators, and conditional access banners available as optional top-level notices.
+- **Performance & Accessibility**: Focus-visible states, 12px corner radius on surfaces, and 8/12/16 spacing grid consistent with Fluent 2.
+
+---
+
 ## Visual Design Language
 
 ### Color System 2025
@@ -61,18 +72,18 @@ This document outlines the comprehensive redesign of the DataLogicEngine (Univer
 #### Dynamic Theme System
 Modern applications require sophisticated theming beyond simple dark/light modes.
 
-**Primary Palette (Azure AI)**
+**Primary Palette (Azure/Fluent)**
 ```css
---color-primary-50:  #e3f2fd;   /* Lightest tint */
---color-primary-100: #bbdefb;
---color-primary-200: #90caf9;
---color-primary-300: #64b5f6;
---color-primary-400: #42a5f5;
---color-primary-500: #0078d4;   /* Base (Microsoft Blue) */
---color-primary-600: #0063b1;   /* Hover state */
---color-primary-700: #004e8c;   /* Active state */
---color-primary-800: #003a66;
---color-primary-900: #002642;   /* Darkest shade */
+--color-primary-50:  #eff6fc;   /* Lightest tint */
+--color-primary-100: #dceefb;
+--color-primary-200: #c0e0f5;
+--color-primary-300: #93c5ed;
+--color-primary-400: #62a8e5;
+--color-primary-500: #0f6cbd;   /* Base (Microsoft Blue) */
+--color-primary-600: #0d5ba5;   /* Hover state */
+--color-primary-700: #0b4a8c;   /* Active state */
+--color-primary-800: #093b75;
+--color-primary-900: #072e5d;   /* Darkest shade */
 ```
 
 **Semantic Colors**
@@ -98,21 +109,19 @@ Modern applications require sophisticated theming beyond simple dark/light modes
 --color-info-dark:      #01579b;
 ```
 
-**Neutral Spectrum (Extended)**
+**Neutral Spectrum (Fluent 2)**
 ```css
 --color-neutral-0:    #ffffff;
---color-neutral-50:   #fafafa;
---color-neutral-100:  #f5f5f5;
---color-neutral-200:  #eeeeee;
---color-neutral-300:  #e0e0e0;
---color-neutral-400:  #bdbdbd;
---color-neutral-500:  #9e9e9e;
---color-neutral-600:  #757575;
---color-neutral-700:  #616161;
---color-neutral-800:  #424242;
---color-neutral-850:  #303030;
---color-neutral-900:  #212121;
---color-neutral-950:  #0a0a0a;
+--color-neutral-50:   #f8f9fa;
+--color-neutral-100:  #f3f2f1;
+--color-neutral-200:  #e6e6e6;
+--color-neutral-300:  #d2d0ce;
+--color-neutral-400:  #b3b0ad;
+--color-neutral-500:  #979593;
+--color-neutral-600:  #7a7574;
+--color-neutral-700:  #605e5c;
+--color-neutral-800:  #484644;
+--color-neutral-900:  #323130;
 ```
 
 **Gradient System**
@@ -131,9 +140,9 @@ Modern applications require sophisticated theming beyond simple dark/light modes
                           rgba(0, 0, 0, 0.1) 100%);
 
 /* Mesh gradients (modern 2025 style) */
---gradient-mesh-1:      radial-gradient(at 40% 20%, #0078d4 0px, transparent 50%),
+--gradient-mesh-1:      radial-gradient(at 40% 20%, #0f6cbd 0px, transparent 50%),
                         radial-gradient(at 80% 0%, #5c2d91 0px, transparent 50%),
-                        radial-gradient(at 0% 50%, #2b579a 0px, transparent 50%);
+                        radial-gradient(at 0% 50%, #0b4a8c 0px, transparent 50%);
 ```
 
 ### Typography 2025
@@ -143,11 +152,9 @@ Using modern variable fonts for performance and flexibility.
 
 **Font Family**
 ```css
---font-primary:   'Inter Variable', -apple-system, BlinkMacSystemFont,
-                  'Segoe UI Variable', system-ui, sans-serif;
---font-display:   'Plus Jakarta Sans Variable', var(--font-primary);
---font-mono:      'JetBrains Mono Variable', 'Fira Code',
-                  'Consolas', monospace;
+--font-primary:   'Segoe UI Variable Text', 'Segoe UI', -apple-system, system-ui, sans-serif;
+--font-display:   'Segoe UI Variable Display', var(--font-primary);
+--font-mono:      'JetBrains Mono Variable', 'Cascadia Code', 'Consolas', monospace;
 ```
 
 **Fluid Type Scale (using CSS clamp)**
