@@ -27,6 +27,7 @@
 - [License](#license)
 - [Supporting Documents](#supporting-documents)
 - [Support](#support)
+- [Future Improvements](#future-improvements)
 
 ## 🔴 Production Readiness Status
 
@@ -663,6 +664,10 @@ These documents provide in-depth coverage of:
 - Mathematical foundations
 - Enterprise workflows
 - Integration patterns
+
+## Future Improvements
+
+Forward-looking enhancements are captured in [docs/FUTURE_IMPROVEMENTS.md](docs/FUTURE_IMPROVEMENTS.md). The roadmap is organized by short-, mid-, and long-term priorities across testing, observability, reliability, governance, and product extensions.
 
 ## Support
 
