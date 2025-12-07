@@ -76,6 +76,33 @@ const pricing = [
   }
 ];
 
+const journeys = [
+  {
+    title: 'Start in chat',
+    href: '/chat',
+    description: 'Converse with the copilot, load a procurement packet, and bookmark prompts for your team.',
+    icon: 'chat-left-dots'
+  },
+  {
+    title: 'Map the graph',
+    href: '/knowledge-graph',
+    description: 'Jump directly into the 13-axis graph explorer with spotlight, filters, and layouts.',
+    icon: 'diagram-3'
+  },
+  {
+    title: 'Check compliance',
+    href: '/compliance-dashboard',
+    description: 'Open the live dashboards, export reports, and monitor SOC 2 and NIST controls.',
+    icon: 'shield-lock'
+  }
+];
+
+const launchSteps = [
+  'Connect your data sources or drop a policy packet',
+  'Pick an axis (Regulatory, Context, Honeycomb, or Time) to shape the view',
+  'Ask a question, then pivot into dashboards or exports without losing the trail'
+];
+
 export default function Home() {
   return (
     <Layout>
@@ -92,7 +119,7 @@ export default function Home() {
             </div>
             <h1 className="display-5 fw-bold mb-3">Universal Knowledge Graph for AI decisioning</h1>
             <p className="lead text-white-50 mb-4">
-              An immersive, glassmorphic experience that blends conversational AI, interactive graph navigation, and compliance-grade governance.
+              An immersive, glassmorphic surface that blends conversational AI, interactive graph navigation, and compliance-grade governance for teams that live in audits and procurement reviews.
             </p>
 
             <div className="glass-panel p-3 mb-3">
@@ -231,6 +258,65 @@ export default function Home() {
                   </div>
                   <p className="mb-2">Generate SOC 2 export or launch chat with compliance copilots.</p>
                   <Link href="/compliance-dashboard" className="btn btn-outline-light btn-sm rounded-pill">Open dashboard</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-5">
+        <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+          <div>
+            <span className="section-title">Launch pathways</span>
+            <h3 className="text-white mb-0">Pick a starting point and stay in flow</h3>
+          </div>
+          <span className="pill"><i className="bi bi-compass"></i> 90-second setup</span>
+        </div>
+
+        <div className="row g-3 mb-4">
+          {journeys.map((journey) => (
+            <div key={journey.title} className="col-md-4">
+              <div className="glass-panel p-3 h-100">
+                <div className="d-flex align-items-center gap-2 mb-2">
+                  <i className={`bi bi-${journey.icon} text-primary fs-4`}></i>
+                  <strong>{journey.title}</strong>
+                </div>
+                <p className="text-white-50 mb-3">{journey.description}</p>
+                <Link href={journey.href} className="btn btn-outline-light btn-sm rounded-pill">Open</Link>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="glass-panel p-4">
+          <div className="d-flex align-items-center gap-2 mb-3">
+            <span className="badge bg-primary bg-opacity-25 text-primary">Workflow</span>
+            <span className="section-title mb-0">Rapid launch guide</span>
+          </div>
+          <div className="row g-3 align-items-center">
+            <div className="col-lg-7">
+              <ol className="text-white-50 lead ps-3 mb-0">
+                {launchSteps.map((step) => (
+                  <li key={step} className="mb-2">{step}</li>
+                ))}
+              </ol>
+            </div>
+            <div className="col-lg-5">
+              <div className="gradient-border p-3 h-100">
+                <div className="glass-border p-3 h-100 d-flex flex-column justify-content-between">
+                  <div>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <span className="text-white-50">Live checklist</span>
+                      <span className="badge bg-success">4/5 ready</span>
+                    </div>
+                    <p className="text-white-50 mb-3">Graph explorer, chat workbench, and compliance dashboards are all preloaded with demo data.</p>
+                  </div>
+                  <div className="d-flex gap-2 flex-wrap">
+                    <span className="pill"><i className="bi bi-cpu"></i> AI copilots</span>
+                    <span className="pill"><i className="bi bi-hexagon"></i> Honeycomb layouts</span>
+                    <span className="pill"><i className="bi bi-collection"></i> Exportable reports</span>
+                  </div>
                 </div>
               </div>
             </div>
