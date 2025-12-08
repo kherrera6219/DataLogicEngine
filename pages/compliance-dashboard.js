@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { Card, Button } from '../components/ui';
 import Badge from '../components/ui/Badge';
+import ProductHeader from '../components/ProductHeader';
 
 export default function ComplianceDashboard() {
   const [complianceStatus, setComplianceStatus] = useState(null);
@@ -13,6 +14,11 @@ export default function ComplianceDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [reportData, setReportData] = useState(null);
   const [generateReportLoading, setGenerateReportLoading] = useState(false);
+  const [frameworkFilter, setFrameworkFilter] = useState('SOC 2');
+  const [personaFilter, setPersonaFilter] = useState('Compliance Officer');
+
+  const frameworks = ['SOC 2', 'NIST', 'HIPAA'];
+  const personas = ['Compliance Officer', 'Procurement Lead', 'Security Lead'];
   
   useEffect(() => {
     // Fetch initial data
@@ -635,9 +641,37 @@ export default function ComplianceDashboard() {
 
   return (
     <Layout>
+      <ProductHeader
+        title="Compliance dashboards"
+        subtitle="Card hierarchy, persona presets, and export-ready audit views"
+        breadcrumbs={[{ label: 'Compliance' }, { label: 'Dashboards' }]}
+        actions={[{ label: 'Back to graph', icon: 'diagram-3', href: '/knowledge-graph' }]}
+      />
+
       <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">SOC 2 Type 2 Compliance Dashboard</h1>
+        <div className="flex flex-wrap justify-between items-center mb-4 gap-4">
+          <div className="flex gap-2 flex-wrap">
+            {frameworks.map((fw) => (
+              <button
+                key={fw}
+                className={`btn btn-sm rounded-pill ${frameworkFilter === fw ? 'btn-primary' : 'btn-outline-light'}`}
+                onClick={() => setFrameworkFilter(fw)}
+              >
+                {fw}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {personas.map((persona) => (
+              <button
+                key={persona}
+                className={`btn btn-sm rounded-pill ${personaFilter === persona ? 'btn-success' : 'btn-outline-light'}`}
+                onClick={() => setPersonaFilter(persona)}
+              >
+                {persona}
+              </button>
+            ))}
+          </div>
           <div className="flex space-x-2">
             <Button onClick={generateReport} disabled={generateReportLoading}>
               {generateReportLoading ? 'Generating...' : 'Generate Report'}
@@ -646,6 +680,44 @@ export default function ComplianceDashboard() {
               Run Security Scan
             </Button>
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Card className="p-4">
+            <p className="section-title mb-1">Audit readiness</p>
+            <h3 className="text-xl font-bold mb-2">Step-wise path</h3>
+            <p className="text-sm text-gray-500 mb-3">{frameworkFilter} with {personaFilter} preset.</p>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-500">Progress</span>
+              <span className="font-semibold">72%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+              <div className="bg-blue-500 h-2 rounded-full" style={{ width: '72%' }}></div>
+            </div>
+            <Button variant="outline">Export PDF</Button>
+          </Card>
+
+          <Card className="p-4">
+            <p className="section-title mb-1">Control drift</p>
+            <h3 className="text-xl font-bold mb-2">Live deltas</h3>
+            <p className="text-sm text-gray-500 mb-3">Honeycomb + timeline overlays to spot regressions.</p>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-500">Open findings</span>
+              <span className="font-semibold text-red-500">6</span>
+            </div>
+            <Button variant="outline">Open drift view</Button>
+          </Card>
+
+          <Card className="p-4">
+            <p className="section-title mb-1">Evidence queue</p>
+            <h3 className="text-xl font-bold mb-2">Hand-offs</h3>
+            <p className="text-sm text-gray-500 mb-3">Export-ready packets with persona annotations.</p>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-500">Pending</span>
+              <span className="font-semibold">4</span>
+            </div>
+            <Button variant="outline">Generate CSV</Button>
+          </Card>
         </div>
 
         <div className="mb-6">
