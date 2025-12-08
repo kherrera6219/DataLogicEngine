@@ -14,8 +14,62 @@ import logging
 from extensions import db
 from models import MCPServer as MCPServerModel, MCPResource, MCPTool, MCPPrompt
 from core.mcp import MCPManager
+from backend.middleware import admin_required, validate_request
+from backend.schemas import (
+    MCPServerCreateSchema,
+    MCPToolCallSchema,
+    MCPPromptGetSchema,
+    MCPClientCreateSchema
+)
 
 logger = logging.getLogger(__name__)
+
+
+def run_async_safe(coro):
+    """
+    Safely run an async coroutine in a sync context.
+
+    This uses a dedicated event loop to avoid conflicts with existing loops.
+    Better than asyncio.run() which can fail if a loop is already running.
+
+    Args:
+        coro: Coroutine to run
+
+    Returns:
+        Result of the coroutine
+    """
+    import concurrent.futures
+    import threading
+
+    result = None
+    exception = None
+
+    def run_in_thread():
+        nonlocal result, exception
+        try:
+            # Create a new event loop for this thread
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                result = loop.run_until_complete(coro)
+            finally:
+                loop.close()
+        except Exception as e:
+            exception = e
+
+    # Run in a separate thread to avoid event loop conflicts
+    thread = threading.Thread(target=run_in_thread)
+    thread.start()
+    thread.join(timeout=30)  # 30 second timeout
+
+    if thread.is_alive():
+        raise TimeoutError("Async operation timed out after 30 seconds")
+
+    if exception:
+        raise exception
+
+    return result
+
 
 # Create blueprint
 mcp_bp = Blueprint('mcp', __name__, url_prefix='/api/mcp')
@@ -72,20 +126,17 @@ def list_servers():
 
 @mcp_bp.route('/servers', methods=['POST'])
 @login_required
-def create_server():
-    """Create a new MCP server"""
+@admin_required
+@validate_request(MCPServerCreateSchema)
+def create_server(validated_data):
+    """Create a new MCP server - Admin only"""
     try:
-        data = request.get_json()
-
-        name = data.get('name')
-        version = data.get('version', '1.0.0')
-        description = data.get('description', '')
-
-        if not name:
-            return jsonify({
-                'success': False,
-                'error': 'Server name is required'
-            }), 400
+        # Extract validated data
+        name = validated_data.name
+        version = validated_data.version
+        description = validated_data.description
+        config = validated_data.config
+        metadata = validated_data.metadata
 
         # Create runtime server
         manager = get_mcp_manager()
@@ -106,8 +157,8 @@ def create_server():
             supports_tools=True,
             supports_prompts=True,
             supports_logging=True,
-            config=data.get('config', {}),
-            metadata=data.get('metadata', {})
+            config=config,
+            metadata=metadata
         )
         db.session.add(db_server)
         db.session.commit()
@@ -164,8 +215,9 @@ def get_server(server_id):
 
 @mcp_bp.route('/servers/<server_id>', methods=['DELETE'])
 @login_required
+@admin_required
 def delete_server(server_id):
-    """Delete an MCP server"""
+    """Delete an MCP server - Admin only"""
     try:
         db_server = MCPServerModel.query.filter_by(server_id=server_id).first()
 
@@ -255,8 +307,8 @@ def read_resource(server_id, resource_id):
 
         if server:
             try:
-                # In a full implementation, this would use asyncio to read the resource
-                content = asyncio.run(server._handle_resources_read({'uri': resource.uri}))
+                # Use run_async_safe to avoid event loop conflicts
+                content = run_async_safe(server._handle_resources_read({'uri': resource.uri}))
                 return jsonify({
                     'success': True,
                     'resource': resource.to_dict(),
@@ -337,7 +389,7 @@ def call_tool(server_id, tool_id):
             }), 500
 
         try:
-            result = asyncio.run(server._handle_tools_call({
+            result = run_async_safe(server._handle_tools_call({
                 'name': tool.name,
                 'arguments': arguments
             }))
@@ -433,7 +485,7 @@ def get_prompt(server_id, prompt_id):
             }), 500
 
         try:
-            result = asyncio.run(server._handle_prompts_get({
+            result = run_async_safe(server._handle_prompts_get({
                 'name': prompt.name,
                 'arguments': arguments
             }))
@@ -519,7 +571,7 @@ def connect_client(client_id, server_id):
     """Connect a client to a server"""
     try:
         manager = get_mcp_manager()
-        result = asyncio.run(manager.connect_client_to_server(client_id, server_id))
+        result = run_async_safe(manager.connect_client_to_server(client_id, server_id))
 
         return jsonify({
             'success': True,

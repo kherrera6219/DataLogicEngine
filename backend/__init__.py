@@ -32,9 +32,8 @@ def create_app():
     
     # Apply middleware
     log_request_info(app)
-    
-    # Create database tables
-    with app.app_context():
-        db.create_all()
-    
+
+    # Note: Database tables are managed through Flask-Migrate migrations
+    # Use: python manage_db.py upgrade to apply migrations
+
     return app

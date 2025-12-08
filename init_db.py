@@ -254,9 +254,20 @@ def create_sample_graph_nodes():
         logger.info("Sample knowledge graph data already exists")
 
 def init_database():
-    """Initialize the database with sample data"""
+    """Initialize the database with sample data
+
+    DEPRECATION WARNING: db.create_all() is deprecated for production use.
+    This script is for development/testing only.
+
+    For production, use Flask-Migrate:
+    - python manage_db.py init
+    - python manage_db.py migrate "Initial migration"
+    - python manage_db.py upgrade
+    """
     with app.app_context():
-        # Create all tables if they don't exist
+        # DEVELOPMENT ONLY: Create all tables if they don't exist
+        # In production, use Flask-Migrate migrations instead
+        logger.warning("Using db.create_all() - for development only! Use migrations in production.")
         db.create_all()
         logger.info("Database tables created")
         
