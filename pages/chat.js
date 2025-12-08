@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import Layout from '../components/Layout';
 import { marked } from 'marked';
+import ProductHeader from '../components/ProductHeader';
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
@@ -10,6 +11,7 @@ export default function Chat() {
   const [currentChatId, setCurrentChatId] = useState(null);
   const [chatTitle, setChatTitle] = useState('New Conversation');
   const [isLoading, setIsLoading] = useState(false);
+  const [inputMode, setInputMode] = useState('text');
   const [settings, setSettings] = useState({
     confidenceThreshold: 0.85,
     enableLocationContext: true,
@@ -27,6 +29,12 @@ export default function Chat() {
     'Draft a SOC 2 control checklist for a new vendor.',
     'Map these requirements to the honeycomb crosswalk.',
     'Show me the regulatory spiderweb for healthcare.'
+  ];
+
+  const composerModes = [
+    { id: 'text', label: 'Text', icon: 'type' },
+    { id: 'voice', label: 'Voice', icon: 'mic' },
+    { id: 'upload', label: 'Upload', icon: 'paperclip' }
   ];
 
   const personaOptions = [
@@ -231,6 +239,20 @@ export default function Chat() {
       <Head>
         <title>UKG Chat Interface</title>
       </Head>
+
+      <ProductHeader
+        title="Streaming chat"
+        subtitle="Segmented multimodal composer with persona chips and compliance shortcuts"
+        breadcrumbs={[
+          { label: 'AI Workbench' },
+          { label: 'Chat' }
+        ]}
+        actions={[
+          { label: 'Open Graph', icon: 'diagram-3', href: '/knowledge-graph' },
+          { label: 'Compliance pulse', icon: 'shield-check', href: '/compliance-dashboard' }
+        ]}
+      />
+
       <div className="chat-shell">
         <aside className="chat-sidebar p-3 d-flex flex-column gap-3">
           <div className="d-flex justify-content-between align-items-center">
@@ -297,11 +319,65 @@ export default function Chat() {
             </div>
           </div>
 
-          <div className="d-flex gap-2 flex-wrap mb-2">
-            <span className="action-chip"><i className="bi bi-mic me-2"></i>Voice input</span>
-            <span className="action-chip"><i className="bi bi-paperclip me-2"></i>Attachments</span>
-            <span className="action-chip"><i className="bi bi-diagram-3 me-2"></i>Graph context</span>
-            <span className="action-chip"><i className="bi bi-shield-lock me-2"></i>Audit trail</span>
+          <div className="d-flex flex-wrap gap-2 align-items-center mb-3">
+            <div className="btn-group" role="group" aria-label="Composer modes">
+              {composerModes.map((mode) => (
+                <button
+                  key={mode.id}
+                  type="button"
+                  className={`btn btn-sm ${inputMode === mode.id ? 'btn-primary' : 'btn-outline-light'}`}
+                  onClick={() => setInputMode(mode.id)}
+                >
+                  <i className={`bi bi-${mode.icon} me-1`}></i>
+                  {mode.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="d-flex gap-2 flex-wrap">
+              {personaOptions.map((persona) => (
+                <button
+                  key={persona.id}
+                  type="button"
+                  className={`btn btn-sm rounded-pill ${settings.personas[persona.id] ? 'btn-outline-success' : 'btn-outline-secondary'}`}
+                  onClick={() => setSettings({
+                    ...settings,
+                    personas: {
+                      ...settings.personas,
+                      [persona.id]: !settings.personas[persona.id]
+                    }
+                  })}
+                >
+                  <i className={`bi bi-${persona.icon} me-1`}></i>
+                  {persona.label.split(' ')[0]}
+                </button>
+              ))}
+            </div>
+
+            <div className="ms-auto d-flex gap-2 flex-wrap align-items-center">
+              <span className="badge bg-secondary">Context: {settings.enableLocationContext ? 'Location on' : 'Location off'}</span>
+              <span className="badge bg-secondary">Agents: {settings.enableResearchAgents ? 'Research on' : 'Research off'}</span>
+              <span className="badge bg-secondary">Mode: {inputMode}</span>
+            </div>
+          </div>
+
+          <div className="overflow-auto mb-3 pb-1" style={{ whiteSpace: 'nowrap' }}>
+            <div className="d-flex gap-2 flex-nowrap">
+              {quickPrompts.map((prompt) => (
+                <button
+                  key={prompt}
+                  className="glass-border p-3 rounded-3 text-start text-white-50"
+                  style={{ minWidth: '240px' }}
+                  onClick={() => setInputText(prompt)}
+                >
+                  <div className="d-flex align-items-center gap-2 mb-1 text-white">
+                    <i className="bi bi-lightning-charge text-primary"></i>
+                    <strong>Quick prompt</strong>
+                  </div>
+                  <span className="small">{prompt}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="flex-grow-1 overflow-auto" style={{ minHeight: '320px' }}>
@@ -332,6 +408,15 @@ export default function Chat() {
                       {message.confidence && (
                         <small className="text-white-50">Confidence: {message.confidence}</small>
                       )}
+                      {message.type === 'system' && (
+                        <div className="d-flex flex-wrap gap-2 mt-2">
+                          <span className="badge bg-dark border text-white-50">Sources mapped</span>
+                          <span className="badge bg-dark border text-white-50">Confidence badge</span>
+                          <button className="btn btn-outline-light btn-sm rounded-pill"><i className="bi bi-diagram-3 me-1"></i>Open in Graph</button>
+                          <button className="btn btn-outline-light btn-sm rounded-pill"><i className="bi bi-file-earmark-text me-1"></i>Generate Report</button>
+                          <button className="btn btn-outline-light btn-sm rounded-pill"><i className="bi bi-bookmark me-1"></i>Bookmark</button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -344,12 +429,19 @@ export default function Chat() {
                   <span></span>
                   <span></span>
                 </div>
+                <div className="skeleton mt-2" style={{ height: '12px', width: '60%' }}></div>
+                <div className="skeleton mt-2" style={{ height: '12px', width: '40%' }}></div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
           <div className="glass-border p-3 input-rail">
+            <div className="d-flex gap-3 flex-wrap small text-white-50 mb-2">
+              <span><i className="bi bi-activity me-1"></i>Streaming</span>
+              <span><i className="bi bi-lightning-charge me-1"></i>Tokens/sec: 2.1k</span>
+              <span><i className="bi bi-speedometer2 me-1"></i>Latency under 200ms</span>
+            </div>
             <div className="d-flex gap-2 align-items-center mb-2 flex-wrap">
               <span className="badge bg-secondary">Cmd/Ctrl + K: Command palette</span>
               <span className="badge bg-secondary">Shift + Enter: New line</span>

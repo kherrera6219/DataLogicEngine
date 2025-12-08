@@ -4,6 +4,7 @@ import Head from 'next/head';
 import Layout from '../components/Layout';
 import { Card, Button, Dropdown } from '../components/ui';
 import dynamic from 'next/dynamic';
+import ProductHeader from '../components/ProductHeader';
 
 // Import force-graph dynamically to avoid SSR issues
 const ForceGraph = dynamic(() => import('../components/ui/HoneycombGraph'), {
@@ -16,6 +17,11 @@ export default function KnowledgeGraphExplorer() {
   const [graphData, setGraphData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedNode, setSelectedNode] = useState(null);
+  const [nodeTab, setNodeTab] = useState('summary');
+  const [layoutMode, setLayoutMode] = useState('force');
+  const [selectedFramework, setSelectedFramework] = useState('SOC 2');
+  const [selectedPersona, setSelectedPersona] = useState('Compliance Officer');
+  const [selectedTimeRange, setSelectedTimeRange] = useState('Last 7d');
 
   const kpiCards = [
     { label: 'Overall compliance', value: '92%', icon: 'shield-check', tone: 'success' },
@@ -23,6 +29,10 @@ export default function KnowledgeGraphExplorer() {
     { label: 'Open issues', value: '6', icon: 'exclamation-triangle', tone: 'warning' },
     { label: 'Last audit', value: '2h ago', icon: 'clock-history', tone: 'secondary' }
   ];
+
+  const regulatoryFilters = ['SOC 2', 'NIST', 'HIPAA'];
+  const personaPresets = ['Compliance Officer', 'Procurement Lead', 'Researcher'];
+  const timeRanges = ['Last 24h', 'Last 7d', 'Last 30d'];
 
   // Simulated axes for the sidebar
   const axes = [
@@ -101,36 +111,39 @@ export default function KnowledgeGraphExplorer() {
         <title>Knowledge Graph Explorer - UKG</title>
       </Head>
 
-      <section className="mesh-hero text-white p-4 rounded-4 mb-4">
-        <div className="d-flex justify-content-between flex-wrap gap-3 align-items-start">
-          <div>
-            <p className="section-title mb-1">Knowledge Graph Explorer</p>
-            <h2 className="mb-2">13-axis navigation + compliance dashboard</h2>
-            <p className="mb-0 text-white-50">Switch between force-directed, honeycomb, spiderweb, and timeline layouts while tracking real-time compliance signals.</p>
+      <ProductHeader
+        title="Knowledge Graph Explorer"
+        subtitle="Split-view navigation across force, honeycomb, and timeline layouts with compliance overlays"
+        breadcrumbs={[{ label: 'Graph' }, { label: 'Explorer' }]}
+        actions={[
+          { label: 'Open chat', icon: 'chat-dots', href: '/chat' },
+          { label: 'Compliance dashboard', icon: 'shield-check', href: '/compliance-dashboard' }
+        ]}
+      />
+
+      <div className="glass-panel p-3 rounded-4 mb-3">
+        <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div className="d-flex gap-2 flex-wrap">
+            {kpiCards.map((kpi) => (
+              <div key={kpi.label} className="metric-chip">
+                <i className={`bi bi-${kpi.icon} me-1 text-${kpi.tone}`}></i>{kpi.label}: {kpi.value}
+              </div>
+            ))}
           </div>
           <div className="d-flex gap-2 flex-wrap">
-            <Button variant="primary">
-              <i className="bi bi-chat-dots me-2"></i> Open chat copilot
-            </Button>
-            <Button variant="outline">
-              <i className="bi bi-shield-check me-2"></i> Open compliance dashboard
-            </Button>
+            {['force', 'honeycomb', 'timeline'].map((layout) => (
+              <button
+                key={layout}
+                className={`btn btn-sm rounded-pill ${layoutMode === layout ? 'btn-primary' : 'btn-outline-light'}`}
+                onClick={() => setLayoutMode(layout)}
+              >
+                <i className={`bi bi-${layout === 'honeycomb' ? 'hexagon' : layout === 'timeline' ? 'clock-history' : 'diagram-3'} me-1`}></i>
+                {layout.charAt(0).toUpperCase() + layout.slice(1)} view
+              </button>
+            ))}
           </div>
         </div>
-        <div className="row row-cols-2 row-cols-md-4 g-3 mt-3">
-          {kpiCards.map((kpi) => (
-            <div key={kpi.label} className="col">
-              <div className="glass-panel p-3 h-100">
-                <div className="d-flex justify-content-between align-items-center">
-                  <span className="text-white-50 small">{kpi.label}</span>
-                  <i className={`bi bi-${kpi.icon} text-${kpi.tone}`}></i>
-                </div>
-                <h4 className="mb-0">{kpi.value}</h4>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      </div>
 
       <div className="glass-panel p-3 mb-3">
         <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -153,19 +166,67 @@ export default function KnowledgeGraphExplorer() {
           <div className="col-md-3 col-lg-2">
             <div className="glass-panel h-100 overflow-auto" style={{ maxHeight: 'calc(100vh - 260px)' }}>
               <div className="p-3 border-bottom border-secondary">
-                <h6 className="mb-0">13-Axis Selector</h6>
+                <h6 className="mb-1">Filters</h6>
+                <small className="text-white-50">Axis, persona, regulatory, and time</small>
               </div>
-              <div className="axis-list">
-                {axes.map(axis => (
-                  <div
-                    key={axis.id}
-                    className={`p-3 border-bottom border-secondary d-flex align-items-center cursor-pointer ${activeAxis === axis.id ? 'bg-primary bg-opacity-10' : ''}`}
-                    onClick={() => setActiveAxis(axis.id)}
-                  >
-                    <i className={`${axis.icon} me-2`}></i>
-                    <div>{axis.name}</div>
-                  </div>
-                ))}
+              <div className="p-3 border-bottom border-secondary">
+                <p className="section-title mb-2">Axis</p>
+                <div className="d-grid gap-2">
+                  {axes.map(axis => (
+                    <button
+                      key={axis.id}
+                      className={`btn btn-sm w-100 text-start ${activeAxis === axis.id ? 'btn-primary' : 'btn-outline-light'}`}
+                      onClick={() => setActiveAxis(axis.id)}
+                    >
+                      <i className={`${axis.icon} me-2`}></i>{axis.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3 border-bottom border-secondary">
+                <p className="section-title mb-2">Regulatory</p>
+                <div className="d-grid gap-2">
+                  {regulatoryFilters.map((filter) => (
+                    <button
+                      key={filter}
+                      className={`btn btn-sm rounded-pill ${selectedFramework === filter ? 'btn-success' : 'btn-outline-light'}`}
+                      onClick={() => setSelectedFramework(filter)}
+                    >
+                      {filter}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3 border-bottom border-secondary">
+                <p className="section-title mb-2">Personas</p>
+                <div className="d-grid gap-2">
+                  {personaPresets.map((persona) => (
+                    <button
+                      key={persona}
+                      className={`btn btn-sm rounded-pill ${selectedPersona === persona ? 'btn-info' : 'btn-outline-light'}`}
+                      onClick={() => setSelectedPersona(persona)}
+                    >
+                      <i className="bi bi-person-badge me-1"></i>{persona}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3">
+                <p className="section-title mb-2">Time</p>
+                <div className="d-grid gap-2">
+                  {timeRanges.map((range) => (
+                    <button
+                      key={range}
+                      className={`btn btn-sm rounded-pill ${selectedTimeRange === range ? 'btn-warning' : 'btn-outline-light'}`}
+                      onClick={() => setSelectedTimeRange(range)}
+                    >
+                      <i className="bi bi-clock-history me-1"></i>{range}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -179,6 +240,19 @@ export default function KnowledgeGraphExplorer() {
                   <Button size="sm" variant="secondary">2D</Button>
                   <Button size="sm" variant="secondary">3D</Button>
                   <Button size="sm" variant="secondary">Heatmap</Button>
+                </div>
+              </div>
+              <div className="p-3 border-bottom border-secondary">
+                <div className="d-flex gap-2 flex-wrap">
+                  {['Force', 'Honeycomb', 'Timeline'].map((layout) => (
+                    <div key={layout} className={`glass-border p-2 rounded-3 ${layoutMode === layout.toLowerCase() ? 'border-primary' : ''}`} style={{ minWidth: '120px' }}>
+                      <div className="d-flex align-items-center gap-2 mb-1">
+                        <i className={`bi bi-${layout === 'Honeycomb' ? 'hexagon' : layout === 'Timeline' ? 'clock-history' : 'diagram-3'}`}></i>
+                        <strong className="small mb-0">{layout}</strong>
+                      </div>
+                      <small className="text-white-50">Preview layout and transitions.</small>
+                    </div>
+                  ))}
                 </div>
               </div>
               <div className="flex-grow-1 position-relative">
@@ -214,6 +288,34 @@ export default function KnowledgeGraphExplorer() {
                         <h5>{selectedNode.name || selectedNode.id}</h5>
                         <p className="small text-muted">ID: {selectedNode.id}</p>
 
+                        <div className="d-flex gap-2 mb-3 flex-wrap">
+                          {['summary', 'evidence', 'compliance'].map((tab) => (
+                            <button
+                              key={tab}
+                              className={`btn btn-sm rounded-pill ${nodeTab === tab ? 'btn-primary' : 'btn-outline-light'}`}
+                              onClick={() => setNodeTab(tab)}
+                            >
+                              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                            </button>
+                          ))}
+                        </div>
+
+                        {nodeTab === 'summary' && (
+                          <p className="small text-muted">Quick synopsis of relationships, parent branches, and honeycomb overlays.</p>
+                        )}
+                        {nodeTab === 'evidence' && (
+                          <ul className="small text-muted">
+                            <li>Linked documents and provenance</li>
+                            <li>Recent changes on timeline overlay</li>
+                          </ul>
+                        )}
+                        {nodeTab === 'compliance' && (
+                          <div className="d-grid gap-2">
+                            <span className="badge bg-success">Aligned to {selectedFramework}</span>
+                            <span className="badge bg-warning text-dark">2 open issues</span>
+                          </div>
+                        )}
+
                         <div className="d-grid gap-2 mt-3">
                           <Dropdown title="Node Actions" className="w-100">
                             <Dropdown.Item>
@@ -237,26 +339,46 @@ export default function KnowledgeGraphExplorer() {
 
           <div className="col-lg-3 d-flex flex-column gap-3">
             <div className="glass-panel p-3">
-              <h6 className="mb-2">Compliance pulse</h6>
-              <p className="text-white-50 mb-2">Live metrics from SOC 2, regulatory spiderweb, and honeycomb overlays.</p>
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <h6 className="mb-0">Insights & hand-offs</h6>
+                <span className="badge bg-primary bg-opacity-25 text-primary">Live</span>
+              </div>
+              <p className="text-white-50 small mb-2">Breadcrumb trail and quick pivots back to chat or exports.</p>
+              <div className="d-flex flex-wrap gap-2 mb-3">
+                <span className="pill"><i className="bi bi-diagram-3"></i> {activeAxis}</span>
+                <span className="pill"><i className="bi bi-shield-lock"></i> {selectedFramework}</span>
+                <span className="pill"><i className="bi bi-people"></i> {selectedPersona}</span>
+              </div>
               <div className="d-grid gap-2">
-                <div className="d-flex justify-content-between"><span>Open issues</span><strong>6</strong></div>
-                <div className="d-flex justify-content-between"><span>Critical</span><strong>2</strong></div>
-                <div className="d-flex justify-content-between"><span>Pending exports</span><strong>4</strong></div>
-                <Button variant="outline">
-                  <i className="bi bi-file-earmark-arrow-down me-2"></i> Export SOC 2 report
-                </Button>
+                <Button variant="primary"><i className="bi bi-chat-dots me-2"></i>Send to chat</Button>
+                <Button variant="outline"><i className="bi bi-file-earmark-text me-2"></i>Generate export</Button>
               </div>
             </div>
 
             <div className="glass-panel p-3">
-              <h6 className="mb-2">Timeline (Axis 13)</h6>
-              <p className="text-white-50 small">Most recent changes in graph topology.</p>
-              <ul className="list-unstyled small mb-0">
-                <li className="mb-2"><i className="bi bi-clock-history me-2 text-primary"></i>Node fused in Healthcare sector</li>
-                <li className="mb-2"><i className="bi bi-clock-history me-2 text-primary"></i>Compliance control updated for Axis 7</li>
-                <li className="mb-0"><i className="bi bi-clock-history me-2 text-primary"></i>New honeycomb edge added</li>
-              </ul>
+              <h6 className="mb-2">Legend</h6>
+              <div className="d-grid gap-2 small text-white-50">
+                <div className="d-flex justify-content-between align-items-center">
+                  <span><i className="bi bi-circle-fill text-success me-1"></i> Low risk</span>
+                  <span className="badge bg-success">OK</span>
+                </div>
+                <div className="d-flex justify-content-between align-items-center">
+                  <span><i className="bi bi-circle-fill text-warning me-1"></i> Needs review</span>
+                  <span className="badge bg-warning text-dark">Watch</span>
+                </div>
+                <div className="d-flex justify-content-between align-items-center">
+                  <span><i className="bi bi-circle-fill text-danger me-1"></i> Critical</span>
+                  <span className="badge bg-danger">Act</span>
+                </div>
+              </div>
+              <div className="mt-3">
+                <h6 className="mb-1">Timeline</h6>
+                <p className="text-white-50 small mb-2">Zoom controls and mini-map for temporal overlays.</p>
+                <div className="d-flex gap-2">
+                  <Button size="sm" variant="secondary"><i className="bi bi-zoom-in me-1"></i>Zoom</Button>
+                  <Button size="sm" variant="secondary"><i className="bi bi-map me-1"></i>Mini-map</Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
