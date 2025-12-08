@@ -58,10 +58,20 @@ limiter = Limiter(
     storage_uri=os.environ.get("RATELIMIT_STORAGE_URI", "memory://"),
 )
 
+# CSRF Protection Configuration
+app.config['WTF_CSRF_TIME_LIMIT'] = None  # CSRF tokens don't expire (use session expiry instead)
+app.config['WTF_CSRF_SSL_STRICT'] = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+app.config['WTF_CSRF_ENABLED'] = True
+# Allow CSRF token in headers for AJAX requests
+app.config['WTF_CSRF_HEADERS'] = ['X-CSRFToken', 'X-CSRF-Token']
+app.config['WTF_CSRF_METHODS'] = ['POST', 'PUT', 'PATCH', 'DELETE']
+
 # Initialize extensions with app
-from extensions import db, login_manager
+from extensions import db, login_manager, csrf, migrate
 db.init_app(app)
 login_manager.init_app(app)
+csrf.init_app(app)
+migrate.init_app(app, db)
 
 # Initialize security headers (Phase 1 security hardening)
 from backend.security.security_headers import configure_security_headers
@@ -105,10 +115,12 @@ def password_meets_policy(password: str) -> bool:
     has_symbol = re.search(r"[^A-Za-z0-9]", password)
     return all([has_upper, has_lower, has_digit, has_symbol])
 
-# Create tables
-with app.app_context():
-    db.create_all()
-    logger.info("Database tables created")
+# Database migrations
+# Tables are managed through Flask-Migrate/Alembic migrations
+# To initialize: python manage_db.py init
+# To create migration: python manage_db.py migrate "description"
+# To apply migrations: python manage_db.py upgrade
+logger.info("Database configured - use migrations to manage schema")
 
 # Register MCP blueprint
 from backend.mcp_api import mcp_bp
@@ -170,6 +182,15 @@ def health() -> tuple:
     }
 
     return jsonify(payload), http_status
+
+
+@app.route('/api/csrf-token', methods=['GET'])
+def get_csrf_token():
+    """Provide CSRF token for AJAX requests"""
+    from flask_wtf.csrf import generate_csrf
+    token = generate_csrf()
+    return jsonify({'csrf_token': token}), 200
+
 
 @app.route('/login', methods=['GET', 'POST'])
 @limiter.limit("10 per minute")

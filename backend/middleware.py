@@ -67,11 +67,89 @@ This module provides middleware functions for the Flask application.
 
 import logging
 import uuid
-from flask import request, g
+from flask import request, g, jsonify
+from flask_login import current_user
 from functools import wraps
 from datetime import datetime
+from pydantic import BaseModel, ValidationError
 
 logger = logging.getLogger(__name__)
+
+
+def validate_request(schema: type[BaseModel]):
+    """
+    Decorator to validate request JSON against a Pydantic schema.
+
+    Usage:
+        @app.route('/endpoint', methods=['POST'])
+        @validate_request(MySchema)
+        def my_endpoint(validated_data):
+            # validated_data is the validated Pydantic model
+            ...
+    """
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            try:
+                # Get JSON data from request
+                data = request.get_json()
+                if data is None:
+                    return jsonify({
+                        'success': False,
+                        'error': 'Request body must be JSON'
+                    }), 400
+
+                # Validate against schema
+                validated = schema(**data)
+
+                # Pass validated data to the route function
+                return f(*args, validated_data=validated, **kwargs)
+
+            except ValidationError as e:
+                # Return validation errors
+                return jsonify({
+                    'success': False,
+                    'error': 'Validation failed',
+                    'details': e.errors()
+                }), 400
+            except Exception as e:
+                logger.error(f"Validation error: {str(e)}")
+                return jsonify({
+                    'success': False,
+                    'error': 'Invalid request data'
+                }), 400
+
+        return decorated_function
+    return decorator
+
+
+def admin_required(f):
+    """
+    Decorator to require admin privileges for a route.
+
+    Usage:
+        @app.route('/admin/endpoint')
+        @login_required
+        @admin_required
+        def admin_endpoint():
+            ...
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return jsonify({
+                'success': False,
+                'error': 'Authentication required'
+            }), 401
+
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Admin privileges required'
+            }), 403
+
+        return f(*args, **kwargs)
+    return decorated_function
 
 def request_id_middleware():
     """Middleware to assign a unique ID to each request."""
