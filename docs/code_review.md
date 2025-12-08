@@ -1,5 +1,11 @@
 # Code Review Summary
 
+**📊 COMPLETION STATUS: See [CODE_REVIEW_COMPLETION_STATUS.md](CODE_REVIEW_COMPLETION_STATUS.md) for detailed tracking**
+**Last Updated:** December 8, 2025
+**Overall Completion:** 🟡 ~40% (6/43 items complete, 3 in progress)
+
+---
+
 ## Executive Snapshot
 - **Highest risks:** predictable session secret defaults, unauthenticated schema creation, CSRF gaps on write endpoints, and global MCP mutation without authorization boundaries.
 - **Stability risks:** blocking `asyncio.run` calls inside request handlers and absent payload validation can produce 500s under malformed or concurrent traffic.
