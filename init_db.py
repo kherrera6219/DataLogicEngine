@@ -256,19 +256,21 @@ def create_sample_graph_nodes():
 def init_database():
     """Initialize the database with sample data"""
     with app.app_context():
-        # Create all tables if they don't exist
-        db.create_all()
-        logger.info("Database tables created")
-        
+        # Database tables are now created via Flask-Migrate
+        # Run: python -m flask db upgrade
+        logger.info("Database initialization started")
+        logger.info("Note: Ensure migrations are applied with 'python -m flask db upgrade'")
+
         # Create users
         create_admin_user()
         create_demo_user()
-        
+
         # Create sample data
         create_sample_simulations()
         create_sample_graph_nodes()
-        
+
         logger.info("Database initialization completed")
+        logger.info("If you see errors about missing tables, run: python -m flask db upgrade")
 
 if __name__ == "__main__":
     init_database()

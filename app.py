@@ -9,6 +9,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Load environment variables from .env file
@@ -58,10 +59,24 @@ limiter = Limiter(
     storage_uri=os.environ.get("RATELIMIT_STORAGE_URI", "memory://"),
 )
 
+# CSRF Protection (Phase 3 security hardening)
+csrf = CSRFProtect()
+csrf.init_app(app)
+
+# Configure CSRF settings
+app.config["WTF_CSRF_ENABLED"] = True
+app.config["WTF_CSRF_TIME_LIMIT"] = None  # No time limit for CSRF tokens
+app.config["WTF_CSRF_SSL_STRICT"] = app.config["SESSION_COOKIE_SECURE"]
+app.config["WTF_CSRF_CHECK_DEFAULT"] = True
+
+# Note: API endpoints using JWT Bearer tokens will be exempt via blueprint-level exemptions
+# Form-based login/logout routes require CSRF tokens for security
+
 # Initialize extensions with app
-from extensions import db, login_manager
+from extensions import db, login_manager, migrate
 db.init_app(app)
 login_manager.init_app(app)
+migrate.init_app(app, db)
 
 # Initialize security headers (Phase 1 security hardening)
 from backend.security.security_headers import configure_security_headers
@@ -105,10 +120,10 @@ def password_meets_policy(password: str) -> bool:
     has_symbol = re.search(r"[^A-Za-z0-9]", password)
     return all([has_upper, has_lower, has_digit, has_symbol])
 
-# Create tables
-with app.app_context():
-    db.create_all()
-    logger.info("Database tables created")
+# Database migrations are now handled by Alembic/Flask-Migrate
+# To initialize database: flask db upgrade
+# See MIGRATIONS.md for migration guide
+logger.info("Database configured - use 'flask db upgrade' to apply migrations")
 
 # Register MCP blueprint
 from backend.mcp_api import mcp_bp

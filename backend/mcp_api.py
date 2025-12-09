@@ -14,6 +14,7 @@ import logging
 from extensions import db
 from models import MCPServer as MCPServerModel, MCPResource, MCPTool, MCPPrompt
 from core.mcp import MCPManager
+from backend.middleware import admin_required
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +73,7 @@ def list_servers():
 
 @mcp_bp.route('/servers', methods=['POST'])
 @login_required
+@admin_required
 def create_server():
     """Create a new MCP server"""
     try:
@@ -164,6 +166,7 @@ def get_server(server_id):
 
 @mcp_bp.route('/servers/<server_id>', methods=['DELETE'])
 @login_required
+@admin_required
 def delete_server(server_id):
     """Delete an MCP server"""
     try:
@@ -489,6 +492,7 @@ def list_clients():
 
 @mcp_bp.route('/clients', methods=['POST'])
 @login_required
+@admin_required
 def create_client():
     """Create a new MCP client"""
     try:
@@ -515,6 +519,7 @@ def create_client():
 
 @mcp_bp.route('/clients/<client_id>/connect/<server_id>', methods=['POST'])
 @login_required
+@admin_required
 def connect_client(client_id, server_id):
     """Connect a client to a server"""
     try:
@@ -573,15 +578,11 @@ def get_stats():
 
 @mcp_bp.route('/setup-default', methods=['POST'])
 @login_required
+@admin_required
 def setup_default_servers():
     """Set up default MCP servers"""
     try:
-        if not current_user.is_admin:
-            return jsonify({
-                'success': False,
-                'error': 'Admin access required'
-            }), 403
-
+        # Admin check handled by @admin_required decorator above
         manager = get_mcp_manager()
         server = manager.setup_default_servers()
 

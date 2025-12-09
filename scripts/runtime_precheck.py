@@ -96,7 +96,7 @@ def check_env_files() -> list[CheckResult]:
     if sqlite_path.exists():
         results.append(CheckResult("OK", f"SQLite database file present at {sqlite_path}"))
     else:
-        results.append(CheckResult("ACTION", "Initialize the database: `python -c \"from app import app, db; app.app_context().push(); db.create_all()\"`"))
+        results.append(CheckResult("ACTION", "Initialize the database: `python -m flask db upgrade`"))
 
     env_values: dict[str, str | None] = {}
     for path in existing:

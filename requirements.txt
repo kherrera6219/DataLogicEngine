@@ -23,6 +23,7 @@ flask-jwt-extended>=4.6.0
 cryptography>=44.0.0
 bcrypt>=4.2.1
 flask-limiter>=3.10.1
+flask-wtf>=1.2.1
 
 # AI/ML & Knowledge Graph
 networkx>=3.4.2
