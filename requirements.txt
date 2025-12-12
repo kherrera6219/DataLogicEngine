@@ -23,6 +23,9 @@ flask-jwt-extended>=4.6.0
 cryptography>=44.0.0
 bcrypt>=4.2.1
 flask-limiter>=3.10.1
+bleach>=6.2.0
+redis>=5.2.0
+pip-audit>=2.7.3
 
 # AI/ML & Knowledge Graph
 networkx>=3.4.2
