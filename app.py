@@ -125,6 +125,13 @@ from backend.ka_api import ka_bp
 app.register_blueprint(ka_bp)
 logger.info("KA API blueprint registered")
 
+# Register Truth Engine API blueprint
+from backend.truth_engine.api import truth_api, init_truth_engine
+app.register_blueprint(truth_api)
+with app.app_context():
+    init_truth_engine(db.session)
+logger.info("Truth Engine API blueprint registered")
+
 # Routes
 @app.route('/')
 def index():
