@@ -1,0 +1,354 @@
+openapi: 3.0.3
+info:
+  title: Universal Knowledge Graph (UKG) API
+  description: |
+    REST API for the Universal Knowledge Graph and Universal Simulated Knowledge Database system.
+    
+    ## Features
+    - 13-Axis Knowledge Framework
+    - 50 Knowledge Algorithms (KA-01 to KA-50)
+    - Simulation Engine with 10-Layer Stack
+    - Quad Persona System
+    - AI-Powered Chat with OpenAI Integration
+    - MCP Server Management
+    
+    ## Authentication
+    Most endpoints require authentication. Login via the `/login` endpoint or use session cookies.
+  version: 1.0.0
+  contact:
+    name: UKG API Support
+  license:
+    name: MIT
+
+servers:
+  - url: /
+    description: Current server
+
+paths:
+  /api/ka/health:
+    get:
+      tags:
+        - Knowledge Algorithms
+      summary: Check KA system health
+      responses:
+        '200':
+          description: Health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  status:
+                    type: string
+                  total_algorithms:
+                    type: integer
+                  version:
+                    type: string
+
+  /api/ka/algorithms:
+    get:
+      tags:
+        - Knowledge Algorithms
+      summary: List all Knowledge Algorithms
+      parameters:
+        - name: category
+          in: query
+          description: Filter by category
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of algorithms
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  algorithms:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/KnowledgeAlgorithm'
+                  count:
+                    type: integer
+                  categories:
+                    type: array
+                    items:
+                      type: string
+
+  /api/ka/algorithms/{ka_id}:
+    get:
+      tags:
+        - Knowledge Algorithms
+      summary: Get algorithm details
+      parameters:
+        - name: ka_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Algorithm details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  algorithm:
+                    $ref: '#/components/schemas/KnowledgeAlgorithm'
+        '404':
+          description: Algorithm not found
+
+  /api/ka/algorithms/{ka_id}/execute:
+    post:
+      tags:
+        - Knowledge Algorithms
+      summary: Execute a Knowledge Algorithm
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: ka_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                input:
+                  type: object
+      responses:
+        '200':
+          description: Execution result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  result:
+                    $ref: '#/components/schemas/ExecutionResult'
+
+  /api/ka/categories:
+    get:
+      tags:
+        - Knowledge Algorithms
+      summary: List algorithm categories
+      responses:
+        '200':
+          description: Categories with algorithms
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  categories:
+                    type: object
+                  count:
+                    type: integer
+
+  /api/ka/batch:
+    post:
+      tags:
+        - Knowledge Algorithms
+      summary: Execute multiple algorithms
+      security:
+        - sessionAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                algorithms:
+                  type: array
+                  items:
+                    type: integer
+                input:
+                  type: object
+      responses:
+        '200':
+          description: Batch execution results
+
+  /api/ai/health:
+    get:
+      tags:
+        - AI Chat
+      summary: Check AI service health
+      responses:
+        '200':
+          description: AI health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  configured:
+                    type: boolean
+                  service:
+                    type: string
+
+  /api/ai/chat:
+    post:
+      tags:
+        - AI Chat
+      summary: Send chat message to AI
+      security:
+        - sessionAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                conversation_history:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        '200':
+          description: AI response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /api/ai/analyze:
+    post:
+      tags:
+        - AI Chat
+      summary: Analyze query using 13-axis framework
+      security:
+        - sessionAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+              properties:
+                query:
+                  type: string
+      responses:
+        '200':
+          description: Analysis result
+
+  /api/mcp/servers:
+    get:
+      tags:
+        - MCP Servers
+      summary: List MCP servers
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: List of servers
+    post:
+      tags:
+        - MCP Servers
+      summary: Create MCP server
+      security:
+        - sessionAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                version:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Server created
+
+  /health:
+    get:
+      tags:
+        - System
+      summary: System health check
+      responses:
+        '200':
+          description: System health status
+
+components:
+  schemas:
+    KnowledgeAlgorithm:
+      type: object
+      properties:
+        id:
+          type: string
+          example: KA-01
+        name:
+          type: string
+          example: Query Analyzer
+        description:
+          type: string
+        category:
+          type: string
+        input_schema:
+          type: object
+        output_schema:
+          type: object
+
+    ExecutionResult:
+      type: object
+      properties:
+        algorithm:
+          type: string
+        name:
+          type: string
+        executed_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+        output:
+          type: object
+        metrics:
+          type: object
+
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: session
+
+tags:
+  - name: Knowledge Algorithms
+    description: Knowledge Algorithm endpoints (KA-01 to KA-50)
+  - name: AI Chat
+    description: AI-powered chat and analysis
+  - name: MCP Servers
+    description: MCP server management
+  - name: System
+    description: System health and status

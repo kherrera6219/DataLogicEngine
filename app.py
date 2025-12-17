@@ -120,6 +120,11 @@ from backend.ai_chat import ai_chat_bp
 app.register_blueprint(ai_chat_bp)
 logger.info("AI Chat blueprint registered")
 
+# Register Knowledge Algorithm API blueprint
+from backend.ka_api import ka_bp
+app.register_blueprint(ka_bp)
+logger.info("KA API blueprint registered")
+
 # Routes
 @app.route('/')
 def index():
@@ -270,9 +275,17 @@ def dashboard():
 @app.route('/simulations')
 @login_required
 def simulations():
-    # Get user's simulation sessions
-    user_simulations = SimulationSession.query.filter_by(user_id=current_user.id).order_by(SimulationSession.created_at.desc()).all()
-    return render_template('simulations.html', simulations=user_simulations)
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    per_page = min(per_page, 50)  # Cap at 50 items per page
+    
+    pagination = SimulationSession.query.filter_by(user_id=current_user.id)\
+        .order_by(SimulationSession.created_at.desc())\
+        .paginate(page=page, per_page=per_page, error_out=False)
+    
+    return render_template('simulations.html', 
+                           simulations=pagination.items,
+                           pagination=pagination)
 
 @app.route('/create_simulation', methods=['POST'])
 @limiter.limit("30 per minute")
@@ -438,10 +451,56 @@ def simulation_results(sim_id):
     
     return render_template('simulation_results.html', simulation=simulation)
 
+@app.route('/simulation/<int:sim_id>/export')
+@limiter.limit("10 per minute")
+@login_required
+def export_simulation(sim_id):
+    """Export simulation data as JSON"""
+    import json
+    from flask import Response
+    
+    simulation = SimulationSession.query.filter_by(id=sim_id, user_id=current_user.id).first_or_404()
+    
+    uid = simulation.uid or f"sim_{sim_id}"
+    
+    export_data = {
+        'id': simulation.id,
+        'uid': uid,
+        'name': simulation.name,
+        'description': simulation.description,
+        'sim_type': simulation.sim_type,
+        'status': simulation.status,
+        'created_at': simulation.created_at.isoformat() if simulation.created_at else None,
+        'started_at': simulation.started_at.isoformat() if simulation.started_at else None,
+        'completed_at': simulation.completed_at.isoformat() if simulation.completed_at else None,
+        'current_step': simulation.current_step,
+        'total_steps': simulation.total_steps,
+        'parameters': simulation.parameters,
+        'results': simulation.results,
+        'exported_at': datetime.now(UTC).isoformat(),
+        'exported_by': current_user.username
+    }
+    
+    response = Response(
+        json.dumps(export_data, indent=2),
+        mimetype='application/json',
+        headers={'Content-Disposition': f'attachment;filename=simulation_{sim_id}_{uid}.json'}
+    )
+    return response
+
 @app.route('/chat')
 @login_required
 def chat():
     return render_template('chat.html')
+
+@app.route('/knowledge-graph')
+@login_required
+def knowledge_graph():
+    return render_template('knowledge_graph.html')
+
+@app.route('/api-docs')
+def api_docs():
+    return render_template('api_docs.html')
 
 @app.route('/about')
 def about():

@@ -1,0 +1,389 @@
+{% extends 'base.html' %}
+
+{% block title %}Knowledge Graph Visualization - UKG{% endblock %}
+
+{% block page_title %}Knowledge Graph{% endblock %}
+{% block page_subtitle %}Interactive 13-Axis Knowledge Framework Visualization{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-9">
+            <div class="card bg-dark border-secondary">
+                <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-diagram-3 me-2 text-primary"></i>
+                        Knowledge Graph Explorer
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" id="reset-zoom" title="Reset view">
+                            <i class="bi bi-arrows-fullscreen"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" id="toggle-labels" title="Toggle labels">
+                            <i class="bi bi-tag"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" id="expand-all" title="Expand all">
+                            <i class="bi bi-arrows-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div id="graph-container" style="height: 600px; overflow: hidden; position: relative;">
+                        <svg id="knowledge-graph" width="100%" height="100%"></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3">
+            <div class="card bg-dark border-secondary mb-3">
+                <div class="card-header bg-dark border-secondary">
+                    <h6 class="mb-0"><i class="bi bi-filter me-2"></i>Axis Filters</h6>
+                </div>
+                <div class="card-body" id="axis-filters" style="max-height: 300px; overflow-y: auto;">
+                </div>
+            </div>
+            
+            <div class="card bg-dark border-secondary mb-3">
+                <div class="card-header bg-dark border-secondary">
+                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Node Details</h6>
+                </div>
+                <div class="card-body" id="node-details">
+                    <p class="text-muted small mb-0">Click a node to view details</p>
+                </div>
+            </div>
+            
+            <div class="card bg-dark border-secondary">
+                <div class="card-header bg-dark border-secondary">
+                    <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Graph Stats</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Nodes:</span>
+                        <span id="node-count" class="badge bg-primary">0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Links:</span>
+                        <span id="link-count" class="badge bg-secondary">0</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Active Axes:</span>
+                        <span id="axis-count" class="badge bg-info">13</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card bg-dark border-secondary">
+                <div class="card-header bg-dark border-secondary">
+                    <h6 class="mb-0"><i class="bi bi-compass me-2"></i>13-Axis Framework Legend</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-3" id="axis-legend">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const axes = [
+        { id: 'industry', name: 'Industry', color: '#FF6B6B' },
+        { id: 'location', name: 'Location', color: '#4ECDC4' },
+        { id: 'entity', name: 'Entity Type', color: '#45B7D1' },
+        { id: 'context', name: 'Context', color: '#96CEB4' },
+        { id: 'topic', name: 'Topic', color: '#FFEAA7' },
+        { id: 'subtopic', name: 'Subtopic', color: '#DDA0DD' },
+        { id: 'framework', name: 'Framework', color: '#98D8C8' },
+        { id: 'method', name: 'Method', color: '#F7DC6F' },
+        { id: 'domain', name: 'Domain', color: '#BB8FCE' },
+        { id: 'temporal', name: 'Temporal', color: '#85C1E9' },
+        { id: 'depth', name: 'Depth', color: '#F8B500' },
+        { id: 'confidence', name: 'Confidence', color: '#82E0AA' },
+        { id: 'source', name: 'Source', color: '#F1948A' }
+    ];
+
+    const sampleNodes = [
+        { id: 'core', name: 'UKG Core', axis: 'framework', size: 30 },
+        { id: 'tech', name: 'Technology', axis: 'industry', size: 25 },
+        { id: 'healthcare', name: 'Healthcare', axis: 'industry', size: 25 },
+        { id: 'finance', name: 'Finance', axis: 'industry', size: 25 },
+        { id: 'usa', name: 'United States', axis: 'location', size: 20 },
+        { id: 'europe', name: 'Europe', axis: 'location', size: 20 },
+        { id: 'asia', name: 'Asia Pacific', axis: 'location', size: 20 },
+        { id: 'company', name: 'Company', axis: 'entity', size: 18 },
+        { id: 'person', name: 'Person', axis: 'entity', size: 18 },
+        { id: 'regulation', name: 'Regulatory', axis: 'context', size: 18 },
+        { id: 'ai_ml', name: 'AI/ML', axis: 'topic', size: 22 },
+        { id: 'blockchain', name: 'Blockchain', axis: 'topic', size: 22 },
+        { id: 'nlp', name: 'NLP', axis: 'subtopic', size: 15 },
+        { id: 'cv', name: 'Computer Vision', axis: 'subtopic', size: 15 },
+        { id: 'agile', name: 'Agile', axis: 'method', size: 16 },
+        { id: 'waterfall', name: 'Waterfall', axis: 'method', size: 16 },
+        { id: 'quad_persona', name: 'Quad Persona', axis: 'framework', size: 20 },
+        { id: 'simulation', name: 'Simulation', axis: 'domain', size: 20 },
+        { id: 'analytics', name: 'Analytics', axis: 'domain', size: 20 },
+        { id: 'current', name: 'Current', axis: 'temporal', size: 15 },
+        { id: 'historical', name: 'Historical', axis: 'temporal', size: 15 },
+        { id: 'deep', name: 'Deep Analysis', axis: 'depth', size: 16 },
+        { id: 'surface', name: 'Surface', axis: 'depth', size: 16 },
+        { id: 'high_conf', name: 'High Confidence', axis: 'confidence', size: 14 },
+        { id: 'academic', name: 'Academic', axis: 'source', size: 15 },
+        { id: 'industry_src', name: 'Industry Reports', axis: 'source', size: 15 }
+    ];
+
+    const sampleLinks = [
+        { source: 'core', target: 'tech' },
+        { source: 'core', target: 'healthcare' },
+        { source: 'core', target: 'finance' },
+        { source: 'core', target: 'quad_persona' },
+        { source: 'tech', target: 'ai_ml' },
+        { source: 'tech', target: 'blockchain' },
+        { source: 'ai_ml', target: 'nlp' },
+        { source: 'ai_ml', target: 'cv' },
+        { source: 'tech', target: 'usa' },
+        { source: 'tech', target: 'europe' },
+        { source: 'healthcare', target: 'regulation' },
+        { source: 'healthcare', target: 'company' },
+        { source: 'finance', target: 'asia' },
+        { source: 'finance', target: 'person' },
+        { source: 'quad_persona', target: 'simulation' },
+        { source: 'quad_persona', target: 'analytics' },
+        { source: 'simulation', target: 'agile' },
+        { source: 'simulation', target: 'waterfall' },
+        { source: 'analytics', target: 'deep' },
+        { source: 'analytics', target: 'surface' },
+        { source: 'deep', target: 'high_conf' },
+        { source: 'surface', target: 'current' },
+        { source: 'deep', target: 'historical' },
+        { source: 'ai_ml', target: 'academic' },
+        { source: 'blockchain', target: 'industry_src' }
+    ];
+
+    const container = document.getElementById('graph-container');
+    const svg = d3.select('#knowledge-graph');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    svg.attr('viewBox', [0, 0, width, height]);
+
+    const g = svg.append('g');
+
+    const zoom = d3.zoom()
+        .scaleExtent([0.3, 4])
+        .on('zoom', (event) => g.attr('transform', event.transform));
+    
+    svg.call(zoom);
+
+    const axisColorMap = {};
+    axes.forEach(a => axisColorMap[a.id] = a.color);
+
+    function buildLegend() {
+        const legend = document.getElementById('axis-legend');
+        legend.innerHTML = axes.map(a => `
+            <div class="d-flex align-items-center">
+                <span class="rounded-circle me-2" style="width: 12px; height: 12px; background-color: ${a.color};"></span>
+                <small>${a.name}</small>
+            </div>
+        `).join('');
+    }
+
+    function buildFilters() {
+        const filters = document.getElementById('axis-filters');
+        filters.innerHTML = axes.map(a => `
+            <div class="form-check">
+                <input class="form-check-input axis-filter" type="checkbox" value="${a.id}" id="filter-${a.id}" checked>
+                <label class="form-check-label small" for="filter-${a.id}" style="color: ${a.color};">
+                    ${a.name}
+                </label>
+            </div>
+        `).join('');
+
+        document.querySelectorAll('.axis-filter').forEach(cb => {
+            cb.addEventListener('change', updateGraph);
+        });
+    }
+
+    let showLabels = true;
+    let simulation, link, node, label;
+
+    function initGraph(nodes, links) {
+        g.selectAll('*').remove();
+
+        simulation = d3.forceSimulation(nodes)
+            .force('link', d3.forceLink(links).id(d => d.id).distance(80))
+            .force('charge', d3.forceManyBody().strength(-200))
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('collision', d3.forceCollide().radius(d => d.size + 10));
+
+        const defs = g.append('defs');
+        defs.append('marker')
+            .attr('id', 'arrowhead')
+            .attr('viewBox', '-0 -5 10 10')
+            .attr('refX', 20)
+            .attr('refY', 0)
+            .attr('orient', 'auto')
+            .attr('markerWidth', 6)
+            .attr('markerHeight', 6)
+            .append('path')
+            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+            .attr('fill', '#666');
+
+        link = g.append('g')
+            .attr('class', 'links')
+            .selectAll('line')
+            .data(links)
+            .join('line')
+            .attr('stroke', '#555')
+            .attr('stroke-opacity', 0.6)
+            .attr('stroke-width', 1.5)
+            .attr('marker-end', 'url(#arrowhead)');
+
+        node = g.append('g')
+            .attr('class', 'nodes')
+            .selectAll('circle')
+            .data(nodes)
+            .join('circle')
+            .attr('r', d => d.size)
+            .attr('fill', d => axisColorMap[d.axis] || '#999')
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 2)
+            .style('cursor', 'pointer')
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended))
+            .on('click', (event, d) => showNodeDetails(d))
+            .on('mouseover', function(event, d) {
+                d3.select(this).attr('stroke', '#ffd700').attr('stroke-width', 3);
+            })
+            .on('mouseout', function(event, d) {
+                d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2);
+            });
+
+        label = g.append('g')
+            .attr('class', 'labels')
+            .selectAll('text')
+            .data(nodes)
+            .join('text')
+            .text(d => d.name)
+            .attr('font-size', 10)
+            .attr('fill', '#fff')
+            .attr('text-anchor', 'middle')
+            .attr('dy', d => d.size + 12)
+            .style('pointer-events', 'none')
+            .style('display', showLabels ? 'block' : 'none');
+
+        simulation.on('tick', () => {
+            link
+                .attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+
+            node
+                .attr('cx', d => d.x)
+                .attr('cy', d => d.y);
+
+            label
+                .attr('x', d => d.x)
+                .attr('y', d => d.y);
+        });
+
+        document.getElementById('node-count').textContent = nodes.length;
+        document.getElementById('link-count').textContent = links.length;
+    }
+
+    function dragstarted(event) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        event.subject.fx = event.subject.x;
+        event.subject.fy = event.subject.y;
+    }
+
+    function dragged(event) {
+        event.subject.fx = event.x;
+        event.subject.fy = event.y;
+    }
+
+    function dragended(event) {
+        if (!event.active) simulation.alphaTarget(0);
+        event.subject.fx = null;
+        event.subject.fy = null;
+    }
+
+    function showNodeDetails(d) {
+        const details = document.getElementById('node-details');
+        const axisInfo = axes.find(a => a.id === d.axis);
+        details.innerHTML = `
+            <h6 class="mb-2" style="color: ${axisInfo.color};">${d.name}</h6>
+            <div class="small mb-2">
+                <span class="text-muted">Axis:</span>
+                <span class="badge" style="background-color: ${axisInfo.color};">${axisInfo.name}</span>
+            </div>
+            <div class="small mb-2">
+                <span class="text-muted">Node ID:</span>
+                <code>${d.id}</code>
+            </div>
+            <div class="small mb-2">
+                <span class="text-muted">Size:</span>
+                <span>${d.size}</span>
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-sm btn-outline-primary w-100" onclick="alert('Query node: ${d.id}')">
+                    <i class="bi bi-search me-1"></i>Query Node
+                </button>
+            </div>
+        `;
+    }
+
+    function updateGraph() {
+        const activeAxes = Array.from(document.querySelectorAll('.axis-filter:checked')).map(cb => cb.value);
+        const filteredNodes = sampleNodes.filter(n => activeAxes.includes(n.axis));
+        const filteredNodeIds = new Set(filteredNodes.map(n => n.id));
+        const filteredLinks = sampleLinks.filter(l => 
+            filteredNodeIds.has(l.source.id || l.source) && 
+            filteredNodeIds.has(l.target.id || l.target)
+        );
+
+        document.getElementById('axis-count').textContent = activeAxes.length;
+        
+        const nodesCopy = filteredNodes.map(n => ({...n}));
+        const linksCopy = filteredLinks.map(l => ({
+            source: l.source.id || l.source,
+            target: l.target.id || l.target
+        }));
+        
+        initGraph(nodesCopy, linksCopy);
+    }
+
+    document.getElementById('reset-zoom').addEventListener('click', () => {
+        svg.transition().duration(750).call(
+            zoom.transform,
+            d3.zoomIdentity
+        );
+    });
+
+    document.getElementById('toggle-labels').addEventListener('click', () => {
+        showLabels = !showLabels;
+        g.selectAll('.labels text').style('display', showLabels ? 'block' : 'none');
+    });
+
+    document.getElementById('expand-all').addEventListener('click', () => {
+        if (simulation) {
+            simulation.force('charge', d3.forceManyBody().strength(-400));
+            simulation.alpha(1).restart();
+        }
+    });
+
+    buildLegend();
+    buildFilters();
+    initGraph([...sampleNodes], [...sampleLinks]);
+});
+</script>
+{% endblock %}
