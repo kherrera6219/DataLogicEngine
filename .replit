@@ -1,16 +1,16 @@
-modules = ["nodejs-20", "python-3.11", "postgresql-16"]
+modules = ["python-3.11", "nodejs-20", "web", "bash"]
 
 [nix]
-channel = "stable-24_05"
-packages = ["libyaml", "openssl", "postgresql"]
+channel = "stable-25_05"
+packages = ["cargo", "glibcLocales", "libiconv", "libxcrypt", "libyaml", "openssl", "pkg-config", "postgresql", "rustc", "xsimd"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "python run_enterprise_ukg.py --build"]
+run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
-runButton = "UKG UI Development"
+runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
@@ -27,8 +27,8 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "gunicorn --bind 0.0.0.0:3000 --reuse-port --reload main:app"
-waitForPort = 3000
+args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Next.js Dev"
@@ -608,3 +608,6 @@ externalPort = 8080
 
 [objectStorage]
 defaultBucketID = "replit-objstore-6e2e7e3d-f093-4c1e-a336-03943eecfd71"
+
+[agent]
+expertMode = true
