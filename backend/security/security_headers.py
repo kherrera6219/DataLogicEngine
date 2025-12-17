@@ -119,8 +119,7 @@ class SecurityHeadersMiddleware:
             'payment=()',
             'usb=()',
             'magnetometer=()',
-            'gyroscope=()',
-            'speaker=()'
+            'gyroscope=()'
         ]
         response.headers['Permissions-Policy'] = ', '.join(permissions)
 
