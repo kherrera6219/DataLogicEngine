@@ -111,3 +111,4 @@ sqlalchemy
 tabulate
 user-agents
 werkzeug
+openai

@@ -611,3 +611,4 @@ defaultBucketID = "replit-objstore-6e2e7e3d-f093-4c1e-a336-03943eecfd71"
 
 [agent]
 expertMode = true
+integrations = ["python_openai_ai_integrations:1.0.0"]

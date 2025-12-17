@@ -115,6 +115,11 @@ from backend.mcp_api import mcp_bp
 app.register_blueprint(mcp_bp)
 logger.info("MCP blueprint registered")
 
+# Register AI Chat blueprint
+from backend.ai_chat import ai_chat_bp
+app.register_blueprint(ai_chat_bp)
+logger.info("AI Chat blueprint registered")
+
 # Routes
 @app.route('/')
 def index():
@@ -432,6 +437,11 @@ def simulation_results(sim_id):
         return redirect(url_for('view_simulation', sim_id=sim_id))
     
     return render_template('simulation_results.html', simulation=simulation)
+
+@app.route('/chat')
+@login_required
+def chat():
+    return render_template('chat.html')
 
 @app.route('/about')
 def about():
