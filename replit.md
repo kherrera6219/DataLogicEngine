@@ -50,7 +50,8 @@ A comprehensive Universal Knowledge Graph and Universal Simulated Knowledge Data
 ├── models.py               # SQLAlchemy database models
 ├── backend/
 │   ├── ai_chat.py          # AI chat API endpoints
-│   ├── ka_api.py           # Knowledge Algorithm API (KA-01 to KA-50)
+│   ├── ka_api.py           # Knowledge Algorithm API (KA-001 to KA-114)
+│   ├── ka_registry.json    # 114 algorithm definitions from Excel registry
 │   ├── mcp_api.py          # MCP (Model Context Protocol) API
 │   └── security/           # Security middleware
 ├── core/
@@ -78,11 +79,15 @@ A comprehensive Universal Knowledge Graph and Universal Simulated Knowledge Data
 - `GET /api/ai/health` - Health check
 
 ### Knowledge Algorithm API (`/api/ka/`)
-- `GET /api/ka/algorithms` - List all 50 knowledge algorithms
+- `GET /api/ka/algorithms` - List all 114 knowledge algorithms (with pagination and filters)
 - `GET /api/ka/algorithms/<id>` - Get algorithm details
-- `GET /api/ka/categories` - List algorithm categories
-- `POST /api/ka/execute/<id>` - Execute an algorithm
-- `POST /api/ka/batch` - Execute multiple algorithms
+- `GET /api/ka/categories` - List algorithm categories with their algorithms
+- `GET /api/ka/layers` - List simulation layers and associated algorithms
+- `GET /api/ka/search?q=<query>` - Search algorithms by name, purpose, or notes
+- `GET /api/ka/dependencies/<id>` - Get algorithm dependency graph
+- `GET /api/ka/stats` - Get KA system statistics
+- `POST /api/ka/algorithms/<id>/execute` - Execute an algorithm
+- `POST /api/ka/batch` - Execute multiple algorithms (max 20)
 
 ### MCP API (`/api/mcp/`)
 - `GET /api/mcp/context` - Get current context
@@ -126,7 +131,8 @@ A comprehensive Universal Knowledge Graph and Universal Simulated Knowledge Data
 ## Recent Changes
 
 ### December 2024
-- Added Knowledge Algorithm API with 50 algorithms across 14 categories
+- Expanded Knowledge Algorithm API to 114 algorithms from enterprise Excel registry
+- Added new KA endpoints: layers, search, dependencies, stats
 - Implemented AI chat with OpenAI integration via Replit AI Integrations
 - Created interactive knowledge graph visualization page
 - Added Swagger/OpenAPI documentation
