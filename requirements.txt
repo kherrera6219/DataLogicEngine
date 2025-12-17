@@ -112,3 +112,4 @@ tabulate
 user-agents
 werkzeug
 openai
+openpyxl
