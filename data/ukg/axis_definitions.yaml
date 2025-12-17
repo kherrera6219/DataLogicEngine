@@ -1,7 +1,10 @@
 # Universal Knowledge Graph (UKG) Axis Definitions
 #
-# This file defines the 13 axes that form the foundation of the UKG.
+# This file defines the 17 axes that form the foundation of the UKG.
 # Each axis represents a different dimension of knowledge organization.
+#
+# Axes 1-13: Original knowledge dimensions
+# Axes 14-17: Extended dimensions for enterprise capabilities
 
 Axes:
   - number: 1
@@ -68,3 +71,70 @@ Axes:
     label: "Time"
     original_id: "Axis13"
     description: "Represents temporal dimensions, historical periods, and time-based context."
+
+  # Extended Axes (14-17) - Enterprise Capabilities
+  - number: 14
+    label: "Risk & Confidence"
+    original_id: "Axis14"
+    description: "Represents risk classification, confidence scoring, and validation metrics for knowledge elements."
+    capabilities:
+      - risk_assessment
+      - confidence_scoring
+      - validation_metrics
+      - entropy_analysis
+    risk_classes:
+      - Low
+      - Medium
+      - High
+      - Critical
+
+  - number: 15
+    label: "Federated Intelligence"
+    original_id: "Axis15"
+    description: "Represents cross-system synchronization, distributed knowledge stores, and privacy-preserving federated learning."
+    capabilities:
+      - cross_system_sync
+      - distributed_knowledge
+      - privacy_preserving
+      - federation_management
+    sovereignty_levels:
+      - global
+      - regional
+      - national
+      - local
+      - restricted
+
+  - number: 16
+    label: "Arrows of Time"
+    original_id: "Axis16"
+    description: "Represents advanced temporal reasoning with causality chains, chronological consistency, and predictive modeling."
+    capabilities:
+      - causality_analysis
+      - temporal_consistency
+      - predictive_modeling
+      - event_sequencing
+    causality_types:
+      - causes
+      - caused_by
+      - enables
+      - prevents
+      - correlates
+      - follows
+      - precedes
+
+  - number: 17
+    label: "Observability & Analytics"
+    original_id: "Axis17"
+    description: "Represents metrics collection, audit trails, performance dashboards, and SLA management."
+    capabilities:
+      - metrics_collection
+      - audit_trails
+      - performance_monitoring
+      - sla_management
+      - distributed_tracing
+    log_levels:
+      - debug
+      - info
+      - warning
+      - error
+      - critical

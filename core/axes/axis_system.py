@@ -1,8 +1,14 @@
 """
 UKG Axis System
 
-This module provides the central coordination point for the 13-Axis Universal Knowledge Graph (UKG) system.
+This module provides the central coordination point for the 17-Axis Universal Knowledge Graph (UKG) system.
 It handles cross-axis relationships, context resolution, and coordinates between different axes.
+
+The 17-Axis system extends the original 13-axis framework with:
+- Axis 14: Risk & Confidence - Risk classification and confidence scoring
+- Axis 15: Federated Intelligence - Cross-system synchronization
+- Axis 16: Arrows of Time - Advanced temporal reasoning and causality
+- Axis 17: Observability & Analytics - Metrics, logging, and monitoring
 """
 
 import logging
@@ -11,7 +17,7 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional, Union
 
 from core.axes.axis1_identity import IdentityManager
-from core.axes.axis2_sectors import SectorManager
+from core.axes.axis2_sector import SectorManager
 from core.axes.axis4_methods import MethodsManager
 from core.axes.axis5_honeycomb import HoneycombSystem
 from core.axes.axis6_regulatory import RegulatoryManager
@@ -19,17 +25,30 @@ from core.axes.axis7_compliance import ComplianceManager
 from core.axes.axis12_location import LocationAxis
 from core.axes.axis13_time import TimeAxis
 from core.axes.axis11_contextual import Axis11ContextExperts
+from core.axes.axis14_risk import RiskAxis
+from core.axes.axis15_federated import FederatedAxis
+from core.axes.axis16_arrows_of_time import ArrowsOfTimeAxis
+from core.axes.axis17_observability import ObservabilityAxis
 
 class AxisSystem:
     """
-    Central coordinator for the 13-Axis Universal Knowledge Graph (UKG) system.
+    Central coordinator for the 17-Axis Universal Knowledge Graph (UKG) system.
 
     The AxisSystem is responsible for:
     - Managing relationships between axes
     - Resolving multi-dimensional contexts
     - Coordinating cross-axis queries and operations
     - Maintaining high-level system integrity
+
+    The 17-Axis system includes:
+    - Axes 1-13: Original knowledge dimensions
+    - Axis 14: Risk & Confidence
+    - Axis 15: Federated Intelligence
+    - Axis 16: Arrows of Time (Advanced Temporal)
+    - Axis 17: Observability & Analytics
     """
+
+    TOTAL_AXES = 17
 
     def __init__(self, db_manager=None, graph_manager=None):
         """
@@ -49,7 +68,10 @@ class AxisSystem:
         # Initialize compliance manager (Axis 7)
         self.init_compliance_manager()
 
-        # Define the 13 axes
+        # Initialize new axes (14-17)
+        self._init_extended_axes()
+
+        # Define the 17 axes
         self.axes = {
             1: {"name": "Pillar Levels", "description": "Hierarchical knowledge organization"},
             2: {"name": "Sectors", "description": "Industry sectors and market segments"},
@@ -63,22 +85,46 @@ class AxisSystem:
             10: {"name": "Role Experts", "description": "Role-based expertise"},
             11: {"name": "Context Experts", "description": "Situational expertise"},
             12: {"name": "Locations", "description": "Geographic and jurisdictional locations"},
-            13: {"name": "Time", "description": "Temporal dimensions"}
+            13: {"name": "Time", "description": "Temporal dimensions"},
+            14: {"name": "Risk & Confidence", "description": "Risk classification, confidence scoring, and validation metrics"},
+            15: {"name": "Federated Intelligence", "description": "Cross-system synchronization and distributed knowledge"},
+            16: {"name": "Arrows of Time", "description": "Advanced temporal reasoning with causality chains"},
+            17: {"name": "Observability & Analytics", "description": "Metrics, audit trails, and performance monitoring"}
         }
+
+    def _init_extended_axes(self):
+        """Initialize the extended axes (14-17) for the 17-Axis system."""
+        try:
+            self.risk_axis = RiskAxis()
+            self.register_axis_manager(14, self.risk_axis)
+            
+            self.federated_axis = FederatedAxis()
+            self.register_axis_manager(15, self.federated_axis)
+            
+            self.arrows_of_time_axis = ArrowsOfTimeAxis()
+            self.register_axis_manager(16, self.arrows_of_time_axis)
+            
+            self.observability_axis = ObservabilityAxis()
+            self.register_axis_manager(17, self.observability_axis)
+            
+            self.logging.info(f"[{datetime.now()}] Extended axes 14-17 initialized successfully")
+        except Exception as e:
+            self.logging.error(f"[{datetime.now()}] Error initializing extended axes: {str(e)}")
 
     def register_axis_manager(self, axis_number: int, manager: Any) -> None:
         """
         Register an individual axis manager with the system.
 
         Args:
-            axis_number: The axis number (1-13)
+            axis_number: The axis number (1-17)
             manager: The axis manager instance
         """
-        if 1 <= axis_number <= 13:
+        if 1 <= axis_number <= self.TOTAL_AXES:
             self.axis_managers[axis_number] = manager
-            self.logging.info(f"[{datetime.now()}] Registered axis manager for Axis {axis_number}: {self.axes[axis_number]['name']}")
+            axis_name = self.axes.get(axis_number, {}).get('name', f'Axis {axis_number}')
+            self.logging.info(f"[{datetime.now()}] Registered axis manager for Axis {axis_number}: {axis_name}")
         else:
-            self.logging.error(f"[{datetime.now()}] Invalid axis number: {axis_number}")
+            self.logging.error(f"[{datetime.now()}] Invalid axis number: {axis_number}. Must be 1-{self.TOTAL_AXES}")
 
     def resolve_multi_axis_context(self, query_context: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -104,7 +150,7 @@ class AxisSystem:
             for axis_num, axis_data in query_context.items():
                 axis_num = int(axis_num) if isinstance(axis_num, str) and axis_num.isdigit() else axis_num
 
-                if isinstance(axis_num, int) and 1 <= axis_num <= 13:
+                if isinstance(axis_num, int) and 1 <= axis_num <= self.TOTAL_AXES:
                     # If we have a manager for this axis, use it to resolve
                     if axis_num in self.axis_managers:
                         axis_manager = self.axis_managers[axis_num]

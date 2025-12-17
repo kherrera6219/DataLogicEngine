@@ -1,7 +1,7 @@
 # Universal Knowledge Graph (UKG) System
 
 ## Overview
-A comprehensive Universal Knowledge Graph and Universal Simulated Knowledge Database (USKD) system that provides multi-perspective knowledge synthesis, expert simulation, and AI-powered analysis.
+A comprehensive Universal Knowledge Graph and Universal Simulated Knowledge Database (USKD) system that provides multi-perspective knowledge synthesis, expert simulation, and AI-powered analysis using a 17-Axis framework.
 
 ## Architecture
 
@@ -14,32 +14,40 @@ A comprehensive Universal Knowledge Graph and Universal Simulated Knowledge Data
 
 ### Key Components
 
-#### 13-Axis Knowledge Framework
-1. Identity Axis - User and entity identification
-2. Sector Axis - Industry and sector classification
-3. Domain Axis - Knowledge domain categorization
-4. Knowledge Axis - Core knowledge areas
-5. Methods Axis - Methodologies and approaches
-6. Honeycomb Axis - Interconnected knowledge cells
-7. Regulatory Axis - Legal and regulatory frameworks
-8. Compliance Axis - Standards and compliance requirements
-9. Knowledge Expert Axis - Subject matter expertise
-10. Sector Expert Axis - Industry expertise
-11. Contextual Expert Axis - Context-aware expertise
-12. Location Axis - Geographic and spatial context
+#### 17-Axis Knowledge Framework
+
+**Core Knowledge Dimensions (Axes 1-13):**
+1. Pillar Levels Axis - Hierarchical knowledge organization (PL01-PL87)
+2. Sectors Axis - Industry and sector classification
+3. Topics/Branches Axis - Subject matters and specializations
+4. Methods Axis - Methodologies and approaches
+5. Tools Axis - Software, hardware, and instruments
+6. Regulatory Frameworks Axis - Laws and regulations (Octopus Node)
+7. Compliance Standards Axis - Standards and best practices (Spiderweb Node)
+8. Knowledge Experts Axis - Domain expertise
+9. Skill Experts Axis - Skill-based expertise
+10. Role Experts Axis - Professional role expertise
+11. Context Experts Axis - Situational expertise
+12. Locations Axis - Geographic and spatial context
 13. Time Axis - Temporal context and evolution
 
+**Extended Enterprise Dimensions (Axes 14-17):**
+14. Risk & Confidence Axis - Risk classification (Low/Medium/High/Critical), confidence scoring, validation metrics, entropy analysis
+15. Federated Intelligence Axis - Cross-system synchronization, distributed knowledge stores, privacy-preserving federation, data sovereignty
+16. Arrows of Time Axis - Advanced causality chains, temporal consistency checks, predictive modeling, event sequencing
+17. Observability & Analytics Axis - Metrics collection, audit trails, performance monitoring, SLA management, distributed tracing
+
 #### 10-Layer Simulation Stack
-1. Knowledge Base
-2. Quad Persona Engine
-3. Simulation Memory
-4. Reasoning Layer
-5. Integration Layer
-6. Enhancement Layer
-7. AGI System
-8. Quantum Computing Layer
-9. Recursive Core
-10. Self-Awareness Engine
+1. Knowledge Base - Initial data retrieval and preprocessing
+2. Quad Persona Engine - Expert role simulation (Analyst, Expert, Critic, Synthesizer)
+3. Simulation Memory - Persistent state and context management
+4. Reasoning Layer - Logical inference and deduction
+5. Integration Layer - Multi-source knowledge synthesis
+6. Enhancement Layer - Pattern recognition and neural reflection
+7. AGI System - Strategic planning and complex problem solving
+8. Quantum Computing Layer - Uncertainty and entanglement simulation
+9. Recursive Core - Deep recursive reasoning and emergence detection
+10. Self-Awareness Engine - System coherence and containment protocols
 
 ## Project Structure
 
@@ -56,7 +64,25 @@ A comprehensive Universal Knowledge Graph and Universal Simulated Knowledge Data
 │   └── security/           # Security middleware
 ├── core/
 │   ├── knowledge_graph.py  # Knowledge graph operations
-│   └── simulation_engine.py # Simulation engine
+│   ├── simulation_engine.py # Simulation engine
+│   └── axes/               # 17-Axis System modules
+│       ├── axis_system.py      # Central coordinator for 17 axes
+│       ├── axis1_identity.py   # Axis 1: Pillar Levels
+│       ├── axis2_sectors.py    # Axis 2: Sectors
+│       ├── axis4_methods.py    # Axis 4: Methods
+│       ├── axis5_honeycomb.py  # Axis 5: Tools/Honeycomb
+│       ├── axis6_regulatory.py # Axis 6: Regulatory Frameworks
+│       ├── axis7_compliance.py # Axis 7: Compliance Standards
+│       ├── axis11_contextual.py # Axis 11: Context Experts
+│       ├── axis12_location.py  # Axis 12: Locations
+│       ├── axis13_time.py      # Axis 13: Time
+│       ├── axis14_risk.py      # Axis 14: Risk & Confidence
+│       ├── axis15_federated.py # Axis 15: Federated Intelligence
+│       ├── axis16_arrows_of_time.py # Axis 16: Arrows of Time
+│       └── axis17_observability.py  # Axis 17: Observability & Analytics
+├── data/
+│   └── ukg/
+│       └── axis_definitions.yaml # 17-Axis definitions
 ├── templates/              # Jinja2 HTML templates
 │   ├── base.html           # Base template
 │   ├── dashboard.html      # User dashboard
@@ -131,6 +157,15 @@ A comprehensive Universal Knowledge Graph and Universal Simulated Knowledge Data
 ## Recent Changes
 
 ### December 2024
+- **Migrated from 13-Axis to 17-Axis System**
+  - Added Axis 14: Risk & Confidence - Risk classification, confidence scoring, validation metrics
+  - Added Axis 15: Federated Intelligence - Cross-system sync, distributed knowledge, data sovereignty
+  - Added Axis 16: Arrows of Time - Causality chains, temporal consistency, predictive modeling
+  - Added Axis 17: Observability & Analytics - Metrics, audit trails, performance monitoring
+- Created new axis modules: axis14_risk.py, axis15_federated.py, axis16_arrows_of_time.py, axis17_observability.py
+- Updated axis_system.py central coordinator for 17-axis support
+- Updated axis_definitions.yaml with full 17-axis definitions
+- Enhanced AI chat system prompt with 17-axis knowledge framework
 - Expanded Knowledge Algorithm API to 114 algorithms from enterprise Excel registry
 - Added new KA endpoints: layers, search, dependencies, stats
 - Implemented AI chat with OpenAI integration via Replit AI Integrations
