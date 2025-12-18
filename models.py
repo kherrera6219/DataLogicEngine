@@ -775,3 +775,329 @@ class TruthLinkMessage(db.Model):
             'processed_at': self.processed_at.isoformat() if self.processed_at else None,
             'expires_at': self.expires_at.isoformat() if self.expires_at else None
         }
+
+
+# =============================================================================
+# UNIFIED COORDINATE SYSTEM MODELS (17-AXIS)
+# =============================================================================
+
+class UnifiedCoordinate(db.Model):
+    """
+    Store 17-dimensional knowledge coordinates with Nuremberg-style numbering.
+    Each coordinate uniquely identifies a knowledge element in the UKG.
+    """
+    __tablename__ = 'unified_coordinates'
+
+    id = db.Column(db.Integer, primary_key=True)
+    coordinate_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    
+    coordinate_string = db.Column(db.String(512), nullable=False, index=True)
+    
+    axis_1_pillar = db.Column(db.String(64))
+    axis_2_sector = db.Column(db.String(64))
+    axis_3_honeycomb = db.Column(db.String(64))
+    axis_4_branch = db.Column(db.String(64))
+    axis_5_node = db.Column(db.String(64))
+    axis_6_octopus = db.Column(db.String(64))
+    axis_7_spiderweb = db.Column(db.String(64))
+    axis_8_knowledge_expert = db.Column(db.String(64))
+    axis_9_qualifications = db.Column(db.String(64))
+    axis_10_regulatory = db.Column(db.String(64))
+    axis_11_compliance = db.Column(db.String(64))
+    axis_12_location = db.Column(db.String(64))
+    axis_13_temporal = db.Column(db.String(64))
+    axis_14_risk = db.Column(db.String(64))
+    axis_15_federated = db.Column(db.String(64))
+    axis_16_arrows_of_time = db.Column(db.String(64))
+    axis_17_observability = db.Column(db.String(64))
+    
+    meta_tags = db.Column(db.JSON)
+    
+    label = db.Column(db.String(256))
+    description = db.Column(db.Text)
+    coordinate_metadata = db.Column(db.JSON)
+    
+    node_id = db.Column(db.Integer, db.ForeignKey('kg_nodes.id'), nullable=True)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    node = db.relationship('KnowledgeGraphNode', backref=db.backref('coordinates', lazy='dynamic'))
+
+    def get_axis_value(self, axis_number: int) -> str:
+        """Get value for a specific axis (1-17)"""
+        axis_map = {
+            1: self.axis_1_pillar, 2: self.axis_2_sector, 3: self.axis_3_honeycomb,
+            4: self.axis_4_branch, 5: self.axis_5_node, 6: self.axis_6_octopus,
+            7: self.axis_7_spiderweb, 8: self.axis_8_knowledge_expert,
+            9: self.axis_9_qualifications, 10: self.axis_10_regulatory,
+            11: self.axis_11_compliance, 12: self.axis_12_location,
+            13: self.axis_13_temporal, 14: self.axis_14_risk,
+            15: self.axis_15_federated, 16: self.axis_16_arrows_of_time,
+            17: self.axis_17_observability
+        }
+        return axis_map.get(axis_number)
+
+    def set_axis_value(self, axis_number: int, value: str):
+        """Set value for a specific axis (1-17)"""
+        axis_attrs = {
+            1: 'axis_1_pillar', 2: 'axis_2_sector', 3: 'axis_3_honeycomb',
+            4: 'axis_4_branch', 5: 'axis_5_node', 6: 'axis_6_octopus',
+            7: 'axis_7_spiderweb', 8: 'axis_8_knowledge_expert',
+            9: 'axis_9_qualifications', 10: 'axis_10_regulatory',
+            11: 'axis_11_compliance', 12: 'axis_12_location',
+            13: 'axis_13_temporal', 14: 'axis_14_risk',
+            15: 'axis_15_federated', 16: 'axis_16_arrows_of_time',
+            17: 'axis_17_observability'
+        }
+        if axis_number in axis_attrs:
+            setattr(self, axis_attrs[axis_number], value)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'coordinate_id': self.coordinate_id,
+            'coordinate_string': self.coordinate_string,
+            'axes': {
+                1: self.axis_1_pillar, 2: self.axis_2_sector, 3: self.axis_3_honeycomb,
+                4: self.axis_4_branch, 5: self.axis_5_node, 6: self.axis_6_octopus,
+                7: self.axis_7_spiderweb, 8: self.axis_8_knowledge_expert,
+                9: self.axis_9_qualifications, 10: self.axis_10_regulatory,
+                11: self.axis_11_compliance, 12: self.axis_12_location,
+                13: self.axis_13_temporal, 14: self.axis_14_risk,
+                15: self.axis_15_federated, 16: self.axis_16_arrows_of_time,
+                17: self.axis_17_observability
+            },
+            'meta_tags': self.meta_tags,
+            'label': self.label,
+            'description': self.description,
+            'metadata': self.coordinate_metadata,
+            'node_id': self.node_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class CoordinateTraversal(db.Model):
+    """
+    Store crosswalk relationships between coordinates.
+    Supports Honeycomb (hierarchical), Octopus (one-to-many), 
+    and Spiderweb (many-to-many) traversal patterns.
+    """
+    __tablename__ = 'coordinate_traversals'
+
+    id = db.Column(db.Integer, primary_key=True)
+    traversal_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    
+    source_coordinate_id = db.Column(db.Integer, db.ForeignKey('unified_coordinates.id'), nullable=False)
+    target_coordinate_id = db.Column(db.Integer, db.ForeignKey('unified_coordinates.id'), nullable=False)
+    
+    traversal_type = db.Column(db.String(32), nullable=False, index=True)
+    traversal_axis = db.Column(db.Integer)
+    pattern_id = db.Column(db.String(64))
+    sequence_order = db.Column(db.Integer)
+    
+    source_axis_value_id = db.Column(db.Integer, db.ForeignKey('axis_values.id'), nullable=True)
+    target_axis_value_id = db.Column(db.Integer, db.ForeignKey('axis_values.id'), nullable=True)
+    
+    edge_id = db.Column(db.Integer, db.ForeignKey('kg_edges.id'), nullable=True)
+    
+    weight = db.Column(db.Numeric(8, 4), default=1.0)
+    confidence = db.Column(db.Numeric(5, 4), default=1.0)
+    
+    bidirectional = db.Column(db.Boolean, default=False)
+    
+    traversal_metadata = db.Column(db.JSON)
+    hop_details = db.Column(db.JSON)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    source = db.relationship('UnifiedCoordinate', foreign_keys=[source_coordinate_id], 
+                            backref=db.backref('outgoing_traversals', lazy='dynamic'))
+    target = db.relationship('UnifiedCoordinate', foreign_keys=[target_coordinate_id], 
+                            backref=db.backref('incoming_traversals', lazy='dynamic'))
+    source_axis = db.relationship('AxisValue', foreign_keys=[source_axis_value_id])
+    target_axis = db.relationship('AxisValue', foreign_keys=[target_axis_value_id])
+    edge = db.relationship('KnowledgeGraphEdge', backref=db.backref('traversals', lazy='dynamic'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'traversal_id': self.traversal_id,
+            'source_coordinate_id': self.source_coordinate_id,
+            'target_coordinate_id': self.target_coordinate_id,
+            'traversal_type': self.traversal_type,
+            'traversal_axis': self.traversal_axis,
+            'pattern_id': self.pattern_id,
+            'sequence_order': self.sequence_order,
+            'source_axis_value_id': self.source_axis_value_id,
+            'target_axis_value_id': self.target_axis_value_id,
+            'edge_id': self.edge_id,
+            'weight': float(self.weight) if self.weight else 1.0,
+            'confidence': float(self.confidence) if self.confidence else 1.0,
+            'bidirectional': self.bidirectional,
+            'metadata': self.traversal_metadata,
+            'hop_details': self.hop_details,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class MetaTagMapping(db.Model):
+    """
+    Store meta-tag overlays for SAM.gov compatibility.
+    Maps external standards (NAICS, FAR, DFARS, ISO, NIST) to coordinate axes.
+    """
+    __tablename__ = 'meta_tag_mappings'
+
+    id = db.Column(db.Integer, primary_key=True)
+    mapping_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    
+    meta_tag = db.Column(db.String(32), nullable=False, index=True)
+    external_code = db.Column(db.String(64), nullable=False, index=True)
+    
+    target_axis = db.Column(db.Integer, nullable=False)
+    nuremberg_value = db.Column(db.String(64), nullable=False)
+    
+    standard_name = db.Column(db.String(128))
+    standard_description = db.Column(db.Text)
+    
+    coordinate_id = db.Column(db.Integer, db.ForeignKey('unified_coordinates.id'), nullable=True)
+    
+    is_active = db.Column(db.Boolean, default=True)
+    mapping_metadata = db.Column(db.JSON)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    coordinate = db.relationship('UnifiedCoordinate', backref=db.backref('meta_tag_mappings', lazy='dynamic'))
+
+    __table_args__ = (
+        db.UniqueConstraint('meta_tag', 'external_code', name='unique_meta_tag_code'),
+    )
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'mapping_id': self.mapping_id,
+            'meta_tag': self.meta_tag,
+            'external_code': self.external_code,
+            'target_axis': self.target_axis,
+            'nuremberg_value': self.nuremberg_value,
+            'standard_name': self.standard_name,
+            'standard_description': self.standard_description,
+            'coordinate_id': self.coordinate_id,
+            'is_active': self.is_active,
+            'metadata': self.mapping_metadata,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class AxisValue(db.Model):
+    """
+    Normalized storage for individual axis values within a coordinate.
+    Preserves full AxisCoordinate semantics including hierarchical levels and meta-tags.
+    """
+    __tablename__ = 'axis_values'
+
+    id = db.Column(db.Integer, primary_key=True)
+    coordinate_id = db.Column(db.Integer, db.ForeignKey('unified_coordinates.id'), nullable=False, index=True)
+    
+    axis_number = db.Column(db.Integer, nullable=False, index=True)
+    
+    value = db.Column(db.String(128), nullable=False)
+    levels = db.Column(db.JSON)
+    depth = db.Column(db.Integer)
+    
+    meta_tag = db.Column(db.String(32), index=True)
+    
+    numeric_value = db.Column(db.Numeric(10, 4))
+    confidence = db.Column(db.Numeric(5, 4))
+    validation_status = db.Column(db.String(32))
+    
+    axis_metadata = db.Column(db.JSON)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    coordinate = db.relationship('UnifiedCoordinate', backref=db.backref('axis_values', lazy='dynamic'))
+
+    __table_args__ = (
+        db.UniqueConstraint('coordinate_id', 'axis_number', name='unique_coordinate_axis'),
+        db.Index('ix_axis_values_coord_axis', 'coordinate_id', 'axis_number'),
+    )
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'coordinate_id': self.coordinate_id,
+            'axis_number': self.axis_number,
+            'value': self.value,
+            'levels': self.levels,
+            'depth': self.depth,
+            'meta_tag': self.meta_tag,
+            'numeric_value': float(self.numeric_value) if self.numeric_value else None,
+            'confidence': float(self.confidence) if self.confidence else None,
+            'validation_status': self.validation_status,
+            'metadata': self.axis_metadata,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class AxisConfiguration(db.Model):
+    """
+    Store configuration for each of the 17 axes.
+    Defines axis behavior, validation rules, and traversal patterns.
+    """
+    __tablename__ = 'axis_configurations'
+
+    id = db.Column(db.Integer, primary_key=True)
+    axis_number = db.Column(db.Integer, unique=True, nullable=False, index=True)
+    
+    axis_name = db.Column(db.String(64), nullable=False)
+    axis_short_name = db.Column(db.String(32))
+    axis_description = db.Column(db.Text)
+    
+    axis_category = db.Column(db.String(32))
+    
+    value_type = db.Column(db.String(32), default='hierarchical')
+    max_depth = db.Column(db.Integer, default=10)
+    separator = db.Column(db.String(4), default='.')
+    
+    validation_pattern = db.Column(db.String(256))
+    validation_rules = db.Column(db.JSON)
+    
+    traversal_enabled = db.Column(db.Boolean, default=True)
+    supported_traversals = db.Column(db.JSON)
+    
+    is_required = db.Column(db.Boolean, default=False)
+    is_active = db.Column(db.Boolean, default=True)
+    axis_metadata = db.Column(db.JSON)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'axis_number': self.axis_number,
+            'axis_name': self.axis_name,
+            'axis_short_name': self.axis_short_name,
+            'axis_description': self.axis_description,
+            'axis_category': self.axis_category,
+            'value_type': self.value_type,
+            'max_depth': self.max_depth,
+            'separator': self.separator,
+            'validation_pattern': self.validation_pattern,
+            'validation_rules': self.validation_rules,
+            'traversal_enabled': self.traversal_enabled,
+            'supported_traversals': self.supported_traversals,
+            'is_required': self.is_required,
+            'is_active': self.is_active,
+            'metadata': self.axis_metadata,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
