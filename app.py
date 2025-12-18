@@ -132,11 +132,9 @@ with app.app_context():
     init_truth_engine(db.session)
 logger.info("Truth Engine API blueprint registered")
 
-# Routes
-@app.route('/')
-def index():
-    return render_template('index.html')
-
+# Note: Core routes (/, /login, /register, /logout, /dashboard, /profile, /settings, 
+# /knowledge, /simulation, /graph, /chatbot, /analytics, /admin) are defined in routes.py
+# to avoid duplicate route definitions.
 
 def _config_health() -> dict:
     """Summarize configuration readiness for lightweight health checks."""
@@ -188,96 +186,7 @@ def health() -> tuple:
 
     return jsonify(payload), http_status
 
-@app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("10 per minute")
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
-    
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        remember = 'remember' in request.form
-        
-        user = User.query.filter_by(username=username).first()
-        if user and user.check_password(password):
-            login_user(user, remember=remember)
-            session.permanent = True
-            user.last_login = datetime.utcnow()
-            db.session.commit()
-            
-            # Redirect to the requested page or dashboard
-            next_page = request.args.get('next')
-            if next_page and next_page.startswith('/'):
-                return redirect(next_page)
-            return redirect(url_for('dashboard'))
-        else:
-            flash('Invalid username or password', 'error')
-    
-    return render_template('login.html')
-
-@app.route('/register', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
-    
-    if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
-        
-        # Validate input
-        if not username or not email or not password:
-            flash('All fields are required', 'error')
-            return render_template('register.html')
-        
-        if password != confirm_password:
-            flash('Passwords do not match', 'error')
-            return render_template('register.html')
-
-        if not password_meets_policy(password):
-            flash('Password must be at least 12 characters and include upper, lower, digit, and symbol characters.', 'error')
-            return render_template('register.html')
-        
-        # Check for existing user
-        if User.query.filter_by(username=username).first():
-            flash('Username already exists', 'error')
-            return render_template('register.html')
-        
-        if User.query.filter_by(email=email).first():
-            flash('Email already registered', 'error')
-            return render_template('register.html')
-        
-        # Create new user
-        user = User(username=username, email=email)
-        user.set_password(password)
-        
-        try:
-            db.session.add(user)
-            db.session.commit()
-            flash('Registration successful! You can now log in.', 'success')
-            return redirect(url_for('login'))
-        except Exception as e:
-            db.session.rollback()
-            logger.error(f"Error registering user: {e}")
-            flash('An error occurred during registration', 'error')
-    
-    return render_template('register.html')
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    flash('You have been logged out', 'info')
-    return redirect(url_for('index'))
-
-@app.route('/dashboard')
-@login_required
-def dashboard():
-    # For now, just render a simple dashboard
-    return render_template('dashboard.html')
+# Note: /login, /register, /logout, /dashboard are defined in routes.py with more complete implementations
 
 @app.route('/simulations')
 @login_required
@@ -525,16 +434,7 @@ def terms():
 def privacy():
     return render_template('privacy.html')
 
-# Profile routes
-@app.route('/profile')
-@login_required
-def profile():
-    return render_template('profile.html')
-
-@app.route('/settings')
-@login_required
-def settings():
-    return render_template('settings.html')
+# Note: /profile and /settings are defined in routes.py with more complete implementations
 
 # Error handlers
 @app.errorhandler(404)

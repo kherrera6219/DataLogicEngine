@@ -1,0 +1,518 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Universal Knowledge Graph{% endblock %}
+
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block page_subtitle %}System administration and monitoring{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon users">
+                <span class="material-icons">people</span>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.user_count or 0 }}</h3>
+                <p class="stat-label">Total Users</p>
+                <small class="stat-detail">{{ stats.active_users or 0 }} active</small>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon nodes">
+                <span class="material-icons">hub</span>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.node_count or 0 }}</h3>
+                <p class="stat-label">Knowledge Nodes</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon edges">
+                <span class="material-icons">device_hub</span>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.edge_count or 0 }}</h3>
+                <p class="stat-label">Graph Edges</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon simulations">
+                <span class="material-icons">science</span>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.simulation_count or 0 }}</h3>
+                <p class="stat-label">Simulations</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon algorithms">
+                <span class="material-icons">functions</span>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.algorithm_count or 0 }}</h3>
+                <p class="stat-label">Algorithms</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="admin-grid">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Recent Users</h2>
+                <a href="{{ url_for('admin') }}/users" class="card-link">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_users %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in recent_users %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td><span class="badge {{ 'admin' if user.is_admin else 'user' }}">{{ 'Admin' if user.is_admin else 'User' }}</span></td>
+                            <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A' }}</td>
+                            <td><span class="status-dot {{ 'active' if user.active else 'inactive' }}"></span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <span class="material-icons">people_outline</span>
+                    <p>No users yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Recent Simulations</h2>
+                <a href="{{ url_for('simulations') }}" class="card-link">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_simulations %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>User</th>
+                            <th>Status</th>
+                            <th>Started</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sim in recent_simulations %}
+                        <tr>
+                            <td>{{ sim.name or 'Unnamed' }}</td>
+                            <td>{{ sim.user.username if sim.user else 'Unknown' }}</td>
+                            <td><span class="status-badge {{ sim.status }}">{{ sim.status|capitalize }}</span></td>
+                            <td>{{ sim.started_at.strftime('%Y-%m-%d %H:%M') if sim.started_at else 'Not started' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <span class="material-icons">science</span>
+                    <p>No simulations yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card full-width">
+            <div class="card-header">
+                <h2 class="card-title">System Status</h2>
+            </div>
+            <div class="card-body">
+                <div class="system-status-grid">
+                    <div class="system-item">
+                        <span class="material-icons">storage</span>
+                        <div class="system-info">
+                            <h4>Database</h4>
+                            <span class="status-indicator active">Connected</span>
+                        </div>
+                    </div>
+                    <div class="system-item">
+                        <span class="material-icons">psychology</span>
+                        <div class="system-info">
+                            <h4>AI Engine</h4>
+                            <span class="status-indicator active">Active</span>
+                        </div>
+                    </div>
+                    <div class="system-item">
+                        <span class="material-icons">hub</span>
+                        <div class="system-info">
+                            <h4>Knowledge Graph</h4>
+                            <span class="status-indicator active">Active</span>
+                        </div>
+                    </div>
+                    <div class="system-item">
+                        <span class="material-icons">memory</span>
+                        <div class="system-info">
+                            <h4>Simulation Engine</h4>
+                            <span class="status-indicator active">Active</span>
+                        </div>
+                    </div>
+                    <div class="system-item">
+                        <span class="material-icons">verified_user</span>
+                        <div class="system-info">
+                            <h4>Truth Engine</h4>
+                            <span class="status-indicator active">Active</span>
+                        </div>
+                    </div>
+                    <div class="system-item">
+                        <span class="material-icons">cable</span>
+                        <div class="system-info">
+                            <h4>MCP Server</h4>
+                            <span class="status-indicator active">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Quick Actions</h2>
+            </div>
+            <div class="card-body">
+                <div class="admin-actions">
+                    <a href="#" class="admin-action-btn">
+                        <span class="material-icons">person_add</span>
+                        Add User
+                    </a>
+                    <a href="#" class="admin-action-btn">
+                        <span class="material-icons">backup</span>
+                        Backup Data
+                    </a>
+                    <a href="#" class="admin-action-btn">
+                        <span class="material-icons">refresh</span>
+                        Clear Cache
+                    </a>
+                    <a href="#" class="admin-action-btn">
+                        <span class="material-icons">description</span>
+                        View Logs
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">System Health</h2>
+            </div>
+            <div class="card-body">
+                <div class="health-metrics">
+                    <div class="metric-item">
+                        <span class="metric-label">CPU Usage</span>
+                        <div class="metric-bar">
+                            <div class="metric-fill" style="width: 35%;"></div>
+                        </div>
+                        <span class="metric-value">35%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Memory</span>
+                        <div class="metric-bar">
+                            <div class="metric-fill" style="width: 62%;"></div>
+                        </div>
+                        <span class="metric-value">62%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Database</span>
+                        <div class="metric-bar">
+                            <div class="metric-fill" style="width: 28%;"></div>
+                        </div>
+                        <span class="metric-value">28%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-container {
+    padding: 1.5rem;
+}
+
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background-color: var(--dark-bg-secondary);
+    border-radius: var(--border-radius);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.light-theme .stat-card {
+    background-color: var(--light-bg-secondary);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-icon.users { background: linear-gradient(135deg, #6a8fff, #4c6ef5); }
+.stat-icon.nodes { background: linear-gradient(135deg, #a183ff, #6f42c1); }
+.stat-icon.edges { background: linear-gradient(135deg, #4ecdc4, #26a69a); }
+.stat-icon.simulations { background: linear-gradient(135deg, #ff6b6b, #e74c3c); }
+.stat-icon.algorithms { background: linear-gradient(135deg, #ffd93d, #f0c419); }
+
+.stat-icon .material-icons {
+    color: white;
+    font-size: 1.5rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--dark-text-secondary);
+    margin: 0;
+}
+
+.light-theme .stat-label {
+    color: var(--light-text-secondary);
+}
+
+.stat-detail {
+    font-size: 0.75rem;
+    color: var(--dark-text-secondary);
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.card.full-width {
+    grid-column: 1 / -1;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.light-theme .table th,
+.light-theme .table td {
+    border-bottom: 1px solid var(--light-border);
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--dark-text-secondary);
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+.badge.admin {
+    background-color: var(--dark-accent-secondary);
+    color: white;
+}
+
+.badge.user {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-text-primary);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-dot.active { background-color: #4ecdc4; }
+.status-dot.inactive { background-color: #6c757d; }
+
+.status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+.status-badge.pending { background-color: #ffd93d; color: #212529; }
+.status-badge.running { background-color: #6a8fff; color: white; }
+.status-badge.completed { background-color: #4ecdc4; color: white; }
+.status-badge.failed { background-color: #ff6b6b; color: white; }
+
+.system-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.system-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: var(--dark-bg-tertiary);
+    border-radius: var(--border-radius);
+}
+
+.light-theme .system-item {
+    background-color: var(--light-bg-tertiary);
+}
+
+.system-item .material-icons {
+    font-size: 1.5rem;
+    color: var(--dark-accent-primary);
+}
+
+.system-info h4 {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.status-indicator {
+    font-size: 0.75rem;
+}
+
+.status-indicator.active {
+    color: #4ecdc4;
+}
+
+.admin-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.admin-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--dark-bg-tertiary);
+    border-radius: var(--border-radius);
+    color: var(--dark-text-primary);
+    transition: background-color var(--transition-speed);
+}
+
+.light-theme .admin-action-btn {
+    background-color: var(--light-bg-tertiary);
+    color: var(--light-text-primary);
+}
+
+.admin-action-btn:hover {
+    background-color: var(--dark-accent-primary);
+    color: white;
+    text-decoration: none;
+}
+
+.health-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.metric-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.metric-label {
+    width: 80px;
+    font-size: 0.875rem;
+}
+
+.metric-bar {
+    flex: 1;
+    height: 8px;
+    background-color: var(--dark-bg-tertiary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.light-theme .metric-bar {
+    background-color: var(--light-bg-tertiary);
+}
+
+.metric-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6a8fff, #a183ff);
+    border-radius: 4px;
+}
+
+.metric-value {
+    width: 40px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: right;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .empty-state {
+    color: var(--light-text-secondary);
+}
+
+.empty-state .material-icons {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

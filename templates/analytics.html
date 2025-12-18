@@ -1,0 +1,422 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics - Universal Knowledge Graph{% endblock %}
+
+{% block page_title %}Analytics Dashboard{% endblock %}
+{% block page_subtitle %}System metrics and knowledge graph statistics{% endblock %}
+
+{% block content %}
+<div class="analytics-container">
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <span class="material-icons">people</span>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ user_count or 0 }}</h3>
+                <p class="stat-label">Total Users</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <span class="material-icons">hub</span>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ node_count or 0 }}</h3>
+                <p class="stat-label">Knowledge Nodes</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <span class="material-icons">link</span>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ edge_count or 0 }}</h3>
+                <p class="stat-label">Graph Edges</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <span class="material-icons">science</span>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ simulation_count or 0 }}</h3>
+                <p class="stat-label">Simulations</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="analytics-grid">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Nodes by Axis</h2>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" id="axisChart">
+                    {% if node_distribution %}
+                    <div class="bar-chart">
+                        {% for item in node_distribution %}
+                        <div class="bar-item">
+                            <div class="bar-label">Axis {{ item.axis }}: {{ item.label }}</div>
+                            <div class="bar-wrapper">
+                                <div class="bar" style="width: {{ (item.count / (node_count or 1)) * 100 }}%; background: {{ ['#6a8fff', '#6a8fff', '#6a8fff', '#6a8fff', '#6a8fff', '#4ecdc4', '#ff6b6b', '#a183ff', '#a183ff', '#a183ff', '#a183ff', '#ffd93d', '#ffd93d'][item.axis - 1] or '#6a8fff' }};"></div>
+                                <span class="bar-value">{{ item.count }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <span class="material-icons">bar_chart</span>
+                        <p>No axis data available yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Simulation Status</h2>
+            </div>
+            <div class="card-body">
+                <div class="status-chart">
+                    {% if simulation_statuses %}
+                    <div class="status-items">
+                        {% for status, count in simulation_statuses.items() %}
+                        <div class="status-item">
+                            <span class="status-dot {{ status }}"></span>
+                            <span class="status-label">{{ status|capitalize }}</span>
+                            <span class="status-count">{{ count }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <span class="material-icons">donut_large</span>
+                        <p>No simulations yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card full-width">
+            <div class="card-header">
+                <h2 class="card-title">17-Axis Framework Overview</h2>
+            </div>
+            <div class="card-body">
+                <div class="axes-overview">
+                    <div class="axes-group">
+                        <h4>Core Knowledge (Axes 1-5)</h4>
+                        <div class="axis-items">
+                            <div class="axis-item">
+                                <span class="axis-number">1</span>
+                                <span>Pillar Levels</span>
+                            </div>
+                            <div class="axis-item">
+                                <span class="axis-number">2</span>
+                                <span>Industry Sectors</span>
+                            </div>
+                            <div class="axis-item">
+                                <span class="axis-number">3</span>
+                                <span>Honeycomb System</span>
+                            </div>
+                            <div class="axis-item">
+                                <span class="axis-number">4</span>
+                                <span>Branch System</span>
+                            </div>
+                            <div class="axis-item">
+                                <span class="axis-number">5</span>
+                                <span>Node System</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="axes-group">
+                        <h4>Crosswalk (Axes 6-7)</h4>
+                        <div class="axis-items">
+                            <div class="axis-item">
+                                <span class="axis-number">6</span>
+                                <span>Octopus (Regulatory)</span>
+                            </div>
+                            <div class="axis-item">
+                                <span class="axis-number">7</span>
+                                <span>Spiderweb (Compliance)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="axes-group">
+                        <h4>Expert Personas (Axes 8-11)</h4>
+                        <div class="axis-items">
+                            <div class="axis-item">
+                                <span class="axis-number">8</span>
+                                <span>Knowledge Expert</span>
+                            </div>
+                            <div class="axis-item">
+                                <span class="axis-number">9</span>
+                                <span>Sector Expert</span>
+                            </div>
+                            <div class="axis-item">
+                                <span class="axis-number">10</span>
+                                <span>Regulatory Expert</span>
+                            </div>
+                            <div class="axis-item">
+                                <span class="axis-number">11</span>
+                                <span>Compliance Expert</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="axes-group">
+                        <h4>Context (Axes 12-13)</h4>
+                        <div class="axis-items">
+                            <div class="axis-item">
+                                <span class="axis-number">12</span>
+                                <span>Location Context</span>
+                            </div>
+                            <div class="axis-item">
+                                <span class="axis-number">13</span>
+                                <span>Temporal Logic</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="axes-group">
+                        <h4>Extended Enterprise (Axes 14-17)</h4>
+                        <div class="axis-items">
+                            <div class="axis-item">
+                                <span class="axis-number">14</span>
+                                <span>Risk & Confidence</span>
+                            </div>
+                            <div class="axis-item">
+                                <span class="axis-number">15</span>
+                                <span>Federated Intelligence</span>
+                            </div>
+                            <div class="axis-item">
+                                <span class="axis-number">16</span>
+                                <span>Arrows of Time</span>
+                            </div>
+                            <div class="axis-item">
+                                <span class="axis-number">17</span>
+                                <span>Observability & Analytics</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.analytics-container {
+    padding: 1.5rem;
+}
+
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background-color: var(--dark-bg-secondary);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.light-theme .stat-card {
+    background-color: var(--light-bg-secondary);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--dark-accent-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-icon .material-icons {
+    color: white;
+    font-size: 1.5rem;
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--dark-text-secondary);
+    margin: 0;
+}
+
+.light-theme .stat-label {
+    color: var(--light-text-secondary);
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.card.full-width {
+    grid-column: 1 / -1;
+}
+
+.bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.bar-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.bar-label {
+    font-size: 0.75rem;
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .bar-label {
+    color: var(--light-text-secondary);
+}
+
+.bar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bar {
+    height: 24px;
+    border-radius: 4px;
+    min-width: 4px;
+}
+
+.bar-value {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.status-dot.pending { background-color: #ffd93d; }
+.status-dot.running { background-color: #6a8fff; }
+.status-dot.completed { background-color: #4ecdc4; }
+.status-dot.failed { background-color: #ff6b6b; }
+.status-dot.paused { background-color: #a183ff; }
+
+.status-label {
+    flex: 1;
+}
+
+.status-count {
+    font-weight: 600;
+}
+
+.axes-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.axes-group h4 {
+    font-size: 0.875rem;
+    color: var(--dark-text-secondary);
+    margin-bottom: 0.75rem;
+}
+
+.light-theme .axes-group h4 {
+    color: var(--light-text-secondary);
+}
+
+.axis-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.axis-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    background-color: var(--dark-bg-tertiary);
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+}
+
+.light-theme .axis-item {
+    background-color: var(--light-bg-tertiary);
+}
+
+.axis-number {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--dark-accent-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .empty-state {
+    color: var(--light-text-secondary);
+}
+
+.empty-state .material-icons {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
