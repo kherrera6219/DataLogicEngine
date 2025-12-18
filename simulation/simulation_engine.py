@@ -105,20 +105,49 @@ class SimulationEngine:
             # Step 3: Process through quad persona engine
             persona_result = self.quad_persona_engine.process_query(query)
             
-            # Extract key information from persona processing
-            response_content = persona_result
-            confidence = 0.7  # Default confidence
+            # Extract confidence from persona results (avg of all personas)
+            confidence = persona_result.get('confidence', 0.7) if isinstance(persona_result, dict) else 0.7
+            logger.debug(f"Persona confidence extracted: {confidence}")
             
-            # In real implementation, extract from persona_result
-            active_personas = ["knowledge", "sector", "regulatory", "compliance"]
+            # Extract active personas from perspectives and build synthesized response
+            active_personas = []
+            persona_results_for_refinement = {}
+            perspective_texts = []
             
-            # Step 4: Apply refinement workflow
+            if isinstance(persona_result, dict) and 'perspectives' in persona_result:
+                for perspective in persona_result.get('perspectives', []):
+                    persona_name = perspective.get('persona', '').lower().replace(' ', '_')
+                    persona_conf = perspective.get('confidence', 0.7)
+                    perspective_text = perspective.get('perspective', '')
+                    
+                    active_personas.append(persona_name)
+                    perspective_texts.append(f"[{perspective.get('persona', 'Expert')}]: {perspective_text}")
+                    
+                    # Format for refinement workflow's _assess_confidence
+                    persona_results_for_refinement[persona_name] = {
+                        'confidence': persona_conf,
+                        'perspective': perspective_text,
+                        'name': perspective.get('persona', '')
+                    }
+                    logger.debug(f"Persona {persona_name} confidence: {persona_conf}")
+            
+            if not active_personas:
+                active_personas = ["knowledge", "sector", "regulatory", "compliance"]
+            
+            # Build synthesized response content from perspectives
+            if perspective_texts:
+                response_content = "\n\n".join(perspective_texts)
+            else:
+                response_content = str(persona_result)
+            
+            # Step 4: Apply refinement workflow with persona results
             refinement_context = {
                 'query': query,
                 'response': response_content,
                 'active_personas': active_personas,
                 'confidence': confidence,
-                'axis_context': axis_context
+                'axis_context': axis_context,
+                'persona_results': persona_results_for_refinement  # For _assess_confidence
             }
             
             refined_result = self.refinement_workflow.process(refinement_context)
