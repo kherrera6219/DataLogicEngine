@@ -4,6 +4,13 @@ Universal Knowledge Graph (UKG) System - Quad Persona Engine
 This module implements the core Quad Persona Simulation Engine that processes
 queries through four expert roles (Knowledge, Sector, Regulatory, and Compliance)
 corresponding to Axes 8-11 of the UKG system.
+
+Enhanced with Mathematical Framework from PDF:
+- Dynamic Weight Functions (α, β, γ, δ)
+- Knowledge Space Mapping M(q,c,t)
+- Deep Recursive Learning with Convergence
+- 12-Step Refinement Workflow
+- 0.995 Confidence Threshold
 """
 
 import json
@@ -12,6 +19,22 @@ import uuid
 from datetime import datetime
 from typing import Dict, List, Any, Tuple, Optional
 import os
+
+try:
+    from quad_persona.mathematical_framework import (
+        DynamicWeightFunctions,
+        KnowledgeSpaceMapper,
+        StructuredMemoryGraph,
+        DeepRecursiveLearning,
+        IntegrationFunction,
+        RefinementWorkflow12Step,
+        QuadPersonaMathematicalSystem,
+        KnowledgePoint,
+        MemoryVertex
+    )
+    MATH_FRAMEWORK_AVAILABLE = True
+except ImportError:
+    MATH_FRAMEWORK_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -224,7 +247,7 @@ class QuadPersonaEngine:
     """
     
     def __init__(self, config_path: str = None):
-        """Initialize the Quad Persona Engine."""
+        """Initialize the Quad Persona Engine with Mathematical Framework."""
         self.personas = {
             "knowledge": {},   # Axis 8
             "sector": {},      # Axis 9
@@ -239,11 +262,14 @@ class QuadPersonaEngine:
         if config_path and os.path.exists(config_path):
             self.load_config(config_path)
         else:
-            # Use default configuration
+            # Use default configuration with enhanced mathematical settings
             self.config = {
-                "max_recursive_passes": 3,
-                "min_confidence_threshold": 0.7,
+                "max_recursive_passes": 12,
+                "min_confidence_threshold": 0.995,
                 "enable_memory_integration": True,
+                "enable_mathematical_framework": True,
+                "convergence_epsilon": 0.001,
+                "relevance_threshold": 0.3,
                 "default_persona_weights": {
                     "knowledge": 1.0,
                     "sector": 1.0,
@@ -252,9 +278,60 @@ class QuadPersonaEngine:
                 }
             }
         
+        # Initialize Mathematical Framework components
+        if MATH_FRAMEWORK_AVAILABLE and self.config.get("enable_mathematical_framework", True):
+            self._init_mathematical_framework()
+        else:
+            self.math_system = None
+            self.weight_functions = None
+            self.knowledge_mapper = None
+            self.memory_graph = None
+            self.recursive_learner = None
+            self.refinement_workflow = None
+        
         # Initialize default personas if none exist
         if not any(self.personas.values()):
             self._init_default_personas()
+    
+    def _init_mathematical_framework(self):
+        """Initialize Mathematical Framework components from PDF specification."""
+        logger.info("Initializing Mathematical Framework for Quad Persona System")
+        
+        self.weight_functions = DynamicWeightFunctions({
+            'learning_rate': self.config.get('learning_rate', 0.01),
+            'decay_rate': self.config.get('decay_rate', 0.1),
+            'knowledge_optimal_time': 0.5,
+            'knowledge_decay': 0.5
+        })
+        
+        self.knowledge_mapper = KnowledgeSpaceMapper(
+            relevance_threshold=self.config.get('relevance_threshold', 0.3)
+        )
+        
+        self.memory_graph = StructuredMemoryGraph(
+            memory_threshold=self.config.get('memory_threshold', 0.3)
+        )
+        
+        self.recursive_learner = DeepRecursiveLearning(
+            max_depth=self.config.get('max_recursive_passes', 12),
+            epsilon=self.config.get('convergence_epsilon', 0.001),
+            lambda_param=1.0,
+            theta_d=6.0
+        )
+        
+        self.integration_function = IntegrationFunction(self.weight_functions)
+        
+        self.refinement_workflow = RefinementWorkflow12Step()
+        
+        self.math_system = QuadPersonaMathematicalSystem({
+            'weights': self.config.get('default_persona_weights', {}),
+            'relevance_threshold': self.config.get('relevance_threshold', 0.3),
+            'memory_threshold': self.config.get('memory_threshold', 0.3),
+            'max_depth': self.config.get('max_recursive_passes', 12),
+            'epsilon': self.config.get('convergence_epsilon', 0.001)
+        })
+        
+        logger.info("Mathematical Framework initialized successfully")
     
     def load_config(self, config_path: str):
         """Load configuration from a YAML or JSON file."""
@@ -494,13 +571,17 @@ class QuadPersonaEngine:
     
     def process_query(self, query_text: str, context: Dict[str, Any] = None) -> str:
         """
-        Process a query through the Quad Persona Engine.
+        Process a query through the Quad Persona Engine with Mathematical Framework.
+        
+        Implements: QPS_full(q, c, t) = RW_12(DRL(QPS(q, c, t), c, D_max))
         
         This method:
-        1. Initializes a new query state
-        2. Runs the query through each persona (Axes 8-11)
-        3. Applies recursive refinement
-        4. Synthesizes a final response
+        1. Maps query to knowledge space using M(q,c,t)
+        2. Computes dynamic weights (α, β, γ, δ)
+        3. Processes through each persona with weighted contributions
+        4. Applies Deep Recursive Learning with convergence detection
+        5. Applies 12-step refinement workflow targeting 0.995 confidence
+        6. Synthesizes final response using Integration Function Ψ
         
         Args:
             query_text: The text of the query to process
@@ -509,23 +590,23 @@ class QuadPersonaEngine:
         Returns:
             The final synthesized response
         """
-        # Initialize query state
         query_id = str(uuid.uuid4())
-        query_state = QueryState(query_id, query_text, context)
+        query_state = QueryState(query_id, query_text, context or {})
         self.active_queries[query_id] = query_state
         
         try:
-            # Update query status
             query_state.update_status("processing")
             query_state.add_processing_event("processing_started", {
                 "query_text": query_text,
-                "context_keys": list(context.keys()) if context else []
+                "context_keys": list(context.keys()) if context else [],
+                "mathematical_framework": self.math_system is not None
             })
             
-            # Set max passes from config
-            query_state.max_passes = self.config.get("max_recursive_passes", 3)
+            query_state.max_passes = self.config.get("max_recursive_passes", 12)
+            min_threshold = self.config.get("min_confidence_threshold", 0.995)
             
-            # Process with each persona
+            previous_confidence = 0.0
+            
             for pass_number in range(query_state.max_passes):
                 query_state.current_pass = pass_number + 1
                 query_state.add_processing_event("pass_started", {
@@ -533,36 +614,53 @@ class QuadPersonaEngine:
                     "max_passes": query_state.max_passes
                 })
                 
-                # Process each persona in sequence
                 self._process_with_all_personas(query_state)
                 
-                # Check if confidence threshold is met
-                confidence_values = [
-                    result.get("confidence", 0) 
-                    for result in query_state.persona_results.values() 
-                    if result is not None
-                ]
+                weighted_confidence = self._compute_weighted_confidence(query_state)
                 
-                if confidence_values:
-                    avg_confidence = sum(confidence_values) / len(confidence_values)
-                    min_threshold = self.config.get("min_confidence_threshold", 0.7)
-                    
-                    if avg_confidence >= min_threshold:
-                        logger.info(f"Confidence threshold met after pass {query_state.current_pass}: {avg_confidence:.2f} >= {min_threshold:.2f}")
+                if self.check_convergence(weighted_confidence, previous_confidence):
+                    query_state.add_processing_event("convergence_detected", {
+                        "pass": query_state.current_pass,
+                        "current_confidence": weighted_confidence,
+                        "previous_confidence": previous_confidence,
+                        "epsilon": self.config.get("convergence_epsilon", 0.001)
+                    })
+                    if weighted_confidence >= min_threshold:
+                        logger.info(f"Convergence + threshold met at pass {query_state.current_pass}: {weighted_confidence:.4f}")
                         break
+                
+                if weighted_confidence >= min_threshold:
+                    logger.info(f"Confidence threshold met after pass {query_state.current_pass}: {weighted_confidence:.4f} >= {min_threshold}")
+                    break
+                
+                previous_confidence = weighted_confidence
             
-            # Synthesize final response
-            final_result = self._synthesize_response(query_state)
+            final_result = self._synthesize_response_with_integration(query_state)
+            
+            if self.refinement_workflow:
+                refined_result, refinement_confidence = self.apply_refinement_workflow(final_result)
+                final_result["refinement_applied"] = True
+                final_result["refinement_confidence"] = refinement_confidence
+                final_result["refinement_steps"] = self.refinement_workflow.step_results
+                
+                if not self.refinement_workflow.confidence_threshold_met(refinement_confidence):
+                    final_result["threshold_met"] = False
+                    query_state.add_processing_event("below_threshold_warning", {
+                        "confidence": refinement_confidence,
+                        "threshold": 0.995
+                    })
+                else:
+                    final_result["threshold_met"] = True
+            
             query_state.final_result = final_result
             
-            # Update query status
             query_state.update_status("completed")
             query_state.add_processing_event("processing_completed", {
                 "passes_completed": query_state.current_pass,
-                "final_confidence": final_result.get("confidence", 0)
+                "final_confidence": final_result.get("confidence", 0),
+                "mathematical_framework_used": self.math_system is not None
             })
             
-            # Move to completed queries
             self._add_to_completed_queries(query_id)
             
             return final_result.get("response", "")
@@ -574,46 +672,154 @@ class QuadPersonaEngine:
                 "error": str(e)
             })
             
-            # Move to completed queries
             self._add_to_completed_queries(query_id)
             
             return f"Error processing query: {str(e)}"
     
+    def _compute_weighted_confidence(self, query_state: QueryState) -> float:
+        """Compute weighted confidence using dynamic persona weights."""
+        weighted_confidences = []
+        weights_sum = 0.0
+        
+        for persona_type, result in query_state.persona_results.items():
+            if result is not None:
+                weight = result.get("dynamic_weight", 0.25)
+                confidence = result.get("confidence", 0)
+                weighted_confidences.append(weight * confidence)
+                weights_sum += weight
+        
+        if weights_sum > 0:
+            return sum(weighted_confidences) / weights_sum
+        return 0.0
+    
+    def _synthesize_response_with_integration(self, query_state: QueryState) -> Dict[str, Any]:
+        """Synthesize response using Integration Function Ψ."""
+        if self.integration_function and self.weight_functions:
+            persona_outputs = {}
+            for persona_type, result in query_state.persona_results.items():
+                if result is not None:
+                    persona_outputs[persona_type] = result.get("response", "")
+            
+            integrated_text, weights_used = self.integration_function.integrate_text(
+                persona_outputs, 
+                query_state.context or {},
+                t=query_state.current_pass / query_state.max_passes
+            )
+            
+            weighted_confidence = self._compute_weighted_confidence(query_state)
+            
+            return {
+                "response": integrated_text,
+                "confidence": weighted_confidence,
+                "weights_used": weights_used,
+                "integration_method": "psi_function",
+                "persona_contributions": {
+                    ptype: result.get("dynamic_weight", 0.25) 
+                    for ptype, result in query_state.persona_results.items() 
+                    if result is not None
+                }
+            }
+        else:
+            return self._synthesize_response(query_state)
+    
+    def compute_dynamic_weights(self, context: Dict[str, Any], t: float = None) -> Dict[str, float]:
+        """
+        Compute dynamic persona weights using the mathematical framework.
+        Uses α_i(t), β_j(c), γ_k(c,t), δ_l(c,t) weight functions.
+        """
+        if self.weight_functions:
+            return self.weight_functions.compute_all_weights(context, t)
+        else:
+            return self.config.get("default_persona_weights", {
+                "knowledge": 0.25,
+                "sector": 0.25,
+                "regulatory": 0.25,
+                "compliance": 0.25
+            })
+    
+    def apply_refinement_workflow(self, query_result: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
+        """
+        Apply 12-step refinement workflow RW_12.
+        RW_12 = f_12 ∘ f_11 ∘ ... ∘ f_1
+        """
+        if self.refinement_workflow:
+            return self.refinement_workflow.apply_workflow(query_result)
+        else:
+            return query_result, 0.7
+    
+    def check_convergence(self, current_confidence: float, previous_confidence: float) -> bool:
+        """
+        Check if convergence threshold is met.
+        CF(x_t, x_{t-1}, ε) = 1 if |x_t - x_{t-1}| < ε
+        """
+        epsilon = self.config.get("convergence_epsilon", 0.001)
+        return abs(current_confidence - previous_confidence) < epsilon
+    
+    def get_mathematical_metrics(self) -> Dict[str, Any]:
+        """Get metrics from the mathematical framework."""
+        metrics = {
+            "framework_available": MATH_FRAMEWORK_AVAILABLE,
+            "framework_enabled": self.config.get("enable_mathematical_framework", False)
+        }
+        
+        if self.math_system:
+            metrics.update(self.math_system.get_system_metrics())
+        
+        if self.weight_functions:
+            metrics["current_base_weights"] = self.weight_functions.base_weights
+            metrics["weight_history_count"] = len(self.weight_functions.weight_history)
+        
+        if self.knowledge_mapper:
+            metrics["knowledge_points"] = len(self.knowledge_mapper.knowledge_points)
+        
+        if self.memory_graph:
+            metrics["memory_vertices"] = len(self.memory_graph.vertices)
+            metrics["memory_edges"] = len(self.memory_graph.edges)
+        
+        if self.refinement_workflow:
+            metrics["refinement_steps"] = len(self.refinement_workflow.step_results)
+            metrics["confidence_threshold"] = self.refinement_workflow.CONFIDENCE_THRESHOLD
+        
+        return metrics
+    
     def _process_with_all_personas(self, query_state: QueryState):
-        """Process a query through all personas in sequence."""
-        # Process in a specific order to build context
+        """Process a query through all personas with dynamic weights."""
         persona_types = ["knowledge", "sector", "regulatory", "compliance"]
+        
+        dynamic_weights = self.compute_dynamic_weights(query_state.context or {})
+        query_state.add_processing_event("dynamic_weights_computed", {
+            "weights": dynamic_weights
+        })
         
         for persona_type in persona_types:
             start_time = datetime.utcnow()
             
-            # Get available personas of this type
             personas = self.get_personas_by_type(persona_type)
             if not personas:
                 logger.warning(f"No {persona_type} personas available")
                 continue
             
-            # For simplicity, use the first available persona
-            # In a real implementation, select the most appropriate persona based on the query
             persona_id = next(iter(personas.keys()))
             persona = personas[persona_id]
             
-            # Process with this persona
             result = self._process_with_persona(query_state, persona)
             
-            # Calculate processing time
+            persona_weight = dynamic_weights.get(persona_type, 0.25)
+            result["dynamic_weight"] = persona_weight
+            result["weighted_confidence"] = result.get("confidence", 0) * persona_weight
+            
             end_time = datetime.utcnow()
             processing_time_ms = (end_time - start_time).total_seconds() * 1000
             
-            # Store result
             query_state.set_persona_result(persona_type, result, processing_time_ms)
             
-            # Log processing
             query_state.add_processing_event(f"{persona_type}_processing", {
                 "persona_id": persona_id,
                 "persona_name": persona.name,
                 "processing_time_ms": processing_time_ms,
-                "confidence": result.get("confidence", 0)
+                "confidence": result.get("confidence", 0),
+                "dynamic_weight": persona_weight,
+                "weighted_confidence": result.get("weighted_confidence", 0)
             })
     
     def _process_with_persona(self, query_state: QueryState, persona: PersonaProfile) -> Dict[str, Any]:
