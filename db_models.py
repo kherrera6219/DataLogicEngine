@@ -270,7 +270,7 @@ class KnowledgeNode(db.Model):
     pillar_level_id = Column(Integer, ForeignKey('ukg_pillar_levels.id'), nullable=True)
     domain_id = Column(Integer, ForeignKey('ukg_domains.id'), nullable=True)
     location_id = Column(Integer, ForeignKey('ukg_locations.id'), nullable=True)
-    metadata = Column(JSON, nullable=True)
+    node_metadata = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -289,7 +289,7 @@ class KnowledgeNode(db.Model):
             'pillar_id': self.pillar_level.pillar_id if self.pillar_level else None,
             'domain_id': self.domain_id,
             'location_id': self.location_id,
-            'metadata': self.metadata or {},
+            'metadata': self.node_metadata or {},
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
