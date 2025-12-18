@@ -48,3 +48,10 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+# Security - never commit encryption keys or secrets
+data/security/*.key
+data/security/*.salt
+data/security/keys/
+*.pem
+*.key
