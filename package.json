@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "dev": "echo 'Flask app - use gunicorn instead'",
+    "build": "echo 'Flask app - no Node build required'",
+    "start": "echo 'Flask app - use gunicorn instead'",
+    "lint": "echo 'No lint configured'",
     "test": "jest --watchAll=false"
   },
   "keywords": [
