@@ -29,6 +29,14 @@ from core.axes.axis14_risk import RiskAxis
 from core.axes.axis15_federated import FederatedAxis
 from core.axes.axis16_arrows_of_time import ArrowsOfTimeAxis
 from core.axes.axis17_observability import ObservabilityAxis
+from core.coordinate_system import (
+    UnifiedCoordinateSystem, 
+    UnifiedCoordinate, 
+    CoordinateParser,
+    CoordinateResolver,
+    CrosswalkTraversal,
+    create_coordinate_system
+)
 
 class AxisSystem:
     """
@@ -91,6 +99,9 @@ class AxisSystem:
             16: {"name": "Arrows of Time", "description": "Advanced temporal reasoning with causality chains"},
             17: {"name": "Observability & Analytics", "description": "Metrics, audit trails, and performance monitoring"}
         }
+        
+        # Initialize the Unified Coordinate System
+        self.coordinate_system = create_coordinate_system(db_manager, graph_manager)
 
     def _init_extended_axes(self):
         """Initialize the extended axes (14-17) for the 17-Axis system."""
@@ -690,11 +701,81 @@ class AxisSystem:
         Load axis configuration.
 
         Args:
-            axis_number: The axis number (1-13)
+            axis_number: The axis number (1-17)
             axis_name: The axis name
 
         Returns:
             Dict containing axis configuration
         """
-        # Basic implementation - can be extended to load from a database or config file
         return {"name": axis_name, "description": f"Description for {axis_name} (Axis {axis_number})"}
+    
+    def create_coordinate(self, **axis_values) -> UnifiedCoordinate:
+        """
+        Create a unified coordinate with specified axis values.
+        
+        This is a convenience method that delegates to the UnifiedCoordinateSystem.
+        
+        Args:
+            **axis_values: Keyword arguments for axis values
+            
+        Returns:
+            UnifiedCoordinate object
+            
+        Example:
+            coord = axis_system.create_coordinate(
+                pillar="32.1.2",
+                sector="54.7",
+                risk="3.85"
+            )
+        """
+        return self.coordinate_system.create_coordinate(**axis_values)
+    
+    def parse_coordinate(self, coord_string: str) -> UnifiedCoordinate:
+        """
+        Parse a coordinate string into a UnifiedCoordinate object.
+        
+        Args:
+            coord_string: The coordinate string to parse
+            
+        Returns:
+            UnifiedCoordinate object
+        """
+        return self.coordinate_system.parse(coord_string)
+    
+    def resolve_coordinate(self, coord: UnifiedCoordinate) -> Dict[str, Any]:
+        """
+        Resolve a coordinate to its full knowledge context.
+        
+        Args:
+            coord: The coordinate to resolve
+            
+        Returns:
+            Dictionary with resolved context for all axes
+        """
+        return self.coordinate_system.resolve(coord)
+    
+    def traverse_from_coordinate(self, coord: UnifiedCoordinate, 
+                                 query_context: Dict[str, Any] = None) -> List[UnifiedCoordinate]:
+        """
+        Traverse the knowledge graph from a coordinate using crosswalk systems.
+        
+        Uses Honeycomb (Axis 3), Octopus (Axis 6), and Spiderweb (Axis 7) 
+        traversal patterns to discover related coordinates.
+        
+        Args:
+            coord: Starting coordinate
+            query_context: Optional context to guide traversal
+            
+        Returns:
+            List of discovered coordinates
+        """
+        return self.coordinate_system.traverse(coord, query_context)
+    
+    def get_coordinate_system(self) -> UnifiedCoordinateSystem:
+        """
+        Get the underlying UnifiedCoordinateSystem instance.
+        
+        Returns:
+            The UnifiedCoordinateSystem instance
+        """
+        return self.coordinate_system

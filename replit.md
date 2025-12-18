@@ -19,6 +19,14 @@ The front-end uses HTML/CSS/JavaScript with Bootstrap 5, favoring a clean, produ
 The system is built on Flask (Python 3.11) with SQLAlchemy ORM and PostgreSQL. It integrates OpenAI via Replit AI Integrations for AI capabilities.
 Key features include:
 - **17-Axis Knowledge Framework**: A comprehensive framework for organizing and synthesizing knowledge across 17 dimensions, including core knowledge (e.g., Pillar Levels, Sectors, Topics, Methods, Tools) and extended enterprise dimensions (Risk & Confidence, Federated Intelligence, Arrows of Time, Observability & Analytics).
+- **Unified Coordinate System**: A 17-dimensional coordinate system (K ≡ x1..x17) using Nuremberg-style hierarchical numbering for indexing all knowledge elements. Features include:
+  - Axes 1-5: Hierarchical core (Pillars → Sectors → Honeycomb → Branches → Nodes)
+  - Axes 6-7: Crosswalk systems (Octopus one-to-many, Spiderweb many-to-many)
+  - Axes 8-11: Expert roles (Knowledge, Qualifications, Regulatory, Compliance)
+  - Axes 12-13: Context (Location, Temporal)
+  - Axes 14-17: Extended enterprise (Risk & Confidence, Federated Intelligence, Arrows of Time, Observability & Analytics)
+  - Meta-tag overlays for preserving original naming (FAR, DFARS, NAICS, ISO, NIST, etc.)
+  - Dynamic traversal via Honeycomb, Octopus, and Spiderweb node systems
 - **10-Layer Simulation Stack**: A sophisticated simulation engine that supports knowledge base retrieval, multi-persona expert simulation (Analyst, Expert, Critic, Synthesizer), reasoning, integration, pattern recognition, and advanced AI capabilities including AGI, Quantum Computing, Recursive Core, and Self-Awareness.
 - **AI Chat**: Context-aware conversations with history tracking, multi-perspective analysis using the quad persona approach, and real-time streaming responses, enhanced by TruthCore's tier-based processing.
 - **Simulations**: Creation and management of various simulation types with pagination and export functionalities.
