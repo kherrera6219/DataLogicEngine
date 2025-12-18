@@ -167,38 +167,53 @@
                 </div>
                 <div class="card-body">
                     <div class="graph-preview">
-                        <svg viewBox="0 0 800 400" class="graph-svg">
+                        <svg viewBox="0 0 800 400" class="graph-svg" id="knowledge-graph-svg">
                             <!-- Simplified knowledge graph visualization -->
                             <!-- Central node -->
                             <circle cx="400" cy="200" r="25" fill="#6a8fff" />
                             
-                            <!-- Main axes -->
-                            {% for i in range(13) %}
-                                {% set angle = i * (360 / 13) %}
-                                {% set radius = 150 %}
-                                {% set x = 400 + radius * cos(angle * 3.14159 / 180) %}
-                                {% set y = 200 + radius * sin(angle * 3.14159 / 180) %}
-                                
-                                <line 
-                                    x1="400" y1="200" 
-                                    x2="{{ x }}" y2="{{ y }}" 
-                                    stroke="rgba(106, 143, 255, 0.5)" 
-                                    stroke-width="2" />
-                                    
-                                <circle 
-                                    cx="{{ x }}" cy="{{ y }}" 
-                                    r="15" 
-                                    fill="rgba(106, 143, 255, 0.7)" />
-                                    
-                                <text 
-                                    x="{{ x + 20 * cos(angle * 3.14159 / 180) }}" 
-                                    y="{{ y + 20 * sin(angle * 3.14159 / 180) }}" 
-                                    font-size="12" 
-                                    fill="#b0b0b0" 
-                                    text-anchor="middle">
-                                    Axis {{ i+1 }}
-                                </text>
-                            {% endfor %}
+                            <!-- Pre-computed axis positions for 17 axes -->
+                            <line x1="400" y1="200" x2="550" y2="200" stroke="rgba(106, 143, 255, 0.5)" stroke-width="2" />
+                            <circle cx="550" cy="200" r="15" fill="rgba(106, 143, 255, 0.7)" />
+                            
+                            <line x1="400" y1="200" x2="533" y2="255" stroke="rgba(106, 143, 255, 0.5)" stroke-width="2" />
+                            <circle cx="533" cy="255" r="15" fill="rgba(106, 143, 255, 0.7)" />
+                            
+                            <line x1="400" y1="200" x2="486" y2="300" stroke="rgba(106, 143, 255, 0.5)" stroke-width="2" />
+                            <circle cx="486" cy="300" r="15" fill="rgba(106, 143, 255, 0.7)" />
+                            
+                            <line x1="400" y1="200" x2="420" y2="325" stroke="rgba(106, 143, 255, 0.5)" stroke-width="2" />
+                            <circle cx="420" cy="325" r="15" fill="rgba(106, 143, 255, 0.7)" />
+                            
+                            <line x1="400" y1="200" x2="350" y2="320" stroke="rgba(106, 143, 255, 0.5)" stroke-width="2" />
+                            <circle cx="350" cy="320" r="15" fill="rgba(106, 143, 255, 0.7)" />
+                            
+                            <line x1="400" y1="200" x2="290" y2="285" stroke="rgba(106, 143, 255, 0.5)" stroke-width="2" />
+                            <circle cx="290" cy="285" r="15" fill="rgba(106, 143, 255, 0.7)" />
+                            
+                            <line x1="400" y1="200" x2="255" y2="230" stroke="rgba(106, 143, 255, 0.5)" stroke-width="2" />
+                            <circle cx="255" cy="230" r="15" fill="rgba(106, 143, 255, 0.7)" />
+                            
+                            <line x1="400" y1="200" x2="250" y2="170" stroke="rgba(106, 143, 255, 0.5)" stroke-width="2" />
+                            <circle cx="250" cy="170" r="15" fill="rgba(106, 143, 255, 0.7)" />
+                            
+                            <line x1="400" y1="200" x2="275" y2="115" stroke="rgba(106, 143, 255, 0.5)" stroke-width="2" />
+                            <circle cx="275" cy="115" r="15" fill="rgba(106, 143, 255, 0.7)" />
+                            
+                            <line x1="400" y1="200" x2="320" y2="80" stroke="rgba(106, 143, 255, 0.5)" stroke-width="2" />
+                            <circle cx="320" cy="80" r="15" fill="rgba(106, 143, 255, 0.7)" />
+                            
+                            <line x1="400" y1="200" x2="380" y2="60" stroke="rgba(106, 143, 255, 0.5)" stroke-width="2" />
+                            <circle cx="380" cy="60" r="15" fill="rgba(106, 143, 255, 0.7)" />
+                            
+                            <line x1="400" y1="200" x2="450" y2="65" stroke="rgba(106, 143, 255, 0.5)" stroke-width="2" />
+                            <circle cx="450" cy="65" r="15" fill="rgba(106, 143, 255, 0.7)" />
+                            
+                            <line x1="400" y1="200" x2="510" y2="95" stroke="rgba(106, 143, 255, 0.5)" stroke-width="2" />
+                            <circle cx="510" cy="95" r="15" fill="rgba(106, 143, 255, 0.7)" />
+                            
+                            <!-- Central label -->
+                            <text x="400" y="205" font-size="10" fill="#ffffff" text-anchor="middle">UKG</text>
                         </svg>
                         <div class="graph-overlay">
                             <a href="#" class="btn btn-outline">Open Full Graph</a>
