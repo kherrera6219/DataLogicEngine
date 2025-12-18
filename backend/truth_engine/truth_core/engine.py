@@ -254,18 +254,34 @@ class TruthCoreEngine:
     def _process_moderate(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
         """Moderate tier: Hybrid RAG + Chain of Thought."""
         steps = ['rag_retrieval', 'chain_of_thought', 'synthesis']
+        confidence = 0.85
+        axis_context = None
+        
+        if self.axis_system:
+            try:
+                axis_context = self.axis_system.resolve_multi_axis_context({'query': query})
+            except Exception as e:
+                logger.warning(f"Axis system resolution failed: {e}")
+        
+        if self.simulation_engine:
+            try:
+                sim_result = self.simulation_engine.process_query(query, context)
+                sim_confidence = sim_result.get('confidence', sim_result.get('current_confidence', 0))
+                confidence = max(confidence, sim_confidence)
+                steps.append('simulation_layers_1_3')
+            except Exception as e:
+                logger.warning(f"SimulationEngine moderate tier failed: {e}")
         
         result = {
             'tier': 'moderate',
             'response': f"Analyzed response with RAG context for: {query[:100]}...",
-            'confidence': 0.85,
+            'confidence': confidence,
             'steps_executed': steps,
             'rag_sources': [],
             'processing_time_ms': 500
         }
         
-        if self.axis_system:
-            axis_context = self.axis_system.resolve_multi_axis_context({'query': query})
+        if axis_context:
             result['axis_context'] = axis_context
         
         return result
@@ -310,13 +326,28 @@ class TruthCoreEngine:
         }
         
         if self.simulation_engine:
-            sim_result = self.simulation_engine.process_query(query, context)
-            simulation_results['simulation_engine'] = sim_result
+            try:
+                sim_result = self.simulation_engine.process_query(query, context)
+                sim_confidence = sim_result.get('confidence', sim_result.get('current_confidence', 0))
+                simulation_results['simulation_engine'] = {
+                    'status': sim_result.get('status', 'unknown'),
+                    'confidence': sim_confidence,
+                    'response': sim_result.get('response', ''),
+                    'active_personas': sim_result.get('active_personas', []),
+                    'processing_time_ms': sim_result.get('processing_time_ms', 0)
+                }
+                high_stakes_result['confidence'] = max(
+                    high_stakes_result.get('confidence', 0),
+                    sim_confidence
+                )
+            except Exception as e:
+                logger.error(f"SimulationEngine failed: {e}")
+                simulation_results['simulation_engine'] = {'status': 'error', 'error': str(e)}
         
         result = {
             'tier': 'extreme',
             'response': high_stakes_result['response'],
-            'confidence': 0.97,
+            'confidence': high_stakes_result.get('confidence', 0.97),
             'steps_executed': high_stakes_result['steps_executed'],
             'simulations': simulation_results,
             'processing_time_ms': 30000

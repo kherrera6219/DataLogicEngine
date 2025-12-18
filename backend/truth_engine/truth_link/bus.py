@@ -45,6 +45,10 @@ class TruthLinkBus:
         self.dead_letter_queue = []
         self.processed_count = 0
         self.failed_count = 0
+        
+        from backend.truth_engine.truth_link.transport import SSETransport
+        self.sse_transport = SSETransport()
+        
         logger.info("TruthLinkBus initialized")
 
     def publish(self, source_module: str, message_type: str, 
@@ -117,7 +121,7 @@ class TruthLinkBus:
         return False
 
     def _dispatch(self, message: Dict[str, Any]) -> None:
-        """Dispatch message to subscribers."""
+        """Dispatch message to subscribers and SSE clients."""
         message_type = message['message_type']
         target_module = message.get('target_module')
         
@@ -139,6 +143,18 @@ class TruthLinkBus:
                 if message['retry_count'] >= 3:
                     message['status'] = 'dead_letter'
                     self.dead_letter_queue.append(message)
+        
+        try:
+            sse_payload = {
+                'message_id': message['message_id'],
+                'message_type': message_type,
+                'source_module': message['source_module'],
+                'session_id': message.get('session_id'),
+                'timestamp': message.get('created_at')
+            }
+            self.sse_transport.broadcast(message_type, sse_payload)
+        except Exception as e:
+            logger.warning(f"SSE broadcast failed: {e}")
 
     def get_pending_messages(self, target_module: str = None) -> List[Dict[str, Any]]:
         """Get pending messages for a module."""
@@ -174,6 +190,7 @@ class TruthLinkBus:
             'processed_count': self.processed_count,
             'failed_count': self.failed_count,
             'subscriber_count': sum(len(subs) for subs in self.subscribers.values()),
+            'sse_clients': len(self.sse_transport.clients),
             'modules': self.MODULES,
             'message_types': self.MESSAGE_TYPES
         }

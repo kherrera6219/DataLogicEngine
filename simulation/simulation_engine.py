@@ -34,7 +34,10 @@ class SimulationEngine:
         self.config = config or {}
         
         # Initialize components
-        self.quad_persona_engine = create_quad_persona_engine()
+        try:
+            self.quad_persona_engine = QuadPersonaEngine()
+        except TypeError:
+            self.quad_persona_engine = create_quad_persona_engine()
         self.persona_loader = PersonaLoader()
         self.axis_mapper = AxisRoleMapper()
         self.memory_manager = MemoryManager()

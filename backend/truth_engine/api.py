@@ -5,6 +5,7 @@ Provides REST API endpoints for Truth Engine v7.3 modules.
 """
 
 import logging
+from typing import Optional
 from flask import Blueprint, request, jsonify, Response, stream_with_context
 from functools import wraps
 
@@ -12,10 +13,10 @@ logger = logging.getLogger(__name__)
 
 truth_api = Blueprint('truth_api', __name__, url_prefix='/api/truth')
 
-_truth_core = None
-_truth_gate = None
-_truth_memory = None
-_truth_link = None
+_truth_core: Optional['TruthCoreEngine'] = None  # type: ignore
+_truth_gate: Optional['TruthGateGateway'] = None  # type: ignore
+_truth_memory: Optional['TruthMemoryManager'] = None  # type: ignore
+_truth_link: Optional['TruthLinkBus'] = None  # type: ignore
 
 
 def init_truth_engine(db_session):
@@ -27,7 +28,18 @@ def init_truth_engine(db_session):
     from backend.truth_engine.truth_memory.manager import TruthMemoryManager
     from backend.truth_engine.truth_link.bus import TruthLinkBus
     
-    _truth_core = TruthCoreEngine(db_session=db_session)
+    simulation_engine = None
+    try:
+        from simulation.simulation_engine import create_simulation_engine
+        simulation_engine = create_simulation_engine()
+        logger.info("SimulationEngine created for TruthCore integration")
+    except Exception as e:
+        logger.warning(f"Could not create SimulationEngine: {e}")
+    
+    _truth_core = TruthCoreEngine(
+        db_session=db_session,
+        simulation_engine=simulation_engine
+    )
     _truth_gate = TruthGateGateway(db_session=db_session)
     _truth_memory = TruthMemoryManager(db_session=db_session)
     _truth_link = TruthLinkBus(db_session=db_session)
@@ -165,21 +177,26 @@ def gate_stats():
 @require_truth_engine
 def get_budget(tenant_id):
     """Get budget status for tenant."""
-    from backend.truth_engine.truth_gate.budget import BudgetManager
-    budget_manager = BudgetManager(db_session=None)
-    return jsonify(budget_manager.get_budget(tenant_id))
+    try:
+        budget = _truth_gate.budget_manager.get_budget(tenant_id)
+        return jsonify(budget)
+    except Exception as e:
+        logger.error(f"Failed to get budget: {e}")
+        return jsonify({'error': 'Failed to retrieve budget'}), 500
 
 
 @truth_api.route('/gate/budget/<tenant_id>/reset', methods=['POST'])
 @require_truth_engine
 def reset_budget(tenant_id):
     """Reset budget for tenant."""
-    data = request.get_json() or {}
-    new_limit = data.get('budget_limit')
-    
-    from backend.truth_engine.truth_gate.budget import BudgetManager
-    budget_manager = BudgetManager(db_session=None)
-    return jsonify(budget_manager.reset_budget(tenant_id, new_limit))
+    try:
+        data = request.get_json() or {}
+        new_limit = data.get('budget_limit')
+        result = _truth_gate.budget_manager.reset_budget(tenant_id, new_limit)
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Failed to reset budget: {e}")
+        return jsonify({'error': 'Failed to reset budget'}), 500
 
 
 @truth_api.route('/memory/session/<session_id>', methods=['GET'])
@@ -304,13 +321,15 @@ def dead_letter_queue():
 @require_truth_engine
 def stream_events(client_id):
     """SSE endpoint for real-time events."""
-    from backend.truth_engine.truth_link.transport import SSETransport
-    
-    transport = SSETransport()
-    
     def generate():
-        for event in transport.stream_events(client_id):
-            yield event
+        try:
+            for event in _truth_link.sse_transport.stream_events(client_id):
+                yield event
+        except GeneratorExit:
+            _truth_link.sse_transport.unregister_client(client_id)
+        except Exception as e:
+            logger.error(f"SSE stream error: {e}")
+            _truth_link.sse_transport.unregister_client(client_id)
     
     return Response(
         stream_with_context(generate()),
@@ -327,21 +346,22 @@ def stream_events(client_id):
 @require_truth_engine
 def compliance_report():
     """Get compliance report."""
-    tenant_id = request.args.get('tenant_id')
-    
-    from backend.truth_engine.truth_gate.compliance import ComplianceEnforcer
-    enforcer = ComplianceEnforcer(db_session=None)
-    report = enforcer.get_compliance_report(tenant_id)
-    
-    return jsonify(report)
+    try:
+        tenant_id = request.args.get('tenant_id')
+        report = _truth_gate.compliance_enforcer.get_compliance_report(tenant_id)
+        return jsonify(report)
+    except Exception as e:
+        logger.error(f"Failed to generate compliance report: {e}")
+        return jsonify({'error': 'Failed to generate compliance report'}), 500
 
 
 @truth_api.route('/compliance/audit/<session_id>', methods=['GET'])
 @require_truth_engine
 def audit_trail(session_id):
     """Get audit trail for session."""
-    from backend.truth_engine.truth_gate.compliance import ComplianceEnforcer
-    enforcer = ComplianceEnforcer(db_session=None)
-    trail = enforcer.get_audit_trail(session_id)
-    
-    return jsonify({'session_id': session_id, 'audit_trail': trail})
+    try:
+        trail = _truth_gate.compliance_enforcer.get_audit_trail(session_id)
+        return jsonify({'session_id': session_id, 'audit_trail': trail})
+    except Exception as e:
+        logger.error(f"Failed to get audit trail: {e}")
+        return jsonify({'error': 'Failed to get audit trail'}), 500

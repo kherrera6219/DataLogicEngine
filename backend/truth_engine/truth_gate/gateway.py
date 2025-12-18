@@ -49,6 +49,12 @@ class TruthGateGateway:
         self.rate_limiter = rate_limiter
         self.blocked_requests = 0
         self.processed_requests = 0
+        
+        from backend.truth_engine.truth_gate.budget import BudgetManager
+        from backend.truth_engine.truth_gate.compliance import ComplianceEnforcer
+        self.budget_manager = BudgetManager(db_session=db_session)
+        self.compliance_enforcer = ComplianceEnforcer(db_session=db_session)
+        
         logger.info("TruthGate Gateway initialized")
 
     def evaluate(self, request: Dict[str, Any]) -> Dict[str, Any]:
