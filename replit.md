@@ -30,6 +30,14 @@ Key features include:
 - **10-Layer Simulation Stack**: A sophisticated simulation engine that supports knowledge base retrieval, multi-persona expert simulation (Analyst, Expert, Critic, Synthesizer), reasoning, integration, pattern recognition, and advanced AI capabilities including AGI, Quantum Computing, Recursive Core, and Self-Awareness.
 - **AI Chat**: Context-aware conversations with history tracking, multi-perspective analysis using the quad persona approach, and real-time streaming responses, enhanced by TruthCore's tier-based processing.
 - **Simulations**: Creation and management of various simulation types with pagination and export functionalities.
+- **Quad Persona Mathematical Framework**: Enhanced persona processing implementing:
+  - Knowledge Space Mapping M(q,c,t) for similarity-based query routing to 17-axis coordinates
+  - Dynamic Weight Functions (α_i(t), β_j(c), γ_k(c,t), δ_l(c,t)) replacing static persona weights
+  - Structured Memory Graph G_M with temporal/relevance recall algorithms
+  - Deep Recursive Learning with convergence function CF(x_t, x_{t-1}, ε=0.001)
+  - 12-Step Refinement Workflow targeting 0.995 confidence threshold
+  - Integration Function Ψ for dynamic persona weight synthesis
+- **Database Reference Data**: 82 pillars (PL-1-107) with Nuremberg coordinates and 72 AXIS-2 worldwide sector codes with NAICS mappings
 
 ### System Design Choices
 The core orchestration layer is the **Truth Engine v7.3**, comprising:
