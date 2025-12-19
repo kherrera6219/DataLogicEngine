@@ -7,7 +7,193 @@
 
 {% block content %}
 <div class="page-container">
-    <div class="card">
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <span class="material-icons stat-icon">account_tree</span>
+                    <h3 class="stat-value">{{ pillars|length }}</h3>
+                    <p class="stat-label">Pillars (Axis 1)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <span class="material-icons stat-icon">business</span>
+                    <h3 class="stat-value">{{ sectors|length }}</h3>
+                    <p class="stat-label">Sectors (Axis 2)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <span class="material-icons stat-icon">hub</span>
+                    <h3 class="stat-value">{{ domains|length }}</h3>
+                    <p class="stat-label">Domains (Axis 3)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs mb-4" id="knowledgeTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="axes-tab" data-bs-toggle="tab" data-bs-target="#axes" type="button" role="tab">17-Axis Framework</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pillars-tab" data-bs-toggle="tab" data-bs-target="#pillars" type="button" role="tab">Pillars</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sectors-tab" data-bs-toggle="tab" data-bs-target="#sectors" type="button" role="tab">Sectors</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="domains-tab" data-bs-toggle="tab" data-bs-target="#domains" type="button" role="tab">Domains</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="knowledgeTabContent">
+        <div class="tab-pane fade show active" id="axes" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">17-Axis Knowledge Framework</h2>
+                </div>
+                <div class="card-body">
+                    {% if graph_nodes %}
+                    <div class="axis-grid">
+                        {% for node in graph_nodes %}
+                        <div class="axis-card axis-{{ node.axis_number }}">
+                            <div class="axis-number">{{ node.axis_number }}</div>
+                            <div class="axis-info">
+                                <h4>{{ node.label }}</h4>
+                                <p>{{ node.description }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <span class="material-icons">layers</span>
+                        <h3>No Axis Data</h3>
+                        <p>Run the seed script to populate the 17-axis framework.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="pillars" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Knowledge Pillars (Axis 1)</h2>
+                </div>
+                <div class="card-body">
+                    {% if pillars %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Pillar ID</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pillar in pillars %}
+                            <tr>
+                                <td><span class="badge bg-primary">{{ pillar.pillar_id }}</span></td>
+                                <td>{{ pillar.name }}</td>
+                                <td>{{ pillar.description or 'N/A' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-state">
+                        <span class="material-icons">account_tree</span>
+                        <h3>No Pillars Yet</h3>
+                        <p>Run the seed script to populate pillars.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="sectors" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Worldwide Sectors (Axis 2)</h2>
+                </div>
+                <div class="card-body">
+                    {% if sectors %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Sector Code</th>
+                                <th>Name</th>
+                                <th>NAICS Mapping</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sector in sectors %}
+                            <tr>
+                                <td><span class="badge bg-success">{{ sector.sector_code }}</span></td>
+                                <td>{{ sector.name }}</td>
+                                <td>{{ sector.naics_mapping or 'N/A' }}</td>
+                                <td>{{ sector.description or 'N/A' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-state">
+                        <span class="material-icons">business</span>
+                        <h3>No Sectors Yet</h3>
+                        <p>Run the seed script to populate sectors.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="domains" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Knowledge Domains (Axis 3)</h2>
+                </div>
+                <div class="card-body">
+                    {% if domains %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Domain Code</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for domain in domains %}
+                            <tr>
+                                <td><span class="badge bg-info">{{ domain.domain_code }}</span></td>
+                                <td>{{ domain.name }}</td>
+                                <td>{{ domain.description or 'N/A' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-state">
+                        <span class="material-icons">hub</span>
+                        <h3>No Domains Yet</h3>
+                        <p>Run the seed script to populate domains.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
         <div class="card-header">
             <h2 class="card-title">Knowledge Nodes</h2>
             <div class="card-actions">
@@ -86,6 +272,98 @@
 <style>
 .page-container {
     padding: 1.5rem;
+}
+
+.stat-card {
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    color: var(--dark-accent-primary);
+    margin-bottom: 0.5rem;
+}
+
+.light-theme .stat-icon {
+    color: var(--light-accent-primary);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+}
+
+.stat-label {
+    color: var(--dark-text-secondary);
+    margin: 0;
+}
+
+.light-theme .stat-label {
+    color: var(--light-text-secondary);
+}
+
+.axis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.axis-card {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem;
+    background-color: var(--dark-card-bg);
+    border-radius: 8px;
+    border-left: 4px solid var(--dark-accent-primary);
+}
+
+.light-theme .axis-card {
+    background-color: var(--light-card-bg);
+    border-left-color: var(--light-accent-primary);
+}
+
+.axis-card.axis-1, .axis-card.axis-2, .axis-card.axis-3, .axis-card.axis-4, .axis-card.axis-5 { border-left-color: #4CAF50; }
+.axis-card.axis-6, .axis-card.axis-7 { border-left-color: #2196F3; }
+.axis-card.axis-8, .axis-card.axis-9, .axis-card.axis-10, .axis-card.axis-11 { border-left-color: #9C27B0; }
+.axis-card.axis-12, .axis-card.axis-13 { border-left-color: #FF9800; }
+.axis-card.axis-14, .axis-card.axis-15, .axis-card.axis-16, .axis-card.axis-17 { border-left-color: #F44336; }
+
+.axis-number {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--dark-accent-primary);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.axis-info {
+    margin-left: 1rem;
+}
+
+.axis-info h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.95rem;
+}
+
+.axis-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .axis-info p {
+    color: var(--light-text-secondary);
 }
 
 .table {

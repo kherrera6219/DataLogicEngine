@@ -20,7 +20,7 @@ from sqlalchemy import text, select
 from app import app
 from extensions import db
 from models import APIKey, User, SimulationSession
-from db_models import Node, Edge, KnowledgeNode, MethodNode, KnowledgeAlgorithm, Sector, Domain
+from db_models import Node, Edge, KnowledgeNode, MethodNode, KnowledgeAlgorithm, Sector, Domain, PillarLevel
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -202,7 +202,20 @@ def knowledge():
         KnowledgeNode.created_at.desc()
     ).paginate(page=page, per_page=per_page)
     
-    return render_template('knowledge.html', knowledge_nodes=knowledge_nodes)
+    # Get pillars, sectors, and domains for the knowledge browser
+    pillars = PillarLevel.query.order_by(PillarLevel.pillar_id).all()
+    sectors = Sector.query.order_by(Sector.sector_code).all()
+    domains = Domain.query.order_by(Domain.domain_code).all()
+    
+    # Get graph nodes for the 17-axis view
+    graph_nodes = Node.query.filter_by(node_type='axis').order_by(Node.axis_number).all()
+    
+    return render_template('knowledge.html', 
+                           knowledge_nodes=knowledge_nodes,
+                           pillars=pillars,
+                           sectors=sectors,
+                           domains=domains,
+                           graph_nodes=graph_nodes)
 
 @app.route('/simulation')
 @login_required
@@ -561,7 +574,7 @@ def api_graph():
             edge_data.append({
                 "source": edge.source_node_id,
                 "target": edge.target_node_id,
-                "label": edge.label,
+                "label": edge.edge_type,
                 "value": edge.weight,
                 "directed": True
             })
