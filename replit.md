@@ -94,3 +94,46 @@ Security features include session-based authentication, CSRF protection, securit
 - **Web Framework**: Flask
 - **ORM**: SQLAlchemy
 - **Frontend Framework**: Bootstrap 5
+
+## Project Structure
+```
+├── app.py                 # Flask application setup
+├── main.py                # Application entry point
+├── routes.py              # Route definitions
+├── models.py              # SQLAlchemy models (User, Session)
+├── db_models.py           # Knowledge graph models (17-axis)
+├── extensions.py          # Flask extensions
+├── seed_data.py           # Database seeding script
+├── backend/
+│   ├── ai_chat.py         # AI chat implementation
+│   ├── ka_api.py          # Knowledge Algorithm API
+│   ├── mcp/               # Model Context Protocol
+│   ├── truth_engine/      # Truth Engine v7.3
+│   └── security/          # Security middleware
+├── templates/             # Jinja2 templates
+├── static/                # Static assets and swagger.json
+├── quad_persona/          # Quad Persona Engine
+├── simulation/            # 10-Layer Simulation Stack
+├── knowledge_algorithms/  # 58+ Knowledge Algorithms
+├── docs/                  # Documentation
+└── tests/                 # Test suite
+```
+
+## Version History
+| Version | Date | Phase | Description |
+|---------|------|-------|-------------|
+| 0.5.0 | Dec 19, 2024 | Phase 5 | Frontend-database integration |
+| 0.4.0 | Dec 19, 2024 | Phase 4 | Database seeding & API docs |
+| 0.3.1 | Dec 18, 2024 | Phase 3B | Admin features |
+| 0.3.0 | Dec 17, 2024 | Phase 3 | Testing infrastructure |
+| 0.2.0 | Dec 15, 2024 | Phase 2 | Core implementation |
+| 0.1.1 | Dec 10, 2024 | Phase 1 | Security hardening |
+
+## Running the Application
+```bash
+# Start the server
+gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app
+
+# Seed the database (if needed)
+python seed_data.py
+```

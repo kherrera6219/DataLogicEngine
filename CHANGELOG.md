@@ -12,13 +12,89 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions CI/CD workflows
 - Issue and PR templates
 
-## [0.1.0] - 2025-11-21
+## [0.5.0] - 2024-12-19
+
+### Added - Phase 5: Frontend-Database Integration
+- Connected Knowledge Browser to real database data
+- Updated `/api/graph` endpoint to return nodes, edges, pillars, sectors, domains
+- Added tabbed interface to Knowledge Browser showing 17-axis framework
+- Real-time display of pillars (Axis 1), sectors (Axis 2), and domains (Axis 3)
+- Stat cards showing counts of knowledge entities
+
+### Changed
+- Knowledge Browser now displays actual seeded data instead of placeholders
+- Graph API enriched with pillar/sector/domain context for visualization
+
+## [0.4.0] - 2024-12-19
+
+### Added - Phase 4: Database Seeding & API Documentation
+- Database seeding script (`seed_data.py`) with 86 reference records
+- 17 knowledge pillars (PL-1 through PL-17)
+- 15 worldwide sectors with NAICS mappings
+- 13 knowledge domains
+- 25 knowledge graph nodes representing 17-axis framework
+- 16 edges connecting axis nodes
+- Swagger UI API documentation at `/api/docs`
+- OpenAPI 3.0 specification (`static/swagger.json`)
+
+### Changed
+- Updated app.py to use SESSION_SECRET as mandated
+- Added flask-swagger-ui dependency
+
+## [0.3.1] - 2024-12-18
+
+### Added - Phase 3B: Admin Features
+- Audit Log page (`/admin/audit`) with event filtering and compliance info
+- System Settings page (`/admin/settings`) with 6 configuration tabs
+- RBAC role field added to User model (admin/analyst/user/viewer)
+- User Management page (`/admin/users`) with role assignment
+
+### Changed
+- Updated navigation with Admin section
+- Enhanced admin dashboard with system metrics
+
+## [0.3.0] - 2024-12-17
+
+### Added - Phase 3: Testing Infrastructure
+- 161 tests covering all Phase 2 components
+- Integration tests for API endpoints
+- Unit tests for simulation engine layers
+
+## [0.2.0] - 2024-12-15
+
+### Added - Phase 2: Core Implementation
+- 10-Layer Simulation Stack (all layers implemented)
+- Quad Persona Engine (Analyst, Expert, Critic, Synthesizer)
+- Knowledge Algorithms (KA-001 to KA-058+)
+- Truth Engine v7.3 components (TruthCore, TruthGate, TruthMemory, TruthLink)
+
+## [0.1.1] - 2024-12-10
+
+### Added - Phase 1: Security Hardening
+- Security headers middleware
+- Request size limits
+- Rate limiting
+- CSRF protection
+
+### Fixed
+- Removed debug mode in production
+- Secured secret key configuration
+
+## [0.1.0.1] - 2024-12-08
+
+### Fixed - Phase 0: Emergency Security Fixes
+- Removed default credentials (admin/admin123)
+- Disabled debug mode in production
+- Removed secrets from version control
+- Added environment variable validation
+
+## [0.1.0] - 2024-11-21 (Legacy - Initial Release)
 
 ### Added
 
-#### Core Features
-- 13-axis knowledge framework implementation
-  - Axis 1: Pillar Levels (48 pillars)
+#### Core Features (Initial Architecture)
+- 17-axis knowledge framework implementation (expanded from initial 13-axis)
+  - Axis 1: Pillar Levels (knowledge pillars)
   - Axis 2: Industry Sectors
   - Axis 3: Honeycomb System
   - Axis 4: Branch System
@@ -28,6 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Axes 8-11: Expert Personas
   - Axis 12: Location Context
   - Axis 13: Temporal/Causal Logic
+  - Axes 14-17: Extended Enterprise (added later)
 
 #### Knowledge Algorithms
 - 56+ knowledge algorithms (KA-01 through KA-56)
