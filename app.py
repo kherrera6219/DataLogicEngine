@@ -163,9 +163,9 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 logger.info("Swagger UI registered at /api/docs")
 
-# Note: Core routes (/, /login, /register, /logout, /dashboard, /profile, /settings, 
-# /knowledge, /simulation, /graph, /chatbot, /analytics, /admin) are defined in routes.py
-# to avoid duplicate route definitions.
+# Register core routes from routes package
+from routes import register_routes
+register_routes(app)
 
 def _config_health() -> dict:
     """Summarize configuration readiness for lightweight health checks."""
