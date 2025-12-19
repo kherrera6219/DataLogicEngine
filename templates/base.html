@@ -827,6 +827,30 @@
                             LLM Providers
                         </a>
                         
+                        {% if current_user.is_admin %}
+                        <div class="dropdown-divider"></div>
+                        
+                        <a href="{{ url_for('admin') }}" class="dropdown-item">
+                            <span class="material-icons">admin_panel_settings</span>
+                            Admin Dashboard
+                        </a>
+                        
+                        <a href="{{ url_for('admin_users') }}" class="dropdown-item">
+                            <span class="material-icons">group</span>
+                            User Management
+                        </a>
+                        
+                        <a href="{{ url_for('admin_audit') }}" class="dropdown-item">
+                            <span class="material-icons">history</span>
+                            Audit Log
+                        </a>
+                        
+                        <a href="{{ url_for('admin_settings') }}" class="dropdown-item">
+                            <span class="material-icons">tune</span>
+                            System Settings
+                        </a>
+                        {% endif %}
+                        
                         <div class="dropdown-divider"></div>
                         
                         <a href="{{ url_for('logout') }}" class="dropdown-item">

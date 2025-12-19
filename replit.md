@@ -79,6 +79,8 @@ Security features include session-based authentication, CSRF protection, securit
 - `/api-overlay` - API Overlay Dashboard showing LLM connections
 - `/admin` - Admin dashboard (admin users only)
 - `/admin/users` - User Management with RBAC roles/permissions
+- `/admin/audit` - Audit Log with event filtering and compliance info
+- `/admin/settings` - System Settings for configuring global parameters
 
 ## External Dependencies
 - **Database**: PostgreSQL (Neon-backed via Replit)

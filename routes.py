@@ -461,6 +461,33 @@ def admin_users():
                           analyst_count=analyst_count,
                           viewer_count=viewer_count)
 
+@app.route('/admin/audit')
+@login_required
+def admin_audit():
+    """Render the audit log page."""
+    if not current_user.is_admin:
+        flash('Access denied: Admin privileges required', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    stats = {'info': 3, 'warning': 0, 'error': 0, 'critical': 0}
+    type_counts = {'auth': 1, 'access': 1, 'data': 0, 'admin': 0, 'system': 1}
+    
+    return render_template('admin/audit_log.html',
+                          logs=[],
+                          stats=stats,
+                          type_counts=type_counts,
+                          now=datetime.datetime.utcnow())
+
+@app.route('/admin/settings')
+@login_required
+def admin_settings():
+    """Render the system settings page."""
+    if not current_user.is_admin:
+        flash('Access denied: Admin privileges required', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    return render_template('admin/settings.html')
+
 # API Routes
 @app.route('/api/health')
 def api_health():
