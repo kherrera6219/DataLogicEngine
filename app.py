@@ -24,13 +24,8 @@ DEFAULT_PORT = int(os.environ.get("PORT", os.environ.get("BACKEND_PORT", 8080)))
 
 # Create Flask app
 app = Flask(__name__)
-# Security: Get secret key from environment, fallback only for development
-if os.environ.get('FLASK_ENV') == 'development':
-    app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-for-local-development-only")
-else:
-    app.secret_key = os.environ.get("SECRET_KEY")
-    if not app.secret_key:
-        raise ValueError("SECRET_KEY environment variable must be set for production!")
+# Security: Get secret key from environment (SESSION_SECRET as mandated)
+app.secret_key = os.environ.get("SESSION_SECRET")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
 
 # Session hardening
