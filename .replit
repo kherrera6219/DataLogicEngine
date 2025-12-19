@@ -30,6 +30,9 @@ task = "shell.exec"
 args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 waitForPort = 5000
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow]]
 name = "Next.js Dev"
 author = 28709262
@@ -592,11 +595,7 @@ externalPort = 8008
 
 [[ports]]
 localPort = 5000
-externalPort = 5000
-
-[[ports]]
-localPort = 5001
-externalPort = 8081
+externalPort = 80
 
 [[ports]]
 localPort = 5002
