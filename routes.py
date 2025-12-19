@@ -579,10 +579,22 @@ def api_graph():
                 "directed": True
             })
         
-        # Assemble final data structure
+        # Get pillar, sector, and domain context for enriched visualization
+        pillars = PillarLevel.query.order_by(PillarLevel.pillar_id).all()
+        sectors = Sector.query.order_by(Sector.sector_code).all()
+        domains = Domain.query.order_by(Domain.domain_code).all()
+        
+        pillar_data = [{"id": p.id, "pillar_id": p.pillar_id, "name": p.name, "description": p.description} for p in pillars]
+        sector_data = [{"id": s.id, "sector_code": s.sector_code, "name": s.name, "naics_mapping": s.naics_mapping} for s in sectors]
+        domain_data = [{"id": d.id, "domain_code": d.domain_code, "name": d.name, "description": d.description} for d in domains]
+        
+        # Assemble final data structure with full context
         graph_data = {
             "nodes": node_data,
-            "links": edge_data
+            "links": edge_data,
+            "pillars": pillar_data,
+            "sectors": sector_data,
+            "domains": domain_data
         }
         
         return jsonify(graph_data)
