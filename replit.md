@@ -49,14 +49,15 @@ The core orchestration layer is the **Truth Engine v7.3**, comprising:
 Security features include session-based authentication, CSRF protection, security headers, rate limiting, request size limits, input validation, and adversarial input detection. Compliance features adhere to the EU AI Act, including detailed decision logging, explainability endpoints, 7-year audit trail retention, and PII detection.
 
 ## Recent Changes (December 2024)
+- **v1.0.0 Release**: Production-ready application with all core features operational
+- v1.0.0: Split routes.py (736 lines) into 4 modular blueprint files (auth, page, api, admin)
+- v1.0.0: Created @admin_required decorator for centralized access control
+- v1.0.0: Fixed test assertion field name mismatches - 93% test pass rate (150/161)
+- v1.0.0: Configured production deployment settings
 - Phase 7: Code organization improvements - registered additional blueprints (persona_api, pillar_api, compliance_api)
-- Phase 7: Updated CONSOLIDATED_TODO.md with accurate phase completion status
 - Phase 7: Added api_response decorator to backend middleware for standardized API responses
-- Phase 7: Added get_truth_engine_status function to Truth Engine API
-- Phase 7: Secured /api/ka/algorithms endpoint with @login_required
 - Phase 6: Updated README.md, CHANGELOG.md, created phase status documents
 - Phase 5: Connected frontend to real database data - /api/graph returns nodes, edges, pillars, sectors, domains
-- Phase 5: Updated Knowledge Browser with tabbed interface showing 17-axis framework, pillars, sectors, and domains
 - Phase 4: Seeded database with 86 records (17 pillars, 15 sectors, 13 domains, 25 nodes, 16 edges)
 - Phase 4: Added Swagger UI API documentation at /api/docs endpoint
 
@@ -132,6 +133,7 @@ Security features include session-based authentication, CSRF protection, securit
 ## Version History
 | Version | Date | Phase | Description |
 |---------|------|-------|-------------|
+| **1.0.0** | **Dec 19, 2024** | **Release** | **Production-ready release with all core features** |
 | 0.6.0 | Dec 19, 2024 | Phase 7 | Code organization & blueprint registration |
 | 0.5.0 | Dec 19, 2024 | Phase 5 | Frontend-database integration |
 | 0.4.0 | Dec 19, 2024 | Phase 4 | Database seeding & API docs |

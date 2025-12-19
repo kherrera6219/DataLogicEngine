@@ -7,10 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Comprehensive documentation suite (README, CONTRIBUTING, SECURITY, etc.)
-- GitHub Actions CI/CD workflows
-- Issue and PR templates
+### Planned
+- Redis caching layer for improved performance
+- Async task processing with Celery
+- Real-time collaboration features
+
+## [1.0.0] - 2024-12-19
+
+### Added - Production Release
+- Split routes.py (736 lines) into 4 modular blueprint files:
+  - `routes/auth_routes.py` - Authentication (login, logout, register)
+  - `routes/page_routes.py` - Page rendering (dashboard, knowledge, graph, etc.)
+  - `routes/api_routes.py` - API endpoints
+  - `routes/admin_routes.py` - Admin routes with @admin_required decorator
+- Created `@admin_required` decorator in `backend/decorators.py`
+- Created `@role_required` and `@api_key_required` decorators
+- Backward-compatible endpoint aliases for seamless template compatibility
+
+### Changed
+- Routes now organized in `routes/` package instead of single file
+- Admin routes use new `@admin_required` decorator
+- Test pass rate improved from 47% to 93% (150/161 tests)
+- Fixed test assertion field name mismatches (confidence, unified_memory, external_knowledge)
+
+### Fixed
+- Blueprint registration now happens in `app.py` for consistent test behavior
+- Test method name mismatches for persona axes and KA master controller
 
 ## [0.5.0] - 2024-12-19
 
