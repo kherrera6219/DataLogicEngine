@@ -49,18 +49,16 @@ The core orchestration layer is the **Truth Engine v7.3**, comprising:
 Security features include session-based authentication, CSRF protection, security headers, rate limiting, request size limits, input validation, and adversarial input detection. Compliance features adhere to the EU AI Act, including detailed decision logging, explainability endpoints, 7-year audit trail retention, and PII detection.
 
 ## Recent Changes (December 2024)
+- Phase 7: Code organization improvements - registered additional blueprints (persona_api, pillar_api, compliance_api)
+- Phase 7: Updated CONSOLIDATED_TODO.md with accurate phase completion status
+- Phase 7: Added api_response decorator to backend middleware for standardized API responses
+- Phase 7: Added get_truth_engine_status function to Truth Engine API
+- Phase 7: Secured /api/ka/algorithms endpoint with @login_required
+- Phase 6: Updated README.md, CHANGELOG.md, created phase status documents
 - Phase 5: Connected frontend to real database data - /api/graph returns nodes, edges, pillars, sectors, domains
 - Phase 5: Updated Knowledge Browser with tabbed interface showing 17-axis framework, pillars, sectors, and domains
 - Phase 4: Seeded database with 86 records (17 pillars, 15 sectors, 13 domains, 25 nodes, 16 edges)
 - Phase 4: Added Swagger UI API documentation at /api/docs endpoint
-- Fixed KnowledgeNode model: Renamed `metadata` column to `node_metadata` to avoid SQLAlchemy reserved attribute conflict
-- Created missing templates: knowledge.html, graph.html, chatbot.html, analytics.html, settings.html, admin/dashboard.html
-- Added LLM Provider configuration page at `/llm-providers` for managing AI model integrations
-- Updated navigation with links to Knowledge, Graph, Simulations, and AI Chat
-- Route consolidation: Fixed route imports in main.py to properly load routes.py
-- Added Truth Engine Monitor page at `/truth-engine` showing TruthCore, TruthGate, TruthMemory, TruthLink status
-- Added Knowledge Algorithms page at `/algorithms` for browsing and executing 58+ algorithms
-- Enhanced Chat UI with markdown rendering (via marked.js) and streaming response support
 
 ## Available Pages
 - `/` - Home page (landing)
@@ -119,9 +117,22 @@ Security features include session-based authentication, CSRF protection, securit
 └── tests/                 # Test suite
 ```
 
+## Registered API Blueprints
+| Blueprint | URL Prefix | Description |
+|-----------|------------|-------------|
+| mcp_bp | /api/mcp | Model Context Protocol server management |
+| ai_chat_bp | /api/ai | AI-powered chat with streaming |
+| ka_bp | /api/ka | Knowledge Algorithm API (58+ algorithms) |
+| truth_api | /api/truth | Truth Engine v7.3 API |
+| persona_api | /api/persona | Quad Persona Engine API |
+| pillar_api | /api/pillars | Pillar Levels (Axis 1) management |
+| compliance_api | /api/compliance | Compliance checking API |
+| swaggerui | /api/docs | Interactive API documentation |
+
 ## Version History
 | Version | Date | Phase | Description |
 |---------|------|-------|-------------|
+| 0.6.0 | Dec 19, 2024 | Phase 7 | Code organization & blueprint registration |
 | 0.5.0 | Dec 19, 2024 | Phase 5 | Frontend-database integration |
 | 0.4.0 | Dec 19, 2024 | Phase 4 | Database seeding & API docs |
 | 0.3.1 | Dec 18, 2024 | Phase 3B | Admin features |

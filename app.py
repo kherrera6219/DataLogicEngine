@@ -127,6 +127,30 @@ with app.app_context():
     init_truth_engine(db.session)
 logger.info("Truth Engine API blueprint registered")
 
+# Register Persona API blueprint
+try:
+    from backend.persona_api import persona_api
+    app.register_blueprint(persona_api)
+    logger.info("Persona API blueprint registered")
+except ImportError as e:
+    logger.warning(f"Could not register Persona API blueprint: {e}")
+
+# Register Pillar API blueprint
+try:
+    from backend.pillar_api import pillar_api
+    app.register_blueprint(pillar_api)
+    logger.info("Pillar API blueprint registered")
+except ImportError as e:
+    logger.warning(f"Could not register Pillar API blueprint: {e}")
+
+# Register Compliance API blueprint
+try:
+    from backend.compliance_api import compliance_api
+    app.register_blueprint(compliance_api)
+    logger.info("Compliance API blueprint registered")
+except ImportError as e:
+    logger.warning(f"Could not register Compliance API blueprint: {e}")
+
 # Register Swagger UI for API documentation
 from flask_swagger_ui import get_swaggerui_blueprint
 SWAGGER_URL = '/api/docs'
