@@ -303,6 +303,64 @@ def llm_providers():
     
     return render_template('llm_providers.html', providers=providers, mcp_stats=mcp_stats)
 
+@app.route('/truth-engine')
+@login_required
+def truth_engine():
+    """Render the Truth Engine monitor dashboard."""
+    # Get stats from Truth Engine components
+    stats = {
+        'truthcore': {
+            'active_workflows': 0
+        },
+        'truthgate': {
+            'requests_processed': 0
+        },
+        'truthmemory': {
+            'cached_items': 0,
+            'hash_entries': 0,
+            'cache_hit_rate': '0%'
+        },
+        'truthlink': {
+            'events_today': 0,
+            'subscribers': 0,
+            'dlq_items': 0
+        },
+        'tiers': {
+            'tier1': 0,
+            'tier2': 0,
+            'tier3': 0,
+            'tier4': 0,
+            'tier5': 0
+        }
+    }
+    
+    # Try to get actual stats from Truth Engine API
+    try:
+        from backend.truth_engine.api import get_truth_engine_status
+        engine_status = get_truth_engine_status()
+        if engine_status:
+            # Update stats with actual values
+            if 'truthcore' in engine_status:
+                stats['truthcore'].update(engine_status.get('truthcore', {}))
+            if 'truthgate' in engine_status:
+                stats['truthgate'].update(engine_status.get('truthgate', {}))
+            if 'truthmemory' in engine_status:
+                stats['truthmemory'].update(engine_status.get('truthmemory', {}))
+            if 'truthlink' in engine_status:
+                stats['truthlink'].update(engine_status.get('truthlink', {}))
+    except Exception as e:
+        logger.warning(f"Could not fetch Truth Engine stats: {e}")
+    
+    return render_template('truth_engine.html', stats=stats)
+
+@app.route('/algorithms')
+@login_required
+def algorithms():
+    """Render the Knowledge Algorithms browser page."""
+    # Get all knowledge algorithms
+    algorithms = KnowledgeAlgorithm.query.order_by(KnowledgeAlgorithm.algorithm_id).all()
+    return render_template('algorithms.html', algorithms=algorithms)
+
 # Admin Routes
 @app.route('/admin')
 @login_required
