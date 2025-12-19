@@ -1,0 +1,348 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Universal Knowledge Graph API",
+    "description": "API for the Universal Knowledge Graph (UKG) and Universal Simulated Knowledge Database (USKD) system. Provides endpoints for knowledge management, simulation, AI chat, and Model Context Protocol (MCP) integration.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "UKG Support"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "System health and status endpoints"
+    },
+    {
+      "name": "Knowledge Graph",
+      "description": "Knowledge graph data operations"
+    },
+    {
+      "name": "Simulations",
+      "description": "Simulation management"
+    },
+    {
+      "name": "AI Chat",
+      "description": "AI-powered chat endpoints"
+    },
+    {
+      "name": "MCP",
+      "description": "Model Context Protocol endpoints"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check",
+        "description": "Returns the health status of the API and its components",
+        "responses": {
+          "200": {
+            "description": "System is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {"type": "string", "example": "ok"},
+                    "version": {"type": "string", "example": "1.0.0"},
+                    "timestamp": {"type": "string", "format": "date-time"},
+                    "components": {
+                      "type": "object",
+                      "properties": {
+                        "api": {"type": "string", "example": "healthy"},
+                        "database": {"type": "string", "example": "healthy"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/graph": {
+      "get": {
+        "tags": ["Knowledge Graph"],
+        "summary": "Get graph data",
+        "description": "Returns nodes and edges for knowledge graph visualization",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "axis",
+            "in": "query",
+            "schema": {"type": "integer"},
+            "description": "Filter by axis number (1-17)"
+          },
+          {
+            "name": "nodeType",
+            "in": "query",
+            "schema": {"type": "string"},
+            "description": "Filter by node type"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {"type": "integer", "default": 100},
+            "description": "Maximum number of nodes to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Graph data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nodes": {
+                      "type": "array",
+                      "items": {"$ref": "#/components/schemas/Node"}
+                    },
+                    "edges": {
+                      "type": "array",
+                      "items": {"$ref": "#/components/schemas/Edge"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nodes": {
+      "get": {
+        "tags": ["Knowledge Graph"],
+        "summary": "List nodes",
+        "description": "Returns a list of knowledge graph nodes",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "axis",
+            "in": "query",
+            "schema": {"type": "integer"},
+            "description": "Filter by axis number"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {"type": "string"},
+            "description": "Filter by node type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of nodes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Node"}
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Knowledge Graph"],
+        "summary": "Create node",
+        "description": "Creates a new knowledge graph node",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/NodeCreate"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Node created successfully"
+          }
+        }
+      }
+    },
+    "/simulations": {
+      "get": {
+        "tags": ["Simulations"],
+        "summary": "List simulations",
+        "description": "Returns a list of simulation sessions",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "List of simulations"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Simulations"],
+        "summary": "Create simulation",
+        "description": "Creates a new simulation session",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {"type": "string"},
+                  "description": {"type": "string"},
+                  "type": {"type": "string", "enum": ["analysis", "synthesis", "prediction"]}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Simulation created"
+          }
+        }
+      }
+    },
+    "/chat/message": {
+      "post": {
+        "tags": ["AI Chat"],
+        "summary": "Send chat message",
+        "description": "Sends a message to the AI chat and receives a response",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["message"],
+                "properties": {
+                  "message": {"type": "string"},
+                  "session_id": {"type": "string"},
+                  "use_quad_persona": {"type": "boolean", "default": true}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {"type": "string"},
+                    "session_id": {"type": "string"},
+                    "personas_used": {
+                      "type": "array",
+                      "items": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mcp/capabilities": {
+      "get": {
+        "tags": ["MCP"],
+        "summary": "Get MCP capabilities",
+        "description": "Returns the capabilities exposed by the MCP server",
+        "responses": {
+          "200": {
+            "description": "MCP capabilities"
+          }
+        }
+      }
+    },
+    "/mcp/invoke": {
+      "post": {
+        "tags": ["MCP"],
+        "summary": "Invoke MCP method",
+        "description": "Invokes a method on the MCP server",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["method"],
+                "properties": {
+                  "method": {"type": "string"},
+                  "params": {"type": "object"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Method result"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Node": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "uid": {"type": "string"},
+          "node_type": {"type": "string"},
+          "label": {"type": "string"},
+          "axis_number": {"type": "integer", "minimum": 1, "maximum": 17},
+          "description": {"type": "string"},
+          "attributes": {"type": "object"},
+          "created_at": {"type": "string", "format": "date-time"},
+          "active": {"type": "boolean"}
+        }
+      },
+      "NodeCreate": {
+        "type": "object",
+        "required": ["node_type", "label", "axis_number"],
+        "properties": {
+          "node_type": {"type": "string"},
+          "label": {"type": "string"},
+          "axis_number": {"type": "integer", "minimum": 1, "maximum": 17},
+          "description": {"type": "string"},
+          "attributes": {"type": "object"}
+        }
+      },
+      "Edge": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "uid": {"type": "string"},
+          "edge_type": {"type": "string"},
+          "weight": {"type": "number"},
+          "source_node_id": {"type": "integer"},
+          "target_node_id": {"type": "integer"},
+          "attributes": {"type": "object"}
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

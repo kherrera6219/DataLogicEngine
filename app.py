@@ -132,6 +132,18 @@ with app.app_context():
     init_truth_engine(db.session)
 logger.info("Truth Engine API blueprint registered")
 
+# Register Swagger UI for API documentation
+from flask_swagger_ui import get_swaggerui_blueprint
+SWAGGER_URL = '/api/docs'
+API_URL = '/static/swagger.json'
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={'app_name': "Universal Knowledge Graph API"}
+)
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+logger.info("Swagger UI registered at /api/docs")
+
 # Note: Core routes (/, /login, /register, /logout, /dashboard, /profile, /settings, 
 # /knowledge, /simulation, /graph, /chatbot, /analytics, /admin) are defined in routes.py
 # to avoid duplicate route definitions.
