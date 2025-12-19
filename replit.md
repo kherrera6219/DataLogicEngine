@@ -49,6 +49,10 @@ The core orchestration layer is the **Truth Engine v7.3**, comprising:
 Security features include session-based authentication, CSRF protection, security headers, rate limiting, request size limits, input validation, and adversarial input detection. Compliance features adhere to the EU AI Act, including detailed decision logging, explainability endpoints, 7-year audit trail retention, and PII detection.
 
 ## Recent Changes (December 2024)
+- Phase 5: Connected frontend to real database data - /api/graph returns nodes, edges, pillars, sectors, domains
+- Phase 5: Updated Knowledge Browser with tabbed interface showing 17-axis framework, pillars, sectors, and domains
+- Phase 4: Seeded database with 86 records (17 pillars, 15 sectors, 13 domains, 25 nodes, 16 edges)
+- Phase 4: Added Swagger UI API documentation at /api/docs endpoint
 - Fixed KnowledgeNode model: Renamed `metadata` column to `node_metadata` to avoid SQLAlchemy reserved attribute conflict
 - Created missing templates: knowledge.html, graph.html, chatbot.html, analytics.html, settings.html, admin/dashboard.html
 - Added LLM Provider configuration page at `/llm-providers` for managing AI model integrations
