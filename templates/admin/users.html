@@ -1,0 +1,821 @@
+{% extends 'base.html' %}
+
+{% block title %}User Management - Universal Knowledge Graph{% endblock %}
+
+{% block page_title %}User Management{% endblock %}
+{% block page_subtitle %}Manage users, roles, and permissions{% endblock %}
+
+{% block content %}
+<div class="users-container">
+    <div class="action-bar">
+        <div class="search-box">
+            <span class="material-icons">search</span>
+            <input type="text" id="userSearch" placeholder="Search users..." onkeyup="filterUsers()">
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-secondary" onclick="exportUsers()">
+                <span class="material-icons">download</span>
+                Export
+            </button>
+            <button class="btn btn-primary" onclick="showAddUserModal()">
+                <span class="material-icons">person_add</span>
+                Add User
+            </button>
+        </div>
+    </div>
+
+    <div class="users-grid">
+        <div class="card users-list-card">
+            <div class="card-header">
+                <h2 class="card-title">Users</h2>
+                <span class="badge">{{ users|length if users else 0 }} total</span>
+            </div>
+            <div class="card-body">
+                <table class="table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr data-user-id="{{ user.id }}">
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar">{{ user.username[0]|upper }}</div>
+                                    <span>{{ user.username }}</span>
+                                </div>
+                            </td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <span class="role-badge {{ user.role or 'user' }}">
+                                    {{ (user.role or 'user')|capitalize }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge {{ 'active' if user.active else 'inactive' }}">
+                                    {{ 'Active' if user.active else 'Inactive' }}
+                                </span>
+                            </td>
+                            <td>{{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never' }}</td>
+                            <td>
+                                <div class="action-icons">
+                                    <button class="icon-btn" onclick="editUser({{ user.id }})" title="Edit">
+                                        <span class="material-icons">edit</span>
+                                    </button>
+                                    <button class="icon-btn" onclick="toggleUserStatus({{ user.id }})" title="Toggle Status">
+                                        <span class="material-icons">{{ 'block' if user.active else 'check_circle' }}</span>
+                                    </button>
+                                    <button class="icon-btn danger" onclick="deleteUser({{ user.id }})" title="Delete">
+                                        <span class="material-icons">delete</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="empty-state">No users found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="sidebar-cards">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Roles</h2>
+                </div>
+                <div class="card-body">
+                    <div class="role-list">
+                        <div class="role-item" onclick="showRoleDetails('admin')">
+                            <div class="role-icon admin">
+                                <span class="material-icons">admin_panel_settings</span>
+                            </div>
+                            <div class="role-info">
+                                <h4>Administrator</h4>
+                                <p>Full system access</p>
+                            </div>
+                            <span class="role-count">{{ admin_count or 0 }}</span>
+                        </div>
+                        <div class="role-item" onclick="showRoleDetails('analyst')">
+                            <div class="role-icon analyst">
+                                <span class="material-icons">analytics</span>
+                            </div>
+                            <div class="role-info">
+                                <h4>Analyst</h4>
+                                <p>Knowledge analysis access</p>
+                            </div>
+                            <span class="role-count">{{ analyst_count or 0 }}</span>
+                        </div>
+                        <div class="role-item" onclick="showRoleDetails('user')">
+                            <div class="role-icon user">
+                                <span class="material-icons">person</span>
+                            </div>
+                            <div class="role-info">
+                                <h4>User</h4>
+                                <p>Basic access</p>
+                            </div>
+                            <span class="role-count">{{ user_count or 0 }}</span>
+                        </div>
+                        <div class="role-item" onclick="showRoleDetails('viewer')">
+                            <div class="role-icon viewer">
+                                <span class="material-icons">visibility</span>
+                            </div>
+                            <div class="role-info">
+                                <h4>Viewer</h4>
+                                <p>Read-only access</p>
+                            </div>
+                            <span class="role-count">{{ viewer_count or 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Permissions</h2>
+                </div>
+                <div class="card-body">
+                    <div class="permission-matrix">
+                        <div class="permission-category">
+                            <h4><span class="material-icons">hub</span> Knowledge Graph</h4>
+                            <ul>
+                                <li>View nodes</li>
+                                <li>Create nodes</li>
+                                <li>Edit nodes</li>
+                                <li>Delete nodes</li>
+                            </ul>
+                        </div>
+                        <div class="permission-category">
+                            <h4><span class="material-icons">science</span> Simulations</h4>
+                            <ul>
+                                <li>View simulations</li>
+                                <li>Run simulations</li>
+                                <li>Create simulations</li>
+                            </ul>
+                        </div>
+                        <div class="permission-category">
+                            <h4><span class="material-icons">chat</span> AI Chat</h4>
+                            <ul>
+                                <li>Use chatbot</li>
+                                <li>Access personas</li>
+                                <li>Export conversations</li>
+                            </ul>
+                        </div>
+                        <div class="permission-category">
+                            <h4><span class="material-icons">settings</span> Administration</h4>
+                            <ul>
+                                <li>Manage users</li>
+                                <li>System settings</li>
+                                <li>View audit logs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="userModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Add User</h3>
+            <button class="close-btn" onclick="closeModal()">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role">
+                        <option value="user">User</option>
+                        <option value="analyst">Analyst</option>
+                        <option value="admin">Administrator</option>
+                        <option value="viewer">Viewer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password">
+                    <small>Leave blank to keep current password</small>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --dark-bg-primary: #0f172a;
+    --dark-bg-secondary: #1e293b;
+    --dark-bg-tertiary: #334155;
+    --dark-text-primary: #f1f5f9;
+    --dark-text-secondary: #cbd5e1;
+    --dark-text-muted: #64748b;
+    --dark-border: #334155;
+    --dark-accent-primary: #3b82f6;
+    --dark-accent-secondary: #8b5cf6;
+    --light-bg-primary: #ffffff;
+    --light-bg-secondary: #f8fafc;
+    --light-bg-tertiary: #e2e8f0;
+    --light-text-primary: #0f172a;
+    --light-text-secondary: #475569;
+    --light-text-muted: #94a3b8;
+    --light-border: #e2e8f0;
+    --border-radius: 8px;
+}
+
+.users-container {
+    padding: 1.5rem;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--dark-bg-secondary);
+    border: 1px solid var(--dark-border);
+    border-radius: var(--border-radius);
+    padding: 0.5rem 1rem;
+    min-width: 300px;
+}
+
+.light-theme .search-box {
+    background-color: var(--light-bg-secondary);
+    border-color: var(--light-border);
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    color: var(--dark-text-primary);
+    outline: none;
+    flex: 1;
+}
+
+.light-theme .search-box input {
+    color: var(--light-text-primary);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--dark-accent-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2563eb;
+}
+
+.btn-secondary {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-text-primary);
+    border: 1px solid var(--dark-border);
+}
+
+.light-theme .btn-secondary {
+    background-color: var(--light-bg-tertiary);
+    color: var(--light-text-primary);
+    border-color: var(--light-border);
+}
+
+.users-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 1.5rem;
+}
+
+.card {
+    background-color: var(--dark-bg-secondary);
+    border: 1px solid var(--dark-border);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.light-theme .card {
+    background-color: var(--light-bg-primary);
+    border-color: var(--light-border);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.light-theme .card-header {
+    border-color: var(--light-border);
+}
+
+.card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.badge {
+    background-color: var(--dark-accent-primary);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.card-body {
+    padding: 1rem 1.25rem;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.light-theme .table th,
+.light-theme .table td {
+    border-color: var(--light-border);
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--dark-text-muted);
+}
+
+.light-theme .table th {
+    color: var(--light-text-muted);
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--dark-accent-primary), var(--dark-accent-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: white;
+}
+
+.role-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.role-badge.admin {
+    background-color: rgba(139, 92, 246, 0.2);
+    color: #a78bfa;
+}
+
+.role-badge.analyst {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+}
+
+.role-badge.user {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+}
+
+.role-badge.viewer {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.status-badge.active {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.status-badge.inactive {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.action-icons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--dark-text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.icon-btn:hover {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-text-primary);
+}
+
+.light-theme .icon-btn:hover {
+    background-color: var(--light-bg-tertiary);
+    color: var(--light-text-primary);
+}
+
+.icon-btn.danger:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.sidebar-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.role-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.role-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background-color: var(--dark-bg-tertiary);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.light-theme .role-item {
+    background-color: var(--light-bg-tertiary);
+}
+
+.role-item:hover {
+    transform: translateX(4px);
+}
+
+.role-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.role-icon.admin {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+}
+
+.role-icon.analyst {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.role-icon.user {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.role-icon.viewer {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+}
+
+.role-info h4 {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.role-info p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--dark-text-muted);
+}
+
+.light-theme .role-info p {
+    color: var(--light-text-muted);
+}
+
+.role-count {
+    margin-left: auto;
+    background-color: var(--dark-bg-secondary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.light-theme .role-count {
+    background-color: var(--light-bg-secondary);
+}
+
+.permission-matrix {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.permission-category h4 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+    color: var(--dark-text-primary);
+}
+
+.light-theme .permission-category h4 {
+    color: var(--light-text-primary);
+}
+
+.permission-category h4 .material-icons {
+    font-size: 1rem;
+    color: var(--dark-accent-primary);
+}
+
+.permission-category ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    font-size: 0.75rem;
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .permission-category ul {
+    color: var(--light-text-secondary);
+}
+
+.permission-category li {
+    margin-bottom: 0.25rem;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--dark-bg-secondary);
+    border: 1px solid var(--dark-border);
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.light-theme .modal-content {
+    background-color: var(--light-bg-primary);
+    border-color: var(--light-border);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.light-theme .modal-header {
+    border-color: var(--light-border);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: var(--dark-text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+}
+
+.modal-body {
+    padding: 1.25rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--dark-bg-tertiary);
+    border: 1px solid var(--dark-border);
+    border-radius: var(--border-radius);
+    color: var(--dark-text-primary);
+}
+
+.light-theme .form-group input,
+.light-theme .form-group select {
+    background-color: var(--light-bg-tertiary);
+    border-color: var(--light-border);
+    color: var(--light-text-primary);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--dark-text-muted);
+    font-size: 0.75rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--dark-text-muted);
+    padding: 2rem !important;
+}
+
+@media (max-width: 1024px) {
+    .users-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar-cards {
+        flex-direction: row;
+    }
+    
+    .sidebar-cards .card {
+        flex: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar-cards {
+        flex-direction: column;
+    }
+    
+    .action-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-box {
+        min-width: auto;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterUsers() {
+    const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+    const rows = document.querySelectorAll('#usersTable tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+}
+
+function showAddUserModal() {
+    document.getElementById('modalTitle').textContent = 'Add User';
+    document.getElementById('userForm').reset();
+    document.getElementById('userModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('userModal').style.display = 'none';
+}
+
+function editUser(userId) {
+    document.getElementById('modalTitle').textContent = 'Edit User';
+    document.getElementById('userModal').style.display = 'flex';
+}
+
+function toggleUserStatus(userId) {
+    alert('Toggling user status for ID: ' + userId);
+}
+
+function deleteUser(userId) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        alert('User deleted: ' + userId);
+    }
+}
+
+function showRoleDetails(role) {
+    alert('Showing details for role: ' + role);
+}
+
+function exportUsers() {
+    alert('Exporting users to CSV...');
+}
+
+document.getElementById('userForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('User saved!');
+    closeModal();
+});
+
+document.getElementById('userModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+</script>
+{% endblock %}

@@ -78,6 +78,7 @@ Security features include session-based authentication, CSRF protection, securit
 - `/mcp-client` - MCP Client Console for testing endpoints
 - `/api-overlay` - API Overlay Dashboard showing LLM connections
 - `/admin` - Admin dashboard (admin users only)
+- `/admin/users` - User Management with RBAC roles/permissions
 
 ## External Dependencies
 - **Database**: PostgreSQL (Neon-backed via Replit)

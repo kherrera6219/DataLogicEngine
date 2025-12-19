@@ -439,6 +439,28 @@ def admin():
                           recent_users=recent_users,
                           recent_simulations=recent_simulations)
 
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    """Render the user management page."""
+    if not current_user.is_admin:
+        flash('Access denied: Admin privileges required', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    users = User.query.order_by(User.created_at.desc()).all()
+    
+    admin_count = User.query.filter((User.role == 'admin') | (User.is_admin == True)).count()
+    analyst_count = User.query.filter_by(role='analyst').count()
+    user_count = User.query.filter_by(role='user').count()
+    viewer_count = User.query.filter_by(role='viewer').count()
+    
+    return render_template('admin/users.html',
+                          users=users,
+                          admin_count=admin_count,
+                          user_count=user_count,
+                          analyst_count=analyst_count,
+                          viewer_count=viewer_count)
+
 # API Routes
 @app.route('/api/health')
 def api_health():
