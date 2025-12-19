@@ -48,6 +48,26 @@ The core orchestration layer is the **Truth Engine v7.3**, comprising:
 
 Security features include session-based authentication, CSRF protection, security headers, rate limiting, request size limits, input validation, and adversarial input detection. Compliance features adhere to the EU AI Act, including detailed decision logging, explainability endpoints, 7-year audit trail retention, and PII detection.
 
+## Recent Changes (December 2024)
+- Fixed KnowledgeNode model: Renamed `metadata` column to `node_metadata` to avoid SQLAlchemy reserved attribute conflict
+- Created missing templates: knowledge.html, graph.html, chatbot.html, analytics.html, settings.html, admin/dashboard.html
+- Added LLM Provider configuration page at `/llm-providers` for managing AI model integrations
+- Updated navigation with links to Knowledge, Graph, Simulations, and AI Chat
+- Route consolidation: Fixed route imports in main.py to properly load routes.py
+
+## Available Pages
+- `/` - Home page (landing)
+- `/dashboard` - User dashboard (authenticated)
+- `/knowledge` - Knowledge base browser
+- `/graph` - Interactive D3.js knowledge graph visualization
+- `/chatbot` - AI-powered chat with Quad Persona Engine
+- `/simulations` - Simulation management
+- `/analytics` - System analytics and metrics
+- `/settings` - User settings
+- `/profile` - User profile and API key management
+- `/llm-providers` - LLM provider configuration status
+- `/admin` - Admin dashboard (admin users only)
+
 ## External Dependencies
 - **Database**: PostgreSQL (Neon-backed via Replit)
 - **AI/ML Services**: OpenAI (via Replit AI Integrations)

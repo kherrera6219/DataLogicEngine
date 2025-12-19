@@ -1,0 +1,502 @@
+{% extends 'base.html' %}
+
+{% block title %}LLM Provider Settings - Universal Knowledge Graph{% endblock %}
+
+{% block page_title %}LLM Provider Configuration{% endblock %}
+{% block page_subtitle %}Configure your AI model providers for the API overlay system{% endblock %}
+
+{% block content %}
+<div class="providers-container">
+    <div class="providers-grid">
+        <div class="card provider-card">
+            <div class="card-header">
+                <div class="provider-logo openai">
+                    <span class="material-icons">smart_toy</span>
+                </div>
+                <div class="provider-info">
+                    <h2 class="card-title">OpenAI</h2>
+                    <span class="provider-status {{ 'active' if providers.openai else 'inactive' }}">
+                        {{ 'Connected' if providers.openai else 'Not Configured' }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="provider-description">GPT-4, GPT-3.5 Turbo, and other OpenAI models for advanced language understanding.</p>
+                <div class="provider-config">
+                    {% if providers.openai %}
+                    <div class="config-status connected">
+                        <span class="material-icons">check_circle</span>
+                        <span>API Key configured via environment</span>
+                    </div>
+                    <div class="config-detail">
+                        <label>Default Model:</label>
+                        <span>{{ providers.openai_model }}</span>
+                    </div>
+                    {% else %}
+                    <div class="config-status not-configured">
+                        <span class="material-icons">info</span>
+                        <span>Set OPENAI_API_KEY in Secrets tab</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card provider-card">
+            <div class="card-header">
+                <div class="provider-logo azure">
+                    <span class="material-icons">cloud</span>
+                </div>
+                <div class="provider-info">
+                    <h2 class="card-title">Azure OpenAI</h2>
+                    <span class="provider-status {{ 'active' if providers.azure else 'inactive' }}">
+                        {{ 'Connected' if providers.azure else 'Not Configured' }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="provider-description">Enterprise-grade OpenAI models hosted on Microsoft Azure with compliance features.</p>
+                <div class="provider-config">
+                    {% if providers.azure %}
+                    <div class="config-status connected">
+                        <span class="material-icons">check_circle</span>
+                        <span>API Key configured via environment</span>
+                    </div>
+                    {% if providers.azure_endpoint %}
+                    <div class="config-detail">
+                        <label>Endpoint:</label>
+                        <span>{{ providers.azure_endpoint[:40] }}...</span>
+                    </div>
+                    {% endif %}
+                    {% if providers.azure_deployment %}
+                    <div class="config-detail">
+                        <label>Deployment:</label>
+                        <span>{{ providers.azure_deployment }}</span>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="config-status not-configured">
+                        <span class="material-icons">info</span>
+                        <span>Set AZURE_OPENAI_API_KEY in Secrets tab</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card provider-card">
+            <div class="card-header">
+                <div class="provider-logo anthropic">
+                    <span class="material-icons">psychology_alt</span>
+                </div>
+                <div class="provider-info">
+                    <h2 class="card-title">Anthropic Claude</h2>
+                    <span class="provider-status {{ 'active' if providers.anthropic else 'inactive' }}">
+                        {{ 'Connected' if providers.anthropic else 'Not Configured' }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="provider-description">Claude 3.5, Claude 3, and other Anthropic models with advanced reasoning capabilities.</p>
+                <div class="provider-config">
+                    {% if providers.anthropic %}
+                    <div class="config-status connected">
+                        <span class="material-icons">check_circle</span>
+                        <span>API Key configured via environment</span>
+                    </div>
+                    <div class="config-detail">
+                        <label>Default Model:</label>
+                        <span>{{ providers.anthropic_model }}</span>
+                    </div>
+                    {% else %}
+                    <div class="config-status not-configured">
+                        <span class="material-icons">info</span>
+                        <span>Set ANTHROPIC_API_KEY in Secrets tab</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card provider-card">
+            <div class="card-header">
+                <div class="provider-logo google">
+                    <span class="material-icons">auto_awesome</span>
+                </div>
+                <div class="provider-info">
+                    <h2 class="card-title">Google Gemini</h2>
+                    <span class="provider-status {{ 'active' if providers.google else 'inactive' }}">
+                        {{ 'Connected' if providers.google else 'Not Configured' }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="provider-description">Gemini Pro and Ultra models with multimodal capabilities for text, images, and code.</p>
+                <div class="provider-config">
+                    {% if providers.google %}
+                    <div class="config-status connected">
+                        <span class="material-icons">check_circle</span>
+                        <span>API Key configured via environment</span>
+                    </div>
+                    <div class="config-detail">
+                        <label>Default Model:</label>
+                        <span>{{ providers.google_model }}</span>
+                    </div>
+                    {% else %}
+                    <div class="config-status not-configured">
+                        <span class="material-icons">info</span>
+                        <span>Set GOOGLE_API_KEY in Secrets tab</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h2 class="card-title">MCP Server Status</h2>
+        </div>
+        <div class="card-body">
+            <div class="mcp-status-grid">
+                <div class="mcp-status-item">
+                    <span class="material-icons status-icon active">check_circle</span>
+                    <div class="status-info">
+                        <h4>MCP Server</h4>
+                        <p>Active on port 5000</p>
+                    </div>
+                </div>
+                <div class="mcp-status-item">
+                    <span class="material-icons status-icon active">sync</span>
+                    <div class="status-info">
+                        <h4>API Connections</h4>
+                        <p>{{ mcp_stats.active_connections or 0 }} active</p>
+                    </div>
+                </div>
+                <div class="mcp-status-item">
+                    <span class="material-icons status-icon">history</span>
+                    <div class="status-info">
+                        <h4>Requests Today</h4>
+                        <p>{{ mcp_stats.requests_today or 0 }} requests</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h2 class="card-title">External API Keys</h2>
+            <a href="{{ url_for('profile') }}" class="btn btn-secondary btn-sm">
+                <span class="material-icons">vpn_key</span>
+                Manage API Keys
+            </a>
+        </div>
+        <div class="card-body">
+            <p>Generate API keys to allow external applications to access the UKG system via the MCP protocol.</p>
+            <div class="api-key-info">
+                <div class="info-item">
+                    <span class="material-icons">info</span>
+                    <span>API keys can be created and managed from your profile page.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.providers-container {
+    padding: 1.5rem;
+}
+
+.providers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.provider-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.provider-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.provider-logo .material-icons {
+    font-size: 1.75rem;
+    color: white;
+}
+
+.provider-logo.openai { background: linear-gradient(135deg, #10a37f, #0a7b5f); }
+.provider-logo.azure { background: linear-gradient(135deg, #0078d4, #005a9e); }
+.provider-logo.anthropic { background: linear-gradient(135deg, #d97706, #b45309); }
+.provider-logo.google { background: linear-gradient(135deg, #4285f4, #3367d6); }
+
+.provider-info {
+    flex: 1;
+}
+
+.provider-info .card-title {
+    margin: 0;
+}
+
+.provider-status {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.provider-status.active {
+    background-color: rgba(78, 205, 196, 0.2);
+    color: #4ecdc4;
+}
+
+.provider-status.inactive {
+    background-color: rgba(108, 117, 125, 0.2);
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .provider-status.inactive {
+    color: var(--light-text-secondary);
+}
+
+.provider-description {
+    font-size: 0.875rem;
+    color: var(--dark-text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.light-theme .provider-description {
+    color: var(--light-text-secondary);
+}
+
+.provider-config {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.config-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+}
+
+.config-status.connected {
+    background-color: rgba(78, 205, 196, 0.15);
+    color: #4ecdc4;
+}
+
+.config-status.not-configured {
+    background-color: rgba(108, 117, 125, 0.15);
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .config-status.not-configured {
+    color: var(--light-text-secondary);
+}
+
+.config-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--dark-bg-tertiary);
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+}
+
+.light-theme .config-detail {
+    background-color: var(--light-bg-tertiary);
+}
+
+.config-detail label {
+    font-weight: 500;
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .config-detail label {
+    color: var(--light-text-secondary);
+}
+
+.provider-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.provider-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.input-group .form-control {
+    flex: 1;
+}
+
+.btn-icon {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--dark-bg-tertiary);
+    border: 1px solid var(--dark-border);
+    border-radius: var(--border-radius);
+    color: var(--dark-text-primary);
+}
+
+.light-theme .btn-icon {
+    background-color: var(--light-bg-tertiary);
+    border: 1px solid var(--light-border);
+    color: var(--light-text-primary);
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--dark-border);
+    border-radius: var(--border-radius);
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-text-primary);
+    font-size: 0.9rem;
+}
+
+.light-theme .form-control {
+    border: 1px solid var(--light-border);
+    background-color: var(--light-bg-tertiary);
+    color: var(--light-text-primary);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--dark-accent-primary);
+}
+
+.mt-4 {
+    margin-top: 1.5rem;
+}
+
+.mcp-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.mcp-status-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--dark-bg-tertiary);
+    border-radius: var(--border-radius);
+}
+
+.light-theme .mcp-status-item {
+    background-color: var(--light-bg-tertiary);
+}
+
+.status-icon {
+    font-size: 2rem;
+}
+
+.status-icon.active {
+    color: #4ecdc4;
+}
+
+.status-info h4 {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.status-info p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .status-info p {
+    color: var(--light-text-secondary);
+}
+
+.api-key-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .info-item {
+    color: var(--light-text-secondary);
+}
+
+.info-item .material-icons {
+    font-size: 1.25rem;
+    color: var(--dark-accent-primary);
+}
+</style>
+
+<script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+        input.type = 'text';
+    } else {
+        input.type = 'password';
+    }
+}
+
+document.querySelectorAll('.provider-form').forEach(form => {
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const provider = this.dataset.provider;
+        const formData = new FormData(this);
+        
+        try {
+            const response = await fetch('/api/llm-providers/' + provider, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(Object.fromEntries(formData))
+            });
+            
+            if (response.ok) {
+                alert('Configuration saved successfully!');
+                location.reload();
+            } else {
+                alert('Failed to save configuration. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+});
+</script>
+{% endblock %}

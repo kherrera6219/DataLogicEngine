@@ -276,6 +276,33 @@ def settings():
     """Render the settings page."""
     return render_template('settings.html')
 
+@app.route('/llm-providers')
+@login_required
+def llm_providers():
+    """Render the LLM provider configuration page."""
+    import os
+    
+    # Check which providers are configured (don't expose actual keys)
+    providers = {
+        'openai': bool(os.environ.get('OPENAI_API_KEY')),
+        'azure': bool(os.environ.get('AZURE_OPENAI_API_KEY')),
+        'anthropic': bool(os.environ.get('ANTHROPIC_API_KEY')),
+        'google': bool(os.environ.get('GOOGLE_API_KEY')),
+        'openai_model': os.environ.get('OPENAI_MODEL', 'gpt-4o'),
+        'azure_endpoint': os.environ.get('AZURE_OPENAI_ENDPOINT', ''),
+        'azure_deployment': os.environ.get('AZURE_OPENAI_DEPLOYMENT', ''),
+        'anthropic_model': os.environ.get('ANTHROPIC_MODEL', 'claude-3-5-sonnet-20241022'),
+        'google_model': os.environ.get('GOOGLE_MODEL', 'gemini-1.5-pro'),
+    }
+    
+    # MCP stats (placeholder)
+    mcp_stats = {
+        'active_connections': 0,
+        'requests_today': 0
+    }
+    
+    return render_template('llm_providers.html', providers=providers, mcp_stats=mcp_stats)
+
 # Admin Routes
 @app.route('/admin')
 @login_required

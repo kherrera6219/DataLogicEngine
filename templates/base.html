@@ -734,7 +734,19 @@
                     </li>
                     
                     <li class="nav-item">
+                        <a href="{{ url_for('knowledge') }}" class="nav-link {{ 'active' if request.path == url_for('knowledge') else '' }}">Knowledge</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ url_for('graph') }}" class="nav-link {{ 'active' if request.path == url_for('graph') else '' }}">Graph</a>
+                    </li>
+                    
+                    <li class="nav-item">
                         <a href="{{ url_for('simulations') }}" class="nav-link {{ 'active' if request.path == url_for('simulations') else '' }}">Simulations</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ url_for('chatbot') }}" class="nav-link {{ 'active' if request.path == url_for('chatbot') else '' }}">AI Chat</a>
                     </li>
                     {% endif %}
                     
