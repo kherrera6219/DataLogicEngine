@@ -73,6 +73,10 @@ Security features include session-based authentication, CSRF protection, securit
 - `/algorithms` - Knowledge Algorithm browser (KA-001 to KA-058+)
 - `/persona-trace` - Quad Persona Tracing Dashboard (Analyst/Expert/Critic/Synthesizer)
 - `/axis-explorer` - 17-Axis Coordinate Explorer with D3.js visualization
+- `/simulation-monitor` - 10-Layer Simulation Monitor with real-time visualization
+- `/mcp-server` - MCP Server Manager for protocol configuration
+- `/mcp-client` - MCP Client Console for testing endpoints
+- `/api-overlay` - API Overlay Dashboard showing LLM connections
 - `/admin` - Admin dashboard (admin users only)
 
 ## External Dependencies

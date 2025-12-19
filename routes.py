@@ -383,6 +383,30 @@ def axis_explorer():
     """Render the 17-Axis Coordinate Explorer."""
     return render_template('axis_explorer.html')
 
+@app.route('/simulation-monitor')
+@login_required
+def simulation_monitor():
+    """Render the 10-Layer Simulation Monitor."""
+    return render_template('simulation_monitor.html')
+
+@app.route('/mcp-server')
+@login_required
+def mcp_server():
+    """Render the MCP Server Manager page."""
+    return render_template('mcp_server.html')
+
+@app.route('/mcp-client')
+@login_required
+def mcp_client():
+    """Render the MCP Client Console page."""
+    return render_template('mcp_client.html')
+
+@app.route('/api-overlay')
+@login_required
+def api_overlay():
+    """Render the API Overlay Dashboard."""
+    return render_template('api_overlay.html')
+
 # Admin Routes
 @app.route('/admin')
 @login_required
