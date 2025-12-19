@@ -54,18 +54,25 @@ Security features include session-based authentication, CSRF protection, securit
 - Added LLM Provider configuration page at `/llm-providers` for managing AI model integrations
 - Updated navigation with links to Knowledge, Graph, Simulations, and AI Chat
 - Route consolidation: Fixed route imports in main.py to properly load routes.py
+- Added Truth Engine Monitor page at `/truth-engine` showing TruthCore, TruthGate, TruthMemory, TruthLink status
+- Added Knowledge Algorithms page at `/algorithms` for browsing and executing 58+ algorithms
+- Enhanced Chat UI with markdown rendering (via marked.js) and streaming response support
 
 ## Available Pages
 - `/` - Home page (landing)
 - `/dashboard` - User dashboard (authenticated)
 - `/knowledge` - Knowledge base browser
 - `/graph` - Interactive D3.js knowledge graph visualization
-- `/chatbot` - AI-powered chat with Quad Persona Engine
+- `/chatbot` - AI-powered chat with Quad Persona Engine (markdown + streaming)
 - `/simulations` - Simulation management
 - `/analytics` - System analytics and metrics
 - `/settings` - User settings
 - `/profile` - User profile and API key management
 - `/llm-providers` - LLM provider configuration status
+- `/truth-engine` - Truth Engine v7.3 monitoring dashboard
+- `/algorithms` - Knowledge Algorithm browser (KA-001 to KA-058+)
+- `/persona-trace` - Quad Persona Tracing Dashboard (Analyst/Expert/Critic/Synthesizer)
+- `/axis-explorer` - 17-Axis Coordinate Explorer with D3.js visualization
 - `/admin` - Admin dashboard (admin users only)
 
 ## External Dependencies

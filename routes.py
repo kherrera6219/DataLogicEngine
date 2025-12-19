@@ -361,6 +361,28 @@ def algorithms():
     algorithms = KnowledgeAlgorithm.query.order_by(KnowledgeAlgorithm.algorithm_id).all()
     return render_template('algorithms.html', algorithms=algorithms)
 
+@app.route('/persona-trace')
+@login_required
+def persona_trace():
+    """Render the Quad Persona Tracing Dashboard."""
+    # Get recent chat sessions for the user
+    sessions = []
+    try:
+        # Try to get recent simulation sessions that used quad persona
+        sessions = SimulationSession.query.filter_by(
+            user_id=current_user.id
+        ).order_by(SimulationSession.started_at.desc()).limit(10).all()
+    except Exception as e:
+        logger.warning(f"Could not fetch sessions for persona trace: {e}")
+    
+    return render_template('persona_trace.html', sessions=sessions)
+
+@app.route('/axis-explorer')
+@login_required
+def axis_explorer():
+    """Render the 17-Axis Coordinate Explorer."""
+    return render_template('axis_explorer.html')
+
 # Admin Routes
 @app.route('/admin')
 @login_required

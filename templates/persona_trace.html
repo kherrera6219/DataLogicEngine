@@ -1,0 +1,604 @@
+{% extends 'base.html' %}
+
+{% block title %}Quad Persona Trace - Universal Knowledge Graph{% endblock %}
+
+{% block page_title %}Quad Persona Tracing Dashboard{% endblock %}
+{% block page_subtitle %}Visualize the Analyst, Expert, Critic, and Synthesizer processing flow{% endblock %}
+
+{% block content %}
+<div class="persona-trace-container">
+    <div class="trace-controls">
+        <div class="control-group">
+            <label>Session ID:</label>
+            <select id="sessionSelect" onchange="loadSession()">
+                <option value="">Select a session...</option>
+                {% for session in sessions %}
+                <option value="{{ session.id }}">{{ session.id|string|truncate(8, True, '...') }} - {{ session.started_at.strftime('%Y-%m-%d %H:%M') if session.started_at else 'No date' }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="btn btn-secondary" onclick="refreshData()">
+            <span class="material-icons">refresh</span>
+            Refresh
+        </button>
+    </div>
+    
+    <div class="persona-flow">
+        <div class="persona-card analyst" id="analystCard">
+            <div class="persona-header">
+                <div class="persona-icon">
+                    <span class="material-icons">search</span>
+                </div>
+                <div class="persona-title">
+                    <h3>Analyst</h3>
+                    <span class="persona-axis">Axis 8 - Knowledge Experts</span>
+                </div>
+                <div class="persona-status" id="analystStatus">
+                    <span class="status-dot idle"></span>
+                    <span>Idle</span>
+                </div>
+            </div>
+            <div class="persona-body">
+                <div class="confidence-meter">
+                    <label>Confidence</label>
+                    <div class="meter-bar">
+                        <div class="meter-fill" id="analystConfidence" style="width: 0%"></div>
+                    </div>
+                    <span class="meter-value" id="analystConfidenceValue">0%</span>
+                </div>
+                <div class="persona-output" id="analystOutput">
+                    <p class="placeholder">Waiting for input...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flow-arrow">
+            <span class="material-icons">arrow_forward</span>
+        </div>
+        
+        <div class="persona-card expert" id="expertCard">
+            <div class="persona-header">
+                <div class="persona-icon">
+                    <span class="material-icons">school</span>
+                </div>
+                <div class="persona-title">
+                    <h3>Expert</h3>
+                    <span class="persona-axis">Axis 9 - Qualifications</span>
+                </div>
+                <div class="persona-status" id="expertStatus">
+                    <span class="status-dot idle"></span>
+                    <span>Idle</span>
+                </div>
+            </div>
+            <div class="persona-body">
+                <div class="confidence-meter">
+                    <label>Confidence</label>
+                    <div class="meter-bar">
+                        <div class="meter-fill" id="expertConfidence" style="width: 0%"></div>
+                    </div>
+                    <span class="meter-value" id="expertConfidenceValue">0%</span>
+                </div>
+                <div class="persona-output" id="expertOutput">
+                    <p class="placeholder">Waiting for analysis...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flow-arrow">
+            <span class="material-icons">arrow_forward</span>
+        </div>
+        
+        <div class="persona-card critic" id="criticCard">
+            <div class="persona-header">
+                <div class="persona-icon">
+                    <span class="material-icons">gavel</span>
+                </div>
+                <div class="persona-title">
+                    <h3>Critic</h3>
+                    <span class="persona-axis">Axis 10 - Regulatory</span>
+                </div>
+                <div class="persona-status" id="criticStatus">
+                    <span class="status-dot idle"></span>
+                    <span>Idle</span>
+                </div>
+            </div>
+            <div class="persona-body">
+                <div class="confidence-meter">
+                    <label>Confidence</label>
+                    <div class="meter-bar">
+                        <div class="meter-fill" id="criticConfidence" style="width: 0%"></div>
+                    </div>
+                    <span class="meter-value" id="criticConfidenceValue">0%</span>
+                </div>
+                <div class="persona-output" id="criticOutput">
+                    <p class="placeholder">Waiting for expert input...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flow-arrow">
+            <span class="material-icons">arrow_forward</span>
+        </div>
+        
+        <div class="persona-card synthesizer" id="synthesizerCard">
+            <div class="persona-header">
+                <div class="persona-icon">
+                    <span class="material-icons">merge_type</span>
+                </div>
+                <div class="persona-title">
+                    <h3>Synthesizer</h3>
+                    <span class="persona-axis">Axis 11 - Compliance</span>
+                </div>
+                <div class="persona-status" id="synthesizerStatus">
+                    <span class="status-dot idle"></span>
+                    <span>Idle</span>
+                </div>
+            </div>
+            <div class="persona-body">
+                <div class="confidence-meter">
+                    <label>Confidence</label>
+                    <div class="meter-bar">
+                        <div class="meter-fill" id="synthesizerConfidence" style="width: 0%"></div>
+                    </div>
+                    <span class="meter-value" id="synthesizerConfidenceValue">0%</span>
+                </div>
+                <div class="persona-output" id="synthesizerOutput">
+                    <p class="placeholder">Waiting for critique...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="trace-details">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Processing Metrics</h2>
+            </div>
+            <div class="card-body">
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="material-icons">timer</span>
+                        <div class="metric-info">
+                            <span class="metric-value" id="totalTime">0ms</span>
+                            <span class="metric-label">Total Processing Time</span>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <span class="material-icons">repeat</span>
+                        <div class="metric-info">
+                            <span class="metric-value" id="iterations">0</span>
+                            <span class="metric-label">Refinement Iterations</span>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <span class="material-icons">verified</span>
+                        <div class="metric-info">
+                            <span class="metric-value" id="finalConfidence">0%</span>
+                            <span class="metric-label">Final Confidence</span>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <span class="material-icons">category</span>
+                        <div class="metric-info">
+                            <span class="metric-value" id="tierUsed">-</span>
+                            <span class="metric-label">TruthCore Tier</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Weight Distribution</h2>
+            </div>
+            <div class="card-body">
+                <div class="weight-bars">
+                    <div class="weight-bar-item">
+                        <label>Analyst (α)</label>
+                        <div class="weight-bar analyst">
+                            <div class="weight-fill" id="analystWeight" style="width: 25%"></div>
+                        </div>
+                        <span id="analystWeightValue">0.25</span>
+                    </div>
+                    <div class="weight-bar-item">
+                        <label>Expert (β)</label>
+                        <div class="weight-bar expert">
+                            <div class="weight-fill" id="expertWeight" style="width: 25%"></div>
+                        </div>
+                        <span id="expertWeightValue">0.25</span>
+                    </div>
+                    <div class="weight-bar-item">
+                        <label>Critic (γ)</label>
+                        <div class="weight-bar critic">
+                            <div class="weight-fill" id="criticWeight" style="width: 25%"></div>
+                        </div>
+                        <span id="criticWeightValue">0.25</span>
+                    </div>
+                    <div class="weight-bar-item">
+                        <label>Synthesizer (δ)</label>
+                        <div class="weight-bar synthesizer">
+                            <div class="weight-fill" id="synthesizerWeight" style="width: 25%"></div>
+                        </div>
+                        <span id="synthesizerWeightValue">0.25</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.persona-trace-container {
+    padding: 1.5rem;
+}
+
+.trace-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: var(--dark-bg-secondary);
+    border-radius: var(--border-radius);
+}
+
+.light-theme .trace-controls {
+    background-color: var(--light-bg-secondary);
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.control-group select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--dark-border);
+    border-radius: var(--border-radius);
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-text-primary);
+    min-width: 300px;
+}
+
+.light-theme .control-group select {
+    background-color: var(--light-bg-tertiary);
+    color: var(--light-text-primary);
+    border: 1px solid var(--light-border);
+}
+
+.persona-flow {
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.flow-arrow {
+    display: flex;
+    align-items: center;
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .flow-arrow {
+    color: var(--light-text-secondary);
+}
+
+.flow-arrow .material-icons {
+    font-size: 2rem;
+}
+
+.persona-card {
+    flex: 1;
+    min-width: 220px;
+    background-color: var(--dark-bg-secondary);
+    border-radius: var(--border-radius);
+    border-top: 4px solid;
+    overflow: hidden;
+}
+
+.light-theme .persona-card {
+    background-color: var(--light-bg-secondary);
+}
+
+.persona-card.analyst { border-top-color: #6a8fff; }
+.persona-card.expert { border-top-color: #a183ff; }
+.persona-card.critic { border-top-color: #ff6b6b; }
+.persona-card.synthesizer { border-top-color: #4ecdc4; }
+
+.persona-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.light-theme .persona-header {
+    border-bottom: 1px solid var(--light-border);
+}
+
+.persona-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+}
+
+.persona-card.analyst .persona-icon { background: linear-gradient(135deg, #6a8fff, #4c6ef5); }
+.persona-card.expert .persona-icon { background: linear-gradient(135deg, #a183ff, #6f42c1); }
+.persona-card.critic .persona-icon { background: linear-gradient(135deg, #ff6b6b, #e74c3c); }
+.persona-card.synthesizer .persona-icon { background: linear-gradient(135deg, #4ecdc4, #26a69a); }
+
+.persona-icon .material-icons {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.persona-title h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.persona-axis {
+    font-size: 0.75rem;
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .persona-axis {
+    color: var(--light-text-secondary);
+}
+
+.persona-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-dot.idle { background-color: #6c757d; }
+.status-dot.processing { background-color: #ffc107; animation: pulse 1s infinite; }
+.status-dot.complete { background-color: #4ecdc4; }
+.status-dot.error { background-color: #ff6b6b; }
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.persona-body {
+    padding: 1rem;
+}
+
+.confidence-meter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.confidence-meter label {
+    font-size: 0.75rem;
+    color: var(--dark-text-secondary);
+    white-space: nowrap;
+}
+
+.meter-bar {
+    flex: 1;
+    height: 8px;
+    background-color: var(--dark-bg-tertiary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.light-theme .meter-bar {
+    background-color: var(--light-bg-tertiary);
+}
+
+.meter-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.persona-card.analyst .meter-fill { background: linear-gradient(90deg, #6a8fff, #4c6ef5); }
+.persona-card.expert .meter-fill { background: linear-gradient(90deg, #a183ff, #6f42c1); }
+.persona-card.critic .meter-fill { background: linear-gradient(90deg, #ff6b6b, #e74c3c); }
+.persona-card.synthesizer .meter-fill { background: linear-gradient(90deg, #4ecdc4, #26a69a); }
+
+.meter-value {
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 35px;
+    text-align: right;
+}
+
+.persona-output {
+    min-height: 80px;
+    padding: 0.75rem;
+    background-color: var(--dark-bg-tertiary);
+    border-radius: var(--border-radius);
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.light-theme .persona-output {
+    background-color: var(--light-bg-tertiary);
+}
+
+.persona-output .placeholder {
+    color: var(--dark-text-secondary);
+    font-style: italic;
+    margin: 0;
+}
+
+.light-theme .persona-output .placeholder {
+    color: var(--light-text-secondary);
+}
+
+.trace-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.metric-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--dark-bg-tertiary);
+    border-radius: var(--border-radius);
+}
+
+.light-theme .metric-item {
+    background-color: var(--light-bg-tertiary);
+}
+
+.metric-item .material-icons {
+    font-size: 1.5rem;
+    color: var(--dark-accent-primary);
+}
+
+.metric-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.metric-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .metric-label {
+    color: var(--light-text-secondary);
+}
+
+.weight-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.weight-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.weight-bar-item label {
+    min-width: 100px;
+    font-size: 0.875rem;
+}
+
+.weight-bar {
+    flex: 1;
+    height: 12px;
+    background-color: var(--dark-bg-tertiary);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.light-theme .weight-bar {
+    background-color: var(--light-bg-tertiary);
+}
+
+.weight-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.3s ease;
+}
+
+.weight-bar.analyst .weight-fill { background: linear-gradient(90deg, #6a8fff, #4c6ef5); }
+.weight-bar.expert .weight-fill { background: linear-gradient(90deg, #a183ff, #6f42c1); }
+.weight-bar.critic .weight-fill { background: linear-gradient(90deg, #ff6b6b, #e74c3c); }
+.weight-bar.synthesizer .weight-fill { background: linear-gradient(90deg, #4ecdc4, #26a69a); }
+
+.weight-bar-item span:last-child {
+    min-width: 40px;
+    text-align: right;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .persona-flow {
+        flex-direction: column;
+    }
+    
+    .flow-arrow {
+        transform: rotate(90deg);
+        justify-content: center;
+    }
+    
+    .trace-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+function loadSession() {
+    const sessionId = document.getElementById('sessionSelect').value;
+    if (!sessionId) return;
+    
+    // Simulated data - in production, this would fetch from API
+    updatePersonaCard('analyst', { status: 'complete', confidence: 85, output: 'Query decomposed into 3 sub-questions...' });
+    setTimeout(() => {
+        updatePersonaCard('expert', { status: 'complete', confidence: 92, output: 'Domain knowledge applied from Axis 2-4...' });
+    }, 500);
+    setTimeout(() => {
+        updatePersonaCard('critic', { status: 'complete', confidence: 78, output: 'Identified 2 potential gaps in reasoning...' });
+    }, 1000);
+    setTimeout(() => {
+        updatePersonaCard('synthesizer', { status: 'complete', confidence: 88, output: 'Final synthesis integrates all perspectives...' });
+    }, 1500);
+}
+
+function updatePersonaCard(persona, data) {
+    const statusEl = document.getElementById(`${persona}Status`);
+    const confidenceEl = document.getElementById(`${persona}Confidence`);
+    const confidenceValueEl = document.getElementById(`${persona}ConfidenceValue`);
+    const outputEl = document.getElementById(`${persona}Output`);
+    
+    // Update status
+    statusEl.innerHTML = `<span class="status-dot ${data.status}"></span><span>${data.status.charAt(0).toUpperCase() + data.status.slice(1)}</span>`;
+    
+    // Update confidence
+    confidenceEl.style.width = `${data.confidence}%`;
+    confidenceValueEl.textContent = `${data.confidence}%`;
+    
+    // Update output
+    outputEl.innerHTML = `<p>${data.output}</p>`;
+}
+
+function refreshData() {
+    location.reload();
+}
+</script>
+{% endblock %}

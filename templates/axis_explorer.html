@@ -1,0 +1,465 @@
+{% extends 'base.html' %}
+
+{% block title %}17-Axis Explorer - Universal Knowledge Graph{% endblock %}
+
+{% block page_title %}17-Axis Coordinate Explorer{% endblock %}
+{% block page_subtitle %}Navigate the unified knowledge coordinate system (K ≡ x1..x17){% endblock %}
+
+{% block content %}
+<div class="axis-explorer-container">
+    <div class="axis-sidebar">
+        <div class="sidebar-section">
+            <h3>Axis Categories</h3>
+            <div class="axis-category" data-category="core">
+                <div class="category-header">
+                    <span class="material-icons">layers</span>
+                    <span>Core Hierarchy (1-5)</span>
+                </div>
+                <div class="axis-list">
+                    <button class="axis-btn active" data-axis="1">Axis 1: Pillars</button>
+                    <button class="axis-btn" data-axis="2">Axis 2: Sectors</button>
+                    <button class="axis-btn" data-axis="3">Axis 3: Honeycomb</button>
+                    <button class="axis-btn" data-axis="4">Axis 4: Branches</button>
+                    <button class="axis-btn" data-axis="5">Axis 5: Nodes</button>
+                </div>
+            </div>
+            
+            <div class="axis-category" data-category="crosswalk">
+                <div class="category-header">
+                    <span class="material-icons">swap_horiz</span>
+                    <span>Crosswalk (6-7)</span>
+                </div>
+                <div class="axis-list">
+                    <button class="axis-btn" data-axis="6">Axis 6: Octopus</button>
+                    <button class="axis-btn" data-axis="7">Axis 7: Spiderweb</button>
+                </div>
+            </div>
+            
+            <div class="axis-category" data-category="experts">
+                <div class="category-header">
+                    <span class="material-icons">people</span>
+                    <span>Expert Roles (8-11)</span>
+                </div>
+                <div class="axis-list">
+                    <button class="axis-btn" data-axis="8">Axis 8: Knowledge</button>
+                    <button class="axis-btn" data-axis="9">Axis 9: Qualifications</button>
+                    <button class="axis-btn" data-axis="10">Axis 10: Regulatory</button>
+                    <button class="axis-btn" data-axis="11">Axis 11: Compliance</button>
+                </div>
+            </div>
+            
+            <div class="axis-category" data-category="context">
+                <div class="category-header">
+                    <span class="material-icons">place</span>
+                    <span>Context (12-13)</span>
+                </div>
+                <div class="axis-list">
+                    <button class="axis-btn" data-axis="12">Axis 12: Location</button>
+                    <button class="axis-btn" data-axis="13">Axis 13: Temporal</button>
+                </div>
+            </div>
+            
+            <div class="axis-category" data-category="extended">
+                <div class="category-header">
+                    <span class="material-icons">extension</span>
+                    <span>Extended (14-17)</span>
+                </div>
+                <div class="axis-list">
+                    <button class="axis-btn" data-axis="14">Axis 14: Risk & Confidence</button>
+                    <button class="axis-btn" data-axis="15">Axis 15: Federated Intel</button>
+                    <button class="axis-btn" data-axis="16">Axis 16: Arrows of Time</button>
+                    <button class="axis-btn" data-axis="17">Axis 17: Observability</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="axis-main">
+        <div class="axis-visualization" id="axisVisualization">
+            <svg id="axisSvg" width="100%" height="400"></svg>
+        </div>
+        
+        <div class="axis-details">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title" id="axisTitle">Axis 1: Pillars</h2>
+                </div>
+                <div class="card-body">
+                    <p id="axisDescription">The foundational knowledge pillars representing the top-level categorization of the entire knowledge framework. 82 pillars (PL-1 to PL-107) form the root of the Nuremberg coordinate system.</p>
+                    
+                    <div class="axis-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="axisNodeCount">82</span>
+                            <span class="stat-label">Nodes</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="axisEdgeCount">0</span>
+                            <span class="stat-label">Connections</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="axisDepth">1</span>
+                            <span class="stat-label">Depth Level</span>
+                        </div>
+                    </div>
+                    
+                    <div class="coordinate-example">
+                        <h4>Coordinate Format</h4>
+                        <code id="coordinateFormat">PL-[1-107]</code>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Sample Nodes</h2>
+                </div>
+                <div class="card-body">
+                    <div class="node-list" id="nodeList">
+                        <div class="node-item">
+                            <span class="node-id">PL-1</span>
+                            <span class="node-name">Defense & Aerospace</span>
+                        </div>
+                        <div class="node-item">
+                            <span class="node-id">PL-2</span>
+                            <span class="node-name">Healthcare & Life Sciences</span>
+                        </div>
+                        <div class="node-item">
+                            <span class="node-id">PL-3</span>
+                            <span class="node-name">Financial Services</span>
+                        </div>
+                        <div class="node-item">
+                            <span class="node-id">PL-4</span>
+                            <span class="node-name">Manufacturing</span>
+                        </div>
+                        <div class="node-item">
+                            <span class="node-id">PL-5</span>
+                            <span class="node-name">Energy & Utilities</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.axis-explorer-container {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    min-height: calc(100vh - 120px);
+}
+
+.axis-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+}
+
+.sidebar-section h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+}
+
+.axis-category {
+    margin-bottom: 1rem;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: var(--dark-bg-secondary);
+    border-radius: var(--border-radius);
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+}
+
+.light-theme .category-header {
+    background-color: var(--light-bg-secondary);
+}
+
+.category-header .material-icons {
+    font-size: 1.25rem;
+    color: var(--dark-accent-primary);
+}
+
+.axis-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-left: 0.5rem;
+}
+
+.axis-btn {
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background: transparent;
+    color: var(--dark-text-primary);
+    text-align: left;
+    cursor: pointer;
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    transition: background-color var(--transition-speed);
+}
+
+.light-theme .axis-btn {
+    color: var(--light-text-primary);
+}
+
+.axis-btn:hover {
+    background-color: var(--dark-bg-secondary);
+}
+
+.light-theme .axis-btn:hover {
+    background-color: var(--light-bg-secondary);
+}
+
+.axis-btn.active {
+    background-color: var(--dark-accent-primary);
+    color: white;
+}
+
+.axis-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.axis-visualization {
+    background-color: var(--dark-bg-secondary);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    min-height: 400px;
+}
+
+.light-theme .axis-visualization {
+    background-color: var(--light-bg-secondary);
+}
+
+#axisSvg {
+    width: 100%;
+    height: 400px;
+}
+
+.axis-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.axis-stats {
+    display: flex;
+    gap: 2rem;
+    margin: 1.5rem 0;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark-accent-primary);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--dark-text-secondary);
+}
+
+.light-theme .stat-label {
+    color: var(--light-text-secondary);
+}
+
+.coordinate-example {
+    background-color: var(--dark-bg-tertiary);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+}
+
+.light-theme .coordinate-example {
+    background-color: var(--light-bg-tertiary);
+}
+
+.coordinate-example h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+}
+
+.coordinate-example code {
+    font-family: monospace;
+    font-size: 1.25rem;
+    color: var(--dark-accent-primary);
+}
+
+.node-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.node-item {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem;
+    background-color: var(--dark-bg-tertiary);
+    border-radius: var(--border-radius);
+}
+
+.light-theme .node-item {
+    background-color: var(--light-bg-tertiary);
+}
+
+.node-id {
+    font-family: monospace;
+    font-weight: 600;
+    color: var(--dark-accent-primary);
+    min-width: 60px;
+}
+
+.node-name {
+    color: var(--dark-text-primary);
+}
+
+.light-theme .node-name {
+    color: var(--light-text-primary);
+}
+
+@media (max-width: 768px) {
+    .axis-explorer-container {
+        flex-direction: column;
+    }
+    
+    .axis-sidebar {
+        width: 100%;
+    }
+    
+    .axis-details {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+const axisData = {
+    1: { name: 'Pillars', description: 'The foundational knowledge pillars representing the top-level categorization of the entire knowledge framework. 82 pillars (PL-1 to PL-107) form the root of the Nuremberg coordinate system.', nodes: 82, edges: 0, depth: 1, format: 'PL-[1-107]' },
+    2: { name: 'Sectors', description: 'Industry sectors that span across multiple pillars. 72 worldwide sector codes aligned with NAICS mappings for standardized industry classification.', nodes: 72, edges: 156, depth: 2, format: 'S2-[NAICS]' },
+    3: { name: 'Honeycomb', description: 'Hexagonal knowledge domains that connect related sectors and enable cross-pillar navigation through shared concepts.', nodes: 248, edges: 496, depth: 3, format: 'HC-[x1.x2.x3]' },
+    4: { name: 'Branches', description: 'Specialized branches within each honeycomb cell, representing focused areas of expertise and knowledge.', nodes: 1024, edges: 2048, depth: 4, format: 'BR-[x1.x2.x3.x4]' },
+    5: { name: 'Nodes', description: 'Individual knowledge nodes containing specific concepts, facts, and relationships. The atomic units of the knowledge graph.', nodes: 5000, edges: 12500, depth: 5, format: 'N-[x1.x2.x3.x4.x5]' },
+    6: { name: 'Octopus', description: 'One-to-many crosswalk connections that link a single source node to multiple related targets across different pillars.', nodes: 320, edges: 2560, depth: 6, format: 'OCT-[source]->[targets]' },
+    7: { name: 'Spiderweb', description: 'Many-to-many crosswalk relationships that create dense interconnections between knowledge clusters.', nodes: 480, edges: 9600, depth: 7, format: 'SW-{nodes}' },
+    8: { name: 'Knowledge Experts', description: 'Expert roles specializing in knowledge domains. The Analyst persona operates on this axis.', nodes: 150, edges: 450, depth: 8, format: 'KE-[domain]-[level]' },
+    9: { name: 'Qualifications', description: 'Certification and qualification requirements for expertise. The Expert persona operates on this axis.', nodes: 280, edges: 840, depth: 9, format: 'QA-[cert]-[level]' },
+    10: { name: 'Regulatory', description: 'Regulatory frameworks and compliance requirements. The Critic persona operates on this axis.', nodes: 180, edges: 720, depth: 10, format: 'REG-[framework]' },
+    11: { name: 'Compliance', description: 'Compliance status and audit requirements. The Synthesizer persona operates on this axis.', nodes: 220, edges: 660, depth: 11, format: 'CMP-[status]-[scope]' },
+    12: { name: 'Location', description: 'Geographic and jurisdictional context for knowledge applicability.', nodes: 195, edges: 390, depth: 12, format: 'LOC-[country]-[region]' },
+    13: { name: 'Temporal', description: 'Time-based context including validity periods, version history, and temporal relationships.', nodes: 50, edges: 150, depth: 13, format: 'T-[YYYY-MM-DD]' },
+    14: { name: 'Risk & Confidence', description: 'Risk assessment and confidence scoring for knowledge elements. Extended enterprise dimension.', nodes: 100, edges: 300, depth: 14, format: 'RC-[risk]-[conf]' },
+    15: { name: 'Federated Intelligence', description: 'Cross-system knowledge synchronization and federation. Extended enterprise dimension.', nodes: 80, edges: 240, depth: 15, format: 'FI-[system]-[sync]' },
+    16: { name: 'Arrows of Time', description: 'Temporal causality and knowledge evolution tracking. Extended enterprise dimension.', nodes: 120, edges: 360, depth: 16, format: 'AT-[direction]-[seq]' },
+    17: { name: 'Observability', description: 'Metrics, analytics, and monitoring of knowledge usage. Extended enterprise dimension.', nodes: 90, edges: 270, depth: 17, format: 'OBS-[metric]-[val]' }
+};
+
+let currentAxis = 1;
+
+document.querySelectorAll('.axis-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.axis-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentAxis = parseInt(this.dataset.axis);
+        updateAxisView(currentAxis);
+    });
+});
+
+function updateAxisView(axis) {
+    const data = axisData[axis];
+    document.getElementById('axisTitle').textContent = `Axis ${axis}: ${data.name}`;
+    document.getElementById('axisDescription').textContent = data.description;
+    document.getElementById('axisNodeCount').textContent = data.nodes.toLocaleString();
+    document.getElementById('axisEdgeCount').textContent = data.edges.toLocaleString();
+    document.getElementById('axisDepth').textContent = data.depth;
+    document.getElementById('coordinateFormat').textContent = data.format;
+    
+    drawAxisVisualization(axis, data);
+}
+
+function drawAxisVisualization(axis, data) {
+    const svg = d3.select('#axisSvg');
+    svg.selectAll('*').remove();
+    
+    const width = document.getElementById('axisVisualization').clientWidth - 32;
+    const height = 400;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    
+    const colors = ['#6a8fff', '#a183ff', '#4ecdc4', '#ff9f43', '#ff6b6b'];
+    const color = colors[(axis - 1) % colors.length];
+    
+    // Draw radial visualization
+    const numNodes = Math.min(data.nodes, 30);
+    const radius = Math.min(width, height) / 3;
+    
+    // Draw center node
+    svg.append('circle')
+        .attr('cx', centerX)
+        .attr('cy', centerY)
+        .attr('r', 40)
+        .attr('fill', color)
+        .attr('opacity', 0.9);
+    
+    svg.append('text')
+        .attr('x', centerX)
+        .attr('y', centerY)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .attr('fill', 'white')
+        .attr('font-weight', 'bold')
+        .text(`Axis ${axis}`);
+    
+    // Draw surrounding nodes
+    for (let i = 0; i < numNodes; i++) {
+        const angle = (i / numNodes) * 2 * Math.PI - Math.PI / 2;
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        const nodeRadius = 15 + Math.random() * 10;
+        
+        // Draw connection line
+        svg.append('line')
+            .attr('x1', centerX)
+            .attr('y1', centerY)
+            .attr('x2', x)
+            .attr('y2', y)
+            .attr('stroke', color)
+            .attr('stroke-opacity', 0.3)
+            .attr('stroke-width', 1);
+        
+        // Draw node
+        svg.append('circle')
+            .attr('cx', x)
+            .attr('cy', y)
+            .attr('r', nodeRadius)
+            .attr('fill', color)
+            .attr('opacity', 0.6 + Math.random() * 0.3);
+    }
+    
+    // Draw axis label
+    svg.append('text')
+        .attr('x', centerX)
+        .attr('y', 30)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'currentColor')
+        .attr('font-size', '14px')
+        .text(`${data.nodes.toLocaleString()} nodes | ${data.edges.toLocaleString()} connections`);
+}
+
+// Initialize
+updateAxisView(1);
+window.addEventListener('resize', () => updateAxisView(currentAxis));
+</script>
+{% endblock %}
