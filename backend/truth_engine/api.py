@@ -57,6 +57,66 @@ def require_truth_engine(f):
     return decorated
 
 
+def get_truth_engine_status():
+    """Get the current status of all Truth Engine components.
+    
+    Returns:
+        dict: Status information for TruthCore, TruthGate, TruthMemory, TruthLink
+    """
+    status = {
+        'truthcore': {
+            'active_workflows': 0,
+            'initialized': _truth_core is not None
+        },
+        'truthgate': {
+            'requests_processed': 0,
+            'initialized': _truth_gate is not None
+        },
+        'truthmemory': {
+            'cached_items': 0,
+            'hash_entries': 0,
+            'cache_hit_rate': '0%',
+            'initialized': _truth_memory is not None
+        },
+        'truthlink': {
+            'events_today': 0,
+            'subscribers': 0,
+            'dlq_items': 0,
+            'initialized': _truth_link is not None
+        }
+    }
+    
+    if _truth_core:
+        try:
+            core_stats = _truth_core.get_stats() if hasattr(_truth_core, 'get_stats') else {}
+            status['truthcore'].update(core_stats)
+        except Exception as e:
+            logger.warning(f"Error getting TruthCore stats: {e}")
+    
+    if _truth_gate:
+        try:
+            gate_stats = _truth_gate.get_stats() if hasattr(_truth_gate, 'get_stats') else {}
+            status['truthgate'].update(gate_stats)
+        except Exception as e:
+            logger.warning(f"Error getting TruthGate stats: {e}")
+    
+    if _truth_memory:
+        try:
+            memory_stats = _truth_memory.get_stats() if hasattr(_truth_memory, 'get_stats') else {}
+            status['truthmemory'].update(memory_stats)
+        except Exception as e:
+            logger.warning(f"Error getting TruthMemory stats: {e}")
+    
+    if _truth_link:
+        try:
+            link_stats = _truth_link.get_stats() if hasattr(_truth_link, 'get_stats') else {}
+            status['truthlink'].update(link_stats)
+        except Exception as e:
+            logger.warning(f"Error getting TruthLink stats: {e}")
+    
+    return status
+
+
 @truth_api.route('/health', methods=['GET'])
 def health():
     """Health check for Truth Engine."""

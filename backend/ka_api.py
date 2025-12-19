@@ -92,6 +92,7 @@ def format_algorithm(ka):
 
 
 @ka_bp.route('/algorithms', methods=['GET'])
+@login_required
 def list_algorithms():
     """List all available Knowledge Algorithms"""
     try:

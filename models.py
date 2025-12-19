@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from datetime import datetime, timedelta
 
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -825,7 +824,7 @@ class UnifiedCoordinate(db.Model):
     
     node = db.relationship('KnowledgeGraphNode', backref=db.backref('coordinates', lazy='dynamic'))
 
-    def get_axis_value(self, axis_number: int) -> str:
+    def get_axis_value(self, axis_number: int) -> str | None:
         """Get value for a specific axis (1-17)"""
         axis_map = {
             1: self.axis_1_pillar, 2: self.axis_2_sector, 3: self.axis_3_honeycomb,
