@@ -116,3 +116,5 @@ openpyxl
 flask-swagger-ui
 pyotp
 qrcode
+pyotp
+qrcode
