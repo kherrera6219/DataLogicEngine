@@ -6,7 +6,7 @@ packages = ["cargo", "glibcLocales", "libiconv", "libxcrypt", "libyaml", "openss
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "main:app"]
+run = ["gunicorn", "--bind=0.0.0.0:3000", "--reuse-port", "main:app"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
@@ -25,13 +25,13 @@ args = "Start application"
 name = "Start application"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
 
 [[workflows.workflow]]
 name = "Next.js Dev"
@@ -596,10 +596,6 @@ externalPort = 8008
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 5002
-externalPort = 8099
 
 [[ports]]
 localPort = 8080
