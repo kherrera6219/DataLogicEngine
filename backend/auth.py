@@ -300,7 +300,7 @@ def mfa_verify_login():
             # Verify backup code
             is_valid, code_hash = MFAManager.verify_backup_code(code, user.mfa_backup_codes or [])
 
-            if is_valid:
+            if is_valid and code_hash:
                 # Mark backup code as used
                 user.mfa_backup_codes = MFAManager.mark_backup_code_used(code_hash, user.mfa_backup_codes)
                 db.session.commit()
