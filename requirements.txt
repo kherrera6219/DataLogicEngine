@@ -118,3 +118,5 @@ pyotp
 qrcode
 pyotp
 qrcode
+openai
+python-multipart
