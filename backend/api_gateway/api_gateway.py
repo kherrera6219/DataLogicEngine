@@ -127,21 +127,27 @@ async def architecture_health():
 @app.get("/api/v1/graph/stats")
 async def get_graph_stats(user = Depends(verify_token)):
     """Get statistics about the knowledge graph"""
+    service = enterprise_arch.get_service('api_gateway')
+    if not service:
+        raise HTTPException(status_code=503, detail="API Gateway service not available")
     async with httpx.AsyncClient() as client:
         # Forward request to the Core UKG API
-        response = await client.get(f"{enterprise_arch.get_service('api_gateway').endpoint}/api/v1/graph/stats")
+        response = await client.get(f"{service.endpoint}/api/v1/graph/stats")
         return response.json()
 
 @app.post("/api/v1/query")
 async def process_query(request: Request, user = Depends(verify_token)):
     """Process a query through the UKG system"""
+    service = enterprise_arch.get_service('api_gateway')
+    if not service:
+        raise HTTPException(status_code=503, detail="API Gateway service not available")
     # Get request body
     body = await request.json()
     
     # Forward to appropriate UKG service
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            f"{enterprise_arch.get_service('api_gateway').endpoint}/api/v1/query",
+            f"{service.endpoint}/api/v1/query",
             json=body
         )
         return response.json()
@@ -150,12 +156,15 @@ async def process_query(request: Request, user = Depends(verify_token)):
 @app.post("/api/model/context")
 async def create_model_context(request: Request, user = Depends(verify_token)):
     """Create a new model context"""
+    service = enterprise_arch.get_service('model_context_server')
+    if not service:
+        raise HTTPException(status_code=503, detail="Model Context service not available")
     body = await request.json()
     
     # Forward to Model Context Protocol Server
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            f"{enterprise_arch.get_service('model_context_server').endpoint}/context",
+            f"{service.endpoint}/context",
             json=body
         )
         return response.json()
@@ -164,12 +173,15 @@ async def create_model_context(request: Request, user = Depends(verify_token)):
 @app.post("/api/webhooks/{integration_name}")
 async def process_webhook(integration_name: str, request: Request):
     """Process incoming webhooks"""
+    service = enterprise_arch.get_service('webhook_server')
+    if not service:
+        raise HTTPException(status_code=503, detail="Webhook service not available")
     body = await request.json()
     
     # Forward to Webhook Server
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            f"{enterprise_arch.get_service('webhook_server').endpoint}/webhooks/{integration_name}",
+            f"{service.endpoint}/webhooks/{integration_name}",
             json=body
         )
         return response.json()
@@ -178,11 +190,14 @@ async def process_webhook(integration_name: str, request: Request):
 @app.get("/api/dotnet/resources")
 async def get_dotnet_resources(user = Depends(verify_token)):
     """Get resources from the .NET service"""
+    service = enterprise_arch.get_service('dotnet_core_service')
+    if not service:
+        raise HTTPException(status_code=503, detail=".NET Core service not available")
     # Forward to .NET Core Service
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
-                f"{enterprise_arch.get_service('dotnet_core_service').endpoint}/api/resources"
+                f"{service.endpoint}/api/resources"
             )
             return response.json()
         except Exception as e:

@@ -70,13 +70,11 @@ def compliance_events():
     
     # Parse query parameters
     try:
-        start_time = request.args.get('start_time')
-        if start_time:
-            start_time = datetime.fromisoformat(start_time)
+        start_time_str = request.args.get('start_time')
+        start_time = datetime.fromisoformat(start_time_str) if start_time_str else None
             
-        end_time = request.args.get('end_time')
-        if end_time:
-            end_time = datetime.fromisoformat(end_time)
+        end_time_str = request.args.get('end_time')
+        end_time = datetime.fromisoformat(end_time_str) if end_time_str else None
             
         category = request.args.get('category')
         event_type = request.args.get('event_type')
@@ -149,13 +147,11 @@ def audit_events():
     
     # Parse query parameters
     try:
-        start_time = request.args.get('start_time')
-        if start_time:
-            start_time = datetime.fromisoformat(start_time)
+        start_time_str = request.args.get('start_time')
+        start_time = datetime.fromisoformat(start_time_str) if start_time_str else None
             
-        end_time = request.args.get('end_time')
-        if end_time:
-            end_time = datetime.fromisoformat(end_time)
+        end_time_str = request.args.get('end_time')
+        end_time = datetime.fromisoformat(end_time_str) if end_time_str else None
             
         event_type = request.args.get('event_type')
         user_id = request.args.get('user_id')
@@ -205,12 +201,18 @@ def run_security_scan():
         # Get the latest scan results
         results = security_manager.last_scan_results
         
+        if not results:
+            return jsonify({
+                'status': 'success',
+                'message': 'Scan completed but no results available'
+            })
+        
         return jsonify({
             'status': 'success',
-            'scan_id': results['scan_id'],
-            'timestamp': results['timestamp'],
-            'vulnerabilities_count': len(results['vulnerabilities']),
-            'warnings_count': len(results['warnings'])
+            'scan_id': results.get('scan_id', 'unknown'),
+            'timestamp': results.get('timestamp', ''),
+            'vulnerabilities_count': len(results.get('vulnerabilities', [])),
+            'warnings_count': len(results.get('warnings', []))
         })
         
     except Exception as e:

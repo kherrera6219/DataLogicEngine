@@ -68,6 +68,12 @@ def create_framework():
             }), 400
         
         axis_system = current_app.config.get('AXIS_SYSTEM')
+        if not axis_system:
+            return jsonify({
+                'status': 'error',
+                'message': 'Axis system not available',
+                'timestamp': datetime.now().isoformat()
+            }), 500
         regulatory_manager = axis_system.axis_managers.get(6)
         
         if not regulatory_manager:
@@ -120,6 +126,12 @@ def create_requirement():
             }), 400
         
         axis_system = current_app.config.get('AXIS_SYSTEM')
+        if not axis_system:
+            return jsonify({
+                'status': 'error',
+                'message': 'Axis system not available',
+                'timestamp': datetime.now().isoformat()
+            }), 500
         regulatory_manager = axis_system.axis_managers.get(6)
         
         if not regulatory_manager:
@@ -148,6 +160,12 @@ def get_octopus_structure(framework_uid):
     """Get the complete octopus structure for a mega framework."""
     try:
         axis_system = current_app.config.get('AXIS_SYSTEM')
+        if not axis_system:
+            return jsonify({
+                'status': 'error',
+                'message': 'Axis system not available',
+                'timestamp': datetime.now().isoformat()
+            }), 500
         regulatory_manager = axis_system.axis_managers.get(6)
         
         if not regulatory_manager:
@@ -183,6 +201,12 @@ def create_crosswalk():
             }), 400
         
         axis_system = current_app.config.get('AXIS_SYSTEM')
+        if not axis_system:
+            return jsonify({
+                'status': 'error',
+                'message': 'Axis system not available',
+                'timestamp': datetime.now().isoformat()
+            }), 500
         regulatory_manager = axis_system.axis_managers.get(6)
         
         if not regulatory_manager:
@@ -228,6 +252,12 @@ def map_jurisdiction():
             }), 400
         
         axis_system = current_app.config.get('AXIS_SYSTEM')
+        if not axis_system:
+            return jsonify({
+                'status': 'error',
+                'message': 'Axis system not available',
+                'timestamp': datetime.now().isoformat()
+            }), 500
         regulatory_manager = axis_system.axis_managers.get(6)
         
         if not regulatory_manager:
@@ -266,6 +296,12 @@ def create_compliance_link():
             }), 400
         
         axis_system = current_app.config.get('AXIS_SYSTEM')
+        if not axis_system:
+            return jsonify({
+                'status': 'error',
+                'message': 'Axis system not available',
+                'timestamp': datetime.now().isoformat()
+            }), 500
         regulatory_manager = axis_system.axis_managers.get(6)
         
         if not regulatory_manager:
