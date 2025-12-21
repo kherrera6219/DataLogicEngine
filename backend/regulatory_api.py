@@ -15,7 +15,10 @@ def get_frameworks():
     """Get all regulatory frameworks, optionally filtered by level."""
     try:
         node_level = request.args.get('node_level')
-        limit = int(request.args.get('limit', 50))
+        try:
+            limit = int(request.args.get('limit', 50))
+        except (ValueError, TypeError):
+            limit = 50
         
         axis_system = current_app.config.get('AXIS_SYSTEM')
         db_manager = current_app.config.get('DB_MANAGER')

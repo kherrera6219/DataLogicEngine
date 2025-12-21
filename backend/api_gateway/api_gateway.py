@@ -59,8 +59,15 @@ async def verify_token(request: Request):
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Extract token
-    token = auth_header.split(" ")[1]
+    # Extract token safely
+    auth_parts = auth_header.split(" ")
+    if len(auth_parts) < 2:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authorization header format",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    token = auth_parts[1]
     
     # In a real implementation, validate the JWT token
     # For now, we'll accept any token for demonstration

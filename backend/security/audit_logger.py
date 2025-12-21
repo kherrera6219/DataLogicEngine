@@ -123,7 +123,7 @@ class AuditLogger:
             event_id = str(uuid.uuid4())
             
             # Create the audit event
-            audit_event = {
+            audit_event: Dict[str, Any] = {
                 "id": event_id,
                 "timestamp": timestamp,
                 "event_type": event_type,
@@ -166,7 +166,7 @@ class AuditLogger:
             try:
                 with open("logs/audit_errors.log", 'a') as f:
                     f.write(f"{datetime.now().isoformat()} | ERROR | {str(e)}\n")
-            except:
+            except (IOError, OSError):
                 pass
                 
             return str(uuid.uuid4())  # Return a generated ID even on failure

@@ -80,7 +80,10 @@ def compliance_events():
             
         category = request.args.get('category')
         event_type = request.args.get('event_type')
-        limit = int(request.args.get('limit', 100))
+        try:
+            limit = int(request.args.get('limit', 100))
+        except (ValueError, TypeError):
+            limit = 100
         
         # Get the compliance events
         events = compliance_manager.get_compliance_events(
@@ -159,7 +162,10 @@ def audit_events():
         resource_id = request.args.get('resource_id')
         action = request.args.get('action')
         status = request.args.get('status')
-        limit = int(request.args.get('limit', 100))
+        try:
+            limit = int(request.args.get('limit', 100))
+        except (ValueError, TypeError):
+            limit = 100
         
         # Get the audit events
         events = audit_logger.get_audit_events(

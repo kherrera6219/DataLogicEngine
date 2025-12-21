@@ -26,7 +26,7 @@ class LocationContextEngine:
     
     def determine_active_location_context(self, 
                                          query_text: Optional[str] = None, 
-                                         explicit_location_uids: List[str] = None,
+                                         explicit_location_uids: Optional[List[str]] = None,
                                          user_profile_location_uid: Optional[str] = None) -> List[str]:
         """
         Determines the active location context UIDs for the current simulation.
@@ -138,8 +138,11 @@ class LocationContextEngine:
                 visited.add(current_uid)
                 
                 # Find parent edges (where the current node is the target)
+                current_node = UkgNode.query.filter_by(uid=current_uid).first()
+                if not current_node:
+                    break
                 parent_edges = UkgEdge.query.filter_by(
-                    target_id=UkgNode.query.filter_by(uid=current_uid).first().id,
+                    target_id=current_node.id,
                     edge_type='contains_sub_location'
                 ).all()
                 

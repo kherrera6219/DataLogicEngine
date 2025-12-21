@@ -242,8 +242,14 @@ def create_simulation():
     name = request.form.get('name')
     description = request.form.get('description', '')
     sim_type = request.form.get('sim_type')
-    refinement_steps = int(request.form.get('refinement_steps', 12))
-    confidence_threshold = float(request.form.get('confidence_threshold', 0.85))
+    try:
+        refinement_steps = int(request.form.get('refinement_steps', 12))
+    except (ValueError, TypeError):
+        refinement_steps = 12
+    try:
+        confidence_threshold = float(request.form.get('confidence_threshold', 0.85))
+    except (ValueError, TypeError):
+        confidence_threshold = 0.85
     entropy_sampling = 'entropy_sampling' in request.form
     auto_start = 'auto_start' in request.form
     
