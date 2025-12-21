@@ -49,6 +49,11 @@ The core orchestration layer is the **Truth Engine v7.3**, comprising:
 Security features include session-based authentication, CSRF protection, security headers, rate limiting, request size limits, input validation, and adversarial input detection. Compliance features adhere to the EU AI Act, including detailed decision logging, explainability endpoints, 7-year audit trail retention, and PII detection.
 
 ## Recent Changes (December 2024)
+- **v1.0.1 Patch**: Debugging sweep with fixes for SQLAlchemy warnings and missing dependencies
+- v1.0.1: Fixed SQLAlchemy relationship warnings with proper back_populates in db_models.py
+- v1.0.1: Installed missing pyotp and qrcode packages for MFA module
+- v1.0.1: Created data/personas_db.json to eliminate startup warnings
+- v1.0.1: Integration tests improved to 32 passing, total 140+ tests passing
 - **v1.0.0 Release**: Production-ready application with all core features operational
 - v1.0.0: Split routes.py (736 lines) into 4 modular blueprint files (auth, page, api, admin)
 - v1.0.0: Created @admin_required decorator for centralized access control

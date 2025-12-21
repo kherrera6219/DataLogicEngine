@@ -127,8 +127,8 @@ class Sector(db.Model):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    parent_sector = relationship("Sector", remote_side=[id])
-    subsectors = relationship("Sector", foreign_keys=[parent_sector_id])
+    parent_sector = relationship("Sector", remote_side=[id], back_populates="subsectors")
+    subsectors = relationship("Sector", foreign_keys=[parent_sector_id], back_populates="parent_sector")
     domains = relationship("Domain", back_populates="sector")
 
     def to_dict(self):
@@ -163,8 +163,8 @@ class Domain(db.Model):
 
     # Relationships
     sector = relationship("Sector", back_populates="domains")
-    parent_domain = relationship("Domain", remote_side=[id])
-    subdomains = relationship("Domain", foreign_keys=[parent_domain_id])
+    parent_domain = relationship("Domain", remote_side=[id], back_populates="subdomains")
+    subdomains = relationship("Domain", foreign_keys=[parent_domain_id], back_populates="parent_domain")
 
     def to_dict(self):
         """Convert domain to dictionary."""
@@ -200,8 +200,8 @@ class Location(db.Model):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    parent_location = relationship("Location", remote_side=[id])
-    sub_locations = relationship("Location", foreign_keys=[parent_location_id])
+    parent_location = relationship("Location", remote_side=[id], back_populates="sub_locations")
+    sub_locations = relationship("Location", foreign_keys=[parent_location_id], back_populates="parent_location")
 
     def to_dict(self):
         """Convert location to dictionary."""
@@ -236,8 +236,8 @@ class TimeContext(db.Model):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    parent_time = relationship("TimeContext", remote_side=[id])
-    sub_times = relationship("TimeContext", foreign_keys=[parent_time_id])
+    parent_time = relationship("TimeContext", remote_side=[id], back_populates="sub_times")
+    sub_times = relationship("TimeContext", foreign_keys=[parent_time_id], back_populates="parent_time")
 
     def to_dict(self):
         """Convert time context to dictionary."""

@@ -114,3 +114,5 @@ werkzeug
 openai
 openpyxl
 flask-swagger-ui
+pyotp
+qrcode
