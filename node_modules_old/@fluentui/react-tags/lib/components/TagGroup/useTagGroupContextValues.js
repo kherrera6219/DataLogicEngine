@@ -1,0 +1,26 @@
+'use client';
+import * as React from 'react';
+export function useTagGroupContextValues_unstable(state) {
+    const { handleTagDismiss, handleTagSelect, selectedValues, size, disabled, appearance, dismissible, role } = state;
+    return {
+        tagGroup: React.useMemo(()=>({
+                handleTagDismiss,
+                handleTagSelect,
+                selectedValues,
+                size,
+                disabled,
+                appearance,
+                dismissible,
+                role
+            }), [
+            handleTagDismiss,
+            handleTagSelect,
+            selectedValues,
+            size,
+            disabled,
+            appearance,
+            dismissible,
+            role
+        ])
+    };
+}

@@ -1,0 +1,25 @@
+'use client';
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "VirtualizerScrollViewDynamic", {
+    enumerable: true,
+    get: function() {
+        return VirtualizerScrollViewDynamic;
+    }
+});
+const _interop_require_wildcard = require("@swc/helpers/_/_interop_require_wildcard");
+const _useVirtualizerScrollViewDynamic = require("./useVirtualizerScrollViewDynamic");
+const _renderVirtualizerScrollViewDynamic = require("./renderVirtualizerScrollViewDynamic");
+const _useVirtualizerScrollViewDynamicStylesstyles = require("./useVirtualizerScrollViewDynamicStyles.styles");
+const _react = /*#__PURE__*/ _interop_require_wildcard._(require("react"));
+const _reactsharedcontexts = require("@fluentui/react-shared-contexts");
+const VirtualizerScrollViewDynamic = (props, _context)=>{
+    const state = (0, _useVirtualizerScrollViewDynamic.useVirtualizerScrollViewDynamic_unstable)(props);
+    (0, _useVirtualizerScrollViewDynamicStylesstyles.useVirtualizerScrollViewDynamicStyles_unstable)(state);
+    (0, _reactsharedcontexts.useCustomStyleHook_unstable)('useVirtualizerScrollViewDynamicStyles_unstable')(state);
+    return (0, _renderVirtualizerScrollViewDynamic.renderVirtualizerScrollViewDynamic_unstable)(state);
+// NOTE: we need to assert the type to satisfy tsc (React 19 FC doesn't have 2nd context parameter anymore)
+};
+VirtualizerScrollViewDynamic.displayName = 'VirtualizerScrollViewDynamic';

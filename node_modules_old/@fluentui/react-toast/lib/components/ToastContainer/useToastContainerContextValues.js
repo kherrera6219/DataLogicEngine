@@ -1,0 +1,19 @@
+'use client';
+import * as React from 'react';
+export function useToastContainerContextValues_unstable(state) {
+    const { close, intent, titleId, bodyId } = state;
+    const toastContainerContext = React.useMemo(()=>({
+            close,
+            intent,
+            titleId,
+            bodyId
+        }), [
+        close,
+        intent,
+        titleId,
+        bodyId
+    ]);
+    return {
+        toast: toastContainerContext
+    };
+}

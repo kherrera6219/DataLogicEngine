@@ -1,0 +1,13 @@
+'use client';
+import * as React from 'react';
+export function useTableCellLayoutContextValues_unstable(state) {
+    const { avatarSize } = state;
+    const avatar = React.useMemo(()=>({
+            size: avatarSize
+        }), [
+        avatarSize
+    ]);
+    return {
+        avatar
+    };
+}

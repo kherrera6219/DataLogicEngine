@@ -1,0 +1,13 @@
+'use client';
+import * as React from 'react';
+const SpinnerContext = React.createContext(undefined);
+const SpinnerContextDefaultValue = {};
+/**
+ * @internal
+ */ export const SpinnerContextProvider = SpinnerContext.Provider;
+/**
+ * @internal
+ */ export const useSpinnerContext = ()=>{
+    var _React_useContext;
+    return (_React_useContext = React.useContext(SpinnerContext)) !== null && _React_useContext !== void 0 ? _React_useContext : SpinnerContextDefaultValue;
+};

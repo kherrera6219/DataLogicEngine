@@ -1,0 +1,24 @@
+'use client';
+import { getIntrinsicElementProps, slot } from '@fluentui/react-utilities';
+import * as React from 'react';
+import { useToolbarContext_unstable } from '../Toolbar/ToolbarContext';
+/**
+ * Given user props, defines default props for the Group
+ * @param props - User provided props to the Group component.
+ * @param ref - User provided ref to be passed to the Group component.
+ */ export const useToolbarGroup_unstable = (props, ref)=>{
+    const vertical = useToolbarContext_unstable((ctx)=>ctx.vertical);
+    return {
+        components: {
+            root: 'div'
+        },
+        root: slot.always(getIntrinsicElementProps('div', {
+            ref,
+            role: 'presentation',
+            ...props
+        }), {
+            elementType: 'div'
+        }),
+        vertical
+    };
+};

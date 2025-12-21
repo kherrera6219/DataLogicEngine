@@ -1,0 +1,17 @@
+'use client';
+import * as React from 'react';
+export function useTableContextValues_unstable(state) {
+    const { size, noNativeElements, sortable } = state;
+    const tableContext = React.useMemo(()=>({
+            noNativeElements,
+            size,
+            sortable
+        }), [
+        noNativeElements,
+        size,
+        sortable
+    ]);
+    return {
+        table: tableContext
+    };
+}

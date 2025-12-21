@@ -1,0 +1,92 @@
+'use client';
+import { nextTypeAheadElement } from '../utils/nextTypeAheadElement';
+import { treeDataTypes } from '../utils/tokens';
+import { useRovingTabIndex } from './useRovingTabIndexes';
+import * as React from 'react';
+import { useHTMLElementWalkerRef } from './useHTMLElementWalkerRef';
+import { useMergedRefs } from '@fluentui/react-utilities';
+import { treeItemLayoutClassNames } from '../TreeItemLayout';
+import { useFocusFinders } from '@fluentui/react-tabster';
+/***
+ * Hook used to manage navigation in the tree.
+ *
+ * @param navigationMode - the navigation mode of the tree, 'tree' (default) or 'treegrid'
+ */ export function useTreeNavigation(navigationMode = 'tree') {
+    'use no memo';
+    const { rove, initialize: initializeRovingTabIndex, forceUpdate: forceUpdateRovingTabIndex } = useRovingTabIndex();
+    const { findFirstFocusable } = useFocusFinders();
+    const { walkerRef, rootRef: walkerRootRef } = useHTMLElementWalkerRef();
+    const rootRefCallback = React.useCallback((root)=>{
+        if (root && walkerRef.current) {
+            initializeRovingTabIndex(walkerRef.current);
+        }
+    }, [
+        walkerRef,
+        initializeRovingTabIndex
+    ]);
+    const getNextElement = (data)=>{
+        if (!walkerRef.current) {
+            return null;
+        }
+        switch(data.type){
+            case treeDataTypes.Click:
+                return data.target;
+            case treeDataTypes.TypeAhead:
+                walkerRef.current.currentElement = data.target;
+                return nextTypeAheadElement(walkerRef.current, data.event.key);
+            case treeDataTypes.ArrowLeft:
+                {
+                    const actions = queryActions(data.target);
+                    if (navigationMode === 'treegrid' && (actions === null || actions === void 0 ? void 0 : actions.contains(data.target.ownerDocument.activeElement))) {
+                        return data.target;
+                    }
+                    walkerRef.current.currentElement = data.target;
+                    return walkerRef.current.parentElement();
+                }
+            case treeDataTypes.ArrowRight:
+                if (navigationMode === 'treegrid') {
+                    const actions = queryActions(data.target);
+                    if (actions) {
+                        var _findFirstFocusable;
+                        (_findFirstFocusable = findFirstFocusable(actions)) === null || _findFirstFocusable === void 0 ? void 0 : _findFirstFocusable.focus();
+                    }
+                    return null;
+                }
+                walkerRef.current.currentElement = data.target;
+                return walkerRef.current.firstChild();
+            case treeDataTypes.End:
+                walkerRef.current.currentElement = walkerRef.current.root;
+                return lastChildRecursive(walkerRef.current);
+            case treeDataTypes.Home:
+                walkerRef.current.currentElement = walkerRef.current.root;
+                return walkerRef.current.firstChild();
+            case treeDataTypes.ArrowDown:
+                walkerRef.current.currentElement = data.target;
+                return walkerRef.current.nextElement();
+            case treeDataTypes.ArrowUp:
+                walkerRef.current.currentElement = data.target;
+                return walkerRef.current.previousElement();
+        }
+    };
+    function navigate(data, focusOptions) {
+        const nextElement = getNextElement(data);
+        if (nextElement) {
+            rove(nextElement, focusOptions);
+        }
+        return nextElement;
+    }
+    return {
+        navigate,
+        treeRef: useMergedRefs(walkerRootRef, rootRefCallback),
+        forceUpdateRovingTabIndex
+    };
+}
+function lastChildRecursive(walker) {
+    let lastElement = null;
+    let nextElement = null;
+    while(nextElement = walker.lastChild()){
+        lastElement = nextElement;
+    }
+    return lastElement;
+}
+const queryActions = (target)=>target.querySelector(`:scope > .${treeItemLayoutClassNames.root} > .${treeItemLayoutClassNames.actions}`);

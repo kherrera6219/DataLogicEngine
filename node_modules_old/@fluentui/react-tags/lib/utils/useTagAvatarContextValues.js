@@ -1,0 +1,15 @@
+'use client';
+import * as React from 'react';
+export function useTagAvatarContextValues_unstable(state) {
+    const { avatarSize, avatarShape } = state;
+    const avatar = React.useMemo(()=>({
+            size: avatarSize,
+            shape: avatarShape
+        }), [
+        avatarShape,
+        avatarSize
+    ]);
+    return {
+        avatar
+    };
+}

@@ -1,0 +1,6 @@
+'use client';
+import * as React from 'react';
+const tableHeaderContext = React.createContext(undefined);
+const tableHeaderContextDefaultValue = '';
+export const TableHeaderContextProvider = tableHeaderContext.Provider;
+export const useIsInTableHeader = ()=>React.useContext(tableHeaderContext) === tableHeaderContextDefaultValue;
