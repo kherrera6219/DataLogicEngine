@@ -204,6 +204,52 @@
     height: 12px;
     border-radius: 50%;
 }
+
+@media (max-width: 768px) {
+    .graph-toolbar {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+    
+    .toolbar-left,
+    .toolbar-right {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .toolbar-left .form-control {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .graph-container {
+        height: calc(100vh - 250px);
+        min-height: 400px;
+    }
+    
+    .graph-legend {
+        padding: 0.75rem;
+    }
+    
+    .legend-items {
+        gap: 1rem;
+    }
+    
+    .legend-item {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .toolbar-left .btn .material-icons {
+        margin-right: 0;
+    }
+    
+    .toolbar-left .btn span:not(.material-icons) {
+        display: none;
+    }
+}
 </style>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>

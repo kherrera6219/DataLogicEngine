@@ -120,4 +120,42 @@
         </div>
     </div>
 </div>
+
+<style>
+@media (max-width: 992px) {
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-row {
+        flex-direction: column;
+    }
+    
+    .table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .table-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+    
+    .table-row > div {
+        min-width: 0;
+    }
+    
+    .form-grid {
+        flex-direction: column;
+    }
+    
+    .form-grid .btn {
+        width: 100%;
+    }
+}
+</style>
 {% endblock %}

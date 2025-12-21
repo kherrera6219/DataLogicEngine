@@ -451,6 +451,46 @@
 .light-theme .empty-state p {
     color: var(--light-text-secondary);
 }
+
+@media (max-width: 992px) {
+    .page-container > .row.mb-4 {
+        flex-direction: column;
+    }
+    
+    .page-container > .row.mb-4 > .col-md-4 {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    .axis-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .axis-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .nav-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .nav-tabs .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .stat-card .card-body {
+        padding: 1rem;
+    }
+}
 </style>
 
 <script>
