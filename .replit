@@ -6,7 +6,7 @@ packages = ["cargo", "glibcLocales", "libiconv", "libxcrypt", "libyaml", "openss
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "--workers=1", "--timeout=120", "main:app"]
+run = ["gunicorn", "--bind=0.0.0.0:3000", "--reuse-port", "--workers=1", "--timeout=120", "main:app"]
 build = ["echo", "skip"]
 
 [workflows]
@@ -596,10 +596,6 @@ externalPort = 8008
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 8080
-externalPort = 8080
 
 [objectStorage]
 defaultBucketID = "replit-objstore-6e2e7e3d-f093-4c1e-a336-03943eecfd71"
