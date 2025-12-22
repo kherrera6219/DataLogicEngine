@@ -195,5 +195,95 @@
     .privacy-section a:hover {
         text-decoration: underline;
     }
+    
+    /* Desktop - larger screens */
+    @media (min-width: 1200px) {
+        .privacy-container {
+            max-width: 900px;
+        }
+        
+        .privacy-content {
+            padding: 3rem;
+        }
+        
+        .privacy-section h2 {
+            font-size: 1.6rem;
+        }
+        
+        .privacy-section h3 {
+            font-size: 1.35rem;
+        }
+        
+        .privacy-section p, .privacy-section ul {
+            font-size: 1.05rem;
+        }
+    }
+    
+    /* Tablet - medium screens */
+    @media (min-width: 768px) and (max-width: 1199px) {
+        .privacy-container {
+            max-width: 700px;
+            padding: 0 1.5rem;
+        }
+        
+        .privacy-content {
+            padding: 2rem;
+        }
+        
+        .privacy-section h2 {
+            font-size: 1.4rem;
+        }
+        
+        .privacy-section h3 {
+            font-size: 1.2rem;
+        }
+    }
+    
+    /* Mobile - small screens */
+    @media (max-width: 767px) {
+        .privacy-container {
+            margin: 0 0 2rem;
+        }
+        
+        .privacy-content {
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+        }
+        
+        .privacy-section h2 {
+            font-size: 1.25rem;
+        }
+        
+        .privacy-section h3 {
+            font-size: 1.1rem;
+        }
+        
+        .privacy-section p, .privacy-section ul {
+            font-size: 0.95rem;
+        }
+        
+        .privacy-section ul {
+            padding-left: 1.25rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .privacy-content {
+            padding: 1.25rem;
+        }
+        
+        .privacy-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .privacy-section h2 {
+            font-size: 1.15rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .privacy-section h3 {
+            font-size: 1rem;
+        }
+    }
 </style>
 {% endblock %}

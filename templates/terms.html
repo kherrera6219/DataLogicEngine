@@ -151,5 +151,79 @@
     .terms-section a:hover {
         text-decoration: underline;
     }
+    
+    /* Desktop - larger screens */
+    @media (min-width: 1200px) {
+        .terms-container {
+            max-width: 900px;
+        }
+        
+        .terms-content {
+            padding: 3rem;
+        }
+        
+        .terms-section h2 {
+            font-size: 1.6rem;
+        }
+        
+        .terms-section p, .terms-section ul {
+            font-size: 1.05rem;
+        }
+    }
+    
+    /* Tablet - medium screens */
+    @media (min-width: 768px) and (max-width: 1199px) {
+        .terms-container {
+            max-width: 700px;
+            padding: 0 1.5rem;
+        }
+        
+        .terms-content {
+            padding: 2rem;
+        }
+        
+        .terms-section h2 {
+            font-size: 1.4rem;
+        }
+    }
+    
+    /* Mobile - small screens */
+    @media (max-width: 767px) {
+        .terms-container {
+            margin: 0 0 2rem;
+        }
+        
+        .terms-content {
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+        }
+        
+        .terms-section h2 {
+            font-size: 1.25rem;
+        }
+        
+        .terms-section p, .terms-section ul {
+            font-size: 0.95rem;
+        }
+        
+        .terms-section ul {
+            padding-left: 1.25rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .terms-content {
+            padding: 1.25rem;
+        }
+        
+        .terms-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .terms-section h2 {
+            font-size: 1.15rem;
+            margin-bottom: 0.75rem;
+        }
+    }
 </style>
 {% endblock %}

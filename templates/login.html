@@ -131,14 +131,64 @@
         font-size: 0.95rem;
     }
     
-    @media (max-width: 480px) {
+    /* Desktop - larger screens */
+    @media (min-width: 1200px) {
+        .auth-container {
+            min-height: 75vh;
+        }
+        
         .auth-card {
-            margin: 0 1rem;
-            max-width: none;
+            max-width: 500px;
+            padding: 0;
         }
         
         .auth-header {
-            padding: 1.5rem 1rem;
+            padding: 2.5rem 3rem;
+        }
+        
+        .auth-body {
+            padding: 2.5rem 3rem;
+        }
+        
+        .auth-title {
+            font-size: 2rem;
+        }
+    }
+    
+    /* Tablet - medium screens */
+    @media (min-width: 768px) and (max-width: 1199px) {
+        .auth-container {
+            min-height: 65vh;
+            padding: 2rem;
+        }
+        
+        .auth-card {
+            max-width: 480px;
+        }
+        
+        .auth-header {
+            padding: 2rem 2.5rem;
+        }
+        
+        .auth-body {
+            padding: 2rem 2.5rem;
+        }
+    }
+    
+    /* Mobile - small screens */
+    @media (max-width: 767px) {
+        .auth-container {
+            padding: 1rem;
+            min-height: 60vh;
+        }
+        
+        .auth-card {
+            margin: 0;
+            max-width: 100%;
+        }
+        
+        .auth-header {
+            padding: 1.5rem 1.25rem;
         }
         
         .auth-title {
@@ -146,7 +196,21 @@
         }
         
         .auth-body {
-            padding: 1.5rem 1rem;
+            padding: 1.5rem 1.25rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .auth-header {
+            padding: 1.25rem 1rem;
+        }
+        
+        .auth-body {
+            padding: 1.25rem 1rem;
+        }
+        
+        .auth-title {
+            font-size: 1.35rem;
         }
     }
 </style>
