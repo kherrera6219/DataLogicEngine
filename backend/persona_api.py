@@ -12,16 +12,23 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 
-from simulation.simulation_engine import create_simulation_engine
-from quad_persona.quad_engine import create_quad_persona_engine
-
 logger = logging.getLogger(__name__)
 
 # Create blueprint
 persona_api = Blueprint('persona_api', __name__, url_prefix='/api/persona')
 
-# Initialize simulation engine
-simulation_engine = create_simulation_engine()
+# Lazy-loaded simulation engine (initialized on first use)
+_simulation_engine = None
+
+
+def _get_simulation_engine():
+    """Get or create the simulation engine (lazy initialization)."""
+    global _simulation_engine
+    if _simulation_engine is None:
+        from simulation.simulation_engine import create_simulation_engine
+        _simulation_engine = create_simulation_engine()
+        logger.info("Simulation engine initialized (lazy)")
+    return _simulation_engine
 
 @persona_api.route('/query', methods=['POST'])
 @login_required
@@ -57,8 +64,8 @@ def process_query():
         context['conversation_id'] = f"conv_{datetime.utcnow().timestamp()}"
     
     try:
-        # Process the query with the simulation engine
-        result = simulation_engine.process_query(query, context)
+        # Process the query with the simulation engine (lazy loaded)
+        result = _get_simulation_engine().process_query(query, context)
         
         return jsonify(result)
     except Exception as e:
@@ -92,7 +99,8 @@ def direct_query():
     context = data.get('context', {})
     
     try:
-        # Create a new quad persona engine for this request
+        # Create a new quad persona engine for this request (lazy import)
+        from quad_persona.quad_engine import create_quad_persona_engine
         engine = create_quad_persona_engine()
         
         # Process the query directly

@@ -120,12 +120,10 @@ from backend.ka_api import ka_bp
 app.register_blueprint(ka_bp)
 logger.info("KA API blueprint registered")
 
-# Register Truth Engine API blueprint
-from backend.truth_engine.api import truth_api, init_truth_engine
+# Register Truth Engine API blueprint (lazy initialization - components load on first use)
+from backend.truth_engine.api import truth_api
 app.register_blueprint(truth_api)
-with app.app_context():
-    init_truth_engine(db.session)
-logger.info("Truth Engine API blueprint registered")
+logger.info("Truth Engine API blueprint registered (lazy initialization enabled)")
 
 # Register Persona API blueprint
 try:

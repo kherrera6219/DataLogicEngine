@@ -47,12 +47,28 @@ def init_truth_engine(db_session):
     logger.info("Truth Engine components initialized")
 
 
+def _lazy_init_truth_engine():
+    """Lazy initialization of Truth Engine on first use."""
+    global _truth_core, _truth_gate, _truth_memory, _truth_link
+    
+    if _truth_core is not None:
+        return  # Already initialized
+    
+    from flask import current_app
+    from extensions import db
+    
+    with current_app.app_context():
+        init_truth_engine(db.session)
+
+
 def require_truth_engine(f):
-    """Decorator to ensure Truth Engine is initialized."""
+    """Decorator to ensure Truth Engine is initialized (lazy loading)."""
     @wraps(f)
     def decorated(*args, **kwargs):
+        # Lazy initialize on first request
+        _lazy_init_truth_engine()
         if not all([_truth_core, _truth_gate, _truth_memory, _truth_link]):
-            return jsonify({'error': 'Truth Engine not initialized'}), 503
+            return jsonify({'error': 'Truth Engine initialization failed'}), 503
         return f(*args, **kwargs)
     return decorated
 

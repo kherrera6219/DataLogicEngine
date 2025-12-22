@@ -6,7 +6,7 @@ packages = ["cargo", "glibcLocales", "libiconv", "libxcrypt", "libyaml", "openss
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "--workers=2", "main:app"]
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "--workers=1", "--timeout=120", "main:app"]
 build = ["echo", "skip"]
 
 [workflows]
