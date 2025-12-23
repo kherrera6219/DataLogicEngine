@@ -412,14 +412,15 @@ def export_simulation(sim_id):
     
     simulation = SimulationSession.query.filter_by(id=sim_id, user_id=current_user.id).first_or_404()
     
-    uid = simulation.uid or f"sim_{sim_id}"
+    session_uid = simulation.session_id or f"sim_{sim_id}"
+    sim_type = simulation.parameters.get('simulation_type', 'unknown') if simulation.parameters else 'unknown'
     
     export_data = {
         'id': simulation.id,
-        'uid': uid,
+        'session_id': session_uid,
         'name': simulation.name,
         'description': simulation.description,
-        'sim_type': simulation.sim_type,
+        'sim_type': sim_type,
         'status': simulation.status,
         'created_at': simulation.created_at.isoformat() if simulation.created_at else None,
         'started_at': simulation.started_at.isoformat() if simulation.started_at else None,
@@ -435,7 +436,7 @@ def export_simulation(sim_id):
     response = Response(
         json.dumps(export_data, indent=2),
         mimetype='application/json',
-        headers={'Content-Disposition': f'attachment;filename=simulation_{sim_id}_{uid}.json'}
+        headers={'Content-Disposition': f'attachment;filename=simulation_{sim_id}_{session_uid}.json'}
     )
     return response
 
