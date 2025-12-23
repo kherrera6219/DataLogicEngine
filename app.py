@@ -19,6 +19,40 @@ log_level = logging.DEBUG if os.environ.get("FLASK_ENV") == "development" else l
 logging.basicConfig(level=log_level)
 logger = logging.getLogger(__name__)
 
+# Security: Warn about default credentials in production
+def validate_production_security():
+    """Validate that no default/insecure credentials are in use in production."""
+    is_production = os.environ.get("FLASK_ENV") != "development"
+    
+    # Check for default admin credentials
+    admin_user = os.environ.get("ADMIN_USERNAME", "")
+    admin_pass = os.environ.get("ADMIN_PASSWORD", "")
+    
+    insecure_usernames = {"admin", "administrator", "root", "test", "user"}
+    insecure_passwords = {"admin", "admin123", "password", "password123", "123456", "test", "root"}
+    
+    if is_production:
+        issues = []
+        if admin_user and admin_user.lower() in insecure_usernames:
+            issues.append("Default admin username detected")
+        if admin_pass and (admin_pass in insecure_passwords or len(admin_pass) < 12):
+            issues.append("Insecure admin password (use min 12 chars)")
+        if not os.environ.get("SESSION_SECRET"):
+            issues.append("SESSION_SECRET not set")
+        
+        if issues:
+            logger.error(f"SECURITY: Production security issues: {', '.join(issues)}")
+            logger.error("SECURITY: Please fix these issues before deploying to production!")
+    else:
+        # Development warnings only
+        if admin_user and admin_user.lower() in insecure_usernames:
+            logger.warning("SECURITY WARNING: Using default admin username. Change before deployment!")
+        if admin_pass and admin_pass in insecure_passwords:
+            logger.warning("SECURITY WARNING: Using default admin password. Change before deployment!")
+
+# Run security validation (non-blocking)
+validate_production_security()
+
 # Server configuration
 DEFAULT_PORT = int(os.environ.get("PORT", os.environ.get("BACKEND_PORT", 8080)))
 
@@ -54,9 +88,23 @@ limiter = Limiter(
 )
 
 # Initialize extensions with app
-from extensions import db, login_manager
+from extensions import db, login_manager, csrf
 db.init_app(app)
 login_manager.init_app(app)
+csrf.init_app(app)
+
+# Exempt JSON API endpoints from CSRF (they use session auth or API keys)
+# CSRF is still enforced on all HTML form submissions
+from flask_wtf.csrf import CSRFError
+
+@app.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    """Handle CSRF errors gracefully."""
+    from flask import request
+    if request.is_json or request.headers.get('Content-Type', '').startswith('application/json'):
+        return jsonify({'error': 'CSRF token missing or invalid', 'success': False}), 400
+    flash('Security token expired. Please try again.', 'danger')
+    return redirect(request.url)
 
 # Initialize security headers (Phase 1 security hardening)
 from backend.security.security_headers import configure_security_headers
@@ -67,6 +115,11 @@ from backend.middleware.request_limits import configure_request_limits
 configure_request_limits(app, {
     'MAX_CONTENT_LENGTH': int(os.environ.get('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))
 })
+
+# Initialize correlation ID middleware for request tracing
+from backend.middleware.correlation_id import configure_correlation_id, setup_correlation_logging
+configure_correlation_id(app)
+setup_correlation_logging()
 
 # Import models (after extensions initialization)
 # Note: Importing models ensures SQLAlchemy creates their tables during db.create_all()

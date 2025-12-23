@@ -22,7 +22,7 @@
 
 ## Overview
 
-DataLogicEngine provides a comprehensive RESTful API for interacting with the Universal Knowledge Graph system. The API supports operations across all 13 axes, knowledge algorithms, expert personas, and simulation engines.
+The Universal Knowledge Graph (UKG) System provides a comprehensive RESTful API for interacting with the knowledge graph platform. The API supports operations across all 17 axes, knowledge algorithms, expert personas, and simulation engines.
 
 ### API Version
 
@@ -36,72 +36,62 @@ All API endpoints are versioned and follow semantic versioning principles.
 
 The API supports multiple authentication methods:
 
-1. **JWT Bearer Tokens** (Recommended)
-2. **API Keys**
-3. **Azure AD OAuth 2.0**
+1. **Session-Based Authentication** (Primary - for browser clients)
+2. **API Keys** (For programmatic access)
+3. **Azure AD OAuth 2.0** (Optional enterprise integration)
 
-### JWT Authentication
+### Session-Based Authentication
+
+The primary authentication method uses Flask-Login session cookies:
 
 ```http
-POST /api/auth/login
-Content-Type: application/json
+POST /login
+Content-Type: application/x-www-form-urlencoded
 
-{
-  "username": "user@example.com",
-  "password": "your_password"
-}
+username=user@example.com&password=your_password
 ```
 
 **Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "token_type": "Bearer",
-    "expires_in": 3600,
-    "user": {
-      "id": 1,
-      "username": "user@example.com",
-      "role": "user"
-    }
-  }
-}
-```
+- On success: Redirects to `/dashboard` with session cookie set
+- On failure: Returns to login page with error message
 
-**Using the Token:**
-```http
-GET /api/graph
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+**CSRF Protection:**
+All POST/PUT/DELETE requests require a CSRF token. Include the token from the meta tag:
+```html
+<meta name="csrf-token" content="{{ csrf_token() }}">
 ```
 
 ### API Key Authentication
+
+For programmatic API access, use API keys:
 
 ```http
 GET /api/graph
 X-API-Key: your_api_key_here
 ```
 
-### Azure AD OAuth
+API keys can be generated from the Profile page in the web interface.
+
+### Azure AD OAuth (Optional)
 
 ```http
 GET /api/auth/azure/login
 ```
 
-Redirects to Azure AD login page. After successful authentication, redirects back with token.
+Redirects to Azure AD login page. After successful authentication, creates a session.
 
 ## Base URLs
 
 ### Development
 ```
-Frontend: http://localhost:3000
-API Gateway: http://localhost:5000
+Application: http://localhost:5000
+API Endpoints: http://localhost:5000/api/*
 ```
 
 ### Production
 ```
-Frontend: https://app.datalogicengine.com
-API: https://api.datalogicengine.com
+Application: https://your-deployment-url.replit.app
+API Endpoints: https://your-deployment-url.replit.app/api/*
 ```
 
 ## Response Format

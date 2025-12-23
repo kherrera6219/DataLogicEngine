@@ -1,11 +1,11 @@
-# DataLogicEngine Architecture
+# Universal Knowledge Graph (UKG) System Architecture
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [System Architecture](#system-architecture)
 - [Technology Stack](#technology-stack)
-- [13-Axis Knowledge Framework](#13-axis-knowledge-framework)
+- [17-Axis Knowledge Framework](#17-axis-knowledge-framework)
 - [Core Components](#core-components)
 - [Data Flow](#data-flow)
 - [Database Schema](#database-schema)
@@ -15,7 +15,7 @@
 
 ## Overview
 
-DataLogicEngine is a sophisticated enterprise knowledge graph system built on a microservices architecture. It combines a Next.js frontend with a Flask backend, implementing a unique 13-axis knowledge framework for multi-dimensional knowledge organization and retrieval.
+The Universal Knowledge Graph (UKG) System is a sophisticated enterprise knowledge graph platform built on a monolithic Flask architecture with Jinja2 server-side rendering. It implements a unique 17-axis knowledge framework for multi-dimensional knowledge organization, retrieval, and AI-powered analysis.
 
 ### Architectural Goals
 
@@ -40,37 +40,27 @@ DataLogicEngine is a sophisticated enterprise knowledge graph system built on a 
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    Presentation Layer                        │
-│                    Next.js (Port 3000)                       │
+│               Unified Flask Application (Port 5000)          │
 │  ┌──────────────────────────────────────────────────────┐  │
-│  │  Pages  │  Components  │  Hooks  │  Context  │ Utils │  │
+│  │   Jinja2 Templates  │  REST APIs  │  Static Files    │  │
+│  └──────────────────────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  Authentication  │  CSRF  │  Rate Limiting  │ CORS   │  │
+│  └──────────────────────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  Correlation ID  │  Security Headers  │  Audit Log   │  │
 │  └──────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
                             │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                     API Gateway Layer                        │
-│                  Flask API Gateway (Port 5000)               │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │  Authentication  │  Routing  │  Rate Limiting  │ CORS │  │
-│  └──────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                            │
-          ┌─────────────────┼─────────────────┐
-          ▼                 ▼                 ▼
-┌──────────────────┐ ┌──────────────┐ ┌──────────────────┐
-│  Core UKG        │ │  Webhook     │ │  Model Context   │
-│  Service         │ │  Server      │ │  Service         │
-│  (Port 5003)     │ │  (Port 5001) │ │  (Port 5002)     │
-└──────────────────┘ └──────────────┘ └──────────────────┘
-          │                 │                 │
-          └─────────────────┼─────────────────┘
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                      Business Logic Layer                    │
 │  ┌──────────────────────────────────────────────────────┐  │
 │  │  Knowledge Graph  │  Simulation  │  Expert Personas  │  │
-│  │  56+ Algorithms   │  Engines     │  13-Axis System   │  │
+│  │  56+ Algorithms   │  Engines     │  17-Axis System   │  │
+│  └──────────────────────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  Truth Engine v7.3  │  MCP Integration  │  AI Chat   │  │
 │  └──────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
                             │
@@ -84,44 +74,35 @@ DataLogicEngine is a sophisticated enterprise knowledge graph system built on a 
 ┌─────────────────────────────────────────────────────────────┐
 │                      Data Storage Layer                      │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐ │
-│  │ PostgreSQL   │  │ JSON Files   │  │  YAML Configs    │ │
-│  │ (Primary DB) │  │  (Fallback)  │  │  (Reference)     │ │
+│  │ PostgreSQL   │  │ SQLite       │  │  YAML Configs    │ │
+│  │ (Production) │  │ (Development)│  │  (Reference)     │ │
 │  └──────────────┘  └──────────────┘  └──────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Microservices Architecture
+### Monolithic Architecture with Blueprint Organization
 
-#### 1. API Gateway (Port 5000)
-- **Purpose**: Single entry point for all API requests
-- **Responsibilities**:
-  - Request routing
-  - Authentication/Authorization
-  - Rate limiting
-  - CORS handling
-  - Request/response logging
+The application runs as a single Flask server on port 5000, organized into modular blueprints:
 
-#### 2. Core UKG Service (Port 5003)
-- **Purpose**: Core knowledge graph operations
+#### Core Application (Port 5000)
+- **Purpose**: Unified entry point for all requests
 - **Responsibilities**:
-  - Graph CRUD operations
-  - Knowledge algorithm execution
-  - 13-axis framework management
-  - Query processing
+  - Server-side rendering with Jinja2 templates
+  - REST API endpoints for data operations
+  - Session-based authentication with Flask-Login
+  - CSRF protection with Flask-WTF
+  - Rate limiting with Flask-Limiter
+  - Correlation ID tracking for request tracing
 
-#### 3. Webhook Server (Port 5001)
-- **Purpose**: Event-driven processing
-- **Responsibilities**:
-  - External event handling
-  - Asynchronous processing
-  - Integration with external systems
-
-#### 4. Model Context Service (Port 5002)
-- **Purpose**: AI model context management
-- **Responsibilities**:
-  - Context preparation for AI models
-  - Prompt engineering
-  - Response processing
+#### Blueprint Organization
+- `routes/auth_routes.py` - Authentication (login, logout, register)
+- `routes/page_routes.py` - Page rendering (dashboard, knowledge, graph)
+- `routes/api_routes.py` - REST API endpoints
+- `routes/admin_routes.py` - Admin operations
+- `backend/mcp_api.py` - MCP server management
+- `backend/ai_chat.py` - AI chat integration
+- `backend/truth_engine/api.py` - Truth Engine endpoints
+- `backend/ka_api.py` - Knowledge algorithm APIs
 
 ## Technology Stack
 

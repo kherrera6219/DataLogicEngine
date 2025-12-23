@@ -120,3 +120,4 @@ pyotp
 qrcode
 openai
 python-multipart
+flask-wtf

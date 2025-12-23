@@ -11,6 +11,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Redis caching layer for improved performance
 - Async task processing with Celery
 - Real-time collaboration features
+- Database migrations with Flask-Migrate/Alembic
+
+## [1.1.0] - 2025-12-23
+
+### Added - Security Hardening & Production Readiness
+- CSRF protection with Flask-WTF across all forms and endpoints
+- Production credential validation (blocks insecure defaults in production)
+- MCP endpoint authorization (admin-only for create/delete operations)
+- Correlation ID middleware for request tracing (`X-Correlation-ID` header)
+- CSRF meta tag in base template for JavaScript form submissions
+
+### Fixed
+- Blocking asyncio.run() calls replaced with shared event loop helper
+- Export function properly handles missing session_id attribute
+
+### Changed
+- Updated ARCHITECTURE.md to reflect actual monolithic Flask architecture
+- Updated API.md to document session-based authentication (not JWT)
+- Standardized project naming to "Universal Knowledge Graph (UKG) System"
+
+### Removed
+- Dead Next.js code in `pages/` directory
+- Unused `node_modules_old/` directory
+
+### Security
+- Added @admin_required decorator to MCP server management endpoints
+- Added production validation to block default credentials
+- Added correlation ID tracking for audit trail
 
 ## [1.0.0] - 2024-12-19
 

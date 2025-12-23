@@ -46,9 +46,32 @@ The core orchestration layer is the **Truth Engine v7.3**, comprising:
 - **TruthMemory**: An audit and persistence layer featuring a SHA-256 hash chain for immutable audit trails, 7-year retention for artifacts (EU AI Act compliant), LRU caching, and MLflow-style metrics.
 - **TruthLink**: An event bus facilitating inter-module messaging with publish/subscribe patterns, priority routing, SSE transport for real-time events, and a dead letter queue.
 
-Security features include session-based authentication, CSRF protection, security headers, rate limiting, request size limits, input validation, and adversarial input detection. Compliance features adhere to the EU AI Act, including detailed decision logging, explainability endpoints, 7-year audit trail retention, and PII detection.
+Security features include:
+- **Session-based authentication** with Flask-Login
+- **CSRF protection** with Flask-WTF tokens on all forms
+- **Security headers** middleware (CSP, X-Frame-Options, etc.)
+- **Rate limiting** with Flask-Limiter
+- **Request size limits** with configurable max content length
+- **Correlation ID tracking** for request tracing
+- **Production credential validation** (blocks default credentials)
+- **MCP authorization** (admin-only for server management)
+- **Input validation** and adversarial input detection
 
-## Recent Changes (December 2024)
+Compliance features adhere to the EU AI Act, including detailed decision logging, explainability endpoints, 7-year audit trail retention, and PII detection.
+
+## Recent Changes (December 2025)
+- **v1.1.0 Security Hardening**: Production readiness improvements
+- v1.1.0: Added CSRF protection with Flask-WTF across all forms and endpoints
+- v1.1.0: Added production credential validation (blocks insecure defaults in production)
+- v1.1.0: Added MCP endpoint authorization (admin-only for create/delete operations)
+- v1.1.0: Added correlation ID middleware for request tracing (X-Correlation-ID header)
+- v1.1.0: Fixed blocking asyncio.run() calls with shared event loop helper
+- v1.1.0: Updated ARCHITECTURE.md to reflect actual monolithic Flask architecture
+- v1.1.0: Updated API.md to document session-based authentication
+- v1.1.0: Removed dead Next.js code (pages/ directory) and unused node_modules_old/
+- v1.1.0: Standardized project naming to "Universal Knowledge Graph (UKG) System"
+
+## Changes (December 2024)
 - **v1.0.1 Patch**: Debugging sweep with fixes for SQLAlchemy warnings and missing dependencies
 - v1.0.1: Fixed SQLAlchemy relationship warnings with proper back_populates in db_models.py
 - v1.0.1: Installed missing pyotp and qrcode packages for MFA module
@@ -59,12 +82,6 @@ Security features include session-based authentication, CSRF protection, securit
 - v1.0.0: Created @admin_required decorator for centralized access control
 - v1.0.0: Fixed test assertion field name mismatches - 93% test pass rate (150/161)
 - v1.0.0: Configured production deployment settings
-- Phase 7: Code organization improvements - registered additional blueprints (persona_api, pillar_api, compliance_api)
-- Phase 7: Added api_response decorator to backend middleware for standardized API responses
-- Phase 6: Updated README.md, CHANGELOG.md, created phase status documents
-- Phase 5: Connected frontend to real database data - /api/graph returns nodes, edges, pillars, sectors, domains
-- Phase 4: Seeded database with 86 records (17 pillars, 15 sectors, 13 domains, 25 nodes, 16 edges)
-- Phase 4: Added Swagger UI API documentation at /api/docs endpoint
 
 ## Available Pages
 - `/` - Home page (landing)
@@ -138,7 +155,8 @@ Security features include session-based authentication, CSRF protection, securit
 ## Version History
 | Version | Date | Phase | Description |
 |---------|------|-------|-------------|
-| **1.0.0** | **Dec 19, 2024** | **Release** | **Production-ready release with all core features** |
+| **1.1.0** | **Dec 23, 2025** | **Security** | **Security hardening & production readiness** |
+| 1.0.0 | Dec 19, 2024 | Release | Production-ready release with all core features |
 | 0.6.0 | Dec 19, 2024 | Phase 7 | Code organization & blueprint registration |
 | 0.5.0 | Dec 19, 2024 | Phase 5 | Frontend-database integration |
 | 0.4.0 | Dec 19, 2024 | Phase 4 | Database seeding & API docs |

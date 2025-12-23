@@ -5,17 +5,65 @@ Provides REST API endpoints for managing MCP servers, clients,
 resources, tools, and prompts.
 """
 
+from functools import wraps
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 from datetime import datetime
 import asyncio
 import logging
+import threading
 
 from extensions import db
 from models import MCPServer as MCPServerModel, MCPResource, MCPTool, MCPPrompt
 from core.mcp import MCPManager
 
 logger = logging.getLogger(__name__)
+
+# Thread-local event loop for async operations (avoids blocking Flask routes)
+_async_loop = None
+_async_loop_lock = threading.Lock()
+
+
+def get_async_loop():
+    """Get or create a shared event loop for async operations."""
+    global _async_loop
+    with _async_loop_lock:
+        if _async_loop is None or _async_loop.is_closed():
+            _async_loop = asyncio.new_event_loop()
+        return _async_loop
+
+
+def run_async(coro):
+    """Run an async coroutine safely without blocking Flask routes."""
+    loop = get_async_loop()
+    try:
+        return loop.run_until_complete(coro)
+    except RuntimeError:
+        # Fallback if loop is already running (shouldn't happen with thread-local)
+        new_loop = asyncio.new_event_loop()
+        try:
+            return new_loop.run_until_complete(coro)
+        finally:
+            new_loop.close()
+
+
+def admin_required(f):
+    """Decorator to require admin privileges for MCP management endpoints."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return jsonify({
+                'success': False,
+                'error': 'Authentication required'
+            }), 401
+        if not getattr(current_user, 'is_admin', False):
+            logger.warning(f"Unauthorized MCP access attempt by user {current_user.username}")
+            return jsonify({
+                'success': False,
+                'error': 'Admin privileges required for this operation'
+            }), 403
+        return f(*args, **kwargs)
+    return decorated_function
 
 # Create blueprint
 mcp_bp = Blueprint('mcp', __name__, url_prefix='/api/mcp')
@@ -72,6 +120,7 @@ def list_servers():
 
 @mcp_bp.route('/servers', methods=['POST'])
 @login_required
+@admin_required
 def create_server():
     """Create a new MCP server"""
     try:
@@ -164,6 +213,7 @@ def get_server(server_id):
 
 @mcp_bp.route('/servers/<server_id>', methods=['DELETE'])
 @login_required
+@admin_required
 def delete_server(server_id):
     """Delete an MCP server"""
     try:
@@ -255,8 +305,8 @@ def read_resource(server_id, resource_id):
 
         if server:
             try:
-                # In a full implementation, this would use asyncio to read the resource
-                content = asyncio.run(server._handle_resources_read({'uri': resource.uri}))
+                # Use shared event loop for async operations
+                content = run_async(server._handle_resources_read({'uri': resource.uri}))
                 return jsonify({
                     'success': True,
                     'resource': resource.to_dict(),
@@ -337,7 +387,7 @@ def call_tool(server_id, tool_id):
             }), 500
 
         try:
-            result = asyncio.run(server._handle_tools_call({
+            result = run_async(server._handle_tools_call({
                 'name': tool.name,
                 'arguments': arguments
             }))
@@ -433,7 +483,7 @@ def get_prompt(server_id, prompt_id):
             }), 500
 
         try:
-            result = asyncio.run(server._handle_prompts_get({
+            result = run_async(server._handle_prompts_get({
                 'name': prompt.name,
                 'arguments': arguments
             }))
@@ -489,6 +539,7 @@ def list_clients():
 
 @mcp_bp.route('/clients', methods=['POST'])
 @login_required
+@admin_required
 def create_client():
     """Create a new MCP client"""
     try:
@@ -515,11 +566,12 @@ def create_client():
 
 @mcp_bp.route('/clients/<client_id>/connect/<server_id>', methods=['POST'])
 @login_required
+@admin_required
 def connect_client(client_id, server_id):
     """Connect a client to a server"""
     try:
         manager = get_mcp_manager()
-        result = asyncio.run(manager.connect_client_to_server(client_id, server_id))
+        result = run_async(manager.connect_client_to_server(client_id, server_id))
 
         return jsonify({
             'success': True,

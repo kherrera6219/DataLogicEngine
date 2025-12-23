@@ -1,3 +1,0 @@
-export declare const griffelRendererSerializer: jest.SnapshotSerializerPlugin;
-export declare const griffelRulesSerializer: jest.SnapshotSerializerPlugin;
-export declare const griffelResetRulesSerializer: jest.SnapshotSerializerPlugin;
