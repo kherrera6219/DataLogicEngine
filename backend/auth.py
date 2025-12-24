@@ -1,12 +1,58 @@
-
-from flask import Blueprint, request, jsonify, session
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask import Blueprint, request, jsonify, session, Response
 from datetime import timedelta
-from .models import db, User
-from .security.mfa import MFAManager
+from functools import wraps
 import logging
+from typing import Any, Callable, Optional, Union, Tuple
+
+from extensions import db
+from models import User
+from .security.mfa import MFAManager
 
 logger = logging.getLogger(__name__)
+
+_jwt_available = False
+_create_access_token: Optional[Callable] = None
+_jwt_required: Optional[Callable] = None
+_get_jwt_identity: Optional[Callable] = None
+
+try:
+    from flask_jwt_extended import (
+        create_access_token as jwt_create,
+        jwt_required as jwt_req,
+        get_jwt_identity as jwt_identity
+    )
+    _create_access_token = jwt_create
+    _jwt_required = jwt_req
+    _get_jwt_identity = jwt_identity
+    _jwt_available = True
+except ImportError:
+    pass
+
+
+def create_access_token(identity: Any, expires_delta: Optional[timedelta] = None) -> str:
+    """Create JWT access token or return placeholder if JWT not available."""
+    if _jwt_available and _create_access_token is not None:
+        return _create_access_token(identity=identity, expires_delta=expires_delta)
+    return f"token-{identity}"
+
+
+def jwt_required() -> Callable:
+    """JWT required decorator. Returns 503 if JWT library not available."""
+    if _jwt_available and _jwt_required is not None:
+        return _jwt_required()
+    def decorator(fn: Callable) -> Callable:
+        @wraps(fn)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            return jsonify({'error': 'Authentication service unavailable. JWT library not configured.'}), 503
+        return wrapper
+    return decorator
+
+
+def get_jwt_identity() -> Any:
+    """Get JWT identity or None if JWT not available."""
+    if _jwt_available and _get_jwt_identity is not None:
+        return _get_jwt_identity()
+    return None
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -25,11 +71,9 @@ def register():
     if User.query.filter_by(email=data['email']).first():
         return jsonify({'error': 'Email already registered'}), 409
     
-    # Create new user
-    new_user = User(
-        username=data['username'],
-        email=data['email']
-    )
+    new_user = User()
+    new_user.username = data['username']
+    new_user.email = data['email']
     new_user.set_password(data['password'])
     
     db.session.add(new_user)
@@ -153,12 +197,10 @@ def replit_auth():
         user = User.query.filter_by(username=username).first()
 
         if not user:
-            # Create new user from Replit credentials
-            user = User(
-                username=username,
-                email=f"{username}@replit.user",  # Placeholder email
-            )
-            user.set_password(f"replit_{user_id}")  # Set a password they can reset later
+            user = User()
+            user.username = username
+            user.email = f"{username}@replit.user"
+            user.set_password(f"replit_{user_id}")
             db.session.add(user)
             db.session.commit()
 

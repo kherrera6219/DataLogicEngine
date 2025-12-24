@@ -53,8 +53,8 @@ def validate_production_security():
 # Run security validation (non-blocking)
 validate_production_security()
 
-# Server configuration
-DEFAULT_PORT = int(os.environ.get("PORT", os.environ.get("BACKEND_PORT", 8080)))
+# Server configuration - bind to 5000 for Replit
+DEFAULT_PORT = int(os.environ.get("PORT", 5000))
 
 # Create Flask app
 app = Flask(__name__)
@@ -317,19 +317,17 @@ def create_simulation():
         'entropy_sampling': entropy_sampling
     }
     
-    # Create new simulation session
-    new_simulation = SimulationSession(
-        session_id=str(uuid.uuid4()),
-        user_id=current_user.id,
-        name=name,
-        description=description,
-        parameters=parameters,
-        status='pending' if not auto_start else 'running',
-        current_step=0,
-        total_steps=8,
-        created_at=datetime.now(UTC),
-        started_at=datetime.now(UTC) if auto_start else None
-    )
+    new_simulation = SimulationSession()
+    new_simulation.session_id = str(uuid.uuid4())
+    new_simulation.user_id = current_user.id
+    new_simulation.name = name
+    new_simulation.description = description
+    new_simulation.parameters = parameters
+    new_simulation.status = 'pending' if not auto_start else 'running'
+    new_simulation.current_step = 0
+    new_simulation.total_steps = 8
+    new_simulation.created_at = datetime.now(UTC)
+    new_simulation.started_at = datetime.now(UTC) if auto_start else None
     
     try:
         db.session.add(new_simulation)

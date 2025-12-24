@@ -121,3 +121,5 @@ qrcode
 openai
 python-multipart
 flask-wtf
+cryptography
+flask-jwt-extended

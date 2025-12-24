@@ -10,16 +10,15 @@ from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy.orm import DeclarativeBase
 
-# Database setup
+
 class Base(DeclarativeBase):
     pass
 
-# Initialize extensions (without app)
+
 db = SQLAlchemy(model_class=Base)
 login_manager = LoginManager()
 csrf = CSRFProtect()
 
-# Configure login manager
-login_manager.login_view = 'login'
+login_manager.login_view = 'login'  # type: ignore[assignment]
 login_manager.login_message = 'Please log in to access this page'
 login_manager.login_message_category = 'info'

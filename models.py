@@ -1,8 +1,17 @@
 from datetime import datetime, timedelta, UTC
+from typing import TYPE_CHECKING
 
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from extensions import db
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy.model import Model
+
+
+def _utcnow():
+    """Return current UTC datetime."""
+    return datetime.now(UTC)
 
 
 class APIKey(db.Model):
@@ -15,7 +24,7 @@ class APIKey(db.Model):
     name = db.Column(db.String(120), nullable=False, default='Default Key')
     key = db.Column(db.String(128), unique=True, nullable=False, index=True)
     is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
     last_used_at = db.Column(db.DateTime)
     revoked_at = db.Column(db.DateTime)
 
@@ -40,10 +49,7 @@ class PasswordHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    # Relationship
-    user = db.relationship('User', backref=db.backref('password_history', lazy='dynamic', order_by='PasswordHistory.created_at.desc()'))
+    created_at = db.Column(db.DateTime, default=_utcnow)
 
     def __repr__(self):
         return f'<PasswordHistory user_id={self.user_id} created={self.created_at}>'
@@ -57,45 +63,45 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, nullable=False, index=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
-    active = db.Column(db.Boolean, default=True)  # Renamed from is_active to avoid conflict
+    active = db.Column(db.Boolean, default=True)
     is_admin = db.Column(db.Boolean, default=False)
-    role = db.Column(db.String(20), default='user')  # admin, analyst, user, viewer
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    role = db.Column(db.String(20), default='user')
+    created_at = db.Column(db.DateTime, default=_utcnow)
     last_login = db.Column(db.DateTime)
 
-    # Phase 1: Enhanced password security
-    password_changed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    password_changed_at = db.Column(db.DateTime, default=_utcnow)
     password_expires_at = db.Column(db.DateTime)
     force_password_change = db.Column(db.Boolean, default=False)
     failed_login_attempts = db.Column(db.Integer, default=0)
     locked_until = db.Column(db.DateTime)
 
-    # Phase 1: Multi-Factor Authentication
     mfa_enabled = db.Column(db.Boolean, default=False)
     mfa_secret = db.Column(db.String(32))
-    mfa_backup_codes = db.Column(db.JSON)  # Hashed backup codes
+    mfa_backup_codes = db.Column(db.JSON)
 
-    # Override UserMixin's is_active property
+    password_history_entries = db.relationship(
+        'PasswordHistory',
+        backref='user',
+        lazy='dynamic',
+        order_by='PasswordHistory.created_at.desc()'
+    )
+
     @property
     def is_active(self):
         return self.active
-
-    # Relationships can be added here
 
     def check_password_history(self, password):
         """Check if password was used in the last N passwords"""
         from backend.security.password_security import PasswordSecurity
 
-        # Get last N passwords from history
         history_count = PasswordSecurity.PASSWORD_HISTORY_COUNT
-        recent_passwords = self.password_history.limit(history_count).all()
+        recent_passwords = self.password_history_entries.limit(history_count).all()
 
-        # Check against each historical password
         for history in recent_passwords:
             if check_password_hash(history.password_hash, password):
-                return False  # Password was recently used
+                return False
 
-        return True  # Password is new
+        return True
 
     def set_password(self, password):
         """Set password hash with security enhancements"""
@@ -117,25 +123,22 @@ class User(UserMixin, db.Model):
             import logging
             logging.warning(f"User {self.username} setting password found in {count} breaches")
 
-        # Save current password to history before changing (if user exists)
         if self.id and self.password_hash:
-            history_entry = PasswordHistory(
-                user_id=self.id,
-                password_hash=self.password_hash
-            )
+            history_entry = PasswordHistory()
+            history_entry.user_id = self.id
+            history_entry.password_hash = self.password_hash
             db.session.add(history_entry)
 
-            # Keep only last N passwords in history
-            old_entries = self.password_history.offset(PasswordSecurity.PASSWORD_HISTORY_COUNT).all()
+            old_entries = self.password_history_entries.offset(PasswordSecurity.PASSWORD_HISTORY_COUNT).all()
             for old_entry in old_entries:
                 db.session.delete(old_entry)
 
         # Set the password hash
         self.password_hash = generate_password_hash(password)
-        self.password_changed_at = datetime.now(UTC)
+        self.password_changed_at = _utcnow()
 
         # Set expiration date (90 days from now)
-        self.password_expires_at = datetime.now(UTC) + timedelta(days=PasswordSecurity.PASSWORD_EXPIRY_DAYS)
+        self.password_expires_at = _utcnow() + timedelta(days=PasswordSecurity.PASSWORD_EXPIRY_DAYS)
 
         # Reset failed login attempts
         self.failed_login_attempts = 0
@@ -158,7 +161,7 @@ class User(UserMixin, db.Model):
 
     def is_account_locked(self):
         """Check if account is locked due to failed login attempts"""
-        if self.locked_until and datetime.now(UTC) < self.locked_until:
+        if self.locked_until and _utcnow() < self.locked_until:
             return True
         return False
 
@@ -168,11 +171,11 @@ class User(UserMixin, db.Model):
 
         # Lock account after 5 failed attempts for 30 minutes
         if self.failed_login_attempts >= 5:
-            self.locked_until = datetime.now(UTC) + timedelta(minutes=30)
+            self.locked_until = _utcnow() + timedelta(minutes=30)
 
     def record_successful_login(self):
         """Record a successful login"""
-        self.last_login = datetime.now(UTC)
+        self.last_login = _utcnow()
         self.failed_login_attempts = 0
         self.locked_until = None
 
@@ -200,20 +203,19 @@ class SimulationSession(db.Model):
     __tablename__ = 'simulation_sessions'
     
     id = db.Column(db.Integer, primary_key=True)
-    session_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    name = db.Column(db.String(128))
-    description = db.Column(db.Text)
-    parameters = db.Column(db.JSON)
-    status = db.Column(db.String(20), default='pending')  # pending, running, completed, failed
+    session_id = db.Column(db.String(64), unique=True, nullable=False, index=True, default='')
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    name = db.Column(db.String(128), default='')
+    description = db.Column(db.Text, default='')
+    parameters = db.Column(db.JSON, default=dict)
+    status = db.Column(db.String(20), default='pending')
     current_step = db.Column(db.Integer, default=0)
     total_steps = db.Column(db.Integer, default=8)
-    results = db.Column(db.JSON)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    results = db.Column(db.JSON, default=dict)
+    created_at = db.Column(db.DateTime, default=_utcnow)
     started_at = db.Column(db.DateTime)
     completed_at = db.Column(db.DateTime)
     
-    # Define relationship with User
     user = db.relationship('User', backref=db.backref('simulations', lazy='dynamic'))
     
     def to_dict(self):
@@ -246,8 +248,8 @@ class KnowledgeGraphNode(db.Model):
     description = db.Column(db.Text)
     data = db.Column(db.JSON)
     axis_number = db.Column(db.Integer)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
     
     def to_dict(self):
         """Convert node to dictionary"""
@@ -275,8 +277,8 @@ class KnowledgeGraphEdge(db.Model):
     edge_type = db.Column(db.String(32), nullable=False)
     weight = db.Column(db.Float, default=1.0)
     data = db.Column(db.JSON)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
     
     # Define relationships
     source = db.relationship('KnowledgeGraphNode', foreign_keys=[source_id], backref='outgoing_edges')
@@ -325,8 +327,8 @@ class MCPServer(db.Model):
     failed_requests = db.Column(db.Integer, default=0)
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
     last_active = db.Column(db.DateTime)
 
     # Relationships
@@ -382,8 +384,8 @@ class MCPResource(db.Model):
     last_accessed = db.Column(db.DateTime)
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
 
     def to_dict(self):
         """Convert resource to dictionary"""
@@ -424,8 +426,8 @@ class MCPTool(db.Model):
     last_executed = db.Column(db.DateTime)
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
 
     def to_dict(self):
         """Convert tool to dictionary"""
@@ -467,8 +469,8 @@ class MCPPrompt(db.Model):
     last_used = db.Column(db.DateTime)
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
 
     def to_dict(self):
         """Convert prompt to dictionary"""
@@ -519,7 +521,7 @@ class TruthSession(db.Model):
     axis_context = db.Column(db.JSON)
     workflow_steps = db.Column(db.JSON)
     
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
     started_at = db.Column(db.DateTime)
     completed_at = db.Column(db.DateTime)
 
@@ -574,7 +576,7 @@ class TruthAuditEvent(db.Model):
     axis_involved = db.Column(db.JSON)
     compliance_flags = db.Column(db.JSON)
     
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    timestamp = db.Column(db.DateTime, default=_utcnow, index=True)
     retention_until = db.Column(db.DateTime)
 
     session = db.relationship('TruthSession', backref=db.backref('audit_events', lazy='dynamic'))
@@ -619,7 +621,7 @@ class TruthArtifact(db.Model):
     artifact_metadata = db.Column(db.JSON)
     tags = db.Column(db.JSON)
     
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
     retention_until = db.Column(db.DateTime)
     
     session = db.relationship('TruthSession', backref=db.backref('artifacts', lazy='dynamic'))
@@ -664,9 +666,9 @@ class TruthBudget(db.Model):
     alerts_enabled = db.Column(db.Boolean, default=True)
     alert_thresholds = db.Column(db.JSON)
     
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
     reset_at = db.Column(db.DateTime)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
 
     user = db.relationship('User', backref=db.backref('truth_budgets', lazy='dynamic'))
 
@@ -711,7 +713,7 @@ class TruthMetric(db.Model):
     
     labels = db.Column(db.JSON)
     
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    timestamp = db.Column(db.DateTime, default=_utcnow, index=True)
 
     session = db.relationship('TruthSession', backref=db.backref('metrics', lazy='dynamic'))
 
@@ -753,7 +755,7 @@ class TruthLinkMessage(db.Model):
     correlation_id = db.Column(db.String(64), index=True)
     link_session_id = db.Column(db.String(64), index=True)
     
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    created_at = db.Column(db.DateTime, default=_utcnow, index=True)
     processed_at = db.Column(db.DateTime)
     expires_at = db.Column(db.DateTime)
 
@@ -819,8 +821,8 @@ class UnifiedCoordinate(db.Model):
     
     node_id = db.Column(db.Integer, db.ForeignKey('kg_nodes.id'), nullable=True)
     
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
     
     node = db.relationship('KnowledgeGraphNode', backref=db.backref('coordinates', lazy='dynamic'))
 
@@ -910,8 +912,8 @@ class CoordinateTraversal(db.Model):
     traversal_metadata = db.Column(db.JSON)
     hop_details = db.Column(db.JSON)
     
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
     
     source = db.relationship('UnifiedCoordinate', foreign_keys=[source_coordinate_id], 
                             backref=db.backref('outgoing_traversals', lazy='dynamic'))
@@ -968,8 +970,8 @@ class MetaTagMapping(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     mapping_metadata = db.Column(db.JSON)
     
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
     
     coordinate = db.relationship('UnifiedCoordinate', backref=db.backref('meta_tag_mappings', lazy='dynamic'))
 
@@ -1019,8 +1021,8 @@ class AxisValue(db.Model):
     
     axis_metadata = db.Column(db.JSON)
     
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
     
     coordinate = db.relationship('UnifiedCoordinate', backref=db.backref('axis_values', lazy='dynamic'))
 
@@ -1077,8 +1079,8 @@ class AxisConfiguration(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     axis_metadata = db.Column(db.JSON)
     
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
 
     def to_dict(self):
         return {

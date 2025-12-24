@@ -7,12 +7,12 @@ service for OpenAI-compatible API access.
 
 import os
 import logging
+from typing import List, Dict, Any
 from flask import Blueprint, request, jsonify, Response, stream_with_context
 from flask_login import login_required, current_user
 
-# the newest OpenAI model is "gpt-5" which was released August 7, 2025.
-# do not change this unless explicitly requested by the user
 from openai import OpenAI
+from openai.types.chat import ChatCompletionMessageParam
 
 logger = logging.getLogger(__name__)
 
@@ -101,29 +101,24 @@ def chat():
         context = data.get('context', {})
         conversation_history = data.get('conversation_history', [])
         
-        # Build messages array
-        messages = [{"role": "system", "content": UKG_SYSTEM_PROMPT}]
+        messages: List[ChatCompletionMessageParam] = [
+            {"role": "system", "content": UKG_SYSTEM_PROMPT}
+        ]
         
-        # Add conversation history
-        for msg in conversation_history[-10:]:  # Keep last 10 messages for context
+        for msg in conversation_history[-10:]:
             if 'role' in msg and 'content' in msg:
-                messages.append({
-                    "role": msg['role'],
-                    "content": msg['content']
-                })
+                role = msg['role']
+                if role in ('user', 'assistant', 'system'):
+                    messages.append({"role": role, "content": str(msg['content'])})
         
-        # Add context if provided
         if context:
-            context_str = f"\n\nCurrent context:\n"
+            context_str = "\n\nCurrent context:\n"
             for key, value in context.items():
                 context_str += f"- {key}: {value}\n"
             user_message = user_message + context_str
         
-        # Add current message
         messages.append({"role": "user", "content": user_message})
         
-        # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
-        # do not change this unless explicitly requested by the user
         response = openai_client.chat.completions.create(
             model="gpt-4o",
             messages=messages,
@@ -180,20 +175,18 @@ def chat_stream():
         context = data.get('context', {})
         conversation_history = data.get('conversation_history', [])
         
-        # Build messages array
-        messages = [{"role": "system", "content": UKG_SYSTEM_PROMPT}]
+        messages: List[ChatCompletionMessageParam] = [
+            {"role": "system", "content": UKG_SYSTEM_PROMPT}
+        ]
         
-        # Add conversation history
         for msg in conversation_history[-10:]:
             if 'role' in msg and 'content' in msg:
-                messages.append({
-                    "role": msg['role'],
-                    "content": msg['content']
-                })
+                role = msg['role']
+                if role in ('user', 'assistant', 'system'):
+                    messages.append({"role": role, "content": str(msg['content'])})
         
-        # Add context if provided
         if context:
-            context_str = f"\n\nCurrent context:\n"
+            context_str = "\n\nCurrent context:\n"
             for key, value in context.items():
                 context_str += f"- {key}: {value}\n"
             user_message = user_message + context_str
@@ -202,8 +195,6 @@ def chat_stream():
         
         def generate():
             try:
-                # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
-                # do not change this unless explicitly requested by the user
                 stream = openai_client.chat.completions.create(
                     model="gpt-4o",
                     messages=messages,
@@ -276,13 +267,11 @@ Format your response as structured JSON."""
         if axes:
             analysis_prompt += f"\n\nFocus particularly on these axes: {', '.join(axes)}"
         
-        messages = [
+        messages: List[ChatCompletionMessageParam] = [
             {"role": "system", "content": UKG_SYSTEM_PROMPT},
             {"role": "user", "content": analysis_prompt}
         ]
         
-        # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
-        # do not change this unless explicitly requested by the user
         response = openai_client.chat.completions.create(
             model="gpt-4o",
             messages=messages,
@@ -342,13 +331,11 @@ Then provide a synthesis that integrates all perspectives.
 
 Format your response as structured JSON with a section for each persona and a final synthesis section."""
         
-        messages = [
+        messages: List[ChatCompletionMessageParam] = [
             {"role": "system", "content": UKG_SYSTEM_PROMPT},
             {"role": "user", "content": simulation_prompt}
         ]
         
-        # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
-        # do not change this unless explicitly requested by the user
         response = openai_client.chat.completions.create(
             model="gpt-4o",
             messages=messages,
