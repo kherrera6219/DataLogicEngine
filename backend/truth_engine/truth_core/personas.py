@@ -6,7 +6,7 @@ Extends QuadPersonaEngine with multi-persona reasoning.
 
 import logging
 from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ class PersonaEnhancer:
             'weights': weights,
             'synthesized_response': synthesized,
             'personas_used': personas,
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(UTC).isoformat()
         }
 
     def _get_persona_response(self, persona_name: str, persona_config: Dict[str, Any],

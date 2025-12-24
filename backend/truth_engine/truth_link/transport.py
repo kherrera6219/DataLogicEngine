@@ -8,7 +8,7 @@ import logging
 import json
 import queue
 import threading
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, Any, Generator, Optional
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ class SSETransport:
         """Register a new SSE client."""
         with self.lock:
             self.clients[client_id] = {
-                'connected_at': datetime.utcnow().isoformat(),
+                'connected_at': datetime.now(UTC).isoformat(),
                 'last_event': None,
                 'event_count': 0
             }
@@ -62,10 +62,10 @@ class SSETransport:
             return False
         
         event = {
-            'id': event_id or datetime.utcnow().isoformat(),
+            'id': event_id or datetime.now(UTC).isoformat(),
             'event': event_type,
             'data': data,
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(UTC).isoformat()
         }
         
         try:
@@ -107,7 +107,7 @@ class SSETransport:
                     event['id']
                 )
             except queue.Empty:
-                yield self._format_sse_event('heartbeat', {'timestamp': datetime.utcnow().isoformat()})
+                yield self._format_sse_event('heartbeat', {'timestamp': datetime.now(UTC).isoformat()})
             except Exception as e:
                 logger.error(f"Error streaming to client {client_id}: {e}")
                 break

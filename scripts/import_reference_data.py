@@ -6,7 +6,7 @@ Imports PL-1-107 pillars and AXIS-2 sector codes.
 import os
 import sys
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -62,7 +62,7 @@ def import_pillars(excel_path: str) -> int:
             unified_coord.label = pillar_name
             unified_coord.description = f"Pillar {pillar_id}: {pillar_name}"
             unified_coord.axis_1_pillar = coord_parts['axis_1']
-            unified_coord.updated_at = datetime.utcnow()
+            unified_coord.updated_at = datetime.now(UTC)
         else:
             import uuid as uuid_mod
             unified_coord = UnifiedCoordinate(

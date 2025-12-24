@@ -5,6 +5,7 @@ Handles all page rendering routes for authenticated and public pages.
 """
 
 import datetime
+from datetime import UTC
 import logging
 import secrets
 
@@ -74,7 +75,7 @@ def profile():
             api_key = APIKey.query.filter_by(id=key_id, user_id=current_user.id, is_active=True).first()
             if api_key:
                 api_key.is_active = False
-                api_key.revoked_at = datetime.datetime.utcnow()
+                api_key.revoked_at = datetime.datetime.now(UTC)
                 db.session.commit()
                 flash('API key revoked successfully.', 'info')
             else:

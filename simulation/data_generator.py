@@ -9,7 +9,7 @@ It populates the Layer 1 database with nodes and relationships across the 13 axe
 import random
 from typing import Dict, List, Any, Optional
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 logger = logging.getLogger(__name__)
 

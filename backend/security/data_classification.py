@@ -13,7 +13,7 @@ Compliance: SOC 2 Type 2, ISO 27001, GDPR, CCPA, HIPAA
 
 from enum import Enum
 from typing import Dict, Any, List, Set, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 import re
 import hashlib
 

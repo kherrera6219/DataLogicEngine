@@ -7,7 +7,7 @@ enabling recursive improvement and cross-persona integration for higher-quality 
 
 import logging
 from typing import Dict, List, Any, Optional, Tuple
-from datetime import datetime
+from datetime import datetime, UTC
 
 logger = logging.getLogger(__name__)
 
@@ -158,7 +158,7 @@ class RefinementWorkflow:
             The updated query state after refinement
         """
         context = context or {}
-        execution_id = context.get("execution_id", f"exec_{datetime.utcnow().isoformat()}")
+        execution_id = context.get("execution_id", f"exec_{datetime.now(UTC).isoformat()}")
         
         # Initialize execution tracking
         self.current_execution = {
@@ -166,7 +166,7 @@ class RefinementWorkflow:
             "query_state": query_state,
             "context": context,
             "step_results": {},
-            "start_time": datetime.utcnow(),
+            "start_time": datetime.now(UTC),
             "end_time": None,
             "status": "running"
         }
@@ -199,7 +199,7 @@ class RefinementWorkflow:
             
             # Mark execution as completed
             self.current_execution["status"] = "completed"
-            self.current_execution["end_time"] = datetime.utcnow()
+            self.current_execution["end_time"] = datetime.now(UTC)
             
             return query_state
             
@@ -208,7 +208,7 @@ class RefinementWorkflow:
             
             # Mark execution as failed
             self.current_execution["status"] = "failed"
-            self.current_execution["end_time"] = datetime.utcnow()
+            self.current_execution["end_time"] = datetime.now(UTC)
             self.current_execution["error"] = str(e)
             
             # Return original query state
@@ -229,7 +229,7 @@ class RefinementWorkflow:
         step_result = {
             "step_id": step_id,
             "name": step.name,
-            "start_time": datetime.utcnow(),
+            "start_time": datetime.now(UTC),
             "end_time": None,
             "updated_state": query_state.copy(),
             "status": "running"
@@ -321,12 +321,12 @@ class RefinementWorkflow:
             
             # Mark step as completed
             step_result["status"] = "completed"
-            step_result["end_time"] = datetime.utcnow()
+            step_result["end_time"] = datetime.now(UTC)
             
         except Exception as e:
             logger.error(f"Error executing step {step.name}: {str(e)}")
             step_result["status"] = "failed"
-            step_result["end_time"] = datetime.utcnow()
+            step_result["end_time"] = datetime.now(UTC)
             step_result["error"] = str(e)
         
         return step_result
@@ -471,7 +471,7 @@ class RefinementWorkflow:
             "content": "",
             "active_personas": active_personas,
             "confidence": query_state.get("confidence", 0.7),
-            "generated_at": datetime.utcnow().isoformat()
+            "generated_at": datetime.now(UTC).isoformat()
         }
         
         # Format introduction based on active personas

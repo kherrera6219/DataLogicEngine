@@ -9,7 +9,7 @@ and uncertainty reduction capabilities.
 import logging
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Union, Tuple, Set
 
 class Layer5IntegrationEngine:

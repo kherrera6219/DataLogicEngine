@@ -8,7 +8,7 @@ import logging
 import hashlib
 import uuid
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class AuditLogger:
         Returns event record with hash.
         """
         event_id = str(uuid.uuid4())
-        timestamp = datetime.utcnow()
+        timestamp = datetime.now(UTC)
         
         previous_hash = self._get_previous_hash(session_id)
         

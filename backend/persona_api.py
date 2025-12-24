@@ -7,7 +7,7 @@ Quad Persona Simulation Engine.
 
 import logging
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, UTC
 
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
@@ -61,7 +61,7 @@ def process_query():
     
     # Add conversation ID if not provided
     if 'conversation_id' not in context:
-        context['conversation_id'] = f"conv_{datetime.utcnow().timestamp()}"
+        context['conversation_id'] = f"conv_{datetime.now(UTC).timestamp()}"
     
     try:
         # Process the query with the simulation engine (lazy loaded)
@@ -109,7 +109,7 @@ def direct_query():
         return jsonify({
             'query': query,
             'response': result,
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(UTC).isoformat()
         })
     except Exception as e:
         logger.error(f"Error processing direct query: {str(e)}")

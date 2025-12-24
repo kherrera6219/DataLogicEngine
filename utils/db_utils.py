@@ -6,7 +6,7 @@ without repeating boilerplate session management.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Optional
 
 from extensions import db
@@ -82,7 +82,7 @@ class DatabaseManager:
                 user_query=query,
                 target_confidence=target_confidence,
                 status="active",
-                started_at=datetime.utcnow(),
+                started_at=datetime.now(UTC),
             )
             db.session.add(session)
             db.session.commit()
@@ -103,7 +103,7 @@ class DatabaseManager:
                 return False
 
             session.status = "completed"
-            session.completed_at = datetime.utcnow()
+            session.completed_at = datetime.now(UTC)
             if final_confidence is not None:
                 session.final_confidence = final_confidence
 
@@ -188,13 +188,13 @@ class DatabaseManager:
                 return None
 
             execution = KAExecution(
-                uid=f"ka-exec-{algorithm_id}-{session_id}-{int(datetime.utcnow().timestamp())}",
+                uid=f"ka-exec-{algorithm_id}-{session_id}-{int(datetime.now(UTC).timestamp())}",
                 algorithm_id=ka.id,
                 input_params={"session_id": session_id, "payload": input_data},
                 output_results=output_data,
                 status=status,
                 error_message=error_message,
-                started_at=datetime.utcnow(),
+                started_at=datetime.now(UTC),
             )
             db.session.add(execution)
             db.session.commit()

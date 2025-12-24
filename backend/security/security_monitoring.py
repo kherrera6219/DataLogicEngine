@@ -15,7 +15,7 @@ Compliance: SOC 2 Type 2, ISO 27001, PCI DSS
 import os
 import json
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, Any, List, Optional, Callable
 from enum import Enum
 from collections import defaultdict, deque
@@ -103,14 +103,14 @@ class SecurityAlert:
         source: str = "system"
     ):
         self.id = hashlib.sha256(
-            f"{datetime.utcnow().isoformat()}{event_type.value}{source}".encode()
+            f"{datetime.now(UTC).isoformat()}{event_type.value}{source}".encode()
         ).hexdigest()[:16]
         self.event_type = event_type
         self.threat_level = threat_level
         self.message = message
         self.details = details
         self.source = source
-        self.timestamp = datetime.utcnow()
+        self.timestamp = datetime.now(UTC)
         self.acknowledged = False
         self.resolved = False
 
@@ -231,7 +231,7 @@ class SecurityMonitor:
         # Store event in history
         event_key = f"{event_type.value}:{user_id or 'anonymous'}"
         self.event_history[event_key].append({
-            "timestamp": datetime.utcnow(),
+            "timestamp": datetime.now(UTC),
             "details": details,
             "ip_address": ip_address
         })
@@ -239,7 +239,7 @@ class SecurityMonitor:
         # Track user behavior
         if user_id:
             self.user_behavior[user_id][event_type.value].append({
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.now(UTC),
                 "ip_address": ip_address,
                 "details": details
             })
@@ -273,7 +273,7 @@ class SecurityMonitor:
         recent_failures = self.event_history[event_key]
 
         # Count failures in last 5 minutes
-        five_min_ago = datetime.utcnow() - timedelta(minutes=5)
+        five_min_ago = datetime.now(UTC) - timedelta(minutes=5)
         recent_count = sum(
             1 for event in recent_failures
             if event["timestamp"] > five_min_ago
@@ -366,7 +366,7 @@ class SecurityMonitor:
         user_exports = self.user_behavior[user_id].get("data_export", [])
         recent_exports = [
             e for e in user_exports
-            if e["timestamp"] > datetime.utcnow() - timedelta(hours=1)
+            if e["timestamp"] > datetime.now(UTC) - timedelta(hours=1)
         ]
 
         if len(recent_exports) >= 10:
@@ -399,7 +399,7 @@ class SecurityMonitor:
         user_denials = self.user_behavior[user_id].get("permission_denied", [])
         recent_denials = [
             d for d in user_denials
-            if d["timestamp"] > datetime.utcnow() - timedelta(minutes=10)
+            if d["timestamp"] > datetime.now(UTC) - timedelta(minutes=10)
         ]
 
         if len(recent_denials) >= 5:

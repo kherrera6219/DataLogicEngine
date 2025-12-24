@@ -7,7 +7,7 @@ Provides enterprise security, budget control, and compliance.
 import logging
 import hashlib
 import re
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, Any, Optional, Tuple
 
 logger = logging.getLogger(__name__)
@@ -72,7 +72,7 @@ class TruthGateGateway:
         
         evaluation = {
             'request_id': self._generate_request_id(),
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(UTC).isoformat(),
             'tenant_id': tenant_id,
             'original_query_hash': hashlib.sha256(query.encode()).hexdigest()[:16],
             'security_flags': [],
@@ -225,7 +225,7 @@ class TruthGateGateway:
             'response_recorded': True,
             'output_sanitized': True,
             'compliance_logged': True,
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(UTC).isoformat()
         }
 
     def get_stats(self) -> Dict[str, Any]:

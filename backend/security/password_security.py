@@ -10,7 +10,7 @@ Provides enhanced password security features including:
 
 import hashlib
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import List, Tuple, Optional
 import logging
 
@@ -141,7 +141,7 @@ class PasswordSecurity:
             return True
 
         expiry_date = last_changed + timedelta(days=expiry_days)
-        return datetime.utcnow() > expiry_date
+        return datetime.now(UTC) > expiry_date
 
     @staticmethod
     def days_until_expiry(last_changed: datetime, expiry_days: int = PASSWORD_EXPIRY_DAYS) -> int:
@@ -159,7 +159,7 @@ class PasswordSecurity:
             return -1
 
         expiry_date = last_changed + timedelta(days=expiry_days)
-        delta = expiry_date - datetime.utcnow()
+        delta = expiry_date - datetime.now(UTC)
         return delta.days
 
     @staticmethod

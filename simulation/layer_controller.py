@@ -7,7 +7,7 @@ determining which layers should be activated and in what sequence.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Union
 
 from simulation.pov_engine import POVEngine

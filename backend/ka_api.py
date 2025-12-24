@@ -6,7 +6,7 @@ Provides REST API endpoints for managing and executing Knowledge Algorithms (KA-
 
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
-from datetime import datetime
+from datetime import datetime, UTC
 import logging
 import json
 import os
@@ -207,7 +207,7 @@ def execute_algorithm(ka_id):
             'algorithm_id': algorithm['id'],
             'name': algorithm['name'],
             'short_name': algorithm['short_name'],
-            'executed_at': datetime.utcnow().isoformat(),
+            'executed_at': datetime.now(UTC).isoformat(),
             'status': 'completed',
             'implementation_mode': algorithm['implementation']['mode'],
             'layers_used': algorithm['primary_layers'],

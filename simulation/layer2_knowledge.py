@@ -11,7 +11,7 @@ import json
 import os
 from typing import Dict, Any, List, Optional, Union, Tuple
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 import networkx as nx
 
 from quad_persona.quad_engine import QuadPersonaEngine, QueryState
@@ -1106,7 +1106,7 @@ import json
 import os
 import networkx as nx
 import yaml
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Tuple, Set
 
 # Configure logging

@@ -5,7 +5,7 @@ Tier-aware priority queues for request processing.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, Any, List, Optional
 from collections import defaultdict
 import heapq
@@ -57,12 +57,12 @@ class PriorityQueueManager:
                 'queue_size': len(self.queues[priority])
             }
         
-        item['_queued_at'] = datetime.utcnow().isoformat()
+        item['_queued_at'] = datetime.now(UTC).isoformat()
         item['_priority'] = priority
         item['_sla_deadline'] = config['sla_ms']
         
         heapq.heappush(self.queues[priority], 
-                       (datetime.utcnow().timestamp(), item))
+                       (datetime.now(UTC).timestamp(), item))
         
         return {
             'success': True,
@@ -92,8 +92,8 @@ class PriorityQueueManager:
 
     def _check_sla(self, priority: str, item: Dict[str, Any]) -> None:
         """Check if SLA was violated."""
-        queued_at = datetime.fromisoformat(item.get('_queued_at', datetime.utcnow().isoformat()))
-        wait_time_ms = (datetime.utcnow() - queued_at).total_seconds() * 1000
+        queued_at = datetime.fromisoformat(item.get('_queued_at', datetime.now(UTC).isoformat()))
+        wait_time_ms = (datetime.now(UTC) - queued_at).total_seconds() * 1000
         
         sla_ms = self.PRIORITY_CONFIG[priority]['sla_ms']
         if wait_time_ms > sla_ms:

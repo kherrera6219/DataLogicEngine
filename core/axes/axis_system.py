@@ -13,7 +13,7 @@ The 17-Axis system extends the original 13-axis framework with:
 
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Union
 
 from core.axes.axis1_identity import IdentityManager

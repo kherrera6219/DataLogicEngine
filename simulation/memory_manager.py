@@ -10,7 +10,7 @@ import json
 import logging
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Tuple
 from collections import deque
 
@@ -39,7 +39,7 @@ class MemoryEntry:
         self.memory_type = memory_type
         self.source = source
         self.metadata = metadata or {}
-        self.created_at = timestamp or datetime.utcnow()
+        self.created_at = timestamp or datetime.now(UTC)
         self.last_accessed = self.created_at
         self.access_count = 0
         self.salience = 1.0  # How important/relevant this memory is (0.0-1.0)
@@ -47,7 +47,7 @@ class MemoryEntry:
     
     def access(self):
         """Record an access to this memory entry."""
-        self.last_accessed = datetime.utcnow()
+        self.last_accessed = datetime.now(UTC)
         self.access_count += 1
     
     def update_salience(self, new_salience: float):
@@ -78,7 +78,7 @@ class MemoryEntry:
             memory_type=data.get("memory_type", "insight"),
             source=data.get("source", "system"),
             metadata=data.get("metadata", {}),
-            timestamp=datetime.fromisoformat(data.get("created_at", datetime.utcnow().isoformat()))
+            timestamp=datetime.fromisoformat(data.get("created_at", datetime.now(UTC).isoformat()))
         )
         if "last_accessed" in data:
             entry.last_accessed = datetime.fromisoformat(data["last_accessed"])
@@ -107,14 +107,14 @@ class MemoryStream:
         self.name = name
         self.stream_type = stream_type
         self.metadata = metadata or {}
-        self.created_at = datetime.utcnow()
+        self.created_at = datetime.now(UTC)
         self.last_updated = self.created_at
         self.entries: Dict[str, MemoryEntry] = {}
     
     def add_entry(self, entry: MemoryEntry) -> bool:
         """Add a memory entry to the stream."""
         self.entries[entry.entry_id] = entry
-        self.last_updated = datetime.utcnow()
+        self.last_updated = datetime.now(UTC)
         return True
     
     def get_entry(self, entry_id: str) -> Optional[MemoryEntry]:
@@ -221,7 +221,7 @@ class WorkingMemory:
         """Add an item to working memory."""
         self.items.append({
             "content": item,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         })
         return True
     
@@ -301,7 +301,7 @@ class MemoryManager:
             # Prepare data for saving
             data = {
                 "streams": {stream_id: stream.to_dict() for stream_id, stream in self.streams.items()},
-                "last_saved": datetime.utcnow().isoformat()
+                "last_saved": datetime.now(UTC).isoformat()
             }
             
             # Write to file
@@ -447,7 +447,7 @@ class MemoryManager:
             memory_type="query",
             source="user",
             stream_id="general",
-            metadata={"timestamp": datetime.utcnow().isoformat()}
+            metadata={"timestamp": datetime.now(UTC).isoformat()}
         )
         if query_entry_id:
             created_entries.append(query_entry_id)
@@ -465,7 +465,7 @@ class MemoryManager:
                     stream_id=stream_id,
                     metadata={
                         "query": query,
-                        "timestamp": datetime.utcnow().isoformat()
+                        "timestamp": datetime.now(UTC).isoformat()
                     }
                 )
                 if entry_id:
@@ -543,7 +543,7 @@ class MemoryManager:
         context = {
             "memories": {},
             "working_memory": self.get_working_memory(5),  # Last 5 items
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         }
         
         # Determine which memory streams to search

@@ -11,7 +11,7 @@ import logging
 import uuid
 import yaml
 import os
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Union, Tuple
 
 class KnowledgeManager:

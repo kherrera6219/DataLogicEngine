@@ -5,7 +5,7 @@ This module provides middleware functions for the UKG API.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from functools import wraps
 from flask import jsonify
 
@@ -36,7 +36,7 @@ def api_response(f):
                     "success": False,
                     "message": data['error'],
                     "error_code": data.get('error_code', 'API_ERROR'),
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(UTC).isoformat()
                 }
                 return jsonify(response), status_code
 
@@ -44,7 +44,7 @@ def api_response(f):
             response = {
                 "success": True,
                 "data": data,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(UTC).isoformat()
             }
             return jsonify(response), status_code
 
@@ -54,7 +54,7 @@ def api_response(f):
                 "success": False,
                 "message": str(e),
                 "error_code": "INTERNAL_ERROR",
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(UTC).isoformat()
             }
             return jsonify(response), 500
 
@@ -69,7 +69,7 @@ import logging
 import uuid
 from flask import request, g
 from functools import wraps
-from datetime import datetime
+from datetime import datetime, UTC
 
 logger = logging.getLogger(__name__)
 

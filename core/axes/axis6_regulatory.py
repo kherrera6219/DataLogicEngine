@@ -15,7 +15,7 @@ The Octopus Node System represents how regulatory frameworks branch out with:
 
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Union, Set
 
 class RegulatoryManager:

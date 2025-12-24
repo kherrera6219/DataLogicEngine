@@ -18,7 +18,7 @@ where xi is the coordinate value along Axis i.
 import logging
 import re
 import hashlib
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Tuple, Union
 from dataclasses import dataclass, field
 
@@ -466,7 +466,7 @@ class CoordinateResolver:
             'coordinate_string': coord.to_coordinate_string(),
             'dimension_count': coord.get_dimension_count(),
             'axes': {},
-            'resolved_at': datetime.utcnow().isoformat()
+            'resolved_at': datetime.now(UTC).isoformat()
         }
         
         for axis_num, axis_coord in coord.coordinates.items():
@@ -803,7 +803,7 @@ class CrosswalkTraversal:
             'type': traversal_type,
             'from_coordinate': coord.to_short_string(),
             'depth': depth,
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(UTC).isoformat()
         })
 
 

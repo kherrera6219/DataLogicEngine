@@ -7,7 +7,7 @@ consistency, and predictive modeling capabilities.
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, List, Any, Optional, Tuple
 from enum import Enum
 import uuid
@@ -134,7 +134,7 @@ class ArrowsOfTimeAxis:
             "target_event": target_event,
             "causality_type": causality_type,
             "strength": max(0.0, min(1.0, strength)),
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "metadata": metadata or {}
         }
         
@@ -190,7 +190,7 @@ class ArrowsOfTimeAxis:
             "chain_length": len(chain),
             "max_depth_reached": max(c["depth"] for c in chain) if chain else 0,
             "chain": chain,
-            "analyzed_at": datetime.utcnow().isoformat()
+            "analyzed_at": datetime.now(UTC).isoformat()
         }
     
     def check_temporal_consistency(self, events: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -235,7 +235,7 @@ class ArrowsOfTimeAxis:
             "inconsistencies": inconsistencies,
             "paradoxes": paradoxes,
             "is_consistent": len(inconsistencies) == 0 and len(paradoxes) == 0,
-            "analyzed_at": datetime.utcnow().isoformat()
+            "analyzed_at": datetime.now(UTC).isoformat()
         }
     
     def create_temporal_anchor(self, anchor_id: str, anchor_time: datetime,
@@ -256,7 +256,7 @@ class ArrowsOfTimeAxis:
             "anchor_id": anchor_id,
             "anchor_time": anchor_time.isoformat(),
             "significance": significance,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "metadata": metadata or {},
             "linked_events": []
         }
@@ -298,7 +298,7 @@ class ArrowsOfTimeAxis:
             "prediction_id": prediction_id,
             "base_event": base_event,
             "horizon_days": horizon_days,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "predicted_events": predicted_events,
             "confidence_threshold": confidence_threshold,
             "model_version": "1.0.0"

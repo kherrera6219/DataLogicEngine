@@ -6,7 +6,7 @@ Inter-module messaging system.
 
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, Any, List, Callable, Optional
 from collections import defaultdict
 
@@ -56,7 +56,7 @@ class TruthLinkBus:
                 priority: int = 1, session_id: str = None) -> Dict[str, Any]:
         """Publish a message to the bus."""
         message_id = str(uuid.uuid4())
-        timestamp = datetime.utcnow()
+        timestamp = datetime.now(UTC)
         
         message = {
             'message_id': message_id,

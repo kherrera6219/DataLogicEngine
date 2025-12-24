@@ -167,7 +167,7 @@ class PersonaManager:
             memory_type="query",
             source="user",
             context_name="general",
-            metadata={"timestamp": str(datetime.utcnow())}
+            metadata={"timestamp": str(datetime.now(UTC))}
         )
     
     def enable(self):
@@ -244,7 +244,7 @@ class PersonaManager:
         return None
 
 # Add the missing import
-from datetime import datetime
+from datetime import datetime, UTC
 
 # Singleton instance for global access
 _persona_manager_instance = None

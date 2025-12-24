@@ -9,7 +9,7 @@ connect different pillars and sectors within the knowledge graph.
 
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Union
 
 class MethodsManager:

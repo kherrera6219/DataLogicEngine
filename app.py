@@ -327,8 +327,8 @@ def create_simulation():
         status='pending' if not auto_start else 'running',
         current_step=0,
         total_steps=8,
-        created_at=datetime.utcnow(),
-        started_at=datetime.utcnow() if auto_start else None
+        created_at=datetime.now(UTC),
+        started_at=datetime.now(UTC) if auto_start else None
     )
     
     try:
@@ -360,7 +360,7 @@ def start_simulation(sim_id):
     
     try:
         simulation.status = 'running'
-        simulation.started_at = datetime.utcnow()
+        simulation.started_at = datetime.now(UTC)
         db.session.commit()
         
         flash(f'Simulation "{simulation.name}" started successfully', 'success')

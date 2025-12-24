@@ -10,7 +10,7 @@ import json
 import logging
 import uuid
 from typing import Dict, List, Any, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

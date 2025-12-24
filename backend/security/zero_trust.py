@@ -22,7 +22,7 @@ import os
 import json
 import hashlib
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, Any, List, Optional, Tuple
 from enum import Enum
 from dataclasses import dataclass
@@ -224,7 +224,7 @@ class TrustScoreCalculator:
         # Increase for account age
         if 'created_at' in profile:
             created = datetime.fromisoformat(profile['created_at'])
-            days_old = (datetime.utcnow() - created).days
+            days_old = (datetime.now(UTC) - created).days
             if days_old > 365:
                 score += 5
             elif days_old > 90:
@@ -237,7 +237,7 @@ class TrustScoreCalculator:
             incidents = profile['security_incidents']
             recent_incidents = sum(
                 1 for i in incidents
-                if datetime.fromisoformat(i['timestamp']) > datetime.utcnow() - timedelta(days=30)
+                if datetime.fromisoformat(i['timestamp']) > datetime.now(UTC) - timedelta(days=30)
             )
             score -= min(recent_incidents * 5, 15)
 
@@ -264,7 +264,7 @@ class TrustScoreCalculator:
             # First seen date
             if 'first_seen' in device_info:
                 first_seen = datetime.fromisoformat(device_info['first_seen'])
-                days_known = (datetime.utcnow() - first_seen).days
+                days_known = (datetime.now(UTC) - first_seen).days
                 if days_known > 90:
                     score += 5
                 elif days_known > 30:
@@ -328,7 +328,7 @@ class TrustScoreCalculator:
 
         # Recent authentication
         if context.last_auth_time:
-            time_since_auth = datetime.utcnow() - context.last_auth_time
+            time_since_auth = datetime.now(UTC) - context.last_auth_time
             if time_since_auth < timedelta(minutes=15):
                 score += 5
             elif time_since_auth < timedelta(hours=1):
@@ -371,8 +371,8 @@ class TrustScoreCalculator:
         if device.device_id not in self.device_registry:
             self.device_registry[device.device_id] = {
                 "user_id": user_id,
-                "first_seen": datetime.utcnow().isoformat(),
-                "last_seen": datetime.utcnow().isoformat(),
+                "first_seen": datetime.now(UTC).isoformat(),
+                "last_seen": datetime.now(UTC).isoformat(),
                 "successful_auths": 0,
                 "recent_failures": 0,
                 "device_info": device.to_dict()
@@ -387,7 +387,7 @@ class TrustScoreCalculator:
     def update_device_auth_success(self, device_id: str):
         """Update device on successful authentication."""
         if device_id in self.device_registry:
-            self.device_registry[device_id]["last_seen"] = datetime.utcnow().isoformat()
+            self.device_registry[device_id]["last_seen"] = datetime.now(UTC).isoformat()
             self.device_registry[device_id]["successful_auths"] = \
                 self.device_registry[device_id].get("successful_auths", 0) + 1
             self.device_registry[device_id]["recent_failures"] = 0
@@ -404,7 +404,7 @@ class TrustScoreCalculator:
         """Update user profile."""
         if user_id not in self.user_profiles:
             self.user_profiles[user_id] = {
-                "created_at": datetime.utcnow().isoformat(),
+                "created_at": datetime.now(UTC).isoformat(),
                 "security_incidents": [],
                 "known_locations": []
             }
@@ -518,7 +518,7 @@ class ZeroTrustManager:
             Tuple of (access_granted, risk_level, details)
         """
         # Build access context
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         context = AccessContext(
             user_id=user_id,
             device=device,
@@ -662,7 +662,7 @@ class ZeroTrustManager:
         if not context.last_auth_time:
             return True
 
-        time_since_auth = datetime.utcnow() - context.last_auth_time
+        time_since_auth = datetime.now(UTC) - context.last_auth_time
         max_duration = timedelta(hours=self.trust_calculator.trust_policies.get('require_reauth_after_hours', 4))
 
         return time_since_auth > max_duration
@@ -686,7 +686,7 @@ class ZeroTrustManager:
         # Check session expiration
         created_at = datetime.fromisoformat(session['created_at'])
         max_duration = timedelta(hours=8)
-        if datetime.utcnow() - created_at > max_duration:
+        if datetime.now(UTC) - created_at > max_duration:
             self.invalidate_session(session_id)
             return False, {"reason": "session_expired"}
 
@@ -706,7 +706,7 @@ class ZeroTrustManager:
             return False, {"reason": "anomaly_detected"}
 
         # Update session activity
-        session['last_activity'] = datetime.utcnow().isoformat()
+        session['last_activity'] = datetime.now(UTC).isoformat()
         session['activity_count'] = session.get('activity_count', 0) + 1
 
         return True, {"status": "valid"}
@@ -720,7 +720,7 @@ class ZeroTrustManager:
             # For now, just check if country changed rapidly
             if session['last_location'].get('country') != context.location.get('country'):
                 last_activity = datetime.fromisoformat(session.get('last_activity', session['created_at']))
-                if datetime.utcnow() - last_activity < timedelta(hours=1):
+                if datetime.now(UTC) - last_activity < timedelta(hours=1):
                     return True  # Impossible travel detected
 
         return False
@@ -733,8 +733,8 @@ class ZeroTrustManager:
             "session_id": session_id,
             "user_id": user_id,
             "device_id": device.device_id,
-            "created_at": datetime.utcnow().isoformat(),
-            "last_activity": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
+            "last_activity": datetime.now(UTC).isoformat(),
             "activity_count": 0,
             "mfa_verified": context_info.get('mfa_verified', False),
             "initial_trust_score": None,  # Set after first evaluation

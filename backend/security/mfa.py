@@ -16,7 +16,7 @@ import base64
 import secrets
 import hashlib
 from typing import Tuple, List, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 import logging
 
 logger = logging.getLogger(__name__)
@@ -174,7 +174,7 @@ class MFAManager:
             {
                 'hash': MFAManager.hash_backup_code(code),
                 'used': False,
-                'created_at': datetime.utcnow().isoformat()
+                'created_at': datetime.now(UTC).isoformat()
             }
             for code in codes
         ]
@@ -225,7 +225,7 @@ class MFAManager:
         for backup in hashed_codes:
             if backup['hash'] == code_hash:
                 backup['used'] = True
-                backup['used_at'] = datetime.utcnow().isoformat()
+                backup['used_at'] = datetime.now(UTC).isoformat()
                 break
 
         return hashed_codes

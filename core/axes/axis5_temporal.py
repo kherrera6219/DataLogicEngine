@@ -8,7 +8,7 @@ time-sensitive knowledge within the knowledge graph.
 
 import logging
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, List, Any, Optional, Union, Tuple
 
 class TemporalManager:

@@ -7,7 +7,7 @@ and privacy-preserving federated learning capabilities.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional
 from enum import Enum
 import uuid
@@ -128,7 +128,7 @@ class FederatedAxis:
             "sync_status": SyncStatus.PENDING.value,
             "capabilities": node_config.get('capabilities', []),
             "last_sync": None,
-            "registered_at": datetime.utcnow().isoformat(),
+            "registered_at": datetime.now(UTC).isoformat(),
             "metadata": node_config.get('metadata', {})
         }
         
@@ -163,7 +163,7 @@ class FederatedAxis:
             "target_node": target_node_id,
             "filter": knowledge_filter,
             "status": "initiated",
-            "started_at": datetime.utcnow().isoformat(),
+            "started_at": datetime.now(UTC).isoformat(),
             "completed_at": None,
             "items_synced": 0,
             "conflicts": [],
@@ -182,14 +182,14 @@ class FederatedAxis:
             self._check_sovereignty_compatibility(source_node, target_node)
             
             sync_record["status"] = "completed"
-            sync_record["completed_at"] = datetime.utcnow().isoformat()
+            sync_record["completed_at"] = datetime.now(UTC).isoformat()
             
             if source_node_id in self.federation_nodes:
-                self.federation_nodes[source_node_id]["last_sync"] = datetime.utcnow().isoformat()
+                self.federation_nodes[source_node_id]["last_sync"] = datetime.now(UTC).isoformat()
                 self.federation_nodes[source_node_id]["sync_status"] = SyncStatus.SYNCED.value
             
             if target_node_id in self.federation_nodes:
-                self.federation_nodes[target_node_id]["last_sync"] = datetime.utcnow().isoformat()
+                self.federation_nodes[target_node_id]["last_sync"] = datetime.now(UTC).isoformat()
                 self.federation_nodes[target_node_id]["sync_status"] = SyncStatus.SYNCED.value
             
         except Exception as e:
@@ -224,7 +224,7 @@ class FederatedAxis:
             "success": True,
             "conflict_id": conflict_id,
             "resolution_strategy": resolution_strategy,
-            "resolved_at": datetime.utcnow().isoformat()
+            "resolved_at": datetime.now(UTC).isoformat()
         }
     
     def get_federated_knowledge(self, query: Dict[str, Any], 
@@ -246,7 +246,7 @@ class FederatedAxis:
             "nodes_queried": target_nodes,
             "results_by_node": {},
             "aggregated_results": [],
-            "query_time": datetime.utcnow().isoformat()
+            "query_time": datetime.now(UTC).isoformat()
         }
         
         for node_id in target_nodes:

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -132,10 +132,10 @@ class User(UserMixin, db.Model):
 
         # Set the password hash
         self.password_hash = generate_password_hash(password)
-        self.password_changed_at = datetime.utcnow()
+        self.password_changed_at = datetime.now(UTC)
 
         # Set expiration date (90 days from now)
-        self.password_expires_at = datetime.utcnow() + timedelta(days=PasswordSecurity.PASSWORD_EXPIRY_DAYS)
+        self.password_expires_at = datetime.now(UTC) + timedelta(days=PasswordSecurity.PASSWORD_EXPIRY_DAYS)
 
         # Reset failed login attempts
         self.failed_login_attempts = 0
@@ -158,7 +158,7 @@ class User(UserMixin, db.Model):
 
     def is_account_locked(self):
         """Check if account is locked due to failed login attempts"""
-        if self.locked_until and datetime.utcnow() < self.locked_until:
+        if self.locked_until and datetime.now(UTC) < self.locked_until:
             return True
         return False
 
@@ -168,11 +168,11 @@ class User(UserMixin, db.Model):
 
         # Lock account after 5 failed attempts for 30 minutes
         if self.failed_login_attempts >= 5:
-            self.locked_until = datetime.utcnow() + timedelta(minutes=30)
+            self.locked_until = datetime.now(UTC) + timedelta(minutes=30)
 
     def record_successful_login(self):
         """Record a successful login"""
-        self.last_login = datetime.utcnow()
+        self.last_login = datetime.now(UTC)
         self.failed_login_attempts = 0
         self.locked_until = None
 

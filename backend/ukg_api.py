@@ -8,7 +8,7 @@ and the 13-axis system interactions.
 
 import uuid
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from flask import Blueprint, request
 from backend.middleware import api_response
 from extensions import db
@@ -277,7 +277,7 @@ def create_simulation():
         status="active",
         current_step=0,
         results=None,
-        started_at=datetime.utcnow()
+        started_at=datetime.now(UTC)
     )
     
     db.session.add(session)
@@ -298,7 +298,7 @@ def run_simulation_step(session_id):
     # This is a placeholder for the actual simulation step logic
     
     session.current_step += 1
-    session.last_step_at = datetime.utcnow()
+    session.last_step_at = datetime.now(UTC)
     
     # Update results with new data
     if not session.results:
@@ -307,7 +307,7 @@ def run_simulation_step(session_id):
     # Add current step results
     step_result = {
         "step": session.current_step,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "data": {"message": f"Step {session.current_step} completed"}
     }
     
@@ -326,7 +326,7 @@ def stop_simulation(session_id):
         return {"error": f"Simulation is already in {session.status} state"}, 400
     
     session.status = "completed"
-    session.completed_at = datetime.utcnow()
+    session.completed_at = datetime.now(UTC)
     db.session.commit()
     
     return session.to_dict()

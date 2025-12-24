@@ -8,7 +8,7 @@ to store, retrieve, and utilize contextual information across sessions.
 import json
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Tuple
 from collections import deque
 
@@ -24,15 +24,15 @@ class MemoryEntry:
         self.memory_type = memory_type  # e.g., "fact", "insight", "feedback", "rule"
         self.source = source  # e.g., "user", "system", "knowledge_expert", "compliance_expert"
         self.metadata = metadata or {}
-        self.created_at = datetime.utcnow()
-        self.accessed_at = datetime.utcnow()
+        self.created_at = datetime.now(UTC)
+        self.accessed_at = datetime.now(UTC)
         self.access_count = 0
         self.importance = 1.0
         self.confidence = 1.0
     
     def access(self):
         """Record an access to this memory entry."""
-        self.accessed_at = datetime.utcnow()
+        self.accessed_at = datetime.now(UTC)
         self.access_count += 1
     
     def update_importance(self, new_importance: float):
@@ -68,8 +68,8 @@ class MemoryEntry:
             metadata=data.get("metadata", {})
         )
         entry.uid = data.get("uid", entry.uid)
-        entry.created_at = datetime.fromisoformat(data.get("created_at", datetime.utcnow().isoformat()))
-        entry.accessed_at = datetime.fromisoformat(data.get("accessed_at", datetime.utcnow().isoformat()))
+        entry.created_at = datetime.fromisoformat(data.get("created_at", datetime.now(UTC).isoformat()))
+        entry.accessed_at = datetime.fromisoformat(data.get("accessed_at", datetime.now(UTC).isoformat()))
         entry.access_count = data.get("access_count", 0)
         entry.importance = data.get("importance", 1.0)
         entry.confidence = data.get("confidence", 1.0)
@@ -86,13 +86,13 @@ class MemoryContext:
         self.context_type = context_type  # e.g., "conversation", "user", "domain", "persona"
         self.metadata = metadata or {}
         self.memories = []
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+        self.created_at = datetime.now(UTC)
+        self.updated_at = datetime.now(UTC)
     
     def add_memory(self, memory: MemoryEntry) -> bool:
         """Add a memory entry to this context."""
         self.memories.append(memory)
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(UTC)
         return True
     
     def find_memories(self, query: str, limit: int = 5) -> List[MemoryEntry]:
@@ -141,8 +141,8 @@ class MemoryContext:
             metadata=data.get("metadata", {})
         )
         context.uid = data.get("uid", context.uid)
-        context.created_at = datetime.fromisoformat(data.get("created_at", datetime.utcnow().isoformat()))
-        context.updated_at = datetime.fromisoformat(data.get("updated_at", datetime.utcnow().isoformat()))
+        context.created_at = datetime.fromisoformat(data.get("created_at", datetime.now(UTC).isoformat()))
+        context.updated_at = datetime.fromisoformat(data.get("updated_at", datetime.now(UTC).isoformat()))
         
         for memory_data in data.get("memories", []):
             memory = MemoryEntry.from_dict(memory_data)

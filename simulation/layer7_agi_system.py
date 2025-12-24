@@ -19,7 +19,7 @@ Key components:
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Optional, Any, Tuple, Set, Union
 
 

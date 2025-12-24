@@ -5,7 +5,7 @@ Manages per-tenant budget tracking with kill-switch.
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
@@ -83,7 +83,7 @@ class BudgetManager:
             'kill_switch_triggered': False,
             'kill_switch_threshold': 0.95,
             'downgrade_tier': 'trivial',
-            'created_at': datetime.utcnow().isoformat()
+            'created_at': datetime.now(UTC).isoformat()
         }
         self.in_memory_budgets[tenant_id] = budget
         return budget
@@ -113,7 +113,7 @@ class BudgetManager:
             'kill_switch_triggered': False,
             'session_id': session_id,
             'tier': tier,
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(UTC).isoformat()
         }
         
         if utilization >= budget.get('kill_switch_threshold', 0.95):
@@ -157,7 +157,7 @@ class BudgetManager:
                     db_budget.budget_spent = 0.0
                     db_budget.budget_limit = limit
                     db_budget.kill_switch_triggered = False
-                    db_budget.reset_at = datetime.utcnow()
+                    db_budget.reset_at = datetime.now(UTC)
                     self.db_session.commit()
             except Exception as e:
                 logger.error(f"Failed to reset budget in DB: {e}")

@@ -6,7 +6,7 @@ MLflow-style metrics tracking for performance monitoring.
 
 import logging
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, Any, List, Optional
 from collections import defaultdict
 
@@ -49,7 +49,7 @@ class MetricsTracker:
                labels: Dict[str, str] = None) -> Dict[str, Any]:
         """Record a metric value."""
         metric_id = str(uuid.uuid4())
-        timestamp = datetime.utcnow()
+        timestamp = datetime.now(UTC)
         
         definition = self.METRIC_DEFINITIONS.get(metric_name, {})
         
@@ -118,7 +118,7 @@ class MetricsTracker:
                 query = query.filter_by(tier=tier)
             
             if time_range:
-                cutoff = datetime.utcnow() - time_range
+                cutoff = datetime.now(UTC) - time_range
                 query = query.filter(TruthMetric.timestamp >= cutoff)
             
             return [m.to_dict() for m in query.order_by(TruthMetric.timestamp.desc()).limit(1000).all()]

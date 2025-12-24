@@ -5,7 +5,7 @@ Central manager for caching, audit, and metrics.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, Any, Optional
 
 from backend.truth_engine.truth_memory.audit import AuditLogger
@@ -71,7 +71,7 @@ class TruthMemoryManager:
             'audit_event_id': audit_result.get('event_id'),
             'cached': True,
             'metrics_recorded': True,
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(UTC).isoformat()
         }
 
     def get_session(self, session_id: str) -> Optional[Dict[str, Any]]:
@@ -116,7 +116,7 @@ class TruthMemoryManager:
             'content': content,
             'content_hash': content_hash,
             'metadata': metadata or {},
-            'created_at': datetime.utcnow().isoformat()
+            'created_at': datetime.now(UTC).isoformat()
         }
         
         if self.db_session:
@@ -131,7 +131,7 @@ class TruthMemoryManager:
                     content=content if isinstance(content, dict) else {'data': content},
                     content_hash=content_hash,
                     artifact_metadata=metadata,
-                    retention_until=datetime.utcnow() + timedelta(days=365 * 7)
+                    retention_until=datetime.now(UTC) + timedelta(days=365 * 7)
                 )
                 self.db_session.add(db_artifact)
                 self.db_session.commit()
@@ -170,7 +170,7 @@ class TruthMemoryManager:
             'confidence_breakdown': self._extract_confidence_breakdown(session),
             'personas_used': session.get('personas_used', []) if session else [],
             'axis_context': session.get('axis_context', {}) if session else {},
-            'generated_at': datetime.utcnow().isoformat()
+            'generated_at': datetime.now(UTC).isoformat()
         }
 
     def _extract_reasoning_trace(self, session: Dict[str, Any]) -> list:

@@ -13,7 +13,7 @@ import redis
 import hashlib
 import secrets
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Optional, Tuple, Dict
 from flask import request
 from flask_jwt_extended import (
@@ -150,7 +150,7 @@ class TokenManager:
             self.redis_client.setex(
                 key,
                 int(expires_in.total_seconds()),
-                datetime.utcnow().isoformat()
+                datetime.now(UTC).isoformat()
             )
             logger.debug(f"Token blacklisted: {token_id}")
 
@@ -187,7 +187,7 @@ class TokenManager:
             if token_id and exp_timestamp:
                 # Calculate time until expiry
                 exp_datetime = datetime.fromtimestamp(exp_timestamp)
-                expires_in = exp_datetime - datetime.utcnow()
+                expires_in = exp_datetime - datetime.now(UTC)
 
                 if expires_in.total_seconds() > 0:
                     self.blacklist_token(token_id, expires_in)
@@ -214,7 +214,7 @@ class TokenManager:
             self.redis_client.setex(
                 key,
                 int(self.REFRESH_TOKEN_LIFETIME.total_seconds()),
-                datetime.utcnow().isoformat()
+                datetime.now(UTC).isoformat()
             )
 
             logger.info(f"All tokens revoked for user {user_id}")

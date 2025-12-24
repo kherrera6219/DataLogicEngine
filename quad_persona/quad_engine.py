@@ -16,7 +16,7 @@ Enhanced with Mathematical Framework from PDF:
 import json
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Tuple, Optional
 import os
 
@@ -51,8 +51,8 @@ class PersonaProfile:
         self.persona_type = persona_type  # knowledge, sector, regulatory, compliance
         self.name = name
         self.description = description or ""
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+        self.created_at = datetime.now(UTC)
+        self.updated_at = datetime.now(UTC)
         
         # The 7 core components of each persona
         self.components = {
@@ -82,7 +82,7 @@ class PersonaProfile:
             return False
             
         self.components[component_type] = data
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(UTC)
         return True
     
     def get_component(self, component_type: str) -> Dict[str, Any]:
@@ -161,7 +161,7 @@ class QueryState:
         self.query_id = query_id
         self.query_text = query_text
         self.context = context or {}
-        self.created_at = datetime.utcnow()
+        self.created_at = datetime.now(UTC)
         self.completed_at = None
         self.status = "initialized"  # initialized, processing, completed, failed
         
@@ -183,7 +183,7 @@ class QueryState:
         
         # Performance metrics
         self.metrics = {
-            "start_time": datetime.utcnow().isoformat(),
+            "start_time": datetime.now(UTC).isoformat(),
             "end_time": None,
             "duration_ms": None,
             "persona_processing_times": {},
@@ -194,7 +194,7 @@ class QueryState:
         """Update the status of the query processing."""
         self.status = new_status
         if new_status == "completed" or new_status == "failed":
-            self.completed_at = datetime.utcnow()
+            self.completed_at = datetime.now(UTC)
             self.metrics["end_time"] = self.completed_at.isoformat()
             start_time = datetime.fromisoformat(self.metrics["start_time"])
             duration = (self.completed_at - start_time).total_seconds() * 1000
@@ -203,7 +203,7 @@ class QueryState:
     def add_processing_event(self, event_type: str, details: Dict[str, Any]):
         """Add a processing event to the history."""
         self.processing_history.append({
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "event_type": event_type,
             "details": details
         })
@@ -792,7 +792,7 @@ class QuadPersonaEngine:
         })
         
         for persona_type in persona_types:
-            start_time = datetime.utcnow()
+            start_time = datetime.now(UTC)
             
             personas = self.get_personas_by_type(persona_type)
             if not personas:
@@ -808,7 +808,7 @@ class QuadPersonaEngine:
             result["dynamic_weight"] = persona_weight
             result["weighted_confidence"] = result.get("confidence", 0) * persona_weight
             
-            end_time = datetime.utcnow()
+            end_time = datetime.now(UTC)
             processing_time_ms = (end_time - start_time).total_seconds() * 1000
             
             query_state.set_persona_result(persona_type, result, processing_time_ms)

@@ -6,7 +6,7 @@ EU AI Act Article 53/13 compliance enforcement.
 
 import logging
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger(__name__)
@@ -70,7 +70,7 @@ class ComplianceEnforcer:
         """
         result = {
             'session_id': session_id,
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(UTC).isoformat(),
             'standards_checked': [],
             'requirements_met': [],
             'requirements_failed': [],
@@ -112,14 +112,14 @@ class ComplianceEnforcer:
         
         decision_record = {
             'session_id': session_id,
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(UTC).isoformat(),
             'query_hash': self._hash_query(request.get('query', '')),
             'tier': request.get('tier', 'unknown'),
             'decision_rationale': request.get('rationale', ''),
             'personas_used': request.get('personas_used', []),
             'axis_context': request.get('axis_context', {}),
             'confidence': request.get('confidence', 0),
-            'retention_until': (datetime.utcnow() + timedelta(days=365 * self.retention_years)).isoformat()
+            'retention_until': (datetime.now(UTC) + timedelta(days=365 * self.retention_years)).isoformat()
         }
         
         if self.db_session and session_id:
@@ -149,7 +149,7 @@ class ComplianceEnforcer:
                     hash_chain=current_hash,
                     previous_hash=previous_hash,
                     compliance_flags={'article_53': True},
-                    retention_until=datetime.utcnow() + timedelta(days=365 * self.retention_years)
+                    retention_until=datetime.now(UTC) + timedelta(days=365 * self.retention_years)
                 )
                 
                 self.db_session.add(audit_event)
@@ -209,10 +209,10 @@ class ComplianceEnforcer:
     def get_compliance_report(self, tenant_id: str = None, 
                                date_from: datetime = None) -> Dict[str, Any]:
         """Generate compliance report."""
-        date_from = date_from or (datetime.utcnow() - timedelta(days=30))
+        date_from = date_from or (datetime.now(UTC) - timedelta(days=30))
         
         report = {
-            'generated_at': datetime.utcnow().isoformat(),
+            'generated_at': datetime.now(UTC).isoformat(),
             'period_start': date_from.isoformat(),
             'tenant_id': tenant_id,
             'standards': self.COMPLIANCE_STANDARDS,

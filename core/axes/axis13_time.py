@@ -10,7 +10,7 @@ present, and future time mapping.
 import os
 import logging
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, List, Any, Optional, Tuple
 from sqlalchemy import and_, or_, func
 from app import db
@@ -62,7 +62,7 @@ class TimeAxis:
         time_type = kwargs.get('time_type')
         start_date = kwargs.get('start_date')
         end_date = kwargs.get('end_date')
-        reference_date = kwargs.get('reference_date', datetime.utcnow())
+        reference_date = kwargs.get('reference_date', datetime.now(UTC))
         granularity = kwargs.get('granularity')
         include_nodes = kwargs.get('include_nodes', False)
         
@@ -278,7 +278,7 @@ class TimeAxis:
                 "persona_id": persona_id,
                 "career_stages": [stage.to_dict() for stage in career_stages],
                 "total_years": sum(
-                    ((stage.end_date or datetime.utcnow()) - stage.start_date).days / 365
+                    ((stage.end_date or datetime.now(UTC)) - stage.start_date).days / 365
                     for stage in career_stages if stage.start_date
                 ),
                 "stage_count": len(career_stages)
@@ -342,7 +342,7 @@ class TimeAxis:
                 "tasks": [item.to_dict() for item in tasks_and_milestones if item.time_type == 'task'],
                 "milestones": [item.to_dict() for item in tasks_and_milestones if item.time_type == 'milestone'],
                 "duration_days": (
-                    (project.end_date or datetime.utcnow()) - project.start_date
+                    (project.end_date or datetime.now(UTC)) - project.start_date
                 ).days if project.start_date else None,
                 "completion_percentage": self._calculate_project_completion(project, tasks_and_milestones)
             }

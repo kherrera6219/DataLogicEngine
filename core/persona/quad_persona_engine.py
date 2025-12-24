@@ -9,7 +9,7 @@ learning to simulate expert advice.
 import json
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Tuple, Optional
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class PersonaComponent:
         self.name = name
         self.description = description
         self.attributes = attributes or {}
-        self.created_at = datetime.utcnow()
+        self.created_at = datetime.now(UTC)
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert the component to a dictionary."""
@@ -44,7 +44,7 @@ class PersonaComponent:
             attributes=data.get("attributes", {})
         )
         component.uid = data.get("uid", component.uid)
-        component.created_at = datetime.fromisoformat(data.get("created_at", datetime.utcnow().isoformat()))
+        component.created_at = datetime.fromisoformat(data.get("created_at", datetime.now(UTC).isoformat()))
         return component
 
 
@@ -69,8 +69,8 @@ class Persona:
         self.description = description
         self.attributes = attributes or {}
         self.components = {component_type: None for component_type in self.COMPONENT_TYPES}
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+        self.created_at = datetime.now(UTC)
+        self.updated_at = datetime.now(UTC)
     
     def add_component(self, component_type: str, component: PersonaComponent) -> bool:
         """Add a component to the persona."""
@@ -79,7 +79,7 @@ class Persona:
             return False
         
         self.components[component_type] = component
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(UTC)
         return True
     
     def get_component(self, component_type: str) -> Optional[PersonaComponent]:
@@ -118,8 +118,8 @@ class Persona:
             attributes=data.get("attributes", {})
         )
         persona.uid = data.get("uid", persona.uid)
-        persona.created_at = datetime.fromisoformat(data.get("created_at", datetime.utcnow().isoformat()))
-        persona.updated_at = datetime.fromisoformat(data.get("updated_at", datetime.utcnow().isoformat()))
+        persona.created_at = datetime.fromisoformat(data.get("created_at", datetime.now(UTC).isoformat()))
+        persona.updated_at = datetime.fromisoformat(data.get("updated_at", datetime.now(UTC).isoformat()))
         
         components_dict = data.get("components", {})
         for component_type, component_data in components_dict.items():
@@ -142,8 +142,8 @@ class QuadPersonaEngine:
         self.uid = str(uuid.uuid4())
         self.config = config or {}
         self.personas = {persona_type: None for persona_type in self.PERSONA_TYPES}
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+        self.created_at = datetime.now(UTC)
+        self.updated_at = datetime.now(UTC)
         
         # Initialize default personas if not configured
         self.initialize_default_personas()
@@ -232,7 +232,7 @@ class QuadPersonaEngine:
             return False
         
         self.personas[persona_type] = persona
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(UTC)
         return True
     
     def get_persona(self, persona_type: str) -> Optional[Persona]:
@@ -277,7 +277,7 @@ class QuadPersonaEngine:
             "query_analysis": query_analysis,
             "persona_responses": refined_responses,
             "response": final_response,
-            "processed_at": datetime.utcnow().isoformat()
+            "processed_at": datetime.now(UTC).isoformat()
         }
     
     def _analyze_query(self, query: str) -> Dict[str, Any]:
@@ -352,7 +352,7 @@ class QuadPersonaEngine:
             "response": response,
             "confidence": 0.8,  # Placeholder confidence score
             "references": [],    # Placeholder for supporting references
-            "generated_at": datetime.utcnow().isoformat()
+            "generated_at": datetime.now(UTC).isoformat()
         }
     
     def _apply_recursive_learning(self, query: str, persona_responses: Dict[str, Dict[str, Any]], 
@@ -445,8 +445,8 @@ class QuadPersonaEngine:
         """Create a quad persona engine from a dictionary."""
         engine = cls(config=data.get("config", {}))
         engine.uid = data.get("uid", engine.uid)
-        engine.created_at = datetime.fromisoformat(data.get("created_at", datetime.utcnow().isoformat()))
-        engine.updated_at = datetime.fromisoformat(data.get("updated_at", datetime.utcnow().isoformat()))
+        engine.created_at = datetime.fromisoformat(data.get("created_at", datetime.now(UTC).isoformat()))
+        engine.updated_at = datetime.fromisoformat(data.get("updated_at", datetime.now(UTC).isoformat()))
         
         personas_dict = data.get("personas", {})
         for persona_type, persona_data in personas_dict.items():

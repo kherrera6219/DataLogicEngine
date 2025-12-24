@@ -8,7 +8,7 @@ providing access to the core knowledge structure organized by Pillar Levels (1-1
 import os
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Tuple
 from sqlalchemy import and_, or_, func
 from app import db

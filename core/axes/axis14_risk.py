@@ -6,7 +6,7 @@ providing risk classification, confidence scoring, and validation metrics.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional
 from enum import Enum
 
@@ -122,7 +122,7 @@ class RiskAxis:
             "validation_status": validation_status,
             "risk_factors": self._identify_risk_factors(entity_data),
             "mitigation_suggestions": self._get_mitigation_suggestions(risk_class),
-            "assessed_at": datetime.utcnow().isoformat()
+            "assessed_at": datetime.now(UTC).isoformat()
         }
     
     def _calculate_risk_class(self, confidence: float, entropy: float, sources_count: int) -> RiskClass:
@@ -211,7 +211,7 @@ class RiskAxis:
                 "high": 0,
                 "critical": 0
             },
-            "last_updated": datetime.utcnow().isoformat()
+            "last_updated": datetime.now(UTC).isoformat()
         }
     
     def calculate_aggregate_confidence(self, entities: List[Dict[str, Any]]) -> float:

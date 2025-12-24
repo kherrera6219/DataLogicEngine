@@ -5,6 +5,7 @@ Handles all API endpoints defined in routes.py (not backend blueprint APIs).
 """
 
 import datetime
+from datetime import UTC
 import logging
 import uuid
 
@@ -34,7 +35,7 @@ def api_health():
     return jsonify({
         "status": "ok" if db_status == "healthy" else "degraded",
         "version": "1.0.0",
-        "timestamp": datetime.datetime.utcnow().isoformat(),
+        "timestamp": datetime.datetime.now(UTC).isoformat(),
         "components": {
             "api": "healthy",
             "database": db_status
@@ -140,8 +141,8 @@ def api_query():
         simulation.status = "completed"
         simulation.current_step = 8
         simulation.total_steps = 8
-        simulation.started_at = datetime.datetime.utcnow()
-        simulation.completed_at = datetime.datetime.utcnow()
+        simulation.started_at = datetime.datetime.now(UTC)
+        simulation.completed_at = datetime.datetime.now(UTC)
         
         if "knowledge" in query.lower():
             response = f"The Universal Knowledge Graph organizes information across 13 axes, including knowledge domains, sectors, methods, and more. This allows for multi-perspective analysis of complex topics."
@@ -199,7 +200,7 @@ def api_run_simulation():
         
         simulation = SimulationSession()
         simulation.session_id = str(uuid.uuid4())
-        simulation.name = data.get('name', f"Simulation {datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')}")
+        simulation.name = data.get('name', f"Simulation {datetime.datetime.now(UTC).strftime('%Y-%m-%d %H:%M')}")
         simulation.user_id = current_user.id
         simulation.parameters = {
             "query": query,
@@ -210,7 +211,7 @@ def api_run_simulation():
         simulation.status = "running"
         simulation.current_step = 0
         simulation.total_steps = refinement_steps
-        simulation.started_at = datetime.datetime.utcnow()
+        simulation.started_at = datetime.datetime.now(UTC)
         
         db.session.add(simulation)
         db.session.commit()

@@ -8,7 +8,7 @@ providing multiple perspectives for knowledge interpretation and processing.
 import os
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Tuple
 from app import db
 
@@ -213,7 +213,7 @@ class PersonaSystem:
         self.active_contexts[persona_id] = {
             "last_node_processed": knowledge_node.get('id'),
             "focus_areas": perspective["key_insights"],
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         }
         
         return perspective
@@ -251,7 +251,7 @@ class PersonaSystem:
             "comprehensive_strengths": all_strengths,
             "potential_limitations": all_blind_spots,
             "balanced_recommendations": all_recommendations,
-            "synthesis_timestamp": datetime.utcnow().isoformat()
+            "synthesis_timestamp": datetime.now(UTC).isoformat()
         }
     
     def apply_persona_filter(self, persona_id: str, query_results: Dict[str, Any]) -> Dict[str, Any]:
@@ -304,7 +304,7 @@ class PersonaSystem:
                     "persona_id": persona_id,
                     "persona_name": self.personas[persona_id]["name"],
                     "key_points": [f"Simulated key point for {persona_id}"],
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(UTC).isoformat()
                 }
         
         # Identify areas of agreement and disagreement
@@ -326,5 +326,5 @@ class PersonaSystem:
                     }
                 }
             ],
-            "reconciliation_timestamp": datetime.utcnow().isoformat()
+            "reconciliation_timestamp": datetime.now(UTC).isoformat()
         }

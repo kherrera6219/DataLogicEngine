@@ -5,7 +5,7 @@ This module defines improved database models that fix validation issues
 and provide a proper structure for the 13-axis knowledge graph system.
 """
 
-from datetime import datetime
+from datetime import datetime, UTC
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, JSON
 from sqlalchemy.orm import relationship, backref
 from extensions import db
@@ -429,5 +429,5 @@ class SimulationSession(db.Model):
             'started_at': self.started_at.isoformat() if self.started_at else None,
             'last_step_at': self.last_step_at.isoformat() if self.last_step_at else None,
             'completed_at': self.completed_at.isoformat() if self.completed_at else None,
-            'elapsed_time': (datetime.utcnow() - self.started_at).total_seconds() if self.started_at else None
+            'elapsed_time': (datetime.now(UTC) - self.started_at).total_seconds() if self.started_at else None
         }

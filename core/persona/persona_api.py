@@ -8,7 +8,7 @@ enabling interaction with the persona-based knowledge processing.
 import os
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional
 from flask import Blueprint, request, jsonify, current_app
 from app import db

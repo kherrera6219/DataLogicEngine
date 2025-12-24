@@ -12,7 +12,7 @@ import logging
 import json
 import time
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, List, Any, Optional, Union, Tuple
 import threading
 import uuid

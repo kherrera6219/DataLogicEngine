@@ -6,7 +6,7 @@ This module provides API endpoints for the UKG chat interface.
 
 import uuid
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from flask import Blueprint, request, jsonify
 from models import Conversation, Message, db
 
@@ -51,8 +51,8 @@ def create_conversation():
             uid=str(uuid.uuid4()),
             title=title,
             meta_data=metadata,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
+            created_at=datetime.now(UTC),
+            updated_at=datetime.now(UTC)
         )
         
         db.session.add(conversation)
@@ -120,13 +120,13 @@ def create_message(conversation_id):
             content=content,
             role=role,
             meta_data=metadata,
-            created_at=datetime.utcnow()
+            created_at=datetime.now(UTC)
         )
         
         db.session.add(message)
         
         # Update conversation
-        conversation.updated_at = datetime.utcnow()
+        conversation.updated_at = datetime.now(UTC)
         
         db.session.commit()
         
@@ -140,7 +140,7 @@ def create_message(conversation_id):
                 content=system_response,
                 role='system',
                 meta_data={},
-                created_at=datetime.utcnow()
+                created_at=datetime.now(UTC)
             )
             
             db.session.add(system_message)

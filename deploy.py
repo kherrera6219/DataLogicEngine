@@ -11,6 +11,7 @@ import argparse
 import logging
 import subprocess
 import datetime
+from datetime import UTC
 import json
 from dotenv import load_dotenv
 
@@ -207,7 +208,7 @@ def create_deployment_record():
     
     try:
         deployment_data = {
-            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "timestamp": datetime.datetime.now(UTC).isoformat(),
             "environment": os.environ.get("FLASK_ENV", "development"),
             "version": os.environ.get("APP_VERSION", "1.0.0"),
             "deployer": os.environ.get("USER", "unknown"),

@@ -8,7 +8,7 @@ It manages the iterative refinement process across simulation passes and layers.
 import logging
 import uuid
 import time
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Tuple, Callable
 
 from simulation.gatekeeper_agent import GatekeeperAgent

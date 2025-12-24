@@ -13,7 +13,7 @@ Compliance: SOC 2 Type 2, ISO 27001, least privilege principle
 
 from enum import Enum
 from typing import List, Set, Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, UTC
 from functools import wraps
 from flask import request, jsonify
 from flask_login import current_user
@@ -84,7 +84,7 @@ class Role:
         self.name = name
         self.permissions = permissions
         self.description = description
-        self.created_at = datetime.utcnow()
+        self.created_at = datetime.now(UTC)
 
     def has_permission(self, permission: Permission) -> bool:
         """Check if role has specific permission."""

@@ -7,7 +7,7 @@ All endpoints follow RESTful conventions and return consistent JSON responses.
 """
 
 from flask import Blueprint, request, jsonify, current_app
-from datetime import datetime
+from datetime import datetime, UTC
 import uuid
 import logging
 from backend.middleware import api_response
@@ -25,7 +25,7 @@ def success_response(data, message="Operation successful", status_code=200):
         "success": True,
         "message": message,
         "data": data,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(UTC).isoformat()
     }
     return jsonify(response), status_code
 
@@ -35,7 +35,7 @@ def error_response(message, error_code=None, status_code=400):
         "success": False,
         "message": message,
         "error_code": error_code,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(UTC).isoformat()
     }
     return jsonify(response), status_code
 
@@ -205,7 +205,7 @@ def create_simulation():
         # Create new simulation
         new_simulation = SimulationSession(
             uid=str(uuid.uuid4()),
-            name=data.get('name', f"Simulation-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"),
+            name=data.get('name', f"Simulation-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"),
             parameters=data['parameters'],
             status="pending",
             current_step=0,

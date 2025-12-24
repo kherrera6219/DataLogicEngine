@@ -1,7 +1,7 @@
 import logging
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Optional
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -178,7 +178,7 @@ class UkgDatabaseManager:
                 node.attributes = updates['attributes']
             
             # Update timestamp
-            node.updated_at = datetime.utcnow()
+            node.updated_at = datetime.now(UTC)
             
             # Commit changes
             session.commit()
@@ -434,7 +434,7 @@ class UkgDatabaseManager:
                     edge.target_id = target_node.id
             
             # Update timestamp
-            edge.updated_at = datetime.utcnow()
+            edge.updated_at = datetime.now(UTC)
             
             # Commit changes
             session.commit()
@@ -930,7 +930,7 @@ class UkgDatabaseManager:
             # Update session
             session_obj.final_confidence = final_confidence
             session_obj.status = status
-            session_obj.completed_at = datetime.utcnow()
+            session_obj.completed_at = datetime.now(UTC)
             
             # Commit changes
             session.commit()

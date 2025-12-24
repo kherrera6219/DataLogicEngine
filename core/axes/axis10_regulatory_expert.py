@@ -8,7 +8,7 @@ providing regulatory compliance expert simulation capabilities.
 import os
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Tuple
 
 logger = logging.getLogger(__name__)
@@ -91,7 +91,7 @@ class RegulatoryExpertAxis:
             "name": self.axis_name,
             "persona_type": "regulatory_expert",
             "expert_profile": expert_profile,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         }
 
         if response:
@@ -272,7 +272,7 @@ class RegulatoryExpertAxis:
                 jurisdiction=jurisdiction,
                 expertise_level=expertise_level
             ),
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "metadata": kwargs
         }
 

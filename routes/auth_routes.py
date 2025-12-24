@@ -5,6 +5,7 @@ Handles user login, logout, and registration.
 """
 
 import datetime
+from datetime import UTC
 import logging
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
@@ -33,7 +34,7 @@ def login():
         
         if user and user.check_password(password):
             login_user(user, remember=remember)
-            user.last_login = datetime.datetime.utcnow()
+            user.last_login = datetime.datetime.now(UTC)
             db.session.commit()
             
             next_page = request.args.get('next')

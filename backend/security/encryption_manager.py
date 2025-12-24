@@ -15,7 +15,7 @@ import os
 import json
 import base64
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Optional, Dict, Any, Tuple
 from enum import Enum
 import secrets
@@ -124,7 +124,7 @@ class EncryptionManager:
                 "keys": [],
                 "current_version": 1,
                 "rotation_days": 90,
-                "last_rotation": datetime.utcnow().isoformat()
+                "last_rotation": datetime.now(UTC).isoformat()
             }
 
     def _save_dek_registry(self):
@@ -143,7 +143,7 @@ class EncryptionManager:
         last_rotation = datetime.fromisoformat(self.dek_registry["last_rotation"])
         rotation_days = self.dek_registry["rotation_days"]
 
-        if datetime.utcnow() - last_rotation > timedelta(days=rotation_days):
+        if datetime.now(UTC) - last_rotation > timedelta(days=rotation_days):
             self._log_audit("key_rotation_triggered", {
                 "reason": "rotation_period_exceeded",
                 "last_rotation": last_rotation.isoformat(),
@@ -176,7 +176,7 @@ class EncryptionManager:
         key_entry = {
             "version": version,
             "encrypted_key": base64.b64encode(encrypted_dek).decode('utf-8'),
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "algorithm": "Fernet-AES-128-CBC",
             "status": "active"
         }
@@ -187,14 +187,14 @@ class EncryptionManager:
 
         self.dek_registry["keys"].append(key_entry)
         self.dek_registry["current_version"] = version + 1
-        self.dek_registry["last_rotation"] = datetime.utcnow().isoformat()
+        self.dek_registry["last_rotation"] = datetime.now(UTC).isoformat()
 
         self._save_dek_registry()
 
         self._log_audit("dek_rotated", {
             "version": version,
             "previous_version": version - 1 if version > 1 else None,
-            "rotation_date": datetime.utcnow().isoformat()
+            "rotation_date": datetime.now(UTC).isoformat()
         })
 
         return Fernet(new_dek)
@@ -320,7 +320,7 @@ class EncryptionManager:
         last_rotation = datetime.fromisoformat(self.dek_registry["last_rotation"])
         rotation_days = self.dek_registry["rotation_days"]
         next_rotation = last_rotation + timedelta(days=rotation_days)
-        days_until_rotation = (next_rotation - datetime.utcnow()).days
+        days_until_rotation = (next_rotation - datetime.now(UTC)).days
 
         return {
             "current_version": self.dek_registry["current_version"] - 1,
@@ -348,14 +348,14 @@ class EncryptionManager:
         self._log_audit("forced_key_rotation", {
             "old_version": old_version,
             "new_version": new_version,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         })
 
         return {
             "status": "success",
             "old_version": old_version,
             "new_version": new_version,
-            "rotation_time": datetime.utcnow().isoformat()
+            "rotation_time": datetime.now(UTC).isoformat()
         }
 
     def _log_audit(self, event_type: str, details: Dict[str, Any]):

@@ -8,7 +8,7 @@ to create a complete simulation engine for the UKG system.
 import logging
 import json
 from typing import Dict, List, Any, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 
 from quad_persona.quad_engine import QuadPersonaEngine, create_quad_persona_engine
 from quad_persona.persona_loader import PersonaLoader
@@ -63,11 +63,11 @@ class SimulationEngine:
         Returns:
             The processing result, including the final response
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
         context = context or {}
         
         # Track simulation
-        simulation_id = context.get('simulation_id', f"sim_{datetime.utcnow().isoformat()}")
+        simulation_id = context.get('simulation_id', f"sim_{datetime.now(UTC).isoformat()}")
         
         # Initialize result structure
         result = {
@@ -95,7 +95,7 @@ class SimulationEngine:
             result['processing_metadata']['memory_context'] = {
                 'memory_streams_used': list(enhanced_context.get('memories', {}).keys()),
                 'working_memory_size': len(enhanced_context.get('working_memory', [])),
-                'timestamp': datetime.utcnow().isoformat()
+                'timestamp': datetime.now(UTC).isoformat()
             }
             
             # Step 2: Map query to personas via axis system
@@ -162,7 +162,7 @@ class SimulationEngine:
                 self.memory_manager.create_conversation_memory(conversation_id, {
                     'conversation_id': conversation_id,
                     'last_query': query,
-                    'last_updated': datetime.utcnow().isoformat()
+                    'last_updated': datetime.now(UTC).isoformat()
                 })
                 
                 # Add user query to conversation memory
@@ -170,7 +170,7 @@ class SimulationEngine:
                     conversation_id=conversation_id,
                     role='user',
                     content=query,
-                    metadata={'timestamp': datetime.utcnow().isoformat()}
+                    metadata={'timestamp': datetime.now(UTC).isoformat()}
                 )
                 
                 # Add system response to conversation memory
@@ -179,7 +179,7 @@ class SimulationEngine:
                     role='system',
                     content=final_response,
                     metadata={
-                        'timestamp': datetime.utcnow().isoformat(),
+                        'timestamp': datetime.now(UTC).isoformat(),
                         'confidence': final_confidence,
                         'active_personas': active_personas
                     }
@@ -196,7 +196,7 @@ class SimulationEngine:
             self.memory_manager.save_memories()
             
             # Complete result
-            end_time = datetime.utcnow()
+            end_time = datetime.now(UTC)
             result.update({
                 'end_time': end_time.isoformat(),
                 'status': 'completed',
@@ -212,7 +212,7 @@ class SimulationEngine:
             logger.error(f"Error processing query: {str(e)}")
             
             # Complete result with error
-            end_time = datetime.utcnow()
+            end_time = datetime.now(UTC)
             result.update({
                 'end_time': end_time.isoformat(),
                 'status': 'error',

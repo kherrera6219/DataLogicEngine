@@ -11,7 +11,7 @@ Implements formulas from the Mathematical Formulas PDF:
 import math
 import logging
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, List, Any, Tuple, Optional, Set
 from dataclasses import dataclass, field
 
@@ -125,7 +125,7 @@ class DynamicWeightFunctions:
         
         temporal_factor = 1.0
         if compliance_deadline:
-            days_until = (compliance_deadline - datetime.utcnow()).days
+            days_until = (compliance_deadline - datetime.now(UTC)).days
             if days_until <= 30:
                 temporal_factor = 2.0 - (days_until / 30)
             elif days_until <= 90:
@@ -160,7 +160,7 @@ class DynamicWeightFunctions:
             weights = {k: v / total for k, v in weights.items()}
         
         self.weight_history.append({
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(UTC).isoformat(),
             'weights': weights.copy(),
             'context_keys': list(context.keys())
         })
@@ -345,7 +345,7 @@ class StructuredMemoryGraph:
             
             if sim > self.theta_m:
                 vertex.access_count += 1
-                vertex.last_accessed = datetime.utcnow()
+                vertex.last_accessed = datetime.now(UTC)
                 results.append(vertex)
         
         return results
@@ -390,7 +390,7 @@ class StructuredMemoryGraph:
     def _temporal_importance(self, memory: MemoryVertex, t: float = None) -> float:
         """T(m, t): Temporal importance function with decay."""
         if t is None:
-            age_days = (datetime.utcnow() - memory.timestamp).days
+            age_days = (datetime.now(UTC) - memory.timestamp).days
         else:
             age_days = t
         
@@ -612,7 +612,7 @@ class RefinementWorkflow12Step:
                     'step_id': step_id,
                     'step_name': step_name,
                     'confidence': step_confidence,
-                    'timestamp': datetime.utcnow().isoformat()
+                    'timestamp': datetime.now(UTC).isoformat()
                 })
         
         final_confidence = self._compute_final_confidence()
@@ -768,7 +768,7 @@ class QuadPersonaMathematicalSystem:
             'relevant_points_count': len(relevant_points),
             'drl_iterations': iterations,
             'refinement_steps': self.refinement_workflow.step_results,
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(UTC).isoformat()
         }
         
         self.processing_history.append(result)

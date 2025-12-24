@@ -11,7 +11,7 @@ Provides enhanced session management including:
 import os
 import redis
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Optional, List, Dict
 from flask import session
 from flask_session import Session
@@ -78,11 +78,11 @@ class SessionManager:
                 last_rotation = session.get('last_rotation')
                 if last_rotation:
                     last_rotation = datetime.fromisoformat(last_rotation)
-                    if datetime.utcnow() - last_rotation > self.SESSION_ROTATION_INTERVAL:
+                    if datetime.now(UTC) - last_rotation > self.SESSION_ROTATION_INTERVAL:
                         self.rotate_session()
                 else:
                     # First time, set rotation timestamp
-                    session['last_rotation'] = datetime.utcnow().isoformat()
+                    session['last_rotation'] = datetime.now(UTC).isoformat()
 
         logger.info("Session manager initialized with Redis backend")
 
@@ -103,7 +103,7 @@ class SessionManager:
             session[key] = value
 
         # Update rotation timestamp
-        session['last_rotation'] = datetime.utcnow().isoformat()
+        session['last_rotation'] = datetime.now(UTC).isoformat()
         session.modified = True
 
         logger.debug("Session rotated successfully")
@@ -147,8 +147,8 @@ class SessionManager:
             meta_key = f"session_meta:{session_id}"
             self.redis_client.hmset(meta_key, {
                 'user_id': user_id,
-                'created_at': datetime.utcnow().isoformat(),
-                'last_activity': datetime.utcnow().isoformat()
+                'created_at': datetime.now(UTC).isoformat(),
+                'last_activity': datetime.now(UTC).isoformat()
             })
             self.redis_client.expire(meta_key, 86400)
 
@@ -194,7 +194,7 @@ class SessionManager:
                     meta_key = f"session_meta:{sid}"
                     meta = self.redis_client.hgetall(meta_key)
                     if meta:
-                        created_at = datetime.fromisoformat(meta.get('created_at', datetime.utcnow().isoformat()))
+                        created_at = datetime.fromisoformat(meta.get('created_at', datetime.now(UTC).isoformat()))
                         session_ages.append((sid, created_at))
 
                 # Sort by age (oldest first)
@@ -285,7 +285,7 @@ class SessionManager:
         """
         try:
             meta_key = f"session_meta:{session_id}"
-            self.redis_client.hset(meta_key, 'last_activity', datetime.utcnow().isoformat())
+            self.redis_client.hset(meta_key, 'last_activity', datetime.now(UTC).isoformat())
 
         except Exception as e:
             logger.error(f"Error updating session activity: {str(e)}")

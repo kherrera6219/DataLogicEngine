@@ -6,7 +6,7 @@ providing metrics collection, audit trails, performance dashboards, and SLA mana
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, List, Any, Optional
 from enum import Enum
 from collections import defaultdict
@@ -143,7 +143,7 @@ class ObservabilityAxis:
             Recorded metric entry
         """
         entry = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "name": name,
             "value": value,
             "type": metric_type,
@@ -176,7 +176,7 @@ class ObservabilityAxis:
         """
         entry = {
             "audit_id": str(uuid.uuid4()),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "event_type": event_type,
             "actor": actor,
             "action": action,
@@ -219,7 +219,7 @@ class ObservabilityAxis:
             "severity": severity,
             "source": source,
             "metadata": metadata or {},
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "acknowledged": False,
             "resolved": False,
             "resolved_at": None
@@ -237,7 +237,7 @@ class ObservabilityAxis:
             if alert["alert_id"] == alert_id:
                 alert["acknowledged"] = True
                 alert["acknowledged_by"] = acknowledged_by
-                alert["acknowledged_at"] = datetime.utcnow().isoformat()
+                alert["acknowledged_at"] = datetime.now(UTC).isoformat()
                 return {"success": True, "alert": alert}
         
         return {"success": False, "error": "Alert not found"}
@@ -248,7 +248,7 @@ class ObservabilityAxis:
             if alert["alert_id"] == alert_id:
                 alert["resolved"] = True
                 alert["resolution_notes"] = resolution_notes
-                alert["resolved_at"] = datetime.utcnow().isoformat()
+                alert["resolved_at"] = datetime.now(UTC).isoformat()
                 return {"success": True, "alert": alert}
         
         return {"success": False, "error": "Alert not found"}
@@ -277,7 +277,7 @@ class ObservabilityAxis:
             "threshold": threshold,
             "evaluation_window_minutes": evaluation_window,
             "metadata": metadata or {},
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "current_status": SLAStatus.UNKNOWN.value
         }
         
@@ -304,8 +304,8 @@ class ObservabilityAxis:
         window = sla["evaluation_window_minutes"]
         
         recent_metrics = self._get_metrics(metric_name, (
-            datetime.utcnow() - timedelta(minutes=window),
-            datetime.utcnow()
+            datetime.now(UTC) - timedelta(minutes=window),
+            datetime.now(UTC)
         ))
         
         if not recent_metrics:
@@ -325,14 +325,14 @@ class ObservabilityAxis:
             compliance_rate = avg_value / threshold if threshold > 0 else 1.0
         
         self.sla_definitions[sla_id]["current_status"] = status
-        self.sla_definitions[sla_id]["last_evaluated"] = datetime.utcnow().isoformat()
+        self.sla_definitions[sla_id]["last_evaluated"] = datetime.now(UTC).isoformat()
         
         return {
             "sla_id": sla_id,
             "status": status,
             "compliance_rate": compliance_rate,
             "metrics_evaluated": len(recent_metrics) if recent_metrics else 0,
-            "evaluated_at": datetime.utcnow().isoformat()
+            "evaluated_at": datetime.now(UTC).isoformat()
         }
     
     def start_trace(self, trace_name: str, metadata: Optional[Dict] = None) -> str:
@@ -342,7 +342,7 @@ class ObservabilityAxis:
         self.traces[trace_id] = {
             "trace_id": trace_id,
             "name": trace_name,
-            "started_at": datetime.utcnow().isoformat(),
+            "started_at": datetime.now(UTC).isoformat(),
             "ended_at": None,
             "duration_ms": None,
             "spans": [],
@@ -361,7 +361,7 @@ class ObservabilityAxis:
         span = {
             "span_id": str(uuid.uuid4()),
             "name": span_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "duration_ms": duration_ms,
             "metadata": metadata or {}
         }
@@ -376,7 +376,7 @@ class ObservabilityAxis:
             return {"success": False, "error": "Trace not found"}
         
         trace = self.traces[trace_id]
-        trace["ended_at"] = datetime.utcnow().isoformat()
+        trace["ended_at"] = datetime.now(UTC).isoformat()
         trace["status"] = status
         
         start = datetime.fromisoformat(trace["started_at"])
@@ -388,7 +388,7 @@ class ObservabilityAxis:
     def get_dashboard_data(self) -> Dict[str, Any]:
         """Get aggregated dashboard data."""
         return {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "metrics_summary": {
                 "total_metrics": len(self.metrics),
                 "total_data_points": sum(len(v) for v in self.metrics.values())
@@ -455,7 +455,7 @@ class ObservabilityAxis:
             "status": health_status,
             "active_alerts": len(active_alerts),
             "critical_alerts": len(critical_alerts),
-            "checked_at": datetime.utcnow().isoformat()
+            "checked_at": datetime.now(UTC).isoformat()
         }
     
     def _count_by_field(self, items: List[Dict], field: str) -> Dict[str, int]:

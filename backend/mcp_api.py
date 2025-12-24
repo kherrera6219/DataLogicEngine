@@ -8,7 +8,7 @@ resources, tools, and prompts.
 from functools import wraps
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
-from datetime import datetime
+from datetime import datetime, UTC
 import asyncio
 import logging
 import threading
@@ -296,7 +296,7 @@ def read_resource(server_id, resource_id):
 
         # Update access stats
         resource.access_count += 1
-        resource.last_accessed = datetime.utcnow()
+        resource.last_accessed = datetime.now(UTC)
         db.session.commit()
 
         # Get runtime server and read resource
@@ -395,7 +395,7 @@ def call_tool(server_id, tool_id):
             # Update tool stats
             tool.execution_count += 1
             tool.success_count += 1
-            tool.last_executed = datetime.utcnow()
+            tool.last_executed = datetime.now(UTC)
             db.session.commit()
 
             return jsonify({
@@ -407,7 +407,7 @@ def call_tool(server_id, tool_id):
             # Update failure stats
             tool.execution_count += 1
             tool.failure_count += 1
-            tool.last_executed = datetime.utcnow()
+            tool.last_executed = datetime.now(UTC)
             db.session.commit()
 
             logger.error(f"Error calling tool: {e}")
@@ -490,7 +490,7 @@ def get_prompt(server_id, prompt_id):
 
             # Update prompt stats
             prompt.usage_count += 1
-            prompt.last_used = datetime.utcnow()
+            prompt.last_used = datetime.now(UTC)
             db.session.commit()
 
             return jsonify({

@@ -5,7 +5,7 @@ This module defines the API routes for the UKG system.
 """
 
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from flask import Blueprint, request, jsonify, current_app
 from extensions import db
 from models import SimulationSession
@@ -302,12 +302,12 @@ def run_simulation_step(uid):
     # Run simulation step (placeholder)
     # In a real implementation, this would execute the simulation logic
     simulation.current_step += 1
-    simulation.last_step_at = datetime.utcnow()
+    simulation.last_step_at = datetime.now(UTC)
     
     # Update simulation results
     results = simulation.results or {}
     results[str(simulation.current_step)] = {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "step": simulation.current_step,
         "data": {"message": "Simulation step executed successfully"}
     }
@@ -333,7 +333,7 @@ def stop_simulation(uid):
     
     # Stop simulation
     simulation.status = "completed"
-    simulation.completed_at = datetime.utcnow()
+    simulation.completed_at = datetime.now(UTC)
     
     try:
         db.session.commit()
@@ -525,7 +525,7 @@ def log_frontend_error():
 
         # Extract error information
         error_info = {
-            'timestamp': error_data.get('timestamp', datetime.utcnow().isoformat()),
+            'timestamp': error_data.get('timestamp', datetime.now(UTC).isoformat()),
             'type': error_data.get('type', 'unknown'),
             'message': error_data.get('message', 'No message'),
             'stack': error_data.get('stack'),

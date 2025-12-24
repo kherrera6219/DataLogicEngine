@@ -10,7 +10,7 @@ and consider using environment variables or a secrets management system.
 
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 import uuid
 
 from app import app
@@ -32,7 +32,7 @@ def create_admin_user():
         admin.email = 'admin@ukg-system.com'
         admin.active = True
         admin.is_admin = True
-        admin.created_at = datetime.utcnow()
+        admin.created_at = datetime.now(UTC)
         # SECURITY WARNING: Change this default password immediately in production!
         admin.set_password('admin123')  # DEVELOPMENT ONLY - Use strong passwords in production
         
@@ -53,7 +53,7 @@ def create_demo_user():
         demo.email = 'demo@ukg-system.com'
         demo.active = True
         demo.is_admin = False
-        demo.created_at = datetime.utcnow()
+        demo.created_at = datetime.now(UTC)
         # SECURITY WARNING: Change this default password immediately in production!
         demo.set_password('demo123')  # DEVELOPMENT ONLY - Use strong passwords in production
         
@@ -85,9 +85,9 @@ def create_sample_simulations():
         completed_sim.status = "completed"
         completed_sim.current_step = 8
         completed_sim.total_steps = 8
-        completed_sim.created_at = datetime.utcnow()
-        completed_sim.started_at = datetime.utcnow()
-        completed_sim.completed_at = datetime.utcnow()
+        completed_sim.created_at = datetime.now(UTC)
+        completed_sim.started_at = datetime.now(UTC)
+        completed_sim.completed_at = datetime.now(UTC)
         completed_sim.results = {
             "confidence_score": 0.92,
             "coherence_score": 0.88,
@@ -110,8 +110,8 @@ def create_sample_simulations():
         running_sim.status = "running"
         running_sim.current_step = 5
         running_sim.total_steps = 8
-        running_sim.created_at = datetime.utcnow()
-        running_sim.started_at = datetime.utcnow()
+        running_sim.created_at = datetime.now(UTC)
+        running_sim.started_at = datetime.now(UTC)
         
         # Pending simulation
         pending_sim = SimulationSession()
@@ -128,7 +128,7 @@ def create_sample_simulations():
         pending_sim.status = "pending"
         pending_sim.current_step = 0
         pending_sim.total_steps = 8
-        pending_sim.created_at = datetime.utcnow()
+        pending_sim.created_at = datetime.now(UTC)
         
         db.session.add_all([completed_sim, running_sim, pending_sim])
         db.session.commit()

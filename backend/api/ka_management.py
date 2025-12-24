@@ -7,7 +7,7 @@ This module provides REST API endpoints for managing Knowledge Algorithms.
 import logging
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
-from datetime import datetime
+from datetime import datetime, UTC
 
 # Import KA Master Controller
 from knowledge_algorithms.ka_master_controller import get_controller
@@ -208,7 +208,7 @@ def get_metrics():
         return jsonify({
             "success": True,
             "metrics": metrics,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         }), 200
 
     except Exception as e:

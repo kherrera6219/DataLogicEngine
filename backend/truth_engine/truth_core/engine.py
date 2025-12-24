@@ -10,7 +10,7 @@ Integrates with:
 
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional
 
 logger = logging.getLogger(__name__)
@@ -139,7 +139,7 @@ class TruthCoreEngine:
             'tier': tier,
             'routing_profile': routing_profile,
             'status': 'created',
-            'created_at': datetime.utcnow().isoformat(),
+            'created_at': datetime.now(UTC).isoformat(),
             'workflow_steps': [],
             'context': context or {}
         }
@@ -188,7 +188,7 @@ class TruthCoreEngine:
         
         session = self.active_sessions[session_id]
         session['status'] = 'processing'
-        session['started_at'] = datetime.utcnow().isoformat()
+        session['started_at'] = datetime.now(UTC).isoformat()
         
         tier = session['tier']
         query = session['query']
@@ -209,7 +209,7 @@ class TruthCoreEngine:
                 result = self._process_trivial(query, context)
             
             session['status'] = 'completed'
-            session['completed_at'] = datetime.utcnow().isoformat()
+            session['completed_at'] = datetime.now(UTC).isoformat()
             session['result'] = result
             session['confidence_score'] = result.get('confidence', 0)
             session['workflow_steps'] = result.get('steps_executed', [])
@@ -227,7 +227,7 @@ class TruthCoreEngine:
                         db_sess.confidence_score = result.get('confidence', 0)
                         db_sess.workflow_steps = result.get('steps_executed', [])
                         db_sess.personas_used = result.get('personas_used', [])
-                        db_sess.completed_at = datetime.utcnow()
+                        db_sess.completed_at = datetime.now(UTC)
                         self.db_session.commit()
                 except Exception as e:
                     logger.error(f"Failed to update session in DB: {e}")
@@ -376,7 +376,7 @@ class TruthCoreEngine:
             planning_result['execution_plan'].append({
                 'step': step,
                 'status': 'completed',
-                'timestamp': datetime.utcnow().isoformat()
+                'timestamp': datetime.now(UTC).isoformat()
             })
         
         result = {

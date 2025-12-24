@@ -8,7 +8,7 @@ certification processes within the knowledge graph.
 
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Union, Set
 
 class ComplianceManager:
@@ -1015,7 +1015,7 @@ The Spiderweb Node System represents how compliance standards branch out with:
 
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Union, Set
 
 class ComplianceManager:

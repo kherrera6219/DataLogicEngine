@@ -7,7 +7,7 @@ from flask import Blueprint, request, jsonify
 from models import TimeContext, db
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 import json
 
 # Create blueprint
@@ -220,7 +220,7 @@ def update_time_context(uid):
         if 'attributes' in data:
             time_context.attributes = data['attributes']
             
-        time_context.updated_at = datetime.utcnow()
+        time_context.updated_at = datetime.now(UTC)
         
         db.session.commit()
         
@@ -288,7 +288,7 @@ def get_career_timeline(persona_id):
         total_years = 0
         for stage in career_stages:
             if stage.start_date:
-                end = stage.end_date or datetime.utcnow()
+                end = stage.end_date or datetime.now(UTC)
                 duration_days = (end - stage.start_date).days
                 total_years += duration_days / 365
         

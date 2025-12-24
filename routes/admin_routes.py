@@ -5,6 +5,7 @@ Handles all admin-only routes with proper access control using @admin_required d
 """
 
 import datetime
+from datetime import UTC
 import logging
 
 from flask import Blueprint, render_template
@@ -78,7 +79,7 @@ def admin_audit():
                           logs=[],
                           stats=stats,
                           type_counts=type_counts,
-                          now=datetime.datetime.utcnow())
+                          now=datetime.datetime.now(UTC))
 
 
 @admin_bp.route('/settings')

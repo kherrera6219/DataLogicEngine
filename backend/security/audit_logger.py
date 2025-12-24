@@ -11,7 +11,7 @@ import logging
 import json
 import time
 import hashlib
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Union
 import threading
 import uuid

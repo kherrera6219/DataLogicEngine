@@ -7,7 +7,7 @@ from flask import Blueprint, request, jsonify
 from models import Location, db
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from geopy.distance import geodesic
 
 # Create blueprint
@@ -190,7 +190,7 @@ def update_location(uid):
         if 'attributes' in data:
             location.attributes = data['attributes']
             
-        location.updated_at = datetime.utcnow()
+        location.updated_at = datetime.now(UTC)
         
         db.session.commit()
         
