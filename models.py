@@ -42,6 +42,30 @@ class APIKey(db.Model):
             'revoked_at': self.revoked_at.isoformat() if self.revoked_at else None,
         }
 
+class OAuthAccount(db.Model):
+    """OAuth account linking for external authentication providers (e.g., Replit Auth)"""
+    __tablename__ = 'oauth_accounts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    provider = db.Column(db.String(50), nullable=False)
+    provider_user_id = db.Column(db.String(255), nullable=False)
+    token = db.Column(db.JSON)
+    refresh_token = db.Column(db.String(512))
+    token_expires_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
+
+    user = db.relationship('User', backref=db.backref('oauth_accounts', lazy='dynamic'))
+
+    __table_args__ = (
+        db.UniqueConstraint('provider', 'provider_user_id', name='uq_provider_user'),
+    )
+
+    def __repr__(self):
+        return f'<OAuthAccount provider={self.provider} user_id={self.user_id}>'
+
+
 class PasswordHistory(db.Model):
     """Password history for preventing password reuse"""
     __tablename__ = 'password_history'

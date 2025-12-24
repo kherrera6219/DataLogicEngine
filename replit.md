@@ -60,6 +60,14 @@ Security features include:
 Compliance features adhere to the EU AI Act, including detailed decision logging, explainability endpoints, 7-year audit trail retention, and PII detection.
 
 ## Recent Changes (December 2025)
+- **v1.1.2 Authentication Enhancement**: Added Replit OAuth integration alongside local login
+- v1.1.2: Added OAuthAccount model for linking OAuth identities to users
+- v1.1.2: Implemented replit_auth.py with Flask-Dance OAuth2 integration
+- v1.1.2: JWT signature verification using Replit's JWKS endpoint (RS256)
+- v1.1.2: Full OIDC validation (audience, issuer, expiration, nonce, azp)
+- v1.1.2: Nonce-based replay protection with one-time use semantics
+- v1.1.2: PKCE with S256 code challenge method
+- v1.1.2: Login page now shows both username/password and "Continue with Replit" options
 - **v1.1.1 Codebase Cleanup**: Removed duplicate files and consolidated structure
 - v1.1.1: Removed backup/standalone app files (routes_backup.py, run_simulation.py, simple_app.py)
 - v1.1.1: Removed duplicate core modules at root level (kept nested versions in core/*/subfolders)

@@ -202,6 +202,18 @@ try:
 except ImportError as e:
     logger.warning(f"Could not register Compliance API blueprint: {e}")
 
+# Register Replit Auth blueprint (optional - only if REPL_ID is set)
+try:
+    from replit_auth import make_replit_blueprint
+    replit_bp = make_replit_blueprint()
+    if replit_bp:
+        app.register_blueprint(replit_bp, url_prefix="/auth")
+        logger.info("Replit Auth blueprint registered")
+    else:
+        logger.info("Replit Auth disabled (REPL_ID not set)")
+except ImportError as e:
+    logger.warning(f"Could not register Replit Auth blueprint: {e}")
+
 # Register Swagger UI for API documentation
 from flask_swagger_ui import get_swaggerui_blueprint
 SWAGGER_URL = '/api/docs'

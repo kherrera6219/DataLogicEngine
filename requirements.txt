@@ -123,3 +123,4 @@ python-multipart
 flask-wtf
 cryptography
 flask-jwt-extended
+flask-dance
