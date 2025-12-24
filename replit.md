@@ -60,6 +60,12 @@ Security features include:
 Compliance features adhere to the EU AI Act, including detailed decision logging, explainability endpoints, 7-year audit trail retention, and PII detection.
 
 ## Recent Changes (December 2025)
+- **v1.1.1 Codebase Cleanup**: Removed duplicate files and consolidated structure
+- v1.1.1: Removed backup/standalone app files (routes_backup.py, run_simulation.py, simple_app.py)
+- v1.1.1: Removed duplicate core modules at root level (kept nested versions in core/*/subfolders)
+- v1.1.1: Removed duplicate data files (kept data/ukg/ versions)
+- v1.1.1: Removed duplicate persona_api.py from core/ (kept backend/persona_api.py)
+- v1.1.1: Consolidated redundant documentation files
 - **v1.1.0 Security Hardening**: Production readiness improvements
 - v1.1.0: Added CSRF protection with Flask-WTF across all forms and endpoints
 - v1.1.0: Added production credential validation (blocks insecure defaults in production)
