@@ -16,6 +16,7 @@
             <div class="sim-action-buttons">
                 {% if simulation.status == 'pending' %}
                 <form action="{{ url_for('start_simulation', sim_id=simulation.id) }}" method="POST" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-primary">
                         <span class="material-icons">play_arrow</span> Start Simulation
                     </button>
@@ -24,6 +25,7 @@
                 
                 {% if simulation.status == 'running' %}
                 <form action="{{ url_for('pause_simulation', sim_id=simulation.id) }}" method="POST" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-warning">
                         <span class="material-icons">pause</span> Pause Simulation
                     </button>
@@ -32,6 +34,7 @@
                 
                 {% if simulation.status == 'paused' %}
                 <form action="{{ url_for('resume_simulation', sim_id=simulation.id) }}" method="POST" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-primary">
                         <span class="material-icons">play_arrow</span> Resume Simulation
                     </button>
