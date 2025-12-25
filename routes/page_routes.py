@@ -9,8 +9,9 @@ from datetime import UTC
 import logging
 import secrets
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, send_from_directory
 from flask_login import current_user, login_required
+import os
 
 from extensions import db
 from models import APIKey, User, SimulationSession
@@ -25,6 +26,17 @@ pages_bp = Blueprint('pages', __name__)
 def index():
     """Render the homepage."""
     return render_template('index.html')
+
+
+@pages_bp.route('/favicon.ico')
+def favicon():
+    """Serve the favicon."""
+    static_dir = os.path.join(pages_bp.root_path, '..', 'static')
+    if os.path.exists(os.path.join(static_dir, 'favicon.ico')):
+        return send_from_directory(static_dir, 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    elif os.path.exists(os.path.join(static_dir, 'favicon.svg')):
+        return send_from_directory(static_dir, 'favicon.svg', mimetype='image/svg+xml')
+    return '', 204
 
 
 @pages_bp.route('/dashboard')
