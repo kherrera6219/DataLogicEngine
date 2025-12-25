@@ -61,5 +61,19 @@
 "KA-49": "knowledge_algorithms.ka_49_explainability_trace_constructor.run"
 "KA-50": "knowledge_algorithms.ka_50_agent_identity_consistency_checker.run"
 
+# Advanced Neural Simulation Algorithms (KA-51 to KA-58)
+"KA-51": "knowledge_algorithms.ka_51_neural_chain_reconstructor.run"
+"KA-52": "knowledge_algorithms.ka_52_attention_layer_mapper.run"
+"KA-53": "knowledge_algorithms.ka_53_activation_route_tracer.run"
+"KA-54": "knowledge_algorithms.ka_54_neural_path_optimizer.run"
+"KA-55": "knowledge_algorithms.ka_55_transformer_layer_monitor.run"
+"KA-56": "knowledge_algorithms.ka_56_recursive_planning_agi_core.run"
+"KA-57": "knowledge_algorithms.ka_57_goal_alignment_monitor.run"
+"KA-58": "knowledge_algorithms.ka_58_dynamic_knowledge_graph_connector.run"
+
+# Recursive AGI Layer Algorithms (KA-59 to KA-60)
+"KA-59": "knowledge_algorithms.ka_59_self_modification_boundary.run"
+"KA-60": "knowledge_algorithms.ka_60_goal_management_system.run"
+
 # Master Controller
 "KA-Master": "knowledge_algorithms.ka_master_controller.run"

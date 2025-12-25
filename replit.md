@@ -60,6 +60,22 @@ Security features include:
 Compliance features adhere to the EU AI Act, including detailed decision logging, explainability endpoints, 7-year audit trail retention, and PII detection.
 
 ## Recent Changes (December 2025)
+- **v1.2.0 17-Axis System Enhancement**: Major improvements based on UKG 17-Axis System Configuration specifications
+- v1.2.0: Added MasterWorkflowOrchestrator (core/orchestration/master_workflow.py) - coordinates all subsystems following YAML spec
+- v1.2.0: Implemented TriggerSystem with 5 dynamic triggers (persona_conflict, compliance_violation, refinement_loop, threshold_not_met, all_clear)
+- v1.2.0: Added SharedStateManager for cross-layer confidence metrics (consensus_strength, cross_verification_score, preliminary_confidence)
+- v1.2.0: Created Layer 1 Entry Engine (layer1_entry.py) - Context Initialization with axis/pillar detection
+- v1.2.0: Created Layer 2 Knowledge Engine (layer2_knowledge.py) - Knowledge Expansion with honeycomb cross-domain links
+- v1.2.0: Created Layer 3 Expert Engine (layer3_expert.py) - Expert Simulation with regulatory/compliance personas
+- v1.2.0: Implemented persona conflict detection and consensus debate mechanism in master workflow
+- v1.2.0: Added containment rollback mechanism for compliance violations with rollback points
+- v1.2.0: Added manual review alert system for low-confidence outputs after max iterations
+- v1.2.0: Completed KA-59 Self-Modification Boundary - monitors/enforces AGI self-modification boundaries
+- v1.2.0: Completed KA-60 Goal Management System - manages goal hierarchy, alignment, and adaptation
+- v1.2.0: Added NLCoordinateMapper (core/nlp/coordinate_mapper.py) - AI-powered natural language to 17-axis coordinate mapping using OpenAI
+- v1.2.0: Added QueryToCoordinatePipeline for end-to-end query processing through coordinate mapping to simulation
+- v1.2.0: Updated ka_registry.yaml with KA-51 through KA-60 registrations
+
 - **v1.1.2 Authentication Enhancement**: Added Replit OAuth integration alongside local login
 - v1.1.2: Added OAuthAccount model for linking OAuth identities to users
 - v1.1.2: Implemented replit_auth.py with Flask-Dance OAuth2 integration
