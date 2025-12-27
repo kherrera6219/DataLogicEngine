@@ -301,25 +301,36 @@ def simulations():
 @limiter.limit("30 per minute")
 @login_required
 def create_simulation():
-    # Get simulation parameters from form
-    name = request.form.get('name')
-    description = request.form.get('description', '')
-    sim_type = request.form.get('sim_type')
-    try:
-        refinement_steps = int(request.form.get('refinement_steps', 12))
-    except (ValueError, TypeError):
-        refinement_steps = 12
-    try:
-        confidence_threshold = float(request.form.get('confidence_threshold', 0.85))
-    except (ValueError, TypeError):
-        confidence_threshold = 0.85
-    entropy_sampling = 'entropy_sampling' in request.form
-    auto_start = 'auto_start' in request.form
-    
-    # Validate input
-    if not name or not sim_type:
-        flash('Simulation name and type are required', 'error')
+    """Create a new simulation with comprehensive input validation."""
+    from backend.schemas.simulation_schemas import validate_simulation_creation
+
+    # Prepare request data
+    request_data = {
+        'name': request.form.get('name'),
+        'description': request.form.get('description', ''),
+        'sim_type': request.form.get('sim_type'),
+        'refinement_steps': request.form.get('refinement_steps', 12),
+        'confidence_threshold': request.form.get('confidence_threshold', 0.85),
+        'entropy_sampling': 'entropy_sampling' in request.form,
+        'auto_start': 'auto_start' in request.form
+    }
+
+    # Validate input with schema
+    validated_data, errors = validate_simulation_creation(request_data)
+    if errors:
+        for field, messages in errors.items():
+            for message in messages if isinstance(messages, list) else [messages]:
+                flash(f'{field}: {message}', 'error')
         return redirect(url_for('simulations'))
+
+    # Extract validated data
+    name = validated_data['name']
+    description = validated_data.get('description', '')
+    sim_type = validated_data['sim_type']
+    refinement_steps = validated_data.get('refinement_steps', 12)
+    confidence_threshold = validated_data.get('confidence_threshold', 0.85)
+    entropy_sampling = validated_data.get('entropy_sampling', False)
+    auto_start = validated_data.get('auto_start', False)
     
     # Create simulation parameters
     parameters = {
@@ -538,11 +549,67 @@ def privacy():
 # Error handlers
 @app.errorhandler(404)
 def not_found(e):
+    """Handle 404 Not Found errors."""
+    # Log the error internally
+    logger.warning(f"404 Not Found: {request.url}")
+
+    if request.is_json or request.headers.get('Accept', '').startswith('application/json'):
+        return jsonify({
+            'success': False,
+            'error': {
+                'code': 'NOT_FOUND',
+                'message': 'The requested resource was not found'
+            }
+        }), 404
     return render_template('errors/404.html'), 404
 
 @app.errorhandler(500)
 def server_error(e):
+    """Handle 500 Internal Server errors without exposing stack traces."""
+    # Log the full error internally (with stack trace)
+    logger.error(f"500 Internal Server Error: {str(e)}", exc_info=True)
+
+    # NEVER expose stack traces to users in production
+    if request.is_json or request.headers.get('Accept', '').startswith('application/json'):
+        return jsonify({
+            'success': False,
+            'error': {
+                'code': 'INTERNAL_SERVER_ERROR',
+                'message': 'An internal error occurred. Please try again later.'
+            }
+        }), 500
     return render_template('errors/500.html'), 500
+
+@app.errorhandler(403)
+def forbidden(e):
+    """Handle 403 Forbidden errors."""
+    logger.warning(f"403 Forbidden: {request.url} - User: {current_user.username if current_user and current_user.is_authenticated else 'Anonymous'}")
+
+    if request.is_json or request.headers.get('Accept', '').startswith('application/json'):
+        return jsonify({
+            'success': False,
+            'error': {
+                'code': 'FORBIDDEN',
+                'message': 'You do not have permission to access this resource'
+            }
+        }), 403
+    return render_template('errors/403.html'), 403
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    """Handle rate limit exceeded errors."""
+    logger.warning(f"429 Rate Limit Exceeded: {request.url} - IP: {request.remote_addr}")
+
+    if request.is_json or request.headers.get('Accept', '').startswith('application/json'):
+        return jsonify({
+            'success': False,
+            'error': {
+                'code': 'RATE_LIMIT_EXCEEDED',
+                'message': 'Rate limit exceeded. Please try again later.',
+                'retry_after': getattr(e, 'description', '60 seconds')
+            }
+        }), 429
+    return render_template('errors/429.html'), 429
 
 # Run the application
 if __name__ == '__main__':
