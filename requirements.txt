@@ -1,6 +1,6 @@
 # DataLogicEngine / Universal Knowledge Graph System
 # Python Dependencies
-# Last Updated: 2025-12-27
+# Last Updated: 2025-01-06
 # Production-ready dependency list with exact versions for reproducibility
 
 # ============================================================================
@@ -109,3 +109,5 @@ black==24.10.0
 flake8==7.1.1
 bandit==1.8.0
 safety==3.2.11
+
+Flask-Migrate==4.0.5

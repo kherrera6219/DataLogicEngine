@@ -11,9 +11,9 @@ import logging
 from datetime import datetime, UTC
 from flask import Blueprint, request
 from backend.middleware import api_response
-from extensions import db
+from extensions import db, cache
 from models import SimulationSession
-from db_models import Node, Edge, PillarLevel, Sector, Domain, KnowledgeNode
+from models import Node, Edge, PillarLevel, Sector, Domain, KnowledgeNode
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -27,6 +27,7 @@ ukg_api = Blueprint('ukg_api', __name__, url_prefix='/api')
 
 @ukg_api.route('/pillars', methods=['GET'])
 @api_response
+@cache.cached(timeout=300)
 def get_pillars():
     """Get all pillar levels."""
     pillars = PillarLevel.query.all()
@@ -64,6 +65,7 @@ def create_pillar():
 
 @ukg_api.route('/sectors', methods=['GET'])
 @api_response
+@cache.cached(timeout=300)
 def get_sectors():
     """Get all sectors."""
     sectors = Sector.query.all()
@@ -101,6 +103,7 @@ def create_sector():
 
 @ukg_api.route('/domains', methods=['GET'])
 @api_response
+@cache.cached(timeout=300)
 def get_domains():
     """Get all domains."""
     domains = Domain.query.all()

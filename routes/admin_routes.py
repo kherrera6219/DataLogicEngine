@@ -13,7 +13,7 @@ from flask_login import login_required, current_user
 
 from extensions import db
 from models import User, SimulationSession
-from db_models import Node, Edge, KnowledgeAlgorithm
+from models import Node, Edge, KnowledgeAlgorithm
 from backend.decorators import admin_required
 
 logger = logging.getLogger(__name__)

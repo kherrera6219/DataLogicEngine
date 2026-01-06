@@ -15,7 +15,7 @@ import os
 
 from extensions import db
 from models import APIKey, User, SimulationSession
-from db_models import Node, Edge, KnowledgeNode, KnowledgeAlgorithm, Sector, Domain, PillarLevel
+from models import Node, Edge, KnowledgeNode, KnowledgeAlgorithm, Sector, Domain, PillarLevel
 
 logger = logging.getLogger(__name__)
 

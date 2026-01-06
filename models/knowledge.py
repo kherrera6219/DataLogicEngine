@@ -1,19 +1,83 @@
-"""
-Universal Knowledge Graph (UKG) Database Models
-
-This module defines improved database models that fix validation issues 
-and provide a proper structure for the 13-axis knowledge graph system.
-"""
-
 from datetime import datetime, UTC
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, JSON
 from sqlalchemy.orm import relationship, backref
 from extensions import db
 
-# Base Models for UKG Core Components
+def _utcnow():
+    """Return current UTC datetime."""
+    return datetime.now(UTC)
+
+# =============================================================================
+# FROM MODELS.PY (kg_ tables)
+# =============================================================================
+
+class KnowledgeGraphNode(db.Model):
+    """Basic model for knowledge graph nodes (kg_nodes)"""
+    __tablename__ = 'kg_nodes'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    node_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    node_type = db.Column(db.String(32), nullable=False)
+    label = db.Column(db.String(128), nullable=False)
+    description = db.Column(db.Text)
+    data = db.Column(db.JSON)
+    axis_number = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
+    
+    def to_dict(self):
+        """Convert node to dictionary"""
+        return {
+            'id': self.id,
+            'node_id': self.node_id,
+            'node_type': self.node_type,
+            'label': self.label,
+            'description': self.description,
+            'data': self.data,
+            'axis_number': self.axis_number,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class KnowledgeGraphEdge(db.Model):
+    """Basic model for knowledge graph edges (kg_edges)"""
+    __tablename__ = 'kg_edges'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    edge_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    source_id = db.Column(db.Integer, db.ForeignKey('kg_nodes.id'), nullable=False)
+    target_id = db.Column(db.Integer, db.ForeignKey('kg_nodes.id'), nullable=False)
+    edge_type = db.Column(db.String(32), nullable=False)
+    weight = db.Column(db.Float, default=1.0)
+    data = db.Column(db.JSON)
+    created_at = db.Column(db.DateTime, default=_utcnow)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
+    
+    # Define relationships
+    source = db.relationship('KnowledgeGraphNode', foreign_keys=[source_id], backref='outgoing_edges')
+    target = db.relationship('KnowledgeGraphNode', foreign_keys=[target_id], backref='incoming_edges')
+    
+    def to_dict(self):
+        """Convert edge to dictionary"""
+        return {
+            'id': self.id,
+            'edge_id': self.edge_id,
+            'source_id': self.source_id,
+            'target_id': self.target_id,
+            'edge_type': self.edge_type,
+            'weight': self.weight,
+            'data': self.data,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+# =============================================================================
+# FROM DB_MODELS.PY (ukg_ tables)
+# =============================================================================
 
 class Node(db.Model):
-    """Base model for all nodes in the UKG system."""
+    """Base model for all nodes in the UKG system (ukg_nodes)."""
     __tablename__ = 'ukg_nodes'
 
     id = Column(Integer, primary_key=True)
@@ -23,8 +87,8 @@ class Node(db.Model):
     axis_number = Column(Integer, nullable=False)
     description = Column(Text, nullable=True)
     attributes = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
     active = Column(Boolean, default=True)
 
     # Relationships
@@ -32,7 +96,6 @@ class Node(db.Model):
     incoming_edges = relationship("Edge", foreign_keys="Edge.target_node_id", back_populates="target_node")
 
     def to_dict(self):
-        """Convert node to dictionary."""
         return {
             'id': self.id,
             'uid': self.uid,
@@ -47,7 +110,7 @@ class Node(db.Model):
         }
 
 class Edge(db.Model):
-    """Base model for all edges in the UKG system."""
+    """Base model for all edges in the UKG system (ukg_edges)."""
     __tablename__ = 'ukg_edges'
 
     id = Column(Integer, primary_key=True)
@@ -57,8 +120,8 @@ class Edge(db.Model):
     source_node_id = Column(Integer, ForeignKey('ukg_nodes.id'), nullable=False)
     target_node_id = Column(Integer, ForeignKey('ukg_nodes.id'), nullable=False)
     attributes = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
     active = Column(Boolean, default=True)
 
     # Relationships
@@ -66,7 +129,6 @@ class Edge(db.Model):
     target_node = relationship("Node", foreign_keys=[target_node_id], back_populates="incoming_edges")
 
     def to_dict(self):
-        """Convert edge to dictionary."""
         return {
             'id': self.id,
             'uid': self.uid,
@@ -80,8 +142,6 @@ class Edge(db.Model):
             'active': self.active
         }
 
-# Axis 1: Knowledge - Pillar Levels
-
 class PillarLevel(db.Model):
     """Model for Pillar Levels (Axis 1: Knowledge)."""
     __tablename__ = 'ukg_pillar_levels'
@@ -92,14 +152,13 @@ class PillarLevel(db.Model):
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     sublevels = Column(JSON, nullable=True)  # Nested structure for sublevels
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
     # Relationships
     nodes = relationship("KnowledgeNode", back_populates="pillar_level")
 
     def to_dict(self):
-        """Convert pillar level to dictionary."""
         return {
             'id': self.id,
             'uid': self.uid,
@@ -111,8 +170,6 @@ class PillarLevel(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
-# Axis 2: Sectors
-
 class Sector(db.Model):
     """Model for Sectors (Axis 2: Sectors)."""
     __tablename__ = 'ukg_sectors'
@@ -123,8 +180,8 @@ class Sector(db.Model):
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     parent_sector_id = Column(Integer, ForeignKey('ukg_sectors.id'), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
     # Relationships
     parent_sector = relationship("Sector", remote_side=[id], back_populates="subsectors")
@@ -132,7 +189,6 @@ class Sector(db.Model):
     domains = relationship("Domain", back_populates="sector")
 
     def to_dict(self):
-        """Convert sector to dictionary."""
         return {
             'id': self.id,
             'uid': self.uid,
@@ -145,8 +201,6 @@ class Sector(db.Model):
             'subsector_count': len(self.subsectors) if self.subsectors else 0
         }
 
-# Axis 3: Domains
-
 class Domain(db.Model):
     """Model for Domains (Axis 3: Domains)."""
     __tablename__ = 'ukg_domains'
@@ -158,8 +212,8 @@ class Domain(db.Model):
     description = Column(Text, nullable=True)
     sector_id = Column(Integer, ForeignKey('ukg_sectors.id'), nullable=True)
     parent_domain_id = Column(Integer, ForeignKey('ukg_domains.id'), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
     # Relationships
     sector = relationship("Sector", back_populates="domains")
@@ -167,7 +221,6 @@ class Domain(db.Model):
     subdomains = relationship("Domain", foreign_keys=[parent_domain_id], back_populates="parent_domain")
 
     def to_dict(self):
-        """Convert domain to dictionary."""
         return {
             'id': self.id,
             'uid': self.uid,
@@ -182,8 +235,6 @@ class Domain(db.Model):
             'subdomain_count': len(self.subdomains) if self.subdomains else 0
         }
 
-# Axis 12: Location Context
-
 class Location(db.Model):
     """Model for Locations (Axis 12: Location)."""
     __tablename__ = 'ukg_locations'
@@ -196,15 +247,14 @@ class Location(db.Model):
     longitude = Column(Float, nullable=True)
     parent_location_id = Column(Integer, ForeignKey('ukg_locations.id'), nullable=True)
     attributes = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
     # Relationships
     parent_location = relationship("Location", remote_side=[id], back_populates="sub_locations")
     sub_locations = relationship("Location", foreign_keys=[parent_location_id], back_populates="parent_location")
 
     def to_dict(self):
-        """Convert location to dictionary."""
         return {
             'id': self.id,
             'uid': self.uid,
@@ -232,15 +282,14 @@ class TimeContext(db.Model):
     recurring = Column(Boolean, default=False)
     parent_time_id = Column(Integer, ForeignKey('ukg_time_contexts.id'), nullable=True)
     attributes = Column(JSON, nullable=True)  # Store additional metadata (e.g., persona_id for career stages)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
     # Relationships
     parent_time = relationship("TimeContext", remote_side=[id], back_populates="sub_times")
     sub_times = relationship("TimeContext", foreign_keys=[parent_time_id], back_populates="parent_time")
 
     def to_dict(self):
-        """Convert time context to dictionary."""
         return {
             'id': self.id,
             'uid': self.uid,
@@ -256,8 +305,6 @@ class TimeContext(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
-# Knowledge Nodes - Specialized node type for knowledge content
-
 class KnowledgeNode(db.Model):
     """Model for Knowledge Nodes containing actual knowledge content."""
     __tablename__ = 'ukg_knowledge_nodes'
@@ -271,14 +318,13 @@ class KnowledgeNode(db.Model):
     domain_id = Column(Integer, ForeignKey('ukg_domains.id'), nullable=True)
     location_id = Column(Integer, ForeignKey('ukg_locations.id'), nullable=True)
     node_metadata = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
     # Relationships
     pillar_level = relationship("PillarLevel", back_populates="nodes")
 
     def to_dict(self):
-        """Convert knowledge node to dictionary."""
         return {
             'id': self.id,
             'uid': self.uid,
@@ -306,14 +352,13 @@ class MethodNode(db.Model):
     description = Column(Text, nullable=True)
     parent_id = Column(Integer, ForeignKey('ukg_method_nodes.id'), nullable=True)
     attributes = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
     # Self-referential relationship for hierarchy
     children = relationship("MethodNode", backref=backref("parent", remote_side=[id]))
 
     def to_dict(self):
-        """Convert method node to dictionary."""
         return {
             'id': self.id,
             'uid': self.uid,
@@ -326,8 +371,6 @@ class MethodNode(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
-
-# Knowledge Algorithms
 
 class KnowledgeAlgorithm(db.Model):
     """Model for Knowledge Algorithms that can be executed on the knowledge graph."""
@@ -343,14 +386,13 @@ class KnowledgeAlgorithm(db.Model):
     version = Column(String(20), nullable=False)
     input_schema = Column(JSON, nullable=False)
     output_schema = Column(JSON, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
     # Relationships
     executions = relationship("KAExecution", back_populates="algorithm")
 
     def to_dict(self):
-        """Convert knowledge algorithm to dictionary."""
         return {
             'id': self.id,
             'uid': self.uid,
@@ -383,7 +425,6 @@ class KAExecution(db.Model):
     algorithm = relationship("KnowledgeAlgorithm", back_populates="executions")
 
     def to_dict(self):
-        """Convert algorithm execution to dictionary."""
         return {
             'id': self.id,
             'uid': self.uid,
@@ -396,38 +437,4 @@ class KAExecution(db.Model):
             'completed_at': self.completed_at.isoformat() if self.completed_at else None,
             'error_message': self.error_message,
             'execution_time': (self.completed_at - self.started_at).total_seconds() if self.completed_at else None
-        }
-
-# Simulation Sessions
-
-class SimulationSession(db.Model):
-    """Model for Simulation Sessions."""
-    __tablename__ = 'ukg_simulation_sessions'
-
-    id = Column(Integer, primary_key=True)
-    uid = Column(String(255), unique=True, nullable=False)
-    session_id = Column(String(50), unique=True, nullable=False)
-    name = Column(String(255), nullable=True)
-    parameters = Column(JSON, nullable=False)
-    status = Column(String(20), nullable=False)  # e.g., "active", "completed", "stopped", "failed"
-    current_step = Column(Integer, default=0)
-    results = Column(JSON, nullable=True)
-    started_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    last_step_at = Column(DateTime, nullable=True)
-    completed_at = Column(DateTime, nullable=True)
-
-    def to_dict(self):
-        """Convert simulation session to dictionary."""
-        return {
-            'id': self.id,
-            'uid': self.uid,
-            'session_id': self.session_id,
-            'name': self.name,
-            'status': self.status,
-            'current_step': self.current_step,
-            'parameters': self.parameters,
-            'started_at': self.started_at.isoformat() if self.started_at else None,
-            'last_step_at': self.last_step_at.isoformat() if self.last_step_at else None,
-            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
-            'elapsed_time': (datetime.now(UTC) - self.started_at).total_seconds() if self.started_at else None
         }

@@ -6,7 +6,7 @@ Run this script to populate the database with initial reference data.
 import uuid
 from datetime import datetime
 from app import app, db
-from db_models import Node, Edge, PillarLevel, Sector, Domain
+from models import Node, Edge, PillarLevel, Sector, Domain
 
 def generate_uid(prefix):
     """Generate a unique identifier with prefix."""

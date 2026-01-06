@@ -67,6 +67,21 @@ def login():
             flash('You must change your password before continuing.', 'warning')
             return render_template('login.html')
         
+        # MFA Check
+        if user.mfa_enabled:
+            # Store user ID in session temporarily for MFA verification
+            from flask import session
+            session['mfa_user_id'] = user.id
+            session['mfa_remember'] = remember
+            session['mfa_next'] = request.args.get('next')
+            return redirect(url_for('auth.mfa_verify'))
+        
+        # Enforce MFA for Admins
+        if user.is_admin:
+            flash('Two-factor authentication is required for administrator accounts. Please setup MFA to continue.', 'warning')
+            login_user(user) # Login temporarily to setup MFA
+            return redirect(url_for('auth.mfa_setup'))
+        
         user.record_successful_login()
         login_user(user, remember=remember)
         db.session.commit()
@@ -79,6 +94,71 @@ def login():
         if next_page and is_safe_redirect_url(next_page):
             return redirect(next_page)
         return redirect(url_for('pages.dashboard'))
+
+@auth_bp.route('/mfa-verify', methods=['GET', 'POST'])
+def mfa_verify():
+    """Handle MFA verification step."""
+    from flask import session
+    
+    if current_user.is_authenticated:
+        return redirect(url_for('pages.dashboard'))
+        
+    if 'mfa_user_id' not in session:
+        return redirect(url_for('auth.login'))
+        
+    if request.method == 'POST':
+        token = request.form.get('token')
+        user = User.query.get(session['mfa_user_id'])
+        
+        if not user or not user.verify_totp(token):
+            flash('Invalid verification code', 'danger')
+            return render_template('auth/mfa_verify.html')
+            
+        # Success
+        user.record_successful_login()
+        remember = session.get('mfa_remember', False)
+        login_user(user, remember=remember)
+        db.session.commit()
+        
+        # Cleanup session
+        next_page = session.get('mfa_next')
+        session.pop('mfa_user_id', None)
+        session.pop('mfa_remember', None)
+        session.pop('mfa_next', None)
+        
+        if next_page and is_safe_redirect_url(next_page):
+            return redirect(next_page)
+        return redirect(url_for('pages.dashboard'))
+        
+    return render_template('auth/mfa_verify.html')
+
+@auth_bp.route('/mfa-setup', methods=['GET', 'POST'])
+@login_required
+def mfa_setup():
+    """Handle MFA setup."""
+    if current_user.mfa_enabled:
+        flash('MFA is already enabled for your account', 'info')
+        return redirect(url_for('pages.dashboard'))
+        
+    if request.method == 'POST':
+        token = request.form.get('token')
+        if current_user.verify_totp(token):
+            current_user.mfa_enabled = True
+            db.session.commit()
+            flash('Two-factor authentication enabled successfully', 'success')
+            return redirect(url_for('pages.dashboard'))
+        else:
+            flash('Invalid verification code. Please try again.', 'danger')
+    
+    # Generate secret and URI if not exists or needed
+    if not current_user.mfa_secret:
+        import pyotp
+        current_user.mfa_secret = pyotp.random_base32()
+        db.session.commit()
+        
+    return render_template('auth/mfa_setup.html', 
+                          secret=current_user.mfa_secret,
+                          provisioning_uri=current_user.get_totp_uri())
     
     return render_template('login.html')
 

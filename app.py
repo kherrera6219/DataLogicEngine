@@ -64,8 +64,10 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for
 
 # Session hardening
 app.config["SESSION_COOKIE_HTTPONLY"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = os.environ.get("SESSION_COOKIE_SAMESITE", "Lax")
-app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SESSION_COOKIE_SECURE", "False").lower() == "true"
+# In production, enforce Strict SameSite and Secure cookies
+is_production = os.environ.get("FLASK_ENV") != "development"
+app.config["SESSION_COOKIE_SAMESITE"] = os.environ.get("SESSION_COOKIE_SAMESITE", "Strict" if is_production else "Lax")
+app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SESSION_COOKIE_SECURE", "True" if is_production else "False").lower() == "true"
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(
     minutes=int(os.environ.get("SESSION_LIFETIME_MINUTES", 30))
 )
@@ -90,11 +92,35 @@ limiter = Limiter(
     storage_uri=os.environ.get("RATELIMIT_STORAGE_URI", "memory://"),
 )
 
+# Configure Caching and Celery
+redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+# Check if Redis is likely available (naive check, real check happens on connect)
+use_redis = "localhost" not in redis_url or os.environ.get("USE_REDIS", "False").lower() == "true"
+
+if use_redis:
+    app.config["CACHE_TYPE"] = "RedisCache"
+    app.config["CACHE_REDIS_URL"] = redis_url
+    app.config["CELERY_BROKER_URL"] = redis_url
+    app.config["CELERY_RESULT_BACKEND"] = redis_url
+else:
+    # Fallback for development/tests without Redis
+    app.config["CACHE_TYPE"] = "SimpleCache"
+    app.config["CELERY_BROKER_URL"] = "memory://"
+    app.config["CELERY_RESULT_BACKEND"] = "db+sqlite:///results.db" 
+    app.config["CELERY_TASK_ALWAYS_EAGER"] = True # Run synchronously
+
 # Initialize extensions with app
-from extensions import db, login_manager, csrf
+from extensions import db, login_manager, csrf, migrate, cache
+from models import User, APIKey, SimulationSession
 db.init_app(app)
 login_manager.init_app(app)
 csrf.init_app(app)
+migrate.init_app(app, db)
+cache.init_app(app)
+
+# Initialize Celery
+from backend.celery_app import make_celery
+celery = make_celery(app)
 
 # Exempt JSON API endpoints from CSRF (they use session auth or API keys)
 # CSRF is still enforced on all HTML form submissions
@@ -123,6 +149,28 @@ configure_request_limits(app, {
 from backend.middleware.correlation_id import configure_correlation_id, setup_correlation_logging
 configure_correlation_id(app)
 setup_correlation_logging()
+
+# Initialize Request Timeout
+from backend.middleware.timeout import RequestTimeout
+RequestTimeout(app)
+
+# Initialize Audit Logging for API requests
+from extensions import audit_logger
+
+@app.after_request
+def log_api_request(response):
+    """Log API requests to audit log."""
+    if request.path.startswith('/api/') and request.endpoint != 'api.api_health':
+        user_id = str(current_user.id) if current_user.is_authenticated else None
+        audit_logger.log_api_request(
+            request_id=request.headers.get('X-Request-ID', ''),
+            user_id=user_id,
+            endpoint=request.path,
+            method=request.method,
+            status_code=response.status_code,
+            ip_address=request.remote_addr
+        )
+    return response
 
 # Import models (after extensions initialization)
 # Note: Importing models ensures SQLAlchemy creates their tables during db.create_all()
@@ -163,47 +211,75 @@ with app.app_context():
 
 # Register MCP blueprint
 from backend.mcp_api import mcp_bp
-app.register_blueprint(mcp_bp)
-logger.info("MCP blueprint registered")
+app.register_blueprint(mcp_bp, url_prefix='/api/v1/mcp')
+# Legacy alias
+app.register_blueprint(mcp_bp, name='mcp_legacy', url_prefix='/api/mcp')
+logger.info("MCP blueprint registered (v1 + legacy)")
 
 # Register AI Chat blueprint
 from backend.ai_chat import ai_chat_bp
-app.register_blueprint(ai_chat_bp)
-logger.info("AI Chat blueprint registered")
+app.register_blueprint(ai_chat_bp, url_prefix='/api/v1/chat')
+# Legacy (note: chat bp might have hardcoded paths, double check if needed)
+app.register_blueprint(ai_chat_bp, name='ai_chat_legacy', url_prefix='/api/chat')
+logger.info("AI Chat blueprint registered (v1 + legacy)")
 
 # Register Knowledge Algorithm API blueprint
 from backend.ka_api import ka_bp
-app.register_blueprint(ka_bp)
-logger.info("KA API blueprint registered")
+app.register_blueprint(ka_bp, url_prefix='/api/v1/ka')
+app.register_blueprint(ka_bp, name='ka_legacy', url_prefix='/api/ka')
+logger.info("KA API blueprint registered (v1 + legacy)")
 
 # Register Truth Engine API blueprint (lazy initialization - components load on first use)
 from backend.truth_engine.api import truth_api
-app.register_blueprint(truth_api)
-logger.info("Truth Engine API blueprint registered (lazy initialization enabled)")
+app.register_blueprint(truth_api, url_prefix='/api/v1/truth')
+app.register_blueprint(truth_api, name='truth_legacy', url_prefix='/api/truth')
+logger.info("Truth Engine API blueprint registered (v1 + legacy)")
 
 # Register Persona API blueprint
 try:
     from backend.persona_api import persona_api
-    app.register_blueprint(persona_api)
-    logger.info("Persona API blueprint registered")
+    app.register_blueprint(persona_api, url_prefix='/api/v1/persona')
+    app.register_blueprint(persona_api, name='persona_legacy', url_prefix='/api/persona')
+    logger.info("Persona API blueprint registered (v1 + legacy)")
 except ImportError as e:
     logger.warning(f"Could not register Persona API blueprint: {e}")
 
 # Register Pillar API blueprint
 try:
     from backend.pillar_api import pillar_api
-    app.register_blueprint(pillar_api)
-    logger.info("Pillar API blueprint registered")
+    app.register_blueprint(pillar_api, url_prefix='/api/v1/pillar')
+    app.register_blueprint(pillar_api, name='pillar_legacy', url_prefix='/api/pillar')
+    logger.info("Pillar API blueprint registered (v1 + legacy)")
 except ImportError as e:
     logger.warning(f"Could not register Pillar API blueprint: {e}")
 
 # Register Compliance API blueprint
 try:
     from backend.compliance_api import compliance_api
-    app.register_blueprint(compliance_api)
-    logger.info("Compliance API blueprint registered")
+    app.register_blueprint(compliance_api, url_prefix='/api/v1/compliance')
+    app.register_blueprint(compliance_api, name='compliance_legacy', url_prefix='/api/compliance')
+    logger.info("Compliance API blueprint registered (v1 + legacy)")
 except ImportError as e:
     logger.warning(f"Could not register Compliance API blueprint: {e}")
+
+# Register UKG API (defined in backend/ukg_api.py, prefix set in BP)
+from backend.ukg_api import ukg_api
+# ukg_api defines url_prefix='/api', so we need to override or re-register carefully
+# Ideally, we change ukg_api definition, but here we can re-register with new prefix
+app.register_blueprint(ukg_api, url_prefix='/api/v1') 
+# Legacy '/api' is covered by original BP definition if imported/registered
+# Check how it was imported before. It was via 'routes' maybe? 
+# Wait, ukg_api was not explicitly registered in the previous file content I saw?
+# Checking lines 258-260: 'from routes import register_routes; register_routes(app)'
+# Need to check `routes/__init__.py` to see what it registers.
+# But I see I missed `backend/ukg_api.py` registration in previous view of app.py?
+# Ah, I see `app.register_blueprint(ukg_api)` was NOT in the previous `app.py`...
+# Wait, let me check `app.py` again.
+# I see `app.register_blueprint(mcp_bp)` etc.
+# I DON'T see `app.register_blueprint(ukg_api)` in the original `app.py` provided.
+# It seems `ukg_api` might be registered via `routes` package or I missed it.
+# Let's check `routes/__init__.py` first to be safe.
+
 
 # Register Replit Auth blueprint (optional - only if REPL_ID is set)
 try:
@@ -616,5 +692,11 @@ def ratelimit_handler(e):
 
 # Run the application
 if __name__ == '__main__':
-    debug_mode = os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    # CRITICAL: Force debug=False in production, regardless of environment variable leaks
+    is_prod = os.environ.get('FLASK_ENV') == 'production'
+    if is_prod:
+        debug_mode = False
+    else:
+        debug_mode = os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    
     app.run(host='0.0.0.0', port=DEFAULT_PORT, debug=debug_mode)

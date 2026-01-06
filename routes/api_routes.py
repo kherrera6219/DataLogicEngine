@@ -15,11 +15,11 @@ from sqlalchemy import text, select
 
 from extensions import db
 from models import SimulationSession
-from db_models import Node, Edge, PillarLevel, Sector, Domain
+from models import Node, Edge, PillarLevel, Sector, Domain
 
 logger = logging.getLogger(__name__)
 
-api_bp = Blueprint('api', __name__, url_prefix='/api')
+api_bp = Blueprint('api', __name__, url_prefix='/api/v1')
 
 
 @api_bp.route('/health')

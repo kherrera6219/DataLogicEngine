@@ -10,8 +10,7 @@ from datetime import datetime, UTC
 from typing import Optional
 
 from extensions import db
-from db_models import Edge, KAExecution, KnowledgeAlgorithm, Node
-from backend.models import MemoryEntry, UkgSession
+from models import Edge, KAExecution, KnowledgeAlgorithm, Node, MemoryEntry, UkgSession
 
 
 class DatabaseManager:

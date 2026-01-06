@@ -9,7 +9,7 @@ from datetime import datetime, UTC
 from flask import Blueprint, request, jsonify, current_app
 from extensions import db
 from models import SimulationSession
-from db_models import PillarLevel, Sector, Domain, KnowledgeNode
+from models import PillarLevel, Sector, Domain, KnowledgeNode
 
 # Create API Blueprint
 api = Blueprint('api', __name__, url_prefix='/api')
