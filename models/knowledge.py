@@ -17,13 +17,14 @@ class KnowledgeGraphNode(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     node_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
-    node_type = db.Column(db.String(32), nullable=False)
+    node_type = db.Column(db.String(32), nullable=False, index=True)
     label = db.Column(db.String(128), nullable=False)
     description = db.Column(db.Text)
     data = db.Column(db.JSON)
-    axis_number = db.Column(db.Integer)
+    axis_number = db.Column(db.Integer, index=True)
     created_at = db.Column(db.DateTime, default=_utcnow)
     updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
+
     
     def to_dict(self):
         """Convert node to dictionary"""
@@ -46,13 +47,14 @@ class KnowledgeGraphEdge(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     edge_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
-    source_id = db.Column(db.Integer, db.ForeignKey('kg_nodes.id'), nullable=False)
-    target_id = db.Column(db.Integer, db.ForeignKey('kg_nodes.id'), nullable=False)
-    edge_type = db.Column(db.String(32), nullable=False)
+    source_id = db.Column(db.Integer, db.ForeignKey('kg_nodes.id'), nullable=False, index=True)
+    target_id = db.Column(db.Integer, db.ForeignKey('kg_nodes.id'), nullable=False, index=True)
+    edge_type = db.Column(db.String(32), nullable=False, index=True)
     weight = db.Column(db.Float, default=1.0)
     data = db.Column(db.JSON)
     created_at = db.Column(db.DateTime, default=_utcnow)
     updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
+
     
     # Define relationships
     source = db.relationship('KnowledgeGraphNode', foreign_keys=[source_id], backref='outgoing_edges')

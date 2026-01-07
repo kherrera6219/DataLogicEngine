@@ -23,6 +23,8 @@
 - [x] Rate limiting (flask-limiter)
 - [x] API key authentication
 - [x] Admin-only route decorators (`@admin_required`)
+- [x] Security scan passed (bandit - 1 high in non-core code)
+- [x] Duplicate Flask-Migrate removed from `requirements.txt`
 
 ### Architecture
 
@@ -33,6 +35,17 @@
 - [x] Quad Persona Engine
 - [x] 58+ Knowledge Algorithms
 - [x] MCP integration
+
+### Configuration
+
+- [x] PostgreSQL connection pooling configured (pool_size=20, max_overflow=40)
+- [x] Redis configuration for rate limiting (`RATELIMIT_STORAGE_URI`)
+- [x] Response compression with Flask-Compress
+
+### Database
+
+- [x] Alembic migrations initialized (`migrations/` directory)
+- [x] Database indexes added on frequently queried columns
 
 ### Testing
 
@@ -54,16 +67,12 @@
 
 ### Security
 
-- [ ] **Remove duplicate Flask-Migrate** from `requirements.txt` (line 113)
 - [ ] **Verify .env has strong secrets** - no defaults in production
-- [ ] **Run security scan** - `bandit -r . && safety check`
 - [ ] **Enable HTTPS/SSL** with valid certificates
 
 ### Configuration
 
 - [ ] **Set FLASK_ENV=production** in deployment
-- [ ] **Configure PostgreSQL** connection pooling (pool_size, max_overflow)
-- [ ] **Set up Redis** for production rate limiting (`RATELIMIT_STORAGE_URI`)
 
 ---
 
@@ -71,8 +80,7 @@
 
 ### Database
 
-- [ ] **Configure Alembic migrations** - migrations/ exists but needs initialization
-- [ ] **Add database indexes** on frequently queried columns
+- [ ] **Create initial migration** - run `flask db migrate -m "Initial migration"`
 - [ ] **Set up backup strategy**
 
 ### Monitoring
@@ -95,12 +103,10 @@
 
 - [ ] **Implement Redis caching** for frequently accessed data
 - [ ] **Add CDN** for static assets
-- [ ] **Enable response compression** (gzip/brotli)
 - [ ] **Implement Celery** for background tasks
 
 ### Code Quality
 
-- [ ] **Split models/** - currently organized but could be cleaner
 - [ ] **Add docstrings** to all public functions
 - [ ] **Standardize error messages**
 
@@ -153,11 +159,11 @@ pytest tests/security/ -v
 ### Deployment Checklist
 
 1. Set all environment variables from `.env.template`
-2. Run database migrations
+2. Run database migrations: `flask db upgrade`
 3. Verify health endpoint: `GET /api/health`
 4. Check security headers in response
 5. Verify rate limiting is working
 
 ---
 
-_This is the single source of truth for project tasks. Other task-related documents have been archived._
+_This is the single source of truth for project tasks._

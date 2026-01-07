@@ -110,13 +110,14 @@ else:
     app.config["CELERY_TASK_ALWAYS_EAGER"] = True # Run synchronously
 
 # Initialize extensions with app
-from extensions import db, login_manager, csrf, migrate, cache
+from extensions import db, login_manager, csrf, migrate, cache, compress
 from models import User, APIKey, SimulationSession
 db.init_app(app)
 login_manager.init_app(app)
 csrf.init_app(app)
 migrate.init_app(app, db)
 cache.init_app(app)
+compress.init_app(app)
 
 # Initialize Celery
 from backend.celery_app import make_celery

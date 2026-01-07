@@ -15,6 +15,7 @@ flask-limiter==3.10.1
 flask-jwt-extended==4.6.0
 flask-wtf==1.2.2
 flask-swagger-ui==4.11.1
+flask-compress==1.17
 werkzeug==3.1.3
 
 # ============================================================================
