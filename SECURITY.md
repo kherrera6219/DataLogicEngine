@@ -6,8 +6,9 @@ We release patches for security vulnerabilities for the following versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
-| < 0.1   | :x:                |
+| 1.2.x   | :white_check_mark: |
+| 1.1.x   | :white_check_mark: |
+| < 1.1   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -106,6 +107,7 @@ OPENAI_API_KEY=your-api-key
 #### Secure Coding Practices
 
 **Input Validation**
+
 ```python
 # Good - Validate and sanitize input
 from marshmallow import Schema, fields, validate
@@ -116,6 +118,7 @@ class NodeSchema(Schema):
 ```
 
 **SQL Injection Prevention**
+
 ```python
 # Good - Use parameterized queries
 from sqlalchemy import text
@@ -128,6 +131,7 @@ query = f"SELECT * FROM nodes WHERE id = {node_id}"  # VULNERABLE
 ```
 
 **XSS Prevention**
+
 ```javascript
 // Good - React automatically escapes
 <div>{userInput}</div>
@@ -137,6 +141,7 @@ query = f"SELECT * FROM nodes WHERE id = {node_id}"  # VULNERABLE
 ```
 
 **Authentication**
+
 ```python
 # Good - Use decorators for protected routes
 from flask_login import login_required
@@ -175,25 +180,30 @@ npm audit fix
 ### Current Implementation
 
 1. **Authentication**
+
    - JWT token-based authentication
    - Azure AD integration
    - Session management with Flask-Login
 
 2. **Authorization**
+
    - Role-based access control (RBAC)
    - API key authentication for service-to-service
 
 3. **Data Protection**
+
    - Password hashing with industry-standard algorithms
    - Encrypted database connections (PostgreSQL SSL)
    - Environment-based secrets management
 
 4. **Logging & Monitoring**
+
    - Security event logging (`logs/security/`)
    - Audit trail for compliance (`logs/audit/`)
    - Failed login attempt tracking
 
 5. **API Security**
+
    - CORS configuration
    - Rate limiting (implementation in progress)
    - Input validation with Marshmallow schemas
@@ -262,6 +272,7 @@ Security updates are released:
 - **Low**: With next regular release
 
 Subscribe to security advisories:
+
 - Watch this repository on GitHub
 - Enable notifications for security alerts
 

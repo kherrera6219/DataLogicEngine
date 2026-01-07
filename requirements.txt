@@ -41,6 +41,7 @@ pyotp==2.9.0
 qrcode==8.0.0
 user-agents==2.2.0
 pip-audit==2.7.3
+sentry-sdk[flask]==2.19.2
 
 # ============================================================================
 # AI/ML & Knowledge Graph
