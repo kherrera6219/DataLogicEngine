@@ -6,6 +6,7 @@
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
 [![Flask](https://img.shields.io/badge/flask-3.x-green)](https://flask.palletsprojects.com/)
 [![PostgreSQL](https://img.shields.io/badge/postgresql-15+-blue)](https://www.postgresql.org/)
+[![Tests](https://img.shields.io/badge/tests-164-brightgreen)](tests/)
 
 ## Table of Contents
 
@@ -13,100 +14,128 @@
 - [Features](#features)
 - [Quick Start](#quick-start)
 - [Architecture](#architecture)
-- [17-Axis Knowledge Framework](#17-axis-knowledge-framework)
-- [Truth Engine v7.3](#truth-engine-v73)
-- [Installation](#installation)
+- [Project Structure](#project-structure)
 - [Configuration](#configuration)
 - [API Documentation](#api-documentation)
-- [Project Structure](#project-structure)
-- [Development](#development)
-- [Deployment](#deployment)
 - [Testing](#testing)
-- [Contributing](#contributing)
 - [Security](#security)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
 - [License](#license)
+
+---
 
 ## Overview
 
-The Universal Knowledge Graph (UKG) is a sophisticated full-stack enterprise application that implements multi-perspective knowledge synthesis, expert simulation, and AI-powered analysis. It combines advanced knowledge organization across 17 dimensions with a powerful simulation engine and Quad Persona system.
-
-The system provides:
-
-- **17-Axis Knowledge Framework** - Comprehensive multi-dimensional knowledge organization
-- **10-Layer Simulation Engine** - Progressive query processing and deep synthesis
-- **58+ Knowledge Algorithms** - Specialized processing for various knowledge operations
-- **Quad Persona Engine** - Multi-perspective analysis (Analyst, Expert, Critic, Synthesizer)
-- **Truth Engine v7.3** - Adaptive reasoning with TruthCore, TruthGate, TruthMemory, TruthLink
-- **Model Context Protocol (MCP)** - LLM-agnostic middleware for AI integration
-
-## Features
+The Universal Knowledge Graph (UKG) is a sophisticated full-stack enterprise application that implements multi-perspective knowledge synthesis, expert simulation, and AI-powered analysis.
 
 ### Core Capabilities
 
-- **Knowledge Graph Management** - Create, query, and visualize complex knowledge structures
-- **Multi-Layer Simulation** - Progressive query refinement through 10 specialized layers
-- **User Authentication** - Secure session-based login with RBAC (admin/analyst/user/viewer)
-- **Interactive Visualizations** - D3.js-powered graph visualization with zoom, pan, and filtering
-- **RESTful API** - Comprehensive endpoints with Swagger UI documentation
-- **PostgreSQL Database** - Production-ready with Neon-backed cloud database
-- **Expert Persona Simulation** - AI-powered knowledge synthesis with quad persona approach
-- **Compliance Features** - EU AI Act compliant with decision logging and 7-year audit trails
+| Feature                      | Description                                                          |
+| ---------------------------- | -------------------------------------------------------------------- |
+| **17-Axis Framework**        | Multi-dimensional knowledge organization                             |
+| **10-Layer Simulation**      | Progressive query processing and deep synthesis                      |
+| **58+ Knowledge Algorithms** | Specialized processing (KA-001 to KA-058+)                           |
+| **Quad Persona Engine**      | Multi-perspective analysis (Analyst, Expert, Critic, Synthesizer)    |
+| **Truth Engine v7.3**        | Adaptive reasoning with TruthCore, TruthGate, TruthMemory, TruthLink |
+| **MCP Integration**          | Model Context Protocol for LLM-agnostic AI integration               |
+
+---
+
+## Features
+
+### Security ✅
+
+- MFA/TOTP authentication
+- CSRF protection with Flask-WTF
+- Security headers middleware
+- Rate limiting (Redis-backed)
+- Request timeout protection
+- API key authentication
+- Role-based access control (RBAC)
+- Audit logging with correlation IDs
+
+### Infrastructure ✅
+
+- PostgreSQL with connection pooling (pool_size=20, max_overflow=40)
+- Redis configuration for caching and rate limiting
+- Response compression (gzip/brotli)
+- Alembic database migrations
+- CI/CD with GitHub Actions
+
+### UI/UX ✅
+
+- 32 responsive template pages
+- Interactive D3.js knowledge graph visualization
+- Admin dashboard
+- Swagger UI API documentation
 
 ### Available Pages
 
-| Page | Route | Description |
-|------|-------|-------------|
-| Home | `/` | Landing page with system overview |
-| Dashboard | `/dashboard` | User dashboard (authenticated) |
-| Knowledge Browser | `/knowledge` | 17-axis framework browser with pillars, sectors, domains |
-| Graph Visualization | `/graph` | Interactive D3.js knowledge graph |
-| AI Chat | `/chatbot` | AI-powered chat with Quad Persona Engine |
-| Simulations | `/simulations` | Simulation management |
-| Analytics | `/analytics` | System analytics and metrics |
-| Truth Engine | `/truth-engine` | Truth Engine v7.3 monitoring dashboard |
-| Algorithms | `/algorithms` | Knowledge Algorithm browser (KA-001 to KA-058+) |
-| Persona Trace | `/persona-trace` | Quad Persona tracing dashboard |
-| Axis Explorer | `/axis-explorer` | 17-Axis coordinate explorer |
-| MCP Server | `/mcp-server` | MCP Server Manager |
-| API Docs | `/api/docs` | Swagger UI API documentation |
-| Admin | `/admin` | Admin dashboard (admin users only) |
+| Page                | Route           | Description                 |
+| ------------------- | --------------- | --------------------------- |
+| Home                | `/`             | Landing page                |
+| Dashboard           | `/dashboard`    | User dashboard              |
+| Knowledge Browser   | `/knowledge`    | 17-axis framework browser   |
+| Graph Visualization | `/graph`        | Interactive knowledge graph |
+| AI Chat             | `/chatbot`      | AI chat with Quad Persona   |
+| Simulations         | `/simulations`  | Simulation management       |
+| Truth Engine        | `/truth-engine` | Truth Engine dashboard      |
+| Algorithms          | `/algorithms`   | Knowledge Algorithm browser |
+| MCP Server          | `/mcp-server`   | MCP Server Manager          |
+| Admin               | `/admin`        | Admin dashboard             |
+| API Docs            | `/api/docs`     | Swagger UI                  |
+
+---
 
 ## Quick Start
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ukg-system.git
-cd ukg-system
+git clone https://github.com/kherrera6219/DataLogicEngine.git
+cd DataLogicEngine
 
-# Install Python dependencies
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# .venv\Scripts\activate   # Windows
+
+# Install dependencies
 pip install -r requirements.txt
 
-# Set environment variables
-export DATABASE_URL="postgresql://..."
-export SESSION_SECRET="your-secret-key"
+# Set up environment variables (copy template)
+cp .env.template .env
+# Edit .env with your settings
 
-# Seed the database
-python seed_data.py
+# Initialize database
+flask db upgrade
+python backend/seed_data.py
 
 # Run the application
-gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app
+python main.py
+# Or with gunicorn:
+gunicorn --bind 0.0.0.0:5000 main:app
 ```
+
+---
 
 ## Architecture
 
 ### Technology Stack
 
-| Layer | Technology |
-|-------|------------|
-| Backend | Flask 3.x, Python 3.11 |
-| Database | PostgreSQL (Neon-backed) |
-| ORM | SQLAlchemy |
-| Frontend | Jinja2 Templates, Bootstrap 5 |
-| Visualization | D3.js |
-| AI Integration | OpenAI (via Replit AI Integrations) |
-| API Docs | Swagger UI (OpenAPI 3.0) |
+| Layer      | Technology                    |
+| ---------- | ----------------------------- |
+| Backend    | Flask 3.x, Python 3.11        |
+| Database   | PostgreSQL 15+                |
+| ORM        | SQLAlchemy 2.x                |
+| Migrations | Alembic / Flask-Migrate       |
+| Caching    | Redis / Flask-Caching         |
+| Task Queue | Celery                        |
+| Frontend   | Jinja2, Bootstrap 5, D3.js    |
+| API Docs   | Swagger UI (OpenAPI 3.0)      |
+| Security   | Flask-Login, Flask-WTF, pyotp |
 
-### System Components
+### System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -118,218 +147,177 @@ gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app
 │                 10-Layer Simulation Stack                   │
 ├─────────────────────────────────────────────────────────────┤
 │              Quad Persona Engine (Axes 8-11)               │
-│        Analyst | Expert | Critic | Synthesizer             │
 ├─────────────────────────────────────────────────────────────┤
 │              17-Axis Knowledge Framework                    │
-│    Pillars | Sectors | Domains | Branches | Nodes | ...    │
 ├─────────────────────────────────────────────────────────────┤
-│                   PostgreSQL Database                       │
+│           PostgreSQL + Redis + Celery                       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 17-Axis Knowledge Framework
-
-The system organizes knowledge across 17 dimensions:
-
-### Hierarchical Core (Axes 1-5)
-| Axis | Name | Description |
-|------|------|-------------|
-| 1 | Pillar Levels | Hierarchical knowledge pillars (PL-1 to PL-107) |
-| 2 | Sectors | Worldwide industry sectors with NAICS mappings |
-| 3 | Honeycomb Domains | Hexagonal knowledge expansion |
-| 4 | Branches | Hierarchical knowledge trees |
-| 5 | Nodes | Atomic knowledge units |
-
-### Crosswalk Systems (Axes 6-7)
-| Axis | Name | Description |
-|------|------|-------------|
-| 6 | Octopus Crosswalk | One-to-many relationships |
-| 7 | Spiderweb Crosswalk | Many-to-many relationships |
-
-### Expert Personas (Axes 8-11)
-| Axis | Name | Description |
-|------|------|-------------|
-| 8 | Knowledge Expert | Subject matter expertise |
-| 9 | Qualification Expert | Certification and credentials |
-| 10 | Regulatory Expert | Regulatory frameworks |
-| 11 | Compliance Expert | Compliance requirements |
-
-### Context Dimensions (Axes 12-13)
-| Axis | Name | Description |
-|------|------|-------------|
-| 12 | Location Context | Geographic and jurisdictional |
-| 13 | Temporal Context | Time-based context |
-
-### Extended Enterprise (Axes 14-17)
-| Axis | Name | Description |
-|------|------|-------------|
-| 14 | Risk & Confidence | Risk assessment and confidence levels |
-| 15 | Federated Intelligence | Distributed knowledge sources |
-| 16 | Arrows of Time | Temporal flow and causality |
-| 17 | Observability & Analytics | Metrics and monitoring |
-
-## Truth Engine v7.3
-
-The core orchestration layer comprising four components:
-
-### TruthCore
-- Adaptive reasoning engine with 5-tier workflows (Trivial to Autonomous)
-- LLM Router for task-based model selection
-- 12-step refinement process for deep synthesis
-- Bias and safety scans
-
-### TruthGate
-- Security gateway enforcing zero-trust principles
-- Budget controls and priority queues
-- EU AI Act compliance (Article 53, Article 13)
-
-### TruthMemory
-- SHA-256 hash chain for immutable audit trails
-- 7-year retention for artifacts (EU AI Act compliant)
-- LRU caching and MLflow-style metrics
-
-### TruthLink
-- Event bus for inter-module messaging
-- Publish/subscribe patterns with priority routing
-- SSE transport for real-time events
-
-## API Documentation
-
-Interactive API documentation is available at `/api/docs` via Swagger UI.
-
-### Key Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/health` | GET | Health check |
-| `/api/graph` | GET | Get graph data (nodes, edges, pillars, sectors, domains) |
-| `/api/nodes` | GET/POST | List or create nodes |
-| `/api/simulations` | GET/POST | Simulation management |
-| `/api/chat/message` | POST | AI chat with Quad Persona |
-| `/api/mcp/capabilities` | GET | MCP capabilities |
+---
 
 ## Project Structure
 
 ```
-├── app.py                 # Flask application setup
-├── main.py                # Application entry point
-├── routes.py              # Route definitions
-├── models.py              # SQLAlchemy models (User, Session)
-├── db_models.py           # Knowledge graph models (17-axis)
-├── extensions.py          # Flask extensions
-├── seed_data.py           # Database seeding script
-├── backend/
-│   ├── ai_chat.py         # AI chat implementation
-│   ├── ka_api.py          # Knowledge Algorithm API
-│   ├── mcp/               # Model Context Protocol
-│   ├── truth_engine/      # Truth Engine v7.3
-│   └── security/          # Security middleware
-├── templates/             # Jinja2 templates
-├── static/                # Static assets (CSS, JS, images)
-├── quad_persona/          # Quad Persona Engine
-├── simulation/            # 10-Layer Simulation Stack
-├── knowledge_algorithms/  # 58+ Knowledge Algorithms
-├── docs/                  # Documentation
-└── tests/                 # Test suite
+DataLogicEngine/
+├── app.py                    # Flask application
+├── main.py                   # Entry point
+├── config.py                 # Configuration classes
+├── extensions.py             # Flask extensions
+├── wsgi.py                   # WSGI entry point
+│
+├── backend/                  # Backend modules (35 files)
+│   ├── auth.py              # Authentication logic
+│   ├── security/            # Security middleware (17 files)
+│   ├── middleware/          # Request middleware
+│   ├── truth_engine/        # Truth Engine v7.3 (21 files)
+│   └── *.py                 # API modules
+│
+├── routes/                   # Flask blueprints
+│   ├── auth_routes.py
+│   ├── page_routes.py
+│   ├── api_routes.py
+│   └── admin_routes.py
+│
+├── models/                   # SQLAlchemy models (7 files)
+├── simulation/               # 10-Layer simulation (19 files)
+├── core/                     # Core business logic (73 files)
+├── knowledge_algorithms/     # 58+ KA modules (51 files)
+├── quad_persona/            # Quad Persona Engine
+│
+├── templates/               # Jinja2 templates (32 files)
+├── static/                  # Static assets
+├── config/                  # Configuration files
+├── demos/                   # Demo scripts
+├── scripts/                 # Utility scripts
+├── tests/                   # Test suite (164 tests)
+├── docs/                    # Documentation
+└── migrations/              # Alembic migrations
 ```
+
+---
 
 ## Configuration
 
 ### Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `SESSION_SECRET` | Flask session secret key | Yes |
-| `OPENAI_API_KEY` | OpenAI API key (via Replit AI) | For AI features |
-| `FLASK_ENV` | Environment (development/production) | No |
+Copy `.env.template` to `.env` and configure:
 
-## Development
+| Variable         | Description                     | Required        |
+| ---------------- | ------------------------------- | --------------- |
+| `DATABASE_URL`   | PostgreSQL connection string    | Yes             |
+| `SESSION_SECRET` | Flask session secret (64 chars) | Yes             |
+| `SECRET_KEY`     | Application secret key          | Yes             |
+| `REDIS_URL`      | Redis connection (for caching)  | Recommended     |
+| `OPENAI_API_KEY` | OpenAI API key                  | For AI features |
+| `FLASK_ENV`      | `development` or `production`   | Yes             |
 
-```bash
-# Install development dependencies
-pip install -r requirements.txt
+See [.env.template](.env.template) for full list.
 
-# Run with auto-reload
-gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app
+---
 
-# Run tests
-pytest tests/
-```
+## API Documentation
 
-## Deployment
+Interactive API documentation available at `/api/docs` (Swagger UI).
 
-The application is configured for deployment on Replit with:
-- Gunicorn WSGI server
-- PostgreSQL (Neon-backed)
-- Automatic HTTPS via Replit proxy
+### Key Endpoints
 
-### Production Configuration
+| Endpoint          | Method   | Description          |
+| ----------------- | -------- | -------------------- |
+| `/api/health`     | GET      | Health check         |
+| `/api/v1/graph`   | GET      | Knowledge graph data |
+| `/api/v1/ka/*`    | GET/POST | Knowledge Algorithms |
+| `/api/v1/truth/*` | GET/POST | Truth Engine         |
+| `/api/v1/mcp/*`   | GET/POST | MCP Protocol         |
+| `/api/v1/chat/*`  | POST     | AI Chat              |
 
-```bash
-gunicorn --bind 0.0.0.0:5000 --reuse-port main:app
-```
+---
 
 ## Testing
 
 ```bash
 # Run all tests
-pytest
+pytest tests/ -v
 
 # Run with coverage
 pytest --cov=. --cov-report=html
 
-# Run specific test file
-pytest tests/test_api.py
+# Run specific category
+pytest tests/security/ -v
+pytest tests/integration/ -v
 ```
+
+**Current:** 164 tests
+
+---
 
 ## Security
 
-- Session-based authentication with CSRF protection
-- Security headers middleware
-- Rate limiting
-- Request size limits
-- Input validation
-- Adversarial input detection
-- Role-based access control (RBAC)
+- ✅ MFA/TOTP authentication
+- ✅ CSRF protection
+- ✅ Security headers
+- ✅ Rate limiting
+- ✅ Request timeouts
+- ✅ Audit logging
+- ✅ Password policy (12+ chars, complexity)
+- ✅ Account lockout
 
-See [SECURITY.md](SECURITY.md) for security policies and reporting vulnerabilities.
+See [SECURITY.md](SECURITY.md) for security policies and vulnerability reporting.
+
+---
+
+## Roadmap
+
+See [ENTERPRISE_ROADMAP.md](ENTERPRISE_ROADMAP.md) for the full enterprise implementation plan.
+
+### Current Status
+
+- **Phase 1-2:** ✅ Complete (Infrastructure, Security)
+- **Phase 3:** 🔄 In Progress (Documentation)
+- **Phase 4-5:** 📅 Planned (Features, Performance)
+
+### Known Gaps
+
+See [GAP_ANALYSIS.md](GAP_ANALYSIS.md) for identified gaps and priorities.
+
+---
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
-## License
+---
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Documentation
 
-## Recent Updates
-
-### Phase 5 (December 2024)
-- Connected frontend to real database data
-- `/api/graph` returns nodes, edges, pillars, sectors, domains
-- Updated Knowledge Browser with tabbed interface for 17-axis framework
-
-### Phase 4 (December 2024)
-- Seeded database with 86 records (17 pillars, 15 sectors, 13 domains, 25 nodes, 16 edges)
-- Added Swagger UI API documentation at `/api/docs`
-
-### Previous Phases
-- Phase 3: Testing infrastructure and admin features
-- Phase 2: Core implementation and simulation engine
-- Phase 1: Security hardening
-- Phase 0: Emergency security fixes
-
-## Support
-
-For support, please open an issue on the GitHub repository or contact the development team.
+| Document                                       | Description             |
+| ---------------------------------------------- | ----------------------- |
+| [SECURITY.md](SECURITY.md)                     | Security policies       |
+| [CONTRIBUTING.md](CONTRIBUTING.md)             | Contribution guidelines |
+| [CHANGELOG.md](CHANGELOG.md)                   | Version history         |
+| [TODO.md](TODO.md)                             | Current task list       |
+| [GAP_ANALYSIS.md](GAP_ANALYSIS.md)             | Gap analysis            |
+| [ENTERPRISE_ROADMAP.md](ENTERPRISE_ROADMAP.md) | Enterprise roadmap      |
 
 ---
 
-Built with Flask, PostgreSQL, and D3.js on Replit.
+## License
+
+This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
+
+---
+
+## Support
+
+- **Issues:** [GitHub Issues](https://github.com/kherrera6219/DataLogicEngine/issues)
+- **Documentation:** [docs/](docs/)
+
+---
+
+_Built with Flask, PostgreSQL, Redis, and D3.js_
