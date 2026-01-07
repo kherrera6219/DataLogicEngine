@@ -55,3 +55,17 @@ data/security/*.salt
 data/security/keys/
 *.pem
 *.key
+
+# Coverage and testing
+coverage.json
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build caches
+.next/
+.venv/
+
+# Replit
+.replit
+replit.nix

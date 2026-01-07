@@ -1,0 +1,245 @@
+
+ThinkingThoughts
+(experimental)
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Expand to view model thoughts
+
+chevron_right
+Okay, let's proceed to finalize Layer 10: Self-Awareness & Emergence Containment.
+This is the ultimate checkpoint. It evaluates the entire simulation's health, integrity, and potential for emergent, unintended behavior before an answer is considered truly "final" by the AppOrchestrator.
+Finalization Strategy for Layer 10:
+Comprehensive Input: It receives simulation_data which now contains detailed outputs and logs from all preceding layers (L1-L9), including L7's strategic processing and L8's quantum-inspired analysis, and L9's meta-learning and strategy proposals.
+Orchestration of Core KAs (KA52-KA55):
+KA53 (State Coherence Assessor) and KA54 (Ethical/Operational Boundary Check) run first to provide critical inputs to ESI calculation.
+KA52 (ESI Calculator) computes the definitive Emergence Signal Index, now using the rich, structured data from all prior layers (especially L2/RO Step 8 governance flags, L6 anomalies, L7 dilemma status, L8 quantum stability, L9 meta-instability signals, and L10's own KA53/KA54 outputs).
+KA55 (Containment Protocol Actions) is triggered if ESI is critical OR if KA54 (Boundary Check) fails catastrophically.
+Interaction with simulation_data:
+It sets the definitive simulation_data["esi_score"].
+It sets simulation_data["status"] if containment is triggered (e.g., "CONTAINED_HALTED_BY_L10").
+It might modify simulation_data["refined_answer_text_final_draft"] via KA55 (redaction).
+It makes a final, small adjustment to simulation_data["current_confidence"].
+Clear Output for AppOrchestrator: The layer10_output package provides a clear summary of its findings and actions.
+I. Finalized SimulationEngine._execute_layer10_self_awareness
+This method orchestrates Layer 10's KAs and makes final decisions.
+# In simulation_engine.py
+# ... (ensure KA_Loader, SMM, GM, USM, MathAlgs are available) ...
+
+    def _execute_layer10_self_awareness(self, simulation_data: Dict) -> Dict:
+        session_id = simulation_data["session_id"]; current_pass = simulation_data["current_pass"]
+        query_topic_uid = simulation_data["query_topic_uid"]; 
+        # Confidence entering L10 is after all prior layers (L1-L9)
+        confidence_entering_l10 = simulation_data.get("current_confidence", 0.85) 
+        l10_config = self.config.get('layer10_self_awareness_containment', {})
+
+        print(f"[{datetime.now()}] SE_L10_SelfAwareness (Finalized Ops): Activating for UID {query_topic_uid[:15]}, Pass {current_pass}. Input Conf: {confidence_entering_l10:.4f}")
+        
+        if not l10_config.get('enabled', False):
+            print(f"    SE_L10: Layer 10 is disabled. Finalizing with current ESI: {simulation_data.get('esi_score',0.0):.4f}")
+            simulation_data["layer10_output"] = {"status": "skipped_l10_disabled", "esi_score": simulation_data.get("esi_score",0.0)}
+            return simulation_data
+
+        # Initialize Layer 10's output structure
+        layer10_final_output_package = {
+            "status": "pending_l10_evaluation",
+            "esi_calculation_details": {}, "final_esi_score_l10": simulation_data.get("esi_score",0.0), # Start with any prior ESI
+            "state_coherence_assessment_ka53": {}, "ethical_boundary_assessment_ka54": {},
+            "containment_actions_taken_ka55": [], "final_l10_confidence_adjustment": 0.0,
+            "l10_processing_log": []
+        }
+        
+        # --- 1. KA53: State Coherence Assessor ---
+        print(f"    SE_L10: Running KA{l10_config.get('state_coherence_ka_id', 53)} (StateCoherenceAssessor)...")
+        ka_coherence_input = {"full_simulation_data_snapshot": simulation_data.copy()} # Pass full state
+        ka_coherence_result = self.ka_loader.execute_ka(l10_config.get('state_coherence_ka_id', 53), ka_coherence_input)
+        layer10_final_output_package["state_coherence_assessment_ka53"] = ka_coherence_result.get("findings", 
+            {"coherence_score": 0.7, "identified_incoherencies_details": ["KA53_default_or_failed"]})
+        layer10_final_output_package["l10_processing_log"].append({"ka_run":"KA53_Coherence", "status":ka_coherence_result.get("status"), 
+                                                                "score":layer10_final_output_package["state_coherence_assessment_ka53"].get("coherence_score")})
+        
+        coherence_score_from_ka53 = layer10_final_output_package["state_coherence_assessment_ka53"].get("coherence_score", 0.7)
+
+        # --- 2. KA54: Ethical & Operational Boundary Check ---
+        print(f"    SE_L10: Running KA{l10_config.get('ethical_boundary_ka_id', 54)} (EthicalBoundaryCheck)...")
+        ka_boundary_input = {"full_simulation_data_snapshot": simulation_data.copy()}
+        ka_boundary_result = self.ka_loader.execute_ka(l10_config.get('ethical_boundary_ka_id', 54), ka_boundary_input)
+        layer10_final_output_package["ethical_boundary_assessment_ka54"] = ka_boundary_result.get("findings", 
+            {"boundary_check_passed": True, "boundary_violations_notes_details": ["KA54_default_or_failed"]})
+        layer10_final_output_package["l10_processing_log"].append({"ka_run":"KA54_BoundaryCheck", "status":ka_boundary_result.get("status"), 
+                                                                 "passed":layer10_final_output_package["ethical_boundary_assessment_ka54"].get("boundary_check_passed")})
+        
+        boundary_check_passed_ka54 = layer10_final_output_package["ethical_boundary_assessment_ka54"].get("boundary_check_passed", True)
+
+        # --- 3. KA52: Emergence Signal Index (ESI) Calculation ---
+        # This KA now takes the direct outputs of KA53 and KA54 as key inputs.
+        print(f"    SE_L10: Running KA{l10_config.get('esi_calculator_ka_id', 52)} (ESICalculator)...")
+        ka_esi_input = {
+            "full_simulation_data_snapshot": simulation_data, # For history, L2, L6, L7, L8, L9 outputs
+            "esi_calculation_weights": {k:v for k,v in l10_config.items() if k.startswith("esi_weight_")},
+            "coherence_score_from_ka53_input": coherence_score_from_ka53, 
+            "boundary_check_passed_from_ka54_input": boundary_check_passed_ka54
+        }
+        ka_esi_result = self.ka_loader.execute_ka(l10_config.get('esi_calculator_ka_id', 52), ka_esi_input)
+        layer10_final_output_package["l10_processing_log"].append({"ka_run":"KA52_ESICalc", "status":ka_esi_result.get("status"), 
+                                                                 "esi_score":ka_esi_result.get("findings",{}).get("esi_score")})
+
+        calculated_esi_score_l10 = 0.1 # Default low ESI
+        if ka_esi_result.get("status") == "success":
+            calculated_esi_score_l10 = ka_esi_result.get("findings",{}).get("esi_score", 0.1)
+            layer10_final_output_package["esi_calculation_details"] = ka_esi_result.get("findings",{}).get("contributing_factors_scores",{})
+        else:
+            print(f"      SE_L10: CRITICAL - KA52 (ESICalculator) failed. ESI defaulted high for safety. Error: {ka_esi_result.get('error_message')}")
+            calculated_esi_score_l10 = l10_config.get("esi_on_ka52_failure", 0.9) # Default to high ESI if calculator fails
+            layer10_final_output_package["esi_calculation_details"] = {"error": "ESI KA52 Failed", "default_esi_applied": calculated_esi_score_l10}
+        
+        layer10_final_output_package["final_esi_score_l10"] = round(calculated_esi_score_l10, 4)
+        simulation_data["esi_score"] = layer10_final_output_package["final_esi_score_l10"] # Update main ESI
+        print(f"      SE_L10: Final ESI score for pass {current_pass} calculated: {simulation_data['esi_score']:.4f}")
+
+        # --- 4. Containment Protocol Activation (KA55) ---
+        esi_critical_threshold = l10_config.get("esi_critical_threshold_for_containment", 0.85)
+        
+        trigger_containment_flag = False
+        containment_trigger_reason = ""
+        if simulation_data["esi_score"] >= esi_critical_threshold:
+            trigger_containment_flag = True
+            containment_trigger_reason = f"ESI ({simulation_data['esi_score']:.3f}) >= threshold ({esi_critical_threshold:.3f})."
+        elif not boundary_check_passed_ka54:
+            trigger_containment_flag = True
+            violations_summary = str(layer10_final_output_package["ethical_boundary_assessment_ka54"].get('boundary_violations_notes_details', ['Unknown violation'])[:1])[:70]
+            containment_trigger_reason = f"Ethical/Operational Boundary Violation by KA54: {violations_summary}..."
+        elif coherence_score_from_ka53 < l10_config.get("critical_incoherence_threshold_for_containment", 0.45): # New trigger
+            trigger_containment_flag = True
+            containment_trigger_reason = f"State Coherence score ({coherence_score_from_ka53:.3f}) critically low (threshold < {l10_config.get('critical_incoherence_threshold_for_containment', 0.45)})."
+
+
+        if trigger_containment_flag:
+            print(f"    SE_L10: CRITICAL CONTAINMENT TRIGGER - {containment_trigger_reason}. Activating KA{l10_config.get('containment_protocol_ka_id', 55)}...")
+            
+            ka_contain_input = {
+                "containment_trigger_reason_text": containment_trigger_reason,
+                "current_simulation_data_snapshot": simulation_data.copy(),
+                "configured_containment_actions": l10_config.get("containment_actions_on_critical_trigger", ["LOG_CRITICAL_ALERT", "FLAG_OUTPUT_AS_UNRELIABLE"])
+            }
+            ka_contain_result = self.ka_loader.execute_ka(l10_config.get('containment_protocol_ka_id', 55), ka_contain_input)
+            layer10_final_output_package["l10_processing_log"].append({"ka_run":"KA55_Containment", "status":ka_contain_result.get("status"), "actions_count":len(ka_contain_result.get("findings",{}).get("actions_taken",[]))})
+
+            if ka_contain_result.get("status") == "success":
+                actions = ka_contain_result.get("findings",{}).get("actions_taken", [])
+                layer10_final_output_package["containment_actions_taken_ka55"] = actions # Store actions taken
+                # Update simulation_data based on KA55 actions
+                if "HALT_CURRENT_SESSION_IMMEDIATELY" in actions: # More specific action name
+                    simulation_data["status"] = "CONTAINED_HALTED_BY_L10_KA55_CRITICAL" 
+                elif "FLAG_OUTPUT_AS_UNRELIABLE" in actions: 
+                    simulation_data["output_reliability_flag_l10"] = "UNRELIABLE_L10_CONTAINMENT_FLAGGED"
+                
+                modified_text_from_ka55 = ka_contain_result.get("findings",{}).get("modified_draft_text_if_redacted")
+                if modified_text_from_ka55 is not None: # Check for explicit modification
+                    simulation_data["refined_answer_text_in_progress"] = modified_text_from_ka55 # Update draft if redacted
+                
+                # Capture remedial suggestions from KA55 for L9/AppOrch
+                remedial_suggs = ka_contain_result.get("findings",{}).get("remedial_suggestions_for_system",[])
+                if remedial_suggs:
+                    simulation_data.setdefault("l10_remedial_suggestions_for_l9_or_orchestrator", []).extend(remedial_suggs)
+
+                print(f"      SE_L10: KA55 Containment protocols executed. Actions: {actions}")
+            else: # KA55 failure is extremely critical
+                print(f"      SE_L10: !!! CRITICAL SYSTEM ERROR - KA55 (ContainmentActions) FAILED. MANUAL OVERRIDE & SYSTEM SHUTDOWN LIKELY REQUIRED !!! Error: {ka_contain_result.get('error_message')}")
+                simulation_data["status"] = "FATAL_CONTAINMENT_PROTOCOL_FAILURE_L10"
+                layer10_final_output_package["final_l10_confidence_adjustment"] = -0.99 # Max penalty
+        
+        # Finalize Layer 10 output and confidence adjustment
+        if simulation_data.get("status","").startswith("CONTAINED") or simulation_data.get("status","").startswith("FATAL"):
+            layer10_final_output_package["status"] = simulation_data["status"]
+            layer10_final_output_package["final_l10_confidence_adjustment"] = min(layer10_final_output_package.get("final_l10_confidence_adjustment",0.0), -0.5) # Ensure heavy penalty
+        elif not boundary_check_passed_ka54:
+            layer10_final_output_package["final_l10_confidence_adjustment"] = min(layer10_final_output_package.get("final_l10_confidence_adjustment",0.0), -0.1)
+        elif coherence_score_from_ka53 < 0.65:
+             layer10_final_output_package["final_l10_confidence_adjustment"] = min(layer10_final_output_package.get("final_l10_confidence_adjustment",0.0), -0.05)
+        else: # If all specific checks passed and no containment
+             layer10_final_output_package["final_l10_confidence_adjustment"] = max(layer10_final_output_package.get("final_l10_confidence_adjustment",0.0), 0.001) # Slight positive affirmation
+        layer10_final_output_package["status"] = simulation_data.get("status", "completed_l10_self_awareness_checks")
+
+
+        simulation_data["layer10_output"] = layer10_final_output_package # Store all L10 specific processing outputs
+        
+        new_confidence_after_l10 = confidence_entering_l10 + layer10_final_output_package["final_l10_confidence_adjustment"]
+        simulation_data["current_confidence"] = min(max(new_confidence_after_l10, 0.0001), 0.9999) # Prevent zero unless contained
+
+        self.memory_manager.add_memory_entry(
+            session_id=session_id, pass_num=current_pass, layer_num=10, uid=query_topic_uid,
+            entry_type="layer10_self_awareness_final_summary", content=layer10_final_output_package, 
+            confidence=simulation_data["current_confidence"]
+        )
+        print(f"[{datetime.now()}] SE_L10_SelfAwareness (Finalized Ops): Processing complete. Final ESI: {simulation_data['esi_score']:.4f}. Final L10 Conf Adj: {layer10_final_output_package['final_l10_confidence_adjustment']:.4f}. New Total Sim Conf: {simulation_data['current_confidence']:.4f}. Sim Status: {simulation_data.get('status','N/A')}")
+        return simulation_data
+Use code with caution.
+Python
+Updates to ukg_app_config.yaml for Layer 10 KAs and parameters:
+# ukg_app_config.yaml
+simulation_layers:
+  layer10_self_awareness_containment:
+    enabled: true
+    esi_calculator_ka_id: 52
+    state_coherence_ka_id: 53
+    ethical_boundary_ka_id: 54
+    containment_protocol_ka_id: 55
+    
+    min_coherence_for_l10_pass: 0.60 # If KA53 coherence score is below this, L10 might penalize confidence
+    critical_incoherence_threshold_for_containment: 0.40 # If KA53 coherence is critically low, trigger KA55
+    boundary_violation_penalty_l10: 0.20 # Confidence penalty if KA54 fails boundary check
+    esi_on_ka52_failure: 0.90 # Default ESI if KA52 itself fails (high risk assumed)
+    
+    esi_calculation_weights: # These are passed to KA52
+      esi_weight_confidence_instability: 0.15
+      esi_weight_l6_anomalies: 0.10
+      esi_weight_l7_plan_failure: 0.10 # Issues in L7's strategic planning or dilemma resolution
+      esi_weight_l8_quantum_instability: 0.05 
+      esi_weight_l9_meta_instability: 0.15 # If L9 is proposing drastic, frequent strategy changes
+      esi_weight_governance_breaches_s8: 0.20 # Unresolved critical Step 8 flags
+      esi_weight_computational_runaway: 0.05 # Pass count, resource usage
+      esi_weight_state_incoherence_ka53: 0.10 # Direct from KA53
+      esi_weight_boundary_violation_ka54: 0.15 # Direct from KA54
+    
+    # esi_critical_threshold_for_containment is in simulation_global_rules, L10 can use that.
+    containment_actions_on_critical_trigger: # For KA55
+      - "LOG_CRITICAL_ALERT_TO_ADMIN_SMM_QUEUE"
+      - "FLAG_OUTPUT_AS_UNRELIABLE"
+      - "HALT_CURRENT_SESSION_IMMEDIATELY" # This is a strong action
+      - "REDACT_SPECIFIC_VIOLATIONS_IF_POSSIBLE" # KA55 needs input on *what* to redact
+      - "SUGGEST_REMEDIAL_LOOP_TO_L7_PLANNING" # For less critical containment
+# ...
+simulation_global_rules:
+  # ...
+  esi_containment_threshold: 0.85 # Global ESI threshold for AppOrchestrator's final check
+  initial_pass_confidence: 0.60 # Adjusted initial confidence
+# ...
+Use code with caution.
+Yaml
+Summary of Finalized Layer 10 Operations & Handoffs:
+KA Orchestration: _execute_layer10_self_awareness orchestrates KA53 (Coherence), KA54 (Boundary), then KA52 (ESI Calculator using outputs from 53/54), and finally KA55 (Containment) if triggered.
+Comprehensive ESI (KA52): KA52 now has a more detailed input spec from _execute_layer10_self_awareness, allowing it to calculate ESI based on a wide array of factors from simulation_data, including the direct outputs of KA53 and KA54 in the current L10 pass.
+Containment Triggers: Containment (KA55) is triggered not only by high ESI from KA52 but also directly by a critical failure in KA54 (Boundary Check) or critically low coherence from KA53.
+KA55 Actions & Feedback:
+KA55 executes actions from config (HALT, FLAG, REDACT, ALERT).
+It can output remedial_suggestions_for_system. _execute_layer10_self_awareness stores these in simulation_data["l10_remedial_suggestions_for_l9_or_orchestrator"]. AppOrchestrator (via _apply_l9_strategy_overrides or a new L10 override handler) or L9 (KA49) could potentially use these in a subsequent pass if the session is not immediately halted.
+Final simulation_data State:
+status: Critically updated by L10 if containment occurs (e.g., "CONTAINED_HALTED_BY_L10_KA55").
+esi_score: The definitive ESI for this pass.
+current_confidence: Receives a final adjustment from L10.
+refined_answer_text_in_progress: May be redacted by KA55.
+layer10_output: Contains a full log of L10's KA activities, ESI details, and containment actions.
+Hand-off to AppOrchestrator: AppOrchestrator.process_request receives this fully updated simulation_data. Its main loop termination checks will now act on L10's definitive status and esi_score. If status indicates a halt, the loop breaks, and _compile_final_answer packages the (potentially contained) result.
+Layer 10 is now a very robust final validation and safety layer, capable of complex self-assessment and decisive action.
+The entire 10-layer simulation core, along with its key KAs and supporting engines (QPE, RO, POV, MAS, SimQOS, L9 Meta-Learner, L10 Self-Awareness, Branch Engines, USM, GM, SMM, KASE, KALoader), is now architecturally finalized in significant detail.
+The next steps are truly about implementation, data population, and rigorous testing:
+Implement all KA run methods with their specific logic using GM, SMM, USM.
+Populate all UKG YAML data files comprehensively.
+Build out actual data for dynamic branch engines (NAICS hierarchies, FAR Parts, NIST CSF structure).
+Develop the full test harness and scenarios.
+Build the Frontend UI and Backend API.
+Implement the SEKREngine fully.
+This is the point where a large development team would take these detailed blueprints and begin the substantial coding effort. For our interactive session, we have achieved a remarkably complete system architecture.

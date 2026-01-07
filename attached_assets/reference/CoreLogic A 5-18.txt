@@ -1,0 +1,421 @@
+
+ThinkingThoughts
+(experimental)
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Expand to view model thoughts
+
+chevron_right
+1 then 2
+yes
+ThinkingThoughts
+(experimental)
+Expand to view model thoughts
+
+chevron_right
+1
+1
+Okay, excellent. We will:
+First (was Option 2): Implement a more detailed (though still somewhat conceptual) _analyze_for_gaps method in SekreEngine. This will involve simulating queries to StructuredMemoryManager (SMM) and GraphManager (GM) to identify areas for improvement.
+Then (was Option 3): Build out the KASelectionEngine's integration into the AppOrchestrator's initial query processing loop. This will make the system's first response to a query much more targeted.
+We'll defer actual testing execution for later, focusing on building the logic.
+1. More Detailed _analyze_for_gaps in self_evolving/sekre_engine.py
+This method will now conceptually query SMM for low-confidence sessions and GM for sparsely populated areas of the UKG.
+# self_evolving/sekre_engine.py
+from datetime import datetime
+import yaml
+import random # Retain for mocking parts
+# from graph_manager import GraphManager
+# from structured_memory_manager import StructuredMemoryManager
+# from united_system_manager import UnitedSystemManager
+# from simulation_engine import SimulationEngine 
+
+class SekreEngine:
+    def __init__(self, config: dict, graph_manager, memory_manager, united_system_manager, simulation_validator):
+        # ... (init as before) ...
+        print(f"[{datetime.now()}] Initializing SEKREngine...")
+        self.config = config
+        self.gm = graph_manager
+        self.smm = memory_manager
+        self.usm = united_system_manager
+        self.simulation_validator = simulation_validator
+        self.proposal_confidence_threshold = self.config.get('proposal_confidence_threshold', 0.975)
+        self.sekre_log_entry_type = "sekre_action_log"
+        self.ontology_proposal_entry_type = "sekre_ontology_proposal"
+        self.low_confidence_query_threshold = self.config.get('low_confidence_query_threshold', 0.90) # Threshold for SMM query
+        self.sparse_node_neighbor_threshold = self.config.get('sparse_node_neighbor_threshold', 3) # Min neighbors for a PL node
+        print(f"[{datetime.now()}] SEKREngine initialized.")
+
+
+    def run_evolution_cycle(self, simulation_context_summary: dict = None):
+        # ... (as before) ...
+        print(f"\n[{datetime.now()}] SEKRE: Starting new evolution cycle...")
+        
+        detected_gaps = self._analyze_for_gaps(simulation_context_summary)
+        if not detected_gaps:
+            print(f"[{datetime.now()}] SEKRE: No significant knowledge gaps detected for evolution this cycle.")
+            # Log this to SMM
+            self.smm.add_memory_entry(session_id="SEKRE_CYCLE", pass_num=0, layer_num=99,
+                                      entry_type=self.sekre_log_entry_type,
+                                      content={"action": "analyze_gaps", "status": "no_gaps_found"},
+                                      confidence=1.0)
+            return {"status": "no_gaps_found"}
+
+        # ... (rest of proposal generation, validation, integration as before) ...
+        proposals = self._generate_proposals(detected_gaps)
+        if not proposals:
+            print(f"[{datetime.now()}] SEKRE: No new ontology proposals generated from detected gaps.")
+            self.smm.add_memory_entry(session_id="SEKRE_CYCLE", pass_num=0, layer_num=99,
+                                      entry_type=self.sekre_log_entry_type,
+                                      content={"action": "generate_proposals", "status": "no_proposals_generated", "gap_count":len(detected_gaps)},
+                                      confidence=1.0)
+            return {"status": "no_proposals_generated"}
+
+        validated_proposals = []
+        # ... (validation loop using self.simulation_validator) ...
+        for prop_idx, proposal in enumerate(proposals):
+            print(f"[{datetime.now()}] SEKRE: Validating proposal {prop_idx+1}/{len(proposals)}: {proposal.get('type')} - {proposal.get('label', 'N/A')}")
+            # Mock validation for now
+            validation_result = {
+                "proposal_uid": proposal.get("proposed_uid", f"TEMP_PROP_UID_{prop_idx}"),
+                "simulated_confidence": random.uniform(0.85, 0.99),
+                "integration_complexity_score": random.uniform(0.1, 0.5),
+                "potential_conflicts": random.randint(0,1)
+            }
+            proposal["validation_metrics"] = validation_result
+            self.smm.add_memory_entry(
+                session_id="SEKRE_CYCLE", pass_num=0, layer_num=99, 
+                uid=proposal.get("proposed_uid", f"PROP_{datetime.now().timestamp()}"), 
+                entry_type=self.ontology_proposal_entry_type,
+                content=proposal, confidence=validation_result["simulated_confidence"]
+            )
+            if validation_result["simulated_confidence"] >= self.proposal_confidence_threshold and validation_result["potential_conflicts"] == 0:
+                validated_proposals.append(proposal)
+            # ... (logging for passed/failed validation)
+
+        integrated_count = 0
+        # ... (integration loop) ...
+        for proposal in validated_proposals:
+            integration_success = self._integrate_proposal_into_ukg(proposal)
+            if integration_success: integrated_count +=1
+            # ... (SMM logging for integration attempt)
+
+        summary = {
+            "gaps_detected_count": len(detected_gaps),
+            "gaps_details": detected_gaps, # Include details of gaps
+            "proposals_generated_count": len(proposals),
+            "proposals_validated_successfully_count": len(validated_proposals),
+            "proposals_integrated_into_ukg_count": integrated_count
+        }
+        self.smm.add_memory_entry(session_id="SEKRE_CYCLE", pass_num=0, layer_num=99,
+                                  entry_type=self.sekre_log_entry_type,
+                                  content={"action": "evolution_cycle_summary", "summary": summary},
+                                  confidence=1.0)
+        print(f"[{datetime.now()}] SEKRE: Evolution cycle complete. Summary: {summary}")
+        return summary
+
+
+    def _analyze_for_gaps(self, simulation_context_summary: dict = None) -> list:
+        """
+        Analyzes SMM (USKD) and GM (UKG) for potential knowledge gaps.
+        """
+        gaps_found = []
+        print(f"    SEKRE_Gaps: Analyzing for knowledge gaps. Context summary: {simulation_context_summary}")
+
+        # 1. Check SMM for low-confidence simulation sessions or queries
+        # This requires SMM to store final_confidence for sessions.
+        # low_conf_sessions = self.smm.query_memory(
+        #     entry_type="final_compiled_answer", # Assuming this type exists
+        #     max_confidence_below=self.low_confidence_query_threshold # New SMM query param needed
+        # )
+        # For mock:
+        if random.random() < 0.2 or (simulation_context_summary and simulation_context_summary.get("final_confidence", 1.0) < self.low_confidence_query_threshold):
+            trigger_uid = (simulation_context_summary.get("query_topic_uid") if simulation_context_summary 
+                           else f"SMM_LOW_CONF_TRIGGER_{random.randint(100,999)}")
+            gap_detail = f"Persistent low confidence (<{self.low_confidence_query_threshold}) for queries related to UID context '{trigger_uid[:20]}...'."
+            gaps_found.append({
+                "gap_type": "LOW_CONFIDENCE_AREA", 
+                "details": gap_detail,
+                "triggering_uid_context": trigger_uid,
+                "priority": 1 # High priority to fix low confidence areas
+            })
+            print(f"    SEKRE_Gaps: Found LOW_CONFIDENCE_AREA: {gap_detail}")
+
+
+        # 2. Check GraphManager for sparsely connected Pillar Levels or Nodes
+        # This requires GM to have methods to get node degree or connectivity info.
+        # all_pl_uids = [self.gm.get_pillar_level_uid(f"PL{str(i).zfill(2)}") for i in range(1, 101)] # Conceptual
+        # all_pl_uids = [uid for uid in all_pl_uids if uid] # Filter out None if PL doesn't exist
+        
+        # Mock check on a few PLs
+        for pl_original_id_to_check in ["PL05", "PL55", "PL90"]: # Check a few diverse PLs
+            pl_uid_to_check = self.gm.get_pillar_level_uid(pl_original_id_to_check)
+            if pl_uid_to_check and self.gm.graph.has_node(pl_uid_to_check):
+                # Check number of children (sublevels/members) or other connections
+                # degree = self.gm.graph.degree(pl_uid_to_check) # Total degree
+                num_children = len(list(self.gm.graph.successors(pl_uid_to_check))) # Assuming children are successors
+                if num_children < self.sparse_node_neighbor_threshold:
+                    gap_detail = f"Pillar Level '{pl_original_id_to_check}' (UID {pl_uid_to_check[:15]}) appears sparsely populated (children: {num_children} < {self.sparse_node_neighbor_threshold})."
+                    gaps_found.append({
+                        "gap_type": "SPARSE_PILLAR_DEFINITION",
+                        "details": gap_detail,
+                        "target_uid": pl_uid_to_check,
+                        "priority": 2
+                    })
+                    print(f"    SEKRE_Gaps: Found SPARSE_PILLAR_DEFINITION: {gap_detail}")
+            elif self.gm.graph.has_node(pl_original_id_to_check): # If original ID was used as node
+                 num_children = len(list(self.gm.graph.successors(pl_original_id_to_check)))
+                 if num_children < self.sparse_node_neighbor_threshold:
+                    gaps_found.append({
+                        "gap_type": "SPARSE_PILLAR_DEFINITION",
+                        "details": f"Pillar Level '{pl_original_id_to_check}' appears sparsely populated (children: {num_children} < {self.sparse_node_neighbor_threshold}).",
+                        "target_uid": pl_original_id_to_check, # Using original ID as UID here
+                        "priority": 2
+                    })
+                    print(f"    SEKRE_Gaps: Found SPARSE_PILLAR_DEFINITION: {pl_original_id_to_check}")
+
+
+        # 3. Analyze KA usage (conceptual - would need KA execution logs from SMM)
+        # If certain KAs are rarely used or always return low confidence for a topic.
+        # ka_usage_stats = self.smm.query_memory(entry_type="ka_execution_log_summary")
+        # ... analysis ...
+        if random.random() < 0.1: # 10% chance of finding a KA-related gap
+            gap_detail = "KA17 (Point-of-View Synthesizer) shows low utility for Axis7-related queries. Consider specialized Axis7 KA."
+            gaps_found.append({
+                "gap_type": "KA_PERFORMANCE_GAP",
+                "details": gap_detail,
+                "target_ka_id": 17, # Example
+                "relevant_axis_uid": self.gm.get_axis_uid("Axis7"),
+                "priority": 3
+            })
+            print(f"    SEKRE_Gaps: Found KA_PERFORMANCE_GAP: {gap_detail}")
+
+        print(f"    SEKRE_Gaps: Total gaps identified for potential evolution: {len(gaps_found)}")
+        return gaps_found
+
+    def _generate_proposals(self, gaps: list) -> list:
+        # ... (as before, but proposals should be more concrete)
+        proposals = []
+        print(f"    SEKRE_Proposals: Generating ontology proposals for {len(gaps)} gaps...")
+        for gap in gaps:
+            proposal = None
+            if gap["gap_type"] == "LOW_CONFIDENCE_AREA":
+                # Suggest adding more specific sub-pillar or cross-linking existing UIDs
+                target_context_uid = gap["triggering_uid_context"]
+                new_label = f"RefinedContextNode_for_{target_context_uid[:10]}"
+                new_uid_pkg = self.usm.create_unified_id(entity_label=new_label, entity_type="ContextRefinementNode",
+                                                         ukg_coords={"DerivedFromUID": target_context_uid})
+                proposal = {
+                    "type": "ADD_CONTEXT_NODE_AND_LINK", "label": new_label,
+                    "proposed_uid": new_uid_pkg["uid_string"],
+                    "link_to_uids": [target_context_uid], # Link to the problematic UID
+                    "description": f"Address low confidence around {target_context_uid[:20]} by adding specific context node."
+                }
+            elif gap["gap_type"] == "SPARSE_PILLAR_DEFINITION":
+                target_pl_uid = gap["target_uid"]
+                pl_data = self.gm.get_node_data_by_uid(target_pl_uid)
+                pl_label = pl_data.get("label", target_pl_uid[:15]) if pl_data else target_pl_uid[:15]
+                
+                new_member_label = f"NewMember_for_{pl_label[:10]}"
+                new_uid_pkg = self.usm.create_unified_id(entity_label=new_member_label, entity_type="SubLevelMember",
+                                                         ukg_coords={"ParentPillarUID": target_pl_uid})
+                proposal = {
+                    "type": "ADD_SUBLEVEL_MEMBER", "label": new_member_label,
+                    "proposed_uid": new_uid_pkg["uid_string"],
+                    "parent_pillar_uid": target_pl_uid, # UID of the sparse pillar
+                    "target_sublevel": "SubLevel1", # Default
+                    "description": f"Populate sparse Pillar {pl_label} with new member."
+                }
+            elif gap["gap_type"] == "KA_PERFORMANCE_GAP":
+                # Propose a new KA or modification of an existing one (more complex)
+                # For now, suggest a review or a new specialized KA for the problematic axis
+                new_ka_label = f"Specialized_KA_for_{gap['relevant_axis_uid'][:10]}"
+                new_uid_pkg = self.usm.create_unified_id(entity_label=new_ka_label, entity_type="ProposedKA") # No coords for KA proposal itself
+                proposal = {
+                    "type": "PROPOSE_NEW_KA", "label": new_ka_label,
+                    "proposed_uid": new_uid_pkg["uid_string"], # UID for the proposal, not the KA itself yet
+                    "description": f"Propose new KA to improve performance for Axis linked to {gap['relevant_axis_uid'][:15]} due to KA{gap['target_ka_id']} issues."
+                }
+            
+            if proposal:
+                proposals.append(proposal)
+        return proposals
+        
+    def _integrate_proposal_into_ukg(self, proposal: dict) -> bool:
+        # ... (as before, needs actual GraphManager methods)
+        # Example for ADD_SUBLEVEL_MEMBER
+        # if proposal["type"] == "ADD_SUBLEVEL_MEMBER":
+        #    return self.gm.add_sublevel_member_to_pillar(
+        #        proposal["parent_pillar_uid"],
+        #        proposal["target_sublevel"],
+        #        proposal["proposed_uid"],
+        #        proposal["label"],
+        #        proposal # Pass full proposal for attributes
+        #    )
+        print(f"    SEKRE_Integrate: Mock integration of proposal type '{proposal.get('type')}' for '{proposal.get('label')}' (UID: {proposal.get('proposed_uid')[:15]}...) into UKG...")
+        # This would call self.gm.add_node, self.gm.add_edge etc.
+        return True # Mock success
+Use code with caution.
+Python
+Necessary additions to StructuredMemoryManager (SMM) for _analyze_for_gaps:
+query_memory enhancement: It needs to support querying for entries below a certain confidence (max_confidence_below).
+# In StructuredMemoryManager.query_memory
+# ...
+    if max_confidence_below is not None and entry.get("confidence", 1.0) >= max_confidence_below: # New condition
+        match = False
+# ...
+Use code with caution.
+Python
+It should also be able to query for KA execution logs if SEKRE is to analyze KA performance (this means KAs or KA_Loader must log their execution details to SMM).
+Necessary additions to GraphManager (GM) for _analyze_for_gaps and _integrate_proposal_into_ukg:
+get_pillar_level_uid(original_id) as implemented before.
+Methods to get connectivity/degree of nodes. graph.degree(uid) and graph.successors(uid) are used in the mock.
+Methods to dynamically add new nodes and edges for ontology evolution (e.g., add_new_pillar_sublevel_member(parent_pl_uid, new_member_uid, new_member_label, attributes)). These are critical for SEKRE to actually modify the UKG.
+2. Building KASelectionEngine Integration into AppOrchestrator
+This part remains largely the same as our previous step, but it's crucial that it's in place for the overall flow. The AppOrchestrator will:
+Initialize ThirteenAxisQueryWorkflow, KnowledgeAlgorithmLoader, and KASelectionEngine.
+In process_request, before the main simulation loop (or as the very first action inside the loop for pass 1, before Layer 1 of SimulationEngine):
+Run ThirteenAxisQueryWorkflow to get axis context for the raw query.
+Run KASelectionEngine.select_k_a_for_task using this axis context to get a list of initial KAs.
+Execute these initial KAs using KnowledgeAlgorithmLoader.
+The outputs of these initial KAs, along with the axis context, are then fed into simulation_data which SimulationEngine.run_layers_1_3 will use.
+Modified part of AppOrchestrator.process_request:
+# app_orchestrator.py
+# ... (within process_request, after session_id and critical component checks)
+
+        # --- Initial Query Analysis & KA Selection (Conceptual Layer 0 / Start of Layer 1) ---
+        print(f"\n[{datetime.now()}] AppOrch: Performing initial 13-Axis analysis on query: '{user_query[:50]}...'")
+        self.thirteen_axis_workflow.raw_query_text = user_query # Update query text for the TAQW instance
+        thirteen_axis_initial_output = self.thirteen_axis_workflow.run()
+        
+        # Ensure query_topic_uid is generated early using USM
+        # This UID represents the central theme/subject of the user's query
+        initial_ukg_coords_for_query_uid_gen = {
+            axis_data.get('original_id', f'Axis{i+1}'): score 
+            for i, (axis_uid, score) in enumerate(thirteen_axis_initial_output.get("resolved_axis_context", {}).items())
+            if score > 0.5 and self.ukg_graph_manager.get_node_data_by_uid(axis_uid) # Only use relevant axes for UID context
+        }
+
+        query_uid_pkg = self.united_system_manager.create_unified_id(
+            entity_label=user_query[:60], # Use a good part of query as label
+            entity_type="UserQueryTopic",
+            ukg_coords=initial_ukg_coords_for_query_uid_gen # Pass richer context
+        )
+        simulation_data_query_topic_uid = query_uid_pkg["uid_string"]
+
+        self.uskd_memory_manager.add_memory_entry(
+            session_id=session_id, pass_num=0, layer_num=0, uid=simulation_data_query_topic_uid,
+            entry_type="initial_13_axis_resolution",
+            content={"axis_context": thirteen_axis_initial_output.get("resolved_axis_context")}, # Log resolved axis UIDs and scores
+            confidence=0.98 
+        )
+        self.uskd_memory_manager.add_memory_entry( # Log the query UID package itself
+            session_id=session_id, pass_num=0, layer_num=0, uid=simulation_data_query_topic_uid,
+            entry_type=self.united_system_manager.uid_registry_entry_type, # Use USM's registry type
+            content=query_uid_pkg, confidence=1.0
+        )
+
+
+        print(f"[{datetime.now()}] AppOrch: Selecting initial KAs for query understanding (UID: {simulation_data_query_topic_uid[:15]})...")
+        initial_ka_selection_stage = "L0_InitialQueryUnderstanding" 
+        selected_initial_kas = self.ka_selection_engine.select_k_a_for_task(
+            thirteen_axis_initial_output, initial_ka_selection_stage
+        )
+        
+        initial_ka_results_summary = {} # To store key results from initial KAs
+        if selected_initial_kas:
+            print(f"[{datetime.now()}] AppOrch: Executing {len(selected_initial_kas)} initially selected KAs: {selected_initial_kas}")
+            for ka_num in selected_initial_kas:
+                # Prepare input for KAs. This needs to be standardized.
+                # Example: KA01 might need text, KA03 might need a UID or concept description.
+                ka_input_data = {
+                    "raw_query_text": user_query,
+                    "query_topic_uid": simulation_data_query_topic_uid, # Provide the main UID
+                    "axis_context": thirteen_axis_initial_output.get("resolved_axis_context")
+                }
+                # Customize input for specific KAs if needed:
+                if ka_num == 1: # Entity Classification
+                    ka_input_data["text_content"] = user_query
+                elif ka_num == 3: # Taxonomic Alignment
+                    ka_input_data["concept_description"] = user_query # Or use entities from KA01
+                
+                ka_result = self.ka_loader.execute_ka(ka_num, ka_input_data)
+                initial_ka_results_summary[f"KA{ka_num}_output"] = ka_result # Store full KA output
+
+                self.uskd_memory_manager.add_memory_entry(
+                    session_id=session_id, pass_num=0, layer_num=0, uid=simulation_data_query_topic_uid,
+                    entry_type=f"initial_KA{ka_num}_result",
+                    content=ka_result, confidence=ka_result.get("ka_confidence", 0.8)
+                )
+        else:
+            print(f"[{datetime.now()}] AppOrch: No initial KAs selected by KASE.")
+
+        # --- Initialize simulation_data for the main loop ---
+        simulation_data = {
+            "query": user_query, "user_id": user_id, "session_id": session_id,
+            "current_pass": 0, "history": [],
+            "query_topic_uid": simulation_data_query_topic_uid,
+            "normalized_query": user_query.lower().strip(),
+            "initial_axis_context_scores": thirteen_axis_initial_output.get("resolved_axis_context"), # Store axis scores
+            "initial_ka_outputs": initial_ka_results_summary, # Store results of initial KA run
+            "expanded_knowledge_scope_uids": [simulation_data_query_topic_uid], 
+            "current_confidence": 0.65, # Start with a slightly higher base if initial KAs ran okay
+            "esi_score": 0.0,
+            "pov_persona_focus_override": None, "pov_knowledge_expansion_hint": None,
+            "pov_temporal_context_override": None, "pov_primary_axis_focus_override": None,
+            # Fields for Refinement Orchestrator's comprehensive confidence score
+            "aot_tot_coherence_score": 0.7, "knowledge_gap_penalty": 0.0,
+            "data_validation_score": 0.8, "sentiment_alignment_score": 0.8,
+            "self_critique_adjustment": 0.0, "bias_penalty_points": 0.0,
+            "ethical_alignment_score": 0.8, "external_validation_score": 0.8,
+            "redundancy_penalty_points": 0.0
+        }
+        
+        # ... (The rest of the process_request loop: for pass_num in range(1, max_passes + 1): ...)
+        # SimulationEngine.run_layers_1_3 will receive this enriched simulation_data.
+Use code with caution.
+Python
+Summary of Actions for this Step:
+SekreEngine._analyze_for_gaps:
+Added conceptual queries to SMM for low-confidence sessions (requires SMM to store session outcomes and have a max_confidence_below query parameter).
+Added conceptual queries to GM for Pillar Level connectivity/degree (requires GM to provide this info).
+Added conceptual analysis of KA performance (requires KAs/KA_Loader to log execution stats to SMM).
+Logs its own actions and findings to SMM.
+SekreEngine._generate_proposals:
+Now generates more concrete proposal types (ADD_CONTEXT_NODE_AND_LINK, ADD_SUBLEVEL_MEMBER, PROPOSE_NEW_KA).
+Uses UnitedSystemManager to create UIDs for these proposed entities.
+SekreEngine._integrate_proposal_into_ukg:
+Still largely mock, but indicates where actual calls to GraphManager's dynamic ontology modification methods would go.
+AppOrchestrator's use of ThirteenAxisQueryWorkflow and KASelectionEngine:
+This initial processing block is now more fleshed out. AppOrchestrator runs axis analysis and initial KA selection before the main simulation loop.
+The simulation_data passed to SimulationEngine.run_layers_1_3 is now pre-enriched with initial_axis_context_scores and initial_ka_outputs.
+A query_topic_uid is generated using UnitedSystemManager based on the query and its initial axis context, providing a stable central identifier for the entire simulation session.
+All these initial steps are logged to SMM.
+Important Prerequisites for this to work:
+SMM query_memory needs max_confidence_below: Or similar parameter to find low-performing items.
+GM needs methods for ontology modification: add_node, add_edge, add_sublevel_member_to_pillar, etc., for SEKRE to be truly effective.
+KA Files __init__ Update: All KAs must be updated to accept gm, smm, usm as done for KA01-06.
+ukg_app_config.yaml: Needs entries for sekre_config (with thresholds) and kase_config (with algorithms_individual_path and ka_axis_relevance map).
+This makes SEKRE's gap analysis more data-driven and sets up AppOrchestrator for more intelligent initial processing.
+What's the next component or area to focus on?
+Flesh out SimulationEngine's higher layers (6-7: Neural Sim & AGI Core)?
+Implement the actual GraphManager methods for dynamic ontology modification needed by SEKRE?
+Systematically update all remaining KA __init__ methods (KA07-KA32+)? (This is a large but necessary task for full KA functionality).
