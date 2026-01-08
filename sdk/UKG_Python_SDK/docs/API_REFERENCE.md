@@ -1,4 +1,4 @@
-# UKG SDK v0.2.0 — Developer API reference
+# UKG SDK v0.3.1 — Developer API Reference
 
 ## `ukg_sdk.UKGOverlay`
 
@@ -34,6 +34,7 @@ class UKGOverlay:
 ```
 
 **Return:** dict with:
+
 - `ok: bool`
 - `answer: str` (if ok)
 - `coordinate: str` (17-axis compact string)
@@ -61,6 +62,7 @@ class LLMProvider(ABC):
 ```
 
 ### Built-in providers
+
 - `OpenAIProvider` (env: `OPENAI_API_KEY`, optional `OPENAI_BASE_URL`)
 - `AzureOpenAIProvider` (env: `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`, optional `AZURE_OPENAI_DEPLOYMENT`)
 - `AnthropicProvider` (env: `ANTHROPIC_API_KEY`, optional `ANTHROPIC_BASE_URL`)
@@ -75,6 +77,7 @@ class LLMProvider(ABC):
 - `KARegistry` — `items: dict[str, KAInfo]`
 
 Loaders:
+
 - `ukg_sdk.ka.registry.load_registry_from_json(path)`
 - `ukg_sdk.ka.registry.load_default_registry(package_data_dir)`
 
@@ -97,10 +100,12 @@ class KAExecutor:
 ```
 
 Types:
+
 - `KAExecutionContext` (ka, input, layer, state, memory, audit)
 - `KAExecutionResult` (ok, output, next_layer, veto_reason)
 
 Built-in handlers:
+
 - `KA-004` validation/normalization
 - `KA-005` query classification
 - `KA-113` tier router
@@ -120,10 +125,12 @@ Built-in handlers:
 ## Memory adapters (`ukg_sdk.memory.*`)
 
 Base:
+
 - `MemoryAdapter`
 - `MemoryRecord`
 
 Implementations:
+
 - `InMemoryMemoryAdapter`
 - `PostgresMemoryAdapter` (requires `asyncpg`)
 - `RedisMemoryAdapter` (requires `redis` asyncio)
@@ -133,9 +140,11 @@ Implementations:
 ## Audit storage (`ukg_sdk.audit.*`)
 
 Base:
+
 - `AuditStore`
 - `AuditEvent`
 
 Implementations:
+
 - `FileAuditStore` (JSONL, hash-chained)
 - `PostgresAuditStore` (requires `asyncpg`)
