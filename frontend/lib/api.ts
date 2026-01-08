@@ -1,48 +1,81 @@
-export interface Message {
+export const API_BASE = "/api/v1";
+
+// Interfaces
+export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
 export interface ChatResponse {
   response: string;
+  history?: ChatMessage[];
+  trace_id?: string;
+  error?: string;
+}
+
+export interface TraceRun {
   run_id: string;
-  provider_used: string;
-  model_used: string;
-  confidence_score?: number;
-  trace_summary?: any;
-  coordinates?: any;
-  claims?: any[];
-  evidence_count?: number;
+  status: string;
+  created_at: string;
+  completed_at?: string;
+  input_message?: string;
+  ka_id?: string;
 }
 
-export interface ChatRequest {
-  messages: Message[];
-  provider?: string;
-  model?: string;
-  mode?: 'chat' | 'trace' | 'explain';
-  run_ukg_pipeline?: boolean;
+export interface TraceDetail extends TraceRun {
+  stages?: any[];
+  evidence?: any[];
+  metrics?: any;
 }
 
-export async function sendChat(data: ChatRequest): Promise<ChatResponse> {
-  const res = await fetch('/api/v1/gateway/chat', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      // 'X-API-Key': 'key' // TODO: Add auth state
+// Client
+export const api = {
+  chat: {
+    send: async (message: string, provider: string = 'openai', model: string = 'gpt-4') => {
+      try {
+        const res = await fetch(`${API_BASE}/gateway/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message, provider, model })
+        });
+        if (!res.ok) throw new Error("Chat failed");
+        return await res.json() as ChatResponse;
+      } catch (err) {
+        console.error(err);
+        return { response: "Error connecting to server.", error: String(err) };
+      }
+    }
+  },
+  
+  trace: {
+    list: async (limit: number = 10) => {
+       try {
+         const res = await fetch(`${API_BASE}/trace/runs?limit=${limit}`);
+         if (!res.ok) return []; // Fallback empty
+         const data = await res.json();
+         return data.runs as TraceRun[];
+       } catch (err) {
+         console.error("Failed to fetch traces", err);
+         return [];
+       }
     },
-    body: JSON.stringify(data),
-  });
+    get: async (id: string) => {
+       try {
+         const res = await fetch(`${API_BASE}/trace/runs/${id}`);
+         if (!res.ok) return null;
+         return await res.json() as TraceDetail;
+       } catch (err) {
+          return null;
+       }
+    }
+  },
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(error.error || `Request failed with status ${res.status}`);
+  system: {
+     health: async () => {
+        try {
+           const res = await fetch(`/health`);
+           return res.ok ? 'Operational' : 'Degraded';
+        } catch (e) { return 'Offline'; }
+     }
   }
-
-  return res.json();
-}
-
-export async function getProviders() {
-  const res = await fetch('/api/v1/gateway/providers');
-  if (!res.ok) throw new Error('Failed to fetch providers');
-  return res.json();
-}
+};

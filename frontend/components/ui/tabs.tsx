@@ -1,5 +1,4 @@
 import * as React from "react"
-import * as TabsPrimitive from "@radix-ui/react-tabs"
 import { cn } from "@/lib/utils"
 
 // Simulating Radix UI Tabs without installing the package to avoid wait times
