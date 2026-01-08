@@ -8,6 +8,7 @@ class APIConfig:
         # OpenAI Configuration
         self.openai_api_key = os.environ.get('OPENAI_API_KEY', '')
         self.openai_model = os.environ.get('OPENAI_MODEL', 'gpt-4')
+        self.app_version = '2.0.0'
         
         # Database Configuration
         self.db_url = os.environ.get('DATABASE_URL', 'sqlite:///chatbot.db')

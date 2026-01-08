@@ -375,10 +375,10 @@ class MCPManager:
     def _register_ka_tools(self, server: MCPServer):
         """Register individual tools for each Knowledge Algorithm from registry"""
         try:
-            # Path to backend/ka_registry.json
-            # Assumes core/mcp/mcp_manager.py -> ../../backend/ka_registry.json
+            # Path to core/data/ka_registry.json
+            # Assumes core/mcp/mcp_manager.py -> ../../core/data/ka_registry.json
             base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            registry_path = os.path.join(base_dir, 'backend', 'ka_registry.json')
+            registry_path = os.path.join(base_dir, 'core', 'data', 'ka_registry.json')
             
             if not os.path.exists(registry_path):
                 logger.warning(f"KA registry not found at {registry_path}")

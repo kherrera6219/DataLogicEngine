@@ -236,12 +236,7 @@ app.register_blueprint(mcp_bp, url_prefix='/api/v1/mcp')
 app.register_blueprint(mcp_bp, name='mcp_legacy', url_prefix='/api/mcp')
 logger.info("MCP blueprint registered (v1 + legacy)")
 
-# Register AI Chat blueprint
-from backend.ai_chat import ai_chat_bp
-app.register_blueprint(ai_chat_bp, url_prefix='/api/v1/chat')
-# Legacy (note: chat bp might have hardcoded paths, double check if needed)
-app.register_blueprint(ai_chat_bp, name='ai_chat_legacy', url_prefix='/api/chat')
-logger.info("AI Chat blueprint registered (v1 + legacy)")
+# AI Chat legacy blueprint removed (Superseded by LLM Gateway)
 
 # Register Knowledge Algorithm API blueprint
 from backend.ka_api import ka_bp
