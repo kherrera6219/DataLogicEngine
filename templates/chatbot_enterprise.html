@@ -106,16 +106,37 @@
                 </button>
             </div>
             <div class="input-options">
-                <label class="toggle-switch">
-                    <input type="checkbox" id="showTracing" checked>
-                    <span class="toggle-slider"></span>
-                    <span>Show Tracing</span>
-                </label>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="streamResponse" checked>
-                    <span class="toggle-slider"></span>
-                    <span>Stream</span>
-                </label>
+                <!-- Run Mode Toggle -->
+                <div class="mode-toggle" id="modeToggle">
+                    <button class="mode-btn active" data-mode="chat" onclick="setMode('chat')">
+                        <span class="material-icons">chat</span>
+                        <span>Chat</span>
+                    </button>
+                    <button class="mode-btn" data-mode="explain" onclick="setMode('explain')">
+                        <span class="material-icons">lightbulb</span>
+                        <span>Explain</span>
+                    </button>
+                    <button class="mode-btn" data-mode="trace" onclick="setMode('trace')">
+                        <span class="material-icons">timeline</span>
+                        <span>Trace</span>
+                    </button>
+                </div>
+                
+                <!-- Constraint Chips -->
+                <div class="constraint-chips" id="constraintChips">
+                    <button class="chip" data-constraint="strict_citations" onclick="toggleConstraint('strict_citations')">
+                        <span class="material-icons">format_quote</span>
+                        Strict Citations
+                    </button>
+                    <button class="chip" data-constraint="offline_only" onclick="toggleConstraint('offline_only')">
+                        <span class="material-icons">cloud_off</span>
+                        Offline
+                    </button>
+                    <button class="chip" data-constraint="no_writeback" onclick="toggleConstraint('no_writeback')">
+                        <span class="material-icons">edit_off</span>
+                        No Writeback
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -582,47 +603,77 @@
 
 .input-options {
     display: flex;
-    gap: 1.5rem;
+    gap: 1rem;
     margin-top: 0.75rem;
     padding-left: 3rem;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
-.toggle-switch {
+/* Mode Toggle */
+.mode-toggle {
+    display: flex;
+    background: var(--dark-bg-tertiary);
+    border-radius: 8px;
+    padding: 2px;
+}
+
+.mode-btn {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    border: none;
+    background: transparent;
     color: var(--dark-text-secondary);
+    font-size: 0.8rem;
+    border-radius: 6px;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
-.toggle-slider {
-    width: 32px;
-    height: 18px;
+.mode-btn .material-icons { font-size: 1rem; }
+
+.mode-btn:hover {
+    color: var(--dark-text-primary);
+}
+
+.mode-btn.active {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+/* Constraint Chips */
+.constraint-chips {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.chip {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
     background: var(--dark-bg-tertiary);
-    border-radius: 9px;
-    position: relative;
+    border: 1px solid var(--dark-border);
+    border-radius: 16px;
+    color: var(--dark-text-secondary);
+    font-size: 0.75rem;
+    cursor: pointer;
     transition: all 0.2s;
 }
 
-.toggle-slider::after {
-    content: '';
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    background: white;
-    border-radius: 50%;
-    top: 2px;
-    left: 2px;
-    transition: all 0.2s;
+.chip .material-icons { font-size: 0.9rem; }
+
+.chip:hover {
+    border-color: var(--dark-accent-primary);
 }
 
-.toggle-switch input:checked + .toggle-slider {
+.chip.active {
     background: var(--dark-accent-primary);
-}
-
-.toggle-switch input:checked + .toggle-slider::after {
-    left: 16px;
+    border-color: var(--dark-accent-primary);
+    color: white;
 }
 
 /* Tracing Panel */
@@ -893,8 +944,52 @@
 let conversationHistory = [];
 let currentSessionId = null;
 let traceData = { axes: [], layers: [], personas: {}, steps: [], coordinates: {} };
+let currentMode = 'chat';  // chat, explain, trace
+let activeConstraints = new Set();
 
 marked.setOptions({ breaks: true, gfm: true, headerIds: false, mangle: false });
+
+// Mode Toggle
+function setMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
+    
+    // Show/hide tracing panel based on mode
+    const tracingPanel = document.getElementById('tracingPanel');
+    if (mode === 'trace') {
+        tracingPanel.classList.remove('collapsed');
+    }
+    
+    // Update placeholder based on mode
+    const input = document.getElementById('chatInput');
+    const placeholders = {
+        'chat': 'Ask a question...',
+        'explain': 'What would you like explained?',
+        'trace': 'Enter query to trace execution...'
+    };
+    input.placeholder = placeholders[mode];
+}
+
+// Constraint Management
+function toggleConstraint(constraint) {
+    const chip = document.querySelector(`.chip[data-constraint="${constraint}"]`);
+    if (activeConstraints.has(constraint)) {
+        activeConstraints.delete(constraint);
+        chip.classList.remove('active');
+    } else {
+        activeConstraints.add(constraint);
+        chip.classList.add('active');
+    }
+}
+
+function getConstraints() {
+    const constraints = {};
+    activeConstraints.forEach(c => constraints[c] = true);
+    return constraints;
+}
+
 
 function handleKeyDown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -944,7 +1039,9 @@ async function sendStreamingMessage(message) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 message: message,
-                show_trace: document.getElementById('showTracing').checked,
+                mode: currentMode,
+                constraints: getConstraints(),
+                show_trace: currentMode === 'trace' || currentMode === 'explain',
                 session_id: currentSessionId,
                 history: conversationHistory.slice(-10)
             })

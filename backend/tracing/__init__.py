@@ -14,7 +14,13 @@ from backend.tracing.models import (
     TraceKAInvocation,
     TracePolicyDecision,
     TraceMemoryEvent,
-    TraceArtifact
+    TraceArtifact,
+    # Phase 4 models
+    ChatSession,
+    ClaimEvidenceLink,
+    TraceSpan,
+    StageLog,
+    TraceExport
 )
 
 __all__ = [
@@ -27,5 +33,11 @@ __all__ = [
     'TraceKAInvocation',
     'TracePolicyDecision',
     'TraceMemoryEvent',
-    'TraceArtifact'
+    'TraceArtifact',
+    # Phase 4
+    'ChatSession',
+    'ClaimEvidenceLink',
+    'TraceSpan',
+    'StageLog',
+    'TraceExport'
 ]

@@ -434,3 +434,152 @@ class TraceArtifact(db.Model):
             'hash': self.content_hash,
             'redactions': self.redactions
         }
+
+
+# ============== Phase 4 Models ==============
+
+class ChatSession(db.Model):
+    """Chat session for grouping related runs."""
+    __tablename__ = 'chat_sessions'
+    
+    session_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    title = db.Column(db.String(255), nullable=True)
+    mode = db.Column(db.String(20), default='chat')  # chat, explain, trace
+    
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+    
+    # Settings/constraints
+    constraints = db.Column(JSONB, nullable=True)  # {offline_only, strict_citations, no_writeback}
+    
+    # Relationships
+    runs = db.relationship('TraceRun', backref='session', lazy='dynamic',
+                          primaryjoin='ChatSession.session_id==TraceRun.session_id',
+                          foreign_keys='TraceRun.session_id')
+    
+    def to_dict(self):
+        return {
+            'session_id': str(self.session_id),
+            'user_id': self.user_id,
+            'title': self.title,
+            'mode': self.mode,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'constraints': self.constraints
+        }
+
+
+class ClaimEvidenceLink(db.Model):
+    """Junction table for claim-evidence relationships."""
+    __tablename__ = 'claim_evidence_links'
+    
+    claim_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_claims.claim_id'), primary_key=True)
+    evidence_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_evidence.evidence_id'), primary_key=True)
+    
+    strength = db.Column(db.Float, default=1.0)
+    contradicts = db.Column(db.Boolean, default=False)
+    
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    
+    def to_dict(self):
+        return {
+            'claim_id': str(self.claim_id),
+            'evidence_id': str(self.evidence_id),
+            'strength': self.strength,
+            'contradicts': self.contradicts
+        }
+
+
+class TraceSpan(db.Model):
+    """OpenTelemetry-style trace span for observability."""
+    __tablename__ = 'trace_spans'
+    
+    span_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+    parent_span_id = db.Column(UUID(as_uuid=True), nullable=True)
+    
+    name = db.Column(db.String(200), nullable=False)
+    stage_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_stages.stage_id'), nullable=True)
+    
+    start_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    end_at = db.Column(db.DateTime, nullable=True)
+    
+    attributes = db.Column(JSONB, nullable=True)  # Key-value pairs
+    events = db.Column(JSONB, nullable=True)      # [{name, time, attributes}]
+    
+    def to_dict(self):
+        return {
+            'span_id': str(self.span_id),
+            'run_id': str(self.run_id),
+            'parent_span_id': str(self.parent_span_id) if self.parent_span_id else None,
+            'name': self.name,
+            'stage_id': str(self.stage_id) if self.stage_id else None,
+            'start_at': self.start_at.isoformat() if self.start_at else None,
+            'end_at': self.end_at.isoformat() if self.end_at else None,
+            'duration_ms': int((self.end_at - self.start_at).total_seconds() * 1000) if self.end_at and self.start_at else None,
+            'attributes': self.attributes,
+            'events': self.events
+        }
+
+
+class StageLog(db.Model):
+    """Log entries for a stage (debug/info/warn/error)."""
+    __tablename__ = 'stage_logs'
+    
+    log_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+    stage_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_stages.stage_id'), nullable=True)
+    
+    level = db.Column(db.String(10), nullable=False)  # debug, info, warn, error
+    message = db.Column(db.Text, nullable=False)
+    data = db.Column(JSONB, nullable=True)
+    
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    
+    def to_dict(self):
+        return {
+            'log_id': str(self.log_id),
+            'run_id': str(self.run_id),
+            'stage_id': str(self.stage_id) if self.stage_id else None,
+            'level': self.level,
+            'message': self.message,
+            'data': self.data,
+            'time': self.timestamp.isoformat() if self.timestamp else None
+        }
+
+
+class TraceExport(db.Model):
+    """Export bundle tracking for audit."""
+    __tablename__ = 'trace_exports'
+    
+    export_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    status = db.Column(db.String(20), default='pending')  # pending, ready, failed
+    bundle_ref = db.Column(db.String(500), nullable=True)  # Blob storage pointer
+    manifest_hash = db.Column(db.String(100), nullable=True)  # SHA256
+    
+    file_size_bytes = db.Column(db.Integer, nullable=True)
+    format = db.Column(db.String(20), default='json')  # json, zip
+    
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    expires_at = db.Column(db.DateTime, nullable=True)  # For temporary exports
+    
+    export_options = db.Column(JSONB, nullable=True)  # Additional export options
+    
+    def to_dict(self):
+        return {
+            'export_id': str(self.export_id),
+            'run_id': str(self.run_id),
+            'user_id': self.user_id,
+            'status': self.status,
+            'bundle_ref': self.bundle_ref,
+            'manifest_hash': self.manifest_hash,
+            'file_size_bytes': self.file_size_bytes,
+            'format': self.format,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'expires_at': self.expires_at.isoformat() if self.expires_at else None
+        }

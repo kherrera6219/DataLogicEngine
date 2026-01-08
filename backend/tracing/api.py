@@ -368,3 +368,220 @@ def get_artifact(run_id, artifact_id):
     ).first_or_404()
     
     return jsonify(artifact.to_dict())
+
+
+# ============== Phase 4: Sessions ==============
+
+@trace_bp.route('/sessions', methods=['GET'])
+@login_required
+def list_sessions():
+    """List chat sessions for the current user."""
+    from backend.tracing.models import ChatSession
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    
+    sessions = ChatSession.query.filter_by(user_id=current_user.id).order_by(
+        ChatSession.updated_at.desc()
+    ).paginate(page=page, per_page=per_page, error_out=False)
+    
+    return jsonify({
+        'sessions': [s.to_dict() for s in sessions.items],
+        'total': sessions.total,
+        'page': page,
+        'pages': sessions.pages
+    })
+
+
+@trace_bp.route('/sessions', methods=['POST'])
+@login_required
+def create_session():
+    """Create a new chat session."""
+    from backend.tracing.models import ChatSession
+    
+    data = request.get_json() or {}
+    
+    session = ChatSession(
+        user_id=current_user.id,
+        title=data.get('title', 'New Chat'),
+        mode=data.get('mode', 'chat'),
+        constraints=data.get('constraints')
+    )
+    
+    db.session.add(session)
+    db.session.commit()
+    
+    return jsonify(session.to_dict()), 201
+
+
+@trace_bp.route('/sessions/<session_id>', methods=['GET'])
+@login_required
+def get_session(session_id):
+    """Get a specific session."""
+    from backend.tracing.models import ChatSession
+    
+    session = ChatSession.query.filter_by(session_id=session_id).first_or_404()
+    
+    if session.user_id != current_user.id:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    return jsonify(session.to_dict())
+
+
+@trace_bp.route('/sessions/<session_id>', methods=['PATCH'])
+@login_required
+def update_session(session_id):
+    """Update a session (title, mode, constraints)."""
+    from backend.tracing.models import ChatSession
+    
+    session = ChatSession.query.filter_by(session_id=session_id).first_or_404()
+    
+    if session.user_id != current_user.id:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    data = request.get_json() or {}
+    
+    if 'title' in data:
+        session.title = data['title']
+    if 'mode' in data:
+        session.mode = data['mode']
+    if 'constraints' in data:
+        session.constraints = data['constraints']
+    
+    db.session.commit()
+    
+    return jsonify(session.to_dict())
+
+
+# ============== Phase 4: Spans (OpenTelemetry) ==============
+
+@trace_bp.route('/runs/<run_id>/spans', methods=['GET'])
+@login_required
+def get_run_spans(run_id):
+    """Get OpenTelemetry spans for a run."""
+    from backend.tracing.models import TraceSpan
+    
+    run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
+    
+    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+        return jsonify({'error': 'Access denied'}), 403
+    
+    spans = TraceSpan.query.filter_by(run_id=run_id).order_by(TraceSpan.start_at).all()
+    
+    return jsonify({
+        'spans': [s.to_dict() for s in spans]
+    })
+
+
+# ============== Phase 4: Logs ==============
+
+@trace_bp.route('/runs/<run_id>/logs', methods=['GET'])
+@login_required
+def get_run_logs(run_id):
+    """Get logs for a run."""
+    from backend.tracing.models import StageLog
+    
+    run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
+    
+    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+        return jsonify({'error': 'Access denied'}), 403
+    
+    stage_id = request.args.get('stage_id')
+    level = request.args.get('level')
+    
+    query = StageLog.query.filter_by(run_id=run_id)
+    
+    if stage_id:
+        query = query.filter_by(stage_id=stage_id)
+    if level:
+        query = query.filter_by(level=level)
+    
+    logs = query.order_by(StageLog.timestamp).all()
+    
+    return jsonify({
+        'logs': [l.to_dict() for l in logs]
+    })
+
+
+# ============== Phase 4: Exports ==============
+
+@trace_bp.route('/exports', methods=['GET'])
+@login_required
+def list_exports():
+    """List exports for the current user."""
+    from backend.tracing.models import TraceExport
+    
+    exports = TraceExport.query.filter_by(user_id=current_user.id).order_by(
+        TraceExport.created_at.desc()
+    ).limit(50).all()
+    
+    return jsonify({
+        'exports': [e.to_dict() for e in exports]
+    })
+
+
+@trace_bp.route('/exports/<export_id>', methods=['GET'])
+@login_required
+def get_export(export_id):
+    """Get a specific export."""
+    from backend.tracing.models import TraceExport
+    
+    export = TraceExport.query.filter_by(export_id=export_id).first_or_404()
+    
+    if export.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+        return jsonify({'error': 'Access denied'}), 403
+    
+    return jsonify(export.to_dict())
+
+
+@trace_bp.route('/exports/<export_id>/download', methods=['GET'])
+@login_required
+def download_export(export_id):
+    """Download an export bundle."""
+    from backend.tracing.models import TraceExport
+    
+    export = TraceExport.query.filter_by(export_id=export_id).first_or_404()
+    
+    if export.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+        return jsonify({'error': 'Access denied'}), 403
+    
+    if export.status != 'ready':
+        return jsonify({'error': 'Export not ready'}), 400
+    
+    # For now, return the bundle reference
+    # In production, this would stream from blob storage
+    return jsonify({
+        'bundle_ref': export.bundle_ref,
+        'manifest_hash': export.manifest_hash,
+        'file_size_bytes': export.file_size_bytes
+    })
+
+
+# ============== Claim-Evidence Links ==============
+
+@trace_bp.route('/runs/<run_id>/claims/<claim_id>/evidence', methods=['GET'])
+@login_required
+def get_claim_evidence(run_id, claim_id):
+    """Get evidence linked to a specific claim."""
+    from backend.tracing.models import ClaimEvidenceLink
+    
+    run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
+    
+    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+        return jsonify({'error': 'Access denied'}), 403
+    
+    links = ClaimEvidenceLink.query.filter_by(claim_id=claim_id).all()
+    
+    # Get full evidence items
+    evidence_list = []
+    for link in links:
+        evidence = TraceEvidence.query.filter_by(evidence_id=link.evidence_id).first()
+        if evidence:
+            item = evidence.to_dict()
+            item['link'] = link.to_dict()
+            evidence_list.append(item)
+    
+    return jsonify({
+        'claim_id': claim_id,
+        'evidence': evidence_list
+    })
