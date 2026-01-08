@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+
+{% block title %}17-Axis Inspector - Run {{ run_id[:8] }}{% endblock %}
+
+{% block page_title %}17-Axis Coordinate Inspector{% endblock %}
+{% block page_subtitle %}Knowledge-space coordinate mapping with evidence triggers{% endblock %}
+
+{% block content %}
+<div class="axes-container">
+    <!-- Axis Vector Summary -->
+    <div class="vector-summary card">
+        <div class="card-header">
+            <h2 class="card-title">Coordinate Vector</h2>
+            <code class="coordinate-hash" id="coordHash">—</code>
+        </div>
+        <div class="card-body">
+            <div class="axis-visual" id="axisVisual"></div>
+        </div>
+    </div>
+    
+    <!-- Axis Detail Table -->
+    <div class="axis-detail card">
+        <div class="card-header">
+            <h2 class="card-title">Axis Details</h2>
+        </div>
+        <div class="card-body">
+            <table class="axis-table" id="axisTable">
+                <thead>
+                    <tr>
+                        <th>Axis</th>
+                        <th>Name</th>
+                        <th>Selected Value</th>
+                        <th>Confidence</th>
+                        <th>Candidates</th>
+                    </tr>
+                </thead>
+                <tbody id="axisTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Axis Evidence Links -->
+    <div class="axis-evidence card">
+        <div class="card-header">
+            <h2 class="card-title">Trigger Evidence</h2>
+            <span class="selected-axis" id="selectedAxisLabel">Select an axis</span>
+        </div>
+        <div class="card-body" id="axisEvidenceList">
+            <p class="empty">Click an axis to view trigger evidence</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.axes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.coordinate-hash {
+    font-size: 0.75rem;
+    background: var(--dark-bg-tertiary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.axis-visual {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    padding: 1rem 0;
+}
+
+.axis-cell {
+    padding: 1rem;
+    background: var(--dark-bg-tertiary);
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.axis-cell:hover {
+    border-color: var(--dark-accent-primary);
+}
+
+.axis-cell.active {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.axis-cell.selected {
+    border-color: var(--dark-accent-primary);
+    box-shadow: 0 0 10px rgba(106, 143, 255, 0.3);
+}
+
+.axis-num {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.axis-name {
+    font-size: 0.75rem;
+    margin-top: 4px;
+}
+
+.axis-value {
+    font-size: 0.7rem;
+    margin-top: 4px;
+    padding: 0.2rem 0.4rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.axis-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.axis-table th, .axis-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.axis-table th {
+    font-weight: 600;
+    color: var(--dark-text-secondary);
+}
+
+.axis-table tbody tr {
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.axis-table tbody tr:hover {
+    background: rgba(106, 143, 255, 0.05);
+}
+
+.axis-table tbody tr.selected {
+    background: rgba(106, 143, 255, 0.1);
+}
+
+.confidence-bar-mini {
+    width: 60px;
+    height: 6px;
+    background: var(--dark-bg-tertiary);
+    border-radius: 3px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+}
+
+.confidence-fill-mini {
+    height: 100%;
+    background: var(--dark-accent-primary);
+}
+
+.candidates-list {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.candidate-chip {
+    padding: 0.15rem 0.4rem;
+    background: var(--dark-bg-tertiary);
+    border-radius: 4px;
+    font-size: 0.7rem;
+}
+
+.evidence-trigger {
+    padding: 1rem;
+    background: var(--dark-bg-tertiary);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid var(--dark-accent-primary);
+}
+
+.trigger-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.trigger-highlight {
+    background: rgba(106, 143, 255, 0.3);
+    padding: 0 0.25rem;
+    border-radius: 2px;
+}
+
+.trigger-meta {
+    font-size: 0.75rem;
+    color: var(--dark-text-secondary);
+    margin-top: 0.5rem;
+}
+</style>
+
+<script>
+const runId = '{{ run_id }}';
+const axisNames = [
+    'Context', 'Time', 'Location', 'Industry', 'Method', 'Standard',
+    'Organization', 'Expertise', 'Quals', 'Regulatory', 'Compliance', 'Ethics',
+    'Risk', 'Output', 'Goal', 'Metric', 'Review'
+];
+
+let axesData = null;
+let selectedAxis = null;
+
+async function loadAxes() {
+    try {
+        const res = await fetch(`/api/v1/trace/runs/${runId}/axes`);
+        const data = await res.json();
+        axesData = data.axes;
+        renderAxes();
+    } catch (error) {
+        console.error('Failed to load axes:', error);
+    }
+}
+
+function renderAxes() {
+    // Coordinate hash
+    document.getElementById('coordHash').textContent = axesData?.coordinate_hash || '—';
+    
+    // Visual grid
+    const visual = document.getElementById('axisVisual');
+    let html = '';
+    
+    for (let i = 1; i <= 17; i++) {
+        const axis = axesData?.axes?.find(a => a.axisId === `A${i}`) || {};
+        const isActive = axis.selected?.value;
+        
+        html += `
+            <div class="axis-cell ${isActive ? 'active' : ''}" onclick="selectAxis(${i})" data-axis="${i}">
+                <div class="axis-num">${i}</div>
+                <div class="axis-name">${axisNames[i-1]}</div>
+                ${isActive ? `<div class="axis-value">${axis.selected.value}</div>` : ''}
+            </div>
+        `;
+    }
+    visual.innerHTML = html;
+    
+    // Table
+    const tbody = document.getElementById('axisTableBody');
+    tbody.innerHTML = '';
+    
+    for (let i = 1; i <= 17; i++) {
+        const axis = axesData?.axes?.find(a => a.axisId === `A${i}`) || {};
+        const confidence = axis.selected?.confidence || 0;
+        const candidates = axis.candidates || [];
+        
+        const row = document.createElement('tr');
+        row.dataset.axis = i;
+        row.onclick = () => selectAxis(i);
+        
+        row.innerHTML = `
+            <td><strong>A${i}</strong></td>
+            <td>${axisNames[i-1]}</td>
+            <td>${axis.selected?.value || '—'}</td>
+            <td>
+                <div class="confidence-bar-mini">
+                    <div class="confidence-fill-mini" style="width:${confidence * 100}%"></div>
+                </div>
+                ${(confidence * 100).toFixed(0)}%
+            </td>
+            <td>
+                <div class="candidates-list">
+                    ${candidates.slice(0, 3).map(c => `<span class="candidate-chip">${c.value}</span>`).join('')}
+                    ${candidates.length > 3 ? `<span class="candidate-chip">+${candidates.length - 3}</span>` : ''}
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    }
+}
+
+function selectAxis(axisNum) {
+    selectedAxis = axisNum;
+    
+    // Update visual
+    document.querySelectorAll('.axis-cell').forEach(el => el.classList.remove('selected'));
+    document.querySelector(`[data-axis="${axisNum}"]`).classList.add('selected');
+    
+    // Update table
+    document.querySelectorAll('.axis-table tbody tr').forEach(el => el.classList.remove('selected'));
+    document.querySelector(`.axis-table tbody tr[data-axis="${axisNum}"]`).classList.add('selected');
+    
+    // Show evidence
+    document.getElementById('selectedAxisLabel').textContent = `Axis ${axisNum}: ${axisNames[axisNum-1]}`;
+    renderAxisEvidence(axisNum);
+}
+
+function renderAxisEvidence(axisNum) {
+    const container = document.getElementById('axisEvidenceList');
+    const axis = axesData?.axes?.find(a => a.axisId === `A${axisNum}`) || {};
+    const triggerIds = axis.triggerEvidenceIds || [];
+    
+    if (triggerIds.length === 0) {
+        container.innerHTML = '<p class="empty">No trigger evidence for this axis</p>';
+        return;
+    }
+    
+    // Simulated evidence display
+    container.innerHTML = triggerIds.map(id => `
+        <div class="evidence-trigger">
+            <div class="trigger-text">
+                Evidence ID: <span class="trigger-highlight">${id}</span>
+            </div>
+            <div class="trigger-meta">
+                This evidence triggered the mapping to Axis ${axisNum}
+            </div>
+        </div>
+    `).join('');
+}
+
+document.addEventListener('DOMContentLoaded', loadAxes);
+</script>
+{% endblock %}

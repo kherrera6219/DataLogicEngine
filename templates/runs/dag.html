@@ -1,0 +1,429 @@
+{% extends 'base.html' %}
+
+{% block title %}DAG Viewer - Run {{ run_id[:8] }}{% endblock %}
+
+{% block page_title %}Execution DAG{% endblock %}
+{% block page_subtitle %}Procedural Dependency Graph for trace {{ run_id[:8] }}{% endblock %}
+
+{% block content %}
+<div class="dag-container">
+    <!-- Controls -->
+    <div class="dag-controls card">
+        <div class="card-body">
+            <div class="control-row">
+                <button class="btn btn-secondary" onclick="zoomIn()">
+                    <span class="material-icons">zoom_in</span>
+                </button>
+                <button class="btn btn-secondary" onclick="zoomOut()">
+                    <span class="material-icons">zoom_out</span>
+                </button>
+                <button class="btn btn-secondary" onclick="resetZoom()">
+                    <span class="material-icons">center_focus_strong</span>
+                </button>
+                <div class="divider"></div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="showParallel" checked>
+                    <span class="toggle-slider"></span>
+                    <span>Show Parallel</span>
+                </label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="showRetries">
+                    <span class="toggle-slider"></span>
+                    <span>Show Retries</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <!-- DAG Canvas -->
+    <div class="dag-canvas-container">
+        <svg id="dagCanvas" width="100%" height="600"></svg>
+    </div>
+    
+    <!-- Node Inspector -->
+    <div class="node-inspector" id="nodeInspector">
+        <div class="inspector-header">
+            <h3 id="inspectorTitle">Select a node</h3>
+            <button class="icon-btn" onclick="closeInspector()">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <div class="inspector-body" id="inspectorBody">
+            <p class="placeholder">Click a node in the graph to view details</p>
+        </div>
+        <div class="inspector-actions" id="inspectorActions" style="display:none">
+            <button class="btn btn-primary" onclick="replayFromNode()">
+                <span class="material-icons">replay</span> Replay from here
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.dag-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: calc(100vh - 180px);
+}
+
+.dag-controls .control-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.divider {
+    width: 1px;
+    height: 24px;
+    background: var(--dark-border);
+    margin: 0 1rem;
+}
+
+.dag-canvas-container {
+    flex: 1;
+    background: var(--dark-bg-secondary);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    position: relative;
+}
+
+#dagCanvas {
+    width: 100%;
+    height: 100%;
+}
+
+.dag-node {
+    cursor: pointer;
+}
+
+.dag-node rect {
+    transition: all 0.2s;
+}
+
+.dag-node:hover rect {
+    stroke-width: 3;
+}
+
+.dag-node.selected rect {
+    stroke: var(--dark-accent-primary);
+    stroke-width: 3;
+}
+
+.dag-node.pass rect { fill: rgba(40, 167, 69, 0.8); }
+.dag-node.warn rect { fill: rgba(255, 193, 7, 0.8); }
+.dag-node.fail rect { fill: rgba(220, 53, 69, 0.8); }
+.dag-node.running rect { fill: rgba(23, 162, 184, 0.8); }
+.dag-node.pending rect { fill: var(--dark-bg-tertiary); }
+
+.dag-edge {
+    stroke: var(--dark-text-secondary);
+    stroke-width: 2;
+    fill: none;
+}
+
+.dag-edge.parallel {
+    stroke: var(--dark-accent-primary);
+    stroke-dasharray: 5,5;
+}
+
+.dag-edge.retry {
+    stroke: var(--warning);
+}
+
+.node-inspector {
+    position: fixed;
+    right: 1rem;
+    top: 180px;
+    width: 350px;
+    background: var(--dark-bg-secondary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    z-index: 100;
+    display: none;
+}
+
+.node-inspector.show {
+    display: block;
+}
+
+.inspector-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.inspector-header h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.inspector-body {
+    padding: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.inspector-actions {
+    padding: 1rem;
+    border-top: 1px solid var(--dark-border);
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.detail-label {
+    color: var(--dark-text-secondary);
+    font-size: 0.85rem;
+}
+
+.detail-value {
+    font-weight: 500;
+}
+
+.artifact-list {
+    margin-top: 1rem;
+}
+
+.artifact-item {
+    padding: 0.5rem;
+    background: var(--dark-bg-tertiary);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+</style>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+const runId = '{{ run_id }}';
+let stages = [];
+let selectedNode = null;
+let svg, g, zoom;
+
+async function loadDAG() {
+    try {
+        const res = await fetch(`/api/v1/trace/runs/${runId}/stages`);
+        const data = await res.json();
+        stages = data.stages || [];
+        renderDAG();
+    } catch (error) {
+        console.error('Failed to load DAG:', error);
+    }
+}
+
+function renderDAG() {
+    svg = d3.select('#dagCanvas');
+    svg.selectAll('*').remove();
+    
+    const width = svg.node().clientWidth;
+    const height = svg.node().clientHeight;
+    
+    // Create zoom behavior
+    zoom = d3.zoom()
+        .scaleExtent([0.3, 3])
+        .on('zoom', (event) => g.attr('transform', event.transform));
+    
+    svg.call(zoom);
+    
+    g = svg.append('g');
+    
+    if (stages.length === 0) {
+        g.append('text')
+            .attr('x', width / 2)
+            .attr('y', height / 2)
+            .attr('text-anchor', 'middle')
+            .attr('fill', 'var(--dark-text-secondary)')
+            .text('No stages to display');
+        return;
+    }
+    
+    // Layout nodes in a flow
+    const nodeWidth = 160;
+    const nodeHeight = 60;
+    const horizontalSpacing = 80;
+    const verticalSpacing = 30;
+    
+    // Group by layer
+    const layers = {};
+    stages.forEach(stage => {
+        const layer = stage.layer_index || 0;
+        if (!layers[layer]) layers[layer] = [];
+        layers[layer].push(stage);
+    });
+    
+    const layerKeys = Object.keys(layers).sort((a, b) => a - b);
+    
+    // Position nodes
+    let x = 50;
+    layerKeys.forEach(layerKey => {
+        const layerStages = layers[layerKey];
+        let y = (height - layerStages.length * (nodeHeight + verticalSpacing)) / 2;
+        
+        layerStages.forEach(stage => {
+            stage.x = x;
+            stage.y = y;
+            y += nodeHeight + verticalSpacing;
+        });
+        
+        x += nodeWidth + horizontalSpacing;
+    });
+    
+    // Draw edges
+    stages.forEach((stage, i) => {
+        if (i > 0) {
+            const prev = stages[i - 1];
+            const isParallel = stage.layer_index === prev.layer_index;
+            
+            if (!isParallel) {
+                g.append('path')
+                    .attr('class', `dag-edge ${isParallel ? 'parallel' : ''}`)
+                    .attr('d', `M${prev.x + nodeWidth},${prev.y + nodeHeight/2} 
+                               C${prev.x + nodeWidth + 40},${prev.y + nodeHeight/2} 
+                                ${stage.x - 40},${stage.y + nodeHeight/2} 
+                                ${stage.x},${stage.y + nodeHeight/2}`)
+                    .attr('marker-end', 'url(#arrowhead)');
+            }
+        }
+    });
+    
+    // Arrow marker
+    svg.append('defs').append('marker')
+        .attr('id', 'arrowhead')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 8)
+        .attr('refY', 0)
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
+        .attr('orient', 'auto')
+        .append('path')
+        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('fill', 'var(--dark-text-secondary)');
+    
+    // Draw nodes
+    const nodes = g.selectAll('.dag-node')
+        .data(stages)
+        .join('g')
+        .attr('class', d => `dag-node ${d.status}`)
+        .attr('transform', d => `translate(${d.x},${d.y})`)
+        .on('click', (event, d) => selectNode(d));
+    
+    nodes.append('rect')
+        .attr('width', nodeWidth)
+        .attr('height', nodeHeight)
+        .attr('rx', 8)
+        .attr('ry', 8)
+        .attr('stroke', 'var(--dark-border)')
+        .attr('stroke-width', 1);
+    
+    nodes.append('text')
+        .attr('x', nodeWidth / 2)
+        .attr('y', 25)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'white')
+        .attr('font-size', '12px')
+        .attr('font-weight', '600')
+        .text(d => d.name.length > 18 ? d.name.substring(0, 18) + '...' : d.name);
+    
+    nodes.append('text')
+        .attr('x', nodeWidth / 2)
+        .attr('y', 45)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'rgba(255,255,255,0.7)')
+        .attr('font-size', '10px')
+        .text(d => `${d.timing?.duration_ms || 0}ms`);
+    
+    // Center the view
+    const bounds = g.node().getBBox();
+    svg.call(zoom.transform, d3.zoomIdentity
+        .translate(width/2 - bounds.x - bounds.width/2, height/2 - bounds.y - bounds.height/2));
+}
+
+function selectNode(stage) {
+    selectedNode = stage;
+    
+    d3.selectAll('.dag-node').classed('selected', false);
+    d3.selectAll('.dag-node').filter(d => d.stage_id === stage.stage_id).classed('selected', true);
+    
+    const inspector = document.getElementById('nodeInspector');
+    inspector.classList.add('show');
+    
+    document.getElementById('inspectorTitle').textContent = stage.name;
+    document.getElementById('inspectorBody').innerHTML = `
+        <div class="detail-row">
+            <span class="detail-label">Status</span>
+            <span class="detail-value status-badge status-${stage.status}">${stage.status}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Layer</span>
+            <span class="detail-value">${stage.layer_index || '—'}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Duration</span>
+            <span class="detail-value">${stage.timing?.duration_ms || 0}ms</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Tokens In</span>
+            <span class="detail-value">${stage.metrics?.tokens_in || 0}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Tokens Out</span>
+            <span class="detail-value">${stage.metrics?.tokens_out || 0}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Retrievals</span>
+            <span class="detail-value">${stage.metrics?.retrieval_count || 0}</span>
+        </div>
+        ${stage.decisions?.length ? `
+        <div class="artifact-list">
+            <h4>Decisions</h4>
+            ${stage.decisions.map(d => `
+                <div class="artifact-item">${d.description || d}</div>
+            `).join('')}
+        </div>
+        ` : ''}
+    `;
+    
+    document.getElementById('inspectorActions').style.display = 'block';
+}
+
+function closeInspector() {
+    document.getElementById('nodeInspector').classList.remove('show');
+    d3.selectAll('.dag-node').classed('selected', false);
+    selectedNode = null;
+}
+
+function zoomIn() {
+    svg.transition().call(zoom.scaleBy, 1.3);
+}
+
+function zoomOut() {
+    svg.transition().call(zoom.scaleBy, 0.7);
+}
+
+function resetZoom() {
+    const width = svg.node().clientWidth;
+    const height = svg.node().clientHeight;
+    const bounds = g.node().getBBox();
+    svg.transition().call(zoom.transform, d3.zoomIdentity
+        .translate(width/2 - bounds.x - bounds.width/2, height/2 - bounds.y - bounds.height/2));
+}
+
+async function replayFromNode() {
+    if (!selectedNode) return;
+    Toast.info(`Replay from ${selectedNode.name} - coming soon`);
+}
+
+window.addEventListener('resize', () => {
+    if (stages.length > 0) renderDAG();
+});
+
+document.addEventListener('DOMContentLoaded', loadDAG);
+</script>
+{% endblock %}

@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+
+{% block title %}Evidence Panel - Run {{ run_id[:8] }}{% endblock %}
+
+{% block page_title %}Evidence & Citations{% endblock %}
+{% block page_subtitle %}Verifiable evidence mapping with claim support analysis{% endblock %}
+
+{% block content %}
+<div class="evidence-container">
+    <!-- Claims Panel -->
+    <div class="claims-panel card">
+        <div class="card-header">
+            <h2 class="card-title">Claims</h2>
+            <span class="claim-count" id="claimCount">0 claims</span>
+        </div>
+        <div class="card-body" id="claimsList">
+            <div class="loading">Loading claims...</div>
+        </div>
+    </div>
+    
+    <!-- Evidence Panel -->
+    <div class="evidence-panel card">
+        <div class="card-header">
+            <h2 class="card-title">Evidence Sources</h2>
+            <div class="filter-controls">
+                <select id="authorityFilter">
+                    <option value="all">All Authority</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-body" id="evidenceList">
+            <div class="loading">Loading evidence...</div>
+        </div>
+    </div>
+    
+    <!-- Claim-Evidence Graph -->
+    <div class="graph-panel card">
+        <div class="card-header">
+            <h2 class="card-title">Claim → Evidence Graph</h2>
+        </div>
+        <div class="card-body">
+            <svg id="evidenceGraph" width="100%" height="300"></svg>
+        </div>
+    </div>
+    
+    <!-- Conflicts Panel -->
+    <div class="conflicts-panel card">
+        <div class="card-header">
+            <h2 class="card-title">Contradictions</h2>
+        </div>
+        <div class="card-body" id="conflictsList">
+            <p class="empty">No contradictions detected</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.evidence-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 1rem;
+}
+
+.claims-panel { grid-column: 1; }
+.evidence-panel { grid-column: 2; }
+.graph-panel { grid-column: 1 / -1; }
+.conflicts-panel { grid-column: 1 / -1; }
+
+.claim-item {
+    padding: 1rem;
+    background: var(--dark-bg-tertiary);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.claim-item:hover, .claim-item.selected {
+    border-left-color: var(--dark-accent-primary);
+    background: rgba(106, 143, 255, 0.1);
+}
+
+.claim-text { font-size: 0.9rem; line-height: 1.4; }
+
+.claim-meta {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.support-badge {
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.support-badge.supported { background: rgba(40,167,69,0.15); color: var(--success); }
+.support-badge.partial { background: rgba(255,193,7,0.15); color: var(--warning); }
+.support-badge.unsupported { background: rgba(220,53,69,0.15); color: var(--danger); }
+.support-badge.contested { background: rgba(220,53,69,0.15); color: var(--danger); }
+
+.evidence-item {
+    padding: 1rem;
+    background: var(--dark-bg-tertiary);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid var(--dark-accent-secondary);
+}
+
+.evidence-item.high { border-left-color: var(--success); }
+.evidence-item.medium { border-left-color: var(--warning); }
+.evidence-item.low { border-left-color: var(--danger); }
+
+.evidence-source {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.source-title { font-weight: 500; font-size: 0.9rem; }
+
+.authority-badge {
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+.authority-badge.high { background: var(--success); }
+.authority-badge.medium { background: var(--warning); color: black; }
+.authority-badge.low { background: var(--danger); }
+
+.evidence-snippet {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    padding: 0.75rem;
+    background: var(--dark-bg-secondary);
+    border-radius: 4px;
+    margin: 0.5rem 0;
+    border-left: 2px solid var(--dark-accent-primary);
+}
+
+.evidence-meta {
+    font-size: 0.75rem;
+    color: var(--dark-text-secondary);
+    display: flex;
+    gap: 1rem;
+}
+
+.conflict-item {
+    padding: 1rem;
+    background: rgba(220, 53, 69, 0.1);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid var(--danger);
+}
+
+.filter-controls select {
+    background: var(--dark-bg-tertiary);
+    border: 1px solid var(--dark-border);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    color: inherit;
+}
+
+@media (max-width: 992px) {
+    .evidence-container {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+const runId = '{{ run_id }}';
+let claims = [];
+let evidence = [];
+let selectedClaim = null;
+
+async function loadData() {
+    const [claimsRes, evidenceRes] = await Promise.all([
+        fetch(`/api/v1/trace/runs/${runId}/claims`),
+        fetch(`/api/v1/trace/runs/${runId}/evidence`)
+    ]);
+    
+    claims = (await claimsRes.json()).claims || [];
+    evidence = (await evidenceRes.json()).evidence || [];
+    
+    renderClaims();
+    renderEvidence();
+    renderGraph();
+    renderConflicts();
+}
+
+function renderClaims() {
+    const container = document.getElementById('claimsList');
+    document.getElementById('claimCount').textContent = `${claims.length} claims`;
+    
+    if (claims.length === 0) {
+        container.innerHTML = '<p class="empty">No claims extracted</p>';
+        return;
+    }
+    
+    container.innerHTML = claims.map(c => `
+        <div class="claim-item" onclick="selectClaim('${c.claim_id}')" data-claim="${c.claim_id}">
+            <div class="claim-text">${c.text}</div>
+            <div class="claim-meta">
+                <span class="support-badge ${c.support?.status || 'pending'}">${c.support?.status || 'pending'}</span>
+                <span>Confidence: ${((c.support?.confidence || 0) * 100).toFixed(0)}%</span>
+                <span>${(c.support?.evidence_ids || []).length} sources</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderEvidence(filter = 'all') {
+    const container = document.getElementById('evidenceList');
+    let filtered = evidence;
+    
+    if (filter !== 'all') {
+        filtered = evidence.filter(e => e.source?.authority === filter);
+    }
+    
+    if (filtered.length === 0) {
+        container.innerHTML = '<p class="empty">No evidence found</p>';
+        return;
+    }
+    
+    container.innerHTML = filtered.map(e => `
+        <div class="evidence-item ${e.source?.authority || 'medium'}" data-evidence="${e.evidence_id}">
+            <div class="evidence-source">
+                <span class="source-title">${e.source?.title || 'Unknown'}</span>
+                <span class="authority-badge ${e.source?.authority || 'medium'}">${e.source?.authority || 'medium'}</span>
+            </div>
+            <div class="evidence-snippet">${e.snippet || 'No excerpt'}</div>
+            <div class="evidence-meta">
+                <span>Method: ${e.retrieval?.method || 'unknown'}</span>
+                <span>Score: ${(e.retrieval?.relevance_score || 0).toFixed(2)}</span>
+                <span>Used by ${(e.used_by?.claims || []).length} claims</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function selectClaim(claimId) {
+    selectedClaim = claimId;
+    document.querySelectorAll('.claim-item').forEach(el => el.classList.remove('selected'));
+    document.querySelector(`[data-claim="${claimId}"]`).classList.add('selected');
+    
+    // Highlight related evidence
+    const claim = claims.find(c => c.claim_id === claimId);
+    document.querySelectorAll('.evidence-item').forEach(el => {
+        el.style.opacity = claim?.support?.evidence_ids?.includes(el.dataset.evidence) ? '1' : '0.4';
+    });
+}
+
+function renderGraph() {
+    const svg = d3.select('#evidenceGraph');
+    svg.selectAll('*').remove();
+    
+    if (claims.length === 0 && evidence.length === 0) return;
+    
+    const width = svg.node().clientWidth;
+    const height = 300;
+    
+    // Create nodes
+    const nodes = [
+        ...claims.map(c => ({ id: c.claim_id, type: 'claim', label: c.text.substring(0, 30) + '...' })),
+        ...evidence.map(e => ({ id: e.evidence_id, type: 'evidence', label: e.source?.title?.substring(0, 20) || 'Source' }))
+    ];
+    
+    // Create links
+    const links = [];
+    claims.forEach(c => {
+        (c.support?.evidence_ids || []).forEach(eId => {
+            links.push({ source: c.claim_id, target: eId });
+        });
+    });
+    
+    // Force simulation
+    const simulation = d3.forceSimulation(nodes)
+        .force('link', d3.forceLink(links).id(d => d.id).distance(100))
+        .force('charge', d3.forceManyBody().strength(-200))
+        .force('center', d3.forceCenter(width / 2, height / 2));
+    
+    const g = svg.append('g');
+    
+    const link = g.selectAll('.link')
+        .data(links)
+        .join('line')
+        .attr('class', 'link')
+        .attr('stroke', 'var(--dark-border)')
+        .attr('stroke-width', 1);
+    
+    const node = g.selectAll('.node')
+        .data(nodes)
+        .join('g')
+        .attr('class', 'node');
+    
+    node.append('circle')
+        .attr('r', d => d.type === 'claim' ? 12 : 8)
+        .attr('fill', d => d.type === 'claim' ? 'var(--dark-accent-primary)' : 'var(--dark-accent-secondary)');
+    
+    simulation.on('tick', () => {
+        link.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+            .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+        node.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+}
+
+function renderConflicts() {
+    const container = document.getElementById('conflictsList');
+    const conflicts = evidence.filter(e => e.conflicts_with?.length > 0);
+    
+    if (conflicts.length === 0) {
+        container.innerHTML = '<p class="empty">No contradictions detected</p>';
+        return;
+    }
+    
+    container.innerHTML = conflicts.map(e => `
+        <div class="conflict-item">
+            <strong>${e.source?.title || 'Source'}</strong> conflicts with:
+            ${e.conflicts_with.map(id => {
+                const other = evidence.find(x => x.evidence_id === id);
+                return `<span>${other?.source?.title || id}</span>`;
+            }).join(', ')}
+        </div>
+    `).join('');
+}
+
+document.getElementById('authorityFilter').addEventListener('change', e => {
+    renderEvidence(e.target.value);
+});
+
+document.addEventListener('DOMContentLoaded', loadData);
+</script>
+{% endblock %}

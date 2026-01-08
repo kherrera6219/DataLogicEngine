@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+
+{% block title %}KA Trace - Run {{ run_id[:8] }}{% endblock %}
+
+{% block page_title %}Knowledge Algorithm Trace{% endblock %}
+{% block page_subtitle %}Algorithm invocations with routing decisions and side effects{% endblock %}
+
+{% block content %}
+<div class="ka-container">
+    <!-- KA Layer Map -->
+    <div class="layer-map card">
+        <div class="card-header">
+            <h2 class="card-title">Layer → KA Mapping</h2>
+        </div>
+        <div class="card-body">
+            <div class="layer-grid" id="layerGrid"></div>
+        </div>
+    </div>
+    
+    <!-- KA Invocation Table -->
+    <div class="ka-table card">
+        <div class="card-header">
+            <h2 class="card-title">Invocations</h2>
+            <span id="kaCount">0 KAs</span>
+        </div>
+        <div class="card-body">
+            <table class="table-enhanced">
+                <thead>
+                    <tr>
+                        <th>KA Name</th>
+                        <th>Version</th>
+                        <th>Layer</th>
+                        <th>Status</th>
+                        <th>Duration</th>
+                        <th>Routing</th>
+                    </tr>
+                </thead>
+                <tbody id="kaTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- KA Detail Inspector -->
+    <div class="ka-detail card" id="kaDetail" style="display:none">
+        <div class="card-header">
+            <h2 class="card-title" id="kaDetailTitle">KA Details</h2>
+            <button class="icon-btn" onclick="closeDetail()">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <div class="card-body" id="kaDetailBody"></div>
+    </div>
+</div>
+
+<style>
+.ka-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.layer-grid {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 1rem 0;
+}
+
+.layer-column {
+    min-width: 120px;
+    background: var(--dark-bg-tertiary);
+    border-radius: 8px;
+    padding: 0.75rem;
+}
+
+.layer-header {
+    text-align: center;
+    font-weight: 600;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--dark-border);
+    margin-bottom: 0.5rem;
+}
+
+.ka-chip {
+    padding: 0.5rem;
+    background: var(--dark-bg-secondary);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ka-chip:hover {
+    background: rgba(106, 143, 255, 0.2);
+}
+
+.ka-chip.pass { border-left: 3px solid var(--success); }
+.ka-chip.warn { border-left: 3px solid var(--warning); }
+.ka-chip.fail { border-left: 3px solid var(--danger); }
+
+.table-enhanced tbody tr {
+    cursor: pointer;
+}
+
+.table-enhanced tbody tr:hover {
+    background: rgba(106, 143, 255, 0.05);
+}
+
+.routing-reason {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    color: var(--dark-text-secondary);
+}
+
+.detail-section {
+    margin-bottom: 1.5rem;
+}
+
+.detail-section h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.9rem;
+    color: var(--dark-text-secondary);
+}
+
+.artifact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.artifact-box {
+    padding: 1rem;
+    background: var(--dark-bg-tertiary);
+    border-radius: 8px;
+}
+
+.artifact-box h5 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.85rem;
+}
+
+.artifact-content {
+    font-family: monospace;
+    font-size: 0.8rem;
+    max-height: 150px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+
+.side-effect {
+    padding: 0.5rem;
+    background: rgba(255, 193, 7, 0.1);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+</style>
+
+<script>
+const runId = '{{ run_id }}';
+let kas = [];
+let stages = [];
+
+async function loadData() {
+    const [kasRes, stagesRes] = await Promise.all([
+        fetch(`/api/v1/trace/runs/${runId}/kas`),
+        fetch(`/api/v1/trace/runs/${runId}/stages`)
+    ]);
+    
+    kas = (await kasRes.json()).kas || [];
+    stages = (await stagesRes.json()).stages || [];
+    
+    renderLayerMap();
+    renderTable();
+}
+
+function renderLayerMap() {
+    const container = document.getElementById('layerGrid');
+    const layers = {};
+    
+    // Group KAs by layer
+    kas.forEach(ka => {
+        const stage = stages.find(s => s.stage_id === ka.stage_id);
+        const layer = stage?.layer_index || 0;
+        if (!layers[layer]) layers[layer] = [];
+        layers[layer].push(ka);
+    });
+    
+    // If no layer data, show flat list
+    if (Object.keys(layers).length === 0) {
+        layers[0] = kas;
+    }
+    
+    let html = '';
+    for (let i = 1; i <= 10; i++) {
+        const layerKas = layers[i] || [];
+        html += `
+            <div class="layer-column">
+                <div class="layer-header">Layer ${i}</div>
+                ${layerKas.length > 0 ? layerKas.map(ka => `
+                    <div class="ka-chip ${ka.status}" onclick="showDetail('${ka.invocation_id}')">
+                        ${ka.ka_name || ka.ka_id}
+                    </div>
+                `).join('') : '<div class="empty" style="font-size:0.75rem;text-align:center;color:var(--dark-text-secondary)">—</div>'}
+            </div>
+        `;
+    }
+    container.innerHTML = html;
+}
+
+function renderTable() {
+    const tbody = document.getElementById('kaTableBody');
+    document.getElementById('kaCount').textContent = `${kas.length} KAs`;
+    
+    if (kas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty">No KA invocations recorded</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = kas.map(ka => {
+        const stage = stages.find(s => s.stage_id === ka.stage_id);
+        return `
+            <tr onclick="showDetail('${ka.invocation_id}')">
+                <td><strong>${ka.ka_name || ka.ka_id}</strong></td>
+                <td>${ka.ka_version || '—'}</td>
+                <td>${stage?.layer_index || '—'}</td>
+                <td><span class="status-badge status-${ka.status}">${ka.status}</span></td>
+                <td>${ka.timing?.duration_ms || 0}ms</td>
+                <td class="routing-reason">${ka.routing?.reason || '—'}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function showDetail(invocationId) {
+    const ka = kas.find(k => k.invocation_id === invocationId);
+    if (!ka) return;
+    
+    document.getElementById('kaDetail').style.display = 'block';
+    document.getElementById('kaDetailTitle').textContent = ka.ka_name || ka.ka_id;
+    
+    document.getElementById('kaDetailBody').innerHTML = `
+        <div class="detail-section">
+            <h4>Routing Decision</h4>
+            <p><strong>Complexity Score:</strong> ${ka.routing?.complexity_score || '—'}</p>
+            <p><strong>Axis Triggers:</strong> ${(ka.routing?.axis_triggers || []).join(', ') || 'None'}</p>
+            <p><strong>Reason:</strong> ${ka.routing?.reason || 'Not specified'}</p>
+        </div>
+        
+        <div class="detail-section">
+            <h4>Inputs / Outputs</h4>
+            <div class="artifact-grid">
+                <div class="artifact-box">
+                    <h5>Inputs</h5>
+                    <div class="artifact-content">${JSON.stringify(ka.inputs, null, 2) || 'None'}</div>
+                </div>
+                <div class="artifact-box">
+                    <h5>Outputs</h5>
+                    <div class="artifact-content">${JSON.stringify(ka.outputs, null, 2) || 'None'}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="detail-section">
+            <h4>Side Effects</h4>
+            ${(ka.side_effects || []).length > 0 ? 
+                ka.side_effects.map(se => `<div class="side-effect">${se.type}: ${se.ref_id}</div>`).join('') :
+                '<p class="empty">No side effects</p>'}
+        </div>
+    `;
+}
+
+function closeDetail() {
+    document.getElementById('kaDetail').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', loadData);
+</script>
+{% endblock %}
