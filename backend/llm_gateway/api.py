@@ -12,9 +12,17 @@ from flask_login import login_required, current_user
 import json
 import logging
 
-from backend.extensions import db
 from backend.llm_gateway.models import LLMProvider, LLMProviderUsage, ExternalAPIKey
 from backend.llm_gateway.gateway import LLMGateway, GatewayRequest
+try:
+    from extensions import db, cache
+except ImportError:
+    # Fallback if running from a different context
+    from backend.extensions import db
+    try:
+        from backend.extensions import cache
+    except ImportError:
+        cache = None
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +45,17 @@ def api_key_required(f):
             if not key_record:
                 return jsonify({'error': 'Invalid API key'}), 401
             
-            # Update usage
+            # Rate Limiting (Redis-backed)
+            if cache and key_record.rate_limit_rpm:
+                limit_key = f"rl:{key_record.id}:{int(asyncio.get_event_loop().time() // 60) if asyncio.get_event_loop().is_running() else int(datetime.now().timestamp() // 60)}"
+                # Use current minute bucket
+                current_usage = cache.get(limit_key) or 0
+                if current_usage >= key_record.rate_limit_rpm:
+                    return jsonify({'error': 'Rate limit exceeded', 'limit': f'{key_record.rate_limit_rpm}/min'}), 429
+                
+                cache.set(limit_key, current_usage + 1, timeout=60)
+            
+            # Update usage stats
             key_record.total_requests += 1
             key_record.last_used_at = db.func.now()
             db.session.commit()
@@ -64,48 +82,28 @@ def api_key_required(f):
 def gateway_chat():
     """
     Main gateway endpoint for chat completions.
-    
-    Request:
-    {
-        "messages": [{"role": "user", "content": "..."}],
-        "provider": "openai",  // optional
-        "model": "gpt-4",      // optional
-        "mode": "trace",       // chat | explain | trace
-        "constraints": {},     // optional
-        "run_ukg_pipeline": true  // apply UKG reasoning
-    }
-    
-    Response:
-    {
-        "response": "...",
-        "run_id": "uuid",
-        "provider_used": "openai",
-        "model_used": "gpt-4",
-        "usage": {...},
-        "trace_summary": {...},
-        "coordinates": {...},
-        "confidence_score": 0.85
-    }
+    Validates request using Pydantic schema.
     """
-    data = request.get_json() or {}
+    try:
+        from backend.llm_gateway.schemas import GatewayChatRequest
+        data = request.get_json() or {}
+        req_model = GatewayChatRequest(**data)
+    except Exception as e:
+        return jsonify({'error': f'Validation error: {str(e)}'}), 400
     
-    # Validate messages
-    messages = data.get('messages', [])
-    if not messages:
-        return jsonify({'error': 'messages required'}), 400
-    
-    # Build request
+    # Build request from validated model
     gateway_request = GatewayRequest(
-        messages=messages,
-        provider=data.get('provider'),
-        model=data.get('model'),
-        mode=data.get('mode', 'chat'),
-        constraints=data.get('constraints', {}),
-        run_ukg_pipeline=data.get('run_ukg_pipeline', True),
-        temperature=data.get('temperature', 0.7),
-        max_tokens=data.get('max_tokens'),
+        messages=[m.dict() for m in req_model.messages],
+        provider=req_model.provider,
+        model=req_model.model,
+        mode=req_model.mode,
+        constraints=req_model.constraints,
+        run_ukg_pipeline=req_model.run_ukg_pipeline,
+        temperature=req_model.temperature,
+        max_tokens=req_model.max_tokens,
         user_id=g.user_id,
         api_key_id=str(g.api_key.id) if g.api_key else None,
+        meta=req_model.meta,
     )
     
     # Process request

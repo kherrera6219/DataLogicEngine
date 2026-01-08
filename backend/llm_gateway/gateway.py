@@ -291,7 +291,56 @@ class LLMGateway:
             max_tokens=max_tokens,
         )
         
+        # Connect SDK trace to TraceRun/TraceStage models
+        await self._create_trace_run(result, query, user_id, session_id, model)
+        
         return result
+    
+    async def _create_trace_run(
+        self,
+        sdk_result: dict[str, Any],
+        query: str,
+        user_id: str,
+        session_id: Optional[str],
+        model: str,
+    ) -> None:
+        """Create TraceRun and TraceStage records from SDK result."""
+        try:
+            from backend.tracing.models import TraceRun, TraceStage
+            from backend.extensions import db
+            import uuid
+            
+            # Create TraceRun
+            run = TraceRun(
+                session_id=uuid.UUID(session_id) if session_id else None,
+                status="pass" if sdk_result.get("ok") else "fail",
+                model_name=model,
+                input_message=query,
+                final_answer=sdk_result.get("answer", ""),
+                confidence=0.85,  # From SDK result if available
+            )
+            db.session.add(run)
+            
+            # Create TraceStages from SDK trace
+            trace = sdk_result.get("trace", [])
+            for i, trace_item in enumerate(trace):
+                stage = TraceStage(
+                    run_id=run.run_id,
+                    name=trace_item.get("ka_id", f"Stage-{i}"),
+                    stage_type="layer",
+                    layer_index=i + 1,
+                    status=trace_item.get("status", "pass"),
+                    outputs=trace_item.get("output", {}),
+                )
+                db.session.add(stage)
+            
+            db.session.commit()
+            logger.info(f"Created TraceRun {run.run_id} with {len(trace)} stages")
+            
+        except Exception as e:
+            logger.warning(f"Failed to create trace records: {e}")
+            # Don't fail the request if tracing fails
+
     
     async def _direct_llm_call(
         self,
