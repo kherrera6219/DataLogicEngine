@@ -1,14 +1,24 @@
+// Toast removed as sonner is not installed. Add later if needed.
 export const API_BASE = "/api/v1";
 
-// Interfaces
-export interface ChatMessage {
+// --- Interfaces ---
+
+export interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
+export interface ChatRequest {
+  messages: Message[];
+  run_ukg_pipeline?: boolean;
+  mode?: string;
+  provider?: string;
+  model?: string;
+}
+
 export interface ChatResponse {
   response: string;
-  history?: ChatMessage[];
+  history?: Message[];
   trace_id?: string;
   error?: string;
 }
@@ -20,6 +30,11 @@ export interface TraceRun {
   completed_at?: string;
   input_message?: string;
   ka_id?: string;
+  scores?: {
+      confidence: number;
+      entropy: number;
+      bias_risk: number;
+  };
 }
 
 export interface TraceDetail extends TraceRun {
@@ -28,22 +43,13 @@ export interface TraceDetail extends TraceRun {
   metrics?: any;
 }
 
-// Client
+// --- Unified Client ---
+
 export const api = {
   chat: {
-    send: async (message: string, provider: string = 'openai', model: string = 'gpt-4') => {
-      try {
-        const res = await fetch(`${API_BASE}/gateway/chat`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message, provider, model })
-        });
-        if (!res.ok) throw new Error("Chat failed");
-        return await res.json() as ChatResponse;
-      } catch (err) {
-        console.error(err);
-        return { response: "Error connecting to server.", error: String(err) };
-      }
+    // New simplified method
+    sendSimple: async (message: string) => {
+       return sendChat({ messages: [{ role: 'user', content: message }] });
     }
   },
   
@@ -51,7 +57,7 @@ export const api = {
     list: async (limit: number = 10) => {
        try {
          const res = await fetch(`${API_BASE}/trace/runs?limit=${limit}`);
-         if (!res.ok) return []; // Fallback empty
+         if (!res.ok) return [];
          const data = await res.json();
          return data.runs as TraceRun[];
        } catch (err) {
@@ -73,9 +79,43 @@ export const api = {
   system: {
      health: async () => {
         try {
-           const res = await fetch(`/health`);
+           const res = await fetch(`/health`);  // Gateway health endpoint
            return res.ok ? 'Operational' : 'Degraded';
         } catch (e) { return 'Offline'; }
      }
   }
 };
+
+// --- Legacy / Standalone Exports for ChatInterface ---
+
+export async function sendChat(payload: ChatRequest): Promise<ChatResponse> {
+  try {
+    const res = await fetch(`${API_BASE}/gateway/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+          messages: payload.messages,
+          provider: payload.provider || 'openai', // Defaults
+          model: payload.model || 'gpt-4',
+          run_ukg_pipeline: payload.run_ukg_pipeline,
+          mode: payload.mode
+      })
+    });
+    
+    if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Chat failed: ${res.status} ${errText}`);
+    }
+    return await res.json() as ChatResponse;
+  } catch (err: any) {
+    console.error(err);
+    throw new Error(err.message || "Network error");
+  }
+}
+
+export async function getProviders() {
+    try {
+        const res = await fetch(`${API_BASE}/gateway/providers`);
+        return await res.json();
+    } catch (e) { return []; }
+}

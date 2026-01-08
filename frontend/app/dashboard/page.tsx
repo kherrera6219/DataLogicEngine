@@ -1,12 +1,48 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import Link from "next/link";
+import { api, TraceRun } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
 
 export default function DashboardPage() {
+  const [runs, setRuns] = useState<TraceRun[]>([]);
+  const [systemStatus, setSystemStatus] = useState<string>('Checking...');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+     let mounted = true;
+     
+     async function fetchData() {
+         try {
+             // Parallel fetch
+             const [runsData, healthData] = await Promise.all([
+                 api.trace.list(5),
+                 api.system.health()
+             ]);
+             
+             if (mounted) {
+                 setRuns(runsData || []);
+                 setSystemStatus(healthData);
+                 setIsLoading(false);
+             }
+         } catch (e) {
+             console.error("Dashboard fetch error", e);
+             if (mounted) setIsLoading(false);
+         }
+     }
+
+     fetchData();
+     
+     // Poll every 10s
+     const interval = setInterval(fetchData, 10000);
+     return () => { mounted = false; clearInterval(interval); };
+  }, []);
+
   return (
     <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8">
       <div className="container mx-auto max-w-7xl">
@@ -30,7 +66,7 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Nodes</CardTitle>
-              <svg className="h-4 w-4 text-muted-foreground text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
             </CardHeader>
@@ -42,7 +78,7 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Agents</CardTitle>
-              <svg className="h-4 w-4 text-muted-foreground text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </CardHeader>
@@ -54,25 +90,27 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">System Health</CardTitle>
-              <svg className="h-4 w-4 text-muted-foreground text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">99.9%</div>
-              <p className="text-xs text-gray-500">Uptime (30 days)</p>
+              <div className={cn("text-2xl font-bold", systemStatus === 'Operational' ? "text-green-600" : "text-yellow-600")}>
+                  {systemStatus}
+              </div>
+              <p className="text-xs text-gray-500">Gateway Status</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Alerts</CardTitle>
-              <svg className="h-4 w-4 text-muted-foreground text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              <CardTitle className="text-sm font-medium">Recent Traces</CardTitle>
+               <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">3</div>
-              <p className="text-xs text-yellow-500 font-medium">Requires attention</p>
+              <div className="text-2xl font-bold">{runs.length}</div>
+              <p className="text-xs text-gray-500">Last 5 fetches</p>
             </CardContent>
           </Card>
         </div>
@@ -81,34 +119,46 @@ export default function DashboardPage() {
            {/* Recent Activity */}
            <Card className="lg:col-span-2">
               <CardHeader>
-                 <CardTitle>Recent Activity</CardTitle>
-                 <CardDescription>Latest system events and traces.</CardDescription>
+                 <CardTitle>Recent Trace Activity</CardTitle>
+                 <CardDescription>Real-time execution logs from the Knowledge Graph.</CardDescription>
               </CardHeader>
               <CardContent>
                  <Table>
                     <TableHeader>
                        <TableRow>
-                          <TableHead>Event ID</TableHead>
-                          <TableHead>Type</TableHead>
+                          <TableHead>Run ID</TableHead>
+                          <TableHead>KA / Type</TableHead>
                           <TableHead>Status</TableHead>
-                          <TableHead className="text-right">Time</TableHead>
+                          <TableHead className="text-right">Created</TableHead>
                        </TableRow>
                     </TableHeader>
                     <TableBody>
-                       {[
-                          { id: "EVT-9021", type: "KA Execution (AoT)", status: "Success", time: "2 mins ago" },
-                          { id: "EVT-9020", type: "Graph Rebalance", status: "Success", time: "15 mins ago" },
-                          { id: "EVT-9019", type: "User Login", status: "Success", time: "1 hour ago" },
-                          { id: "EVT-9018", type: "Simulation (Stress Test)", status: "Failed", time: "2 hours ago" },
-                          { id: "EVT-9017", type: "Backup", status: "Success", time: "4 hours ago" },
-                       ].map((evt) => (
-                          <TableRow key={evt.id}>
-                             <TableCell className="font-mono text-xs">{evt.id}</TableCell>
-                             <TableCell>{evt.type}</TableCell>
+                        {isLoading && (
+                            <TableRow>
+                                <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                                    Loading traces...
+                                </TableCell>
+                            </TableRow>
+                        )}
+                        {!isLoading && runs.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                                    No recent activity found. Start a chat!
+                                </TableCell>
+                            </TableRow>
+                        )}
+                        {runs.map((run) => (
+                          <TableRow key={run.run_id}>
+                             <TableCell className="font-mono text-xs">{run.run_id.substring(0,8)}</TableCell>
+                             <TableCell>{run.ka_id || 'General Chat'}</TableCell>
                              <TableCell>
-                                <Badge variant={evt.status === 'Success' ? 'success' : 'destructive'}>{evt.status}</Badge>
+                                <Badge variant={run.status === 'completed' ? 'success' : run.status === 'failed' ? 'destructive' : 'secondary'}>
+                                    {run.status}
+                                </Badge>
                              </TableCell>
-                             <TableCell className="text-right text-gray-500">{evt.time}</TableCell>
+                             <TableCell className="text-right text-gray-500 text-xs">
+                                 {new Date(run.created_at).toLocaleTimeString()}
+                             </TableCell>
                           </TableRow>
                        ))}
                     </TableBody>
@@ -119,16 +169,14 @@ export default function DashboardPage() {
            {/* System Status */}
            <Card>
               <CardHeader>
-                 <CardTitle>System Status</CardTitle>
-                 <CardDescription>Service health verification.</CardDescription>
+                 <CardTitle>Service Status</CardTitle>
+                 <CardDescription>Live health check.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                  {[
-                    { name: "LLM Gateway", status: "Operational", color: "bg-green-500" },
+                    { name: "LLM Gateway", status: systemStatus, color: systemStatus === 'Operational' ? "bg-green-500" : "bg-red-500" },
                     { name: "PostgreSQL DB", status: "Operational", color: "bg-green-500" },
-                    { name: "Redis Cache", status: "Operational", color: "bg-green-500" },
                     { name: "MCP Server", status: "Operational", color: "bg-green-500" },
-                    { name: "SMTP Service", status: "Degraded", color: "bg-yellow-500" },
                  ].map((svc) => (
                     <div key={svc.name} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
                        <span className="font-medium">{svc.name}</span>
@@ -139,7 +187,9 @@ export default function DashboardPage() {
                     </div>
                  ))}
                  <div className="pt-4">
-                     <Button className="w-full" variant="outline">View Full Report</Button>
+                     <Link href="/runs">
+                        <Button className="w-full" variant="outline">View All Traces</Button>
+                     </Link>
                  </div>
               </CardContent>
            </Card>

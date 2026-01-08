@@ -1,12 +1,30 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import Link from "next/link";
+import { api, TraceRun } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 export default function TraceRunsPage() {
+  const [runs, setRuns] = useState<TraceRun[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+     let mounted = true;
+     api.trace.list(20).then(data => {
+        if (mounted) {
+           setRuns(data || []);
+           setIsLoading(false);
+        }
+     }).catch(() => {
+        if (mounted) setIsLoading(false);
+     });
+     return () => { mounted = false; };
+  }, []);
+
   return (
     <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8">
       <div className="container mx-auto max-w-7xl">
@@ -26,29 +44,37 @@ export default function TraceRunsPage() {
                         <TableHead>Run ID</TableHead>
                         <TableHead>Algorithm (KA)</TableHead>
                         <TableHead>Start Time</TableHead>
-                        <TableHead>Duration</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Steps</TableHead>
                         <TableHead className="text-right">Action</TableHead>
                      </TableRow>
                   </TableHeader>
                   <TableBody>
-                     {[
-                        { id: "TR-2819", ka: "KA-001 (AoT)", start: "2024-03-12 10:42:01", dur: "1.2s", status: "Completed", steps: 12 },
-                        { id: "TR-2818", ka: "KA-042 (Causal)", start: "2024-03-12 10:41:45", dur: "0.8s", status: "Completed", steps: 8 },
-                        { id: "TR-2817", ka: "KA-114 (Fractal)", start: "2024-03-12 10:40:12", dur: "4.5s", status: "Failed", steps: 4 },
-                     ].map((run) => (
-                        <TableRow key={run.id}>
-                           <TableCell className="font-mono text-xs">{run.id}</TableCell>
-                           <TableCell>{run.ka}</TableCell>
-                           <TableCell className="text-gray-500">{run.start}</TableCell>
-                           <TableCell>{run.dur}</TableCell>
-                           <TableCell>
-                              <Badge variant={run.status === 'Completed' ? 'success' : 'destructive'}>{run.status}</Badge>
+                     {isLoading && (
+                        <TableRow>
+                           <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                              Loading traces...
                            </TableCell>
-                           <TableCell>{run.steps}</TableCell>
+                        </TableRow>
+                     )}
+                     {!isLoading && runs.length === 0 && (
+                        <TableRow>
+                           <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                              No traces found.
+                           </TableCell>
+                        </TableRow>
+                     )}
+                     {runs.map((run) => (
+                        <TableRow key={run.run_id}>
+                           <TableCell className="font-mono text-xs">{run.run_id.substring(0,8)}</TableCell>
+                           <TableCell>{run.ka_id || 'N/A'}</TableCell>
+                           <TableCell className="text-gray-500">{new Date(run.created_at).toLocaleString()}</TableCell>
+                           <TableCell>
+                              <Badge variant={run.status === 'completed' ? 'success' : run.status === 'failed' ? 'destructive' : 'secondary'}>
+                                 {run.status}
+                              </Badge>
+                           </TableCell>
                            <TableCell className="text-right">
-                              <Link href={`/runs/${run.id}`}>
+                              <Link href={`/runs/${run.run_id}`}>
                                  <Button size="sm" variant="outline">View Trace</Button>
                               </Link>
                            </TableCell>
