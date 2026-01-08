@@ -168,6 +168,14 @@ def chatbot():
     return render_template('chatbot.html')
 
 
+@pages_bp.route('/chat')
+@pages_bp.route('/chatbot-enterprise')
+@login_required
+def chatbot_enterprise():
+    """Render the enterprise chatbot with full tracing dashboard."""
+    return render_template('chatbot_enterprise.html')
+
+
 @pages_bp.route('/analytics')
 @login_required
 def analytics():
