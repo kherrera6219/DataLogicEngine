@@ -218,6 +218,34 @@ def trace_run_personas(run_id):
     return render_template('runs/personas.html', run_id=run_id)
 
 
+@pages_bp.route('/runs/<run_id>/kas')
+@login_required
+def trace_run_kas(run_id):
+    """Render the KA execution trace for a run."""
+    return render_template('runs/kas.html', run_id=run_id)
+
+
+@pages_bp.route('/runs/<run_id>/memory')
+@login_required
+def trace_run_memory(run_id):
+    """Render the memory viewer for a run."""
+    return render_template('runs/memory.html', run_id=run_id)
+
+
+@pages_bp.route('/runs/<run_id>/policy')
+@login_required
+def trace_run_policy(run_id):
+    """Render the policy decisions for a run."""
+    return render_template('runs/policy.html', run_id=run_id)
+
+
+@pages_bp.route('/runs/<run_id>/metrics')
+@login_required
+def trace_run_metrics(run_id):
+    """Render the metrics/observability for a run."""
+    return render_template('runs/metrics.html', run_id=run_id)
+
+
 @pages_bp.route('/analytics')
 @login_required
 def analytics():
