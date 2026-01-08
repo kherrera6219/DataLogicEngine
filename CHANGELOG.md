@@ -9,9 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Planned
 
-- WebSocket real-time updates
-- Full-text search
-- PDF/CSV exports
+- WebSocket real-time trace updates
+- Trace capture integration into chat flow
+
+## [1.3.0] - 2026-01-08
+
+### Added - Enterprise Traceability Chatbot
+
+- Full traceability chatbot UI with end-to-end visibility
+- 10 SQLAlchemy models for trace data (TraceRun, TraceStage, TraceEvidence, etc.)
+- 15+ REST API endpoints for trace access (`/api/v1/trace/*`)
+- 10 new template pages for trace visualization
+- DAG viewer with D3.js for execution pipeline visualization
+- Persona workbench with consensus flow and weight distribution
+- Evidence panel with claim-to-source mapping
+- 17-axis coordinate inspector with visual grid
+- KA trace page with layer mapping
+- Memory viewer with writeback gating
+- Policy/compliance page with control mapping
+- Metrics dashboard with latency/token charts
+- Export bundle functionality for audit
+- RBAC-aware trace filtering
+
+### UI/UX Enhancements
+
+- Enterprise chatbot at `/chat` with full tracing panels
+- Run explorer at `/runs` with search and filters
+- Run detail at `/runs/:id` with timeline and tabbed panels
+- User journey review documentation
+
+### Documentation
+
+- Updated README with new routes and features
+- Created FRONTEND_REVIEW.md
+- Created USER_JOURNEY_REVIEW.md
 
 ## [1.2.0] - 2026-01-06
 

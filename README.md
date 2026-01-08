@@ -65,26 +65,44 @@ The Universal Knowledge Graph (UKG) is a sophisticated full-stack enterprise app
 
 ### UI/UX ✅
 
-- 32 responsive template pages
+- 42+ responsive template pages
 - Interactive D3.js knowledge graph visualization
+- Enterprise traceability chatbot with full observability
 - Admin dashboard
 - Swagger UI API documentation
 
 ### Available Pages
 
-| Page                | Route           | Description                 |
-| ------------------- | --------------- | --------------------------- |
-| Home                | `/`             | Landing page                |
-| Dashboard           | `/dashboard`    | User dashboard              |
-| Knowledge Browser   | `/knowledge`    | 17-axis framework browser   |
-| Graph Visualization | `/graph`        | Interactive knowledge graph |
-| AI Chat             | `/chatbot`      | AI chat with Quad Persona   |
-| Simulations         | `/simulations`  | Simulation management       |
-| Truth Engine        | `/truth-engine` | Truth Engine dashboard      |
-| Algorithms          | `/algorithms`   | Knowledge Algorithm browser |
-| MCP Server          | `/mcp-server`   | MCP Server Manager          |
-| Admin               | `/admin`        | Admin dashboard             |
-| API Docs            | `/api/docs`     | Swagger UI                  |
+| Page                | Route           | Description                    |
+| ------------------- | --------------- | ------------------------------ |
+| Home                | `/`             | Landing page                   |
+| Dashboard           | `/dashboard`    | User dashboard                 |
+| Knowledge Browser   | `/knowledge`    | 17-axis framework browser      |
+| Graph Visualization | `/graph`        | Interactive knowledge graph    |
+| AI Chat             | `/chatbot`      | AI chat with Quad Persona      |
+| Enterprise Chat     | `/chat`         | Full traceability chatbot      |
+| Trace Runs          | `/runs`         | Trace run explorer             |
+| Run Detail          | `/runs/:id`     | Timeline + evidence + personas |
+| DAG Viewer          | `/runs/:id/dag` | D3.js execution graph          |
+| Simulations         | `/simulations`  | Simulation management          |
+| Truth Engine        | `/truth-engine` | Truth Engine dashboard         |
+| Algorithms          | `/algorithms`   | Knowledge Algorithm browser    |
+| MCP Server          | `/mcp-server`   | MCP Server Manager             |
+| Admin               | `/admin`        | Admin dashboard                |
+| API Docs            | `/api/docs`     | Swagger UI                     |
+
+### Enterprise Traceability (New)
+
+| Panel        | Description                                          |
+| ------------ | ---------------------------------------------------- |
+| Timeline     | Layer 1-10 execution with stage details              |
+| Evidence     | Claim-to-source mapping with contradiction detection |
+| 17-Axis      | Coordinate inspector with confidence scores          |
+| Quad Persona | Analyst/Expert/Critic/Synthesizer reasoning traces   |
+| KA Trace     | Knowledge Algorithm invocation history               |
+| Memory       | Working memory, recalls, writeback proposals         |
+| Policy       | Guardrails, compliance mesh, redaction viewer        |
+| Metrics      | SRE observability with latency/token charts          |
 
 ---
 
