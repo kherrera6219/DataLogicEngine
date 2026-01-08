@@ -12,6 +12,12 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Enhancement Styles -->
+    <link href="{{ url_for('static', filename='css/enhancements.css') }}" rel="stylesheet">
+    
+    <!-- Mobile theme color -->
+    <meta name="theme-color" content="#121212">
+    
     <!-- Base Styles -->
     <style>
         :root {
@@ -1019,5 +1025,8 @@
         
         {% block scripts %}{% endblock %}
     </script>
+    
+    <!-- Enhancement JavaScript -->
+    <script src="{{ url_for('static', filename='js/enhancements.js') }}"></script>
 </body>
 </html>
