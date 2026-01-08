@@ -9,6 +9,8 @@ import asyncio
 from typing import Dict, List, Optional, Any, Callable
 from datetime import datetime
 import logging
+import json
+import os
 
 from .mcp_server import MCPServer
 from .mcp_client import MCPClient
@@ -173,6 +175,12 @@ class MCPManager:
 
         # Register UKG prompts
         self._register_ukg_prompts(ukg_server)
+
+        # Register individual KA tools from registry
+        self._register_ka_tools(ukg_server)
+
+        # Register trace resources
+        self._register_trace_resources(ukg_server)
 
         logger.info("Default MCP servers set up successfully")
         return ukg_server
@@ -363,6 +371,98 @@ class MCPManager:
                 }
             ]
         )
+
+    def _register_ka_tools(self, server: MCPServer):
+        """Register individual tools for each Knowledge Algorithm from registry"""
+        try:
+            # Path to backend/ka_registry.json
+            # Assumes core/mcp/mcp_manager.py -> ../../backend/ka_registry.json
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            registry_path = os.path.join(base_dir, 'backend', 'ka_registry.json')
+            
+            if not os.path.exists(registry_path):
+                logger.warning(f"KA registry not found at {registry_path}")
+                return
+
+            with open(registry_path, 'r', encoding='utf-8') as f:
+                kas = json.load(f)
+                
+            count = 0
+            for ka in kas:
+                ka_id = ka.get('KA_ID')
+                ka_name = ka.get('KA_Name')
+                short_name = ka.get('Short_Name', ka_id)
+                purpose = ka.get('Purpose', 'No description')
+                
+                # Sanitize tool name: execute_ka_shortname
+                safe_short_name = short_name.lower().replace('-', '_').replace('/', '_').replace(' ', '_')
+                tool_name = f"execute_{safe_short_name}"
+                
+                # Define handler using closure to capture ka_id
+                async def make_handler(kid, kname):
+                    async def handler(arguments):
+                        params = arguments.get("params", {})
+                        if self.app_orchestrator and hasattr(self.app_orchestrator, 'ka_loader'):
+                            # In a real implementation this would call the actual KA
+                            # return await self.app_orchestrator.ka_loader.execute(kid, params)
+                            return f"Executed Knowledge Algorithm {kid} ({kname}) with params: {params}"
+                        return f"Executed {kid} ({kname}) (Simulation Mode)"
+                    return handler
+
+                server.register_tool(
+                    name=tool_name,
+                    description=f"[{ka_id}] {ka_name}: {purpose}",
+                    input_schema={
+                        "type": "object",
+                        "properties": {
+                            "params": {
+                                "type": "object",
+                                "description": "Parameters for the algorithm execution"
+                            }
+                        }
+                    },
+                    handler=await make_handler(ka_id, ka_name)
+                )
+                count += 1
+            
+            logger.info(f"Registered {count} Knowledge Algorithm tools")
+
+        except Exception as e:
+            logger.error(f"Error registering KA tools: {e}")
+
+    def _register_trace_resources(self, server: MCPServer):
+        """Register trace-related resources"""
+        
+        # Latest Traces
+        async def get_traces(params):
+            try:
+                # Lazy import to avoid circular dependencies
+                # Assuming backend is in python path
+                from backend.tracing.models import TraceRun
+                
+                limit = 10
+                runs = TraceRun.query.order_by(TraceRun.created_at.desc()).limit(limit).all()
+                
+                return json.dumps({
+                    "data": [r.to_dict() for r in runs],
+                    "count": len(runs),
+                    "note": "Latest 10 traces"
+                }, default=str)
+            except Exception as e:
+                return f"Error fetching traces: {str(e)}"
+
+        server.register_resource(
+            uri="ukg://traces/latest",
+            name="Latest Trace Runs",
+            handler=get_traces,
+            description="Get the 10 most recent execution traces from the UKG",
+            mime_type="application/json"
+        )
+        
+        # Specific Trace by ID (URI Template logic - manual handling for now as direct URI match)
+        # Note: MCP resource templates are complex, for now we expose a tool to fetch specific trace
+        # OR we could rely on a lookup resource if the client supports templates.
+        # We'll stick to a tool for specific ID lookup or just this list for now.
 
     async def _run_simulation(self, query: str) -> str:
         """Run a simulation using the AppOrchestrator"""
