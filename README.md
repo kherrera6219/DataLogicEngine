@@ -240,14 +240,105 @@ Interactive API documentation available at `/api/docs` (Swagger UI).
 
 ### Key Endpoints
 
-| Endpoint          | Method   | Description          |
-| ----------------- | -------- | -------------------- |
-| `/api/health`     | GET      | Health check         |
-| `/api/v1/graph`   | GET      | Knowledge graph data |
-| `/api/v1/ka/*`    | GET/POST | Knowledge Algorithms |
-| `/api/v1/truth/*` | GET/POST | Truth Engine         |
-| `/api/v1/mcp/*`   | GET/POST | MCP Protocol         |
-| `/api/v1/chat/*`  | POST     | AI Chat              |
+| Endpoint               | Method   | Description                |
+| ---------------------- | -------- | -------------------------- |
+| `/api/health`          | GET      | Health check               |
+| `/api/v1/graph`        | GET      | Knowledge graph data       |
+| `/api/v1/ka/*`         | GET/POST | Knowledge Algorithms       |
+| `/api/v1/truth/*`      | GET/POST | Truth Engine               |
+| `/api/v1/mcp/*`        | GET/POST | MCP Protocol               |
+| `/api/v1/chat/*`       | POST     | AI Chat                    |
+| `/api/v1/gateway/chat` | POST     | LLM Gateway (UKG-enhanced) |
+| `/api/v1/trace/*`      | GET/POST | Trace API                  |
+
+---
+
+## LLM Gateway Middleware
+
+The UKG system's core value proposition is as **middleware** that enhances any LLM with:
+
+- **17-Axis Coordinate Resolution** - Positions queries in multi-dimensional knowledge space
+- **KA Execution Pipeline** - 114 Knowledge Algorithms (KA-001 to KA-114)
+- **Tier Routing** - Intelligent workload distribution (T1-T4)
+- **Full Traceability** - Every decision tracked and auditable
+- **Reduced Hallucinations** - Evidence grounding and truth scoring
+
+### Architecture
+
+```
+┌─────────────────┐     ┌──────────────────────────────────────┐     ┌─────────────────┐
+│   Client Apps   │     │         UKG Reasoning Engine         │     │  LLM Providers  │
+│   (Chatbots)    │────▶│                                      │────▶│  • OpenAI       │
+│                 │◀────│  ┌────────────────────────────────┐  │◀────│  • Azure        │
+│  POST /gateway  │     │  │ 17-Axis + 10-Layer + 4-Persona │  │     │  • Anthropic    │
+│      /chat      │     │  │ + 12-Step + Full Traceability  │  │     │  • Custom       │
+└─────────────────┘     │  └────────────────────────────────┘  │     └─────────────────┘
+                        └──────────────────────────────────────┘
+```
+
+### Usage (Python SDK)
+
+```python
+import asyncio
+from ukg_sdk import UKGOverlay
+from ukg_sdk.providers import OpenAIProvider
+
+async def main():
+    provider = OpenAIProvider()  # Uses OPENAI_API_KEY env var
+    ukg = UKGOverlay(provider=provider, model="gpt-4")
+
+    result = await ukg.run(
+        query="Explain how the UKG tier router works.",
+        user_id="kevin",
+        meta={"pillar": "PL-001", "axis2": "NAICS"},
+    )
+
+    print(result["answer"])
+    print(f"Tier: {result['tier']}, Coordinate: {result['coordinate']}")
+
+asyncio.run(main())
+```
+
+### Usage (REST API)
+
+```bash
+curl -X POST http://localhost:5000/api/v1/gateway/chat \
+  -H "Authorization: Bearer ukg_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [{"role": "user", "content": "Explain UKG tier routing"}],
+    "mode": "trace",
+    "run_ukg_pipeline": true
+  }'
+```
+
+### Gateway Response
+
+```json
+{
+  "response": "...",
+  "run_id": "uuid",
+  "coordinate": "PL-001.NAICS.present.T2",
+  "tier": "T2",
+  "layers": ["L1", "L2", "L6", "L9"],
+  "trace": [...],
+  "confidence_score": 0.87
+}
+```
+
+### UKG Python SDK
+
+Located at `sdk/UKG_Python_SDK/`, the SDK includes:
+
+| Module                 | Description                                            |
+| ---------------------- | ------------------------------------------------------ |
+| `UKGOverlay`           | Main orchestrator - LLM in → UKG controls → output out |
+| `CoordinateResolver17` | 17-axis coordinate resolution                          |
+| `KAExecutor`           | KA-001 to KA-114 execution registry                    |
+| `TruthEngine`          | TruthGate + TruthCore + TruthMemory + TruthLink        |
+| `providers/*`          | OpenAI, Azure, Anthropic LLM adapters                  |
+| `memory/*`             | InMemory, Postgres, Redis adapters                     |
+| `audit/*`              | Compliance-grade hash-chained audit logs               |
 
 ---
 

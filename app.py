@@ -333,6 +333,14 @@ try:
 except ImportError as e:
     logger.warning(f"Could not register Trace API blueprint: {e}")
 
+# Register LLM Gateway API for external client access via UKG SDK
+try:
+    from backend.llm_gateway.api import register_gateway_routes
+    register_gateway_routes(app)
+    logger.info("LLM Gateway API registered at /api/v1/gateway and /api/admin")
+except ImportError as e:
+    logger.warning(f"Could not register LLM Gateway API: {e}")
+
 # Register core routes from routes package
 from routes import register_routes
 register_routes(app)
