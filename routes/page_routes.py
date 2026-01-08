@@ -176,6 +176,48 @@ def chatbot_enterprise():
     return render_template('chatbot_enterprise.html')
 
 
+@pages_bp.route('/runs')
+@login_required
+def trace_runs():
+    """Render the trace run explorer page."""
+    return render_template('runs/list.html')
+
+
+@pages_bp.route('/runs/<run_id>')
+@login_required
+def trace_run_detail(run_id):
+    """Render the trace run detail page."""
+    return render_template('runs/detail.html', run_id=run_id)
+
+
+@pages_bp.route('/runs/<run_id>/dag')
+@login_required
+def trace_run_dag(run_id):
+    """Render the DAG viewer for a run."""
+    return render_template('runs/dag.html', run_id=run_id)
+
+
+@pages_bp.route('/runs/<run_id>/evidence')
+@login_required
+def trace_run_evidence(run_id):
+    """Render the evidence panel for a run."""
+    return render_template('runs/evidence.html', run_id=run_id)
+
+
+@pages_bp.route('/runs/<run_id>/axes')
+@login_required
+def trace_run_axes(run_id):
+    """Render the 17-axis inspector for a run."""
+    return render_template('runs/axes.html', run_id=run_id)
+
+
+@pages_bp.route('/runs/<run_id>/personas')
+@login_required
+def trace_run_personas(run_id):
+    """Render the persona workbench for a run."""
+    return render_template('runs/personas.html', run_id=run_id)
+
+
 @pages_bp.route('/analytics')
 @login_required
 def analytics():

@@ -325,6 +325,14 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 logger.info("Swagger UI registered at /api/docs")
 
+# Register Trace API for enterprise traceability
+try:
+    from backend.tracing.api import trace_bp
+    app.register_blueprint(trace_bp)
+    logger.info("Trace API blueprint registered at /api/v1/trace")
+except ImportError as e:
+    logger.warning(f"Could not register Trace API blueprint: {e}")
+
 # Register core routes from routes package
 from routes import register_routes
 register_routes(app)
