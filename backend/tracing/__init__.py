@@ -20,10 +20,18 @@ from backend.tracing.models import (
     ClaimEvidenceLink,
     TraceSpan,
     StageLog,
-    TraceExport
+    TraceExport,
+    # Enterprise Compliance models
+    ComplianceMapping,
+    ArtifactRedaction,
+    EvidenceConflict,
+    PersonaEvidenceLink,
+    StageArtifactLink,
+    KAArtifactLink
 )
 
 __all__ = [
+    # Core trace models
     'TraceRun',
     'TraceStage',
     'TraceEvidence',
@@ -34,10 +42,17 @@ __all__ = [
     'TracePolicyDecision',
     'TraceMemoryEvent',
     'TraceArtifact',
-    # Phase 4
+    # Phase 4 models
     'ChatSession',
     'ClaimEvidenceLink',
     'TraceSpan',
     'StageLog',
-    'TraceExport'
+    'TraceExport',
+    # Enterprise Compliance
+    'ComplianceMapping',
+    'ArtifactRedaction',
+    'EvidenceConflict',
+    'PersonaEvidenceLink',
+    'StageArtifactLink',
+    'KAArtifactLink'
 ]

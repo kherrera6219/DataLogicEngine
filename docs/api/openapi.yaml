@@ -1,0 +1,887 @@
+openapi: 3.1.0
+info:
+  title: UKG Trace API
+  version: "1.0.0"
+  description: >
+    Run tracing, artifacts, evidence, personas, KA invocations, policy decisions,
+    memory events, and observability spans for the UKG chatbot system.
+
+servers:
+  - url: /api/v1
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Auth
+  - name: Chat
+  - name: Runs
+  - name: Stages
+  - name: Artifacts
+  - name: Claims
+  - name: Evidence
+  - name: Axes
+  - name: Personas
+  - name: KAs
+  - name: Policy
+  - name: Memory
+  - name: Metrics
+  - name: Admin
+  - name: Exports
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    runId:
+      name: runId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    stageId:
+      name: stageId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    artifactId:
+      name: artifactId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    claimId:
+      name: claimId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    evidenceId:
+      name: evidenceId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    personaRunId:
+      name: personaRunId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    invocationId:
+      name: invocationId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    decisionId:
+      name: decisionId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    memoryEventId:
+      name: memoryEventId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    exportId:
+      name: exportId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        code: { type: string }
+        message: { type: string }
+        details: { type: object, additionalProperties: true }
+      required: [code, message]
+
+    Pagination:
+      type: object
+      properties:
+        limit: { type: integer, minimum: 1, maximum: 200 }
+        offset: { type: integer, minimum: 0 }
+        total: { type: integer, minimum: 0 }
+
+    RunStatus:
+      type: string
+      enum: [pass, warn, fail, running]
+
+    StageType:
+      type: string
+      enum: [layer, step]
+
+    StageStatus:
+      type: string
+      enum: [pass, warn, fail, skipped, running]
+
+    ArtifactType:
+      type: string
+      enum: [json, text, table, graph, binaryRef]
+
+    ClaimStatus:
+      type: string
+      enum: [supported, partial, unsupported, contested]
+
+    SourceType:
+      type: string
+      enum: [doc, url, dbRecord, userUpload]
+
+    AuthorityLevel:
+      type: string
+      enum: [high, med, low]
+
+    RetrievalMethod:
+      type: string
+      enum: [vector, graph, rules, manual]
+
+    PolicyDecisionType:
+      type: string
+      enum: [allow, deny, redact, warn]
+
+    MemoryTarget:
+      type: string
+      enum: [working, ukg, uskd]
+
+    MemoryEventType:
+      type: string
+      enum: [recall, writebackProposed, writebackCommitted, snapshot]
+
+    Run:
+      type: object
+      properties:
+        runId: { type: string, format: uuid }
+        sessionId: { type: [string, "null"], format: uuid }
+        tenantId: { type: string }
+        workspaceId: { type: string }
+        userId: { type: integer }
+        createdAt: { type: string, format: date-time }
+        completedAt: { type: [string, "null"], format: date-time }
+        status: { $ref: "#/components/schemas/RunStatus" }
+        model:
+          type: object
+          properties:
+            name: { type: string }
+            version: { type: string }
+          required: [name, version]
+        policyPack:
+          type: object
+          properties:
+            id: { type: [string, "null"] }
+            version: { type: [string, "null"] }
+        dataSnapshot:
+          type: object
+          properties:
+            ukgSnapshotId: { type: [string, "null"] }
+            uskdSnapshotId: { type: [string, "null"] }
+            indexVersions:
+              { type: object, additionalProperties: { type: string } }
+        scores:
+          type: object
+          properties:
+            confidence: { type: number }
+            entropy: { type: number }
+            biasRisk: { type: number }
+        inputMessage: { type: [string, "null"] }
+        finalAnswer: { type: [string, "null"] }
+      required: [runId, userId, createdAt, status, model]
+
+    Stage:
+      type: object
+      properties:
+        stageId: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        name: { type: string }
+        stageType: { $ref: "#/components/schemas/StageType" }
+        layerIndex: { type: [integer, "null"] }
+        stepIndex: { type: [integer, "null"] }
+        status: { $ref: "#/components/schemas/StageStatus" }
+        timing:
+          type: object
+          properties:
+            startTime: { type: [string, "null"], format: date-time }
+            endTime: { type: [string, "null"], format: date-time }
+            durationMs: { type: [integer, "null"] }
+        inputs: { type: [array, "null"], items: { type: object } }
+        outputs: { type: [array, "null"], items: { type: object } }
+        decisions: { type: [array, "null"], items: { type: object } }
+        metrics: { type: [object, "null"], additionalProperties: true }
+      required: [stageId, runId, name, status]
+
+    Artifact:
+      type: object
+      properties:
+        artifactId: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        stageId: { type: [string, "null"], format: uuid }
+        type: { $ref: "#/components/schemas/ArtifactType" }
+        label: { type: string }
+        content: { type: [object, "null"], additionalProperties: true }
+        contentRef: { type: [string, "null"] }
+        hash: { type: string }
+        redactions: { type: [array, "null"], items: { type: object } }
+      required: [artifactId, runId, type, label, hash]
+
+    Claim:
+      type: object
+      properties:
+        claimId: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        text: { type: string }
+        answerSpan:
+          type: object
+          properties:
+            start: { type: [integer, "null"] }
+            end: { type: [integer, "null"] }
+        support:
+          type: object
+          properties:
+            status: { $ref: "#/components/schemas/ClaimStatus" }
+            confidence: { type: number }
+            evidenceIds:
+              { type: [array, "null"], items: { type: string, format: uuid } }
+            stageIds:
+              { type: [array, "null"], items: { type: string, format: uuid } }
+      required: [claimId, runId, text]
+
+    EvidenceItem:
+      type: object
+      properties:
+        evidenceId: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        source:
+          type: object
+          properties:
+            type: { $ref: "#/components/schemas/SourceType" }
+            id: { type: [string, "null"] }
+            title: { type: [string, "null"] }
+            authority: { $ref: "#/components/schemas/AuthorityLevel" }
+        locator: { type: [object, "null"], additionalProperties: true }
+        snippet: { type: string }
+        hash: { type: string }
+        retrieval:
+          type: object
+          properties:
+            method: { $ref: "#/components/schemas/RetrievalMethod" }
+            relevanceScore: { type: [number, "null"] }
+            axisMatch: { type: [number, "null"] }
+        usedBy:
+          type: object
+          properties:
+            claims:
+              { type: [array, "null"], items: { type: string, format: uuid } }
+            personas:
+              { type: [array, "null"], items: { type: string, format: uuid } }
+            stages:
+              { type: [array, "null"], items: { type: string, format: uuid } }
+        conflictsWith:
+          { type: [array, "null"], items: { type: string, format: uuid } }
+      required: [evidenceId, runId, snippet, hash]
+
+    AxisVector:
+      type: object
+      properties:
+        vectorId: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        coordinateHash: { type: string }
+        axes:
+          type: array
+          items:
+            type: object
+            properties:
+              axisId: { type: string }
+              name: { type: string }
+              selectedValue: { type: string }
+              confidence: { type: number }
+              candidates: { type: [array, "null"], items: { type: object } }
+              triggerEvidenceIds:
+                { type: [array, "null"], items: { type: string, format: uuid } }
+      required: [vectorId, runId, axes]
+
+    PersonaRun:
+      type: object
+      properties:
+        personaId: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        personaType: { type: string }
+        personaName: { type: [string, "null"] }
+        status: { type: string, enum: [pending, running, pass, warn, fail] }
+        inputs:
+          type: object
+          properties:
+            evidenceIds:
+              { type: [array, "null"], items: { type: string, format: uuid } }
+            contextScope: { type: [string, "null"] }
+        draft:
+          type: object
+          properties:
+            text: { type: [string, "null"] }
+            confidence: { type: number }
+        objections: { type: [array, "null"], items: { type: object } }
+        consensusImpact: { type: [object, "null"], additionalProperties: true }
+      required: [personaId, runId, personaType, status]
+
+    KAInvocation:
+      type: object
+      properties:
+        invocationId: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        stageId: { type: [string, "null"], format: uuid }
+        kaId: { type: string }
+        kaName: { type: string }
+        kaVersion: { type: string }
+        status: { type: string, enum: [pending, pass, warn, fail] }
+        timing:
+          type: object
+          properties:
+            durationMs: { type: [integer, "null"] }
+        inputs: { type: [object, "null"], additionalProperties: true }
+        outputs: { type: [object, "null"], additionalProperties: true }
+        routing: { type: [object, "null"], additionalProperties: true }
+        sideEffects: { type: [array, "null"], items: { type: object } }
+      required: [invocationId, runId, kaId, kaName, kaVersion, status]
+
+    PolicyDecision:
+      type: object
+      properties:
+        decisionId: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        stageId: { type: [string, "null"], format: uuid }
+        policyRuleId: { type: string }
+        type: { $ref: "#/components/schemas/PolicyDecisionType" }
+        reason: { type: string }
+        affected: { type: [object, "null"], additionalProperties: true }
+        actor: { type: string }
+        timestamp: { type: string, format: date-time }
+      required: [decisionId, runId, type, reason, actor, timestamp]
+
+    MemoryEvent:
+      type: object
+      properties:
+        eventId: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        stageId: { type: [string, "null"], format: uuid }
+        type: { $ref: "#/components/schemas/MemoryEventType" }
+        target: { $ref: "#/components/schemas/MemoryTarget" }
+        items: { type: [array, "null"], items: { type: object } }
+        gating: { type: [object, "null"], additionalProperties: true }
+        timestamp: { type: string, format: date-time }
+      required: [eventId, runId, type, target, timestamp]
+
+    TraceSpan:
+      type: object
+      properties:
+        spanId: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        parentSpanId: { type: [string, "null"], format: uuid }
+        name: { type: string }
+        stageId: { type: [string, "null"], format: uuid }
+        startAt: { type: string, format: date-time }
+        endAt: { type: [string, "null"], format: date-time }
+        durationMs: { type: [integer, "null"] }
+        attributes: { type: [object, "null"], additionalProperties: true }
+        events: { type: [array, "null"], items: { type: object } }
+      required: [spanId, runId, name, startAt]
+
+    ExportBundle:
+      type: object
+      properties:
+        exportId: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        userId: { type: integer }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: [string, "null"], format: date-time }
+        status: { type: string, enum: [pending, ready, failed] }
+        bundleRef: { type: [string, "null"] }
+        manifestHash: { type: [string, "null"] }
+        fileSizeBytes: { type: [integer, "null"] }
+        format: { type: string }
+      required: [exportId, runId, userId, createdAt, status]
+
+    ChatSession:
+      type: object
+      properties:
+        sessionId: { type: string, format: uuid }
+        userId: { type: integer }
+        title: { type: [string, "null"] }
+        mode: { type: string, enum: [chat, explain, trace] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        constraints: { type: [object, "null"], additionalProperties: true }
+      required: [sessionId, userId, createdAt, updatedAt]
+
+    StageLog:
+      type: object
+      properties:
+        logId: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        stageId: { type: [string, "null"], format: uuid }
+        level: { type: string, enum: [debug, info, warn, error] }
+        message: { type: string }
+        data: { type: [object, "null"], additionalProperties: true }
+        time: { type: string, format: date-time }
+      required: [logId, runId, level, message, time]
+
+    ComplianceMapping:
+      type: object
+      properties:
+        mappingId: { type: string, format: uuid }
+        runId: { type: string, format: uuid }
+        framework: { type: string }
+        controlId: { type: string }
+        relevanceReason: { type: [string, "null"] }
+        evidenceIds: { type: array, items: { type: string, format: uuid } }
+        createdAt: { type: string, format: date-time }
+      required: [mappingId, runId, framework, controlId, createdAt]
+
+paths:
+  /health:
+    get:
+      tags: [Admin]
+      summary: Health check
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+                  timestamp: { type: string, format: date-time }
+
+  # ==== Sessions ====
+  /trace/sessions:
+    get:
+      tags: [Chat]
+      summary: List chat sessions for current user
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 20, maximum: 100 }
+      responses:
+        "200":
+          description: Sessions list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: array
+                    items: { $ref: "#/components/schemas/ChatSession" }
+                  total: { type: integer }
+                  page: { type: integer }
+                  pages: { type: integer }
+
+    post:
+      tags: [Chat]
+      summary: Create a new chat session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                mode:
+                  { type: string, enum: [chat, explain, trace], default: chat }
+                constraints: { type: object, additionalProperties: true }
+      responses:
+        "201":
+          description: Session created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ChatSession" }
+
+  /trace/sessions/{sessionId}:
+    get:
+      tags: [Chat]
+      summary: Get session details
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Session
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ChatSession" }
+
+    patch:
+      tags: [Chat]
+      summary: Update session
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                mode: { type: string, enum: [chat, explain, trace] }
+                constraints: { type: object }
+      responses:
+        "200":
+          description: Updated session
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ChatSession" }
+
+  # ==== Runs ====
+  /trace/runs:
+    get:
+      tags: [Runs]
+      summary: List runs with filtering
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 20 }
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/RunStatus" }
+      responses:
+        "200":
+          description: Runs list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  runs:
+                    type: array
+                    items: { $ref: "#/components/schemas/Run" }
+                  total: { type: integer }
+                  page: { type: integer }
+                  pages: { type: integer }
+
+  /trace/runs/{runId}:
+    get:
+      tags: [Runs]
+      summary: Get run details
+      parameters: [{ $ref: "#/components/parameters/runId" }]
+      responses:
+        "200":
+          description: Run details
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Run" }
+
+  /trace/runs/{runId}/stages:
+    get:
+      tags: [Stages]
+      summary: Get stages for a run
+      parameters: [{ $ref: "#/components/parameters/runId" }]
+      responses:
+        "200":
+          description: Stages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stages:
+                    type: array
+                    items: { $ref: "#/components/schemas/Stage" }
+
+  /trace/runs/{runId}/evidence:
+    get:
+      tags: [Evidence]
+      summary: Get evidence for a run
+      parameters: [{ $ref: "#/components/parameters/runId" }]
+      responses:
+        "200":
+          description: Evidence items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  evidence:
+                    type: array
+                    items: { $ref: "#/components/schemas/EvidenceItem" }
+
+  /trace/runs/{runId}/claims:
+    get:
+      tags: [Claims]
+      summary: Get claims for a run
+      parameters: [{ $ref: "#/components/parameters/runId" }]
+      responses:
+        "200":
+          description: Claims
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  claims:
+                    type: array
+                    items: { $ref: "#/components/schemas/Claim" }
+
+  /trace/runs/{runId}/claims/{claimId}/evidence:
+    get:
+      tags: [Claims]
+      summary: Get evidence linked to a claim
+      parameters:
+        - { $ref: "#/components/parameters/runId" }
+        - { $ref: "#/components/parameters/claimId" }
+      responses:
+        "200":
+          description: Claim evidence
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  claimId: { type: string, format: uuid }
+                  evidence:
+                    type: array
+                    items: { $ref: "#/components/schemas/EvidenceItem" }
+
+  /trace/runs/{runId}/axes:
+    get:
+      tags: [Axes]
+      summary: Get axis vector for a run
+      parameters: [{ $ref: "#/components/parameters/runId" }]
+      responses:
+        "200":
+          description: Axis vector
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  axes: { $ref: "#/components/schemas/AxisVector" }
+
+  /trace/runs/{runId}/personas:
+    get:
+      tags: [Personas]
+      summary: Get persona runs
+      parameters: [{ $ref: "#/components/parameters/runId" }]
+      responses:
+        "200":
+          description: Personas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  personas:
+                    type: array
+                    items: { $ref: "#/components/schemas/PersonaRun" }
+
+  /trace/runs/{runId}/kas:
+    get:
+      tags: [KAs]
+      summary: Get KA invocations
+      parameters: [{ $ref: "#/components/parameters/runId" }]
+      responses:
+        "200":
+          description: KA invocations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  kas:
+                    type: array
+                    items: { $ref: "#/components/schemas/KAInvocation" }
+
+  /trace/runs/{runId}/policy:
+    get:
+      tags: [Policy]
+      summary: Get policy decisions
+      parameters: [{ $ref: "#/components/parameters/runId" }]
+      responses:
+        "200":
+          description: Policy decisions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  policy_decisions:
+                    type: array
+                    items: { $ref: "#/components/schemas/PolicyDecision" }
+
+  /trace/runs/{runId}/memory:
+    get:
+      tags: [Memory]
+      summary: Get memory events
+      parameters: [{ $ref: "#/components/parameters/runId" }]
+      responses:
+        "200":
+          description: Memory events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  memory_events:
+                    type: array
+                    items: { $ref: "#/components/schemas/MemoryEvent" }
+
+  /trace/runs/{runId}/metrics:
+    get:
+      tags: [Metrics]
+      summary: Get run metrics
+      parameters: [{ $ref: "#/components/parameters/runId" }]
+      responses:
+        "200":
+          description: Metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metrics:
+                    type: object
+                    properties:
+                      total_duration_ms: { type: integer }
+                      total_tokens_in: { type: integer }
+                      total_tokens_out: { type: integer }
+                      total_retrievals: { type: integer }
+                      stage_count: { type: integer }
+                      confidence: { type: number }
+                      entropy: { type: number }
+
+  /trace/runs/{runId}/spans:
+    get:
+      tags: [Metrics]
+      summary: Get OpenTelemetry spans
+      parameters: [{ $ref: "#/components/parameters/runId" }]
+      responses:
+        "200":
+          description: Trace spans
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  spans:
+                    type: array
+                    items: { $ref: "#/components/schemas/TraceSpan" }
+
+  /trace/runs/{runId}/logs:
+    get:
+      tags: [Stages]
+      summary: Get stage logs
+      parameters:
+        - { $ref: "#/components/parameters/runId" }
+        - name: stage_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: level
+          in: query
+          schema: { type: string, enum: [debug, info, warn, error] }
+      responses:
+        "200":
+          description: Logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  logs:
+                    type: array
+                    items: { $ref: "#/components/schemas/StageLog" }
+
+  /trace/runs/{runId}/export:
+    post:
+      tags: [Exports]
+      summary: Export run bundle
+      parameters: [{ $ref: "#/components/parameters/runId" }]
+      responses:
+        "200":
+          description: Export bundle (JSON download)
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /trace/runs/{runId}/replay:
+    post:
+      tags: [Runs]
+      summary: Replay a run
+      parameters: [{ $ref: "#/components/parameters/runId" }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                same_seed: { type: boolean, default: true }
+                from_stage: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Replay initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  original_run_id: { type: string, format: uuid }
+                  new_run_id: { type: [string, "null"], format: uuid }
+
+  # ==== Exports ====
+  /trace/exports:
+    get:
+      tags: [Exports]
+      summary: List user exports
+      responses:
+        "200":
+          description: Exports list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exports:
+                    type: array
+                    items: { $ref: "#/components/schemas/ExportBundle" }
+
+  /trace/exports/{exportId}:
+    get:
+      tags: [Exports]
+      summary: Get export details
+      parameters: [{ $ref: "#/components/parameters/exportId" }]
+      responses:
+        "200":
+          description: Export
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ExportBundle" }
+
+  /trace/exports/{exportId}/download:
+    get:
+      tags: [Exports]
+      summary: Download export bundle
+      parameters: [{ $ref: "#/components/parameters/exportId" }]
+      responses:
+        "200":
+          description: Download info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bundle_ref: { type: string }
+                  manifest_hash: { type: string }
+                  file_size_bytes: { type: integer }

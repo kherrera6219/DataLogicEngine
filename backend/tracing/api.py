@@ -585,3 +585,68 @@ def get_claim_evidence(run_id, claim_id):
         'claim_id': claim_id,
         'evidence': evidence_list
     })
+
+
+# ============== Compliance Mapping ==============
+
+@trace_bp.route('/runs/<run_id>/compliance', methods=['GET'])
+@login_required
+def get_run_compliance(run_id):
+    """Get compliance framework mappings for a run."""
+    from backend.tracing.models import ComplianceMapping
+    
+    run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
+    
+    if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+        return jsonify({'error': 'Access denied'}), 403
+    
+    framework = request.args.get('framework')
+    
+    query = ComplianceMapping.query.filter_by(run_id=run_id)
+    if framework:
+        query = query.filter_by(framework=framework)
+    
+    mappings = query.all()
+    
+    # Group by framework
+    by_framework = {}
+    for m in mappings:
+        if m.framework not in by_framework:
+            by_framework[m.framework] = []
+        by_framework[m.framework].append(m.to_dict())
+    
+    return jsonify({
+        'run_id': run_id,
+        'compliance_mappings': by_framework,
+        'total': len(mappings)
+    })
+
+
+@trace_bp.route('/runs/<run_id>/compliance', methods=['POST'])
+@login_required
+def add_compliance_mapping(run_id):
+    """Add a compliance mapping for a run (admin only)."""
+    from backend.tracing.models import ComplianceMapping
+    
+    # Only admins can add compliance mappings
+    if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+        return jsonify({'error': 'Admin access required'}), 403
+    
+    run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
+    
+    data = request.get_json() or {}
+    if not data.get('framework') or not data.get('control_id'):
+        return jsonify({'error': 'framework and control_id required'}), 400
+    
+    mapping = ComplianceMapping(
+        run_id=run_id,
+        framework=data['framework'],
+        control_id=data['control_id'],
+        relevance_reason=data.get('relevance_reason'),
+        evidence_ids=data.get('evidence_ids')
+    )
+    
+    db.session.add(mapping)
+    db.session.commit()
+    
+    return jsonify(mapping.to_dict()), 201

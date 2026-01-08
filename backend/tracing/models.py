@@ -583,3 +583,130 @@ class TraceExport(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'expires_at': self.expires_at.isoformat() if self.expires_at else None
         }
+
+
+# ============== Enterprise Compliance Models ==============
+
+class ComplianceMapping(db.Model):
+    """Mapping of runs to compliance framework controls (SOC2, ISO27001, NIST, FedRAMP)."""
+    __tablename__ = 'compliance_mappings'
+    
+    mapping_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+    
+    framework = db.Column(db.String(50), nullable=False)  # SOC2, ISO27001, NIST800-53, FedRAMP
+    control_id = db.Column(db.String(50), nullable=False)  # e.g., CC6.1, A.12.1.1
+    
+    relevance_reason = db.Column(db.Text, nullable=True)
+    evidence_ids = db.Column(JSONB, nullable=True)  # [evidence_id UUIDs]
+    
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    
+    def to_dict(self):
+        return {
+            'mapping_id': str(self.mapping_id),
+            'run_id': str(self.run_id),
+            'framework': self.framework,
+            'control_id': self.control_id,
+            'relevance_reason': self.relevance_reason,
+            'evidence_ids': self.evidence_ids,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+
+class ArtifactRedaction(db.Model):
+    """Redaction record for sensitive content in artifacts."""
+    __tablename__ = 'artifact_redactions'
+    
+    redaction_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    artifact_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_artifacts.artifact_id'), nullable=False)
+    
+    start_pos = db.Column(db.Integer, nullable=False)
+    end_pos = db.Column(db.Integer, nullable=False)
+    reason_code = db.Column(db.String(50), nullable=False)  # PII, SENSITIVE, CLASSIFIED, etc.
+    policy_rule_id = db.Column(db.String(100), nullable=True)
+    
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    
+    def to_dict(self):
+        return {
+            'redaction_id': str(self.redaction_id),
+            'artifact_id': str(self.artifact_id),
+            'start_pos': self.start_pos,
+            'end_pos': self.end_pos,
+            'reason_code': self.reason_code,
+            'policy_rule_id': self.policy_rule_id
+        }
+
+
+class EvidenceConflict(db.Model):
+    """Explicit conflict relationships between evidence items."""
+    __tablename__ = 'evidence_conflicts'
+    
+    evidence_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_evidence.evidence_id'), primary_key=True)
+    conflicts_with = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_evidence.evidence_id'), primary_key=True)
+    
+    reason = db.Column(db.Text, nullable=True)
+    severity = db.Column(db.String(20), default='medium')  # low, medium, high, critical
+    
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    
+    def to_dict(self):
+        return {
+            'evidence_id': str(self.evidence_id),
+            'conflicts_with': str(self.conflicts_with),
+            'reason': self.reason,
+            'severity': self.severity
+        }
+
+
+class PersonaEvidenceLink(db.Model):
+    """Junction table linking personas to evidence they used."""
+    __tablename__ = 'persona_evidence_links'
+    
+    persona_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_personas.persona_id'), primary_key=True)
+    evidence_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_evidence.evidence_id'), primary_key=True)
+    
+    relevance_score = db.Column(db.Float, nullable=True)
+    
+    def to_dict(self):
+        return {
+            'persona_id': str(self.persona_id),
+            'evidence_id': str(self.evidence_id),
+            'relevance_score': self.relevance_score
+        }
+
+
+class StageArtifactLink(db.Model):
+    """Junction table linking stages to their input/output artifacts."""
+    __tablename__ = 'stage_artifact_links'
+    
+    stage_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_stages.stage_id'), primary_key=True)
+    artifact_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_artifacts.artifact_id'), primary_key=True)
+    direction = db.Column(db.String(10), primary_key=True)  # input, output
+    
+    label = db.Column(db.String(200), nullable=True)
+    
+    def to_dict(self):
+        return {
+            'stage_id': str(self.stage_id),
+            'artifact_id': str(self.artifact_id),
+            'direction': self.direction,
+            'label': self.label
+        }
+
+
+class KAArtifactLink(db.Model):
+    """Junction table linking KA invocations to their input/output artifacts."""
+    __tablename__ = 'ka_artifact_links'
+    
+    invocation_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_ka_invocations.invocation_id'), primary_key=True)
+    artifact_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_artifacts.artifact_id'), primary_key=True)
+    direction = db.Column(db.String(10), primary_key=True)  # input, output
+    
+    def to_dict(self):
+        return {
+            'invocation_id': str(self.invocation_id),
+            'artifact_id': str(self.artifact_id),
+            'direction': self.direction
+        }
