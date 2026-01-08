@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+
+{% block title %}Trace Runs - Universal Knowledge Graph{% endblock %}
+
+{% block page_title %}Trace Run Explorer{% endblock %}
+{% block page_subtitle %}Search and analyze execution traces with full observability{% endblock %}
+
+{% block content %}
+<div class="runs-container">
+    <!-- Search and Filters -->
+    <div class="runs-filters card">
+        <div class="card-body">
+            <div class="filter-row">
+                <div class="search-box">
+                    <span class="material-icons">search</span>
+                    <input type="text" id="runSearch" placeholder="Search runs by ID, message...">
+                </div>
+                <div class="filter-chips">
+                    <button class="chip active" data-status="all">All</button>
+                    <button class="chip" data-status="pass">✅ Pass</button>
+                    <button class="chip" data-status="warn">⚠️ Warn</button>
+                    <button class="chip" data-status="fail">❌ Fail</button>
+                </div>
+                <button class="btn btn-secondary" onclick="refreshRuns()">
+                    <span class="material-icons">refresh</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Runs Table -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Recent Runs</h2>
+            <span class="run-count" id="runCount">0 runs</span>
+        </div>
+        <div class="card-body">
+            <table class="table-enhanced" id="runsTable">
+                <thead>
+                    <tr>
+                        <th>Run ID</th>
+                        <th>Status</th>
+                        <th>Input</th>
+                        <th>Confidence</th>
+                        <th>Duration</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="runsTableBody">
+                    <tr class="empty-row">
+                        <td colspan="7" class="empty-state">
+                            <span class="material-icons">timeline</span>
+                            <p>No trace runs found. Start a chat to create traces.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+</div>
+
+<style>
+.runs-container {
+    padding: 1rem 0;
+}
+
+.runs-filters {
+    margin-bottom: 1.5rem;
+}
+
+.filter-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 250px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--dark-bg-tertiary);
+    border-radius: 8px;
+}
+
+.search-box input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 1rem;
+    outline: none;
+}
+
+.filter-chips {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.chip {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid var(--dark-border);
+    background: transparent;
+    color: var(--dark-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.chip:hover, .chip.active {
+    background: var(--dark-accent-primary);
+    color: white;
+    border-color: var(--dark-accent-primary);
+}
+
+.run-count {
+    font-size: 0.875rem;
+    color: var(--dark-text-secondary);
+}
+
+.table-enhanced {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-enhanced th, .table-enhanced td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.table-enhanced th {
+    font-weight: 600;
+    color: var(--dark-text-secondary);
+}
+
+.table-enhanced tbody tr:hover {
+    background: rgba(106, 143, 255, 0.05);
+}
+
+.run-id {
+    font-family: monospace;
+    font-size: 0.8rem;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-pass { background: rgba(40, 167, 69, 0.15); color: var(--success); }
+.status-warn { background: rgba(255, 193, 7, 0.15); color: var(--warning); }
+.status-fail { background: rgba(220, 53, 69, 0.15); color: var(--danger); }
+.status-running { background: rgba(23, 162, 184, 0.15); color: var(--info); }
+
+.confidence-bar {
+    width: 80px;
+    height: 6px;
+    background: var(--dark-bg-tertiary);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.confidence-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+
+.input-preview {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem !important;
+    color: var(--dark-text-secondary);
+}
+
+.empty-state .material-icons {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.page-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--dark-border);
+    background: transparent;
+    color: var(--dark-text-primary);
+    cursor: pointer;
+}
+
+.page-btn:hover, .page-btn.active {
+    background: var(--dark-accent-primary);
+    color: white;
+}
+</style>
+
+<script>
+let currentPage = 1;
+let currentStatus = 'all';
+
+async function loadRuns() {
+    try {
+        let url = `/api/v1/trace/runs?page=${currentPage}&per_page=20`;
+        if (currentStatus !== 'all') {
+            url += `&status=${currentStatus}`;
+        }
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        renderRuns(data.runs || []);
+        renderPagination(data.total || 0, data.pages || 1);
+        document.getElementById('runCount').textContent = `${data.total || 0} runs`;
+    } catch (error) {
+        console.error('Failed to load runs:', error);
+    }
+}
+
+function renderRuns(runs) {
+    const tbody = document.getElementById('runsTableBody');
+    
+    if (runs.length === 0) {
+        tbody.innerHTML = `
+            <tr class="empty-row">
+                <td colspan="7" class="empty-state">
+                    <span class="material-icons">timeline</span>
+                    <p>No trace runs found.</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = runs.map(run => `
+        <tr onclick="window.location='/runs/${run.run_id}'" style="cursor:pointer">
+            <td><span class="run-id">${run.run_id.substring(0, 8)}...</span></td>
+            <td><span class="status-badge status-${run.status}">${run.status}</span></td>
+            <td class="input-preview">${run.input_message || '—'}</td>
+            <td>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width:${(run.scores?.confidence || 0) * 100}%; background:var(--dark-accent-primary)"></div>
+                </div>
+                <span style="font-size:0.75rem">${((run.scores?.confidence || 0) * 100).toFixed(0)}%</span>
+            </td>
+            <td>${formatDuration(run)}</td>
+            <td>${formatDate(run.created_at)}</td>
+            <td>
+                <button class="icon-btn" onclick="event.stopPropagation(); exportRun('${run.run_id}')" title="Export">
+                    <span class="material-icons">download</span>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function formatDuration(run) {
+    if (run.completed_at && run.created_at) {
+        const ms = new Date(run.completed_at) - new Date(run.created_at);
+        return ms < 1000 ? `${ms}ms` : `${(ms/1000).toFixed(1)}s`;
+    }
+    return '—';
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleString();
+}
+
+function renderPagination(total, pages) {
+    const container = document.getElementById('pagination');
+    if (pages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    let html = '';
+    for (let i = 1; i <= Math.min(pages, 10); i++) {
+        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+    }
+    container.innerHTML = html;
+}
+
+function goToPage(page) {
+    currentPage = page;
+    loadRuns();
+}
+
+function refreshRuns() {
+    loadRuns();
+}
+
+async function exportRun(runId) {
+    try {
+        const response = await fetch(`/api/v1/trace/runs/${runId}/export`, { method: 'POST' });
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `run_${runId}.json`;
+        a.click();
+        Toast.success('Run exported');
+    } catch (error) {
+        Toast.error('Export failed');
+    }
+}
+
+// Filter chips
+document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        currentStatus = chip.dataset.status;
+        currentPage = 1;
+        loadRuns();
+    });
+});
+
+// Search
+document.getElementById('runSearch').addEventListener('input', debounce((e) => {
+    // Implement search
+}, 300));
+
+function debounce(fn, delay) {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn(...args), delay);
+    };
+}
+
+// Initial load
+document.addEventListener('DOMContentLoaded', loadRuns);
+</script>
+{% endblock %}
