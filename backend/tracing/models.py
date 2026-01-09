@@ -21,6 +21,7 @@ class TraceRun(db.Model):
     tenant_id = db.Column(db.String(100), nullable=True)
     workspace_id = db.Column(db.String(100), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    correlation_id = db.Column(db.String(100), nullable=True)
     
     # Status and timing
     status = db.Column(db.String(20), default='running')  # running, pass, warn, fail

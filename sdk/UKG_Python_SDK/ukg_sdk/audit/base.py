@@ -17,6 +17,7 @@ class AuditEvent:
     ka_id: Optional[str] = None
     layer: Optional[str] = None
     coordinate: Optional[str] = None
+    correlation_id: Optional[str] = None
     payload: Dict[str, Any] = None  # type: ignore
     prev_hash: Optional[str] = None
     hash: Optional[str] = None

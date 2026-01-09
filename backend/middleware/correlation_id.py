@@ -18,6 +18,7 @@ class CorrelationIdMiddleware:
     """
     
     CORRELATION_ID_HEADER = 'X-Correlation-ID'
+    REQUEST_ID_HEADER = 'X-Request-ID'
     
     def __init__(self, app=None):
         """Initialize the middleware."""
@@ -27,25 +28,28 @@ class CorrelationIdMiddleware:
     def init_app(self, app):
         """
         Initialize the middleware with a Flask app.
-        
-        Args:
-            app: Flask application instance
         """
         @app.before_request
         def add_correlation_id():
             """Add or extract correlation ID for the request."""
+            # Try Correlation ID first, then Request ID
             correlation_id = request.headers.get(self.CORRELATION_ID_HEADER)
+            if not correlation_id:
+                correlation_id = request.headers.get(self.REQUEST_ID_HEADER)
             
             if not correlation_id:
                 correlation_id = str(uuid.uuid4())
             
+            # Set both for backward compatibility
             g.correlation_id = correlation_id
+            g.request_id = correlation_id
             
         @app.after_request
         def add_correlation_id_to_response(response):
             """Add correlation ID to response headers."""
             if hasattr(g, 'correlation_id'):
                 response.headers[self.CORRELATION_ID_HEADER] = g.correlation_id
+                response.headers[self.REQUEST_ID_HEADER] = g.correlation_id
             return response
         
         logger.info("Correlation ID middleware initialized")

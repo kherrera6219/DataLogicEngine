@@ -75,6 +75,7 @@ class UKGOverlay:
         query: str,
         user_id: str = "anonymous",
         session_id: Optional[str] = None,
+        correlation_id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         temperature: float = 0.2,
         max_tokens: int = 1024,
@@ -92,7 +93,7 @@ class UKGOverlay:
         out_valid = self.executor.execute("KA-004", input={"query": query}, layer="L1", state={}, memory=self.memory, audit=self.audit, strict=False)
         t("KA-004", "ok" if out_valid.ok else "fail", out_valid.output)
         if not out_valid.ok:
-            await self._audit(session_id, user_id, "veto", coord, "KA-004", "L1", out_valid.output)
+            await self._audit(session_id, user_id, "veto", coord, "KA-004", "L1", out_valid.output, correlation_id)
             return {"ok": False, "error": out_valid.veto_reason or "validation_failed", "trace": trace, "coordinate": coord}
 
         # classify + route
@@ -129,8 +130,8 @@ class UKGOverlay:
         # explainability stub
         explain = self.executor.execute("KA-056", input={"trace": trace}, layer="L9", state={}, memory=self.memory, audit=self.audit, strict=False)
         t("KA-056", "ok", explain.output)
-
-        await self._audit(session_id, user_id, "complete", coord, None, None, {"tier": tier, "layers": layers, "usage": llm.usage})
+        # 5. Final Audit
+        await self._audit(session_id, user_id, "completion", coord, "SDK-RUN", "L10", {"model": self.model}, correlation_id)
 
         return {
             "ok": True,
@@ -142,16 +143,17 @@ class UKGOverlay:
             "explainability": explain.output.get("explainability"),
         }
 
-    async def _audit(self, session_id: str, user_id: str, kind: str, coordinate: str, ka_id: str | None, layer: str | None, payload: Dict[str, Any]) -> None:
+    async def _audit(self, sid: str, uid: str, kind: str, coord: str, ka_id: str | None, layer: str | None, payload: Dict[str, Any], correlation_id: Optional[str] = None) -> None:
         event = AuditEvent(
             event_id=str(uuid.uuid4()),
             ts=datetime.now(timezone.utc).isoformat(),
             kind=kind,
             actor=self.actor,
-            session_id=session_id,
+            session_id=sid,
             ka_id=ka_id,
             layer=layer,
-            coordinate=coordinate,
-            payload=payload or {},
+            coordinate=coord,
+            correlation_id=correlation_id,
+            payload=payload,
         )
         await self.audit.append(event)

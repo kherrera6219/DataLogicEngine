@@ -9,7 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 # Import models and extensions
 from models import Node, Edge, KnowledgeAlgorithm, KAExecution, UkgSession as Session, MemoryEntry
-from extensions import db
+from extensions import db, cache
 
 class UkgDatabaseManager:
     """
@@ -84,39 +84,27 @@ class UkgDatabaseManager:
     
     def get_node_by_uid(self, uid: str) -> Optional[Dict]:
         """
-        Get a node by its UID.
-        
-        Args:
-            uid: Node UID
-            
-        Returns:
-            dict: Node data or None if not found
+        Get a node by its UID with caching.
         """
+        # 1. Check Cache
+        cache_key = f"node:{uid}:{self.tenant_id or 'global'}"
+        cached = cache.get(cache_key)
+        if cached:
+            return cached
+
         try:
-            # Query the node with tenant isolation
+            # 2. Query DB
             query = db.session.query(Node).filter(Node.uid == uid)
             if self.tenant_id:
                 query = query.filter(Node.tenant_id == self.tenant_id)
             
             node = query.first()
-            
             if not node:
                 return None
             
-            # Convert to dictionary
-            result = {
-                'uid': node.uid,
-                'node_type': node.node_type,
-                'label': node.label,
-                'description': node.description,
-                'original_id': node.original_id,
-                'axis_number': node.axis_number,
-                'level': node.level,
-                'attributes': node.attributes,
-                'created_at': node.created_at.isoformat() if node.created_at else None,
-                'updated_at': node.updated_at.isoformat() if node.updated_at else None
-            }
-            
+            # 3. Cache and Return
+            result = node.to_dict()
+            cache.set(cache_key, result, timeout=300)
             return result
             
         except SQLAlchemyError as e:
@@ -167,21 +155,11 @@ class UkgDatabaseManager:
             # Commit changes
             db.session.commit()
             
-            # Get the updated node as a dictionary
-            result = {
-                'uid': node.uid,
-                'node_type': node.node_type,
-                'label': node.label,
-                'description': node.description,
-                'original_id': node.original_id,
-                'axis_number': node.axis_number,
-                'level': node.level,
-                'attributes': node.attributes,
-                'created_at': node.created_at.isoformat() if node.created_at else None,
-                'updated_at': node.updated_at.isoformat() if node.updated_at else None
-            }
+            # Invalidate Cache
+            cache_key = f"node:{uid}:{self.tenant_id or 'global'}"
+            cache.delete(cache_key)
             
-            return result
+            return node.to_dict()
             
         except SQLAlchemyError as e:
             db.session.rollback()
@@ -212,6 +190,10 @@ class UkgDatabaseManager:
             # Delete node
             db.session.delete(node)
             db.session.commit()
+            
+            # Invalidate Cache
+            cache_key = f"node:{uid}:{self.tenant_id or 'global'}"
+            cache.delete(cache_key)
             
             return True
             
@@ -306,20 +288,11 @@ class UkgDatabaseManager:
             db.session.add(edge)
             db.session.commit()
             
-            # Get the created edge as a dictionary
-            result = {
-                'uid': edge.uid,
-                'edge_type': edge.edge_type,
-                'source_uid': edge_data.get('source_uid'),
-                'target_uid': edge_data.get('target_uid'),
-                'label': edge.label,
-                'weight': edge.weight,
-                'attributes': edge.attributes,
-                'created_at': edge.created_at.isoformat() if edge.created_at else None,
-                'updated_at': edge.updated_at.isoformat() if edge.updated_at else None
-            }
+            # Invalidate Cache
+            cache_key = f"edge:{edge.uid}:{self.tenant_id or 'global'}"
+            cache.delete(cache_key)
             
-            return result
+            return edge.to_dict()
             
         except SQLAlchemyError as e:
             db.session.rollback()
@@ -328,7 +301,7 @@ class UkgDatabaseManager:
     
     def get_edge_by_uid(self, uid: str) -> Optional[Dict]:
         """
-        Get an edge by its UID.
+        Get an edge by its UID with caching.
         
         Args:
             uid: Edge UID
@@ -336,8 +309,14 @@ class UkgDatabaseManager:
         Returns:
             dict: Edge data or None if not found
         """
+        # 1. Check Cache
+        cache_key = f"edge:{uid}:{self.tenant_id or 'global'}"
+        cached = cache.get(cache_key)
+        if cached:
+            return cached
+
         try:
-            # Query the edge with tenant isolation
+            # 2. Query the edge with tenant isolation
             query = db.session.query(Edge).filter(Edge.uid == uid)
             if self.tenant_id:
                 query = query.filter(Edge.tenant_id == self.tenant_id)
@@ -347,26 +326,9 @@ class UkgDatabaseManager:
             if not edge:
                 return None
             
-            # Get source and target node UIDs
-            source_node = db.session.query(Node).filter(Node.id == edge.source_id).first()
-            target_node = db.session.query(Node).filter(Node.id == edge.target_id).first()
-            
-            source_uid = source_node.uid if source_node else None
-            target_uid = target_node.uid if target_node else None
-            
-            # Convert to dictionary
-            result = {
-                'uid': edge.uid,
-                'edge_type': edge.edge_type,
-                'source_uid': source_uid,
-                'target_uid': target_uid,
-                'label': edge.label,
-                'weight': edge.weight,
-                'attributes': edge.attributes,
-                'created_at': edge.created_at.isoformat() if edge.created_at else None,
-                'updated_at': edge.updated_at.isoformat() if edge.updated_at else None
-            }
-            
+            # 3. Cache and Return
+            result = edge.to_dict()
+            cache.set(cache_key, result, timeout=300)
             return result
             
         except SQLAlchemyError as e:
@@ -428,27 +390,11 @@ class UkgDatabaseManager:
             # Commit changes
             db.session.commit()
             
-            # Get source and target node UIDs
-            source_node = db.session.query(Node).filter(Node.id == edge.source_id).first()
-            target_node = db.session.query(Node).filter(Node.id == edge.target_id).first()
+            # Invalidate Cache
+            cache_key = f"edge:{uid}:{self.tenant_id or 'global'}"
+            cache.delete(cache_key)
             
-            source_uid = source_node.uid if source_node else None
-            target_uid = target_node.uid if target_node else None
-            
-            # Get the updated edge as a dictionary
-            result = {
-                'uid': edge.uid,
-                'edge_type': edge.edge_type,
-                'source_uid': source_uid,
-                'target_uid': target_uid,
-                'label': edge.label,
-                'weight': edge.weight,
-                'attributes': edge.attributes,
-                'created_at': edge.created_at.isoformat() if edge.created_at else None,
-                'updated_at': edge.updated_at.isoformat() if edge.updated_at else None
-            }
-            
-            return result
+            return edge.to_dict()
             
         except SQLAlchemyError as e:
             db.session.rollback()
@@ -479,6 +425,10 @@ class UkgDatabaseManager:
             # Delete edge
             db.session.delete(edge)
             db.session.commit()
+            
+            # Invalidate Cache
+            cache_key = f"edge:{uid}:{self.tenant_id or 'global'}"
+            cache.delete(cache_key)
             
             return True
             
@@ -649,6 +599,7 @@ class UkgDatabaseManager:
         Returns:
             dict: Created algorithm data or None if creation failed
         """
+        try:
             # Create a new KnowledgeAlgorithm object
             algorithm = KnowledgeAlgorithm(
                 ka_id=algorithm_data.get('ka_id'),

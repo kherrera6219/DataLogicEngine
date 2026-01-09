@@ -50,16 +50,22 @@ def handle_sso_callback():
         
         user = User.query.filter_by(email=email).first()
         if not user:
+            # Map tenant ID from OIDC claims if available
+            # 'tid' is Azure AD tenant, 'org_id' or 'tenant_id' are common in others
+            tenant_id = user_info.get('tid') or user_info.get('tenant_id') or user_info.get('org_id')
+            
             user = User(
                 username=username,
                 email=email,
                 is_active=True,
-                role='user' # Default role
+                is_sso=True,
+                tenant_id=tenant_id,
+                role='user', # Default role
+                password_hash='SSO_EXTERNAL' # Placeholder as it's nullable=False in schema usually
             )
-            # SSO users don't have a local password, but we might needs a placeholder or null
             db.session.add(user)
             db.session.commit()
-            current_app.logger.info(f"Created new SSO user: {email}")
+            current_app.logger.info(f"Created new SSO user: {email} for tenant: {tenant_id}")
         else:
             # Update last login or other info if needed
             current_app.logger.info(f"SSO login for existing user: {email}")

@@ -73,13 +73,7 @@ from datetime import datetime, UTC
 
 logger = logging.getLogger(__name__)
 
-def request_id_middleware():
-    """Middleware to assign a unique ID to each request."""
-    request_id = request.headers.get('X-Request-ID')
-    if not request_id:
-        request_id = str(uuid.uuid4())
-    g.request_id = request_id
-    return request_id
+# Removed redundant request_id_middleware in favor of CorrelationIdMiddleware
 
 def audit_request_middleware():
     """Middleware to audit API requests."""
@@ -172,9 +166,12 @@ def setup_middleware(app):
     Args:
         app: Flask application
     """
-    # Register middleware
-    app.before_request(request_id_middleware)
+    # Configure Correlation ID and Logging Tracing
+    from backend.middleware.correlation_id import configure_correlation_id
+    configure_correlation_id(app)
+    
+    # Register other middleware
     app.after_request(audit_request_middleware())
     app.after_request(security_headers_middleware())
     
-    logger.info("Middleware configured")
+    logger.info("Universal middleware stack configured")

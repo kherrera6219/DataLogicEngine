@@ -93,6 +93,7 @@ class User(UserMixin, db.Model):
     tenant_id = db.Column(db.String(64), index=True, nullable=True)
     
     is_admin = db.Column(db.Boolean, default=False)
+    is_sso = db.Column(db.Boolean, default=False)
     role = db.Column(db.String(20), default='user')
     created_at = db.Column(db.DateTime, default=_utcnow)
     last_login = db.Column(db.DateTime)
