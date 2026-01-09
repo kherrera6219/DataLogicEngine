@@ -2,6 +2,15 @@
 
 import { useEffect } from 'react';
 
+// Sentry stub for enterprise error tracking
+// In a real build, this would import from @sentry/nextjs
+const captureError = (error: Error) => {
+    if (typeof window !== 'undefined' && (window as any).Sentry) {
+        (window as any).Sentry.captureException(error);
+    }
+    console.error("Critical Application Error:", error);
+};
+
 export default function GlobalError({
   error,
   reset,
@@ -10,31 +19,61 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
-    console.error(error);
+    captureError(error);
   }, [error]);
 
+  const handleRecovery = () => {
+      // Clear potentially corrupt local state
+      try {
+          localStorage.removeItem('user-session'); // Example cleanup
+      } catch (e) { /* ignore */ }
+      
+      // Attempt generic reset provided by Next.js
+      reset();
+      
+      // Fallback: Hard reload if reset fails or loops
+      setTimeout(() => {
+          window.location.href = '/dashboard';
+      }, 500);
+  };
+
   return (
-    <html>
+    <html lang="en">
       <body>
-        <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 text-center">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent mb-4">
-            Critical System Error
-          </h1>
-          <p className="text-muted-foreground max-w-md mb-8">
-            An unexpected error has occurred in the Universal Knowledge Graph interface. 
-            The system has prevented a total crash.
-          </p>
-          <div className="bg-card border p-4 rounded-md mb-6 w-full max-w-lg text-left overflow-auto max-h-48 text-xs font-mono text-destructive">
-             {error.message || 'Unknown Error'}
-             {error.digest && <div className="mt-2 text-muted-foreground opacity-70">Digest: {error.digest}</div>}
+        <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-center">
+          <div className="space-y-4 max-w-md">
+            <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-destructive">
+              System Error
+            </h1>
+            <h2 className="text-xl font-semibold tracking-tight">
+                Something went wrong.
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              We've logged this issue and our team has been notified.
+              Please try refreshing the page.
+            </p>
+            
+            <div className="bg-muted p-4 rounded-lg text-left font-mono text-xs overflow-auto max-h-32 my-4 border border-border">
+               <div className="font-bold text-red-500 mb-1">Error Details:</div>
+               {error.message || 'Unknown Error'}
+               {error.digest && <div className="mt-1 text-muted-foreground">ID: {error.digest}</div>}
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+                <button
+                    onClick={handleRecovery}
+                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                >
+                    Reload Application
+                </button>
+                <button
+                    onClick={() => window.location.href = '/'}
+                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                >
+                    Return Home
+                </button>
+            </div>
           </div>
-          <button
-            onClick={() => reset()}
-            className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
-          >
-            Attempt Recovery
-          </button>
         </div>
       </body>
     </html>

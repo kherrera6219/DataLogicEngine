@@ -19,18 +19,15 @@ import { // Added DropdownMenu imports
 export function NavBar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, logout, isLoading } = useAuth(); // Replaced hardcoded auth state with useAuth
+  const { user, logout, isAuthenticated } = useAuth();
 
   // Hide NavBar on login/register pages
   if (pathname === '/login' || pathname === '/register') return null;
 
-  // TODO: Real authentication state via Context
-  // const isAuthenticated = true; // Removed
-  // const username = "Admin User"; // Removed
-  // const userInitials = "AU"; // Removed
-
   const navItems = [
+    { name: 'Dashboard', href: '/dashboard', authRequired: true },
     { name: 'Simulations', href: '/simulations', authRequired: true },
+    { name: 'Knowledge', href: '/knowledge', authRequired: true },
     { name: 'About', href: '/about' },
   ];
 
@@ -70,16 +67,45 @@ export function NavBar() {
           </nav>
 
           {/* User Menu / Auth */}
-            ) : (
-              <div className="flex gap-2">
-                <Link href="/login">
-                  <Button variant="ghost" size="sm">Log in</Button>
-                </Link>
-                <Link href="/register">
-                  <Button size="sm">Sign up</Button>
-                </Link>
-              </div>
-            )}
+          <div className="hidden md:flex items-center gap-4">
+             {isAuthenticated && user ? (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="relative h-8 w-8 rounded-full" aria-label="User Menu">
+                            <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center border border-border">
+                                <UserIcon className="h-4 w-4" />
+                            </div>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                        <DropdownMenuLabel className="font-normal">
+                            <div className="flex flex-col space-y-1">
+                                <p className="text-sm font-medium leading-none">{user.username}</p>
+                                <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                            </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            <Link href="/settings"><Settings className="mr-2 h-4 w-4"/> Settings</Link>
+                        </DropdownMenuItem>
+                         {user.is_admin && (
+                            <DropdownMenuItem asChild>
+                                <Link href="/admin"><Hexagon className="mr-2 h-4 w-4"/> Admin</Link>
+                            </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => logout()} className="text-destructive focus:text-destructive">
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Log out
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+             ) : (
+                <div className="space-x-2">
+                    <Button variant="ghost" asChild><Link href="/login">Login</Link></Button>
+                    <Button asChild><Link href="/register">Sign up</Link></Button>
+                </div>
+             )}
           </div>
           
            {/* Mobile Menu Button */}
@@ -115,15 +141,23 @@ export function NavBar() {
               ) : null
             ))}
             <div className="pt-4 mt-4 border-t border-border">
-                {isAuthenticated ? (
-                    <div className="flex items-center gap-3 px-4 py-2">
-                        <User className="h-5 w-5 text-muted-foreground" />
-                        <span className="text-sm font-medium">{username}</span>
+                {isAuthenticated && user ? (
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-3 px-4 py-2">
+                            <UserIcon className="h-5 w-5 text-muted-foreground" />
+                            <div className="flex flex-col">
+                                <span className="text-sm font-medium">{user.username}</span>
+                                <span className="text-xs text-muted-foreground">{user.email}</span>
+                            </div>
+                        </div>
+                        <Button variant="outline" className="w-full justify-start" onClick={() => { logout(); setIsMenuOpen(false); }}>
+                            <LogOut className="mr-2 h-4 w-4" /> Log out
+                        </Button>
                     </div>
                 ) : (
                     <div className="grid gap-2">
-                        <Button variant="outline" className="w-full">Log in</Button>
-                        <Button className="w-full">Sign up</Button>
+                        <Button variant="outline" className="w-full" asChild><Link href="/login">Log in</Link></Button>
+                        <Button className="w-full" asChild><Link href="/register">Sign up</Link></Button>
                     </div>
                 )}
             </div>
