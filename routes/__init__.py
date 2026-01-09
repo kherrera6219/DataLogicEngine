@@ -4,7 +4,10 @@ from .auth_routes import auth_bp
 from .api_routes import api_bp
 from .admin_routes import admin_bp
 from .knowledge_routes import knowledge_bp
+from .knowledge_routes import knowledge_bp
 from .simulation_routes import simulation_bp
+from .ka_routes import ka_bp
+from .mcp_routes import mcp_bp
 
 def register_routes(app):
     """Register all application blueprints."""
@@ -29,7 +32,9 @@ def register_routes(app):
     # Simulation Routes (JSON API)
     app.register_blueprint(simulation_bp)
     
-    # Simulation Page Routes (Legacy - Removed)
-    # from .simulation_pages import simulation_pages_bp
-    # app.register_blueprint(simulation_pages_bp)
+    # Knowledge Algorithm Routes (JSON API)
+    app.register_blueprint(ka_bp, url_prefix='/api/v1/ka')
+    
+    # MCP (Multi-Agent Coordination) Routes (JSON API)
+    app.register_blueprint(mcp_bp, url_prefix='/api/v1/mcp')
 

@@ -399,7 +399,7 @@ class MCPManager:
                 tool_name = f"execute_{safe_short_name}"
                 
                 # Define handler using closure to capture ka_id
-                async def make_handler(kid, kname):
+                def make_handler(kid, kname):
                     async def handler(arguments):
                         params = arguments.get("params", {})
                         if self.app_orchestrator and hasattr(self.app_orchestrator, 'ka_loader'):
@@ -421,7 +421,7 @@ class MCPManager:
                             }
                         }
                     },
-                    handler=await make_handler(ka_id, ka_name)
+                    handler=make_handler(ka_id, ka_name)
                 )
                 count += 1
             

@@ -105,11 +105,10 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 
 # Rate limiting
 # Rate limiting
-limiter.init_app(
-    app,
-    default_limits=[os.environ.get("GLOBAL_RATE_LIMIT", "200 per hour")],
-    storage_uri=os.environ.get("RATELIMIT_STORAGE_URI", "memory://"),
-)
+# Rate limiting configuration
+app.config["RATELIMIT_DEFAULT"] = os.environ.get("GLOBAL_RATE_LIMIT", "200 per hour")
+app.config["RATELIMIT_STORAGE_URI"] = os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
+limiter.init_app(app)
 
 
 # Configure Caching and Celery
@@ -230,20 +229,11 @@ with app.app_context():
     db.create_all()
     logger.info("Database tables created")
 
-# Register MCP blueprint
-from backend.mcp_api import mcp_bp
-app.register_blueprint(mcp_bp, url_prefix='/api/v1/mcp')
-# Legacy alias
-app.register_blueprint(mcp_bp, name='mcp_legacy', url_prefix='/api/mcp')
-logger.info("MCP blueprint registered (v1 + legacy)")
+# MCP Routes moved to routes/mcp_routes.py (registered via routes package)
 
 # AI Chat legacy blueprint removed (Superseded by LLM Gateway)
 
-# Register Knowledge Algorithm API blueprint
-from backend.ka_api import ka_bp
-app.register_blueprint(ka_bp, url_prefix='/api/v1/ka')
-app.register_blueprint(ka_bp, name='ka_legacy', url_prefix='/api/ka')
-logger.info("KA API blueprint registered (v1 + legacy)")
+# KA Routes moved to routes/ka_routes.py (registered via routes package)
 
 # Register Truth Engine API blueprint (lazy initialization - components load on first use)
 from backend.truth_engine.api import truth_api

@@ -17,7 +17,8 @@ ka_bp = Blueprint('ka', __name__, url_prefix='/api/ka')
 
 def load_ka_registry():
     """Load KA registry from JSON file"""
-    registry_path = os.path.join(os.path.dirname(__file__), 'ka_registry.json')
+    # Updated path for refactored structure (routes/ -> core/data/)
+    registry_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'core', 'data', 'ka_registry.json')
     try:
         with open(registry_path, 'r') as f:
             data = json.load(f)
