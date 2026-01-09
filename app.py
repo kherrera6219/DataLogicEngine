@@ -110,6 +110,10 @@ app.config["RATELIMIT_DEFAULT"] = os.environ.get("GLOBAL_RATE_LIMIT", "200 per h
 app.config["RATELIMIT_STORAGE_URI"] = os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
 limiter.init_app(app)
 
+# SSO Configuration
+from backend.auth.sso import configure_sso
+configure_sso(app)
+
 
 # Configure Caching and Celery
 redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
@@ -426,15 +430,13 @@ def not_found(e):
     # Log the error internally
     logger.warning(f"404 Not Found: {request.url}")
 
-    if request.is_json or request.headers.get('Accept', '').startswith('application/json'):
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'NOT_FOUND',
-                'message': 'The requested resource was not found'
-            }
-        }), 404
-    return render_template('errors/404.html'), 404
+    return jsonify({
+        'success': False,
+        'error': {
+            'code': 'NOT_FOUND',
+            'message': 'The requested resource was not found'
+        }
+    }), 404
 
 @app.errorhandler(500)
 def server_error(e):
@@ -443,46 +445,40 @@ def server_error(e):
     logger.error(f"500 Internal Server Error: {str(e)}", exc_info=True)
 
     # NEVER expose stack traces to users in production
-    if request.is_json or request.headers.get('Accept', '').startswith('application/json'):
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'INTERNAL_SERVER_ERROR',
-                'message': 'An internal error occurred. Please try again later.'
-            }
-        }), 500
-    return render_template('errors/500.html'), 500
+    return jsonify({
+        'success': False,
+        'error': {
+            'code': 'INTERNAL_SERVER_ERROR',
+            'message': 'An internal error occurred. Please try again later.'
+        }
+    }), 500
 
 @app.errorhandler(403)
 def forbidden(e):
     """Handle 403 Forbidden errors."""
     logger.warning(f"403 Forbidden: {request.url} - User: {current_user.username if current_user and current_user.is_authenticated else 'Anonymous'}")
 
-    if request.is_json or request.headers.get('Accept', '').startswith('application/json'):
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'FORBIDDEN',
-                'message': 'You do not have permission to access this resource'
-            }
-        }), 403
-    return render_template('errors/403.html'), 403
+    return jsonify({
+        'success': False,
+        'error': {
+            'code': 'FORBIDDEN',
+            'message': 'You do not have permission to access this resource'
+        }
+    }), 403
 
 @app.errorhandler(429)
 def ratelimit_handler(e):
     """Handle rate limit exceeded errors."""
     logger.warning(f"429 Rate Limit Exceeded: {request.url} - IP: {request.remote_addr}")
 
-    if request.is_json or request.headers.get('Accept', '').startswith('application/json'):
-        return jsonify({
-            'success': False,
-            'error': {
-                'code': 'RATE_LIMIT_EXCEEDED',
-                'message': 'Rate limit exceeded. Please try again later.',
-                'retry_after': getattr(e, 'description', '60 seconds')
-            }
-        }), 429
-    return render_template('errors/429.html'), 429
+    return jsonify({
+        'success': False,
+        'error': {
+            'code': 'RATE_LIMIT_EXCEEDED',
+            'message': 'Rate limit exceeded. Please try again later.',
+            'retry_after': getattr(e, 'description', '60 seconds')
+        }
+    }), 429
 
 # Run the application
 if __name__ == '__main__':

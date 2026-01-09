@@ -137,3 +137,40 @@ Observability and debugging.
 
 - **GET** `/health`
   - Returns system status (API, Database, Redis).
+
+---
+
+## 6. Knowledge Algorithm Routes (`/ka`)
+
+Execute and manage recursive planning algorithms (KA-56+).
+
+### Algorithms
+
+- **GET** `/ka/algorithms`
+  - List available knowledge algorithms.
+- **GET** `/ka/algorithms/<ka_id>`
+  - Get details of a specific algorithm (inputs, outputs).
+- **POST** `/ka/algorithms/<ka_id>/execute`
+  - Trigger an algorithm execution.
+  - _Body_: `{ "params": { "goal": "Analyze..." } }`
+
+---
+
+## 7. MCP Routes (`/mcp`)
+
+Manage Multi-Agent Coordination Platform resources and tools.
+
+### Servers
+
+- **GET** `/mcp/servers`
+  - List connected MCP servers.
+- **POST** `/mcp/servers`
+  - Connect a new MCP server.
+
+### Tools & Resources
+
+- **GET** `/mcp/servers/<server_id>/tools`
+  - List tools provided by a server.
+- **POST** `/mcp/tools/call`
+  - Execute an MCP tool.
+  - _Body_: `{ "server_name": "...", "tool_name": "...", "arguments": {} }`

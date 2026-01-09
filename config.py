@@ -72,6 +72,12 @@ class Config:
     # Default to localhost for development only
     CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
 
+    
+    # SSO / OIDC Configuration
+    OIDC_CLIENT_ID = os.getenv('OIDC_CLIENT_ID')
+    OIDC_CLIENT_SECRET = os.getenv('OIDC_CLIENT_SECRET')
+    # Default to Microsoft Common for multi-tenant, or specific tenant URL
+    OIDC_DISCOVERY_URL = os.getenv('OIDC_DISCOVERY_URL', 'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration')
 
 class DevelopmentConfig(Config):
     """Development environment configuration."""

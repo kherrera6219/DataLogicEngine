@@ -157,3 +157,48 @@ def logout():
     """Handle user logout."""
     logout_user()
     return success_response(message="Logged out")
+
+# SSO Routes
+from backend.auth.sso import login_sso, handle_sso_callback
+
+@auth_bp.route('/login/sso', methods=['GET'])
+def sso_login_route():
+    """Initiate SSO Login."""
+    return login_sso()
+
+@auth_bp.route('/callback/sso', methods=['GET'])
+def sso_callback_route():
+    """Handle SSO Callback."""
+    try:
+        user_info = handle_sso_callback()
+        
+        email = user_info.get('email') or user_info.get('preferred_username')
+        if not email:
+            return error_response("No email provided by Identity Provider", 400)
+            
+        # Find or create user
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            # Auto-register new user from SSO
+            username = email.split('@')[0]
+            # Ensure unique username
+            if User.query.filter_by(username=username).first():
+                username = f"{username}_{datetime.datetime.now().strftime('%M%S')}"
+                
+            user = User()
+            user.username = username
+            user.email = email
+            user.set_password(datetime.datetime.now().isoformat()) # usage of random password
+            user.is_active = True
+            
+            db.session.add(user)
+            db.session.commit()
+            logger.info(f"Created new user via SSO: {username}")
+            
+        login_user(user)
+        return success_response(message="SSO Login successful", data={"user": user.to_dict()})
+        
+    except Exception as e:
+        logger.error(f"SSO Error: {e}")
+        return error_response("SSO Authentication failed", 500)
+

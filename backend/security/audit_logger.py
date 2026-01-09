@@ -8,6 +8,7 @@ supporting SOC 2 Type 2 compliance requirements.
 
 import os
 import logging
+import logging.handlers
 import json
 import time
 import hashlib
@@ -458,3 +459,78 @@ class AuditLogger:
             results["verified"] = False
             results["error"] = str(e)
             return results
+
+    def enable_syslog_forwarding(self, host: str, port: int = 514, facility: int = logging.handlers.SysLogHandler.LOG_USER) -> bool:
+        """
+        Enable forwarding audit logs to a remote Syslog server (SIEM).
+        
+        Args:
+            host: Syslog server hostname or IP
+            port: Syslog server port (default 514)
+            facility: Syslog facility (default LOG_USER)
+            
+        Returns:
+            True if configured successfully
+        """
+        try:
+            handler = logging.handlers.SysLogHandler(address=(host, port), facility=facility)
+            formatter = logging.Formatter('%(name)s: [%(levelname)s] %(message)s')
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+            logger.info(f"Syslog forwarding enabled to {host}:{port}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to enable Syslog forwarding: {str(e)}")
+            return False
+
+    def export_to_csv(self, output_file: str, start_time: Optional[datetime] = None, end_time: Optional[datetime] = None) -> int:
+        """
+        Export audit logs to a CSV file for compliance reporting.
+        
+        Args:
+            output_file: Path to the output CSV file
+            start_time: Filter events after this time
+            end_time: Filter events before this time
+            
+        Returns:
+            Number of events exported
+        """
+        import csv
+        
+        events = self.get_audit_events(start_time=start_time, end_time=end_time, limit=100000)
+        
+        if not events:
+            return 0
+            
+        # Determine all possible fields from the events
+        fieldnames = set()
+        for event in events:
+            fieldnames.update(event.keys())
+            if "details" in event and isinstance(event["details"], dict):
+                 # Flatten details for CSV if needed, or keep as JSON string
+                 pass
+
+        # Standard fields order
+        ordered_fields = ['timestamp', 'event_type', 'status', 'user_id', 'action', 'resource_id', 'ip_address', 'id', 'hash']
+        # Add remaining fields
+        for field in fieldnames:
+            if field not in ordered_fields:
+                ordered_fields.append(field)
+                
+        try:
+            with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=ordered_fields, extrasaction='ignore')
+                writer.writeheader()
+                for event in events:
+                    # Ensure details is valid JSON string if it exists, for CSV readability
+                    row = event.copy()
+                    if "details" in row and isinstance(row["details"], (dict, list)):
+                        row["details"] = json.dumps(row["details"])
+                    writer.writerow(row)
+            
+            logger.info(f"Exported {len(events)} audit events to {output_file}")
+            return len(events)
+        except Exception as e:
+            logger.error(f"Failed to export audit logs to CSV: {str(e)}")
+            raise e
+

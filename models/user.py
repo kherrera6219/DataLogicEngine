@@ -88,6 +88,10 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
     active = db.Column(db.Boolean, default=True)
+    
+    # Multi-tenancy
+    tenant_id = db.Column(db.String(64), index=True, nullable=True)
+    
     is_admin = db.Column(db.Boolean, default=False)
     role = db.Column(db.String(20), default='user')
     created_at = db.Column(db.DateTime, default=_utcnow)
@@ -209,6 +213,7 @@ class User(UserMixin, db.Model):
             'id': self.id,
             'username': self.username,
             'email': self.email,
+            'tenant_id': self.tenant_id,
             'is_active': self.is_active,
             'is_admin': self.is_admin,
             'created_at': self.created_at.isoformat() if self.created_at else None,
