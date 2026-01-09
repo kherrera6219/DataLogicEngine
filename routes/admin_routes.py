@@ -1,31 +1,34 @@
 """
-Admin Routes Blueprint
+Admin Routes Blueprint (JSON API)
 
-Handles all admin-only routes with proper access control using @admin_required decorator.
+Handles all admin-only routes with proper access control via REST API.
 """
 
 import datetime
 from datetime import UTC
 import logging
 
-from flask import Blueprint, render_template
-from flask_login import login_required, current_user
-
+from flask import Blueprint, jsonify, request
+from flask_login import login_required
 from extensions import db
-from models import User, SimulationSession
-from models import Node, Edge, KnowledgeAlgorithm
+from models import User, SimulationSession, Node, Edge, KnowledgeAlgorithm
 from backend.decorators import admin_required
 
 logger = logging.getLogger(__name__)
 
-admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+admin_bp = Blueprint('admin_api', __name__, url_prefix='/api/v1/admin')
 
+def success_response(data, message="Operation successful"):
+    return jsonify({"success": True, "message": message, "data": data})
 
-@admin_bp.route('')
+def error_response(message, status_code=400):
+    return jsonify({"success": False, "error": message}), status_code
+
+@admin_bp.route('/dashboard', methods=['GET'])
 @login_required
 @admin_required
-def admin_dashboard():
-    """Render the admin dashboard."""
+def admin_dashboard_stats():
+    """Get admin dashboard statistics."""
     stats = {
         'user_count': User.query.count(),
         'active_users': User.query.filter_by(active=True).count(),
@@ -35,56 +38,49 @@ def admin_dashboard():
         'algorithm_count': KnowledgeAlgorithm.query.count()
     }
     
-    recent_users = User.query.order_by(User.created_at.desc()).limit(5).all()
+    recent_users = [u.to_dict() for u in User.query.order_by(User.created_at.desc()).limit(5).all()]
     
-    recent_simulations = SimulationSession.query.order_by(
-        SimulationSession.started_at.desc()
-    ).limit(5).all()
-    
-    return render_template('admin/dashboard.html',
-                          stats=stats,
-                          recent_users=recent_users,
-                          recent_simulations=recent_simulations)
+    return success_response({
+        "stats": stats,
+        "recent_users": recent_users
+    })
 
-
-@admin_bp.route('/users')
+@admin_bp.route('/users', methods=['GET'])
 @login_required
 @admin_required
-def admin_users():
-    """Render the user management page."""
+def get_users():
+    """Get list of users."""
     users = User.query.order_by(User.created_at.desc()).all()
     
-    admin_count = User.query.filter((User.role == 'admin') | (User.is_admin == True)).count()
-    analyst_count = User.query.filter_by(role='analyst').count()
-    user_count = User.query.filter_by(role='user').count()
-    viewer_count = User.query.filter_by(role='viewer').count()
+    role_counts = {
+        'admin': User.query.filter_by(is_admin=True).count(),
+        'analyst': User.query.filter_by(role='analyst').count(),
+        'user': User.query.filter_by(role='user').count()
+    }
     
-    return render_template('admin/users.html',
-                          users=users,
-                          admin_count=admin_count,
-                          user_count=user_count,
-                          analyst_count=analyst_count,
-                          viewer_count=viewer_count)
+    return success_response({
+        "users": [u.to_dict() for u in users],
+        "counts": role_counts
+    })
 
-
-@admin_bp.route('/audit')
+@admin_bp.route('/users/<int:user_id>/role', methods=['PUT'])
 @login_required
 @admin_required
-def admin_audit():
-    """Render the audit log page."""
-    stats = {'info': 3, 'warning': 0, 'error': 0, 'critical': 0}
-    type_counts = {'auth': 1, 'access': 1, 'data': 0, 'admin': 0, 'system': 1}
+def update_user_role(user_id):
+    """Update user role."""
+    user = User.query.get(user_id)
+    if not user: return error_response("User not found", 404)
     
-    return render_template('admin/audit_log.html',
-                          logs=[],
-                          stats=stats,
-                          type_counts=type_counts,
-                          now=datetime.datetime.now(UTC))
-
-
-@admin_bp.route('/settings')
-@login_required
-@admin_required
-def admin_settings():
-    """Render the system settings page."""
-    return render_template('admin/settings.html')
+    data = request.json
+    new_role = data.get('role')
+    is_admin = data.get('is_admin')
+    
+    if new_role: user.role = new_role
+    if is_admin is not None: user.is_admin = is_admin
+    
+    try:
+        db.session.commit()
+        return success_response(user.to_dict(), "User updated")
+    except Exception as e:
+        db.session.rollback()
+        return error_response(str(e), 500)

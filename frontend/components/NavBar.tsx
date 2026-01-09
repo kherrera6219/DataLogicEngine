@@ -4,23 +4,32 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-import { Menu, X, Hexagon, User } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext'; // Added useAuth import
+import { Menu, X, Hexagon, User as UserIcon, LogOut, Settings } from 'lucide-react'; // Modified lucide-react imports
 import { Button } from '@/components/ui/button';
+import { // Added DropdownMenu imports
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function NavBar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, logout, isLoading } = useAuth(); // Replaced hardcoded auth state with useAuth
+
+  // Hide NavBar on login/register pages
+  if (pathname === '/login' || pathname === '/register') return null;
 
   // TODO: Real authentication state via Context
-  const isAuthenticated = true; 
-  const username = "Admin User"; 
-  const userInitials = "AU";
+  // const isAuthenticated = true; // Removed
+  // const username = "Admin User"; // Removed
+  // const userInitials = "AU"; // Removed
 
   const navItems = [
-    { name: 'Dashboard', href: '/dashboard', authRequired: true },
-    { name: 'Chat', href: '/chat', authRequired: true },
-    { name: 'Knowledge', href: '/knowledge', authRequired: true },
-    { name: 'Graph', href: '/graph', authRequired: true },
     { name: 'Simulations', href: '/simulations', authRequired: true },
     { name: 'About', href: '/about' },
   ];
@@ -61,17 +70,6 @@ export function NavBar() {
           </nav>
 
           {/* User Menu / Auth */}
-          <div className="hidden md:flex items-center gap-4">
-            {isAuthenticated ? (
-              <div className="flex items-center gap-3 pl-4 border-l border-border">
-                 <div className="flex flex-col items-end">
-                    <span className="text-sm font-medium leading-none">{username}</span>
-                    <span className="text-xs text-muted-foreground">Administrator</span>
-                 </div>
-                 <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs ring-2 ring-background">
-                    {userInitials}
-                 </div>
-              </div>
             ) : (
               <div className="flex gap-2">
                 <Link href="/login">
