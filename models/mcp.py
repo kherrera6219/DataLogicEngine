@@ -31,7 +31,8 @@ class MCPServer(db.Model):
     total_requests = db.Column(db.Integer, default=0)
     successful_requests = db.Column(db.Integer, default=0)
     failed_requests = db.Column(db.Integer, default=0)
-
+    tenant_id = db.Column(db.String(64), index=True)
+    
     # Timestamps
     created_at = db.Column(db.DateTime, default=_utcnow)
     updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
@@ -65,6 +66,7 @@ class MCPServer(db.Model):
                 'successful_requests': self.successful_requests,
                 'failed_requests': self.failed_requests
             },
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'last_active': self.last_active.isoformat() if self.last_active else None
@@ -88,7 +90,8 @@ class MCPResource(db.Model):
     # Access stats
     access_count = db.Column(db.Integer, default=0)
     last_accessed = db.Column(db.DateTime)
-
+    tenant_id = db.Column(db.String(64), index=True)
+    
     # Timestamps
     created_at = db.Column(db.DateTime, default=_utcnow)
     updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
@@ -105,6 +108,7 @@ class MCPResource(db.Model):
             'metadata': self.resource_metadata,
             'access_count': self.access_count,
             'last_accessed': self.last_accessed.isoformat() if self.last_accessed else None,
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
@@ -130,7 +134,8 @@ class MCPTool(db.Model):
     success_count = db.Column(db.Integer, default=0)
     failure_count = db.Column(db.Integer, default=0)
     last_executed = db.Column(db.DateTime)
-
+    tenant_id = db.Column(db.String(64), index=True)
+    
     # Timestamps
     created_at = db.Column(db.DateTime, default=_utcnow)
     updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
@@ -150,6 +155,7 @@ class MCPTool(db.Model):
                 'failure_count': self.failure_count
             },
             'last_executed': self.last_executed.isoformat() if self.last_executed else None,
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
@@ -173,7 +179,8 @@ class MCPPrompt(db.Model):
     # Usage stats
     usage_count = db.Column(db.Integer, default=0)
     last_used = db.Column(db.DateTime)
-
+    tenant_id = db.Column(db.String(64), index=True)
+    
     # Timestamps
     created_at = db.Column(db.DateTime, default=_utcnow)
     updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
@@ -189,6 +196,7 @@ class MCPPrompt(db.Model):
             'metadata': self.prompt_metadata,
             'usage_count': self.usage_count,
             'last_used': self.last_used.isoformat() if self.last_used else None,
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }

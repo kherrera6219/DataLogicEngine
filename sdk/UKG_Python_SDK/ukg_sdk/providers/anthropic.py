@@ -8,6 +8,11 @@ import httpx
 from .base import LLMProvider, LLMResponse
 
 
+import logging
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+
+logger = logging.getLogger(__name__)
+
 class AnthropicProvider(LLMProvider):
     """Anthropic Messages API provider (HTTP, no SDK dependency).
 
@@ -25,6 +30,12 @@ class AnthropicProvider(LLMProvider):
         self.anthropic_version = anthropic_version or os.getenv("ANTHROPIC_VERSION") or "2023-06-01"
         self.timeout_s = timeout_s
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        retry=retry_if_exception_type((httpx.NetworkError, httpx.TimeoutException, httpx.HTTPStatusError)),
+        reraise=True
+    )
     async def complete(self, *, messages: List[Dict[str, str]], model: str, temperature: float = 0.2, max_tokens: int = 1024) -> LLMResponse:
         # Anthropic expects system separately; we fold role=system messages into system string.
         system_parts = [m["content"] for m in messages if m.get("role") == "system"]
@@ -47,10 +58,22 @@ class AnthropicProvider(LLMProvider):
         }
         # remove None fields
         payload = {k: v for k, v in payload.items() if v is not None}
+        
         async with httpx.AsyncClient(timeout=self.timeout_s) as client:
-            r = await client.post(url, headers=headers, json=payload)
-            r.raise_for_status()
-            data = r.json()
+            try:
+                r = await client.post(url, headers=headers, json=payload)
+                r.raise_for_status()
+                data = r.json()
+            except httpx.HTTPStatusError as e:
+                # 429 and 529 are common for Anthropic rate limiting/overload
+                if e.response.status_code in {429, 529} or e.response.status_code >= 500:
+                    logger.warning(f"Anthropic API error {e.response.status_code}. Retrying...")
+                    raise
+                raise
+            except (httpx.NetworkError, httpx.TimeoutException) as e:
+                logger.warning(f"Anthropic connection error: {str(e)}. Retrying...")
+                raise
+
         # Anthropic returns list of content blocks; join text blocks
         text = ""
         for block in data.get("content", []):

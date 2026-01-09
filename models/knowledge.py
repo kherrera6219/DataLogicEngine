@@ -22,6 +22,7 @@ class KnowledgeGraphNode(db.Model):
     description = db.Column(db.Text)
     data = db.Column(db.JSON)
     axis_number = db.Column(db.Integer, index=True)
+    tenant_id = db.Column(db.String(64), index=True)
     created_at = db.Column(db.DateTime, default=_utcnow)
     updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
 
@@ -36,6 +37,7 @@ class KnowledgeGraphNode(db.Model):
             'description': self.description,
             'data': self.data,
             'axis_number': self.axis_number,
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
@@ -52,6 +54,7 @@ class KnowledgeGraphEdge(db.Model):
     edge_type = db.Column(db.String(32), nullable=False, index=True)
     weight = db.Column(db.Float, default=1.0)
     data = db.Column(db.JSON)
+    tenant_id = db.Column(db.String(64), index=True)
     created_at = db.Column(db.DateTime, default=_utcnow)
     updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
 
@@ -70,6 +73,7 @@ class KnowledgeGraphEdge(db.Model):
             'edge_type': self.edge_type,
             'weight': self.weight,
             'data': self.data,
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
@@ -89,6 +93,7 @@ class Node(db.Model):
     axis_number = Column(Integer, nullable=False)
     description = Column(Text, nullable=True)
     attributes = Column(JSON, nullable=True)
+    tenant_id = Column(String(64), index=True)
     created_at = Column(DateTime, default=_utcnow)
     updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
     active = Column(Boolean, default=True)
@@ -106,6 +111,7 @@ class Node(db.Model):
             'axis_number': self.axis_number,
             'description': self.description,
             'attributes': self.attributes or {},
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'active': self.active
@@ -122,6 +128,7 @@ class Edge(db.Model):
     source_node_id = Column(Integer, ForeignKey('ukg_nodes.id'), nullable=False)
     target_node_id = Column(Integer, ForeignKey('ukg_nodes.id'), nullable=False)
     attributes = Column(JSON, nullable=True)
+    tenant_id = Column(String(64), index=True)
     created_at = Column(DateTime, default=_utcnow)
     updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
     active = Column(Boolean, default=True)
@@ -139,6 +146,7 @@ class Edge(db.Model):
             'source_node_id': self.source_node_id,
             'target_node_id': self.target_node_id,
             'attributes': self.attributes or {},
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'active': self.active
@@ -154,6 +162,7 @@ class PillarLevel(db.Model):
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     sublevels = Column(JSON, nullable=True)  # Nested structure for sublevels
+    tenant_id = Column(String(64), index=True)
     created_at = Column(DateTime, default=_utcnow)
     updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
@@ -168,6 +177,7 @@ class PillarLevel(db.Model):
             'name': self.name,
             'description': self.description,
             'sublevels': self.sublevels or {},
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
@@ -182,6 +192,7 @@ class Sector(db.Model):
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     parent_sector_id = Column(Integer, ForeignKey('ukg_sectors.id'), nullable=True)
+    tenant_id = Column(String(64), index=True)
     created_at = Column(DateTime, default=_utcnow)
     updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
@@ -198,6 +209,7 @@ class Sector(db.Model):
             'name': self.name,
             'description': self.description,
             'parent_sector_id': self.parent_sector_id,
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'subsector_count': len(self.subsectors) if self.subsectors else 0
@@ -214,6 +226,7 @@ class Domain(db.Model):
     description = Column(Text, nullable=True)
     sector_id = Column(Integer, ForeignKey('ukg_sectors.id'), nullable=True)
     parent_domain_id = Column(Integer, ForeignKey('ukg_domains.id'), nullable=True)
+    tenant_id = Column(String(64), index=True)
     created_at = Column(DateTime, default=_utcnow)
     updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
@@ -232,6 +245,7 @@ class Domain(db.Model):
             'sector_id': self.sector_id,
             'sector_name': self.sector.name if self.sector else None,
             'parent_domain_id': self.parent_domain_id,
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'subdomain_count': len(self.subdomains) if self.subdomains else 0
@@ -249,6 +263,7 @@ class Location(db.Model):
     longitude = Column(Float, nullable=True)
     parent_location_id = Column(Integer, ForeignKey('ukg_locations.id'), nullable=True)
     attributes = Column(JSON, nullable=True)
+    tenant_id = Column(String(64), index=True)
     created_at = Column(DateTime, default=_utcnow)
     updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
@@ -266,6 +281,7 @@ class Location(db.Model):
             'longitude': self.longitude,
             'parent_location_id': self.parent_location_id,
             'attributes': self.attributes or {},
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
@@ -284,6 +300,7 @@ class TimeContext(db.Model):
     recurring = Column(Boolean, default=False)
     parent_time_id = Column(Integer, ForeignKey('ukg_time_contexts.id'), nullable=True)
     attributes = Column(JSON, nullable=True)  # Store additional metadata (e.g., persona_id for career stages)
+    tenant_id = Column(String(64), index=True)
     created_at = Column(DateTime, default=_utcnow)
     updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
@@ -303,6 +320,7 @@ class TimeContext(db.Model):
             'recurring': self.recurring,
             'parent_time_id': self.parent_time_id,
             'attributes': self.attributes or {},
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
@@ -320,6 +338,7 @@ class KnowledgeNode(db.Model):
     domain_id = Column(Integer, ForeignKey('ukg_domains.id'), nullable=True)
     location_id = Column(Integer, ForeignKey('ukg_locations.id'), nullable=True)
     node_metadata = Column(JSON, nullable=True)
+    tenant_id = Column(String(64), index=True)
     created_at = Column(DateTime, default=_utcnow)
     updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
@@ -337,6 +356,7 @@ class KnowledgeNode(db.Model):
             'pillar_id': self.pillar_level.pillar_id if self.pillar_level else None,
             'domain_id': self.domain_id,
             'location_id': self.location_id,
+            'tenant_id': self.tenant_id,
             'metadata': self.node_metadata or {},
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
@@ -354,6 +374,7 @@ class MethodNode(db.Model):
     description = Column(Text, nullable=True)
     parent_id = Column(Integer, ForeignKey('ukg_method_nodes.id'), nullable=True)
     attributes = Column(JSON, nullable=True)
+    tenant_id = Column(String(64), index=True)
     created_at = Column(DateTime, default=_utcnow)
     updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
@@ -369,6 +390,7 @@ class MethodNode(db.Model):
             'label': self.label,
             'description': self.description,
             'parent_id': self.parent_id,
+            'tenant_id': self.tenant_id,
             'attributes': self.attributes or {},
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
@@ -388,6 +410,7 @@ class KnowledgeAlgorithm(db.Model):
     version = Column(String(20), nullable=False)
     input_schema = Column(JSON, nullable=False)
     output_schema = Column(JSON, nullable=False)
+    tenant_id = Column(String(64), index=True)
     created_at = Column(DateTime, default=_utcnow)
     updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
@@ -405,6 +428,7 @@ class KnowledgeAlgorithm(db.Model):
             'version': self.version,
             'input_schema': self.input_schema,
             'output_schema': self.output_schema,
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
@@ -419,6 +443,7 @@ class KAExecution(db.Model):
     input_params = Column(JSON, nullable=False)
     output_results = Column(JSON, nullable=True)
     status = Column(String(20), nullable=False)  # e.g., "pending", "running", "completed", "failed"
+    tenant_id = Column(String(64), index=True)
     started_at = Column(DateTime, nullable=False, default=_utcnow)
     completed_at = Column(DateTime, nullable=True)
     error_message = Column(Text, nullable=True)
@@ -435,6 +460,7 @@ class KAExecution(db.Model):
             'input_params': self.input_params,
             'output_results': self.output_results,
             'status': self.status,
+            'tenant_id': self.tenant_id,
             'started_at': self.started_at.isoformat() if self.started_at else None,
             'completed_at': self.completed_at.isoformat() if self.completed_at else None,
             'error_message': self.error_message,
