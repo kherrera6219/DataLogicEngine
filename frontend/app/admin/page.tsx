@@ -74,6 +74,9 @@ export default function AdminPage() {
                     <Button variant="outline" className="w-full justify-start" onClick={() => window.location.href = '/admin/compliance'}>
                        Compliance & Audit Logs
                     </Button>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => window.location.href = '/admin/mcp'}>
+                       MCP System & Tools
+                    </Button>
                  </CardContent>
              </Card>
          </div>
