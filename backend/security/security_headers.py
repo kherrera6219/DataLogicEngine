@@ -76,12 +76,25 @@ class SecurityHeadersMiddleware:
         if not is_development:
             response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
 
+        # Nonce for CSP
+        # In a real app, this should be generated per request and passed to templates
+        # Here we use a placeholder or assume templates inject 'g_nonce'
+        try:
+            from flask import g
+            nonce = getattr(g, 'nonce', None)
+            if not nonce:
+                import secrets
+                nonce = secrets.token_hex(16)
+                g.nonce = nonce
+        except ImportError:
+            nonce = 'r4nd0m'
+
         # Content-Security-Policy (CSP)
         # Prevents XSS, clickjacking, and other code injection attacks
         csp_directives = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+            f"script-src 'self' 'nonce-{nonce}' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com",
+            f"style-src 'self' 'nonce-{nonce}' https://fonts.googleapis.com https://cdn.jsdelivr.net",
             "img-src 'self' data: https: blob:",
             "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net",
             "connect-src 'self' https://api.openai.com https://*.openai.azure.com",
@@ -139,7 +152,8 @@ class SecurityHeadersMiddleware:
         response.headers['X-Download-Options'] = 'noopen'
 
         # Cross-Origin policies
-        response.headers['Cross-Origin-Embedder-Policy'] = 'require-corp'
+        # Relaxed slightly for practical usage (e.g. Next.js image optimization)
+        response.headers['Cross-Origin-Embedder-Policy'] = 'unsafe-none'
         response.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
         response.headers['Cross-Origin-Resource-Policy'] = 'same-origin'
 

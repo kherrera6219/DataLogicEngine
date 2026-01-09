@@ -133,7 +133,7 @@ else:
     app.config["CELERY_TASK_ALWAYS_EAGER"] = True # Run synchronously
 
 # Initialize extensions with app
-from extensions import db, login_manager, csrf, migrate, cache, compress
+from extensions import db, login_manager, csrf, migrate, cache, compress, cors
 from models import User, APIKey, SimulationSession
 db.init_app(app)
 login_manager.init_app(app)
@@ -141,6 +141,8 @@ csrf.init_app(app)
 migrate.init_app(app, db)
 cache.init_app(app)
 compress.init_app(app)
+# Configure CORS with strict origins from config
+cors.init_app(app, resources={r"/api/*": {"origins": app.config.get('CORS_ORIGINS')}}, supports_credentials=True)
 
 # Initialize Celery
 from backend.celery_app import make_celery

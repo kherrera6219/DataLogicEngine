@@ -32,7 +32,7 @@ def login_sso():
     if not current_app.config.get('OIDC_CLIENT_ID'):
         return "SSO not configured", 501
         
-    redirect_uri = url_for('auth_bp.sso_callback', _external=True)
+    redirect_uri = url_for('auth_api.sso_callback_route', _external=True)
     return oauth.azure.authorize_redirect(redirect_uri)
 
 def handle_sso_callback():
