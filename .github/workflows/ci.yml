@@ -22,12 +22,17 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install pip-audit
+
+    - name: Security Audit
+      run: |
+        pip-audit
+      continue-on-error: true  # Don't fail build immediately on first run, but report security issues
         
-    - name: Run Tests
       run: |
         pytest tests/
       env:
-        DATABASE_URL: sqlite:///:memory:
+        DATABASE_URL: "sqlite:///:memory:"
         OPENAI_API_KEY: "mock-key-for-ci"
 
   # Frontend Build

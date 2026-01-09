@@ -1,0 +1,148 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Universal Knowledge Graph API",
+    "description": "Enterprise Knowledge Graph and AI Simulation Engine API (v2.0.0)",
+    "version": "2.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Production API"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/gateway/chat": {
+      "post": {
+        "summary": "LLM Gateway Chat",
+        "tags": ["Gateway"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "messages": {
+                    "type": "array",
+                    "items": { "type": "object" }
+                  },
+                  "model": { "type": "string" },
+                  "run_ukg_pipeline": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat completion with UKG trace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "choices": { "type": "array" },
+                    "ukg_trace": { "type": "object" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/simulations": {
+      "get": {
+        "summary": "List Simulations",
+        "tags": ["Simulation"],
+        "responses": {
+          "200": { "description": "List of simulations" }
+        }
+      },
+      "post": {
+        "summary": "Create Simulation",
+        "tags": ["Simulation"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "parameters": { "type": "object" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Simulation created" }
+        }
+      }
+    },
+    "/simulations/{uid}/step": {
+      "post": {
+        "summary": "Run Simulation Step",
+        "tags": ["Simulation"],
+        "parameters": [
+          { "name": "uid", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Step executed" }
+        }
+      }
+    },
+    "/pillar-levels": {
+      "get": {
+        "summary": "List Pillar Levels",
+        "tags": ["Knowledge"],
+        "responses": {
+          "200": { "description": "List of pillar levels" }
+        }
+      }
+    },
+    "/sectors": {
+      "get": {
+        "summary": "List Sectors",
+        "tags": ["Knowledge"],
+        "responses": {
+          "200": { "description": "List of sectors" }
+        }
+      }
+    },
+    "/domains": {
+      "get": {
+        "summary": "List Domains",
+        "tags": ["Knowledge"],
+        "responses": {
+          "200": { "description": "List of domains" }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "System Health",
+        "tags": ["System"],
+        "security": [],
+        "responses": {
+           "200": { "description": "System operational" }
+        }
+      }
+    }
+  }
+}
