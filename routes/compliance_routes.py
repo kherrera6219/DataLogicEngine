@@ -39,7 +39,7 @@ def get_compliance_standards():
             'timestamp': datetime.now().isoformat()
         }), 500
 
-@compliance_api.route('/standards', methods=['POST'])
+@compliance_bp.route('/standards', methods=['POST'])
 def create_compliance_standard():
     """Create a new compliance standard."""
     try:
@@ -72,10 +72,6 @@ def create_compliance_standard():
         
     except Exception as e:
         current_app.logger.error(f"Error creating compliance standard: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': f"Error creating compliance standard: {str(e)}",
-            'timestamp': datetime.now().isoformat()
         return jsonify({
             'status': 'error',
             'message': f"Error creating compliance standard: {str(e)}",
@@ -215,13 +211,15 @@ def map_regulatory_to_compliance():
         
         return jsonify(result), 201
         
+    except Exception as e:
+        current_app.logger.error(f"Error mapping regulatory to compliance: {str(e)}")
         return jsonify({
             'status': 'error',
             'message': f"Error mapping regulatory to compliance: {str(e)}",
             'timestamp': datetime.now().isoformat()
         }), 500
 
-@compliance_api.route('/audit/export', methods=['GET'])
+@compliance_bp.route('/audit/export', methods=['GET'])
 def export_audit_logs_route():
     """Export audit logs to CSV."""
     from backend.security.audit_logger import AuditLogger

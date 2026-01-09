@@ -3,6 +3,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
+const algos = [
+  "AoT (Algorithm of Thought)", "ToT (Tree of Thought)", "GAP (Gap Analysis)", "VALID (Input Validation)",
+  "QCLASS (Query Classification)", "PLAN (Deep Planning)", "RECURSE (Recursive Control)", "CRITIQUE (Self-Critique)",
+  "EVID (Evidence Validation)", "BIAS-DETECT (Bias Detection)", "MODEL (Analytical Modeling)", "PERSONA (Persona Sim)",
+  "P-WEIGHT (Persona Weighting)", "CONF (Confidence Scoring)", "TIME (Temporal Reasoning)", "REGMAP (Regulatory Mapping)",
+  "GEO (Spatial Mapping)", "PROV (Provenance Tracking)", "SYNTH (Knowledge Synthesis)"
+];
+
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8">
@@ -30,7 +38,7 @@ export default function AboutPage() {
                       <CardTitle>Truth Engine & KAs</CardTitle>
                    </CardHeader>
                    <CardContent className="text-gray-600 dark:text-gray-300">
-                      114 specialized Knowledge Algorithms (KAs) act as the "brain". From <span className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1 rounded">KA-001 Algorithm of Thought</span> to <span className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1 rounded">KA-114 Fractal Recursion</span>, these execute distributed reasoning.
+                      114 specialized Knowledge Algorithms (KAs) act as the &quot;brain&quot;. From <span className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1 rounded">KA-001 Algorithm of Thought</span> to <span className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1 rounded">KA-114 Fractal Recursion</span>, these execute distributed reasoning.
                    </CardContent>
                 </Card>
                 <Card>
@@ -48,13 +56,7 @@ export default function AboutPage() {
             <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Knowledge Algorithm Registry</h2>
             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
                 <div className="flex flex-wrap gap-2">
-                   {[
-                      "AoT (Algorithm of Thought)", "ToT (Tree of Thought)", "GAP (Gap Analysis)", "VALID (Input Validation)",
-                      "QCLASS (Query Classification)", "PLAN (Deep Planning)", "RECURSE (Recursive Control)", "CRITIQUE (Self-Critique)",
-                      "EVID (Evidence Validation)", "BIAS-DETECT (Bias Detection)", "MODEL (Analytical Modeling)", "PERSONA (Persona Sim)",
-                      "P-WEIGHT (Persona Weighting)", "CONF (Confidence Scoring)", "TIME (Temporal Reasoning)", "REGMAP (Regulatory Mapping)",
-                      "GEO (Spatial Mapping)", "PROV (Provenance Tracking)", "SYNTH (Knowledge Synthesis)"
-                   ].map((algo) => (
+                   {algos.map((algo) => (
                       <Badge key={algo} variant="secondary" className="px-3 py-1 text-sm">
                          {algo}
                       </Badge>

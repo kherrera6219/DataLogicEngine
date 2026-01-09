@@ -23,8 +23,8 @@ export default function LoginPage() {
       setError('');
       try {
           await login({ username: email, password }); // Username field maps to email/username in backend logic
-      } catch (err: any) {
-          setError(err.message || "Invalid credentials");
+      } catch (err) {
+          setError(err instanceof Error ? err.message : "Invalid credentials");
       } finally {
           setLoading(false);
       }

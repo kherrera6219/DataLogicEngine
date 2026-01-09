@@ -318,8 +318,8 @@ class SimulatedCurriculumBuilder:
         
         elif curriculum_type == "spiral":
             # Revisit core concepts with increasing depth
-            _concepts_per_spiral =   # noqa: F841            max(1, len(core_concepts) // 3)
-            _spiral_rounds =   # noqa: F841            max(1, lesson_count // len(core_concepts))
+            _concepts_per_spiral = max(1, len(core_concepts) // 3)  # noqa: F841
+            _spiral_rounds = max(1, lesson_count // len(core_concepts))  # noqa: F841
             
             for i in range(lesson_count):
                 # Calculate which concept and which spiral round
