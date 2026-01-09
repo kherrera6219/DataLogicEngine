@@ -318,7 +318,7 @@ class NeuralChainReconstructor:
                         # Use hash of ID as position
                         position = hash(activation["id"]) % 1000
                     organized[position] = activation
-                except:
+                except (ValueError, TypeError):
                     # Use length of organized as position
                     position = len(organized)
                     organized[position] = activation

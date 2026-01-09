@@ -522,7 +522,7 @@ class BeliefTraceExporter:
                     parsed = json.loads(content)
                     if "belief_trace" in parsed and isinstance(parsed["belief_trace"], list):
                         reasoning_paths.append(parsed["belief_trace"])
-                except:
+                except (json.JSONDecodeError, KeyError, ValueError):
                     # Skip invalid JSON
                     pass
             else:

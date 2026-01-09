@@ -581,7 +581,7 @@ def interactive_demo() -> None:
                 query = sample_queries[choice_index]
             else:
                 query = choice
-        except:
+        except ValueError:
             query = choice
         
         domain = input("Enter knowledge domain (e.g., artificial_intelligence, finance, healthcare): ")

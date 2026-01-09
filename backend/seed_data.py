@@ -4,9 +4,12 @@ Run this script to populate the database with initial reference data.
 """
 
 import uuid
+import logging
 from datetime import datetime
 from app import app, db
 from models import Node, Edge, PillarLevel, Sector, Domain
+
+logger = logging.getLogger(__name__)
 
 def generate_uid(prefix):
     """Generate a unique identifier with prefix."""
@@ -46,9 +49,9 @@ def seed_pillars():
             )
             db.session.add(pillar)
             created += 1
-    
+
     db.session.commit()
-    print(f"Seeded {created} pillars")
+    logger.info(f"Seeded {created} pillars")
     return created
 
 def seed_sectors():
@@ -83,9 +86,9 @@ def seed_sectors():
             )
             db.session.add(sector)
             created += 1
-    
+
     db.session.commit()
-    print(f"Seeded {created} sectors")
+    logger.info(f"Seeded {created} sectors")
     return created
 
 def seed_domains():
@@ -120,9 +123,9 @@ def seed_domains():
             )
             db.session.add(domain)
             created += 1
-    
+
     db.session.commit()
-    print(f"Seeded {created} domains")
+    logger.info(f"Seeded {created} domains")
     return created
 
 def seed_nodes():
@@ -169,16 +172,16 @@ def seed_nodes():
             )
             db.session.add(node)
             created += 1
-    
+
     db.session.commit()
-    print(f"Seeded {created} nodes")
+    logger.info(f"Seeded {created} nodes")
     return created
 
 def seed_edges():
     """Seed relationships between nodes."""
     axis_nodes = Node.query.filter_by(node_type="axis").all()
     if len(axis_nodes) < 2:
-        print("Not enough axis nodes to create edges")
+        logger.info("Not enough axis nodes to create edges")
         return 0
     
     created = 0
@@ -199,27 +202,27 @@ def seed_edges():
             )
             db.session.add(edge)
             created += 1
-    
+
     db.session.commit()
-    print(f"Seeded {created} edges")
+    logger.info(f"Seeded {created} edges")
     return created
 
 def run_seed():
     """Run all seed functions."""
     with app.app_context():
-        print("Starting database seed...")
-        
-        print("Creating tables if they don't exist...")
+        logger.info("Starting database seed...")
+
+        logger.info("Creating tables if they don't exist...")
         db.create_all()
-        
+
         pillars = seed_pillars()
         sectors = seed_sectors()
         domains = seed_domains()
         nodes = seed_nodes()
         edges = seed_edges()
-        
+
         total = pillars + sectors + domains + nodes + edges
-        print(f"\nSeed complete! Created {total} records total.")
+        logger.info(f"Seed complete! Created {total} records total.")
         return total
 
 if __name__ == "__main__":

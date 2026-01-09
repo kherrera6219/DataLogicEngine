@@ -3,12 +3,13 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { api, User } from '@/lib/api';
+import { LoginCredentials } from '@/lib/api/auth';
 
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    login: (credentials: any) => Promise<void>;
+    login: (credentials: LoginCredentials) => Promise<void>;
     logout: () => Promise<void>;
     checkAuth: () => Promise<void>;
 }
@@ -36,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const login = async (credentials: any) => {
+    const login = async (credentials: LoginCredentials) => {
         const response = await api.auth.login(credentials);
         if (response.success && response.data.user) {
             setUser(response.data.user);
