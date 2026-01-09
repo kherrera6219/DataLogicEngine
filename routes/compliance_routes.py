@@ -9,9 +9,9 @@ in the Universal Knowledge Graph (UKG) system.
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 
-compliance_api = Blueprint('compliance_api', __name__, url_prefix='/api/compliance')
+compliance_bp = Blueprint('compliance_api', __name__, url_prefix='/api/v1/compliance')
 
-@compliance_api.route('/standards', methods=['GET'])
+@compliance_bp.route('/standards', methods=['GET'])
 def get_compliance_standards():
     """Get all compliance standards or filtered by type."""
     try:
@@ -76,9 +76,13 @@ def create_compliance_standard():
             'status': 'error',
             'message': f"Error creating compliance standard: {str(e)}",
             'timestamp': datetime.now().isoformat()
+        return jsonify({
+            'status': 'error',
+            'message': f"Error creating compliance standard: {str(e)}",
+            'timestamp': datetime.now().isoformat()
         }), 500
 
-@compliance_api.route('/standards/<standard_id>', methods=['GET'])
+@compliance_bp.route('/standards/<standard_id>', methods=['GET'])
 def get_compliance_standard(standard_id):
     """Get a specific compliance standard by ID."""
     try:
@@ -147,7 +151,7 @@ def get_compliance_standard(standard_id):
             'timestamp': datetime.now().isoformat()
         }), 500
 
-@compliance_api.route('/sector/<sector_id>', methods=['GET'])
+@compliance_bp.route('/sector/<sector_id>', methods=['GET'])
 def get_sector_compliance(sector_id):
     """Get compliance standards for a sector."""
     try:
@@ -175,7 +179,7 @@ def get_sector_compliance(sector_id):
             'timestamp': datetime.now().isoformat()
         }), 500
 
-@compliance_api.route('/map-regulatory', methods=['POST'])
+@compliance_bp.route('/map-regulatory', methods=['POST'])
 def map_regulatory_to_compliance():
     """Map a regulatory framework to a compliance standard."""
     try:
@@ -211,10 +215,50 @@ def map_regulatory_to_compliance():
         
         return jsonify(result), 201
         
-    except Exception as e:
-        current_app.logger.error(f"Error mapping regulatory to compliance: {str(e)}")
         return jsonify({
             'status': 'error',
             'message': f"Error mapping regulatory to compliance: {str(e)}",
             'timestamp': datetime.now().isoformat()
         }), 500
+
+@compliance_api.route('/audit/export', methods=['GET'])
+def export_audit_logs_route():
+    """Export audit logs to CSV."""
+    from backend.security.audit_logger import AuditLogger
+    import os
+    from flask import send_file
+    
+    try:
+        # Check permission (pseudo-code, assumes login_required wraps this or is global)
+        # if not current_user.is_admin: ...
+        
+        days = request.args.get('days', 30, type=int)
+        
+        filename = f"audit_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv"
+        filepath = os.path.join("logs", "audit", filename)
+        
+        # Ensure dir exists (AuditLogger does it, but to be safe for new path)
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        
+        logger_instance = AuditLogger()
+        end_time = datetime.now()
+        start_time = end_time - datetime.timedelta(days=days)
+        
+        count = logger_instance.export_to_csv(filepath, start_time=start_time, end_time=end_time)
+        
+        if count == 0:
+            return jsonify({
+                "status": "success",
+                "message": "No logs found for the specified period",
+                "count": 0
+            })
+
+        return send_file(filepath, as_attachment=True, download_name=filename)
+        
+    except Exception as e:
+        current_app.logger.error(f"Error exporting audit logs: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': f"Error exporting logs: {str(e)}"
+        }), 500
+

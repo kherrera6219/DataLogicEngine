@@ -36,5 +36,10 @@ def register_routes(app):
     app.register_blueprint(ka_bp, url_prefix='/api/v1/ka')
     
     # MCP (Multi-Agent Coordination) Routes (JSON API)
+    # MCP (Multi-Agent Coordination) Routes (JSON API)
     app.register_blueprint(mcp_bp, url_prefix='/api/v1/mcp')
+    
+    # Compliance Routes (JSON API)
+    from .compliance_routes import compliance_bp
+    app.register_blueprint(compliance_bp)
 

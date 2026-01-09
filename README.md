@@ -131,16 +131,29 @@ graph LR
 
 ---
 
+## Enterprise Features (New)
+
+The system now includes critical enterprise-grade capabilities:
+
+- **🔐 SSO Integration**: OIDC-compliant authentication (Azure AD/Entra ID) via `/api/v1/auth/login/sso`.
+- **🛡️ SIEM Integration**: `AuditLogger` with Syslog forwarding and CSV export for compliance auditing.
+- **🏢 Multi-tenancy**: Foundation for tenant isolation with `tenant_id` context.
+- **📋 Compliance Dashboard**: Dedicated interface at `/admin/compliance` for managing audit trails and SOC2 evidence.
+
+---
+
 ## API Documentation
 
 The backend exposes a comprehensive REST API at `http://localhost:5000/api/v1`.
 
-| Service     | Endpoint Prefix   | Description                        |
-| :---------- | :---------------- | :--------------------------------- |
-| **Trace**   | `/api/v1/trace`   | Store and retrieve execution logs. |
-| **Gateway** | `/api/v1/gateway` | Chat with UKG-enhanced LLMs.       |
-| **MCP**     | `/api/v1/mcp`     | Model Context Protocol endpoints.  |
-| **System**  | `/health`         | System health check.               |
+| Service        | Endpoint Prefix      | Description                                   |
+| :------------- | :------------------- | :-------------------------------------------- |
+| **Trace**      | `/api/v1/trace`      | Store and retrieve execution logs.            |
+| **Gateway**    | `/api/v1/gateway`    | Chat with UKG-enhanced LLMs.                  |
+| **MCP**        | `/api/v1/mcp`        | Model Context Protocol endpoints.             |
+| **Auth**       | `/api/v1/auth`       | Login, Register, SSO, and Session management. |
+| **Compliance** | `/api/v1/compliance` | Audit logs, Standards, and Reporting.         |
+| **System**     | `/health`            | System health check.                          |
 
 Interactive Swagger UI is available at `http://localhost:5000/api/docs`.
 

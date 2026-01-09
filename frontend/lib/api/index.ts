@@ -7,11 +7,14 @@ import { system, chat, sendChat } from './system_chat';
 export * from './types';
 export { sendChat };
 
+import { compliance } from "./compliance";
+
 export const api = {
     chat,
     auth,
     trace,
     knowledge,
     simulation,
-    system
+    system,
+    compliance
 };

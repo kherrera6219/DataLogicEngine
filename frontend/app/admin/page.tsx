@@ -71,8 +71,8 @@ export default function AdminPage() {
                     <Button variant="outline" className="w-full justify-start">
                        Backup Database
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                       View Audit Logs
+                    <Button variant="outline" className="w-full justify-start" onClick={() => window.location.href = '/admin/compliance'}>
+                       Compliance & Audit Logs
                     </Button>
                  </CardContent>
              </Card>

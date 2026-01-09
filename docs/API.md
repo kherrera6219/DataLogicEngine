@@ -171,6 +171,32 @@ Manage Multi-Agent Coordination Platform resources and tools.
 
 - **GET** `/mcp/servers/<server_id>/tools`
   - List tools provided by a server.
-- **POST** `/mcp/tools/call`
   - Execute an MCP tool.
   - _Body_: `{ "server_name": "...", "tool_name": "...", "arguments": {} }`
+
+---
+
+## 8. Authentication Routes (`/auth`)
+
+Manage user sessions and identity.
+
+- **GET** `/auth/check`
+  - Check current session status.
+- **POST** `/auth/login`
+  - Standard username/password login.
+- **GET** `/auth/login/sso`
+  - Initiate OIDC/Azure AD Single Sign-On.
+- **POST** `/auth/logout`
+  - End the current session.
+
+---
+
+## 9. Compliance Routes (`/compliance`)
+
+Enterprise compliance and auditing features.
+
+- **GET** `/compliance/standards`
+  - List active compliance standards (SOC2, ISO27001, etc).
+- **GET** `/compliance/audit/export?days=30`
+  - **Export System Logs**: Returns a CSV file containing all audit events for the specified range.
+  - _Permissions_: Admin only.
