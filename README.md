@@ -18,12 +18,41 @@ The **Universal Knowledge Graph (UKG)** is a dual-stack enterprise application d
 
 ### Core Capabilities
 
-- **17-Axis Framework**: Multi-dimensional knowledge organization.
-- **Traceability**: Full execution tracing for every AI reasoning step.
-- **MCP Integration**: Native Model Context Protocol server exposing 100+ Knowledge Algorithms.
-- **LLM Gateway**: Middleware to enhance any LLM with UKG data and reasoning.
+- **17-Axis Framework**: Multi-dimensional knowledge organization that contextualizes data across Sectors, Domains, and Knowledge Types.
+- **Traceability**: Full execution tracing for every AI reasoning step, ensuring auditability of AI decisions.
+- **MCP Integration**: Native Model Context Protocol server exposing 100+ Knowledge Algorithms as executable tools.
+- **LLM Gateway**: Middleware that intercepts LLM requests, injects UKG context, and returns grounded responses.
 
 ---
+
+## How It Works: The "API In / API Out" System
+
+The DataLogicEngine operates as an intelligent middleware layer (The "Brain") between your applications and raw LLMs.
+
+### 1. API In (The Request)
+
+External systems (Web Apps, Slack Bots, ERPs) send a standard chat request to the Gateway.
+
+- **Input**: "What are the compliance risks for AI in Healthcare?"
+- **Context**: The system identifies the sectors (**Healthcare**) and domains (**AI**, **Compliance**).
+
+### 2. Processing (The "Black Box" Illuminated)
+
+Instead of a simple LLM pass, the engine executes a **Trace Run**:
+
+1.  **Axis Resolution**: Maps the query to the 17-Axis Framework.
+2.  **Knowledge Retrieval**: Fetches high-fidelity data from the Knowledge Graph.
+3.  **Simulation**: Risks are simulated against regulatory frameworks (e.g., HIPAA).
+4.  **Synthesis**: The LLM generates a response based _only_ on this verified context.
+
+### 3. API Out (The Response)
+
+The system returns the answer _plus_ a Trace ID.
+
+- **Output**: "The primary risks are..."
+- **Traceability**: "Reference: Trace #8a7b9c (Audit Log)"
+
+> **Why this matters**: You get the generic reasoning power of an LLM combined with the specific, verified accuracy of your enterprise data.
 
 ## Quick Start
 
