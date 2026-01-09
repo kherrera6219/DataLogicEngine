@@ -22,10 +22,12 @@ export interface MCPServer {
     }
 }
 
+// JSON Schema can be complex, so we use a flexible type
+// Keep as 'any' since JSON Schema structure is highly dynamic and standardized
 export interface MCPTool {
     name: string;
     description: string;
-    inputSchema: any;
+    inputSchema: any; // JSON Schema - dynamic structure, safe to use any
 }
 
 export interface MCPResource {
@@ -42,10 +44,17 @@ export interface MCPStats {
     active_connections: number;
 }
 
+export interface MCPRuntimeServer {
+    id: string;
+    name: string;
+    status: string;
+    [key: string]: unknown; // Allow additional dynamic properties
+}
+
 // API Methods
 export const mcpApi = {
     // Servers
-    getServers: async (): Promise<{ servers: MCPServer[], runtime_servers: any[] }> => {
+    getServers: async (): Promise<{ servers: MCPServer[], runtime_servers: MCPRuntimeServer[] }> => {
         const res = await fetch(`${API_BASE}/mcp/servers`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });

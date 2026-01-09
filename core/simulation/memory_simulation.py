@@ -923,8 +923,8 @@ if __name__ == "__main__":
     # Run simulation steps
     for i in range(3):
         result = engine.run_simulation_step()
-        print(f"Step {i+1} complete")
-    
+        logging.info(f"Step {i+1} complete")
+
     # Get results
     results = engine.get_simulation_results()
-    print(f"Simulation complete with {results['steps_completed']} steps")
+    logging.info(f"Simulation complete with {results['steps_completed']} steps")

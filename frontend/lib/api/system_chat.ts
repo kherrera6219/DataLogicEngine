@@ -28,9 +28,10 @@ export async function sendChat(payload: ChatRequest): Promise<ChatResponse> {
         throw new Error(`Chat failed: ${res.status} ${errText}`);
     }
     return await res.json() as ChatResponse;
-  } catch (err: any) {
+  } catch (err) {
     console.error(err);
-    throw new Error(err.message || "Network error");
+    const errorMessage = err instanceof Error ? err.message : "Network error";
+    throw new Error(errorMessage);
   }
 }
 

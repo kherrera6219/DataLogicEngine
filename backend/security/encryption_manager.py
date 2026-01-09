@@ -15,6 +15,7 @@ import os
 import json
 import base64
 import hashlib
+import logging
 from datetime import datetime, timedelta, UTC
 from typing import Optional, Dict, Any, Tuple
 from enum import Enum
@@ -24,6 +25,8 @@ from cryptography.fernet import Fernet, MultiFernet
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
+
+logger = logging.getLogger(__name__)
 
 
 class KeyType(Enum):
@@ -84,8 +87,8 @@ class EncryptionManager:
         if not kek_secret:
             # Generate a strong random secret (for development only)
             kek_secret = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode('utf-8')
-            print(f"WARNING: Generated temporary KEK secret. Set ENCRYPTION_KEK_SECRET in production!")
-            print(f"Add to .env: ENCRYPTION_KEK_SECRET={kek_secret}")
+            logger.warning("Generated temporary KEK secret. Set ENCRYPTION_KEK_SECRET in production!")
+            logger.warning(f"Add to .env: ENCRYPTION_KEK_SECRET={kek_secret}")
 
         # Derive KEK from secret using PBKDF2
         salt = self._get_or_create_salt()
