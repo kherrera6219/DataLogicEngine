@@ -27,6 +27,11 @@ audit_logger = AuditLogger()
 cache = Cache()
 compress = Compress()
 
-login_manager.login_view = 'login'  # type: ignore[assignment]
 login_manager.login_message = 'Please log in to access this page'
 login_manager.login_message_category = 'info'
+
+# Initialize Limiter with key_func but deferred app init
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)

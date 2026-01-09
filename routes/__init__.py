@@ -1,6 +1,6 @@
 from flask import Blueprint
 from .auth_routes import auth_bp
-from .page_routes import page_bp
+# from .page_routes import page_bp
 from .api_routes import api_bp
 from .admin_routes import admin_bp
 from .knowledge_routes import knowledge_bp
@@ -9,8 +9,8 @@ from .simulation_routes import simulation_bp
 def register_routes(app):
     """Register all application blueprints."""
     
-    # Page Routes (Frontend rendering for legacy/compat)
-    app.register_blueprint(page_bp)
+    # Page Routes (Legacy/Dead Code - Removed)
+    # app.register_blueprint(page_bp)
     
     # Auth Routes (JSON API)
     # Note: url_prefix is defined in the blueprint itself as /api/v1/auth
@@ -26,5 +26,10 @@ def register_routes(app):
     # Knowledge Routes (Core Entities)
     app.register_blueprint(knowledge_bp)
     
-    # Simulation Routes
+    # Simulation Routes (JSON API)
     app.register_blueprint(simulation_bp)
+    
+    # Simulation Page Routes (Legacy - Removed)
+    # from .simulation_pages import simulation_pages_bp
+    # app.register_blueprint(simulation_pages_bp)
+
