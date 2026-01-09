@@ -1,73 +1,120 @@
 'use client';
 
+import { useState } from 'react';
+import useSWR from 'swr';
+import { api, SimulationSession } from "@/lib/api";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-const simulations = [
-  { id: "SIM-001", name: "Global Supply Chain Stress Test", type: "Chaos", status: "Running", progress: 85, created: "2024-03-10" },
-  { id: "SIM-002", name: "GDPR Compliance Audit - Healthcare", type: "Compliance", status: "Completed", progress: 100, created: "2024-03-09" },
-  { id: "SIM-003", name: "Tech Sector Bubble Analysis", type: "Economics", status: "Failed", progress: 42, created: "2024-03-08" },
-  { id: "SIM-004", name: "Cybersecurity Red Team Alpha", type: "Security", status: "Running", progress: 12, created: "2024-03-11" },
-  { id: "SIM-005", name: "Carbon Tax Impact Model", type: "Policy", status: "Queued", progress: 0, created: "2024-03-12" },
-];
+import { Skeleton } from "@/components/ui/skeleton";
+import { PlayCircle, Plus, RefreshCw, StopCircle } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function SimulationsPage() {
+  const { data: simulations, isLoading, mutate } = useSWR('simulations-list', api.simulation.list);
+  const [isCreating, setIsCreating] = useState(false);
+
+  const handleCreate = async () => {
+    setIsCreating(true);
+    try {
+        await api.simulation.create(`Simulation ${new Date().toLocaleString()}`, { mode: 'standard' });
+        mutate();
+    } catch(e) {
+        alert("Failed to create simulation");
+    } finally {
+        setIsCreating(false);
+    }
+  };
+
+  const handleStep = async (uid: string) => {
+      await api.simulation.step(uid);
+      mutate();
+  };
+
   return (
-    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-8">
-      <div className="container mx-auto max-w-7xl">
-        <header className="mb-8 flex justify-between items-center">
+    <main className="min-h-screen bg-muted/40 p-8">
+      <div className="container mx-auto max-w-7xl space-y-8">
+        <header className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Simulation Monitor</h1>
-            <p className="text-gray-500">Track and control active reasoning simulations and agent swarms.</p>
+            <h1 className="text-3xl font-bold tracking-tight mb-2">Simulation Monitor</h1>
+            <p className="text-muted-foreground">Track and control active reasoning simulations and agent swarms.</p>
           </div>
-          <Button variant="default" size="lg">
+          <Button onClick={handleCreate} disabled={isCreating} className="gap-2">
+             {isCreating ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
              New Simulation
           </Button>
         </header>
 
-        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Progress</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {simulations.map((sim) => (
-                <TableRow key={sim.id}>
-                  <TableCell className="font-mono text-xs">{sim.id}</TableCell>
-                  <TableCell className="font-medium">{sim.name}</TableCell>
-                  <TableCell>{sim.type}</TableCell>
-                  <TableCell>
-                    <Badge variant={
-                        sim.status === 'Completed' ? 'success' :
-                        sim.status === 'Running' ? 'default' :
-                        sim.status === 'Failed' ? 'destructive' : 'secondary'
-                    }>
-                        {sim.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 w-24">
-                      <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${sim.progress}%` }}></div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-gray-500">{sim.created}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm">Details</Button>
-                  </TableCell>
+        <Card>
+          <CardHeader>
+             <CardTitle>Active Sessions</CardTitle>
+             <CardDescription>Real-time view of running simulation instances.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+                <TableHeader>
+                <TableRow>
+                    <TableHead>UID</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Steps</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+                </TableHeader>
+                <TableBody>
+                {isLoading && Array.from({ length: 3 }).map((_, i) => (
+                    <TableRow key={i}>
+                        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                        <TableCell><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                    </TableRow>
+                ))}
+
+                {!isLoading && simulations?.length === 0 && (
+                    <TableRow>
+                        <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
+                            No active simulations. Create one to begin.
+                        </TableCell>
+                    </TableRow>
+                )}
+
+                {simulations?.map((sim) => (
+                    <TableRow key={sim.uid}>
+                    <TableCell className="font-mono text-xs">{sim.uid.substring(0,8)}...</TableCell>
+                    <TableCell className="font-medium">{sim.name}</TableCell>
+                    <TableCell>
+                        <Badge variant={
+                            sim.status === 'completed' ? 'default' :
+                            sim.status === 'active' ? 'secondary' : 'destructive'
+                        }>
+                            {sim.status}
+                        </Badge>
+                    </TableCell>
+                    <TableCell>{sim.current_step}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                        {new Date(sim.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleStep(sim.uid)}
+                            disabled={sim.status !== 'active'}
+                            title="Run Step"
+                        >
+                            <PlayCircle className="h-4 w-4" />
+                        </Button>
+                    </TableCell>
+                    </TableRow>
+                ))}
+                </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
     </main>
   );
