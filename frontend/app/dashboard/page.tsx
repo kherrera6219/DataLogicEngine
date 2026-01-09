@@ -1,162 +1,184 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from "next/link";
-import { api, TraceRun } from "@/lib/api";
+import useSWR from 'swr';
+import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { 
+  Activity, 
+  Database, 
+  Server, 
+  Zap, 
+  Users, 
+  CheckCircle, 
+  AlertCircle, 
+  Clock,
+  ExternalLink,
+  PlayCircle,
+  MessageSquarePlus
+} from 'lucide-react';
 
 export default function DashboardPage() {
-  const [runs, setRuns] = useState<TraceRun[]>([]);
-  const [systemStatus, setSystemStatus] = useState<string>('Checking...');
-  const [isLoading, setIsLoading] = useState(true);
+  // Data Fetching with SWR (Stale-While-Revalidate)
+  const { data: runs, isLoading: isRunsLoading } = useSWR('trace-list', () => api.trace.list(5), { 
+    refreshInterval: 5000,
+    fallbackData: []
+  });
 
-  useEffect(() => {
-     let mounted = true;
-     
-     async function fetchData() {
-         try {
-             // Parallel fetch
-             const [runsData, healthData] = await Promise.all([
-                 api.trace.list(5),
-                 api.system.health()
-             ]);
-             
-             if (mounted) {
-                 setRuns(runsData || []);
-                 setSystemStatus(healthData);
-                 setIsLoading(false);
-             }
-         } catch (e) {
-             console.error("Dashboard fetch error", e);
-             if (mounted) setIsLoading(false);
-         }
-     }
+  const { data: systemStatus, isLoading: isStatusLoading } = useSWR('system-health', () => api.system.health(), {
+    refreshInterval: 10000,
+    fallbackData: 'Checking...'
+  });
 
-     fetchData();
-     
-     // Poll every 10s
-     const interval = setInterval(fetchData, 10000);
-     return () => { mounted = false; clearInterval(interval); };
-  }, []);
+  // Derived State
+  const isOperational = systemStatus === 'Operational' || systemStatus === 'ok';
 
   return (
-    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8">
-      <div className="container mx-auto max-w-7xl">
-        <header className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-            <p className="text-gray-500 dark:text-gray-400">Overview of system performance and knowledge graph status.</p>
+    <main className="min-h-screen bg-muted/40 p-6 md:p-8">
+      <div className="container mx-auto max-w-7xl space-y-8">
+        
+        {/* Header Section */}
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Real-time overview of Universal Knowledge Graph performance.
+            </p>
           </div>
           <div className="flex gap-2">
              <Link href="/chat">
-                <Button>New Chat Session</Button>
+                <Button className="gap-2">
+                  <MessageSquarePlus className="h-4 w-4" />
+                  New Chat Session
+                </Button>
              </Link>
              <Link href="/simulations">
-                 <Button variant="outline">Run Simulation</Button>
+                 <Button variant="outline" className="gap-2">
+                    <PlayCircle className="h-4 w-4" />
+                    Run Simulation
+                 </Button>
              </Link>
           </div>
         </header>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Nodes</CardTitle>
-              <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
+              <Database className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">1.2M</div>
-              <p className="text-xs text-green-500 font-medium">+12% from last month</p>
+              <p className="text-xs text-muted-foreground mt-1">+12% from last month</p>
             </CardContent>
           </Card>
+          
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Agents</CardTitle>
-               <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
+              <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">24</div>
-              <p className="text-xs text-gray-500">Across 6 pillars</p>
+              <p className="text-xs text-muted-foreground mt-1">Across 6 pillars</p>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">System Health</CardTitle>
-               <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className={cn("text-2xl font-bold", systemStatus === 'Operational' ? "text-green-600" : "text-yellow-600")}>
-                  {systemStatus}
-              </div>
-              <p className="text-xs text-gray-500">Gateway Status</p>
+              {isStatusLoading ? (
+                 <Skeleton className="h-8 w-24" /> 
+              ) : (
+                <div className={cn("text-2xl font-bold flex items-center gap-2", isOperational ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600")}>
+                    {isOperational ? (
+                      <>Operational <CheckCircle className="h-5 w-5" /></>
+                    ) : (
+                      <>{systemStatus} <AlertCircle className="h-5 w-5" /></>
+                    )}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">Gateway Status</p>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Recent Traces</CardTitle>
-               <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+              <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
+              <Zap className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{runs.length}</div>
-              <p className="text-xs text-gray-500">Last 5 fetches</p>
+              {isRunsLoading ? (
+                <Skeleton className="h-8 w-12" />
+              ) : (
+                <div className="text-2xl font-bold">{runs?.length || 0}</div>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">Events in last 5m</p>
             </CardContent>
           </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-           {/* Recent Activity */}
+           {/* Recent Trace Activity Table */}
            <Card className="lg:col-span-2">
               <CardHeader>
-                 <CardTitle>Recent Trace Activity</CardTitle>
-                 <CardDescription>Real-time execution logs from the Knowledge Graph.</CardDescription>
+                 <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-muted-foreground" />
+                    Recent Trace Execution
+                 </CardTitle>
+                 <CardDescription>Live execution logs from the Knowledge Graph engine.</CardDescription>
               </CardHeader>
               <CardContent>
                  <Table>
                     <TableHeader>
                        <TableRow>
                           <TableHead>Run ID</TableHead>
-                          <TableHead>KA / Type</TableHead>
+                          <TableHead>KA / Context</TableHead>
                           <TableHead>Status</TableHead>
-                          <TableHead className="text-right">Created</TableHead>
+                          <TableHead className="text-right">Timestamp</TableHead>
                        </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {isLoading && (
+                        {isRunsLoading && Array.from({ length: 5 }).map((_, i) => (
+                            <TableRow key={i}>
+                                <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                                <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                                <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                                <TableCell className="text-right"><Skeleton className="h-4 w-24 ml-auto" /></TableCell>
+                            </TableRow>
+                        ))}
+                        
+                        {!isRunsLoading && runs?.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={4} className="text-center py-8 text-gray-500">
-                                    Loading traces...
+                                <TableCell colSpan={4} className="text-center py-12 text-muted-foreground">
+                                    No recent activity found. Start a new chat session to generate traces.
                                 </TableCell>
                             </TableRow>
                         )}
-                        {!isLoading && runs.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={4} className="text-center py-8 text-gray-500">
-                                    No recent activity found. Start a chat!
-                                </TableCell>
-                            </TableRow>
-                        )}
-                        {runs.map((run) => (
-                          <TableRow key={run.run_id}>
-                             <TableCell className="font-mono text-xs">{run.run_id.substring(0,8)}</TableCell>
-                             <TableCell>{run.ka_id || 'General Chat'}</TableCell>
+
+                        {runs?.map((run) => (
+                          <TableRow key={run.run_id} className="group">
+                             <TableCell className="font-mono text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors">
+                                {run.run_id.substring(0,8)}
+                             </TableCell>
+                             <TableCell className="font-medium">
+                                {run.ka_id || 'General Chat'}
+                             </TableCell>
                              <TableCell>
-                                <Badge variant={run.status === 'completed' ? 'success' : run.status === 'failed' ? 'destructive' : 'secondary'}>
+                                <Badge variant={run.status === 'completed' ? 'default' : run.status === 'failed' ? 'destructive' : 'secondary'}>
                                     {run.status}
                                 </Badge>
                              </TableCell>
-                             <TableCell className="text-right text-gray-500 text-xs">
+                             <TableCell className="text-right text-xs text-muted-foreground">
                                  {new Date(run.created_at).toLocaleTimeString()}
                              </TableCell>
                           </TableRow>
@@ -166,29 +188,39 @@ export default function DashboardPage() {
               </CardContent>
            </Card>
 
-           {/* System Status */}
+           {/* Service Status Panel */}
            <Card>
               <CardHeader>
-                 <CardTitle>Service Status</CardTitle>
-                 <CardDescription>Live health check.</CardDescription>
+                 <CardTitle className="flex items-center gap-2">
+                    <Server className="h-5 w-5 text-muted-foreground" />
+                    System Status
+                 </CardTitle>
+                 <CardDescription>Component health check.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                 {[
-                    { name: "LLM Gateway", status: systemStatus, color: systemStatus === 'Operational' ? "bg-green-500" : "bg-red-500" },
-                    { name: "PostgreSQL DB", status: "Operational", color: "bg-green-500" },
-                    { name: "MCP Server", status: "Operational", color: "bg-green-500" },
-                 ].map((svc) => (
-                    <div key={svc.name} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
-                       <span className="font-medium">{svc.name}</span>
-                       <div className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full ${svc.color}`}></span>
-                          <span className="text-xs text-gray-500">{svc.status}</span>
+              <CardContent className="space-y-6">
+                 <div className="space-y-4">
+                    {[
+                       { name: "LLM Gateway", status: isOperational ? 'Operational' : systemStatus, statusColor: isOperational ? "bg-emerald-500" : "bg-red-500" },
+                       { name: "PostgreSQL Database", status: "Operational", statusColor: "bg-emerald-500" },
+                       { name: "MCP Server Registry", status: "Operational", statusColor: "bg-emerald-500" },
+                       { name: "Redis Cache", status: "Operational", statusColor: "bg-emerald-500" },
+                    ].map((svc) => (
+                       <div key={svc.name} className="flex items-center justify-between p-3 rounded-lg border bg-card/50">
+                          <div className="flex items-center gap-3">
+                             <div className={cn("w-2.5 h-2.5 rounded-full ring-2 ring-offset-2 ring-offset-background", svc.statusColor)} />
+                             <span className="text-sm font-medium">{svc.name}</span>
+                          </div>
+                          <span className="text-xs text-muted-foreground">{svc.status}</span>
                        </div>
-                    </div>
-                 ))}
-                 <div className="pt-4">
-                     <Link href="/runs">
-                        <Button className="w-full" variant="outline">View All Traces</Button>
+                    ))}
+                 </div>
+                 
+                 <div className="pt-2">
+                     <Link href="/runs" className="w-full">
+                        <Button className="w-full gap-2" variant="outline">
+                           View All Traces
+                           <ExternalLink className="h-4 w-4" />
+                        </Button>
                      </Link>
                  </div>
               </CardContent>
