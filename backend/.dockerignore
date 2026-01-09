@@ -1,0 +1,10 @@
+# Docker Ignore for Backend
+__pycache__
+*.pyc
+.git
+.env
+venv
+.venv
+tests
+docs
+frontend

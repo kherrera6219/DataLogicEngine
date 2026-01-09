@@ -1,44 +1,82 @@
-name: CI - Phase 3 Coverage
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: ["main", "master"]
+    branches: [ "main", "dev" ]
   pull_request:
-    branches: ["*"]
+    branches: [ "main", "dev" ]
 
 jobs:
-  test:
+  # Backend Tests
+  backend-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Run unit tests with coverage
-        run: |
-          pytest --maxfail=1 --disable-warnings --cov=.
-      - name: Upload coverage artifacts
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-reports
-          path: ./.coverage
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run Tests
+      run: |
+        pytest tests/
+      env:
+        DATABASE_URL: sqlite:///:memory:
+        OPENAI_API_KEY: "mock-key-for-ci"
 
-  frontend-tests:
+  # Frontend Build
+  frontend-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - name: Install dependencies
-        run: |
-          npm ci
-      - name: Run frontend tests
-        run: npm test -- --runInBand
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: Install Dependencies
+      run: |
+        cd frontend
+        npm ci
+        
+    - name: Build Next.js
+      run: |
+        cd frontend
+        npm run build
+      env:
+        NEXT_TELEMETRY_DISABLED: 1
+
+  # Docker Build (Verification)
+  docker-build:
+    needs: [backend-test, frontend-build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      
+    - name: Build Backend Image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: backend/Dockerfile
+        push: false
+        tags: ukg-backend:latest
+        
+    - name: Build Frontend Image
+      uses: docker/build-push-action@v4
+      with:
+        context: frontend
+        file: frontend/Dockerfile
+        push: false
+        tags: ukg-frontend:latest

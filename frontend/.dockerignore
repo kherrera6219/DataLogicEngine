@@ -1,0 +1,7 @@
+# Docker Ignore for Frontend
+node_modules
+.next
+.git
+.env
+Dockerfile
+.dockerignore
