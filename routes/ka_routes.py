@@ -5,7 +5,8 @@ Provides REST API endpoints for managing and executing Knowledge Algorithms (KA-
 """
 
 from flask import Blueprint, request, jsonify
-from flask_login import login_required, current_user
+from flask_login import current_user
+from backend.auth.api_decorators import api_login_required, api_admin_required
 from datetime import datetime, UTC
 import logging
 import json
@@ -93,7 +94,7 @@ def format_algorithm(ka):
 
 
 @ka_bp.route('/algorithms', methods=['GET'])
-@login_required
+@api_login_required
 def list_algorithms():
     """List all available Knowledge Algorithms"""
     try:
@@ -145,6 +146,7 @@ def list_algorithms():
 
 
 @ka_bp.route('/algorithms/<ka_id>', methods=['GET'])
+@api_login_required
 def get_algorithm(ka_id):
     """Get details of a specific Knowledge Algorithm by ID (e.g., KA-001, KA-114)"""
     try:
@@ -176,7 +178,7 @@ def get_algorithm(ka_id):
 
 
 @ka_bp.route('/algorithms/<ka_id>/execute', methods=['POST'])
-@login_required
+@api_login_required
 def execute_algorithm(ka_id):
     """Execute a Knowledge Algorithm"""
     try:
@@ -240,6 +242,7 @@ def execute_algorithm(ka_id):
 
 
 @ka_bp.route('/categories', methods=['GET'])
+@api_login_required
 def list_categories():
     """List all KA categories with their algorithms"""
     try:
@@ -277,6 +280,7 @@ def list_categories():
 
 
 @ka_bp.route('/layers', methods=['GET'])
+@api_login_required
 def list_layers():
     """List all simulation layers and their associated algorithms"""
     try:
@@ -318,7 +322,7 @@ def list_layers():
 
 
 @ka_bp.route('/batch', methods=['POST'])
-@login_required
+@api_login_required
 def batch_execute():
     """Execute multiple Knowledge Algorithms in sequence"""
     try:
@@ -384,6 +388,7 @@ def batch_execute():
 
 
 @ka_bp.route('/search', methods=['GET'])
+@api_login_required
 def search_algorithms():
     """Search algorithms by name, purpose, or notes"""
     try:
@@ -418,6 +423,7 @@ def search_algorithms():
 
 
 @ka_bp.route('/dependencies/<ka_id>', methods=['GET'])
+@api_login_required
 def get_dependencies(ka_id):
     """Get dependency graph for a specific algorithm"""
     try:
@@ -482,6 +488,7 @@ def get_dependencies(ka_id):
 
 
 @ka_bp.route('/stats', methods=['GET'])
+@api_login_required
 def get_stats():
     """Get KA system statistics"""
     try:

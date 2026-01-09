@@ -419,7 +419,7 @@ class KAExecution(db.Model):
     input_params = Column(JSON, nullable=False)
     output_results = Column(JSON, nullable=True)
     status = Column(String(20), nullable=False)  # e.g., "pending", "running", "completed", "failed"
-    started_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    started_at = Column(DateTime, nullable=False, default=_utcnow)
     completed_at = Column(DateTime, nullable=True)
     error_message = Column(Text, nullable=True)
 

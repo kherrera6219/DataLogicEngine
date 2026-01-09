@@ -44,18 +44,31 @@ export interface User {
   role: string;
 }
 
+export interface KAExecution {
+  id: number;
+  uid: string;
+  algorithm_id: number;
+  algorithm_name?: string;
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  started_at: string;
+  completed_at?: string;
+  input_params: Record<string, unknown>;
+  output_results?: Record<string, unknown>;
+  error_message?: string;
+}
+
 export interface TraceDetail extends TraceRun {
-  stages?: any[];
-  evidence?: any[];
-  metrics?: any;
+  stages?: KAExecution[];
+  evidence?: Record<string, unknown>[];
+  metrics?: Record<string, number>;
 }
 
 export interface PillarLevel {
   uid: string;
-  pillar_id: number;
+  pillar_id: string; // Changed from number to match backend PL01 string
   name: string;
   description?: string;
-  sublevels?: any;
+  sublevels?: PillarLevel[];
 }
 
 export interface SimulationSession {

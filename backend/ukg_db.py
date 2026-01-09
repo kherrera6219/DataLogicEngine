@@ -27,7 +27,7 @@ class UkgDatabaseManager:
         Args:
             database_url (str, optional): Database connection URL
         """
-        logging.info(f"[{datetime.now()}] Initializing UkgDatabaseManager...")
+        logging.info("Initializing UkgDatabaseManager...")
         
         # Get database URL from environment if not provided
         if not database_url:
@@ -42,7 +42,7 @@ class UkgDatabaseManager:
         self.session_factory = sessionmaker(bind=self.engine)
         self.Session = scoped_session(self.session_factory)
         
-        logging.info(f"[{datetime.now()}] UkgDatabaseManager initialized")
+        logging.info("UkgDatabaseManager initialized")
     
     # Node operations
     
@@ -93,7 +93,7 @@ class UkgDatabaseManager:
             
         except SQLAlchemyError as e:
             session.rollback()
-            logging.error(f"[{datetime.now()}] UKGDB: Error creating node: {str(e)}")
+            logging.error(f"UKGDB: Error creating node: {str(e)}")
             return None
             
         finally:

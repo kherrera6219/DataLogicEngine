@@ -13,7 +13,7 @@ import logging
 from flask import Blueprint, request, jsonify, current_app
 from extensions import db
 from models import PillarLevel, Sector, Domain, KnowledgeNode
-from flask_login import login_required
+from backend.auth.api_decorators import api_login_required, api_admin_required
 
 knowledge_bp = Blueprint('knowledge_api', __name__, url_prefix='/api/v1')
 logger = logging.getLogger(__name__)
@@ -34,12 +34,14 @@ def success_response(data, message="Operation successful", status_code=200):
 # --- PILLAR LEVELS ---
 
 @knowledge_bp.route('/pillar-levels', methods=['GET'])
+@api_login_required
 def get_pillar_levels():
     """Get all pillar levels."""
     pillar_levels = PillarLevel.query.all()
     return success_response([p.to_dict() for p in pillar_levels])
 
 @knowledge_bp.route('/pillar-levels/<pillar_id>', methods=['GET'])
+@api_login_required
 def get_pillar_level(pillar_id):
     """Get a specific pillar level."""
     pillar_level = PillarLevel.query.filter_by(pillar_id=pillar_id).first()
@@ -48,7 +50,7 @@ def get_pillar_level(pillar_id):
     return success_response(pillar_level.to_dict())
 
 @knowledge_bp.route('/pillar-levels', methods=['POST'])
-@login_required
+@api_admin_required
 def create_pillar_level():
     """Create a new pillar level."""
     data = request.json
@@ -80,18 +82,20 @@ def create_pillar_level():
 # --- SECTORS ---
 
 @knowledge_bp.route('/sectors', methods=['GET'])
+@api_login_required
 def get_sectors():
     sectors = Sector.query.all()
     return success_response([s.to_dict() for s in sectors])
 
 @knowledge_bp.route('/sectors/<sector_code>', methods=['GET'])
+@api_login_required
 def get_sector(sector_code):
     sector = Sector.query.filter_by(sector_code=sector_code).first()
     if not sector: return error_response(f"Sector with code {sector_code} not found", 404)
     return success_response(sector.to_dict())
 
 @knowledge_bp.route('/sectors', methods=['POST'])
-@login_required
+@api_admin_required
 def create_sector():
     data = request.json
     if not data: return error_response("No data provided")
@@ -122,18 +126,20 @@ def create_sector():
 # --- DOMAINS ---
 
 @knowledge_bp.route('/domains', methods=['GET'])
+@api_login_required
 def get_domains():
     domains = Domain.query.all()
     return success_response([d.to_dict() for d in domains])
 
 @knowledge_bp.route('/domains/<domain_code>', methods=['GET'])
+@api_login_required
 def get_domain(domain_code):
     domain = Domain.query.filter_by(domain_code=domain_code).first()
     if not domain: return error_response(f"Domain with code {domain_code} not found", 404)
     return success_response(domain.to_dict())
 
 @knowledge_bp.route('/domains', methods=['POST'])
-@login_required
+@api_admin_required
 def create_domain():
     data = request.json
     if not data: return error_response("No data provided")
@@ -165,18 +171,20 @@ def create_domain():
 # --- KNOWLEDGE NODES ---
 
 @knowledge_bp.route('/knowledge-nodes', methods=['GET'])
+@api_login_required
 def get_knowledge_nodes():
     nodes = KnowledgeNode.query.all()
     return success_response([n.to_dict() for n in nodes])
 
 @knowledge_bp.route('/knowledge-nodes/<uid>', methods=['GET'])
+@api_login_required
 def get_knowledge_node(uid):
     node = KnowledgeNode.query.filter_by(uid=uid).first()
     if not node: return error_response(f"Node {uid} not found", 404)
     return success_response(node.to_dict())
 
 @knowledge_bp.route('/knowledge-nodes', methods=['POST'])
-@login_required
+@api_admin_required
 def create_knowledge_node():
     data = request.json
     if not data: return error_response("No data provided")

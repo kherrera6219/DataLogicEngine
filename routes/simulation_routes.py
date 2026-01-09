@@ -11,7 +11,8 @@ import logging
 from flask import Blueprint, request, jsonify, current_app
 from extensions import db
 from models import SimulationSession
-from flask_login import login_required, current_user
+from backend.auth.api_decorators import api_login_required, api_admin_required
+from flask_login import current_user
 
 simulation_bp = Blueprint('simulation_api', __name__, url_prefix='/api/v1')
 logger = logging.getLogger(__name__)
@@ -24,14 +25,14 @@ def success_response(data, message="Operation successful", status_code=200):
     return jsonify(response), status_code
 
 @simulation_bp.route('/simulations', methods=['GET'])
-@login_required
+@api_login_required
 def get_simulations():
     """Get all simulation sessions for current user."""
     simulations = SimulationSession.query.filter_by(user_id=current_user.id).order_by(SimulationSession.created_at.desc()).all()
     return success_response([s.to_dict() for s in simulations])
 
 @simulation_bp.route('/simulations/<uid>', methods=['GET'])
-@login_required
+@api_login_required
 def get_simulation(uid):
     simulation = SimulationSession.query.filter_by(uid=uid).first()
     if not simulation: return error_response(f"Simulation {uid} not found", 404)
@@ -40,7 +41,7 @@ def get_simulation(uid):
     return success_response(simulation.to_dict())
 
 @simulation_bp.route('/simulations', methods=['POST'])
-@login_required
+@api_login_required
 def create_simulation():
     data = request.json
     if not data: return error_response("No data provided")
@@ -66,7 +67,7 @@ def create_simulation():
         return error_response(str(e), 500)
 
 @simulation_bp.route('/simulations/<uid>/step', methods=['POST'])
-@login_required
+@api_login_required
 def run_simulation_step(uid):
     simulation = SimulationSession.query.filter_by(uid=uid).first()
     if not simulation: return error_response(f"Simulation {uid} not found", 404)
@@ -88,7 +89,7 @@ def run_simulation_step(uid):
     return success_response(simulation.to_dict(), "Step executed")
 
 @simulation_bp.route('/simulations/<uid>/stop', methods=['POST'])
-@login_required
+@api_login_required
 def stop_simulation(uid):
     simulation = SimulationSession.query.filter_by(uid=uid).first()
     if not simulation: return error_response(f"Simulation {uid} not found", 404)

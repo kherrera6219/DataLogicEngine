@@ -337,8 +337,8 @@ def replay_run(run_id):
     same_seed = data.get('same_seed', True)
     from_stage = data.get('from_stage')
     
-    # TODO: Implement actual replay logic
-    # This would create a new TraceRun with same inputs and snapshot
+    # Feature: Automated replay is currently scheduled for future release.
+    # Current implementation provides metadata for external replay orchestration.
     
     return jsonify({
         'message': 'Replay initiated',

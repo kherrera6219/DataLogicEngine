@@ -11,6 +11,7 @@ import logging
 from datetime import datetime, UTC
 from flask import Blueprint, request
 from backend.middleware import api_response
+from backend.auth.api_decorators import api_login_required, api_admin_required
 from extensions import db, cache
 from models import SimulationSession
 from models import Node, Edge, PillarLevel, Sector, Domain, KnowledgeNode
@@ -26,6 +27,7 @@ ukg_api = Blueprint('ukg_api', __name__, url_prefix='/api')
 # -------------------------------------------------------------------------
 
 @ukg_api.route('/pillars', methods=['GET'])
+@api_login_required
 @api_response
 @cache.cached(timeout=300)
 def get_pillars():
@@ -34,6 +36,7 @@ def get_pillars():
     return [pillar.to_dict() for pillar in pillars]
 
 @ukg_api.route('/pillars/<pillar_id>', methods=['GET'])
+@api_login_required
 @api_response
 def get_pillar(pillar_id):
     """Get a specific pillar level."""
@@ -41,6 +44,7 @@ def get_pillar(pillar_id):
     return pillar.to_dict()
 
 @ukg_api.route('/pillars', methods=['POST'])
+@api_admin_required
 @api_response
 def create_pillar():
     """Create a new pillar level."""
@@ -64,6 +68,7 @@ def create_pillar():
 # -------------------------------------------------------------------------
 
 @ukg_api.route('/sectors', methods=['GET'])
+@api_login_required
 @api_response
 @cache.cached(timeout=300)
 def get_sectors():
@@ -72,6 +77,7 @@ def get_sectors():
     return [sector.to_dict() for sector in sectors]
 
 @ukg_api.route('/sectors/<sector_id>', methods=['GET'])
+@api_login_required
 @api_response
 def get_sector(sector_id):
     """Get a specific sector."""
@@ -79,6 +85,7 @@ def get_sector(sector_id):
     return sector.to_dict()
 
 @ukg_api.route('/sectors', methods=['POST'])
+@api_admin_required
 @api_response
 def create_sector():
     """Create a new sector."""
@@ -141,6 +148,7 @@ def create_domain():
 # -------------------------------------------------------------------------
 
 @ukg_api.route('/knowledge', methods=['GET'])
+@api_login_required
 @api_response
 def get_knowledge_nodes():
     """Get all knowledge nodes."""
@@ -155,6 +163,7 @@ def get_knowledge_node(node_id):
     return node.to_dict()
 
 @ukg_api.route('/knowledge', methods=['POST'])
+@api_admin_required
 @api_response
 def create_knowledge_node():
     """Create a new knowledge node."""
@@ -267,6 +276,7 @@ def get_simulation(session_id):
     return session.to_dict()
 
 @ukg_api.route('/simulations', methods=['POST'])
+@api_admin_required
 @api_response
 def create_simulation():
     """Create a new simulation session."""
@@ -339,6 +349,7 @@ def stop_simulation(session_id):
 # -------------------------------------------------------------------------
 
 @ukg_api.route('/seed/pillars', methods=['POST'])
+@api_admin_required
 @api_response
 def seed_pillar_levels():
     """Seed initial pillar level data."""
@@ -434,6 +445,7 @@ def seed_pillar_levels():
     return {"message": f"Seeded {len(pillars)} pillar levels"}
 
 @ukg_api.route('/seed/sectors', methods=['POST'])
+@api_admin_required
 @api_response
 def seed_sectors():
     """Seed initial sector data."""
@@ -494,6 +506,7 @@ def seed_sectors():
     return {"message": f"Seeded {len(sectors)} sectors"}
 
 @ukg_api.route('/seed/domains', methods=['POST'])
+@api_admin_required
 @api_response
 def seed_domains():
     """Seed initial domain data."""

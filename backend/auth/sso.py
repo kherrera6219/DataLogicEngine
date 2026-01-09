@@ -36,16 +36,35 @@ def login_sso():
     return oauth.azure.authorize_redirect(redirect_uri)
 
 def handle_sso_callback():
-    """Handle SSO callback"""
+    """Handle SSO callback and sync user to database"""
     try:
         token = oauth.azure.authorize_access_token()
         user_info = token.get('userinfo')
         if not user_info:
-             # Fallback if userinfo in token
              user_info = oauth.azure.parse_id_token(token)
              
-        # Logic to find or create user would go here
-        # For now, just return the user info for debugging/verification
+        # Sync user to database
+        from models import db, User
+        email = user_info.get('email')
+        username = user_info.get('preferred_username') or user_info.get('name') or email.split('@')[0]
+        
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            user = User(
+                username=username,
+                email=email,
+                is_active=True,
+                role='user' # Default role
+            )
+            # SSO users don't have a local password, but we might needs a placeholder or null
+            db.session.add(user)
+            db.session.commit()
+            current_app.logger.info(f"Created new SSO user: {email}")
+        else:
+            # Update last login or other info if needed
+            current_app.logger.info(f"SSO login for existing user: {email}")
+            
+        session['user_id'] = user.id
         return user_info
     except Exception as e:
         current_app.logger.error(f"SSO Callback failed: {e}")

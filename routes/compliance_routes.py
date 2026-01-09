@@ -9,9 +9,12 @@ in the Universal Knowledge Graph (UKG) system.
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 
+from backend.auth.api_decorators import api_login_required, api_admin_required
+
 compliance_bp = Blueprint('compliance_api', __name__, url_prefix='/api/v1/compliance')
 
 @compliance_bp.route('/standards', methods=['GET'])
+@api_login_required
 def get_compliance_standards():
     """Get all compliance standards or filtered by type."""
     try:
@@ -40,6 +43,7 @@ def get_compliance_standards():
         }), 500
 
 @compliance_bp.route('/standards', methods=['POST'])
+@api_admin_required
 def create_compliance_standard():
     """Create a new compliance standard."""
     try:
@@ -79,6 +83,7 @@ def create_compliance_standard():
         }), 500
 
 @compliance_bp.route('/standards/<standard_id>', methods=['GET'])
+@api_login_required
 def get_compliance_standard(standard_id):
     """Get a specific compliance standard by ID."""
     try:
@@ -148,6 +153,7 @@ def get_compliance_standard(standard_id):
         }), 500
 
 @compliance_bp.route('/sector/<sector_id>', methods=['GET'])
+@api_login_required
 def get_sector_compliance(sector_id):
     """Get compliance standards for a sector."""
     try:
@@ -220,6 +226,7 @@ def map_regulatory_to_compliance():
         }), 500
 
 @compliance_bp.route('/audit/export', methods=['GET'])
+@api_admin_required
 def export_audit_logs_route():
     """Export audit logs to CSV."""
     from backend.security.audit_logger import AuditLogger

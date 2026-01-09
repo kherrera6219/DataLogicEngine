@@ -86,14 +86,16 @@ class SecurityHeadersMiddleware:
                 import secrets
                 nonce = secrets.token_hex(16)
                 g.nonce = nonce
-        except ImportError:
-            nonce = 'r4nd0m'
-
+        except Exception:
+            # Generate a secure fallback instead of 'r4nd0m'
+            import secrets
+            nonce = secrets.token_hex(16)
+        
         # Content-Security-Policy (CSP)
         # Prevents XSS, clickjacking, and other code injection attacks
         csp_directives = [
             "default-src 'self'",
-            f"script-src 'self' 'nonce-{nonce}' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com",
+            f"script-src 'self' 'nonce-{nonce}' https://cdn.jsdelivr.net https://unpkg.com",
             f"style-src 'self' 'nonce-{nonce}' https://fonts.googleapis.com https://cdn.jsdelivr.net",
             "img-src 'self' data: https: blob:",
             "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net",
