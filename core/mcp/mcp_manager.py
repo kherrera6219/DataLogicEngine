@@ -182,6 +182,18 @@ class MCPManager:
         # Register trace resources
         self._register_trace_resources(ukg_server)
 
+        # Main System Server
+        try:
+            from .servers.system import SystemServer
+            system_server = SystemServer()
+            self.servers[system_server.server_id] = system_server
+            self.stats["servers_created"] += 1
+            logger.info(f"Registered System Server: {system_server.name}")
+        except ImportError as e:
+            logger.error(f"Failed to import SystemServer: {e}")
+        except Exception as e:
+            logger.error(f"Failed to register SystemServer: {e}")
+
         logger.info("Default MCP servers set up successfully")
         return ukg_server
 

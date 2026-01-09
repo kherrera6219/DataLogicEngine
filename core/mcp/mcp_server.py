@@ -205,6 +205,25 @@ class MCPServer(MCPRequestHandler):
             handler = self.tool_handlers[tool_name]
             result = await handler(arguments)
 
+            # Audit Log (Enterprise)
+            try:
+                # Lazy import to avoid circular dependency
+                from extensions import audit_logger
+                if audit_logger:
+                    audit_logger.log_event(
+                        event_type='mcp_tool_execution',
+                        user_id='system', # Context is often system for internal calls, or need to pass context
+                        details={
+                            'server': self.name,
+                            'tool': tool_name,
+                            'arguments': str(arguments), # Stringify to avoid recursion/size issues
+                            'status': 'success'
+                        },
+                        ip_address='127.0.0.1'
+                    )
+            except Exception as audit_err:
+                logger.warning(f"Failed to audit tool call: {audit_err}")
+
             return {
                 "content": [
                     {
@@ -214,6 +233,25 @@ class MCPServer(MCPRequestHandler):
                 ]
             }
         except Exception as e:
+            # Audit Log Failure
+            try:
+                from extensions import audit_logger
+                if audit_logger:
+                    audit_logger.log_event(
+                        event_type='mcp_tool_execution',
+                        user_id='system',
+                        details={
+                            'server': self.name,
+                            'tool': tool_name,
+                            'arguments': str(arguments),
+                            'status': 'failure',
+                            'error': str(e)
+                        },
+                        ip_address='127.0.0.1'
+                    )
+            except Exception:
+                pass
+
             logger.error(f"Tool execution error ({tool_name}): {e}")
             raise MCPError(MCPErrorCode.TOOL_EXECUTION_ERROR, f"Tool execution failed: {str(e)}")
 

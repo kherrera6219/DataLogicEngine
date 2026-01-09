@@ -7,6 +7,12 @@ import { system, chat, sendChat } from './system_chat';
 export * from './types';
 export { sendChat };
 
+export * from './mcp';
+
+// Base config
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+export const MCP_API_BASE = process.env.NEXT_PUBLIC_MCP_API_URL || 'http://localhost:5000/api/mcp';
+
 import { compliance } from "./compliance";
 
 export const api = {
@@ -18,3 +24,4 @@ export const api = {
     system,
     compliance
 };
+```
