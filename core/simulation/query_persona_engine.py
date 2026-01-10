@@ -224,8 +224,9 @@ class QueryPersonaEngine:
                         pass_num=pass_num,
                         layer_num=2
                     )
-            except:
+            except Exception as e:
                 # Fallback to KA01 if the specific KA doesn't exist
+                logger.warning(f"Failed to execute KA, falling back to KA01: {str(e)}")
                 ka_result = self.ka_loader.execute_ka(
                     ka_id=1,
                     input_data={'query_text': query_text},

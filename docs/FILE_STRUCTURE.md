@@ -12,13 +12,14 @@ The project adheres to strict naming conventions to ensure consistency across th
 - **Constants**: `UPPER_SNAKE_CASE` (e.g., `MAX_RETRY_COUNT`, `DEFAULT_MODEL`)
 - **Directories**: `snake_case` (e.g., `llm_gateway/`, `knowledge_algorithms/`)
 
-### 1.2. Frontend (Next.js/React)
+### 1.2. Frontend (Next.js 16 / React 19)
 
-- **Directories (Routes)**: `kebab-case` (e.g., `knowledge-base/`, `trace-runs/`)
-- **Files (Pages/Layouts)**: `camelCase.tsx` or reserved names (e.g., `page.tsx`, `layout.tsx`, `middleware.ts`)
-- **Components**: `PascalCase.tsx` (e.g., `ChatInterface.tsx`, `TraceCard.tsx`)
-- **Hooks**: `camelCase` (e.g., `useTraceData.ts`)
-- **Utilities**: `camelCase` (e.g., `apiClient.ts`, `formatDate.ts`)
+- **Directories (Routes)**: `kebab-case` or plain names (e.g., `dashboard/`, `chat/`, `knowledge/`)
+- **Files (Pages/Layouts)**: Reserved names (e.g., `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`)
+- **Components**: `PascalCase.tsx` (e.g., `ChatInterface.tsx`, `TraceCard.tsx`, `NavBar.tsx`)
+- **Hooks**: `camelCase` with `use` prefix (e.g., `useTraceData.ts`, `useAuth.ts`)
+- **Utilities**: `camelCase` (e.g., `apiClient.ts`, `formatDate.ts`, `utils.ts`)
+- **API Clients**: `camelCase` in `lib/api/` (e.g., `trace.ts`, `auth.ts`, `mcp.ts`)
 
 ---
 
@@ -44,102 +45,367 @@ DataLogicEngine/
 
 ### 3.1. Frontend (`/frontend`)
 
-This directory contains the Next.js 14 App Router application.
+This directory contains the **Next.js 16** (React 19) App Router application.
 
 ```text
 frontend/
-├── app/                      # Application Routes (App Router)
-│   ├── (auth)/               # Auth Group (Login/Register)
+├── app/                        # Application Routes (App Router)
+│   ├── (auth)/                 # Auth Route Group
 │   │   ├── login/
+│   │   │   └── page.tsx        # Login page
 │   │   └── register/
-│   ├── dashboard/            # Main Dashboard
-│   │   └── page.tsx
-│   ├── chat/                 # Chat Interface
-│   ├── runs/                 # Trace Viewer
-│   │   ├── [id]/             # Dynamic Route (Run Details)
-│   │   └── page.tsx
-│   ├── knowledge/            # 17-Axis Knowledge Browser
-│   ├── layout.tsx            # Root Layout (Providers, Navbar)
-│   └── page.tsx              # Landing Page
+│   │       └── page.tsx        # Registration page
+│   ├── dashboard/
+│   │   └── page.tsx            # Main dashboard with system metrics
+│   ├── chat/
+│   │   └── page.tsx            # Interactive chat interface
+│   ├── graph/
+│   │   └── page.tsx            # Knowledge graph visualization
+│   ├── knowledge/
+│   │   └── page.tsx            # Knowledge browser (nodes/edges)
+│   ├── runs/
+│   │   ├── [id]/               # Dynamic route for run details
+│   │   │   └── page.tsx
+│   │   └── page.tsx            # Trace runs explorer
+│   ├── analytics/
+│   │   └── page.tsx            # System analytics dashboard
+│   ├── algorithms/
+│   │   └── page.tsx            # Knowledge Algorithm browser
+│   ├── admin/
+│   │   ├── page.tsx            # Admin dashboard
+│   │   ├── compliance/
+│   │   │   └── page.tsx        # Compliance audit interface
+│   │   └── mcp/
+│   │       └── page.tsx        # MCP server management
+│   ├── settings/
+│   │   └── page.tsx            # User settings
+│   ├── profile/
+│   │   └── page.tsx            # User profile
+│   ├── about/
+│   │   └── page.tsx            # About page
+│   ├── layout.tsx              # Root layout (providers, navbar)
+│   ├── page.tsx                # Landing page
+│   └── globals.css             # Global styles
 │
-├── components/               # React Components
-│   ├── Chat/                 # Chat-specific Components
+├── components/                 # React Components
+│   ├── Chat/                   # Chat-specific components
 │   │   ├── ChatInterface.tsx
-│   │   └── MessageBubble.tsx
-│   ├── ui/                   # Reusable UI Library (Shadcn/Base)
+│   │   ├── MessageBubble.tsx
+│   │   └── ChatInput.tsx
+│   ├── ui/                     # Base UI components (Shadcn/Radix)
 │   │   ├── button.tsx
 │   │   ├── card.tsx
+│   │   ├── dialog.tsx
+│   │   ├── dropdown-menu.tsx
+│   │   ├── input.tsx
+│   │   ├── select.tsx
 │   │   ├── table.tsx
-│   │   └── ...
-│   └── ...
+│   │   ├── tabs.tsx
+│   │   ├── badge.tsx
+│   │   ├── tooltip.tsx
+│   │   └── ... (20+ components)
+│   ├── Graph/                  # Graph visualization
+│   │   └── GraphVisualization.tsx
+│   ├── Analytics/              # Analytics widgets
+│   │   └── MetricsCard.tsx
+│   ├── NavBar.tsx              # Main navigation bar
+│   └── ... (other shared components)
 │
-├── lib/                      # Shared Logic & Utilities
-│   ├── api.ts                # Typed API Client
-│   ├── utils.ts              # Helper Functions (cn, formatting)
-│   └── ...
+├── lib/                        # Utilities & helpers
+│   ├── api/                    # API client functions
+│   │   ├── types.ts            # TypeScript interfaces
+│   │   ├── trace.ts            # Trace API client
+│   │   ├── auth.ts             # Auth API client
+│   │   ├── mcp.ts              # MCP API client
+│   │   ├── knowledge.ts        # Knowledge graph client
+│   │   └── compliance.ts       # Compliance API client
+│   └── utils.ts                # Utility functions (cn, formatters)
 │
-├── public/                   # Static Assets (Images, Icons)
-├── next.config.ts            # Next.js Configuration (Proxy)
-└── tailwind.config.ts        # Tailwind CSS Configuration
+├── contexts/                   # React Context providers
+│   └── AuthContext.tsx         # Authentication context
+│
+├── public/                     # Static assets
+│   ├── images/
+│   ├── icons/
+│   └── favicon.ico
+│
+├── next.config.ts              # Next.js configuration (proxy, rewrites)
+├── tailwind.config.ts          # Tailwind CSS configuration
+├── tsconfig.json               # TypeScript configuration
+├── package.json                # Dependencies (Next.js 16, React 19, etc.)
+├── .eslintrc.json              # ESLint configuration
+└── README.md                   # Frontend documentation
 ```
 
 ### 3.2. Backend (`/backend`)
 
-Contains the Flask application logic, API endpoints, and service integrations.
+Contains the **Flask 3.1** application logic, API endpoints, and service integrations.
 
 ```text
 backend/
-├── auth.py                   # Authentication Logic (Flask-Login/JWT)
-├── api.py                    # Main API Blueprint Registry
-├── config.py                 # Application Configuration Class
-├── llm_gateway/              # AI Model Integration Layer
-│   ├── api.py                # Gateway Endpoints
-│   ├── gateway.py            # Routing Logic (UKG Context Injection)
-│   ├── providers.py          # Model Adapters (OpenAI, Azure)
-│   └── models.py             # Database Models for Usage/Keys
-├── tracing/                  # Distributed Tracing Module
-│   ├── trace.py
-│   └── models.py
-└── ...
+├── __init__.py                         # Legacy app factory (transitional)
+├── llm_gateway/                        # LLM Gateway Module
+│   ├── __init__.py
+│   ├── api.py                          # Public chat endpoints (17 KB)
+│   ├── gateway.py                      # Core gateway logic (25 KB)
+│   ├── providers.py                    # Provider adapters (OpenAI, Azure, Anthropic, Google)
+│   ├── models.py                       # LLMProvider, LLMProviderUsage models
+│   └── schemas.py                      # Pydantic validation schemas
+│
+├── truth_engine/                       # Truth Engine Module
+│   ├── __init__.py
+│   ├── api.py                          # REST API endpoints (12 KB)
+│   ├── truth_core/                     # Core reasoning logic
+│   │   ├── __init__.py
+│   │   └── reasoning.py
+│   ├── truth_gate/                     # Policy enforcement
+│   │   ├── __init__.py
+│   │   └── gates.py
+│   ├── truth_link/                     # Evidence linking
+│   │   ├── __init__.py
+│   │   └── linker.py
+│   └── truth_memory/                   # Memory management
+│       ├── __init__.py
+│       └── memory.py
+│
+├── tracing/                            # Tracing System
+│   ├── __init__.py
+│   ├── api.py                          # Trace endpoints (18 KB)
+│   └── models.py                       # TraceRun, TraceStage, etc. (9 tables)
+│
+├── auth/                               # Authentication
+│   ├── __init__.py
+│   ├── sso.py                          # OIDC/SSO integration (Authlib)
+│   ├── api_decorators.py               # Auth decorators (@login_required, etc.)
+│   └── password_policy.py              # Password validation
+│
+├── security/                           # Security Module
+│   ├── __init__.py
+│   ├── security_headers.py             # HTTP security headers
+│   └── audit_logger.py                 # SIEM audit logging
+│
+├── middleware/                         # Cross-cutting concerns
+│   ├── __init__.py
+│   ├── correlation_id.py               # Distributed tracing (X-Request-ID)
+│   ├── request_limits.py               # Max content length
+│   ├── timeout.py                      # Request timeout
+│   └── security_headers.py             # Security headers middleware
+│
+├── api_gateway/                        # API Gateway
+│   ├── __init__.py
+│   └── gateway.py                      # Request routing
+│
+├── model_context/                      # Model Context
+│   ├── __init__.py
+│   └── context.py                      # Context management
+│
+├── webhook_server/                     # Webhook Handling
+│   ├── __init__.py
+│   └── webhooks.py
+│
+├── ukg_api.py                          # Main UKG API (17 KB)
+├── ukg_db.py                           # UKG Database Manager (39 KB)
+├── config_manager.py                   # Configuration management
+├── data_loader.py                      # Data initialization
+├── seed_data.py                        # Test data seeding
+├── celery_app.py                       # Celery task queue
+├── compliance_api.py                   # Compliance operations
+├── regulatory_api.py                   # Regulatory framework
+├── location_api.py                     # Location services
+└── ... (additional service files)
 ```
 
 ### 3.3. Core (`/core`)
 
-This folder houses the "Business Logic" of the Universal Knowledge Graph, independent of the HTTP API layer where possible.
+This folder houses the "Business Logic" of the Universal Knowledge Graph, independent of the HTTP API layer.
 
 ```text
 core/
-├── axes/                     # 17-Axis Implementation
-│   ├── axis1_knowledge.py
-│   ├── axis2_sector.py
-│   └── ... (up to axis17)
-├── knowledge_algorithm/      # Knowledge Algorithms (KAs)
-│   ├── ka_base.py            # Base Class for KAs
-│   └── implementations/      # Specific KA Logic
-├── mcp/                      # Model Context Protocol
-│   ├── mcp_manager.py        # Tool Registration & Server
-│   └── ...
-├── engine/                   # Core Execution Engine
-└── ...
+├── axes/                               # 17-Axis Framework (30+ KB files)
+│   ├── __init__.py
+│   ├── axis_system.py                  # Framework orchestrator (35 KB)
+│   ├── axis1_identity.py               # Identity context (32 KB)
+│   ├── axis2_sector.py                 # Sector expertise (34 KB)
+│   ├── axis3_domain.py                 # Domain expertise (33 KB)
+│   ├── axis4_knowledge.py              # Knowledge types (31 KB)
+│   ├── axis5_temporal.py               # Temporal context
+│   ├── axis6_regulatory.py             # Regulatory frameworks (38 KB)
+│   ├── axis7_compliance.py             # Compliance rules (36 KB)
+│   ├── axis8_expert_knowledge.py       # Knowledge expert profiles
+│   ├── axis9_expert_sector.py          # Sector experts
+│   ├── axis10_expert_regulatory.py     # Regulatory experts
+│   ├── axis11_expert_compliance.py     # Compliance experts
+│   ├── axis12_location.py              # Geolocation (34 KB)
+│   ├── axis13_time.py                  # Time reasoning (32 KB)
+│   ├── axis14_federated.py             # Federated learning
+│   ├── axis15_time_arrows.py           # Directional time
+│   ├── axis16_reserved.py              # Future expansion
+│   └── axis17_observability.py         # Tracing & metrics (33 KB)
+│
+├── mcp/                                # Model Context Protocol
+│   ├── __init__.py
+│   ├── mcp_protocol.py                 # JSON-RPC 2.0 protocol (25 KB)
+│   ├── mcp_server.py                   # MCP server (28 KB)
+│   ├── mcp_client.py                   # MCP client (22 KB)
+│   ├── mcp_manager.py                  # Server/client orchestration (24 KB)
+│   ├── servers/                        # MCP server implementations
+│   │   └── default_server.py
+│   └── README.md                       # MCP documentation
+│
+├── simulation/                         # Scenario Simulation Engine
+│   ├── __init__.py
+│   ├── app_orchestrator.py             # Master orchestrator (42 KB)
+│   ├── layer4_reasoning.py             # Multi-step reasoning (38 KB)
+│   ├── layer5_integration.py           # Result synthesis (35 KB)
+│   ├── memory_simulation.py            # Memory-based reasoning (29 KB)
+│   ├── query_persona_engine.py         # Persona-based queries (34 KB)
+│   └── refinement_orchestrator.py      # Iterative refinement (78 KB!)
+│
+├── knowledge_algorithm/                # Knowledge Algorithm System
+│   ├── __init__.py
+│   ├── ka_base.py                      # Base algorithm class
+│   ├── ka_loader.py                    # Algorithm loader
+│   └── implementations/                # 100+ algorithm implementations
+│       ├── ka001_basic_query.py
+│       ├── ka002_advanced_search.py
+│       ├── ka056_recursive_planning.py
+│       └── ... (100+ files)
+│
+├── graph/                              # Graph Operations
+│   ├── __init__.py
+│   ├── graph_manager.py                # Graph management
+│   └── traversal.py                    # Graph traversal algorithms
+│
+├── memory/                             # Memory Management
+│   ├── __init__.py
+│   ├── memory_manager.py               # Memory operations
+│   └── structured_memory.py            # Structured memory entries
+│
+├── engine/                             # Engine Utilities
+│   ├── __init__.py
+│   └── engine_utils.py
+│
+├── persona/                            # Persona System
+│   ├── __init__.py
+│   ├── persona_manager.py              # Persona management
+│   └── expert_profiles.py              # Expert persona profiles
+│
+├── nlp/                                # NLP Utilities
+│   ├── __init__.py
+│   └── text_processing.py
+│
+└── data/                               # Data Utilities
+    ├── __init__.py
+    └── data_utils.py
+```
+
+### 3.4. Models (`/models`)
+
+Database models using **SQLAlchemy 2.0**.
+
+```text
+models/
+├── __init__.py                         # Model exports
+├── user.py                             # User, APIKey, OAuthAccount, PasswordHistory
+├── knowledge.py                        # KnowledgeGraphNode, KnowledgeGraphEdge (legacy)
+├── ukg.py                              # Node, Edge, Chat, Message, UkgSession, MemoryEntry
+├── truth_engine.py                     # TruthSession, TruthAuditEvent, TruthArtifact, TruthBudget
+├── tracing.py                          # TraceRun, TraceStage, TraceEvidence, TraceClaim, etc.
+├── mcp.py                              # MCPServer, MCPResource, MCPTool, MCPPrompt
+├── simulation.py                       # SimulationSession, SimulationStep, SimulationOutcome
+├── ka.py                               # KnowledgeAlgorithm, KAExecution
+├── llm.py                              # LLMProvider, LLMProviderUsage, ExternalAPIKey
+└── compliance.py                       # AuditLog, ComplianceEvent, PolicyRecord
+```
+
+**Total: 40+ database tables** organized across 10 model files.
+
+### 3.5. Routes (`/routes`)
+
+API route blueprints returning standardized JSON responses.
+
+```text
+routes/
+├── __init__.py                         # Route registration
+├── auth_routes.py                      # Authentication endpoints (15 KB)
+│   # POST /api/v1/auth/login, /register, /logout
+│   # GET /api/v1/auth/login/sso, /check
+│
+├── api_routes.py                       # Generic API endpoints (8 KB)
+│   # GET /health, /api/v1/
+│
+├── admin_routes.py                     # Admin operations (12 KB)
+│   # GET /api/v1/admin/users
+│   # POST /api/v1/admin/users/:id/promote
+│   # GET/POST /api/v1/admin/providers
+│
+├── knowledge_routes.py                 # Knowledge graph operations (18 KB)
+│   # GET/POST /api/v1/knowledge/nodes
+│   # GET/POST /api/v1/knowledge/edges
+│   # GET /api/v1/knowledge/query
+│
+├── mcp_routes.py                       # MCP operations (18 KB)
+│   # GET/POST /api/v1/mcp/servers
+│   # POST /api/v1/mcp/servers/:id/initialize
+│   # GET /api/v1/mcp/tools
+│   # POST /api/v1/mcp/tools/:id/call
+│
+├── ka_routes.py                        # Knowledge Algorithm routes (19 KB)
+│   # GET /api/v1/ka/algorithms
+│   # GET /api/v1/ka/algorithms/:id
+│   # POST /api/v1/ka/execute
+│
+├── compliance_routes.py                # Compliance operations (9 KB)
+│   # GET /api/v1/compliance/audit-logs
+│   # GET /api/v1/compliance/standards
+│   # GET /api/v1/compliance/audit/export
+│
+└── simulation_routes.py                # Simulation operations (11 KB)
+    # POST /api/v1/simulation/start
+    # GET /api/v1/simulation/:id
+    # POST /api/v1/simulation/:id/step
 ```
 
 ---
 
 ## 4. Versioning & Dependencies
 
-### 4.1. Backend
+### 4.1. Backend (Python 3.11+)
 
-- **Python**: `3.11+`
-- **Flask**: `3.x`
-- **SQLAlchemy**: `2.x`
-- **Pydantic**: `2.x`
+| Package | Version | Purpose |
+|---------|---------|---------|
+| **Flask** | 3.1.2 | Web framework |
+| **SQLAlchemy** | 2.0.36 | ORM |
+| **Gunicorn** | 23.0.0 | WSGI server |
+| **PostgreSQL** | 15+ | Database (via psycopg2) |
+| **Redis** | 5.2.0 | Cache/queue |
+| **Celery** | 5.4.0 | Task queue |
+| **Flask-Login** | 0.6.3 | Authentication |
+| **Authlib** | 1.3.0 | SSO/OIDC |
+| **PyJWT** | 2.10.1 | JWT tokens |
+| **Cryptography** | 44.0.0 | Encryption |
+| **bcrypt** | 4.2.1 | Password hashing |
+| **Flask-Limiter** | 3.10.1 | Rate limiting |
+| **Pydantic** | 2.x | Data validation |
+| **Marshmallow** | 3.x | Schema validation |
+| **OpenAI** | 1.58.1 | LLM integration |
+| **Sentry-SDK** | 2.19.2 | Error tracking |
+| **Alembic** | 1.14.0 | Database migrations |
+| **NetworkX** | 3.4.2 | Graph processing |
 
-### 4.2. Frontend
+### 4.2. Frontend (Node.js 18.17+)
 
-- **Node.js**: `18.17+` (LTS Recommended)
-- **Next.js**: `14.x` (App Router)
-- **React**: `18.x`
-- **Tailwind CSS**: `3.x` / `4.x`
+| Package | Version | Purpose |
+|---------|---------|---------|
+| **Next.js** | 16.1.1 | React framework |
+| **React** | 19.2.3 | UI library |
+| **TypeScript** | 5.x | Type safety |
+| **Tailwind CSS** | 4.x | Styling framework |
+| **Radix UI** | Latest | Accessible primitives |
+| **Lucide React** | 0.562.0 | Icon library |
+| **SWR** | 2.3.8 | Data fetching |
+| **Class Variance Authority** | 0.7.1 | CSS-in-JS |
+| **ESLint** | 9.x | Linting |
 
 ---
 

@@ -15,12 +15,15 @@ Compliance: SOC 2 Type 2, ISO 27001, PCI DSS
 import os
 import json
 import hashlib
+import logging
 from datetime import datetime, timedelta, UTC
 from typing import Dict, Any, List, Optional, Callable
 from enum import Enum
 from collections import defaultdict, deque
 import threading
 import time
+
+logger = logging.getLogger(__name__)
 
 
 class ThreatLevel(Enum):
@@ -190,7 +193,7 @@ class SecurityMonitor:
         self.monitor_thread = threading.Thread(target=self._monitoring_loop, daemon=True)
         self.monitor_thread.start()
 
-        print("Security monitoring started")
+        logger.info("Security monitoring started")
 
     def stop_monitoring(self):
         """Stop background monitoring."""
@@ -198,7 +201,7 @@ class SecurityMonitor:
         if self.monitor_thread:
             self.monitor_thread.join(timeout=5)
 
-        print("Security monitoring stopped")
+        logger.info("Security monitoring stopped")
 
     def _monitoring_loop(self):
         """Background monitoring loop."""
@@ -208,7 +211,7 @@ class SecurityMonitor:
                 self._check_for_anomalies()
                 time.sleep(60)
             except Exception as e:
-                print(f"Error in monitoring loop: {e}")
+                logger.error(f"Error in monitoring loop: {e}")
 
     def process_event(
         self,
@@ -504,7 +507,7 @@ class SecurityMonitor:
             try:
                 handler(alert)
             except Exception as e:
-                print(f"Error in alert handler: {e}")
+                logger.error(f"Error in alert handler: {e}")
 
     def get_alerts(
         self,

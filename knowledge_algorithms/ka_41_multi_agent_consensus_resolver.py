@@ -157,24 +157,24 @@ class MultiAgentConsensusResolver:
     def _apply_majority_vote(self, outputs: List[Any], weights: List[float]) -> tuple:
         """
         Apply majority vote strategy.
-        
+
         Args:
             outputs: List of agent outputs
             weights: List of agent weights
-            
+
         Returns:
             Tuple of (consensus, confidence, votes)
         """
         # Count occurrences
         output_counts = Counter(str(output) for output in outputs)
-        
+
         # Find most common
         most_common = output_counts.most_common(1)
         if not most_common:
             return None, 0.0, {}
-        
+
         consensus_str, count = most_common[0]
-        
+
         # Try to convert back to original type if possible
         try:
             # Find original output with this string representation
@@ -184,7 +184,7 @@ class MultiAgentConsensusResolver:
                     break
             else:
                 consensus = consensus_str
-        except:
+        except Exception:
             consensus = consensus_str
         
         # Calculate confidence
@@ -198,11 +198,11 @@ class MultiAgentConsensusResolver:
     def _apply_weighted_vote(self, outputs: List[Any], weights: List[float]) -> tuple:
         """
         Apply weighted vote strategy.
-        
+
         Args:
             outputs: List of agent outputs
             weights: List of agent weights
-            
+
         Returns:
             Tuple of (consensus, confidence, votes)
         """
@@ -210,14 +210,14 @@ class MultiAgentConsensusResolver:
         weighted_counts = defaultdict(float)
         for output, weight in zip(outputs, weights):
             weighted_counts[str(output)] += weight
-        
+
         # Find highest weighted output
         if not weighted_counts:
             return None, 0.0, {}
-        
+
         consensus_str = max(weighted_counts.items(), key=lambda x: x[1])[0]
         total_weight = sum(weighted_counts.values())
-        
+
         # Try to convert back to original type if possible
         try:
             # Find original output with this string representation
@@ -227,7 +227,7 @@ class MultiAgentConsensusResolver:
                     break
             else:
                 consensus = consensus_str
-        except:
+        except Exception:
             consensus = consensus_str
         
         # Calculate confidence
@@ -269,24 +269,24 @@ class MultiAgentConsensusResolver:
     def _apply_supermajority(self, outputs: List[Any], weights: List[float]) -> tuple:
         """
         Apply supermajority strategy.
-        
+
         Args:
             outputs: List of agent outputs
             weights: List of agent weights
-            
+
         Returns:
             Tuple of (consensus, confidence, votes)
         """
         # Count occurrences
         output_counts = Counter(str(output) for output in outputs)
-        
+
         # Find most common
         most_common = output_counts.most_common(1)
         if not most_common:
             return None, 0.0, {}
-        
+
         consensus_str, count = most_common[0]
-        
+
         # Try to convert back to original type if possible
         try:
             # Find original output with this string representation
@@ -296,7 +296,7 @@ class MultiAgentConsensusResolver:
                     break
             else:
                 consensus = consensus_str
-        except:
+        except Exception:
             consensus = consensus_str
         
         # Calculate confidence

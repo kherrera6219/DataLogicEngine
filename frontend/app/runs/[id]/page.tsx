@@ -62,14 +62,14 @@ export default function TraceDetailPage({ params }: { params: { id: string } }) 
                         {!trace.stages?.length && (
                            <p className="text-gray-500 italic">No detailed stage information available.</p>
                         )}
-                        {trace.stages?.map((step: any, i: number) => (
+                        {trace.stages?.map((step, i: number) => (
                            <div key={i} className="p-4 bg-white dark:bg-gray-900 border rounded-lg">
                               <div className="flex justify-between mb-2">
-                                 <h4 className="font-semibold text-sm">Step {i+1}: {step.name || 'Processing'}</h4>
-                                 <span className="text-xs text-gray-500">{step.duration}ms</span>
+                                 <h4 className="font-semibold text-sm">Step {i+1}: {step.algorithm_name || 'Processing'}</h4>
+                                 <span className="text-xs text-gray-500">{step.status}</span>
                               </div>
                               <p className="text-sm text-gray-600 dark:text-gray-300">
-                                 {step.description || 'Step execution completed.'}
+                                 Started: {new Date(step.started_at).toLocaleTimeString()}
                               </p>
                            </div>
                         ))}

@@ -268,7 +268,7 @@ def main():
                 query = sample_queries[query_index]
             else:
                 query = sample_queries[0]
-        except:
+        except ValueError:
             query = sample_queries[0]
         
         domain = sys.argv[2] if len(sys.argv) > 2 else "artificial_intelligence"
@@ -281,7 +281,7 @@ def main():
                     query = sample_queries[choice_index]
                 else:
                     query = choice
-            except:
+            except ValueError:
                 query = choice
                 
             domain = input("Enter knowledge domain (e.g., artificial_intelligence, aerospace, medicine, finance): ")

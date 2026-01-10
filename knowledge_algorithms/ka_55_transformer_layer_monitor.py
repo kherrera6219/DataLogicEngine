@@ -823,10 +823,10 @@ class TransformerLayerMonitor:
         if not isinstance(head_weights, list):
             try:
                 head_weights = head_weights.tolist()
-            except:
+            except (AttributeError, ValueError, TypeError) as e:
                 # If conversion fails, create a simple placeholder
                 head_weights = [[0.5 for _ in range(5)] for _ in range(5)]
-                head_analysis["error"] = "Failed to process attention weights"
+                head_analysis["error"] = f"Failed to process attention weights: {str(e)}"
         
         # Convert to list of lists if it's a flat list
         if isinstance(head_weights, list) and head_weights and not isinstance(head_weights[0], list):
@@ -1432,15 +1432,15 @@ class TransformerLayerMonitor:
         if hasattr(activations, 'flatten') and callable(getattr(activations, 'flatten')):
             try:
                 return activations.flatten().tolist()
-            except:
+            except (AttributeError, ValueError, TypeError):
                 pass
-        
+
         # If it's a tensor-like object but no flatten method
         if hasattr(activations, 'shape'):
             try:
                 # Try to convert to list
                 return list(activations.reshape(-1))
-            except:
+            except (AttributeError, ValueError, TypeError):
                 pass
         
         # If all else fails, return empty list
@@ -1605,13 +1605,13 @@ class TransformerLayerMonitor:
             if not isinstance(means, list):
                 try:
                     means = means.tolist()
-                except:
+                except (AttributeError, ValueError, TypeError):
                     means = [0]
-            
+
             if not isinstance(variances, list):
                 try:
                     variances = variances.tolist()
-                except:
+                except (AttributeError, ValueError, TypeError):
                     variances = [1]
             
             # Calculate average normalization magnitude
@@ -1822,13 +1822,13 @@ class TransformerLayerMonitor:
             if not isinstance(pooled, list) and hasattr(pooled, 'tolist'):
                 try:
                     pooled = pooled.tolist()
-                except:
+                except (AttributeError, ValueError, TypeError):
                     pooled = [0.5] * model_info.get("hidden_size", 768)
-            
+
             if not isinstance(sequence_output, list) and hasattr(sequence_output, 'tolist'):
                 try:
                     sequence_output = sequence_output.tolist()
-                except:
+                except (AttributeError, ValueError, TypeError):
                     sequence_output = [[0.5] * model_info.get("hidden_size", 768)]
             
             # Simplified calculation based on average sequence representation
@@ -2252,7 +2252,7 @@ class TransformerLayerMonitor:
                             # Try to handle other formats
                             try:
                                 return max(attention_weights)
-                            except:
+                            except (ValueError, TypeError):
                                 pass
             
             return 0.5  # Default value
@@ -2386,7 +2386,7 @@ class TransformerLayerMonitor:
             # Try to convert to list
             try:
                 token_features = token_features.tolist()
-            except:
+            except (AttributeError, ValueError, TypeError):
                 return []
         
         # Limit number of tokens

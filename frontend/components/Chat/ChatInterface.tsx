@@ -35,11 +35,12 @@ export function ChatInterface() {
 
       const assistantMsg: Message = { role: 'assistant', content: response.response };
       setMessages(prev => [...prev, assistantMsg]);
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      const errorMsg: Message = { 
-        role: 'system', 
-        content: `Error: ${error.message || 'Failed to connect to Gateway'}. \n\nCheck if the backend is running at localhost:5000.` 
+      const errorMessage = error instanceof Error ? error.message : 'Failed to connect to Gateway';
+      const errorMsg: Message = {
+        role: 'system',
+        content: `Error: ${errorMessage}. \n\nCheck if the backend is running at localhost:5000.`
       };
       setMessages(prev => [...prev, errorMsg]);
     } finally {
