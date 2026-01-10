@@ -1,14 +1,16 @@
-# API Documentation v2.0.0
+# API Documentation v3.0.0
 
-The DataLogicEngine exposes a RESTful API powered by Flask blueprints. These endpoints support the Knowledge Graph, Simulation Engine, and AI Gateway operations.
+The DataLogicEngine exposes a robust, RESTful API designed for high-concurrency enterprise integration.
 
-## Base URL
+## 📍 Base URL
 
 `http://localhost:5000/api/v1`
 
-## Authentication
+## 🔐 Authentication & Context
 
-All endpoints (except `/health`) require authentication via `Session` (frontend proxy) or `Authorization: Bearer <token>` header (external).
+- **Bearer Token**: All endpoints require an `Authorization: Bearer <JWT>` header unless otherwise specified.
+- **Tenant Isolation**: The `tenant_id` is automatically extracted from your JWT/SSO session. All operations are strictly scoped to your tenant.
+- **Traceability**: All responses include a `X-Correlation-ID` header. Use this ID for debugging and audit reconstruction.
 
 ---
 

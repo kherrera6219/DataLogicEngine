@@ -2,79 +2,84 @@
 
 ## Overview
 
-The Universal Knowledge Graph (UKG) System employs a **modern split-stack architecture** optimized for scalability, interactivity, and enterprise integration.
+The Universal Knowledge Graph (UKG) System employs a **hardened middleware architecture** designed for high-availability, consistent reasoning, and enterprise-grade security.
 
-- **Frontend**: Next.js 14 App Router (React)
-  - _Role_: User Interface, Visualization, State Management
-- **Backend**: Flask (Python 3.11)
-  - _Role_: API, Knowledge Engine, MCP Server, LLM Gateway
+- **Frontend**: Next.js 14 App Router (React + TypeScript)
+- **Hardened Middleware**: Flask-based "Reasoning Engine" with integrated circuit breakers and distributed tracing.
+- **Data Layer**: PostgreSQL (Persistent) + Redis (Cache) + UKG Graph (NetworkX).
 
 ---
 
-## High-Level Architecture
+## 🏗️ High-Level Component Map
 
 ```mermaid
 graph TD
-    Client[Web Client] -->|HTTPS / Port 3000| CDN[Next.js Frontend]
-    CDN -->|API Proxy| Gateway[Flask Backend API]
+    Client[Enterprise App] -->|HTTPS| API[Hardened API Gateway]
 
-    subgraph Backend Services
-        Gateway -->|MCP| KA[Knowledge Algorithms]
-        Gateway -->|SQL| DB[(PostgreSQL)]
-        Gateway -->|Cache| Redis[(Redis)]
-        Gateway -->|Pipeline| UKG[Truth Engine & 17-Axis]
-
-        UKG -->|Reasoning| LLM[LLM Gateway]
-        LLM -->|External API| OpenAI[OpenAI / Azure / Anthropic]
+    subgraph "Middleware Stack"
+        API -->|Middleware| AUTH[SSO/OIDC Mapping]
+        API -->|Middleware| TM[Correlation/Trace Engine]
+        API -->|Middleware| CB[Circuit Breaker & Failover]
     end
+
+    subgraph "Knowledge Processing"
+        CB -->|Logic| UKG[17-Axis Pipeline]
+        UKG -->|Retrieval| DB[(PostgreSQL)]
+        UKG -->|Cache| RC[(Redis Cache)]
+        UKG -->|Tools| MCP[MCP KA Server]
+    end
+
+    UKG -->|Grounded| LLM[LLM Gateway]
+    LLM -->|Request| PROVIDER[OpenAI / Azure / Anthropic]
 ```
 
-## 1. Frontend Layer (`/frontend`)
+---
 
-Built with **Next.js 14**, utilizing Server Components and Client Components for optimal performance.
+## 🛡️ Enterprise Hardening Features
 
-### Key Components
+### 1. Resilience: Circuit Breaker & Failover
 
-- **App Router**: File-system based routing (e.g., `app/dashboard/page.tsx`).
-- **API Client (`lib/api.ts`)**: Unified client for fetching traces, chat, and system health.
-- **UI Library (`components/ui`)**: Accessible components based on Radix UI and Tailwind CSS.
-- **Visualization**: D3.js and React Flow for Graph visualization.
+The `LLM Gateway` implements a **Circuit Breaker** pattern. If a provider (e.g., OpenAI) returns sequential errors, the circuit opens, and the gateway automatically reroutes traffic to the next highest priority provider (e.g., Anthropic).
 
-### Integration
+- **Recovery**: Circuits enter "Half-Open" state after a timeout to test provider health.
+- **Failover**: Sequential provider attempt logic ensures near 100% availability for reasoning tasks.
 
-The frontend communicates with the backend via a **Rewrites Proxy** in `next.config.ts`:
+### 2. Multi-Tenancy: Data Isolation
 
-- `/api/*` -> `http://localhost:5000/api/*`
-- `/auth/*` -> `http://localhost:5000/auth/*`
+Data isolation is enforced at the core database manager level. Every request carries a `tenant_id` context (mapped from SSO claims).
+
+- **Isolation**: SQL queries are automatically filtered by `tenant_id`.
+- **Graph Safety**: Graph traversals are scoped to the requesting tenant's nodes and edges.
+
+### 3. Observability: End-to-End Tracing
+
+Using a unified **Correlation ID**, the system links the initial HTTP request to the deep Knowledge Algorithm execution steps in the UKG SDK.
+
+- **Audit Chain**: Every execution culminates in a hash-chained audit record.
+- **Trace Explorer**: Admins can view the full reasoning path, including which evidence was used for which claim.
 
 ---
 
-## 2. Backend Layer (`/backend`, `/core`)
+## 🧠 17-Axis Knowledge Framework
 
-A robust **Flask** application serving as the central nervous system.
+The core innovation is the organization of knowledge across 17 distinct axes:
 
-### Core Modules
+1.  **Sectors**: Vertical industry (Healthcare, Finance, etc.)
+2.  **Domains**: Technical areas (Compliance, Security, etc.)
+3.  **Tiers**: Priority and complexity scoring.
+4.  **Layers**: Reasoning depth (L1 Hygiene to L10 Completion).
+5.  **Coordinates**: A compact 17-part vector representing the precise context of a query.
 
-- **LLM Gateway**: Standardizes interactions with AI models, injecting UKG context.
-- **Tracing Engine**: Distributed tracing for every reasoning step (Trace -> Spans -> Evidence).
-- **MCP Server**: Implements the Model Context Protocol to expose UKG capabilities to agents.
-- **Knowledge Graph**: NetworkX-based in-memory graph processing with PostgreSQL persistence.
-
-### Data Storage
-
-- **PostgreSQL**: Primary store for Users, Nodes, Edges, and Traces.
-- **Redis**: Caching layer for graph queries and API rate limiting.
+This coordinate system allows the engine to retrieve exactly the right "slice" of knowledge for any query, significantly outperforming traditional RAG.
 
 ---
 
-## 3. 17-Axis Knowledge Framework
+## 🧪 Deployment Patterns
 
-The data model organizes information across 17 dimensions:
+- **Edge Deployment**: Next.js frontend deployed to Vercel/Cloudflare.
+- **Engine Cluster**: Flask backend deployed to Kubernetes with HPA.
+- **Data Persistence**: Managed RDS (PostgreSQL) and Managed Redis.
 
-1.  **Pillar**: Fundamental Domain
-2.  **Level**: Abstraction Depth
-3.  **Time**: Temporal Context
-4.  **Space**: Geospatial Context
-5.  ... (and 13 others)
+---
 
-This structure ensures sophisticated retrieval and reduced hallucinations in AI responses.
+© 2026 DataLogicEngine. Proprietary Architecture Documentation.

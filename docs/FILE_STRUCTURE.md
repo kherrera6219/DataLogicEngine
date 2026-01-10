@@ -27,13 +27,13 @@ The project adheres to strict naming conventions to ensure consistency across th
 ```
 DataLogicEngine/
 ├── backend/                  # Flask Backend & API Logic
-├── core/                     # Domain Logic (UKG Engine, Axes, MCP)
+├── sdk/                      # UKG Python SDK (Core Logic Engine)
 ├── frontend/                 # Next.js Frontend Application
 ├── docs/                     # Project Documentation
 ├── tests/                    # Test Suites
 ├── scripts/                  # Utility & DevOps Scripts
 ├── migrations/               # Database Migrations (Alembic)
-├── main.py                   # Backend Entry Point
+├── wsgi.py                   # Production Entry Point
 ├── Dockerfile                # Backend Docker Configuration
 └── README.md                 # Project Overview
 ```
