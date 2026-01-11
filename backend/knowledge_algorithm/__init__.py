@@ -13,7 +13,7 @@ from .modules import (
     ka04_input_validation,
     ka09_evidence_validation,
     ka10_bias_detection,
-    ka12_persona_simulation,
+    ka012_persona,
     
     # Range 015-030 (Already in resolution core but some might be unique files)
     ka15_temporal_reasoning,

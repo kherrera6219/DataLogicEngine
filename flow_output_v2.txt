@@ -1,0 +1,266 @@
+=== UKG Phase 2 Full Flow Verification ===
+
+1. Initializing UKG System...
+[2026-01-10 23:09:20.760371] Starting UKG System initialization...
+[2026-01-10 23:09:20.760425] No configuration file provided. Using default configuration.
+[2026-01-10 23:09:20.760444] Initializing UnitedSystemManager...
+[2026-01-10 23:09:20.760466] UnitedSystemManager initialized
+[2026-01-10 23:09:20.760482] Initializing GraphManager...
+[2026-01-10 23:09:20.760498] GraphManager initialized
+[2026-01-10 23:09:20.760516] USM: Component 'graph_manager' registered
+[2026-01-10 23:09:20.760530] Initializing StructuredMemoryManager...
+[2026-01-10 23:09:20.760543] StructuredMemoryManager initialized
+[2026-01-10 23:09:20.760556] USM: Component 'memory_manager' registered
+[2026-01-10 23:09:20.760571] Initializing KAEngine...
+[2026-01-10 23:09:21.118212] Registered KA: KA-001 - Algorithm of Thought (v1.0.0)
+[2026-01-10 23:09:21.118287] Registered KA: KA-002 - Tree of Thought (v1.0.0)
+[2026-01-10 23:09:21.118309] Registered KA: KA-003 - Gap Analysis (v1.0.0)
+[2026-01-10 23:09:21.118326] Registered KA: KA-004 - Input Validation & Normalization (v1.0.0)
+[2026-01-10 23:09:21.118343] Registered KA: KA-005 - Query Classification (v1.0.0)
+[2026-01-10 23:09:21.118361] Registered KA: KA-006 - Deep Planning (v1.0.0)
+[2026-01-10 23:09:21.118377] Registered KA: KA-007 - Recursive Reasoning Control (v1.0.0)
+[2026-01-10 23:09:21.118394] Registered KA: KA-008 - Self-Critique & Reflection (v1.0.0)
+[2026-01-10 23:09:21.118410] Registered KA: KA-009 - Evidence Validation (v1.0.0)
+[2026-01-10 23:09:21.118427] Registered KA: KA-010 - Bias Detection (v1.0.0)
+[2026-01-10 23:09:21.118444] Registered KA: KA-011 - Analytical Modeling (v1.0.0)
+[2026-01-10 23:09:21.118467] Registered KA: KA-012 - Persona Simulation (v1.0.0)
+[2026-01-10 23:09:21.118484] Registered KA: KA-013 - Persona Weighting (v1.0.0)
+[2026-01-10 23:09:21.118500] Registered KA: KA-014 - Confidence Scoring (v1.0.0)
+[2026-01-10 23:09:21.118517] Registered KA: KA-015 - Temporal Reasoning (v1.0.0)
+[2026-01-10 23:09:21.118533] Registered KA: KA-016 - Regulatory Mapping (v1.0.0)
+[2026-01-10 23:09:21.118548] Registered KA: KA-017 - Spatial/Jurisdiction Mapping (v1.0.0)
+[2026-01-10 23:09:21.118564] Registered KA: KA-018 - Source Provenance (v1.0.0)
+[2026-01-10 23:09:21.118580] Registered KA: KA-019 - Knowledge Synthesis (v1.0.0)
+[2026-01-10 23:09:21.118596] Registered KA: KA-020 - Loopback Trigger (v1.0.0)
+[2026-01-10 23:09:21.118612] Registered KA: KA-021 - Emergence Detection (v1.0.0)
+[2026-01-10 23:09:21.118628] Registered KA: KA-022 - Risk Assessment (v1.0.0)
+[2026-01-10 23:09:21.118642] Registered KA: KA-023 - Belief Decay (v1.0.0)
+[2026-01-10 23:09:21.118666] Registered KA: KA-024 - Trust Gate (v1.0.0)
+[2026-01-10 23:09:21.118722] Registered KA: KA-025 - Dependency Mapping (v1.0.0)
+[2026-01-10 23:09:21.118816] Registered KA: KA-026 - Contradiction Detection (v1.0.0)
+[2026-01-10 23:09:21.118941] Registered KA: KA-027 - Ethical Impact Analysis (v1.0.0)
+[2026-01-10 23:09:21.119011] Registered KA: KA-028 - Point-of-View Expansion (v1.0.0)
+[2026-01-10 23:09:21.119066] Registered KA: KA-029 - Knowledge Expansion (v1.0.0)
+[2026-01-10 23:09:21.119124] Registered KA: KA-030 - Conflict Resolution (v1.0.0)
+[2026-01-10 23:09:21.119197] Registered KA: KA-031 - Algorithm Selection Engine (v1.0.0)
+[2026-01-10 23:09:21.119221] Registered KA: KA-032 - Simulation Orchestration Controller (v1.0.0)
+[2026-01-10 23:09:21.119241] Registered KA: KA-033 - Reserved (Expansion Slot) (v1.0.0)
+[2026-01-10 23:09:21.119258] Registered KA: KA-034 - Adversarial Reasoning (v1.0.0)
+[2026-01-10 23:09:21.119275] Registered KA: KA-035 - Bayesian Gap Imputation (v1.0.0)
+[2026-01-10 23:09:21.119294] Registered KA: KA-036 - Pareto Optimization Engine (v1.0.0)
+[2026-01-10 23:09:21.119310] Registered KA: KA-037 - Norm Emergence Detector (v1.0.0)
+[2026-01-10 23:09:21.119327] Registered KA: KA-038 - Cross-Modal Synthesis (v1.0.0)
+[2026-01-10 23:09:21.119343] Registered KA: KA-039 - Ontology Drift Detection (v1.0.0)
+[2026-01-10 23:09:21.119359] Registered KA: KA-040 - Semantic Alignment Engine (v1.0.0)
+[2026-01-10 23:09:21.119375] Registered KA: KA-041 - Concept Confidence Normalization (v1.0.0)
+[2026-01-10 23:09:21.119391] Registered KA: KA-042 - Contradiction Propagation Analysis (v1.0.0)
+[2026-01-10 23:09:21.119409] Registered KA: KA-043 - Knowledge Lineage Tracker (v1.0.0)
+[2026-01-10 23:09:21.119425] Registered KA: KA-044 - Creative Knowledge Composer (v1.0.0)
+[2026-01-10 23:09:21.119441] Registered KA: KA-045 - Bias Pattern Analyzer (v1.0.0)
+[2026-01-10 23:09:21.119457] Registered KA: KA-046 - Hierarchical Memory Patcher (v1.0.0)
+[2026-01-10 23:09:21.119469] Registered KA: KA-047 - Meta-Algorithm Selection (v1.0.0)
+[2026-01-10 23:09:21.119482] Registered KA: KA-048 - Ontological Conflict Resolver (v1.0.0)
+[2026-01-10 23:09:21.119494] Registered KA: KA-049 - Knowledge Redundancy Detector (v1.0.0)
+[2026-01-10 23:09:21.119507] Registered KA: KA-050 - Knowledge Integrity Validator (v1.0.0)
+[2026-01-10 23:09:21.119520] Registered KA: KA-051 - Self-Correcting Knowledge Distillation (v1.0.0)
+[2026-01-10 23:09:21.119533] Registered KA: KA-052 - Temporal Knowledge Evolution (v1.0.0)
+[2026-01-10 23:09:21.119545] Registered KA: KA-053 - Dynamic Knowledge Compression (v1.0.0)
+[2026-01-10 23:09:21.119557] Registered KA: KA-054 - Cross-Lingual Knowledge Fusion (v1.0.0)
+[2026-01-10 23:09:21.119576] Registered KA: KA-055 - Adaptive Multi-Modal Integration (v1.0.0)
+[2026-01-10 23:09:21.119589] Registered KA: KA-056 - Narrative Explainability Engine (v1.0.0)
+[2026-01-10 23:09:21.119600] Registered KA: KA-057 - Persona/Emotion Adaptation (v1.0.0)
+[2026-01-10 23:09:21.119612] Registered KA: KA-058 - Interactive Clarification & Learning (v1.0.0)
+[2026-01-10 23:09:21.119623] Registered KA: KA-059 - Predictive Layer Preemption (v1.0.0)
+[2026-01-10 23:09:21.119634] Registered KA: KA-060 - Cognitive Load Balancer (v1.0.0)
+[2026-01-10 23:09:21.119649] Registered KA: KA-061 - Adversarial Input Shield (v1.0.0)
+[2026-01-10 23:09:21.119661] Registered KA: KA-062 - Decentralized Trust Scoring (v1.0.0)
+[2026-01-10 23:09:21.119673] Registered KA: KA-063 - Continuous Performance Learning (v1.0.0)
+[2026-01-10 23:09:21.119685] Registered KA: KA-064 - Failure Pattern Detection (v1.0.0)
+[2026-01-10 23:09:21.119697] Registered KA: KA-065 - Knowledge Regression Tester (v1.0.0)
+[2026-01-10 23:09:21.119708] Registered KA: KA-066 - Causal Inference Engine (v1.0.0)
+[2026-01-10 23:09:21.119719] Registered KA: KA-067 - Analogical Reasoning Engine (v1.0.0)
+[2026-01-10 23:09:21.119729] Registered KA: KA-068 - Domain Specialization Tuner (v1.0.0)
+[2026-01-10 23:09:21.119740] Registered KA: KA-069 - Cultural Context Adapter (v1.0.0)
+[2026-01-10 23:09:21.119751] Registered KA: KA-070 - Counterfactual Scenario Simulator (v1.0.0)
+[2026-01-10 23:09:21.119763] Registered KA: KA-071 - Knowledge Provenance Tracker (v1.0.0)
+[2026-01-10 23:09:21.119775] Registered KA: KA-072 - Context Window Optimizer (v1.0.0)
+[2026-01-10 23:09:21.119786] Registered KA: KA-073 - Intent Clarifier (v1.0.0)
+[2026-01-10 23:09:21.119798] Registered KA: KA-074 - Privacy Preserver (v1.0.0)
+[2026-01-10 23:09:21.119808] Registered KA: KA-075 - Bias Mitigation Engine (v1.0.0)
+[2026-01-10 23:09:21.119819] Registered KA: KA-076 - Knowledge Graph Pruner (v1.0.0)
+[2026-01-10 23:09:21.119831] Registered KA: KA-077 - Knowledge Importance Scorer (v1.0.0)
+[2026-01-10 23:09:21.119842] Registered KA: KA-078 - Memory Tier Classifier (v1.0.0)
+[2026-01-10 23:09:21.119854] Registered KA: KA-079 - Knowledge Promotion Gate (v1.0.0)
+[2026-01-10 23:09:21.119865] Registered KA: KA-080 - Simulation Cost Estimator (v1.0.0)
+[2026-01-10 23:09:21.119876] Registered KA: KA-081 - Simulation Budget Enforcer (v1.0.0)
+[2026-01-10 23:09:21.119887] Registered KA: KA-082 - Confidence Drift Monitor (v1.0.0)
+[2026-01-10 23:09:21.119898] Registered KA: KA-083 - Knowledge Revalidation Scheduler (v1.0.0)
+[2026-01-10 23:09:21.119909] Registered KA: KA-084 - Cross-Instance Consensus Engine (v1.0.0)
+[2026-01-10 23:09:21.119920] Registered KA: KA-085 - Anomaly Detection Engine (v1.0.0)
+[2026-01-10 23:09:21.119933] Registered KA: KA-086 - Knowledge Usage Analytics (v1.0.0)
+[2026-01-10 23:09:21.119953] Registered KA: KA-087 - Explainability Coverage Checker (v1.0.0)
+[2026-01-10 23:09:21.119964] Registered KA: KA-088 - Knowledge Lifecycle Manager (v1.0.0)
+[2026-01-10 23:09:21.119975] Registered KA: KA-089 - Policy Evolution Tracker (v1.0.0)
+[2026-01-10 23:09:21.119986] Registered KA: KA-090 - Compliance Regression Validator (v1.0.0)
+[2026-01-10 23:09:21.119998] Registered KA: KA-091 - Scenario Outcome Archivist (v1.0.0)
+[2026-01-10 23:09:21.120010] Registered KA: KA-092 - Knowledge Dependency Auditor (v1.0.0)
+[2026-01-10 23:09:21.120021] Registered KA: KA-093 - Trust Decay Engine (v1.0.0)
+[2026-01-10 23:09:21.120032] Registered KA: KA-094 - Knowledge Quarantine Engine (v1.0.0)
+[2026-01-10 23:09:21.120043] Registered KA: KA-095 - Human-in-the-Loop Escalation (v1.0.0)
+[2026-01-10 23:09:21.120059] Registered KA: KA-096 - Knowledge Release Manager (v1.0.0)
+[2026-01-10 23:09:21.120071] Registered KA: KA-097 - System Performance Optimizer (v1.0.0)
+[2026-01-10 23:09:21.120082] Registered KA: KA-098 - Self-Evaluation & Benchmarking (v1.0.0)
+[2026-01-10 23:09:21.120093] Registered KA: KA-099 - System Integrity Auditor (v1.0.0)
+[2026-01-10 23:09:21.120106] Registered KA: KA-100 - Autonomous System Evolution Controller (v1.0.0)
+[2026-01-10 23:09:21.120123] Registered KA: KA-101 - Chaos Injection Governor (v1.0.0)
+[2026-01-10 23:09:21.120138] Registered KA: KA-102 - Global Entropy Quantifier (v1.0.0)
+[2026-01-10 23:09:21.120154] Registered KA: KA-103 - Simulation State Rollback Manager (v1.0.0)
+[2026-01-10 23:09:21.120169] Registered KA: KA-104 - Truth vs Utility Arbiter (v1.0.0)
+[2026-01-10 23:09:21.120184] Registered KA: KA-105 - Conceptual Obsolescence Monitor (v1.0.0)
+[2026-01-10 23:09:21.120199] Registered KA: KA-106 - Human Override Reason Capture (v1.0.0)
+[2026-01-10 23:09:21.120214] Registered KA: KA-107 - Reasoning Boundary Enforcer (v1.0.0)
+[2026-01-10 23:09:21.120229] Registered KA: KA-108 - Capability Escalation Detector (v1.0.0)
+[2026-01-10 23:09:21.120245] Registered KA: KA-109 - Knowledge Containment Classifier (v1.0.0)
+[2026-01-10 23:09:21.120261] Registered KA: KA-110 - Cross-Domain Coupling Risk Analyzer (v1.0.0)
+[2026-01-10 23:09:21.120276] Registered KA: KA-111 - Long-Horizon Goal Drift Monitor (v1.0.0)
+[2026-01-10 23:09:21.120291] Registered KA: KA-112 - System Self-Introspection Auditor (v1.0.0)
+[2026-01-10 23:09:21.120305] Registered KA: KA-113 - Query Analysis & Complexity Router (v1.0.0)
+[2026-01-10 23:09:21.120320] Registered KA: KA-114 - External Deep Research Invocation (v1.0.0)
+[2026-01-10 23:09:21.120333] Loaded 114 KAs from enterprise registry
+[2026-01-10 23:09:21.120729] KAEngine initialized with 114 KAs registered
+[2026-01-10 23:09:21.120758] USM: Component 'ka_engine' registered
+[2026-01-10 23:09:21.120776] Initializing LocationContextEngine...
+[2026-01-10 23:09:21.120794] LocationContextEngine initialized
+[2026-01-10 23:09:21.120810] USM: Component 'location_context_engine' registered
+[2026-01-10 23:09:21.120825] Initializing SimulationEngine...
+Audit log rotation started
+Audit Logger initialized
+Audit log rotation started
+Audit Logger initialized
+Security headers middleware initialized
+Security headers configured
+Request limits middleware initialized (max size: 16.0MB)
+Request limits configured
+Correlation ID middleware initialized
+Correlation ID middleware configured
+2026-01-10 23:09:22,008 - backend.middleware.correlation_id - INFO - [startup] - Correlation ID logging configured
+2026-01-10 23:09:22,008 - backend.middleware.timeout - WARNING - [startup] - Signal-based timeout not available on this platform. Configure gunicorn worker timeout instead: --timeout 30
+2026-01-10 23:09:22,012 - app - INFO - [startup] - Database tables created
+2026-01-10 23:09:22,027 - app - INFO - [startup] - Truth Engine API blueprint registered (v1 + legacy)
+2026-01-10 23:09:22,029 - app - INFO - [startup] - Persona API blueprint registered (v1 + legacy)
+2026-01-10 23:09:22,034 - app - INFO - [startup] - Pillar API blueprint registered (v1 + legacy)
+2026-01-10 23:09:22,034 - app - WARNING - [startup] - Could not register Compliance API blueprint: No module named 'backend.compliance_api'
+2026-01-10 23:09:22,040 - app - WARNING - [startup] - Could not register Replit Auth blueprint: No module named 'replit_auth'
+2026-01-10 23:09:22,042 - app - INFO - [startup] - Swagger UI registered at /api/docs
+2026-01-10 23:09:22,074 - app - INFO - [startup] - Trace API blueprint registered at /api/v1/trace
+2026-01-10 23:09:22,075 - app - WARNING - [startup] - Could not register LLM Gateway API: No module named 'backend.extensions'
+2026-01-10 23:09:22,106 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-005
+2026-01-10 23:09:22,106 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-006
+2026-01-10 23:09:22,106 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-007
+2026-01-10 23:09:22,106 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-008
+2026-01-10 23:09:22,106 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-001
+2026-01-10 23:09:22,107 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-002
+2026-01-10 23:09:22,107 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-011
+2026-01-10 23:09:22,107 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-013
+2026-01-10 23:09:22,107 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-014
+2026-01-10 23:09:22,107 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-017
+2026-01-10 23:09:22,107 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-019
+2026-01-10 23:09:22,107 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-020
+2026-01-10 23:09:22,107 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-021
+2026-01-10 23:09:22,107 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-025
+2026-01-10 23:09:22,107 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-028
+2026-01-10 23:09:22,107 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-029
+2026-01-10 23:09:22,107 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-030
+2026-01-10 23:09:22,108 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-003
+2026-01-10 23:09:22,108 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-004
+2026-01-10 23:09:22,108 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-009
+2026-01-10 23:09:22,109 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-010
+2026-01-10 23:09:22,110 - root - ERROR - [startup] - [2026-01-10 23:09:22.110334] Failed to initialize Phase 2 Infrastructure: name 'Optional' is not defined
+2026-01-10 23:09:22,110 - root - INFO - [startup] - [2026-01-10 23:09:22.110874] Layer4ReasoningEngine initialized
+2026-01-10 23:09:22,110 - root - INFO - [startup] - [2026-01-10 23:09:22.110936] Layer 4 Reasoning Engine initialized
+2026-01-10 23:09:22,111 - root - INFO - [startup] - [2026-01-10 23:09:22.111302] Layer5IntegrationEngine initialized
+2026-01-10 23:09:22,111 - root - INFO - [startup] - [2026-01-10 23:09:22.111349] Layer 5 Integration Engine initialized
+2026-01-10 23:09:22,111 - root - INFO - [startup] - [2026-01-10 23:09:22.111709] Layer6EnhancementEngine initialized
+2026-01-10 23:09:22,111 - root - INFO - [startup] - [2026-01-10 23:09:22.111753] Layer 6 Enhancement Engine initialized
+2026-01-10 23:09:22,112 - root - INFO - [startup] - [2026-01-10 23:09:22.112375] AGISimulationEngine initialized
+2026-01-10 23:09:22,112 - root - INFO - [startup] - [2026-01-10 23:09:22.112434] Layer 7 AGI Simulation Engine initialized
+2026-01-10 23:09:22,113 - root - INFO - [startup] - [2026-01-10 23:09:22.113129] Layer8QuantumEngine initialized
+2026-01-10 23:09:22,113 - root - INFO - [startup] - [2026-01-10 23:09:22.113181] Layer 8 Quantum Simulation Engine initialized
+2026-01-10 23:09:22,113 - root - INFO - [startup] - [2026-01-10 23:09:22.113609] Layer9RecursiveEngine initialized
+2026-01-10 23:09:22,113 - root - INFO - [startup] - [2026-01-10 23:09:22.113677] Layer 9 Recursive Processing Engine initialized
+2026-01-10 23:09:22,114 - root - INFO - [startup] - [2026-01-10 23:09:22.114103] Layer10SynthesisEngine initialized
+2026-01-10 23:09:22,114 - root - INFO - [startup] - [2026-01-10 23:09:22.114171] Layer 10 Final Synthesis Engine initialized
+2026-01-10 23:09:22,114 - root - INFO - [startup] - [2026-01-10 23:09:22.114936] Layer5IntegrationEngine initialized with uncertainty threshold 0.15
+2026-01-10 23:09:22,115 - root - INFO - [startup] - [2026-01-10 23:09:22.114998] Layer 5 Integration Engine initialized
+2026-01-10 23:09:22,115 - root - INFO - [startup] - [2026-01-10 23:09:22.115545] AGISimulationEngine initialized
+2026-01-10 23:09:22,115 - root - INFO - [startup] - [2026-01-10 23:09:22.115595] Layer 7 AGI Simulation Engine initialized
+2026-01-10 23:09:22,115 - root - INFO - [startup] - [2026-01-10 23:09:22.115623] SimulationEngine initialized
+2026-01-10 23:09:22,115 - root - INFO - [startup] - [2026-01-10 23:09:22.115649] USM: Component 'simulation_engine' registered
+2026-01-10 23:09:22,115 - root - INFO - [startup] - [2026-01-10 23:09:22.115674] Initializing SekreEngine...
+2026-01-10 23:09:22,115 - root - INFO - [startup] - [2026-01-10 23:09:22.115696] SekreEngine initialized with auto-improvement set to False
+2026-01-10 23:09:22,115 - root - INFO - [startup] - [2026-01-10 23:09:22.115719] USM: Component 'sekre_engine' registered
+2026-01-10 23:09:22,115 - root - INFO - [startup] - [2026-01-10 23:09:22.115740] All core UKG system components initialized and connected
+2026-01-10 23:09:22,115 - root - INFO - [startup] - [2026-01-10 23:09:22.115761] UKG System initialization complete
+2026-01-10 23:09:22,115 - root - INFO - [startup] - System initialized. KA Engine has 114 KAs.
+2026-01-10 23:09:22,115 - root - INFO - [startup] - 
+2. Starting Simulation for Query: 'Regulatory compliance in the financial sector for blockchain systems.'
+2026-01-10 23:09:22,115 - root - INFO - [startup] - [2026-01-10 23:09:22.115903] Started simulation SIM_b2d69296_1768115362
+2026-01-10 23:09:22,115 - root - INFO - [startup] - Simulation created: SIM_b2d69296_1768115362
+2026-01-10 23:09:22,115 - root - INFO - [startup] - 
+3. Running Simulation Pass 1 (Includes AxisMapper and TruthEngine)...
+2026-01-10 23:09:22,116 - root - INFO - [startup] - [2026-01-10 23:09:22.116896] GatekeeperAgent initialized with confidence threshold 0.995
+2026-01-10 23:09:22,116 - root - INFO - [startup] - [2026-01-10 23:09:22.116970] GatekeeperAgent evaluated simulation SIM_b2d69296_1768115362, pass 1
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117004] Processing simulation layers 4-10 for SIM_b2d69296_1768115362, pass 1
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117029] Applying Layer 4: Reasoning & Logic Engine
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117051] Layer 4: Processing context through reasoning engine
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117116] Layer 4: Completed in 0.00s. Inferences: 2, Rules: 1, Conflicts: 0
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117147] Applying Layer 5: Memory & Analysis Integration
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117249] Applying Layer 6: Knowledge Enhancement
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117276] Layer 6: Processing context through enhancement engine
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117364] Layer 6: Completed in 0.00s. Sources: 3, Validations: 5, Enrichments: 3, Citations: 3
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117401] Applying Layer 7: AGI Simulation
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117426] AGI Simulation cycle 1 started
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117776] Expanded 16 goals from query
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117812] Realigned 0 belief vectors
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117837] Identified 0 conflicts to resolve
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117865] Generated 0 role-based resolutions
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117891] Goal convergence evaluation: 0.51
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117925] Entropy calculation: 0.3650
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117960] Generated 0 memory patches
+2026-01-10 23:09:22,117 - root - INFO - [startup] - [2026-01-10 23:09:22.117984] Emergence score: 0.2805
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118019] AGI Simulation completed in 0.56ms
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118047] Applying Layer 8: Quantum Simulation
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118073] Layer 8: Processing context through quantum simulation (5 parallel states)
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118123] Layer 8: Completed in 0.00s. States explored: 5, Entanglements: 8, Collapse probability: 0.388
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118152] Applying Layer 9: Recursive Processing
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118175] Layer 9: Starting recursive processing (max iterations: 5, threshold: 0.9)
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118200] Layer 9: Starting iteration 1 (current confidence: 0.570)
+2026-01-10 23:09:22,118 - root - WARNING - [startup] - [2026-01-10 23:09:22.118235] Layer 9: Hallucination detected in iteration 1
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118262] Layer 9: Starting iteration 2 (current confidence: 0.670)
+2026-01-10 23:09:22,118 - root - WARNING - [startup] - [2026-01-10 23:09:22.118296] Layer 9: Hallucination detected in iteration 2
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118320] Layer 9: Starting iteration 3 (current confidence: 0.757)
+2026-01-10 23:09:22,118 - root - WARNING - [startup] - [2026-01-10 23:09:22.118349] Layer 9: Hallucination detected in iteration 3
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118371] Layer 9: Starting iteration 4 (current confidence: 0.829)
+2026-01-10 23:09:22,118 - root - WARNING - [startup] - [2026-01-10 23:09:22.118399] Layer 9: Hallucination detected in iteration 4
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118420] Layer 9: Starting iteration 5 (current confidence: 0.890)
+2026-01-10 23:09:22,118 - root - WARNING - [startup] - [2026-01-10 23:09:22.118447] Layer 9: Hallucination detected in iteration 5
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118471] Layer 9: Confidence threshold met at iteration 5 (confidence: 0.943)
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118493] Layer 9: Max iterations reached (final confidence: 0.943)
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118516] Layer 9: Completed in 0.00s. Iterations: 5, Final confidence: 0.943, Converged: False, Threshold met: True
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118541] Applying Layer 10: Final Synthesis
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118563] Layer 10: Performing final synthesis
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118620] Layer 10: Synthesis completed in 0.00s. Final confidence: 0.697, Layers processed: 4, Quality: 0.7678366897270654
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118650] Completed processing all simulation layers for SIM_b2d69296_1768115362
+2026-01-10 23:09:22,118 - root - INFO - [startup] - [2026-01-10 23:09:22.118680] Simulation SIM_b2d69296_1768115362 completed with max passes reached
+2026-01-10 23:09:22,118 - root - INFO - [startup] - 
+4. Verifying Axis Mapping...
+2026-01-10 23:09:22,118 - root - INFO - [startup] - Resolved Axis Vector: {}
+2026-01-10 23:09:22,118 - root - WARNING - [startup] - PARTIAL: Axis 1 or 2 resolution mismatch (Expected 1.49.0.0 and 2.10.4.1).
+2026-01-10 23:09:22,118 - root - INFO - [startup] - 
+5. Verifying Persona Execution...
+2026-01-10 23:09:22,118 - root - WARNING - [startup] - FAILURE: PERSONA (KA-012) results not found in simulation record.
+2026-01-10 23:09:22,118 - root - INFO - [startup] - 
+6. Verifying TruthEngine Integration...
+2026-01-10 23:09:22,118 - root - WARNING - [startup] - FAILURE: TruthEngine scores not found in pass record.
+2026-01-10 23:09:22,118 - root - INFO - [startup] - 
+=== Phase 2 Integration Verification Complete ===

@@ -40,6 +40,22 @@ class SimulationEngine:
         self.max_passes = self.sim_config.get('max_simulation_passes', 3)
         self.target_confidence = self.sim_config.get('target_confidence_overall', 0.90)
         
+        # Phase 2 Infrastructure
+        try:
+            from backend.knowledge_algorithm.axis_mapper import AxisMapper
+            from backend.knowledge_algorithm.truth_engine import TruthEngine
+            from backend.knowledge_algorithm.workflow_loader import WorkflowLoader
+            
+            self.axis_mapper = AxisMapper()
+            self.truth_engine = TruthEngine()
+            self.workflow_loader = WorkflowLoader()
+            logging.info(f"[{datetime.now()}] Phase 2 Infrastructure (AxisMapper, TruthEngine, WorkflowLoader) initialized.")
+        except Exception as e:
+            logging.error(f"[{datetime.now()}] Failed to initialize Phase 2 Infrastructure: {str(e)}")
+            self.axis_mapper = None
+            self.truth_engine = None
+            self.workflow_loader = None
+
         # Initialize all simulation layers (4-10)
         self._initialize_simulation_layers()
         
@@ -603,6 +619,13 @@ class SimulationEngine:
             # Record start time for duration calculation
             pass_start_time = datetime.now()
             
+            # Step 1: Resolve Coordinates (Phase 2 Axis Mapping)
+            if self.axis_mapper and 'axis_vector' not in simulation['context']:
+                logging.info(f"[{datetime.now()}] Resolving 17-axis vector for: {simulation['query'][:50]}...")
+                axis_vector = self.axis_mapper.get_17axis_vector(simulation['query'])
+                simulation['context']['axis_vector'] = axis_vector
+                logging.info(f"[{datetime.now()}] Axis Mapping complete: {axis_vector}")
+
             # Run each enabled persona
             for persona_id, persona_config in simulation['params']['personas'].items():
                 if persona_config['enabled']:
@@ -621,6 +644,34 @@ class SimulationEngine:
                     # Update confidence
                     pass_record['confidence'][persona_id] = persona_result.get('confidence', 0.0)
             
+            # Step 2: Calculate Truth Scores (Phase 2 TruthEngine)
+            if self.truth_engine:
+                logging.info(f"[{datetime.now()}] Calculating Truth Scores for axes 14-17...")
+                # Collect all execution records from this pass
+                ka_execution_records = []
+                for persona_res in pass_record['persona_results'].values():
+                    for comp_res in persona_res.get('components', {}).values():
+                        if 'ka_execution_id' in comp_res:
+                            # We get the full record from KAEngine history
+                            ka_id = f"KA_PERSONA_{comp_res['persona_id'].upper()}_{comp_res['component_id'].upper()}"
+                            # For simplicity, we create a pseudo-record for TruthEngine if we don't have the full object
+                            ka_execution_records.append({
+                                "ka_id": ka_id,
+                                "results": {"confidence": comp_res.get('confidence', 0.5)}
+                            })
+                
+                truth_vector = self.truth_engine.calculate_truth_vector(ka_execution_records)
+                truth_coords = self.truth_engine.get_truth_coordinates(truth_vector)
+                
+                # Update axis vector in context
+                simulation['context']['axis_vector'].update(truth_coords)
+                pass_record['truth_vector'] = truth_vector
+                
+                # Global Validation
+                is_valid, reason = self.truth_engine.get_validation_status(truth_vector)
+                pass_record['validation'] = {"is_valid": is_valid, "reason": reason}
+                logging.info(f"[{datetime.now()}] TruthEngine results: {truth_coords} - Status: {is_valid}")
+
             # Calculate overall confidence
             overall_confidence = self._calculate_overall_confidence(pass_record['confidence'])
             pass_record['confidence']['overall'] = overall_confidence
@@ -877,15 +928,25 @@ class SimulationEngine:
                 'component_id': component_id,
                 'query': query,
                 'context': context,
+                'axis_vector': context.get('axis_vector', {}),
                 'simulation_id': simulation_id,
                 'pass_number': pass_number
             }
             
-            # Determine which KA to execute based on persona and component
-            ka_id = f"KA_PERSONA_{persona_id.upper()}_{component_id.upper()}"
+            # Determine which KA to execute (Prefer KA-XXX format, fallback to legacy)
+            ka_id = ka_params.get('ka_id', f"KA_PERSONA_{persona_id.upper()}_{component_id.upper()}")
             
             # Execute KA if available
-            if self.ka_engine and ka_id in self.ka_engine.list_algorithms():
+            if self.ka_engine and (ka_id in self.ka_engine.list_algorithms() or 
+                                  ka_id.replace("KA_PERSONA_", "KA-") in self.ka_engine.list_algorithms()):
+                
+                # Normalize ID if it was legacy
+                if ka_id not in self.ka_engine.list_algorithms():
+                    # Map legacy to modern (e.g., KA_PERSONA_KNOWLEDGE_PERSONA -> KA-012)
+                    if "PERSONA" in ka_id:
+                        ka_id = "KA-012"
+                    # Add more mappings as needed, or use a lookup table
+                    
                 # Execute algorithm
                 execution = self.ka_engine.execute_algorithm(
                     ka_id=ka_id,
