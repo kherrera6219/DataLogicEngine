@@ -9,26 +9,21 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from backend.knowledge_algorithm.registry import KARegistry
-# Ensure definitions are loaded
-import backend.knowledge_algorithm.definitions.core_logic
+from backend.knowledge_algorithm.base import KAResult
+from backend.knowledge_algorithm.context import create_default_context, EngineContext
+import backend.knowledge_algorithm
 
 logger = logging.getLogger(__name__)
-
-class RefinementStep:
-    """Represents a single step in the refinement workflow."""
-    def __init__(self, step_id: str, name: str, description: str, order: int):
-        self.step_id = step_id
-        self.name = name
-        self.description = description
-        self.order = order
 
 class RefinementWorkflow:
     """
     Implements the 12-Step Refinement Workflow as defined in the UKG White Paper.
+    Uses Class-based Knowledge Algorithms (KAs).
     """
     
     def __init__(self, config=None):
         self.config = config or {}
+        self.context = create_default_context()
         self.workflow_steps = self._define_default_workflow()
         logger.info("RefinementWorkflow initialized with 12 steps")
 
@@ -52,16 +47,9 @@ class RefinementWorkflow:
     def execute_workflow(self, query_state: Any) -> Dict[str, Any]:
         """
         Execute the full refinement workflow on the given query state.
-        
-        Args:
-            query_state: The current state of the query (object or dict)
-            
-        Returns:
-            Dict containing the final refined result.
         """
         # Normalize query_state to dict if needed
         if not isinstance(query_state, dict):
-            # Assuming it's an object with to_dict or similar attributes
             state = getattr(query_state, "to_dict", lambda: query_state.__dict__)()
         else:
             state = query_state.copy()
@@ -81,7 +69,9 @@ class RefinementWorkflow:
             
             # Apply side effects to state (e.g. confidence update)
             if step_result.get("success"):
-                state.update(step_result.get("state_updates", {}))
+                # Merge updates from KAResult if present
+                updates = step_result.get("state_updates", {})
+                state.update(updates)
                 results["final_confidence"] = state.get("confidence", results["final_confidence"])
 
         results["status"] = "completed"
@@ -105,9 +95,24 @@ class RefinementWorkflow:
             handler_name = f"_perform_{step_id}"
             if hasattr(self, handler_name):
                 handler = getattr(self, handler_name)
-                updates = handler(state)
-                step_result["state_updates"] = updates
-                step_result["notes"] = f"Executed {step_def['name']}"
+                # Handler now returns KAResult or a dict from legacy methods (if any)
+                # But we updated all KAs, so they return KAResult.
+                # The handlers below need to call KARegistry.execute and parse output.
+                ka_result = handler(state)
+                
+                if isinstance(ka_result, KAResult):
+                    # Unpack KAResult
+                    step_result["state_updates"] = ka_result.output if isinstance(ka_result.output, dict) else {"output": ka_result.output}
+                    step_result["artifacts"] = ka_result.artifacts
+                    step_result["scores"] = ka_result.scores
+                    step_result["notes"] = ka_result.log
+                    step_result["success"] = ka_result.success
+                elif isinstance(ka_result, dict):
+                    # Fallback for hardcoded steps 7-11
+                    step_result["state_updates"] = ka_result
+                    step_result["notes"] = f"Executed {step_def['name']}"
+                else:
+                    step_result["notes"] = "No result returned"
             else:
                 step_result["notes"] = "Placeholder execution"
                 
@@ -120,31 +125,28 @@ class RefinementWorkflow:
 
     # Step Handlers
     def _perform_step1_aot(self, state):
-        """Algorithm of Thought: Structured pathfinding."""
-        return KARegistry.execute("KA-001", {"query": state.get("query", ""), "context": state})
+        """Algorithm of Thought."""
+        return KARegistry.execute("KA-001", state, self.context)
 
     def _perform_step2_tot(self, state):
-        """Tree of Thought: Branching exploration."""
-        # Previous step should have produced a task graph, but if not we pass empty
-        tasks = state.get("tasks", [])
-        return KARegistry.execute("KA-002", {"tasks": tasks})
+        """Tree of Thought."""
+        return KARegistry.execute("KA-002", state, self.context)
 
     def _perform_step3_data_validation(self, state):
         """Data Validation."""
-        return KARegistry.execute("KA-003", {"raw_input": state.get("query", "")})
+        return KARegistry.execute("KA-003", state, self.context)
 
     def _perform_step4_deep_thinking(self, state):
         """Deep Thinking."""
-        return KARegistry.execute("KA-004", {"context": state, "graph": {}})
+        return KARegistry.execute("KA-004", state, self.context)
 
     def _perform_step5_evidence_reasoning(self, state):
         """Evidence-Based Reasoning."""
-        # Using Recursive Reasoning Control (KA-005) as a proxy for complex reasoning flow
-        return KARegistry.execute("KA-005", {"recursion_stack": state.get("recursion_stack", [])})
+        return KARegistry.execute("KA-005", state, self.context)
 
     def _perform_step6_self_reflection(self, state):
         """Self-Reflection."""
-        return KARegistry.execute("KA-006", {"draft_response": state.get("response", "")})
+        return KARegistry.execute("KA-006", state, self.context)
 
     def _perform_step7_cross_reference(self, state):
         """Cross-Reference."""
@@ -156,7 +158,6 @@ class RefinementWorkflow:
 
     def _perform_step9_ethical_audit(self, state):
         """Ethical Audit."""
-        # Simple simulation
         return {"ethical_flags": [], "fairness_score": 1.0}
 
     def _perform_step10_regulatory(self, state):
@@ -169,17 +170,17 @@ class RefinementWorkflow:
 
     def _perform_step12_final_synthesis(self, state):
         """Final Synthesis."""
-        # KA-007 Synthesis
-        ka_result = KARegistry.execute("KA-007", {"evidence": state.get("evidence", []), "critique": state.get("critique", "")})
+        ka_result = KARegistry.execute("KA-007", state, self.context)
         
-        # Boost confidence if KA succeeded
+        # Boost confidence logic adapted for KAResult
         current_conf = state.get("confidence", 0.5)
-        new_conf = min(1.0, current_conf + 0.1) if ka_result.get("success") else current_conf
+        new_conf = min(1.0, current_conf + 0.1) if ka_result.success else current_conf
         
+        # Return a dict to merge explicitly in execute_workflow
         return {
-            "confidence": new_conf,
-            "response_authorized": True,
-            "final_synthesis": ka_result.get("final_output")
+             "confidence": new_conf,
+             "response_authorized": True,
+             "final_synthesis": ka_result.output
         }
 
 # Factory
