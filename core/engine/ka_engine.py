@@ -250,38 +250,72 @@ class KAEngine:
             
             # Load KA class if not already loaded
             if not ka_info.get('instance'):
-                module = importlib.import_module(ka_info['module_path'])
-                ka_class = getattr(module, ka_info['class_name'])
+                # Try KARegistry first (modern class-based system)
+                from backend.knowledge_algorithm.registry import KARegistry
+                ka_class = KARegistry.get_ka(ka_id)
                 
-                # Initialize with dependencies
-                ka_instance = ka_class(
-                    graph_manager=self.graph_manager,
-                    memory_manager=self.memory_manager
-                )
-                
-                ka_info['instance'] = ka_instance
+                if ka_class:
+                    ka_info['instance'] = ka_class()
+                else:
+                    # Fallback to manual import (legacy/guessed path)
+                    module = importlib.import_module(ka_info['module_path'])
+                    ka_class = getattr(module, ka_info['class_name'])
+                    
+                    # Initialize with dependencies
+                    ka_instance = ka_class(
+                        graph_manager=self.graph_manager,
+                        memory_manager=self.memory_manager
+                    )
+                    ka_info['instance'] = ka_instance
             
             # Merge parameters with defaults
             merged_params = ka_info['parameters'].copy()
             if params:
                 merged_params.update(params)
             
-            # Execute the algorithm
-            results = ka_info['instance'].execute(
-                execution_id=execution_id,
-                params=merged_params,
-                session_id=session_id
-            )
+            # Execute the algorithm (Standardized signature: state, context)
+            from backend.knowledge_algorithm.context import create_default_context
+            engine_context = create_default_context()
+            
+            # If the instance has a modern execute(state, context) signature
+            try:
+                # Use positional arguments to be name-independent
+                results = ka_info['instance'].execute(merged_params, engine_context)
+            except TypeError:
+                # Fallback for legacy/other signatures
+                try:
+                    results = ka_info['instance'].execute(
+                        execution_id=execution_id,
+                        params=merged_params,
+                        session_id=session_id
+                    )
+                except TypeError as e:
+                    # Final fallback: try just params
+                    try:
+                        results = ka_info['instance'].execute(merged_params)
+                    except Exception:
+                         raise e # Raise original if even this fails
             
             # Record successful execution
             end_time = datetime.now()
             duration = (end_time - start_time).total_seconds() * 1000
             
+            # Normalize results (KAResult -> Dict)
+            final_results = results
+            if hasattr(results, 'output'): # modern class-based KA result
+                final_results = {
+                    'response': results.output,
+                    'artifacts': results.artifacts,
+                    'flags': results.flags,
+                    'log': results.log,
+                    'success': results.success
+                }
+            
             execution_record.update({
                 'status': 'completed',
                 'end_time': end_time.isoformat(),
                 'duration_ms': duration,
-                'results': results
+                'results': final_results
             })
             
             self.stats['total_executions'] += 1

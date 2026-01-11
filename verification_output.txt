@@ -1,0 +1,151 @@
+2026-01-10 23:30:44,628 - UKG-Audit - INFO - Audit log rotation started
+2026-01-10 23:30:44,628 - UKG-Audit - INFO - Audit Logger initialized
+2026-01-10 23:30:44,629 - UKG-Audit - INFO - Audit log rotation started
+2026-01-10 23:30:44,629 - UKG-Audit - INFO - Audit Logger initialized
+2026-01-10 23:30:45,102 - backend.security.security_headers - INFO - Security headers middleware initialized
+2026-01-10 23:30:45,102 - backend.security.security_headers - INFO - Security headers configured
+2026-01-10 23:30:45,102 - backend.middleware.request_limits - INFO - Request limits middleware initialized (max size: 16.0MB)
+2026-01-10 23:30:45,102 - backend.middleware.request_limits - INFO - Request limits configured
+2026-01-10 23:30:45,103 - backend.middleware.correlation_id - INFO - Correlation ID middleware initialized
+2026-01-10 23:30:45,103 - backend.middleware.correlation_id - INFO - Correlation ID middleware configured
+2026-01-10 23:30:45,103 - backend.middleware.correlation_id - INFO - [startup] - Correlation ID logging configured
+2026-01-10 23:30:45,103 - backend.middleware.timeout - WARNING - [startup] - Signal-based timeout not available on this platform. Configure gunicorn worker timeout instead: --timeout 30
+2026-01-10 23:30:45,107 - app - INFO - [startup] - Database tables created
+2026-01-10 23:30:45,128 - app - INFO - [startup] - Truth Engine API blueprint registered (v1 + legacy)
+2026-01-10 23:30:45,131 - app - INFO - [startup] - Persona API blueprint registered (v1 + legacy)
+2026-01-10 23:30:45,137 - app - INFO - [startup] - Pillar API blueprint registered (v1 + legacy)
+2026-01-10 23:30:45,137 - app - WARNING - [startup] - Could not register Compliance API blueprint: No module named 'backend.compliance_api'
+2026-01-10 23:30:45,142 - app - WARNING - [startup] - Could not register Replit Auth blueprint: No module named 'replit_auth'
+2026-01-10 23:30:45,144 - app - INFO - [startup] - Swagger UI registered at /api/docs
+2026-01-10 23:30:45,176 - app - INFO - [startup] - Trace API blueprint registered at /api/v1/trace
+2026-01-10 23:30:45,177 - app - WARNING - [startup] - Could not register LLM Gateway API: No module named 'backend.extensions'
+2026-01-10 23:30:45,214 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-005
+2026-01-10 23:30:45,214 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-006
+2026-01-10 23:30:45,214 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-007
+2026-01-10 23:30:45,214 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-008
+2026-01-10 23:30:45,214 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-001
+2026-01-10 23:30:45,214 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-002
+2026-01-10 23:30:45,214 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-011
+2026-01-10 23:30:45,215 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-013
+2026-01-10 23:30:45,215 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-014
+2026-01-10 23:30:45,215 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-017
+2026-01-10 23:30:45,215 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-019
+2026-01-10 23:30:45,215 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-020
+2026-01-10 23:30:45,215 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-021
+2026-01-10 23:30:45,215 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-025
+2026-01-10 23:30:45,215 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-028
+2026-01-10 23:30:45,215 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-029
+2026-01-10 23:30:45,215 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-030
+2026-01-10 23:30:45,216 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-003
+2026-01-10 23:30:45,216 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-004
+2026-01-10 23:30:45,216 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-009
+2026-01-10 23:30:45,217 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-010
+2026-01-10 23:30:45,217 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-012
+2026-01-10 23:30:45,218 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-015
+2026-01-10 23:30:45,218 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-016
+2026-01-10 23:30:45,219 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-018
+2026-01-10 23:30:45,219 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-022
+2026-01-10 23:30:45,220 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-023
+2026-01-10 23:30:45,220 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-024
+2026-01-10 23:30:45,220 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-026
+2026-01-10 23:30:45,220 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-027
+2026-01-10 23:30:45,221 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-031
+2026-01-10 23:30:45,222 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-032
+2026-01-10 23:30:45,223 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-034
+2026-01-10 23:30:45,224 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-035
+2026-01-10 23:30:45,224 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-036
+2026-01-10 23:30:45,225 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-037
+2026-01-10 23:30:45,225 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-038
+2026-01-10 23:30:45,226 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-039
+2026-01-10 23:30:45,226 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-040
+2026-01-10 23:30:45,226 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-041
+2026-01-10 23:30:45,226 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-042
+2026-01-10 23:30:45,227 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-043
+2026-01-10 23:30:45,227 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-044
+2026-01-10 23:30:45,227 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-045
+2026-01-10 23:30:45,228 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-046
+2026-01-10 23:30:45,228 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-047
+2026-01-10 23:30:45,228 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-048
+2026-01-10 23:30:45,229 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-049
+2026-01-10 23:30:45,229 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-050
+2026-01-10 23:30:45,229 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-051
+2026-01-10 23:30:45,229 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-052
+2026-01-10 23:30:45,230 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-053
+2026-01-10 23:30:45,230 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-054
+2026-01-10 23:30:45,230 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-055
+2026-01-10 23:30:45,231 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-056
+2026-01-10 23:30:45,231 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-057
+2026-01-10 23:30:45,231 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-058
+2026-01-10 23:30:45,232 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-059
+2026-01-10 23:30:45,232 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-060
+2026-01-10 23:30:45,232 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-061
+2026-01-10 23:30:45,233 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-062
+2026-01-10 23:30:45,233 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-063
+2026-01-10 23:30:45,233 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-064
+2026-01-10 23:30:45,233 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-065
+2026-01-10 23:30:45,234 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-066
+2026-01-10 23:30:45,234 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-067
+2026-01-10 23:30:45,234 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-068
+2026-01-10 23:30:45,235 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-069
+2026-01-10 23:30:45,235 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-070
+2026-01-10 23:30:45,235 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-071
+2026-01-10 23:30:45,235 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-072
+2026-01-10 23:30:45,236 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-073
+2026-01-10 23:30:45,236 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-074
+2026-01-10 23:30:45,236 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-075
+2026-01-10 23:30:45,236 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-076
+2026-01-10 23:30:45,237 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-077
+2026-01-10 23:30:45,237 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-078
+2026-01-10 23:30:45,237 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-079
+2026-01-10 23:30:45,238 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-080
+2026-01-10 23:30:45,238 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-081
+2026-01-10 23:30:45,238 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-082
+2026-01-10 23:30:45,238 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-083
+2026-01-10 23:30:45,239 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-084
+2026-01-10 23:30:45,239 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-085
+2026-01-10 23:30:45,239 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-086
+2026-01-10 23:30:45,240 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-087
+2026-01-10 23:30:45,240 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-088
+2026-01-10 23:30:45,240 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-089
+2026-01-10 23:30:45,240 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-090
+2026-01-10 23:30:45,241 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-091
+2026-01-10 23:30:45,241 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-092
+2026-01-10 23:30:45,241 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-093
+2026-01-10 23:30:45,241 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-094
+2026-01-10 23:30:45,242 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-095
+2026-01-10 23:30:45,242 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-096
+2026-01-10 23:30:45,242 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-097
+2026-01-10 23:30:45,242 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-098
+2026-01-10 23:30:45,243 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-099
+2026-01-10 23:30:45,243 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-100
+2026-01-10 23:30:45,243 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-101
+2026-01-10 23:30:45,243 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-102
+2026-01-10 23:30:45,244 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-103
+2026-01-10 23:30:45,244 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-104
+2026-01-10 23:30:45,244 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-105
+2026-01-10 23:30:45,244 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-106
+2026-01-10 23:30:45,245 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-107
+2026-01-10 23:30:45,245 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-108
+2026-01-10 23:30:45,245 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-109
+2026-01-10 23:30:45,245 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-110
+2026-01-10 23:30:45,246 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-111
+2026-01-10 23:30:45,246 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-112
+2026-01-10 23:30:45,246 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-113
+2026-01-10 23:30:45,246 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-114
+2026-01-10 23:30:45,250 - root - INFO - [startup] - === UKG Phase 6 Full 17-Axis Spectrum Verification ===
+2026-01-10 23:30:45,315 - root - INFO - [startup] - Loaded 84 Pillars from Axis 1 Registry.
+2026-01-10 23:30:45,520 - root - INFO - [startup] - Loaded 236 Sectors from Axis 2 Registry.
+2026-01-10 23:30:45,520 - root - INFO - [startup] - Testing Complex Query: 'Live EU regulatory sentiment for medical AI budget allocation in 2026'
+2026-01-10 23:30:45,521 - root - INFO - [startup] - Full 17-Axis Vector: {1: '1.41.0.0', 2: '2.16.2.1', 3: '3.0.0.0', 4: '4.2.0.0', 5: '5.1.0.0', 6: '6.0.0.0', 7: '7.0.0.0', 8: '8.6.0.0', 9: '9.2.0.0', 10: '10.5.0.0', 11: '11.5.0.0', 12: '12.0.0.0', 13: '13.0.0.0', 14: '0.0.0.0', 15: '0.0.0.0', 16: '0.0.0.0', 17: '0.0.0.0'}
+2026-01-10 23:30:45,521 - root - INFO - [startup] - Checking Axis 1: 1.41.0.0
+2026-01-10 23:30:45,521 - root - INFO - [startup] - Checking Axis 8: 8.6.0.0
+2026-01-10 23:30:45,521 - root - INFO - [startup] - Checking Axis 9: 9.2.0.0
+2026-01-10 23:30:45,521 - root - INFO - [startup] - Checking Axis 10: 10.5.0.0
+2026-01-10 23:30:45,521 - root - INFO - [startup] - Checking Axis 11: 11.5.0.0
+2026-01-10 23:30:45,521 - root - INFO - [startup] - \u2705 Axis 1 (Pillar): AI/Medicine detected.
+2026-01-10 23:30:45,521 - root - INFO - [startup] - \u2705 Axis 8 (Temporal): Year 2026 detected.
+2026-01-10 23:30:45,521 - root - INFO - [startup] - \u2705 Axis 9 (Spatial): EU context detected.
+2026-01-10 23:30:45,521 - root - INFO - [startup] - \u2705 Axis 10 (Quantitative): Budget metric detected.
+2026-01-10 23:30:45,521 - root - INFO - [startup] - \u2705 Axis 11 (Qualitative): Sentiment intent detected.
+2026-01-10 23:30:45,521 - root - INFO - [startup] - 
+=== Phase 6 Verification Complete ===
