@@ -43,10 +43,10 @@ def verify_workflow():
         for step in steps:
             s_name = step.get('step')
             s_status = step.get('status')
-            s_ka = step.get('ka_id', 'None')
+            s_ka = step.get('result', {}).get('ka_id', 'None')
             print(f"  - {s_name} [{s_ka}]: {s_status}")
             
-        if any(step.get('ka_id') for step in steps):
+        if any(step.get('result', {}).get('ka_id') for step in steps):
             print("SUCCESS: KA integration verified in workflow!")
         else:
             print("FAILURE: No KAs executed in workflow.")

@@ -482,6 +482,22 @@ class KAMasterController:
         logger.info(f"Cleared cache for {ka_id} ({count} entries)")
         return count
 
+    def _record_metrics(self, ka_id: str, duration: float, success: bool):
+        """Record execution metrics for an algorithm."""
+        self.metrics['total_executions'] += 1
+        self.metrics['total_execution_time'] += duration
+        self.metrics['algorithms_by_usage'][ka_id] += 1
+        
+        if success:
+            self.metrics['successful_executions'] += 1
+        else:
+            self.metrics['failed_executions'] += 1
+            
+        if self.metrics['total_executions'] > 0:
+            self.metrics['average_execution_time'] = (
+                self.metrics['total_execution_time'] / self.metrics['total_executions']
+            )
+
     def get_metrics(self) -> Dict[str, Any]:
         """
         Get controller metrics.
