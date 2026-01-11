@@ -1,0 +1,79 @@
+C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pytest_asyncio\plugin.py:208: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts =============================
+platform win32 -- Python 3.13.9, pytest-8.3.4, pluggy-1.6.0
+rootdir: C:\software\DataLogicEngine
+configfile: pyproject.toml
+plugins: anyio-4.12.1, asyncio-0.24.0, cov-6.0.0
+asyncio: mode=Mode.STRICT, default_loop_scope=None
+collected 3 items
+
+tests\test_critical_fixes.py FF.                                         [100%]
+
+================================== FAILURES ===================================
+______________ TestCriticalFixes.test_mfa_flow_admin_enforcement ______________
+
+self = <test_critical_fixes.TestCriticalFixes testMethod=test_mfa_flow_admin_enforcement>
+
+    def test_mfa_flow_admin_enforcement(self):
+        """Test that admins are redirected to MFA setup"""
+        # Login as admin
+        try:
+            response = self.app.post('/login', data={
+                'username': 'admin',
+                'password': 'Admin!Access789'
+            }, follow_redirects=True)
+        except Exception as e:
+            print(f"LOGIN FAILED WITH ERROR: {e}")
+            import traceback
+            traceback.print_exc()
+            raise e
+    
+        # Should be redirected to /mfa-setup
+>       self.assertIn(b'Setup Two-Factor Authentication', response.data)
+E       AssertionError: b'Setup Two-Factor Authentication' not found in b'{"error":{"code":"NOT_FOUND","message":"The requested resource was not found"},"success":false}\n'
+
+tests\test_critical_fixes.py:69: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  app:app.py:433 404 Not Found: http://localhost/login
+_________________ TestCriticalFixes.test_mfa_setup_and_verify _________________
+
+self = <test_critical_fixes.TestCriticalFixes testMethod=test_mfa_setup_and_verify>
+
+    def test_mfa_setup_and_verify(self):
+        """Test full MFA setup and subsequent login verification"""
+        # 1. Login as standard user (no MFA yet)
+        self.app.post('/login', data={
+            'username': 'testuser',
+            'password': 'Secure!Token789'
+        }, follow_redirects=True)
+    
+        # 2. Go to MFA setup manually (simulate user enabling it)
+        response = self.app.get('/mfa-setup')
+        # Extract secret from context or HTML (mocking the secret for test)
+        # We'll just set it directly on the user for the test
+        user = User.query.filter_by(username='testuser').first()
+        import pyotp
+        secret = pyotp.random_base32()
+        user.mfa_secret = secret
+        db.session.commit()
+    
+        # 3. Submit correct token to enable
+        totp = pyotp.TOTP(secret)
+        token = totp.now()
+    
+        response = self.app.post('/mfa-setup', data={'token': token}, follow_redirects=True)
+>       self.assertIn(b'Two-factor authentication enabled successfully', response.data)
+E       AssertionError: b'Two-factor authentication enabled successfully' not found in b'{"error":{"code":"NOT_FOUND","message":"The requested resource was not found"},"success":false}\n'
+
+tests\test_critical_fixes.py:100: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  app:app.py:433 404 Not Found: http://localhost/login
+WARNING  app:app.py:433 404 Not Found: http://localhost/mfa-setup
+WARNING  app:app.py:433 404 Not Found: http://localhost/mfa-setup
+=========================== short test summary info ===========================
+FAILED tests/test_critical_fixes.py::TestCriticalFixes::test_mfa_flow_admin_enforcement
+FAILED tests/test_critical_fixes.py::TestCriticalFixes::test_mfa_setup_and_verify
+========================= 2 failed, 1 passed in 6.71s =========================

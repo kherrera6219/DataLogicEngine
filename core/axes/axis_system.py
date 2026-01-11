@@ -165,11 +165,11 @@ class AxisSystem:
 
 
             # Axis 12: Location
-            self.location_axis = LocationAxis(self.db_manager, self.graph_manager)
+            self.location_axis = LocationAxis()
             self.register_axis_manager(12, self.location_axis)
 
             # Axis 13: Temporal
-            self.time_axis = TimeAxis(self.db_manager)
+            self.time_axis = TimeAxis()
             self.register_axis_manager(13, self.time_axis)
 
             # Group IV: Meta-Cognitive (Axes 14-17)

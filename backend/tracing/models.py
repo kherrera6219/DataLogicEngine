@@ -8,7 +8,8 @@ stages, evidence, claims, personas, KAs, and policy decisions.
 import uuid
 from datetime import datetime, UTC
 from typing import Optional, List
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import JSON as JSONB
+from sqlalchemy.types import Uuid as UUID, Uuid
 from extensions import db
 
 
