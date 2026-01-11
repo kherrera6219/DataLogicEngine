@@ -17,12 +17,14 @@ from backend.llm_gateway.gateway import LLMGateway, GatewayRequest
 try:
     from extensions import db, cache
 except ImportError:
-    # Fallback if running from a different context
-    from backend.extensions import db
+    # Fallback for alternative execution contexts
     try:
-        from backend.extensions import cache
+        from backend.extensions import db, cache
     except ImportError:
-        cache = None
+        # Final fallback to root
+        import sys
+        sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        from extensions import db, cache
 
 logger = logging.getLogger(__name__)
 

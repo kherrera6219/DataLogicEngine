@@ -70,7 +70,8 @@ def validate_production_security():
             logger.warning("SECURITY WARNING: Using default admin password. Change before deployment!")
 
 # Run security validation (non-blocking)
-validate_production_security()
+if __name__ != "__main__": # Only run when starting as server
+    validate_production_security()
 
 # Server configuration - bind to 5000 for Replit
 DEFAULT_PORT = int(os.environ.get("PORT", 5000))
@@ -268,14 +269,16 @@ try:
 except ImportError as e:
     logger.warning(f"Could not register Pillar API blueprint: {e}")
 
-# Register Compliance API blueprint
+# Register Compliance / Regulatory API blueprint (Axis 6/7)
 try:
-    from backend.compliance_api import compliance_api
-    app.register_blueprint(compliance_api, url_prefix='/api/v1/compliance')
-    app.register_blueprint(compliance_api, name='compliance_legacy', url_prefix='/api/compliance')
-    logger.info("Compliance API blueprint registered (v1 + legacy)")
+    from backend.regulatory_api import regulatory_api
+    app.register_blueprint(regulatory_api, url_prefix='/api/v1/compliance')
+    app.register_blueprint(regulatory_api, name='compliance_legacy', url_prefix='/api/compliance')
+    # Also register under regulatory for clarity
+    app.register_blueprint(regulatory_api, name='regulatory_api_v1', url_prefix='/api/v1/regulatory')
+    logger.info("Regulatory/Compliance API blueprint registered (v1 + legacy)")
 except ImportError as e:
-    logger.warning(f"Could not register Compliance API blueprint: {e}")
+    logger.warning(f"Could not register Regulatory/Compliance API blueprint: {e}")
 
 # Register UKG API (defined in backend/ukg_api.py, prefix set in BP)
 from backend.ukg_api import ukg_api

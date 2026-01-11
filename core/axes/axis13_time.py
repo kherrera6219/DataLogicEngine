@@ -67,6 +67,15 @@ class TimeAxis:
         include_nodes = kwargs.get('include_nodes', False)
         
         # Build query for time contexts
+        from flask import current_app
+        if not current_app:
+             logger.error("Working outside of application context in TimeAxis.navigate")
+             return {
+                "axis": self.axis_number,
+                "name": self.axis_name,
+                "error": "Working outside of application context"
+             }
+
         query = db.session.query(TimeContext)
         
         # Apply filters based on provided parameters
