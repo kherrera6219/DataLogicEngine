@@ -138,7 +138,7 @@ class RefinementWorkflow:
 
     def _perform_step4_deep_thinking(self, state):
         """Deep Thinking."""
-        return KARegistry.execute("KA-008", state, self.context)
+        return KARegistry.execute("KA-017", state, self.context)
 
     def _perform_step5_evidence_reasoning(self, state):
         """Evidence-Based Reasoning."""
@@ -150,23 +150,23 @@ class RefinementWorkflow:
 
     def _perform_step7_cross_reference(self, state):
         """Cross-Reference."""
-        return {"cross_domain_links": 2}
+        return KARegistry.execute("KA-004", state, self.context)
 
     def _perform_step8_logic_check(self, state):
         """Logic & Consistency."""
-        return {"logic_consistent": True}
+        return KARegistry.execute("KA-025", state, self.context)
 
     def _perform_step9_ethical_audit(self, state):
         """Ethical Audit."""
-        return {"ethical_flags": [], "fairness_score": 1.0}
+        return KARegistry.execute("KA-030", state, self.context)
 
     def _perform_step10_regulatory(self, state):
         """Regulatory Check."""
-        return {"compliance_status": "compliant"}
+        return KARegistry.execute("KA-007", state, self.context)
 
     def _perform_step11_security(self, state):
         """Security Validation."""
-        return {"security_risks": "none"}
+        return KARegistry.execute("KA-111", state, self.context)
 
     def _perform_step12_final_synthesis(self, state):
         """Final Synthesis."""

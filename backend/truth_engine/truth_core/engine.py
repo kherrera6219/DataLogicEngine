@@ -391,25 +391,78 @@ class TruthCoreEngine:
         return result
 
     def _execute_refinement_step(self, step: str, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute a single refinement step."""
+        """Execute a single refinement step using specific Knowledge Algorithms."""
+        mapping = {
+            'decomposition': 'KA-001',
+            'multi_persona_reasoning': 'KA-020',
+            'hybrid_retrieval': 'KA-014',
+            'graph_consistency_check': 'KA-025',
+            'deep_synthesis': 'KA-017',
+            'reflection_loop': 'KA-013',
+            'bias_scan': 'KA-030',
+            'safety_scan': 'KA-036',
+            'simulations': 'KA-032',
+            'tier_verification': 'KA-027',
+            'final_synthesis': 'KA-041',
+            'memory_patch': 'KA-016'
+        }
+        
+        ka_id = mapping.get(step)
+        if ka_id and self.ka_controller:
+            try:
+                # Use execute_algorithm if it is the unified controller
+                if hasattr(self.ka_controller, 'execute_algorithm'):
+                    result = self.ka_controller.execute_algorithm(ka_id, {'query': query, **context})
+                else:
+                    result = self.ka_controller.execute(ka_id, {'query': query, **context})
+                
+                return {
+                    'step': step,
+                    'ka_id': ka_id,
+                    'status': 'completed',
+                    'output': result.get('output', result),
+                    'confidence': result.get('confidence', 0.9)
+                }
+            except Exception as e:
+                logger.error(f"KA {ka_id} failed for step {step}: {e}")
+                
         return {
             'step': step,
             'input': query[:50],
-            'output': f"Result of {step}",
-            'confidence': 0.9
+            'output': f"Mock result of {step}",
+            'confidence': 0.8
         }
 
     def _invoke_ka_algorithms(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Invoke relevant Knowledge Algorithms."""
+        """Invoke relevant Knowledge Algorithms dynamically based on complexity."""
         if not self.ka_controller:
             return {'status': 'skipped', 'reason': 'No KA controller configured'}
         
-        relevant_kas = ['KA-01', 'KA-20', 'KA-28']
-        results = {}
+        # Initial complexity assessment
+        router_result = {}
+        try:
+            if hasattr(self.ka_controller, 'execute_algorithm'):
+                router_result = self.ka_controller.execute_algorithm('KA-113', {'query': query})
+            else:
+                router_result = self.ka_controller.execute('KA-113', {'query': query})
+        except Exception:
+            pass
+            
+        tier = router_result.get('output', {}).get('tier', 'medium')
         
+        # Select KAs based on tier
+        if tier == 'high':
+            relevant_kas = ['KA-001', 'KA-002', 'KA-013', 'KA-020', 'KA-028', 'KA-041', 'KA-114']
+        else:
+            relevant_kas = ['KA-001', 'KA-020', 'KA-028']
+            
+        results = {}
         for ka_id in relevant_kas:
             try:
-                result = self.ka_controller.execute(ka_id, {'query': query, **context})
+                if hasattr(self.ka_controller, 'execute_algorithm'):
+                    result = self.ka_controller.execute_algorithm(ka_id, {'query': query, **context})
+                else:
+                    result = self.ka_controller.execute(ka_id, {'query': query, **context})
                 results[ka_id] = {'status': 'success', 'result': result}
             except Exception as e:
                 results[ka_id] = {'status': 'error', 'error': str(e)}

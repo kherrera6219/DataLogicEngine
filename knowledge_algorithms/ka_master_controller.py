@@ -46,6 +46,7 @@ class KAMasterController:
         self.algorithms = {}
         self.execution_history = []
         self.registry_path = registry_path or self._find_registry_path()
+        self.registry_format = "json" if self.registry_path.endswith(".json") else "yaml"
 
         # Caching configuration
         self.enable_caching = enable_caching
@@ -77,18 +78,21 @@ class KAMasterController:
     
     def _find_registry_path(self) -> str:
         """Find registry path based on common locations."""
+        # Try to find JSON registry first (Enterprise standard)
+        json_path = os.path.join(os.path.dirname(__file__), "..", "core", "data", "ka_registry.json")
+        if os.path.exists(json_path):
+            return json_path
+            
         possible_paths = [
             os.path.join(os.path.dirname(__file__), "ka_registry.yaml"),
-            os.path.join(os.path.dirname(__file__), "..", "config", "ka_registry.yaml"),
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), "ka_registry.yaml"),
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "config", "ka_registry.yaml")
+            os.path.join(os.path.dirname(__file__), "..", "config", "ka_registry.yaml")
         ]
         
         for path in possible_paths:
             if os.path.exists(path):
                 return path
         
-        # If no registry found, create a new one
+        # If no registry found, create a new one (legacy behavior)
         default_path = os.path.join(os.path.dirname(__file__), "ka_registry.yaml")
         self._create_default_registry(default_path)
         return default_path
@@ -125,7 +129,7 @@ class KAMasterController:
                     if len(parts) >= 3 and parts[1].isdigit():
                         # Extract KA number
                         ka_num = int(parts[1])
-                        ka_id = f"KA-{ka_num}"
+                        ka_id = f"KA-{ka_num:03d}"
                         ka_files[ka_id] = os.path.join(current_dir, filename)
         
         return ka_files
@@ -143,18 +147,70 @@ class KAMasterController:
             return
         
         try:
-            with open(self.registry_path, 'r') as f:
-                registry = yaml.safe_load(f)
-            
-            if not registry:
-                logger.warning("Empty registry file")
-                return
-            
-            for ka_id, function_path in registry.items():
-                self.register_algorithm(ka_id, function_path)
+            if self.registry_format == "json":
+                with open(self.registry_path, 'r') as f:
+                    registry_data = json.load(f)
+                
+                # Registry data is a list of objects in JSON format
+                for ka_data in registry_data:
+                    ka_id = ka_data.get("KA_ID", "")
+                    if ka_id:
+                        # Construct implementation path based on ID
+                        # Legacy modules are like knowledge_algorithms.ka_01_...
+                        # We try to find the actual module if possible, otherwise use a placeholder
+                        num_part = ka_id.split('-')[1]
+                        ka_num = int(num_part)
+                        
+                        # Find the module filename
+                        module_name = None
+                        current_dir = os.path.dirname(__file__)
+                        for filename in os.listdir(current_dir):
+                            if filename.startswith(f'ka_{ka_num:02d}_') or filename.startswith(f'ka_{ka_num:03d}_'):
+                                module_name = os.path.splitext(filename)[0]
+                                break
+                        
+                        if module_name:
+                            function_path = f"knowledge_algorithms.{module_name}.run"
+                        else:
+                            # Default fallback
+                            function_path = f"knowledge_algorithms.ka_{ka_num:02d}.run"
+                            
+                        self.register_algorithm(ka_id, function_path)
+                        
+                        # Store metadata
+                        self.algorithms[ka_id]["metadata"] = ka_data
+                        
+                        # Register dependencies
+                        deps = ka_data.get("Dependencies")
+                        if deps:
+                            dep_list = [d.strip() for d in str(deps).split(',') if d.strip()]
+                            for dep in dep_list:
+                                self.add_dependency(ka_id, dep)
+            else:
+                with open(self.registry_path, 'r') as f:
+                    registry = yaml.safe_load(f)
+                
+                if not registry:
+                    logger.warning("Empty registry file")
+                    return
+                
+                for ka_id, function_path in registry.items():
+                    norm_id = self._normalize_ka_id(ka_id)
+                    self.register_algorithm(norm_id, function_path)
             
         except Exception as e:
             logger.error(f"Error loading registry: {e}")
+            traceback.print_exc()
+
+    def _normalize_ka_id(self, ka_id: str) -> str:
+        """Normalize KA-1 to KA-001 format."""
+        if not ka_id:
+            return ka_id
+        if ka_id.startswith("KA-"):
+            parts = ka_id.split('-')
+            if len(parts) == 2 and parts[1].isdigit():
+                return f"KA-{int(parts[1]):03d}"
+        return ka_id
     
     def _save_registry(self) -> None:
         """Save the algorithm registry."""
@@ -465,15 +521,26 @@ class KAMasterController:
         Returns:
             True if loading was successful, False otherwise
         """
-        if ka_id not in self.algorithms:
-            logger.error(f"Algorithm {ka_id} not registered")
-            return False
-
         algorithm = self.algorithms[ka_id]
 
         if algorithm["loaded"] and algorithm["function"] is not None:
             return True
         
+        # Try KARegistry first (modern class-based system)
+        try:
+            from backend.knowledge_algorithm.registry import KARegistry
+            ka_class = KARegistry.get_ka(ka_id)
+            if ka_class:
+                algorithm["loaded"] = True
+                algorithm["function"] = ka_class()
+                algorithm["is_class"] = True
+                logger.info(f"Loaded algorithm {ka_id} from KARegistry")
+                return True
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.warning(f"Error checking KARegistry for {ka_id}: {e}")
+
         try:
             # Import module
             module = importlib.import_module(algorithm["module_path"])
@@ -484,15 +551,16 @@ class KAMasterController:
             # Update algorithm info
             algorithm["loaded"] = True
             algorithm["function"] = function
+            algorithm["is_class"] = False
             
-            logger.debug(f"Loaded algorithm {ka_id}")
+            logger.debug(f"Loaded algorithm {ka_id} from module {algorithm['module_path']}")
             return True
             
         except Exception as e:
             logger.error(f"Error loading algorithm {ka_id}: {e}")
             return False
     
-    def execute_algorithm(self, ka_id: str, data: Dict[str, Any], use_cache: bool = True) -> Dict[str, Any]:
+    def execute_algorithm(self, ka_id: str, data: Dict[str, Any], use_cache: bool = True, context: Any = None) -> Dict[str, Any]:
         """
         Execute a Knowledge Algorithm.
 
@@ -500,10 +568,13 @@ class KAMasterController:
             ka_id: Algorithm identifier
             data: Input data for the algorithm
             use_cache: Whether to use caching (default: True)
+            context: Optional execution context
 
         Returns:
             Algorithm result dictionary
         """
+        ka_id = self._normalize_ka_id(ka_id)
+        
         # Check if algorithm is registered
         if ka_id not in self.algorithms:
             error_msg = f"Algorithm {ka_id} not registered"
@@ -523,7 +594,8 @@ class KAMasterController:
                 return cached_result
 
         # Load algorithm if needed
-        if not self.algorithms[ka_id]["loaded"]:
+        info = self.algorithms[ka_id]
+        if not info["loaded"]:
             if not self.load_algorithm(ka_id):
                 error_msg = f"Failed to load algorithm {ka_id}"
                 logger.error(error_msg)
@@ -534,94 +606,121 @@ class KAMasterController:
                     "error": error_msg
                 }
 
-        # Execute algorithm
+        # Prepare trace if run_id is in context
+        run_id = None
+        if isinstance(context, dict):
+            run_id = context.get('run_id')
+        elif hasattr(context, 'run_id'):
+            run_id = getattr(context, 'run_id', None)
+            
         start_time = time.time()
-        execution_id = f"{ka_id}-{int(start_time * 1000)}"
-
+        success = True
+        error_msg = None
+        result_data = {}
+        
         try:
-            # Get algorithm function
-            function = self.algorithms[ka_id]["function"]
+            # Get algorithm function/instance
+            obj = self.algorithms[ka_id]["function"]
+            is_class = self.algorithms[ka_id].get("is_class", False)
 
-            # Execute function
-            result = function(data)
+            # Execute based on type and signature
+            if is_class or hasattr(obj, 'execute'):
+                # Modern class-based KA or object with execute method
+                try:
+                    # Try execute(state, context)
+                    result_raw = obj.execute(data, context)
+                except TypeError:
+                    try:
+                        # Try execute(params, context) / execute(params)
+                        import inspect
+                        sig = inspect.signature(obj.execute)
+                        if 'context' in sig.parameters:
+                            result_raw = obj.execute(data, context=context)
+                        else:
+                            result_raw = obj.execute(data)
+                    except Exception:
+                        # Fallback
+                        result_raw = obj.execute(data)
+            else:
+                # Plain function
+                try:
+                    import inspect
+                    sig = inspect.signature(obj)
+                    if 'context' in sig.parameters:
+                        result_raw = obj(data, context=context)
+                    else:
+                        result_raw = obj(data)
+                except Exception:
+                    # Fallback
+                    result_raw = obj(data)
 
+            # Normalize result to dictionary
+            if hasattr(result_raw, 'to_dict'):
+                result_data = result_raw.to_dict()
+            elif hasattr(result_raw, 'output') and hasattr(result_raw, 'log'):
+                # KAResult object
+                result_data = {
+                    "success": getattr(result_raw, 'success', True),
+                    "output": result_raw.output,
+                    "log": result_raw.log,
+                    "ka_id": ka_id
+                }
+            elif isinstance(result_raw, dict):
+                result_data = result_raw
+            else:
+                result_data = {"output": result_raw, "success": True, "ka_id": ka_id}
+            
             # Record execution
             execution_time = time.time() - start_time
-            success = result.get("success", True) if isinstance(result, dict) else True
+            success = result_data.get("success", True) if isinstance(result_data, dict) else True
 
-            execution_record = {
-                "execution_id": execution_id,
+            # Update metrics
+            self._record_metrics(ka_id, execution_time, success)
+
+            # Record in execution history
+            self.execution_history.append({
                 "ka_id": ka_id,
-                "timestamp": start_time,
+                "timestamp": datetime.now().isoformat(),
                 "duration": execution_time,
                 "success": success,
-                "input_data_keys": list(data.keys()),
-                "result_keys": list(result.keys() if isinstance(result, dict) else []),
-                "from_cache": False
-            }
+                "run_id": run_id
+            })
 
-            self.execution_history.append(execution_record)
+            # Cache the result if successful
+            if success and use_cache and self.enable_caching:
+                self.cache[cache_key] = (result_data, time.time())
 
-            # Update metrics
-            self.metrics['total_executions'] += 1
-            self.metrics['total_execution_time'] += execution_time
-            self.metrics['algorithms_by_usage'][ka_id] += 1
-
-            if success:
-                self.metrics['successful_executions'] += 1
-            else:
-                self.metrics['failed_executions'] += 1
-
-            # Add execution metadata to result
-            if isinstance(result, dict):
-                result["execution_id"] = execution_id
-                result["execution_time"] = execution_time
-                result["from_cache"] = False
-
-                # Cache result if successful
-                if success and use_cache:
-                    self._save_to_cache(cache_key, result)
+            # Log to trace if available
+            self._log_to_trace(ka_id, data, result_data, run_id, execution_time * 1000, success, None)
 
             logger.info(f"Executed {ka_id} in {execution_time:.3f}s (success: {success})")
-            return result
-
+            return result_data
+            
         except Exception as e:
-            # Handle execution error
             execution_time = time.time() - start_time
-            error_message = str(e)
-            error_traceback = traceback.format_exc()
+            logger.error(f"Fatal error in execute_algorithm for {ka_id}: {e}")
+            self._record_metrics(ka_id, execution_time, False)
+            return {"success": False, "error": str(e)}
 
-            logger.error(f"Error executing {ka_id}: {error_message}")
-            logger.debug(error_traceback)
-
-            # Record failed execution
-            execution_record = {
-                "execution_id": execution_id,
-                "ka_id": ka_id,
-                "timestamp": start_time,
-                "duration": execution_time,
-                "success": False,
-                "error": error_message,
-                "input_data_keys": list(data.keys()),
-                "from_cache": False
-            }
-
-            self.execution_history.append(execution_record)
-
-            # Update metrics
-            self.metrics['total_executions'] += 1
-            self.metrics['failed_executions'] += 1
-            self.metrics['total_execution_time'] += execution_time
-            self.metrics['algorithms_by_usage'][ka_id] += 1
-
-            return {
-                "ka_id": ka_id,
-                "execution_id": execution_id,
-                "success": False,
-                "error": error_message,
-                "execution_time": execution_time,
-                "from_cache": False
-            }
+    def _log_to_trace(self, ka_id, inputs, outputs, run_id, duration_ms, success, error=None):
+        """Helper to log execution to the trace system."""
+        if not run_id:
+            return
+            
+        try:
+            from backend.tracing.logger import TraceLogger
+            TraceLogger.log_ka_invocation(
+                ka_id=ka_id,
+                inputs=inputs,
+                outputs=outputs,
+                run_id=run_id,
+                duration_ms=duration_ms,
+                success=success,
+                error=error
+            )
+        except Exception as e:
+            # Don't fail the algorithm execution if tracing fails
+            logger.debug(f"Could not log to trace for {ka_id}: {e}")
     
     def execute_sequence(self, sequence: List[Dict[str, Any]], 
                        initial_data: Optional[Dict[str, Any]] = None, 

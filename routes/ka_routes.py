@@ -5,36 +5,24 @@ Provides REST API endpoints for managing and executing Knowledge Algorithms (KA-
 """
 
 from flask import Blueprint, request, jsonify
-from flask_login import current_user
+from flask_login import current_user, login_required
 from backend.auth.api_decorators import api_login_required, api_admin_required
 from datetime import datetime, UTC
 import logging
 import json
 import os
 
+from knowledge_algorithms.ka_master_controller import get_controller
+
 logger = logging.getLogger(__name__)
 
 ka_bp = Blueprint('ka', __name__, url_prefix='/api/ka')
 
-def load_ka_registry():
-    """Load KA registry from JSON file"""
-    # Updated path for refactored structure (routes/ -> core/data/)
-    registry_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'core', 'data', 'ka_registry.json')
-    try:
-        with open(registry_path, 'r') as f:
-            data = json.load(f)
-        registry = {}
-        for item in data:
-            ka_id = item.get('KA_ID', '')
-            if ka_id.startswith('KA-'):
-                num = int(ka_id.replace('KA-', '').lstrip('0') or '0')
-                registry[num] = item
-        return registry
-    except Exception as e:
-        logger.error(f"Error loading KA registry: {e}")
-        return {}
+# Initialize Master Controller
+controller = get_controller()
 
-KA_REGISTRY = load_ka_registry()
+# The controller now manages the registry
+KA_REGISTRY = controller.get_available_algorithms()
 
 def parse_list_field(value):
     """Parse semicolon or comma-separated field into list"""
@@ -105,7 +93,10 @@ def list_algorithms():
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 50, type=int)
         
-        algorithms = [format_algorithm(ka) for ka in KA_REGISTRY.values()]
+        algorithms = [format_algorithm(ka.get("metadata", {})) for ka in controller.get_available_algorithms().values() if ka.get("metadata")]
+        if not algorithms:
+             # Fallback to general list if metadata not attached
+             algorithms = [format_algorithm({"KA_ID": k, "KA_Name": k}) for k in controller.algorithms.keys()]
         
         if category:
             algorithms = [a for a in algorithms if a['category'] and a['category'].lower() == category.lower()]
@@ -161,13 +152,15 @@ def get_algorithm(ka_id):
                     'error': f'Invalid algorithm ID: {ka_id}'
                 }), 400
         
-        if num not in KA_REGISTRY:
+        ka_id_norm = controller._normalize_ka_id(f"KA-{num:03d}")
+        if ka_id_norm not in controller.algorithms:
             return jsonify({
                 'success': False,
                 'error': f'Algorithm {ka_id} not found'
             }), 404
         
-        algorithm = format_algorithm(KA_REGISTRY[num])
+        ka_data = controller.algorithms[ka_id_norm].get("metadata", {})
+        algorithm = format_algorithm(ka_data)
         return jsonify({
             'success': True,
             'algorithm': algorithm
@@ -193,7 +186,8 @@ def execute_algorithm(ka_id):
                     'error': f'Invalid algorithm ID: {ka_id}'
                 }), 400
         
-        if num not in KA_REGISTRY:
+        ka_id_norm = controller._normalize_ka_id(f"KA-{num:03d}")
+        if ka_id_norm not in controller.algorithms:
             return jsonify({
                 'success': False,
                 'error': f'Algorithm {ka_id} not found'
@@ -203,37 +197,22 @@ def execute_algorithm(ka_id):
         input_data = data.get('input', {})
         params = data.get('params', {})
         
-        ka = KA_REGISTRY[num]
-        algorithm = format_algorithm(ka)
+        # Execute via Master Controller
+        ka_result = controller.execute_algorithm(ka_id_norm, input_data)
         
         result = {
-            'algorithm_id': algorithm['id'],
-            'name': algorithm['name'],
-            'short_name': algorithm['short_name'],
+            'algorithm_id': ka_id_norm,
             'executed_at': datetime.now(UTC).isoformat(),
-            'status': 'completed',
-            'implementation_mode': algorithm['implementation']['mode'],
-            'layers_used': algorithm['primary_layers'],
-            'output': {
-                'message': f"Executed {algorithm['name']} successfully",
-                'input_received': input_data,
-                'params_applied': params,
-                'confidence': 0.85
-            },
-            'metrics': {
-                'execution_time_ms': 42,
-                'tokens_processed': len(str(input_data)),
-                'memory_reads': 1 if algorithm['capabilities']['reads_memory'] else 0,
-                'memory_writes': 1 if algorithm['capabilities']['writes_memory'] else 0
-            },
-            'artifacts_produced': algorithm['produces_artifacts'],
-            'audit_logged': algorithm['audit_events']
+            'status': 'completed' if ka_result.get('success', True) else 'failed',
+            'output': ka_result.get('output', ka_result),
+            'log': ka_result.get('log', ''),
+            'execution_time_ms': int(ka_result.get('execution_time', 0) * 1000)
         }
         
-        logger.info(f"Executed {algorithm['id']} for user {current_user.id}")
+        logger.info(f"Executed {ka_id_norm} for user {current_user.id}")
         
         return jsonify({
-            'success': True,
+            'success': ka_result.get('success', True),
             'result': result
         }), 200
     except Exception as e:
@@ -247,7 +226,8 @@ def list_categories():
     """List all KA categories with their algorithms"""
     try:
         categories = {}
-        for num, ka in KA_REGISTRY.items():
+        for ka_id, ka_info in controller.get_available_algorithms().items():
+            ka = ka_info.get("metadata", {})
             cat = ka.get('Category')
             if not cat:
                 continue
@@ -279,13 +259,75 @@ def list_categories():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@ka_bp.route('/workflow/high-stakes', methods=['POST'])
+@login_required
+@api_login_required
+def execute_high_stakes_workflow():
+    """Execute the full 12-step high-stakes refinement workflow."""
+    try:
+        data = request.get_json() or {}
+        query = data.get('query')
+        if not query:
+            return jsonify({'success': False, 'error': 'Query is required'}), 400
+        
+        context = data.get('context', {})
+        
+        # We can use TruthCoreEngine for this
+        from backend.truth_engine.truth_core.engine import get_truth_core_engine
+        engine = get_truth_core_engine()
+        
+        # Create a session
+        session = engine.create_session(
+            query=query,
+            user_id=current_user.id,
+            tier='high_stakes',
+            context=context
+        )
+        
+        # Process the session
+        result = engine.process(session['session_id'])
+        
+        return jsonify({
+            'success': True,
+            'session_id': session['session_id'],
+            'result': result
+        }), 200
+    except Exception as e:
+        logger.error(f"Error executing high-stakes workflow: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@ka_bp.route('/trace/<session_id>', methods=['GET'])
+@login_required
+@api_login_required
+def get_workflow_trace(session_id):
+    """Get the execution trace of a workflow session."""
+    try:
+        from backend.truth_engine.truth_core.engine import get_truth_core_engine
+        engine = get_truth_core_engine()
+        
+        status = engine.get_session_status(session_id)
+        if 'error' in status:
+            return jsonify({'success': False, 'error': status['error']}), 404
+            
+        return jsonify({
+            'success': True,
+            'session_id': session_id,
+            'trace': status.get('workflow_steps', []),
+            'status': status.get('status')
+        }), 200
+    except Exception as e:
+        logger.error(f"Error getting workflow trace: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @ka_bp.route('/layers', methods=['GET'])
 @api_login_required
 def list_layers():
     """List all simulation layers and their associated algorithms"""
     try:
         layers = {}
-        for num, ka in KA_REGISTRY.items():
+        for ka_id, ka_info in controller.get_available_algorithms().items():
+            ka = ka_info.get("metadata", {})
             primary = parse_list_field(ka.get('Primary_Layers'))
             allowed = parse_list_field(ka.get('Allowed_Layers'))
             all_layers = set(primary + allowed)
@@ -344,20 +386,8 @@ def batch_execute():
         
         results = []
         for ka_id in algorithms:
-            if isinstance(ka_id, str) and ka_id.upper().startswith('KA-'):
-                num = int(ka_id.upper().replace('KA-', '').lstrip('0') or '0')
-            else:
-                try:
-                    num = int(ka_id)
-                except ValueError:
-                    results.append({
-                        'ka_id': ka_id,
-                        'status': 'error',
-                        'error': f'Invalid algorithm ID: {ka_id}'
-                    })
-                    continue
-            
-            if num not in KA_REGISTRY:
+            ka_id_norm = controller._normalize_ka_id(ka_id)
+            if ka_id_norm not in controller.algorithms:
                 results.append({
                     'ka_id': ka_id,
                     'status': 'error',
@@ -365,7 +395,7 @@ def batch_execute():
                 })
                 continue
             
-            ka = KA_REGISTRY[num]
+            ka = controller.algorithms[ka_id_norm].get("metadata", {})
             results.append({
                 'ka_id': ka.get('KA_ID'),
                 'name': ka.get('KA_Name'),
@@ -399,8 +429,8 @@ def search_algorithms():
                 'error': 'Query must be at least 2 characters'
             }), 400
         
-        results = []
-        for num, ka in KA_REGISTRY.items():
+        for ka_id, ka_info in controller.get_available_algorithms().items():
+            ka = ka_info.get("metadata", {})
             name = (ka.get('KA_Name') or '').lower()
             purpose = (ka.get('Purpose') or '').lower()
             notes = (ka.get('Notes') or '').lower()
@@ -444,14 +474,14 @@ def get_dependencies(ka_id):
                 'error': f'Algorithm {ka_id} not found'
             }), 404
         
-        ka = KA_REGISTRY[num]
-        dependencies = parse_list_field(ka.get('Dependencies'))
+        ka_data = controller.algorithms[ka_id_norm].get("metadata", {})
+        dependencies = parse_list_field(ka_data.get('Dependencies'))
         
         dep_details = []
         for dep in dependencies:
-            dep_num = int(dep.upper().replace('KA-', '').lstrip('0') or '0')
-            if dep_num in KA_REGISTRY:
-                dep_ka = KA_REGISTRY[dep_num]
+            dep_id = controller._normalize_ka_id(dep)
+            if dep_id in controller.algorithms:
+                dep_ka = controller.algorithms[dep_id].get("metadata", {})
                 dep_details.append({
                     'id': dep_ka.get('KA_ID'),
                     'name': dep_ka.get('KA_Name'),
@@ -461,9 +491,10 @@ def get_dependencies(ka_id):
                 })
         
         dependents = []
-        for other_num, other_ka in KA_REGISTRY.items():
+        for other_id, other_info in controller.get_available_algorithms().items():
+            other_ka = other_info.get("metadata", {})
             other_deps = parse_list_field(other_ka.get('Dependencies'))
-            if ka.get('KA_ID') in [d.upper() for d in other_deps]:
+            if ka_id_norm in [controller._normalize_ka_id(d) for d in other_deps]:
                 dependents.append({
                     'id': other_ka.get('KA_ID'),
                     'name': other_ka.get('KA_Name'),
@@ -498,7 +529,8 @@ def get_stats():
         impl_modes = {}
         has_math_count = 0
         
-        for ka in KA_REGISTRY.values():
+        for ka_info in controller.get_available_algorithms().values():
+            ka = ka_info.get("metadata", {})
             cat = ka.get('Category')
             if cat:
                 categories[cat] = categories.get(cat, 0) + 1

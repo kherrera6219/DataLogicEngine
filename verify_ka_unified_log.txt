@@ -1,0 +1,263 @@
+2026-01-11 12:00:58,843 - UKG-Master-Controller - WARNING - Dependency KA-4 not registered, skipping
+2026-01-11 12:00:58,843 - UKG-Master-Controller - WARNING - Dependency KA-1 not registered, skipping
+2026-01-11 12:00:58,843 - UKG-Master-Controller - WARNING - Dependency KA-29 not registered, skipping
+2026-01-11 12:00:58,843 - UKG-Master-Controller - WARNING - Dependency KA-29 not registered, skipping
+2026-01-11 12:00:58,843 - UKG-Master-Controller - WARNING - Dependency KA-4 not registered, skipping
+2026-01-11 12:00:58,843 - UKG-Master-Controller - WARNING - Dependency KA-3 not registered, skipping
+2026-01-11 12:00:58,843 - UKG-Master-Controller - WARNING - Dependency KA-5 not registered, skipping
+2026-01-11 12:00:58,843 - UKG-Master-Controller - WARNING - Dependency KA-14 not registered, skipping
+2026-01-11 12:00:58,843 - UKG-Master-Controller - WARNING - Dependency KA-102 not registered, skipping
+2026-01-11 12:00:58,843 - UKG-Master-Controller - WARNING - Dependency KA-81 not registered, skipping
+2026-01-11 12:00:58,843 - UKG-Master-Controller - WARNING - Dependency KA-18 not registered, skipping
+2026-01-11 12:00:58,843 - UKG-Master-Controller - WARNING - Dependency KA-62 not registered, skipping
+2026-01-11 12:00:58,843 - UKG-Master-Controller - WARNING - Dependency KA-45 not registered, skipping
+2026-01-11 12:00:58,844 - UKG-Master-Controller - WARNING - Dependency KA-29 not registered, skipping
+2026-01-11 12:00:58,844 - UKG-Master-Controller - WARNING - Dependency KA-13 not registered, skipping
+2026-01-11 12:00:58,844 - UKG-Master-Controller - WARNING - Dependency KA-9 not registered, skipping
+2026-01-11 12:00:58,844 - UKG-Master-Controller - WARNING - Dependency KA-26 not registered, skipping
+2026-01-11 12:00:58,844 - UKG-Master-Controller - WARNING - Dependency KA-41 not registered, skipping
+2026-01-11 12:00:58,844 - UKG-Master-Controller - WARNING - Dependency KA-102 not registered, skipping
+2026-01-11 12:00:58,844 - UKG-Master-Controller - WARNING - Dependency KA-52 not registered, skipping
+2026-01-11 12:00:58,844 - UKG-Master-Controller - WARNING - Dependency KA-17 not registered, skipping
+2026-01-11 12:00:58,844 - UKG-Master-Controller - WARNING - Dependency KA-18 not registered, skipping
+2026-01-11 12:00:58,844 - UKG-Master-Controller - WARNING - Dependency KA-30 not registered, skipping
+2026-01-11 12:00:58,844 - UKG-Master-Controller - WARNING - Dependency KA-9 not registered, skipping
+2026-01-11 12:00:58,844 - UKG-Master-Controller - WARNING - Dependency KA-14 not registered, skipping
+2026-01-11 12:00:58,844 - UKG-Master-Controller - WARNING - Dependency KA-102 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-62 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-22 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-107 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-12 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-9 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-26 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-13 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-5 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-113 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-81 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-31 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-107 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-12 not registered, skipping
+2026-01-11 12:00:58,845 - UKG-Master-Controller - WARNING - Dependency KA-30 not registered, skipping
+2026-01-11 12:00:58,846 - UKG-Master-Controller - WARNING - Dependency KA-26 not registered, skipping
+2026-01-11 12:00:58,846 - UKG-Master-Controller - WARNING - Dependency KA-25 not registered, skipping
+2026-01-11 12:00:58,846 - UKG-Master-Controller - WARNING - Dependency KA-109 not registered, skipping
+2026-01-11 12:00:58,846 - UKG-Master-Controller - WARNING - Dependency KA-79 not registered, skipping
+2026-01-11 12:00:58,846 - UKG-Master-Controller - WARNING - Dependency KA-63 not registered, skipping
+2026-01-11 12:00:58,846 - UKG-Master-Controller - WARNING - Dependency KA-64 not registered, skipping
+2026-01-11 12:00:58,846 - UKG-Master-Controller - WARNING - Dependency KA-107 not registered, skipping
+2026-01-11 12:00:58,846 - UKG-Master-Controller - WARNING - Dependency KA-94 not registered, skipping
+2026-01-11 12:00:58,846 - UKG-Master-Controller - WARNING - Dependency KA-99 not registered, skipping
+2026-01-11 12:00:58,846 - UKG-Master-Controller - WARNING - Dependency KA-46 not registered, skipping
+2026-01-11 12:00:58,846 - UKG-Master-Controller - WARNING - Dependency KA-79 not registered, skipping
+2026-01-11 12:00:58,846 - UKG-Master-Controller - WARNING - Dependency KA-83 not registered, skipping
+2026-01-11 12:00:58,847 - UKG-Master-Controller - WARNING - Dependency KA-49 not registered, skipping
+2026-01-11 12:00:58,847 - UKG-Master-Controller - WARNING - Dependency KA-77 not registered, skipping
+2026-01-11 12:00:58,847 - UKG-Master-Controller - WARNING - Dependency KA-40 not registered, skipping
+2026-01-11 12:00:58,847 - UKG-Master-Controller - WARNING - Dependency KA-9 not registered, skipping
+2026-01-11 12:00:58,847 - UKG-Master-Controller - WARNING - Dependency KA-18 not registered, skipping
+2026-01-11 12:00:58,847 - UKG-Master-Controller - WARNING - Dependency KA-73 not registered, skipping
+2026-01-11 12:00:58,847 - UKG-Master-Controller - WARNING - Dependency KA-102 not registered, skipping
+2026-01-11 12:00:58,847 - UKG-Master-Controller - WARNING - Dependency KA-113 not registered, skipping
+2026-01-11 12:00:58,847 - UKG-Master-Controller - WARNING - Dependency KA-31 not registered, skipping
+2026-01-11 12:00:58,847 - UKG-Master-Controller - WARNING - Dependency KA-80 not registered, skipping
+2026-01-11 12:00:58,847 - UKG-Master-Controller - WARNING - Dependency KA-81 not registered, skipping
+2026-01-11 12:00:58,847 - UKG-Master-Controller - WARNING - Dependency KA-4 not registered, skipping
+2026-01-11 12:00:58,847 - UKG-Master-Controller - WARNING - Dependency KA-18 not registered, skipping
+2026-01-11 12:00:58,848 - UKG-Master-Controller - WARNING - Dependency KA-99 not registered, skipping
+2026-01-11 12:00:58,848 - UKG-Master-Controller - WARNING - Dependency KA-50 not registered, skipping
+2026-01-11 12:00:58,848 - UKG-Master-Controller - WARNING - Dependency KA-66 not registered, skipping
+2026-01-11 12:00:58,848 - UKG-Master-Controller - WARNING - Dependency KA-107 not registered, skipping
+2026-01-11 12:00:58,848 - UKG-Master-Controller - WARNING - Dependency KA-10 not registered, skipping
+2026-01-11 12:00:58,848 - UKG-Master-Controller - WARNING - Dependency KA-45 not registered, skipping
+2026-01-11 12:00:58,848 - UKG-Master-Controller - WARNING - Dependency KA-77 not registered, skipping
+2026-01-11 12:00:58,848 - UKG-Master-Controller - WARNING - Dependency KA-94 not registered, skipping
+2026-01-11 12:00:58,848 - UKG-Master-Controller - WARNING - Dependency KA-109 not registered, skipping
+2026-01-11 12:00:58,848 - UKG-Master-Controller - WARNING - Dependency KA-14 not registered, skipping
+2026-01-11 12:00:58,848 - UKG-Master-Controller - WARNING - Dependency KA-62 not registered, skipping
+2026-01-11 12:00:58,849 - UKG-Master-Controller - WARNING - Dependency KA-109 not registered, skipping
+2026-01-11 12:00:58,849 - UKG-Master-Controller - WARNING - Dependency KA-56 not registered, skipping
+2026-01-11 12:00:58,849 - UKG-Master-Controller - WARNING - Dependency KA-52 not registered, skipping
+2026-01-11 12:00:58,849 - UKG-Master-Controller - WARNING - Dependency KA-53 not registered, skipping
+2026-01-11 12:00:58,849 - UKG-Master-Controller - WARNING - Dependency KA-76 not registered, skipping
+2026-01-11 12:00:58,849 - UKG-Master-Controller - WARNING - Dependency KA-83 not registered, skipping
+2026-01-11 12:00:58,849 - UKG-Master-Controller - WARNING - Dependency KA-16 not registered, skipping
+2026-01-11 12:00:58,849 - UKG-Master-Controller - WARNING - Dependency KA-89 not registered, skipping
+2026-01-11 12:00:58,849 - UKG-Master-Controller - WARNING - Dependency KA-25 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-85 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-26 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-50 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-65 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-107 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-108 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-111 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-102 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-107 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-2 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-12 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-26 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-32 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-81 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-22 not registered, skipping
+2026-01-11 12:00:58,850 - UKG-Master-Controller - WARNING - Dependency KA-24 not registered, skipping
+2026-01-11 12:00:58,851 - UKG-Master-Controller - WARNING - Dependency KA-82 not registered, skipping
+2026-01-11 12:00:58,851 - UKG-Master-Controller - WARNING - Dependency KA-83 not registered, skipping
+2026-01-11 12:00:58,851 - UKG-Master-Controller - WARNING - Dependency KA-95 not registered, skipping
+2026-01-11 12:00:58,851 - UKG-Master-Controller - WARNING - Dependency KA-4 not registered, skipping
+2026-01-11 12:00:58,851 - UKG-Master-Controller - WARNING - Dependency KA-5 not registered, skipping
+2026-01-11 12:00:58,851 - UKG-Master-Controller - WARNING - Dependency KA-113 not registered, skipping
+2026-01-11 12:00:58,851 - UKG-Master-Controller - WARNING - Dependency KA-21 not registered, skipping
+2026-01-11 12:00:58,851 - UKG-Master-Controller - WARNING - Dependency KA-112 not registered, skipping
+2026-01-11 12:00:58,851 - UKG-Master-Controller - WARNING - Dependency KA-24 not registered, skipping
+2026-01-11 12:00:58,851 - UKG-Master-Controller - WARNING - Dependency KA-74 not registered, skipping
+2026-01-11 12:00:58,851 - UKG-Master-Controller - WARNING - Dependency KA-5 not registered, skipping
+2026-01-11 12:00:58,851 - UKG-Master-Controller - WARNING - Dependency KA-112 not registered, skipping
+2026-01-11 12:00:58,851 - UKG-Master-Controller - WARNING - Dependency KA-5 not registered, skipping
+2026-01-11 12:00:58,852 - UKG-Master-Controller - WARNING - Dependency KA-4 not registered, skipping
+2026-01-11 12:00:58,852 - UKG-Master-Controller - WARNING - Dependency KA-80 not registered, skipping
+2026-01-11 12:00:58,852 - UKG-Master-Controller - WARNING - Dependency KA-31 not registered, skipping
+2026-01-11 12:00:58,852 - UKG-Master-Controller - WARNING - Dependency KA-24 not registered, skipping
+2026-01-11 12:00:58,852 - UKG-Master-Controller - INFO - Initialized Master Controller with 114 algorithms (caching: True)
+2026-01-11 12:01:06,225 - UKG-Audit - INFO - Audit log rotation started
+2026-01-11 12:01:06,225 - UKG-Audit - INFO - Audit Logger initialized
+2026-01-11 12:01:09,780 - backend.security.security_headers - INFO - Security headers middleware initialized
+2026-01-11 12:01:09,780 - backend.security.security_headers - INFO - Security headers configured
+2026-01-11 12:01:09,792 - backend.middleware.request_limits - INFO - Request limits middleware initialized (max size: 16.0MB)
+2026-01-11 12:01:09,792 - backend.middleware.request_limits - INFO - Request limits configured
+2026-01-11 12:01:09,798 - backend.middleware.correlation_id - INFO - Correlation ID middleware initialized
+2026-01-11 12:01:09,798 - backend.middleware.correlation_id - INFO - Correlation ID middleware configured
+2026-01-11 12:01:09,798 - backend.middleware.correlation_id - INFO - [startup] - Correlation ID logging configured
+2026-01-11 12:01:09,804 - backend.middleware.timeout - WARNING - [startup] - Signal-based timeout not available on this platform. Configure gunicorn worker timeout instead: --timeout 30
+2026-01-11 12:01:09,808 - app - INFO - [startup] - Database tables created
+2026-01-11 12:01:09,960 - app - INFO - [startup] - Truth Engine API blueprint registered (v1 + legacy)
+2026-01-11 12:01:09,968 - app - INFO - [startup] - Persona API blueprint registered (v1 + legacy)
+2026-01-11 12:01:09,981 - app - INFO - [startup] - Pillar API blueprint registered (v1 + legacy)
+2026-01-11 12:01:09,992 - app - INFO - [startup] - Regulatory/Compliance API blueprint registered (v1 + legacy)
+2026-01-11 12:01:10,007 - app - WARNING - [startup] - Could not register Replit Auth blueprint: No module named 'replit_auth'
+2026-01-11 12:01:10,019 - app - INFO - [startup] - Swagger UI registered at /api/docs
+2026-01-11 12:01:10,061 - app - INFO - [startup] - Trace API blueprint registered at /api/v1/trace
+2026-01-11 12:01:10,072 - app - WARNING - [startup] - Could not register LLM Gateway API: No module named 'backend.extensions'
+2026-01-11 12:01:10,347 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-005
+2026-01-11 12:01:10,347 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-006
+2026-01-11 12:01:10,347 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-007
+2026-01-11 12:01:10,347 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-008
+2026-01-11 12:01:10,355 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-001
+2026-01-11 12:01:10,355 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-002
+2026-01-11 12:01:10,362 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-011
+2026-01-11 12:01:10,362 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-013
+2026-01-11 12:01:10,362 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-014
+2026-01-11 12:01:10,363 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-017
+2026-01-11 12:01:10,370 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-019
+2026-01-11 12:01:10,370 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-020
+2026-01-11 12:01:10,370 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-021
+2026-01-11 12:01:10,370 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-025
+2026-01-11 12:01:10,371 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-028
+2026-01-11 12:01:10,371 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-029
+2026-01-11 12:01:10,371 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-030
+2026-01-11 12:01:10,378 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-003
+2026-01-11 12:01:10,385 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-004
+2026-01-11 12:01:10,392 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-009
+2026-01-11 12:01:10,399 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-010
+2026-01-11 12:01:10,407 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-012
+2026-01-11 12:01:10,414 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-015
+2026-01-11 12:01:10,421 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-016
+2026-01-11 12:01:10,428 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-018
+2026-01-11 12:01:10,437 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-022
+2026-01-11 12:01:10,442 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-023
+2026-01-11 12:01:10,448 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-024
+2026-01-11 12:01:10,453 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-026
+2026-01-11 12:01:10,459 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-027
+2026-01-11 12:01:10,468 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-031
+2026-01-11 12:01:10,475 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-032
+2026-01-11 12:01:10,479 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-034
+2026-01-11 12:01:10,484 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-035
+2026-01-11 12:01:10,490 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-036
+2026-01-11 12:01:10,495 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-037
+2026-01-11 12:01:10,500 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-038
+2026-01-11 12:01:10,505 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-039
+2026-01-11 12:01:10,511 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-040
+2026-01-11 12:01:10,517 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-041
+2026-01-11 12:01:10,523 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-042
+2026-01-11 12:01:10,529 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-043
+2026-01-11 12:01:10,536 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-044
+2026-01-11 12:01:10,542 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-045
+2026-01-11 12:01:10,548 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-046
+2026-01-11 12:01:10,555 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-047
+2026-01-11 12:01:10,561 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-048
+2026-01-11 12:01:10,568 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-049
+2026-01-11 12:01:10,574 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-050
+2026-01-11 12:01:10,584 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-051
+2026-01-11 12:01:10,592 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-052
+2026-01-11 12:01:10,599 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-053
+2026-01-11 12:01:10,605 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-054
+2026-01-11 12:01:10,612 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-055
+2026-01-11 12:01:10,619 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-056
+2026-01-11 12:01:10,625 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-057
+2026-01-11 12:01:10,636 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-058
+2026-01-11 12:01:10,642 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-059
+2026-01-11 12:01:10,649 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-060
+2026-01-11 12:01:10,656 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-061
+2026-01-11 12:01:10,663 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-062
+2026-01-11 12:01:10,670 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-063
+2026-01-11 12:01:10,676 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-064
+2026-01-11 12:01:10,682 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-065
+2026-01-11 12:01:10,688 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-066
+2026-01-11 12:01:10,694 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-067
+2026-01-11 12:01:10,701 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-068
+2026-01-11 12:01:10,708 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-069
+2026-01-11 12:01:10,714 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-070
+2026-01-11 12:01:10,720 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-071
+2026-01-11 12:01:10,726 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-072
+2026-01-11 12:01:10,732 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-073
+2026-01-11 12:01:10,740 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-074
+2026-01-11 12:01:10,747 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-075
+2026-01-11 12:01:10,753 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-076
+2026-01-11 12:01:10,759 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-077
+2026-01-11 12:01:10,766 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-078
+2026-01-11 12:01:10,772 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-079
+2026-01-11 12:01:10,779 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-080
+2026-01-11 12:01:10,786 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-081
+2026-01-11 12:01:10,791 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-082
+2026-01-11 12:01:10,799 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-083
+2026-01-11 12:01:10,805 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-084
+2026-01-11 12:01:10,810 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-085
+2026-01-11 12:01:10,816 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-086
+2026-01-11 12:01:10,821 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-087
+2026-01-11 12:01:10,826 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-088
+2026-01-11 12:01:10,832 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-089
+2026-01-11 12:01:10,837 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-090
+2026-01-11 12:01:10,843 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-091
+2026-01-11 12:01:10,850 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-092
+2026-01-11 12:01:10,856 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-093
+2026-01-11 12:01:10,861 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-094
+2026-01-11 12:01:10,866 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-095
+2026-01-11 12:01:10,873 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-096
+2026-01-11 12:01:10,878 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-097
+2026-01-11 12:01:10,884 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-098
+2026-01-11 12:01:10,889 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-099
+2026-01-11 12:01:10,894 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-100
+2026-01-11 12:01:10,900 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-101
+2026-01-11 12:01:10,905 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-102
+2026-01-11 12:01:10,910 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-103
+2026-01-11 12:01:10,916 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-104
+2026-01-11 12:01:10,921 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-105
+2026-01-11 12:01:10,926 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-106
+2026-01-11 12:01:10,931 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-107
+2026-01-11 12:01:10,936 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-108
+2026-01-11 12:01:10,940 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-109
+2026-01-11 12:01:10,944 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-110
+2026-01-11 12:01:10,951 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-111
+2026-01-11 12:01:10,957 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-112
+2026-01-11 12:01:10,963 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-113
+2026-01-11 12:01:10,970 - backend.knowledge_algorithm.registry - INFO - [startup] - Registering KA: KA-114
+2026-01-11 12:01:10,970 - UKG-Master-Controller - INFO - [startup] - Loaded algorithm KA-001 from KARegistry
+2026-01-11 12:01:10,970 - UKG-Master-Controller - INFO - [startup] - Loaded algorithm KA-113 from KARegistry
+2026-01-11 12:01:10,970 - UKG-Master-Controller - INFO - [startup] - Executed KA-113 in 0.000s (success: True)
+Loaded 114 algorithms.
+Normalized KA-1 to KA-001
+KA-001 found in registry
+KA-001 Metadata Name: Algorithm of Thought
+Loading KA-001: True
+KA-001 loaded from: knowledge_algorithms.ka_01_semantic_mapping.run
+Loading KA-113: True
+KA-113 Is Class: True
+KA-113 Result: {'tier': 'medium', 'depth': 3, 'budget': 1000}

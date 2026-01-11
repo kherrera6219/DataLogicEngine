@@ -18,6 +18,26 @@ _truth_gate: Optional['TruthGateGateway'] = None  # type: ignore
 _truth_memory: Optional['TruthMemoryManager'] = None  # type: ignore
 _truth_link: Optional['TruthLinkBus'] = None  # type: ignore
 
+def get_truth_core_engine() -> 'TruthCoreEngine': # type: ignore
+    """Access the TruthCoreEngine singleton."""
+    _lazy_init_truth_engine()
+    return _truth_core # type: ignore
+
+def get_truth_gate() -> 'TruthGateGateway': # type: ignore
+    """Access the TruthGateGateway singleton."""
+    _lazy_init_truth_engine()
+    return _truth_gate # type: ignore
+
+def get_truth_memory() -> 'TruthMemoryManager': # type: ignore
+    """Access the TruthMemoryManager singleton."""
+    _lazy_init_truth_engine()
+    return _truth_memory # type: ignore
+
+def get_truth_link() -> 'TruthLinkBus': # type: ignore
+    """Access the TruthLinkBus singleton."""
+    _lazy_init_truth_engine()
+    return _truth_link # type: ignore
+
 
 def init_truth_engine(db_session):
     """Initialize Truth Engine components with database session."""
@@ -36,9 +56,13 @@ def init_truth_engine(db_session):
     except Exception as e:
         logger.warning(f"Could not create SimulationEngine: {e}")
     
+    from knowledge_algorithms.ka_master_controller import get_controller
+    ka_controller = get_controller()
+    
     _truth_core = TruthCoreEngine(
         db_session=db_session,
-        simulation_engine=simulation_engine
+        simulation_engine=simulation_engine,
+        ka_controller=ka_controller
     )
     _truth_gate = TruthGateGateway(db_session=db_session)
     _truth_memory = TruthMemoryManager(db_session=db_session)
