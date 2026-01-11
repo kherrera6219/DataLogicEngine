@@ -1,19 +1,11 @@
 from .registry import KARegistry, KAMetadata
 # Import modules to register them side-effectfully
 from .modules import (
-    ka01_algorithm_of_thought,
-    ka02_tree_of_thought,
     ka03_gap_analysis,
     ka04_input_validation,
-    ka05_recursive_control,
-    ka06_self_critique,
-    ka07_synthesis,
-    ka08_deep_thinking,
     ka09_evidence_validation,
     ka10_bias_detection,
-    ka11_content_polish,
     ka12_persona_simulation,
-    ka13_context_expander,
     ka15_temporal_reasoning,
     ka16_regulatory_mapping,
     ka18_source_provenance,
@@ -85,21 +77,5 @@ from .modules import (
     ka98_benchmarking,
     ka114_quantum_bridge,
     ka113_complexity_router,
-    ka14_confidence_estimator,
-    ka15_external_validator,
-    ka16_compliance_validator,
-    ka17_learning_adapter,
-    ka18_sentiment_analyzer,
-    ka19_evidence_synthesis,
-    ka20_iteration_controller,
-    ka21_emergence_checker,
-    ka22_anomaly_detector,
-    ka23_correlation_mapper,
-    ka24_trust_verifier,
-    ka25_bias_detector,
-    ka26_causality_analyzer,
-    ka27_counterfactual_simulator,
-    ka28_persona_perspective_taker,
-    ka29_heuristic_optimizer,
-    ka30_consensus_builder
+    ka113_complexity_router
 )

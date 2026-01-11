@@ -1,0 +1,520 @@
+TOTAL_KAS_START
+ID: KA-001
+NAME: Algorithm of Thought
+PURPOSE: Decompose query into ordered tasks and dependencies
+CATEGORY: Reasoning
+LAYER: L1,L2
+---
+ID: KA-002
+NAME: Tree of Thought
+PURPOSE: Generate and score parallel reasoning branches
+CATEGORY: Reasoning
+LAYER: L3,L7
+---
+ID: KA-003
+NAME: Gap Analysis
+PURPOSE: Detect missing/weak knowledge, contradictions, ambiguity
+CATEGORY: Analysis
+LAYER: L2
+---
+ID: KA-004
+NAME: Input Validation & Normalization
+PURPOSE: Sanitize, normalize, and validate query and metadata
+CATEGORY: Safety
+LAYER: L1
+---
+ID: KA-005
+NAME: Query Classification
+PURPOSE: Classify domain, complexity, stakes, and ambiguity
+CATEGORY: Routing
+LAYER: L1
+---
+ID: KA-006
+NAME: Deep Planning
+PURPOSE: Select reasoning strategy, depth, and verification approach
+CATEGORY: Reasoning
+LAYER: L2,L7
+---
+ID: KA-007
+NAME: Recursive Reasoning Control
+PURPOSE: Control recursion depth/breadth; prevent runaway loops
+CATEGORY: Control
+LAYER: L7
+---
+ID: KA-008
+NAME: Self-Critique & Reflection
+PURPOSE: Attack draft output for flaws and assumptions
+CATEGORY: QA
+LAYER: L9
+---
+ID: KA-009
+NAME: Evidence Validation
+PURPOSE: Validate evidence consistency and claims support
+CATEGORY: Truth
+LAYER: L6
+---
+ID: KA-010
+NAME: Bias Detection
+PURPOSE: Detect bias signals in reasoning/output
+CATEGORY: Ethics
+LAYER: L8,L9
+---
+ID: KA-011
+NAME: Analytical Modeling
+PURPOSE: Perform math/statistical/structural modeling
+CATEGORY: Reasoning
+LAYER: L3
+---
+ID: KA-012
+NAME: Persona Simulation
+PURPOSE: Run expert personas (knowledge/sector/regulatory/compliance)
+CATEGORY: Persona
+LAYER: L4
+---
+ID: KA-013
+NAME: Persona Weighting
+PURPOSE: Weight persona outputs by relevance/authority
+CATEGORY: Persona
+LAYER: L4
+---
+ID: KA-014
+NAME: Confidence Scoring
+PURPOSE: Compute confidence and thresholds; certify outputs
+CATEGORY: Truth
+LAYER: L6,L10
+---
+ID: KA-015
+NAME: Temporal Reasoning
+PURPOSE: Reason across time; timelines; validity windows
+CATEGORY: Reasoning
+LAYER: L3
+---
+ID: KA-016
+NAME: Regulatory Mapping
+PURPOSE: Map regs/policies to obligations and constraints
+CATEGORY: Compliance
+LAYER: L4,L8
+---
+ID: KA-017
+NAME: Spatial/Jurisdiction Mapping
+PURPOSE: Resolve geography/jurisdiction applicability
+CATEGORY: Context
+LAYER: L2
+---
+ID: KA-018
+NAME: Source Provenance
+PURPOSE: Track source origin, authority, and trust weight
+CATEGORY: Truth
+LAYER: L6
+---
+ID: KA-019
+NAME: Knowledge Synthesis
+PURPOSE: Merge validated knowledge into unified state (no prose)
+CATEGORY: Synthesis
+LAYER: L9
+---
+ID: KA-020
+NAME: Loopback Trigger
+PURPOSE: Force loopback to earlier layers when thresholds fail
+CATEGORY: Control
+LAYER: L10
+---
+ID: KA-021
+NAME: Emergence Detection
+PURPOSE: Detect novel patterns/insights; flag unexpected behavior
+CATEGORY: Analysis
+LAYER: L7,L10
+---
+ID: KA-022
+NAME: Risk Assessment
+PURPOSE: Compute operational/mission risk of recommendations
+CATEGORY: Safety
+LAYER: L8
+---
+ID: KA-023
+NAME: Belief Decay
+PURPOSE: Decay stale beliefs; reduce reliance on outdated knowledge
+CATEGORY: Lifecycle
+LAYER: L10
+---
+ID: KA-024
+NAME: Trust Gate
+PURPOSE: Approve/veto outputs based on trust/risk/policy
+CATEGORY: Safety
+LAYER: L8
+---
+ID: KA-025
+NAME: Dependency Mapping
+PURPOSE: Track logical/claim dependencies for audit
+CATEGORY: Analysis
+LAYER: L3
+---
+ID: KA-026
+NAME: Contradiction Detection
+PURPOSE: Detect conflicts across branches/personas/evidence
+CATEGORY: Truth
+LAYER: L6
+---
+ID: KA-027
+NAME: Ethical Impact Analysis
+PURPOSE: Evaluate ethical implications; harm assessment
+CATEGORY: Ethics
+LAYER: L8
+---
+ID: KA-028
+NAME: Point-of-View Expansion
+PURPOSE: Add alternate viewpoints beyond base personas
+CATEGORY: Persona
+LAYER: L4
+---
+ID: KA-029
+NAME: Knowledge Expansion
+PURPOSE: Traverse UKG/USKD cross-links to expand context
+CATEGORY: Context
+LAYER: L2,L3
+---
+ID: KA-030
+NAME: Conflict Resolution
+PURPOSE: Arbitrate and resolve conflicts; produce coherent state
+CATEGORY: Coordination
+LAYER: L5
+---
+ID: KA-031
+NAME: Algorithm Selection Engine
+PURPOSE: Select KA pipeline given query, policies, and budget
+CATEGORY: Routing
+LAYER: L1
+---
+ID: KA-032
+NAME: Simulation Orchestration Controller
+PURPOSE: Sequence KAs; manage layer transitions; enforce exit rules
+CATEGORY: Control
+LAYER: L1,L2,L3,L4,L5,L6,L7,L8,L9,L10
+---
+ID: KA-034
+NAME: Adversarial Reasoning
+PURPOSE: Simulate adversarial constraints/attacks on assumptions
+CATEGORY: Safety
+LAYER: L3,L7
+---
+ID: KA-035
+NAME: Bayesian Gap Imputation
+PURPOSE: Probabilistically fill missing data with uncertainty bounds
+CATEGORY: Reasoning
+LAYER: L2,L7
+---
+ID: KA-036
+NAME: Pareto Optimization Engine
+PURPOSE: Optimize multi-objective trade-offs
+CATEGORY: Optimization
+LAYER: L7
+---
+ID: KA-037
+NAME: Norm Emergence Detector
+PURPOSE: Detect groupthink/unhealthy convergence in multi-agent outputs
+CATEGORY: Analysis
+LAYER: L5,L7
+---
+ID: KA-038
+NAME: Cross-Modal Synthesis
+PURPOSE: Fuse multi-modal evidence into unified representation
+CATEGORY: Reasoning
+LAYER: L3,L9
+---
+ID: KA-039
+NAME: Ontology Drift Detection
+PURPOSE: Detect semantic drift in ontology definitions over time
+CATEGORY: Lifecycle
+LAYER: L6,L10
+---
+ID: KA-040
+NAME: Semantic Alignment Engine
+PURPOSE: Align synonyms/overlaps; prevent fragmentation
+CATEGORY: Context
+LAYER: L3,L6
+---
+ID: KA-041
+NAME: Concept Confidence Normalization
+PURPOSE: Normalize confidence scales across domains
+CATEGORY: Truth
+LAYER: L6
+---
+ID: KA-042
+NAME: Contradiction Propagation Analysis
+PURPOSE: Trace downstream impacts of contradictions
+CATEGORY: Analysis
+LAYER: L6
+---
+ID: KA-043
+NAME: Knowledge Lineage Tracker
+PURPOSE: Track knowledge evolution across simulations/commits
+CATEGORY: Governance
+LAYER: L10
+---
+ID: KA-044
+NAME: Creative Knowledge Composer
+PURPOSE: Generate novel combinations/hypotheses (bounded)
+CATEGORY: Creativity
+LAYER: L7
+---
+ID: KA-045
+NAME: Bias Pattern Analyzer
+PURPOSE: Detect systemic bias patterns (population-level)
+CATEGORY: Ethics
+LAYER: L8
+---
+ID: KA-046
+NAME: Hierarchical Memory Patcher
+PURPOSE: Apply validated updates to correct memory tier
+CATEGORY: Memory
+LAYER: L10
+---
+ID: KA-047
+NAME: Meta-Algorithm Selection
+PURPOSE: Select/invent algorithms dynamically (bounded)
+CATEGORY: Meta
+LAYER: L7
+---
+ID: KA-048
+NAME: Ontological Conflict Resolver
+PURPOSE: Reconcile conflicting ontologies/concept systems
+CATEGORY: Truth
+LAYER: L6
+---
+ID: KA-049
+NAME: Knowledge Redundancy Detector
+PURPOSE: Detect duplicate/near-duplicate knowledge
+CATEGORY: Lifecycle
+LAYER: L10
+---
+ID: KA-050
+NAME: Knowledge Integrity Validator
+PURPOSE: Validate internal consistency before persistence
+CATEGORY: Safety
+LAYER: L10
+---
+ID: KA-051
+NAME: Self-Correcting Knowledge Distillation
+PURPOSE: Distill high-confidence outcomes into reusable abstractions
+CATEGORY: Learning
+LAYER: L10
+---
+ID: KA-052
+NAME: Temporal Knowledge Evolution
+PURPOSE: Maintain time-versioned knowledge; retire outdated facts
+CATEGORY: Lifecycle
+LAYER: L10
+---
+ID: KA-053
+NAME: Dynamic Knowledge Compression
+PURPOSE: Compress/merge knowledge while preserving utility
+CATEGORY: Lifecycle
+LAYER: L10
+---
+ID: KA-054
+NAME: Cross-Lingual Knowledge Fusion
+PURPOSE: Align and merge concepts across languages
+CATEGORY: Context
+LAYER: L3,L10
+---
+ID: KA-055
+NAME: Adaptive Multi-Modal Integration
+PURPOSE: Resolve conflicts across modalities
+CATEGORY: Reasoning
+LAYER: L3,L9
+---
+ID: KA-056
+NAME: Narrative Explainability Engine
+PURPOSE: Generate audience-safe explanation from trace
+CATEGORY: Synthesis
+LAYER: L9
+---
+ID: KA-057
+NAME: Persona/Emotion Adaptation
+PURPOSE: Adapt tone/structure to stakeholder role
+CATEGORY: UX
+LAYER: L9
+---
+ID: KA-058
+NAME: Interactive Clarification & Learning
+PURPOSE: Decide when to ask user follow-ups
+CATEGORY: UX
+LAYER: L1,L9
+---
+ID: KA-059
+NAME: Predictive Layer Preemption
+PURPOSE: Skip unneeded layers/KAs for easy queries; fast-path routing
+CATEGORY: Control
+LAYER: L1
+---
+ID: KA-060
+NAME: Cognitive Load Balancer
+PURPOSE: Allocate effort to hardest subparts; prune low-yield branches
+CATEGORY: Control
+LAYER: L7
+---
+ID: KA-061
+NAME: Adversarial Input Shield
+PURPOSE: Detect/neutralize malicious inputs
+CATEGORY: Safety
+LAYER: L1
+---
+ID: KA-062
+NAME: Decentralized Trust Scoring
+PURPOSE: Compute trust score via provenance hashes/ledger concepts
+CATEGORY: Truth
+LAYER: L6,L10
+---
+ID: KA-063
+NAME: Continuous Performance Learning
+PURPOSE: Learn which KAs/pipelines perform best over time
+CATEGORY: Learning
+LAYER: L10
+---
+ID: KA-064
+NAME: Failure Pattern Detection
+PURPOSE: Detect recurring failure signatures
+CATEGORY: Learning
+LAYER: L10
+---
+ID: KA-065
+NAME: Knowledge Regression Tester
+PURPOSE: Ensure updates don’t break prior knowledge
+CATEGORY: Safety
+LAYER: L10
+---
+ID: KA-066
+NAME: Causal Inference Engine
+PURPOSE: Infer cause-effect relationships
+CATEGORY: Reasoning
+LAYER: L3,L7
+---
+ID: KA-067
+NAME: Analogical Reasoning Engine
+PURPOSE: Transfer structure/solutions across domains
+CATEGORY: Reasoning
+LAYER: L7
+---
+ID: KA-068
+NAME: Domain Specialization Tuner
+PURPOSE: Reweight domain-specific vs general reasoning
+CATEGORY: Control
+LAYER: L2,L4
+---
+ID: KA-069
+NAME: Cultural Context Adapter
+PURPOSE: Adapt examples/framing to cultural context
+CATEGORY: UX
+LAYER: L9
+---
+ID: KA-070
+NAME: Counterfactual Scenario Simulator
+PURPOSE: Run what-if simulations; alternate premises
+CATEGORY: Reasoning
+LAYER: L7
+---
+ID: KA-071
+NAME: Knowledge Provenance Tracker
+PURPOSE: Maintain evidence trees for stored knowledge
+CATEGORY: Governance
+LAYER: L6,L10
+---
+ID: KA-072
+NAME: Context Window Optimizer
+PURPOSE: Select optimal context elements under token budget
+CATEGORY: Control
+LAYER: L2,L9
+---
+ID: KA-073
+NAME: Intent Clarifier
+PURPOSE: Resolve linguistic ambiguity; extract intent
+CATEGORY: Routing
+LAYER: L1
+---
+ID: KA-074
+NAME: Privacy Preserver
+PURPOSE: Remove/anonymize sensitive data in outputs/logs
+CATEGORY: Safety
+LAYER: L8,L9
+---
+ID: KA-075
+NAME: Bias Mitigation Engine
+PURPOSE: Correct detected bias while preserving truth
+CATEGORY: Ethics
+LAYER: L9
+---
+ID: KA-076
+NAME: Knowledge Graph Pruner
+PURPOSE: Remove outdated/low-value/misleading nodes
+CATEGORY: Lifecycle
+LAYER: L10
+---
+ID: KA-077
+NAME: Knowledge Importance Scorer
+PURPOSE: Rank knowledge by relevance/reuse
+CATEGORY: Lifecycle
+LAYER: L10
+---
+ID: KA-078
+NAME: Memory Tier Classifier
+PURPOSE: Assign short-term vs long-term vs archive
+CATEGORY: Memory
+LAYER: L10
+---
+ID: KA-079
+NAME: Knowledge Promotion Gate
+PURPOSE: Enforce criteria before long-term commit
+CATEGORY: Memory
+LAYER: L10
+---
+ID: KA-080
+NAME: Simulation Cost Estimator
+PURPOSE: Estimate compute/time cost of deeper simulation
+CATEGORY: Control
+LAYER: L1,L7
+---
+ID: KA-081
+NAME: Simulation Budget Enforcer
+PURPOSE: Enforce compute/recursion limits
+CATEGORY: Safety
+LAYER: L7
+---
+ID: KA-082
+NAME: Confidence Drift Monitor
+PURPOSE: Detect gradual confidence degradation
+CATEGORY: Lifecycle
+LAYER: L10
+---
+ID: KA-083
+NAME: Knowledge Revalidation Scheduler
+PURPOSE: Schedule periodic re-checks of stored knowledge
+CATEGORY: Lifecycle
+LAYER: L10
+---
+ID: KA-084
+NAME: Cross-Instance Consensus Engine
+PURPOSE: Compare answers across UKG instances for consensus
+CATEGORY: Truth
+LAYER: L6,L10
+---
+ID: KA-085
+NAME: Anomaly Detection Engine
+PURPOSE: Detect unusual reasoning/output patterns
+CATEGORY: Safety
+LAYER: L6
+---
+ID: KA-086
+NAME: Knowledge Usage Analytics
+PURPOSE: Track knowledge usage across queries
+CATEGORY: Governance
+LAYER: L10
+---
+ID: KA-087
+NAME: Explainability Coverage Checker
+PURPOSE: Ensure explanations cover critical reasoning steps
+CATEGORY: QA
+LAYER: L9
+---
+ID: KA-088
+NAME: Knowledge Lifecycle Manager
+Error: 'charmap' codec can't encode character '\u2192' in position 26: character maps to <undefined>
