@@ -141,8 +141,11 @@ csrf.init_app(app)
 migrate.init_app(app, db)
 cache.init_app(app)
 compress.init_app(app)
-# Configure CORS with strict origins from config
-cors.init_app(app, resources={r"/api/*": {"origins": app.config.get('CORS_ORIGINS')}}, supports_credentials=True)
+# Configure CORS with strict origins from config (default to '*' if not set to prevent init errors)
+origins = app.config.get('CORS_ORIGINS')
+if not origins:
+    origins = "*"
+cors.init_app(app, resources={r"/api/*": {"origins": origins}}, supports_credentials=True)
 
 # Initialize Celery
 from backend.celery_app import make_celery

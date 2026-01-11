@@ -146,6 +146,9 @@ def register():
         db.session.commit()
         
         return success_response(message="Registration successful", status_code=201)
+    except ValueError as e:
+        db.session.rollback()
+        return error_response(str(e), 400)
     except Exception as e:
         db.session.rollback()
         logger.error(f"Registration error: {e}")

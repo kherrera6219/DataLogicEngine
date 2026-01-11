@@ -140,6 +140,9 @@ class PasswordSecurity:
             # If never changed, consider expired
             return True
 
+        if last_changed.tzinfo is None:
+            last_changed = last_changed.replace(tzinfo=UTC)
+
         expiry_date = last_changed + timedelta(days=expiry_days)
         return datetime.now(UTC) > expiry_date
 
@@ -157,6 +160,9 @@ class PasswordSecurity:
         """
         if not last_changed:
             return -1
+
+        if last_changed.tzinfo is None:
+            last_changed = last_changed.replace(tzinfo=UTC)
 
         expiry_date = last_changed + timedelta(days=expiry_days)
         delta = expiry_date - datetime.now(UTC)
