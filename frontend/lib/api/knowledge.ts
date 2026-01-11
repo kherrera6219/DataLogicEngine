@@ -13,6 +13,6 @@ export const knowledge = {
         try {
            const res = await fetch(`${API_BASE}/pillar-levels`);
            return (await res.json()).data?.length || 0;
-        } catch(e) { return 0; }
+        } catch { return 0; }
     }
 };

@@ -5,7 +5,7 @@ export const system = {
        try {
           const res = await fetch(`/health`);
           return res.ok ? 'Operational' : 'Degraded';
-       } catch (e) { return 'Offline'; }
+       } catch { return 'Offline'; }
     }
 };
 

@@ -7,7 +7,7 @@ export const simulation = {
           if (!res.ok) return [];
           const data = await res.json();
           return (data.success ? data.data : data) as SimulationSession[];
-        } catch (e) { return []; }
+        } catch { return []; }
     },
     create: async (name: string, parameters: Record<string, unknown> = {}) => {
         const res = await fetch(`${API_BASE}/simulations`, {
