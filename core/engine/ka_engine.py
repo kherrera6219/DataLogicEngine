@@ -56,40 +56,54 @@ class KAEngine:
     
     def _load_ka_registry(self):
         """
-        Load Knowledge Algorithm registry from configuration files.
+        Load Knowledge Algorithm registry from the enterprise-grade YAML.
         """
-        # Get the KA registry path
-        registry_path = self.config.get('ka_registry_path', 'knowledge_algorithms/ka_registry.yaml')
+        registry_path = self.config.get(
+            'ka_registry_path', 
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 
+                         "backend", "knowledge_algorithm", "registry", "ka_registry_enterprise.yaml")
+        )
         
         try:
-            # Check if file exists
             if not os.path.exists(registry_path):
                 logging.warning(f"[{datetime.now()}] KA registry file not found: {registry_path}")
                 return
             
-            # Load the registry
-            with open(registry_path, 'r') as f:
+            with open(registry_path, 'r', encoding='utf-8') as f:
                 ka_config = yaml.safe_load(f)
             
-            # Process each KA
-            for ka_id, ka_info in ka_config.get('algorithms', {}).items():
+            # The enterprise registry uses sheets.KA_Catalog.rows
+            ka_rows = ka_config.get('sheets', {}).get('KA_Catalog', {}).get('rows', [])
+            
+            for row in ka_rows:
+                ka_id = row.get('KA_ID')
+                if not ka_id:
+                    continue
+                    
+                # Map registry fields to engine internal structure
+                # Note: We derive module_path and class_name from the standardized module system
+                # if they aren't explicitly in the registry (the enterprise registry focus is on spec)
+                short_name = row.get('Short_Name', '').lower().replace(' ', '_')
+                module_name = ka_id.lower().replace('-', '') + "_" + short_name
+                
                 self.register_algorithm(
                     ka_id=ka_id,
-                    name=ka_info.get('name'),
-                    description=ka_info.get('description'),
-                    module_path=ka_info.get('module_path'),
-                    class_name=ka_info.get('class_name'),
-                    version=ka_info.get('version', '1.0.0'),
-                    parameters=ka_info.get('parameters', {})
+                    name=row.get('KA_Name'),
+                    description=row.get('Purpose'),
+                    module_path=f"backend.knowledge_algorithm.modules.{module_name}",
+                    class_name=row.get('Short_Name', 'Algorithm'),
+                    version=row.get('Version', '1.0.0'),
+                    parameters=row.get('Default_Params', {}),
+                    hard_dependencies=row.get('Hard_Dependencies')
                 )
             
-            logging.info(f"[{datetime.now()}] Loaded {len(self.ka_registry)} KAs from registry")
+            logging.info(f"[{datetime.now()}] Loaded {len(self.ka_registry)} KAs from enterprise registry")
         except Exception as e:
             logging.error(f"[{datetime.now()}] Error loading KA registry: {str(e)}")
     
     def register_algorithm(self, ka_id: str, name: str, description: str, 
                          module_path: str, class_name: str, version: str = '1.0.0',
-                         parameters: Dict = None) -> bool:
+                         parameters: Dict = None, hard_dependencies: Optional[str] = None) -> bool:
         """
         Register a Knowledge Algorithm.
         
@@ -119,6 +133,7 @@ class KAEngine:
             'class_name': class_name,
             'version': version,
             'parameters': parameters or {},
+            'hard_dependencies': hard_dependencies,
             'registered_at': datetime.now().isoformat(),
             'instance': None
         }
@@ -212,6 +227,22 @@ class KAEngine:
             self.stats['failed_executions'] += 1
             
             return execution_record
+
+        # Resolve Hard Dependencies
+        ka_info = self.ka_registry[ka_id]
+        if ka_info.get('hard_dependencies'):
+            dep_list = [d.strip() for d in ka_info['hard_dependencies'].split(',')]
+            for dep_id in dep_list:
+                # Check if dependency was already run in this session
+                # For simplicity, we trigger it if it exists in the registry
+                if dep_id in self.ka_registry:
+                    logging.info(f"[{datetime.now()}] Resolving hard dependency: {dep_id} for {ka_id}")
+                    dep_result = self.execute_algorithm(dep_id, params, session_id)
+                    if dep_result['status'] == 'failed':
+                        return {
+                            'status': 'failed',
+                            'error': f"Hard dependency {dep_id} failed for {ka_id}: {dep_result['error']}"
+                        }
         
         try:
             # Get KA info

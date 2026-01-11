@@ -1,0 +1,13 @@
+{
+  "@context": "https://ukg.enterprise/lineage/v1",
+  "type": "Derivation",
+  "target": "FACT-001",
+  "sources": [
+    "SRC-999"
+  ],
+  "agent": "ka:KA-001",
+  "timestamp": "2026-01-10T23:00:01.137537",
+  "simulation_id": "TEST-SIM-001",
+  "pass_number": 1,
+  "metadata": {}
+}
