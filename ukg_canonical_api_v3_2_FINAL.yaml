@@ -1,0 +1,4054 @@
+openapi: 3.1.0
+info:
+  title: Universal Knowledge Graph (UKG) Canonical API
+  version: 3.2.1
+  description: 'Enterprise-grade AI enhancement overlay integrating:
+
+    - 17-Axis Coordinate System (Pillar→Sector→Honeycomb→Branch→Node→Octopus→Spiderweb
+    + Personas + Location/Time + Enterprise)
+
+    - Quad Persona System (Knowledge, Sector, Regulatory, Compliance experts from
+    Axes 8-11)
+
+    - 10-Layer Simulation Stack (Context Init → Emergence Detection)
+
+    - 12-Step Refinement Workflow (AoT→ToT→Validation→Synthesis)
+
+    - Truth Engine v7.3 (TruthGate, TruthCore, TruthMemory, TruthLink)
+
+
+    This API transforms any LLM into a validated, traceable, enterprise-ready reasoning
+    system
+
+    with complete audit trails and 99.5%+ confidence targets for high-stakes domains.
+
+
+    **Core Principle**: LLMs are execution backends, not authorities. The UKG overlay
+    provides
+
+    the reasoning framework, validation, and governance.
+
+
+    **Version 3.2 Enhancements**:
+
+    - Added cost estimation endpoint
+
+    - Enhanced streaming protocol with WebSocket details
+
+    - Added knowledge ingestion endpoints
+
+    - Improved pagination support across all list operations
+
+    - Enhanced rate limiting with detailed headers
+
+    - Added batch status tracking
+
+    - Strengthened schema validation patterns
+
+    - Added comprehensive response headers
+
+    - Added graph snapshot and diff capabilities
+
+    '
+  contact:
+    name: UKG API Support
+    email: api@ukg.ai
+    url: https://docs.ukg.ai
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  x-ukg-system:
+    axis_system: 17-axis
+    truth_engine: TruthGate+TruthCore+TruthMemory+TruthAudit
+    workflow_version: '2.5'
+servers:
+- url: https://api.ukg.ai/v1
+  description: Production UKG API
+- url: https://staging.api.ukg.ai/v1
+  description: Staging environment
+- url: https://api.ukg.ai/v1/{tenant}
+  description: Multi-tenant production
+  variables:
+    tenant:
+      default: default
+      description: Tenant identifier for enterprise deployments
+tags:
+- name: Enhancement
+  description: Core UKG enhancement operations
+- name: 17-Axis System
+  description: Coordinate resolution and axis operations
+- name: Quad Personas
+  description: Expert persona management (Axes 8-11)
+- name: 10-Layer Stack
+  description: Simulation layer operations
+- name: 12-Step Refinement
+  description: Refinement workflow operations
+- name: Truth Engine
+  description: Truth Engine v7.3 components (Gate/Core/Memory/Link)
+- name: Knowledge Graph
+  description: Knowledge graph queries and traversal
+- name: Audit & Compliance
+  description: Audit trail and compliance operations
+- name: Analytics
+  description: Usage analytics and insights
+- name: System
+  description: System health and status operations
+- name: Workflow
+  description: Run and route the 10-layer simulation stack and 12-step refinement
+    workflow with tiered execution.
+- name: TruthEngine
+  description: 'Four-part Truth Engine: TruthGate, TruthCore, TruthMemory, TruthAudit.'
+- name: KAs
+  description: Knowledge Algorithms (KA) registry and execution metadata.
+- name: Axis
+  description: UKG/USKD axis systems and coordinate utilities (including 17-axis).
+- name: Audit
+  description: Audit events, traces, and governance artifacts.
+security:
+- BearerAuth: []
+- ApiKeyAuth: []
+paths:
+  /enhance:
+    post:
+      tags:
+      - Enhancement
+      summary: Enhance AI query with full UKG validation
+      description: 'Primary endpoint for UKG enhancement. Processes query through:
+
+        1. TruthGate (security, triage, tier assignment)
+
+        2. 17-Axis coordinate resolution
+
+        3. 10-Layer simulation stack (complexity-routed)
+
+        4. Quad Persona orchestration (Axes 8-11)
+
+        5. 12-Step refinement workflow
+
+        6. TruthMemory audit trail generation
+
+
+        Returns validated response with complete traceability.
+
+
+        **SLA Performance Targets by Tier**:
+
+        - Trivial: < 2s (direct RAG lookup)
+
+        - Moderate: < 5s (hybrid RAG + Chain-of-Thought)
+
+        - High-Stakes: < 15s (full 12-step refinement)
+
+        - Extreme: < 30s (+ GNN/NN/Quantum simulations)
+
+        - Autonomous: Async (multi-agent planning with governance)
+
+        '
+      operationId: enhanceQuery_fullValidation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnhanceRequest'
+            examples:
+              healthcare_compliance:
+                summary: Healthcare GDPR compliance query
+                value:
+                  request_id: req_healthcare_001
+                  query: Analyze GDPR compliance requirements for healthcare AI in
+                    EU
+                  axis_hints:
+                    axis_1_pillar: PL0012
+                    axis_2_industry: NAICS-621111
+                    axis_12_location:
+                      country: EU
+                      region: Germany
+                  truth_engine:
+                    tier: high_stakes
+                    enable_gate_security: true
+                    enable_memory_audit: true
+                  refinement:
+                    confidence_threshold: 0.995
+                    max_iterations: 3
+              financial_risk:
+                summary: Financial risk assessment
+                value:
+                  request_id: req_finance_001
+                  query: Assess systemic risk in derivatives portfolio
+                  axis_hints:
+                    axis_1_pillar: PL0045
+                    axis_2_industry: NAICS-522110
+                    axis_15_risk: extreme
+                  truth_engine:
+                    tier: extreme
+                  options:
+                    compliance_frameworks:
+                    - SOC2
+                    - Basel_III
+              legal_contract_analysis:
+                summary: Legal contract review
+                value:
+                  request_id: req_legal_001
+                  query: Review commercial lease for compliance with California law
+                  axis_hints:
+                    axis_1_pillar: PL0055
+                    axis_2_industry: NAICS-531120
+                    axis_10_regulatory:
+                      regulatory_framework: California_Commercial_Code
+                    axis_12_location:
+                      country: US
+                      region: California
+                  truth_engine:
+                    tier: high_stakes
+                  refinement:
+                    confidence_threshold: 0.995
+      responses:
+        '200':
+          description: Successfully enhanced response with validation
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+                format: uuid
+              description: Unique request identifier for tracking
+            X-Processing-Time-Ms:
+              schema:
+                type: integer
+              description: Total processing time in milliseconds
+            X-Confidence-Score:
+              schema:
+                type: number
+                minimum: 0.0
+                maximum: 1.0
+              description: Overall confidence score
+            X-Cost-USD:
+              schema:
+                type: number
+              description: Total cost in USD for this request
+            X-Tier:
+              schema:
+                type: string
+                enum:
+                - trivial
+                - moderate
+                - high_stakes
+                - extreme
+                - autonomous
+              description: Processing tier assigned
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests per hour allowed for this tier
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Remaining requests in current window
+            X-RateLimit-Reset:
+              schema:
+                type: string
+                format: date-time
+              description: When the rate limit resets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnhancedResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /enhance/estimate:
+    post:
+      tags:
+      - Enhancement
+      summary: Estimate processing cost before execution
+      description: 'Returns estimated cost and processing time without actually executing
+        the query.
+
+        Useful for budgeting and optimization decisions before committing to full
+        enhancement.
+
+
+        This endpoint analyzes the query and axis hints to predict:
+
+        - Optimal processing tier
+
+        - Estimated processing time
+
+        - Estimated cost breakdown
+
+        - Resource requirements
+
+
+        **No charges apply** for estimation calls.
+
+        '
+      operationId: estimateEnhancementCost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnhanceRequest'
+      responses:
+        '200':
+          description: Cost estimation complete
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - estimated_cost_usd
+                - estimated_time_ms
+                - recommended_tier
+                properties:
+                  estimated_cost_usd:
+                    type: number
+                    description: Total estimated cost in USD
+                    example: 0.0245
+                  estimated_time_ms:
+                    type: number
+                    description: Estimated processing time in milliseconds
+                    example: 8500
+                  recommended_tier:
+                    type: string
+                    enum:
+                    - trivial
+                    - moderate
+                    - high_stakes
+                    - extreme
+                    - autonomous
+                    description: Recommended processing tier for this query
+                  breakdown:
+                    type: object
+                    description: Cost breakdown by component
+                    properties:
+                      llm_api_cost:
+                        type: number
+                        description: Estimated LLM API costs
+                      knowledge_graph_queries:
+                        type: number
+                        description: Graph database query costs
+                      vector_operations:
+                        type: number
+                        description: Vector database operation costs
+                      compute_resources:
+                        type: number
+                        description: Computational resource costs
+                  resource_requirements:
+                    type: object
+                    properties:
+                      estimated_tokens:
+                        type: integer
+                        description: Estimated token count for LLM calls
+                      graph_queries:
+                        type: integer
+                        description: Estimated number of graph queries
+                      personas_required:
+                        type: array
+                        items:
+                          type: string
+                      layers_invoked:
+                        type: array
+                        items:
+                          type: integer
+                  optimization_suggestions:
+                    type: array
+                    items:
+                      type: string
+                    description: Suggestions to reduce cost/time
+                    example:
+                    - Consider reducing confidence threshold from 0.995 to 0.95 to
+                      save 30% processing time
+                    - Query could be handled by 'moderate' tier instead of 'high_stakes'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /enhance/stream:
+    post:
+      tags:
+      - Enhancement
+      summary: Stream enhanced response progressively
+      description: "WebSocket upgrade for streaming responses. Returns progressive\
+        \ updates as\nlayers and refinement steps complete.\n\n**WebSocket Streaming\
+        \ Protocol**:\n\n1. Client initiates WebSocket connection and sends EnhanceRequest\n\
+        2. Server responds with events in JSON format:\n   - `layer_start`: {layer:\
+        \ 1, name: \"Context Init\", timestamp: \"...\"}\n   - `layer_complete`: {layer:\
+        \ 1, output: {...}, execution_time_ms: 124}\n   - `persona_analysis`: {persona:\
+        \ \"knowledge_expert\", analysis: \"...\", confidence: 0.92}\n   - `confidence_update`:\
+        \ {iteration: 2, confidence: 0.978, step: \"Evidence Validation\"}\n   - `refinement_iteration`:\
+        \ {iteration: 3, steps_completed: 8, current_confidence: 0.994}\n   - `final_answer`:\
+        \ {answer: {...}, audit_trail: {...}, metadata: {...}}\n   - `error`: {code:\
+        \ \"...\", message: \"...\", recoverable: true/false}\n\n3. Client can send\
+        \ control messages:\n   - `pause`: Temporarily pause processing\n   - `resume`:\
+        \ Resume paused processing\n   - `cancel`: Cancel processing (partial audit\
+        \ trail returned)\n   \nAll events include a `sequence_number` for ordering\
+        \ and `timestamp` for latency tracking.\n\n**Connection Management**:\n- Heartbeat/ping\
+        \ every 30s to keep connection alive\n- Maximum connection duration: 5 minutes\n\
+        - Automatic reconnection support with `resume_token`\n"
+      operationId: enhanceQuery_stream_progressive
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnhanceRequest'
+      responses:
+        '101':
+          description: Switching Protocols to WebSocket
+          headers:
+            Upgrade:
+              schema:
+                type: string
+                enum:
+                - websocket
+              description: Protocol upgrade to WebSocket
+            Connection:
+              schema:
+                type: string
+                enum:
+                - Upgrade
+            Sec-WebSocket-Accept:
+              schema:
+                type: string
+              description: WebSocket accept hash
+            Sec-WebSocket-Protocol:
+              schema:
+                type: string
+                enum:
+                - ukg-stream-v1
+              description: UKG streaming protocol version
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /enhance/batch:
+    post:
+      tags:
+      - Enhancement
+      summary: Batch enhancement for multiple queries
+      description: 'Submit multiple queries for asynchronous batch processing.
+
+        Returns job ID for status tracking.
+
+
+        **Batch Processing**:
+
+        - Maximum 1000 queries per batch
+
+        - Queries processed in parallel where possible
+
+        - Results available via polling or webhook callback
+
+        - Batch jobs expire after 7 days
+
+
+        **Priority Levels**:
+
+        - `low`: Processed during off-peak hours (cheapest)
+
+        - `normal`: Standard processing queue
+
+        - `high`: Priority processing (premium pricing)
+
+        '
+      operationId: enhanceBatch_async
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - batch_id
+              - queries
+              properties:
+                batch_id:
+                  type: string
+                  format: uuid
+                  description: Client-provided batch identifier
+                queries:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/EnhanceRequest'
+                  minItems: 1
+                  maxItems: 1000
+                  description: Array of queries to process
+                priority:
+                  type: string
+                  enum:
+                  - low
+                  - normal
+                  - high
+                  default: normal
+                  description: Processing priority level
+                callback_url:
+                  type: string
+                  format: uri
+                  description: Webhook URL for completion notification
+                metadata:
+                  type: object
+                  additionalProperties: true
+                  description: Optional metadata for tracking
+      responses:
+        '202':
+          description: Batch accepted for processing
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - batch_id
+                - status
+                - total_queries
+                - status_url
+                properties:
+                  batch_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum:
+                    - queued
+                    - processing
+                    - completed
+                    - failed
+                    - partial
+                  total_queries:
+                    type: integer
+                  estimated_completion:
+                    type: string
+                    format: date-time
+                  estimated_cost_usd:
+                    type: number
+                  status_url:
+                    type: string
+                    format: uri
+                    description: URL to check batch status
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /enhance/batch/{batch_id}/status:
+    get:
+      tags:
+      - Enhancement
+      summary: Get batch processing status
+      description: 'Retrieve current status of batch processing job.
+
+
+        Poll this endpoint to track progress. Consider using webhooks
+
+        for large batches instead of frequent polling.
+
+        '
+      operationId: getBatchStatus
+      parameters:
+      - name: batch_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Batch status retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - batch_id
+                - status
+                - total
+                - completed
+                - in_progress
+                - failed
+                properties:
+                  batch_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum:
+                    - queued
+                    - processing
+                    - completed
+                    - failed
+                    - partial
+                  total:
+                    type: integer
+                    description: Total number of queries in batch
+                  completed:
+                    type: integer
+                    description: Number of queries completed successfully
+                  failed:
+                    type: integer
+                    description: Number of queries that failed
+                  in_progress:
+                    type: integer
+                    description: Number of queries currently processing
+                  queued:
+                    type: integer
+                    description: Number of queries waiting to process
+                  created_at:
+                    type: string
+                    format: date-time
+                  started_at:
+                    type: string
+                    format: date-time
+                  completed_at:
+                    type: string
+                    format: date-time
+                  estimated_completion:
+                    type: string
+                    format: date-time
+                  results_available:
+                    type: boolean
+                    description: Whether results are ready for download
+                  results_url:
+                    type: string
+                    format: uri
+                    description: URL to download results (if available)
+                  results_expires_at:
+                    type: string
+                    format: date-time
+                    description: When results will be deleted (7 days)
+                  total_cost_usd:
+                    type: number
+                  error_summary:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        request_id:
+                          type: string
+                        error_code:
+                          type: string
+                        error_message:
+                          type: string
+        '404':
+          description: Batch not found
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /enhance/batch/{batch_id}/results:
+    get:
+      tags:
+      - Enhancement
+      summary: Download batch results
+      description: 'Download all results from completed batch processing.
+
+
+        Results are available for 7 days after completion.
+
+        Format can be JSON (default) or JSONL for large batches.
+
+        '
+      operationId: getBatchResults
+      parameters:
+      - name: batch_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: format
+        in: query
+        schema:
+          type: string
+          enum:
+          - json
+          - jsonl
+          - csv
+          default: json
+      - name: include_audit_trails
+        in: query
+        schema:
+          type: boolean
+          default: false
+        description: Include full audit trails (increases size significantly)
+      responses:
+        '200':
+          description: Batch results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  batch_id:
+                    type: string
+                  total_queries:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        request_id:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                          - success
+                          - failed
+                        response:
+                          $ref: '#/components/schemas/EnhancedResponse'
+                        error:
+                          type: object
+            application/x-ndjson:
+              schema:
+                type: string
+                description: Newline-delimited JSON for streaming large results
+            text/csv:
+              schema:
+                type: string
+        '404':
+          description: Batch not found or results expired
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /knowledge/ingest:
+    post:
+      tags:
+      - Knowledge Graph
+      summary: Ingest new data into knowledge graph
+      description: 'Ingest documents, data, or knowledge into the UKG knowledge graph.
+
+
+        **Supported Data Types**:
+
+        - Documents (PDF, DOCX, TXT, MD, HTML)
+
+        - Structured data (JSON, CSV, XML)
+
+        - APIs and web sources
+
+        - Database dumps
+
+
+        **Processing Pipeline**:
+
+        1. Parse and extract content
+
+        2. Map to 17-axis coordinates
+
+        3. Perform delta fusion with existing knowledge
+
+        4. Update graph with new/changed nodes
+
+        5. Maintain provenance and audit trail
+
+
+        **Delta Fusion**:
+
+        - Compares new data with existing knowledge
+
+        - Merges, updates, or quarantines based on confidence
+
+        - Handles conflicts using Knowledge Integration Matrix rules
+
+        - Preserves source attribution
+
+
+        Large ingestion jobs are processed asynchronously.
+
+        '
+      operationId: ingestKnowledge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - ingestion_id
+              - data_source
+              properties:
+                ingestion_id:
+                  type: string
+                  format: uuid
+                data_source:
+                  type: object
+                  required:
+                  - type
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - document
+                      - structured
+                      - api
+                      - database
+                      - text
+                    format:
+                      type: string
+                      enum:
+                      - pdf
+                      - docx
+                      - txt
+                      - md
+                      - html
+                      - json
+                      - csv
+                      - xml
+                      - sql
+                    content:
+                      type: string
+                      description: Base64-encoded content or inline text
+                    url:
+                      type: string
+                      format: uri
+                      description: URL to fetch content from
+                axis_hints:
+                  $ref: '#/components/schemas/AxisHints'
+                  description: Hints for axis mapping
+                processing_options:
+                  type: object
+                  properties:
+                    delta_fusion_strategy:
+                      type: string
+                      enum:
+                      - merge
+                      - update
+                      - quarantine
+                      - replace
+                      default: merge
+                    confidence_threshold:
+                      type: number
+                      minimum: 0.0
+                      maximum: 1.0
+                      default: 0.95
+                      description: Minimum confidence to accept new knowledge
+                    enable_nlp_extraction:
+                      type: boolean
+                      default: true
+                    enable_entity_linking:
+                      type: boolean
+                      default: true
+                    preserve_source_document:
+                      type: boolean
+                      default: true
+                metadata:
+                  type: object
+                  properties:
+                    source:
+                      type: string
+                    author:
+                      type: string
+                    created_at:
+                      type: string
+                      format: date-time
+                    tags:
+                      type: array
+                      items:
+                        type: string
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '202':
+          description: Ingestion job accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ingestion_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum:
+                    - queued
+                    - processing
+                    - completed
+                    - failed
+                  status_url:
+                    type: string
+                    format: uri
+        '400':
+          description: Invalid data format or unsupported type
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /knowledge/ingest/{ingestion_id}/status:
+    get:
+      tags:
+      - Knowledge Graph
+      summary: Get ingestion status
+      description: Track status of knowledge ingestion job
+      operationId: getIngestionStatus
+      parameters:
+      - name: ingestion_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Ingestion status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ingestion_id:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - queued
+                    - processing
+                    - completed
+                    - failed
+                  progress:
+                    type: object
+                    properties:
+                      total_items:
+                        type: integer
+                      processed_items:
+                        type: integer
+                      failed_items:
+                        type: integer
+                  results:
+                    type: object
+                    properties:
+                      nodes_created:
+                        type: integer
+                      nodes_updated:
+                        type: integer
+                      relationships_created:
+                        type: integer
+                      conflicts_detected:
+                        type: integer
+                      items_quarantined:
+                        type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /knowledge/graph/snapshot:
+    post:
+      tags:
+      - Knowledge Graph
+      summary: Create knowledge graph snapshot
+      description: 'Create a point-in-time snapshot of the knowledge graph for:
+
+        - Disaster recovery
+
+        - Version control
+
+        - A/B testing different knowledge states
+
+        - Rollback capability
+
+
+        Snapshots are stored with metadata and can be restored or compared.
+
+        '
+      operationId: createGraphSnapshot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - snapshot_name
+              properties:
+                snapshot_name:
+                  type: string
+                  description: Descriptive name for snapshot
+                description:
+                  type: string
+                  description: Optional description
+                scope:
+                  type: object
+                  properties:
+                    axis_filter:
+                      type: array
+                      items:
+                        type: integer
+                      description: Only snapshot specific axes (empty = all)
+                    pillar_filter:
+                      type: array
+                      items:
+                        type: string
+                      description: Only snapshot specific pillars
+                retention_days:
+                  type: integer
+                  default: 90
+                  description: How long to keep snapshot
+      responses:
+        '202':
+          description: Snapshot creation initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  snapshot_id:
+                    type: string
+                    format: uuid
+                  snapshot_name:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - creating
+                    - completed
+                    - failed
+                  estimated_completion:
+                    type: string
+                    format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /knowledge/graph/snapshot/{snapshot_id}:
+    get:
+      tags:
+      - Knowledge Graph
+      summary: Get snapshot details
+      operationId: getSnapshot
+      parameters:
+      - name: snapshot_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Snapshot details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  snapshot_id:
+                    type: string
+                  snapshot_name:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+                  size_bytes:
+                    type: integer
+                  node_count:
+                    type: integer
+                  relationship_count:
+                    type: integer
+                  status:
+                    type: string
+                    enum:
+                    - active
+                    - expired
+                    - deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /knowledge/graph/diff:
+    post:
+      tags:
+      - Knowledge Graph
+      summary: Compare two graph snapshots
+      description: 'Compare two knowledge graph snapshots to identify changes.
+
+
+        Returns detailed diff showing:
+
+        - Nodes added/removed/modified
+
+        - Relationships added/removed
+
+        - Property changes
+
+        - Statistical summary
+
+        '
+      operationId: compareGraphSnapshots
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - source_snapshot_id
+              - target_snapshot_id
+              properties:
+                source_snapshot_id:
+                  type: string
+                  format: uuid
+                  description: Earlier snapshot (or "current" for live graph)
+                target_snapshot_id:
+                  type: string
+                  format: uuid
+                  description: Later snapshot (or "current" for live graph)
+                diff_level:
+                  type: string
+                  enum:
+                  - summary
+                  - detailed
+                  - full
+                  default: summary
+      responses:
+        '200':
+          description: Snapshot comparison complete
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  source_snapshot:
+                    type: string
+                  target_snapshot:
+                    type: string
+                  compared_at:
+                    type: string
+                    format: date-time
+                  summary:
+                    type: object
+                    properties:
+                      nodes_added:
+                        type: integer
+                      nodes_removed:
+                        type: integer
+                      nodes_modified:
+                        type: integer
+                      relationships_added:
+                        type: integer
+                      relationships_removed:
+                        type: integer
+                  changes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        change_type:
+                          type: string
+                          enum:
+                          - node_added
+                          - node_removed
+                          - node_modified
+                          - relationship_added
+                          - relationship_removed
+                        node_id:
+                          type: string
+                        details:
+                          type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /axis/resolve:
+    post:
+      tags:
+      - 17-Axis System
+      summary: Resolve query to 17-axis coordinate
+      description: 'Maps natural language query to complete 17-dimensional coordinate:
+
+        - A1: Pillar (PL-0001 to PL-1107) - Knowledge domain
+
+        - A2: Industry/Sector (NAICS, SIC, ISIC, NACE, etc.)
+
+        - A3: Honeycomb (cross-domain links)
+
+        - A4: Branch (hierarchical structure)
+
+        - A5: Node (atomic knowledge units)
+
+        - A6: Octopus (multi-directional relationships)
+
+        - A7: Spiderweb (web of connections)
+
+        - A8-A11: Quad Personas (Knowledge, Sector, Regulatory, Compliance experts)
+
+        - A12: Location (geographic context)
+
+        - A13: Time (temporal context)
+
+        - A14: Stakeholder (perspective)
+
+        - A15: Risk (assessment level)
+
+        - A16: Trust (confidence threshold)
+
+        - A17: Metadata (system context)
+
+
+        Returns canonical coordinate string with confidence scores.
+
+        '
+      operationId: resolveAxes_fromQuery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - query
+              properties:
+                query:
+                  type: string
+                  maxLength: 10000
+                  description: Natural language query to map
+                hints:
+                  $ref: '#/components/schemas/AxisHints'
+                  description: Optional axis hints to guide resolution
+                include_confidence:
+                  type: boolean
+                  default: true
+                  description: Include confidence scores for each axis
+                include_alternatives:
+                  type: boolean
+                  default: false
+                  description: Include alternative coordinate mappings
+      responses:
+        '200':
+          description: 17-axis coordinate resolved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coordinate17Axis'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /axis/{axis_number}:
+    get:
+      tags:
+      - 17-Axis System
+      summary: Get axis definition and possible values
+      description: 'Returns comprehensive metadata for specific axis including:
+
+        - Taxonomy structure
+
+        - Valid value ranges
+
+        - Examples
+
+        - Related axes
+
+        - Usage guidelines
+
+        '
+      operationId: getAxisDefinition
+      parameters:
+      - name: axis_number
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 17
+        description: Axis number (1-17)
+      responses:
+        '200':
+          description: Axis definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AxisDefinition'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /axis/coordinate/{coordinate}:
+    get:
+      tags:
+      - 17-Axis System
+      summary: Lookup knowledge by coordinate
+      description: 'Retrieve knowledge graph nodes matching specific coordinate.
+
+
+        **Coordinate Format**:
+
+        "A1:PL0012-A2:621111-A3:HC01-A4:B3-A5:N445-..."
+
+
+        Supports partial coordinates (e.g., just "A1:PL0012-A2:621111")
+
+        for broader queries.
+
+        '
+      operationId: getByCoordinate
+      parameters:
+      - name: coordinate
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^A1:[^-]+-A2:[^-]+.*
+        description: 17-axis coordinate (full or partial)
+      - name: depth
+        in: query
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 5
+          default: 1
+        description: Graph traversal depth
+      responses:
+        '200':
+          description: Knowledge nodes matching coordinate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  coordinate:
+                    type: string
+                  match_type:
+                    type: string
+                    enum:
+                    - exact
+                    - partial
+                  nodes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/KnowledgeNode'
+                  total_matches:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /personas:
+    get:
+      tags:
+      - Quad Personas
+      summary: List available personas
+      description: 'Returns all four core personas derived from Axes 8-11:
+
+        - Knowledge Expert (Axis 8)
+
+        - Sector Specialist (Axis 9)
+
+        - Regulatory Advisor (Axis 10)
+
+        - Compliance Officer (Axis 11)
+
+        '
+      operationId: listPersonas
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      responses:
+        '200':
+          description: Persona list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /personas/{persona_id}/profile:
+    get:
+      tags:
+      - Quad Personas
+      summary: Get complete persona profile
+      description: 'Returns 7-part persona profile:
+
+        1. Role
+
+        2. Education
+
+        3. Certifications
+
+        4. Skills
+
+        5. Traits
+
+        6. Job Training
+
+        7. Related Roles
+
+        '
+      operationId: getPersonaProfile
+      parameters:
+      - name: persona_id
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - knowledge_expert
+          - sector_specialist
+          - regulatory_advisor
+          - compliance_officer
+      - name: domain_context
+        in: query
+        schema:
+          type: string
+        description: Domain context for persona specialization
+      responses:
+        '200':
+          description: Complete persona profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonaProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /personas/activate:
+    post:
+      tags:
+      - Quad Personas
+      summary: Activate personas for query
+      description: 'Activates specified personas with weighted contributions.
+
+        Returns persona instances with domain-specific profiles.
+
+        '
+      operationId: activatePersonas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - coordinate
+              - personas_enabled
+              properties:
+                coordinate:
+                  type: string
+                personas_enabled:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - knowledge_expert
+                    - sector_specialist
+                    - regulatory_advisor
+                    - compliance_officer
+                  minItems: 1
+                  maxItems: 4
+                weights:
+                  type: object
+                  properties:
+                    knowledge_expert:
+                      type: number
+                      minimum: 0
+                      maximum: 1
+                    sector_specialist:
+                      type: number
+                      minimum: 0
+                      maximum: 1
+                    regulatory_advisor:
+                      type: number
+                      minimum: 0
+                      maximum: 1
+                    compliance_officer:
+                      type: number
+                      minimum: 0
+                      maximum: 1
+      responses:
+        '200':
+          description: Personas activated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonaActivation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /simulation/layers:
+    get:
+      tags:
+      - 10-Layer Stack
+      summary: Get simulation layer definitions
+      description: 'Returns canonical 10-layer stack definition:
+
+        - L1: Context Init & Parsing
+
+        - L2: Retrieval & Traversal
+
+        - L3: Research Agents
+
+        - L4: Stakeholder POV
+
+        - L5: Quad-Persona Debate
+
+        - L6: Pattern Analysis + Quantitative Validation
+
+        - L7: Scenario Simulation / Strategic Foresight
+
+        - L8: Cross-verification + Consistency Validation
+
+        - L9: Strategic Alignment
+
+        - L10: Emergence Detection + Final Assembly
+
+        '
+      operationId: getSimulationLayers
+      responses:
+        '200':
+          description: Layer definitions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimulationLayer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /simulation/execute:
+    post:
+      tags:
+      - 10-Layer Stack
+      summary: Execute simulation stack
+      description: 'Runs 10-layer simulation with complexity-based routing.
+
+        Layers invoked based on query tier (trivial/moderate/high_stakes/extreme/autonomous).
+
+        '
+      operationId: executeSimulation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - query
+              - coordinate
+              properties:
+                query:
+                  type: string
+                coordinate:
+                  $ref: '#/components/schemas/Coordinate17Axis'
+                personas:
+                  $ref: '#/components/schemas/PersonaActivation'
+                config:
+                  type: object
+                  properties:
+                    layers_enabled:
+                      type: array
+                      items:
+                        type: integer
+                        minimum: 1
+                        maximum: 10
+                    max_depth:
+                      type: integer
+                      default: 5
+                    enable_emergent_synthesis:
+                      type: boolean
+                      default: true
+      responses:
+        '200':
+          description: Simulation complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /simulation/trace/{request_id}:
+    get:
+      tags:
+      - 10-Layer Stack
+      summary: Get simulation execution trace
+      description: Returns detailed trace of layer execution for specific request
+      operationId: getSimulationTrace
+      parameters:
+      - name: request_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Simulation trace
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationTrace'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /refinement/steps:
+    get:
+      tags:
+      - 12-Step Refinement
+      summary: Get refinement step definitions
+      description: 'Returns canonical 12-step refinement workflow:
+
+        1. AoT (Algorithm of Thought)
+
+        2. ToT (Tree of Thought)
+
+        3. Gap Analysis
+
+        4. Evidence Validation
+
+        5. NLP Enhancement
+
+        6. Data Consistency Validation
+
+        7. Cross-Reference Validation
+
+        8. Logic Check
+
+        9. Ethical/Bias Audit
+
+        10. Regulatory Compliance
+
+        11. Security Validation
+
+        12. Final Synthesis
+
+        '
+      operationId: getRefinementSteps
+      responses:
+        '200':
+          description: Refinement step definitions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RefinementStep'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /refinement/validate:
+    post:
+      tags:
+      - 12-Step Refinement
+      summary: Run refinement workflow
+      description: 'Executes 12-step refinement with iterative improvement until
+
+        confidence threshold (default 99.5%) is met or max iterations reached.
+
+        '
+      operationId: validateRefinement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - simulation_result
+              properties:
+                simulation_result:
+                  $ref: '#/components/schemas/SimulationResult'
+                config:
+                  type: object
+                  properties:
+                    confidence_threshold:
+                      type: number
+                      minimum: 0.0
+                      maximum: 1.0
+                      default: 0.995
+                    max_iterations:
+                      type: integer
+                      minimum: 1
+                      maximum: 10
+                      default: 3
+                    steps_enabled:
+                      type: array
+                      items:
+                        type: integer
+                        minimum: 1
+                        maximum: 12
+                    compliance_frameworks:
+                      type: array
+                      items:
+                        type: string
+      responses:
+        '200':
+          description: Refinement complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefinementResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /refinement/confidence/{request_id}:
+    get:
+      tags:
+      - 12-Step Refinement
+      summary: Get confidence progression
+      description: Returns confidence score progression across refinement iterations
+      operationId: getConfidenceProgression
+      parameters:
+      - name: request_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Confidence progression
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                    format: uuid
+                  iterations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        iteration:
+                          type: integer
+                        confidence:
+                          type: number
+                        step_scores:
+                          type: object
+                          additionalProperties:
+                            type: number
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /truth/gate/check:
+    post:
+      tags:
+      - Truth Engine
+      summary: TruthGate security and triage check
+      description: 'Performs TruthGate v7.3 security checks:
+
+        - Adversarial input detection (Llama Guard 3 + Rebuff)
+
+        - PII redaction (Presidio)
+
+        - Drift detection
+
+        - Budget enforcement
+
+        - Priority assignment (P0-P5)
+
+        - Tier classification (trivial/moderate/high_stakes/extreme/autonomous)
+
+        '
+      operationId: truthGateCheck
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - query
+              properties:
+                query:
+                  type: string
+                user_context:
+                  type: object
+                  properties:
+                    user_id:
+                      type: string
+                    tenant_id:
+                      type: string
+                    budget_allocated:
+                      type: number
+      responses:
+        '200':
+          description: Security check passed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruthGateResult'
+        '403':
+          description: Security check failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  reason:
+                    type: string
+                    enum:
+                    - adversarial_input
+                    - budget_exceeded
+                    - pii_detected
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /truth/core/models:
+    get:
+      tags:
+      - Truth Engine
+      summary: List available LLM backends
+      description: 'Returns LiteLLM router configuration showing available models:
+
+        - Claude 4 Sonnet / Opus (analysis)
+
+        - GPT-5 (default)
+
+        - Grok-4 / Grok-4-Fast (reasoning)
+
+        - Gemini 2.5 Pro (long context)
+
+        - Llama 4.x (open source)
+
+        - Codestral (code tasks)
+
+        '
+      operationId: listLLMModels
+      responses:
+        '200':
+          description: Available models
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        provider:
+                          type: string
+                        context_window:
+                          type: integer
+                        cost_per_1k_tokens:
+                          type: number
+                        recommended_for:
+                          type: array
+                          items:
+                            type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /truth/memory/audit/{audit_id}:
+    get:
+      tags:
+      - Truth Engine
+      summary: Retrieve audit trail
+      description: 'Returns complete TruthMemory v7.3 audit trail with 7-year retention:
+
+        - Final answer
+
+        - 17-axis coordinate trace
+
+        - Persona inputs and weights
+
+        - Layer execution log
+
+        - Refinement iteration history
+
+        - LLM provider and cost
+
+        - Compliance attestation
+
+        - Optional blockchain/Merkle hash
+
+        '
+      operationId: getAuditTrail
+      parameters:
+      - name: audit_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: include_blockchain_hash
+        in: query
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: Audit trail retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditTrail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /truth/link/health:
+    get:
+      tags:
+      - Truth Engine
+      summary: TruthLink transport health
+      description: 'Returns TruthLink v7.3 health status:
+
+        - PQ-gRPC transport status
+
+        - Federated Redis Streams status
+
+        - Istio AI mesh routing metrics
+
+        - Message latency statistics
+
+        '
+      operationId: truthLinkHealth
+      responses:
+        '200':
+          description: TruthLink healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - healthy
+                    - degraded
+                    - unhealthy
+                  transport:
+                    type: object
+                    properties:
+                      pq_grpc_active:
+                        type: boolean
+                      quantum_safe:
+                        type: boolean
+                  queue:
+                    type: object
+                    properties:
+                      redis_streams_available:
+                        type: boolean
+                      multi_region_replication:
+                        type: boolean
+                  latency_ms:
+                    type: object
+                    properties:
+                      p50:
+                        type: number
+                      p95:
+                        type: number
+                      p99:
+                        type: number
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /knowledge/node/{node_id}:
+    get:
+      tags:
+      - Knowledge Graph
+      summary: Get knowledge node by ID
+      description: Retrieves specific knowledge node from Neo4j graph
+      operationId: getKnowledgeNode
+      parameters:
+      - name: node_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Knowledge node
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeNode'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /knowledge/pillar/{pillar_id}:
+    get:
+      tags:
+      - Knowledge Graph
+      summary: Get pillar taxonomy
+      description: 'Returns complete pillar taxonomy from PL1107 system.
+
+        Pillar IDs: PL-0001 to PL-1107
+
+        '
+      operationId: getPillar
+      parameters:
+      - name: pillar_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^PL-?\d{4}$
+      responses:
+        '200':
+          description: Pillar taxonomy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pillar_id:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  domain:
+                    type: string
+                  sub_pillars:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /knowledge/query:
+    post:
+      tags:
+      - Knowledge Graph
+      summary: Query knowledge graph
+      description: 'Execute Cypher query against Neo4j knowledge graph.
+
+        Supports graph traversal and pattern matching.
+
+        '
+      operationId: queryKnowledgeGraph
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - query
+              properties:
+                query:
+                  type: string
+                  description: Cypher query or natural language
+                parameters:
+                  type: object
+                  additionalProperties: true
+                max_results:
+                  type: integer
+                  default: 100
+                pagination:
+                  $ref: '#/components/schemas/PaginationParams'
+      responses:
+        '200':
+          description: Query results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /audit/{request_id}:
+    get:
+      tags:
+      - Audit & Compliance
+      summary: Get complete audit record
+      description: Returns full audit trail for specific request
+      operationId: getAuditRecord
+      parameters:
+      - name: request_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Audit record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditTrail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /audit/{request_id}/download:
+    get:
+      tags:
+      - Audit & Compliance
+      summary: Download audit trail
+      description: 'Downloads complete audit trail as JSON, PDF, CSV, XLSX, or compliance
+        report.
+
+        Includes all decision paths, persona inputs, layer traces, and compliance
+        checks.
+
+        '
+      operationId: downloadAuditTrail
+      parameters:
+      - name: request_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: format
+        in: query
+        schema:
+          type: string
+          enum:
+          - json
+          - pdf
+          - csv
+          - xlsx
+          - compliance_report
+          default: json
+      responses:
+        '200':
+          description: Audit trail file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditTrail'
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/csv:
+              schema:
+                type: string
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /audit/{request_id}/export:
+    get:
+      tags:
+      - Audit & Compliance
+      summary: Export audit trail with compliance formatting
+      description: Export audit trail formatted for specific compliance framework
+      operationId: exportAuditTrail
+      parameters:
+      - name: request_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: format
+        in: query
+        schema:
+          type: string
+          enum:
+          - json
+          - pdf
+          - csv
+          - xlsx
+          - compliance_report
+          default: compliance_report
+      - name: compliance_framework
+        in: query
+        schema:
+          type: string
+          enum:
+          - GDPR
+          - HIPAA
+          - SOC2
+          - EU_AI_Act
+          - FedRAMP
+          - ISO27001
+      - name: include_blockchain_proof
+        in: query
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: Compliance-formatted audit export
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /compliance/frameworks:
+    get:
+      tags:
+      - Audit & Compliance
+      summary: List supported compliance frameworks
+      description: 'Returns supported compliance frameworks:
+
+        - GDPR
+
+        - HIPAA
+
+        - SOC 2
+
+        - EU AI Act
+
+        - FedRAMP
+
+        - NIST 800-53
+
+        - ISO 27001
+
+        '
+      operationId: listComplianceFrameworks
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+          default: 20
+      responses:
+        '200':
+          description: Compliance frameworks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /compliance/check:
+    post:
+      tags:
+      - Audit & Compliance
+      summary: Check compliance for query/response
+      description: Validates query and response against specified compliance frameworks
+      operationId: checkCompliance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - query
+              - response
+              - frameworks
+              properties:
+                query:
+                  type: string
+                response:
+                  type: string
+                frameworks:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Compliance check results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  compliant:
+                    type: boolean
+                  frameworks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        framework_id:
+                          type: string
+                        compliant:
+                          type: boolean
+                        violations:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/ComplianceViolation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /analytics/confidence-trends:
+    get:
+      tags:
+      - Analytics
+      summary: Get confidence score trends
+      description: Returns confidence score statistics over time
+      operationId: getConfidenceTrends
+      parameters:
+      - name: start_date
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: end_date
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: granularity
+        in: query
+        schema:
+          type: string
+          enum:
+          - hour
+          - day
+          - week
+          - month
+          default: day
+      responses:
+        '200':
+          description: Confidence trends
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data_points:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: string
+                          format: date-time
+                        avg_confidence:
+                          type: number
+                        median_confidence:
+                          type: number
+                        p95_confidence:
+                          type: number
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /analytics/persona-usage:
+    get:
+      tags:
+      - Analytics
+      summary: Get persona usage statistics
+      description: Returns statistics on persona activation and contribution
+      operationId: getPersonaUsage
+      parameters:
+      - name: start_date
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: end_date
+        in: query
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: Persona usage stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_activations:
+                    type: integer
+                  by_persona:
+                    type: object
+                    properties:
+                      knowledge_expert:
+                        type: integer
+                      sector_specialist:
+                        type: integer
+                      regulatory_advisor:
+                        type: integer
+                      compliance_officer:
+                        type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /analytics/cost-breakdown:
+    get:
+      tags:
+      - Analytics
+      summary: Get cost breakdown by component
+      description: 'Returns cost breakdown:
+
+        - LLM API costs by provider
+
+        - Knowledge graph queries
+
+        - Vector database operations
+
+        - Total per request
+
+        '
+      operationId: getCostBreakdown
+      parameters:
+      - name: start_date
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: end_date
+        in: query
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: Cost breakdown
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_cost_usd:
+                    type: number
+                  by_component:
+                    type: object
+                    properties:
+                      llm_api:
+                        type: number
+                      knowledge_graph:
+                        type: number
+                      vector_db:
+                        type: number
+                      compute:
+                        type: number
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /health:
+    get:
+      tags:
+      - System
+      summary: System health check
+      description: Returns overall system health status
+      operationId: healthCheck
+      responses:
+        '200':
+          description: System healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - healthy
+                    - degraded
+                    - unhealthy
+                  components:
+                    type: object
+                    properties:
+                      truth_engine:
+                        type: string
+                        enum:
+                        - healthy
+                        - degraded
+                        - unhealthy
+                      knowledge_graph:
+                        type: string
+                        enum:
+                        - healthy
+                        - degraded
+                        - unhealthy
+                      vector_db:
+                        type: string
+                        enum:
+                        - healthy
+                        - degraded
+                        - unhealthy
+                      llm_providers:
+                        type: object
+                        additionalProperties:
+                          type: string
+                          enum:
+                          - healthy
+                          - degraded
+                          - unhealthy
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /status:
+    get:
+      tags:
+      - System
+      summary: Detailed system status
+      description: 'Returns comprehensive system status including:
+
+        - Component health
+
+        - Performance metrics
+
+        - Queue depths
+
+        - Resource utilization
+
+        '
+      operationId: detailedSystemStatus
+      responses:
+        '200':
+          description: Detailed system status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  timestamp:
+                    type: string
+                    format: date-time
+                  uptime_seconds:
+                    type: integer
+                  version:
+                    type: string
+                  components:
+                    type: object
+                  performance:
+                    type: object
+                    properties:
+                      requests_per_second:
+                        type: number
+                      avg_response_time_ms:
+                        type: number
+                      p95_response_time_ms:
+                        type: number
+                      p99_response_time_ms:
+                        type: number
+                  queues:
+                    type: object
+                    properties:
+                      enhancement_queue_depth:
+                        type: integer
+                      batch_queue_depth:
+                        type: integer
+                      ingestion_queue_depth:
+                        type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /workflow/route:
+    post:
+      tags:
+      - Workflow
+      summary: Route a query to a tiered workflow configuration
+      operationId: routeWorkflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowRunRequest'
+      responses:
+        '200':
+          description: Workflow route
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowRoute'
+        '400': &id001
+          $ref: '#/components/responses/BadRequest'
+        '401': &id002
+          $ref: '#/components/responses/Unauthorized'
+        '403': &id003
+          $ref: '#/components/responses/Forbidden'
+        '429': &id004
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500': &id005
+          $ref: '#/components/responses/InternalError'
+  /workflow/run:
+    post:
+      tags:
+      - Workflow
+      summary: Run the UKG workflow end-to-end using tiered execution
+      operationId: runWorkflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowRunRequest'
+      responses:
+        '200':
+          description: Workflow result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowRunResponse'
+        '400': *id001
+        '401': *id002
+        '403': *id003
+        '429': *id004
+        '500': *id005
+  /truth/gate:
+    post:
+      tags:
+      - TruthEngine
+      summary: 'TruthGate: policy/trust gate for candidate claims'
+      operationId: truthGate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TruthGateRequest'
+      responses:
+        '200':
+          description: TruthGate decision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruthGateResponse'
+        '400': *id001
+        '401': *id002
+        '403': *id003
+        '429': *id004
+        '500': *id005
+  /truth/core/validate:
+    post:
+      tags:
+      - TruthEngine
+      summary: 'TruthCore: validate claims against evidence and provenance'
+      operationId: truthCoreValidate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TruthCoreValidateRequest'
+      responses:
+        '200':
+          description: Validation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruthCoreValidateResponse'
+        '400': *id001
+        '401': *id002
+        '403': *id003
+        '429': *id004
+        '500': *id005
+  /truth/memory/promote:
+    post:
+      tags:
+      - TruthEngine
+      summary: 'TruthMemory: propose promotion of knowledge into a memory tier'
+      operationId: truthMemoryPromote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TruthMemoryPromoteRequest'
+      responses:
+        '200':
+          description: Promotion decision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruthMemoryPromoteResponse'
+        '400': *id001
+        '401': *id002
+        '403': *id003
+        '429': *id004
+        '500': *id005
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from authentication endpoint
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for service-to-service authentication
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number (1-indexed)
+    PageSizeParam:
+      name: page_size
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 100
+      description: Number of items per page
+  schemas:
+    EnhanceRequest:
+      type: object
+      required:
+      - query
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          description: Client-provided request ID for tracking
+        query:
+          type: string
+          maxLength: 100000
+          description: Natural language query to enhance
+        axis_hints:
+          $ref: '#/components/schemas/AxisHints'
+        truth_engine:
+          type: object
+          properties:
+            tier:
+              type: string
+              enum:
+              - trivial
+              - moderate
+              - high_stakes
+              - extreme
+              - autonomous
+              description: 'Processing tier determines pipeline depth and SLA:
+
+                - trivial: Direct answer from RAG (< 2s target)
+
+                - moderate: Hybrid RAG + CoT reasoning (< 5s target)
+
+                - high_stakes: Full 12-step refinement (< 15s target)
+
+                - extreme: Advanced simulations included (< 30s target)
+
+                - autonomous: Multi-agent async with human governance
+
+                '
+            enable_gate_security:
+              type: boolean
+              default: true
+            enable_memory_audit:
+              type: boolean
+              default: true
+            quantum_safe_transport:
+              type: boolean
+              default: false
+        personas:
+          type: object
+          properties:
+            enabled:
+              type: array
+              items:
+                type: string
+                enum:
+                - knowledge_expert
+                - sector_specialist
+                - regulatory_advisor
+                - compliance_officer
+              default:
+              - knowledge_expert
+              - sector_specialist
+              - regulatory_advisor
+              - compliance_officer
+            weights:
+              type: object
+              properties:
+                knowledge_expert:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                sector_specialist:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                regulatory_advisor:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                compliance_officer:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+        simulation:
+          type: object
+          properties:
+            layers_enabled:
+              type: array
+              items:
+                type: integer
+                minimum: 1
+                maximum: 10
+            max_depth:
+              type: integer
+              default: 5
+            enable_emergent_synthesis:
+              type: boolean
+              default: true
+        refinement:
+          type: object
+          properties:
+            confidence_threshold:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+              default: 0.995
+            max_iterations:
+              type: integer
+              minimum: 1
+              maximum: 10
+              default: 3
+            steps_enabled:
+              type: array
+              items:
+                type: integer
+                minimum: 1
+                maximum: 12
+            enable_bias_scan:
+              type: boolean
+              default: true
+            enable_security_check:
+              type: boolean
+              default: true
+        options:
+          type: object
+          properties:
+            enable_streaming:
+              type: boolean
+              default: false
+            include_full_trace:
+              type: boolean
+              default: false
+            compliance_frameworks:
+              type: array
+              items:
+                type: string
+            max_response_time_ms:
+              type: integer
+              default: 30000
+    EnhancedResponse:
+      type: object
+      required:
+      - request_id
+      - timestamp
+      - answer
+      - coordinate
+      - truth_engine
+      - performance
+      - audit_trail
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        answer:
+          type: object
+          required:
+          - primary
+          - confidence
+          properties:
+            primary:
+              type: string
+            confidence:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+            alternatives:
+              type: array
+              items:
+                type: string
+            caveats:
+              type: array
+              items:
+                type: string
+        coordinate:
+          type: object
+          required:
+          - canonical
+          - breakdown
+          properties:
+            canonical:
+              type: string
+              pattern: ^A1:PL\d{4}(-A\d{1,2}:[^-]+){0,16}$
+              example: A1:PL0012-A2:621111-A3:HC01-A4:B3-A5:N445-A6:O2-A7:SW15-A8:KE_PHD_INFO-A9:SE_HEALTH_ADMIN-A10:RE_GDPR_CERT-A11:CE_HIPAA_CERT-A12:EU-DE-A13:2025-01-03T14:30:00Z-A14:PATIENT-A15:HIGH-A16:0.995-A17:META_V3
+            breakdown:
+              $ref: '#/components/schemas/AxisBreakdown'
+        personas:
+          type: object
+          required:
+          - consensus
+          properties:
+            knowledge_expert:
+              $ref: '#/components/schemas/PersonaAnalysis'
+            sector_specialist:
+              $ref: '#/components/schemas/PersonaAnalysis'
+            regulatory_advisor:
+              $ref: '#/components/schemas/PersonaAnalysis'
+            compliance_officer:
+              $ref: '#/components/schemas/PersonaAnalysis'
+            consensus:
+              type: object
+              properties:
+                agreement_score:
+                  type: number
+                  minimum: 0.0
+                  maximum: 1.0
+                conflicts_detected:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/PersonaConflict'
+                resolution_method:
+                  type: string
+                  enum:
+                  - unanimous
+                  - majority
+                  - weighted
+                  - byzantine
+        simulation:
+          type: object
+          properties:
+            layers_executed:
+              type: array
+              items:
+                type: integer
+            total_processing_time_ms:
+              type: number
+        refinement:
+          type: object
+          required:
+          - iterations_performed
+          - confidence_progression
+          properties:
+            iterations_performed:
+              type: integer
+            confidence_progression:
+              type: array
+              items:
+                type: number
+            checks:
+              type: object
+              properties:
+                ethics:
+                  $ref: '#/components/schemas/CheckResult'
+                bias:
+                  $ref: '#/components/schemas/CheckResult'
+                security:
+                  $ref: '#/components/schemas/CheckResult'
+                compliance:
+                  $ref: '#/components/schemas/CheckResult'
+                logic:
+                  $ref: '#/components/schemas/CheckResult'
+        truth_engine:
+          type: object
+          required:
+          - gate
+          - core
+          - memory
+          - link
+          properties:
+            gate:
+              type: object
+              properties:
+                priority:
+                  type: string
+                  enum:
+                  - P0
+                  - P1
+                  - P2
+                  - P3
+                  - P4
+                  - P5
+                security_cleared:
+                  type: boolean
+                budget_used:
+                  type: number
+                adversarial_score:
+                  type: number
+                content_security:
+                  type: object
+                  properties:
+                    pii_detected:
+                      type: boolean
+                    pii_types:
+                      type: array
+                      items:
+                        type: string
+                        enum:
+                        - SSN
+                        - CREDIT_CARD
+                        - EMAIL
+                        - PHONE
+                        - ADDRESS
+                        - NAME
+                        - DOB
+                    redaction_applied:
+                      type: boolean
+                    adversarial_score:
+                      type: number
+                    prompt_injection_detected:
+                      type: boolean
+            core:
+              type: object
+              properties:
+                tier:
+                  type: string
+                  enum:
+                  - trivial
+                  - moderate
+                  - high_stakes
+                  - extreme
+                  - autonomous
+                llm_provider:
+                  type: string
+                llm_model:
+                  type: string
+                tokens_used:
+                  type: integer
+                cost_usd:
+                  type: number
+                kas_invoked:
+                  type: array
+                  items:
+                    type: string
+            memory:
+              type: object
+              properties:
+                audit_id:
+                  type: string
+                  format: uuid
+                blockchain_hash:
+                  type: string
+                retention_until:
+                  type: string
+                  format: date-time
+            link:
+              type: object
+              properties:
+                transport_protocol:
+                  type: string
+                  enum:
+                  - pq_grpc
+                  - grpc
+                  - http2
+                latency_ms:
+                  type: number
+                quantum_safe:
+                  type: boolean
+        performance:
+          type: object
+          required:
+          - total_time_ms
+          properties:
+            total_time_ms:
+              type: number
+            breakdown:
+              type: object
+              properties:
+                gate_ms:
+                  type: number
+                axis_resolution_ms:
+                  type: number
+                persona_activation_ms:
+                  type: number
+                simulation_ms:
+                  type: number
+                refinement_ms:
+                  type: number
+                llm_ms:
+                  type: number
+                audit_ms:
+                  type: number
+        audit_trail:
+          type: object
+          required:
+          - decision_path
+          properties:
+            decision_path:
+              type: string
+            complete_trace_url:
+              type: string
+              format: uri
+            download_url:
+              type: string
+              format: uri
+        compliance:
+          type: object
+          properties:
+            frameworks_checked:
+              type: array
+              items:
+                type: string
+            all_passed:
+              type: boolean
+            violations:
+              type: array
+              items:
+                $ref: '#/components/schemas/ComplianceViolation'
+    AxisHints:
+      type: object
+      properties:
+        axis_1_pillar:
+          type: string
+          pattern: ^PL-?([0-9]{4}|0{3}[1-9]|0{2}[1-9][0-9]|0[1-9][0-9]{2}|1[0-1][0-9]{2})$
+          description: Pillar ID from PL1107 taxonomy (PL-0001 through PL-1107)
+          examples:
+          - PL0012
+          - PL-0045
+          - PL1107
+        axis_2_industry:
+          type: string
+          description: Industry/Sector code (NAICS, SIC, ISIC, etc.)
+          example: NAICS-621111
+        axis_3_honeycomb:
+          type: string
+        axis_4_branch:
+          type: array
+          items:
+            type: string
+        axis_5_node:
+          type: string
+        axis_6_octopus:
+          type: string
+        axis_7_spiderweb:
+          type: string
+        axis_12_location:
+          type: object
+          properties:
+            country:
+              type: string
+              pattern: ^[A-Z]{2}$
+            region:
+              type: string
+            city:
+              type: string
+        axis_13_time:
+          type: object
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+            timezone:
+              type: string
+        axis_14_stakeholder:
+          type: string
+        axis_15_risk:
+          type: string
+          enum:
+          - low
+          - medium
+          - high
+          - extreme
+        axis_16_trust:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          default: 0.995
+    Coordinate17Axis:
+      type: object
+      required:
+      - coordinate
+      - confidence
+      properties:
+        coordinate:
+          type: string
+          pattern: ^A1:PL\d{4}(-A\d{1,2}:[^-]+){0,16}$
+          description: Canonical 17-axis coordinate string
+          example: A1:PL0012-A2:621111-A3:HC01-A4:B3-A5:N445-A6:O2-A7:SW15-A8:KE_PHD-A9:SE_HEALTH-A10:RE_GDPR-A11:CE_HIPAA-A12:EU-DE-A13:2025-01-03-A14:PATIENT-A15:HIGH-A16:0.995-A17:V3
+        confidence:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        coverage:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+    AxisBreakdown:
+      type: object
+      properties:
+        axis_1_pillar:
+          type: string
+        axis_2_industry:
+          type: string
+        axis_3_honeycomb:
+          type: string
+        axis_4_branch:
+          type: array
+          items:
+            type: string
+        axis_5_node:
+          type: string
+        axis_6_octopus:
+          type: string
+        axis_7_spiderweb:
+          type: string
+        axis_8_knowledge:
+          $ref: '#/components/schemas/PersonaProfile'
+        axis_9_sector:
+          $ref: '#/components/schemas/PersonaProfile'
+        axis_10_regulatory:
+          $ref: '#/components/schemas/PersonaProfile'
+        axis_11_compliance:
+          $ref: '#/components/schemas/PersonaProfile'
+        axis_12_location:
+          type: object
+        axis_13_time:
+          type: object
+        axis_14_stakeholder:
+          type: string
+        axis_15_risk:
+          type: string
+        axis_16_trust:
+          type: number
+        axis_17_metadata:
+          type: object
+    AxisDefinition:
+      type: object
+      properties:
+        axis_number:
+          type: integer
+          minimum: 1
+          maximum: 17
+        name:
+          type: string
+        description:
+          type: string
+        taxonomy:
+          type: string
+        value_type:
+          type: string
+          enum:
+          - string
+          - number
+          - object
+          - array
+        examples:
+          type: array
+          items:
+            type: string
+    PersonaProfile:
+      type: object
+      required:
+      - role
+      - education
+      - skills
+      - traits
+      properties:
+        role:
+          type: string
+        education:
+          type: string
+        certifications:
+          type: array
+          items:
+            type: string
+        skills:
+          type: array
+          items:
+            type: string
+        traits:
+          type: array
+          items:
+            type: string
+        job_training:
+          type: string
+        related_roles:
+          type: array
+          items:
+            type: string
+    PersonaActivation:
+      type: object
+      properties:
+        personas:
+          type: object
+        weights:
+          type: object
+        activation_timestamp:
+          type: string
+          format: date-time
+    PersonaAnalysis:
+      type: object
+      properties:
+        profile:
+          $ref: '#/components/schemas/PersonaProfile'
+        analysis:
+          type: string
+        confidence:
+          type: number
+        key_points:
+          type: array
+          items:
+            type: string
+    PersonaConflict:
+      type: object
+      properties:
+        personas_involved:
+          type: array
+          items:
+            type: string
+        issue:
+          type: string
+        severity:
+          type: string
+          enum:
+          - low
+          - medium
+          - high
+        resolution:
+          type: string
+    SimulationLayer:
+      type: object
+      properties:
+        layer_number:
+          type: integer
+          minimum: 1
+          maximum: 10
+        name:
+          type: string
+        description:
+          type: string
+        typical_execution_time_ms:
+          type: number
+    SimulationResult:
+      type: object
+      properties:
+        draft_answer:
+          type: string
+        reasoning_trace:
+          type: array
+          items:
+            type: object
+        confidence:
+          type: number
+    SimulationTrace:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        layers_executed:
+          type: array
+          items:
+            type: object
+    RefinementStep:
+      type: object
+      properties:
+        step_number:
+          type: integer
+          minimum: 1
+          maximum: 12
+        name:
+          type: string
+        description:
+          type: string
+    RefinementResult:
+      type: object
+      properties:
+        final_answer:
+          type: string
+        confidence:
+          type: number
+        iterations_performed:
+          type: integer
+    CheckResult:
+      type: object
+      properties:
+        passed:
+          type: boolean
+        score:
+          type: number
+        issues:
+          type: array
+          items:
+            type: object
+    TruthGateResult:
+      type: object
+      properties:
+        priority:
+          type: string
+          enum:
+          - P0
+          - P1
+          - P2
+          - P3
+          - P4
+          - P5
+        tier:
+          type: string
+          enum:
+          - trivial
+          - moderate
+          - high_stakes
+          - extreme
+          - autonomous
+        security_cleared:
+          type: boolean
+        budget_allocated:
+          type: number
+        content_security:
+          type: object
+          properties:
+            pii_detected:
+              type: boolean
+            pii_types:
+              type: array
+              items:
+                type: string
+            prompt_injection_detected:
+              type: boolean
+    KnowledgeNode:
+      type: object
+      properties:
+        node_id:
+          type: string
+        node_type:
+          type: string
+        properties:
+          type: object
+          additionalProperties: true
+        relationships:
+          type: array
+          items:
+            type: object
+    AuditTrail:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        coordinate:
+          type: string
+        llm_provider:
+          type: string
+        llm_cost:
+          type: number
+        blockchain_hash:
+          type: string
+    ComplianceViolation:
+      type: object
+      properties:
+        framework:
+          type: string
+        rule_id:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+          enum:
+          - low
+          - medium
+          - high
+          - critical
+    PaginationParams:
+      type: object
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          default: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 100
+        cursor:
+          type: string
+    PaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items: {}
+        pagination:
+          type: object
+          properties:
+            current_page:
+              type: integer
+            page_size:
+              type: integer
+            total_items:
+              type: integer
+            total_pages:
+              type: integer
+            has_next:
+              type: boolean
+            has_previous:
+              type: boolean
+            next_cursor:
+              type: string
+            previous_cursor:
+              type: string
+    ErrorResponse:
+      type: object
+      required:
+      - error_code
+      - message
+      - request_id
+      properties:
+        error_code:
+          type: string
+          enum:
+          - AUTHENTICATION_FAILED
+          - AUTHORIZATION_DENIED
+          - RATE_LIMIT_EXCEEDED
+          - INVALID_COORDINATE
+          - CONFIDENCE_THRESHOLD_NOT_MET
+          - INGESTION_FAILED
+          - SNAPSHOT_NOT_FOUND
+          - INVALID_REQUEST
+          - INTERNAL_ERROR
+        message:
+          type: string
+        request_id:
+          type: string
+          format: uuid
+        details:
+          type: object
+          additionalProperties: true
+        retry_after:
+          type: integer
+        documentation_url:
+          type: string
+          format: uri
+    ValidationErrorResponse:
+      type: object
+      required:
+      - error
+      - message
+      properties:
+        error:
+          type: string
+          example: validation_error
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+    WorkflowTier:
+      type: string
+      description: Tier controlling how much of the workflow executes.
+      enum:
+      - T0_TRIVIAL
+      - T1_EASY
+      - T2_STANDARD
+      - T3_HARD
+      - T4_EXTREME
+    WorkflowRoute:
+      type: object
+      required:
+      - tier
+      - max_layer
+      - enabled_kas
+      properties:
+        tier:
+          $ref: '#/components/schemas/WorkflowTier'
+        max_layer:
+          type: string
+          description: Highest simulation layer permitted (L1..L10).
+          pattern: ^L([1-9]|10)$
+          example: L7
+        enabled_kas:
+          type: array
+          items:
+            type: string
+            pattern: ^KA-\d{3}$
+        budgets:
+          type: object
+          additionalProperties: true
+    WorkflowRunRequest:
+      type: object
+      required:
+      - query
+      properties:
+        query:
+          type: string
+        mode:
+          type: string
+          description: Org/tenant mode (e.g., industry, acquisition, compliance).
+        coordinate:
+          $ref: '#/components/schemas/Coordinate17Axis'
+        tier_hint:
+          $ref: '#/components/schemas/WorkflowTier'
+        policy_profile:
+          type: object
+          additionalProperties: true
+        context:
+          type: object
+          additionalProperties: true
+    WorkflowRunResponse:
+      type: object
+      required:
+      - route
+      - result
+      - trace_id
+      properties:
+        route:
+          $ref: '#/components/schemas/WorkflowRoute'
+        result:
+          type: object
+          description: Final answer object (not necessarily prose).
+          additionalProperties: true
+        trace_id:
+          type: string
+        artifacts:
+          type: array
+          items:
+            type: object
+    TruthGateRequest:
+      type: object
+      required:
+      - claims
+      properties:
+        claims:
+          type: array
+          items:
+            type: string
+        evidence:
+          type: array
+          items:
+            type: object
+        policy_profile:
+          type: object
+          additionalProperties: true
+    TruthGateResponse:
+      type: object
+      required:
+      - pass
+      - score
+      properties:
+        pass:
+          type: boolean
+        score:
+          type: number
+          minimum: 0
+          maximum: 1
+        blocks:
+          type: array
+          items:
+            type: string
+        notes:
+          type: array
+          items:
+            type: string
+    TruthCoreValidateRequest:
+      type: object
+      required:
+      - claims
+      - evidence
+      properties:
+        claims:
+          type: array
+          items:
+            type: string
+        evidence:
+          type: array
+          items:
+            type: object
+        provenance:
+          type: array
+          items:
+            type: object
+    TruthCoreValidateResponse:
+      type: object
+      required:
+      - validated_claims
+      - rejected_claims
+      properties:
+        validated_claims:
+          type: array
+          items:
+            type: string
+        rejected_claims:
+          type: array
+          items:
+            type: object
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+    TruthMemoryPromoteRequest:
+      type: object
+      required:
+      - knowledge_object
+      - confidence
+      - trust_score
+      - containment_class
+      properties:
+        knowledge_object:
+          type: object
+          additionalProperties: true
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        trust_score:
+          type: number
+          minimum: 0
+          maximum: 1
+        containment_class:
+          type: string
+          enum:
+          - public
+          - restricted
+          - never
+        ttl_days:
+          type: integer
+          minimum: 1
+    TruthMemoryPromoteResponse:
+      type: object
+      required:
+      - accepted
+      - tier
+      properties:
+        accepted:
+          type: boolean
+        tier:
+          type: string
+          enum:
+          - short_term
+          - long_term
+          - archive
+          - quarantine
+        reason:
+          type: string
+        commit_id:
+          type: string
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+        X-RateLimit-Reset:
+          schema:
+            type: string
+            format: date-time
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Forbidden.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: Conflict.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnprocessableEntity:
+      description: Validation error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

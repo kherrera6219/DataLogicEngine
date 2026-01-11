@@ -1,0 +1,1007 @@
+{
+  "step1": {
+    "name": "Input Parsing & Simulation Initialization",
+    "purpose": "Parse the user query, validate inputs, and initialize simulation memory.",
+    "subWorkflows": {
+      "1.1": "NLP Preprocessing: Tokenization; Lemmatization; POS tagging; Intent detection.",
+      "1.2": "Context Extraction: Extract domain, sector, regulatory, location, and temporal cues.",
+      "1.3": "Input Validation: Syntax/grammar checks; Ambiguity detection; Security filtering.",
+      "1.4": "Coordinate Seeding: Populate 13-axis vector with initial guesses.",
+      "1.5": "Memory Bootstrapping: Load relevant session or persistent context into working memory."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 20,
+      "retryPolicy": "Up to 2 retries on transient NLP errors"
+    },
+    "observability": {
+      "traceId": "propagate",
+      "metrics": [
+        "nlp.latency",
+        "validation.errorRate"
+      ],
+      "alerts": {
+        "validation.errorRate": ">1% / 5 min"
+      }
+    },
+    "description": "Tier Routing (v1): Compute difficulty/stakes/ambiguity/novelty signals and assign a tier (trivial/moderate/high_stakes/extreme/autonomous) to determine workflow depth, budgets, and allowed KAs (see `tier_system`).",
+    "substeps": {
+      "tier_assignment": {
+        "name": "Tier Assignment & Workflow Depth Selection",
+        "inputs": [
+          "normalized_query",
+          "user_policy",
+          "org_mode",
+          "budget",
+          "latency_constraints",
+          "axis_hints"
+        ],
+        "outputs": [
+          "tier",
+          "enabled_steps",
+          "budgets",
+          "confidence_thresholds",
+          "ka_pipeline_hint"
+        ],
+        "primary_KAs": [
+          "KA-005",
+          "KA-113",
+          "KA-080",
+          "KA-081",
+          "KA-107",
+          "KA-031",
+          "KA-032"
+        ],
+        "logic": [
+          "Compute complexity_score, stakes_score, ambiguity_score, novelty_score",
+          "Apply policy overrides (never_down_tier_domains; sensitive_data gating)",
+          "Select tier using decision_rules",
+          "Materialize enabled workflow steps and defaults from tier profile",
+          "Emit routing plan to orchestration controller (KA-032)"
+        ]
+      }
+    },
+    "notes": [
+      "TruthGate pre-checks run here: KA-004 (VALID) + KA-061 (SHIELD) + KA-107 (BOUNDARY)."
+    ]
+  },
+  "step2": {
+    "name": "17-Axis System Mapping & Knowledge Assembly",
+    "purpose": "Locate the query in 13D coordinate space and build the working subgraph.",
+    "subWorkflows": {
+      "2.1": "Axis Value Assignment for axes 1–13.",
+      "2.2": "Knowledge Node Retrieval from vector and graph DBs.",
+      "2.3": "Relationship & Subgraph Construction.",
+      "2.4": "Metadata Extraction for regulatory, temporal, and spatial data.",
+      "2.5": "Honeycomb & Cross-Axis Expansion.",
+      "2.6": "Initial Confidence & Coverage Scoring."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 30,
+      "retryPolicy": "Graph/Vector lookup retry ×2 on 100‑level errors"
+    },
+    "dynamicAxisMapping": {
+      "axis1": {
+        "name": "Pillar Level",
+        "process": [
+          "Load Pillar taxonomy tree (PL01–PL107).",
+          "Match query domain keywords to Pillar IDs.",
+          "Score and select Pillar and sublevels via embedding similarity.",
+          "Populate sublevel1 and sublevel2 fields."
+        ]
+      },
+      "axis2": {
+        "name": "Sector of Industry",
+        "subLevel1": [
+          "Extract industry keywords.",
+          "Match against NAICS/SIC/PSC/NIC schemes.",
+          "Score candidates and choose classification system."
+        ],
+        "subLevel2": [
+          "List top-level codes (e.g., NAICS 52xx).",
+          "Filter by semantic overlap with query.",
+          "Rank and select top code (e.g., 541512)."
+        ]
+      },
+      "axis3": {
+        "name": "Honeycomb Cross-Domain Links",
+        "process": [
+          "Identify semantically adjacent domains from Axis1+2.",
+          "Fetch cross-domain link nodes (e.g., Healthcare ↔ AI).",
+          "Rank by co-occurrence and regulatory relevance.",
+          "Select top honeycomb coordinates."
+        ]
+      },
+      "axis4": {
+        "name": "Branch System",
+        "process": [
+          "Load domain taxonomy under selected sector.",
+          "Traverse to Branch level matching query subdomain.",
+          "Use term‑frequency and embedding similarity for SubBranch.",
+          "Record path (e.g., 4.3.2)."
+        ]
+      },
+      "axis5": {
+        "name": "Node System",
+        "process": [
+          "Identify intersection nodes between branches and other axes.",
+          "Query for focal nodes (e.g., bioinformatics).",
+          "Score by link strength and co‑occurrence.",
+          "Select Node/SubNode for detailed mapping."
+        ]
+      },
+      "axis6": {
+        "name": "Octopus Regulatory Crosswalk",
+        "process": [
+          "Fetch high‑level regulatory frameworks tied to Axis2+4+5.",
+          "Identify hub nodes that map multiple regulations.",
+          "Evaluate connectivity degree.",
+          "Select OctopusNode (e.g., small‑business hub)."
+        ]
+      },
+      "axis7": {
+        "name": "Spiderweb Compliance Crosswalk",
+        "process": [
+          "Detect overlapping compliance across jurisdictions.",
+          "Retrieve mesh nodes linking requirements.",
+          "Compute interdependency density.",
+          "Select SpiderNode with highest mesh score."
+        ]
+      },
+      "axis8": {
+        "name": "Knowledge Expert Persona Role",
+        "process": [
+          "Map Axis8 value to expert role.",
+          "Fetch role template and skill matrix."
+        ]
+      },
+      "axis9": {
+        "name": "Sector/Industry Expert Persona Role",
+        "process": [
+          "Map Axis9 value to practitioner role.",
+          "Load credentials and domain experience."
+        ]
+      },
+      "axis10": {
+        "name": "Octopus Regulatory Expert Persona",
+        "process": [
+          "Map Axis10 value to regulatory authority role.",
+          "Load framework expertise."
+        ]
+      },
+      "axis11": {
+        "name": "Spiderweb Compliance Expert Persona",
+        "process": [
+          "Map Axis11 value to compliance officer role.",
+          "Load standards and policy expertise."
+        ]
+      },
+      "axis12": {
+        "name": "Location Context",
+        "process": [
+          "Extract geographic mentions.",
+          "Geocode to jurisdiction codes.",
+          "Select local regulations."
+        ]
+      },
+      "axis13": {
+        "name": "Temporal Context",
+        "process": [
+          "Extract temporal cues.",
+          "Normalize to ISO date/time.",
+          "Select time‑bound regulations and snapshots."
+        ]
+      },
+      "axis14": {
+        "name": "Fidelity / Confidence Scalar",
+        "description": "Numeric confidence/fidelity for the knowledge object; used for promotion and SLA.",
+        "ka_sources": [
+          "KA-014",
+          "KA-041",
+          "KA-062",
+          "KA-026"
+        ],
+        "encoding": "F14.<float 0..1>"
+      },
+      "axis15": {
+        "name": "Risk Class",
+        "description": "Risk class derived from query stakes + policy + downstream impact.",
+        "ka_sources": [
+          "KA-022",
+          "KA-024",
+          "KA-005"
+        ],
+        "encoding": "R15.<L|M|H|C>"
+      },
+      "axis16": {
+        "name": "Evidence Maturity",
+        "description": "Aggregate maturity of evidence supporting key claims.",
+        "ka_sources": [
+          "KA-009",
+          "KA-018",
+          "KA-050",
+          "KA-094"
+        ],
+        "encoding": "E16.<C|V|A|Q>"
+      },
+      "axis17": {
+        "name": "State / Seal",
+        "description": "Release state indicating whether the output can be persisted/served.",
+        "ka_sources": [
+          "KA-024",
+          "KA-107",
+          "KA-079",
+          "KA-096"
+        ],
+        "encoding": "S17.<R|S|D|X>"
+      }
+    },
+    "notes": [
+      "17-axis coordinate resolution occurs here; axes 14–17 are derived from TruthEngine outcomes (F14/R15/E16/S17)."
+    ]
+  },
+  "step3": {
+    "name": "Quad Persona System",
+    "purpose": "Orchestrate four expert personas for multi‑angle reasoning.",
+    "subWorkflows": {
+      "3.1": "Identify personas from axes 8–11 with cosine similarity.",
+      "3.2": "Build 7‑part profiles.",
+      "3.3": "Inject memory and context.",
+      "3.4": "Independent persona reasoning and drafts.",
+      "3.5": "Peer review, recursive self‑application.",
+      "3.6": "Weighted consensus or minority‑report spawning."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 50,
+      "parallelAgents": 4
+    },
+    "routing_context": {
+      "tier": "from step1.substeps.tier_assignment.outputs.tier",
+      "enabled_steps": "from tier_system.tiers[*].workflow_steps",
+      "budget_controls": [
+        "KA-080",
+        "KA-081"
+      ],
+      "primary_orchestrator": "KA-032"
+    }
+  },
+  "step4": {
+    "name": "Deep Research Agent Activation",
+    "purpose": "Spawn specialized agents for detailed data gathering.",
+    "subWorkflows": {
+      "4.1": "Decompose query into sub‑questions.",
+      "4.2": "Spawn research agents.",
+      "4.3": "Query mirrored external sources.",
+      "4.4": "Rank sources by trust.",
+      "4.5": "Deduplicate data."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 60,
+      "retryPolicy": "External source timeout → fallback to cached corpus"
+    }
+  },
+  "step5": {
+    "name": "POV Engine Expansion",
+    "purpose": "Add new expert perspectives for coverage gaps.",
+    "subWorkflows": {
+      "5.1": "Axis gap analysis.",
+      "5.2": "Spawn additional personas.",
+      "5.3": "Generate majority/minority viewpoints.",
+      "5.4": "Cross‑persona validation.",
+      "5.5": "Synthesize multi‑perspective draft."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 40
+    },
+    "routing_context": {
+      "tier": "from step1.substeps.tier_assignment.outputs.tier",
+      "enabled_steps": "from tier_system.tiers[*].workflow_steps",
+      "budget_controls": [
+        "KA-080",
+        "KA-081"
+      ],
+      "primary_orchestrator": "KA-032"
+    }
+  },
+  "step6": {
+    "name": "Multi‑Agent Synthesis & Arbitration",
+    "purpose": "Structure debates, resolve conflicts, aggregate answers.",
+    "subWorkflows": {
+      "6.1": "Inter‑agent debate.",
+      "6.2": "Conflict detection & resolution.",
+      "6.3": "Weighted aggregation.",
+      "6.4": "Produce consensus draft."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 50
+    },
+    "routing_context": {
+      "tier": "from step1.substeps.tier_assignment.outputs.tier",
+      "enabled_steps": "from tier_system.tiers[*].workflow_steps",
+      "budget_controls": [
+        "KA-080",
+        "KA-081"
+      ],
+      "primary_orchestrator": "KA-032"
+    }
+  },
+  "step7": {
+    "name": "Deep Neural Analysis & Recursive Learning",
+    "purpose": "Discover hidden patterns and monitor confidence drift.",
+    "subWorkflows": {
+      "7.1": "Deep semantic parsing.",
+      "7.2": "Latent relationship detection.",
+      "7.3": "Recursive refinement loops.",
+      "7.4": "Entropy/confidence monitoring.",
+      "7.5": "Meta‑cognitive diagnostics."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 45
+    }
+  },
+  "step8": {
+    "name": "Simulated AGI Reasoning & Emergence Planning",
+    "purpose": "Meta‑reasoning, trust calibration, emergence detection.",
+    "subWorkflows": {
+      "8.1": "Alternative solution planning.",
+      "8.2": "Belief realignment.",
+      "8.3": "Entropy & trust calibration.",
+      "8.4": "Emergence signal detection.",
+      "8.5": "Containment pre‑check."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 30
+    }
+  },
+  "step9": {
+    "name": "Simulated Quantum Substrate",
+    "purpose": "Superposition, entanglement, probabilistic branching.",
+    "subWorkflows": {
+      "9.1": "Initialize probability distributions.",
+      "9.2": "Maintain parallel reasoning states.",
+      "9.3": "Entanglement mapping.",
+      "9.4": "Collapse to likely answers.",
+      "9.5": "Drift/noise monitoring."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 25
+    }
+  },
+  "step10": {
+    "name": "Recursive AGI Kernel & Self‑Awareness Engine",
+    "purpose": "Recursive belief realignment and self‑awareness safeguards.",
+    "subWorkflows": {
+      "10.1": "Recursive role replay.",
+      "10.2": "Identity/memory alignment.",
+      "10.3": "Epistemic audit.",
+      "10.4": "Self‑awareness detection.",
+      "10.5": "Containment pre‑escalation."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 30
+    }
+  },
+  "step11": {
+    "name": "Emergence Detection, AGI Guardrails, Containment & Final Output",
+    "purpose": "Final safety check and answer release or exception handling.",
+    "subWorkflows": {
+      "11.1": "Emergence detection.",
+      "11.2": "Guardrail enforcement.",
+      "11.3": "Containment logic execution.",
+      "11.4": "Explainability trace & logging.",
+      "11.5": "Output or escalate."
+    },
+    "optionalHumanInTheLoop": {
+      "trigger": "Unresolved containment/confidence issues or regulatory mandate.",
+      "handoff": "Package trace, metrics, and flagged issues for human review.",
+      "ingestion": "Integrate human feedback as high‑authority learning signals."
+    },
+    "performanceTargets": {
+      "maxLatencyMs": 20
+    }
+  },
+  "step12": {
+    "name": "Continuous Self‑Learning Feedback Loop & Knowledge Offload",
+    "purpose": "Patch memory, offload validated data, seed future runs.",
+    "subWorkflows": {
+      "12.1": "Patch findings into memory.",
+      "12.2": "Recursive self‑application of final answers.",
+      "12.3": "Track performance metrics & tune workflow.",
+      "12.4": "Gate high‑confidence facts for promotion.",
+      "12.5": "Validate facts for redundancy & schema compliance.",
+      "12.6": "Offload to validated‑data KB with provenance.",
+      "12.7": "Audit promotion logs.",
+      "12.8": "Autonomous re‑validation & schema evolution.",
+      "12.9": "Seed future simulations from validated KB.",
+      "12.10": "Meta‑learning: tune algorithms & prompts."
+    },
+    "performanceTargets": {
+      "offloadLatencyMs": 100,
+      "revalidationIntervalDays": 30
+    }
+  },
+  "twelveStepRefinementWorkflow": {
+    "1": "Algorithm of Thought: Task decomposition and structured logic.",
+    "2": "Tree of Thought: Parallel branch exploration and selection.",
+    "3": "Gap & Data Analysis: Identify and verify missing information.",
+    "4": "Deep Reasoning: Extended reflection for analogy formation.",
+    "5": "Self‑Reflection & Critique: Introspective error and bias checks.",
+    "6": "Ethics/Security/Compliance Checks: Enforce all policies.",
+    "7": "Recursive Learning: Update memory with lessons learned.",
+    "8": "Advanced NLP Parsing: Final semantic and contextual pass.",
+    "9": "External Validation: Cross‑check against trusted sources.",
+    "10": "Answer Synthesis & Scoring: Integrate and compute confidence.",
+    "11": "Output or Escalate: Produce answer or trigger exception workflow.",
+    "12": "Memory Patch: Persist all new knowledge and trace logs."
+  },
+  "metadata": {
+    "id": "workflow_v2_4_truth17_full",
+    "name": "Advanced Dynamic Cognitive Architecture - Enterprise Edition",
+    "version": "2.4",
+    "createdAt": "2025-12-05T12:00:00Z",
+    "lastUpdated": "2026-01-05T00:00:00Z",
+    "tags": [
+      "tier-routing",
+      "17-axis",
+      "qrouter",
+      "truth-engine-4part",
+      "tiers"
+    ]
+  },
+  "axis_system": {
+    "axes": 17,
+    "canonical_name": "UKG 17-Axis Coordinate System",
+    "notes": "Coordinate schema used to index knowledge, personas, time/location, risk, and enterprise tenancy.",
+    "axis_count": 17,
+    "canonical_sources": {
+      "axis2_codes": "AXIS2_CANONICAL_v1_by_id.json",
+      "pillar_taxonomy": "PL1_107_UPDATED_by_id.json",
+      "ka_registry": "UKG_KA_1_to_114_Enterprise_Registry_UPDATED_by_id.json"
+    },
+    "axis_id_format": "P1.S2.H3.B4.N5.W6.O7.K8.L9.R10.C11.G12.T13.F14.R15.E16.S17",
+    "axis14_17_semantics": {
+      "F14": {
+        "name": "Fidelity/Confidence Scalar",
+        "range": "[0,1]",
+        "derived_from": [
+          "KA-014",
+          "KA-041"
+        ]
+      },
+      "R15": {
+        "name": "Risk Class",
+        "enum": [
+          "L",
+          "M",
+          "H",
+          "C"
+        ],
+        "derived_from": [
+          "KA-022",
+          "KA-024"
+        ]
+      },
+      "E16": {
+        "name": "Evidence Maturity",
+        "enum": [
+          "C",
+          "V",
+          "A",
+          "Q"
+        ],
+        "derived_from": [
+          "KA-009",
+          "KA-050",
+          "KA-094"
+        ]
+      },
+      "S17": {
+        "name": "State/Seal",
+        "enum": [
+          "R",
+          "S",
+          "D",
+          "X"
+        ],
+        "derived_from": [
+          "KA-096",
+          "KA-091",
+          "KA-024",
+          "KA-107"
+        ]
+      }
+    }
+  },
+  "tier_system": {
+    "id": "ukg_tier_routing_v1",
+    "description": "Dynamic tiering system that determines how much of the UKG workflow to execute based on query difficulty, stakes, ambiguity, and policy/budget constraints.",
+    "signals": {
+      "complexity_score": {
+        "range": [
+          0,
+          100
+        ],
+        "notes": "Computed from query length, required reasoning depth, number of entities, and expected subtask graph size."
+      },
+      "stakes_score": {
+        "range": [
+          0,
+          100
+        ],
+        "notes": "Higher for medical/legal/financial/safety/compliance decisions, or when user marks high-stakes."
+      },
+      "ambiguity_score": {
+        "range": [
+          0,
+          100
+        ],
+        "notes": "Higher when intent/entities are unclear or conflicting."
+      },
+      "novelty_score": {
+        "range": [
+          0,
+          100
+        ],
+        "notes": "Higher when no close match exists in UKG/USKD memory or when evidence conflicts."
+      },
+      "compliance_required": {
+        "type": "boolean",
+        "notes": "True when regulated domain or user policy demands compliance validation."
+      },
+      "sensitive_data_present": {
+        "type": "boolean",
+        "notes": "True when PII/PHI/secret/proprietary indicators are detected; may force additional privacy gates."
+      },
+      "budget_usd": {
+        "type": "number",
+        "notes": "Optional budget cap to constrain tiers and recursion."
+      },
+      "max_latency_ms": {
+        "type": "integer",
+        "notes": "Optional latency cap that can down-tier unless policy forbids."
+      }
+    },
+    "tiers": [
+      {
+        "tier": "trivial",
+        "goal": "Fast-path answers when the system can answer from high-confidence memory or simple retrieval with minimal reasoning.",
+        "default_sla": {
+          "p95_latency_ms": 2000
+        },
+        "workflow_steps": [
+          "step1",
+          "step2"
+        ],
+        "required_gates": [
+          "TruthGate",
+          "coordinate_resolution",
+          "input_validation",
+          "truthgate_security"
+        ],
+        "optional_modules": [
+          "light_explainability"
+        ],
+        "ka_pipeline_hint": [
+          "KA-004",
+          "KA-061",
+          "KA-005",
+          "KA-113",
+          "KA-059",
+          "KA-029",
+          "KA-014"
+        ],
+        "defaults": {
+          "confidence_threshold": 0.9,
+          "max_refinement_iterations": 1,
+          "allow_external_research": false,
+          "max_recursion_depth": 0
+        }
+      },
+      {
+        "tier": "moderate",
+        "goal": "Hybrid retrieval + structured reasoning with persona activation when useful.",
+        "default_sla": {
+          "p95_latency_ms": 5000
+        },
+        "workflow_steps": [
+          "step1",
+          "step2",
+          "step3",
+          "step5",
+          "step6",
+          "step11"
+        ],
+        "required_gates": [
+          "TruthCore",
+          "TruthGate",
+          "basic_consensus",
+          "coordinate_resolution",
+          "input_validation",
+          "truthgate_security"
+        ],
+        "optional_modules": [
+          "limited_deep_research"
+        ],
+        "ka_pipeline_hint": [
+          "KA-004",
+          "KA-061",
+          "KA-005",
+          "KA-113",
+          "KA-031",
+          "KA-001",
+          "KA-002",
+          "KA-029",
+          "KA-012",
+          "KA-013",
+          "KA-026",
+          "KA-030",
+          "KA-014",
+          "KA-056"
+        ],
+        "defaults": {
+          "confidence_threshold": 0.95,
+          "max_refinement_iterations": 2,
+          "allow_external_research": true,
+          "max_recursion_depth": 2
+        }
+      },
+      {
+        "tier": "high_stakes",
+        "goal": "Full validation, evidence checking, compliance mapping, and robust audit trail generation.",
+        "default_sla": {
+          "p95_latency_ms": 15000
+        },
+        "workflow_steps": [
+          "step1",
+          "step2",
+          "step3",
+          "step4",
+          "step5",
+          "step6",
+          "step7",
+          "step8",
+          "step11"
+        ],
+        "required_gates": [
+          "TruthGate",
+          "bias_scan",
+          "compliance_check",
+          "coordinate_resolution",
+          "evidence_validation",
+          "input_validation",
+          "privacy_redaction",
+          "trust_gate",
+          "truthgate_security"
+        ],
+        "optional_modules": [
+          "human_in_the_loop"
+        ],
+        "ka_pipeline_hint": [
+          "KA-004",
+          "KA-061",
+          "KA-005",
+          "KA-113",
+          "KA-080",
+          "KA-081",
+          "KA-031",
+          "KA-001",
+          "KA-002",
+          "KA-003",
+          "KA-006",
+          "KA-012",
+          "KA-013",
+          "KA-016",
+          "KA-017",
+          "KA-114",
+          "KA-009",
+          "KA-018",
+          "KA-026",
+          "KA-030",
+          "KA-010",
+          "KA-074",
+          "KA-022",
+          "KA-024",
+          "KA-014",
+          "KA-056",
+          "KA-087"
+        ],
+        "defaults": {
+          "confidence_threshold": 0.995,
+          "max_refinement_iterations": 3,
+          "allow_external_research": true,
+          "max_recursion_depth": 4
+        }
+      },
+      {
+        "tier": "extreme",
+        "goal": "Run maximal simulation, counterfactuals, and optional quantum/graph neural subcomponents under strict budget/governance.",
+        "default_sla": {
+          "p95_latency_ms": 30000
+        },
+        "workflow_steps": [
+          "step1",
+          "step2",
+          "step3",
+          "step4",
+          "step5",
+          "step6",
+          "step7",
+          "step8",
+          "step9",
+          "step10",
+          "step11"
+        ],
+        "required_gates": [
+          "TruthAudit",
+          "TruthCore",
+          "TruthGate",
+          "TruthMemory",
+          "budget_enforcer",
+          "containment",
+          "coordinate_resolution",
+          "evidence_validation",
+          "input_validation",
+          "trust_gate",
+          "truthgate_security"
+        ],
+        "optional_modules": [
+          "human_in_the_loop",
+          "cross_instance_consensus"
+        ],
+        "ka_pipeline_hint": [
+          "KA-004",
+          "KA-061",
+          "KA-005",
+          "KA-113",
+          "KA-080",
+          "KA-081",
+          "KA-031",
+          "KA-001",
+          "KA-002",
+          "KA-003",
+          "KA-006",
+          "KA-060",
+          "KA-066",
+          "KA-070",
+          "KA-114",
+          "KA-009",
+          "KA-026",
+          "KA-030",
+          "KA-102",
+          "KA-021",
+          "KA-108",
+          "KA-110",
+          "KA-024",
+          "KA-014",
+          "KA-056"
+        ],
+        "defaults": {
+          "confidence_threshold": 0.995,
+          "max_refinement_iterations": 5,
+          "allow_external_research": true,
+          "max_recursion_depth": 6
+        }
+      },
+      {
+        "tier": "autonomous",
+        "goal": "Asynchronous multi-agent planning/execution with governance, HITL, and staged releases.",
+        "default_sla": {
+          "mode": "async"
+        },
+        "workflow_steps": [
+          "step1",
+          "step2",
+          "step3",
+          "step4",
+          "step5",
+          "step6",
+          "step7",
+          "step8",
+          "step9",
+          "step10",
+          "step11",
+          "step12"
+        ],
+        "required_gates": [
+          "TruthGate",
+          "audit_export",
+          "boundary_enforcer",
+          "budget_enforcer",
+          "human_in_the_loop",
+          "input_validation",
+          "release_manager",
+          "truthgate_security"
+        ],
+        "optional_modules": [
+          "policy_evolution_tracker",
+          "system_introspection"
+        ],
+        "ka_pipeline_hint": [
+          "KA-004",
+          "KA-061",
+          "KA-005",
+          "KA-113",
+          "KA-080",
+          "KA-081",
+          "KA-107",
+          "KA-031",
+          "KA-032",
+          "KA-047",
+          "KA-095",
+          "KA-096",
+          "KA-100",
+          "KA-112"
+        ],
+        "defaults": {
+          "confidence_threshold": 0.995,
+          "max_refinement_iterations": 10,
+          "allow_external_research": true,
+          "max_recursion_depth": 8
+        }
+      }
+    ],
+    "decision_rules": [
+      {
+        "when": {
+          "stakes_score": {
+            ">=": 80
+          }
+        },
+        "then": {
+          "tier": "high_stakes"
+        },
+        "notes": "Default to high_stakes for regulated/mission-critical domains unless policy explicitly permits down-tiering."
+      },
+      {
+        "when": {
+          "complexity_score": {
+            ">=": 85
+          }
+        },
+        "then": {
+          "tier": "extreme"
+        },
+        "notes": "Very high complexity tends to require deeper simulation, counterfactuals, or advanced modeling."
+      },
+      {
+        "when": {
+          "ambiguity_score": {
+            ">=": 70
+          }
+        },
+        "then": {
+          "tier": "moderate"
+        },
+        "notes": "If ambiguity is high but stakes are not, prioritize clarification + moderate reasoning before expensive steps."
+      },
+      {
+        "when": {
+          "novelty_score": {
+            ">=": 75
+          },
+          "stakes_score": {
+            ">=": 60
+          }
+        },
+        "then": {
+          "tier": "high_stakes"
+        },
+        "notes": "Novel + moderately high stakes: require stronger evidence validation and audit."
+      },
+      {
+        "when": {
+          "complexity_score": {
+            "<=": 30
+          },
+          "stakes_score": {
+            "<=": 30
+          },
+          "ambiguity_score": {
+            "<=": 30
+          }
+        },
+        "then": {
+          "tier": "trivial"
+        },
+        "notes": "Low complexity + low stakes + low ambiguity."
+      },
+      {
+        "when": {
+          "budget_usd": {
+            "<=": 0.05
+          }
+        },
+        "then": {
+          "max_tier": "moderate"
+        },
+        "notes": "Budget cap can restrict tiers unless policy overrides."
+      },
+      {
+        "when": {
+          "max_latency_ms": {
+            "<=": 2500
+          }
+        },
+        "then": {
+          "max_tier": "trivial"
+        },
+        "notes": "Latency cap can restrict execution depth unless policy overrides."
+      }
+    ],
+    "policy_overrides": {
+      "never_down_tier_domains": [
+        "medical",
+        "legal",
+        "safety_critical",
+        "regulated_compliance"
+      ],
+      "force_privacy_pipeline_if_sensitive": true,
+      "force_human_review_if_confidence_below": 0.9
+    }
+  },
+  "version": "2.5.0",
+  "truth_engine": {
+    "name": "TruthEngine (4-Part)",
+    "version": "1.0.0",
+    "components": {
+      "TruthGate": {
+        "purpose": "Security/policy gates and capability bounds before and during execution.",
+        "kAs": [
+          "KA-004",
+          "KA-061",
+          "KA-107",
+          "KA-022",
+          "KA-024",
+          "KA-081",
+          "KA-074"
+        ]
+      },
+      "TruthCore": {
+        "purpose": "Evidence/provenance/contradiction validation and confidence computation.",
+        "kAs": [
+          "KA-009",
+          "KA-018",
+          "KA-026",
+          "KA-030",
+          "KA-062",
+          "KA-014",
+          "KA-041",
+          "KA-084"
+        ]
+      },
+      "TruthMemory": {
+        "purpose": "Controlled persistence, containment, lifecycle, and release management.",
+        "kAs": [
+          "KA-109",
+          "KA-078",
+          "KA-079",
+          "KA-046",
+          "KA-052",
+          "KA-083",
+          "KA-088",
+          "KA-094",
+          "KA-096",
+          "KA-091"
+        ]
+      },
+      "TruthAudit": {
+        "purpose": "Explainability + governance + integrity/regression controls.",
+        "kAs": [
+          "KA-056",
+          "KA-087",
+          "KA-071",
+          "KA-092",
+          "KA-099",
+          "KA-065",
+          "KA-095",
+          "KA-106",
+          "KA-112"
+        ]
+      }
+    },
+    "rules": {
+      "no_persist_without_pass": "Require TrustGate pass + Confidence >= tier threshold + Containment != never + KB integrity pass.",
+      "external_research_bounded": "Only via KA-114 and only when tier defaults allow_external_research=true; evidence must pass TruthCore before use.",
+      "chaos_governed": "Chaos (KA-101) only when allow_chaos=true and risk < H and compliance gates not active."
+    }
+  }
+}
