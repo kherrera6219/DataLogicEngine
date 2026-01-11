@@ -1,0 +1,39 @@
+
+> frontend@0.1.0 lint
+> eslint
+
+
+C:\software\DataLogicEngine\frontend\app\graph\page.tsx
+   3:10  warning  'CardHeader' is defined but never used   @typescript-eslint/no-unused-vars
+   3:22  warning  'CardTitle' is defined but never used    @typescript-eslint/no-unused-vars
+   3:33  warning  'CardContent' is defined but never used  @typescript-eslint/no-unused-vars
+  27:18  error    'Select' is not defined                  react/jsx-no-undef
+
+C:\software\DataLogicEngine\frontend\app\simulations\page.tsx
+   5:15  warning  'SimulationSession' is defined but never used  @typescript-eslint/no-unused-vars
+  10:39  warning  'StopCircle' is defined but never used         @typescript-eslint/no-unused-vars
+  22:13  warning  'e' is defined but never used                  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\app\truth-engine\page.tsx
+  5:10  warning  'Button' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\contexts\AuthContext.tsx
+  43:10  error  Parsing error: ',' expected
+
+C:\software\DataLogicEngine\frontend\lib\api\auth.ts
+  29:17  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\lib\api\knowledge.ts
+  16:17  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\lib\api\simulation.ts
+  10:18  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\lib\api\system_chat.ts
+  8:17  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\lib\api\trace.ts
+  22:15  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 14 problems (2 errors, 12 warnings)
+

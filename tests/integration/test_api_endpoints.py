@@ -19,11 +19,21 @@ def client():
     app.config['WTF_CSRF_ENABLED'] = False
     app.config['CACHE_TYPE'] = 'NullCache'
     app.config['RATELIMIT_ENABLED'] = False
+    app.config['CORS_ORIGINS'] = "*"
+    app.config['CORS_RESOURCES'] = {r"/*": {"origins": "*"}}
     
-    # Monkeypatch Limiter._check_request_limit to do nothing
-    import flask_limiter
-    original_check = flask_limiter.Limiter._check_request_limit
-    flask_limiter.Limiter._check_request_limit = lambda *args, **kwargs: None
+    # Remove Limiter from before_request_funcs to avoid Redis connection
+    # Flask-Limiter registers _check_request_limit
+    for key in list(app.before_request_funcs.keys()):
+        app.before_request_funcs[key] = [
+            f for f in app.before_request_funcs[key]
+            if 'check_request_limit' not in getattr(f, '__name__', '')
+        ]
+    
+    # Also patch storage just in case direct calls happen
+    from limits.storage.memory import MemoryStorage
+    limiter._storage = MemoryStorage() 
+    limiter.enabled = False
 
     with app.test_client() as client:
         with app.app_context():
@@ -32,8 +42,9 @@ def client():
         with app.app_context():
             db.drop_all()
     
-    # Restore Limiter check
-    flask_limiter.Limiter._check_request_limit = original_check
+    # Restoration is not strictly necessary as fixture tears down app context/client
+    # but good practice if app is shared. However, we modified the app instance's list.
+    pass
 
 
 @pytest.fixture

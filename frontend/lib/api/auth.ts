@@ -26,7 +26,7 @@ export const auth = {
         try {
             const res = await fetch(`${API_BASE}/auth/check`);
             return await res.json();
-        } catch(e) { return null; }
+        } catch { return null; }
     },
     login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
         const res = await fetch(`${API_BASE}/auth/login`, {

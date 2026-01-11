@@ -1,52 +1,21 @@
 # Universal Knowledge Graph (UKG) Engine
 
-<<<<<<< HEAD
 ### Enterprise-Grade AI Knowledge Synthesis & Orchestration Platform
-=======
-> Enterprise-grade AI-powered knowledge management platform with sophisticated reasoning, full traceability, and multi-tenant architecture.
->>>>>>> 181b539dcffebeaad8a7884e5497cb6d1329c507
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
-<<<<<<< HEAD
 [![Hardened](https://img.shields.io/badge/Security-Hardened-success)](docs/SECURITY.md)
-=======
 [![Flask](https://img.shields.io/badge/flask-3.1-green)](https://flask.palletsprojects.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-blue)](https://www.postgresql.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
 
 ---
 
-## 📑 Table of Contents
-
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [How It Works](#how-it-works)
-- [Architecture](#architecture)
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
-- [Configuration](#configuration)
-- [Core Components](#core-components)
-- [Enterprise Features](#enterprise-features)
-- [Python SDKs](#python-sdks)
-- [API Documentation](#api-documentation)
-- [Deployment](#deployment)
-- [Testing](#testing)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [Security](#security)
-- [Support](#support)
-- [License](#license)
->>>>>>> 181b539dcffebeaad8a7884e5497cb6d1329c507
-
----
-
 ## 🏗️ Executive Summary
 
-<<<<<<< HEAD
-The **Universal Knowledge Graph (UKG)** Engine is a sophisticated, hardened middleware platform designed to bridge the gap between enterprise data and Large Language Models. Built for mission-critical applications, it provides a "Reasoning-as-a-Service" layer that ensures every AI interaction is **grounded, traceable, and secure**.
+The **Universal Knowledge Graph (UKG) Engine** is a sophisticated, hardened middleware platform designed to bridge the gap between enterprise data and Large Language Models. Built for mission-critical applications, it provides a "Reasoning-as-a-Service" layer that ensures every AI interaction is **grounded, traceable, and secure**.
 
 By utilizing a unique **17-Axis Coordinate Framework**, the engine contextualizes unstructured data into a high-fidelity graph, allowing agents to navigate complex regulatory, temporal, and spatial domains with zero hallucination risk.
 
@@ -58,7 +27,7 @@ By utilizing a unique **17-Axis Coordinate Framework**, the engine contextualize
 | :------------------------------------------------------------------------ | :------------------------------------------------------------------ | :-------------------------------------------------------------------- | :--------------------------------------------------------------------- |
 | **Circuit Breakers**: Automatic failover & recovery for LLM providers.    | **Multi-Tenancy**: Hard isolated data layers per enterprise tenant. | **Global Caching**: Redis-backed read-through caching for graph ops.  | **Unified Tracing**: End-to-end correlation ID across SDK & API.       |
 | **Failover Logic**: Multi-provider resilience (OpenAI, Azure, Anthropic). | **SSO / OIDC**: Native integration with Azure AD & Enterprise IDPs. | **Optimized IO**: Gunicorn/Celery workers for high-concurrency tasks. | **Audit Chain**: Hash-linked audit trails for compliance (SOC2/HIPAA). |
-=======
+
 The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchestration platform that acts as an intelligent middleware layer between applications and Large Language Models (LLMs). It injects verified enterprise knowledge into AI reasoning while maintaining complete auditability and compliance.
 
 ### What Problem Does It Solve?
@@ -70,12 +39,14 @@ The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchest
 ### Technology Stack
 
 **Frontend:**
+
 - Next.js 16 (App Router) with React 19
 - TypeScript 5.x for type safety
 - Tailwind CSS 4.x + Shadcn UI (Radix primitives)
 - SWR for real-time data fetching
 
 **Backend:**
+
 - Flask 3.1 with Gunicorn (4 workers)
 - PostgreSQL 15+ (40+ tables with multi-tenancy)
 - Redis 5+ for caching and rate limiting
@@ -83,6 +54,7 @@ The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchest
 - SQLAlchemy 2.0 ORM
 
 **Key Technologies:**
+
 - Model Context Protocol (MCP) for LLM agent integration
 - 17-Axis Knowledge Framework for multi-dimensional context
 - Hash-chain audit trails (EU AI Act Article 53 compliant)
@@ -93,14 +65,18 @@ The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchest
 ## Key Features
 
 ### 🧠 17-Axis Knowledge Framework
+
 Multi-dimensional knowledge organization contextualizing data across:
+
 - **Axis 1-4**: Identity, Sector, Domain, Knowledge Type
 - **Axis 5-7**: Temporal, Regulatory, Compliance
 - **Axis 8-11**: Expert Profiles (Knowledge, Sector, Regulatory, Compliance)
 - **Axis 12-17**: Location, Risk, Federated Learning, Time Arrows, Observability
 
 ### ⚖️ Truth Engine (5-Tier Workflow)
+
 Sophisticated reasoning with graduated complexity:
+
 1. **Trivial** - Simple lookups (<1s)
 2. **Simple** - Single-step logic
 3. **Complex** - Multi-step reasoning with validation
@@ -110,7 +86,9 @@ Sophisticated reasoning with graduated complexity:
 **Features**: Budget tracking, policy gates, confidence scoring, hash-chain audit trails
 
 ### 🔍 Full Execution Traceability
+
 Every AI decision is captured with:
+
 - **TraceRun**: UUID-based execution trace
 - **TraceStage**: Stage-by-stage breakdown with timing
 - **TraceEvidence**: Supporting evidence items
@@ -122,7 +100,9 @@ Every AI decision is captured with:
 **Export**: JSON, CSV for compliance reporting
 
 ### 🤖 Model Context Protocol (MCP) Server
+
 Native MCP implementation exposing:
+
 - **Resources**: Knowledge graph stats, pillars, algorithms
 - **Tools**: 100+ Knowledge Algorithms as executable tools
 - **Prompts**: Expert persona templates, regulatory analysis
@@ -130,13 +110,16 @@ Native MCP implementation exposing:
 **Compatible with**: Claude AI, GPT-4 with function calling, any MCP-compliant agent
 
 ### 🌐 LLM Gateway (Universal Adapter)
+
 Support for multiple providers with intelligent routing:
+
 - **OpenAI** (GPT-4, GPT-4 Turbo)
 - **Azure OpenAI** (Enterprise deployments)
 - **Anthropic** (Claude 3.5 Sonnet, Opus)
 - **Google Vertex AI** (Gemini)
 
 **Features**:
+
 - Encrypted API key storage (Fernet)
 - Automatic provider failover
 - Circuit breaker pattern for resilience
@@ -145,7 +128,9 @@ Support for multiple providers with intelligent routing:
 - Usage analytics
 
 ### 🏢 Multi-Tenancy & Security
+
 Enterprise-grade tenant isolation:
+
 - `tenant_id` enforcement across all 40+ database tables
 - SSO/OIDC integration (Azure AD/Entra ID)
 - API key management with expiration
@@ -154,7 +139,10 @@ Enterprise-grade tenant isolation:
 - SIEM audit logging (Syslog, CSV export)
 
 ### 📊 Compliance & Auditing
+
 Production-ready compliance features:
+
+- **EU AI Act Article 53**: Immutable audit trails with hash chains
 - **EU AI Act Article 53**: Immutable audit trails with hash chains
 - **SOC2**: Evidence collection, encryption at rest, access controls
 - **GDPR**: Data minimization, tenant isolation, right to be forgotten
@@ -162,24 +150,16 @@ Production-ready compliance features:
 
 ---
 
-## How It Works
-
-The DataLogicEngine operates as **"API In / API Out"** - an intelligent middleware that enhances LLM reasoning.
->>>>>>> 181b539dcffebeaad8a7884e5497cb6d1329c507
+The **Universal Knowledge Graph (UKG) System** operates as **"API In / API Out"** - an intelligent middleware that enhances LLM reasoning.
 
 ---
 
-<<<<<<< HEAD
 ## 🛠️ "API In / API Out" Architecture
 
 The DataLogicEngine operates as the "Brain" between your interfaces and the raw LLM cloud.
 
 ### 1. Request Ingestion
 
-External systems send high-level queries. The system automatically performs **Axis Resolution** to identify the Sector (e.g., Finance), Domain (e.g., Risk), and Tier (Routing priority).
-
-### 2. The UKG Pipeline (Internal Reasoning)
-=======
 External systems send a standard chat request:
 
 ```json
@@ -196,85 +176,36 @@ POST /api/v1/gateway/chat
 
 ### 2. Processing (The Knowledge Engine)
 
-The system executes a comprehensive **Trace Run**:
-
-**Step 1: Axis Resolution**
-- Query: "AI compliance risks in healthcare"
-- Resolved Axes:
-  - Axis 2 (Sector): Healthcare
-  - Axis 3 (Domain): AI
-  - Axis 6 (Regulatory): HIPAA, FDA
-  - Axis 7 (Compliance): Healthcare AI regulations
-
-**Step 2: Knowledge Retrieval**
-- Queries knowledge graph for relevant nodes/edges
-- Filters by axis coordinates
-- Retrieves 23 high-confidence knowledge items
-- Sources: HIPAA Knowledge Base, FDA AI Guidance
-
-**Step 3: Simulation & Validation**
-- Runs risk assessment simulation
-- Validates against regulatory frameworks
-- Calculates confidence scores
-- Generates evidence artifacts
-
-**Step 4: LLM Synthesis**
-- Injects verified context into LLM prompt
-- Calls selected provider (with circuit breakers)
-- Streams response back to client
-- Links response to trace ID
->>>>>>> 181b539dcffebeaad8a7884e5497cb6d1329c507
-
 Instead of a single LLM pass, the engine executes a multi-layered pipeline:
 
-<<<<<<< HEAD
 - **L1 (Hygiene)**: Input validation & PII scrubbing.
 - **L2-L8 (Reasoning)**: Recursive graph traversal and Knowledge Algorithm (KA) execution.
+  - **Step 1: Axis Resolution**: Maps query to Healthcare, AI, HIPAA axes.
+  - **Step 2: Knowledge Retrieval**: Fetches grounded facts from the 17-Axis Graph.
+  - **Step 3: Simulation & Validation**: Runs risk models.
 - **L9 (Synthesis)**: Context-grounded response generation.
 - **L10 (Audit)**: Finalizing the hash-chained execution trace.
 
 ### 3. Traceable Response
 
-Returns the response along with a `X-Correlation-ID`, allowing developers to "peek" into the exact reasoning steps, evidence retrieved, and policy decisions made.
+Returns answer **plus** complete audit trail:
 
----
-
-## 🚀 Quick Start
-
-### Infrastructure Requirements
-
-- **Runtime**: Node.js 18+, Python 3.11+
-- **Database**: PostgreSQL 15+ (with JSONB support)
-- **Cache**: Redis 7+ (required for rate limiting & graph caching)
-
-### Backend Deployment
-
-```bash
-# Clone and Setup
-git clone https://github.com/DataLogicEngine/UKG-Engine.git
-cd UKG-Engine
-python -m venv .venv && source .venv/bin/activate
-
-# Configure
-cp .env.template .env
-# Edit .env with your DATABASE_URL, REDIS_URL, and API keys
-
-# Initialize Services
-pip install -r requirements.txt
-flask db upgrade
-python backend/seed_data.py
-
-# Launch Engine
-python wsgi.py
-```
-
-### Frontend Deployment
-
-```bash
-cd frontend
-npm install
-npm run build
-npm start
+```json
+{
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "Based on UKG analysis..."
+      }
+    }
+  ],
+  "ukg_trace": {
+    "trace_id": "abc-123",
+    "confidence": 0.92,
+    "evidence_count": 23
+  }
+}
 ```
 
 ---
@@ -299,38 +230,7 @@ graph TD
 
     UKG -->|Grounded Prompt| LLM[LLM Cloud]
     LLM -->|Response| GW
-=======
-Returns answer **plus** complete audit trail:
-
-```json
-{
-  "choices": [{
-    "message": {
-      "role": "assistant",
-      "content": "Based on UKG analysis (Trace #abc-123), the primary AI compliance risks in healthcare include..."
-    }
-  }],
-  "ukg_trace": {
-    "trace_id": "abc-123-def-456",
-    "steps_executed": 14,
-    "confidence": 0.92,
-    "data_sources": ["HIPAA KB", "FDA Guidance"],
-    "evidence_count": 23
-  }
-}
 ```
-
-**User can now:**
-- View complete trace at `/runs/abc-123-def-456`
-- See stage-by-stage execution breakdown
-- Review all evidence and claims
-- Export audit trail for compliance
-
-> **Why This Matters**: Generic LLM reasoning power **+** Specific enterprise accuracy **+** Complete auditability
-
----
-
-## Architecture
 
 ### High-Level System Design
 
@@ -403,8 +303,7 @@ graph TB
 ### Component Breakdown
 
 **Frontend** (`/frontend` - 15+ pages)
-- Dashboard with real-time metrics
-- Interactive chat with streaming
+
 - Trace run explorer (stage-by-stage)
 - Knowledge graph visualization
 - Admin compliance dashboard
@@ -412,6 +311,7 @@ graph TB
 - User settings and profiles
 
 **Backend** (`/backend` - 7 core modules)
+
 - `llm_gateway/`: Universal LLM adapter
 - `truth_engine/`: 5-tier reasoning framework
 - `tracing/`: Execution traceability (9 tables)
@@ -421,12 +321,14 @@ graph TB
 - `routes/`: 8 API blueprints
 
 **Core** (`/core` - Knowledge engine)
+
 - `axes/`: 17-Axis Framework (30+ KB modules)
 - `mcp/`: Model Context Protocol server
 - `simulation/`: Scenario simulation engine
 - `knowledge_algorithm/`: 100+ algorithm implementations
 
 **Database** (40+ tables)
+
 - User & Access Control (4 tables)
 - Knowledge Graph (6 tables, dual representation)
 - Chat & Sessions (4 tables)
@@ -443,23 +345,25 @@ graph TB
 
 ### Required Software
 
-| Component | Version | Purpose | Installation |
-|-----------|---------|---------|--------------|
-| **Node.js** | 18.17+ | Frontend runtime | [Download](https://nodejs.org/) |
-| **Python** | 3.11+ | Backend runtime | [Download](https://www.python.org/downloads/) |
-| **PostgreSQL** | 15+ | Primary database | [Download](https://www.postgresql.org/download/) |
-| **Redis** | 5+ | Cache/queue (optional) | [Download](https://redis.io/download) |
-| **Git** | Latest | Version control | [Download](https://git-scm.com/) |
+| Component      | Version | Purpose                | Installation                                     |
+| -------------- | ------- | ---------------------- | ------------------------------------------------ |
+| **Node.js**    | 18.17+  | Frontend runtime       | [Download](https://nodejs.org/)                  |
+| **Python**     | 3.11+   | Backend runtime        | [Download](https://www.python.org/downloads/)    |
+| **PostgreSQL** | 15+     | Primary database       | [Download](https://www.postgresql.org/download/) |
+| **Redis**      | 5+      | Cache/queue (optional) | [Download](https://redis.io/download)            |
+| **Git**        | Latest  | Version control        | [Download](https://git-scm.com/)                 |
 
 ### System Requirements
 
 **Development:**
+
 - CPU: 2+ cores
 - RAM: 8GB minimum, 16GB recommended
 - Disk: 10GB free space
 - OS: Linux, macOS, Windows (WSL2 recommended)
 
 **Production:**
+
 - CPU: 4+ cores
 - RAM: 16GB minimum, 32GB recommended
 - Disk: 50GB+ SSD
@@ -468,6 +372,7 @@ graph TB
 ### External Services (Optional)
 
 For full functionality, configure at least one:
+
 - **OpenAI API Key** for GPT-4 access
 - **Azure OpenAI** deployment
 - **Anthropic API Key** for Claude access
@@ -487,6 +392,7 @@ cd DataLogicEngine
 ### 2. Database Setup
 
 **PostgreSQL:**
+
 ```bash
 # Create database
 createdb ukg_db
@@ -498,6 +404,7 @@ CREATE DATABASE ukg_db;
 ```
 
 **Redis (optional):**
+
 ```bash
 # Linux/macOS
 redis-server
@@ -675,6 +582,7 @@ results = knowledge_graph.query(axes=axes)
 ```
 
 **All 17 Axes:**
+
 1. Identity - Entity context
 2. Sector - Industry (Healthcare, Finance, etc.)
 3. Domain - Expertise area (AI, Security, etc.)
@@ -682,13 +590,13 @@ results = knowledge_graph.query(axes=axes)
 5. Temporal - Time context
 6. Regulatory - Frameworks (GDPR, HIPAA, SOX)
 7. Compliance - Obligations
-8-11. Expert Profiles - Knowledge, Sector, Regulatory, Compliance experts
-12. Location - Geographic context
-13. Risk - Risk assessment
-14. Federated Learning - Distributed context
-15. Time Arrows - Directional time reasoning
-16. Reserved - Future expansion
-17. Observability - Tracing metrics
+   8-11. Expert Profiles - Knowledge, Sector, Regulatory, Compliance experts
+8. Location - Geographic context
+9. Risk - Risk assessment
+10. Federated Learning - Distributed context
+11. Time Arrows - Directional time reasoning
+12. Reserved - Future expansion
+13. Observability - Tracing metrics
 
 ### 2. Truth Engine
 
@@ -782,6 +690,7 @@ Expose knowledge as tools for LLM agents:
 ```
 
 **Claude AI Integration:**
+
 ```python
 # Claude can now use these tools natively
 import anthropic
@@ -817,6 +726,7 @@ POST /api/v1/ka/execute
 ```
 
 **Algorithm Categories:**
+
 - Knowledge Retrieval (KA001-KA020)
 - Risk Assessment (KA021-KA035)
 - Compliance Checking (KA036-KA050)
@@ -830,6 +740,7 @@ POST /api/v1/ka/execute
 ### Security Architecture
 
 **Layers of Defense:**
+
 1. **Network**: HTTPS enforcement, TLS 1.3, reverse proxy support
 2. **Application**: CSRF, XSS, SQL injection prevention
 3. **Authentication**: Session, SSO, API keys, OAuth, JWT
@@ -838,6 +749,7 @@ POST /api/v1/ka/execute
 6. **Audit**: Complete request logging, SIEM integration
 
 **Security Headers Applied:**
+
 ```
 Content-Security-Policy: default-src 'self'
 Strict-Transport-Security: max-age=31536000; includeSubDomains
@@ -860,11 +772,13 @@ def get_knowledge_nodes():
 ```
 
 **Tenant ID Sources:**
+
 1. User.tenant_id from database
 2. Azure AD 'tid' claim from SSO token
 3. API key tenant association
 
 **Isolation Scope:**
+
 - Knowledge graph nodes/edges
 - Chat sessions and messages
 - Trace runs and stages
@@ -895,6 +809,7 @@ POST /api/v1/compliance/evidence/generate
 ### High Availability
 
 **Connection Pooling:**
+
 ```python
 # PostgreSQL
 SQLALCHEMY_ENGINE_OPTIONS = {
@@ -906,6 +821,7 @@ SQLALCHEMY_ENGINE_OPTIONS = {
 ```
 
 **Circuit Breakers:**
+
 ```python
 # LLM Gateway automatic circuit breaking
 if provider_failure_rate > 0.5:
@@ -914,6 +830,7 @@ if provider_failure_rate > 0.5:
 ```
 
 **Health Checks:**
+
 ```bash
 GET /health
 {
@@ -1045,6 +962,7 @@ asyncio.run(main())
 ```
 
 **Features:**
+
 - 17-axis coordinate resolver
 - Memory adapters (in-memory, Postgres, Redis)
 - Compliance-grade audit storage
@@ -1060,18 +978,21 @@ asyncio.run(main())
 All endpoints require one of:
 
 **Session Cookie** (Frontend):
+
 ```javascript
 // Automatic with frontend proxy
-fetch('/api/v1/knowledge/nodes')
+fetch("/api/v1/knowledge/nodes");
 ```
 
 **Bearer Token** (External):
+
 ```bash
 curl -H "Authorization: Bearer your-jwt-token" \
   http://localhost:5000/api/v1/trace/runs
 ```
 
 **API Key** (Programmatic):
+
 ```bash
 curl -H "X-API-Key: your-api-key" \
   http://localhost:5000/api/v1/gateway/chat
@@ -1079,22 +1000,23 @@ curl -H "X-API-Key: your-api-key" \
 
 ### Endpoint Categories
 
-| Service | Prefix | Description | Key Endpoints |
-|---------|--------|-------------|---------------|
-| **Auth** | `/api/v1/auth` | Authentication & SSO | `POST /login`, `GET /login/sso`, `POST /logout` |
-| **Gateway** | `/api/v1/gateway` | LLM orchestration | `POST /chat`, `POST /stream` |
-| **Trace** | `/api/v1/trace` | Execution tracing | `GET /runs`, `GET /runs/:id/stages` |
-| **MCP** | `/api/v1/mcp` | Model Context Protocol | `GET /servers`, `POST /tools/:id/call` |
-| **Knowledge** | `/api/v1/knowledge` | Graph operations | `GET /nodes`, `POST /edges` |
-| **KA** | `/api/v1/ka` | Algorithm execution | `GET /algorithms`, `POST /execute` |
-| **Compliance** | `/api/v1/compliance` | Audit & reporting | `GET /audit-logs`, `GET /audit/export` |
-| **Admin** | `/api/v1/admin` | User & provider mgmt | `GET /users`, `POST /providers` |
-| **Simulation** | `/api/v1/simulation` | Scenario simulation | `POST /start`, `GET /:id` |
-| **System** | `/health` | Health check | `GET /health` |
+| Service        | Prefix               | Description            | Key Endpoints                                   |
+| -------------- | -------------------- | ---------------------- | ----------------------------------------------- |
+| **Auth**       | `/api/v1/auth`       | Authentication & SSO   | `POST /login`, `GET /login/sso`, `POST /logout` |
+| **Gateway**    | `/api/v1/gateway`    | LLM orchestration      | `POST /chat`, `POST /stream`                    |
+| **Trace**      | `/api/v1/trace`      | Execution tracing      | `GET /runs`, `GET /runs/:id/stages`             |
+| **MCP**        | `/api/v1/mcp`        | Model Context Protocol | `GET /servers`, `POST /tools/:id/call`          |
+| **Knowledge**  | `/api/v1/knowledge`  | Graph operations       | `GET /nodes`, `POST /edges`                     |
+| **KA**         | `/api/v1/ka`         | Algorithm execution    | `GET /algorithms`, `POST /execute`              |
+| **Compliance** | `/api/v1/compliance` | Audit & reporting      | `GET /audit-logs`, `GET /audit/export`          |
+| **Admin**      | `/api/v1/admin`      | User & provider mgmt   | `GET /users`, `POST /providers`                 |
+| **Simulation** | `/api/v1/simulation` | Scenario simulation    | `POST /start`, `GET /:id`                       |
+| **System**     | `/health`            | Health check           | `GET /health`                                   |
 
 ### Example Requests
 
 **Chat with UKG Context:**
+
 ```bash
 curl -X POST http://localhost:5000/api/v1/gateway/chat \
   -H "Content-Type: application/json" \
@@ -1110,12 +1032,14 @@ curl -X POST http://localhost:5000/api/v1/gateway/chat \
 ```
 
 **Get Trace Runs:**
+
 ```bash
 curl -X GET "http://localhost:5000/api/v1/trace/runs?status=pass&page=1&per_page=20" \
   -H "Authorization: Bearer your-token"
 ```
 
 **Execute Knowledge Algorithm:**
+
 ```bash
 curl -X POST http://localhost:5000/api/v1/ka/execute \
   -H "Content-Type: application/json" \
@@ -1130,6 +1054,7 @@ curl -X POST http://localhost:5000/api/v1/ka/execute \
 ```
 
 **Export Compliance Audit:**
+
 ```bash
 curl -X GET "http://localhost:5000/api/v1/compliance/audit/export?days=30&format=csv" \
   -H "Authorization: Bearer admin-token" \
@@ -1137,6 +1062,7 @@ curl -X GET "http://localhost:5000/api/v1/compliance/audit/export?days=30&format
 ```
 
 For complete API documentation with request/response schemas, see:
+
 - **[docs/API.md](docs/API.md)** - Full endpoint reference
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture
 - **[docs/MCP_INTEGRATION.md](docs/MCP_INTEGRATION.md)** - MCP protocol details
@@ -1182,6 +1108,7 @@ kubectl apply -f deploy/k8s/
 ### Cloud Platforms
 
 **Azure:**
+
 - Azure App Service (Backend)
 - Azure Static Web Apps (Frontend)
 - Azure Database for PostgreSQL
@@ -1189,6 +1116,7 @@ kubectl apply -f deploy/k8s/
 - See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for details
 
 **AWS:**
+
 - ECS/EKS for containers
 - RDS for PostgreSQL
 - ElastiCache for Redis
@@ -1257,6 +1185,7 @@ docker-compose down
 **Problem**: `psycopg2.OperationalError: could not connect to server`
 
 **Solution**:
+
 ```bash
 # Check PostgreSQL is running
 pg_isready
@@ -1276,6 +1205,7 @@ tail -f /var/log/postgresql/postgresql-15-main.log
 **Problem**: `redis.exceptions.ConnectionError`
 
 **Solution**:
+
 ```bash
 # Check Redis is running
 redis-cli ping
@@ -1293,6 +1223,7 @@ docker start redis
 **Problem**: `Module not found` or `Type error`
 
 **Solution**:
+
 ```bash
 cd frontend
 
@@ -1313,6 +1244,7 @@ npm run build
 **Problem**: `alembic.util.exc.CommandError: Can't locate revision`
 
 **Solution**:
+
 ```bash
 # Check current revision
 flask db current
@@ -1332,6 +1264,7 @@ flask db upgrade
 **Problem**: `Timeout waiting for LLM response`
 
 **Solution**:
+
 ```python
 # In .env, increase timeout
 LLM_TIMEOUT_SECONDS=120
@@ -1373,6 +1306,7 @@ cd frontend && npm run build
 ### Performance Issues
 
 **Slow database queries:**
+
 ```sql
 -- Check slow queries
 SELECT query, calls, total_time, mean_time
@@ -1388,6 +1322,7 @@ ANALYZE nodes;
 ```
 
 **High memory usage:**
+
 ```bash
 # Check Python memory
 import tracemalloc
@@ -1417,6 +1352,7 @@ We welcome contributions! Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for gu
 ### Code Standards
 
 **Backend (Python):**
+
 - Follow PEP 8 style guide
 - Use type hints where possible
 - Add docstrings to all functions
@@ -1424,6 +1360,7 @@ We welcome contributions! Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for gu
 - Maintain test coverage above 80%
 
 **Frontend (TypeScript):**
+
 - Follow ESLint rules
 - Use TypeScript for type safety
 - Follow component naming conventions (PascalCase)
@@ -1454,6 +1391,7 @@ See [`SECURITY.md`](SECURITY.md) for our security policy and response process.
 ### Security Best Practices
 
 **For Deployment:**
+
 - Use strong `SECRET_KEY` (32+ random characters)
 - Enable HTTPS in production
 - Configure firewall rules
@@ -1465,6 +1403,7 @@ See [`SECURITY.md`](SECURITY.md) for our security policy and response process.
 - Enable 2FA for admin accounts
 
 **For Development:**
+
 - Never commit secrets to Git
 - Use `.env` for local configuration
 - Keep dependencies updated
@@ -1504,6 +1443,7 @@ See [`SECURITY.md`](SECURITY.md) for our security policy and response process.
 ### Current Status: Production-Ready ✅
 
 **Completed (v1.0):**
+
 - ✅ Core Knowledge Graph implementation
 - ✅ 17-Axis Framework
 - ✅ Truth Engine with 5-tier workflow
@@ -1517,12 +1457,14 @@ See [`SECURITY.md`](SECURITY.md) for our security policy and response process.
 - ✅ Compliance features (SOC2, GDPR, HIPAA)
 
 **In Progress (v1.1):**
+
 - 🔄 WebSocket support for real-time updates
 - 🔄 Advanced graph visualization (3D)
 - 🔄 Enhanced analytics dashboard
 - 🔄 GraphQL API endpoint
 
 **Planned (v2.0):**
+
 - 📋 Mobile applications (React Native)
 - 📋 Kubernetes operator for automated ops
 - 📋 Machine learning model serving
@@ -1556,6 +1498,7 @@ See [`SECURITY.md`](SECURITY.md) for our security policy and response process.
 ## 📂 Documentation Matrix
 
 <<<<<<< HEAD
+
 - **[Architecture Deep-Dive](docs/ARCHITECTURE.md)**: Detailed breakdown of the middleware stack and graph processing.
 - **[Security & Compliance](docs/SECURITY.md)**: Details on Multi-tenancy, SSO, and SOC2 auditability.
 - **[Production Readiness](docs/PRODUCTION_READINESS.md)**: Hardening checklist, scaling, and disaster recovery.
@@ -1570,8 +1513,8 @@ For enterprise support, SOC2 report requests, or HIPAA BAA inquiries, please con
 
 ---
 
-© 2026 DataLogicEngine. All Rights Reserved. Confidential & Proprietary.
-=======
+# © 2026 DataLogicEngine. All Rights Reserved. Confidential & Proprietary.
+
 This project is licensed under the **MIT License** - see the [`LICENSE`](LICENSE) file for details.
 
 ```

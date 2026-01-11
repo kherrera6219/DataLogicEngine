@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlayCircle, Plus, RefreshCw, StopCircle } from "lucide-react";
+import { PlayCircle, Plus, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function SimulationsPage() {
@@ -19,9 +19,9 @@ export default function SimulationsPage() {
     try {
         await api.simulation.create(`Simulation ${new Date().toLocaleString()}`, { mode: 'standard' });
         mutate();
-    } catch(e) {
-        alert("Failed to create simulation");
-    } finally {
+        } catch {
+            console.error("Failed to run simulation");
+        } finally {
         setIsCreating(false);
     }
   };

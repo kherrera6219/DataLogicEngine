@@ -19,7 +19,7 @@ export const trace = {
        if (!res.ok) return null;
        const data = await res.json();
        return data.success ? data.data : data; 
-     } catch (err) {
+     } catch {
         return null;
      }
   }
