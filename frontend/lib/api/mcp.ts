@@ -27,6 +27,7 @@ export interface MCPServer {
 export interface MCPTool {
     name: string;
     description: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     inputSchema: any; // JSON Schema - dynamic structure, safe to use any
 }
 

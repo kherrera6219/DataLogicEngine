@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 // Simple Select implementation
 // In a real app we'd use Radix UI Select for accessibility/popovers
 
-export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {}
+export type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement>
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, children, ...props }, ref) => {

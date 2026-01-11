@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, Database, Layers } from "lucide-react";
+import { Database, Layers } from "lucide-react";
 
 export default function KnowledgePage() {
   const { data: pillars, isLoading } = useSWR('knowledge-pillars', api.knowledge.pillars);

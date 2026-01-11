@@ -28,9 +28,9 @@ export async function sendChat(payload: ChatRequest): Promise<ChatResponse> {
         throw new Error(`Chat failed: ${res.status} ${errText}`);
     }
     return await res.json() as ChatResponse;
-  } catch (err) {
-    console.error(err);
-    const errorMessage = err instanceof Error ? err.message : "Network error";
+  } catch {
+    // silent fail
+    const errorMessage = "Network error"; // Since 'err' is removed, we can't check its type.
     throw new Error(errorMessage);
   }
 }

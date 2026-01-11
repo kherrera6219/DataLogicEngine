@@ -8,9 +8,9 @@ export const trace = {
        const data = await res.json();
        if (data.success && Array.isArray(data.data)) return data.data;
        return Array.isArray(data) ? data : (data.runs || []);
-     } catch (err) {
-       console.error("Failed to fetch traces", err);
-       return [];
+     } catch {
+       console.error("Failed to fetch traces");
+       return undefined;
      }
   },
   get: async (id: string) => {

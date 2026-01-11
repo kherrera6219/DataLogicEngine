@@ -1,0 +1,48 @@
+
+> frontend@0.1.0 lint
+> eslint
+
+
+C:\software\DataLogicEngine\frontend\app\global-error.tsx
+  31:16  warning  'e' is defined but never used                                    @typescript-eslint/no-unused-vars
+  54:17  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\software\DataLogicEngine\frontend\app\graph\page.tsx
+  3:10  warning  'Card' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\app\knowledge\page.tsx
+  8:10  warning  'BookOpen' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\app\profile\page.tsx
+  3:69  warning  'CardFooter' is defined but never used   @typescript-eslint/no-unused-vars
+  6:18  warning  'AvatarImage' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\app\simulations\page.tsx
+   5:15  warning  'SimulationSession' is defined but never used  @typescript-eslint/no-unused-vars
+  10:39  warning  'StopCircle' is defined but never used         @typescript-eslint/no-unused-vars
+  22:13  warning  'e' is defined but never used                  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\app\truth-engine\page.tsx
+  5:10  warning  'Button' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\contexts\AuthContext.tsx
+  33:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\lib\api\auth.ts
+  29:17  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\lib\api\knowledge.ts
+  10:17  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  16:17  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\lib\api\simulation.ts
+  10:18  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\lib\api\system_chat.ts
+  8:17  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\lib\api\trace.ts
+  22:15  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 17 problems (1 error, 16 warnings)
+

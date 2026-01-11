@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             } else {
                 setUser(null);
             }
-        } catch (error) {
+        } catch {
             setUser(null);
         } finally {
             setIsLoading(false);
@@ -38,9 +38,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const login = async (credentials: LoginCredentials) => {
-        const response = await api.auth.login(credentials);
-        if (response.success && response.data.user) {
-            setUser(response.data.user);
             router.push('/dashboard');
             router.refresh();
         } else if (response.status === 202) {

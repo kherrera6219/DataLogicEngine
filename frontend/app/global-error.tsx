@@ -5,7 +5,9 @@ import { useEffect } from 'react';
 // Sentry stub for enterprise error tracking
 // In a real build, this would import from @sentry/nextjs
 const captureError = (error: Error) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (typeof window !== 'undefined' && (window as any).Sentry) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).Sentry.captureException(error);
     }
     console.error("Critical Application Error:", error);
@@ -26,7 +28,7 @@ export default function GlobalError({
       // Clear potentially corrupt local state
       try {
           localStorage.removeItem('user-session'); // Example cleanup
-      } catch (e) { /* ignore */ }
+      } catch { /* ignore */ }
       
       // Attempt generic reset provided by Next.js
       reset();
@@ -49,7 +51,7 @@ export default function GlobalError({
                 Something went wrong.
             </h2>
             <p className="text-muted-foreground text-sm">
-              We've logged this issue and our team has been notified.
+              We&apos;ve logged this issue and our team has been notified.
               Please try refreshing the page.
             </p>
             

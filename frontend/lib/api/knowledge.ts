@@ -7,7 +7,7 @@ export const knowledge = {
             if (!res.ok) return [];
             const data = await res.json();
             return (data.success ? data.data : data) as PillarLevel[];
-        } catch(e) { return []; }
+        } catch { return []; }
     },
     stats: async () => {
         try {

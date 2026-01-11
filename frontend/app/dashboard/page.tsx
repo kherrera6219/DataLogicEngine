@@ -23,6 +23,13 @@ import {
   MessageSquarePlus
 } from 'lucide-react';
 
+interface TraceRun {
+  run_id: string;
+  ka_id: string;
+  status: string;
+  created_at: string;
+}
+
 export default function DashboardPage() {
   // Data Fetching with SWR (Stale-While-Revalidate)
   const { data: runs, isLoading: isRunsLoading } = useSWR('trace-list', () => api.trace.list(5), { 
@@ -165,7 +172,7 @@ export default function DashboardPage() {
                             </TableRow>
                         )}
 
-                        {runs?.map((run: any) => (
+                        {runs?.map((run: TraceRun) => (
                           <TableRow key={run.run_id} className="group">
                              <TableCell className="font-mono text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors">
                                 {run.run_id.substring(0,8)}

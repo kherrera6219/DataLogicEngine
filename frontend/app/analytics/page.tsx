@@ -6,8 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
+interface Pillar {
+  uid: string;
+  pillar_id: string;
+  name: string;
+}
+
 export default function AnalyticsPage() {
-  const { data: pillars, isLoading } = useSWR('knowledge-pillars', () => api.knowledge.pillars());
+  const { data: pillars, isLoading } = useSWR<Pillar[]>('knowledge-pillars', () => api.knowledge.pillars());
 
   return (
     <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8">
@@ -35,7 +41,7 @@ export default function AnalyticsPage() {
                        <div className="space-y-4">
                           <h4 className="text-sm font-semibold text-gray-500 uppercase">Core (1-5)</h4>
                           <div className="space-y-2">
-                             {(pillars || []).filter((p: any) => parseInt(p.pillar_id) >= 1 && parseInt(p.pillar_id) <= 5).map((p: any) => (
+                             {(pillars || []).filter((p: Pillar) => parseInt(p.pillar_id) >= 1 && parseInt(p.pillar_id) <= 5).map((p: Pillar) => (
                                 <div key={p.uid} className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded">
                                    <div className="flex items-center gap-2">
                                       <Badge variant="outline" className="w-6 h-6 rounded-full flex items-center justify-center p-0">{p.pillar_id}</Badge>
@@ -44,7 +50,7 @@ export default function AnalyticsPage() {
                                    <div className="text-xs text-gray-500">Active</div>
                                 </div>
                              ))}
-                             {(pillars || []).filter((p: any) => parseInt(p.pillar_id) >= 1 && parseInt(p.pillar_id) <= 5).length === 0 && (
+                             {(pillars || []).filter((p: Pillar) => parseInt(p.pillar_id) >= 1 && parseInt(p.pillar_id) <= 5).length === 0 && (
                                  <p className="text-xs text-muted-foreground">No core pillars defined.</p>
                              )}
                           </div>
