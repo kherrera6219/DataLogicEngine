@@ -619,59 +619,30 @@ class SimulationEngine:
             # Record start time for duration calculation
             pass_start_time = datetime.now()
             
-            # Step 1: Resolve Coordinates (Phase 2 Axis Mapping)
-            if self.axis_mapper and 'axis_vector' not in simulation['context']:
-                logging.info(f"[{datetime.now()}] Resolving 17-axis vector for: {simulation['query'][:50]}...")
-                axis_vector = self.axis_mapper.get_17axis_vector(simulation['query'])
-                simulation['context']['axis_vector'] = axis_vector
-                logging.info(f"[{datetime.now()}] Axis Mapping complete: {axis_vector}")
-
-            # Run each enabled persona
-            for persona_id, persona_config in simulation['params']['personas'].items():
-                if persona_config['enabled']:
-                    # Run persona simulation
-                    persona_result = self._run_persona_simulation(
-                        persona_id=persona_id,
-                        query=simulation['query'],
-                        context=simulation['context'],
-                        simulation_id=simulation_id,
-                        pass_number=current_pass
-                    )
-                    
-                    # Add to pass record
-                    pass_record['persona_results'][persona_id] = persona_result
-                    
-                    # Update confidence
-                    pass_record['confidence'][persona_id] = persona_result.get('confidence', 0.0)
-            
-            # Step 2: Calculate Truth Scores (Phase 2 TruthEngine)
-            if self.truth_engine:
-                logging.info(f"[{datetime.now()}] Calculating Truth Scores for axes 14-17...")
-                # Collect all execution records from this pass
-                ka_execution_records = []
-                for persona_res in pass_record['persona_results'].values():
-                    for comp_res in persona_res.get('components', {}).values():
-                        if 'ka_execution_id' in comp_res:
-                            # We get the full record from KAEngine history
-                            ka_id = f"KA_PERSONA_{comp_res['persona_id'].upper()}_{comp_res['component_id'].upper()}"
-                            # For simplicity, we create a pseudo-record for TruthEngine if we don't have the full object
-                            ka_execution_records.append({
-                                "ka_id": ka_id,
-                                "results": {"confidence": comp_res.get('confidence', 0.5)}
-                            })
+            # Execute Workflow Steps (1-12)
+            steps = self.workflow_loader.steps if self.workflow_loader else []
+            for step in steps:
+                step_num = step['step_number']
+                step_data = step['data']
                 
-                truth_vector = self.truth_engine.calculate_truth_vector(ka_execution_records)
-                truth_coords = self.truth_engine.get_truth_coordinates(truth_vector)
+                logging.info(f"[{datetime.now()}] Pass {current_pass} | Step {step_num}: {step_data.get('name')}")
                 
-                # Update axis vector in context
-                simulation['context']['axis_vector'].update(truth_coords)
-                pass_record['truth_vector'] = truth_vector
+                if step_num == 1 and current_pass == 1:
+                    # Step 1: Complexity Routing
+                    self._run_routing_step(simulation, pass_record)
+                elif step_num == 2:
+                    # Step 2: Axis Mapping
+                    self._run_mapping_step(simulation, pass_record)
+                elif step_num == 3:
+                    # Step 3: Quad Persona Simulation
+                    self._run_persona_step(simulation, pass_record, simulation_id, current_pass)
+                elif 4 <= step_num <= 10:
+                    # Steps 4-10: Reasoning & Synthesis Pipeline
+                    self._run_pipeline_step(simulation, pass_record, step_num)
+                elif step_num == 11:
+                    # Step 11: Truth & Validation
+                    self._run_validation_step(simulation, pass_record)
                 
-                # Global Validation
-                is_valid, reason = self.truth_engine.get_validation_status(truth_vector)
-                pass_record['validation'] = {"is_valid": is_valid, "reason": reason}
-                logging.info(f"[{datetime.now()}] TruthEngine results: {truth_coords} - Status: {is_valid}")
-
             # Calculate overall confidence
             overall_confidence = self._calculate_overall_confidence(pass_record['confidence'])
             pass_record['confidence']['overall'] = overall_confidence
@@ -957,6 +928,7 @@ class SimulationEngine:
                 if execution['status'] == 'completed':
                     # Extract results
                     ka_results = execution.get('results', {})
+                    result['ka_id'] = ka_id
                     result['response'] = ka_results.get('response')
                     result['confidence'] = ka_results.get('confidence', 0.6)
                     result['ka_execution_id'] = execution['execution_id']
@@ -1284,10 +1256,125 @@ class SimulationEngine:
                     'simulation_id': simulation['simulation_id'],
                     'persona_id': persona_id,
                     'query': query,
-                    'response': persona_results.get('response'),
-                    'confidence': persona_results.get('confidence', 0.0),
-                    'duration_ms': simulation.get('duration_ms')
                 }
         
         # Return full simulation if persona results not available
         return simulation
+
+    def _run_routing_step(self, simulation: Dict, pass_record: Dict):
+        """Step 1: Run Complexity Router and Algorithm Selection."""
+        if not self.ka_engine:
+            return
+            
+        logging.info("Executing Step 1: Routing & Selection")
+        # Run KA-113 (Complexity Router)
+        router_res = self.ka_engine.execute_algorithm("KA-113", {"query": simulation['query']})
+        complexity_data = router_res.get('results', {}).get('output', {"tier": "medium"})
+        
+        # Run KA-031 (Algorithm Selection)
+        selection_res = self.ka_engine.execute_algorithm("KA-031", complexity_data)
+        pipeline = selection_res.get('results', {}).get('output', [])
+        
+        # Store in simulation context
+        simulation['context']['complexity'] = complexity_data
+        simulation['context']['planned_pipeline'] = pipeline
+        pass_record['routing'] = {"complexity": complexity_data, "pipeline": pipeline}
+
+    def _run_mapping_step(self, simulation: Dict, pass_record: Dict):
+        """Step 2: Initialize or update Axis Mapping."""
+        if self.axis_mapper and 'axis_vector' not in simulation['context']:
+            logging.info(f"Resolving 17-axis vector for: {simulation['query'][:50]}...")
+            axis_vector = self.axis_mapper.get_17axis_vector(simulation['query'])
+            simulation['context']['axis_vector'] = axis_vector
+            logging.info(f"Axis Mapping: {axis_vector}")
+
+    def _run_persona_step(self, simulation: Dict, pass_record: Dict, simulation_id: str, pass_number: int):
+        """Step 3: Orchestrate Expert Persona Simulations."""
+        for persona_id, persona_config in simulation['params']['personas'].items():
+            if persona_config['enabled']:
+                persona_result = self._run_persona_simulation(
+                    persona_id=persona_id,
+                    query=simulation['query'],
+                    context=simulation['context'],
+                    simulation_id=simulation_id,
+                    pass_number=pass_number
+                )
+                pass_record['persona_results'][persona_id] = persona_result
+                pass_record['confidence'][persona_id] = persona_result.get('confidence', 0.0)
+
+    def _run_validation_step(self, simulation: Dict, pass_record: Dict):
+        """Step 11: TruthEngine Validation and Scoring."""
+        if not self.truth_engine:
+            return
+            
+        logging.info("Executing Step 11: Truth & Validation")
+        ka_execution_records = []
+        for persona_res in pass_record['persona_results'].values():
+            for comp_res in persona_res.get('components', {}).values():
+                if 'ka_execution_id' in comp_res:
+                    # Use the actual ka_id if available, otherwise fallback
+                    ka_id = comp_res.get('ka_id', f"KA_PERSONA_{comp_res.get('persona_id', 'UNK').upper()}_{comp_res.get('component_id', 'UNK').upper()}")
+                    ka_execution_records.append({
+                        "ka_id": ka_id,
+                        "results": {"confidence": comp_res.get('confidence', 0.5)}
+                    })
+        
+        truth_vector = self.truth_engine.calculate_truth_vector(ka_execution_records)
+        truth_coords = self.truth_engine.get_truth_coordinates(truth_vector)
+        
+        # Calculate overall truth score for verification/reporting
+        if truth_vector:
+            truth_vector['overall_truth_score'] = sum(truth_vector.values()) / len(truth_vector)
+        else:
+            truth_vector['overall_truth_score'] = 0.5
+            
+        simulation['context']['axis_vector'].update(truth_coords)
+        pass_record['truth_vector'] = truth_vector
+        
+        is_valid, reason = self.truth_engine.get_validation_status(truth_vector)
+        pass_record['validation'] = {"is_valid": is_valid, "reason": reason}
+
+    def _run_pipeline_step(self, simulation: Dict, pass_record: Dict, step_num: int):
+        """Steps 4-10: Execute KAs from the planned pipeline based on workflow step."""
+        if not self.ka_engine:
+            return
+            
+        pipeline = simulation['context'].get('planned_pipeline', [])
+        if not pipeline:
+            return
+            
+        # Mapping steps 4-10 to pipeline slices or specific KAs
+        ka_ids_to_run = []
+        if step_num in (4, 5): # Reasoning
+            ka_ids_to_run = [ka for ka in pipeline if ka in ('KA-001', 'KA-002', 'KA-006')]
+        elif step_num == 6: # Synthesis
+            ka_ids_to_run = [ka for ka in pipeline if ka in ('KA-019', 'KA-030')]
+        elif step_num >= 7: # Diagnostics / Confidence
+            ka_ids_to_run = [ka for ka in pipeline if ka in ('KA-014', 'KA-008')]
+            
+        for ka_id in ka_ids_to_run:
+            logging.info(f"Executing {ka_id} for Step {step_num}")
+            execution = self.ka_engine.execute_algorithm(
+                ka_id=ka_id, 
+                params={"query": simulation['query'], "context": simulation['context']},
+                session_id=simulation['simulation_id']
+            )
+            
+            # Store in pass record components
+            if 'pipeline_results' not in pass_record:
+                pass_record['pipeline_results'] = {}
+            
+            res = execution.get('results', {})
+            pass_record['pipeline_results'][ka_id] = {
+                "ka_id": ka_id,
+                "ka_execution_id": execution.get('execution_id'),
+                "confidence": res.get('confidence', 0.7),
+                "output": res.get('output')
+            }
+            
+            # Also add to persona_results for TruthEngine (optional, depends on weighting)
+            # For Phase 4, we treat these as a 'System' persona
+            if 'system' not in pass_record['persona_results']:
+                pass_record['persona_results']['system'] = {'components': {}}
+            
+            pass_record['persona_results']['system']['components'][ka_id] = pass_record['pipeline_results'][ka_id]

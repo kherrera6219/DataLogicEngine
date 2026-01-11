@@ -20,7 +20,7 @@ class WorkflowLoader:
             workflow_path: Path to the simulation workflow JSON file.
         """
         self.workflow_path = workflow_path or os.path.join(
-            os.path.dirname(__file__), "workflows", "simulation_v2_5.json"
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "workflow.json"
         )
         self.workflow_data = {}
         self.steps = []
@@ -36,10 +36,10 @@ class WorkflowLoader:
             with open(self.workflow_path, 'r') as f:
                 self.workflow_data = json.load(f)
                 
-            # Extract steps from the 10-step structure
+            # Extract steps from the 12-step structure
             # The JSON structure typically has steps named "step1", "step2"...
             self.steps = []
-            for i in range(1, 11):
+            for i in range(1, 13):
                 step_key = f"step{i}"
                 if step_key in self.workflow_data:
                     self.steps.append({
