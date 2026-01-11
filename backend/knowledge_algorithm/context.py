@@ -14,6 +14,8 @@ class KnowledgeGraphInterface:
         # Mock implementation
         return []
 
+from core.axes.axis_system import AxisSystem
+
 @dataclass
 class EngineContext:
     """
@@ -22,6 +24,7 @@ class EngineContext:
     """
     llm: Any = field(default_factory=LLMInterface)
     knowledge_graph: Any = field(default_factory=KnowledgeGraphInterface)
+    axis_system: Any = field(default=None)  # Type: Optional[AxisSystem]
     logger: logging.Logger = field(default_factory=lambda: logging.getLogger("KA_Engine"))
     config: Dict[str, Any] = field(default_factory=dict)
     
@@ -29,5 +32,12 @@ class EngineContext:
     tools: Dict[str, Any] = field(default_factory=dict)
 
 def create_default_context() -> EngineContext:
-    """Factory to create a standard context with default (mock/real) services."""
-    return EngineContext()
+    """Factory to create a standard context."""
+    # Initialize real AxisSystem
+    try:
+        axis_sys = AxisSystem()
+    except Exception as e:
+        logging.getLogger(__name__).warning(f"Failed to init AxisSystem for context: {e}")
+        axis_sys = None
+        
+    return EngineContext(axis_system=axis_sys)

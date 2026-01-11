@@ -6,7 +6,7 @@
       "stream_type": "system",
       "metadata": {},
       "created_at": "2025-05-19T14:54:33.971258",
-      "last_updated": "2026-01-11T06:04:04.131226+00:00",
+      "last_updated": "2026-01-11T06:13:03.686501+00:00",
       "entries": {
         "fbf2c3d4-712a-42c3-833e-4be4e5f2b336": {
           "entry_id": "fbf2c3d4-712a-42c3-833e-4be4e5f2b336",
@@ -45,8 +45,8 @@
             "timestamp": "2026-01-11T05:57:00.110027+00:00"
           },
           "created_at": "2026-01-11T05:57:00.110035+00:00",
-          "last_accessed": "2026-01-11T06:04:04.131105+00:00",
-          "access_count": 3,
+          "last_accessed": "2026-01-11T06:13:03.677530+00:00",
+          "access_count": 5,
           "salience": 1.0,
           "confidence": 1.0
         },
@@ -59,8 +59,8 @@
             "timestamp": "2026-01-11T05:57:34.725256+00:00"
           },
           "created_at": "2026-01-11T05:57:34.725263+00:00",
-          "last_accessed": "2026-01-11T06:04:04.131106+00:00",
-          "access_count": 2,
+          "last_accessed": "2026-01-11T06:13:03.677531+00:00",
+          "access_count": 4,
           "salience": 1.0,
           "confidence": 1.0
         },
@@ -73,8 +73,8 @@
             "timestamp": "2026-01-11T05:57:59.514139+00:00"
           },
           "created_at": "2026-01-11T05:57:59.514147+00:00",
-          "last_accessed": "2026-01-11T06:04:04.131107+00:00",
-          "access_count": 1,
+          "last_accessed": "2026-01-11T06:13:03.677532+00:00",
+          "access_count": 3,
           "salience": 1.0,
           "confidence": 1.0
         },
@@ -87,7 +87,35 @@
             "timestamp": "2026-01-11T06:04:04.131217+00:00"
           },
           "created_at": "2026-01-11T06:04:04.131225+00:00",
-          "last_accessed": "2026-01-11T06:04:04.131225+00:00",
+          "last_accessed": "2026-01-11T06:13:03.677532+00:00",
+          "access_count": 2,
+          "salience": 1.0,
+          "confidence": 1.0
+        },
+        "3f34ab52-bd44-48d1-a6a0-c41acdb3a948": {
+          "entry_id": "3f34ab52-bd44-48d1-a6a0-c41acdb3a948",
+          "content": "How do we implement AI compliance in UKG?",
+          "memory_type": "query",
+          "source": "user",
+          "metadata": {
+            "timestamp": "2026-01-11T06:08:05.578190+00:00"
+          },
+          "created_at": "2026-01-11T06:08:05.578198+00:00",
+          "last_accessed": "2026-01-11T06:13:03.677532+00:00",
+          "access_count": 1,
+          "salience": 1.0,
+          "confidence": 1.0
+        },
+        "cac96292-e3a3-45c4-96c7-5db9fdfdc5f2": {
+          "entry_id": "cac96292-e3a3-45c4-96c7-5db9fdfdc5f2",
+          "content": "How do we implement AI compliance in UKG?",
+          "memory_type": "query",
+          "source": "user",
+          "metadata": {
+            "timestamp": "2026-01-11T06:13:03.686478+00:00"
+          },
+          "created_at": "2026-01-11T06:13:03.686499+00:00",
+          "last_accessed": "2026-01-11T06:13:03.686499+00:00",
           "access_count": 0,
           "salience": 1.0,
           "confidence": 1.0
@@ -131,5 +159,5 @@
       "entries": {}
     }
   },
-  "last_saved": "2026-01-11T06:04:04.131387+00:00"
+  "last_saved": "2026-01-11T06:13:03.686671+00:00"
 }

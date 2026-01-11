@@ -138,7 +138,7 @@ class RefinementWorkflow:
 
     def _perform_step4_deep_thinking(self, state):
         """Deep Thinking."""
-        return KARegistry.execute("KA-004", state, self.context)
+        return KARegistry.execute("KA-008", state, self.context)
 
     def _perform_step5_evidence_reasoning(self, state):
         """Evidence-Based Reasoning."""
