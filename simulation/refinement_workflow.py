@@ -8,6 +8,9 @@ incorporating accurate steps like Algorithm of Thought (AoT) and Tree of Thought
 import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional
+from backend.knowledge_algorithm.registry import KARegistry
+# Ensure definitions are loaded
+import backend.knowledge_algorithm.definitions.core_logic
 
 logger = logging.getLogger(__name__)
 
@@ -118,27 +121,30 @@ class RefinementWorkflow:
     # Step Handlers
     def _perform_step1_aot(self, state):
         """Algorithm of Thought: Structured pathfinding."""
-        return {"reasoning_path": ["Identify intent", "Decompose query", "Select axes"]}
+        return KARegistry.execute("KA-001", {"query": state.get("query", ""), "context": state})
 
     def _perform_step2_tot(self, state):
         """Tree of Thought: Branching exploration."""
-        return {"alternatives_explored": 3}
+        # Previous step should have produced a task graph, but if not we pass empty
+        tasks = state.get("tasks", [])
+        return KARegistry.execute("KA-002", {"tasks": tasks})
 
     def _perform_step3_data_validation(self, state):
         """Data Validation."""
-        return {"data_valid": True}
+        return KARegistry.execute("KA-003", {"raw_input": state.get("query", "")})
 
     def _perform_step4_deep_thinking(self, state):
         """Deep Thinking."""
-        return {"strategic_alignment": "high"}
+        return KARegistry.execute("KA-004", {"context": state, "graph": {}})
 
     def _perform_step5_evidence_reasoning(self, state):
         """Evidence-Based Reasoning."""
-        return {"citations_checked": True}
+        # Using Recursive Reasoning Control (KA-005) as a proxy for complex reasoning flow
+        return KARegistry.execute("KA-005", {"recursion_stack": state.get("recursion_stack", [])})
 
     def _perform_step6_self_reflection(self, state):
         """Self-Reflection."""
-        return {"critique_score": 0.9}
+        return KARegistry.execute("KA-006", {"draft_response": state.get("response", "")})
 
     def _perform_step7_cross_reference(self, state):
         """Cross-Reference."""
@@ -163,11 +169,17 @@ class RefinementWorkflow:
 
     def _perform_step12_final_synthesis(self, state):
         """Final Synthesis."""
+        # KA-007 Synthesis
+        ka_result = KARegistry.execute("KA-007", {"evidence": state.get("evidence", []), "critique": state.get("critique", "")})
+        
+        # Boost confidence if KA succeeded
         current_conf = state.get("confidence", 0.5)
-        # Boost confidence if all previous steps good
+        new_conf = min(1.0, current_conf + 0.1) if ka_result.get("success") else current_conf
+        
         return {
-            "confidence": min(1.0, current_conf + 0.1),
-            "response_authorized": True
+            "confidence": new_conf,
+            "response_authorized": True,
+            "final_synthesis": ka_result.get("final_output")
         }
 
 # Factory

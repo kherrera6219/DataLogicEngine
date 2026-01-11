@@ -150,11 +150,13 @@ class SimulationEngine:
                 'persona_results': persona_results_for_refinement  # For _assess_confidence
             }
             
-            refined_result = self.refinement_workflow.process(refinement_context)
+            refined_result = self.refinement_workflow.execute_workflow(refinement_context)
             
             # Extract final response and confidence
-            final_response = refined_result.get('final_response', {}).get('content', response_content)
-            final_confidence = refined_result.get('confidence', confidence)
+            final_response = refined_result.get('final_response', response_content)
+            if isinstance(final_response, dict):
+                final_response = final_response.get('content', response_content)
+            final_confidence = refined_result.get('final_confidence', confidence)
             
             # Step 5: Store insights in memory
             if conversation_id:

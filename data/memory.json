@@ -6,7 +6,7 @@
       "stream_type": "system",
       "metadata": {},
       "created_at": "2025-05-19T14:54:33.971258",
-      "last_updated": "2025-05-19T15:00:02.965194",
+      "last_updated": "2026-01-11T05:57:59.514148+00:00",
       "entries": {
         "fbf2c3d4-712a-42c3-833e-4be4e5f2b336": {
           "entry_id": "fbf2c3d4-712a-42c3-833e-4be4e5f2b336",
@@ -32,6 +32,48 @@
           },
           "created_at": "2025-05-19T15:00:02.965192",
           "last_accessed": "2025-05-19T15:00:02.965192",
+          "access_count": 0,
+          "salience": 1.0,
+          "confidence": 1.0
+        },
+        "13832dec-00c8-4736-82bc-a90e528d2f57": {
+          "entry_id": "13832dec-00c8-4736-82bc-a90e528d2f57",
+          "content": "How do we implement AI compliance in UKG?",
+          "memory_type": "query",
+          "source": "user",
+          "metadata": {
+            "timestamp": "2026-01-11T05:57:00.110027+00:00"
+          },
+          "created_at": "2026-01-11T05:57:00.110035+00:00",
+          "last_accessed": "2026-01-11T05:57:59.513995+00:00",
+          "access_count": 2,
+          "salience": 1.0,
+          "confidence": 1.0
+        },
+        "d224998e-423a-420b-95f9-37db4e04f134": {
+          "entry_id": "d224998e-423a-420b-95f9-37db4e04f134",
+          "content": "How do we implement AI compliance in UKG?",
+          "memory_type": "query",
+          "source": "user",
+          "metadata": {
+            "timestamp": "2026-01-11T05:57:34.725256+00:00"
+          },
+          "created_at": "2026-01-11T05:57:34.725263+00:00",
+          "last_accessed": "2026-01-11T05:57:59.513996+00:00",
+          "access_count": 1,
+          "salience": 1.0,
+          "confidence": 1.0
+        },
+        "dff7c12c-0fa5-4441-86ec-2c55ddb96fc8": {
+          "entry_id": "dff7c12c-0fa5-4441-86ec-2c55ddb96fc8",
+          "content": "How do we implement AI compliance in UKG?",
+          "memory_type": "query",
+          "source": "user",
+          "metadata": {
+            "timestamp": "2026-01-11T05:57:59.514139+00:00"
+          },
+          "created_at": "2026-01-11T05:57:59.514147+00:00",
+          "last_accessed": "2026-01-11T05:57:59.514147+00:00",
           "access_count": 0,
           "salience": 1.0,
           "confidence": 1.0
@@ -75,5 +117,5 @@
       "entries": {}
     }
   },
-  "last_saved": "2025-05-19T15:00:02.965459"
+  "last_saved": "2026-01-11T05:57:59.514389+00:00"
 }

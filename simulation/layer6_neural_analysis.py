@@ -53,13 +53,13 @@ class Layer6NeuralAnalysis:
         embeddings = self._generate_embeddings(consensus_data)
         
         # 2. Pattern Recognition
-        patterns = self._recognize_patterns(consensus_data, embeddings)
+        patterns = self.detect_patterns(consensus_data, embeddings)
         
         # 3. Gap Analysis (Identifying missing axis coverage)
-        gaps = self._analyze_gaps(consensus_data)
+        gaps = self.gap_analysis(consensus_data)
         
         # 4. Synthesis
-        synthesis = self._synthesize_insights(consensus_data, patterns, gaps)
+        synthesis = self.synthesis(consensus_data, patterns, gaps)
         
         processing_time = (datetime.now() - start_time).total_seconds()
         
@@ -83,64 +83,79 @@ class Layer6NeuralAnalysis:
         # Placeholder for vector generation
         return [[0.1, 0.2, 0.3]] * 5
         
-    def _recognize_patterns(self, data: Dict[str, Any], embeddings: List[List[float]]) -> List[Dict[str, Any]]:
+    def detect_patterns(self, data: Dict[str, Any], embeddings: List[List[float]]) -> List[Dict[str, Any]]:
         """
         Identify patterns in the data using embeddings and heuristics.
         """
         patterns = []
         
-        # Example heuristic pattern detection
-        if data.get("consensus_score", 0) > 0.8:
+        # Heuristic 1: Consensus Detection
+        consensus_score = data.get("consensus_score", 0)
+        if consensus_score > 0.8:
             patterns.append({
-                "type": "high_agreement",
-                "description": "Strong consensus found among all agents",
-                "significance": "high"
+                "type": "consensus_convergence",
+                "description": "High agreement (>80%) among personas suggesting stable truth.",
+                "confidence": consensus_score
             })
             
-        if "risk" in str(data).lower():
+        # Heuristic 2: Risk Keyword Clustering
+        # In a real system, this would use the embeddings to find semantic clusters
+        risk_terms = ["risk", "danger", "warning", "compliance", "violation"]
+        content_str = str(data).lower()
+        found_risks = [term for term in risk_terms if term in content_str]
+        
+        if len(found_risks) >= 2:
             patterns.append({
                 "type": "risk_cluster",
-                "description": "Cluster of risk-related terms identified",
-                "significance": "medium"
+                "description": f"Multiple failure mode indicators found: {', '.join(found_risks)}",
+                "confidence": 0.7 + (len(found_risks) * 0.05)
             })
             
         return patterns
         
-    def _analyze_gaps(self, data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def gap_analysis(self, data: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
         Analyze gaps in knowledge coverage across the 17 axes.
         """
         gaps = []
         covered_axes = data.get("covered_axes", [])
         
-        # Check for missed critical axes
-        critical_axes = [6, 7, 10, 11] # Regulatory/Compliance
-        for axis in critical_axes:
-            if axis not in covered_axes:
+        # Critical Axes for Compliance/Truth
+        # Axis 6: Octopus (Regulatory), Axis 7: Compliance, Axis 14: Risk
+        critical_axes = {
+            6: "Octopus/Regulatory",
+            7: "Compliance",
+            14: "Risk"
+        }
+        
+        for axis_id, name in critical_axes.items():
+            if axis_id not in covered_axes:
                 gaps.append({
-                    "axis": axis,
-                    "description": f"Missing coverage for Axis {axis}",
-                    "severity": "high" if axis in [6, 7] else "medium"
+                    "axis_id": axis_id,
+                    "name": name,
+                    "description": f"Missing coverage for critical Axis {axis_id} ({name})",
+                    "severity": "high",
+                    "remediation": "Invoke specific KA for axis retrieval"
                 })
                 
         return gaps
         
-    def _synthesize_insights(self, data: Dict[str, Any], patterns: List, gaps: List) -> Dict[str, Any]:
+    def synthesis(self, data: Dict[str, Any], patterns: List[Dict[str, Any]], gaps: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Synthesize findings into a cohesive result for Layer 7.
         """
-        synthesis_text = "Layer 6 Synthesis: \n"
+        synthesis_id = f"SYN-{int(datetime.now().timestamp())}"
         
-        if patterns:
-            synthesis_text += f"- Identified {len(patterns)} key patterns.\n"
-        
-        if gaps:
-            synthesis_text += f"- Warning: {len(gaps)} knowledge gaps detected.\n"
-            
-        synthesis_text += "- Ready for Layer 7 AGI Planning."
+        # Calculate Readiness
+        gap_penalty = len(gaps) * 0.2
+        pattern_bonus = len(patterns) * 0.1
+        readiness_score = min(1.0, max(0.0, 0.5 - gap_penalty + pattern_bonus))
         
         return {
-            "summary": synthesis_text,
-            "readiness_for_planning": True if not gaps else False,
-            "suggested_focus": "Gap filling" if gaps else "Execution"
+            "synthesis_id": synthesis_id,
+            "summary": f"Layer 6 Analysis complete. Found {len(patterns)} patterns and {len(gaps)} gaps.",
+            "derived_insights": [p["description"] for p in patterns],
+            "critical_gaps": [g["description"] for g in gaps],
+            "readiness_score": readiness_score,
+            "recommendation": "PROCEED" if readiness_score > 0.7 else "RECURSE"
         }
