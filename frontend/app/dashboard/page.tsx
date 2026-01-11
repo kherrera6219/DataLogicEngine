@@ -30,7 +30,7 @@ export default function DashboardPage() {
     fallbackData: []
   });
 
-  const { data: systemStatus, isLoading: isStatusLoading } = useSWR('system-health', () => api.system.health(), {
+  const { data: systemStatus, isLoading: isStatusLoading } = useSWR<string>('system-health', () => api.system.health(), {
     refreshInterval: 10000,
     fallbackData: 'Checking...'
   });
@@ -165,7 +165,7 @@ export default function DashboardPage() {
                             </TableRow>
                         )}
 
-                        {runs?.map((run) => (
+                        {runs?.map((run: any) => (
                           <TableRow key={run.run_id} className="group">
                              <TableCell className="font-mono text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors">
                                 {run.run_id.substring(0,8)}

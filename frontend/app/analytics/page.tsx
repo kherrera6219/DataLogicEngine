@@ -35,7 +35,7 @@ export default function AnalyticsPage() {
                        <div className="space-y-4">
                           <h4 className="text-sm font-semibold text-gray-500 uppercase">Core (1-5)</h4>
                           <div className="space-y-2">
-                             {(pillars || []).filter(p => p.pillar_id >= 1 && p.pillar_id <= 5).map((p) => (
+                             {(pillars || []).filter((p: any) => parseInt(p.pillar_id) >= 1 && parseInt(p.pillar_id) <= 5).map((p: any) => (
                                 <div key={p.uid} className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded">
                                    <div className="flex items-center gap-2">
                                       <Badge variant="outline" className="w-6 h-6 rounded-full flex items-center justify-center p-0">{p.pillar_id}</Badge>
@@ -44,7 +44,7 @@ export default function AnalyticsPage() {
                                    <div className="text-xs text-gray-500">Active</div>
                                 </div>
                              ))}
-                             {(pillars || []).filter(p => p.pillar_id >= 1 && p.pillar_id <= 5).length === 0 && (
+                             {(pillars || []).filter((p: any) => parseInt(p.pillar_id) >= 1 && parseInt(p.pillar_id) <= 5).length === 0 && (
                                  <p className="text-xs text-muted-foreground">No core pillars defined.</p>
                              )}
                           </div>

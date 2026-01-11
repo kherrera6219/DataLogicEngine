@@ -54,23 +54,28 @@ class POVEngine:
         
         # Define the 13 axes of the UKG
         self.ukg_axes = {
-            1: {"name": "Pillar Level", "description": "Knowledge domain classification", "enabled": True},
-            2: {"name": "Sector", "description": "Industry or field categorization", "enabled": True},
-            3: {"name": "Honeycomb", "description": "Cross-domain knowledge connections", "enabled": True},
-            4: {"name": "Branch", "description": "Functional or departmental classification", "enabled": True},
-            5: {"name": "Node", "description": "Specific knowledge or entity point", "enabled": True},
-            6: {"name": "Octopus", "description": "Regulatory framework connections", "enabled": True},
-            7: {"name": "Spiderweb", "description": "Compliance framework connections", "enabled": True},
-            8: {"name": "Knowledge Role", "description": "Knowledge expert perspective", "enabled": True},
-            9: {"name": "Sector Role", "description": "Sector expert perspective", "enabled": True},
-            10: {"name": "Regulatory Role", "description": "Regulatory expert perspective", "enabled": True},
-            11: {"name": "Compliance Role", "description": "Compliance expert perspective", "enabled": True},
-            12: {"name": "Location", "description": "Spatial and jurisdictional context", "enabled": True},
-            13: {"name": "Temporal", "description": "Time-based evolution and history", "enabled": True}
+            1: {"name": "Pillar Level System", "description": "Top-level knowledge domain selector (PL0001–PL0107)", "enabled": True},
+            2: {"name": "Sector of Industry", "description": "Industry context using NAICS / SIC / ISIC / NACE / UNSPSC", "enabled": True},
+            3: {"name": "Honeycomb System", "description": "Cross-domain semantic bridges (non-hierarchical)", "enabled": True},
+            4: {"name": "Branch System", "description": "Hierarchical sub-domains within pillars/sectors", "enabled": True},
+            5: {"name": "Node System", "description": "Interdisciplinary convergence nodes", "enabled": True},
+            6: {"name": "Octopus Node", "description": "Meta-regulatory aggregation across jurisdictions", "enabled": True},
+            7: {"name": "Spiderweb Node", "description": "Compliance constraint mesh and conflict resolution", "enabled": True},
+            8: {"name": "Knowledge Expert", "description": "Scholar / domain expert", "enabled": True},
+            9: {"name": "Sector Expert", "description": "Industry practitioner", "enabled": True},
+            10: {"name": "Regulatory Expert", "description": "External laws / standards", "enabled": True},
+            11: {"name": "Compliance Expert", "description": "Internal policy & controls", "enabled": True},
+            12: {"name": "Location", "description": "Jurisdiction, geography, authority", "enabled": True},
+            13: {"name": "Temporal", "description": "Time, validity window, regulatory versioning", "enabled": True},
+            14: {"name": "Risk & Impact", "description": "Risk exposure, severity, blast radius", "enabled": True},
+            15: {"name": "Performance & Optimization", "description": "Cost, efficiency, feasibility", "enabled": True},
+            16: {"name": "Ethics & Bias", "description": "Fairness, alignment, ethical constraints", "enabled": True},
+            17: {"name": "Learning & Adaptation", "description": "Memory updates, drift detection", "enabled": True}
         }
         
         # Set enabled axes based on config
-        enabled_axes_config = self.config.get('enabled_axes', list(range(1, 14)))
+        self.enabled_axes = self.config.get('enabled_axes', list(range(1, 14)))
+        enabled_axes_config = self.enabled_axes
         for axis_id in self.ukg_axes:
             self.ukg_axes[axis_id]["enabled"] = axis_id in enabled_axes_config
         

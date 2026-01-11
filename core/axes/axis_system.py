@@ -4,11 +4,24 @@ UKG Axis System
 This module provides the central coordination point for the 17-Axis Universal Knowledge Graph (UKG) system.
 It handles cross-axis relationships, context resolution, and coordinates between different axes.
 
-The 17-Axis system extends the original 13-axis framework with:
-- Axis 14: Risk & Confidence - Risk classification and confidence scoring
-- Axis 15: Federated Intelligence - Cross-system synchronization
-- Axis 16: Arrows of Time - Advanced temporal reasoning and causality
-- Axis 17: Observability & Analytics - Metrics, logging, and monitoring
+The 17-Axis system is structured as follows:
+- Axis 1: Pillar Level System (Knowledge Domains)
+- Axis 2: Sector of Industry
+- Axis 3: Honeycomb System (Cross-domain semantic bridges)
+- Axis 4: Branch System (Hierarchical sub-domains)
+- Axis 5: Node System (Interdisciplinary convergence)
+- Axis 6: Octopus Node (Meta-regulatory aggregation)
+- Axis 7: Spiderweb Node (Compliance constraint mesh)
+- Axis 8: Knowledge Expert
+- Axis 9: Sector Expert
+- Axis 10: Regulatory Expert
+- Axis 11: Compliance Expert
+- Axis 12: Location
+- Axis 13: Temporal
+- Axis 14: Risk & Impact
+- Axis 15: Performance & Optimization
+- Axis 16: Ethics & Bias
+- Axis 17: Learning & Adaptation
 """
 
 import logging
@@ -16,44 +29,38 @@ import uuid
 from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Union
 
-from core.axes.axis1_identity import IdentityManager
+# Import Axis Managers
+# Note: Mapping existing files to new Axis definitions
+from core.axes.axis1_knowledge import KnowledgeAxis as PillarManager
 from core.axes.axis2_sector import SectorManager
-from core.axes.axis4_methods import MethodsManager
-from core.axes.axis5_honeycomb import HoneycombSystem
-from core.axes.axis6_regulatory import RegulatoryManager
-from core.axes.axis7_compliance import ComplianceManager
+from core.axes.axis5_honeycomb import HoneycombSystem  # Axis 3
+from core.axes.axis3_domain import DomainManager as BranchManager  # Axis 4
+# Axis 5 (Node) - Placeholder/Generic or reusing Domain for now if no specific file
+from core.axes.axis6_regulatory import RegulatoryManager as OctopusManager  # Axis 6
+from core.axes.axis7_compliance import ComplianceManager as SpiderwebManager  # Axis 7
+
+from core.axes.axis8_knowledge_expert import KnowledgeExpertAxis as KnowledgeExpert
+from core.axes.axis9_sector_expert import SectorExpertAxis as SectorExpert
+from core.axes.axis10_regulatory_expert import RegulatoryExpertAxis as RegulatoryExpert
+from core.axes.axis11_compliance_expert import ComplianceExpertAxis as ComplianceExpert
+
 from core.axes.axis12_location import LocationAxis
 from core.axes.axis13_time import TimeAxis
-from core.axes.axis11_contextual import Axis11ContextExperts
+
 from core.axes.axis14_risk import RiskAxis
-from core.axes.axis15_federated import FederatedAxis
-from core.axes.axis16_arrows_of_time import ArrowsOfTimeAxis
-from core.axes.axis17_observability import ObservabilityAxis
+from core.axes.axis15_federated import FederatedAxis as PerformanceAxis  # Axis 15 (Renamed logic)
+from core.axes.axis16_arrows_of_time import ArrowsOfTimeAxis as EthicsAxis  # Axis 16 (Renamed logic)
+from core.axes.axis17_observability import ObservabilityAxis as LearningAxis  # Axis 17 (Renamed logic)
+
 from core.coordinate_system import (
     UnifiedCoordinateSystem, 
     UnifiedCoordinate, 
-    CoordinateParser,
-    CoordinateResolver,
-    CrosswalkTraversal,
     create_coordinate_system
 )
 
 class AxisSystem:
     """
     Central coordinator for the 17-Axis Universal Knowledge Graph (UKG) system.
-
-    The AxisSystem is responsible for:
-    - Managing relationships between axes
-    - Resolving multi-dimensional contexts
-    - Coordinating cross-axis queries and operations
-    - Maintaining high-level system integrity
-
-    The 17-Axis system includes:
-    - Axes 1-13: Original knowledge dimensions
-    - Axis 14: Risk & Confidence
-    - Axis 15: Federated Intelligence
-    - Axis 16: Arrows of Time (Advanced Temporal)
-    - Axis 17: Observability & Analytics
     """
 
     TOTAL_AXES = 17
@@ -73,54 +80,115 @@ class AxisSystem:
         # Track individual axis managers
         self.axis_managers = {}
 
-        # Initialize compliance manager (Axis 7)
-        self.init_compliance_manager()
-
-        # Initialize new axes (14-17)
-        self._init_extended_axes()
-
         # Define the 17 axes
         self.axes = {
-            1: {"name": "Pillar Levels", "description": "Hierarchical knowledge organization"},
-            2: {"name": "Sectors", "description": "Industry sectors and market segments"},
-            3: {"name": "Branches", "description": "Specialization branches within sectors"},
-            4: {"name": "Methods", "description": "Methodologies and approaches that cross between sectors and pillars"},
-            5: {"name": "Tools", "description": "Tools, applications, and instruments"},
-            6: {"name": "Regulatory Frameworks", "description": "Laws and regulations"},
-            7: {"name": "Compliance Standards", "description": "Industry standards and best practices"},
-            8: {"name": "Knowledge Experts", "description": "Domain expertise"},
-            9: {"name": "Skill Experts", "description": "Skill-based expertise"},
-            10: {"name": "Role Experts", "description": "Role-based expertise"},
-            11: {"name": "Context Experts", "description": "Situational expertise"},
-            12: {"name": "Locations", "description": "Geographic and jurisdictional locations"},
-            13: {"name": "Time", "description": "Temporal dimensions"},
-            14: {"name": "Risk & Confidence", "description": "Risk classification, confidence scoring, and validation metrics"},
-            15: {"name": "Federated Intelligence", "description": "Cross-system synchronization and distributed knowledge"},
-            16: {"name": "Arrows of Time", "description": "Advanced temporal reasoning with causality chains"},
-            17: {"name": "Observability & Analytics", "description": "Metrics, audit trails, and performance monitoring"}
+            1: {"name": "Pillar Level System", "description": "Top-level knowledge domain selector (PL0001–PL0107)"},
+            2: {"name": "Sector of Industry", "description": "Industry context using NAICS / SIC / ISIC / NACE / UNSPSC"},
+            3: {"name": "Honeycomb System", "description": "Cross-domain semantic bridges (non-hierarchical)"},
+            4: {"name": "Branch System", "description": "Hierarchical sub-domains within pillars/sectors"},
+            5: {"name": "Node System", "description": "Interdisciplinary convergence nodes"},
+            6: {"name": "Octopus Node", "description": "Meta-regulatory aggregation across jurisdictions"},
+            7: {"name": "Spiderweb Node", "description": "Compliance constraint mesh and conflict resolution"},
+            8: {"name": "Knowledge Expert", "description": "Scholar / domain expert"},
+            9: {"name": "Sector Expert", "description": "Industry practitioner"},
+            10: {"name": "Regulatory Expert", "description": "External laws / standards"},
+            11: {"name": "Compliance Expert", "description": "Internal policy & controls"},
+            12: {"name": "Location", "description": "Jurisdiction, geography, authority"},
+            13: {"name": "Temporal", "description": "Time, validity window, regulatory versioning"},
+            14: {"name": "Risk & Impact", "description": "Risk exposure, severity, blast radius"},
+            15: {"name": "Performance & Optimization", "description": "Cost, efficiency, feasibility"},
+            16: {"name": "Ethics & Bias", "description": "Fairness, alignment, ethical constraints"},
+            17: {"name": "Learning & Adaptation", "description": "Memory updates, drift detection"}
         }
+
+        # Initialize axes
+        self._init_axes()
         
         # Initialize the Unified Coordinate System
         self.coordinate_system = create_coordinate_system(db_manager, graph_manager)
 
-    def _init_extended_axes(self):
-        """Initialize the extended axes (14-17) for the 17-Axis system."""
+    def _init_axes(self):
+        """Initialize all axis managers."""
         try:
+            # Axis 1: Pillar
+            self.pillar_manager = PillarManager()
+            self.register_axis_manager(1, self.pillar_manager)
+
+            # Axis 2: Sector
+            self.sector_manager = SectorManager(self.db_manager, self.graph_manager)
+            self.register_axis_manager(2, self.sector_manager)
+
+            # Axis 3: Honeycomb (was Axis 5 file)
+            self.honeycomb_system = HoneycombSystem(self.db_manager, self.graph_manager)
+            self.register_axis_manager(3, self.honeycomb_system)
+
+            # Axis 4: Branch (was DomainManager Axis 3 file)
+            self.branch_manager = BranchManager(self.db_manager, self.graph_manager)
+            self.register_axis_manager(4, self.branch_manager)
+
+            # Axis 5: Node (Placeholder or specific implementation if available)
+            # Currently using BranchManager capabilities or pure Graph nodes
+            # self.node_manager = NodeManager(...) 
+
+            # Axis 6: Octopus (Regulatory Frameworks)
+            self.octopus_manager = OctopusManager(self.db_manager, self.graph_manager)
+            self.register_axis_manager(6, self.octopus_manager)
+
+            # Axis 7: Spiderweb (Compliance Constraints)
+            self.spiderweb_manager = SpiderwebManager(self.db_manager, self.graph_manager)
+            self.register_axis_manager(7, self.spiderweb_manager)
+            
+            # Group II: Personas (Axes 8-11)
+            # These are typically instantiated per query, but managers might exist
+            # Assuming these classes exist and can be instantiated similarly
+            # For now, we register them if they are manager-like, or we use POV Engine to manage them.
+            # Here we just acknowledge their existence in the system map.
+            try:
+                self.knowledge_expert = KnowledgeExpert()
+                self.register_axis_manager(8, self.knowledge_expert)
+            except: pass
+            
+            try:
+                self.sector_expert = SectorExpert()
+                self.register_axis_manager(9, self.sector_expert)
+            except: pass
+
+            try:
+                self.regulatory_expert = RegulatoryExpert()
+                self.register_axis_manager(10, self.regulatory_expert)
+            except: pass
+
+            try:
+                self.compliance_expert = ComplianceExpert()
+                self.register_axis_manager(11, self.compliance_expert)
+            except: pass
+
+
+            # Axis 12: Location
+            self.location_axis = LocationAxis(self.db_manager, self.graph_manager)
+            self.register_axis_manager(12, self.location_axis)
+
+            # Axis 13: Temporal
+            self.time_axis = TimeAxis(self.db_manager)
+            self.register_axis_manager(13, self.time_axis)
+
+            # Group IV: Meta-Cognitive (Axes 14-17)
             self.risk_axis = RiskAxis()
             self.register_axis_manager(14, self.risk_axis)
             
-            self.federated_axis = FederatedAxis()
-            self.register_axis_manager(15, self.federated_axis)
+            self.performance_axis = PerformanceAxis()
+            self.register_axis_manager(15, self.performance_axis)
             
-            self.arrows_of_time_axis = ArrowsOfTimeAxis()
-            self.register_axis_manager(16, self.arrows_of_time_axis)
+            self.ethics_axis = EthicsAxis()
+            self.register_axis_manager(16, self.ethics_axis)
             
-            self.observability_axis = ObservabilityAxis()
-            self.register_axis_manager(17, self.observability_axis)
+            self.learning_axis = LearningAxis()
+            self.register_axis_manager(17, self.learning_axis)
             
-            self.logging.info(f"[{datetime.now()}] Extended axes 14-17 initialized successfully")
+            self.logging.info(f"[{datetime.now()}] Axis System initialized successfully")
+
         except Exception as e:
-            self.logging.error(f"[{datetime.now()}] Error initializing extended axes: {str(e)}")
+            self.logging.error(f"[{datetime.now()}] Error initializing axes: {str(e)}")
 
     def register_axis_manager(self, axis_number: int, manager: Any) -> None:
         """
@@ -167,13 +235,17 @@ class AxisSystem:
                         axis_manager = self.axis_managers[axis_num]
 
                         # Call appropriate resolution method based on axis
+                        # Note: Different managers might have different signatures
                         if hasattr(axis_manager, 'resolve_context'):
                             axis_result = axis_manager.resolve_context(axis_data)
                             resolved_context['axes'][axis_num] = axis_result
 
                             # Track confidence of this resolution
-                            if 'confidence' in axis_result:
+                            if isinstance(axis_result, dict) and 'confidence' in axis_result:
                                 resolved_context['confidence'][axis_num] = axis_result['confidence']
+                        elif hasattr(axis_manager, 'navigate'): # KnowledgeAxis signature
+                            axis_result = axis_manager.navigate(**axis_data)
+                            resolved_context['axes'][axis_num] = axis_result
                         else:
                             # Basic resolution if no specific method
                             resolved_context['axes'][axis_num] = {
@@ -197,10 +269,6 @@ class AxisSystem:
             else:
                 resolved_context['overall_confidence'] = 0.0
 
-            # Find cross-axis relationships when we have multiple axes
-            if len(resolved_context['axes']) > 1 and self.graph_manager:
-                resolved_context['cross_axis_relationships'] = self._find_cross_axis_relationships(resolved_context['axes'])
-
             resolved_context['status'] = 'success'
 
         except Exception as e:
@@ -211,522 +279,15 @@ class AxisSystem:
 
         return resolved_context
 
-    def _find_cross_axis_relationships(self, axes_data: Dict[int, Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Find relationships between nodes across different axes.
-
-        Args:
-            axes_data: Dictionary of resolved axis data
-
-        Returns:
-            List of cross-axis relationships
-        """
-        relationships = []
-
-        try:
-            # Get all node UIDs from the axes data
-            node_uids_by_axis = {}
-            for axis_num, axis_data in axes_data.items():
-                if 'nodes' in axis_data:
-                    node_uids_by_axis[axis_num] = [
-                        node['uid'] for node in axis_data['nodes'] 
-                        if 'uid' in node
-                    ]
-                elif 'node' in axis_data and 'uid' in axis_data['node']:
-                    node_uids_by_axis[axis_num] = [axis_data['node']['uid']]
-                elif 'uid' in axis_data.get('data', {}):
-                    node_uids_by_axis[axis_num] = [axis_data['data']['uid']]
-
-            # For each pair of axes, find relationships
-            for axis1, uids1 in node_uids_by_axis.items():
-                for axis2, uids2 in node_uids_by_axis.items():
-                    if axis1 < axis2:  # Avoid duplicate checks
-                        for uid1 in uids1:
-                            for uid2 in uids2:
-                                # Check for direct relationships
-                                edges = self.graph_manager.get_edges_between(uid1, uid2)
-                                for edge in edges:
-                                    relationships.append({
-                                        'type': 'direct',
-                                        'source_axis': axis1,
-                                        'target_axis': axis2,
-                                        'source_uid': uid1,
-                                        'target_uid': uid2,
-                                        'edge': edge
-                                    })
-
-                                # Check for common connections (nodes that relate to both)
-                                if len(relationships) == 0:
-                                    common_connections = self._find_common_connections(uid1, uid2)
-                                    for conn in common_connections:
-                                        relationships.append({
-                                            'type': 'common_connection',
-                                            'source_axis': axis1,
-                                            'target_axis': axis2,
-                                            'source_uid': uid1,
-                                            'target_uid': uid2,
-                                            'connecting_node': conn
-                                        })
-
-        except Exception as e:
-            self.logging.error(f"[{datetime.now()}] Error finding cross-axis relationships: {str(e)}")
-
-        return relationships
-
-    def _find_common_connections(self, uid1: str, uid2: str) -> List[Dict[str, Any]]:
-        """
-        Find nodes that are connected to both uid1 and uid2.
-
-        Args:
-            uid1: First node UID
-            uid2: Second node UID
-
-        Returns:
-            List of common connections
-        """
-        common_connections = []
-
-        try:
-            # Get all nodes connected to uid1
-            connected_to_uid1 = set()
-            outgoing_edges1 = self.graph_manager.get_outgoing_edges(uid1)
-            for edge in outgoing_edges1:
-                connected_to_uid1.add(edge['target_id'])
-
-            incoming_edges1 = self.graph_manager.get_incoming_edges(uid1)
-            for edge in incoming_edges1:
-                connected_to_uid1.add(edge['source_id'])
-
-            # Get all nodes connected to uid2
-            connected_to_uid2 = set()
-            outgoing_edges2 = self.graph_manager.get_outgoing_edges(uid2)
-            for edge in outgoing_edges2:
-                connected_to_uid2.add(edge['target_id'])
-
-            incoming_edges2 = self.graph_manager.get_incoming_edges(uid2)
-            for edge in incoming_edges2:
-                connected_to_uid2.add(edge['source_id'])
-
-            # Find intersection
-            common_uids = connected_to_uid1.intersection(connected_to_uid2)
-
-            # Get node details for common connections
-            for common_uid in common_uids:
-                node = self.graph_manager.get_node(common_uid)
-                if node:
-                    common_connections.append(node)
-
-        except Exception as e:
-            self.logging.error(f"[{datetime.now()}] Error finding common connections: {str(e)}")
-
-        return common_connections
-
-    def map_branch_to_classification(self, branch_id: str, 
-                                  classification_system: str, 
-                                  code: str) -> Dict[str, Any]:
-        """
-        Map a branch to a specific classification system code.
-
-        Args:
-            branch_id: Branch ID
-            classification_system: Classification system (naics, sic, psc, nic)
-            code: Classification code
-
-        Returns:
-            Dict containing mapping result
-        """
-        self.logging.info(f"[{datetime.now()}] Mapping branch {branch_id} to {classification_system} code {code}")
-
-        try:
-            if not self.db_manager:
-                return {
-                    'status': 'error',
-                    'message': 'Database manager not available',
-                    'timestamp': datetime.now().isoformat()
-                }
-
-            # Get branch node
-            branch_node = self.db_manager.get_node_by_id(branch_id)
-            if not branch_node:
-                return {
-                    'status': 'error',
-                    'message': f'Branch not found: {branch_id}',
-                    'timestamp': datetime.now().isoformat()
-                }
-
-            # Create classification node if it doesn't exist
-            classification_id = f"{classification_system.upper()}_{code}"
-            classification_node = self.db_manager.get_node_by_id(classification_id)
-
-            if not classification_node:
-                classification_node = self.db_manager.add_node({
-                    'uid': f"{classification_system.upper()}_{code}_{uuid.uuid4().hex[:8]}",
-                    'id': classification_id,
-                    'node_type': 'classification_code',
-                    'system': classification_system.upper(),
-                    'code': code,
-                    'axis_number': 3,  # Branch system is Axis 3
-                    'created_at': datetime.now().isoformat()
-                })
-
-            # Create mapping relationship
-            edge_id = f"EDGE_{branch_id}_TO_{classification_id}"
-            edge_data = {
-                'uid': f"edge_{uuid.uuid4()}",
-                'id': edge_id,
-                'source_id': branch_node['uid'],
-                'target_id': classification_node['uid'],
-                'edge_type': 'mapped_to_classification',
-                'attributes': {
-                    'system': classification_system.upper(),
-                    'confidence': 1.0
-                }
-            }
-
-            # Check if mapping already exists
-            existing_edges = self.db_manager.get_edges_between(
-                branch_node['uid'], 
-                classification_node['uid'], 
-                ['mapped_to_classification']
-            )
-
-            if existing_edges:
-                return {
-                    'status': 'exists',
-                    'message': 'Mapping already exists',
-                    'edge': existing_edges[0],
-                    'branch': branch_node,
-                    'classification': classification_node,
-                    'timestamp': datetime.now().isoformat()
-                }
-
-            # Add edge
-            new_edge = self.db_manager.add_edge(edge_data)
-
-            return {
-                'status': 'success',
-                'edge': new_edge,
-                'branch': branch_node,
-                'classification': classification_node,
-                'timestamp': datetime.now().isoformat()
-            }
-
-        except Exception as e:
-            self.logging.error(f"[{datetime.now()}] Error mapping branch to classification: {str(e)}")
-            return {
-                'status': 'error',
-                'message': f"Error mapping branch to classification: {str(e)}",
-                'branch_id': branch_id,
-                'classification': f"{classification_system}_{code}",
-                'timestamp': datetime.now().isoformat()
-            }
-
-    def get_branch_by_classification(self, classification_system: str, 
-                                  code: str) -> Dict[str, Any]:
-        """
-        Get branches mapped to a specific classification system code.
-
-        Args:
-            classification_system: Classification system (naics, sic, psc, nic)
-            code: Classification code
-
-        Returns:
-            Dict containing branches mapped to the classification
-        """
-        self.logging.info(f"[{datetime.now()}] Getting branches for {classification_system} code {code}")
-
-        try:
-            if not self.db_manager:
-                return {
-                    'status': 'error',
-                    'message': 'Database manager not available',
-                    'timestamp': datetime.now().isoformat()
-                }
-
-            # Find classification node
-            classification_nodes = self.db_manager.get_nodes_by_properties({
-                'node_type': 'classification_code',
-                'system': classification_system.upper(),
-                'code': code
-            })
-
-            if not classification_nodes:
-                return {
-                    'status': 'not_found',
-                    'message': f'Classification not found: {classification_system} {code}',
-                    'timestamp': datetime.now().isoformat()
-                }
-
-            classification_node = classification_nodes[0]
-
-            # Find branches mapped to this classification
-            incoming_edges = self.db_manager.get_incoming_edges(
-                classification_node['uid'], 
-                ['mapped_to_classification']
-            )
-
-            branches = []
-            for edge in incoming_edges:
-                branch_node = self.db_manager.get_node(edge['source_id'])
-                if branch_node:
-                    branches.append({
-                        'branch': branch_node,
-                        'edge': edge
-                    })
-
-            return {
-                'status': 'success',
-                'classification': classification_node,
-                'branches': branches,
-                'branch_count': len(branches),
-                'timestamp': datetime.now().isoformat()
-            }
-
-        except Exception as e:
-            self.logging.error(f"[{datetime.now()}] Error getting branches by classification: {str(e)}")
-            return {
-                'status': 'error',
-                'message': f"Error getting branches by classification: {str(e)}",
-                'classification': f"{classification_system}_{code}",
-                'timestamp': datetime.now().isoformat()
-            }
-
-    def get_pl_sector_branch_mapping(self, pillar_level_id: str) -> Dict[str, Any]:
-        """
-        Get the complete mapping between Pillar Level (Axis 1), Sectors (Axis 2),
-        and Branches (Axis 3) for a specific Pillar Level.
-
-        Args:
-            pillar_level_id: Pillar Level ID
-
-        Returns:
-            Dict containing the mapping structure
-        """
-        self.logging.info(f"[{datetime.now()}] Getting PL-Sector-Branch mapping for PL: {pillar_level_id}")
-
-        try:
-            if not self.db_manager:
-                return {
-                    'status': 'error',
-                    'message': 'Database manager not available',
-                    'timestamp': datetime.now().isoformat()
-                }
-
-            # Get pillar level
-            pillar_level = self.db_manager.get_node_by_id(pillar_level_id)
-            if not pillar_level:
-                return {
-                    'status': 'error',
-                    'message': f'Pillar Level not found: {pillar_level_id}',
-                    'timestamp': datetime.now().isoformat()
-                }
-
-            # Find sectors related to this pillar level
-            sector_mapping = {}
-
-            # Get direct sector relationships
-            pl_sector_edges = self.graph_manager.get_outgoing_edges(
-                pillar_level['uid'], 
-                ['applies_to_sector', 'knowledge_application']
-            )
-
-            for edge in pl_sector_edges:
-                sector_uid = edge['target_id']
-                sector_node = self.db_manager.get_node(sector_uid)
-
-                if sector_node and sector_node.get('node_type') == 'sector':
-                    sector_id = sector_node.get('id')
-
-                    if sector_id not in sector_mapping:
-                        sector_mapping[sector_id] = {
-                            'sector': sector_node,
-                            'relation': edge,
-                            'branches': {}
-                        }
-
-                    # Get branches for this sector
-                    self._populate_sector_branches(sector_uid, sector_mapping[sector_id]['branches'])
-
-            # If no direct relationships, try to find sectors that implement this pillar level
-            if not sector_mapping:
-                # Look for sectors that implement knowledge from this pillar level
-                pl_knowledge_edges = self.graph_manager.get_outgoing_edges(
-                    pillar_level['uid'],
-                    ['has_knowledge']
-                )
-
-                for edge in pl_knowledge_edges:
-                    knowledge_uid = edge['target_id']
-
-                    # Find sectors that implement this knowledge
-                    knowledge_sector_edges = self.graph_manager.get_outgoing_edges(
-                        knowledge_uid,
-                        ['implemented_by']
-                    )
-
-                    for ks_edge in knowledge_sector_edges:
-                        sector_uid = ks_edge['target_id']
-                        sector_node = self.db_manager.get_node(sector_uid)
-
-                        if sector_node and sector_node.get('node_type') == 'sector':
-                            sector_id = sector_node.get('id')
-
-                            if sector_id not in sector_mapping:
-                                sector_mapping[sector_id] = {
-                                    'sector': sector_node,
-                                    'relation': ks_edge,
-                                    'via_knowledge': knowledge_uid,
-                                    'branches': {}
-                                }
-
-                            # Get branches for this sector
-                            self._populate_sector_branches(sector_uid, sector_mapping[sector_id]['branches'])
-
-            return {
-                'status': 'success',
-                'pillar_level': pillar_level,
-                'sector_count': len(sector_mapping),
-                'sector_mappings': sector_mapping,
-                'timestamp': datetime.now().isoformat()
-            }
-
-        except Exception as e:
-            self.logging.error(f"[{datetime.now()}] Error getting PL-Sector-Branch mapping: {str(e)}")
-            return {
-                'status': 'error',
-                'message': f"Error getting PL-Sector-Branch mapping: {str(e)}",
-                'pillar_level_id': pillar_level_id,
-                'timestamp': datetime.now().isoformat()
-            }
-
-    def _populate_sector_branches(self, sector_uid: str, branches_dict: Dict[str, Any]) -> None:
-        """
-        Populate the branches dictionary for a sector.
-
-        Args:
-            sector_uid: Sector UID
-            branches_dict: Dictionary to populate with branches
-        """
-        # Get large branches for this sector
-        large_branch_edges = self.graph_manager.get_outgoing_edges(
-            sector_uid,
-            ['has_branch']
-        )
-
-        for lb_edge in large_branch_edges:
-            large_branch_uid = lb_edge['target_id']
-            large_branch_node = self.db_manager.get_node(large_branch_uid)
-
-            if large_branch_node and large_branch_node.get('branch_type') == 'large':
-                large_branch_id = large_branch_node.get('id')
-
-                if large_branch_id not in branches_dict:
-                    branches_dict[large_branch_id] = {
-                        'branch': large_branch_node,
-                        'relation': lb_edge,
-                        'medium_branches': {}
-                    }
-
-                # Get medium branches for this large branch
-                medium_branch_edges = self.graph_manager.get_outgoing_edges(
-                    large_branch_uid,
-                    ['has_branch']
-                )
-
-                for mb_edge in medium_branch_edges:
-                    medium_branch_uid = mb_edge['target_id']
-                    medium_branch_node = self.db_manager.get_node(medium_branch_uid)
-
-                    if medium_branch_node and medium_branch_node.get('branch_type') == 'medium':
-                        medium_branch_id = medium_branch_node.get('id')
-
-                        if medium_branch_id not in branches_dict[large_branch_id]['medium_branches']:
-                            branches_dict[large_branch_id]['medium_branches'][medium_branch_id] = {
-                                'branch': medium_branch_node,
-                                'relation': mb_edge,
-                                'small_branches': {}
-                            }
-
-                        # Get small branches for this medium branch
-                        small_branch_edges = self.graph_manager.get_outgoing_edges(
-                            medium_branch_uid,
-                            ['has_branch']
-                        )
-
-                        for sb_edge in small_branch_edges:
-                            small_branch_uid = sb_edge['target_id']
-                            small_branch_node = self.db_manager.get_node(small_branch_uid)
-
-                            if small_branch_node and small_branch_node.get('branch_type') == 'small':
-                                small_branch_id = small_branch_node.get('id')
-
-                                branches_dict[large_branch_id]['medium_branches'][medium_branch_id]['small_branches'][small_branch_id] = {
-                                    'branch': small_branch_node,
-                                    'relation': sb_edge,
-                                    'granular_branches': {}
-                                }
-
-                                # Get granular branches if they exist
-                                granular_branch_edges = self.graph_manager.get_outgoing_edges(
-                                    small_branch_uid,
-                                    ['has_branch']
-                                )
-
-                                for gb_edge in granular_branch_edges:
-                                    granular_branch_uid = gb_edge['target_id']
-                                    granular_branch_node = self.db_manager.get_node(granular_branch_uid)
-
-                                    if granular_branch_node and granular_branch_node.get('branch_type') == 'granular':
-                                        granular_branch_id = granular_branch_node.get('id')
-
-                                        branches_dict[large_branch_id]['medium_branches'][medium_branch_id]['small_branches'][small_branch_id]['granular_branches'][granular_branch_id] = {
-                                            'branch': granular_branch_node,
-                                            'relation': gb_edge
-                                        }
-
-    def init_regulatory_manager(self):
-        """Initialize the Regulatory Manager (Axis 6)."""
-        if 6 not in self.axis_managers:
-            self.logging.info(f"[{datetime.now()}] Initializing Regulatory Manager (Axis 6)")
-            self.axis_managers[6] = RegulatoryManager(self.db_manager, self.graph_manager)
-
-    def init_compliance_manager(self):
-        """Initialize the Compliance Manager (Axis 7)."""
-        if 7 not in self.axis_managers:
-            self.logging.info(f"[{datetime.now()}] Initializing Compliance Manager (Axis 7)")
-            self.axis_managers[7] = ComplianceManager(self.db_manager, self.graph_manager)
-
-    def _load_axis(self, axis_number: int, axis_name: str) -> Dict[str, Any]:
-        """
-        Load axis configuration.
-
-        Args:
-            axis_number: The axis number (1-17)
-            axis_name: The axis name
-
-        Returns:
-            Dict containing axis configuration
-        """
-        return {"name": axis_name, "description": f"Description for {axis_name} (Axis {axis_number})"}
-    
     def create_coordinate(self, **axis_values) -> UnifiedCoordinate:
         """
         Create a unified coordinate with specified axis values.
-        
-        This is a convenience method that delegates to the UnifiedCoordinateSystem.
         
         Args:
             **axis_values: Keyword arguments for axis values
             
         Returns:
             UnifiedCoordinate object
-            
-        Example:
-            coord = axis_system.create_coordinate(
-                pillar="32.1.2",
-                sector="54.7",
-                risk="3.85"
-            )
         """
         return self.coordinate_system.create_coordinate(**axis_values)
     
@@ -760,7 +321,7 @@ class AxisSystem:
         Traverse the knowledge graph from a coordinate using crosswalk systems.
         
         Uses Honeycomb (Axis 3), Octopus (Axis 6), and Spiderweb (Axis 7) 
-        traversal patterns to discover related coordinates.
+        traversal patterns.
         
         Args:
             coord: Starting coordinate

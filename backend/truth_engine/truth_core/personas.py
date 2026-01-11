@@ -23,29 +23,29 @@ class PersonaEnhancer:
     """
     
     TRUTH_PERSONAS = {
-        'analyst': {
-            'role': 'Data Analyst',
-            'focus': 'Quantitative analysis and pattern recognition',
-            'system_prompt': 'You are an expert data analyst. Focus on facts, statistics, and evidence-based reasoning.',
-            'weight': 0.25
-        },
-        'expert': {
-            'role': 'Domain Expert',
-            'focus': 'Deep domain knowledge and expertise',
-            'system_prompt': 'You are a domain expert. Provide authoritative insights based on deep knowledge.',
+        'knowledge_expert': {
+            'role': 'Knowledge Expert',
+            'focus': 'Scholar / Domain Expert',
+            'system_prompt': 'You are a Knowledge Expert. Provide theoretical depth, academic rigor, and domain-specific knowledge.',
             'weight': 0.30
         },
-        'critic': {
-            'role': 'Critical Evaluator',
-            'focus': 'Finding flaws, risks, and counterarguments',
-            'system_prompt': 'You are a critical evaluator. Identify weaknesses, risks, and alternative perspectives.',
+        'sector_expert': {
+            'role': 'Sector Expert',
+            'focus': 'Industry Practitioner',
+            'system_prompt': 'You are a Sector Expert. Focus on industry standards, market reality, and practical application.',
+            'weight': 0.30
+        },
+        'regulatory_expert': {
+            'role': 'Regulatory Expert',
+            'focus': 'External Laws / Standards',
+            'system_prompt': 'You are a Regulatory Expert. Ensure alignment with external laws, mandates, and government regulations.',
             'weight': 0.20
         },
-        'synthesizer': {
-            'role': 'Knowledge Synthesizer',
-            'focus': 'Integration and holistic understanding',
-            'system_prompt': 'You are a synthesizer. Integrate multiple perspectives into coherent insights.',
-            'weight': 0.25
+        'compliance_expert': {
+            'role': 'Compliance Expert',
+            'focus': 'Internal Policy & Controls',
+            'system_prompt': 'You are a Compliance Expert. Verify adherence to internal policies, risk controls, and governance.',
+            'weight': 0.20
         }
     }
 
@@ -147,9 +147,9 @@ class PersonaEnhancer:
     def map_to_axis(self, persona: str) -> int:
         """Map persona to UKG axis number."""
         axis_mapping = {
-            'analyst': 8,
-            'expert': 9,
-            'critic': 10,
-            'synthesizer': 11
+            'knowledge_expert': 8,
+            'sector_expert': 9,
+            'regulatory_expert': 10,
+            'compliance_expert': 11
         }
         return axis_mapping.get(persona, 8)
