@@ -1,0 +1,201 @@
+openapi: 3.0.0
+info:
+  title: DataLogicEngine (UKG) API
+  description: Enterprise-grade AI Knowledge Synthesis & Orchestration Platform. Bridges the gap between enterprise data and LLMs using a 17-Axis Coordinate Framework and 114 mission-critical Knowledge Algorithms.
+  version: 3.0.0
+  contact:
+    name: Support
+    url: https://your-domain.com/support
+
+servers:
+  - url: http://localhost:5000/api/v1
+    description: Local Development
+  - url: https://api.your-domain.com/v1
+    description: Production
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+security:
+  - bearerAuth: []
+  - apiKeyAuth: []
+
+paths:
+  /auth/login:
+    post:
+      summary: Standard Login
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Successful Login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StandardResponse"
+
+  /gateway/chat:
+    post:
+      summary: UKG-Injected Chat Completion
+      tags:
+        - LLM Gateway
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+      responses:
+        "200":
+          description: Successful Chat Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+
+  /truth/session:
+    post:
+      summary: Create Truth Engine Session
+      tags:
+        - Truth Engine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                context:
+                  type: object
+      responses:
+        "200":
+          description: Session Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StandardResponse"
+
+  /ka/workflow/high-stakes:
+    post:
+      summary: Execute High-Stakes Workflow
+      tags:
+        - Knowledge Algorithms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkflowRequest"
+      responses:
+        "200":
+          description: Workflow Initiated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StandardResponse"
+
+  /ka/trace/{session_id}:
+    get:
+      summary: Get Workflow Trace
+      tags:
+        - Knowledge Algorithms
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Workflow Trace Data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StandardResponse"
+
+schemas:
+  StandardResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+      data:
+        type: object
+      error:
+        type: string
+        nullable: true
+      timestamp:
+        type: string
+        format: date-time
+
+  ChatRequest:
+    type: object
+    properties:
+      messages:
+        type: array
+        items:
+          type: object
+          properties:
+            role:
+              type: string
+              enum: [user, assistant, system]
+            content:
+              type: string
+      model:
+        type: string
+      mode:
+        type: string
+        enum: [standard, ukg]
+      trace_enabled:
+        type: boolean
+
+  ChatResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+      data:
+        type: object
+        properties:
+          id:
+            type: string
+          choices:
+            type: array
+            items:
+              type: object
+          ukg_trace:
+            type: object
+            properties:
+              trace_id:
+                type: string
+              confidence:
+                type: number
+
+  WorkflowRequest:
+    type: object
+    properties:
+      query:
+        type: string
+      context:
+        type: object

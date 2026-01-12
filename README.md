@@ -104,7 +104,7 @@ Every AI decision is captured with:
 Native MCP implementation exposing:
 
 - **Resources**: Knowledge graph stats, pillars, algorithms
-- **Tools**: 100+ Knowledge Algorithms as executable tools
+- **Tools**: 114 Knowledge Algorithms as executable tools
 - **Prompts**: Expert persona templates, regulatory analysis
 
 **Compatible with**: Claude AI, GPT-4 with function calling, any MCP-compliant agent
@@ -325,7 +325,7 @@ graph TB
 - `axes/`: 17-Axis Framework (30+ KB modules)
 - `mcp/`: Model Context Protocol server
 - `simulation/`: Scenario simulation engine
-- `knowledge_algorithm/`: 100+ algorithm implementations
+- `knowledge_algorithm/`: 114 mission-critical algorithm implementations
 
 **Database** (40+ tables)
 
@@ -707,9 +707,9 @@ response = client.messages.create(
 )
 ```
 
-### 5. Knowledge Algorithms (100+)
+### 5. Knowledge Algorithms (114)
 
-Pre-built algorithms for common tasks:
+Pre-built algorithms for complex reasoning, planning, and validation.
 
 ```bash
 GET /api/v1/ka/algorithms
@@ -727,11 +727,11 @@ POST /api/v1/ka/execute
 
 **Algorithm Categories:**
 
-- Knowledge Retrieval (KA001-KA020)
-- Risk Assessment (KA021-KA035)
-- Compliance Checking (KA036-KA050)
-- Scenario Simulation (KA051-KA070)
-- Recursive Planning (KA071-KA100)
+- Knowledge Retrieval (KA001-KA025)
+- Risk Assessment (KA026-KA050)
+- Compliance Checking (KA051-KA075)
+- Scenario Simulation (KA076-KA100)
+- Recursive Planning (KA101-KA114)
 
 ---
 
