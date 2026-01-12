@@ -158,7 +158,6 @@ Enterprise-grade tenant isolation:
 Production-ready compliance features:
 
 - **EU AI Act Article 53**: Immutable audit trails with hash chains
-- **EU AI Act Article 53**: Immutable audit trails with hash chains
 - **SOC2**: Evidence collection, encryption at rest, access controls
 - **GDPR**: Data minimization, tenant isolation, right to be forgotten
 - **HIPAA**: Audit trails, encryption, role-based access
@@ -598,20 +597,25 @@ results = knowledge_graph.query(axes=axes)
 
 **All 17 Axes:**
 
-1. Identity - Entity context
-2. Sector - Industry (Healthcare, Finance, etc.)
-3. Domain - Expertise area (AI, Security, etc.)
-4. Knowledge Type - Factual, Procedural, Conceptual
-5. Temporal - Time context
-6. Regulatory - Frameworks (GDPR, HIPAA, SOX)
-7. Compliance - Obligations
-   8-11. Expert Profiles - Knowledge, Sector, Regulatory, Compliance experts
-8. Location - Geographic context
-9. Risk - Risk assessment
-10. Federated Learning - Distributed context
-11. Time Arrows - Directional time reasoning
-12. Reserved - Future expansion
-13. Observability - Tracing metrics
+| # | Name | Purpose |
+|---|------|----------|
+| 1 | Pillar Levels | Core knowledge pillars (FAR, DFARS, CFR) |
+| 2 | Sectors | Industry sectors (NAICS, SIC, PSC) |
+| 3 | Honeycomb | Cross-domain intra-expansion |
+| 4 | Branches | Knowledge sub-branches |
+| 5 | Nodes | Atomic knowledge nodes |
+| 6 | Octopus Crosswalk | One-to-many regulatory mapping |
+| 7 | Spiderweb Crosswalk | Many-to-many compliance mapping |
+| 8 | Knowledge Role | Expert job roles |
+| 9 | Qualifications | Certifications and competencies |
+| 10 | Regulatory Expert | Octopus regulatory persona |
+| 11 | Compliance Expert | Spiderweb compliance persona |
+| 12 | Location | Geospatial and jurisdiction |
+| 13 | Temporal | Time periods and versions |
+| 14 | Risk & Confidence | Risk levels and validation |
+| 15 | Federated Intelligence | Distributed knowledge sync |
+| 16 | Arrows of Time | Causality and prediction |
+| 17 | Observability | Metrics and audit trails |
 
 ### 2. Truth Engine
 
