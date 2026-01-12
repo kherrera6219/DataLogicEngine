@@ -72,7 +72,7 @@ class TraceProvenanceService:
             run_id=envelope.run_id
         )
 
-    def get_provenance_chain(self, artifact_id: str) -> List[Dict[str, Any]]:
+    def get_provenance_chain(self, artifact_id: str) -> List[UnifiedArtifactEnvelope]:
         """Traverse backwards in the provenance chain for an artifact."""
         chain = []
         current_id = artifact_id
@@ -81,14 +81,7 @@ class TraceProvenanceService:
         while current_id in self.artifacts and current_id not in visited:
             visited.add(current_id)
             envelope = self.artifacts[current_id]
-            
-            entry = {
-                "artifact_id": current_id,
-                "provenance": [p.dict() for p in envelope.provenance],
-                "coord": envelope.coord17,
-                "confidence": envelope.confidence_vector.overall
-            }
-            chain.append(entry)
+            chain.append(envelope)
             
             # For simplicity, follow the first input_id of the last provenance entry
             if envelope.provenance and envelope.provenance[-1].input_ids:

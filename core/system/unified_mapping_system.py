@@ -171,6 +171,41 @@ class UnifiedMappingSystem:
             self.logger.error(f"Error registering node: {str(e)}")
             return {"status": "error", "message": str(e)}
 
+    def get_coordinate_context(self, axis: int, path: str) -> Dict[str, Any]:
+        """
+        Retrieve context and metadata for a specific coordinate on an axis.
+        Used to seed personas with specific expertise traits.
+        """
+        self.logger.debug(f"Fetching context for Axis {axis}, Path {path}")
+        
+        # 1. Resolve label via UNS
+        label = "Unknown Context"
+        if self.uns:
+            full_path = self.uns.format_path(axis, path.split("."))
+            label = self.uns.resolve_label(full_path)
+            
+        # 2. Mock context logic (in production, this would hit the Knowledge Graph)
+        context = {
+            "axis": axis,
+            "coordinate": path,
+            "label": label,
+            "description": f"Standard {label} domain expertise.",
+            "meta_tags": ["hardened", "v7.4"],
+            "pillar_name": label.split(" ")[0] if " " in label else label
+        }
+        
+        # Axis-specific enrichments
+        if axis == 1:
+            context["pillar_type"] = "Knowledge Base"
+        elif axis == 2:
+            context["industry_sector"] = label
+        elif axis == 6:
+            context["links"] = [f"Regulatory_Framework_{path}"]
+        elif axis == 7:
+            context["crosswalks"] = [f"Standard_Mapping_{path}"]
+            
+        return context
+
     def locate_in_uskd(self, coord: UnifiedCoordinate, search_radius: float = 0.2) -> List[Dict[str, Any]]:
         """
         Find nearby nodes in the USKD simulated memory space.

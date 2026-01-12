@@ -13,7 +13,7 @@ import copy
 from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Tuple
 
-class FrostService:
+class FROSTService:
     """
     FROST Service
     

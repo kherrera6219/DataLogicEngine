@@ -44,7 +44,11 @@ class PersonaConstructionService:
         """
         Dynamically construct a persona based on an axis and a coordinate path.
         
-        Example: axis_number=10, coordinate_path="6.4.2" (Regulatory)
+        Mapping:
+        - Axis 8 (Knowledge) -> Axis 1 (Pillar) context
+        - Axis 9 (Sector) -> Axis 2 (Sector) context
+        - Axis 10 (Regulatory) -> Axis 6 (Octopus Crosswalk) context
+        - Axis 11 (Compliance) -> Axis 7 (Spiderweb Crosswalk) context
         """
         if axis_number not in self.axis_to_type:
             raise ValueError(f"Axis {axis_number} is not a valid persona axis (8-11)")
@@ -54,21 +58,31 @@ class PersonaConstructionService:
         
         # 1. Resolve human-readable labels from UNS
         label = f"{persona_type} Expert"
+        source_context = {}
+        
         if self.uns:
             full_path = self.uns.format_path(axis_number, coordinate_path.split("."))
             label = self.uns.resolve_label(full_path)
+        
+        # 2. Map Persona Axis to Data Source Axis for seeding
+        source_axis_map = {8: 1, 9: 2, 10: 6, 11: 7}
+        source_axis = source_axis_map.get(axis_number)
+        
+        if self.mapping and source_axis:
+            # Query the mapping system for the specific source context
+            source_context = self.mapping.get_coordinate_context(source_axis, coordinate_path)
             
-        # 2. Register identity in UIDS
+        # 3. Register identity in UIDS
         ukgid = None
         if self.uids:
             ukgid = self.uids.register_entity(
                 name=label,
                 entity_type="persona",
-                aliases={"coord": coordinate_path},
-                metadata={"axis": axis_number, "type": persona_type}
+                aliases={"coord": coordinate_path, "source_axis": str(source_axis)},
+                metadata={"axis": axis_number, "type": persona_type, "source_context": source_context}
             )
             
-        # 3. Create PersonaProfile
+        # 4. Create PersonaProfile
         profile = PersonaProfile(
             persona_id=ukgid or f"per_{uuid.uuid4().hex[:8]}",
             axis_number=axis_number,
@@ -77,31 +91,37 @@ class PersonaConstructionService:
             description=f"Dynamically generated expert for {label}"
         )
         
-        # 4. Seed components based on context and axis
-        self._seed_components(profile, axis_number, context)
+        # 5. Seed components based on sourced meta-data
+        self._seed_components(profile, axis_number, source_context, context)
         
-        self.logger.info(f"Constructed dynamic persona: {label} ({profile.persona_id})")
+        self.logger.info(f"Constructed dynamic persona: {label} ({profile.persona_id}) sourced from Axis {source_axis}")
         return profile
 
-    def _seed_components(self, profile: PersonaProfile, axis: int, context: Dict[str, Any]):
-        """Seed the 7 core components with context-aware data."""
-        # Generic seating (to be replaced by registry lookups in later steps)
+    def _seed_components(self, profile: PersonaProfile, axis: int, source_context: Dict[str, Any], request_context: Dict[str, Any]):
+        """Seed the 7 core components with context-aware data sourced from primary axes."""
+        
+        # Titles and Role Description from Source
+        title = source_context.get("label") or profile.name
+        
         profile.set_component("job_role", {
-            "title": profile.name,
-            "level": context.get("experience_level", "Senior Specialist")
+            "title": f"Lead {title} Officer",
+            "level": request_context.get("experience_level", "Senior Specialist"),
+            "focus_area": source_context.get("description", "Domain expertise")
         })
         
+        # Skills derived from source context (NAICS codes, Pillar tags, etc.)
+        source_tags = source_context.get("meta_tags", [])
         profile.set_component("skills", {
-            "items": context.get("required_skills", ["Analysis", "Reporting", "Verification"]),
-            "domain_focus": context.get("sector", "General")
+            "items": list(set(source_tags + request_context.get("required_skills", ["Analysis", "Verification"]))),
+            "domain_focus": source_context.get("pillar_name", "Global")
         })
         
         # Axis specific specializations
-        if axis == 10: # Regulatory
-            profile.octopus_connections = context.get("reg_frameworks", ["Federal", "International"])
-        elif axis == 11: # Compliance
-            profile.spiderweb_connections = context.get("standards", ["ISO", "NIST"])
-
+        if axis == 10: # Regulatory (derived from Axis 6 Octopus)
+            profile.octopus_connections = source_context.get("links", ["Federal Regulatory Hub"])
+        elif axis == 11: # Compliance (derived from Axis 7 Spiderweb)
+            profile.spiderweb_connections = source_context.get("crosswalks", ["Standard Harmonization Layer"])
+        
     def check_health(self) -> Dict[str, Any]:
         """System health check."""
         return {
