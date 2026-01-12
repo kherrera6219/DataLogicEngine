@@ -1,0 +1,257 @@
+{
+  "info": {
+    "name": "DataLogicEngine API",
+    "description": "API collection for DataLogicEngine - Universal Knowledge Graph System",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{api_key}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/health",
+            "description": "Check API health status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/auth/register",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"SecurePassword123$\",\n  \"confirm_password\": \"SecurePassword123$\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/auth/login",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"SecurePassword123$\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Simulations",
+      "item": [
+        {
+          "name": "List Simulations",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/simulations"
+          }
+        },
+        {
+          "name": "Create Simulation",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/simulations",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Simulation\",\n  \"query\": \"What are the compliance requirements for healthcare data?\",\n  \"sim_type\": \"standard\",\n  \"refinement_steps\": 12,\n  \"confidence_threshold\": 0.995\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Simulation",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/simulations/{{simulation_id}}"
+          }
+        },
+        {
+          "name": "Run Simulation",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/simulations/{{simulation_id}}/run"
+          }
+        }
+      ]
+    },
+    {
+      "name": "UKG",
+      "item": [
+        {
+          "name": "Get Pillars",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/ukg/pillars"
+          }
+        },
+        {
+          "name": "Get Sectors",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/ukg/sectors"
+          }
+        },
+        {
+          "name": "Create Pillar",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/ukg/pillars",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Technology\",\n  \"level\": \"PL50\",\n  \"description\": \"Technology domain pillar\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Personas",
+      "item": [
+        {
+          "name": "List Personas",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/persona/personas"
+          }
+        },
+        {
+          "name": "Query Persona",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/persona/query",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Explain GDPR compliance requirements\",\n  \"context\": {\n    \"persona_type\": \"regulatory_expert\",\n    \"framework\": \"GDPR\"\n  }\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Knowledge Graph",
+      "item": [
+        {
+          "name": "Graph Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/graph/stats"
+          }
+        },
+        {
+          "name": "Query Graph",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/query",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Healthcare regulatory requirements\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Node",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/nodes",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"HIPAA Compliance\",\n  \"node_type\": \"concept\",\n  \"properties\": {\n    \"description\": \"Healthcare data protection regulation\"\n  }\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tracing",
+      "item": [
+        {
+          "name": "List Sessions",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/trace/sessions",
+            "query": [
+              {"key": "page", "value": "1"},
+              {"key": "per_page", "value": "20"}
+            ]
+          }
+        },
+        {
+          "name": "List Runs",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/trace/runs"
+          }
+        }
+      ]
+    }
+  ]
+}

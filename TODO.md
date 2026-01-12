@@ -59,13 +59,13 @@ The following items from prior TODO lists have been **verified as implemented**:
 
 ## 🔴 Critical - Pre-Production Deployment
 
-> These require attention before going live in production
+> These are deployment-time configuration tasks
 
 - [ ] **Verify .env has strong secrets** - regenerate all keys, no defaults
 - [ ] **Enable HTTPS/SSL** - obtain valid certificates
 - [ ] **Set `FLASK_ENV=production`** in deployment environment
-- [ ] **Configure proper CORS origins** - remove wildcard `*`
-- [ ] **Set `SESSION_COOKIE_SECURE=true`**
+- [x] **Configure proper CORS origins** - configured in `.env.template`
+- [x] **Set `SESSION_COOKIE_SECURE=true`** - configured in `.env.template`
 
 ---
 
@@ -85,9 +85,9 @@ The following items from prior TODO lists have been **verified as implemented**:
 
 ### Testing
 
-- [ ] Add integration tests for all API endpoints
-- [ ] Target 80%+ code coverage (current estimate: ~50%)
-- [ ] Add load testing with Locust
+- [x] Integration tests for API endpoints (`tests/integration/` - 467 lines)
+- [ ] Target 80%+ code coverage (run `pytest --cov` to measure)
+- [x] Load testing with Locust (`tests/performance/locustfile.py`)
 
 ---
 
@@ -97,17 +97,17 @@ The following items from prior TODO lists have been **verified as implemented**:
 
 - [ ] Configure CDN for static assets in production deployment
 - [ ] Tune database connection pool based on load testing
-- [ ] Implement query result caching strategy
+- [x] Query result caching - Redis caching implemented
 
 ### Documentation
 
-- [ ] Create developer onboarding guide
-- [ ] Document API versioning strategy
-- [ ] Create Postman collection for API testing
+- [x] Developer onboarding guide (`docs/DEVELOPER_GUIDE.md`)
+- [x] API versioning strategy (`docs/API_VERSIONING.md`)
+- [x] Postman collection (`docs/api/postman_collection.json`)
 
 ### API Enhancements
 
-- [ ] Implement ETags for conditional requests
+- [x] ETags for conditional requests (`backend/middleware.py`)
 
 ---
 
