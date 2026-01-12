@@ -13,6 +13,13 @@ import copy
 from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Tuple
 
+class DateTimeEncoder(json.JSONEncoder):
+    """Custom JSON encoder for datetime objects."""
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
+
 class FROSTService:
     """
     FROST Service
@@ -38,7 +45,7 @@ class FROSTService:
 
     def _generate_id(self, state: Dict[str, Any]) -> str:
         """Generate a deterministic snapshot ID based on state content."""
-        state_str = json.dumps(state, sort_keys=True)
+        state_str = json.dumps(state, sort_keys=True, cls=DateTimeEncoder)
         return f"snap_{hashlib.sha256(state_str.encode()).hexdigest()[:16]}"
 
     def snapshot(self, state: Dict[str, Any], metadata: Optional[Dict[str, Any]] = None) -> str:
@@ -53,6 +60,10 @@ class FROSTService:
             self.logger.debug(f"Created snapshot: {snapshot_id}")
             
         return snapshot_id
+
+    def get_snapshot(self, snapshot_id: str) -> Optional[Dict[str, Any]]:
+        """Retrieve a snapshot by ID."""
+        return self.snapshots.get(snapshot_id)
 
     def diff(self, base_id: str, target_id: str) -> Dict[str, Any]:
         """

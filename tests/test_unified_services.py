@@ -20,7 +20,7 @@ def uids():
 
 @pytest.fixture
 def uns():
-    return UnifiedNumberingService()
+    return UnifiedNumberingService("data/registries/axis_registry.json")
 
 @pytest.fixture
 def frost():
@@ -40,11 +40,11 @@ def test_uids_registration(uids):
 
 # --- UNS Tests ---
 def test_uns_path_resolution(uns):
-    path = uns.format_path(1, [1, 13, 2])
-    assert path == "A01.1.13.2"
+    path = uns.format_path(1, [1])
+    assert path == "A01.1"
     
-    label = uns.resolve_label("A01.1.13.2")
-    assert "Pillar" in label or label == "A01.1.13.2"
+    label = uns.resolve_label("A01.1")
+    assert "Pillar" in label
 
 # --- FROST Tests ---
 def test_frost_snapshot_cycle(frost):
@@ -57,8 +57,9 @@ def test_frost_snapshot_cycle(frost):
     
     # Delta check
     state["key"] = "new_value"
-    diff = frost.diff(snap_id, state)
-    assert diff["key"] == "new_value"
+    target_id = frost.snapshot(state)
+    delta = frost.diff(snap_id, target_id)
+    assert delta["modified"]["key"] == "new_value"
 
 # --- Trace Tests ---
 def test_trace_registration(trace):

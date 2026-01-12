@@ -140,6 +140,11 @@ class UnitedSystemManager:
         """Initialize the core Unified System services."""
         logging.info("Initializing UKG Unified System...")
         
+        # 0. FROST Service
+        from core.system.frost_service import FROSTService
+        self.frost = FROSTService()
+        self.register_component("frost", self.frost)
+        
         # 1. Identity Service
         self.uids = UnifiedIdentityService()
         self.register_component("uids", self.uids)
@@ -170,7 +175,7 @@ class UnitedSystemManager:
         # 6. Refinement Orchestrator
         self.refinement = RefinementOrchestrator(
             ka_controller=self.get_component("ka_controller"),
-            frost=self.get_component("frost_service"),
+            frost=self.frost,
             trace=self.trace
         )
         self.register_component("refinement", self.refinement)

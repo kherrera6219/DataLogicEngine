@@ -53,10 +53,10 @@ class SimulationEngine:
         self.refinement = usm.get_component("refinement") if usm else None
         self.persona_construction = usm.get_component("persona_construction") if usm else None
 
-    def execute_simulation(self, 
-                           query: str, 
-                           initial_coord: Optional[UnifiedCoordinate] = None,
-                           escalation_level: int = 3) -> UnifiedArtifactEnvelope:
+    def run_simulation(self, 
+                       query: str, 
+                       initial_coord: Optional[UnifiedCoordinate] = None,
+                       escalation_level: int = 3) -> UnifiedArtifactEnvelope:
         """
         Execute a full L1-L10 simulation pass.
         """
@@ -122,6 +122,8 @@ class SimulationEngine:
         )
         
         # Simulated layer logic
+        new_uae.metadata[f"layer_{layer}_result"] = f"Processed L{layer} logic."
+        
         if layer == 1: # Knowledge Pillar
             new_uae.coord17.set_axis(1, "1.0") # Baseline knowledge
         elif layer == 2: # Sector
@@ -131,7 +133,9 @@ class SimulationEngine:
         elif layer >= 8: # Persona Layers
             if self.persona_construction:
                 persona = self.persona_construction.construct_persona(10 - (10 - layer) + 0, "1.0")
-                new_uae.payload[f"persona_L{layer}_insight"] = f"Expert {persona.name} analyzed the query."
+                insight = f"Expert {persona.name} analyzed the query."
+                new_uae.payload[f"persona_L{layer}_insight"] = insight
+                new_uae.metadata[f"persona_L{layer}_insight"] = insight
         
         # Update confidence based on depth
         new_uae.confidence_vector.overall = min(0.99, new_uae.confidence_vector.overall + 0.04)
