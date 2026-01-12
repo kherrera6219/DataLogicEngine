@@ -1,274 +1,152 @@
 """
 Universal Knowledge Graph (UKG) System - Simulation Engine
 
-This module integrates the quad persona components and memory management
-to create a complete simulation engine for the UKG system.
+This module implements the 10-layer execution stack for the 17-axis UKG.
+It orchestrates simulation across Knowledge, Sector, Regulatory, and Persona layers
+using the Unified Artifact Envelope (UAE) and FROST state management.
 """
 
 import logging
+import uuid
 import json
-from typing import Dict, List, Any, Optional
 from datetime import datetime, UTC
+from typing import Dict, List, Any, Optional
+import numpy as np
 
-from quad_persona.quad_engine import QuadPersonaEngine, create_quad_persona_engine
-from quad_persona.persona_loader import PersonaLoader
-from quad_persona.axis_role_mapper import AxisRoleMapper
-from simulation.memory_manager import MemoryManager
-from simulation.refinement_workflow import RefinementWorkflow, create_refinement_workflow
+from core.system.uae_models import UnifiedArtifactEnvelope, ConfidenceVector
+from core.coordinate_system import UnifiedCoordinate
 
 logger = logging.getLogger(__name__)
 
 class SimulationEngine:
     """
-    The Simulation Engine orchestrates the quad persona simulation,
-    memory management, and refinement workflow for the UKG system.
+    Simulation Engine (L1-L10 Execution Stack)
+    
+    Layers:
+    L1: Knowledge Pillars (Axis 1)
+    L2: Sectors (Axis 2)
+    L3: Branches (Axis 4)
+    L4: Methods (Axis 5)
+    L5: Tools (Axis 6)
+    L6: Regulatory (Axis 10)
+    L7: Compliance (Axis 11)
+    L8: Knowledge Expert (Axis 8)
+    L9: Sector Expert (Axis 9)
+    L10: Meta-Reasoning & Refinement
     """
     
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, usm=None):
         """
         Initialize the simulation engine.
         
         Args:
-            config: Configuration for the engine
+            usm: United System Manager for service discovery
         """
-        self.config = config or {}
+        self.usm = usm
+        self.logger = logging.getLogger(__name__)
         
-        # Initialize components
-        try:
-            self.quad_persona_engine = QuadPersonaEngine()
-        except TypeError:
-            self.quad_persona_engine = create_quad_persona_engine()
-        self.persona_loader = PersonaLoader()
-        self.axis_mapper = AxisRoleMapper()
-        self.memory_manager = MemoryManager()
-        self.refinement_workflow = create_refinement_workflow()
-        
-        logger.info("Simulation Engine initialized with all components")
-    
-    def process_query(self, query: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
-        """
-        Process a query through the simulation engine.
-        
-        This method:
-        1. Prepares the query context with relevant memories
-        2. Maps the query to appropriate personas via the axis system
-        3. Processes the query through the quad persona engine
-        4. Applies the refinement workflow for recursive improvements
-        5. Stores insights in memory for future reference
-        
-        Args:
-            query: The query to process
-            context: Additional context for the query
-            
-        Returns:
-            The processing result, including the final response
-        """
-        start_time = datetime.now(UTC)
-        context = context or {}
-        
-        # Track simulation
-        simulation_id = context.get('simulation_id', f"sim_{datetime.now(UTC).isoformat()}")
-        
-        # Initialize result structure
-        result = {
-            'simulation_id': simulation_id,
-            'query': query,
-            'start_time': start_time.isoformat(),
-            'end_time': None,
-            'status': 'processing',
-            'response': None,
-            'confidence': 0.0,
-            'processing_metadata': {}
-        }
-        
-        try:
-            # Step 1: Enhance context with memories
-            conversation_id = context.get('conversation_id')
-            enhanced_context = self._prepare_memory_context(query, conversation_id)
-            
-            # Add original context
-            for key, value in context.items():
-                if key not in enhanced_context:
-                    enhanced_context[key] = value
-            
-            # Log context preparation
-            result['processing_metadata']['memory_context'] = {
-                'memory_streams_used': list(enhanced_context.get('memories', {}).keys()),
-                'working_memory_size': len(enhanced_context.get('working_memory', [])),
-                'timestamp': datetime.now(UTC).isoformat()
-            }
-            
-            # Step 2: Map query to personas via axis system
-            axis_context = self._map_query_to_axis_context(query, enhanced_context)
-            result['processing_metadata']['axis_context'] = axis_context
-            
-            # Step 3: Process through quad persona engine
-            persona_result = self.quad_persona_engine.process_query(query)
-            
-            # Extract confidence from persona results (avg of all personas)
-            confidence = persona_result.get('confidence', 0.7) if isinstance(persona_result, dict) else 0.7
-            logger.debug(f"Persona confidence extracted: {confidence}")
-            
-            # Extract active personas from perspectives and build synthesized response
-            active_personas = []
-            persona_results_for_refinement = {}
-            perspective_texts = []
-            
-            if isinstance(persona_result, dict) and 'perspectives' in persona_result:
-                for perspective in persona_result.get('perspectives', []):
-                    persona_name = perspective.get('persona', '').lower().replace(' ', '_')
-                    persona_conf = perspective.get('confidence', 0.7)
-                    perspective_text = perspective.get('perspective', '')
-                    
-                    active_personas.append(persona_name)
-                    perspective_texts.append(f"[{perspective.get('persona', 'Expert')}]: {perspective_text}")
-                    
-                    # Format for refinement workflow's _assess_confidence
-                    persona_results_for_refinement[persona_name] = {
-                        'confidence': persona_conf,
-                        'perspective': perspective_text,
-                        'name': perspective.get('persona', '')
-                    }
-                    logger.debug(f"Persona {persona_name} confidence: {persona_conf}")
-            
-            if not active_personas:
-                active_personas = ["knowledge", "sector", "regulatory", "compliance"]
-            
-            # Build synthesized response content from perspectives
-            if perspective_texts:
-                response_content = "\n\n".join(perspective_texts)
-            else:
-                response_content = str(persona_result)
-            
-            # Step 4: Apply refinement workflow with persona results
-            refinement_context = {
-                'query': query,
-                'response': response_content,
-                'active_personas': active_personas,
-                'confidence': confidence,
-                'axis_context': axis_context,
-                'persona_results': persona_results_for_refinement  # For _assess_confidence
-            }
-            
-            refined_result = self.refinement_workflow.execute_workflow(refinement_context)
-            
-            # Extract final response and confidence
-            final_response = refined_result.get('final_response', response_content)
-            if isinstance(final_response, dict):
-                final_response = final_response.get('content', response_content)
-            final_confidence = refined_result.get('final_confidence', confidence)
-            
-            # Step 5: Store insights in memory
-            if conversation_id:
-                # Ensure conversation memory stream exists
-                self.memory_manager.create_conversation_memory(conversation_id, {
-                    'conversation_id': conversation_id,
-                    'last_query': query,
-                    'last_updated': datetime.now(UTC).isoformat()
-                })
-                
-                # Add user query to conversation memory
-                self.memory_manager.add_conversation_memory(
-                    conversation_id=conversation_id,
-                    role='user',
-                    content=query,
-                    metadata={'timestamp': datetime.now(UTC).isoformat()}
-                )
-                
-                # Add system response to conversation memory
-                self.memory_manager.add_conversation_memory(
-                    conversation_id=conversation_id,
-                    role='system',
-                    content=final_response,
-                    metadata={
-                        'timestamp': datetime.now(UTC).isoformat(),
-                        'confidence': final_confidence,
-                        'active_personas': active_personas
-                    }
-                )
-            
-            # Extract insights from persona responses
-            persona_responses = {}
-            # In real implementation, extract from persona_result
-            
-            # Store persona insights in memory
-            self.memory_manager.extract_insights(query, final_response, persona_responses)
-            
-            # Save memories to storage
-            self.memory_manager.save_memories()
-            
-            # Complete result
-            end_time = datetime.now(UTC)
-            result.update({
-                'end_time': end_time.isoformat(),
-                'status': 'completed',
-                'response': final_response,
-                'confidence': final_confidence,
-                'active_personas': active_personas,
-                'processing_time_ms': (end_time - start_time).total_seconds() * 1000
-            })
-            
-            return result
-            
-        except Exception as e:
-            logger.error(f"Error processing query: {str(e)}")
-            
-            # Complete result with error
-            end_time = datetime.now(UTC)
-            result.update({
-                'end_time': end_time.isoformat(),
-                'status': 'error',
-                'error': str(e),
-                'processing_time_ms': (end_time - start_time).total_seconds() * 1000
-            })
-            
-            return result
-    
-    def _prepare_memory_context(self, query: str, conversation_id: str = None) -> Dict[str, Any]:
-        """
-        Prepare memory context for a query.
-        
-        Args:
-            query: The query to prepare context for
-            conversation_id: Optional conversation ID
-            
-        Returns:
-            Memory context for the query
-        """
-        return self.memory_manager.generate_memory_context(query, conversation_id)
-    
-    def _map_query_to_axis_context(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Map a query to the 13-axis context.
-        
-        Args:
-            query: The query to map
-            context: Additional context
-            
-        Returns:
-            Axis context for the query
-        """
-        # In a real implementation, this would analyze the query and map to axes
-        # For now, use placeholder values
-        axis_context = {
-            'axis_coordinates': {
-                '1': 0.5,  # Knowledge & Cognitive Framework
-                '2': 0.3,  # Sectors
-                '3': 0.3,  # Domains
-                '8': 0.8,  # Knowledge Expert
-                '9': 0.6,  # Sector Expert
-                '10': 0.4,  # Regulatory Expert
-                '11': 0.4   # Compliance Expert
-            },
-            'domain': context.get('domain'),
-            'sector': context.get('sector'),
-            'pillar_level': context.get('pillar_level')
-        }
-        
-        return axis_context
+        # Link to core services via USM
+        self.mapping = usm.get_component("mapping") if usm else None
+        self.uids = usm.get_component("uids") if usm else None
+        self.trace = usm.get_component("trace") if usm else None
+        self.frost = usm.get_component("frost") if usm else None
+        self.refinement = usm.get_component("refinement") if usm else None
+        self.persona_construction = usm.get_component("persona_construction") if usm else None
 
+    def execute_simulation(self, 
+                           query: str, 
+                           initial_coord: Optional[UnifiedCoordinate] = None,
+                           escalation_level: int = 3) -> UnifiedArtifactEnvelope:
+        """
+        Execute a full L1-L10 simulation pass.
+        """
+        run_id = f"run_{uuid.uuid4().hex[:12]}"
+        snapshot_id = None
+        
+        # Initial envelope
+        current_uae = UnifiedArtifactEnvelope(
+            artifact_id=f"art_{uuid.uuid4().hex[:12]}",
+            run_id=run_id,
+            snapshot_id="base",
+            coord17=initial_coord or UnifiedCoordinate(),
+            payload_type="initial_query",
+            payload={"query": query},
+            confidence_vector=ConfidenceVector(overall=0.5)
+        )
+        
+        self.logger.info(f"Starting simulation {run_id} at escalation level {escalation_level}")
+        
+        # Execute Layer blocks based on escalation
+        # Level 1: L1-L2 (Mapping only)
+        # Level 3: L1-L7 (Regulatory & Compliance)
+        # Level 5: L1-L10 (Full Expert Persona & Refinement)
+        
+        layers_to_run = self._get_layers_for_escalation(escalation_level)
+        
+        for layer_num in layers_to_run:
+            self.logger.debug(f"Executing Layer L{layer_num}")
+            
+            # Record state if FROST is available
+            if self.frost:
+                snapshot_id = self.frost.snapshot(current_uae.dict())
+                current_uae.snapshot_id = snapshot_id
+                
+            # Process layer logic
+            current_uae = self._process_layer(layer_num, current_uae, query)
+            
+            # Register in Trace
+            if self.trace:
+                self.trace.register_artifact(current_uae)
+                
+        # Final Refinement check if L10 was run
+        if 10 in layers_to_run and self.refinement:
+            current_uae = self.refinement.run_refinement(current_uae)
+            
+        return current_uae
 
-# Factory function to create a simulation engine
-def create_simulation_engine(config: Dict[str, Any] = None) -> SimulationEngine:
-    """Create a simulation engine."""
-    return SimulationEngine(config)
+    def _get_layers_for_escalation(self, level: int) -> List[int]:
+        """Map escalation levels to layer subsets."""
+        if level <= 1: return [1, 2]
+        if level <= 2: return [1, 2, 3, 4]
+        if level <= 3: return [1, 2, 3, 4, 5, 6, 7]
+        return list(range(1, 11))
+
+    def _process_layer(self, layer: int, uae: UnifiedArtifactEnvelope, query: str) -> UnifiedArtifactEnvelope:
+        """Implement specific logic for each of the 10 layers."""
+        new_uae = uae.copy(deep=True)
+        new_uae.artifact_id = f"art_L{layer}_{uuid.uuid4().hex[:8]}"
+        new_uae.add_provenance(
+            source_id="simulation_engine",
+            operation=f"layer_L{layer}_execution",
+            input_ids=[uae.artifact_id]
+        )
+        
+        # Simulated layer logic
+        if layer == 1: # Knowledge Pillar
+            new_uae.coord17.set_axis(1, "1.0") # Baseline knowledge
+        elif layer == 2: # Sector
+            new_uae.coord17.set_axis(2, "54.1") # Manufacturing/Tech
+        elif layer == 6: # Regulatory
+            new_uae.coord17.set_axis(10, "FAR.21")
+        elif layer >= 8: # Persona Layers
+            if self.persona_construction:
+                persona = self.persona_construction.construct_persona(10 - (10 - layer) + 0, "1.0")
+                new_uae.payload[f"persona_L{layer}_insight"] = f"Expert {persona.name} analyzed the query."
+        
+        # Update confidence based on depth
+        new_uae.confidence_vector.overall = min(0.99, new_uae.confidence_vector.overall + 0.04)
+        
+        return new_uae
+
+    def check_health(self) -> Dict[str, Any]:
+        """System health check."""
+        return {
+            "healthy": True,
+            "services_linked": {
+                "mapping": self.mapping is not None,
+                "uids": self.uids is not None,
+                "trace": self.trace is not None,
+                "frost": self.frost is not None,
+                "persona": self.persona_construction is not None
+            }
+        }

@@ -1,0 +1,159 @@
+{
+    "axes": {
+        "1": {
+            "name": "Pillar Levels",
+            "code": "PL",
+            "nuremberg_prefix": "100",
+            "samgov_prefix": "KNW",
+            "description": "Hierarchical knowledge pillars",
+            "sub_elements": {
+                "1": {"name": "Core Knowledge", "code": "CORE"},
+                "2": {"name": "Applied Sciences", "code": "SCI"},
+                "3": {"name": "Engineering", "code": "ENG"},
+                "4": {"name": "Technology", "code": "TECH"},
+                "5": {"name": "Business & Commerce", "code": "BUS"},
+                "6": {"name": "Legal & Regulatory", "code": "LAW"},
+                "7": {"name": "Healthcare & Medicine", "code": "MED"},
+                "8": {"name": "Finance & Banking", "code": "FIN"},
+                "9": {"name": "Government & Public", "code": "GOV"},
+                "10": {"name": "Education", "code": "EDU"},
+                "11": {"name": "Research & Development", "code": "RD"},
+                "12": {"name": "Manufacturing", "code": "MFG"},
+                "13": {"name": "Defense & Security", "code": "DEF"},
+                "14": {"name": "Energy & Utilities", "code": "ENRG"},
+                "15": {"name": "Transportation", "code": "TRANS"},
+                "16": {"name": "Communications", "code": "COMM"},
+                "17": {"name": "Environment", "code": "ENV"}
+            }
+        },
+        "2": {
+            "name": "Sectors",
+            "code": "SC",
+            "nuremberg_prefix": "200",
+            "samgov_prefix": "IND",
+            "description": "Industry and business sectors",
+            "sub_elements": {
+                "GOV": {"name": "Government", "code": "GOV"},
+                "FIN": {"name": "Financial Services", "code": "FIN"},
+                "TECH": {"name": "Technology", "code": "TECH"},
+                "HEALTH": {"name": "Healthcare", "code": "HEALTH"},
+                "MANU": {"name": "Manufacturing", "code": "MANU"},
+                "RETAIL": {"name": "Retail", "code": "RETAIL"},
+                "ENERGY": {"name": "Energy", "code": "ENERGY"},
+                "TRANS": {"name": "Transportation", "code": "TRANS"},
+                "TELECOM": {"name": "Telecommunications", "code": "TELECOM"},
+                "AERO": {"name": "Aerospace & Defense", "code": "AERO"},
+                "EDU": {"name": "Education", "code": "EDU"},
+                "MEDIA": {"name": "Media & Entertainment", "code": "MEDIA"},
+                "AGRI": {"name": "Agriculture", "code": "AGRI"},
+                "CONSTR": {"name": "Construction", "code": "CONSTR"},
+                "PROF": {"name": "Professional Services", "code": "PROF"}
+            }
+        },
+        "3": {
+            "name": "Honeycomb",
+            "code": "HC",
+            "nuremberg_prefix": "300",
+            "samgov_prefix": "SPC",
+            "description": "Cross-domain links and multi-perspective connections"
+        },
+        "4": {
+            "name": "Branches",
+            "code": "BR",
+            "nuremberg_prefix": "400",
+            "samgov_prefix": "MTH",
+            "description": "Topic branches and subdivisions"
+        },
+        "5": {
+            "name": "Nodes",
+            "code": "ND",
+            "nuremberg_prefix": "500",
+            "samgov_prefix": "TLS",
+            "description": "Individual knowledge nodes"
+        },
+        "6": {
+            "name": "Octopus",
+            "code": "OC",
+            "nuremberg_prefix": "600",
+            "samgov_prefix": "REG",
+            "description": "One-to-many relationships and regulatory mapping"
+        },
+        "7": {
+            "name": "Spiderweb",
+            "code": "SW",
+            "nuremberg_prefix": "700",
+            "samgov_prefix": "CMP",
+            "description": "Many-to-many relationships and compliance mapping"
+        },
+        "8": {
+            "name": "Knowledge Persona",
+            "code": "PK",
+            "nuremberg_prefix": "800",
+            "samgov_prefix": "KEX",
+            "description": "Theoretical authority persona axis"
+        },
+        "9": {
+            "name": "Sector Persona",
+            "code": "PS",
+            "nuremberg_prefix": "900",
+            "samgov_prefix": "SEX",
+            "description": "Industry & operational authority persona axis"
+        },
+        "10": {
+            "name": "Regulatory Persona",
+            "code": "PR",
+            "nuremberg_prefix": "1000",
+            "samgov_prefix": "REX",
+            "description": "Rulemaking & interpretation authority persona axis"
+        },
+        "11": {
+            "name": "Compliance Persona",
+            "code": "PC",
+            "nuremberg_prefix": "1100",
+            "samgov_prefix": "CEX",
+            "description": "Proof & audit authority persona axis"
+        },
+        "12": {
+            "name": "Location",
+            "code": "LO",
+            "nuremberg_prefix": "1200",
+            "samgov_prefix": "LOC",
+            "description": "Geographic and jurisdictional context"
+        },
+        "13": {
+            "name": "Temporal",
+            "code": "TM",
+            "nuremberg_prefix": "1300",
+            "samgov_prefix": "TMP",
+            "description": "Time-based context and forecast windows"
+        },
+        "14": {
+            "name": "Risk",
+            "code": "RK",
+            "nuremberg_prefix": "1400",
+            "samgov_prefix": "RSK",
+            "description": "Impact level and confidence scores"
+        },
+        "15": {
+            "name": "Performance",
+            "code": "PF",
+            "nuremberg_prefix": "1500",
+            "samgov_prefix": "PRF",
+            "description": "Execution pressure and release timelines"
+        },
+        "16": {
+            "name": "Ethics",
+            "code": "ET",
+            "nuremberg_prefix": "1600",
+            "samgov_prefix": "ETH",
+            "description": "Societal concerns and accountability"
+        },
+        "17": {
+            "name": "Learning",
+            "code": "LN",
+            "nuremberg_prefix": "1700",
+            "samgov_prefix": "LRN",
+            "description": "Novelty and ongoing evolution"
+        }
+    }
+}

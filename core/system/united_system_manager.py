@@ -8,6 +8,14 @@ import logging
 from datetime import datetime
 from typing import Dict, Any, List, Optional, Callable
 
+from core.system.unified_identity_service import UnifiedIdentityService
+from core.system.unified_numbering_service import UnifiedNumberingService
+from core.system.code_crosswalk_service import CodeCrosswalkService
+from core.system.trace_service import TraceProvenanceService
+from core.system.refinement_orchestrator import RefinementOrchestrator
+from core.system.unified_mapping_system import UnifiedMappingSystem
+from core.system.persona_construction_service import PersonaConstructionService
+
 class UnitedSystemManager:
     """
     United System Manager
@@ -40,6 +48,15 @@ class UnitedSystemManager:
             'component_count': 0,
             'healthy': True
         }
+        
+        # Core Unified System Services
+        self.uids = None
+        self.uns = None
+        self.crosswalk = None
+        self.trace = None
+        self.refinement = None
+        self.mapping = None
+        self.persona_construction = None
         
         logging.info(f"[{datetime.now()}] UnitedSystemManager initialized")
     
@@ -119,6 +136,55 @@ class UnitedSystemManager:
         
         return results
     
+    def initialize_unified_system(self, axis_registry_path: str):
+        """Initialize the core Unified System services."""
+        logging.info("Initializing UKG Unified System...")
+        
+        # 1. Identity Service
+        self.uids = UnifiedIdentityService()
+        self.register_component("uids", self.uids)
+        
+        # 2. Numbering Service
+        self.uns = UnifiedNumberingService(registry_path=axis_registry_path)
+        self.register_component("uns", self.uns)
+        
+        # 3. Crosswalk Service
+        self.crosswalk = CodeCrosswalkService(uids=self.uids, uns=self.uns)
+        self.register_component("crosswalk", self.crosswalk)
+        
+        # 4. Trace Service
+        self.trace = TraceProvenanceService()
+        self.register_component("trace", self.trace)
+        
+        # 5. Mapping System (17-Axis)
+        self.mapping = UnifiedMappingSystem(
+            uids=self.uids, 
+            uns=self.uns, 
+            crosswalk=self.crosswalk,
+            graph_manager=self.get_component("graph_manager"),
+            memory_manager=self.get_component("memory_manager"),
+            united_system_manager=self
+        )
+        self.register_component("mapping", self.mapping)
+        
+        # 6. Refinement Orchestrator
+        self.refinement = RefinementOrchestrator(
+            ka_controller=self.get_component("ka_controller"),
+            frost=self.get_component("frost_service"),
+            trace=self.trace
+        )
+        self.register_component("refinement", self.refinement)
+        
+        # 7. Persona Construction Service
+        self.persona_construction = PersonaConstructionService(
+            uids=self.uids,
+            uns=self.uns,
+            mapping=self.mapping
+        )
+        self.register_component("persona_construction", self.persona_construction)
+        
+        logging.info("UKG Unified System initialized successfully.")
+
     def get_system_status(self) -> Dict[str, Any]:
         """
         Get the current system status.
