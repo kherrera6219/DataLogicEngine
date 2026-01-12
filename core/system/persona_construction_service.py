@@ -100,20 +100,48 @@ class PersonaConstructionService:
     def _seed_components(self, profile: PersonaProfile, axis: int, source_context: Dict[str, Any], request_context: Dict[str, Any]):
         """Seed the 7 core components with context-aware data sourced from primary axes."""
         
-        # Titles and Role Description from Source
+        # 1. Job Role (Titles and Role Description from Source)
         title = source_context.get("label") or profile.name
-        
         profile.set_component("job_role", {
             "title": f"Lead {title} Officer",
             "level": request_context.get("experience_level", "Senior Specialist"),
             "focus_area": source_context.get("description", "Domain expertise")
         })
         
-        # Skills derived from source context (NAICS codes, Pillar tags, etc.)
+        # 2. Education (Axis-specific degrees)
+        edu_map = {8: "PhD in Applied Sciences", 9: "MBA in Industry Management", 10: "JD/LLM in Regulatory Law", 11: "Masters in Enterprise Compliance"}
+        profile.set_component("education", {
+            "degree": edu_map.get(axis, "Advanced Degree"),
+            "focus": title
+        })
+        
+        # 3. Certifications (System-grade credentials)
+        cert_map = {8: ["UKG-Certified Scholar"], 9: ["Six Sigma Black Belt"], 10: ["Bar Association Member"], 11: ["CAMS Certified"]}
+        profile.set_component("certifications", {
+            "list": cert_map.get(axis, ["Standard Certification"])
+        })
+        
+        # 4. Skills (Derived from source context)
         source_tags = source_context.get("meta_tags", [])
         profile.set_component("skills", {
             "items": list(set(source_tags + request_context.get("required_skills", ["Analysis", "Verification"]))),
             "domain_focus": source_context.get("pillar_name", "Global")
+        })
+        
+        # 5. Training (Specialize training modules)
+        profile.set_component("training", {
+            "modules": ["Recursive Learning V5", "Refinement Protocols", f"{title} Advanced Seminar"]
+        })
+        
+        # 6. Career Path (Simulation of professional history)
+        profile.set_component("career_path", {
+            "stages": ["Junior Analyst", "Subject Matter Expert", f"Lead {title} Officer"],
+            "years_in_field": 15
+        })
+        
+        # 7. Related Jobs (Cross-domain career mapping)
+        profile.set_component("related_jobs", {
+            "overlapping_roles": ["Chief Strategy Officer", "Risk Manager", "Technical Lead"]
         })
         
         # Axis specific specializations
