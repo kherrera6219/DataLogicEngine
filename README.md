@@ -68,10 +68,25 @@ The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchest
 
 Multi-dimensional knowledge organization contextualizing data across:
 
-- **Axis 1-4**: Identity, Sector, Domain, Knowledge Type
-- **Axis 5-7**: Temporal, Regulatory, Compliance
-- **Axis 8-11**: Expert Profiles (Knowledge, Sector, Regulatory, Compliance)
-- **Axis 12-17**: Location, Risk, Federated Learning, Time Arrows, Observability
+| Axis | Name | Description |
+|------|------|-------------|
+| **1** | Pillar Levels | Core knowledge pillars (FAR, DFARS, CFR) |
+| **2** | Sectors | Industry sectors (NAICS, SIC, PSC) |
+| **3** | Honeycomb | Cross-domain intra-expansion |
+| **4** | Branches | Knowledge sub-branches |
+| **5** | Nodes | Atomic knowledge nodes |
+| **6** | Octopus Crosswalk | One-to-many regulatory mapping |
+| **7** | Spiderweb Crosswalk | Many-to-many compliance mapping |
+| **8** | Knowledge Role | Expert job roles |
+| **9** | Qualifications & Skills | Certifications and competencies |
+| **10** | Regulatory Expert | Octopus regulatory persona |
+| **11** | Compliance Expert | Spiderweb compliance persona |
+| **12** | Location | Geospatial and jurisdiction |
+| **13** | Temporal | Time periods and versions |
+| **14** | Risk & Confidence | Risk levels and validation metrics |
+| **15** | Federated Intelligence | Distributed knowledge sync |
+| **16** | Arrows of Time | Causality and prediction |
+| **17** | Observability & Analytics | Metrics and audit trails |
 
 ### ⚖️ Truth Engine (5-Tier Workflow)
 
