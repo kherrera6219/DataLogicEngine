@@ -339,6 +339,22 @@ try:
 except ImportError as e:
     logger.warning(f"Could not register LLM Gateway API: {e}")
 
+# Register Analytics API for dashboard data
+try:
+    from backend.routes.analytics_routes import analytics_bp
+    app.register_blueprint(analytics_bp)
+    logger.info("Analytics API registered at /api/v1/analytics")
+except ImportError as e:
+    logger.warning(f"Could not register Analytics API: {e}")
+
+# Register GraphQL API endpoint
+try:
+    from backend.graphql_schema import register_graphql
+    register_graphql(app)
+    logger.info("GraphQL API registered at /graphql (GraphiQL enabled)")
+except ImportError as e:
+    logger.warning(f"Could not register GraphQL API: {e}")
+
 # Register core routes from routes package
 from routes import register_routes
 register_routes(app)

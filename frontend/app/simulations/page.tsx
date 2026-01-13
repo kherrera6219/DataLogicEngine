@@ -1,18 +1,47 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import { api } from "@/lib/api";
+import { useSocket, SimulationProgress } from "@/lib/socket";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlayCircle, Plus, RefreshCw } from "lucide-react";
+import { PlayCircle, Plus, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function SimulationsPage() {
   const { data: simulations, isLoading, mutate } = useSWR('simulations-list', api.simulation.list);
   const [isCreating, setIsCreating] = useState(false);
+  const [liveProgress, setLiveProgress] = useState<Record<string, SimulationProgress>>({});
+  const [isConnected, setIsConnected] = useState(false);
+
+  // WebSocket connection for real-time updates
+  const socket = useSocket({
+    onConnected: () => setIsConnected(true),
+    onDisconnected: () => setIsConnected(false),
+    onSimulationProgress: (data) => {
+      setLiveProgress(prev => ({ ...prev, [data.simulation_id]: data }));
+    },
+    onSimulationComplete: (data) => {
+      setLiveProgress(prev => {
+        const updated = { ...prev };
+        delete updated[data.simulation_id];
+        return updated;
+      });
+      mutate(); // Refresh list when simulation completes
+    }
+  });
+
+  // Subscribe to active simulations
+  useEffect(() => {
+    if (simulations && socket.isConnected) {
+      simulations
+        .filter(sim => sim.status === 'active')
+        .forEach(sim => socket.subscribeToSimulation(sim.uid));
+    }
+  }, [simulations, socket.isConnected]);
 
   const handleCreate = async () => {
     setIsCreating(true);
@@ -36,7 +65,18 @@ export default function SimulationsPage() {
       <div className="container mx-auto max-w-7xl space-y-8">
         <header className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2">Simulation Monitor</h1>
+            <div className="flex items-center gap-2 mb-2">
+              <h1 className="text-3xl font-bold tracking-tight">Simulation Monitor</h1>
+              {isConnected ? (
+                <Badge variant="outline" className="gap-1 text-green-600 border-green-600">
+                  <Wifi className="h-3 w-3" /> Live
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="gap-1 text-gray-400">
+                  <WifiOff className="h-3 w-3" /> Offline
+                </Badge>
+              )}
+            </div>
             <p className="text-muted-foreground">Track and control active reasoning simulations and agent swarms.</p>
           </div>
           <Button onClick={handleCreate} disabled={isCreating} className="gap-2">
@@ -94,7 +134,15 @@ export default function SimulationsPage() {
                             {sim.status}
                         </Badge>
                     </TableCell>
-                    <TableCell>{sim.current_step}</TableCell>
+                    <TableCell>
+                      {liveProgress[sim.uid] ? (
+                        <span className="text-blue-600 font-medium animate-pulse">
+                          {liveProgress[sim.uid].step}/{liveProgress[sim.uid].total_steps}
+                        </span>
+                      ) : (
+                        sim.current_step
+                      )}
+                    </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
                         {new Date(sim.created_at).toLocaleDateString()}
                     </TableCell>
