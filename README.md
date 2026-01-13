@@ -59,6 +59,9 @@ The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchest
 - 17-Axis Knowledge Framework for multi-dimensional context
 - Hash-chain audit trails (EU AI Act Article 53 compliant)
 - Circuit breakers and automatic failover
+- **GraphQL API** for flexible data querying (`/graphql`)
+- **WebSocket** real-time updates (simulation progress, notifications)
+- **3D Graph Visualization** with force-directed layout (Three.js)
 
 ---
 
@@ -1019,18 +1022,20 @@ curl -H "X-API-Key: your-api-key" \
 
 ### Endpoint Categories
 
-| Service        | Prefix               | Description            | Key Endpoints                                   |
-| -------------- | -------------------- | ---------------------- | ----------------------------------------------- |
-| **Auth**       | `/api/v1/auth`       | Authentication & SSO   | `POST /login`, `GET /login/sso`, `POST /logout` |
-| **Gateway**    | `/api/v1/gateway`    | LLM orchestration      | `POST /chat`, `POST /stream`                    |
-| **Trace**      | `/api/v1/trace`      | Execution tracing      | `GET /runs`, `GET /runs/:id/stages`             |
-| **MCP**        | `/api/v1/mcp`        | Model Context Protocol | `GET /servers`, `POST /tools/:id/call`          |
-| **Knowledge**  | `/api/v1/knowledge`  | Graph operations       | `GET /nodes`, `POST /edges`                     |
-| **KA**         | `/api/v1/ka`         | Algorithm execution    | `GET /algorithms`, `POST /execute`              |
-| **Compliance** | `/api/v1/compliance` | Audit & reporting      | `GET /audit-logs`, `GET /audit/export`          |
-| **Admin**      | `/api/v1/admin`      | User & provider mgmt   | `GET /users`, `POST /providers`                 |
-| **Simulation** | `/api/v1/simulation` | Scenario simulation    | `POST /start`, `GET /:id`                       |
-| **System**     | `/health`            | Health check           | `GET /health`                                   |
+| Service        | Prefix               | Description             | Key Endpoints                                   |
+| -------------- | -------------------- | ----------------------- | ----------------------------------------------- |
+| **Auth**       | `/api/v1/auth`       | Authentication & SSO    | `POST /login`, `GET /login/sso`, `POST /logout` |
+| **Gateway**    | `/api/v1/gateway`    | LLM orchestration       | `POST /chat`, `POST /stream`                    |
+| **Trace**      | `/api/v1/trace`      | Execution tracing       | `GET /runs`, `GET /runs/:id/stages`             |
+| **MCP**        | `/api/v1/mcp`        | Model Context Protocol  | `GET /servers`, `POST /tools/:id/call`          |
+| **Knowledge**  | `/api/v1/knowledge`  | Graph operations        | `GET /nodes`, `POST /edges`                     |
+| **KA**         | `/api/v1/ka`         | Algorithm execution     | `GET /algorithms`, `POST /execute`              |
+| **Compliance** | `/api/v1/compliance` | Audit & reporting       | `GET /audit-logs`, `GET /audit/export`          |
+| **Analytics**  | `/api/v1/analytics`  | Dashboard metrics       | `GET /summary`, `GET /trends`, `GET /axis-distribution` |
+| **GraphQL**    | `/graphql`           | Flexible queries        | GraphiQL IDE, queries, mutations                |
+| **Admin**      | `/api/v1/admin`      | User & provider mgmt    | `GET /users`, `POST /providers`                 |
+| **Simulation** | `/api/v1/simulation` | Scenario simulation     | `POST /start`, `GET /:id`                       |
+| **System**     | `/health`            | Health check            | `GET /health`                                   |
 
 ### Example Requests
 

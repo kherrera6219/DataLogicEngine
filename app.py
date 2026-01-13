@@ -355,6 +355,14 @@ try:
 except ImportError as e:
     logger.warning(f"Could not register GraphQL API: {e}")
 
+# Register GDPR compliance API
+try:
+    from backend.routes.gdpr_routes import gdpr_bp
+    app.register_blueprint(gdpr_bp)
+    logger.info("GDPR API registered at /api/v1/gdpr")
+except ImportError as e:
+    logger.warning(f"Could not register GDPR API: {e}")
+
 # Register core routes from routes package
 from routes import register_routes
 register_routes(app)

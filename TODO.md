@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last Updated:** 2026-01-12  
+**Last Updated:** 2026-01-13  
 **Status:** Production Ready - Active Development
 
 ---
@@ -26,7 +26,7 @@ The following items from prior TODO lists have been **verified as implemented**:
 - [x] Redis caching and rate limiting (extensive across codebase)
 - [x] Swagger/OpenAPI documentation (`app.py`)
 - [x] Flask-Mail email service (`backend/email_service.py`)
-- [x] WebSocket real-time support (`backend/websocket.py`)
+- [x] WebSocket real-time support (`backend/websocket.py`, `frontend/lib/socket.ts`)
 - [x] Export service - CSV, JSON, PDF, Excel (`backend/export_service.py`)
 - [x] i18n/Flask-Babel internationalization (`backend/i18n.py`)
 - [x] Security headers - HSTS, CSP (`backend/security/security_headers.py`)
@@ -41,6 +41,9 @@ The following items from prior TODO lists have been **verified as implemented**:
 - [x] MCP integration
 - [x] **Pagination** implemented (`routes/ka_routes.py`, `backend/tracing/api.py`, SDK)
 - [x] **CDN configuration** in security headers
+- [x] **GraphQL API** - queries/mutations (`backend/graphql_schema.py`, `/graphql`)
+- [x] **Analytics API** - dashboard metrics (`backend/routes/analytics_routes.py`)
+- [x] **3D Graph Visualization** - Three.js (`frontend/app/graph/page.tsx`)
 
 ### Security
 
@@ -115,16 +118,16 @@ The following items from prior TODO lists have been **verified as implemented**:
 
 ### Cleanup
 
-- [ ] Consider migrating frontend from react-scripts to Vite
-- [ ] Dark mode theme support
+- [x] Frontend already uses Next.js (not react-scripts) - no migration needed
+- [x] Dark mode theme support (`contexts/ThemeContext.tsx`, `components/ThemeToggle.tsx`)
 
 ### Future Features (from Enterprise Roadmap)
 
-- [ ] Multi-tenancy white-labeling
-- [ ] Stripe payment integration
-- [ ] Mobile PWA support
-- [ ] SOC 2 Type II certification process
-- [ ] GDPR compliance tools (data export, deletion workflows)
+- [ ] Multi-tenancy white-labeling (requires business decisions)
+- [ ] Stripe payment integration (requires account setup)
+- [x] Mobile PWA support (`public/manifest.json`, `public/sw.js`)
+- [ ] SOC 2 Type II certification process (operational)
+- [x] GDPR compliance tools (`backend/routes/gdpr_routes.py` - export, deletion, consent)
 
 ---
 
