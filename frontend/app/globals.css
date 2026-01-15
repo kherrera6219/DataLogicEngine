@@ -10,6 +10,24 @@
   --foreground: #ededed;
 }
 
+@layer components {
+  .glass-card {
+    @apply bg-white/70 dark:bg-gray-900/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl;
+  }
+
+  .glass-morphism {
+    @apply backdrop-blur-md bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

@@ -6,14 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { Maximize2, RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
+import { Maximize2, RotateCcw, ZoomIn, ZoomOut, Filter, ChevronLeft, ChevronRight, Info, Zap, Shield, Search } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { AxisSelector } from "@/components/Graph/AxisSelector";
+import { CommandBar } from "@/components/Dashboard/CommandBar";
 
 // Dynamic import to avoid SSR issues with Three.js
 const ForceGraph3D = dynamic(() => import('react-force-graph-3d'), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center h-full text-gray-400">
-      Loading 3D Engine...
+    <div className="flex items-center justify-center h-full text-gray-400 bg-gray-950">
+      <div className="animate-pulse flex flex-col items-center gap-4">
+        <div className="h-12 w-12 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
+        <span className="text-sm font-medium tracking-widest uppercase">Initializing 17D Engine</span>
+      </div>
     </div>
   )
 });
@@ -24,6 +30,7 @@ interface GraphNode {
   pillar?: string;
   group?: number;
   val?: number;
+  details?: Record<string, string>;
 }
 
 interface GraphLink {
@@ -37,13 +44,20 @@ interface GraphData {
   links: GraphLink[];
 }
 
-// Generate demo graph data for visualization
+// Fixed color palette
+const PILLAR_COLORS: Record<string, string> = {
+  'Technology': '#3b82f6',
+  'Healthcare': '#10b981',
+  'Finance': '#f59e0b',
+  'Identity': '#8b5cf6',
+  'Regulatory': '#ef4444'
+};
+
 function generateDemoData(): GraphData {
   const pillars = ['Technology', 'Healthcare', 'Finance', 'Identity', 'Regulatory'];
   const nodes: GraphNode[] = [];
   const links: GraphLink[] = [];
   
-  // Generate nodes for each pillar
   pillars.forEach((pillar, pillarIdx) => {
     const nodeCount = 15 + Math.floor(Math.random() * 10);
     for (let i = 0; i < nodeCount; i++) {
@@ -53,31 +67,26 @@ function generateDemoData(): GraphData {
         name: `${pillar} Node ${i + 1}`,
         pillar: pillar,
         group: pillarIdx,
-        val: 1 + Math.random() * 3
+        val: 1 + Math.random() * 3,
+        details: {
+          'Type': 'Core Asset',
+          'Confidence': '0.94',
+          'Coordinate': `Axis 1: ${pillarIdx + i}.0`
+        }
       });
-      
-      // Create links within pillar
       if (i > 0) {
-        const sourceIdx = Math.floor(Math.random() * i);
-        links.push({
-          source: `${pillar.toLowerCase()}-${sourceIdx}`,
-          target: nodeId,
-          type: 'Part-Of'
-        });
+        links.push({ source: `${pillar.toLowerCase()}-${Math.floor(Math.random() * i)}`, target: nodeId, type: 'Part-Of' });
       }
     }
   });
   
-  // Create cross-pillar links
   for (let i = 0; i < 20; i++) {
-    const sourcePillar = pillars[Math.floor(Math.random() * pillars.length)];
-    const targetPillar = pillars[Math.floor(Math.random() * pillars.length)];
-    if (sourcePillar !== targetPillar) {
-      const sourceIdx = Math.floor(Math.random() * 15);
-      const targetIdx = Math.floor(Math.random() * 15);
+    const sIdx = Math.floor(Math.random() * pillars.length);
+    const tIdx = Math.floor(Math.random() * pillars.length);
+    if (sIdx !== tIdx) {
       links.push({
-        source: `${sourcePillar.toLowerCase()}-${sourceIdx}`,
-        target: `${targetPillar.toLowerCase()}-${targetIdx}`,
+        source: `${pillars[sIdx].toLowerCase()}-0`,
+        target: `${pillars[tIdx].toLowerCase()}-0`,
         type: 'Crosswalk'
       });
     }
@@ -86,190 +95,196 @@ function generateDemoData(): GraphData {
   return { nodes, links };
 }
 
-// Color palette for pillars
-const PILLAR_COLORS: Record<string, string> = {
-  'Technology': '#3b82f6',
-  'Healthcare': '#10b981',
-  'Finance': '#f59e0b',
-  'Identity': '#8b5cf6',
-  'Regulatory': '#ef4444'
-};
-
 export default function GraphPage() {
-  const graphRef = useRef<unknown>(null);
+  const graphRef = useRef<any>(null);
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
-  const [showLabels, setShowLabels] = useState(true);
-  const [enable3D, setEnable3D] = useState(true);
-  const [enablePhysics, setEnablePhysics] = useState(true);
+  const [activeAxis, setActiveAxis] = useState(1);
+  const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
   
-  // Load demo data on mount
+  const [showLabels, setShowLabels] = useState(true);
+  const [enablePhysics, setEnablePhysics] = useState(true);
+
   useEffect(() => {
     setGraphData(generateDemoData());
   }, []);
-  
-  // Filter nodes based on search and selected pillar
-  const filteredData = useCallback(() => {
-    let nodes = graphData.nodes;
-    let links = graphData.links;
-    
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      nodes = nodes.filter(n => 
-        n.name.toLowerCase().includes(query) || 
-        n.id.toLowerCase().includes(query)
-      );
-      const nodeIds = new Set(nodes.map(n => n.id));
-      links = links.filter(l => 
-        nodeIds.has(l.source as string) && nodeIds.has(l.target as string)
-      );
-    }
-    
-    if (selectedPillar) {
-      nodes = nodes.filter(n => n.pillar === selectedPillar);
-      const nodeIds = new Set(nodes.map(n => n.id));
-      links = links.filter(l => 
-        nodeIds.has(l.source as string) && nodeIds.has(l.target as string)
-      );
-    }
-    
-    return { nodes, links };
-  }, [graphData, searchQuery, selectedPillar]);
-  
+
   const handleNodeClick = useCallback((node: GraphNode) => {
-    // Focus on clicked node
-    const graph = graphRef.current as { cameraPosition?: (coords: object, lookAt: object, ms: number) => void };
-    if (graph?.cameraPosition) {
-      const distance = 100;
-      const distRatio = 1 + distance / Math.hypot(0, 0, 0);
-      graph.cameraPosition(
-        { x: 0 * distRatio, y: 0 * distRatio, z: distance },
-        node as unknown as object,
-        1000
-      );
+    setSelectedNode(node);
+    setRightSidebarOpen(true);
+    if (graphRef.current) {
+      graphRef.current.cameraPosition({ x: node.id.length * 20, y: 20, z: 200 }, node, 1000);
     }
   }, []);
-  
+
   const resetCamera = useCallback(() => {
-    const graph = graphRef.current as { cameraPosition?: (coords: object, lookAt: object, ms: number) => void };
-    if (graph?.cameraPosition) {
-      graph.cameraPosition({ x: 0, y: 0, z: 300 }, { x: 0, y: 0, z: 0 }, 1000);
+    if (graphRef.current) {
+      graphRef.current.cameraPosition({ x: 0, y: 0, z: 300 }, { x: 0, y: 0, z: 0 }, 1000);
     }
   }, []);
-  
-  const displayData = filteredData();
-  
+
   return (
-    <main className="h-screen bg-gray-950 flex flex-col md:flex-row overflow-hidden">
-       {/* Sidebar Controls */}
-       <aside className="w-full md:w-80 bg-gray-900 border-r border-gray-800 p-4 flex flex-col gap-6 overflow-y-auto">
-          <div>
-             <h1 className="text-lg font-bold text-white mb-1">Graph Explorer</h1>
-             <p className="text-xs text-gray-400">Interactive 3D Knowledge Graph Visualization</p>
-          </div>
-
-          <div className="space-y-4">
-             <div className="space-y-2">
-                <label className="text-xs font-semibold text-gray-500 uppercase">Search</label>
-                <Input 
-                  placeholder="Find node by ID or Label..." 
-                  className="bg-gray-800 border-gray-700 text-white placeholder-gray-500"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-             </div>
-
-             <div className="space-y-2">
-                <label className="text-xs font-semibold text-gray-500 uppercase">Pillar Filter</label>
-                <div className="flex flex-wrap gap-2">
-                   {Object.entries(PILLAR_COLORS).map(([pillar, color]) => (
-                     <Badge 
-                       key={pillar}
-                       variant="outline" 
-                       className={`cursor-pointer transition-all ${selectedPillar === pillar ? 'ring-2 ring-white' : ''}`}
-                       style={{ 
-                         borderColor: color, 
-                         color: selectedPillar === pillar ? 'white' : color,
-                         backgroundColor: selectedPillar === pillar ? color : 'transparent'
-                       }}
-                       onClick={() => setSelectedPillar(selectedPillar === pillar ? null : pillar)}
-                     >
-                       {pillar}
-                     </Badge>
-                   ))}
-                </div>
-             </div>
-
-             <div className="space-y-4 border-t border-gray-800 pt-4">
-                 <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-300">Physics Simulation</span>
-                    <Switch checked={enablePhysics} onCheckedChange={setEnablePhysics} />
+    <main className="h-screen bg-black flex flex-col overflow-hidden text-gray-200">
+      <CommandBar />
+      <AxisSelector activeAxis={activeAxis} onChange={setActiveAxis} />
+      
+      <div className="flex-1 flex relative">
+        {/* Left Sidebar: Filters */}
+        <aside className={cn(
+          "h-full bg-gray-900 border-r border-gray-800 transition-all duration-300 flex flex-col z-20 shadow-2xl",
+          leftSidebarOpen ? "w-72" : "w-0 overflow-hidden border-none"
+        )}>
+           <div className="p-6 space-y-8 flex-1">
+              <div className="space-y-4">
+                 <div className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                    <Filter className="h-3 w-3" /> Filters
                  </div>
-                 <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-300">Show Labels</span>
-                    <Switch checked={showLabels} onCheckedChange={setShowLabels} />
+                 <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                    <Input 
+                      placeholder="Quick find..." 
+                      className="bg-gray-800/50 border-gray-700 h-10 pl-10 rounded-xl"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                  </div>
-                 <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-300">3D Mode</span>
-                    <Switch checked={enable3D} onCheckedChange={setEnable3D} />
+              </div>
+
+              <div className="space-y-4">
+                 <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">Pillars</div>
+                 <div className="flex flex-col gap-2">
+                    {Object.entries(PILLAR_COLORS).map(([name, color]) => (
+                      <div key={name} className="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 cursor-pointer group">
+                        <div className="flex items-center gap-3">
+                           <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+                           <span className="text-sm font-medium">{name}</span>
+                        </div>
+                        <Badge variant="outline" className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] px-1 h-4">Active</Badge>
+                      </div>
+                    ))}
                  </div>
-             </div>
-             
-             <div className="space-y-2">
-               <label className="text-xs font-semibold text-gray-500 uppercase">Camera Controls</label>
-               <div className="flex gap-2">
-                 <Button variant="outline" size="sm" onClick={resetCamera} className="flex-1">
-                   <RotateCcw className="h-4 w-4 mr-1" /> Reset
+              </div>
+
+              <div className="pt-6 border-t border-gray-800 space-y-4">
+                  <div className="flex items-center justify-between p-1">
+                     <span className="text-xs font-medium text-gray-400">Labels</span>
+                     <Switch checked={showLabels} onCheckedChange={setShowLabels} />
+                  </div>
+                  <div className="flex items-center justify-between p-1">
+                     <span className="text-xs font-medium text-gray-400">Physics</span>
+                     <Switch checked={enablePhysics} onCheckedChange={setEnablePhysics} />
+                  </div>
+              </div>
+           </div>
+
+           <div className="p-4 bg-black/20 border-t border-gray-800">
+              <Button size="sm" variant="ghost" className="w-full text-blue-500 text-xs gap-2" onClick={resetCamera}>
+                 <RotateCcw className="h-3 w-3" /> Reset View
+              </Button>
+           </div>
+        </aside>
+
+        {/* Left Toggle Button */}
+        <button 
+          onClick={() => setLeftSidebarOpen(!leftSidebarOpen)}
+          className="absolute left-0 top-1/2 -translate-y-1/2 translate-x-[272px] z-30 h-12 w-4 bg-gray-900 border border-gray-800 rounded-r-lg flex items-center justify-center hover:bg-gray-800 transition-all"
+          style={{ transform: leftSidebarOpen ? 'translateX(288px)' : 'translateX(0)' }}
+        >
+          {leftSidebarOpen ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+        </button>
+
+        {/* Main Graph Area */}
+        <div className="flex-1 relative bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-900 to-black">
+           <ForceGraph3D
+             ref={graphRef}
+             graphData={graphData}
+             nodeLabel={showLabels ? 'name' : undefined}
+             nodeColor={(node: GraphNode) => PILLAR_COLORS[node.pillar || 'Technology'] || '#666'}
+             nodeVal={(node: GraphNode) => node.val || 1}
+             linkColor={() => 'rgba(255,255,255,0.1)'}
+             linkWidth={0.5}
+             backgroundColor="rgba(0,0,0,0)"
+             onNodeClick={handleNodeClick}
+             enableNodeDrag={enablePhysics}
+             nodeOpacity={0.9}
+           />
+
+           <div className="absolute bottom-6 left-6 flex gap-3 p-1 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10">
+              <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-400 hover:text-white rounded-xl"><ZoomIn className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-400 hover:text-white rounded-xl"><ZoomOut className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-400 hover:text-white rounded-xl"><Maximize2 className="h-5 w-5" /></Button>
+           </div>
+
+           <div className="absolute top-6 right-6 p-4 glass-morphism rounded-2xl max-w-[200px] hidden lg:block">
+              <div className="flex items-center gap-2 mb-3">
+                 <Zap className="h-4 w-4 text-amber-500" />
+                 <span className="text-[10px] font-bold uppercase tracking-widest text-amber-500">Live Status</span>
+              </div>
+              <div className="space-y-1">
+                 <p className="text-[11px] text-gray-400">Active Axis: <span className="text-white font-bold">{activeAxis}</span></p>
+                 <p className="text-[11px] text-gray-400">Nodes Visualized: <span className="text-white font-bold">{graphData.nodes.length}</span></p>
+                 <p className="text-[11px] text-gray-400">Calculated Health: <span className="text-emerald-500 font-bold">Optimal</span></p>
+              </div>
+           </div>
+        </div>
+
+        {/* Right Sidebar: Details */}
+        <aside className={cn(
+          "h-full bg-gray-900 border-l border-gray-800 transition-all duration-300 flex flex-col z-20",
+          rightSidebarOpen ? "w-80" : "w-0 overflow-hidden border-none"
+        )}>
+          {selectedNode ? (
+            <div className="p-6 flex flex-col h-full">
+              <div className="flex items-center justify-between mb-8">
+                 <div className="flex items-center gap-2 text-xs font-bold text-blue-500 uppercase tracking-tighter">
+                    <Shield className="h-4 w-4" /> Node Inspector
+                 </div>
+                 <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500" onClick={() => setRightSidebarOpen(false)}>
+                    <ChevronRight className="h-5 w-5" />
                  </Button>
-                 <Button variant="outline" size="sm" className="flex-1">
-                   <Maximize2 className="h-4 w-4 mr-1" /> Fit
-                 </Button>
+              </div>
+
+              <div className="space-y-6">
+                 <div>
+                    <h3 className="text-xl font-bold text-white mb-2 leading-tight">{selectedNode.name}</h3>
+                    <Badge style={{ backgroundColor: PILLAR_COLORS[selectedNode.pillar || 'Technology'] }}>{selectedNode.pillar}</Badge>
+                 </div>
+
+                 <div className="grid grid-cols-2 gap-4">
+                    {selectedNode.details && Object.entries(selectedNode.details).map(([k, v]) => (
+                      <div key={k} className="p-3 bg-white/5 rounded-xl border border-white/5">
+                        <p className="text-[9px] text-gray-500 font-bold uppercase mb-1">{k}</p>
+                        <p className="text-xs text-blue-100 font-medium">{v}</p>
+                      </div>
+                    ))}
+                 </div>
+
+                 <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl">
+                    <div className="flex items-center gap-2 mb-2">
+                       <Shield className="h-3 w-3 text-emerald-500" />
+                       <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Compliance Passed</span>
+                    </div>
+                    <p className="text-[11px] text-gray-400 italic">This node satisfies all NIST 800-171 requirements for its classification.</p>
+                 </div>
+              </div>
+
+              <div className="mt-auto space-y-2 pt-6">
+                 <Button className="w-full bg-blue-600 hover:bg-blue-700 h-10 rounded-xl">View Full Details</Button>
+                 <Button variant="ghost" className="w-full text-xs text-gray-500 h-10 rounded-xl">Export Node Bundle (JSON)</Button>
+              </div>
+            </div>
+          ) : (
+            <div className="h-full flex items-center justify-center text-gray-600 px-10 text-center">
+               <div className="flex flex-col items-center gap-4">
+                  <Info className="h-10 w-10 opacity-20" />
+                  <p className="text-sm font-medium">Select a node to inspect its compliance and metadata.</p>
                </div>
-             </div>
-          </div>
-
-          <div className="mt-auto space-y-2">
-             <div className="text-xs text-gray-500 p-2 bg-gray-800/50 rounded">
-               <p>Nodes: <span className="text-white">{displayData.nodes.length}</span></p>
-               <p>Edges: <span className="text-white">{displayData.links.length}</span></p>
-             </div>
-             <Button className="w-full">Export View</Button>
-          </div>
-       </aside>
-
-       {/* Main Visualization Area */}
-       <div className="flex-1 relative bg-black">
-          {enable3D && (
-            <ForceGraph3D
-              ref={graphRef}
-              graphData={displayData}
-              nodeLabel={showLabels ? 'name' : undefined}
-              nodeColor={(node: GraphNode) => PILLAR_COLORS[node.pillar || 'Technology'] || '#666'}
-              nodeVal={(node: GraphNode) => node.val || 1}
-              linkColor={() => 'rgba(255,255,255,0.2)'}
-              linkWidth={0.5}
-              backgroundColor="#000011"
-              onNodeClick={handleNodeClick}
-              enableNodeDrag={enablePhysics}
-              cooldownTicks={enablePhysics ? Infinity : 0}
-              warmupTicks={100}
-            />
+            </div>
           )}
-          
-          <div className="absolute top-4 left-4 p-2 bg-gray-900/80 rounded-lg text-xs text-mono text-green-400 border border-gray-800">
-             FPS: 60 | Nodes: {displayData.nodes.length} | Edges: {displayData.links.length}
-          </div>
-          
-          <div className="absolute bottom-4 right-4 flex gap-2">
-            <Button variant="outline" size="sm" className="bg-gray-900/80">
-              <ZoomIn className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" className="bg-gray-900/80">
-              <ZoomOut className="h-4 w-4" />
-            </Button>
-          </div>
-       </div>
+        </aside>
+      </div>
     </main>
   );
 }

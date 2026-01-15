@@ -1,26 +1,37 @@
+
 import { auth } from './auth';
 import { simulation } from './simulation';
 import { knowledge } from './knowledge';
 import { trace } from './trace';
-import { system, chat, sendChat } from './system_chat';
+import { chat, sendChat } from './system_chat';
+import { mcp } from './mcp';
+import { compliance } from './compliance';
 
 export * from './types';
 export { sendChat };
 
-export * from './mcp';
-
 // Base config
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-export const MCP_API_BASE = process.env.NEXT_PUBLIC_MCP_API_URL || 'http://localhost:5000/api/mcp';
-
-import { compliance } from "./compliance";
 
 export const api = {
-    chat,
-    auth,
-    trace,
-    knowledge,
-    simulation,
-    system,
-    compliance
+  chat,
+  auth,
+  simulation,
+  knowledge,
+  trace,
+  mcp,
+  compliance,
+  analytics: {
+    summary: async () => {
+      const res = await fetch(`${API_BASE}/analytics/summary`);
+      if (!res.ok) throw new Error("Failed to fetch analytics summary");
+      const json = await res.json();
+      return json.data;
+    },
+    trends: async (metric: string, days: number = 7) => {
+      const res = await fetch(`${API_BASE}/analytics/trends?metric=${metric}&days=${days}`);
+      if (!res.ok) throw new Error("Failed to fetch trends");
+      return res.json();
+    }
+  }
 };

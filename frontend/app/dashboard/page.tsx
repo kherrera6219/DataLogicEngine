@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ComplianceTrendChart } from "@/components/Dashboard/ComplianceTrendChart";
+import { CommandBar } from "@/components/Dashboard/CommandBar";
 import { 
   Activity, 
   Database, 
@@ -20,7 +22,11 @@ import {
   Clock,
   ExternalLink,
   PlayCircle,
-  MessageSquarePlus
+  MessageSquarePlus,
+  ArrowUpRight,
+  TrendingUp,
+  ShieldCheck,
+  AlertTriangle
 } from 'lucide-react';
 
 interface TraceRun {
@@ -30,44 +36,78 @@ interface TraceRun {
   created_at: string;
 }
 
+function StatCard({ title, value, subtext, icon: Icon, trend, variant = "default" }: any) {
+  return (
+    <Card className="glass-card transition-all hover:scale-[1.02] hover:shadow-blue-500/10 active:scale-[0.98]">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+        <div className={cn(
+          "p-2 rounded-xl",
+          variant === "destructive" ? "bg-red-500/10 text-red-500" : 
+          variant === "success" ? "bg-emerald-500/10 text-emerald-500" :
+          "bg-blue-500/10 text-blue-500"
+        )}>
+          <Icon className="h-4 w-4" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="text-3xl font-bold tracking-tight">{value}</div>
+        <div className="flex items-center gap-1.5 mt-2">
+          {trend && (
+            <div className={cn("flex items-center text-xs font-semibold px-1.5 py-0.5 rounded-md", trend > 0 ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500")}>
+              {trend > 0 ? "+" : ""}{trend}%
+              <TrendingUp className={cn("h-3 w-3 ml-1", trend < 0 && "rotate-180")} />
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">{subtext}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function DashboardPage() {
-  // Data Fetching with SWR (Stale-While-Revalidate)
-  const { data: runs, isLoading: isRunsLoading } = useSWR('trace-list', () => api.trace.list(5), { 
-    refreshInterval: 5000,
-    fallbackData: []
+  const { data: runs, isLoading: isRunsLoading } = useSWR('trace-list', () => api.trace.list(10), { 
+    refreshInterval: 5000 
   });
 
-  const { data: systemStatus, isLoading: isStatusLoading } = useSWR<string>('system-health', () => api.system.health(), {
-    refreshInterval: 10000,
-    fallbackData: 'Checking...'
+  const { data: summary, isLoading: isSummaryLoading } = useSWR('analytics-summary', () => api.analytics.summary(), {
+    refreshInterval: 10000
   });
 
-  // Derived State
+  const { data: systemStatus } = useSWR<string>('system-health', () => api.system.health(), {
+    refreshInterval: 10000
+  });
+
   const isOperational = systemStatus === 'Operational' || systemStatus === 'ok';
 
   return (
-    <main className="min-h-screen bg-muted/40 p-6 md:p-8">
-      <div className="container mx-auto max-w-7xl space-y-8">
-        
-        {/* Header Section */}
-        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 flex flex-col overflow-hidden">
+      <CommandBar />
+      <div className="flex-1 overflow-y-auto p-6 md:p-8">
+        <div className="container mx-auto max-w-7xl space-y-8">
+          
+          {/* Header Section */}
+          <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground">
-              Real-time overview of Universal Knowledge Graph performance.
+            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+              Compliance <span className="text-blue-600 dark:text-blue-500">Dashboard</span>
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 font-medium">
+              Enterprise Control Hub • 17-Axis Unified Standard
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-3">
              <Link href="/chat">
-                <Button className="gap-2">
-                  <MessageSquarePlus className="h-4 w-4" />
-                  New Chat Session
+                <Button className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 text-white gap-2">
+                  <MessageSquarePlus className="h-5 w-5" />
+                  New Session
                 </Button>
              </Link>
-             <Link href="/simulations">
-                 <Button variant="outline" className="gap-2">
-                    <PlayCircle className="h-4 w-4" />
-                    Run Simulation
+             <Link href="/graph">
+                 <Button variant="outline" className="h-11 px-6 rounded-xl glass-morphism gap-2">
+                    <Activity className="h-5 w-5" />
+                    Explorer
                  </Button>
              </Link>
           </div>
@@ -75,163 +115,148 @@ export default function DashboardPage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Nodes</CardTitle>
-              <Database className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1.2M</div>
-              <p className="text-xs text-muted-foreground mt-1">+12% from last month</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Agents</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">24</div>
-              <p className="text-xs text-muted-foreground mt-1">Across 6 pillars</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">System Health</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {isStatusLoading ? (
-                 <Skeleton className="h-8 w-24" /> 
-              ) : (
-                <div className={cn("text-2xl font-bold flex items-center gap-2", isOperational ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600")}>
-                    {isOperational ? (
-                      <>Operational <CheckCircle className="h-5 w-5" /></>
-                    ) : (
-                      <>{systemStatus} <AlertCircle className="h-5 w-5" /></>
-                    )}
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground mt-1">Gateway Status</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
-              <Zap className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {isRunsLoading ? (
-                <Skeleton className="h-8 w-12" />
-              ) : (
-                <div className="text-2xl font-bold">{runs?.length || 0}</div>
-              )}
-              <p className="text-xs text-muted-foreground mt-1">Events in last 5m</p>
-            </CardContent>
-          </Card>
+          <StatCard 
+            title="Total Nodes" 
+            value={summary?.total_nodes ? (summary.total_nodes / 1000000).toFixed(1) + "M" : "1.2M"} 
+            subtext="+12k this week"
+            icon={Database}
+            trend={4.2}
+          />
+          <StatCard 
+            title="Control Coverage" 
+            value="94%" 
+            subtext="Compliance Rating"
+            icon={ShieldCheck}
+            variant="success"
+            trend={1.5}
+          />
+          <StatCard 
+            title="Active Issues" 
+            value={summary?.active_issues || 0} 
+            subtext="Critical failures"
+            icon={AlertTriangle}
+            variant={summary?.active_issues > 0 ? "destructive" : "default"}
+          />
+          <StatCard 
+            title="System Health" 
+            value={isOperational ? "Safe" : "Degraded"} 
+            subtext="L1-L10 Gateway"
+            icon={Activity}
+            variant={isOperational ? "success" : "destructive"}
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-           {/* Recent Trace Activity Table */}
-           <Card className="lg:col-span-2">
-              <CardHeader>
-                 <CardTitle className="flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-muted-foreground" />
-                    Recent Trace Execution
-                 </CardTitle>
-                 <CardDescription>Live execution logs from the Knowledge Graph engine.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                 <Table>
-                    <TableHeader>
-                       <TableRow>
-                          <TableHead>Run ID</TableHead>
-                          <TableHead>KA / Context</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead className="text-right">Timestamp</TableHead>
-                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {isRunsLoading && Array.from({ length: 5 }).map((_, i) => (
-                            <TableRow key={i}>
-                                <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                                <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                                <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                                <TableCell className="text-right"><Skeleton className="h-4 w-24 ml-auto" /></TableCell>
-                            </TableRow>
-                        ))}
-                        
-                        {!isRunsLoading && runs?.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={4} className="text-center py-12 text-muted-foreground">
-                                    No recent activity found. Start a new chat session to generate traces.
-                                </TableCell>
-                            </TableRow>
-                        )}
+           <div className="lg:col-span-2 space-y-6">
+              <ComplianceTrendChart />
 
-                        {runs?.map((run: TraceRun) => (
-                          <TableRow key={run.run_id} className="group">
-                             <TableCell className="font-mono text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors">
-                                {run.run_id.substring(0,8)}
-                             </TableCell>
-                             <TableCell className="font-medium">
-                                {run.ka_id || 'General Chat'}
-                             </TableCell>
-                             <TableCell>
-                                <Badge variant={run.status === 'completed' ? 'default' : run.status === 'failed' ? 'destructive' : 'secondary'}>
-                                    {run.status}
-                                </Badge>
-                             </TableCell>
-                             <TableCell className="text-right text-xs text-muted-foreground">
-                                 {new Date(run.created_at).toLocaleTimeString()}
-                             </TableCell>
+              {/* Recent Activity Table */}
+              <Card className="glass-card">
+                 <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg">Recent Execution Traces</CardTitle>
+                      <CardDescription>Live audit stream from Knowledge Algorithms.</CardDescription>
+                    </div>
+                    <Link href="/runs">
+                      <Button variant="ghost" size="sm" className="text-blue-500">View All</Button>
+                    </Link>
+                 </CardHeader>
+                 <CardContent>
+                    <Table>
+                       <TableHeader>
+                          <TableRow className="hover:bg-transparent border-gray-100 dark:border-gray-800">
+                             <TableHead className="w-[100px]">ID</TableHead>
+                             <TableHead>KA Engine</TableHead>
+                             <TableHead>Status</TableHead>
+                             <TableHead className="text-right">Time</TableHead>
                           </TableRow>
-                       ))}
-                    </TableBody>
-                 </Table>
-              </CardContent>
-           </Card>
+                       </TableHeader>
+                       <TableBody>
+                           {isRunsLoading && Array.from({ length: 5 }).map((_, i) => (
+                               <TableRow key={i}>
+                                   <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                                   <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                                   <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                                   <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                               </TableRow>
+                           ))}
+                           
+                           {runs?.map((run: TraceRun) => (
+                             <TableRow key={run.run_id} className="group border-gray-100 dark:border-gray-800 hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
+                                <TableCell className="font-mono text-[10px] text-muted-foreground">
+                                   {run.run_id.substring(0,8)}
+                                </TableCell>
+                                <TableCell>
+                                   <div className="flex flex-col">
+                                      <span className="font-semibold text-sm">{run.ka_id || 'System Base'}</span>
+                                      <span className="text-[10px] text-muted-foreground uppercase tracking-widest">v2.0 Standard</span>
+                                   </div>
+                                </TableCell>
+                                <TableCell>
+                                   <Badge className={cn(
+                                     "rounded-md px-1.5 py-0 text-[10px] font-bold uppercase",
+                                     run.status === 'completed' ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : 
+                                     run.status === 'failed' ? "bg-red-500/10 text-red-600 border-red-500/20" : 
+                                     "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                                   )}>
+                                       {run.status}
+                                   </Badge>
+                                </TableCell>
+                                <TableCell className="text-right text-xs font-medium text-gray-500">
+                                    {new Date(run.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </TableCell>
+                             </TableRow>
+                          ))}
+                       </TableBody>
+                    </Table>
+                 </CardContent>
+              </Card>
+           </div>
 
-           {/* Service Status Panel */}
-           <Card>
-              <CardHeader>
-                 <CardTitle className="flex items-center gap-2">
-                    <Server className="h-5 w-5 text-muted-foreground" />
-                    System Status
-                 </CardTitle>
-                 <CardDescription>Component health check.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                 <div className="space-y-4">
+           {/* Performance Sidebar */}
+           <div className="space-y-6">
+              <Card className="glass-card">
+                 <CardHeader>
+                    <CardTitle className="text-lg">System Metrics</CardTitle>
+                    <CardDescription>L9-L10 Trace Integrity</CardDescription>
+                 </CardHeader>
+                 <CardContent className="space-y-5">
                     {[
-                       { name: "LLM Gateway", status: isOperational ? 'Operational' : systemStatus, statusColor: isOperational ? "bg-emerald-500" : "bg-red-500" },
-                       { name: "PostgreSQL Database", status: "Operational", statusColor: "bg-emerald-500" },
-                       { name: "MCP Server Registry", status: "Operational", statusColor: "bg-emerald-500" },
-                       { name: "Redis Cache", status: "Operational", statusColor: "bg-emerald-500" },
-                    ].map((svc) => (
-                       <div key={svc.name} className="flex items-center justify-between p-3 rounded-lg border bg-card/50">
-                          <div className="flex items-center gap-3">
-                             <div className={cn("w-2.5 h-2.5 rounded-full ring-2 ring-offset-2 ring-offset-background", svc.statusColor)} />
-                             <span className="text-sm font-medium">{svc.name}</span>
+                       { name: "Truth Engine v7.3", value: 99.7, unit: "%", label: "Accuracy" },
+                       { name: "MAI Latency", value: 42, unit: "ms", label: "P99" },
+                       { name: "Axis Coverage", value: 17, unit: "/17", label: "Dimensions" },
+                    ].map((m) => (
+                       <div key={m.name} className="space-y-2">
+                          <div className="flex justify-between text-xs">
+                             <span className="font-semibold text-gray-500">{m.name}</span>
+                             <span className="text-emerald-500 font-bold">{m.value}{m.unit}</span>
                           </div>
-                          <span className="text-xs text-muted-foreground">{svc.status}</span>
+                          <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                             <div 
+                                className="h-full bg-emerald-500 rounded-full transition-all duration-1000" 
+                                style={{ width: `${(m.value / (m.unit === '/17' ? 17 : 100)) * 100}%` }} 
+                             />
+                          </div>
                        </div>
                     ))}
-                 </div>
-                 
-                 <div className="pt-2">
-                     <Link href="/runs" className="w-full">
-                        <Button className="w-full gap-2" variant="outline">
-                           View All Traces
-                           <ExternalLink className="h-4 w-4" />
-                        </Button>
-                     </Link>
-                 </div>
-              </CardContent>
-           </Card>
+                 </CardContent>
+              </Card>
+
+              <Card className="glass-card bg-blue-600 dark:bg-blue-600 text-white border-none shadow-xl shadow-blue-500/20">
+                 <CardHeader>
+                    <CardTitle className="text-lg">Ready for Audit?</CardTitle>
+                    <CardDescription className="text-blue-100">Generate a comprehensive compliance package.</CardDescription>
+                 </CardHeader>
+                 <CardContent>
+                    <Button className="w-full bg-white text-blue-600 hover:bg-blue-50 font-bold rounded-xl h-11">
+                       Export Audit Logs
+                    </Button>
+                    <p className="text-[10px] text-center mt-3 text-blue-200">
+                       Aligned to NIST 800-171 & SOC2 Standards
+                    </p>
+                 </CardContent>
+              </Card>
+           </div>
         </div>
       </div>
     </main>

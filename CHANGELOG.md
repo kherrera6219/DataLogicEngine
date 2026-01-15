@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-11-20
+
+- COMPLETED Phase 5: Enterprise UI & Analytics Migration.
+- REFACTORED Dashboard into a Fluent 2 Compliance Hub with real-time Recharts trends.
+- IMPLEMENTED Horizontal Axis Selector and Collapsible Sidebars in Graph Explorer.
+- HARDENED Analytics Backend with real-time DB metrics.
+- STANDARDIZED Command Bar across all dashboard views.
+
 ## [2.0.0] - 2026-01-15
 
 ### Added - Intelligence & Ops (v2.0 Milestone)

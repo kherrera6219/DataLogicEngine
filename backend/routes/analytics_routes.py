@@ -23,24 +23,27 @@ analytics_bp = Blueprint('analytics', __name__, url_prefix='/api/v1/analytics')
 def get_summary():
     """
     Get overall system summary statistics.
-    
-    Returns:
-        JSON with counts for nodes, users, simulations, etc.
     """
     try:
         from extensions import db
-        from db_models import User, KnowledgeGraphNode, ChatSession
+        from models import User, KnowledgeGraphNode, ChatSession, TraceRun
         
         # Get counts from database
         node_count = db.session.query(KnowledgeGraphNode).count()
         user_count = db.session.query(User).count()
         session_count = db.session.query(ChatSession).count()
+        trace_count = db.session.query(TraceRun).count()
         
         # Calculate active sessions (last 24 hours)
         yesterday = datetime.utcnow() - timedelta(days=1)
         active_sessions = db.session.query(ChatSession).filter(
-            ChatSession.last_activity > yesterday
-        ).count() if hasattr(ChatSession, 'last_activity') else 0
+            ChatSession.created_at >= yesterday
+        ).count()
+        
+        # Calculate active issues (TraceRuns with 'failed' status)
+        active_issues = db.session.query(TraceRun).filter(
+            TraceRun.status == 'failed'
+        ).count()
         
         return jsonify({
             'success': True,
@@ -48,8 +51,10 @@ def get_summary():
                 'total_nodes': node_count,
                 'total_users': user_count,
                 'total_sessions': session_count,
+                'total_traces': trace_count,
                 'active_sessions_24h': active_sessions,
-                'knowledge_algorithms': 114,  # Static count of KAs
+                'active_issues': active_issues,
+                'knowledge_algorithms': 114,
                 'axis_count': 17,
                 'timestamp': datetime.utcnow().isoformat()
             }
@@ -57,51 +62,48 @@ def get_summary():
     except Exception as e:
         logger.error(f"Error fetching analytics summary: {e}")
         return jsonify({
-            'success': True,
-            'data': {
-                'total_nodes': 0,
-                'total_users': 0,
-                'total_sessions': 0,
-                'active_sessions_24h': 0,
-                'knowledge_algorithms': 114,
-                'axis_count': 17,
-                'timestamp': datetime.utcnow().isoformat()
-            }
-        })
+            'success': False,
+            'error': str(e)
+        }), 500
 
 
 @analytics_bp.route('/trends', methods=['GET'])
 @login_required
 def get_trends():
     """
-    Get time-series trend data for charts.
-    
-    Query params:
-        days: Number of days to look back (default: 7)
-        metric: Type of metric (sessions, queries, nodes)
-    
-    Returns:
-        JSON with daily data points
+    Get time-series trend data for charts from actual history.
     """
     try:
+        from extensions import db
+        from models import ChatSession, TraceRun
+        
         days = int(request.args.get('days', 7))
         metric = request.args.get('metric', 'sessions')
         
-        # Generate mock trend data for now
-        # In production, query actual database for daily aggregates
         today = datetime.utcnow().date()
         data_points = []
         
         for i in range(days, -1, -1):
-            date = today - timedelta(days=i)
-            # Generate realistic-looking mock data
-            import random
-            base = 50 + (i * 5)
-            value = base + random.randint(-10, 20)
+            target_date = today - timedelta(days=i)
+            start_time = datetime.combine(target_date, datetime.min.time())
+            end_time = datetime.combine(target_date, datetime.max.time())
             
+            if metric == 'sessions':
+                count = db.session.query(ChatSession).filter(
+                    ChatSession.created_at >= start_time,
+                    ChatSession.created_at <= end_time
+                ).count()
+            elif metric == 'traces':
+                count = db.session.query(TraceRun).filter(
+                    TraceRun.created_at >= start_time,
+                    TraceRun.created_at <= end_time
+                ).count()
+            else:
+                count = 0
+                
             data_points.append({
-                'date': date.isoformat(),
-                'value': max(0, value),
+                'date': target_date.isoformat(),
+                'value': count,
                 'metric': metric
             })
         
