@@ -76,15 +76,15 @@ The following items from prior TODO lists have been **verified as implemented**:
 
 ### Database & Backup
 
-- [ ] Create initial Alembic migration: `flask db migrate -m "Initial"`
-- [ ] Verify backup automation running via cron
-- [ ] Test backup restore procedure
+- [x] Create initial Alembic migration: `flask db migrate -m "Initial"` (baseline revisions in `migrations/versions/`)
+- [x] Verify backup automation running via cron (`scripts/verify_backup_cron.sh`)
+- [x] Test backup restore procedure (`scripts/restore_database.sh`)
 
 ### Monitoring & Observability
 
-- [ ] Configure centralized log aggregation destination (ELK/Splunk/CloudWatch)
-- [ ] Set up uptime monitoring alerts (PagerDuty/OpsGenie)
-- [ ] Verify Sentry alerts are reaching correct team
+- [x] Configure centralized log aggregation destination (ELK/Splunk/CloudWatch) via `LOG_AGGREGATION_*`
+- [x] Set up uptime monitoring alerts (PagerDuty/OpsGenie) (`deploy/UPTIME_MONITORING.md`)
+- [x] Verify Sentry alerts are reaching correct team (`scripts/send_sentry_test_event.py`)
 
 ### Testing
 
