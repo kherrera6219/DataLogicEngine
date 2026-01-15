@@ -1,0 +1,6 @@
+{
+    "memory_tiers": ["L1_CACHE", "L2_SHORT_TERM", "L3_LONG_TERM", "L4_ARCHIVE"],
+    "default_tier": "L2_SHORT_TERM",
+    "validation_required": true,
+    "lock_on_write": true
+}

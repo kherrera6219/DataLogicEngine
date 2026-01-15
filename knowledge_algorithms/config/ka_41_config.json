@@ -1,0 +1,10 @@
+{
+    "normalization_strategy": "min_max",
+    "global_bounds": [0.0, 1.0],
+    "domain_scaling": {
+        "marketing": 0.8,
+        "legal": 1.2,
+        "scientific": 1.1
+    },
+    "clip_outputs": true
+}
