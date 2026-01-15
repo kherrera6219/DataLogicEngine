@@ -32,18 +32,24 @@ class POVEngine:
     mapping across all 17 axes of the Universal Knowledge Graph. It operates as
     Layer 4 in the UKG simulation system and supports recursive passes through
     the simulation layers.
+    
+    ENHANCED: Now integrates with Knowledge Algorithms:
+    - KA-028: Point of View Expansion
+    - KA-057: Persona Emotion Adaptation
     """
     
-    def __init__(self, config=None, system_manager=None):
+    def __init__(self, config=None, system_manager=None, ka_controller=None):
         """
         Initialize the POV Engine.
         
         Args:
             config (dict, optional): Configuration dictionary
             system_manager: United System Manager instance
+            ka_controller: Optional KA Master Controller for intelligent operations
         """
         self.config = config or {}
         self.system_manager = system_manager
+        self.ka_controller = ka_controller
         
         # Configuration
         self.expansion_rate = self.config.get('honeycomb_expansion_rate', 0.40)
@@ -122,7 +128,7 @@ class POVEngine:
         self.temporal_mapper = self._initialize_temporal_mapper()
         self.belief_analyzer = self._initialize_belief_analyzer()
         
-        logging.info(f"[{datetime.now()}] POVEngine initialized with {sum(1 for a in self.ukg_axes.values() if a['enabled'])}/17 active axes")
+        logging.info(f"[{datetime.now()}] POVEngine initialized with {sum(1 for a in self.ukg_axes.values() if a['enabled'])}/17 active axes + KA integration")
     
     def process(self, context: Dict) -> Dict:
         """
@@ -186,6 +192,31 @@ class POVEngine:
         if self.enable_persona_layer:
             personas = self._simulate_personas(expanded_context)
             expanded_context['simulated_personas'] = personas
+            
+            # 2b. KA-028: Point of View Expansion
+            if self.ka_controller:
+                try:
+                    ka028_result = self.ka_controller.execute_algorithm('KA-028', {
+                        'personas': [p['name'] for p in personas],
+                        'query': self.current_query
+                    })
+                    if ka028_result.get('expanded_perspectives'):
+                        expanded_context['ka028_perspectives'] = ka028_result['expanded_perspectives']
+                        logging.info(f"[{datetime.now()}] KA-028 added {len(ka028_result['expanded_perspectives'])} perspectives")
+                except Exception as e:
+                    logging.debug(f"KA-028 skipped: {e}")
+            
+            # 2c. KA-057: Persona Emotion Adaptation
+            if self.ka_controller:
+                try:
+                    ka057_result = self.ka_controller.execute_algorithm('KA-057', {
+                        'personas': personas,
+                        'context_sentiment': expanded_context.get('sentiment', 'neutral')
+                    })
+                    if ka057_result.get('adapted_personas'):
+                        expanded_context['emotional_context'] = ka057_result.get('emotional_context', {})
+                except Exception as e:
+                    logging.debug(f"KA-057 skipped: {e}")
         
         # 3. Temporal-Spatial Alignment (Axes 12-13)
         if self.enable_temporal_mapping:

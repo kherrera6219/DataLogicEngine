@@ -913,20 +913,27 @@ class NestedLayerDatabase:
 class Layer2KnowledgeSimulator:
     """
     Implements Layer 2 of the UKG system, which contains the structured
-    Pillar Levels, 13-axis coordination system, and Quad Persona Simulation Engine.
+    Pillar Levels, 17-axis coordination system, and Quad Persona Simulation Engine.
+    
+    ENHANCED: Now integrates with Knowledge Algorithms:
+    - KA-025: Dependency Mapping
+    - KA-018: Source Provenance
+    - KA-079: Data Retrieval
     """
     
-    def __init__(self, layer3_handler=None):
+    def __init__(self, layer3_handler=None, ka_controller=None):
         """
         Initialize the Layer 2 Knowledge Simulator.
         
         Args:
             layer3_handler: Optional handler for Layer 3 operations
+            ka_controller: Optional KA Master Controller for intelligent operations
         """
         self.nested_db = NestedLayerDatabase()
         self.quad_persona = QuadPersonaEngine()
         self.refiner = RefinementWorkflow()
         self.layer3_handler = layer3_handler
+        self.ka_controller = ka_controller
         
         # Minimum confidence threshold before escalating to Layer 3
         self.confidence_threshold = 0.95
@@ -934,7 +941,7 @@ class Layer2KnowledgeSimulator:
         # Load all data into the nested database
         self.load_database()
         
-        logger.info("Layer2KnowledgeSimulator initialized")
+        logger.info("Layer2KnowledgeSimulator initialized with KA integration")
     
     def load_database(self):
         """Load all data into the nested database."""
@@ -1038,6 +1045,29 @@ class Layer2KnowledgeSimulator:
         
         # Step 4: Execute quad persona simulation
         self.quad_persona._process_with_all_personas(query_state)
+        
+        # Step 4b: KA-025: Dependency Mapping (Discover Related Nodes)
+        if self.ka_controller and kg_result.get('results'):
+            try:
+                node_ids = [r['node']['node_id'] for r in kg_result['results'][:5]]
+                ka025_result = self.ka_controller.execute_algorithm('KA-025', {'node_ids': node_ids})
+                if ka025_result.get('dependencies'):
+                    enhanced_context['dependency_map'] = ka025_result['dependencies']
+                    logger.info(f"KA-025 discovered {len(ka025_result['dependencies'])} dependencies")
+            except Exception as e:
+                logger.debug(f"KA-025 skipped: {e}")
+        
+        # Step 4c: KA-018: Source Provenance (Track Lineage)
+        if self.ka_controller:
+            try:
+                ka018_result = self.ka_controller.execute_algorithm('KA-018', {
+                    'query': query_text,
+                    'sources': [r['node'].get('attributes', {}) for r in kg_result.get('results', [])[:5]]
+                })
+                if ka018_result.get('provenance'):
+                    enhanced_context['provenance'] = ka018_result['provenance']
+            except Exception as e:
+                logger.debug(f"KA-018 skipped: {e}")
         
         # Step 5: Execute refinement workflow
         refined_result = self.refiner.execute_workflow(query_state)

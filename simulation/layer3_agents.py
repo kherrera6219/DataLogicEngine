@@ -14,6 +14,15 @@ import random
 
 logger = logging.getLogger(__name__)
 
+# Global KA Controller reference
+_ka_controller = None
+
+def set_ka_controller(controller):
+    """Set the global KA controller for Layer 3."""
+    global _ka_controller
+    _ka_controller = controller
+    logger.info("Layer 3 KA Controller configured")
+
 class AgentMemory:
     """Maintains memory across agent sessions."""
     
@@ -493,7 +502,14 @@ class ConfidenceMonitor:
 
 
 class AgentManager:
-    """Controls AI agents and manages their execution."""
+    """
+    Controls AI agents and manages their execution.
+    
+    ENHANCED: Now integrates with Knowledge Algorithms:
+    - KA-009: Evidence Validation
+    - KA-010: Bias Detection
+    - KA-034: Adversarial Reasoning
+    """
     
     def __init__(self):
         """Initialize the agent manager."""
@@ -510,7 +526,7 @@ class AgentManager:
         self.delegator = TaskDelegator(self.agents)
         self.confidence_monitor = ConfidenceMonitor()
         
-        logger.info("AgentManager initialized")
+        logger.info("AgentManager initialized with KA integration")
     
     def run_agents(self, expanded_context: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -539,8 +555,40 @@ class AgentManager:
                 logger.info(f"Running agent {agent.name} for task {task}")
                 result = agent.process(task_context)
                 
-                # Store the result
+            # Store the result
                 results[task] = result
+        
+        # Post-Agent KA Integration
+        # KA-009: Evidence Validation
+        if _ka_controller:
+            try:
+                claims = [r.get('response', '')[:200] for r in results.values()]
+                ka009_result = _ka_controller.execute_algorithm('KA-009', {'claims': claims})
+                if ka009_result.get('validated'):
+                    logger.info(f"KA-009 validated {len(claims)} agent claims")
+            except Exception as e:
+                logger.debug(f"KA-009 skipped: {e}")
+        
+        # KA-010: Bias Detection
+        if _ka_controller:
+            try:
+                responses = [r.get('response', '') for r in results.values()]
+                ka010_result = _ka_controller.execute_algorithm('KA-010', {'texts': responses})
+                if ka010_result.get('bias_detected'):
+                    logger.warning(f"KA-010 detected bias: {ka010_result.get('bias_types', [])}")
+            except Exception as e:
+                logger.debug(f"KA-010 skipped: {e}")
+        
+        # KA-034: Adversarial Reasoning (Contradiction Check)
+        if _ka_controller and len(results) > 1:
+            try:
+                ka034_result = _ka_controller.execute_algorithm('KA-034', {
+                    'statements': [r.get('response', '')[:500] for r in results.values()]
+                })
+                if ka034_result.get('contradictions'):
+                    logger.warning(f"KA-034 found {len(ka034_result['contradictions'])} contradictions")
+            except Exception as e:
+                logger.debug(f"KA-034 skipped: {e}")
         
         # Aggregate the results
         aggregated = self._aggregate_results(results)
