@@ -1,0 +1,7 @@
+{
+    "bus_type": "event_driven",
+    "message_broker": "kafka_cluster",
+    "topics": ["knowledge_updates", "system_events", "audit_logs"],
+    "buffer_size": 1024,
+    "reliable_delivery": true
+}

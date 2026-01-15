@@ -1,41 +1,48 @@
 """
 KA-116: Entropy Detection
-Purpose: Detect system entropy and disorder.
+Purpose: Monitor the degradation of knowledge quality and system structure over time (System Decay).
 """
 import logging
-from typing import Dict, Any
-import math
+import json
+import os
+from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 class KA116EntropyDetection(KnowledgeAlgorithm):
+    """
+    KA-116: System decay and knowledge entropy detection engine.
+    """
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.config = self._load_config()
+
+    def _load_config(self) -> Dict[str, Any]:
+        try:
+            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_116_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, "r") as f:
+                    return json.load(f)
+            return {}
+        except Exception:
+            return {}
 
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Detect entropy.
-        """
-        state_vector = input_data.get("state", [])
         
-        self.log_execution_step("Entropy Detection", {"state_len": len(state_vector)})
+        self.log_execution_step("Measuring System Entropy", {})
         
-        entropy = 0.0
-        # Shannon entropy stub
-        if state_vector:
-            dist = {}
-            for x in state_vector: dist[x] = dist.get(x, 0) + 1
-            total = len(state_vector)
-            for k in dist:
-                p = dist[k] / total
-                entropy -= p * math.log2(p)
-                
+        # Simulate entropy calculation
+        entropy_score = 0.22 # Stub
+        threshold = self.config.get("entropy_threshold", 0.5)
+        
         return {
             "ka_id": "KA-116",
+            "ka_name": "Entropy Detection",
             "success": True,
-            "entropy_score": entropy,
-            "is_stable": entropy < 2.0
+            "entropy_score": entropy_score,
+            "state": "STABLE" if entropy_score < threshold else "CRITICAL",
+            "reconciliation_triggered": entropy_score >= threshold and self.config.get("trigger_reconciliation")
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

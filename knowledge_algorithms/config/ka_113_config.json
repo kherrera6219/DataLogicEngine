@@ -1,0 +1,17 @@
+{
+    "complexity_thresholds": {
+        "low": 0.3,
+        "medium": 0.7,
+        "high": 1.0
+    },
+    "routing_map": {
+        "low": "standard_pipeline",
+        "medium": "extended_pipeline",
+        "high": "deep_recursive_pipeline"
+    },
+    "heuristic_weights": {
+        "query_length": 0.2,
+        "semantic_ambiguity": 0.5,
+        "domain_specificity": 0.3
+    }
+}

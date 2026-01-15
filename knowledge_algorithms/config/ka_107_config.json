@@ -1,0 +1,8 @@
+{
+    "recovery_plan": "multi_region_failover",
+    "primary_region": "us-east-1",
+    "failover_region": "us-west-2",
+    "rpo_minutes": 5,
+    "rto_minutes": 15,
+    "automatic_failover": false
+}

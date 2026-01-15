@@ -1,0 +1,7 @@
+{
+    "optimization_target": "latency",
+    "compiler_options": ["vectorization", "loop_unrolling", "dead_code_elimination"],
+    "automatic_jit_trigger": true,
+    "memory_gc_threshold": 0.85,
+    "thread_pool_scaling": "dynamic"
+}

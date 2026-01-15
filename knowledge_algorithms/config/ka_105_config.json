@@ -1,0 +1,11 @@
+{
+    "scaling_triggers": {
+        "cpu_threshold": 0.75,
+        "memory_threshold": 0.8,
+        "queue_depth": 500
+    },
+    "min_replicas": 2,
+    "max_replicas": 10,
+    "cool_down_seconds": 300,
+    "auto_scaling_enabled": true
+}

@@ -1,0 +1,7 @@
+{
+    "backup_targets": ["postgresql", "redis", "elasticsearch", "s3_buckets"],
+    "frequency": "daily",
+    "retention_policy": "keep_last_30_days",
+    "encryption_algorithm": "AES-256",
+    "verification_enabled": true
+}

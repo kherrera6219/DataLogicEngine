@@ -1,0 +1,12 @@
+{
+    "notification_channels": ["email", "slack", "webhook", "sms"],
+    "priority_rules": {
+        "critical": ["slack", "sms"],
+        "info": ["email", "webhook"]
+    },
+    "rate_limiting": {
+        "max_per_hour": 50,
+        "burst": 5
+    },
+    "templates_dir": "notifications/templates/"
+}
