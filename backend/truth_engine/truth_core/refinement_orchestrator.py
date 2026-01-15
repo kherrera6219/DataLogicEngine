@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from typing import Dict, Any, List, Optional
 from datetime import datetime, UTC
 
@@ -35,54 +36,94 @@ class RefinementOrchestrator:
         self.ka_controller = ka_controller
         self.target_confidence = 0.995
 
-    def refine(self, initial_response: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+    async def refine(self, initial_response: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Executes the 12-step refinement loop.
+        Executes the 12-step refinement loop with hardening and confidence gating.
         """
         current_response = initial_response.copy()
+        last_good_state = initial_response.copy()
         history = []
         
-        logger.info(f"Starting 12-step refinement for initial confidence: {current_response.get('confidence', 0)}")
+        logger.info(f"Starting hardened 12-step refinement for initial confidence: {current_response.get('confidence', 0)}")
 
         for step in self.STEPS:
-            # Execute step using KA Controller
-            step_result = self._execute_step(step, current_response, context)
-            current_response.update(step_result)
-            prev_confidence = history[-1]['confidence'] if history else initial_response.get('confidence', 0)
-            history.append({
-                "step": step.name,
-                "ka_id": step.ka_id,
-                "timestamp": datetime.now(UTC).isoformat(),
-                "confidence": current_response.get('confidence', 0),
-                "confidence_gain": current_response.get('confidence', 0) - prev_confidence
-            })
-            
-            # Check if we hit early stop (only if confidence is maxed and it's not a safety step)
-            if current_response.get('confidence', 0) >= self.target_confidence and step.name not in ["Safety_Sentinel", "PII_Redaction"]:
-                logger.info(f"Target confidence {self.target_confidence} reached at step {step.name}")
-                # We still run safety steps regardless
+            try:
+                # 1. Execute refinement step
+                step_result = await self._execute_step(step, current_response, context)
+                
+                # 2. Risk Mitigation: Validate output before committing
+                new_confidence = step_result.get('confidence', 0)
+                prev_confidence = last_good_state.get('confidence', 0)
+
+                # Security Rule: If confidence drops significantly (>15%), potentially adversarial or error
+                if new_confidence < prev_confidence - 0.15:
+                    logger.warning(f"Refinement Step {step.name} caused anomaly (conf: {prev_confidence} -> {new_confidence}). Recovering...")
+                    current_response = last_good_state.copy()
+                    continue
+
+                # 3. State Update
+                current_response.update(step_result)
+                last_good_state = current_response.copy()
+
+                history.append({
+                    "step": step.name,
+                    "ka_id": step.ka_id,
+                    "timestamp": datetime.now(UTC).isoformat(),
+                    "confidence": new_confidence,
+                    "confidence_gain": new_confidence - prev_confidence
+                })
+                
+                # 5. Gated Stop Conditions (Target >= 99.5%)
+                if new_confidence >= self.target_confidence and step.name not in ["Safety_Sentinel", "PII_Redaction"]:
+                    logger.info(f"Refinement target {self.target_confidence} met at step {step.name}. Proceeding to final gates.")
+                    # We continue to Safety/PII steps always
+
+            except Exception as e:
+                logger.error(f"Refinement step {step.name} critical failure: {e}. Reverting to last known good state.")
+                current_response = last_good_state.copy()
 
         current_response['refinement_history'] = history
         current_response['final_confidence'] = current_response.get('confidence', 0)
         
         return current_response
 
-    def _execute_step(self, step: RefinementStep, content: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
-        """Invokes a specific KA for refinement."""
+    async def _execute_step(self, step: RefinementStep, content: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+        """Invokes a specific KA for refinement via the Master Controller."""
         try:
-            # In a real integration, this calls the KA controller
-            # result = self.ka_controller.execute_ka(step.ka_id, content, context)
-            # return result
+            # Prepare KA payload
+            ka_input = {
+                "query": context.get('query', ''),
+                "content": content.get('content', ''),
+                "context": context,
+                "step_metadata": {
+                    "session_id": context.get('session_id'),
+                    "step_name": step.name,
+                    "target_confidence": self.target_confidence
+                }
+            }
             
-            # Mock behavior for assembly
-            current_conf = content.get('confidence', 0.8)
-            new_conf = min(current_conf + 0.015, 0.999)
+            # Execute actual KA logic via orchestrator's controller
+            # Note: Using run_in_executor if the KA-Master is purely synchronous
+            loop = asyncio.get_event_loop()
+            result = await loop.run_in_executor(
+                None, 
+                self.ka_controller.execute_algorithm, 
+                step.ka_id, 
+                ka_input
+            )
+            
+            # Extract refined output. KAs should return 'refined_content' or 'response'
+            refined_content = result.get('refined_content', result.get('response', content.get('content', '')))
+            # Confidence should be returned by the KA based on its specific audit logic
+            new_confidence = result.get('confidence', content.get('confidence', 0.8))
             
             return {
-                "content": content.get('content', '') + f"\n[Refined by {step.name}]",
-                "confidence": new_conf,
-                f"{step.name}_status": "verified"
+                "content": refined_content,
+                "confidence": new_confidence,
+                f"{step.name}_status": "executed",
+                "ka_id": step.ka_id,
+                "audit_meta": result.get('audit_meta', {})
             }
         except Exception as e:
-            logger.error(f"Refinement step {step.name} failed: {e}")
-            return content
+            logger.error(f"KA Execution Failed for {step.name} ({step.ka_id}): {e}")
+            raise

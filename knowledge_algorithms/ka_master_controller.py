@@ -27,6 +27,7 @@ class KAMasterController(KnowledgeAlgorithm):
     def __init__(self, context: Dict[str, Any] = None):
         super().__init__(context or {}, None, None, None)
         self.ka_id = "KA-Master"
+        self.llm_gateway = None # Placeholder for real gateway integration
         self._registry_path = os.path.join(os.path.dirname(__file__), "ka_registry.yaml")
         self.algorithms = self._load_registry()
 

@@ -100,12 +100,12 @@ class PersonaEnhancer:
             'timestamp': datetime.now(UTC).isoformat()
         }
 
-    def _get_persona_response(self, persona_name: str, persona_config: Dict[str, Any],
-                               query: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Get response from a specific persona."""
+    async def _get_persona_response(self, persona_name: str, persona_config: Dict[str, Any],
+                                     query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Get response from a specific persona with production fallback to KA-Master."""
         if self.quad_persona_engine:
             try:
-                result = self.quad_persona_engine.process_with_persona(
+                result = await self.quad_persona_engine.process_with_persona(
                     query, persona_name, context
                 )
                 return {
@@ -117,15 +117,32 @@ class PersonaEnhancer:
                 }
             except Exception as e:
                 logger.warning(f"QuadPersonaEngine failed for {persona_name}: {e}")
-        
-        return {
-            'persona': persona_name,
-            'role': persona_config['role'],
-            'focus': persona_config['focus'],
-            'response': f"[{persona_config['role']}] Analysis of: {query[:100]}...",
-            'confidence': 0.75,
-            'source': 'default'
-        }
+
+        # Production Fallback: Use KA-012 (Persona Simulation) via the global controller if available
+        # This replaces the hardcoded placeholder strings.
+        try:
+            master = get_controller()
+            ka_result = master.execute_algorithm("KA-012", {
+                "query": query,
+                "persona_config": persona_config,
+                "context": context
+            })
+            return {
+                'persona': persona_name,
+                'role': persona_config['role'],
+                'response': ka_result.get('simulation_output', ka_result.get('response', '')),
+                'confidence': ka_result.get('confidence', 0.8),
+                'source': 'KA-012'
+            }
+        except Exception:
+            # Absolute last resort fallback
+            return {
+                'persona': persona_name,
+                'role': persona_config['role'],
+                'response': f"Critical reasoning failure for {persona_name}. Reverting to base knowledge safety.",
+                'confidence': 0.4,
+                'source': 'system_safety'
+            }
 
     def _synthesize_responses(self, responses: Dict[str, Dict[str, Any]],
                                weights: Dict[str, float]) -> Dict[str, Any]:
@@ -196,15 +213,26 @@ class PersonaPod:
         self.specialists = specialists
         self.results = []
 
-    def execute(self, query: str, context: Dict[str, Any], engine_instance: Any):
-        """Executes reasoning for all specialists in the pod."""
+    async def execute(self, query: str, context: Dict[str, Any], engine_instance: Any):
+        """Executes reasoning for all specialists in the pod in parallel."""
+        tasks = []
         for spec_config in self.specialists:
-            # Logic to invoke the persona response via the engine's enhancer
-            # This will be called by TruthCoreEngine
-            response = engine_instance.persona_enhancer._get_persona_response(
-                spec_config['role'], spec_config, query, context
-            )
-            self.results.append(response)
+            tasks.append(self._run_specialist(spec_config, query, context, engine_instance))
+        
+        # Parallel execution with error shielding
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        for res in results:
+            if isinstance(res, Exception):
+                logger.error(f"Specialist in pod {self.lane} failed: {res}")
+            else:
+                self.results.append(res)
+
+    async def _run_specialist(self, spec_config, query, context, engine_instance):
+        """Runs a single specialist analysis."""
+        return await engine_instance.persona_enhancer._get_persona_response(
+            spec_config['role'], spec_config, query, context
+        )
 
     def synthesize(self) -> Dict[str, Any]:
         """Synthesizes pod results into a single lane output."""

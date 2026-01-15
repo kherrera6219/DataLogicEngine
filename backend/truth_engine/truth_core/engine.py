@@ -155,54 +155,67 @@ class TruthCoreEngine:
         high_stakes_keywords = ['legal', 'medical', 'financial', 'regulatory', 'compliance', 'critical']
         autonomous_keywords = ['plan', 'build', 'create', 'develop', 'implement', 'design']
         
-        query_lower = query.lower()
-        
+    async def determine_tier(self, query: str, context: Optional[Dict[str, Any]] = None) -> str:
+        """Determines workflow tier using rule-based fallback and AI-driven KA-005."""
+        context = context or {}
         if context.get('force_tier'):
             return context['force_tier']
-        
-        if any(kw in query_lower for kw in autonomous_keywords) and query_length > 200:
-            return 'autonomous'
-        
-        if any(kw in query_lower for kw in high_stakes_keywords):
-            return 'high_stakes'
-        
-        if any(kw in query_lower for kw in complexity_keywords) or query_length > 500:
-            return 'moderate'
-        
-        if context.get('requires_simulation'):
-            return 'extreme'
-        
-        return 'trivial'
+            
+        # Production Logic: Use KA-005 for Query Classification
+        try:
+            if self.ka_controller:
+                loop = asyncio.get_event_loop()
+                ka_result = await loop.run_in_executor(
+                    None, 
+                    self.ka_controller.execute_algorithm, 
+                    "KA-005", 
+                    {"query": query, "context": context}
+                )
+                tier = ka_result.get('suggested_tier', ka_result.get('tier'))
+                if tier in self.TIERS:
+                    return tier
+        except Exception as e:
+            logger.warning(f"AI Tiering (KA-005) failed: {e}. Reverting to heuristics.")
 
-    def get_routing_profile(self, query: str, context: Dict[str, Any] = None) -> str:
-        """Determine LLM routing profile based on task type."""
+        # Heuristic Fallback
+        query_len = len(query.split())
+        if query_len < 5: return 'trivial'
+        if any(kw in query.lower() for kw in ['risk', 'safety', 'legal', 'compliance']):
+            return 'high_stakes'
+        return 'moderate'
+
+    async def get_routing_profile(self, query: str, context: Optional[Dict[str, Any]] = None) -> str:
+        """Determines routing profile using AI-driven KA-113."""
         context = context or {}
-        
         if context.get('routing_profile'):
             return context['routing_profile']
-        
+            
+        try:
+            if self.ka_controller:
+                loop = asyncio.get_event_loop()
+                ka_result = await loop.run_in_executor(
+                    None, 
+                    self.ka_controller.execute_algorithm, 
+                    "KA-113", 
+                    {"query": query, "context": context}
+                )
+                profile = ka_result.get('routing_profile', ka_result.get('profile'))
+                if profile:
+                    return profile
+        except Exception:
+            pass # Revert to heuristics
+
         query_lower = query.lower()
-        
-        if any(kw in query_lower for kw in ['code', 'function', 'program', 'script', 'debug']):
-            return 'code'
-        
-        if any(kw in query_lower for kw in ['analyze', 'review', 'evaluate', 'assess']):
-            return 'analysis'
-        
-        if len(query) > 5000 or context.get('long_context'):
-            return 'long_context'
-        
-        if any(kw in query_lower for kw in ['reason', 'logic', 'deduce', 'infer']):
-            return 'reasoning'
-        
+        if any(kw in query_lower for kw in ['code', 'function', 'program', 'script']): return 'code'
+        if len(query) > 5000: return 'long_context'
         return 'default'
 
-    def create_session(self, query: str, user_id: int = None, tenant_id: str = None, 
-                       context: Dict[str, Any] = None, tier: str = None) -> Dict[str, Any]:
+    async def create_session(self, query: str, user_id: int = None, tenant_id: str = None, 
+                           context: Dict[str, Any] = None, tier: str = None) -> Dict[str, Any]:
         """Create a new TruthCore processing session."""
         session_id = str(uuid.uuid4())
-        tier = tier or self.determine_tier(query, context)
-        routing_profile = self.get_routing_profile(query, context)
+        tier = tier or await self.determine_tier(query, context)
+        routing_profile = await self.get_routing_profile(query, context)
         tenant = tenant_id or f"tenant_{user_id or 'default'}"
         
         session = {
@@ -243,7 +256,7 @@ class TruthCoreEngine:
         
         return session
 
-    def process(self, session_id: str) -> Dict[str, Any]:
+    async def process(self, session_id: str) -> Dict[str, Any]:
         """Process a query through the appropriate tier workflow."""
         if session_id not in self.active_sessions:
             if self.db_session:
@@ -270,11 +283,12 @@ class TruthCoreEngine:
         
         try:
             steps = self.get_workflow_steps(tier)
-            result = self._execute_workflow(query, context, steps, tier)
+            result = await self._execute_workflow(query, context, steps, tier)
             
             session['status'] = 'completed'
             session['completed_at'] = datetime.now(UTC).isoformat()
             session['result'] = result
+            session['context'] = result.get('context', {}) # Store final context
             session['confidence_score'] = result.get('confidence', 0)
             session['workflow_steps'] = result.get('steps_executed', [])
             session['personas_used'] = result.get('personas_used', [])
@@ -305,11 +319,12 @@ class TruthCoreEngine:
         
         return session
 
-    def _execute_workflow(self, query: str, context: Dict[str, Any], steps: List[str], tier: str) -> Dict[str, Any]:
+    async def _execute_workflow(self, query: str, context: Dict[str, Any], steps: List[str], tier: str) -> Dict[str, Any]:
         """Unified execution loop for all tiers."""
         executed_steps = []
         working_context = context.copy()
         working_context['session_id'] = context.get('session_id', str(uuid.uuid4()))
+        working_context['persona_results'] = {}
         personas_used = set()
         
         for step in steps:
@@ -341,25 +356,33 @@ class TruthCoreEngine:
                         working_context['persona_results'],
                         {"domain": working_context.get('risk_domain', 'standard'), "tags": working_context.get('tags', [])}
                     )
+                    logger.info(f"SUFFICIENCY DECISION: {sufficiency['mode']} (Reasons: {sufficiency['reasons']})")
                     
                     if sufficiency['mode'] == 'expanded_committee':
                         logger.info(f"SUFFICIENCY TRIGGER: Expanding committee. Reasons: {sufficiency['reasons']}")
-                        # Spawn and execute pods
-                        pods = []
-                        for lane, count in sufficiency['spawn'].items():
-                            if count > 0:
-                                specialists = self.persona_enhancer.spawn_specialists(f"{lane}_expert", count)
-                                pod = PersonaPod(lane, specialists)
-                                pods.append(pod)
-                        
-                        # Execute pods (concurrently if possible)
-                        for pod in pods:
-                            pod.execute(query, working_context, self)
-                            pod_result = pod.synthesize()
-                            # Merge pod results into working context
-                            working_context['persona_results'][f"{pod.lane}_pod"] = pod_result
-                        
-                        logger.info("Persona Pods executed and synthesized.")
+                        try:
+                            # Spawn and execute pods
+                            pods = []
+                            for lane, count in sufficiency['spawn'].items():
+                                if count > 0:
+                                    specialists = self.persona_enhancer.spawn_specialists(f"{lane}_expert", count)
+                                    pod = PersonaPod(lane, specialists)
+                                    pods.append(pod)
+                            
+                            # Execute pods concurrently
+                            if pods:
+                                await asyncio.gather(*[pod.execute(query, working_context, self) for pod in pods])
+                                
+                                for pod in pods:
+                                    pod_result = pod.synthesize()
+                                    # Merge pod results into the dedicated results map
+                                    if 'persona_results' not in working_context:
+                                        working_context['persona_results'] = {}
+                                    working_context['persona_results'][f"{pod.lane}_pod"] = pod_result
+                            
+                            logger.info("Persona Pods executed and synthesized in parallel.")
+                        except Exception as e:
+                            logger.error(f"Persona Pod scaling failed: {e}. Reverting to base Quad.")
                 
                 elif step == 'quant_validation':
                     working_context['l6_quant_result'] = output
@@ -388,13 +411,16 @@ class TruthCoreEngine:
                     # Final polish before release
                     if tier in ['high_stakes', 'extreme', 'autonomous']:
                         logger.info("Invoking 12-Step Refinement Orchestrator.")
-                        refined_result = self.refinement_orchestrator.refine(
-                            {"content": step_result.get('final_answer', ''), "confidence": step_result.get('confidence', 0.95)},
-                            working_context
-                        )
-                        step_result['final_answer'] = refined_result['content']
-                        step_result['confidence'] = refined_result['final_confidence']
-                        working_context['refinement_history'] = refined_result['refinement_history']
+                        try:
+                            refined_result = await self.refinement_orchestrator.refine(
+                                {"content": step_result.get('final_answer', ''), "confidence": step_result.get('confidence', 0.95)},
+                                working_context
+                            )
+                            step_result['final_answer'] = refined_result['content']
+                            step_result['confidence'] = refined_result['final_confidence']
+                            working_context['refinement_history'] = refined_result['refinement_history']
+                        except Exception as e:
+                            logger.error(f"Refinement Orchestrator crashed: {e}. Falling back to unpolished output.")
             else:
                 logger.error(f"Step {step} failed: {step_result.get('error')}")
                 if tier in ['high_stakes', 'extreme', 'autonomous']:
@@ -409,13 +435,17 @@ class TruthCoreEngine:
             else:
                 final_answer = str(last_success.get('output', ''))
 
+        if 'persona_results' in working_context:
+            logger.info(f"Final Persona Results Keys: {working_context['persona_results'].keys()}")
+            
         return {
             'tier': tier,
             'response': final_answer,
             'confidence': executed_steps[-1].get('confidence', 0.95) if executed_steps else 0.0,
             'steps_executed': executed_steps,
             'personas_used': list(personas_used) if personas_used else ['sentinel'],
-            'processing_time_ms': 500 # Simplified for now
+            'processing_time_ms': 500, # Simplified for now
+            'context': working_context # Include for audit parity
         }
 
     def _execute_refinement_step(self, step: str, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
