@@ -245,4 +245,4 @@ interface TraceRun {
 
 ## License
 
-MIT
+PolyForm Noncommercial License 1.0.0. See the root [LICENSE](../LICENSE).
