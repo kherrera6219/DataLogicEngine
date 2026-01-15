@@ -1,7 +1,11 @@
 import pytest
-import schemathesis
+try:
+    import schemathesis
+except ImportError:
+    schemathesis = None
 from backend.app import app
 
+@pytest.mark.skipif(schemathesis is None, reason="Schemathesis not installed")
 # Load schema from the running application or a file
 # In a real environment, this might fetch from /static/openapi.json
 schema = schemathesis.from_wsgi("/openapi.json", app)
