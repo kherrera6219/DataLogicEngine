@@ -152,7 +152,7 @@ The system employs a unified infrastructure for managing and executing **Knowled
 7. **L7: AGI Planning** - Recursive goal decomposition and hypothesis generation.
 8. **L8: Trust Validation Gateway** - Cross-domain constraint checking and high-risk gate.
 9. **L9: Meta-Reasoning Controller** - Decision gate (FINALIZE/REFINE) with belief drift and persona audit.
-10. **L10: Final Synthesis & Audit** - Context-grounded response generation and hash-chained audit finalization.
+10. **L10: Emergence Detection & Final Safety Gate (The Sentinel)** - The final release authority. Dual-lane architecture: **Lane A (Response Gate)** for real-time safety/emergence audit; **Lane B (Knowledge Commit)** for authorized persistence of new learning into long-term memory.
 
 **Components**:
 
