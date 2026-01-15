@@ -74,7 +74,13 @@ class Permission(Enum):
     # API management
     API_KEY_CREATE = "api:key:create"
     API_KEY_REVOKE = "api:key:revoke"
+    API_KEY_REVOKE = "api:key:revoke"
     API_RATE_LIMIT_EXEMPT = "api:rate_limit:exempt"
+    
+    # Privacy & Sensitive Data
+    PRIVACY_READER = "privacy:read"
+    PRIVACY_WRITE = "privacy:write"
+    PRIVACY_ADMIN = "privacy:admin"
 
 
 class Role:
@@ -177,6 +183,9 @@ class RBACManager:
                 Permission.AUDIT_EXPORT,
                 Permission.USER_READ,
                 Permission.SYSTEM_CONFIG_READ,
+                Permission.PRIVACY_READER,
+                Permission.PRIVACY_WRITE,
+                Permission.PRIVACY_ADMIN,
             },
             description="Security and compliance officer"
         )
@@ -383,6 +392,45 @@ class RBACManager:
             "new_role": role_name,
             "assigned_by": current_user.username if current_user and current_user.is_authenticated else "system"
         })
+
+    def check_data_access(self, user, data_tags: List[str]) -> bool:
+        """
+        Check if user is allowed to access data with specific security tags.
+        Enforces "Deny by Default" for PII/Secrets.
+        
+        Args:
+            user: User object
+            data_tags: List of strings in 'axis_17_security' (e.g. ['PII:EMAIL'])
+            
+        Returns:
+            True if access granted, False if denied/masked required
+        """
+        if not data_tags:
+            return True
+            
+        # Check specific restricted tags
+        has_pii = any("PII" in tag for tag in data_tags)
+        has_secret = any("SECRET" in tag for tag in data_tags)
+        
+        if has_pii:
+            if not self.user_has_permission(user, Permission.PRIVACY_READER):
+                self._log_audit("data_access_denied", {
+                    "reason": "PII_PROTECTION",
+                    "user": user.username,
+                    "tags": data_tags
+                })
+                return False
+                
+        if has_secret:
+            if not self.user_has_permission(user, Permission.SECURITY_ADMIN):
+                self._log_audit("data_access_denied", {
+                    "reason": "SECRET_PROTECTION",
+                    "user": user.username,
+                    "tags": data_tags
+                })
+                return False
+                
+        return True
 
     def _log_audit(self, event_type: str, details: Dict[str, Any]):
         """Log RBAC operation to audit log."""
