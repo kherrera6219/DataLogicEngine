@@ -1573,7 +1573,7 @@ This software is licensed under the **PolyForm Noncommercial License 1.0.0**.
 - **Commercial/Business Use:** Requires a commercial license agreement.
 - **Attribution:** Required for all uses.
 
-For commercial licensing inquiries, please reach out to [support@example.com](mailto:support@example.com).
+For commercial licensing inquiries, please reach out to [kherrera3250@gmail.com}(mailto:support@example.com).
 See [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) for details on commercial use definitions.
 
 ---
