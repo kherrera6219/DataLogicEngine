@@ -8,6 +8,7 @@ import os
 import sys
 import logging
 import json
+import socket
 from datetime import datetime, UTC
 from typing import Optional
 from flask import Flask, request, g
@@ -94,6 +95,21 @@ def configure_structured_logging(app: Flask) -> None:
         file_handler.setLevel(log_level)
         file_handler.setFormatter(formatter)
         root_logger.addHandler(file_handler)
+
+    # Optional centralized log aggregation (Syslog-compatible)
+    log_aggregation_host = os.environ.get('LOG_AGGREGATION_HOST')
+    if log_aggregation_host:
+        log_aggregation_port = int(os.environ.get('LOG_AGGREGATION_PORT', 514))
+        log_aggregation_protocol = os.environ.get('LOG_AGGREGATION_PROTOCOL', 'udp').lower()
+        sock_type = socket.SOCK_DGRAM if log_aggregation_protocol == 'udp' else socket.SOCK_STREAM
+
+        syslog_handler = logging.handlers.SysLogHandler(
+            address=(log_aggregation_host, log_aggregation_port),
+            socktype=sock_type
+        )
+        syslog_handler.setLevel(log_level)
+        syslog_handler.setFormatter(formatter)
+        root_logger.addHandler(syslog_handler)
     
     # Security log (separate file)
     security_logger = logging.getLogger('security')
