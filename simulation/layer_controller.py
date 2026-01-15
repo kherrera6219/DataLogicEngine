@@ -10,6 +10,7 @@ import logging
 from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Union
 
+from simulation.layer3_agent_engine import Layer3AgentEngine
 from simulation.pov_engine import POVEngine
 from simulation.layer5_integration import Layer5IntegrationEngine
 from simulation.layer7_agi_system import AGISimulationEngine
@@ -35,6 +36,7 @@ class LayerController:
         self.system_manager = system_manager
         
         # Layer instances
+        self.layer3_engine = None
         self.pov_engine = None
         self.layer5_engine = None
         self.layer7_engine = None
@@ -56,6 +58,11 @@ class LayerController:
             bool: True if all layers initialized successfully
         """
         try:
+            # Initialize Layer 3 Agent Engine
+            if not self.layer3_engine:
+                self.layer3_engine = Layer3AgentEngine(config=self.config.get('layer3', {}))
+                logging.info(f"[{datetime.now()}] Layer 3 Agent Engine initialized")
+
             # Initialize POV Engine (Layer 4)
             if not self.pov_engine:
                 self.pov_engine = POVEngine(config=self.config.get('layer4', {}))
@@ -88,7 +95,7 @@ class LayerController:
         Run a specific layer of the simulation system.
         
         Args:
-            layer_num: Layer number to run (4-10)
+            layer_num: Layer number to run (3-10)
             context: Context information for the layer
             
         Returns:
@@ -104,7 +111,27 @@ class LayerController:
         
         try:
             # Route to appropriate layer
-            if layer_num == 4:
+            if layer_num == 3:
+                # Layer 3: Deep Research Agent Engine
+                if self.layer3_engine:
+                    # Construct intent and tier_plan from context or defaults
+                    intent = context.get('intent', {})
+                    tier_plan = context.get('tier_plan', {'tier': 1})
+                    
+                    # Execute Layer 3
+                    pack = self.layer3_engine.process_request(intent, tier_plan, context)
+                    
+                    # Store result (convert to dict for compatibility)
+                    result = {
+                        'evidence_pack': pack.to_dict(),
+                        'success': True
+                    }
+                    self.layer_results[layer_num] = result
+                    return result
+                else:
+                    return {'error': 'Layer 3 Engine not initialized'}
+
+            elif layer_num == 4:
                 # Layer 4: POV Engine
                 if self.pov_engine:
                     result = self.pov_engine.process(context)
@@ -155,11 +182,11 @@ class LayerController:
         current_context = context.copy()
         final_result = {'layer_activations': {}}
         
-        # If Layer 4 is not in the sequence but others are, add it first
-        # as it's often needed for higher layers
-        if 4 not in active_layers and active_layers:
-            active_layers = [4] + active_layers
-        
+        # Ensure Layer 3 runs before Layer 4 if both are present
+        if 3 in active_layers and 4 in active_layers:
+            # Simple soft sort: standard sequence is 3 -> 4 -> 5 -> 7
+            pass # Sorted loop handles this naturally
+            
         # Process each layer in sequence
         for layer_num in sorted(active_layers):
             logging.info(f"[{datetime.now()}] Running Layer {layer_num}")
