@@ -67,6 +67,7 @@ class TruthCoreEngine:
         'emergence_detection',       # KA-021: Emergent Pattern Detection
         'simulations',               # KA-032
         'trust_validation',          # Layer 8: TrustValidationGateway (Phase 23)
+        'meta_reasoning',            # Layer 9: MetaReasoningController (Phase 24)
         'tier_verification',
         'final_synthesis',
         'memory_patch'
@@ -105,6 +106,14 @@ class TruthCoreEngine:
         except ImportError:
             logger.warning("Layer 8 TrustValidationGateway not found, skipping.")
             self.trust_gateway = None
+        
+        # Initialize Layer 9 MetaReasoningController
+        try:
+            from backend.truth_engine.truth_core.meta_reasoning_controller import MetaReasoningController
+            self.meta_reasoning = MetaReasoningController(ka_controller=ka_controller)
+        except ImportError:
+            logger.warning("Layer 9 MetaReasoningController not found, skipping.")
+            self.meta_reasoning = None
             
         self.active_sessions = {}
         logger.info("TruthCore Engine initialized")
@@ -534,6 +543,41 @@ class TruthCoreEngine:
                     'gate_decision': 'FAIL',
                     'error': str(e),
                     'confidence': 0.0
+                }
+        
+        # Special handling for Layer 9 MetaReasoningController
+        if step == 'meta_reasoning' and self.meta_reasoning:
+            try:
+                from backend.truth_engine.truth_core.l9_schemas import L9Input
+                l9_input = L9Input(
+                    simulation_id=context.get('session_id', 'unknown'),
+                    l8_gate_result=context.get('l8_gate_result', {}),
+                    reasoning_trace=context.get('reasoning_trace', {}),
+                    problem_spec={
+                        'original_query': query,
+                        'constraints': context.get('constraints', [])
+                    },
+                    iteration_state=context.get('iteration_state', {}),
+                    risk_domain=context.get('risk_domain', 'standard')
+                )
+                result = self.meta_reasoning.evaluate(l9_input)
+                return {
+                    'step': step,
+                    'ka_id': 'L9-CONTROLLER',
+                    'status': 'completed',
+                    'gate_decision': result.decision.value,
+                    'output': result.model_dump(),
+                    'readiness_score': result.readiness_score
+                }
+            except Exception as e:
+                logger.error(f"Layer 9 MetaReasoningController failed: {e}")
+                return {
+                    'step': step,
+                    'ka_id': 'L9-CONTROLLER',
+                    'status': 'error',
+                    'gate_decision': 'REFINE',
+                    'error': str(e),
+                    'readiness_score': 0.0
                 }
 
         

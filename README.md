@@ -211,7 +211,9 @@ Instead of a single LLM pass, the engine executes a multi-layered pipeline:
 - **L5 (Debate & Synthesis)**: Multi-persona deliberation with conflict detection.
 - **L6 (Quant Validation)**: Ensures mathematical consistency (MAD-based anomaly detection, entropy scoring).
 - **L7 (AGI Planner)**: Recursive goal decomposition and conflict arbitration with LLM-ready hooks.
-- **L9 (Synthesis)**: Final context-grounded response generation.
+- **L8 (Trust Gate)**: Cross-domain validation, PASS/WARN/FAIL gate decision, 12 KAs wired.
+- **L9 (Meta-Reasoning)**: FINALIZE/REFINE gate, belief drift detection, 7 L9 KAs wired.
+- **L10 (Synthesis)**: Final context-grounded response generation.
 - **L10 (Audit)**: Finalizing the hash-chained execution trace.
 
 #### Knowledge Algorithm (KA) Integration by Layer

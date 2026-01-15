@@ -8,7 +8,7 @@ structured gate decisions (PASS/WARN/FAIL) and audit artifacts.
 from enum import Enum
 from typing import Dict, List, Optional, Any
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, UTC
 
 
 class GateDecision(str, Enum):
@@ -76,7 +76,7 @@ class L8Input(BaseModel):
 class L8GateResult(BaseModel):
     """Output schema for Layer 8 gate decision."""
     simulation_id: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     
     # Gate decision
     status: GateDecision
@@ -112,7 +112,7 @@ class L8GateResult(BaseModel):
 class L8AuditArtifact(BaseModel):
     """Audit artifact written by Layer 8 for compliance."""
     simulation_id: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     gate_result: L8GateResult
     
     # Provenance

@@ -29,7 +29,7 @@ Required KAs:
 
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional
 
 from .l8_schemas import (
@@ -327,7 +327,7 @@ class TrustValidationGateway:
         if self.ka_controller:
             try:
                 result = self.ka_controller.execute_algorithm("KA-014", {
-                    "domain_scores": [d.dict() for d in domain_confidences],
+                    "domain_scores": [d.model_dump() for d in domain_confidences],
                     "evidence_count": len(input_data.evidence)
                 })
                 kas_invoked.append("KA-014")
@@ -338,13 +338,26 @@ class TrustValidationGateway:
         # KA-023: Belief Decay (overconfidence protection)
         if self.ka_controller:
             try:
+                # Format evidence as knowledge_items with timestamps
+                knowledge_items = [
+                    {
+                        "id": str(i),
+                        "confidence": base_confidence,
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "category": "evidence"
+                    }
+                    for i, _ in enumerate(input_data.evidence[:10])
+                ]
                 result = self.ka_controller.execute_algorithm("KA-023", {
-                    "confidence": base_confidence,
-                    "evidence_age_days": 30  # Default
+                    "knowledge_items": knowledge_items,
+                    "reference_time": datetime.now(timezone.utc).isoformat()
                 })
                 kas_invoked.append("KA-023")
-                decay_factor = result.get("decay_factor", 1.0)
-                base_confidence *= decay_factor
+                # Calculate decay from processed items
+                processed = result.get("processed_items", [])
+                if processed:
+                    avg_conf = sum(p.get("confidence", base_confidence) for p in processed) / len(processed)
+                    base_confidence = avg_conf
             except Exception as e:
                 logger.debug(f"KA-023 skipped: {e}")
         
@@ -360,6 +373,21 @@ class TrustValidationGateway:
                 base_confidence *= risk_factor
             except Exception as e:
                 logger.debug(f"KA-022 skipped: {e}")
+        
+        # KA-024: Trust Gate (final policy enforcement)
+        if self.ka_controller:
+            try:
+                result = self.ka_controller.execute_algorithm("KA-024", {
+                    "confidence": base_confidence,
+                    "risk_score": 1.0 - base_confidence  # Inverse of confidence
+                })
+                kas_invoked.append("KA-024")
+                # If not approved, reduce confidence significantly
+                if not result.get("is_approved", True):
+                    base_confidence *= 0.7
+                    logger.info(f"KA-024 vetoed: {result.get('blocking_reasons', [])}")
+            except Exception as e:
+                logger.debug(f"KA-024 skipped: {e}")
         
         return min(max(base_confidence, 0.0), 1.0)
     
