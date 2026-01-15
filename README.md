@@ -521,6 +521,7 @@ CELERY_BROKER_URL=redis://localhost:6379/0
 JWT_SECRET_KEY=your-jwt-secret-key
 SESSION_LIFETIME_MINUTES=30
 PASSWORD_MIN_LENGTH=12
+ENCRYPTION_KEK_SECRET=your-32-byte-base64-encoded-kek-secret
 
 # SSO/OIDC (optional)
 OIDC_CLIENT_ID=your-azure-app-id
