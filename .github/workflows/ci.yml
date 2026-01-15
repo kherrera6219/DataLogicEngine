@@ -28,7 +28,8 @@ jobs:
       run: |
         pip-audit
       continue-on-error: true  # Don't fail build immediately on first run, but report security issues
-        
+
+    - name: Run Tests
       run: |
         pytest tests/
       env:

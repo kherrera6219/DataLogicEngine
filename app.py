@@ -96,13 +96,22 @@ app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(
 database_url = os.environ.get("DATABASE_URL", "sqlite:///ukg_database.db")
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_pre_ping": True,  # Verify connections before use
-    "pool_recycle": int(os.environ.get("DB_POOL_RECYCLE", 300)),  # Recycle every 5 min
-    "pool_size": int(os.environ.get("DB_POOL_SIZE", 20)),  # Production pool size
-    "max_overflow": int(os.environ.get("DB_MAX_OVERFLOW", 40)),  # Allow up to 60 total
-    "pool_timeout": int(os.environ.get("DB_POOL_TIMEOUT", 30)),  # Connection timeout
-}
+
+# Configure engine options based on database type
+# SQLite doesn't support connection pooling options
+if database_url.startswith("sqlite"):
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_pre_ping": True,  # Verify connections before use
+    }
+else:
+    # PostgreSQL and other databases support full pooling
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_pre_ping": True,  # Verify connections before use
+        "pool_recycle": int(os.environ.get("DB_POOL_RECYCLE", 300)),  # Recycle every 5 min
+        "pool_size": int(os.environ.get("DB_POOL_SIZE", 20)),  # Production pool size
+        "max_overflow": int(os.environ.get("DB_MAX_OVERFLOW", 40)),  # Allow up to 60 total
+        "pool_timeout": int(os.environ.get("DB_POOL_TIMEOUT", 30)),  # Connection timeout
+    }
 
 # Rate limiting
 # Rate limiting
