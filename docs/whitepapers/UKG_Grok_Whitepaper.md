@@ -142,35 +142,20 @@ A full node ID might be: (1.5, 2.62, 3.HC-Phys-Med, 4.13.2.2.3, ..., 14.0.999)
 
 ### 2.2 10-Layer Simulation Stack (FROST)
 
-Queries are processed through a fixed, recursive pipeline:
+Queries are processed through a fixed, functional reasoning pipeline optimized for USKD state management:
 
-#mermaid-diagram-mermaid-sii3l80{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;fill:#ccc;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#mermaid-diagram-mermaid-sii3l80 .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#mermaid-diagram-mermaid-sii3l80 .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#mermaid-diagram-mermaid-sii3l80 .error-icon{fill:#a44141;}#mermaid-diagram-mermaid-sii3l80 .error-text{fill:#ddd;stroke:#ddd;}#mermaid-diagram-mermaid-sii3l80 .edge-thickness-normal{stroke-width:1px;}#mermaid-diagram-mermaid-sii3l80 .edge-thickness-thick{stroke-width:3.5px;}#mermaid-diagram-mermaid-sii3l80 .edge-pattern-solid{stroke-dasharray:0;}#mermaid-diagram-mermaid-sii3l80 .edge-thickness-invisible{stroke-width:0;fill:none;}#mermaid-diagram-mermaid-sii3l80 .edge-pattern-dashed{stroke-dasharray:3;}#mermaid-diagram-mermaid-sii3l80 .edge-pattern-dotted{stroke-dasharray:2;}#mermaid-diagram-mermaid-sii3l80 .marker{fill:lightgrey;stroke:lightgrey;}#mermaid-diagram-mermaid-sii3l80 .marker.cross{stroke:lightgrey;}#mermaid-diagram-mermaid-sii3l80 svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;}#mermaid-diagram-mermaid-sii3l80 p{margin:0;}#mermaid-diagram-mermaid-sii3l80 .label{font-family:"trebuchet ms",verdana,arial,sans-serif;color:#ccc;}#mermaid-diagram-mermaid-sii3l80 .cluster-label text{fill:#F9FFFE;}#mermaid-diagram-mermaid-sii3l80 .cluster-label span{color:#F9FFFE;}#mermaid-diagram-mermaid-sii3l80 .cluster-label span p{background-color:transparent;}#mermaid-diagram-mermaid-sii3l80 .label text,#mermaid-diagram-mermaid-sii3l80 span{fill:#ccc;color:#ccc;}#mermaid-diagram-mermaid-sii3l80 .node rect,#mermaid-diagram-mermaid-sii3l80 .node circle,#mermaid-diagram-mermaid-sii3l80 .node ellipse,#mermaid-diagram-mermaid-sii3l80 .node polygon,#mermaid-diagram-mermaid-sii3l80 .node path{fill:#1f2020;stroke:#ccc;stroke-width:1px;}#mermaid-diagram-mermaid-sii3l80 .rough-node .label text,#mermaid-diagram-mermaid-sii3l80 .node .label text,#mermaid-diagram-mermaid-sii3l80 .image-shape .label,#mermaid-diagram-mermaid-sii3l80 .icon-shape .label{text-anchor:middle;}#mermaid-diagram-mermaid-sii3l80 .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#mermaid-diagram-mermaid-sii3l80 .rough-node .label,#mermaid-diagram-mermaid-sii3l80 .node .label,#mermaid-diagram-mermaid-sii3l80 .image-shape .label,#mermaid-diagram-mermaid-sii3l80 .icon-shape .label{text-align:center;}#mermaid-diagram-mermaid-sii3l80 .node.clickable{cursor:pointer;}#mermaid-diagram-mermaid-sii3l80 .root .anchor path{fill:lightgrey!important;stroke-width:0;stroke:lightgrey;}#mermaid-diagram-mermaid-sii3l80 .arrowheadPath{fill:lightgrey;}#mermaid-diagram-mermaid-sii3l80 .edgePath .path{stroke:lightgrey;stroke-width:2.0px;}#mermaid-diagram-mermaid-sii3l80 .flowchart-link{stroke:lightgrey;fill:none;}#mermaid-diagram-mermaid-sii3l80 .edgeLabel{background-color:hsl(0, 0%, 34.4117647059%);text-align:center;}#mermaid-diagram-mermaid-sii3l80 .edgeLabel p{background-color:hsl(0, 0%, 34.4117647059%);}#mermaid-diagram-mermaid-sii3l80 .edgeLabel rect{opacity:0.5;background-color:hsl(0, 0%, 34.4117647059%);fill:hsl(0, 0%, 34.4117647059%);}#mermaid-diagram-mermaid-sii3l80 .labelBkg{background-color:rgba(87.75, 87.75, 87.75, 0.5);}#mermaid-diagram-mermaid-sii3l80 .cluster rect{fill:hsl(180, 1.5873015873%, 28.3529411765%);stroke:rgba(255, 255, 255, 0.25);stroke-width:1px;}#mermaid-diagram-mermaid-sii3l80 .cluster text{fill:#F9FFFE;}#mermaid-diagram-mermaid-sii3l80 .cluster span{color:#F9FFFE;}#mermaid-diagram-mermaid-sii3l80 div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:12px;background:hsl(20, 1.5873015873%, 12.3529411765%);border:1px solid rgba(255, 255, 255, 0.25);border-radius:2px;pointer-events:none;z-index:100;}#mermaid-diagram-mermaid-sii3l80 .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#ccc;}#mermaid-diagram-mermaid-sii3l80 rect.text{fill:none;stroke-width:0;}#mermaid-diagram-mermaid-sii3l80 .icon-shape,#mermaid-diagram-mermaid-sii3l80 .image-shape{background-color:hsl(0, 0%, 34.4117647059%);text-align:center;}#mermaid-diagram-mermaid-sii3l80 .icon-shape p,#mermaid-diagram-mermaid-sii3l80 .image-shape p{background-color:hsl(0, 0%, 34.4117647059%);padding:2px;}#mermaid-diagram-mermaid-sii3l80 .icon-shape rect,#mermaid-diagram-mermaid-sii3l80 .image-shape rect{opacity:0.5;background-color:hsl(0, 0%, 34.4117647059%);fill:hsl(0, 0%, 34.4117647059%);}#mermaid-diagram-mermaid-sii3l80 :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}
+1.  **Layer 1: Context Initialization** → Parses query into `Coord17Intent`, resolves coordinates, and sets regulatory guardrails.
+2.  **Layer 2: USKD Materialization** → Materializes a bounded, immutable subgraph (the "mini-world") from the UKG into working memory.
+3.  **Layer 3: Controlled Expansion** → Agentic enrichment layer that fills knowledge gaps using specialized KAs (e.g., KA-009).
+4.  **Layer 4: POV Overlays** → Applies stakeholder constraints and interpretive weighting without factual mutation of the USKD.
+5.  **Layer 5: Quad Persona Projections** → Parallel multi-persona debate across Knowledge, Sector, Regulatory, and Compliance experts.
+6.  **Layer 6: Validation & Scoring** → High-fidelity confidence weighting and risk driver mapping.
+7.  **Layer 8: Scenario Simulation** → Nested forks (Baseline/Stress/Optimistic) to test outcome robustness using FROST branches.
+8.  **Layer 8: Consistency Verification** → Cross-checks claims against constraints with recursive refinement triggers.
+9.  **Layer 9: Strategic Alignment** → Aligns the validated state with enterprise strategy and roadmaps.
+10. **Layer 10: Final Emergence Gate** → Release authority gate that detects hallucinations and authorizes output. **System status: Production Ready (Mocks Removed).**
 
-≥99.5%
-
-<99.5%
-
-User Query
-
-Layer 1: Input Parsing & Axis Mapping
-
-Layer 2: Contextual Expansion (Honeycomb/Spiderweb)
-
-Layer 3: Quad-Persona Activation
-
-Layer 4–7: Multi-Perspective Debate & Deep Reasoning
-
-Layer 8: Entropy/Trust Calibration
-
-Layer 9: External Validation & Citation Check
-
-Layer 10: Final Synthesis & Confidence Gate
-
-Output + Audit Trail
-
-Recursive Rerun with Expanded Context
-
-Each layer invokes relevant **Knowledge Algorithms (KAs)** from a registry of ~100 modular routines (e.g., KA-12: Cognitive Pruning, KA-45: Bias Detection, KA-78: Consensus Arbitration).
+Each layer invokes relevant **Knowledge Algorithms (KAs)** from a registry of ~123 modular routines, ensuring deterministic execution and full auditability.
 
 ### 2.3 Quad-Persona Orchestration
 

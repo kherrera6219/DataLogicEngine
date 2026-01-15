@@ -143,16 +143,16 @@ The system employs a unified infrastructure for managing and executing **Knowled
 
 **Processing Layers (L1-L10)**:
 
-1. **L1: Planning & Intent** - Parses query into 17-Axis `Coord17Intent` and generates `TierPlan`.
-2. **L2: Retrieval & Grounding** - Dynamically fetches knowledge into an `EvidencePack`.
-3. **L3: Deep Research** - Agentic verification and gap-filling of evidence.
-4. **L4: POV Engine** - Multi-perspective expansion and persona simulation.
-5. **L5: Multi-Persona Reasoning** - Deliberation and consensus weighting.
-6. **L6: Quantitative Validation** - Mathematical consistency and entropy scoring.
-7. **L7: AGI Planning** - Recursive goal decomposition and hypothesis generation.
-8. **L8: Trust Validation Gateway** - Cross-domain constraint checking and high-risk gate.
-9. **L9: Meta-Reasoning Controller** - Decision gate (FINALIZE/REFINE) with belief drift and persona audit.
-10. **L10: Emergence Detection & Final Safety Gate (The Sentinel)** - The final release authority. Dual-lane architecture: **Lane A (Response Gate)** for real-time safety/emergence audit; **Lane B (Knowledge Commit)** for authorized persistence of new learning into long-term memory.
+1. **L1: Context Initialization** - Parses query into `Coord17Intent`, resolves coordinates, and sets guardrails.
+2. **L2: USKD Materialization** - Materializes a bounded subgraph (the "mini-world") from the UKG into working memory.
+3. **L3: Controlled Expansion** - Agentic enrichment layer that fills knowledge gaps using specialized KAs.
+4. **L4: POV Overlays** - Adds stakeholder constraints and interpretive weighting without factual mutation.
+5. **L5: Quad Persona Projections** - Parallel multi-persona debate with conflict detection and synthesis.
+6. **L6: Validation & Scoring** - High-fidelity confidence weighting and risk driver mapping.
+7. **L7: Scenario Simulation** - Nested forks (Baseline/Stress/Optimistic) to test outcome robustness.
+8. **L8: Consistency Verification** - Cross-checks claims against constraints with recursive refinement triggers.
+9. **L9: Strategic Alignment** - Aligns the validated state with enterprise strategy and roadmaps.
+10. **L10: Final Emergence & Safety Gate** - The final release authority. Dual-lane architecture: **Lane A (Response Gate)** for real-time safety/emergence audit; **Lane B (Knowledge Commit)** for authorized persistence of new learning into long-term memory.
 
 **Components**:
 
@@ -350,10 +350,10 @@ The data model organizes information across 17 dimensions for multi-dimensional 
 ### The 17 Axes
 
 1. **Axis 1 - Pillar**: Top-level knowledge domain (FAR, DFARS, CFR)
-2. **Axis 2 - Sector**: Industry sectors (NAICS, SIC, PSC)
-3. **Axis 3 - Honeycomb**: Cross-domain semantic bridges
-4. **Axis 4 - Branch**: Knowledge sub-branches
-5. **Axis 5 - Node**: Atomic knowledge nodes
+2. **Axis 2 - Sector**: Industry sectors and market areas (NAICS, SIC)
+3. **Axis 3 - Honeycomb**: Cross-domain semantic bridges and intra-expansion
+4. **Axis 4 - Branch**: Knowledge sub-hierarchies and Methods
+5. **Axis 5 - Node**: Atomic knowledge nodes and specific Tools
 6. **Axis 6 - Octopus**: Regulatory hub (one-to-many authority mapping)
 7. **Axis 7 - Spiderweb**: Compliance mesh (many-to-many framework overlap)
 8. **Axis 8 - Knowledge Expert**: SME persona (theoretical/technical)
@@ -362,10 +362,10 @@ The data model organizes information across 17 dimensions for multi-dimensional 
 11. **Axis 11 - Compliance Expert**: Compliance/audit persona (spiderweb-driven)
 12. **Axis 12 - Location**: Geospatial context (country, region, jurisdiction)
 13. **Axis 13 - Temporal**: Time context (effective date, version, validity)
-14. **Axis 14 - Source Provenance**: Where did this come from? (chain-of-custody, lineage)
-15. **Axis 15 - Object Type**: What kind of thing is this? (clause, control, procedure, dataset)
-16. **Axis 16 - Validation State**: How verified? (raw → curated → audited → certified)
-17. **Axis 17 - Security/Access**: Who can see/use this? (public, internal, CUI, secret)
+14. **Axis 14 - Risk & Confidence**: Probability vectors and trust scores
+15. **Axis 15 - Federated Intelligence**: Federated knowledge sharing and distributed state
+16. **Axis 16 - Arrows of Time**: Causality chains and temporal vectors
+17. **Axis 17 - Observability**: Audit trails and performance markers
 
 ### Implementation
 
