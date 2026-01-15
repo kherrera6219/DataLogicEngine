@@ -343,23 +343,23 @@ The data model organizes information across 17 dimensions for multi-dimensional 
 
 ### The 17 Axes
 
-1. **Axis 1 - Identity**: Entity and identity context
-2. **Axis 2 - Sector**: Industry sectors (Healthcare, Finance, Technology, etc.)
-3. **Axis 3 - Domain**: Knowledge domains (AI, Security, Compliance, etc.)
-4. **Axis 4 - Knowledge Type**: Types of knowledge (Factual, Procedural, Conceptual)
-5. **Axis 5 - Temporal**: Time context (historical, current, future, seasonal)
-6. **Axis 6 - Regulatory**: Regulatory frameworks (GDPR, HIPAA, SOX, etc.)
-7. **Axis 7 - Compliance**: Compliance obligations and requirements
-8. **Axis 8 - Knowledge Expert**: Expert knowledge profiles
-9. **Axis 9 - Sector Expert**: Sector-specific expertise
-10. **Axis 10 - Regulatory Expert**: Regulatory expertise
-11. **Axis 11 - Compliance Expert**: Compliance expertise
+1. **Axis 1 - Pillar**: Top-level knowledge domain (FAR, DFARS, CFR)
+2. **Axis 2 - Sector**: Industry sectors (NAICS, SIC, PSC)
+3. **Axis 3 - Honeycomb**: Cross-domain semantic bridges
+4. **Axis 4 - Branch**: Knowledge sub-branches
+5. **Axis 5 - Node**: Atomic knowledge nodes
+6. **Axis 6 - Octopus**: Regulatory hub (one-to-many authority mapping)
+7. **Axis 7 - Spiderweb**: Compliance mesh (many-to-many framework overlap)
+8. **Axis 8 - Knowledge Expert**: SME persona (theoretical/technical)
+9. **Axis 9 - Sector Expert**: Practitioner persona (industry implementation)
+10. **Axis 10 - Regulatory Expert**: Regulatory strategist persona (octopus-driven)
+11. **Axis 11 - Compliance Expert**: Compliance/audit persona (spiderweb-driven)
 12. **Axis 12 - Location**: Geospatial context (country, region, jurisdiction)
-13. **Axis 13 - Risk**: Risk assessment and analysis
-14. **Axis 14 - Federated Learning**: Distributed learning context
-15. **Axis 15 - Time Arrows**: Directional time reasoning (past→present→future)
-16. **Axis 16 - Reserved**: Future expansion
-17. **Axis 17 - Observability**: Tracing and observability metrics
+13. **Axis 13 - Temporal**: Time context (effective date, version, validity)
+14. **Axis 14 - Source Provenance**: Where did this come from? (chain-of-custody, lineage)
+15. **Axis 15 - Object Type**: What kind of thing is this? (clause, control, procedure, dataset)
+16. **Axis 16 - Validation State**: How verified? (raw → curated → audited → certified)
+17. **Axis 17 - Security/Access**: Who can see/use this? (public, internal, CUI, secret)
 
 ### Implementation
 

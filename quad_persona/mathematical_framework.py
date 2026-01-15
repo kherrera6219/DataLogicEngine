@@ -20,34 +20,68 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class KnowledgePoint:
-    """A point in the 13-dimensional knowledge manifold."""
-    pillar: float = 0.0
-    level: float = 0.0
-    branch: float = 0.0
-    honeycomb: float = 0.0
-    spiderweb: float = 0.0
-    octopus: float = 0.0
-    location: float = 0.0
-    temporal: float = 0.0
-    risk: float = 0.0
+    """
+    A point in the 17-dimensional knowledge manifold.
+    
+    Group I - Knowledge Organization (Axes 1-7):
+        pillar (1): Top-level knowledge domain
+        sector (2): Industry context (NAICS etc.)
+        honeycomb (3): Cross-domain semantic bridges
+        branch (4): Hierarchical sub-domains
+        node (5): Interdisciplinary convergence
+        octopus (6): Meta-regulatory aggregation
+        spiderweb (7): Compliance constraint mesh
+    
+    Group II - Personas (Axes 8-11): Handled by persona engine
+    
+    Group III - Context (Axes 12-13):
+        location (12): Jurisdiction, geography
+        temporal (13): Time, version, validity
+    
+    Group IV - Governance (Axes 14-17):
+        provenance (14): Source/authority provenance
+        object_type (15): Artifact kind (clause, control, etc.)
+        validation_state (16): How verified (raw → audited)
+        security (17): Access classification
+    """
+    # Group I - Knowledge Organization
+    pillar: float = 0.0          # Axis 1
+    sector: float = 0.0          # Axis 2
+    honeycomb: float = 0.0       # Axis 3
+    branch: float = 0.0          # Axis 4
+    node: float = 0.0            # Axis 5
+    octopus: float = 0.0         # Axis 6
+    spiderweb: float = 0.0       # Axis 7
+    
+    # Group III - Context
+    location: float = 0.0        # Axis 12
+    temporal: float = 0.0        # Axis 13
+    
+    # Group IV - Governance (Meta-axes)
+    provenance: float = 0.0      # Axis 14: Source lineage
+    object_type: float = 0.0     # Axis 15: Semantic identity
+    validation_state: float = 0.0 # Axis 16: Trust state
+    security: float = 0.0        # Axis 17: Access control
+    
+    # Derived (not axes, but computed values)
     confidence: float = 0.0
-    ethical: float = 0.0
     methodology: float = 0.0
     knowledge_level: float = 0.0
     
     def to_vector(self) -> np.ndarray:
-        """Convert to numpy array."""
+        """Convert to numpy array (16 dimensions)."""
         return np.array([
-            self.pillar, self.level, self.branch, self.honeycomb,
-            self.spiderweb, self.octopus, self.location, self.temporal,
-            self.risk, self.confidence, self.ethical, self.methodology,
-            self.knowledge_level
+            self.pillar, self.sector, self.honeycomb, self.branch,
+            self.node, self.octopus, self.spiderweb,
+            self.location, self.temporal,
+            self.provenance, self.object_type, self.validation_state, self.security,
+            self.confidence, self.methodology, self.knowledge_level
         ])
     
     @classmethod
     def from_vector(cls, vec: np.ndarray) -> 'KnowledgePoint':
         """Create from numpy array."""
-        return cls(*vec[:13])
+        return cls(*vec[:16]) if len(vec) >= 16 else cls(*vec)
 
 
 @dataclass

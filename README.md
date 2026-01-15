@@ -80,16 +80,16 @@ Multi-dimensional knowledge organization contextualizing data across:
 | **5** | Nodes | Atomic knowledge nodes |
 | **6** | Octopus Crosswalk | One-to-many regulatory mapping |
 | **7** | Spiderweb Crosswalk | Many-to-many compliance mapping |
-| **8** | Knowledge Role | Expert job roles |
-| **9** | Qualifications & Skills | Certifications and competencies |
-| **10** | Regulatory Expert | Octopus regulatory persona |
-| **11** | Compliance Expert | Spiderweb compliance persona |
+| **8** | Knowledge Expert | Expert persona (knowledge SME) |
+| **9** | Sector Expert | Expert persona (industry practitioner) |
+| **10** | Regulatory Expert | Expert persona (octopus-driven) |
+| **11** | Compliance Expert | Expert persona (spiderweb-driven) |
 | **12** | Location | Geospatial and jurisdiction |
 | **13** | Temporal | Time periods and versions |
-| **14** | Risk & Confidence | Risk levels and validation metrics |
-| **15** | Federated Intelligence | Distributed knowledge sync |
-| **16** | Arrows of Time | Causality and prediction |
-| **17** | Observability & Analytics | Metrics and audit trails |
+| **14** | Source Provenance | Where did this come from? (lineage, chain-of-custody) |
+| **15** | Object Type | What kind of thing is this? (clause, control, dataset) |
+| **16** | Validation State | How verified? (raw → audited → certified) |
+| **17** | Security/Access | Who can see/use this? (public, CUI, secret) |
 
 ### ⚖️ Truth Engine (5-Tier Workflow)
 
@@ -609,16 +609,16 @@ results = knowledge_graph.query(axes=axes)
 | 5 | Nodes | Atomic knowledge nodes |
 | 6 | Octopus Crosswalk | One-to-many regulatory mapping |
 | 7 | Spiderweb Crosswalk | Many-to-many compliance mapping |
-| 8 | Knowledge Role | Expert job roles |
-| 9 | Qualifications | Certifications and competencies |
-| 10 | Regulatory Expert | Octopus regulatory persona |
-| 11 | Compliance Expert | Spiderweb compliance persona |
+| 8 | Knowledge Expert | Expert persona (knowledge SME) |
+| 9 | Sector Expert | Expert persona (industry practitioner) |
+| 10 | Regulatory Expert | Expert persona (octopus-driven) |
+| 11 | Compliance Expert | Expert persona (spiderweb-driven) |
 | 12 | Location | Geospatial and jurisdiction |
 | 13 | Temporal | Time periods and versions |
-| 14 | Risk & Confidence | Risk levels and validation |
-| 15 | Federated Intelligence | Distributed knowledge sync |
-| 16 | Arrows of Time | Causality and prediction |
-| 17 | Observability | Metrics and audit trails |
+| 14 | Source Provenance | Where did this come from? (lineage) |
+| 15 | Object Type | What kind of thing is this? (clause, control) |
+| 16 | Validation State | How verified? (raw → audited) |
+| 17 | Security/Access | Who can see/use this? (public, CUI) |
 
 ### 2. Truth Engine
 

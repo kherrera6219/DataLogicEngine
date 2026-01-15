@@ -1,0 +1,215 @@
+# ============================================
+# axis_14_17_governance_schema.yaml
+# Purpose: Formal schema + enums for Axes 14–17
+# Format: Tree / numbered node style + YAML
+# ============================================
+
+axes_14_17:
+  "1) metadata":
+    name: "UKG Axes 14–17 Governance Overlay"
+    version: "1.0"
+    status: "active"
+    description: "Provenance, object typing, validation maturity, and security/access control metadata applied to every evidence item, claim, and node."
+
+  "2) axis_14_source_provenance":
+    axis_id: 14
+    name: "Source Provenance"
+    question: "Where did this come from?"
+    schema:
+      source_ids: "list[string]"           # e.g., ['fed_register', 'internal_kb']
+      primary_source: "string"             # one of source_ids
+      ingestion_channel: "string"          # api|etl|manual|connector|mcp
+      publisher: "optional string"         # who published the source
+      collected_at: "ISO_8601_datetime"
+      lineage:
+        prov_standard: "W3C_PROV"           # aligns to Truth Engine provenance_graph
+        entity_fingerprint: "sha256"
+        activity_fingerprint: "sha256"
+        chain:
+          - step: "ingest|normalize|summarize|transform|derive"
+            actor: "human|system|vendor|llm"
+            timestamp: "ISO_8601_datetime"
+            input_refs: "list[uri|doc_id|coordinate]"
+            output_ref: "uri|doc_id|coordinate"
+    enums:
+      canonical_sources:
+        - fed_register
+        - cfr
+        - us_code
+        - internal_kb
+        - internal_policy_repo
+        - vendor
+        - customer_provided
+        - academic
+        - standards_body
+        - case_law
+        - llm_generated
+        - hybrid
+
+  "3) axis_15_object_type":
+    axis_id: 15
+    name: "Object Type"
+    question: "What is this thing?"
+    schema:
+      object_type: "string"
+      object_subtype: "optional string"
+      is_normative: "bool"                # is it binding? (law/control) vs descriptive (report)
+      is_executable: "bool"               # can it run? (procedure/workflow) vs static (clause)
+      canonical_ref: "optional uri|doc_id"
+    enums:
+      object_types:
+        - statute
+        - regulation
+        - clause
+        - control
+        - requirement
+        - policy
+        - procedure
+        - standard
+        - dataset
+        - metric
+        - model_output
+        - scenario
+        - recommendation
+        - constraint
+        - warning
+
+  "4) axis_16_validation_state":
+    axis_id: 16
+    name: "Validation State"
+    question: "How verified?"
+    schema:
+      state: "string"
+      state_rank: "int"                   # monotonic 0..7
+      validators: "list[string]"          # persona ids or human reviewers
+      validation_methods: "list[string]"  # e.g., cross_ref, audit, signature_check
+      last_validated_at: "ISO_8601_datetime"
+      evidence_minimums:
+        corroboration_count: "int"
+        min_source_authority: "float 0..1"
+      confidence_floor: "float 0..1"      # floor required at this state
+    enums:
+      lifecycle:
+        - { state: raw,             rank: 0 }
+        - { state: ingested,        rank: 1 }
+        - { state: normalized,      rank: 2 }
+        - { state: cross_referenced, rank: 3 }
+        - { state: curated,         rank: 4 }
+        - { state: validated,       rank: 5 }
+        - { state: audited,         rank: 6 }
+        - { state: certified,       rank: 7 }
+
+  "5) axis_17_security_access":
+    axis_id: 17
+    name: "Security / Access"
+    question: "Who can see this?"
+    schema:
+      classification: "string"            # one of classifications
+      compartments: "list[string]"        # optional compartments/tags
+      allowed_roles: "list[string]"       # rbacs (reader|writer|admin) or enterprise roles
+      allowed_personas: "list[string]"    # P8/P9/P10/P11 gates
+      exportable: "bool"
+      redaction_policy: "string"          # none|partial|summary_only
+      retention_policy: "optional string"
+    enums:
+      classifications:
+        - public
+        - internal
+        - confidential
+        - CUI
+        - restricted
+        - secret
+
+# ============================================
+# Truth Engine Formula Bindings
+# ============================================
+truth_engine_formula_bindings:
+  "F-PROV-01":
+    name: "Provenance Authority Score"
+    input_axes: ["A14"]
+    description: "Map source provenance → authority_weight."
+    pseudo: |
+      authority_weight = source_authority(primary_source, publisher, channel)
+
+  "F-PROV-02":
+    name: "Lineage Chain Strength"
+    input_axes: ["A14"]
+    description: "Compute chain_strength_weight using lineage steps + dependency count."
+    pseudo: |
+      chain_strength_weight = f(reasoning_depth, lineage.chain.length, dependency_count)
+
+  "F-OBJ-01":
+    name: "Object-Type Claim Compatibility"
+    input_axes: ["A15"]
+    description: "Enforce claim_type allowed for object_type (prevents category errors)."
+    pseudo: |
+      allowed = allow_matrix[A15.object_type].contains(claim.claim_type)
+
+  "F-VAL-01":
+    name: "Validation Floor Gate"
+    input_axes: ["A16"]
+    description: "Minimum confidence/evidence thresholds by validation state."
+    pseudo: |
+      pass = (confidence >= A16.confidence_floor)
+             AND (corroboration_count >= A16.evidence_minimums.corroboration_count)
+             AND (source_authority >= A16.evidence_minimums.min_source_authority)
+
+  "F-SEC-01":
+    name: "Access Filter Gate"
+    input_axes: ["A17"]
+    description: "Hard filter retrieval + output based on user clearance and roles."
+    pseudo: |
+      pass = user_clearance >= A17.classification
+             AND user_role IN A17.allowed_roles
+
+  "F-SEC-02":
+    name: "Redaction / Export Control"
+    input_axes: ["A17"]
+    description: "Transform output according to redaction/export flags."
+    pseudo: |
+      if NOT A17.exportable: output.export = false
+      output.redaction = policy[A17.redaction_policy]
+
+# ============================================
+# Layer Stack Gating Rules
+# ============================================
+layer_gating_rules:
+  L1_query_init:
+    gates: ["F-SEC-01"]
+    description: "Filter query scope by user clearance before processing"
+    
+  L2_retrieval:
+    gates: ["F-SEC-01", "F-PROV-01"]
+    description: "Only retrieve nodes user can access; weight by provenance"
+    
+  L3_persona_simulation:
+    gates: ["F-SEC-01", "F-OBJ-01"]
+    description: "Personas can only reason on allowed object types per classification"
+    
+  L4_pov_expansion:
+    gates: ["F-SEC-01"]
+    description: "POV viewpoints filtered by classification"
+    
+  L5_integration:
+    gates: ["F-VAL-01"]
+    description: "Minimum validation state for multi-agent integration"
+    
+  L6_neural_analysis:
+    gates: ["F-VAL-01", "F-PROV-02"]
+    description: "Deep analysis requires validated + traceable lineage"
+    
+  L7_agi_simulation:
+    gates: ["F-SEC-01", "F-VAL-01"]
+    description: "Scenario simulation gated by classification and validation"
+    
+  L8_quantum_coherence:
+    gates: ["F-VAL-01"]
+    description: "Coherence checks require minimum validation"
+    
+  L9_recursive_planning:
+    gates: ["F-SEC-01", "F-SEC-02"]
+    description: "Planning respects export/redaction policies"
+    
+  L10_containment:
+    gates: ["F-SEC-01", "F-SEC-02", "F-VAL-01"]
+    description: "Final output must pass all governance gates"
