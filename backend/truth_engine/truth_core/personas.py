@@ -27,25 +27,37 @@ class PersonaEnhancer:
             'role': 'Knowledge Expert',
             'focus': 'Scholar / Domain Expert',
             'system_prompt': 'You are a Knowledge Expert. Provide theoretical depth, academic rigor, and domain-specific knowledge.',
-            'weight': 0.30
+            'weight': 0.30,
+            'recursive_strategy': 'Deep recursive semantic mapping for Pillar/Branch coordinates.',
+            'axis_alignment': 8,
+            'constraint_set': ['Theoretical Coherence', 'Academic Citations only', 'No speculating on sector reality']
         },
         'sector_expert': {
             'role': 'Sector Expert',
             'focus': 'Industry Practitioner',
             'system_prompt': 'You are a Sector Expert. Focus on industry standards, market reality, and practical application.',
-            'weight': 0.30
+            'weight': 0.30,
+            'recursive_strategy': 'Industry-specific application simulation across Sector coordinates.',
+            'axis_alignment': 9,
+            'constraint_set': ['Market Feasibility', 'Standard Industry Practice', 'No regulatory speculation']
         },
         'regulatory_expert': {
             'role': 'Regulatory Expert',
             'focus': 'External Laws / Standards',
             'system_prompt': 'You are a Regulatory Expert. Ensure alignment with external laws, mandates, and government regulations.',
-            'weight': 0.20
+            'weight': 0.20,
+            'recursive_strategy': 'Nuremberg/Spiderweb crosswalk for multi-jurisdictional compliance.',
+            'axis_alignment': 10,
+            'constraint_set': ['Statutory Accuracy', 'Strict Legal Adherence', 'No internal policy blending']
         },
         'compliance_expert': {
             'role': 'Compliance Expert',
             'focus': 'Internal Policy & Controls',
             'system_prompt': 'You are a Compliance Expert. Verify adherence to internal policies, risk controls, and governance.',
-            'weight': 0.20
+            'weight': 0.20,
+            'recursive_strategy': 'Internal honeycomb-octo mapping for organizational risk alignment.',
+            'axis_alignment': 11,
+            'constraint_set': ['Policy Compliance', 'Risk Mitigation', 'Data Privacy (Axis 13)']
         }
     }
 
@@ -144,6 +156,26 @@ class PersonaEnhancer:
             return self.TRUTH_PERSONAS.get(persona, {})
         return self.TRUTH_PERSONAS
 
+    def spawn_specialists(self, lane: str, count: int) -> List[Dict[str, Any]]:
+        """
+        Spawns a pod of specialists for a specific lane.
+        """
+        if lane not in self.TRUTH_PERSONAS:
+            return []
+        
+        base_config = self.TRUTH_PERSONAS[lane]
+        specialists = []
+        
+        for i in range(count):
+            spec_config = base_config.copy()
+            spec_config['role'] = f"{base_config['role']} Specialist {i+1}"
+            spec_config['system_prompt'] += f" You are Specialist {i+1} in the {lane} pod."
+            # Adjust weight for pod members (spread evenly)
+            spec_config['weight'] = base_config['weight'] / (count + 1)
+            specialists.append(spec_config)
+            
+        return specialists
+
     def map_to_axis(self, persona: str) -> int:
         """Map persona to UKG axis number."""
         axis_mapping = {
@@ -153,3 +185,39 @@ class PersonaEnhancer:
             'compliance_expert': 11
         }
         return axis_mapping.get(persona, 8)
+
+
+class PersonaPod:
+    """
+    A collection of specialists working within one of the 4 categories.
+    """
+    def __init__(self, lane: str, specialists: List[Dict[str, Any]]):
+        self.lane = lane
+        self.specialists = specialists
+        self.results = []
+
+    def execute(self, query: str, context: Dict[str, Any], engine_instance: Any):
+        """Executes reasoning for all specialists in the pod."""
+        for spec_config in self.specialists:
+            # Logic to invoke the persona response via the engine's enhancer
+            # This will be called by TruthCoreEngine
+            response = engine_instance.persona_enhancer._get_persona_response(
+                spec_config['role'], spec_config, query, context
+            )
+            self.results.append(response)
+
+    def synthesize(self) -> Dict[str, Any]:
+        """Synthesizes pod results into a single lane output."""
+        if not self.results:
+            return {}
+        
+        # Simple consensus synthesis for now
+        combined_content = "\n".join([r.get('response', '') for r in self.results])
+        avg_confidence = sum([r.get('confidence', 0) for r in self.results]) / len(self.results)
+        
+        return {
+            'lane': self.lane,
+            'content': combined_content,
+            'confidence': avg_confidence,
+            'specialist_count': len(self.results)
+        }

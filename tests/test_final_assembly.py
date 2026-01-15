@@ -1,0 +1,90 @@
+import pytest
+import asyncio
+from typing import Dict, Any
+from backend.truth_engine.truth_core.engine import TruthCoreEngine
+from backend.truth_engine.truth_core.personas import PersonaEnhancer
+from backend.truth_engine.truth_core.persona_sufficiency import PersonaSufficiencyTool, SufficiencyMode
+from backend.api_gateway.unified_middleware import UnifiedMiddleWare
+
+class MockKAController:
+    def __init__(self):
+        self.llm_gateway = None
+
+    def execute_algorithm(self, ka_id, context):
+        return {"output": "Mock output", "confidence": 0.9}
+    
+    def process_with_persona(self, query, persona, context):
+        return {"response": f"Persona {persona} response", "confidence": 0.85}
+
+@pytest.fixture
+def engine():
+    ka_ctrl = MockKAController()
+    e = TruthCoreEngine(ka_controller=ka_ctrl)
+    # Disable service overrides to test the assembly logic in isolation
+    e.quant_service = None
+    e.agi_planner = None
+    e.trust_gateway = None
+    e.meta_reasoning = None
+    e.emergence_gate = None
+    return e
+
+def test_persona_sufficiency_trigger():
+    tool = PersonaSufficiencyTool()
+    
+    # Test High-Stakes trigger
+    metadata = {"tags": ["defense"]}
+    query = "Analyze the impact of electronic warfare on avionics."
+    mapped_axes = [1, 2, 3, 4, 5, 8, 9] # Many axes
+    initial_outputs = {"knowledge": {"confidence": 0.7}}
+    
+    result = tool.evaluate(query, mapped_axes, initial_outputs, metadata)
+    assert result['mode'] == SufficiencyMode.EXPANDED_COMMITTEE.value
+    assert result['spawn']['knowledge'] > 0
+    assert "High stakes/assurance detected" in result['reasons'][0]
+
+def test_refinement_orchestrator_flow():
+    from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator
+    ka_ctrl = MockKAController()
+    orchestrator = RefinementOrchestrator(ka_controller=ka_ctrl)
+    
+    initial_response = {"content": "Initial answer", "confidence": 0.8}
+    refined = orchestrator.refine(initial_response, {})
+    
+    assert refined['final_confidence'] > 0.8
+    assert len(refined['refinement_history']) == 12
+    # Increased gain in mock or lower threshold
+    assert refined['final_confidence'] >= 0.98
+
+@pytest.mark.asyncio
+async def test_engine_integration_high_stakes(engine):
+    # High stakes should trigger refinement and pod scaling
+    query = "defense strategy for autonomous systems"
+    context = {"force_tier": "high_stakes", "tags": ["defense"]}
+    
+    session = engine.create_session(query, context=context)
+    result_session = engine.process(session['session_id'])
+    
+    result = result_session['result']
+    assert result_session['tier'] == 'high_stakes'
+    
+    steps = result['steps_executed']
+    refinement_step = next((s for s in steps if s['step'] == 'final_safety_gate'), None)
+    assert refinement_step is not None
+    # Check if refinement actually happened
+    assert "Refined by" in refinement_step.get('final_answer', '')
+
+def test_persona_pod_synthesis():
+    from backend.truth_engine.truth_core.personas import PersonaPod
+    specialists = [
+        {"role": "Spec1", "response": "Answer 1", "confidence": 0.9},
+        {"role": "Spec2", "response": "Answer 2", "confidence": 0.8}
+    ]
+    pod = PersonaPod("knowledge", specialists)
+    # Mock execute results
+    pod.results = specialists
+    synthesis = pod.synthesize()
+    
+    assert synthesis['lane'] == "knowledge"
+    assert "Answer 1" in synthesis['content']
+    assert synthesis['confidence'] == pytest.approx(0.85)
+    assert synthesis['specialist_count'] == 2

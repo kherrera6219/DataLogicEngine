@@ -10,8 +10,13 @@ Integrates with:
 
 import logging
 import uuid
+import asyncio
 from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional
+
+from backend.truth_engine.truth_core.personas import PersonaEnhancer, PersonaPod
+from backend.truth_engine.truth_core.persona_sufficiency import PersonaSufficiencyTool
+from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -45,34 +50,39 @@ class TruthCoreEngine:
     }
     
     REFINEMENT_STEPS = [
-        'decomposition',
-        'multi_persona_reasoning',
-        'persona_weighting',         # KA-013: Weight persona contributions
-        'contradiction_detection',   # KA-026: Semantic contradiction scan
-        'consensus_evaluation',      # KA-038: Enhanced Consensus
-        'conflict_resolution',       # KA-030: Expert Escalation
-        'quant_validation',          # Layer 6 (Phase G)
-        'anomaly_detection',         # KA-039: Statistical Anomaly Patterns
-        'entropy_detection',         # KA-116: Entropy Scoring
-        'confidence_scoring',        # KA-014: Standardized Confidence
-        'hybrid_retrieval',
-        'graph_consistency_check',
-        'deep_synthesis',
-        'reflection_loop',
-        'bias_scan',
-        'safety_scan',
-        'hypothesis_generation',     # KA-040: Subgoal Generation
-        'tree_of_thought',           # KA-002: Recursive ToT
-        'deep_planning',             # KA-006: Multi-Step Planning
-        'emergence_detection',       # KA-021: Emergent Pattern Detection
-        'simulations',               # KA-032
-        'trust_validation',          # Layer 8: TrustValidationGateway (Phase 23)
-        'meta_reasoning',            # Layer 9: MetaReasoningController (Phase 24)
-        'final_safety_gate',         # Layer 10: EmergenceDetectionController (Phase 25)
-        'tier_verification',
-        'final_synthesis',
-        'memory_patch'
+        'intent_parsing',            # Layer 1
+        'hybrid_retrieval',          # Layer 2
+        'deep_research',             # Layer 3
+        'pov_expansion',             # Layer 4
+        'multi_persona_reasoning',   # Layer 5
+        'quant_validation',          # Layer 6
+        'agi_planning',              # Layer 7
+        'trust_validation',          # Layer 8
+        'meta_reasoning',            # Layer 9
+        'final_safety_gate',         # Layer 10
     ]
+
+    def get_workflow_steps(self, tier: str) -> List[str]:
+        """Dynamically define steps for each complexity tier."""
+        if tier == 'trivial':
+            return ['intent_parsing', 'final_safety_gate']
+        elif tier == 'moderate':
+            return ['intent_parsing', 'hybrid_retrieval', 'multi_persona_reasoning', 'final_safety_gate']
+        elif tier == 'high_stakes':
+            return [
+                'intent_parsing', 'hybrid_retrieval', 'multi_persona_reasoning', 
+                'quant_validation', 'trust_validation', 'meta_reasoning', 'final_safety_gate'
+            ]
+        elif tier == 'extreme':
+            return [
+                'intent_parsing', 'hybrid_retrieval', 'deep_research', 'pov_expansion',
+                'multi_persona_reasoning', 'quant_validation', 'agi_planning',
+                'trust_validation', 'meta_reasoning', 'final_safety_gate'
+            ]
+        elif tier == 'autonomous':
+            # Autonomous adds loopback triggers and adaptive preemption
+            return self.get_workflow_steps('extreme') + ['memory_patch']
+        return self.get_workflow_steps('moderate')
 
     def __init__(self, db_session=None, simulation_engine=None, ka_controller=None, axis_system=None):
         """Initialize TruthCore with optional integrations."""
@@ -124,8 +134,13 @@ class TruthCoreEngine:
             logger.warning("Layer 10 EmergenceDetectionController not found, skipping.")
             self.emergence_gate = None
             
+        # Initialize Persona Enhancer and Sufficiency Tool
+        self.persona_enhancer = PersonaEnhancer(quad_persona_engine=self.ka_controller if hasattr(self.ka_controller, 'process_with_persona') else None)
+        self.sufficiency_tool = PersonaSufficiencyTool()
+        self.refinement_orchestrator = RefinementOrchestrator(ka_controller=self.ka_controller)
+        
         self.active_sessions = {}
-        logger.info("TruthCore Engine initialized")
+        logger.info("TruthCore Engine initialized with Final Assembly stack")
 
     def determine_tier(self, query: str, context: Dict[str, Any] = None) -> str:
         """
@@ -183,10 +198,10 @@ class TruthCoreEngine:
         return 'default'
 
     def create_session(self, query: str, user_id: int = None, tenant_id: str = None, 
-                       context: Dict[str, Any] = None) -> Dict[str, Any]:
+                       context: Dict[str, Any] = None, tier: str = None) -> Dict[str, Any]:
         """Create a new TruthCore processing session."""
         session_id = str(uuid.uuid4())
-        tier = self.determine_tier(query, context)
+        tier = tier or self.determine_tier(query, context)
         routing_profile = self.get_routing_profile(query, context)
         tenant = tenant_id or f"tenant_{user_id or 'default'}"
         
@@ -254,18 +269,8 @@ class TruthCoreEngine:
         context = session.get('context', {})
         
         try:
-            if tier == 'trivial':
-                result = self._process_trivial(query, context)
-            elif tier == 'moderate':
-                result = self._process_moderate(query, context)
-            elif tier == 'high_stakes':
-                result = self._process_high_stakes(query, context)
-            elif tier == 'extreme':
-                result = self._process_extreme(query, context)
-            elif tier == 'autonomous':
-                result = self._process_autonomous(query, context)
-            else:
-                result = self._process_trivial(query, context)
+            steps = self.get_workflow_steps(tier)
+            result = self._execute_workflow(query, context, steps, tier)
             
             session['status'] = 'completed'
             session['completed_at'] = datetime.now(UTC).isoformat()
@@ -300,225 +305,170 @@ class TruthCoreEngine:
         
         return session
 
-    def _process_trivial(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Trivial tier: Direct answer with minimal processing."""
-        return {
-            'tier': 'trivial',
-            'response': f"Direct response to: {query[:100]}...",
-            'confidence': 0.9,
-            'steps_executed': ['direct_answer'],
-            'processing_time_ms': 50
-        }
-
-    def _process_moderate(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Moderate tier: Hybrid RAG + Chain of Thought."""
-        steps = ['rag_retrieval', 'chain_of_thought', 'synthesis']
-        confidence = 0.85
-        axis_context = None
-        
-        if self.axis_system:
-            try:
-                axis_context = self.axis_system.resolve_multi_axis_context({'query': query})
-            except Exception as e:
-                logger.warning(f"Axis system resolution failed: {e}")
-        
-        if self.simulation_engine:
-            try:
-                sim_result = self.simulation_engine.process_query(query, context)
-                sim_confidence = sim_result.get('confidence', sim_result.get('current_confidence', 0))
-                confidence = max(confidence, sim_confidence)
-                steps.append('simulation_layers_1_3')
-            except Exception as e:
-                logger.warning(f"SimulationEngine moderate tier failed: {e}")
-        
-        result = {
-            'tier': 'moderate',
-            'response': f"Analyzed response with RAG context for: {query[:100]}...",
-            'confidence': confidence,
-            'steps_executed': steps,
-            'rag_sources': [],
-            'processing_time_ms': 500
-        }
-        
-        if axis_context:
-            result['axis_context'] = axis_context
-        
-        return result
-
-    def _process_high_stakes(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """High-stakes tier: Full 12-step refinement workflow with data piping."""
+    def _execute_workflow(self, query: str, context: Dict[str, Any], steps: List[str], tier: str) -> Dict[str, Any]:
+        """Unified execution loop for all tiers."""
         executed_steps = []
         working_context = context.copy()
+        working_context['session_id'] = context.get('session_id', str(uuid.uuid4()))
         personas_used = set()
         
-        for step in self.REFINEMENT_STEPS:
+        for step in steps:
             step_result = self._execute_refinement_step(step, query, working_context)
             executed_steps.append(step_result)
             
-            # Data Piping Logic for v2.0 Intelligence Layer
-            if step == 'multi_persona_reasoning':
-                # Pass detected claims to Consensus Engine
+            # Layer-Specific Data Piping & Context Injection
+            if step_result['status'] == 'completed':
                 output = step_result.get('output', {})
-                working_context['claims'] = output.get('claims', [])
-                if 'personas_used' in output:
-                     personas_used.update(output['personas_used'])
-                     
-            elif step == 'consensus_evaluation':
-                # Pass detected conflicts to Conflict Resolution
-                output = step_result.get('output', {})
-                working_context['conflicts'] = output.get('conflicts', [])
+                if not isinstance(output, dict):
+                    output = {"raw_output": output}
                 
-            elif step == 'conflict_resolution':
-                # Check for escalation
-                output = step_result.get('output', {})
-                if output.get('escalation_triggered'):
-                    logger.info("Expert Escalation (Mediator) triggered during conflict resolution")
-
-            elif step == 'quant_validation':
-                # Layer 6: Quantitative Validation
-                if self.quant_service:
-                    claims = working_context.get('claims', [])
-                    # Assuming draft solution is in previous step output or context
-                    draft = context.get('draft_solution', query) # Fallback
-                    validation_result = self.quant_service.validate(draft, claims, working_context.get('data_context'))
+                if step == 'intent_parsing':
+                    working_context['intent_id'] = output.get('intent_id')
+                    working_context['coordinate_vector'] = output.get('coordinates', {})
+                
+                elif step == 'hybrid_retrieval':
+                    working_context['evidence'] = output.get('evidence', [])
+                
+                elif step == 'multi_persona_reasoning':
+                    # Standard Quad Persona Execution
+                    working_context['claims'] = output.get('claims', [])
+                    working_context['persona_results'] = output.get('personas', {})
                     
-                    working_context['quant_validation'] = validation_result
-                    logger.info(f"Layer 6 Validation Complete: Risk={validation_result.risk_score}")
-
-            elif step == 'simulations':
-                # Layer 7: AGI Simulation
-                if self.agi_planner:
-                    # Collect beliefs from context or extraction
-                    beliefs = working_context.get('beliefs', [])
-                    # Goal is the refined query or draft
-                    goal = context.get('draft_solution', query)
+                    # --- PERSONA SUFFICIENCY GATE ---
+                    sufficiency = self.sufficiency_tool.evaluate(
+                        query, 
+                        working_context.get('coordinate_vector', {}).get('active_axes', []),
+                        working_context['persona_results'],
+                        {"domain": working_context.get('risk_domain', 'standard'), "tags": working_context.get('tags', [])}
+                    )
                     
-                    plan = self.agi_planner.plan(goal, beliefs)
-                    working_context['agi_plan'] = plan
-                    logger.info(f"Layer 7 Planning Complete: Depth={plan.root_goal.depth} Convergence={plan.convergence_score}")
-        
-        result = {
-            'tier': 'high_stakes',
-            'response': f"Fully refined and arbitrated response for: {query[:100]}...",
-            'confidence': executed_steps[-1].get('confidence', 0.95), # Pull from final synthesis or similar
+                    if sufficiency['mode'] == 'expanded_committee':
+                        logger.info(f"SUFFICIENCY TRIGGER: Expanding committee. Reasons: {sufficiency['reasons']}")
+                        # Spawn and execute pods
+                        pods = []
+                        for lane, count in sufficiency['spawn'].items():
+                            if count > 0:
+                                specialists = self.persona_enhancer.spawn_specialists(f"{lane}_expert", count)
+                                pod = PersonaPod(lane, specialists)
+                                pods.append(pod)
+                        
+                        # Execute pods (concurrently if possible)
+                        for pod in pods:
+                            pod.execute(query, working_context, self)
+                            pod_result = pod.synthesize()
+                            # Merge pod results into working context
+                            working_context['persona_results'][f"{pod.lane}_pod"] = pod_result
+                        
+                        logger.info("Persona Pods executed and synthesized.")
+                
+                elif step == 'quant_validation':
+                    working_context['l6_quant_result'] = output
+                
+                elif step == 'agi_planning':
+                    working_context['l7_agi_plan'] = output
+                
+                elif step == 'trust_validation':
+                    working_context['l8_gate_result'] = output
+                    if step_result.get('gate_decision') == 'FAIL':
+                        logger.warning(f"Layer 8 BLOCK: Workflow halted.")
+                        break
+
+                elif step == 'meta_reasoning':
+                    working_context['l9_result'] = output
+                    # Handle L9 REFINE/FINALIZE decision
+                    if step_result.get('gate_decision') == 'REFINE':
+                        logger.info("Layer 9 trigger: REFINING...")
+                
+                elif step == 'final_safety_gate':
+                    if step_result.get('decision') == 'HALT':
+                        logger.error("Layer 10 BLOCK: Output HALTED by Sentinel.")
+                        break
+                    
+                    # --- 12-STEP REFINEMENT ORCHESTRATOR ---
+                    # Final polish before release
+                    if tier in ['high_stakes', 'extreme', 'autonomous']:
+                        logger.info("Invoking 12-Step Refinement Orchestrator.")
+                        refined_result = self.refinement_orchestrator.refine(
+                            {"content": step_result.get('final_answer', ''), "confidence": step_result.get('confidence', 0.95)},
+                            working_context
+                        )
+                        step_result['final_answer'] = refined_result['content']
+                        step_result['confidence'] = refined_result['final_confidence']
+                        working_context['refinement_history'] = refined_result['refinement_history']
+            else:
+                logger.error(f"Step {step} failed: {step_result.get('error')}")
+                if tier in ['high_stakes', 'extreme', 'autonomous']:
+                    break
+
+        # Final result assembly
+        last_success = next((s for s in reversed(executed_steps) if s['status'] == 'completed'), None)
+        final_answer = ""
+        if last_success:
+            if 'final_answer' in last_success:
+                final_answer = last_success['final_answer']
+            else:
+                final_answer = str(last_success.get('output', ''))
+
+        return {
+            'tier': tier,
+            'response': final_answer,
+            'confidence': executed_steps[-1].get('confidence', 0.95) if executed_steps else 0.0,
             'steps_executed': executed_steps,
-            'personas_used': list(personas_used) if personas_used else ['analyst', 'expert', 'critic', 'synthesizer'],
-            'bias_score': 0.1,
-            'safety_score': 0.98,
-            'processing_time_ms': 5000
+            'personas_used': list(personas_used) if personas_used else ['sentinel'],
+            'processing_time_ms': 500 # Simplified for now
         }
-        
-        if self.ka_controller:
-            ka_result = self._invoke_ka_algorithms(query, context)
-            result['ka_execution'] = ka_result
-        
-        return result
-
-    def _process_extreme(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Extreme tier: High-stakes + simulations."""
-        high_stakes_result = self._process_high_stakes(query, context)
-        
-        simulation_results = {
-            'gnn_simulation': {'status': 'completed', 'output': {}},
-            'neural_net_prediction': {'status': 'completed', 'output': {}},
-            'quantum_uncertainty': {'status': 'completed', 'output': {}}
-        }
-        
-        if self.simulation_engine:
-            try:
-                sim_result = self.simulation_engine.process_query(query, context)
-                sim_confidence = sim_result.get('confidence', sim_result.get('current_confidence', 0))
-                simulation_results['simulation_engine'] = {
-                    'status': sim_result.get('status', 'unknown'),
-                    'confidence': sim_confidence,
-                    'response': sim_result.get('response', ''),
-                    'active_personas': sim_result.get('active_personas', []),
-                    'processing_time_ms': sim_result.get('processing_time_ms', 0)
-                }
-                high_stakes_result['confidence'] = max(
-                    high_stakes_result.get('confidence', 0),
-                    sim_confidence
-                )
-            except Exception as e:
-                logger.error(f"SimulationEngine failed: {e}")
-                simulation_results['simulation_engine'] = {'status': 'error', 'error': str(e)}
-        
-        result = {
-            'tier': 'extreme',
-            'response': high_stakes_result['response'],
-            'confidence': high_stakes_result.get('confidence', 0.97),
-            'steps_executed': high_stakes_result['steps_executed'],
-            'simulations': simulation_results,
-            'processing_time_ms': 30000
-        }
-        
-        return result
-
-    def _process_autonomous(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Autonomous tier: Governed multi-agent planning."""
-        planning_result = {
-            'execution_plan': [],
-            'agent_scratchpad': [],
-            'tool_calls': [],
-            'checkpoints': []
-        }
-        
-        task_steps = [
-            'task_decomposition',
-            'agent_assignment',
-            'parallel_execution',
-            'result_synthesis',
-            'validation'
-        ]
-        
-        for step in task_steps:
-            planning_result['execution_plan'].append({
-                'step': step,
-                'status': 'completed',
-                'timestamp': datetime.now(UTC).isoformat()
-            })
-        
-        result = {
-            'tier': 'autonomous',
-            'response': f"Autonomous task execution completed for: {query[:100]}...",
-            'confidence': 0.92,
-            'planning_result': planning_result,
-            'deliverable': {},
-            'processing_time_ms': 120000
-        }
-        
-        return result
 
     def _execute_refinement_step(self, step: str, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute a single refinement step using specific Knowledge Algorithms."""
+        """Execute a single layer/step and return its results."""
         mapping = {
-            'decomposition': 'KA-001',
-            'multi_persona_reasoning': 'KA-012',
-            'persona_weighting': 'KA-013',         # L5: Weight persona contributions
-            'contradiction_detection': 'KA-026',   # L5: Semantic contradiction scan
-            'consensus_evaluation': 'KA-038',
-            'conflict_resolution': 'KA-030',
-            'anomaly_detection': 'KA-039',         # L6: Statistical Anomaly
-            'entropy_detection': 'KA-116',         # L6: Entropy Scoring
-            'confidence_scoring': 'KA-014',        # L6: Confidence
-            'hybrid_retrieval': 'KA-014',
-            'graph_consistency_check': 'KA-025',
-            'deep_synthesis': 'KA-017',
-            'reflection_loop': 'KA-013',
-            'bias_scan': 'KA-030',
-            'safety_scan': 'KA-036',
-            'hypothesis_generation': 'KA-040',     # L7: Subgoal Generation
-            'tree_of_thought': 'KA-002',           # L7: Recursive ToT
-            'deep_planning': 'KA-006',             # L7: Multi-Step Planning
-            'emergence_detection': 'KA-021',       # L7: Emergent Pattern Detection
-            'simulations': 'KA-032',
-            'trust_validation': 'L8-GATEWAY',      # L8: TrustValidationGateway
-            'tier_verification': 'KA-027',
-            'final_synthesis': 'KA-041',
+            'intent_parsing': 'KA-011',        # L1: Intent Parsing 
+            'hybrid_retrieval': 'KA-079',      # L2: Retrieval
+            'deep_research': 'KA-029',         # L3: Deep Research
+            'pov_expansion': 'KA-028',         # L4: POV Expansion
+            'multi_persona_reasoning': 'KA-012', # L5: Persona Deliberation
+            'quant_validation': 'KA-116',      # L6: Quantitative Validation
+            'agi_planning': 'KA-006',          # L7: AGI Mission Planning
+            'trust_validation': 'L8-GATEWAY',  # L8: Trust Gate
+            'meta_reasoning': 'L9-CONTROLLER', # L9: Meta-Recursion
+            'final_safety_gate': 'L10-SENTINEL', # L10: Safety Sentinel
             'memory_patch': 'KA-016'
         }
         
-        # Special handling for Layer 8 Trust Validation Gateway
+        # --- Layer-Specific Service Overrides ---
+        
+        # L6: Quantitative Validation Service
+        if step == 'quant_validation' and self.quant_service:
+            try:
+                claims = context.get('claims', [])
+                draft = context.get('draft_solution', query)
+                result = self.quant_service.validate(draft, claims, context.get('data_context'))
+                return {
+                    'step': step,
+                    'ka_id': 'L6-QUANT-SERVICE',
+                    'status': 'completed',
+                    'output': result.dict() if hasattr(result, 'dict') else result,
+                    'confidence': result.confidence if hasattr(result, 'confidence') else 0.9
+                }
+            except Exception as e:
+                logger.error(f"Layer 6 Service failed: {e}")
+
+        # L7: AGI Planner Service
+        if step == 'agi_planning' and self.agi_planner:
+            try:
+                beliefs = context.get('beliefs', [])
+                goal = context.get('draft_solution', query)
+                plan = self.agi_planner.plan(goal, beliefs)
+                return {
+                    'step': step,
+                    'ka_id': 'L7-AGI-PLANNER',
+                    'status': 'completed',
+                    'output': plan.dict() if hasattr(plan, 'dict') else plan,
+                    'confidence': plan.convergence_score if hasattr(plan, 'convergence_score') else 0.95
+                }
+            except Exception as e:
+                logger.error(f"Layer 7 Service failed: {e}")
+
+        # L8: Trust Validation Gateway
         if step == 'trust_validation' and self.trust_gateway:
             try:
                 from backend.truth_engine.truth_gate.l8_schemas import L8Input
@@ -540,21 +490,14 @@ class TruthCoreEngine:
                     'ka_id': 'L8-GATEWAY',
                     'status': 'completed',
                     'gate_decision': result.status.value,
-                    'output': result.dict(),
+                    'output': result.model_dump(),
                     'confidence': result.overall_confidence
                 }
             except Exception as e:
                 logger.error(f"Layer 8 TrustValidationGateway failed: {e}")
-                return {
-                    'step': step,
-                    'ka_id': 'L8-GATEWAY',
-                    'status': 'error',
-                    'gate_decision': 'FAIL',
-                    'error': str(e),
-                    'confidence': 0.0
-                }
-        
-        # Special handling for Layer 9 MetaReasoningController
+                return {'step': step, 'ka_id': 'L8-GATEWAY', 'status': 'error', 'gate_decision': 'FAIL', 'error': str(e), 'confidence': 0.0}
+
+        # L9: Meta-Reasoning Controller
         if step == 'meta_reasoning' and self.meta_reasoning:
             try:
                 from backend.truth_engine.truth_core.l9_schemas import L9Input
@@ -562,10 +505,7 @@ class TruthCoreEngine:
                     simulation_id=context.get('session_id', 'unknown'),
                     l8_gate_result=context.get('l8_gate_result', {}),
                     reasoning_trace=context.get('reasoning_trace', {}),
-                    problem_spec={
-                        'original_query': query,
-                        'constraints': context.get('constraints', [])
-                    },
+                    problem_spec={'original_query': query, 'constraints': context.get('constraints', [])},
                     iteration_state=context.get('iteration_state', {}),
                     risk_domain=context.get('risk_domain', 'standard')
                 )
@@ -580,16 +520,9 @@ class TruthCoreEngine:
                 }
             except Exception as e:
                 logger.error(f"Layer 9 MetaReasoningController failed: {e}")
-                return {
-                    'step': step,
-                    'ka_id': 'L9-CONTROLLER',
-                    'status': 'error',
-                    'gate_decision': 'REFINE',
-                    'error': str(e),
-                    'readiness_score': 0.0
-                }
+                return {'step': step, 'ka_id': 'L9-CONTROLLER', 'status': 'error', 'gate_decision': 'REFINE', 'error': str(e), 'readiness_score': 0.0}
 
-        # Special handling for Layer 10 EmergenceDetectionController
+        # L10: Final Safety Gate (Sentinel)
         if step == 'final_safety_gate' and self.emergence_gate:
             try:
                 from backend.truth_engine.truth_core.l10_schemas import L10Input
@@ -597,10 +530,7 @@ class TruthCoreEngine:
                     simulation_id=context.get('session_id', 'unknown'),
                     l9_result=context.get('l9_result', {}),
                     reasoning_trace=context.get('reasoning_trace', {}),
-                    problem_spec={
-                        'original_query': query,
-                        'constraints': context.get('constraints', [])
-                    },
+                    problem_spec={'original_query': query, 'constraints': context.get('constraints', [])},
                     coordinate_vector=context.get('coordinate_vector', {}),
                     risk_domain=context.get('risk_domain', 'standard')
                 )
@@ -615,29 +545,13 @@ class TruthCoreEngine:
                 }
             except Exception as e:
                 logger.error(f"Layer 10 EmergenceDetectionController failed: {e}")
-                return {
-                    'step': step,
-                    'ka_id': 'L10-SENTINEL',
-                    'status': 'error',
-                    'decision': 'HALT',
-                    'error': str(e),
-                    'final_answer': "Final safety gate failure."
-                }
+                return {'step': step, 'ka_id': 'L10-SENTINEL', 'status': 'error', 'decision': 'HALT', 'error': str(e), 'final_answer': "Final safety gate failure."}
 
-        
+        # --- Default KA Execution ---
         ka_id = mapping.get(step)
         if ka_id and self.ka_controller:
             try:
-                # Prepare KA-specific inputs based on step
                 ka_input = {'query': query, **context}
-                
-                # Special mapping for v2.0 steps
-                if step == 'consensus_evaluation':
-                    ka_input['claims'] = context.get('claims', [])
-                elif step == 'conflict_resolution':
-                    ka_input['conflicts'] = context.get('conflicts', [])
-
-                # Use execute_algorithm if it is the unified controller
                 if hasattr(self.ka_controller, 'execute_algorithm'):
                     result = self.ka_controller.execute_algorithm(ka_id, ka_input)
                 else:
@@ -655,7 +569,7 @@ class TruthCoreEngine:
                 
         return {
             'step': step,
-            'input': query[:50],
+            'status': 'completed',
             'output': f"Mock result of {step}",
             'confidence': 0.8
         }
