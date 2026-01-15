@@ -262,5 +262,30 @@ class TestL9KAs:
         assert "target_layer" in result
 
 
+class TestCanonicalKAIntegration:
+    """Test canonical KA wiring (KA-008, KA-010, KA-022, KA-025)."""
+    
+    def test_canonical_kas_defined(self):
+        """Test canonical KAs are defined in controller."""
+        from backend.truth_engine.truth_core.meta_reasoning_controller import (
+            MetaReasoningController
+        )
+        
+        assert "KA-008" in MetaReasoningController.CANONICAL_KAS
+        assert "KA-010" in MetaReasoningController.CANONICAL_KAS
+        assert "KA-022" in MetaReasoningController.CANONICAL_KAS
+        assert "KA-025" in MetaReasoningController.CANONICAL_KAS
+    
+    def test_l9_kas_defined(self):
+        """Test L9-specific KAs are defined."""
+        from backend.truth_engine.truth_core.meta_reasoning_controller import (
+            MetaReasoningController
+        )
+        
+        assert len(MetaReasoningController.L9_KAS) == 7
+        assert "L9-KA-001" in MetaReasoningController.L9_KAS
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+

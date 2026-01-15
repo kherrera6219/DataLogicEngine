@@ -2,7 +2,7 @@
 
 ### Enterprise-Grade AI Knowledge Synthesis & Orchestration Platform
 
-[![Version](https://img.shields.io/badge/Version-2.2.0--hardened-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-2.3.0-blue)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
@@ -212,9 +212,8 @@ Instead of a single LLM pass, the engine executes a multi-layered pipeline:
 - **L6 (Quant Validation)**: Ensures mathematical consistency (MAD-based anomaly detection, entropy scoring).
 - **L7 (AGI Planner)**: Recursive goal decomposition and conflict arbitration with LLM-ready hooks.
 - **L8 (Trust Gate)**: Cross-domain validation, PASS/WARN/FAIL gate decision, 12 KAs wired.
-- **L9 (Meta-Reasoning)**: FINALIZE/REFINE gate, belief drift detection, 7 L9 KAs wired.
-- **L10 (Synthesis)**: Final context-grounded response generation.
-- **L10 (Audit)**: Finalizing the hash-chained execution trace.
+- **L9 (Meta-Reasoning)**: FINALIZE/REFINE gate, belief drift detection, persona agreement audit. **11 KAs** (7 L9-specific + 4 canonical).
+- **L10 (Synthesis & Audit)**: Final context-grounded response generation and hash-chained execution trace.
 
 #### Knowledge Algorithm (KA) Integration by Layer
 
@@ -230,6 +229,7 @@ Each layer invokes specific KAs from the 116-algorithm registry:
 | **L6** | KA-039, KA-116, KA-014 | Anomaly detection, entropy scoring, confidence scoring |
 | **L7** | KA-002, KA-006, KA-021, KA-040 | Tree-of-Thought, deep planning, emergence detection, hypothesis generation |
 | **L8** | KA-003, KA-008, KA-014, KA-016, KA-022, KA-023, KA-024, KA-025, KA-026, KA-030, KA-034 | Trust validation gateway, cross-domain consistency, contradiction detection |
+| **L9** | L9-KA-001 to L9-KA-007, KA-008, KA-010, KA-022, KA-025 | Meta-reasoning, trace analysis, belief drift, persona audit, self-critique |
 
 
 ### 3. Traceable Response

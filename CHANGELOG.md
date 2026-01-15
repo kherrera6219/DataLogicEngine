@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-01-15
+
+### Added - Phase 24: Layer 9 Meta-Reasoning & Recursion Governance
+- **MetaReasoningController**: Implemented Layer 9 as the recursion governor with FINALIZE/REFINE gate logic.
+- **11-KA Integration (Layer 9)**: Wired 7 L9-specific KAs and 4 canonical KAs (KA-008, KA-010, KA-022, KA-025).
+- **Belief Drift Detection**: Automated semantic and numerical drift analysis between original query and final solution.
+- **Persona Agreement Auditing**: Systematic audit of persona satisfaction scores (silent dissent detection).
+- **Trace Integrity Analysis**: Systematic review of reasoning traces (L1-L8) for consistency.
+- **Recursion Routing**: Advanced routing table to target specific layers (L2-L8) based on identified meta-reasoning issues.
+- **Iteration Controls**: Hard limits (max 5) and diminishing returns detection to prevent infinite loops.
+- **TruthCoreEngine Integration**: Expanded refinement pipeline to 27 steps including meta-reasoning evaluation.
+- **Verification Suite**: Added 15 unit tests covering L9 schemas, controller logic, and KA integration.
+
 ## [2.2.0] - 2026-01-15
 
 ### Added - Phase 11: Enterprise Security Consolidation

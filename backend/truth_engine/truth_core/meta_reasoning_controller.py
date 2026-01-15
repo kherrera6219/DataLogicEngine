@@ -81,8 +81,8 @@ class MetaReasoningController:
     before finalization. Makes FINALIZE or REFINE gate decisions.
     """
     
-    # L9 KA Suite
-    REQUIRED_KAS = [
+    # L9 KA Suite (Layer 9 specific)
+    L9_KAS = [
         "L9-KA-001",  # Trace Analyzer
         "L9-KA-002",  # Belief Drift Detector
         "L9-KA-003",  # Persona Agreement Auditor
@@ -90,6 +90,14 @@ class MetaReasoningController:
         "L9-KA-005",  # Recursion Trigger
         "L9-KA-006",  # Readiness Scorer
         "L9-KA-007",  # Loop Controller
+    ]
+    
+    # Canonical KAs from registry (inherited from user docs)
+    CANONICAL_KAS = [
+        "KA-008",  # Self-Critique & Reflection
+        "KA-010",  # Bias Detection
+        "KA-022",  # Memory Drift
+        "KA-025",  # Self-Awareness Scoring
     ]
     
     def __init__(self, ka_controller=None, config: Optional[Dict] = None):
@@ -117,7 +125,7 @@ class MetaReasoningController:
         self.finalize_count = 0
         self.refine_count = 0
         
-        logger.info("MetaReasoningController initialized with 7 L9 KAs")
+        logger.info("MetaReasoningController initialized with 7 L9 KAs + 4 canonical KAs")
     
     def evaluate(self, input_data: L9Input) -> L9Result:
         """
@@ -154,10 +162,28 @@ class MetaReasoningController:
             # Phase 4: Meta-Cognitive Evaluation
             meta_report = self._run_meta_evaluation(input_data, kas_invoked)
             
+            # Phase 4b: Run Canonical KA Checks (KA-008, KA-010, KA-022, KA-025)
+            canonical_results = self._run_canonical_ka_checks(input_data, kas_invoked)
+            
+            # Integrate canonical KA results into meta report
+            if canonical_results.get("bias_detected"):
+                meta_report.weakness_hotspots.append({
+                    "area": "bias",
+                    "severity": "high",
+                    "description": "KA-010 detected potential bias in reasoning"
+                })
+            if canonical_results.get("memory_drift_score", 0) > 0.2:
+                meta_report.failure_modes.append({
+                    "scenario": "memory_drift",
+                    "probability": canonical_results["memory_drift_score"],
+                    "impact": "medium"
+                })
+            
             # Phase 5: Calculate Readiness Score
             readiness_score, readiness_components = self._calculate_readiness(
                 input_data, trace_report, drift_report, persona_report, meta_report, kas_invoked
             )
+
             
             # Phase 6: Make Gate Decision
             decision, severity, refinement_plan = self._make_decision(
@@ -452,6 +478,69 @@ class MetaReasoningController:
             failure_modes=failure_modes,
             alternative_approaches=alternatives
         )
+    
+    def _run_canonical_ka_checks(self, input_data: L9Input, kas_invoked: List[str]) -> Dict[str, Any]:
+        """
+        Run canonical KAs from the registry (KA-008, KA-010, KA-022, KA-025).
+        
+        These are the regular KAs that the user's notes specify for Layer 9.
+        """
+        results = {
+            "self_critique_score": 1.0,
+            "bias_detected": False,
+            "memory_drift_score": 0.0,
+            "self_awareness_score": 1.0
+        }
+        
+        if not self.ka_controller:
+            return results
+        
+        # KA-008: Self-Critique & Reflection
+        try:
+            result = self.ka_controller.execute_algorithm("KA-008", {
+                "output": str(input_data.l8_gate_result)[:1000],
+                "context": input_data.problem_spec
+            })
+            kas_invoked.append("KA-008")
+            results["self_critique_score"] = result.get("quality_score", 1.0)
+        except Exception as e:
+            logger.debug(f"KA-008 skipped: {e}")
+        
+        # KA-010: Bias Detection
+        try:
+            result = self.ka_controller.execute_algorithm("KA-010", {
+                "content": str(input_data.l8_gate_result)[:500],
+                "context": input_data.reasoning_trace
+            })
+            kas_invoked.append("KA-010")
+            results["bias_detected"] = result.get("bias_detected", False)
+        except Exception as e:
+            logger.debug(f"KA-010 skipped: {e}")
+        
+        # KA-022: Memory Drift
+        try:
+            result = self.ka_controller.execute_algorithm("KA-022", {
+                "original_context": input_data.problem_spec,
+                "current_state": input_data.l8_gate_result
+            })
+            kas_invoked.append("KA-022")
+            results["memory_drift_score"] = result.get("drift_score", 0.0)
+        except Exception as e:
+            logger.debug(f"KA-022 skipped: {e}")
+        
+        # KA-025: Self-Awareness Scoring
+        try:
+            result = self.ka_controller.execute_algorithm("KA-025", {
+                "system_state": input_data.l8_gate_result,
+                "trace": input_data.reasoning_trace
+            })
+            kas_invoked.append("KA-025")
+            results["self_awareness_score"] = result.get("awareness_score", 1.0)
+        except Exception as e:
+            logger.debug(f"KA-025 skipped: {e}")
+        
+        return results
+
     
     def _calculate_readiness(
         self,
