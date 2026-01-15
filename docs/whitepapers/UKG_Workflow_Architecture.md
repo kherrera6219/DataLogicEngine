@@ -1,4 +1,5 @@
 # UKG Workflow Review
+**Version 2.3.1 - January 2026**
 
 https://chat.openai.com/c/6961951f-7450-8329-8581-b2150f0eca09
 

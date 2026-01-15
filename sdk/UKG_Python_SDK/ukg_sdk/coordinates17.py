@@ -86,10 +86,10 @@ class CoordinateResolver17:
             "axis_11": "compliance",
             "axis_12": "global",
             "axis_13": "present",
-            "axis_14": "unscored",
-            "axis_15": "medium",
-            "axis_16": "evidence_unknown",
-            "axis_17": "state_unknown",
+            "axis_14": "risk_unscored",
+            "axis_15": "federated_standby",
+            "axis_16": "causality_unbound",
+            "axis_17": "telemetry_inactive",
         }
         # Simple sector matching using loaded axis2 data
         if self.axis_data:

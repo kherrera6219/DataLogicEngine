@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [2.3.1] - 2026-01-15
+
+### Added - SDK Synchronization & Documentation Consolidation
+- **SDK Synchronization**: Updated `tenlayer.py`, `coordinates17.py`, and `frost.py` to match the functional 10-layer model and 17-axis framework.
+- **Functional 10-Layer Realization**: Refactored `SimulationEngine` and `LayerController` to implement the reasoning-centric model (Context -> Materialization -> Debate -> Scenarios -> Final Gate).
+- **USKD_vN Versioning**: Implemented explicit snapshot versioning in FROST for both the application and SDK.
+- **Documentation Versioning**: Applied consistent `v2.3.1 - January 2026` headers to `README.md`, `ARCHITECTURE.md`, `UKG_Python_SDK/README.md`, and system whitepapers.
+- **Architectural Audit**: Completed full alignment between conceptual whitepapers and production implementation.
+
 ## [2.3.0] - 2026-01-15
 
 ### Added - Phase 24: Layer 9 Meta-Reasoning & Recursion Governance

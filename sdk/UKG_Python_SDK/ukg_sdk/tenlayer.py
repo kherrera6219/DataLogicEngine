@@ -27,16 +27,16 @@ from typing import List, Tuple
 
 # A list of tuples mapping layer identifiers to human‑readable names.
 TEN_LAYER_STACK: List[Tuple[str, str]] = [
-    ("L1", "Input Parsing & Context Init"),
-    ("L2", "Knowledge Retrieval & Axis Resolution"),
-    ("L3", "Planning & Simple Reasoning"),
-    ("L4", "Persona Activation & Domain Analysis"),
-    ("L5", "Conflict Detection & Resolution"),
-    ("L6", "Evidence Validation & Truth Scoring"),
-    ("L7", "Simulation & Emergent Analysis"),
-    ("L8", "Compliance, Risk & Ethics Checks"),
-    ("L9", "Explainability & Narrative Synthesis"),
-    ("L10", "Memory & Lifecycle Management"),
+    ("L1", "Context Initialization"),
+    ("L2", "USKD Materialization"),
+    ("L3", "Controlled Expansion"),
+    ("L4", "POV Overlays"),
+    ("L5", "Quad Persona Projections"),
+    ("L6", "Validation & Scoring"),
+    ("L7", "Scenario Simulation"),
+    ("L8", "Consistency Verification"),
+    ("L9", "Strategic Alignment"),
+    ("L10", "Final Emergence Gate"),
 ]
 
 def get_layer_name(layer_id: str) -> str:

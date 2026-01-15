@@ -1,4 +1,4 @@
-# UKG SDK (Python) — v0.3.1
+# UKG SDK (Python) — v2.3.1
 
 This SDK is the **public API overlay** for the UKG/USKD system:
 

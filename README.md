@@ -2,7 +2,7 @@
 
 ### Enterprise-Grade AI Knowledge Synthesis & Orchestration Platform
 
-[![Version](https://img.shields.io/badge/Version-2.3.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-2.3.1-blue)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)

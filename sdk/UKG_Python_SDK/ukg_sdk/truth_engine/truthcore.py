@@ -54,12 +54,15 @@ class TruthCore:
         if self.coord_resolver:
             try:
                 coordinate = self.coord_resolver.resolve(request.get("query", ""))
+                self.frost.push("coord_resolution", coordinate)
+                self.frost.snapshot("USKD_v1")
             except Exception:
                 coordinate = None
         # Execute KAs and record outputs in FROST
         ka_outputs = self.executor.run_all(request, tier=tier)
         for ka_id, output in ka_outputs.items():
             self.frost.push(ka_id, output)
+        self.frost.snapshot("USKD_v10")
         # Compose a trivial answer.  In practice, a separate synthesis step
         # would generate a final answer using persona consensus and scoring.
         answer = f"Processed {len(ka_outputs)} KAs for tier {tier}."

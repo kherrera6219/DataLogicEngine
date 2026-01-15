@@ -1,4 +1,5 @@
 # Universal Knowledge Graph (UKG) System Architecture
+**Version 2.3.1 - January 2026**
 
 ## Overview
 
