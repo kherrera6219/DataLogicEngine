@@ -158,6 +158,37 @@ def mfa_confirm():
     session['mfa_verified'] = True # Mark as verified for current session
     
     return success_response(message="MFA successfully enabled")
+    
+@auth_bp.route('/step-up', methods=['POST'])
+@login_required
+def step_up_verify():
+    """
+    Verify MFA token for Step-Up Authentication (Sudo Mode).
+    Sets 'last_sudo_time' in session on success.
+    """
+    from datetime import datetime, UTC
+    
+    # If user doesn't have MFA enabled, step-up is just password re-verify
+    # But for "Exceeding Standards", we enforce MFA/OTP even for step-up
+    # If not enabled, they must enable it first.
+    if not current_user.mfa_enabled:
+        return error_response("MFA must be enabled for this action", 403, code="MFA_REQUIRED")
+
+    data = request.json
+    token = data.get('token')
+    if not token:
+        return error_response("Token required")
+
+    from backend.security.mfa import MFAManager
+    # Just verify the token against the user's secret
+    if not current_user.verify_totp(token):
+        return error_response("Invalid authentication code", 401)
+        
+    # Success - Update session
+    session['last_sudo_time'] = datetime.now(UTC).isoformat()
+    logger.info(f"Step-Up auth successful for user {current_user.id}")
+    
+    return success_response(message="Identity verified")
 
 @auth_bp.route('/register', methods=['POST'])
 def register():

@@ -346,3 +346,53 @@ def require_mfa(f):
         return f(*args, **kwargs)
 
     return decorated_function
+
+
+def step_up_required(f):
+    """
+    Decorator to require fresh MFA verification (Step-Up Auth) for high-risk actions.
+    Ensures the user has verified their identity within the last 15 minutes.
+    
+    Usage:
+        @app.route('/admin/config')
+        @login_required
+        @step_up_required
+        def update_config():
+            ...
+    """
+    from functools import wraps
+    from flask import session, redirect, url_for, flash, request, jsonify
+    from flask_login import current_user
+    from datetime import datetime, timedelta, UTC
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            if request.is_json:
+                return jsonify({'error': 'Authentication required'}), 401
+            return redirect(url_for('login'))
+
+        # Check last sudo/step-up time
+        last_sudo_str = session.get('last_sudo_time')
+        is_fresh = False
+        
+        if last_sudo_str:
+            last_sudo = datetime.fromisoformat(last_sudo_str)
+            # 15 minute timeout for step-up actions
+            if datetime.now(UTC) - last_sudo < timedelta(minutes=15):
+                is_fresh = True
+        
+        if not is_fresh:
+            if request.is_json:
+                return jsonify({
+                    'error': 'Step-up authentication required',
+                    'required_action': 'mfa_verify',
+                    'next': request.endpoint
+                }), 403
+            
+            flash('Please verify your identity to continue.', 'warning')
+            return redirect(url_for('auth.step_up_verify', next=request.endpoint))
+
+        return f(*args, **kwargs)
+
+    return decorated_function

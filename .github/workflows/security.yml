@@ -134,3 +134,58 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
+
+  sbom:
+    name: SBOM Generation
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install CycloneDX tools
+      run: pip install cyclonedx-bom
+
+    - name: Generate Backend SBOM
+      run: |
+        if [ -f requirements-enterprise.txt ]; then
+          cyclonedx-py requirements requirements-enterprise.txt --output sbom-backend.json
+        else
+          cyclonedx-py requirements requirements.txt --output sbom-backend.json
+        fi
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Generate Frontend SBOM
+      run: |
+        if [ -d frontend ]; then
+          cd frontend
+          npm install --package-lock-only
+          npx @cyclonedx/cyclonedx-npm --output-file ../sbom-frontend.json
+        fi
+
+    - name: Upload SBOMs
+      uses: actions/upload-artifact@v4
+      with:
+        name: sbom-reports
+        path: |
+          sbom-backend.json
+          sbom-frontend.json
+
+  artifact-signing:
+    name: Artifact Signing (Cosign)
+    needs: [sbom]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - name: Install Cosign
+      uses: sigstore/cosign-installer@v3.1.1
+    
+    - name: Write signing key (MOCK)
+      run: echo "Artifact signing would occur here using stored GitHub secrets"

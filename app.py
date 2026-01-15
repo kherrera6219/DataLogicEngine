@@ -393,6 +393,14 @@ try:
 except ImportError as e:
     logger.warning(f"Could not register Retention API: {e}")
 
+# Register Privacy & Data Deletion API
+try:
+    from backend.routes.privacy_routes import privacy_bp
+    app.register_blueprint(privacy_bp)
+    logger.info("Privacy API registered at /api/v1/privacy")
+except ImportError as e:
+    logger.warning(f"Could not register Privacy API: {e}")
+
 # Register core routes from routes package
 from routes import register_routes
 register_routes(app)
