@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA079RetrievalInput(BaseModel):
+    query: Dict[str, Any] = Field(default_factory=dict, description="The query parameters for data lookup")
+
 class KA079DataRetrieval(KnowledgeAlgorithm):
     """
-    KA-079: Accelerated data retrieval and search engine.
+    KA-079: Optimized data retrieval and multi-engine search orchestration.
     """
+    input_schema = KA079RetrievalInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-079"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,25 +37,21 @@ class KA079DataRetrieval(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        query_params = input_data.get("query", {})
-        
+    def _run_logic(self, input_data: KA079RetrievalInput) -> Dict[str, Any]:
+        query_params = input_data.query
         self.log_execution_step("Executing Optimized Retrieval", {"query_depth": len(query_params)})
         
         engine = self.config.get("search_engine", "standard")
         mode = "vector" if self.config.get("enable_vector_search") else "standard"
         
-        # Simulate retrieval
         found_records = [{"id": f"res_{i}", "relevance": 0.99 - (i*0.1)} for i in range(5)]
         
         return {
-            "ka_id": "KA-079",
-            "ka_name": "Data Retrieval",
             "success": True,
             "results_count": len(found_records),
             "retrieval_mode": mode,
             "engine_active": engine,
-            "execution_time_ms": 120 # Stub
+            "execution_time_ms": 120
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

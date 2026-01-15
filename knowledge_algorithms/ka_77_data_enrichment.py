@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA077EnrichmentInput(BaseModel):
+    records: List[Any] = Field(default_factory=list, description="The list of records to enrich")
+
 class KA077DataEnrichment(KnowledgeAlgorithm):
     """
-    KA-077: External data augmentation and enrichment engine.
+    KA-077: External data augmentation and metadata enrichment engine.
     """
+    input_schema = KA077EnrichmentInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-077"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,9 +37,8 @@ class KA077DataEnrichment(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        records = input_data.get("records", [])
-        
+    def _run_logic(self, input_data: KA077EnrichmentInput) -> Dict[str, Any]:
+        records = input_data.records
         self.log_execution_step("Enriching Records", {"record_count": len(records)})
         
         providers = self.config.get("external_providers", [])
@@ -40,17 +48,14 @@ class KA077DataEnrichment(KnowledgeAlgorithm):
             if not isinstance(record, dict):
                 continue
             
-            # Simulate enrichment (e.g. adding fake geo coordinates)
             enriched = record.copy()
             if "location" in enriched:
-                enriched["geo_coords"] = [45.0, -93.0] # Stub
+                enriched["geo_coords"] = [45.0, -93.0]
                 enriched["enrichment_source"] = providers[0] if providers else "internal"
             
             enriched_results.append(enriched)
             
         return {
-            "ka_id": "KA-077",
-            "ka_name": "Data Enrichment",
             "success": True,
             "records_enriched": len(enriched_results),
             "providers_used": providers,

@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA089PruningInput(BaseModel):
+    model_id: str = Field("latest", description="The identifier for the model to prune")
+
 class KA089ModelPruning(KnowledgeAlgorithm):
     """
-    KA-089: Model weight sparsification and pruning engine.
+    KA-089: Model weight sparsification and pruning engine for efficiency.
     """
+    input_schema = KA089PruningInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-089"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,20 +37,15 @@ class KA089ModelPruning(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        model_id = input_data.get("model_id", "latest")
-        
-        self.log_execution_step("Pruning Model Weights", {"model": model_id, "method": self.config.get("pruning_method")})
+    def _run_logic(self, input_data: KA089PruningInput) -> Dict[str, Any]:
+        model_id = input_data.model_id
+        self.log_execution_step("Pruning Model Weights", {"model": model_id, "method": self.config.get("pruning_method", "magnitude")})
         
         target_sparsity = self.config.get("target_sparsity", 0.1)
-        
-        # Simulate pruning process
         params_before = 100000000
         params_after = int(params_before * (1.0 - target_sparsity))
         
         return {
-            "ka_id": "KA-089",
-            "ka_name": "Model Pruning",
             "success": True,
             "pruned_model_id": f"{model_id}_pruned",
             "sparsity_achieved": target_sparsity,

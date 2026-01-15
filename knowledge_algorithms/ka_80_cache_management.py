@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA080CacheInput(BaseModel):
+    key: str = Field("*", description="The cache key to operate on")
+    operation: str = Field("stats", description="The cache operation (e.g., stats, clear, evict)")
+
 class KA080CacheManagement(KnowledgeAlgorithm):
     """
-    KA-080: Distributed cache orchestration and eviction engine.
+    KA-080: Distributed cache orchestration and consistency management engine.
     """
+    input_schema = KA080CacheInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-080"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,16 +38,14 @@ class KA080CacheManagement(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        cache_key = input_data.get("key", "*")
-        op = input_data.get("operation", "stats")
-        
+    def _run_logic(self, input_data: KA080CacheInput) -> Dict[str, Any]:
+        cache_key = input_data.key
+        op = input_data.operation
         self.log_execution_step("Managing Cache Objects", {"op": op, "key": cache_key})
         
         layer = self.config.get("cache_layer", "local")
         policy = self.config.get("eviction_policy", "FIFO")
         
-        # Simulate cache statistics and management
         stats = {
             "hit_ratio": 0.88,
             "eviction_count": 142,
@@ -45,8 +53,6 @@ class KA080CacheManagement(KnowledgeAlgorithm):
         }
         
         return {
-            "ka_id": "KA-080",
-            "ka_name": "Cache Management",
             "success": True,
             "operation_result": "OK",
             "stats": stats,

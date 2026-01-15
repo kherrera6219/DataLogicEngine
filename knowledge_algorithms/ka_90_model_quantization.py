@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA090QuantizationInput(BaseModel):
+    model_id: str = Field("latest", description="The ID of the model artifact to quantize")
+
 class KA090ModelQuantization(KnowledgeAlgorithm):
     """
-    KA-090: Precision reduction and quantization engine.
+    KA-090: Precision reduction and quantization engine for optimized deployment.
     """
+    input_schema = KA090QuantizationInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-090"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,18 +37,15 @@ class KA090ModelQuantization(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        model_id = input_data.get("model_id", "latest")
+    def _run_logic(self, input_data: KA090QuantizationInput) -> Dict[str, Any]:
+        model_id = input_data.model_id
+        target_bit_depth = self.config.get('target_bit_depth', 8)
+        self.log_execution_step("Quantizing Model Artifact", {"model": model_id, "depth": f"{target_bit_depth}-bit"})
         
-        self.log_execution_step("Quantizing Model Artifact", {"model": model_id, "depth": f"{self.config.get('target_bit_depth', 8)}-bit"})
-        
-        # Simulate quantization
         size_original_mb = 450
-        size_quantized_mb = int(size_original_mb * (self.config.get("target_bit_depth", 8) / 32.0))
+        size_quantized_mb = int(size_original_mb * (target_bit_depth / 32.0))
         
         return {
-            "ka_id": "KA-090",
-            "ka_name": "Model Quantization",
             "success": True,
             "quantized_model_path": f"/models/{model_id}_int8.tflite",
             "original_size_mb": size_original_mb,

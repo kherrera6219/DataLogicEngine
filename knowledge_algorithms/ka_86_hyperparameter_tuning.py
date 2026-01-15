@@ -11,12 +11,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA086TuningInput(BaseModel):
+    model_type: str = Field("transformer", description="The architecture type to optimize")
+    max_trials: Optional[int] = Field(None, description="Maximum number of search trials")
+
 class KA086HyperparameterTuning(KnowledgeAlgorithm):
     """
-    KA-086: Automated hyperparameter optimization engine.
+    KA-086: Automated hyperparameter optimization engine for knowledge model refinement.
     """
+    input_schema = KA086TuningInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-086"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,15 +39,12 @@ class KA086HyperparameterTuning(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        model_type = input_data.get("model_type", "transformer")
-        
-        self.log_execution_step("Executing Hyperparameter Search", {"model": model_type, "strategy": self.config.get("search_strategy")})
+    def _run_logic(self, input_data: KA086TuningInput) -> Dict[str, Any]:
+        model_type = input_data.model_type
+        max_trials = input_data.max_trials or self.config.get("max_trials", 10)
+        self.log_execution_step("Executing Hyperparameter Search", {"model": model_type, "trials": max_trials})
         
         trials = []
-        max_trials = self.config.get("max_trials", 10)
-        
-        # Simulate search trials
         for i in range(max_trials):
             trials.append({
                 "trial_id": i,
@@ -48,13 +55,11 @@ class KA086HyperparameterTuning(KnowledgeAlgorithm):
         best_trial = max(trials, key=lambda x: x["result"])
         
         return {
-            "ka_id": "KA-086",
-            "ka_name": "Hyperparameter Tuning",
             "success": True,
             "best_params": best_trial["params"],
             "best_score": best_trial["result"],
             "trials_run": max_trials,
-            "strategy": self.config.get("search_strategy")
+            "strategy": self.config.get("search_strategy", "bayesian")
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

@@ -11,12 +11,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA088ABInput(BaseModel):
+    request_id: str = Field(..., description="The unique identifier for the inference request")
+
 class KA088ABTesting(KnowledgeAlgorithm):
     """
-    KA-088: Traffic splitting and statistical experiment engine.
+    KA-088: Traffic splitting and statistical experiment engine for model comparison.
     """
+    input_schema = KA088ABInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-088"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,18 +38,14 @@ class KA088ABTesting(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        request_id = input_data.get("request_id", "req_unknown")
-        
+    def _run_logic(self, input_data: KA088ABInput) -> Dict[str, Any]:
+        request_id = input_data.request_id
         self.log_execution_step("Selecting Experiment Variant", {"req": request_id})
         
         split = self.config.get("traffic_split_percent", {"control": 50, "vA": 50})
-        # Simple weighted random choice simulation
         variant = "control" if random.random() < (split.get("control", 50) / 100.0) else "variant_a"
         
         return {
-            "ka_id": "KA-088",
-            "ka_name": "AB Testing",
             "success": True,
             "assigned_variant": variant,
             "experiment_active": True,

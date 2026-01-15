@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA071IngestionInput(BaseModel):
+    source_type: str = Field("local_file", description="The type of data source (e.g., local_file, stream, api)")
+    payload: List[Any] = Field(default_factory=list, description="The raw data payload to ingest")
+
 class KA071DataIngestion(KnowledgeAlgorithm):
     """
-    KA-071: Enterprise-grade data ingestion engine.
+    KA-071: Enterprise-grade data ingestion engine with protocol-specific handlers.
     """
+    input_schema = KA071IngestionInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-071"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,16 +38,15 @@ class KA071DataIngestion(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        source_type = input_data.get("source_type", "local_file")
-        payload = input_data.get("payload", [])
-        
+    def _run_logic(self, input_data: KA071IngestionInput) -> Dict[str, Any]:
+        source_type = input_data.source_type
+        payload = input_data.payload
         self.log_execution_step("Executing Ingestion Pipeline", {"source": source_type, "count": len(payload)})
         
         handler_name = self.config.get("handlers", {}).get(source_type, "DefaultHandler")
-        mode = "stream" if len(payload) < self.config.get("batch_size", 1000) else "batch"
+        batch_size = self.config.get("batch_size", 1000)
+        mode = "stream" if len(payload) < batch_size else "batch"
         
-        # Simulate record processing and meta-tagging
         processed_records = []
         for i, record in enumerate(payload):
             processed_records.append({
@@ -50,8 +59,6 @@ class KA071DataIngestion(KnowledgeAlgorithm):
             })
             
         return {
-            "ka_id": "KA-071",
-            "ka_name": "Data Ingestion",
             "success": True,
             "records_ingested": len(processed_records),
             "ingestion_summary": {

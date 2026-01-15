@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA083DeploymentInput(BaseModel):
+    version: str = Field("v1.0.0", description="The version of the model to deploy")
+    env: str = Field("staging", description="The target environment (e.g., staging, production)")
+
 class KA083ModelDeployment(KnowledgeAlgorithm):
     """
-    KA-083: Model deployment and canary orchestration engine.
+    KA-083: Model deployment and canary orchestration engine for production releases.
     """
+    input_schema = KA083DeploymentInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-083"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,20 +38,15 @@ class KA083ModelDeployment(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        model_version = input_data.get("version", "v1.0.0")
-        environment = input_data.get("env", "staging")
-        
+    def _run_logic(self, input_data: KA083DeploymentInput) -> Dict[str, Any]:
+        model_version = input_data.version
+        environment = input_data.env
         self.log_execution_step("Executing Model Deployment", {"version": model_version, "env": environment})
         
         strategy = self.config.get("deployment_strategy", "recreate")
-        
-        # Simulate deployment steps
         deployment_steps = ["Pre-flight check", "Setting up infrastructure", "Mirroring traffic", "Scaling pods"]
         
         return {
-            "ka_id": "KA-083",
-            "ka_name": "Model Deployment",
             "success": True,
             "deployment_id": f"dep_{os.urandom(4).hex()}",
             "applied_strategy": strategy,

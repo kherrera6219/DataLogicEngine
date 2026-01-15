@@ -11,12 +11,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA078ArchivalInput(BaseModel):
+    record_ids: List[str] = Field(default_factory=list, description="The list of record IDs to archive")
+
 class KA078DataArchival(KnowledgeAlgorithm):
     """
-    KA-078: Data retention and cold-storage migration engine.
+    KA-078: Data retention management and cold-storage migration engine.
     """
+    input_schema = KA078ArchivalInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-078"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,21 +38,17 @@ class KA078DataArchival(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        target_ids = input_data.get("record_ids", [])
-        
+    def _run_logic(self, input_data: KA078ArchivalInput) -> Dict[str, Any]:
+        target_ids = input_data.record_ids
         self.log_execution_step("Archiving Old Records", {"count": len(target_ids)})
         
         destination = self.config.get("archive_destination", "cold_storage")
         retention_days = self.config.get("retention_policy_days", 180)
         
-        # Simulate archival process
         archived_count = len(target_ids)
-        bytes_saved = archived_count * 1024 # Stub
+        bytes_saved = archived_count * 1024
         
         return {
-            "ka_id": "KA-078",
-            "ka_name": "Data Archival",
             "success": True,
             "records_archived": archived_count,
             "destination": destination,

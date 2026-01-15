@@ -11,12 +11,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA074ValidationInput(BaseModel):
+    records: List[Any] = Field(default_factory=list, description="The list of records to validate")
+
 class KA074DataValidation(KnowledgeAlgorithm):
     """
-    KA-074: Data integrity and constraint validation engine.
+    KA-074: Data integrity and constraint validation engine for knowledge consistency.
     """
+    input_schema = KA074ValidationInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-074"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,9 +38,8 @@ class KA074DataValidation(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        records = input_data.get("records", [])
-        
+    def _run_logic(self, input_data: KA074ValidationInput) -> Dict[str, Any]:
+        records = input_data.records
         self.log_execution_step("Validating Integrity Constraints", {"record_count": len(records)})
         
         rules = self.config.get("validation_rules", [])
@@ -63,8 +71,6 @@ class KA074DataValidation(KnowledgeAlgorithm):
                 valid_records.append(record)
                 
         return {
-            "ka_id": "KA-074",
-            "ka_name": "Data Validation",
             "success": True,
             "validation_summary": {
                 "total": len(records),

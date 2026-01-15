@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA075MappingInput(BaseModel):
+    records: List[Any] = Field(default_factory=list, description="The list of records to map")
+    target_schema: str = Field("user_profile", description="The name of the target canonical schema")
+
 class KA075SchemaMapping(KnowledgeAlgorithm):
     """
-    KA-075: Cross-system schema alignment and mapping engine.
+    KA-075: Cross-system schema alignment and canonical mapping engine.
     """
+    input_schema = KA075MappingInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-075"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,10 +38,9 @@ class KA075SchemaMapping(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        records = input_data.get("records", [])
-        target_schema_name = input_data.get("target_schema", "user_profile")
-        
+    def _run_logic(self, input_data: KA075MappingInput) -> Dict[str, Any]:
+        records = input_data.records
+        target_schema_name = input_data.target_schema
         self.log_execution_step("Mapping to Canonical Schema", {"target": target_schema_name, "count": len(records)})
         
         canonical_fields = self.config.get("canonical_schemas", {}).get(target_schema_name, [])
@@ -41,17 +50,13 @@ class KA075SchemaMapping(KnowledgeAlgorithm):
             if not isinstance(record, dict):
                 continue
             
-            # Simple simulation of "mapping" fields from source to target
             mapped = {}
             for field in canonical_fields:
-                # In real scenario, would use mapping tables (e.g. fname -> first_name)
                 mapped[field] = record.get(field) or record.get(f"src_{field}")
             
             mapped_records.append(mapped)
             
         return {
-            "ka_id": "KA-075",
-            "ka_name": "Schema Mapping",
             "success": True,
             "records_mapped": len(mapped_records),
             "target_schema": target_schema_name,

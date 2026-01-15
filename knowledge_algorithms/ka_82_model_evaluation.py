@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA082EvaluationInput(BaseModel):
+    model_id: str = Field("latest", description="The ID of the model to evaluate")
+    test_set: str = Field("eval_v1", description="The test/validation dataset name")
+
 class KA082ModelEvaluation(KnowledgeAlgorithm):
     """
-    KA-082: Model performance assessment and metric calculation engine.
+    KA-082: Model performance assessment and metric calculation engine for knowledge validation.
     """
+    input_schema = KA082EvaluationInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-082"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,20 +38,15 @@ class KA082ModelEvaluation(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        model_id = input_data.get("model_id", "latest")
-        test_set = input_data.get("test_set", "eval_v1")
-        
+    def _run_logic(self, input_data: KA082EvaluationInput) -> Dict[str, Any]:
+        model_id = input_data.model_id
+        test_set = input_data.test_set
         self.log_execution_step("Evaluating Model Performance", {"model": model_id, "set": test_set})
         
         metrics_to_calculate = self.config.get("evaluation_metrics", ["accuracy"])
-        
-        # Simulate metric calculation
         metric_results = {m: 0.85 + (hash(m) % 100 / 1000.0) for m in metrics_to_calculate}
         
         return {
-            "ka_id": "KA-082",
-            "ka_name": "Model Evaluation",
             "success": True,
             "evaluated_model": model_id,
             "test_set_used": test_set,

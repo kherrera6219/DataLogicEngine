@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA084MonitoringInput(BaseModel):
+    live_metrics: Dict[str, Any] = Field(default_factory=dict, description="Live performance metrics from the running model")
+
 class KA084ModelMonitoring(KnowledgeAlgorithm):
     """
-    KA-084: ML performance monitoring and drift detection engine.
+    KA-084: ML performance monitoring and live drift detection engine.
     """
+    input_schema = KA084MonitoringInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-084"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,9 +37,8 @@ class KA084ModelMonitoring(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        live_metrics = input_data.get("live_metrics", {})
-        
+    def _run_logic(self, input_data: KA084MonitoringInput) -> Dict[str, Any]:
+        live_metrics = input_data.live_metrics
         self.log_execution_step("Detecting Model Drift", {"metric_count": len(live_metrics)})
         
         thresholds = self.config.get("drift_thresholds", {})
@@ -43,8 +51,6 @@ class KA084ModelMonitoring(KnowledgeAlgorithm):
             detected_anomalies.append("PREDICTION_SKEW")
             
         return {
-            "ka_id": "KA-084",
-            "ka_name": "Model Monitoring",
             "success": True,
             "drift_detected": len(detected_anomalies) > 0,
             "anomalies": detected_anomalies,

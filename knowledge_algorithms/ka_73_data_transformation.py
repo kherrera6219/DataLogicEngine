@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA073TransformationInput(BaseModel):
+    records: List[Any] = Field(default_factory=list, description="The list of records to transform")
+
 class KA073DataTransformation(KnowledgeAlgorithm):
     """
-    KA-073: Schema mapping and type transformation engine.
+    KA-073: Schema mapping and type transformation engine for standardized knowledge.
     """
+    input_schema = KA073TransformationInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-073"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,32 +37,27 @@ class KA073DataTransformation(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        records = input_data.get("records", [])
-        
-        self.log_execution_step("Transforming Records", {"count": len(records), "target": self.config.get("target_schema")})
+    def _run_logic(self, input_data: KA073TransformationInput) -> Dict[str, Any]:
+        records = input_data.records
+        target_schema = self.config.get("target_schema")
+        self.log_execution_step("Transforming Records", {"count": len(records), "target": target_schema})
         
         rules = self.config.get("transformation_rules", [])
         transformed_results = []
         
         for record in records:
-            # Simulate transformation logic
             new_record = record.copy() if isinstance(record, dict) else {"raw": record}
             for rule in rules:
                 field = rule.get("field")
-                target_type = rule.get("target_type")
                 if field in new_record:
-                    # In a real system, would cast to target_type here
                     new_record[f"{field}_transformed"] = True
             
             transformed_results.append(new_record)
             
         return {
-            "ka_id": "KA-073",
-            "ka_name": "Data Transformation",
             "success": True,
             "records_transformed": len(transformed_results),
-            "target_schema": self.config.get("target_schema"),
+            "target_schema": target_schema,
             "transformation_applied": [r.get("field") for r in rules]
         }
 

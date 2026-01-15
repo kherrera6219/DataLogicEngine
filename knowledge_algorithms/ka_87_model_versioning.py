@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA087VersioningInput(BaseModel):
+    artifact: str = Field(..., description="The path to the model artifact to version")
+
 class KA087ModelVersioning(KnowledgeAlgorithm):
     """
-    KA-087: ML artifact versioning and registry engine.
+    KA-087: ML artifact versioning and registry tracking engine.
     """
+    input_schema = KA087VersioningInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-087"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,22 +37,19 @@ class KA087ModelVersioning(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        artifact_path = input_data.get("artifact", "")
-        
+    def _run_logic(self, input_data: KA087VersioningInput) -> Dict[str, Any]:
+        artifact_path = input_data.artifact
         self.log_execution_step("Versioning Model Artifact", {"path": artifact_path})
         
         scheme = self.config.get("versioning_scheme", "semver")
-        new_version = "v1.2.3" # Stub
+        new_version = "v1.2.3"
         
         return {
-            "ka_id": "KA-087",
-            "ka_name": "Model Versioning",
             "success": True,
             "version_assigned": new_version,
             "scheme_used": scheme,
-            "registry_path": self.config.get("artifact_registry_path"),
-            "git_commit": "abc1234" # Stub
+            "registry_path": self.config.get("artifact_registry_path", "/mnt/registry"),
+            "git_commit": "abc1234"
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
