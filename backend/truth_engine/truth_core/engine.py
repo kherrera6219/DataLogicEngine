@@ -49,6 +49,7 @@ class TruthCoreEngine:
         'multi_persona_reasoning',
         'consensus_evaluation',  # New Step for KA-038
         'conflict_resolution',   # New Step for KA-030
+        'quant_validation',      # New Step for Layer 6 (Phase G)
         'hybrid_retrieval',
         'graph_consistency_check',
         'deep_synthesis',
@@ -67,6 +68,15 @@ class TruthCoreEngine:
         self.simulation_engine = simulation_engine
         self.ka_controller = ka_controller
         self.axis_system = axis_system
+        
+        # Initialize Layer 6 Service
+        try:
+            from backend.truth_engine.truth_gate.quant import QuantValidationService
+            self.quant_service = QuantValidationService(ka_controller)
+        except ImportError:
+            logger.warning("Layer 6 QuantValidationService not found, skipping.")
+            self.quant_service = None
+            
         self.active_sessions = {}
         logger.info("TruthCore Engine initialized")
 
@@ -316,6 +326,17 @@ class TruthCoreEngine:
                 output = step_result.get('output', {})
                 if output.get('escalation_triggered'):
                     logger.info("Expert Escalation (Mediator) triggered during conflict resolution")
+
+            elif step == 'quant_validation':
+                # Layer 6: Quantitative Validation
+                if self.quant_service:
+                    claims = working_context.get('claims', [])
+                    # Assuming draft solution is in previous step output or context
+                    draft = context.get('draft_solution', query) # Fallback
+                    validation_result = self.quant_service.validate(draft, claims, working_context.get('data_context'))
+                    
+                    working_context['quant_validation'] = validation_result
+                    logger.info(f"Layer 6 Validation Complete: Risk={validation_result.risk_score}")
         
         result = {
             'tier': 'high_stakes',
