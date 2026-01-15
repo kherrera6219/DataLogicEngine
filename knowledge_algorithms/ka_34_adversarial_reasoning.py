@@ -1,34 +1,68 @@
 """
 KA-034: Adversarial Reasoning
-Purpose: Generate counter-arguments and stress tests.
+Purpose: Stress-test system outputs by simulating adversarial constraints and attacks on assumptions.
 """
 import logging
+import json
+import os
+import random
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 class KA034AdversarialReasoning(KnowledgeAlgorithm):
+    """
+    KA-034: Adversarial simulation and robustness testing engine.
+    """
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.config = self._load_config()
+
+    def _load_config(self) -> Dict[str, Any]:
+        try:
+            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_34_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, "r") as f:
+                    return json.load(f)
+            return {}
+        except Exception:
+            return {}
 
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Generate adversarial attacks.
-        """
-        proposition = input_data.get("proposition", "")
+        scenario = input_data.get("scenario", "")
+        assumptions = input_data.get("assumptions", [])
         
-        self.log_execution_step("Adversarial Attack", {"prop": proposition})
+        self.log_execution_step("Simulating Adversarial Attacks", {"assumption_count": len(assumptions)})
         
-        attacks = [
-            f"Counter-point 1 to {proposition}",
-            f"Edge case where {proposition} fails"
-        ]
+        threat_models = self.config.get("threat_models", {})
+        
+        attacks = []
+        robustness_score = 1.0
+        
+        # 1. Stress-test assumptions
+        for asm in assumptions:
+            # Randomly select a threat model to apply
+            threat = random.choice(list(threat_models.keys()))
+            impact = threat_models[threat]
             
+            attacks.append({
+                "target_assumption": asm,
+                "threat_type": threat,
+                "simulated_impact": impact,
+                "vulnerability_found": impact > 0.3
+            })
+            
+            if impact > 0.3:
+                robustness_score -= 0.1
+                
         return {
             "ka_id": "KA-034",
+            "ka_name": "Adversarial Reasoning",
             "success": True,
-            "attacks": attacks
+            "robustness_score": max(0.0, robustness_score),
+            "attacks_simulated": attacks,
+            "is_robust": robustness_score >= self.config.get("robustness_threshold", 0.6)
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

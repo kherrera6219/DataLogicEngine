@@ -1,0 +1,6 @@
+{
+    "resolution_strategy": "weighted_consensus",
+    "fallback_strategy": "authority_wins",
+    "min_agreement_threshold": 0.6,
+    "resolve_ambiguity": true
+}

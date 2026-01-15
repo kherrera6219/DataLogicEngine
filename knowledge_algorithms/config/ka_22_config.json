@@ -1,0 +1,10 @@
+{
+    "risk_factors": {
+        "FINANCIAL": 0.4,
+        "OPERATIONAL": 0.3,
+        "LEGAL": 0.2,
+        "REPUTATIONAL": 0.1
+    },
+    "critical_threshold": 0.75,
+    "warning_threshold": 0.4
+}

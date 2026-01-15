@@ -1,0 +1,6 @@
+{
+    "objectives": ["cost", "performance", "risk", "speed"],
+    "optimization_goal": "minimize_cost_maximize_performance",
+    "epsilon": 0.05,
+    "max_iterations": 100
+}

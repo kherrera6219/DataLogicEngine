@@ -1,0 +1,6 @@
+{
+    "alignment_threshold": 0.85,
+    "similarity_metric": "cosine",
+    "auto_merge_enabled": false,
+    "max_suggestions": 10
+}

@@ -1,0 +1,12 @@
+{
+    "default_complexity_tier": "standard",
+    "tier_mappings": {
+        "standard": ["KA-001", "KA-004", "KA-012", "KA-014"],
+        "advanced": ["KA-001", "KA-002", "KA-006", "KA-008", "KA-012", "KA-013", "KA-014"],
+        "safety_critical": ["KA-001", "KA-004", "KA-010", "KA-022", "KA-024", "KA-027", "KA-014"]
+    },
+    "budget_constraints": {
+        "max_kas_per_pass": 10,
+        "timeout_ms": 5000
+    }
+}

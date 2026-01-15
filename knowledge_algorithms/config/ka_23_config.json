@@ -1,0 +1,6 @@
+{
+    "decay_half_life_days": 180,
+    "min_confidence_floor": 0.1,
+    "decay_method": "exponential",
+    "categories_exclusion": ["ETERNAL_FACT", "SYSTEM_RULE"]
+}
