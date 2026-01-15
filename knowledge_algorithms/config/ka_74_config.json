@@ -1,0 +1,9 @@
+{
+    "validation_rules": [
+        {"field": "user_id", "constraint": "required"},
+        {"field": "score", "constraint": "range", "min": 0, "max": 1},
+        {"field": "email", "constraint": "regex", "pattern": "^[^@]+@[^@]+\\.[^@]+$"}
+    ],
+    "fail_on_first_error": false,
+    "quarantine_invalid_records": true
+}

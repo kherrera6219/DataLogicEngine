@@ -1,0 +1,8 @@
+{
+    "deployment_strategy": "canary",
+    "canary_percent": 10,
+    "rollback_on_failure": true,
+    "failure_threshold_per_hour": 5,
+    "health_check_endpoint": "/health",
+    "target_environments": ["staging", "production"]
+}

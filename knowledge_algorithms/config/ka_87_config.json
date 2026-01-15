@@ -1,0 +1,7 @@
+{
+    "versioning_scheme": "semantic",
+    "artifact_registry_path": "s3://ml-artifacts/models/",
+    "enable_git_hash_tracking": true,
+    "automatic_tagging": ["latest", "production", "staging"],
+    "retention_policy": "keep_last_10_versions"
+}

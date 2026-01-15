@@ -1,0 +1,9 @@
+{
+    "training_backend": "pytorch_distributed",
+    "default_epochs": 10,
+    "batch_size": 32,
+    "checkpoint_frequency": 5,
+    "early_stopping_patience": 3,
+    "optimizer": "AdamW",
+    "learning_rate": 2e-5
+}

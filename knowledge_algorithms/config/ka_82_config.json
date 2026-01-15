@@ -1,0 +1,6 @@
+{
+    "evaluation_metrics": ["accuracy", "f1_score", "precision", "recall", "auc_roc"],
+    "bootstrapping_iterations": 100,
+    "confidence_interval": 0.95,
+    "report_format": "json_structured"
+}

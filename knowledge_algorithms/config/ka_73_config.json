@@ -1,0 +1,10 @@
+{
+    "target_schema": "enterprise_v2",
+    "transformation_rules": [
+        {"field": "timestamp", "target_type": "iso8601"},
+        {"field": "user_id", "target_type": "uuid"},
+        {"field": "amount", "target_type": "decimal", "precision": 2}
+    ],
+    "enable_projection": true,
+    "drop_unmapped_fields": false
+}
