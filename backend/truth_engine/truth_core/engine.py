@@ -47,6 +47,8 @@ class TruthCoreEngine:
     REFINEMENT_STEPS = [
         'decomposition',
         'multi_persona_reasoning',
+        'consensus_evaluation',  # New Step for KA-038
+        'conflict_resolution',   # New Step for KA-030
         'hybrid_retrieval',
         'graph_consistency_check',
         'deep_synthesis',
@@ -287,23 +289,40 @@ class TruthCoreEngine:
         return result
 
     def _process_high_stakes(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """High-stakes tier: Full 12-step refinement workflow."""
+        """High-stakes tier: Full 12-step refinement workflow with data piping."""
         executed_steps = []
+        working_context = context.copy()
+        personas_used = set()
         
         for step in self.REFINEMENT_STEPS:
-            step_result = self._execute_refinement_step(step, query, context)
-            executed_steps.append({
-                'step': step,
-                'status': 'completed',
-                'result': step_result
-            })
+            step_result = self._execute_refinement_step(step, query, working_context)
+            executed_steps.append(step_result)
+            
+            # Data Piping Logic for v2.0 Intelligence Layer
+            if step == 'multi_persona_reasoning':
+                # Pass detected claims to Consensus Engine
+                output = step_result.get('output', {})
+                working_context['claims'] = output.get('claims', [])
+                if 'personas_used' in output:
+                     personas_used.update(output['personas_used'])
+                     
+            elif step == 'consensus_evaluation':
+                # Pass detected conflicts to Conflict Resolution
+                output = step_result.get('output', {})
+                working_context['conflicts'] = output.get('conflicts', [])
+                
+            elif step == 'conflict_resolution':
+                # Check for escalation
+                output = step_result.get('output', {})
+                if output.get('escalation_triggered'):
+                    logger.info("Expert Escalation (Mediator) triggered during conflict resolution")
         
         result = {
             'tier': 'high_stakes',
-            'response': f"Fully refined response for: {query[:100]}...",
-            'confidence': 0.95,
+            'response': f"Fully refined and arbitrated response for: {query[:100]}...",
+            'confidence': executed_steps[-1].get('confidence', 0.95), # Pull from final synthesis or similar
             'steps_executed': executed_steps,
-            'personas_used': ['analyst', 'expert', 'critic', 'synthesizer'],
+            'personas_used': list(personas_used) if personas_used else ['analyst', 'expert', 'critic', 'synthesizer'],
             'bias_score': 0.1,
             'safety_score': 0.98,
             'processing_time_ms': 5000
@@ -394,7 +413,9 @@ class TruthCoreEngine:
         """Execute a single refinement step using specific Knowledge Algorithms."""
         mapping = {
             'decomposition': 'KA-001',
-            'multi_persona_reasoning': 'KA-020',
+            'multi_persona_reasoning': 'KA-012', # Specifically persona simulation
+            'consensus_evaluation': 'KA-038',   # Enhanced Consensus
+            'conflict_resolution': 'KA-030',    # Expert Escalation
             'hybrid_retrieval': 'KA-014',
             'graph_consistency_check': 'KA-025',
             'deep_synthesis': 'KA-017',
@@ -410,18 +431,27 @@ class TruthCoreEngine:
         ka_id = mapping.get(step)
         if ka_id and self.ka_controller:
             try:
+                # Prepare KA-specific inputs based on step
+                ka_input = {'query': query, **context}
+                
+                # Special mapping for v2.0 steps
+                if step == 'consensus_evaluation':
+                    ka_input['claims'] = context.get('claims', [])
+                elif step == 'conflict_resolution':
+                    ka_input['conflicts'] = context.get('conflicts', [])
+
                 # Use execute_algorithm if it is the unified controller
                 if hasattr(self.ka_controller, 'execute_algorithm'):
-                    result = self.ka_controller.execute_algorithm(ka_id, {'query': query, **context})
+                    result = self.ka_controller.execute_algorithm(ka_id, ka_input)
                 else:
-                    result = self.ka_controller.execute(ka_id, {'query': query, **context})
+                    result = self.ka_controller.execute(ka_id, ka_input)
                 
                 return {
                     'step': step,
                     'ka_id': ka_id,
                     'status': 'completed',
                     'output': result.get('output', result),
-                    'confidence': result.get('confidence', 0.9)
+                    'confidence': result.get('confidence', result.get('weighted_confidence', 0.9))
                 }
             except Exception as e:
                 logger.error(f"KA {ka_id} failed for step {step}: {e}")

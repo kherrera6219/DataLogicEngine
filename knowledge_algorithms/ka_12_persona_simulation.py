@@ -47,16 +47,29 @@ class KA012PersonaSimulation(KnowledgeAlgorithm):
         
         persona_configs = self.config.get("personas", {})
         results = []
+        claims = []
+        
         for p_key in active_personas:
             p_info = persona_configs.get(p_key)
             if not p_info:
-                continue
+                # Use default if config missing
+                p_info = {"name": p_key.title(), "focus": "general", "base_confidence": 0.8}
+                
             persona_res = self._simulate_persona(p_key, p_info, query)
             results.append(persona_res)
+            
+            # Map response to a structured claim for KA-038
+            claims.append({
+                "claim_id": f"claim_{query[:10].replace(' ', '_')}", # Simple semantic grouping key
+                "content": persona_res["response"],
+                "persona_type": p_key,
+                "confidence": persona_res["confidence"]
+            })
             
         return {
             "success": True,
             "persona_results": results,
+            "claims": claims, # Added for KA-038 compatibility
             "summary": f"Simulated {len(results)} expert perspectives."
         }
 
@@ -64,13 +77,13 @@ class KA012PersonaSimulation(KnowledgeAlgorithm):
         focus = info.get("focus", "general")
         base_confidence = info.get("base_confidence", 0.8)
         
-        response = f"[{info['name']} Perspective]: Regarding '{query}', my analysis focused on {focus} " \
+        response = f"[{info.get('name', key.title())} Perspective]: Regarding '{query}', my analysis focused on {focus} " \
                    f"indicates that the primary considerations should include the structural integrity " \
                    f"of the proposed solution and adherence to established {key} standards."
         
         return {
             "persona_type": key,
-            "name": info["name"],
+            "name": info.get("name", key.title()),
             "response": response,
             "confidence": base_confidence + random.uniform(-0.05, 0.05),
             "success": True
@@ -81,5 +94,5 @@ def run(context: Dict[str, Any]) -> Dict[str, Any]:
         algo = KA012PersonaSimulation(context)
         return algo.run(context)
     except Exception as e:
-        logger.error(f"KA-012 Failed: {e}")
+        logger.error(f"KA-012 Fatal Execution Error: {e}")
         return {"success": False, "error": str(e)}
