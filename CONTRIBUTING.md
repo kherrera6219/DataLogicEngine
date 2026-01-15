@@ -425,7 +425,7 @@ Contributors will be recognized in:
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the same license as the project (MIT License).
+By contributing, you agree that your contributions will be licensed under the same license as the project (PolyForm Noncommercial License 1.0.0).
 
 ---
 

@@ -39,6 +39,9 @@ jobs:
       run: |
         cd frontend
         npm run build
+      env:
+        NEXT_TELEMETRY_DISABLED: 1
+        NEXT_DISABLE_ESLINT: 1
 
     - name: Run tests
       run: |

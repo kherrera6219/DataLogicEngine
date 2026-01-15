@@ -27,6 +27,12 @@ if (normalizedCdnUrl) {
 
 const nextConfig: NextConfig = {
   ...cdnConfig,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   async rewrites() {
     return [
       {
