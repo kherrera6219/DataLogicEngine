@@ -98,7 +98,7 @@ The following items from prior TODO lists have been **verified as implemented**:
 
 ### Performance
 
-- [ ] Configure CDN for static assets in production deployment
+- [x] Configure CDN for static assets in production deployment (NEXT_PUBLIC_CDN_URL assetPrefix support in frontend)
 - [ ] Tune database connection pool based on load testing
 - [x] Query result caching - Redis caching implemented
 
