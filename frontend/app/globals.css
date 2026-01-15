@@ -28,6 +28,12 @@
   }
 }
 
+@layer base {
+  body {
+    @apply bg-gray-50 dark:bg-gray-950 text-foreground antialiased;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

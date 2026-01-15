@@ -8,25 +8,15 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { ApiErrorBoundary } from "@/components/ui/api-error-boundary";
 import {
-  Plus,
   Search,
   Filter,
-  CheckCircle,
-  AlertCircle,
-  Clock,
-  ExternalLink,
-  PlayCircle,
-  MessageSquarePlus,
-  ArrowUpRight,
-  TrendingUp,
-  ShieldCheck,
-  AlertTriangle,
   ChevronRight,
   RotateCcw,
+  Zap,
+  Info,
+  ChevronLeft,
   ZoomIn,
   ZoomOut,
-  ChevronLeft,
-  Zap,
   Maximize2,
   Shield
 } from 'lucide-react';
@@ -120,9 +110,10 @@ function generateDemoData(): GraphData {
 }
 
 export default function GraphPage() {
-  const fgRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const graphRef = useRef<any>(null);
   const { toast } = useToast();
-  const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
+  const [graphData] = useState<GraphData>(generateDemoData);
   const [activeAxis, setActiveAxis] = useState(1);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
@@ -133,7 +124,6 @@ export default function GraphPage() {
   const [enablePhysics, setEnablePhysics] = useState(true);
 
   useEffect(() => {
-    setGraphData(generateDemoData());
     toast("Graph Engine initialized with 17-axis standard.", "info", 3000);
   }, [toast]);
 

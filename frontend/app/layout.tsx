@@ -4,6 +4,7 @@ import "./globals.css";
 import { NavBar } from "@/components/NavBar";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { SWRConfig } from 'swr';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,14 +39,22 @@ export default function RootLayout({
           Skip to main content
         </a>
         <ThemeProvider>
-          <AuthProvider>
-            <ToastProvider>
-              <NavBar />
-              <main id="main-content" className="outline-none" tabIndex={-1}>
-                {children}
-              </main>
-            </ToastProvider>
-          </AuthProvider>
+          <SWRConfig value={{
+            revalidateOnFocus: false,
+            revalidateOnReconnect: true,
+            dedupingInterval: 3000,
+            errorRetryCount: 3,
+            shouldRetryOnError: true
+          }}>
+            <AuthProvider>
+              <ToastProvider>
+                <NavBar />
+                <main id="main-content" className="outline-none" tabIndex={-1}>
+                  {children}
+                </main>
+              </ToastProvider>
+            </AuthProvider>
+          </SWRConfig>
         </ThemeProvider>
       </body>
     </html>

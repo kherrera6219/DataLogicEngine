@@ -1,0 +1,50 @@
+
+> frontend@0.1.0 lint
+> eslint
+
+
+C:\software\DataLogicEngine\frontend\app\graph\page.tsx
+   11:3   warning  'Plus' is defined but never used                   @typescript-eslint/no-unused-vars
+   14:3   warning  'CheckCircle' is defined but never used            @typescript-eslint/no-unused-vars
+   15:3   warning  'AlertCircle' is defined but never used            @typescript-eslint/no-unused-vars
+   16:3   warning  'Clock' is defined but never used                  @typescript-eslint/no-unused-vars
+   17:3   warning  'ExternalLink' is defined but never used           @typescript-eslint/no-unused-vars
+   18:3   warning  'PlayCircle' is defined but never used             @typescript-eslint/no-unused-vars
+   19:3   warning  'MessageSquarePlus' is defined but never used      @typescript-eslint/no-unused-vars
+   20:3   warning  'ArrowUpRight' is defined but never used           @typescript-eslint/no-unused-vars
+   21:3   warning  'TrendingUp' is defined but never used             @typescript-eslint/no-unused-vars
+   22:3   warning  'ShieldCheck' is defined but never used            @typescript-eslint/no-unused-vars
+   23:3   warning  'AlertTriangle' is defined but never used          @typescript-eslint/no-unused-vars
+   33:3   warning  'Database' is defined but never used               @typescript-eslint/no-unused-vars
+   34:3   warning  'MessageSquare' is defined but never used          @typescript-eslint/no-unused-vars
+  126:27  error    Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  128:21  warning  'setGraphData' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  256:32  error    Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  257:30  error    Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+
+C:\software\DataLogicEngine\frontend\app\profile\page.tsx
+  9:10  warning  'User' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\app\simulations\page.tsx
+  44:6  warning  React Hook useEffect has a missing dependency: 'socket'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\software\DataLogicEngine\frontend\components\Chat\ChatInterface.tsx
+  3:20  warning  'useRef' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\components\Chat\MessageBubble.tsx
+  4:10  warning  'Brain' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\components\Dashboard\CommandBar.tsx
+  3:28  warning  'User' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\components\Graph\AxisSelector.tsx
+  3:18  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\components\ui\copy-button.tsx
+  23:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\DataLogicEngine\frontend\lib\api\knowledge.ts
+  1:10  warning  'PillarLevel' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 25 problems (3 errors, 22 warnings)
+
