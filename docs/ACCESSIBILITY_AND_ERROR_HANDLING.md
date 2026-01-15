@@ -127,6 +127,23 @@ try {
 - Integration-ready for external monitoring services
 - Prevents error loops with fail-safe responses
 
+### 4. Knowledge Algorithm (KA) Exception Framework
+
+The KA engine uses a strictly typed exception hierarchy to ensure granular error reporting and system resilience.
+
+**Location:** `core/knowledge_algorithm/exceptions.py`
+
+**Custom Exceptions:**
+- `KAError`: Base exception with `error_code` support.
+- `KAValidationError`: Raised on input schema mismatch (E400).
+- `KAExecutionError`: Raised during logic execution failures (E500).
+- `KAConfigError`: Raised on missing or malformed KA configuration (E401).
+- `KATimeoutError`: Triggered when an algorithm exceeds its time budget (E408).
+- `KAIntegrationError`: Failures when interacting with external systems (E502).
+
+**Standardized Failsafe Hook:**
+Every KA supports a `_fallback_logic()` method. If a `KAError` is raised, the system automatically triggers this hook to return a "degraded" but safe result (e.g., blocking an input on security failure instead of crashing).
+
 **Request Format:**
 
 ```json

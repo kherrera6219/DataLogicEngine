@@ -6,9 +6,9 @@ We release patches for security vulnerabilities for the following versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.2.x   | :white_check_mark: |
-| 1.1.x   | :white_check_mark: |
-| < 1.1   | :x:                |
+| 1.4.x   | :white_check_mark: |
+| 1.3.x   | :white_check_mark: |
+| < 1.3   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -208,10 +208,11 @@ npm audit fix
    - Rate limiting (implementation in progress)
    - Input validation with Marshmallow schemas
 
-6. **Compliance**
+6. **Compliance & Resilience**
    - SOC2 compliance features
    - GDPR-ready data handling
    - Audit logging for regulatory requirements
+   - **Fail-Secure Knowledge Algorithms**: Mission-critical KAs (e.g., KA-061 Adversarial Shield) implement strict fallback logic that defaults to a secure state (e.g., blocking input) upon execution failure.
 
 ## Security Testing
 
@@ -298,4 +299,4 @@ For security-related questions or concerns:
 
 ---
 
-Last updated: 2025-11-21
+Last updated: 2026-01-15

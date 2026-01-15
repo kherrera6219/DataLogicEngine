@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-01-15
+
+### Added - Enterprise KA Resilience & Hardening
+
+- **100% KA Hardening**: All 116 Knowledge Algorithms refactored with Pydantic validation schemas.
+- **Enterprise Error Framework**: Standardized exception hierarchy (`KAError`, `KAValidationError`, etc.) in `core/knowledge_algorithm/exceptions.py`.
+- **Resilience Pass**: Implemented `_fallback_logic` hooks for critical Security, Data, and Infrastructure KAs.
+- **Structured Error Reporting**: Enhanced `KAResult` with machine-readable error codes and detailed metadata.
+- **Unified Registry**: Consolidated algorithm discovery into `knowledge_algorithms/ka_registry.yaml`.
+
+### Documentation
+
+- Updated all core documentation (README, Architecture, Production Readiness) to reflect 116 KA count and resilience features.
+- Expanded error handling guide with backend exception framework details.
+
 ## [Unreleased]
 
 ### Planned

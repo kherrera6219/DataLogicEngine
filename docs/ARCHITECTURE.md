@@ -111,10 +111,10 @@ This coordinate system allows the engine to retrieve exactly the right "slice" o
 
 The system employs a unified infrastructure for managing and executing **Knowledge Algorithms (KAs)**. These algorithms (KA-001 to KA-114) are implemented as modern Python modules that inherit from a standard base class and register themselves via a central registry.
 
-- **KAMasterController**: Discovered and managed from `knowledge_algorithms/`, this controller orchestrates KA discovery, performance tracing, and execution.
-- **Modular Design**: Modern implementations are isolated in `backend/knowledge_algorithm/modules/`.
-- **Registry System**: Automatic KA discovery via the `@KARegistry.register_ka` decorator, ensuring zero-config integration for new algorithms.
-- **Persistence**: Algorithm metadata is synchronized with `core/data/ka_registry.json`.
+- **KAMasterController**: Discovered and managed from `knowledge_algorithms/`, this controller orchestrates KA discovery, performance tracing, and resilient execution.
+- **Enterprise Base Class**: All 116 algorithms (KA-001 to KA-116) inherit from a hardened base class with Pydantic validation and `_fallback_logic` hooks.
+- **Resilient Execution**: Multi-tier error handling with structured error codes (E400-E500) and graceful degradation support.
+- **Registry System**: Unified discoverability via `knowledge_algorithms/ka_registry.yaml`.
 
 #### 1. LLM Gateway (`backend/llm_gateway/`)
 
