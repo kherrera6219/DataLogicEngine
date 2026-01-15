@@ -1,18 +1,12 @@
-"""
-KA-115: Chaos Injection
-Purpose: Proactively inject failures and latency into the system to test resiliency and identify single points of failure.
-"""
 import logging
 import json
 import os
 import random
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
-
-from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA115Input(BaseModel):
     target: str = "ka_registry"
@@ -42,24 +36,16 @@ class KA115ChaosInjection(KnowledgeAlgorithm):
         target_service = input_data.target
         self.log_execution_step("Injecting Chaos", {"target": target_service})
         
-        modes = self.config.get("injection_modes", ["latency"])
+        modes = self.config.get("injection_modes", ["latency", "cpu_spike", "network_partition"])
         selected_mode = random.choice(modes)
         
         return {
             "success": True,
             "chaos_id": f"CHAOS_{os.urandom(4).hex().upper()}",
             "type": selected_mode,
-            "impact_radius": self.config.get("blast_radius_percent"),
-            "safe_mode": self.config.get("safe_mode_enabled")
+            "impact_radius": self.config.get("blast_radius_percent", 10),
+            "safe_mode": self.config.get("safe_mode_enabled", True)
         }
-
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA115ChaosInjection(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-115 Failed: {e}")
-        return {"success": False, "error": str(e)}
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

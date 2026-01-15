@@ -1,17 +1,11 @@
-"""
-KA-114: Meta Orchestrator
-Purpose: Orchestrate complex cross-batch workflows and long-running state machines involving multiple Knowledge Algorithms.
-"""
 import logging
 import json
 import os
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
-
-from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA114Input(BaseModel):
     workflow: str = "default"
@@ -47,16 +41,8 @@ class KA114MetaOrchestrator(KnowledgeAlgorithm):
             "success": True,
             "workflow_id": f"wf_{os.urandom(4).hex()}",
             "execution_steps": steps,
-            "orchestration_mode": self.config.get("orchestration_mode")
+            "orchestration_mode": self.config.get("orchestration_mode", "centralized")
         }
-
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA114MetaOrchestrator(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-114 Failed: {e}")
-        return {"success": False, "error": str(e)}
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

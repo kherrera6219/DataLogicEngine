@@ -1,17 +1,11 @@
-"""
-KA-111: API Gateway
-Purpose: Provide a unified entry point into the Knowledge Algorithm ecosystem, handling authentication, rate limiting, and request routing.
-"""
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
-
-from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA111Input(BaseModel):
     headers: Dict[str, str] = Field(default_factory=dict)
@@ -50,16 +44,8 @@ class KA111APIGateway(KnowledgeAlgorithm):
             "status_code": 200 if authorized else 401,
             "gateway_node": "gw-01",
             "rate_limit_remaining": 99,
-            "auth_mode": self.config.get("auth_provider")
+            "auth_mode": self.config.get("auth_provider", "apiKey")
         }
-
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA111APIGateway(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-111 Failed: {e}")
-        return {"success": False, "error": str(e)}
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

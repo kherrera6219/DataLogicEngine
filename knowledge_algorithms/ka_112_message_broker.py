@@ -1,17 +1,11 @@
-"""
-KA-112: Message Broker
-Purpose: Manage asynchronous task queues and message distribution for high-throughput background processing.
-"""
 import logging
 import json
 import os
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
-
-from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA112Input(BaseModel):
     payload: Dict[str, Any] = Field(default_factory=dict)
@@ -46,17 +40,9 @@ class KA112MessageBroker(KnowledgeAlgorithm):
             "success": True,
             "message_tag": f"mq_{os.urandom(4).hex()}",
             "queue_active": queue_name,
-            "broker_type": self.config.get("broker_instance"),
-            "ack_mode": self.config.get("acknowledgment_mode")
+            "broker_type": self.config.get("broker_instance", "celery"),
+            "ack_mode": self.config.get("acknowledgment_mode", "wait_for_confirm")
         }
-
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA112MessageBroker(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-112 Failed: {e}")
-        return {"success": False, "error": str(e)}
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

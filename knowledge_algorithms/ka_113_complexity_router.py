@@ -1,17 +1,11 @@
-"""
-KA-113: Complexity Router
-Purpose: Analyze query complexity and route requests to appropriate processing pipelines (Fast-path vs Deep-path).
-"""
 import logging
 import json
 import os
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
-
-from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA113Input(BaseModel):
     query: str = ""
@@ -44,7 +38,7 @@ class KA113ComplexityRouter(KnowledgeAlgorithm):
         # Simulate complexity heuristic
         complexity_score = min(1.0, len(query) / 100.0)
         
-        thresholds = self.config.get("complexity_thresholds", {})
+        thresholds = self.config.get("complexity_thresholds", {"low": 0.3, "medium": 0.7})
         if complexity_score < thresholds.get("low", 0.3):
             tier = "low"
         elif complexity_score < thresholds.get("medium", 0.7):
@@ -58,14 +52,6 @@ class KA113ComplexityRouter(KnowledgeAlgorithm):
             "complexity_tier": tier,
             "target_pipeline": self.config.get("routing_map", {}).get(tier, "default")
         }
-
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA113ComplexityRouter(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-113 Failed: {e}")
-        return {"success": False, "error": str(e)}
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:
