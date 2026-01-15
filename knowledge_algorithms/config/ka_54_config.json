@@ -1,0 +1,6 @@
+{
+    "supported_languages": ["en", "es", "fr", "de", "zh", "ja"],
+    "alignment_threshold": 0.85,
+    "use_semantic_embeddings": true,
+    "fallback_language": "en"
+}
