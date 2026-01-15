@@ -260,7 +260,6 @@ def list_categories():
 
 
 @ka_bp.route('/workflow/high-stakes', methods=['POST'])
-@login_required
 @api_login_required
 def execute_high_stakes_workflow():
     """Execute the full 12-step high-stakes refinement workflow."""

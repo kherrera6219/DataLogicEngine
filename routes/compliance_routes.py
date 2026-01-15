@@ -182,6 +182,7 @@ def get_sector_compliance(sector_id):
         }), 500
 
 @compliance_bp.route('/map-regulatory', methods=['POST'])
+@api_admin_required
 def map_regulatory_to_compliance():
     """Map a regulatory framework to a compliance standard."""
     try:

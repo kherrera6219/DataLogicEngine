@@ -47,23 +47,7 @@ def run_async(coro):
             new_loop.close()
 
 
-def admin_required(f):
-    """Decorator to require admin privileges for MCP management endpoints."""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            return jsonify({
-                'success': False,
-                'error': 'Authentication required'
-            }), 401
-        if not getattr(current_user, 'is_admin', False):
-            logger.warning(f"Unauthorized MCP access attempt by user {current_user.username}")
-            return jsonify({
-                'success': False,
-                'error': 'Admin privileges required for this operation'
-            }), 403
-        return f(*args, **kwargs)
-    return decorated_function
+from backend.auth.api_decorators import api_admin_required
 
 # Create blueprint
 mcp_bp = Blueprint('mcp', __name__, url_prefix='/api/mcp')
@@ -120,7 +104,7 @@ def list_servers():
 
 @mcp_bp.route('/servers', methods=['POST'])
 @login_required
-@admin_required
+@api_admin_required
 def create_server():
     """Create a new MCP server"""
     try:
@@ -213,7 +197,7 @@ def get_server(server_id):
 
 @mcp_bp.route('/servers/<server_id>', methods=['DELETE'])
 @login_required
-@admin_required
+@api_admin_required
 def delete_server(server_id):
     """Delete an MCP server"""
     try:
@@ -539,7 +523,7 @@ def list_clients():
 
 @mcp_bp.route('/clients', methods=['POST'])
 @login_required
-@admin_required
+@api_admin_required
 def create_client():
     """Create a new MCP client"""
     try:
@@ -566,7 +550,7 @@ def create_client():
 
 @mcp_bp.route('/clients/<client_id>/connect/<server_id>', methods=['POST'])
 @login_required
-@admin_required
+@api_admin_required
 def connect_client(client_id, server_id):
     """Connect a client to a server"""
     try:
@@ -624,16 +608,10 @@ def get_stats():
 # Setup default servers endpoint
 
 @mcp_bp.route('/setup-default', methods=['POST'])
-@login_required
+@api_admin_required
 def setup_default_servers():
     """Set up default MCP servers"""
     try:
-        if not current_user.is_admin:
-            return jsonify({
-                'success': False,
-                'error': 'Admin access required'
-            }), 403
-
         manager = get_mcp_manager()
         server = manager.setup_default_servers()
 

@@ -109,6 +109,7 @@ def create_sector():
 # -------------------------------------------------------------------------
 
 @ukg_api.route('/domains', methods=['GET'])
+@api_login_required
 @api_response
 @cache.cached(timeout=300)
 def get_domains():
@@ -117,6 +118,7 @@ def get_domains():
     return [domain.to_dict() for domain in domains]
 
 @ukg_api.route('/domains/<domain_id>', methods=['GET'])
+@api_login_required
 @api_response
 def get_domain(domain_id):
     """Get a specific domain."""
@@ -124,6 +126,7 @@ def get_domain(domain_id):
     return domain.to_dict()
 
 @ukg_api.route('/domains', methods=['POST'])
+@api_admin_required
 @api_response
 def create_domain():
     """Create a new domain."""
@@ -156,6 +159,7 @@ def get_knowledge_nodes():
     return [node.to_dict() for node in nodes]
 
 @ukg_api.route('/knowledge/<node_id>', methods=['GET'])
+@api_login_required
 @api_response
 def get_knowledge_node(node_id):
     """Get a specific knowledge node."""
@@ -190,6 +194,7 @@ def create_knowledge_node():
 # -------------------------------------------------------------------------
 
 @ukg_api.route('/nodes', methods=['GET'])
+@api_login_required
 @api_response
 def get_nodes():
     """Get all nodes."""
@@ -197,6 +202,7 @@ def get_nodes():
     return [node.to_dict() for node in nodes]
 
 @ukg_api.route('/nodes/<node_id>', methods=['GET'])
+@api_login_required
 @api_response
 def get_node(node_id):
     """Get a specific node."""
@@ -204,6 +210,7 @@ def get_node(node_id):
     return node.to_dict()
 
 @ukg_api.route('/nodes', methods=['POST'])
+@api_admin_required
 @api_response
 def create_node():
     """Create a new node."""
@@ -224,6 +231,7 @@ def create_node():
     return node.to_dict(), 201
 
 @ukg_api.route('/edges', methods=['GET'])
+@api_login_required
 @api_response
 def get_edges():
     """Get all edges."""
@@ -231,6 +239,7 @@ def get_edges():
     return [edge.to_dict() for edge in edges]
 
 @ukg_api.route('/edges/<edge_id>', methods=['GET'])
+@api_login_required
 @api_response
 def get_edge(edge_id):
     """Get a specific edge."""
@@ -238,6 +247,7 @@ def get_edge(edge_id):
     return edge.to_dict()
 
 @ukg_api.route('/edges', methods=['POST'])
+@api_admin_required
 @api_response
 def create_edge():
     """Create a new edge."""
@@ -262,6 +272,7 @@ def create_edge():
 # -------------------------------------------------------------------------
 
 @ukg_api.route('/simulations', methods=['GET'])
+@api_login_required
 @api_response
 def get_simulations():
     """Get all simulation sessions."""
@@ -269,6 +280,7 @@ def get_simulations():
     return [session.to_dict() for session in sessions]
 
 @ukg_api.route('/simulations/<session_id>', methods=['GET'])
+@api_login_required
 @api_response
 def get_simulation(session_id):
     """Get a specific simulation session."""
@@ -299,6 +311,7 @@ def create_simulation():
     return session.to_dict(), 201
 
 @ukg_api.route('/simulations/<session_id>/step', methods=['POST'])
+@api_login_required
 @api_response
 def run_simulation_step(session_id):
     """Run a step for a simulation session."""
@@ -330,6 +343,7 @@ def run_simulation_step(session_id):
     return session.to_dict()
 
 @ukg_api.route('/simulations/<session_id>/stop', methods=['POST'])
+@api_login_required
 @api_response
 def stop_simulation(session_id):
     """Stop a simulation session."""

@@ -21,10 +21,14 @@ def api_response(f):
     - Plain dict returns (wrapped in success response)
     - (dict, status_code) tuples
     - Flask Response objects (passed through unchanged)
-    - Exceptions (wrapped in error response)
+    - Exceptions (wrapped in error response with sanitized messages)
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # Determine environment for error detail visibility
+        from flask import current_app
+        is_dev = current_app.config.get('ENV') == 'development' or current_app.debug
+
         try:
             from flask import Response
             result = f(*args, **kwargs)
@@ -58,11 +62,17 @@ def api_response(f):
             }), status_code
             
         except Exception as e:
-            logger.error(f"API error in {f.__name__}: {str(e)}")
+            # Log the full error internally
+            logger.error(f"API error in {f.__name__}: {str(e)}", exc_info=True)
+            
+            # Sanitize error message for production
+            error_msg = str(e) if is_dev else "An internal server error occurred while processing your request."
+            
             return jsonify({
                 'success': False,
-                'error': str(e),
-                'data': None
+                'error': error_msg,
+                'data': None,
+                'code': 'INTERNAL_SERVER_ERROR'
             }), 500
     
     return decorated_function

@@ -12,7 +12,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required
 from extensions import db
 from models import User, SimulationSession, Node, Edge, KnowledgeAlgorithm
-from backend.decorators import admin_required
+from backend.auth.api_decorators import api_admin_required
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ def error_response(message, status_code=400):
 
 @admin_bp.route('/dashboard', methods=['GET'])
 @login_required
-@admin_required
+@api_admin_required
 def admin_dashboard_stats():
     """Get admin dashboard statistics."""
     stats = {
@@ -47,7 +47,7 @@ def admin_dashboard_stats():
 
 @admin_bp.route('/users', methods=['GET'])
 @login_required
-@admin_required
+@api_admin_required
 def get_users():
     """Get list of users."""
     users = User.query.order_by(User.created_at.desc()).all()
@@ -65,7 +65,7 @@ def get_users():
 
 @admin_bp.route('/users/<int:user_id>/role', methods=['PUT'])
 @login_required
-@admin_required
+@api_admin_required
 def update_user_role(user_id):
     """Update user role."""
     user = User.query.get(user_id)

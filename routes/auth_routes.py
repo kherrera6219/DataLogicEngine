@@ -188,10 +188,11 @@ def sso_callback_route():
             if User.query.filter_by(username=username).first():
                 username = f"{username}_{datetime.datetime.now().strftime('%M%S')}"
                 
+            import secrets
             user = User()
             user.username = username
             user.email = email
-            user.set_password(datetime.datetime.now().isoformat()) # usage of random password
+            user.set_password(secrets.token_urlsafe(32)) # Secure random password for SSO fallback
             user.is_active = True
             
             db.session.add(user)
