@@ -62,9 +62,22 @@ class LayerController:
             bool: True if all layers initialized successfully
         """
         try:
+            # Initialize KA Master Controller
+            if not getattr(self, 'ka_controller', None):
+                try:
+                    from knowledge_algorithms.ka_master_controller import KAMasterController
+                    self.ka_controller = KAMasterController()
+                    logging.info(f"[{datetime.now()}] KA Master Controller initialized")
+                except ImportError:
+                    logging.warning(f"[{datetime.now()}] Could not import KAMasterController")
+                    self.ka_controller = None
+
             # Initialize Layer 1 (Planning)
             if not self.layer1_engine:
-                self.layer1_engine = Layer1PlanningEngine(config=self.config.get('layer1', {}))
+                l1_config = self.config.get('layer1', {})
+                if self.ka_controller:
+                    l1_config['ka_controller'] = self.ka_controller
+                self.layer1_engine = Layer1PlanningEngine(config=l1_config)
                 logging.info(f"[{datetime.now()}] Layer 1 Planning Engine initialized")
 
             # Initialize Layer 2 (Retrieval)
@@ -74,18 +87,28 @@ class LayerController:
 
             # Initialize Layer 3 Agent Engine
             if not self.layer3_engine:
-                self.layer3_engine = Layer3AgentEngine(config=self.config.get('layer3', {}))
+                # Inject KA Controller if supported or via config
+                l3_config = self.config.get('layer3', {})
+                if self.ka_controller:
+                    l3_config['ka_controller'] = self.ka_controller
+                self.layer3_engine = Layer3AgentEngine(config=l3_config)
                 logging.info(f"[{datetime.now()}] Layer 3 Agent Engine initialized")
 
             # Initialize POV Engine (Layer 4)
             if not self.pov_engine:
-                self.pov_engine = POVEngine(config=self.config.get('layer4', {}))
+                l4_config = self.config.get('layer4', {})
+                if self.ka_controller:
+                    l4_config['ka_controller'] = self.ka_controller
+                self.pov_engine = POVEngine(config=l4_config)
                 logging.info(f"[{datetime.now()}] POV Engine (Layer 4) initialized")
             
             # Initialize Layer 5 Integration Engine
             if not self.layer5_engine:
+                l5_config = self.config.get('layer5', {})
+                if self.ka_controller:
+                    l5_config['ka_controller'] = self.ka_controller
                 self.layer5_engine = Layer5IntegrationEngine(
-                    config=self.config.get('layer5', {}),
+                    config=l5_config,
                     system_manager=self.system_manager
                 )
                 logging.info(f"[{datetime.now()}] Layer 5 Integration Engine initialized")

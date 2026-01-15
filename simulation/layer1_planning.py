@@ -84,58 +84,109 @@ class Layer1PlanningEngine:
     
     def __init__(self, config: Dict[str, Any] = None):
         self.config = config or {}
+        self.ka_controller = self.config.get('ka_controller')
         self.parser = Coord17Parser()
         self.qas = QueryAnalysisSystem(self.config.get("qas", {}))
         
     def process_request(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
         """
         Main entry point for Layer 1.
-        
-        Returns:
-            {
-                "problem_spec": dict,
-                "intent": dict,
-                "tier_plan": dict,
-                "raw_query": str
-            }
+        Uses KAs if available, falling back to internal logic.
         """
         logger.info(f"Layer 1 Planning started for: {query[:50]}...")
         
+        # KA-004: Input Validation
+        normalized_query = query
+        if self.ka_controller:
+            try:
+                # Assuming KA-004 is registered
+                val_result = self.ka_controller.execute_algorithm("KA-004", {"query": query})
+                if val_result.get("success", False) and val_result.get("output", {}).get("normalized_query"):
+                     normalized_query = val_result["output"]["normalized_query"]
+                     logger.info("KA-004 Validation Successful")
+                elif val_result.get("success") is False:
+                     logger.warning(f"KA-004 Validation Failed: {val_result.get('error')}")
+            except Exception as e:
+                logger.warning(f"KA-004 Execution Failed: {e}")
+
         # 1. Parse Intent (What do they want?)
-        intent = self.parser.parse(query, context)
+        # Use normalized query
+        intent = self.parser.parse(normalized_query, context)
         
         # 2. Analyze Complexity (How hard is it?)
-        # Map our Intent format to the simple dict QAS expects
-        axis_vector_proxy = {
-            6: bool(intent.axis_6_regulation),
-            2: bool(intent.axis_2_sector),
-            17: bool(intent.axis_17_security)
-        }
+        # KA-113: Router / Tier Selection
+        # If KA-113 is available, use it to determine Tier.
         
-        qas_decision = self.qas.analyze(query, context, axis_vector=axis_vector_proxy)
+        tier_value = 1
+        tier_name = "T1"
+        layers_to_run = ["L1", "L9"]
+        
+        ka_router_used = False
+        if self.ka_controller:
+            try:
+                # Prepare input for KA-113 (needs complexity hint, maybe from KA-005)
+                # For now just pass query
+                router_result = self.ka_controller.execute_algorithm("KA-113", {
+                    "query": normalized_query,
+                    "complexity_hint": "hard" if len(normalized_query) > 50 else "easy" 
+                })
+                
+                if router_result.get("success", False):
+                    out = router_result.get("output", {})
+                    tier_str = out.get("selected_tier", "T1")
+                    # Map T1 -> 1
+                    try:
+                        tier_value = int(tier_str.replace("T", ""))
+                    except:
+                        tier_value = 1
+                    tier_name = tier_str
+                    # Update layers if KA-113 provides them, though SDK handler snippet usually just returns tier
+                    # But builtins.py version returns layers. Let's check output structure carefully.
+                    # The builtins.py version returns "layers". The handlers.py version (stub) does NOT.
+                    # We'll use safe defaults or what we get.
+                    if "layers" in out:
+                         layers_to_run = out["layers"]
+                    
+                    ka_router_used = True
+                    logger.info(f"KA-113 Router selected {tier_name}")
+            except Exception as e:
+                logger.warning(f"KA-113 Execution Failed: {e}")
+
+        # Fallback to Legacy QAS if KA router failed or not used
+        if not ka_router_used:
+            # Map our Intent format to the simple dict QAS expects
+            axis_vector_proxy = {
+                6: bool(intent.axis_6_regulation),
+                2: bool(intent.axis_2_sector),
+                17: bool(intent.axis_17_security)
+            }
+            qas_decision = self.qas.analyze(normalized_query, context, axis_vector=axis_vector_proxy)
+            tier_value = qas_decision.tier.value
+            tier_name = qas_decision.tier.name_short
+            layers_to_run = qas_decision.layers_to_run
         
         # 3. Construct Artifacts
         
         # ProblemSpec
         spec = ProblemSpec(
-            task_type=self._determine_task_type(query),
-            constraints=self._extract_constraints(query),
+            task_type=self._determine_task_type(normalized_query),
+            constraints=self._extract_constraints(normalized_query),
             ambiguities=[f"Axis {a} unclear" for a in intent.ambiguous_axes]
         )
         
         # TierPlan
         plan = TierPlan(
-            tier=qas_decision.tier.value,
-            tier_name=qas_decision.tier.name_short,
-            allowed_layers=qas_decision.layers_to_run,
-            features_enabled=["deep_research"] if qas_decision.tier.value >= 3 else []
+            tier=tier_value,
+            tier_name=tier_name,
+            allowed_layers=layers_to_run,
+            features_enabled=["deep_research"] if tier_value >= 3 else []
         )
         
         logger.info(f"Layer 1 Complete. Tier: {plan.tier_name}. Intent Axes: {len(intent.to_dict())} fields pop.")
         
         return {
-            "query_id": qas_decision.query_id,
-            "raw_query": query,
+            "query_id": context.get("query_id", "gen-" + str(datetime.now().timestamp())),
+            "raw_query": normalized_query,
             "problem_spec": spec.to_dict(),
             "intent": intent.to_dict(),
             "tier_plan": plan.to_dict()
