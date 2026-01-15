@@ -1,4 +1,3 @@
-
 import { auth } from './auth';
 import { simulation } from './simulation';
 import { knowledge } from './knowledge';
@@ -10,8 +9,43 @@ import { compliance } from './compliance';
 export * from './types';
 export { sendChat };
 
-// Base config
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+
+/**
+ * Standardized API Client for Enterprise Resilience
+ */
+export async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user-session');
+        window.location.href = '/login?error=session_expired';
+      }
+      throw new Error("Session expired. Please re-authenticate.");
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `System Error: ${response.statusText}`);
+    }
+
+    const json = await response.json();
+    return json.data !== undefined ? json.data : json;
+  } catch (error) {
+    console.error(`API Error [${endpoint}]:`, error);
+    throw error;
+  }
+}
 
 export const api = {
   chat,
@@ -22,16 +56,8 @@ export const api = {
   mcp,
   compliance,
   analytics: {
-    summary: async () => {
-      const res = await fetch(`${API_BASE}/analytics/summary`);
-      if (!res.ok) throw new Error("Failed to fetch analytics summary");
-      const json = await res.json();
-      return json.data;
-    },
-    trends: async (metric: string, days: number = 7) => {
-      const res = await fetch(`${API_BASE}/analytics/trends?metric=${metric}&days=${days}`);
-      if (!res.ok) throw new Error("Failed to fetch trends");
-      return res.json();
-    }
+    summary: () => request('/analytics/summary'),
+    trends: (metric: string, days: number = 7) => 
+      request(`/analytics/trends?metric=${metric}&days=${days}`)
   }
 };

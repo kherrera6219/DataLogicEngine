@@ -1,4 +1,5 @@
-import { API_BASE, User } from './types';
+import { User } from './types';
+import { request } from './index';
 
 export interface LoginCredentials {
     username?: string;
@@ -22,21 +23,15 @@ export interface LoginResponse {
 }
 
 export const auth = {
-    check: async (): Promise<AuthCheckResponse | null> => {
-        try {
-            const res = await fetch(`${API_BASE}/auth/check`);
-            return await res.json();
-        } catch { return null; }
-    },
-    login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
-        const res = await fetch(`${API_BASE}/auth/login`, {
+    check: (): Promise<AuthCheckResponse | null> => 
+        request<AuthCheckResponse>('/auth/check').catch(() => ({ authenticated: false })),
+    
+    login: (credentials: LoginCredentials): Promise<LoginResponse> => 
+        request<LoginResponse>('/auth/login', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(credentials)
-        });
-        return await res.json();
-    },
-    logout: async (): Promise<void> => {
-        await fetch(`${API_BASE}/auth/logout`, { method: 'POST' });
-    }
+        }),
+    
+    logout: (): Promise<void> => 
+        request('/auth/logout', { method: 'POST' }).catch(() => {})
 };

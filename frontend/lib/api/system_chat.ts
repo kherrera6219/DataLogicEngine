@@ -1,38 +1,21 @@
-import { API_BASE, ChatRequest, ChatResponse } from './types';
+import { ChatRequest, ChatResponse } from './types';
+import { request } from './index';
 
 export const system = {
-    health: async () => {
-       try {
-          const res = await fetch(`/health`);
-          return res.ok ? 'Operational' : 'Degraded';
-       } catch { return 'Offline'; }
-    }
+    health: () => request<string>('/health').catch(() => 'Offline')
 };
 
 export async function sendChat(payload: ChatRequest): Promise<ChatResponse> {
-  try {
-    const res = await fetch(`${API_BASE}/gateway/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-          messages: payload.messages,
-          provider: payload.provider || 'openai',
-          model: payload.model || 'gpt-4',
-          run_ukg_pipeline: payload.run_ukg_pipeline,
-          mode: payload.mode
-      })
-    });
-    
-    if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(`Chat failed: ${res.status} ${errText}`);
-    }
-    return await res.json() as ChatResponse;
-  } catch {
-    // silent fail
-    const errorMessage = "Network error"; // Since 'err' is removed, we can't check its type.
-    throw new Error(errorMessage);
-  }
+  return request<ChatResponse>('/gateway/chat', {
+    method: 'POST',
+    body: JSON.stringify({
+        messages: payload.messages,
+        provider: payload.provider || 'openai',
+        model: payload.model || 'gpt-4',
+        run_ukg_pipeline: payload.run_ukg_pipeline,
+        mode: payload.mode
+    })
+  });
 }
 
 export const chat = {

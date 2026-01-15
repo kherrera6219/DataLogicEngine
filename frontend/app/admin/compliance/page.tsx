@@ -105,18 +105,18 @@ export default function ComplianceDashboard() {
              ) : !standards ? (
                 <div className="text-sm text-muted-foreground">Loading compliance data...</div>
              ) : (
-                <div className="space-y-2">
-                   {standards.children && standards.children.length > 0 ? (
-                       standards.children.map((child: ComplianceStandard) => (
-                           <div key={child.uid} className="flex justify-between items-center p-2 rounded-md border">
-                              <span className="font-medium">{child.name || child.id}</span>
-                              <Badge variant="outline">Active</Badge>
-                           </div>
-                       ))
-                   ) : (
-                       <div className="text-sm text-muted-foreground">No active standards configured.</div>
-                   )}
-                </div>
+                 <div className="space-y-2">
+                    {standards && standards.length > 0 ? (
+                        standards.map((child: ComplianceStandard) => (
+                            <div key={child.uid} className="flex justify-between items-center p-2 rounded-md border">
+                               <span className="font-medium">{child.name || child.id}</span>
+                               <Badge variant="outline">Active</Badge>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="text-sm text-muted-foreground">No active standards configured.</div>
+                    )}
+                 </div>
              )}
           </CardContent>
         </Card>

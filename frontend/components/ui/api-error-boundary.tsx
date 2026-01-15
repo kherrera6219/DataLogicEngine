@@ -1,67 +1,61 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from './button';
 import { AlertCircle, RefreshCw } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from './alert';
+import { Button } from './button';
+import { Card, CardContent } from './card';
 
-interface ApiErrorBoundaryProps {
+interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  moduleName?: string;
 }
 
-interface ApiErrorBoundaryState {
+interface State {
   hasError: boolean;
   error: Error | null;
 }
 
-/**
- * Enterprise Grade Error Boundary for Component-Level Failures
- * Prevents entire page crashes when a single widget fails.
- */
-export class ApiErrorBoundary extends Component<ApiErrorBoundaryProps, ApiErrorBoundaryState> {
-  constructor(props: ApiErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
+export class ApiErrorBoundary extends Component<Props, State> {
+  public state: State = {
+    hasError: false,
+    error: null
+  };
 
-  static getDerivedStateFromError(error: Error): ApiErrorBoundaryState {
+  public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // In production, log this to Sentry via the stub introduced in global-error
-    console.error("Uncaught component error:", error, errorInfo);
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error(`ApiErrorBoundary [${this.props.moduleName || 'Global'}]:`, error, errorInfo);
   }
 
-  handleRetry = () => {
-    this.setState({ hasError: false, error: null });
-    // Useful if the error was transient network failure
-  };
-
-  render() {
+  public render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
+      if (this.props.fallback) return this.props.fallback;
 
       return (
-        <Alert variant="destructive" className="my-4">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Component Error</AlertTitle>
-          <AlertDescription className="mt-2 flex flex-col gap-2">
-            <p>This section of the interface encountered an error.</p>
-            <div className="text-xs font-mono opacity-80">{this.state.error?.message}</div>
+        <Card className="glass-card border-red-500/20 bg-red-500/5 animate-in fade-in zoom-in duration-300">
+          <CardContent className="flex flex-col items-center justify-center py-8 text-center space-y-4">
+            <div className="w-12 h-12 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/20">
+              <AlertCircle className="h-6 w-6 text-red-500" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-bold text-white tracking-tight">Signal Disruption</h3>
+              <p className="text-xs text-muted-foreground max-w-[200px] mx-auto">
+                Failed to retrieve data for <span className="text-red-400 font-mono">{this.props.moduleName || 'this module'}</span>.
+              </p>
+            </div>
             <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={this.handleRetry} 
-                className="w-fit mt-2 border-destructive/50 hover:bg-destructive/10"
+              variant="outline" 
+              size="sm" 
+              onClick={() => this.setState({ hasError: false, error: null })}
+              className="h-8 rounded-lg border-white/10 hover:bg-white/5 transition-all gap-2"
             >
-                <RefreshCw className="mr-2 h-3 w-3" /> Retry
+              <RefreshCw className="h-3 w-3" /> Re-sync
             </Button>
-          </AlertDescription>
-        </Alert>
+          </CardContent>
+        </Card>
       );
     }
 

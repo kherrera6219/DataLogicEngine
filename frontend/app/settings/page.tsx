@@ -60,33 +60,23 @@ export default function SettingsPage() {
                            <div className="font-bold text-white uppercase tracking-widest text-[10px]">Visual Theme</div>
                            <div className="text-xs text-muted-foreground">Select preferred interface luminosity standard.</div>
                         </div>
-                        <Select defaultValue="dark">
-                           <SelectTrigger className="w-[180px] bg-white/5 border-white/10 rounded-xl h-11 focus:ring-blue-500 font-semibold" aria-label="Select system theme">
-                              <SelectValue placeholder="System Default" />
-                           </SelectTrigger>
-                           <SelectContent className="bg-black/90 backdrop-blur-3xl border-white/10 rounded-xl">
-                              <SelectItem value="system">System Default</SelectItem>
-                              <SelectItem value="light">Luminous Light</SelectItem>
-                              <SelectItem value="dark">Deep Space Dark</SelectItem>
-                           </SelectContent>
-                        </Select>
+                         <Select defaultValue="dark" aria-label="Select system theme" className="w-[180px] bg-white/5 border-white/10 rounded-xl h-11 focus:ring-blue-500 font-semibold text-white">
+                            <option value="system">System Default</option>
+                            <option value="light">Luminous Light</option>
+                            <option value="dark">Deep Space Dark</option>
+                         </Select>
                      </div>
                      <div className="flex items-center justify-between group">
                         <div className="space-y-0.5">
                            <div className="font-bold text-white uppercase tracking-widest text-[10px]">Natural Language</div>
                            <div className="text-xs text-muted-foreground">Regional localization for the graph interface.</div>
                         </div>
-                        <Select defaultValue="en">
-                           <SelectTrigger className="w-[180px] bg-white/5 border-white/10 rounded-xl h-11 focus:ring-blue-500 font-semibold" aria-label="Select interface language">
-                              <SelectValue placeholder="English (US)" />
-                           </SelectTrigger>
-                           <SelectContent className="bg-black/90 backdrop-blur-3xl border-white/10 rounded-xl">
-                              <SelectItem value="en">English (US)</SelectItem>
-                              <SelectItem value="es">Castellano</SelectItem>
-                              <SelectItem value="fr">Français</SelectItem>
-                              <SelectItem value="de">Deutsch</SelectItem>
-                           </SelectContent>
-                        </Select>
+                         <Select defaultValue="en" aria-label="Select interface language" className="w-[180px] bg-white/5 border-white/10 rounded-xl h-11 focus:ring-blue-500 font-semibold text-white">
+                            <option value="en">English (US)</option>
+                            <option value="es">Castellano</option>
+                            <option value="fr">Français</option>
+                            <option value="de">Deutsch</option>
+                         </Select>
                      </div>
                   </CardContent>
                   <CardFooter className="border-t border-white/5 mx-6 px-0 py-6">

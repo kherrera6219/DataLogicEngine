@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { mcpApi, MCPServer } from '@/lib/api/mcp';
+import { mcp, MCPServer } from '@/lib/api/mcp';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -21,7 +21,7 @@ export default function MCPServersPage() {
   const fetchServers = async () => {
     try {
       setLoading(true);
-      const data = await mcpApi.getServers();
+      const data = await mcp.getServers();
       setServers(data.servers);
     } catch (err) {
       setError('Failed to load servers');
@@ -34,7 +34,7 @@ export default function MCPServersPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this server?')) return;
     try {
-      await mcpApi.deleteServer(id);
+      await mcp.deleteServer(id);
       fetchServers();
     } catch (err) {
       console.error(err);

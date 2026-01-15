@@ -1,18 +1,8 @@
-import { API_BASE, PillarLevel } from './types';
+import { PillarLevel } from './types';
+import { request } from './index';
 
 export const knowledge = {
-    pillars: async () => {
-        try {
-            const res = await fetch(`${API_BASE}/pillar-levels`);
-            if (!res.ok) return [];
-            const data = await res.json();
-            return (data.success ? data.data : data) as PillarLevel[];
-        } catch { return []; }
-    },
-    stats: async () => {
-        try {
-           const res = await fetch(`${API_BASE}/pillar-levels`);
-           return (await res.json()).data?.length || 0;
-        } catch { return 0; }
-    }
+    pillars: () => request<KnowledgePillar[]>('/knowledge/pillars'),
+    stats: () => request<KnowledgeStats>('/knowledge/stats')
+.then(d => d.length).catch(() => 0)
 };

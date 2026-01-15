@@ -29,4 +29,38 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
 )
 Select.displayName = "Select"
 
-export { Select }
+const SelectTrigger = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, children, ...props }, ref) => (
+    <div ref={ref} className={cn("flex", className)} {...props}>
+      {children}
+    </div>
+  )
+)
+SelectTrigger.displayName = "SelectTrigger"
+
+const SelectValue = React.forwardRef<HTMLSpanElement, React.HTMLAttributes<HTMLSpanElement>>(
+  ({ className, ...props }, ref) => (
+    <span ref={ref} className={className} {...props} />
+  )
+)
+SelectValue.displayName = "SelectValue"
+
+const SelectContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, children, ...props }, ref) => (
+    <div ref={ref} className={className} {...props}>
+      {children}
+    </div>
+  )
+)
+SelectContent.displayName = "SelectContent"
+
+const SelectItem = React.forwardRef<HTMLOptionElement, React.OptionHTMLAttributes<HTMLOptionElement>>(
+  ({ className, children, ...props }, ref) => (
+    <option ref={ref} className={className} {...props}>
+      {children}
+    </option>
+  )
+)
+SelectItem.displayName = "SelectItem"
+
+export { Select, SelectTrigger, SelectValue, SelectContent, SelectItem }

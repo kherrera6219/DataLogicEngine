@@ -6,7 +6,30 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { Maximize2, RotateCcw, ZoomIn, ZoomOut, Filter, ChevronLeft, ChevronRight, Info, Zap, Shield, Search } from "lucide-react";
+import { ApiErrorBoundary } from "@/components/ui/api-error-boundary";
+import {
+  Plus,
+  Search,
+  Filter,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  ExternalLink,
+  PlayCircle,
+  MessageSquarePlus,
+  ArrowUpRight,
+  TrendingUp,
+  ShieldCheck,
+  AlertTriangle,
+  ChevronRight,
+  RotateCcw,
+  ZoomIn,
+  ZoomOut,
+  ChevronLeft,
+  Zap,
+  Maximize2,
+  Shield
+} from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { AxisSelector } from "@/components/Graph/AxisSelector";
 import { CommandBar } from "@/components/Dashboard/CommandBar";
@@ -58,7 +81,7 @@ function generateDemoData(): GraphData {
   const pillars = ['Technology', 'Healthcare', 'Finance', 'Identity', 'Regulatory'];
   const nodes: GraphNode[] = [];
   const links: GraphLink[] = [];
-  
+
   pillars.forEach((pillar, pillarIdx) => {
     const nodeCount = 15 + Math.floor(Math.random() * 10);
     for (let i = 0; i < nodeCount; i++) {
@@ -80,7 +103,7 @@ function generateDemoData(): GraphData {
       }
     }
   });
-  
+
   for (let i = 0; i < 20; i++) {
     const sIdx = Math.floor(Math.random() * pillars.length);
     const tIdx = Math.floor(Math.random() * pillars.length);
@@ -92,12 +115,12 @@ function generateDemoData(): GraphData {
       });
     }
   }
-  
+
   return { nodes, links };
 }
 
 export default function GraphPage() {
-  const graphRef = useRef<any>(null);
+  const fgRef = useRef<any>(null);
   const { toast } = useToast();
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
   const [activeAxis, setActiveAxis] = useState(1);
@@ -131,7 +154,8 @@ export default function GraphPage() {
   }, [toast]);
 
   return (
-    <main className="h-screen bg-black flex flex-col overflow-hidden text-gray-200">
+    <div className="min-h-screen bg-black p-6 md:p-8 relative">
+      <h1 className="sr-only">17-Axis Knowledge Graph Explorer</h1>
       <CommandBar />
       <AxisSelector activeAxis={activeAxis} onChange={setActiveAxis} />
       
@@ -257,81 +281,83 @@ export default function GraphPage() {
         </div>
 
         {/* Right Sidebar: Details */}
-        <aside 
-          className={cn(
-            "h-full bg-gray-900 border-l border-gray-800 transition-all duration-300 flex flex-col z-20 shadow-2xl overflow-y-auto",
-            rightSidebarOpen ? "w-80" : "w-0 overflow-hidden border-none"
-          )}
-          aria-label="Node detail inspector"
-          role="complementary"
-        >
-          {selectedNode ? (
-            <div className="p-6 flex flex-col h-full">
-              <div className="flex items-center justify-between mb-8">
-                 <div className="flex items-center gap-2 text-xs font-bold text-blue-500 uppercase tracking-tighter">
-                    <Shield className="h-4 w-4" aria-hidden="true" /> Node Inspector
-                 </div>
-                 <Button 
-                  variant="ghost" size="icon" className="h-8 w-8 text-gray-500 rounded-lg hover:bg-gray-800" 
-                  onClick={() => setRightSidebarOpen(false)}
-                  aria-label="Close inspector"
-                >
-                    <ChevronRight className="h-5 w-5" />
-                 </Button>
-              </div>
-
-              <div className="space-y-6">
-                 <div>
-                    <h3 className="text-xl font-bold text-white mb-2 leading-tight">{selectedNode.name}</h3>
-                    <Badge 
-                      style={{ backgroundColor: PILLAR_COLORS[selectedNode.pillar || 'Technology'] }}
-                      aria-label={`Pillar classification: ${selectedNode.pillar}`}
-                    >
-                      {selectedNode.pillar}
-                    </Badge>
-                 </div>
-
-                 <div className="grid grid-cols-2 gap-4" role="list">
-                    {selectedNode.details && Object.entries(selectedNode.details).map(([k, v]) => (
-                      <div key={k} className="p-3 bg-white/5 rounded-xl border border-white/5" role="listitem">
-                        <p className="text-[9px] text-gray-500 font-bold uppercase mb-1">{k}</p>
-                        <p className="text-xs text-blue-100 font-medium">{v}</p>
-                      </div>
-                    ))}
-                 </div>
-
-                 <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl" role="status">
-                    <div className="flex items-center gap-2 mb-2">
-                       <Shield className="h-3 w-3 text-emerald-500" aria-hidden="true" />
-                       <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Compliance Passed</span>
-                    </div>
-                    <p className="text-[11px] text-gray-400 italic">This node satisfies all NIST 800-171 requirements for its classification.</p>
-                 </div>
-              </div>
-
-              <div className="mt-auto space-y-2 pt-6">
-                 <Button className="w-full bg-blue-600 hover:bg-blue-700 h-10 rounded-xl" aria-label="Open detailed compliance report for this node">
-                   View Full Details
-                 </Button>
-                 <Button 
-                    variant="ghost" className="w-full text-xs text-gray-500 h-10 rounded-xl"
-                    onClick={() => toast("Exporting node metadata bundle...", "info", 2000)}
-                    aria-label="Export node metadata as JSON"
+        <ApiErrorBoundary moduleName="Node Inspector">
+          <aside 
+            className={cn(
+              "h-full bg-gray-900 border-l border-gray-800 transition-all duration-300 flex flex-col z-20 shadow-2xl overflow-y-auto",
+              rightSidebarOpen ? "w-80" : "w-0 overflow-hidden border-none"
+            )}
+            aria-label="Node detail inspector"
+            role="complementary"
+          >
+            {selectedNode ? (
+              <div className="p-6 flex flex-col h-full">
+                <div className="flex items-center justify-between mb-8">
+                   <div className="flex items-center gap-2 text-xs font-bold text-blue-500 uppercase tracking-tighter">
+                      <Shield className="h-4 w-4" aria-hidden="true" /> Node Inspector
+                   </div>
+                   <Button 
+                    variant="ghost" size="icon" className="h-8 w-8 text-gray-500 rounded-lg hover:bg-gray-800" 
+                    onClick={() => setRightSidebarOpen(false)}
+                    aria-label="Close inspector"
                   >
-                   Export Node Bundle (JSON)
-                 </Button>
+                      <ChevronRight className="h-5 w-5" />
+                   </Button>
+                </div>
+  
+                <div className="space-y-6">
+                   <div>
+                      <h3 className="text-xl font-bold text-white mb-2 leading-tight">{selectedNode.name}</h3>
+                      <Badge 
+                        style={{ backgroundColor: PILLAR_COLORS[selectedNode.pillar || 'Technology'] }}
+                        aria-label={`Pillar classification: ${selectedNode.pillar}`}
+                      >
+                        {selectedNode.pillar}
+                      </Badge>
+                   </div>
+  
+                   <div className="grid grid-cols-2 gap-4" role="list">
+                      {selectedNode.details && Object.entries(selectedNode.details).map(([k, v]) => (
+                        <div key={k} className="p-3 bg-white/5 rounded-xl border border-white/5" role="listitem">
+                          <p className="text-[9px] text-gray-500 font-bold uppercase mb-1">{k}</p>
+                          <p className="text-xs text-blue-100 font-medium">{v}</p>
+                        </div>
+                      ))}
+                   </div>
+  
+                   <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl" role="status">
+                      <div className="flex items-center gap-2 mb-2">
+                         <Shield className="h-3 w-3 text-emerald-500" aria-hidden="true" />
+                         <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Compliance Passed</span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 italic">This node satisfies all NIST 800-171 requirements for its classification.</p>
+                   </div>
+                </div>
+  
+                <div className="mt-auto space-y-2 pt-6">
+                   <Button className="w-full bg-blue-600 hover:bg-blue-700 h-10 rounded-xl" aria-label="Open detailed compliance report for this node">
+                     View Full Details
+                   </Button>
+                   <Button 
+                      variant="ghost" className="w-full text-xs text-gray-500 h-10 rounded-xl"
+                      onClick={() => toast("Exporting node metadata bundle...", "info", 2000)}
+                      aria-label="Export node metadata as JSON"
+                    >
+                     Export Node Bundle (JSON)
+                   </Button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="h-full flex items-center justify-center text-gray-600 px-10 text-center">
-               <div className="flex flex-col items-center gap-4">
-                  <Info className="h-10 w-10 opacity-20" aria-hidden="true" />
-                  <p className="text-sm font-medium">Select a node to inspect its compliance and metadata.</p>
-               </div>
-            </div>
-          )}
-        </aside>
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-600 px-10 text-center">
+                 <div className="flex flex-col items-center gap-4">
+                    <Info className="h-10 w-10 opacity-20" aria-hidden="true" />
+                    <p className="text-sm font-medium">Select a node to inspect its compliance and metadata.</p>
+                 </div>
+              </div>
+            )}
+          </aside>
+        </ApiErrorBoundary>
       </div>
-    </main>
+    </div>
   );
 }

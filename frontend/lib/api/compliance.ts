@@ -1,5 +1,4 @@
-
-import { API_BASE } from "./types";
+import { request } from "./index";
 
 export interface ComplianceStandard {
   uid: string;
@@ -10,13 +9,11 @@ export interface ComplianceStandard {
 }
 
 export const compliance = {
-  standards: async (type?: string) => {
-    const url = type 
-      ? `${API_BASE}/compliance/standards?type=${type}`
-      : `${API_BASE}/compliance/standards`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Failed to fetch compliance standards");
-    return res.json();
+  standards: (type?: string) => {
+    const endpoint = type 
+      ? `/compliance/standards?type=${type}`
+      : `/compliance/standards`;
+    return request(endpoint);
   },
 
   exportAuditLogs: async (days: number = 30) => {

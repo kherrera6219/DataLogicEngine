@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { mcpApi, MCPStats } from '@/lib/api/mcp';
+import { mcp, MCPStats } from '@/lib/api/mcp';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Server, Activity, Database, Terminal, Settings } from 'lucide-react';
@@ -21,7 +21,7 @@ export default function MCPDashboard() {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const data = await mcpApi.getStats();
+      const data = await mcp.getStats();
       setStats(data);
     } catch (err) {
       setError('Failed to load MCP stats');
