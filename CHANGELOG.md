@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Enterprise Session Management**: Redis-backed sessions with rotation, concurrency limits, and strict idle timeouts.
 
 ### Added - Knowledge Algorithm (KA) Integration Audit
-- **L1-L7 KA Wiring**: All simulation layers now invoke specific KAs from the 116-algorithm registry.
+- **L1-L7 KA Wiring**: All simulation layers now invoke specific KAs from the 123-algorithm registry.
 - **L1**: KA-004 (Input Validation), KA-005 (Query Classification), KA-036 (Complexity Estimator), KA-113 (Complexity Router).
 - **L2**: KA-025 (Dependency Mapping), KA-018 (Source Provenance).
 - **L3**: KA-009 (Evidence Validation), KA-010 (Bias Detection), KA-034 (Adversarial Reasoning).

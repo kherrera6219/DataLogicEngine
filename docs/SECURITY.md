@@ -76,6 +76,10 @@ We implement a 3-Layer Defense Strategy to protect against generative attacks:
 - **Layer 3: The Sieve (RAG Sanitization)**
     - Strips imperative commands from ingested documents to prevent Indirect Prompt Injection.
     - Enforces XML isolation (`<document>`) for trusted data.
+- **Layer 4: The Sentinel (L9 Meta-Cognitive Guardrails)**
+    - Performs final "Belief Drift" analysis to ensure the solution hasn't strayed from the user's safety constraints.
+    - Audits "Persona Agreement" to identify internal model dissent or safety-vs-utility conflicts.
+    - Implements a mandatory **FINALIZE/REFINE** gate that defaults to fail-closed (REFINE) on any meta-cognitive uncertainty.
     
 ### 4. Active Defense Isolation (Supervisor Mode)
 The "Supervisor AI" operates on a **strictly isolated infrastructure**:

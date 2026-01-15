@@ -217,7 +217,7 @@ Instead of a single LLM pass, the engine executes a multi-layered pipeline:
 
 #### Knowledge Algorithm (KA) Integration by Layer
 
-Each layer invokes specific KAs from the 116-algorithm registry:
+Each layer invokes specific KAs from the 123-algorithm registry:
 
 | Layer | KAs Wired | Description |
 | :--- | :--- | :--- |
@@ -1497,7 +1497,7 @@ See [`SECURITY.md`](SECURITY.md) for our security policy and response process.
 - ✅ 17-Axis Framework
 - ✅ Truth Engine with 5-tier workflow
 - ✅ Complete tracing system (40+ tables)
-- ✅ MCP server with 116+ tools
+- ✅ MCP server with 123+ tools
 - ✅ LLM Gateway (4 providers)
 - ✅ Multi-tenancy support
 - ✅ SSO/OIDC integration
@@ -1510,15 +1510,17 @@ See [`SECURITY.md`](SECURITY.md) for our security policy and response process.
 - ✅ GraphQL API (Queries/Mutations)
 - ✅ Internationalization (i18n) support
 - ✅ Mobile PWA support
-- ✅ 116 Hardened Knowledge Algorithms
+- ✅ 123 Hardened Knowledge Algorithms
+- ✅ Multi-persona consensus system (KA-038)
+- ✅ Local ML model serving (Ollama/vLLM)
+- ✅ Layer 8 Trust Validation Gateway
+- ✅ Layer 9 Meta-Reasoning Controller
 
-**Planned (v2.0):**
+**Planned (v3.0):**
 
 - 📋 Mobile applications (React Native)
-- 📋 Kubernetes operator for automated ops
-- 📋 Machine learning model serving
-- 📋 Advanced persona system (consensus logic)
-- 📋 Federated knowledge sharing
+- 📋 Kubernetes operator for automated ops (v1 ongoing)
+- 📋 Federated knowledge sharing (POC)
 
 ---
 
@@ -1585,7 +1587,7 @@ copies or substantial portions of the Software.
 
 ## Project Status
 
-**Current Version**: v1.4.0
+**Current Version**: v2.3.0
 **Status**: Production-Ready ✅
 **Last Updated**: January 15, 2026
 **Maintainers**: [@kherrera6219](https://github.com/kherrera6219)

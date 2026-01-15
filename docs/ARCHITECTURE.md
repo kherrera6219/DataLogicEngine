@@ -110,10 +110,10 @@ This coordinate system allows the engine to retrieve exactly the right "slice" o
 
 ## 🧠 Unified Knowledge Algorithm (KA) Infrastructure
 
-The system employs a unified infrastructure for managing and executing **Knowledge Algorithms (KAs)**. These algorithms (KA-001 to KA-114) are implemented as modern Python modules that inherit from a standard base class and register themselves via a central registry.
+The system employs a unified infrastructure for managing and executing **Knowledge Algorithms (KAs)**. These algorithms (KA-001 to KA-116, L9-KA-001 to 007) are implemented as modern Python modules that inherit from a standard base class and register themselves via a central registry.
 
 - **KAMasterController**: Discovered and managed from `knowledge_algorithms/`, this controller orchestrates KA discovery, performance tracing, and resilient execution.
-- **Enterprise Base Class**: All 116 algorithms (KA-001 to KA-116) inherit from a hardened base class with Pydantic validation and `_fallback_logic` hooks.
+- **Enterprise Base Class**: All 123 algorithms (KA-001 to L9-KA-007) inherit from a hardened base class with Pydantic validation and `_fallback_logic` hooks.
 - **Resilient Execution**: Multi-tier error handling with structured error codes (E400-E500) and graceful degradation support.
 - **Registry System**: Unified discoverability via `knowledge_algorithms/ka_registry.yaml`.
 
@@ -147,8 +147,12 @@ The system employs a unified infrastructure for managing and executing **Knowled
 2. **L2: Retrieval & Grounding** - Dynamically fetches knowledge into an `EvidencePack`.
 3. **L3: Deep Research** - Agentic verification and gap-filling of evidence.
 4. **L4: POV Engine** - Multi-perspective expansion and persona simulation.
-5. **L9: Synthesis** - Final answer generation.
-6. **L10: Audit** - Hash-chain finalization.
+5. **L5: Multi-Persona Reasoning** - Deliberation and consensus weighting.
+6. **L6: Quantitative Validation** - Mathematical consistency and entropy scoring.
+7. **L7: AGI Planning** - Recursive goal decomposition and hypothesis generation.
+8. **L8: Trust Validation Gateway** - Cross-domain constraint checking and high-risk gate.
+9. **L9: Meta-Reasoning Controller** - Decision gate (FINALIZE/REFINE) with belief drift and persona audit.
+10. **L10: Final Synthesis & Audit** - Context-grounded response generation and hash-chained audit finalization.
 
 **Components**:
 
