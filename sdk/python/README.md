@@ -71,4 +71,4 @@ client.exports.download(export.export_id, "output.json")
 
 ## License
 
-MIT
+PolyForm Noncommercial License 1.0.0. See the root [LICENSE](../../LICENSE).

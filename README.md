@@ -3,7 +3,7 @@
 ### Enterprise-Grade AI Knowledge Synthesis & Orchestration Platform
 
 [![Version](https://img.shields.io/badge/Version-2.3.1-blue)](CHANGELOG.md)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Polyform--Noncommercial-red)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
 [![Hardened](https://img.shields.io/badge/Security-Enterprise--Hardened-success)](docs/SECURITY.md)
@@ -12,6 +12,8 @@
 [![Redis](https://img.shields.io/badge/Redis-Session--Hardened-red)](https://redis.io/)
 
 ---
+
+> **NOTICE**: Effective 2026-01-15, this project transitioned from the MIT License to the PolyForm Noncommercial License 1.0.0. See [`LICENSE`](LICENSE) for details.
 
 ## 🏗️ Executive Summary
 
@@ -1547,8 +1549,6 @@ See [`SECURITY.md`](SECURITY.md) for our security policy and response process.
 
 ## 📂 Documentation Matrix
 
-<<<<<<< HEAD
-
 - **[Architecture Deep-Dive](docs/ARCHITECTURE.md)**: Detailed breakdown of the middleware stack and graph processing.
 - **[Security & Compliance](docs/SECURITY.md)**: Details on Multi-tenancy, SSO, and SOC2 auditability.
 - **[Production Readiness](docs/PRODUCTION_READINESS.md)**: Hardening checklist, scaling, and disaster recovery.
@@ -1565,23 +1565,16 @@ For enterprise support, SOC2 report requests, or HIPAA BAA inquiries, please con
 
 # © 2026 DataLogicEngine. All Rights Reserved. Confidential & Proprietary.
 
-This project is licensed under the **MIT License** - see the [`LICENSE`](LICENSE) file for details.
+## ⚖️ License
 
-```
-MIT License
+This software is licensed under the **PolyForm Noncommercial License 1.0.0**.
 
-Copyright (c) 2024 DataLogicEngine
+- **Personal/Educational Use:** Free and encouraged.
+- **Commercial/Business Use:** Requires a commercial license agreement.
+- **Attribution:** Required for all uses.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-```
+For commercial licensing inquiries, please reach out to [support@example.com](mailto:support@example.com).
+See [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) for details on commercial use definitions.
 
 ---
 
