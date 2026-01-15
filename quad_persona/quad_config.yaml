@@ -15,7 +15,7 @@ engine:
 # Memory management settings
 memory:
   working_memory_capacity: 20
-  enable_semantic_search: false  # Set to true if using embedding-based search
+  enable_semantic_search: false # Set to true if using embedding-based search
   max_memory_age_days: 30
   salience_decay_rate: 0.1
 
@@ -64,18 +64,18 @@ refinement:
 # Axis mapping settings
 axis_mapping:
   dominant_axes:
-    - 8  # Knowledge Expert
-    - 9  # Sector Expert
+    - 8 # Knowledge Expert
+    - 9 # Sector Expert
     - 10 # Regulatory Expert (Octopus Node)
     - 11 # Compliance Expert (Spiderweb Node)
   influencing_axes:
-    - 1  # Knowledge Framework (Pillar Levels)
-    - 2  # Sectors
-    - 3  # Domains
-    - 4  # Methods
-    - 5  # Temporal Context
-    - 6  # Regulatory
-    - 7  # Compliance
+    - 1 # Knowledge Framework (Pillar Levels)
+    - 2 # Sectors
+    - 3 # Domains
+    - 4 # Methods
+    - 5 # Temporal Context
+    - 6 # Regulatory
+    - 7 # Compliance
 
 # Domain-specific settings
 domains:
@@ -126,3 +126,162 @@ domains:
       - "ISO 27001"
       - "NIST 800-53"
       - "SOC 2"
+
+  defense:
+    relevant_personas:
+      knowledge: ["defense_knowledge_expert"]
+      sector: ["defense_sector_expert"]
+      regulatory: ["defense_regulatory_expert"]
+      compliance: ["defense_compliance_expert"]
+    regulations:
+      - "ITAR"
+      - "EAR"
+      - "FAR/DFARS"
+      - "DoD 5000 Series"
+    standards:
+      - "MIL-STD"
+      - "AS9100"
+      - "NIST 800-171"
+      - "CMMC"
+    high_assurance: true
+
+# Persona Scaling Configuration
+persona_scaling:
+  enabled: true
+  trigger_after_step: 3 # After base quad, before synthesis
+
+  # Threshold configurations
+  thresholds:
+    standard:
+      complexity: 60
+      stakes: 40
+      conflict: 0.2
+      coverage: 0.85
+    high_assurance:
+      complexity: 40
+      stakes: 30
+      conflict: 0.1
+      coverage: 0.95
+
+  # Pod spawn caps
+  pod_caps:
+    knowledge_max: 6
+    sector_max: 6
+    regulatory_max: 3
+    compliance_max: 3
+
+  # Keywords that trigger high-assurance mode
+  high_assurance_keywords:
+    defense:
+      - "weapon"
+      - "military"
+      - "defense"
+      - "dod"
+      - "classified"
+      - "fighter"
+      - "bomber"
+      - "missile"
+      - "f-22"
+      - "f-35"
+      - "b-21"
+    safety_critical:
+      - "safety"
+      - "safety-critical"
+      - "airworthiness"
+      - "do-178"
+      - "do-254"
+      - "hazard"
+      - "catastrophic"
+    export_control:
+      - "itar"
+      - "ear"
+      - "export control"
+      - "export license"
+      - "technology control"
+    major_program:
+      - "modernization"
+      - "upgrade"
+      - "fielding"
+      - "acquisition"
+      - "milestone"
+
+  # Pod definitions with example personas
+  pods:
+    knowledge:
+      description: "Technical domain experts for subsystems"
+      examples:
+        - id: radar_sme
+          name: "Radar Systems SME"
+          domain: "avionics"
+        - id: ew_sme
+          name: "Electronic Warfare SME"
+          domain: "avionics"
+        - id: avionics_sme
+          name: "Mission Computer / Avionics SME"
+          domain: "avionics"
+        - id: propulsion_sme
+          name: "Propulsion SME"
+          domain: "propulsion"
+        - id: structures_sme
+          name: "Airframe Structures SME"
+          domain: "structures"
+        - id: software_sme
+          name: "Software / Integration SME"
+          domain: "software"
+
+    sector:
+      description: "Industry and operations experts"
+      examples:
+        - id: program_sme
+          name: "Program Execution (Cost/Schedule)"
+          domain: "program_management"
+        - id: sustainment_sme
+          name: "Sustainment / Depot / Readiness"
+          domain: "sustainment"
+        - id: manufacturing_sme
+          name: "Manufacturing / Supply Chain"
+          domain: "manufacturing"
+        - id: operations_sme
+          name: "Operational User (Tactics)"
+          domain: "operations"
+        - id: cyber_sme
+          name: "Cyber Operations / Mission Assurance"
+          domain: "cybersecurity"
+        - id: systems_eng_sme
+          name: "Systems Engineering / Integration Lead"
+          domain: "systems_engineering"
+
+    regulatory:
+      description: "Regulatory framework experts"
+      examples:
+        - id: airworthiness_sme
+          name: "Airworthiness / Safety Authority"
+          domain: "regulatory"
+        - id: export_sme
+          name: "Export Controls / ITAR"
+          domain: "regulatory"
+        - id: contracting_sme
+          name: "Contracting / FAR-DFARS"
+          domain: "regulatory"
+
+    compliance:
+      description: "Compliance and standards experts"
+      examples:
+        - id: rmf_sme
+          name: "Security Compliance (RMF/ATO)"
+          domain: "compliance"
+        - id: quality_sme
+          name: "Quality Compliance (AS9100)"
+          domain: "compliance"
+        - id: config_sme
+          name: "Configuration Management / Data Gov"
+          domain: "compliance"
+
+  # Orchestration settings
+  orchestration:
+    max_workers: 4
+    max_deconfliction_passes: 3
+    confidence_threshold: 0.995
+    parallel_pod_processing: true
+    within_pod_synthesis: true
+    cross_pod_deconfliction: true
