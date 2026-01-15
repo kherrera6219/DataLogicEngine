@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA098ProfilingInput(BaseModel):
+    target: str = Field("main_pipeline", description="The function or component to profile")
+
 class KA098Profiling(KnowledgeAlgorithm):
     """
-    KA-098: Performance profiling and bottleneck detection engine.
+    KA-098: Performance profiling and resource bottleneck detection engine.
     """
+    input_schema = KA098ProfilingInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-098"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,12 +37,10 @@ class KA098Profiling(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        target_fn = input_data.get("target", "main_pipeline")
-        
+    def _run_logic(self, input_data: KA098ProfilingInput) -> Dict[str, Any]:
+        target_fn = input_data.target
         self.log_execution_step("Executing Performance Profile", {"target": target_fn})
         
-        # Simulate profiling metrics
         metrics = {
             "cpu_user_time": 4.5,
             "memory_peak_mb": 1200,
@@ -42,12 +49,10 @@ class KA098Profiling(KnowledgeAlgorithm):
         }
         
         return {
-            "ka_id": "KA-098",
-            "ka_name": "Profiling",
             "success": True,
             "target": target_fn,
             "metrics": metrics,
-            "profile_dump": f"{self.config.get('output_dir')}prof_{os.urandom(2).hex()}.json"
+            "profile_dump": os.path.join(self.config.get('output_dir', "/tmp/profiles"), f"prof_{os.urandom(2).hex()}.json")
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

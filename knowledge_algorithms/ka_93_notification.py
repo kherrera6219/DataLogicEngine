@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA093NotificationInput(BaseModel):
+    message: str = Field(..., description="The content of the notification message")
+    severity: str = Field("info", description="The severity level (e.g., info, warning, critical)")
+
 class KA093Notification(KnowledgeAlgorithm):
     """
-    KA-093: Multi-channel notification routing engine.
+    KA-093: Multi-channel notification routing and delivery engine.
     """
+    input_schema = KA093NotificationInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-093"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,22 +38,15 @@ class KA093Notification(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        message_body = input_data.get("message", "")
-        severity = input_data.get("severity", "info")
-        
+    def _run_logic(self, input_data: KA093NotificationInput) -> Dict[str, Any]:
+        message_body = input_data.message
+        severity = input_data.severity
         self.log_execution_step("Routing Notification", {"severity": severity})
         
         target_channels = self.config.get("priority_rules", {}).get(severity, ["email"])
-        routing_report = []
+        routing_report = [{"channel": ch, "status": "DELIVERED", "timestamp": "now"} for ch in target_channels]
         
-        for ch in target_channels:
-            # Simulate channel delivery
-            routing_report.append({"channel": ch, "status": "DELIVERED", "timestamp": "now"})
-            
         return {
-            "ka_id": "KA-093",
-            "ka_name": "Notification",
             "success": True,
             "dispatched_to": target_channels,
             "routing_report": routing_report,

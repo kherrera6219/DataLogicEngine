@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA104LBInput(BaseModel):
+    batch_size: int = Field(100, ge=1, description="The size of the incoming batch to balance")
+
 class KA104LoadBalancing(KnowledgeAlgorithm):
     """
-    KA-104: Traffic and task distribution engine.
+    KA-104: Traffic and task distribution engine for high-throughput processing.
     """
+    input_schema = KA104LBInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-104"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,24 +37,21 @@ class KA104LoadBalancing(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        incoming_batch_size = input_data.get("batch_size", 100)
+    def _run_logic(self, input_data: KA104LBInput) -> Dict[str, Any]:
+        batch_size = input_data.batch_size
+        self.log_execution_step("Balancing Load", {"size": batch_size})
         
-        self.log_execution_step("Balancing Load", {"size": incoming_batch_size})
+        algo = self.config.get("algorithm", "least_connections")
+        backends = self.config.get("backends", [{"id": "node_01"}, {"id": "node_02"}])
         
-        algo = self.config.get("algorithm", "simple_rr")
-        backends = self.config.get("backends", [])
-        
-        # Simulate target selection
-        target_node = backends[0] if backends else {"id": "default"}
+        target_node = backends[batch_size % len(backends)]
         
         return {
-            "ka_id": "KA-104",
-            "ka_name": "Load Balancing",
             "success": True,
             "target_node": target_node["id"],
             "balancing_algorithm": algo,
-            "active_backends_count": len(backends)
+            "active_backends_count": len(backends),
+            "sticky_session": False
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

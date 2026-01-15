@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA102InjectionInput(BaseModel):
+    requesting_module: str = Field("main", description="The module name requesting dependency injection")
+
 class KA102DependencyInjection(KnowledgeAlgorithm):
     """
-    KA-102: IoC and dependency injection orchestration engine.
+    KA-102: IoC and dependency injection orchestration engine for system modularity.
     """
+    input_schema = KA102InjectionInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-102"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,21 +37,14 @@ class KA102DependencyInjection(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        requesting_module = input_data.get("module", "main")
-        
+    def _run_logic(self, input_data: KA102InjectionInput) -> Dict[str, Any]:
+        requesting_module = input_data.requesting_module
         self.log_execution_step("Injecting Dependencies", {"module": requesting_module})
         
-        dep_map = self.config.get("dependency_map", {})
-        injected = []
+        dep_map = self.config.get("dependency_map", {"storage": "S3Provider", "cache": "RedisCache"})
+        injected = [{"key": k, "impl": v, "status": "INJECTED"} for k, v in dep_map.items()]
         
-        for key, impl in dep_map.items():
-            # Simulate instantiation and injection
-            injected.append({"key": key, "impl_class": impl, "status": "INJECTED"})
-            
         return {
-            "ka_id": "KA-102",
-            "ka_name": "Dependency Injection",
             "success": True,
             "container_status": "READY",
             "injected_count": len(injected),

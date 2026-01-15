@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA100OptimizationInput(BaseModel):
+    load_profile: float = Field(0.5, ge=0.0, le=1.0, description="The current system load profile (0.0 to 1.0)")
+
 class KA100Optimization(KnowledgeAlgorithm):
     """
-    KA-100: Runtime performance and resource optimization engine.
+    KA-100: Runtime performance and resource optimization engine for adaptive scaling.
     """
+    input_schema = KA100OptimizationInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-100"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,15 +37,11 @@ class KA100Optimization(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        current_load = input_data.get("load_profile", 0.5)
-        
+    def _run_logic(self, input_data: KA100OptimizationInput) -> Dict[str, Any]:
+        current_load = input_data.load_profile
         self.log_execution_step("Applying Runtime Optimization", {"load": current_load})
         
         target = self.config.get("optimization_target", "balanced")
-        ops_applied = self.config.get("compiler_options", [])
-        
-        # Simulate optimization actions
         results = {
             "thread_pool_size": 16 if current_load > 0.8 else 8,
             "jit_enabled": True if current_load > 0.3 else False,
@@ -44,11 +49,9 @@ class KA100Optimization(KnowledgeAlgorithm):
         }
         
         return {
-            "ka_id": "KA-100",
-            "ka_name": "Optimization",
             "success": True,
             "target_applied": target,
-            "ops_applied": ops_applied,
+            "ops_applied": self.config.get("compiler_options", ["-O3"]),
             "optimization_results": results
         }
 

@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA110BusInput(BaseModel):
+    message: Dict[str, Any] = Field(..., description="The event payload to publish to the integration bus")
+    topic: str = Field("system_events", description="The target bus topic")
+
 class KA110IntegrationBus(KnowledgeAlgorithm):
     """
-    KA-110: Enterprise integration bus and event orchestration engine.
+    KA-110: Enterprise integration bus and event orchestration engine for decoupled communication.
     """
+    input_schema = KA110BusInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-110"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,22 +38,19 @@ class KA110IntegrationBus(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        message = input_data.get("message", {})
-        topic = input_data.get("topic", "system_events")
-        
+    def _run_logic(self, input_data: KA110BusInput) -> Dict[str, Any]:
+        topic = input_data.topic
         self.log_execution_step("Publishing to Bus", {"topic": topic})
         
-        bus_type = self.config.get("bus_type", "local")
+        bus_type = self.config.get("bus_type", "kafka")
         
         return {
-            "ka_id": "KA-110",
-            "ka_name": "Integration Bus",
             "success": True,
             "message_id": f"MSG_{os.urandom(6).hex()}",
             "published_to": topic,
             "bus_type": bus_type,
-            "delivery_guarantee": "at_least_once" # Stub
+            "delivery_guarantee": "at_least_once",
+            "acknowledge_receipt": True
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

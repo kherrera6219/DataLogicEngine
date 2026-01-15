@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA101EnvInput(BaseModel):
+    env: str = Field("dev", description="The target environment (e.g., dev, staging, prod)")
+
 class KA101EnvironmentManagement(KnowledgeAlgorithm):
     """
-    KA-101: System environment and provider configuration engine.
+    KA-101: System environment and provider configuration engine for orchestration.
     """
+    input_schema = KA101EnvInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-101"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,21 +37,18 @@ class KA101EnvironmentManagement(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        target_env = input_data.get("env", self.config.get("active_environment", "dev"))
-        
+    def _run_logic(self, input_data: KA101EnvInput) -> Dict[str, Any]:
+        target_env = input_data.env
         self.log_execution_step("Resolving Env Config", {"target": target_env})
         
-        env_vars = self.config.get("env_variables", {})
-        provider = self.config.get("provider_configs", {}).get("k8s", {})
+        env_vars = self.config.get("env_variables", {"LOG_LEVEL": "INFO"})
+        provider = self.config.get("provider_configs", {}).get("k8s", {"cluster": "main"})
         
         return {
-            "ka_id": "KA-101",
-            "ka_name": "Environment Management",
             "success": True,
             "resolved_env": target_env,
             "provider_active": "Kubernetes",
-            "config_checksum": "e3b0c442", # Stub
+            "config_checksum": hashlib.md5(json.dumps(env_vars).encode()).hexdigest()[:8],
             "injected_vars_count": len(env_vars)
         }
 

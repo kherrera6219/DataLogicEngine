@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA092DashboardInput(BaseModel):
+    dashboard_id: str = Field("ops_main", description="The identifier for the dashboard to orchestrate")
+
 class KA092Dashboarding(KnowledgeAlgorithm):
     """
-    KA-092: Dashboard orchestration and layout engine.
+    KA-092: Dashboard orchestration and layout engine for operational oversight.
     """
+    input_schema = KA092DashboardInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-092"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,23 +37,19 @@ class KA092Dashboarding(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        dashboard_id = input_data.get("id", "ops_main")
-        
+    def _run_logic(self, input_data: KA092DashboardInput) -> Dict[str, Any]:
+        dashboard_id = input_data.dashboard_id
         self.log_execution_step("Building Dashboard Layout", {"id": dashboard_id})
         
-        # Simulate dashboard assembly
-        active_widgets = self.config.get("widgets", [])
+        active_widgets = self.config.get("widgets", ["health_summary", "error_trends"])
         layout_plan = {
             "dashboard_id": dashboard_id,
             "layout_type": self.config.get("layout", "grid"),
-            "refresh_ms": self.config.get("refresh_interval_ms"),
+            "refresh_ms": self.config.get("refresh_interval_ms", 5000),
             "composition": [{"widget": w, "position": i} for i, w in enumerate(active_widgets)]
         }
         
         return {
-            "ka_id": "KA-092",
-            "ka_name": "Dashboarding",
             "success": True,
             "dashboard_blueprint": layout_plan,
             "status": "READY"

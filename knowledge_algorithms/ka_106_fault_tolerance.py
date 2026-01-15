@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+import random
+
+class KA106FaultInput(BaseModel):
+    operation: str = Field("generic", description="The operation to apply fault tolerance policies to")
+
 class KA106FaultTolerance(KnowledgeAlgorithm):
     """
-    KA-106: System reliability and fault tolerance engine.
+    KA-106: System reliability and fault tolerance engine for high-availability knowledge processing.
     """
+    input_schema = KA106FaultInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-106"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,23 +38,20 @@ class KA106FaultTolerance(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        target_op = input_data.get("operation", "generic")
-        
+    def _run_logic(self, input_data: KA106FaultInput) -> Dict[str, Any]:
+        target_op = input_data.operation
         self.log_execution_step("Enforcing Reliability Policies", {"op": target_op})
         
-        circuit_breakers = self.config.get("circuit_breakers", {})
-        status = "OPEN" if target_op in circuit_breakers and random.random() > 0.9 else "CLOSED" # Stub
+        circuit_breakers = self.config.get("circuit_breakers", {"payment_gateway": "CLOSED"})
+        status = "OPEN" if target_op in circuit_breakers and random.random() > 0.95 else "CLOSED"
         
         return {
-            "ka_id": "KA-106",
-            "ka_name": "Fault Tolerance",
             "success": True,
             "circuit_state": status,
-            "retry_policy_applied": self.config.get("retry_strategies", {}).get("network"),
-            "graceful_degradation_active": self.config.get("graceful_degradation_enabled", True)
+            "retry_policy_applied": self.config.get("retry_strategies", {}).get("network", "exponential_backoff"),
+            "graceful_degradation_active": self.config.get("graceful_degradation_enabled", True),
+            "fallback_engaged": False
         }
-import random
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

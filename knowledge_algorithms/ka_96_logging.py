@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA096LoggingInput(BaseModel):
+    logs: List[Any] = Field(default_factory=list, description="A list of log entries to process and store")
+
 class KA096Logging(KnowledgeAlgorithm):
     """
-    KA-096: Centralized system logging and trace engine.
+    KA-096: Centralized system logging and structured trace engine.
     """
+    input_schema = KA096LoggingInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-096"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,28 +37,24 @@ class KA096Logging(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        logs = input_data.get("logs", [])
-        
+    def _run_logic(self, input_data: KA096LoggingInput) -> Dict[str, Any]:
+        logs = input_data.logs
         self.log_execution_step("Processing Logs", {"count": len(logs)})
         
-        masking = self.config.get("sensitive_fields_masking", [])
+        masking = self.config.get("sensitive_fields_masking", ["api_key", "password"])
         processed_logs = []
         
         for entry in logs:
             if isinstance(entry, dict):
-                # Simulate masking
                 for field in masking:
                     if field in entry:
                         entry[field] = "********"
             processed_logs.append(entry)
             
         return {
-            "ka_id": "KA-096",
-            "ka_name": "Logging",
             "success": True,
             "logs_processed": len(processed_logs),
-            "backend": self.config.get("storage_backend"),
+            "backend": self.config.get("storage_backend", "central_log_server"),
             "structured": self.config.get("structured_logging", True)
         }
 

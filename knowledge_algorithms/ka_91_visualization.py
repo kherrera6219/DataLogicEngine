@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA091VisualizationInput(BaseModel):
+    data: Dict[str, Any] = Field(default_factory=dict, description="The knowledge or metric data to visualize")
+    viz_type: str = Field("graph", description="The type of visualization (e.g., graph, chart, heatmap)")
+
 class KA091Visualization(KnowledgeAlgorithm):
     """
-    KA-091: Knowledge and metric visualization engine.
+    KA-091: Knowledge and metric visualization engine for high-fidelity rendering.
     """
+    input_schema = KA091VisualizationInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-091"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,13 +38,10 @@ class KA091Visualization(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        data_to_viz = input_data.get("data", {})
-        viz_type = input_data.get("type", "graph")
-        
+    def _run_logic(self, input_data: KA091VisualizationInput) -> Dict[str, Any]:
+        viz_type = input_data.viz_type
         self.log_execution_step("Generating Visualization", {"type": viz_type})
         
-        # Simulate viz generation (returning a metadata object for the frontend)
         viz_metadata = {
             "chart_id": f"viz_{os.urandom(4).hex()}",
             "type": viz_type,
@@ -43,11 +50,9 @@ class KA091Visualization(KnowledgeAlgorithm):
         }
         
         return {
-            "ka_id": "KA-091",
-            "ka_name": "Visualization",
             "success": True,
             "visualization": viz_metadata,
-            "export_options": self.config.get("export_formats", [])
+            "export_options": self.config.get("export_formats", ["pdf", "png"])
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

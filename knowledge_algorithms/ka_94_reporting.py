@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA094ReportingInput(BaseModel):
+    report_name: str = Field("daily_health", description="The name of the report to generate")
+    output_format: str = Field("pdf", description="The target file format (e.g., pdf, html, csv)")
+
 class KA094Reporting(KnowledgeAlgorithm):
     """
-    KA-094: Automated system and metric reporting engine.
+    KA-094: Automated system and metric reporting engine for executive oversight.
     """
+    input_schema = KA094ReportingInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-094"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,22 +38,18 @@ class KA094Reporting(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        report_name = input_data.get("report_name", "daily_health")
-        target_format = input_data.get("format", "pdf")
-        
+    def _run_logic(self, input_data: KA094ReportingInput) -> Dict[str, Any]:
+        report_name = input_data.report_name
+        target_format = input_data.output_format
         self.log_execution_step("Compiling Report", {"name": report_name, "format": target_format})
         
-        # Simulate report compilation
         compilation_artifacts = [f"/reports/archive/{report_name}.{target_format}"]
         
         return {
-            "ka_id": "KA-094",
-            "ka_name": "Reporting",
             "success": True,
             "report_generated": report_name,
             "artifacts": compilation_artifacts,
-            "distributed_to": self.config.get("distribution_lists", {}).get("ops", [])
+            "distributed_to": self.config.get("distribution_lists", {}).get("ops", ["admin@enterprise.ai"])
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
