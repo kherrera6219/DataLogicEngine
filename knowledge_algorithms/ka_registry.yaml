@@ -121,6 +121,15 @@ ka_registry:
     module: knowledge_algorithms.ka_115_federated_inbox
     function: run
   "KA-116": "knowledge_algorithms.ka_116_entropy_detection.run"
+  
+  # Layer 10 KA Suite
+  "L10-KA-001": "knowledge_algorithms.l10.l10_ka_001_entropy_scorer"
+  "L10-KA-002": "knowledge_algorithms.l10.l10_ka_002_self_awareness"
+  "L10-KA-003": "knowledge_algorithms.l10.l10_ka_003_pii_redactor"
+  "L10-KA-004": "knowledge_algorithms.l10.l10_ka_004_ethics_validator"
+  "L10-KA-005": "knowledge_algorithms.l10.l10_ka_005_containment_engine"
+  "L10-KA-006": "knowledge_algorithms.l10.l10_ka_006_trust_gate"
+  "L10-KA-007": "knowledge_algorithms.l10.l10_ka_007_escalation_router"
 
   # Master Controller
   "KA-Master": "knowledge_algorithms.ka_master_controller.run"

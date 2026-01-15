@@ -68,6 +68,7 @@ class TruthCoreEngine:
         'simulations',               # KA-032
         'trust_validation',          # Layer 8: TrustValidationGateway (Phase 23)
         'meta_reasoning',            # Layer 9: MetaReasoningController (Phase 24)
+        'final_safety_gate',         # Layer 10: EmergenceDetectionController (Phase 25)
         'tier_verification',
         'final_synthesis',
         'memory_patch'
@@ -114,6 +115,14 @@ class TruthCoreEngine:
         except ImportError:
             logger.warning("Layer 9 MetaReasoningController not found, skipping.")
             self.meta_reasoning = None
+        
+        # Initialize Layer 10 EmergenceDetectionController
+        try:
+            from backend.truth_engine.truth_core.emergence_controller import EmergenceDetectionController
+            self.emergence_gate = EmergenceDetectionController(ka_controller=ka_controller)
+        except ImportError:
+            logger.warning("Layer 10 EmergenceDetectionController not found, skipping.")
+            self.emergence_gate = None
             
         self.active_sessions = {}
         logger.info("TruthCore Engine initialized")
@@ -578,6 +587,41 @@ class TruthCoreEngine:
                     'gate_decision': 'REFINE',
                     'error': str(e),
                     'readiness_score': 0.0
+                }
+
+        # Special handling for Layer 10 EmergenceDetectionController
+        if step == 'final_safety_gate' and self.emergence_gate:
+            try:
+                from backend.truth_engine.truth_core.l10_schemas import L10Input
+                l10_input = L10Input(
+                    simulation_id=context.get('session_id', 'unknown'),
+                    l9_result=context.get('l9_result', {}),
+                    reasoning_trace=context.get('reasoning_trace', {}),
+                    problem_spec={
+                        'original_query': query,
+                        'constraints': context.get('constraints', [])
+                    },
+                    coordinate_vector=context.get('coordinate_vector', {}),
+                    risk_domain=context.get('risk_domain', 'standard')
+                )
+                result = self.emergence_gate.authorize(l10_input)
+                return {
+                    'step': step,
+                    'ka_id': 'L10-SENTINEL',
+                    'status': 'completed',
+                    'decision': result.decision.value,
+                    'output': result.model_dump(),
+                    'final_answer': result.final_answer
+                }
+            except Exception as e:
+                logger.error(f"Layer 10 EmergenceDetectionController failed: {e}")
+                return {
+                    'step': step,
+                    'ka_id': 'L10-SENTINEL',
+                    'status': 'error',
+                    'decision': 'HALT',
+                    'error': str(e),
+                    'final_answer': "Final safety gate failure."
                 }
 
         
