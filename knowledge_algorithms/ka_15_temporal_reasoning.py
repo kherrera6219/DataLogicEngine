@@ -1,37 +1,89 @@
 """
 KA-015: Temporal Reasoning
-Purpose: Reason across time; timelines; validity windows.
+Purpose: Evaluate the temporal validity and relevance of facts across time windows.
 """
 import logging
+import json
+import os
+from datetime import datetime, timedelta
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 class KA015TemporalReasoning(KnowledgeAlgorithm):
+    """
+    KA-015: Filters and scores knowledge based on time stamps and validity windows.
+    """
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.config = self._load_config()
+
+    def _load_config(self) -> Dict[str, Any]:
+        try:
+            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_15_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, "r") as f:
+                    return json.load(f)
+            return {}
+        except Exception:
+            return {}
 
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Analyze temporal aspects.
-        """
-        events = input_data.get("events", [])
+        facts = input_data.get("facts", [])
+        reference_time_str = input_data.get("reference_time", datetime.now().isoformat())
         
-        self.log_execution_step("Temporal Analysis", {"events": len(events)})
+        try:
+            ref_time = datetime.fromisoformat(reference_time_str)
+        except ValueError:
+            ref_time = datetime.now()
+            
+        self.log_execution_step("Temporal Analysis", {"fact_count": len(facts), "ref_time": ref_time.isoformat()})
         
-        timeline = sorted(events, key=lambda x: x.get("timestamp", 0))
-        validity = {"start": 0, "end": 9999999999}
-        if timeline:
-            validity["start"] = timeline[0].get("timestamp", 0)
-            validity["end"] = timeline[-1].get("timestamp", 0)
+        processed_facts = []
+        for fact in facts:
+            validity = self._check_validity(fact, ref_time)
+            processed_facts.append({
+                **fact,
+                "temporal_validity": validity
+            })
             
         return {
             "ka_id": "KA-015",
+            "ka_name": "Temporal Reasoning",
             "success": True,
-            "timeline": timeline,
-            "validity_window": validity
+            "ref_time": ref_time.isoformat(),
+            "results": processed_facts,
+            "expired_count": sum(1 for f in processed_facts if f["temporal_validity"]["status"] == "expired")
         }
+
+    def _check_validity(self, fact: Dict[str, Any], ref_time: datetime) -> Dict[str, Any]:
+        # Expecting 'timestamp' and optionally 'expires_at' or 'valid_duration_days'
+        ts_str = fact.get("timestamp")
+        expires_str = fact.get("expires_at")
+        
+        if not ts_str:
+            return {"status": "unknown", "msg": "No timestamp provided"}
+            
+        try:
+            ts = datetime.fromisoformat(ts_str)
+            
+            # Use provided expiration or default from config
+            if expires_str:
+                expires_at = datetime.fromisoformat(expires_str)
+            else:
+                duration = self.config.get("default_validity_days", 365)
+                expires_at = ts + timedelta(days=duration)
+                
+            if ref_time > expires_at:
+                return {"status": "expired", "relative_age_days": (ref_time - ts).days}
+            elif ref_time < ts:
+                 return {"status": "future_dated", "starts_in_days": (ts - ref_time).days}
+            else:
+                 return {"status": "valid", "remaining_days": (expires_at - ref_time).days}
+                 
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

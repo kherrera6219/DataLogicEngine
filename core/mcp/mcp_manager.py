@@ -411,14 +411,50 @@ class MCPManager:
                 tool_name = f"execute_{safe_short_name}"
                 
                 # Define handler using closure to capture ka_id
-                def make_handler(kid, kname):
+                def make_handler(kid, kname, slug):
                     async def handler(arguments):
                         params = arguments.get("params", {})
-                        if self.app_orchestrator and hasattr(self.app_orchestrator, 'ka_loader'):
-                            # In a real implementation this would call the actual KA
-                            # return await self.app_orchestrator.ka_loader.execute(kid, params)
-                            return f"Executed Knowledge Algorithm {kid} ({kname}) with params: {params}"
-                        return f"Executed {kid} ({kname}) (Simulation Mode)"
+                        
+                        try:
+                            # Standardized KA import path
+                            # kid is e.g. "KA-001" -> convert to filename part ka_01
+                            ka_num = kid.split('-')[1].lstrip('0')
+                            if not ka_num: ka_num = '0'
+                            # Pad with zero if needed for filenames (e.g. ka_01)
+                            ka_num_pad = ka_num.zfill(2)
+                            
+                            # We need to find the filename starting with ka_XX_
+                            import os
+                            import importlib
+                            
+                            ka_dir = os.path.join(os.getcwd(), "knowledge_algorithms")
+                            target_file = None
+                            for f in os.listdir(ka_dir):
+                                if f.startswith(f"ka_{ka_num_pad}_") and f.endswith(".py"):
+                                    target_file = f[:-3]
+                                    break
+                            
+                            if not target_file:
+                                return f"KA implementation for {kid} not found on disk."
+
+                            # Dynamic Import
+                            module_path = f"knowledge_algorithms.{target_file}"
+                            module = importlib.import_module(module_path)
+                            
+                            if hasattr(module, "run"):
+                                # Run the KA (many are sync, some might be async, handle both)
+                                if asyncio.iscoroutinefunction(module.run):
+                                    result = await module.run(params)
+                                else:
+                                    result = module.run(params)
+                                return result
+                            
+                            return f"KA {kid} found but no 'run' function export."
+                            
+                        except Exception as e:
+                            logger.error(f"MCP Tool Execution Error ({kid}): {str(e)}")
+                            return f"Error executing {kid}: {str(e)}"
+                            
                     return handler
 
                 server.register_tool(
@@ -433,7 +469,7 @@ class MCPManager:
                             }
                         }
                     },
-                    handler=make_handler(ka_id, ka_name)
+                    handler=make_handler(ka_id, ka_name, safe_short_name)
                 )
                 count += 1
             

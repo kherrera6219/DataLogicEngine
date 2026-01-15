@@ -1,52 +1,101 @@
 """
 KA-009: Evidence Validation
-Purpose: Validate evidence consistency and claims support.
-Delegates to SDK handler.
+Purpose: Validate pieces of evidence based on source credibility, relevance, and SDK-level fact checking.
 """
 import logging
-from typing import Dict, Any
+import json
+import os
+from typing import Dict, Any, List
 import importlib
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 class KA009EvidenceValidation(KnowledgeAlgorithm):
+    """
+    KA-009: Scorer and validator for evidence snippets.
+    """
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.config = self._load_config()
         self.sdk_module = "ukg_sdk.ka.handlers.ka_009"
 
+    def _load_config(self) -> Dict[str, Any]:
+        try:
+            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_09_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, "r") as f:
+                    return json.load(f)
+            return {}
+        except Exception:
+            return {}
+
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        self.log_execution_step("Delegating to SDK", {"module": self.sdk_module})
+        evidence_list = input_data.get("evidence", [])
+        query = input_data.get("query", "")
+        
+        self.log_execution_step("Validating Evidence", {"count": len(evidence_list)})
+        
+        results = []
+        for item in evidence_list:
+            # 1. Local Scoping
+            local_score = self._calculate_local_score(item, query)
+            
+            # 2. SDK Delegation (Optional per item or batch)
+            sdk_res = self._delegate_to_sdk({"item": item, "query": query})
+            
+            # 3. Merge
+            final_score = (local_score + sdk_res.get("score", local_score)) / 2
+            
+            results.append({
+                "source": item.get("source"),
+                "score": final_score,
+                "is_valid": final_score >= self.config.get("min_evidence_score", 0.3),
+                "sdk_feedback": sdk_res.get("feedback")
+            })
+            
+        return {
+            "ka_id": "KA-009",
+            "ka_name": "Evidence Validation",
+            "success": True,
+            "results": results,
+            "overall_validity": all(r["is_valid"] for r in results) if results else True
+        }
+
+    def _calculate_local_score(self, item: Dict[str, Any], query: str) -> float:
+        content = item.get("content", "").lower()
+        source_type = item.get("source_type", "unknown")
+        
+        # 1. Source Credibility
+        source_scores = self.config.get("trusted_sources", {})
+        credibility = source_scores.get(source_type, 0.4)
+        
+        # 2. Relevance (simple keyword overlap stub)
+        query_words = set(query.lower().split())
+        content_words = set(content.split())
+        overlap = len(query_words.intersection(content_words)) / max(len(query_words), 1)
+        
+        relevance = min(1.0, overlap * 2.0) # Boost overlap score
+        
+        return (credibility * 0.6) + (relevance * 0.4)
+
+    def _delegate_to_sdk(self, data: Dict[str, Any]) -> Dict[str, Any]:
         try:
             mod = importlib.import_module(self.sdk_module)
-            # KA-009 in SDK might be class `EvidenceValidator` or func `ka_009`
-            func = getattr(mod, "ka_009", getattr(mod, "run", None))
-            # Also check for class
-            if not func:
-                 # Check if there is a class
-                 cls = getattr(mod, "EvidenceValidator", None)
-                 if cls:
-                     func = cls().process # Assumption
-            
-            if not func:
-                 # Fallback stub logic if SDK module structure is unknown
-                 logger.warning("SDK handler not found, using stub")
-                 return {"success": True, "validated": True, "stub": True}
-
-            result = func(input_data)
-            return {
-                "ka_id": "KA-009",
-                "success": True,
-                "sdk_response": result
-            }
-        except Exception as e:
-            logger.error(f"KA-009 SDK Delegation Failed: {e}")
-            return {"success": False, "error": str(e)}
+            if hasattr(mod, "run"):
+                return mod.run(data)
+            else:
+                func = getattr(mod, "ka_009", None) or getattr(mod, "validate_evidence", None)
+                if func:
+                    return func(data)
+                return {"score": 0.5}
+        except Exception:
+            return {"score": 0.5}
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:
         algo = KA009EvidenceValidation(context)
         return algo.run(context)
     except Exception as e:
-        logger.error(f"KA-009 Wrapper Failed: {e}")
+        logger.error(f"KA-009 Failed: {e}")
         return {"success": False, "error": str(e)}

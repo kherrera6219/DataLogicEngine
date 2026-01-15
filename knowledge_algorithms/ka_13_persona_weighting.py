@@ -1,48 +1,69 @@
 """
 KA-013: Persona Weighting
-Purpose: Weight persona outputs by relevance/authority.
+Purpose: Weigh various persona perspectives based on query domain and persona authority.
 """
 import logging
+import json
+import os
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 class KA013PersonaWeighting(KnowledgeAlgorithm):
+    """
+    KA-013: Normalizes and weights persona findings.
+    """
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.config = self._load_config()
+
+    def _load_config(self) -> Dict[str, Any]:
+        try:
+            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_13_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, "r") as f:
+                    return json.load(f)
+            return {}
+        except Exception:
+            return {}
 
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Calculate weights for persona outputs.
-        """
-        persona_results = input_data.get("persona_results", {})
-        domain = input_data.get("domain", "general")
+        persona_results = input_data.get("persona_results", [])
+        domain = input_data.get("domain", "GENERAL")
         
-        self.log_execution_step("Weighting Personas", {"count": len(persona_results)})
+        self.log_execution_step("Persona Weighting", {"domain": domain, "personasCount": len(persona_results)})
         
-        weighted_views = {}
-        priority_map = {}
+        weights = self.config.get("domain_weights", {}).get(domain, self.config.get("domain_weights", {}).get("GENERAL", {}))
         
-        for p_type, res in persona_results.items():
-            base_weight = 1.0
-            # Boost based on domain
-            if domain == "legal" and p_type in ["regulatory", "compliance"]:
-                base_weight = 1.5
-            elif domain == "tech" and p_type in ["sector", "knowledge"]:
-                base_weight = 1.2
-                
-            weighted_views[p_type] = {
-                "weight": base_weight,
-                "content": res.get("response", "")
-            }
-            priority_map[p_type] = base_weight
+        weighted_results = []
+        total_weighted_confidence = 0.0
+        active_weights_sum = 0.0
+        
+        for res in persona_results:
+            p_type = res.get("persona_type")
+            weight = weights.get(p_type, 0.25)
             
+            w_conf = res.get("confidence", 0.8) * weight
+            weighted_results.append({
+                **res,
+                "applied_weight": weight,
+                "weighted_confidence": w_conf
+            })
+            
+            total_weighted_confidence += w_conf
+            active_weights_sum += weight
+            
+        # Normalize if enabled
+        final_confidence = total_weighted_confidence / active_weights_sum if active_weights_sum > 0 else 0.0
+        
         return {
             "ka_id": "KA-013",
+            "ka_name": "Persona Weighting",
             "success": True,
-            "weighted_views": weighted_views,
-            "priority_map": priority_map
+            "domain": domain,
+            "weighted_results": weighted_results,
+            "final_consensus_confidence": final_confidence
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

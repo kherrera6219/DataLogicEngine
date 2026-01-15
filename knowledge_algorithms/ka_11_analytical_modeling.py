@@ -1,37 +1,64 @@
 """
 KA-011: Analytical Modeling
-Purpose: Perform math/statistical/structural modeling.
+Purpose: Perform statistical, structural, or structural modeling on input data.
 """
 import logging
-from typing import Dict, Any
+import json
+import os
+import statistics
+from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 class KA011AnalyticalModeling(KnowledgeAlgorithm):
+    """
+    KA-011: Performs data analysis and modeling.
+    """
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.config = self._load_config()
+
+    def _load_config(self) -> Dict[str, Any]:
+        try:
+            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_11_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, "r") as f:
+                    return json.load(f)
+            return {}
+        except Exception:
+            return {}
 
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Build and execute analytical models.
-        """
-        model_type = input_data.get("model_type", "statistical")
-        data_points = input_data.get("data", [])
+        data = input_data.get("data", [])
+        model_type = input_data.get("model_type", self.config.get("default_model_type", "statistical"))
         
-        self.log_execution_step("Running Model", {"type": model_type, "points": len(data_points)})
+        self.log_execution_step("Analytical Modeling", {"model_type": model_type, "data_points": len(data)})
         
-        # Placeholder modeling
-        result = {
-            "model_fit": 0.85,
-            "predictions": [10, 20, 30],
-            "assumptions": ["linear_growth", "normal_distribution"]
-        }
+        if not data or not isinstance(data, list):
+             return {"ka_id": "KA-011", "success": True, "result": "No data for modeling"}
+             
+        # Filter for numbers
+        nums = [x for x in data if isinstance(x, (int, float))]
+        
+        results = {}
+        if model_type == "statistical" and nums:
+            results = {
+                "mean": statistics.mean(nums),
+                "median": statistics.median(nums),
+                "stdev": statistics.stdev(nums) if len(nums) > 1 else 0.0,
+                "count": len(nums)
+            }
+        else:
+            results = {"msg": f"Model type {model_type} implementation stubbed"}
             
         return {
             "ka_id": "KA-011",
+            "ka_name": "Analytical Modeling",
             "success": True,
-            "modeling_result": result
+            "model_type": model_type,
+            "results": results,
+            "confidence_adjustment": self.config.get("confidence_boost", 0.0)
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

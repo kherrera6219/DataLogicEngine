@@ -1,50 +1,73 @@
 """
 KA-006: Deep Planning
-Purpose: Select reasoning strategy, depth, and verification approach.
+Purpose: Decompose complex problems into detailed, hierarchical execution plans.
 """
 import logging
-from typing import Dict, Any
+import json
+import os
+import uuid
+from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 class KA006DeepPlanning(KnowledgeAlgorithm):
+    """
+    KA-006: Hierarchical planner that creates a structured execution graph.
+    """
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.config = self._load_config()
+
+    def _load_config(self) -> Dict[str, Any]:
+        try:
+            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_06_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, "r") as f:
+                    return json.load(f)
+            return {}
+        except Exception:
+            return {}
 
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Generate a detailed execution plan.
-        """
-        complexity = input_data.get("complexity", "low")
-        gap_vector = input_data.get("gap_vector", [])
+        problem = input_data.get("problem", input_data.get("query", ""))
+        depth = input_data.get("requested_depth", 1)
         
-        self.log_execution_step("Deep Planning", {"complexity": complexity})
+        self.log_execution_step("Generating Deep Plan", {"problem": problem, "depth": depth})
         
-        plan = {
-            "strategy": "standard",
-            "depth": 1,
-            "verification": "none"
-        }
+        plan = self._generate_plan(problem, depth)
         
-        if complexity == "high" or len(gap_vector) > 2:
-            plan = {
-                "strategy": "tree_of_thought",
-                "depth": 3,
-                "verification": "formal_proof"
-            }
-        elif complexity == "medium":
-            plan = {
-                "strategy": "chain_of_thought",
-                "depth": 2,
-                "verification": "cross_check"
-            }
-            
         return {
             "ka_id": "KA-006",
+            "ka_name": "Deep Planning",
             "success": True,
-            "plan": plan
+            "plan_id": f"plan-{uuid.uuid4().hex[:8]}",
+            "plan_steps": plan,
+            "complexity_estimate": self._estimate_complexity(plan)
         }
+
+    def _generate_plan(self, problem: str, depth: int) -> List[Dict[str, Any]]:
+        # This would ideally call an LLM or a specialized planning engine.
+        # Here we implement an enterprise rule-based skeleton.
+        steps = [
+            {"id": "s1", "action": "Information Gathering", "target": "internal_kb"},
+            {"id": "s2", "action": "Regulatory Check", "target": "compliance_engine", "depends_on": ["s1"]},
+            {"id": "s3", "action": "Scenario Simulation", "target": "L5_simulator", "depends_on": ["s2"]},
+            {"id": "s4", "action": "Final Synthesis", "target": "report_generator", "depends_on": ["s3"]}
+        ]
+        
+        # Add metadata to steps
+        for step in steps:
+            step["estimated_duration_ms"] = self.config.get("default_step_duration_ms", 100)
+            step["status"] = "PENDING"
+            
+        return steps
+
+    def _estimate_complexity(self, plan: List[Dict[str, Any]]) -> float:
+        # Simple heuristic based on step count and dependencies
+        base = len(plan) * 0.1
+        deps = sum(len(s.get("depends_on", [])) for s in plan) * 0.05
+        return min(1.0, base + deps)
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

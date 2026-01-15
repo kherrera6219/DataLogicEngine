@@ -1,0 +1,5 @@
+{
+    "default_validity_days": 365,
+    "strict_mode": false,
+    "time_formats": ["%Y-%m-%d", "%Y-%m-%dT%H:%M:%S"]
+}

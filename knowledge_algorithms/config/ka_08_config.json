@@ -1,0 +1,21 @@
+{
+    "rubrics": {
+        "accuracy": {
+            "weight": 0.4,
+            "min_score": 0.7
+        },
+        "completeness": {
+            "weight": 0.3,
+            "min_score": 0.6
+        },
+        "clarity": {
+            "weight": 0.2,
+            "min_score": 0.5
+        },
+        "compliance": {
+            "weight": 0.1,
+            "min_score": 0.9
+        }
+    },
+    "auto_regen_threshold": 0.5
+}

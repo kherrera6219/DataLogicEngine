@@ -1,0 +1,26 @@
+{
+    "personas": {
+        "knowledge": {
+            "name": "Knowledge Expert",
+            "focus": "technical correctness, data integrity, system capability",
+            "base_confidence": 0.9
+        },
+        "sector": {
+            "name": "Sector Expert",
+            "focus": "industry trends, vertical specific needs, market fit",
+            "base_confidence": 0.85
+        },
+        "regulatory": {
+            "name": "Regulatory Expert",
+            "focus": "policy compliance, law, regional requirements",
+            "base_confidence": 0.95
+        },
+        "compliance": {
+            "name": "Compliance Expert",
+            "focus": "internal audit, ethics, risk mitigation",
+            "base_confidence": 0.9
+        }
+    },
+    "simulation_depth": 2,
+    "response_style": "authoritative"
+}

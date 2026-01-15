@@ -1,0 +1,17 @@
+{
+    "jurisdictions": {
+        "US": {
+            "sub_jurisdictions": ["California", "Texas", "New York"],
+            "primary_regulations": ["HIPAA", "SOX", "CCPA"]
+        },
+        "EU": {
+            "sub_jurisdictions": ["Germany", "France", "Italy"],
+            "primary_regulations": ["GDPR", "DORA"]
+        },
+        "GLOBAL": {
+            "sub_jurisdictions": [],
+            "primary_regulations": ["ISO27001"]
+        }
+    },
+    "auto_resolve_missing": true
+}

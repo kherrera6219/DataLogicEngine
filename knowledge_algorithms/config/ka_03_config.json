@@ -1,0 +1,8 @@
+{
+    "gap_types": ["missing_field", "value_mismatch", "threshold_violation"],
+    "severity_levels": {
+        "critical": 0.8,
+        "high": 0.5,
+        "low": 0.1
+    }
+}

@@ -1,38 +1,81 @@
 """
 KA-010: Bias Detection
-Purpose: Detect bias signals in reasoning/output.
+Purpose: Scan content for linguistic and conceptual bias, and suggest neutral alternatives.
 """
 import logging
+import json
+import os
+import re
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 class KA010BiasDetection(KnowledgeAlgorithm):
+    """
+    KA-010: Detects biased patterns in text based on configurable keyword sets.
+    """
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.config = self._load_config()
+
+    def _load_config(self) -> Dict[str, Any]:
+        try:
+            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_10_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, "r") as f:
+                    return json.load(f)
+            return {}
+        except Exception:
+            return {}
 
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Scan text for bias.
-        """
-        text = input_data.get("text", "") or input_data.get("draft", "")
+        content = input_data.get("content", "")
+        if not content:
+            return {"error": "No content provided", "success": False}
+            
+        self.log_execution_step("Scanning for Bias", {"content_len": len(content)})
         
-        self.log_execution_step("Detecting Bias", {})
+        findings = self._scan_for_bias(content)
         
-        bias_flags = []
-        bias_keywords = ["always", "never", "obviously", "everyone knows", "inferior", "superior"]
+        bias_score = self._calculate_bias_score(findings, content)
         
-        for word in bias_keywords:
-            if word in text.lower():
-                bias_flags.append(f"Found absolute term: {word}")
-                
         return {
             "ka_id": "KA-010",
+            "ka_name": "Bias Detection",
             "success": True,
-            "bias_detected": len(bias_flags) > 0,
-            "flags": bias_flags
+            "bias_score": bias_score,
+            "findings": findings,
+            "is_biased": bias_score > self.config.get("severity_threshold", 0.2)
         }
+
+    def _scan_for_bias(self, content: str) -> List[Dict[str, Any]]:
+        findings = []
+        categories = self.config.get("bias_categories", {})
+        
+        for cat_name, info in categories.items():
+            keywords = info.get("keywords", [])
+            suggestions = info.get("suggestions", {})
+            
+            for kw in keywords:
+                # Use regex for word boundaries
+                matches = re.finditer(rf"\b{kw}\b", content, re.IGNORECASE)
+                for match in matches:
+                    findings.append({
+                        "category": cat_name,
+                        "term": kw,
+                        "matched_text": match.group(),
+                        "position": match.start(),
+                        "suggestion": suggestions.get(kw.lower(), "Consider neutral phrasing")
+                    })
+                    
+        return findings
+
+    def _calculate_bias_score(self, findings: List[Dict[str, Any]], content: str) -> float:
+        if not content: return 0.0
+        # Simple ratio of biased findings per word count
+        word_count = max(len(content.split()), 1)
+        return min(1.0, len(findings) / (word_count / 10)) # Normalized factor
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

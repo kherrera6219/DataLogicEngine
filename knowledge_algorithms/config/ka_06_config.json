@@ -1,0 +1,8 @@
+{
+    "max_plan_depth": 5,
+    "default_step_duration_ms": 100,
+    "planner_models": {
+        "fast": "gpt-4o-mini",
+        "detailed": "gpt-4o"
+    }
+}

@@ -1,8 +1,10 @@
 """
 KA-001: Algorithm of Thought (AoT)
-Purpose: Decompose query into ordered tasks and dependencies.
+Purpose: Decompose query into ordered tasks and dependencies using configurable strategies.
 """
 import logging
+import json
+import os
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
@@ -11,11 +13,24 @@ logger = logging.getLogger(__name__)
 class KA001AlgorithmOfThought(KnowledgeAlgorithm):
     """
     KA-001: Decomposes complex queries into a Directed Acyclic Graph (DAG) of tasks.
+    Enhanced to use external configuration for strategies.
     """
     def __init__(self, context: Dict[str, Any]):
-        # Initialize with context as config, managers None for now
         super().__init__(context, None, None, None)
+        self.config = self._load_config()
         
+    def _load_config(self) -> Dict[str, Any]:
+        try:
+            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_01_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, "r") as f:
+                    return json.load(f)
+            logger.warning(f"Config not found at {config_path}, using defaults.")
+            return {}
+        except Exception as e:
+            logger.error(f"Failed to load config: {e}")
+            return {}
+
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Execute AoT decomposition.
@@ -26,35 +41,62 @@ class KA001AlgorithmOfThought(KnowledgeAlgorithm):
             
         self.log_execution_step("Decomposing query", {"query": query})
         
-        # Simple rule-based decomposition for now
-        tasks = self._decompose(query)
+        # Determine strategy
+        strategy_name = self._determine_strategy(query)
+        self.log_execution_step("Selected Strategy", {"strategy": strategy_name})
+        
+        # Decompose
+        tasks = self._decompose(query, strategy_name)
         
         return {
             "ka_id": "KA-001",
             "ka_name": "Algorithm of Thought",
             "success": True,
+            "strategy": strategy_name,
             "tasks": tasks,
             "graph": self._build_dependency_graph(tasks)
         }
 
-    def _decompose(self, query: str) -> List[Dict[str, Any]]:
-        tasks = []
-        # Always have a validate step
-        tasks.append({"id": "t1", "name": "Validate Input", "ka": "KA-004"})
+    def _determine_strategy(self, query: str) -> str:
+        # Simple heuristic for complexity
+        length = len(query.split())
+        complexity_score = 0.5 # Default
+        if length > 20 or "research" in query.lower():
+            complexity_score = 0.8
+        elif length < 5:
+            complexity_score = 0.2
+            
+        thresholds = self.config.get("complexity_thresholds", {"simple": 0.3, "standard": 0.7})
         
-        # Analyze step
-        tasks.append({"id": "t2", "name": "Analyze Query", "ka": "KA-005", "deps": ["t1"]})
-        
-        # If complex, add planning
-        if len(query.split()) > 10 or "complex" in query.lower():
-            tasks.append({"id": "t3", "name": "Deep Planning", "ka": "KA-006", "deps": ["t2"]})
-            tasks.append({"id": "t4", "name": "Execute Plan", "type": "execution", "deps": ["t3"]})
+        if "research" in query.lower():
+            return "research"
+        elif complexity_score < thresholds["simple"]:
+            return "simple"
         else:
-             tasks.append({"id": "t3", "name": "Direct Execution", "type": "execution", "deps": ["t2"]})
-             
-        # Synthesis
-        tasks.append({"id": "tn", "name": "Synthesize Response", "ka": "KA-019", "deps": [t["id"] for t in tasks if t["id"] != "tn"]})
+            return "standard"
+
+    def _decompose(self, query: str, strategy_name: str) -> List[Dict[str, Any]]:
+        strategies = self.config.get("strategies", {})
+        steps = strategies.get(strategy_name, strategies.get("standard", []))
         
+        tasks = []
+        prev_id = None
+        
+        for i, step in enumerate(steps):
+            task_id = f"t{i+1}"
+            task = {
+                "id": task_id,
+                "name": step.get("desc", step["step"]), 
+                "step_type": step["step"],
+                "ka": step.get("ka")
+            }
+            # Sequential dependency by default for AoT linear chains
+            if prev_id:
+                task["deps"] = [prev_id]
+                
+            tasks.append(task)
+            prev_id = task_id
+            
         return tasks
 
     def _build_dependency_graph(self, tasks: List[Dict[str, Any]]) -> Dict[str, List[str]]:

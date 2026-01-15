@@ -1,37 +1,66 @@
 """
 KA-016: Regulatory Mapping
-Purpose: Map regs/policies to obligations and constraints.
+Purpose: Map queries and scenarios to specific regulatory frameworks and obligations.
 """
 import logging
+import json
+import os
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 class KA016RegulatoryMapping(KnowledgeAlgorithm):
+    """
+    KA-016: Compliance and Regulatory mapping engine.
+    """
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.config = self._load_config()
+
+    def _load_config(self) -> Dict[str, Any]:
+        try:
+            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_16_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, "r") as f:
+                    return json.load(f)
+            return {}
+        except Exception:
+            return {}
 
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Map regulations to context.
-        """
-        jurisdiction = input_data.get("jurisdiction", "US")
-        scenario = input_data.get("scenario", "")
+        query = input_data.get("query", "").lower()
+        requested_frameworks = input_data.get("frameworks", [])
         
-        self.log_execution_step("Mapping Regulations", {"jurisdiction": jurisdiction})
+        self.log_execution_step("Regulatory Mapping", {"query": query, "frameworks": requested_frameworks})
         
-        obligations = []
-        if jurisdiction == "US":
-             obligations.append("US-001: Data Privacy")
-        elif jurisdiction == "EU":
-             obligations.append("GDPR: Right to erasure")
-             
+        frameworks_config = self.config.get("compliance_frameworks", {})
+        
+        # Auto-detect framework if not requested
+        if not requested_frameworks:
+            for fw, info in frameworks_config.items():
+                if fw.lower() in query:
+                    requested_frameworks.append(fw)
+                    
+        if not requested_frameworks:
+            requested_frameworks = [self.config.get("default_framework", "INTERNAL")]
+            
+        mappings = []
+        for fw in requested_frameworks:
+            info = frameworks_config.get(fw)
+            if info:
+                mappings.append({
+                    "framework": fw,
+                    "obligations": info.get("obligations", []),
+                    "risk_assessment": info.get("risk_score", 0.5)
+                })
+                
         return {
             "ka_id": "KA-016",
+            "ka_name": "Regulatory Mapping",
             "success": True,
-            "obligations": obligations,
-            "citations": ["Reg A", "Reg B"]
+            "mappings": mappings,
+            "highest_risk": max([m["risk_assessment"] for m in mappings]) if mappings else 0.0
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

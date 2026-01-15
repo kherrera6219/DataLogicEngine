@@ -1,0 +1,14 @@
+{
+    "weights": {
+        "evidence_validation": 0.4,
+        "persona_consensus": 0.3,
+        "truth_score": 0.2,
+        "context_relevance": 0.1
+    },
+    "thresholds": {
+        "certified": 0.85,
+        "provisional": 0.6,
+        "risky": 0.3
+    },
+    "conflict_penalty_multiplier": 0.8
+}

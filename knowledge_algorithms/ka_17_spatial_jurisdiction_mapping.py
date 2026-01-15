@@ -1,34 +1,59 @@
 """
 KA-017: Spatial/Jurisdiction Mapping
-Purpose: Resolve geography/jurisdiction applicability.
+Purpose: Resolve and map geographies/jurisdictions to applicable regulations and constraints.
 """
 import logging
-from typing import Dict, Any
+import json
+import os
+from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 class KA017SpatialMapping(KnowledgeAlgorithm):
+    """
+    KA-017: Spatial and Jurisdiction mapping engine.
+    """
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.config = self._load_config()
+
+    def _load_config(self) -> Dict[str, Any]:
+        try:
+            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_17_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, "r") as f:
+                    return json.load(f)
+            return {}
+        except Exception:
+            return {}
 
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Map location/jurisdiction.
-        """
-        location = input_data.get("location", "Unknown")
+        location_meta = input_data.get("location", "GLOBAL")
+        entity_scope = input_data.get("entity_scope", "GLOBAL")
         
-        self.log_execution_step("Mapping Spatial", {"location": location})
+        self.log_execution_step("Jurisdiction Resolution", {"location": location_meta, "scope": entity_scope})
         
-        jurisdiction = "International"
-        if "US" in location or "USA" in location:
-             jurisdiction = "US_Federal"
-             
+        jurisdictions_config = self.config.get("jurisdictions", {})
+        
+        # Simple resolution logic
+        primary = location_meta.upper()
+        if primary not in jurisdictions_config:
+            primary = "GLOBAL"
+            
+        details = jurisdictions_config.get(primary, {})
+        
         return {
             "ka_id": "KA-017",
+            "ka_name": "Spatial/Jurisdiction Mapping",
             "success": True,
-            "jurisdiction_tags": [jurisdiction],
-            "applicability": "High"
+            "resolved_jurisdiction": primary,
+            "sub_jurisdictions": details.get("sub_jurisdictions", []),
+            "applicable_regulations": details.get("primary_regulations", []),
+            "metadata": {
+                "input_location": location_meta,
+                "input_scope": entity_scope
+            }
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

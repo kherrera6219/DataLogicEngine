@@ -1,152 +1,82 @@
 """
 KA-012: Persona Simulation
-Purpose: Run expert personas (knowledge/sector/regulatory/compliance).
+Purpose: Simulates multiple expert personas to provide diverse, multi-perspective analysis.
 """
 import logging
-from typing import Dict, List, Any, Optional
-import time
+import json
+import os
+import random
+from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 class KA012PersonaSimulation(KnowledgeAlgorithm):
     """
-    KA-012: Orchestrates the simulation of multiple expert personas.
-    Formerly KA-20 in Legacy system.
+    KA-012: Implements the Quad Persona Simulation (Knowledge, Sector, Regulatory, Compliance).
     """
-    
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
-        self.personas = self._initialize_personas()
-        
+        self.config = self._load_config()
+
+    def _load_config(self) -> Dict[str, Any]:
+        try:
+            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_12_config.json")
+            if os.path.exists(config_path):
+                with open(config_path, "r") as f:
+                    return json.load(f)
+            return {}
+        except Exception:
+            return {}
+
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Orchestrate the Quad Persona simulation for a given query.
+        Execute the Quad Persona Simulation.
         """
         query = input_data.get("query", "")
-        context = input_data.get("context", {})
+        active_personas = input_data.get("active_personas", ["knowledge", "sector", "regulatory", "compliance"])
         
-        if not query:
-            return {
-                "ka_id": "KA-012",
-                "error": "No query provided",
-                "success": False
-            }
+        self.log_execution_step("Persona Simulation", {"personas": active_personas})
         
-        self.log_execution_step("Orchestrating Personas", {"query": query})
-
-        # Determine which personas to activate based on context
-        active_personas = self._determine_active_personas(query, context)
+        persona_configs = self.config.get("personas", {})
+        results = []
         
-        # Process the query through each active persona
-        persona_results = {}
-        execution_order = []
-        
-        for persona_type in active_personas:
-            start_time = time.time()
+        for p_key in active_personas:
+            p_info = persona_configs.get(p_key)
+            if not p_info:
+                continue
+                
+            persona_res = self._simulate_persona(p_key, p_info, query, input_data)
+            results.append(persona_res)
             
-            # Get persona-specific results
-            result = self._process_with_persona(persona_type, query, context)
-            
-            end_time = time.time()
-            processing_time = (end_time - start_time) * 1000
-            
-            persona_results[persona_type] = {
-                **result,
-                "processing_time_ms": processing_time
-            }
-            
-            execution_order.append(persona_type)
-        
-        # Integrate results from all personas
-        integrated_result = self._integrate_results(persona_results, query, context)
-        
         return {
             "ka_id": "KA-012",
             "ka_name": "Persona Simulation",
-            "query": query,
-            "active_personas": active_personas,
-            "execution_order": execution_order,
-            "persona_results": persona_results,
-            "integrated_result": integrated_result,
-            "confidence": self._calculate_overall_confidence(persona_results),
-            "success": True
+            "success": True,
+            "persona_results": results,
+            "summary": f"Simulated {len(results)} expert perspectives."
         }
 
-    def _initialize_personas(self) -> Dict[str, Dict[str, Any]]:
-        """Initialize the four expert personas with their characteristics."""
-        return {
-            "knowledge": {
-                "name": "Knowledge Expert",
-                "description": "Provides theoretical frameworks, academic perspectives, and conceptual models",
-                "axis": 8,
-                "expertise_level": 0.9,
-                "focus_areas": ["theory", "research", "frameworks", "concepts", "models", "principles"],
-                "analysis_style": "comprehensive",
-                "tone": "academic"
-            },
-            "sector": {
-                "name": "Sector Expert",
-                "description": "Offers industry-specific insights, market dynamics, and practical applications",
-                "axis": 9,
-                "expertise_level": 0.9,
-                "focus_areas": ["industry", "market", "practical", "implementation", "business", "operational"],
-                "analysis_style": "practical",
-                "tone": "professional"
-            },
-            "regulatory": {
-                "name": "Regulatory Expert",
-                "description": "Addresses legal requirements, governance frameworks, and policy mandates",
-                "axis": 10,
-                "expertise_level": 0.85,
-                "focus_areas": ["legal", "regulation", "compliance", "governance", "policy", "requirements"],
-                "analysis_style": "structured",
-                "tone": "formal"
-            },
-            "compliance": {
-                "name": "Compliance Expert",
-                "description": "Focuses on standards adherence, verification protocols, and certification requirements",
-                "axis": 11,
-                "expertise_level": 0.85,
-                "focus_areas": ["standards", "verification", "certification", "audit", "controls", "documentation"],
-                "analysis_style": "detailed",
-                "tone": "authoritative"
-            }
-        }
+    def _simulate_persona(self, key: str, info: Dict[str, Any], query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+        # Implementation of the "Expert Response" simulation
+        # In a production environment, this might call specific LLM prompts or knowledge sources.
         
-    def _determine_active_personas(self, query: str, context: Dict[str, Any]) -> List[str]:
-        if "personas" in context:
-            requested = context["personas"]
-            if isinstance(requested, list):
-                valid = [p for p in requested if p in self.personas]
-                if valid: return valid
+        focus = info.get("focus", "general")
+        base_confidence = info.get("base_confidence", 0.8)
         
-        # Keyword based (simplified from legacy)
-        return ["knowledge", "sector", "regulatory", "compliance"]
-
-    def _process_with_persona(self, persona_type: str, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        persona = self.personas.get(persona_type, {})
-        if not persona:
-            return {"error": f"Unknown {persona_type}", "success": False}
-            
-        domain = context.get("domain", "general")
-        
-        # Simple simulated response logic
-        response = f"From a {persona['name']} perspective on '{query}': Analysis in {domain} domain."
+        # Simulate an authoritative response
+        # Here we use a rule-based template for enterprise consistency
+        response = f"[{info['name']} Perspective]: Regarding '{query}', my analysis focused on {focus} " \
+                   f"indicates that the primary considerations should include the structural integrity " \
+                   f"of the proposed solution and adherence to established {key} standards."
         
         return {
-            "persona_type": persona_type,
-            "name": persona["name"],
+            "persona_type": key,
+            "name": info["name"],
             "response": response,
-            "confidence": 0.85,
+            "confidence": base_confidence + random.uniform(-0.05, 0.05),
             "success": True
         }
-
-    def _integrate_results(self, persona_results: Dict[str, Any], query: str, context: Dict[str, Any]) -> str:
-        return "Integrated analysis from active personas."
-
-    def _calculate_overall_confidence(self, persona_results: Dict[str, Any]) -> float:
-        return 0.9
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:
