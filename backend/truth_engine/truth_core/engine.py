@@ -66,6 +66,7 @@ class TruthCoreEngine:
         'deep_planning',             # KA-006: Multi-Step Planning
         'emergence_detection',       # KA-021: Emergent Pattern Detection
         'simulations',               # KA-032
+        'trust_validation',          # Layer 8: TrustValidationGateway (Phase 23)
         'tier_verification',
         'final_synthesis',
         'memory_patch'
@@ -96,6 +97,14 @@ class TruthCoreEngine:
         except ImportError:
             logger.warning("Layer 7 AGIPlannerService not found, skipping.")
             self.agi_planner = None
+        
+        # Initialize Layer 8 Trust Validation Gateway
+        try:
+            from backend.truth_engine.truth_gate.trust_validation_gateway import TrustValidationGateway
+            self.trust_gateway = TrustValidationGateway(ka_controller=ka_controller)
+        except ImportError:
+            logger.warning("Layer 8 TrustValidationGateway not found, skipping.")
+            self.trust_gateway = None
             
         self.active_sessions = {}
         logger.info("TruthCore Engine initialized")
@@ -485,10 +494,48 @@ class TruthCoreEngine:
             'deep_planning': 'KA-006',             # L7: Multi-Step Planning
             'emergence_detection': 'KA-021',       # L7: Emergent Pattern Detection
             'simulations': 'KA-032',
+            'trust_validation': 'L8-GATEWAY',      # L8: TrustValidationGateway
             'tier_verification': 'KA-027',
             'final_synthesis': 'KA-041',
             'memory_patch': 'KA-016'
         }
+        
+        # Special handling for Layer 8 Trust Validation Gateway
+        if step == 'trust_validation' and self.trust_gateway:
+            try:
+                from backend.truth_engine.truth_gate.l8_schemas import L8Input
+                l8_input = L8Input(
+                    simulation_id=context.get('session_id', 'unknown'),
+                    query_text=query,
+                    l5_synthesis=context.get('l5_synthesis'),
+                    l6_quant_result=context.get('l6_quant_result'),
+                    l7_agi_plan=context.get('l7_agi_plan'),
+                    claims=context.get('claims', []),
+                    evidence=context.get('evidence', []),
+                    constraints=context.get('constraints', []),
+                    persona_results=context.get('persona_results', {}),
+                    risk_domain=context.get('risk_domain', 'standard')
+                )
+                result = self.trust_gateway.validate(l8_input)
+                return {
+                    'step': step,
+                    'ka_id': 'L8-GATEWAY',
+                    'status': 'completed',
+                    'gate_decision': result.status.value,
+                    'output': result.dict(),
+                    'confidence': result.overall_confidence
+                }
+            except Exception as e:
+                logger.error(f"Layer 8 TrustValidationGateway failed: {e}")
+                return {
+                    'step': step,
+                    'ka_id': 'L8-GATEWAY',
+                    'status': 'error',
+                    'gate_decision': 'FAIL',
+                    'error': str(e),
+                    'confidence': 0.0
+                }
+
         
         ka_id = mapping.get(step)
         if ka_id and self.ka_controller:

@@ -24,7 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **L5**: KA-013 (Persona Weighting), KA-026 (Contradiction Detection) added to refinement pipeline.
 - **L6**: KA-039 (Anomaly Detection), KA-116 (Entropy Detection) integrated into `QuantValidationService`.
 - **L7**: KA-002 (Tree-of-Thought), KA-040 (Hypothesis Generation), KA-021 (Emergence Detection) wired into `AGIPlannerService`.
-- **TruthCoreEngine**: Expanded refinement steps from 15 to 24.
+- **L8**: KA-003, KA-008, KA-014, KA-016, KA-022, KA-023, KA-024, KA-025, KA-026, KA-030, KA-034 wired into `TrustValidationGateway`.
+- **TruthCoreEngine**: Expanded refinement steps from 15 to 26.
 
 
 ### Changed

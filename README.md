@@ -227,6 +227,7 @@ Each layer invokes specific KAs from the 116-algorithm registry:
 | **L5** | KA-012, KA-013, KA-026, KA-038.KA-030 | Multi-persona reasoning, weighting, contradiction detection, consensus |
 | **L6** | KA-039, KA-116, KA-014 | Anomaly detection, entropy scoring, confidence scoring |
 | **L7** | KA-002, KA-006, KA-021, KA-040 | Tree-of-Thought, deep planning, emergence detection, hypothesis generation |
+| **L8** | KA-003, KA-008, KA-014, KA-016, KA-022, KA-023, KA-024, KA-025, KA-026, KA-030, KA-034 | Trust validation gateway, cross-domain consistency, contradiction detection |
 
 
 ### 3. Traceable Response
