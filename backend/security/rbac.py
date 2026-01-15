@@ -74,7 +74,6 @@ class Permission(Enum):
     # API management
     API_KEY_CREATE = "api:key:create"
     API_KEY_REVOKE = "api:key:revoke"
-    API_KEY_REVOKE = "api:key:revoke"
     API_RATE_LIMIT_EXEMPT = "api:rate_limit:exempt"
     
     # Privacy & Sensitive Data

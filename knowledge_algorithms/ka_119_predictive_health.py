@@ -18,24 +18,19 @@ class KA119PredictiveHealth(KnowledgeAlgorithm):
     """
     
     def __init__(self):
-        super().__init__(
-            algorithm_id="ka_119_predictive_health",
-            version="1.0.0",
-            description="Predicts system exhaustion events via trend analysis.",
-            tier=4
-        )
+        super().__init__(config={})
+        self.ka_id = "ka_119_predictive_health"
+        self.version = "1.0.0"
+        self.description = "Predicts system exhaustion events via trend analysis."
+        self.tier = 4
 
-    def execute(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _run_logic(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """
         Execute prediction logic.
-        
-        Args:
-            params: {
-                "metric_name": str (e.g., "token_usage_per_minute"),
-                "history": List[float] (last 10 data points),
-                "threshold": float (limit)
-            }
         """
+        if hasattr(params, 'data'):
+            params = params.data
+            
         metric = params.get("metric_name", "unknown")
         history = params.get("history", [])
         threshold = params.get("threshold", 1000.0)

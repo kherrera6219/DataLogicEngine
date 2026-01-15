@@ -27,24 +27,19 @@ class KA120PurpleTeam(KnowledgeAlgorithm):
     }
 
     def __init__(self):
-        super().__init__(
-            algorithm_id="ka_120_purple_team",
-            version="1.0.0",
-            description="Simulates adversarial attacks to validate security controls.",
-            tier=5  # Maximum complexity
-        )
+        super().__init__(config={})
+        self.ka_id = "ka_120_purple_team"
+        self.version = "1.0.0"
+        self.description = "Simulates adversarial attacks to validate security controls."
+        self.tier = 5
 
-    def execute(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _run_logic(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """
         Execute attack simulation.
-        
-        Args:
-            params: {
-                "target": str (e.g., "truth_engine_v7"),
-                "intensity": str ("LOW", "HIGH"),
-                "vectors": List[str] (optional specific vectors)
-            }
         """
+        if hasattr(params, 'data'):
+            params = params.data
+            
         target = params.get("target", "truth_engine_v7")
         intensity = params.get("intensity", "LOW")
         

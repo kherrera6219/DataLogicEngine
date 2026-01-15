@@ -43,21 +43,15 @@ class KA117ThreatModelAgent(KnowledgeAlgorithm):
             tier=4  # High reasoning complexity
         )
 
-    def execute(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _run_logic(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """
         Execute the threat modeling analysis.
-        
-        Args:
-            params: {
-                "system_description": str,
-                "components": List[str],
-                "data_flows": List[str]
-            }
         """
+        # Unwrap Pydantic if needed
+        if hasattr(params, 'data'):
+            params = params.data
+
         description = params.get("system_description", "")
-        
-        # In a real implementation, this would call the LLM Gateway with a specialized system prompt
-        # For this foundation, we simulate the structured output logic.
         
         # 1. Identify Assets
         # 2. Identify Entry Points

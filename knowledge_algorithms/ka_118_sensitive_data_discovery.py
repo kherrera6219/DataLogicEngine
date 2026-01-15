@@ -26,24 +26,19 @@ class KA118SensitiveDataDiscovery(KnowledgeAlgorithm):
     }
 
     def __init__(self):
-        super().__init__(
-            algorithm_id="ka_118_sensitive_data_discovery",
-            version="1.0.0",
-            description="Scans content for PII/Secrets and tags security axes.",
-            tier=3
-        )
+        super().__init__(config={})
+        self.ka_id = "ka_118_sensitive_data_discovery"
+        self.version = "1.0.0"
+        self.description = "Scans content for PII/Secrets and tags security axes."
+        self.tier = 3
 
-    def execute(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _run_logic(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """
         Execute the scan.
-        
-        Args:
-            params: {
-                "content": str, (for direct text scan)
-                "node_id": str, (optional: update specific node)
-                "simulate_save": bool (default: True, don't write DB in simulation)
-            }
         """
+        if hasattr(params, 'data'):
+            params = params.data
+            
         content = params.get("content", "")
         node_id = params.get("node_id")
         
