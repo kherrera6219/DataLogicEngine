@@ -33,7 +33,7 @@ export function NavBar() {
   ];
 
   return (
-    <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border sticky top-0 z-50">
+    <header className="bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-white/5 sticky top-0 z-50 shadow-sm shadow-black/5">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           
@@ -48,23 +48,25 @@ export function NavBar() {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => (
-              !item.authRequired || isAuthenticated ? (
+          <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              return !item.authRequired || isAuthenticated ? (
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-muted hover:text-foreground",
-                    pathname === item.href
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground"
+                    "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                    isActive
+                      ? "bg-blue-500/10 text-blue-500 font-bold"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
                   {item.name}
                 </Link>
-              ) : null
-            ))}
+              ) : null;
+            })}
           </nav>
 
           {/* User Menu / Auth */}
@@ -112,36 +114,43 @@ export function NavBar() {
           
            {/* Mobile Menu Button */}
            <button 
-             className="md:hidden p-2 rounded-md hover:bg-muted text-muted-foreground"
+             className="md:hidden p-2 rounded-xl hover:bg-muted text-muted-foreground transition-all outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
              onClick={() => setIsMenuOpen(!isMenuOpen)}
-             aria-label="Toggle menu"
+             aria-label={isMenuOpen ? "Close main menu" : "Open main menu"}
+             aria-expanded={isMenuOpen}
+             aria-controls="mobile-nav-drawer"
            >
              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
            </button>
         </div>
       </div>
       
-      {/* Mobile Nav Drawer */}
-      {isMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background">
-          <nav className="flex flex-col p-4 space-y-1">
-             {navItems.map((item) => (
-              !item.authRequired || isAuthenticated ? (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={cn(
-                    "px-4 py-3 rounded-md text-sm font-medium transition-colors",
-                    pathname === item.href
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  {item.name}
-                </Link>
-              ) : null
-            ))}
+       {/* Mobile Nav Drawer */}
+       {isMenuOpen && (
+         <div 
+          id="mobile-nav-drawer"
+          className="md:hidden border-t border-white/5 bg-background/95 backdrop-blur-2xl animate-in slide-in-from-top duration-300"
+         >
+           <nav className="flex flex-col p-4 space-y-1" aria-label="Mobile navigation">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href;
+                return !item.authRequired || isAuthenticated ? (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    aria-current={isActive ? "page" : undefined}
+                    className={cn(
+                      "px-4 py-3 rounded-xl text-sm font-medium transition-all",
+                      isActive
+                        ? "bg-blue-500/10 text-blue-500 font-bold"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    {item.name}
+                  </Link>
+                ) : null;
+              })}
             <div className="pt-4 mt-4 border-t border-border">
                 {isAuthenticated && user ? (
                     <div className="space-y-3">

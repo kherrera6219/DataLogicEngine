@@ -38,7 +38,11 @@ interface TraceRun {
 
 function StatCard({ title, value, subtext, icon: Icon, trend, variant = "default" }: any) {
   return (
-    <Card className="glass-card transition-all hover:scale-[1.02] hover:shadow-blue-500/10 active:scale-[0.98]">
+    <Card 
+      className="glass-card transition-all hover:scale-[1.02] hover:shadow-blue-500/10 active:scale-[0.98]"
+      role="region"
+      aria-label={`${title} statistics`}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
         <div className={cn(
@@ -47,16 +51,19 @@ function StatCard({ title, value, subtext, icon: Icon, trend, variant = "default
           variant === "success" ? "bg-emerald-500/10 text-emerald-500" :
           "bg-blue-500/10 text-blue-500"
         )}>
-          <Icon className="h-4 w-4" />
+          <Icon className="h-4 w-4" aria-hidden="true" />
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-bold tracking-tight">{value}</div>
+        <div className="text-3xl font-bold tracking-tight" aria-atomic="true">{value}</div>
         <div className="flex items-center gap-1.5 mt-2">
           {trend && (
-            <div className={cn("flex items-center text-xs font-semibold px-1.5 py-0.5 rounded-md", trend > 0 ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500")}>
+            <div 
+              className={cn("flex items-center text-xs font-semibold px-1.5 py-0.5 rounded-md", trend > 0 ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500")}
+              aria-label={`Trend: ${trend > 0 ? "Up" : "Down"} by ${Math.abs(trend)} percent`}
+            >
               {trend > 0 ? "+" : ""}{trend}%
-              <TrendingUp className={cn("h-3 w-3 ml-1", trend < 0 && "rotate-180")} />
+              <TrendingUp className={cn("h-3 w-3 ml-1", trend < 0 && "rotate-180")} aria-hidden="true" />
             </div>
           )}
           <p className="text-xs text-muted-foreground">{subtext}</p>
@@ -99,14 +106,21 @@ export default function DashboardPage() {
           </div>
           <div className="flex flex-wrap gap-3">
              <Link href="/chat">
-                <Button className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 text-white gap-2">
-                  <MessageSquarePlus className="h-5 w-5" />
+                <Button 
+                  className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 text-white gap-2"
+                  aria-label="Start new intelligence session"
+                >
+                  <MessageSquarePlus className="h-5 w-5" aria-hidden="true" />
                   New Session
                 </Button>
              </Link>
              <Link href="/graph">
-                 <Button variant="outline" className="h-11 px-6 rounded-xl glass-morphism gap-2">
-                    <Activity className="h-5 w-5" />
+                 <Button 
+                  variant="outline" 
+                  className="h-11 px-6 rounded-xl glass-morphism gap-2"
+                  aria-label="Open 17-Axis Knowledge Explorer"
+                >
+                    <Activity className="h-5 w-5" aria-hidden="true" />
                     Explorer
                  </Button>
              </Link>
@@ -148,10 +162,12 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
            <div className="lg:col-span-2 space-y-6">
-              <ComplianceTrendChart />
+              <section aria-label="Compliance and Intelligence Trends">
+                <ComplianceTrendChart />
+              </section>
 
               {/* Recent Activity Table */}
-              <Card className="glass-card">
+              <Card className="glass-card" role="region" aria-label="Recent Execution Traces">
                  <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                       <CardTitle className="text-lg">Recent Execution Traces</CardTitle>

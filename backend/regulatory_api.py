@@ -333,3 +333,48 @@ def create_compliance_link():
             'message': f"Error creating compliance link: {str(e)}",
             'timestamp': datetime.now().isoformat()
         }), 500
+
+@regulatory_api.route('/standards', methods=['GET'])
+def get_standards():
+    """Get all compliance standards (e.g., NIST, SOC2, GDPR)."""
+    try:
+        # In a real system, these would come from Axis 7 or a similar manager
+        standards = [
+            {
+                "id": "nist-800-171",
+                "name": "NIST 800-171",
+                "version": "Rev 2",
+                "description": "Protecting Controlled Unclassified Information",
+                "status": "active",
+                "coverage": 94
+            },
+            {
+                "id": "soc2-type-2",
+                "name": "SOC2 Type 2",
+                "version": "2024",
+                "description": "Security, Availability, and Confidentiality Trust Services",
+                "status": "active",
+                "coverage": 88
+            },
+            {
+                "id": "gdpr-eu",
+                "name": "GDPR (EU)",
+                "version": "2018",
+                "description": "General Data Protection Regulation",
+                "status": "warning",
+                "coverage": 72
+            }
+        ]
+        
+        return jsonify({
+            'success': True,
+            'data': standards,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error getting standards: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500

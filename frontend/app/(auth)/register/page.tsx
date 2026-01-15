@@ -1,39 +1,86 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Shield, Mail, Lock, User as UserIcon } from "lucide-react";
 
 export default function RegisterPage() {
   return (
-    <div>
-      <div className="text-center">
-        <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">Create your account</h2>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-          Already have an account?{' '}
-          <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
-             Sign in
-          </Link>
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-black p-4 relative overflow-hidden">
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(37,99,235,0.1),transparent_50%)]" />
+      
+      <Card className="w-full max-w-md glass-card border-white/10 shadow-2xl relative z-10 animate-in fade-in zoom-in duration-500">
+        <CardHeader className="text-center pb-8 border-b border-white/5 mx-6">
+            <div className="mx-auto w-12 h-12 bg-blue-600/20 rounded-2xl flex items-center justify-center mb-4 border border-blue-500/30">
+               <Shield className="h-6 w-6 text-blue-500" aria-hidden="true" />
+            </div>
+            <CardTitle className="text-2xl font-bold tracking-tight">Identity Provisioning</CardTitle>
+            <CardDescription className="text-muted-foreground font-medium">Request a new DataLogicEngine access token</CardDescription>
+        </CardHeader>
+        <CardContent className="pt-8">
+            <form className="space-y-6">
+                <div className="space-y-3">
+                    <Label htmlFor="username" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Unique Identifier</Label>
+                    <div className="relative">
+                       <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" aria-hidden="true" />
+                       <Input 
+                          id="username" 
+                          type="text" 
+                          placeholder="Select a username" 
+                          className="bg-white/5 border-white/10 h-11 pl-10 rounded-xl focus-visible:ring-blue-500" 
+                          required
+                          aria-required="true"
+                       />
+                    </div>
+                </div>
+                <div className="space-y-3">
+                    <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Contact Vector</Label>
+                    <div className="relative">
+                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" aria-hidden="true" />
+                       <Input 
+                          id="email" 
+                          type="email" 
+                          placeholder="professional@email.com" 
+                          className="bg-white/5 border-white/10 h-11 pl-10 rounded-xl focus-visible:ring-blue-500" 
+                          required
+                          aria-required="true"
+                       />
+                    </div>
+                </div>
+                <div className="space-y-3">
+                    <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Security Token</Label>
+                    <div className="relative">
+                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" aria-hidden="true" />
+                       <Input 
+                          id="password" 
+                          type="password" 
+                          placeholder="••••••••" 
+                          className="bg-white/5 border-white/10 h-11 pl-10 rounded-xl focus-visible:ring-blue-500" 
+                          required
+                          aria-required="true"
+                       />
+                    </div>
+                </div>
+                <Button type="submit" className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 font-bold">
+                    Provision Account
+                </Button>
+            </form>
+        </CardContent>
+        <CardFooter className="justify-center border-t border-white/5 mt-4 pt-6">
+            <p className="text-sm text-muted-foreground font-medium">
+                Established Identity? <Link href="/login" className="text-blue-500 hover:underline">Sign in to gateway</Link>
+            </p>
+        </CardFooter>
+      </Card>
+      
+      <div className="fixed bottom-8 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-gray-700 pointer-events-none">
+         DataLogicEngine Hardened Node • UKG v2.1.1
       </div>
-      <form className="mt-8 space-y-6" action="#" method="POST">
-        <div className="rounded-md shadow-sm -space-y-px">
-          <div>
-            <label htmlFor="username" className="sr-only">Username</label>
-            <input id="username" name="username" type="text" required className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 text-gray-900 dark:text-white dark:bg-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Username" />
-          </div>
-          <div>
-            <label htmlFor="email-address" className="sr-only">Email address</label>
-            <input id="email-address" name="email" type="email" autoComplete="email" required className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 text-gray-900 dark:text-white dark:bg-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Email address" />
-          </div>
-          <div>
-            <label htmlFor="password" className="sr-only">Password</label>
-            <input id="password" name="password" type="password" autoComplete="new-password" required className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 text-gray-900 dark:text-white dark:bg-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Password" />
-          </div>
-        </div>
-
-        <div>
-          <button type="submit" className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            Register
-          </button>
-        </div>
-      </form>
     </div>
   );
 }

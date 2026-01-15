@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.2] - 2025-11-22
+
+- COMPLETED Phase 6: Universal A11y & UX Consolidation.
+- REDESIGNED Chat, Auth, and Profile pages with Enterprise Glassmorphism.
+- IMPLEMENTED Copy-to-Clipboard and Axis Visualization in Chat.
+- ACHIEVED 100% ARIA coverage across all landing and internal pages.
+
+## [2.1.1] - 2025-11-21
+
+- HARDENED frontend with full ARIA accessibility and focus-visible indicators.
+- IMPLEMENTED custom Toast notification system and dynamic Breadcrumbs.
+- SYNCHRONIZED all compliance backend endpoints for production readiness.
+
 ## [2.1.0] - 2025-11-20
 
 - COMPLETED Phase 5: Enterprise UI & Analytics Migration.

@@ -23,6 +23,8 @@ export function AxisSelector({ activeAxis, onChange }: AxisSelectorProps) {
       <div 
         ref={scrollRef}
         className="flex items-center gap-1 p-2 overflow-x-auto no-scrollbar scroll-smooth"
+        role="tablist"
+        aria-label="17-Axis Selection"
       >
         {AXIS_NAMES.map((name, index) => {
           const axisNum = index + 1;
@@ -32,8 +34,11 @@ export function AxisSelector({ activeAxis, onChange }: AxisSelectorProps) {
             <button
               key={name}
               onClick={() => onChange(axisNum)}
+              role="tab"
+              aria-selected={isActive}
+              aria-controls="graph-viewport"
               className={cn(
-                "relative flex-shrink-0 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-300",
+                "relative flex-shrink-0 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ring-offset-black",
                 isActive 
                   ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" 
                   : "text-muted-foreground hover:bg-white/10 hover:text-foreground"
