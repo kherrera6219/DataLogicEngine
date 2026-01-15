@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-01-15
+
+### Added - Phase 11: Enterprise Security Consolidation
+- **Multi-Factor Authentication (MFA)**: Native TOTP support with guided setup, backup codes, and session verification.
+- **Granular RBAC**: Permission-based access control system (`user:manage_roles`, `security:read`, etc.).
+- **Field-Level Encryption**: AES-256 protection for sensitive PII (emails, simulation metadata) using a KEK/DEK pattern.
+- **Infrastructure Hardening**: Forced TLS 1.3 redirection, HSTS enforcement, and strict CSP/security headers.
+- **Hardened User Model**: Progressive account lockout (5 attempts), password expiry tracking, and complexity enforcement.
+- **Enterprise Session Management**: Redis-backed sessions with rotation, concurrency limits, and strict idle timeouts.
+
+### Changed
+- Standardized all administrative API routes with granular permission checks.
+- Upgraded `User.email` and `SimulationSession` fields with automatic encryption properties.
+
 ## [2.1.2] - 2025-11-22
 
 - COMPLETED Phase 6: Universal A11y & UX Consolidation.

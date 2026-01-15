@@ -11,7 +11,11 @@ The Universal Knowledge Graph (UKG) System employs a **hardened middleware archi
 - **Database**: PostgreSQL 15+ with SQLAlchemy 2.0
   - _Role_: Persistent storage for 40+ tables including users, knowledge graph, traces, audit logs
 - **Cache/Queue**: Redis 5+
-  - _Role_: Caching, rate limiting, session storage, Celery task queue
+  - _Role_: Caching, rate limiting, session storage (hardened), Celery task queue
+- **Security Layer**: Enterprise Managers
+  - _RBACManager_: Granular permission enforcement
+  - _EncryptionManager_: Field-level AES-256 protection
+  - _MFAManager_: TOTP-based identity verification
 
 ---
 
@@ -53,7 +57,6 @@ The `LLM Gateway` implements a **Circuit Breaker** pattern. If a provider (e.g.,
 
 ### 2. Multi-Tenancy: Data Isolation
 
-<<<<<<< HEAD
 Data isolation is enforced at the core database manager level. Every request carries a `tenant_id` context (mapped from SSO claims).
 
 - **Isolation**: SQL queries are automatically filtered by `tenant_id`.
@@ -80,7 +83,6 @@ This enables:
 - Seamless API communication without CORS issues
 - Session cookie sharing
 - Simplified deployment architecture
-  > > > > > > > 181b539dcffebeaad8a7884e5497cb6d1329c507
 
 ---
 
@@ -94,7 +96,6 @@ A robust **Flask 3.1** application serving as the central nervous system, deploy
 4.  **Layers**: Reasoning depth (L1 Hygiene to L10 Completion).
 5.  **Coordinates**: A compact 17-part vector representing the precise context of a query.
 
-<<<<<<< HEAD
 This coordinate system allows the engine to retrieve exactly the right "slice" of knowledge for any query, significantly outperforming traditional RAG.
 
 ---

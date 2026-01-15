@@ -159,12 +159,16 @@ const KnowledgeNode = ({ nodeId, data, onSelect }) => {
 ```
 
 **Guidelines:**
-- Use functional components with hooks
-- Use arrow functions for component definitions
-- Destructure props
-- Use `const` for variables that don't change
-- Maximum line length: 100 characters
-- Use meaningful component and variable names
+### Security Requirements (Enterprise Hardening)
+
+All code contributions must adhere to our enterprise-hardened security architecture:
+
+1. **PII Protection**: Any new model field containing PII must use the `EncryptionManager` property-based encryption.
+2. **Access Control**: API routes must use granular permissions (e.g., `require_permission(Permission.USER_READ)`) instead of blanket admin flags.
+3. **Data Isolation**: Ensure all database queries include `tenant_id` filtering.
+4. **Input Validation**: Strictly type all inputs using Pydantic models or Marshmallow schemas.
+5. **No Placeholders**: Do not use hardcoded secrets or "TODO" security stubs.
+6. **MFA Support**: New authentication flows must respect MFA verification status.
 
 ### File Structure
 

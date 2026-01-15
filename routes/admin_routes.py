@@ -8,11 +8,8 @@ import datetime
 from datetime import UTC
 import logging
 
-from flask import Blueprint, jsonify, request
-from flask_login import login_required
-from extensions import db
-from models import User, SimulationSession, Node, Edge, KnowledgeAlgorithm
-from backend.auth.api_decorators import api_admin_required
+from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge
+from backend.security.rbac import require_permission, Permission
 
 logger = logging.getLogger(__name__)
 
@@ -26,16 +23,15 @@ def error_response(message, status_code=400):
 
 @admin_bp.route('/dashboard', methods=['GET'])
 @login_required
-@api_admin_required
+@require_permission(Permission.SECURITY_READ)
 def admin_dashboard_stats():
     """Get admin dashboard statistics."""
     stats = {
         'user_count': User.query.count(),
         'active_users': User.query.filter_by(active=True).count(),
-        'node_count': Node.query.count(),
-        'edge_count': Edge.query.count(),
-        'simulation_count': SimulationSession.query.count(),
-        'algorithm_count': KnowledgeAlgorithm.query.count()
+        'node_count': KnowledgeGraphNode.query.count(),
+        'edge_count': KnowledgeGraphEdge.query.count(),
+        'simulation_count': SimulationSession.query.count()
     }
     
     recent_users = [u.to_dict() for u in User.query.order_by(User.created_at.desc()).limit(5).all()]
@@ -47,7 +43,7 @@ def admin_dashboard_stats():
 
 @admin_bp.route('/users', methods=['GET'])
 @login_required
-@api_admin_required
+@require_permission(Permission.USER_READ)
 def get_users():
     """Get list of users."""
     users = User.query.order_by(User.created_at.desc()).all()
@@ -65,7 +61,7 @@ def get_users():
 
 @admin_bp.route('/users/<int:user_id>/role', methods=['PUT'])
 @login_required
-@api_admin_required
+@require_permission(Permission.USER_MANAGE_ROLES)
 def update_user_role(user_id):
     """Update user role."""
     user = User.query.get(user_id)

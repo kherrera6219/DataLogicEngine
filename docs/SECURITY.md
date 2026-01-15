@@ -8,12 +8,17 @@ DataLogicEngine is designed with a **Security-First** philosophy, incorporating 
 
 ## 🔐 Identity & Access Management (IAM)
 
-### 1. Single Sign-On (SSO)
+### 1. Hardened IAM & Authentication
 
-The platform natively supports OIDC (OpenID Connect) for seamless integration with Enterprise Identity Providers (IDPs) like **Azure AD / Microsoft Entra ID**, Okta, and Auth0.
+DataLogicEngine implements an "Identity-First" security model:
 
-- **Mapping**: Claims from the IDP (e.g., `tid` for Tenant ID) are automatically mapped to internal user contexts.
-- **Roles**: RBAC (Role-Based Access Control) is enforced via JWT claims and session attributes.
+- **Single Sign-On (SSO)**: Native OIDC (OpenID Connect) for **Azure AD / Microsoft Entra ID**, Okta, and Auth0.
+- **Multi-Factor Authentication (MFA)**: Native TOTP support (Google Authenticator, Authy) with cryptographically secure setup and backup codes.
+- **Granular RBAC**: Role-Based Access Control with specific permissions (e.g., `user:read`, `user:manage_roles`, `security:read`, `system:config`).
+- **Account Protection**:
+    - **Lockout Policy**: 5 failed attempts trigger a 30-minute account lockout.
+    - **Password Hygiene**: Minimum 12 characters, complexity requirements, and automatic password expiry tracking.
+    - **Session Hardening**: Redis-backed session management with rotation, concurrency limits, and strict idle timeouts.
 
 ### 2. Multi-Tenancy & Isolation
 
@@ -35,10 +40,16 @@ The `API Gateway` implements multi-tiered rate limiting using **Redis**:
 - **User/Tenant Quotas**: Ensures fair usage and cost predictability.
 - **Endpoint Specific**: Critical reasoning endpoints have tighter limits than static asset routes.
 
-### 2. Encryption
+### 2. Encryption & Data Protection
 
-- **In Transit**: All traffic is enforced via TLS 1.3.
-- **At Rest**: Sensitive keys (LLM API keys) are encrypted before storage. Database volumes are encrypted using cloud-native KMS providers.
+- **In Transit**: 
+    - Forced **Strict TLS 1.3** for all production traffic.
+    - **HSTS (HTTP Strict Transport Security)** with preloading support (max-age: 1 year).
+    - Hardened security headers: `Content-Security-Policy`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`.
+- **At Rest**:
+    - **Field-Level Encryption**: Sensitive PII (emails, simulation metadata) is encrypted in the database using a **KEK/DEK (Key Encryption Key / Data Encryption Key)** pattern with AES-256-GCM.
+    - **Provider Keys**: LLM API keys are encrypted via Fernet using rotating keys stored in secured environment variables.
+    - **Database Volumes**: Recommended deployment on cloud-native encrypted volumes (AWS KMS / Azure Key Vault).
 
 ---
 

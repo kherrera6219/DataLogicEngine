@@ -120,6 +120,15 @@ app.config["RATELIMIT_DEFAULT"] = os.environ.get("GLOBAL_RATE_LIMIT", "200 per h
 app.config["RATELIMIT_STORAGE_URI"] = os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
 limiter.init_app(app)
 
+# Strict TLS Redirection in Production
+@app.before_request
+def force_https():
+    """Force HTTPS redirection in production environments."""
+    is_prod = os.environ.get('FLASK_ENV') == 'production'
+    if is_prod and not request.is_secure and request.headers.get('X-Forwarded-Proto', 'http') != 'https':
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301)
+
 # SSO Configuration
 from backend.auth.sso import configure_sso
 configure_sso(app)
@@ -173,6 +182,10 @@ def handle_csrf_error(e):
         return jsonify({'error': 'CSRF token missing or invalid', 'success': False}), 400
     flash('Security token expired. Please try again.', 'danger')
     return redirect(request.url)
+
+# Initialize session management (Redis-based for enterprise scalability)
+from backend.security.session_manager import configure_session_manager
+configure_session_manager(app)
 
 # Initialize security headers (Phase 1 security hardening)
 from backend.security.security_headers import configure_security_headers

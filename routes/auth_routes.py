@@ -29,7 +29,11 @@ def success_response(data=None, message="Operation successful", status_code=200)
 def check_auth():
     """Check current authentication status."""
     if current_user.is_authenticated:
-        return success_response(data={"user": current_user.to_dict()})
+        mfa_verified = session.get('mfa_verified', False) if current_user.mfa_enabled else True
+        return success_response(data={
+            "user": current_user.to_dict(),
+            "mfa_verified": mfa_verified
+        })
     return jsonify({"authenticated": False}), 200
 
 @auth_bp.route('/login', methods=['POST'])
@@ -112,6 +116,48 @@ def mfa_verify():
     session.pop('mfa_remember', None)
     
     return success_response(message="MFA verified", data={"user": user.to_dict()})
+
+@auth_bp.route('/mfa/setup', methods=['POST'])
+@login_required
+def mfa_setup():
+    """Initiate MFA setup."""
+    from backend.security.mfa import MFAManager
+    secret, qr_code, backup_codes = MFAManager.setup_mfa(current_user.username)
+    
+    # Store temporary secret in session until confirmed
+    session['mfa_setup_secret'] = secret
+    
+    return success_response(data={
+        "qr_code": qr_code,
+        "backup_codes": backup_codes,
+        "secret": secret
+    })
+
+@auth_bp.route('/mfa/confirm', methods=['POST'])
+@login_required
+def mfa_confirm():
+    """Confirm and enable MFA."""
+    data = request.json
+    token = data.get('token')
+    secret = session.get('mfa_setup_secret')
+    
+    if not secret or not token:
+        return error_response("Token and setup session required")
+        
+    from backend.security.mfa import MFAManager
+    if not MFAManager.validate_mfa_setup(secret, token):
+        return error_response("Invalid verification token", 401)
+        
+    # Enable MFA for user
+    current_user.mfa_enabled = True
+    current_user.mfa_secret = secret
+    # backup_codes should be stored securely too if passed back
+    db.session.commit()
+    
+    session.pop('mfa_setup_secret', None)
+    session['mfa_verified'] = True # Mark as verified for current session
+    
+    return success_response(message="MFA successfully enabled")
 
 @auth_bp.route('/register', methods=['POST'])
 def register():

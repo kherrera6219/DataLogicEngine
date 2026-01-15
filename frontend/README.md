@@ -125,11 +125,18 @@ frontend/
 - Multi-dimensional axis navigation
 
 ### Admin Panel
-- User management
-- LLM provider configuration
-- MCP server management
-- Compliance dashboard
-- Audit log export
+- **Granular User Management**: Manage users, roles, and status (locked/active/admin).
+- **RBAC Enforcement**: UI-level permission checks for sensitive operations.
+- **LLM Provider Configuration**: Securely manage external model endpoints.
+- **MCP Server Management**: Monitor and control MCP-compliant agents.
+- **Compliance Dashboard**: Real-time status of security headers and audit logs.
+- **Audit Log Export**: Comprehensive event extraction for auditors.
+
+### Authentication & Security
+- **Secure Auth Flow**: Session-based login with CSRF protection.
+- **MFA Setup**: Guided TOTP setup with QR code and backup codes.
+- **Account Lockout**: Automatic UI notification of temporary account suspension.
+- **Strict Headers**: Integrated support for HSTS, CSP, and secure cookies.
 
 ### Analytics
 - System performance metrics

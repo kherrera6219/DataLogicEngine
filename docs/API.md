@@ -91,6 +91,24 @@ Manage user authentication, sessions, and identity. Valid for both `/api/v1/auth
 - **POST** `/logout`
   - Terminate current session.
 
+### MFA Setup
+
+- **POST** `/mfa/setup`
+  - Initiate MFA setup for the logged-in user.
+  - **Returns**: QR code secret, backup codes, and setup URI.
+
+### MFA Confirm
+
+- **POST** `/mfa/confirm`
+  - Verify and enable MFA using a TOTP token.
+  - **Body**: `{ "token": "123456" }`
+
+### Check Auth
+
+- **GET** `/check`
+  - Check current authentication status and MFA verification state.
+  - **Response**: `{ "authenticated": true, "user": {...}, "mfa_verified": true }`
+
 ---
 
 ## 2. LLM Gateway Routes (`/gateway`)

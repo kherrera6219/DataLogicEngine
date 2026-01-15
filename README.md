@@ -2,15 +2,14 @@
 
 ### Enterprise-Grade AI Knowledge Synthesis & Orchestration Platform
 
-[![Version](https://img.shields.io/badge/Version-2.0.0--stable-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-2.2.0--hardened-blue)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
-[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
-[![Hardened](https://img.shields.io/badge/Security-Hardened-success)](docs/SECURITY.md)
-[![Flask](https://img.shields.io/badge/flask-3.1-green)](https://flask.palletsprojects.com/)
+[![Hardened](https://img.shields.io/badge/Security-Enterprise--Hardened-success)](docs/SECURITY.md)
+[![Compliance](https://img.shields.io/badge/Compliance-SOC2%20/%20ISO--27001%20Ready-success)](docs/PRODUCTION_READINESS.md)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-blue)](https://www.postgresql.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+[![Redis](https://img.shields.io/badge/Redis-Session--Hardened-red)](https://redis.io/)
 
 ---
 
@@ -26,8 +25,8 @@ By utilizing a unique **17-Axis Coordinate Framework**, the engine contextualize
 
 | **Reliability**                                                           | **Security**                                                        | **Performance**                                                       | **Observability**                                                      |
 | :------------------------------------------------------------------------ | :------------------------------------------------------------------ | :-------------------------------------------------------------------- | :--------------------------------------------------------------------- |
-| **Circuit Breakers**: Automatic failover & recovery for LLM providers.    | **Multi-Tenancy**: Hard isolated data layers per enterprise tenant. | **Global Caching**: Redis-backed read-through caching for graph ops.  | **Unified Tracing**: End-to-end correlation ID across SDK & API.       |
-| **Failover Logic**: Multi-provider resilience (OpenAI, Azure, Anthropic). | **SSO / OIDC**: Native integration with Azure AD & Enterprise IDPs. | **Optimized IO**: Gunicorn/Celery workers for high-concurrency tasks. | **Audit Chain**: Hash-linked audit trails for compliance (SOC2/HIPAA). |
+| **Circuit Breakers**: Automatic failover & recovery for LLM providers.    | **Hardened IAM**: MFA (TOTP), RBAC, and Account Lockout protection. | **Global Caching**: Redis-backed read-through caching for graph ops.  | **Unified Tracing**: End-to-end correlation ID across SDK & API.       |
+| **Failover Logic**: Multi-provider resilience (OpenAI, Azure, Anthropic). | **Encryption**: AES-256 field-level encryption for PII at rest.     | **Optimized IO**: Gunicorn/Celery workers for high-concurrency tasks. | **Audit Chain**: Hash-linked audit trails for compliance (SOC2/HIPAA). |
 
 The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchestration platform that acts as an intelligent middleware layer between applications and Large Language Models (LLMs). It injects verified enterprise knowledge into AI reasoning while maintaining complete auditability and compliance.
 
@@ -60,6 +59,9 @@ The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchest
 - 17-Axis Knowledge Framework for multi-dimensional context
 - Hash-chain audit trails (EU AI Act Article 53 compliant)
 - Circuit breakers and automatic failover
+- **MFA (TOTP)**: Enterprise-grade multi-factor authentication
+- **RBAC**: Granular role-based access control with permission inheritance
+- **Field-Level Encryption**: AES-256-GCM protection for PII (emails, metadata)
 - **GraphQL API** for flexible data querying (`/graphql`)
 - **WebSocket** real-time updates (simulation progress, notifications)
 - **3D Graph Visualization** with force-directed layout (Three.js)
@@ -155,10 +157,12 @@ Support for multiple providers with intelligent routing:
 Enterprise-grade tenant isolation:
 
 - `tenant_id` enforcement across all 40+ database tables
+- **Hardened User Model**: Account lockout (5 attempts), password expiry, and complexity enforcement
+- **MFA**: Native TOTP support with secure backup codes
+- **RBAC**: Granular permission system (e.g., `user:manage_roles`, `security:read`)
+- **Encryption**: Field-level encryption for PII and sensitive simulation data
 - SSO/OIDC integration (Azure AD/Entra ID)
-- API key management with expiration
-- Password policies (12+ chars, complexity, history)
-- 2FA support (TOTP)
+- API key management with encryption and rotation
 - SIEM audit logging (Syslog, CSV export)
 
 ### 📊 Compliance & Auditing

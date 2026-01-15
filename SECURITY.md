@@ -177,36 +177,27 @@ npm audit fix
 
 ## Known Security Features
 
-### Current Implementation
+### Current Implementation ✅
 
 1. **Authentication**
-
-   - JWT token-based authentication
-   - Azure AD integration
-   - Session management with Flask-Login
+   - **MFA (TOTP)**: Native multi-factor authentication with backup codes.
+   - **SSO/OIDC**: Azure AD / Entra ID integration.
+   - **Hardened Sessions**: Redis-based session storage with rotation.
+   - **Account Protection**: Progressive lockout and password expiry.
 
 2. **Authorization**
-
-   - Role-based access control (RBAC)
-   - API key authentication for service-to-service
+   - **Granular RBAC**: Permission-based access control (e.g., `user:manage_roles`).
+   - **API Key Scoping**: Encrypted API keys with tenant isolation.
 
 3. **Data Protection**
-
-   - Password hashing with industry-standard algorithms
-   - Encrypted database connections (PostgreSQL SSL)
-   - Environment-based secrets management
+   - **Field-Level Encryption**: AES-256 protection for sensitive PII (emails, metadata).
+   - **KEK/DEK Pattern**: Secure key wrapping for database fields.
+   - **Transit Security**: Forced TLS 1.3 and HSTS.
 
 4. **Logging & Monitoring**
-
-   - Security event logging (`logs/security/`)
-   - Audit trail for compliance (`logs/audit/`)
-   - Failed login attempt tracking
-
-5. **API Security**
-
-   - CORS configuration
-   - Rate limiting (implementation in progress)
-   - Input validation with Marshmallow schemas
+   - **Audit Trail**: Hash-linked immutable audit events (EU AI Act compliant).
+   - **SIEM Integration**: Real-time export to Syslog.
+   - **Distributed Tracing**: End-to-end correlation IDs.
 
 6. **Compliance & Resilience**
    - SOC2 compliance features
