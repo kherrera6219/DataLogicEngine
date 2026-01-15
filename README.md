@@ -208,6 +208,9 @@ Instead of a single LLM pass, the engine executes a multi-layered pipeline:
 - **L2 (Retrieval & Grounding)**: Dynamically executes retrieval plan against 17-Axis Graph to produce grounded `EvidencePack`.
 - **L3 (Deep Research)**: Agentic research layer that validates claims and fills knowledge gaps.
 - **L4 (POV Engine)**: Generates answer based on grounded evidence and expert personas.
+- **L5 (Debate & Synthesis)**: Multi-persona deliberation with conflict detection.
+- **L6 (Quant Validation)**: Ensures mathematical consistency (MAD-based anomaly detection, entropy scoring).
+- **L7 (AGI Planner)**: Recursive goal decomposition and conflict arbitration with LLM-ready hooks.
 - **L9 (Synthesis)**: Final context-grounded response generation.
 - **L10 (Audit)**: Finalizing the hash-chained execution trace.
 

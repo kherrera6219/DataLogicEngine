@@ -47,16 +47,25 @@ class TruthCoreEngine:
     REFINEMENT_STEPS = [
         'decomposition',
         'multi_persona_reasoning',
-        'consensus_evaluation',  # New Step for KA-038
-        'conflict_resolution',   # New Step for KA-030
-        'quant_validation',      # New Step for Layer 6 (Phase G)
+        'persona_weighting',         # KA-013: Weight persona contributions
+        'contradiction_detection',   # KA-026: Semantic contradiction scan
+        'consensus_evaluation',      # KA-038: Enhanced Consensus
+        'conflict_resolution',       # KA-030: Expert Escalation
+        'quant_validation',          # Layer 6 (Phase G)
+        'anomaly_detection',         # KA-039: Statistical Anomaly Patterns
+        'entropy_detection',         # KA-116: Entropy Scoring
+        'confidence_scoring',        # KA-014: Standardized Confidence
         'hybrid_retrieval',
         'graph_consistency_check',
         'deep_synthesis',
         'reflection_loop',
         'bias_scan',
         'safety_scan',
-        'simulations',
+        'hypothesis_generation',     # KA-040: Subgoal Generation
+        'tree_of_thought',           # KA-002: Recursive ToT
+        'deep_planning',             # KA-006: Multi-Step Planning
+        'emergence_detection',       # KA-021: Emergent Pattern Detection
+        'simulations',               # KA-032
         'tier_verification',
         'final_synthesis',
         'memory_patch'
@@ -76,6 +85,17 @@ class TruthCoreEngine:
         except ImportError:
             logger.warning("Layer 6 QuantValidationService not found, skipping.")
             self.quant_service = None
+            
+        # Initialize Layer 7 AGI Planner
+        try:
+            from backend.truth_engine.truth_core.agi_planner import AGIPlannerService
+            self.agi_planner = AGIPlannerService(
+                llm_gateway=ka_controller.llm_gateway if ka_controller else None,
+                ka_controller=ka_controller
+            )
+        except ImportError:
+            logger.warning("Layer 7 AGIPlannerService not found, skipping.")
+            self.agi_planner = None
             
         self.active_sessions = {}
         logger.info("TruthCore Engine initialized")
@@ -337,6 +357,18 @@ class TruthCoreEngine:
                     
                     working_context['quant_validation'] = validation_result
                     logger.info(f"Layer 6 Validation Complete: Risk={validation_result.risk_score}")
+
+            elif step == 'simulations':
+                # Layer 7: AGI Simulation
+                if self.agi_planner:
+                    # Collect beliefs from context or extraction
+                    beliefs = working_context.get('beliefs', [])
+                    # Goal is the refined query or draft
+                    goal = context.get('draft_solution', query)
+                    
+                    plan = self.agi_planner.plan(goal, beliefs)
+                    working_context['agi_plan'] = plan
+                    logger.info(f"Layer 7 Planning Complete: Depth={plan.root_goal.depth} Convergence={plan.convergence_score}")
         
         result = {
             'tier': 'high_stakes',
@@ -434,15 +466,24 @@ class TruthCoreEngine:
         """Execute a single refinement step using specific Knowledge Algorithms."""
         mapping = {
             'decomposition': 'KA-001',
-            'multi_persona_reasoning': 'KA-012', # Specifically persona simulation
-            'consensus_evaluation': 'KA-038',   # Enhanced Consensus
-            'conflict_resolution': 'KA-030',    # Expert Escalation
+            'multi_persona_reasoning': 'KA-012',
+            'persona_weighting': 'KA-013',         # L5: Weight persona contributions
+            'contradiction_detection': 'KA-026',   # L5: Semantic contradiction scan
+            'consensus_evaluation': 'KA-038',
+            'conflict_resolution': 'KA-030',
+            'anomaly_detection': 'KA-039',         # L6: Statistical Anomaly
+            'entropy_detection': 'KA-116',         # L6: Entropy Scoring
+            'confidence_scoring': 'KA-014',        # L6: Confidence
             'hybrid_retrieval': 'KA-014',
             'graph_consistency_check': 'KA-025',
             'deep_synthesis': 'KA-017',
             'reflection_loop': 'KA-013',
             'bias_scan': 'KA-030',
             'safety_scan': 'KA-036',
+            'hypothesis_generation': 'KA-040',     # L7: Subgoal Generation
+            'tree_of_thought': 'KA-002',           # L7: Recursive ToT
+            'deep_planning': 'KA-006',             # L7: Multi-Step Planning
+            'emergence_detection': 'KA-021',       # L7: Emergent Pattern Detection
             'simulations': 'KA-032',
             'tier_verification': 'KA-027',
             'final_synthesis': 'KA-041',

@@ -62,8 +62,29 @@ class QuantValidationService:
                 anomalies.extend(table_risks)
                 if table_risks:
                     total_risk += 0.3
+        
+        # 3. KA-039: Anomaly Detection (Supplementary)
+        if self.ka_controller:
+            try:
+                ka039_result = self.ka_controller.execute_algorithm('KA-039', {'data': input_payload.data_context})
+                if ka039_result.get('anomalies'):
+                    anomalies.extend(ka039_result['anomalies'])
+                    total_risk += 0.1
+            except Exception as e:
+                logger.debug(f"KA-039 skipped: {e}")
+        
+        # 4. KA-116: Entropy Detection (Supplementary)
+        if self.ka_controller:
+            try:
+                ka116_result = self.ka_controller.execute_algorithm('KA-116', {'claims': input_payload.claims})
+                if ka116_result.get('high_entropy_claims'):
+                    for hec in ka116_result['high_entropy_claims']:
+                        validation_flags.append(f"High Entropy Claim: {hec}")
+                    total_risk += 0.15
+            except Exception as e:
+                logger.debug(f"KA-116 skipped: {e}")
                     
-        # 3. Final Synthesis
+        # 5. Final Synthesis
         avg_confidence = sum(confidence_map.values()) / len(confidence_map) if confidence_map else 0.0
         normalized_risk = min(1.0, total_risk)
         

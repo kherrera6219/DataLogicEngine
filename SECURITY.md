@@ -205,6 +205,16 @@ npm audit fix
    - Audit logging for regulatory requirements
    - **Fail-Secure Knowledge Algorithms**: Mission-critical KAs (e.g., KA-061 Adversarial Shield) implement strict fallback logic that defaults to a secure state (e.g., blocking input) upon execution failure.
 
+5. **Active Defense Layer (2026)**
+   - **Dual-LLM Pipeline (`ActiveDefenseService`)**: A secondary "Supervisor" LLM performs semantic intent analysis before execution. Detects jailbreaks, prompt injections, and adversarial DAN-mode prompts.
+   - **Dynamic Honeypot Router (`HoneypotRouter`)**: High-threat sessions are routed to a sandboxed "decoy" environment to capture forensics without risk to production data.
+   - **Fail-Closed Design**: If the Supervisor LLM is unavailable, requests are **blocked by default** rather than passed through.
+
+6. **Layer 7: AGI Planner Hardening (2026)**
+   - **Input Sanitization**: All goals submitted to the recursive planner pass through `AIGuardrailService` to prevent prompt injection attacks.
+   - **DoS Mitigation**: Strict limits on `MAX_DEPTH` (3) and `MAX_TOTAL_GOALS` (50) prevent infinite recursion or memory exhaustion.
+   - **Fail-Safe Architecture**: Unhandled exceptions return a valid "Failed Plan" object rather than crashing, maintaining system stability.
+
 ## Security Testing
 
 ### Automated Testing
