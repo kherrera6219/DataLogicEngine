@@ -47,10 +47,10 @@ from core.axes.axis11_compliance_expert import ComplianceExpertAxis as Complianc
 from core.axes.axis12_location import LocationAxis
 from core.axes.axis13_time import TimeAxis
 
-from core.axes.axis14_risk import RiskAxis
-from core.axes.axis15_federated import FederatedAxis as PerformanceAxis  # Axis 15 (Renamed logic)
-from core.axes.axis16_arrows_of_time import ArrowsOfTimeAxis as EthicsAxis  # Axis 16 (Renamed logic)
-from core.axes.axis17_observability import ObservabilityAxis as LearningAxis  # Axis 17 (Renamed logic)
+from core.axes.axis14_provenance import SourceProvenanceAxis
+from core.axes.axis15_object_type import ObjectTypeAxis
+from core.axes.axis16_validation_state import ValidationStateAxis
+from core.axes.axis17_security import SecurityAxis
 
 from core.coordinate_system import (
     UnifiedCoordinateSystem, 
@@ -95,10 +95,10 @@ class AxisSystem:
             11: {"name": "Compliance Expert", "description": "Internal policy & controls"},
             12: {"name": "Location", "description": "Jurisdiction, geography, authority"},
             13: {"name": "Temporal", "description": "Time, validity window, regulatory versioning"},
-            14: {"name": "Risk & Impact", "description": "Risk exposure, severity, blast radius"},
-            15: {"name": "Performance & Optimization", "description": "Cost, efficiency, feasibility"},
-            16: {"name": "Ethics & Bias", "description": "Fairness, alignment, ethical constraints"},
-            17: {"name": "Learning & Adaptation", "description": "Memory updates, drift detection"}
+            14: {"name": "Source Provenance", "description": "Origin, lineage, chain-of-custody"},
+            15: {"name": "Object Type", "description": "Structure (statute, rule, guidance, claim)"},
+            16: {"name": "Validation State", "description": "Lifecycle maturity (raw -> certified)"},
+            17: {"name": "Security & Access", "description": "Visibility and access control policies"}
         }
 
         # Initialize axes
@@ -172,18 +172,18 @@ class AxisSystem:
             self.time_axis = TimeAxis()
             self.register_axis_manager(13, self.time_axis)
 
-            # Group IV: Meta-Cognitive (Axes 14-17)
-            self.risk_axis = RiskAxis()
-            self.register_axis_manager(14, self.risk_axis)
+            # Group IV: Governance (Axes 14-17)
+            self.provenance_axis = SourceProvenanceAxis()
+            self.register_axis_manager(14, self.provenance_axis)
             
-            self.performance_axis = PerformanceAxis()
-            self.register_axis_manager(15, self.performance_axis)
+            self.object_type_axis = ObjectTypeAxis()
+            self.register_axis_manager(15, self.object_type_axis)
             
-            self.ethics_axis = EthicsAxis()
-            self.register_axis_manager(16, self.ethics_axis)
+            self.validation_axis = ValidationStateAxis()
+            self.register_axis_manager(16, self.validation_axis)
             
-            self.learning_axis = LearningAxis()
-            self.register_axis_manager(17, self.learning_axis)
+            self.security_axis = SecurityAxis()
+            self.register_axis_manager(17, self.security_axis)
             
             self.logging.info(f"[{datetime.now()}] Axis System initialized successfully")
 

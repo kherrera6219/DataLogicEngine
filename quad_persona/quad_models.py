@@ -96,3 +96,88 @@ class PersonaReport:
             "open_questions": self.open_questions,
             "confidence": self.confidence
         }
+
+# --- Layer 1 & 2 Models (Refactor) ---
+
+@dataclass
+class Coord17Intent:
+    """
+    Layer 1 Artifact: What the system INTENDS to retrieve.
+    Maps to the 17-Axis Coordinate System.
+    """
+    # Core Axes (1-5)
+    axis_1_pillar: List[str] = field(default_factory=list)
+    axis_2_sector: List[str] = field(default_factory=list)
+    axis_3_topic: List[str] = field(default_factory=list)
+    axis_4_method: List[str] = field(default_factory=list)
+    axis_5_tool: List[str] = field(default_factory=list)
+    
+    # Governance Axes (6-7, 14-17)
+    axis_6_regulation: List[str] = field(default_factory=list)
+    axis_7_standard: List[str] = field(default_factory=list)
+    axis_14_provenance: List[str] = field(default_factory=list) # e.g. "Primary Source", "Internal"
+    axis_15_object_type: List[str] = field(default_factory=list)
+    axis_16_validation: List[str] = field(default_factory=list)
+    axis_17_security: List[str] = field(default_factory=list) # e.g. "Unclassified", "Secret"
+
+    # Context Axes (12-13)
+    axis_12_location: List[str] = field(default_factory=list)
+    axis_13_time: List[str] = field(default_factory=list)
+    
+    # Unset/Ambiguous Axes (to be resolved by L2 or Questions)
+    ambiguous_axes: List[int] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {k: v for k, v in self.__dict__.items() if not k.startswith('_')}
+
+@dataclass
+class ProblemSpec:
+    """
+    Layer 1 Artifact: Machine-readable specification of the user's problem.
+    """
+    task_type: str = "unknown" # explain, compare, design, compliance_check
+    success_criteria: List[str] = field(default_factory=list)
+    constraints: List[str] = field(default_factory=list) # e.g. "no_external_search"
+    ambiguities: List[str] = field(default_factory=list)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return self.__dict__
+
+@dataclass
+class TierPlan:
+    """
+    Layer 1 Artifact: Execution Plan (Budget & Routing).
+    Wraps the QAS TierDecision.
+    """
+    tier: int = 3
+    tier_name: str = "standard"
+    allowed_layers: List[int] = field(default_factory=list)
+    max_budget_ms: int = 5000
+    features_enabled: List[str] = field(default_factory=list) # e.g. "deep_research", "frost"
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return self.__dict__
+
+@dataclass
+class RetrievalPlan:
+    """
+    Layer 2 Artifact: Internals for HOW to fetch data.
+    """
+    search_queries: List[str] = field(default_factory=list)
+    target_indices: List[str] = field(default_factory=list) # e.g. "regulatory_db", "internal_kb"
+    filters: Dict[str, Any] = field(default_factory=dict)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return self.__dict__
+
+@dataclass
+class Coord17Bindings:
+    """
+    Layer 2 Artifact: What was ACTUALLY found (Resolved Coordinates).
+    Attached to the WorkingSubgraph.
+    """
+    resolved_axes: Dict[int, List[str]] = field(default_factory=dict)
+    confidence: float = 1.0
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return self.__dict__

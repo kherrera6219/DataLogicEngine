@@ -195,12 +195,11 @@ POST /api/v1/gateway/chat
 
 Instead of a single LLM pass, the engine executes a multi-layered pipeline:
 
-- **L1 (Hygiene)**: Input validation & PII scrubbing.
-- **L2-L8 (Reasoning)**: Recursive graph traversal and Knowledge Algorithm (KA) execution.
-  - **Step 1: Axis Resolution**: Maps query to Healthcare, AI, HIPAA axes.
-  - **Step 2: Knowledge Retrieval**: Fetches grounded facts from the 17-Axis Graph.
-  - **Step 3: Simulation & Validation**: Runs risk models.
-- **L9 (Synthesis)**: Context-grounded response generation.
+- **L1 (Planning & Intent)**: Parses query into `Coord17Intent`, analyzes complexity via QAS, and generates execution plan.
+- **L2 (Retrieval & Grounding)**: Dynamically executes retrieval plan against 17-Axis Graph to produce grounded `EvidencePack`.
+- **L3 (Deep Research)**: Agentic research layer that validates claims and fills knowledge gaps.
+- **L4 (POV Engine)**: Generates answer based on grounded evidence and expert personas.
+- **L9 (Synthesis)**: Final context-grounded response generation.
 - **L10 (Audit)**: Finalizing the hash-chained execution trace.
 
 ### 3. Traceable Response

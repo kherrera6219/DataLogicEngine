@@ -10,6 +10,8 @@ import logging
 from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Union
 
+from simulation.layer1_planning import Layer1PlanningEngine
+from simulation.layer2_retrieval import Layer2RetrievalEngine
 from simulation.layer3_agent_engine import Layer3AgentEngine
 from simulation.pov_engine import POVEngine
 from simulation.layer5_integration import Layer5IntegrationEngine
@@ -36,6 +38,8 @@ class LayerController:
         self.system_manager = system_manager
         
         # Layer instances
+        self.layer1_engine = None
+        self.layer2_engine = None
         self.layer3_engine = None
         self.pov_engine = None
         self.layer5_engine = None
@@ -58,6 +62,16 @@ class LayerController:
             bool: True if all layers initialized successfully
         """
         try:
+            # Initialize Layer 1 (Planning)
+            if not self.layer1_engine:
+                self.layer1_engine = Layer1PlanningEngine(config=self.config.get('layer1', {}))
+                logging.info(f"[{datetime.now()}] Layer 1 Planning Engine initialized")
+
+            # Initialize Layer 2 (Retrieval)
+            if not self.layer2_engine:
+                self.layer2_engine = Layer2RetrievalEngine(config=self.config.get('layer2', {}))
+                logging.info(f"[{datetime.now()}] Layer 2 Retrieval Engine initialized")
+
             # Initialize Layer 3 Agent Engine
             if not self.layer3_engine:
                 self.layer3_engine = Layer3AgentEngine(config=self.config.get('layer3', {}))
@@ -95,7 +109,7 @@ class LayerController:
         Run a specific layer of the simulation system.
         
         Args:
-            layer_num: Layer number to run (3-10)
+            layer_num: Layer number to run (1-10)
             context: Context information for the layer
             
         Returns:
@@ -111,25 +125,46 @@ class LayerController:
         
         try:
             # Route to appropriate layer
-            if layer_num == 3:
+            if layer_num == 1:
+                # Layer 1: Planning
+                if self.layer1_engine:
+                    # Expect "query_text" in context
+                    query = context.get("query_text", "")
+                    result = self.layer1_engine.process_request(query, context)
+                    
+                    # Store result as dict
+                    self.layer_results[layer_num] = result
+                    return result
+                
+            elif layer_num == 2:
+                # Layer 2: Retrieval
+                if self.layer2_engine:
+                    # Expect L1 outputs in context or args
+                    intent = context.get("intent", {})
+                    spec = context.get("problem_spec", {})
+                    
+                    result = self.layer2_engine.process_request(intent, spec)
+                    
+                    self.layer_results[layer_num] = result
+                    return result
+                    
+            elif layer_num == 3:
                 # Layer 3: Deep Research Agent Engine
                 if self.layer3_engine:
-                    # Construct intent and tier_plan from context or defaults
-                    intent = context.get('intent', {})
+                    # Construct intent and tier_plan from context
+                    # If L1 ran, these are in context. If not, defaults.
+                    intent_data = context.get('intent', {})
                     tier_plan = context.get('tier_plan', {'tier': 1})
                     
                     # Execute Layer 3
-                    pack = self.layer3_engine.process_request(intent, tier_plan, context)
+                    pack = self.layer3_engine.process_request(intent_data, tier_plan, context)
                     
-                    # Store result (convert to dict for compatibility)
                     result = {
                         'evidence_pack': pack.to_dict(),
                         'success': True
                     }
                     self.layer_results[layer_num] = result
                     return result
-                else:
-                    return {'error': 'Layer 3 Engine not initialized'}
 
             elif layer_num == 4:
                 # Layer 4: POV Engine

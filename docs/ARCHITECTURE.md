@@ -140,13 +140,14 @@ The system employs a unified infrastructure for managing and executing **Knowled
 
 **Purpose**: 5-tier reasoning framework with compliance and audit trails
 
-**Five Tiers**:
+**Processing Layers (L1-L10)**:
 
-1. **Trivial** - Simple lookups, no reasoning
-2. **Simple** - Single-step logic
-3. **Complex** - Multi-step reasoning
-4. **Critical** - High-stakes with multiple validators
-5. **Expert** - Domain expert involvement
+1. **L1: Planning & Intent** - Parses query into 17-Axis `Coord17Intent` and generates `TierPlan`.
+2. **L2: Retrieval & Grounding** - Dynamically fetches knowledge into an `EvidencePack`.
+3. **L3: Deep Research** - Agentic verification and gap-filling of evidence.
+4. **L4: POV Engine** - Multi-perspective expansion and persona simulation.
+5. **L9: Synthesis** - Final answer generation.
+6. **L10: Audit** - Hash-chain finalization.
 
 **Components**:
 

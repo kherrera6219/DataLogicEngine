@@ -124,6 +124,23 @@ class POVEngine:
         
         logging.info(f"[{datetime.now()}] POVEngine initialized with {sum(1 for a in self.ukg_axes.values() if a['enabled'])}/13 active axes")
     
+    def process(self, context: Dict) -> Dict:
+        """
+        Process a request as Layer 4 (POV Engine).
+        
+        Args:
+            context: Shared context dictionary containing outputs from previous layers
+            
+        Returns:
+            dict: Expanded context with POV results
+        """
+        query = context.get('query_text', '') or context.get('query', '')
+        if not query:
+            logging.warning(f"[{datetime.now()}] POVEngine received empty query in process()")
+            
+        logging.info(f"[{datetime.now()}] POVEngine processing context from L1-L3")
+        return self.expand_context(query, context)
+
     def expand_context(self, query: str, initial_context: Dict) -> Dict:
         """
         Expand query context using the POV Engine.
