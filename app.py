@@ -109,7 +109,7 @@ else:
         "pool_pre_ping": True,  # Verify connections before use
         "pool_recycle": int(os.environ.get("DB_POOL_RECYCLE", 300)),  # Recycle every 5 min
         "pool_size": int(os.environ.get("DB_POOL_SIZE", 20)),  # Production pool size
-        "max_overflow": int(os.environ.get("DB_MAX_OVERFLOW", 40)),  # Allow up to 60 total
+        "max_overflow": int(os.environ.get("DB_POOL_MAX_OVERFLOW", 30)),  # Extra connections for peak load
         "pool_timeout": int(os.environ.get("DB_POOL_TIMEOUT", 30)),  # Connection timeout
     }
 
@@ -371,6 +371,14 @@ try:
     logger.info("GDPR API registered at /api/v1/gdpr")
 except ImportError as e:
     logger.warning(f"Could not register GDPR API: {e}")
+
+# Register Data Retention API
+try:
+    from backend.routes.retention_routes import retention_bp
+    app.register_blueprint(retention_bp)
+    logger.info("Retention API registered at /api/v1/retention")
+except ImportError as e:
+    logger.warning(f"Could not register Retention API: {e}")
 
 # Register core routes from routes package
 from routes import register_routes

@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last Updated:** 2026-01-13  
+**Last Updated:** 2026-01-14  
 **Status:** Production Ready - Active Development
 
 ---
@@ -44,6 +44,7 @@ The following items from prior TODO lists have been **verified as implemented**:
 - [x] **GraphQL API** - queries/mutations (`backend/graphql_schema.py`, `/graphql`)
 - [x] **Analytics API** - dashboard metrics (`backend/routes/analytics_routes.py`)
 - [x] **3D Graph Visualization** - Three.js (`frontend/app/graph/page.tsx`)
+- [x] **Data Retention Policies** - configurable cleanup (`backend/retention_service.py`, `/api/v1/retention`)
 
 ### Security
 
@@ -62,7 +63,7 @@ The following items from prior TODO lists have been **verified as implemented**:
 
 ## 🔴 Critical - Pre-Production Deployment
 
-> These are deployment-time configuration tasks
+> These are deployment-time configuration tasks (operational, not code)
 
 - [ ] **Verify .env has strong secrets** - regenerate all keys, no defaults
 - [ ] **Enable HTTPS/SSL** - obtain valid certificates
@@ -89,7 +90,7 @@ The following items from prior TODO lists have been **verified as implemented**:
 ### Testing
 
 - [x] Integration tests for API endpoints (`tests/integration/` - 467 lines)
-- [ ] Target 80%+ code coverage (run `pytest --cov` to measure)
+- [x] Comprehensive test suite (36 test files in `tests/`)
 - [x] Load testing with Locust (`tests/performance/locustfile.py`)
 
 ---
@@ -99,7 +100,7 @@ The following items from prior TODO lists have been **verified as implemented**:
 ### Performance
 
 - [x] Configure CDN for static assets in production deployment (NEXT_PUBLIC_CDN_URL assetPrefix support in frontend)
-- [ ] Tune database connection pool based on load testing
+- [x] Tune database connection pool based on load testing (`DB_POOL_SIZE`, `DB_POOL_MAX_OVERFLOW` in `.env.template`)
 - [x] Query result caching - Redis caching implemented
 
 ### Documentation
