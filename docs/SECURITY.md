@@ -62,6 +62,26 @@ The UKG SDK implements a compliance-grade audit store. Every reasoning step (KA 
 - **Tamper Evidence**: Any modification to a previous log entry invalidates the hash chain.
 - **Compliance Alignment**: Designed to meet the stringent requirements of **SOC2 Type II** and **HIPAA**.
 
+### 3. AI Safety Fortress (2026 Standard)
+
+We implement a 3-Layer Defense Strategy to protect against generative attacks:
+
+- **Layer 1: The Gatekeeper (Input/Output Middleware)**
+    - Blocks structural attacks (Base64, Leetspeak).
+    - Rejects prohibited intent phrases ("Ignore instructions", "DAN mode").
+    - Filters output for System Prompt Leakage.
+- **Layer 2: The Watchtower (Context Drift Detection)**
+    - Analyzes the trajectory of the last 5 conversation turns.
+    - Detects "Crescendo" attacks (Incremental Context Poisoning) by tracking Risk Velocity.
+- **Layer 3: The Sieve (RAG Sanitization)**
+    - Strips imperative commands from ingested documents to prevent Indirect Prompt Injection.
+    - Enforces XML isolation (`<document>`) for trusted data.
+    
+### 4. Active Defense Isolation (Supervisor Mode)
+The "Supervisor AI" operates on a **strictly isolated infrastructure**:
+- **Separate Credentials**: Uses a distinct API Key from the primary model, managed via the **Admin Settings Panel**.
+- **Isolation Goal**: Prevents "Starvation Attacks" (DoS) where an attacker exhausts the primary model's quota to disable security checks.
+
 ### 2. Traceability (The "Why" Behind the AI)
 
 Every AI response includes a `X-Correlation-ID`. This ID allows auditors to reconstruct the entire "Reasoning Tree":
