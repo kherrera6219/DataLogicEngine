@@ -2,7 +2,7 @@
 Layer 1 Database Module
 
 This module implements the foundational Layer 1 database for the UKG system.
-It provides basic storage and querying for the 13-axis system data.
+It provides basic storage and querying for the 17-axis system data.
 """
 
 import os
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class Layer1Database:
     """
     Implements the in-memory Layer 1 database for the UKG system.
-    This serves as the foundational storage layer for the 13-axis system.
+    This serves as the foundational storage layer for the 17-axis system.
     """
 
     def __init__(self, data_path: str = "data/layer1_database.json"):
@@ -39,21 +39,25 @@ class Layer1Database:
         self.target_index = {}  # target_id -> [rel_id]
         self.rel_type_index = {}  # rel_type -> [rel_id]
 
-        # The 13-axis system definition
+        # The 17-axis system definition
         self.axes = {
             1: {"name": "Pillar Levels", "description": "Levels of knowledge from universal to specific"},
             2: {"name": "Sectors", "description": "Industry sectors and market areas"},
-            3: {"name": "Topics", "description": "Subject matters and concepts"},
-            4: {"name": "Methods", "description": "Methodologies, approaches, and techniques"},
-            5: {"name": "Tools", "description": "Software, hardware, and resources"},
-            6: {"name": "Regulatory Frameworks", "description": "Laws, regulations, and policies"},
-            7: {"name": "Compliance Standards", "description": "Standards, best practices, and requirements"},
-            8: {"name": "Knowledge Expert", "description": "Domain knowledge expertise perspective"},
-            9: {"name": "Sector Expert", "description": "Industry-specific expertise perspective"},
-            10: {"name": "Regulatory Expert", "description": "Regulatory expertise perspective"},
-            11: {"name": "Compliance Expert", "description": "Compliance expertise perspective"},
-            12: {"name": "Locations", "description": "Geographic and spatial context"},
-            13: {"name": "Time", "description": "Temporal and historical context"}
+            3: {"name": "Honeycomb (Cross-domain)", "description": "Intra-domain expansion, multi-faceted connections"},
+            4: {"name": "Branches", "description": "Branching knowledge hierarchies"},
+            5: {"name": "Nodes", "description": "Specific knowledge nodes and leaf elements"},
+            6: {"name": "Octopus Crosswalk", "description": "One-to-many hub connections"},
+            7: {"name": "Spiderweb Crosswalk", "description": "Many-to-many cross-domain connections"},
+            8: {"name": "Knowledge Role", "description": "Domain knowledge expertise perspective"},
+            9: {"name": "Qualifications & Skills", "description": "Expert qualifications and skill certification context"},
+            10: {"name": "Octopus Regulatory Expert", "description": "Regulatory expertise perspective (hub-based)"},
+            11: {"name": "Spiderweb Compliance Expert", "description": "Compliance expertise perspective (mesh-based)"},
+            12: {"name": "Location", "description": "Geographic and spatial context"},
+            13: {"name": "Temporal", "description": "Temporal and historical context"},
+            14: {"name": "Risk & Confidence", "description": "Probability, risk scores, and confidence metrics"},
+            15: {"name": "Federated Intelligence", "description": "Cross-tenant and distributed intelligence state"},
+            16: {"name": "Arrows of Time", "description": "Causality chains and temporal vectors"},
+            17: {"name": "Observability & Analytics", "description": "Audit trails and performance markers"}
         }
 
         self.data_path = data_path
@@ -70,7 +74,7 @@ class Layer1Database:
         Add a node to the database.
 
         Args:
-            axis: Axis number (1-13)
+            axis: Axis number (1-17)
             label: Node label
             level: Level within the axis
             description: Node description
@@ -81,8 +85,8 @@ class Layer1Database:
             The node ID
         """
         # Validate axis
-        if axis < 1 or axis > 13:
-            raise ValueError(f"Invalid axis: {axis}. Must be between 1 and 13.")
+        if axis < 1 or axis > 17:
+            raise ValueError(f"Invalid axis: {axis}. Must be between 1 and 17.")
 
         # Generate node ID if not provided
         if not node_id:
@@ -200,7 +204,7 @@ class Layer1Database:
         Get all nodes for a specific axis.
 
         Args:
-            axis: Axis number (1-13)
+            axis: Axis number (1-17)
 
         Returns:
             List of node data dictionaries
@@ -213,7 +217,7 @@ class Layer1Database:
         Get all nodes for a specific axis and level.
 
         Args:
-            axis: Axis number (1-13)
+            axis: Axis number (1-17)
             level: Level within the axis
 
         Returns:

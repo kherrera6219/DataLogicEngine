@@ -1,7 +1,7 @@
 # Knowledge Graph & Dashboard Wireframes - 2025 Design
 
 ## Overview
-Interactive knowledge graph visualization with 13-axis navigation, real-time data exploration, and comprehensive compliance dashboard with modern data visualization.
+Interactive knowledge graph visualization with 17-axis navigation, real-time data exploration, and comprehensive compliance dashboard with modern data visualization.
 
 ## Microsoft Enterprise Updates (Fluent 2)
 - Fluent command bar at top with app launcher, environment selector (Prod/Sandbox), search, help, notifications, and presence.
@@ -274,11 +274,12 @@ Interactive knowledge graph visualization with 13-axis navigation, real-time dat
 
 ---
 
-## Timeline Visualization (Axis 13)
+## Timeline Visualization (Axis 17)
 
 ```
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-║ [Logo] Axis 13: Temporal & Causal Logic                         [🔍] [⚙️] [👤] [🔔]                   ║
+║ [Logo] Axis 17: Observability & Analytics
+                         [🔍] [⚙️] [👤] [🔔]                   ║
 ╠════════════════════════════════════════════════════════════════════════════════════════════════════════╣
 ║                                                                                                        ║
 ║  TIMELINE VIEW                                                                      [Month▼] [Export]  ║

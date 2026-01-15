@@ -98,7 +98,7 @@ The 10-layer stack is the main reasoning pipeline: it maps the query into the co
 retrieves knowledge, runs multi-agent persona simulations, performs deeper recursive reasoning,
 then applies global validation and safety containment.
 The layers
-1. Layer 1: Query interpretation + context initialization (13-axis mapping)
+1. Layer 1: Query interpretation + context initialization (17-axis mapping)
 2. Layer 2: Knowledge retrieval + memory (build working subgraph)
 3. Layer 3: Simulated research AI agents (quad persona)
 4. Layer 4: POV expansion (additional perspectives, conflict resolution)
@@ -366,8 +366,7 @@ These are **not errors**, but **important gaps** if this is meant to be a *defin
 ### 2.1 Axis Mapping Is Underspecified
 
 **Issue**  
-The document references:
-> “13-axis mapping” (Layer 1)
+The 17-axis system is the foundational coordinate framework used by UKG to:
 
 But it does **not explicitly encode**:
 - Axis 1 Pillars
@@ -15500,7 +15499,7 @@ As of January 11, 2026, this is one of the most comprehensive, literal, and prod
 	◦	FROST: Snapshots used throughout—core to in-memory efficiency.
 	•	Minor Evolution: Adds practical details (e.g., veto_capable in policies, axis-level confidence) that enrich prior docs.
 5. Final Score & Usefulness
-9.5/10 — This is the most complete, production-like example in the entire UKG/USKD document set so far. It’s ready to be used as:
+9.5/10 — This is the most complete, production-like example in the entire UKG/USKD document set so far.It’s ready to be used as:
 	•	A reference “golden run” for testing/auditing
 	•	A demo script for stakeholders
 	•	A template for generating more examples (e.g., ethical AI, supply-chain)

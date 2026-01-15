@@ -5,7 +5,7 @@
 
 ## 1. Executive Summary
 
-This document provides the technical specification for the UKG Unified System integration. It details the transition from 13-axis to 17-axis spatial mapping, the enforcement of the Unified Artifact Envelope (UAE) for derivation tracing, and the use of FROST for state-pinned recursive reasoning.
+This document provides the technical specification for the UKG Unified System integration. It details the transition to the 17-axis spatial mapping, the enforcement of the Unified Artifact Envelope (UAE) for derivation tracing, and the use of FROST for state-pinned recursive reasoning.
 
 ## 2. The 17-Axis Coordinate Framework
 

@@ -3,7 +3,7 @@ Point-of-View (POV) Engine
 
 This module provides the POV Engine for the UKG/USKD multi-layer simulation engine.
 It expands query context by simulating diverse viewpoints and integrating perspectives
-across all 13 axes of the Universal Knowledge Graph.
+across all 17 axes of the Universal Knowledge Graph.
 
 The POV Engine operates as Layer 4 in the UKG system architecture. It receives
 outputs from Layers 1-3 and expands them by:
@@ -29,7 +29,7 @@ class POVEngine:
     Point-of-View (POV) Engine
     
     The POV Engine simulates and integrates diverse viewpoints relevant to a query by
-    mapping across all 13 axes of the Universal Knowledge Graph. It operates as
+    mapping across all 17 axes of the Universal Knowledge Graph. It operates as
     Layer 4 in the UKG simulation system and supports recursive passes through
     the simulation layers.
     """
@@ -52,7 +52,7 @@ class POVEngine:
         self.enable_temporal_mapping = self.config.get('enable_temporal_mapping', True)
         self.enable_persona_layer = self.config.get('enable_persona_layer', True)
         
-        # Define the 13 axes of the UKG
+        # Define the 17 axes of the UKG
         self.ukg_axes = {
             1: {"name": "Pillar Level System", "description": "Top-level knowledge domain selector (PL0001–PL0107)", "enabled": True},
             2: {"name": "Sector of Industry", "description": "Industry context using NAICS / SIC / ISIC / NACE / UNSPSC", "enabled": True},
@@ -74,7 +74,7 @@ class POVEngine:
         }
         
         # Set enabled axes based on config
-        self.enabled_axes = self.config.get('enabled_axes', list(range(1, 14)))
+        self.enabled_axes = self.config.get('enabled_axes', list(range(1, 18)))
         enabled_axes_config = self.enabled_axes
         for axis_id in self.ukg_axes:
             self.ukg_axes[axis_id]["enabled"] = axis_id in enabled_axes_config
@@ -122,7 +122,7 @@ class POVEngine:
         self.temporal_mapper = self._initialize_temporal_mapper()
         self.belief_analyzer = self._initialize_belief_analyzer()
         
-        logging.info(f"[{datetime.now()}] POVEngine initialized with {sum(1 for a in self.ukg_axes.values() if a['enabled'])}/13 active axes")
+        logging.info(f"[{datetime.now()}] POVEngine initialized with {sum(1 for a in self.ukg_axes.values() if a['enabled'])}/17 active axes")
     
     def process(self, context: Dict) -> Dict:
         """

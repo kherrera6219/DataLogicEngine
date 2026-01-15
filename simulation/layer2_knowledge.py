@@ -3,7 +3,7 @@
 Universal Knowledge Graph (UKG) System - Layer 2: Nested Simulated Knowledge Database
 
 This module implements Layer 2 of the UKG system, which contains the structured
-Pillar Levels, 13-axis coordination system, and Quad Persona Simulation Engine.
+Pillar Levels, 17-axis coordination system, and Quad Persona Simulation Engine.
 """
 
 import logging
@@ -20,7 +20,7 @@ from simulation.refinement_workflow import RefinementWorkflow
 logger = logging.getLogger(__name__)
 
 class AxisNode:
-    """Represents a node in the 13-axis coordinate system."""
+    """Represents a node in the 17-axis coordinate system."""
     
     def __init__(self, node_id: str, axis_number: int, level: int, 
                  label: str, description: str = None, attributes: Dict = None):
@@ -61,7 +61,7 @@ class AxisNode:
 
 
 class AxisRelationship:
-    """Represents a relationship between nodes in the 13-axis system."""
+    """Represents a relationship between nodes in the 17-axis system."""
     
     def __init__(self, rel_id: str, source_id: str, target_id: str, 
                  rel_type: str, weight: float = 1.0, attributes: Dict = None):
@@ -101,25 +101,29 @@ class AxisRelationship:
         return rel
 
 
-class ThirteenAxisSystem:
-    """Implements the 13-axis coordinate system for the UKG."""
+class SeventeenAxisSystem:
+    """Implements the 17-axis coordinate system for the UKG."""
     
     def __init__(self):
-        """Initialize the 13-axis system."""
+        """Initialize the 17-axis system."""
         self.axes = {
             1: {"name": "Pillar Levels", "description": "Levels of knowledge from universal to specific"},
             2: {"name": "Sectors", "description": "Industry sectors and market areas"},
-            3: {"name": "Topics", "description": "Subject matters and concepts"},
-            4: {"name": "Methods", "description": "Methodologies, approaches, and techniques"},
-            5: {"name": "Tools", "description": "Software, hardware, and resources"},
-            6: {"name": "Regulatory Frameworks", "description": "Laws, regulations, and policies"},
-            7: {"name": "Compliance Standards", "description": "Standards, best practices, and requirements"},
-            8: {"name": "Knowledge Expert", "description": "Domain knowledge expertise perspective"},
-            9: {"name": "Sector Expert", "description": "Industry-specific expertise perspective"},
-            10: {"name": "Regulatory Expert", "description": "Regulatory expertise perspective"},
-            11: {"name": "Compliance Expert", "description": "Compliance expertise perspective"},
-            12: {"name": "Locations", "description": "Geographic and spatial context"},
-            13: {"name": "Time", "description": "Temporal and historical context"}
+            3: {"name": "Honeycomb (Cross-domain)", "description": "Intra-domain expansion, multi-faceted connections"},
+            4: {"name": "Branches", "description": "Branching knowledge hierarchies"},
+            5: {"name": "Nodes", "description": "Specific knowledge nodes and leaf elements"},
+            6: {"name": "Octopus Crosswalk", "description": "One-to-many hub connections"},
+            7: {"name": "Spiderweb Crosswalk", "description": "Many-to-many cross-domain connections"},
+            8: {"name": "Knowledge Role", "description": "Domain knowledge expertise perspective"},
+            9: {"name": "Qualifications & Skills", "description": "Expert qualifications and skill certification context"},
+            10: {"name": "Octopus Regulatory Expert", "description": "Regulatory expertise perspective (hub-based)"},
+            11: {"name": "Spiderweb Compliance Expert", "description": "Compliance expertise perspective (mesh-based)"},
+            12: {"name": "Location", "description": "Geographic and spatial context"},
+            13: {"name": "Temporal", "description": "Temporal and historical context"},
+            14: {"name": "Risk & Confidence", "description": "Probability, risk scores, and confidence metrics"},
+            15: {"name": "Federated Intelligence", "description": "Cross-tenant and distributed intelligence state"},
+            16: {"name": "Arrows of Time", "description": "Causality chains and temporal vectors"},
+            17: {"name": "Observability & Analytics", "description": "Audit trails and performance markers"}
         }
         
         # Create a directed graph for axis relationships
@@ -132,12 +136,12 @@ class ThirteenAxisSystem:
         # Define relationships between axes
         self._initialize_axis_relationships()
         
-        logger.info("13-Axis System initialized")
+        logger.info("17-Axis System initialized")
     
     def _initialize_axis_relationships(self):
         """Initialize the relationships between axes."""
         # Pillar Levels (Axis 1) influences all other axes
-        for i in range(2, 14):
+        for i in range(2, 18):
             self.graph.add_edge(1, i, weight=1.0, rel_type="influences")
         
         # Sector-Topic relationships (Axis 2 -> Axis 3)
@@ -173,7 +177,7 @@ class ThirteenAxisSystem:
         Get information about a specific axis.
         
         Args:
-            axis_num: The axis number (1-13)
+            axis_num: The axis number (1-17)
             
         Returns:
             Dictionary with axis information
@@ -187,7 +191,7 @@ class ThirteenAxisSystem:
         Get axes that are directly related to the specified axis.
         
         Args:
-            axis_num: The axis number (1-13)
+            axis_num: The axis number (1-17)
             
         Returns:
             List of related axis information
@@ -297,8 +301,8 @@ class NestedLayerDatabase:
         self.target_index = {}  # target_id -> [rel_id]
         self.rel_type_index = {}  # rel_type -> [rel_id]
         
-        # The 13-axis system
-        self.axis_system = ThirteenAxisSystem()
+        # The 17-axis system
+        self.axis_system = SeventeenAxisSystem()
         
         # Graph representation for efficient traversal
         self.graph = nx.DiGraph()
@@ -312,7 +316,7 @@ class NestedLayerDatabase:
         Add a node to the database.
         
         Args:
-            axis_number: Axis number (1-13)
+            axis_number: Axis number (1-17)
             level: Level within the axis
             label: Node label
             description: Node description
@@ -323,8 +327,8 @@ class NestedLayerDatabase:
             The node ID
         """
         # Validate axis number
-        if axis_number < 1 or axis_number > 13:
-            raise ValueError(f"Invalid axis number: {axis_number}. Must be between 1 and 13.")
+        if axis_number < 1 or axis_number > 17:
+            raise ValueError(f"Invalid axis number: {axis_number}. Must be between 1 and 17.")
         
         # Generate node ID if not provided
         if not node_id:
@@ -463,7 +467,7 @@ class NestedLayerDatabase:
         Get all nodes for a specific axis.
         
         Args:
-            axis_number: Axis number (1-13)
+            axis_number: Axis number (1-17)
             
         Returns:
             List of node data dictionaries
@@ -476,7 +480,7 @@ class NestedLayerDatabase:
         Get all nodes for a specific axis and level.
         
         Args:
-            axis_number: Axis number (1-13)
+            axis_number: Axis number (1-17)
             level: Level within the axis
             
         Returns:

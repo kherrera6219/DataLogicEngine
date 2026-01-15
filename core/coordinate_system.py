@@ -160,7 +160,7 @@ class UnifiedCoordinate:
                  meta_tag: Optional[str] = None,
                  description: Optional[str] = None) -> None:
         """
-        Set or update a coordinate value for a specific axis.
+        Set or update a coordinate value for a specific axis with validation.
         
         Args:
             axis_number: The axis number (1-17)
@@ -168,12 +168,19 @@ class UnifiedCoordinate:
             meta_tag: Optional meta-tag for the coordinate
             description: Optional description
         """
-        if not 1 <= axis_number <= 17:
+        if not isinstance(axis_number, int) or not 1 <= axis_number <= 17:
+            logger.error(f"Invalid axis number: {axis_number}. Must be 1-17.")
             raise ValueError(f"Axis number must be between 1 and 17, got {axis_number}")
         
+        # Enhanced validation for value format
+        if value and not re.match(r'^[\d\.]+$', str(value)) and not meta_tag:
+            # Check if it's a special placeholder or if it contains letters without a meta_tag
+            if any(c.isalpha() for c in str(value)):
+                 logger.warning(f"Axis {axis_number} value '{value}' contains letters but no meta_tag provided. This may cause resolution issues.")
+
         self.coordinates[axis_number] = AxisCoordinate(
             axis_number=axis_number,
-            value=value,
+            value=str(value) if value is not None else "*",
             meta_tag=meta_tag,
             description=description
         )
@@ -347,7 +354,7 @@ class CoordinateParser:
     @classmethod
     def parse_full_coordinate(cls, coord_string: str) -> UnifiedCoordinate:
         """
-        Parse a full coordinate string into a UnifiedCoordinate.
+        Parse a full coordinate string into a UnifiedCoordinate with error handling.
         
         Supports formats:
         - Colon-separated: "1.32:2.3.3.4:*:4.3.2:..."
@@ -361,29 +368,49 @@ class CoordinateParser:
         """
         coord = UnifiedCoordinate()
         
-        if '|' in coord_string:
-            parts = [p.strip() for p in coord_string.split('|')]
-            for part in parts:
-                if part and part != '*':
-                    axis_coord = cls.parse_axis_coordinate(part)
+        if not coord_string:
+            return coord
+
+        try:
+            if '|' in coord_string:
+                parts = [p.strip() for p in coord_string.split('|')]
+                for part in parts:
+                    if part and part != '*':
+                        try:
+                            axis_coord = cls.parse_axis_coordinate(part)
+                            coord.set_axis(
+                                axis_coord.axis_number,
+                                axis_coord.value,
+                                axis_coord.meta_tag
+                            )
+                        except ValueError as e:
+                            logger.error(f"Error parsing coordinate part '{part}': {e}")
+                            # Continue parsing other parts
+            elif ':' in coord_string:
+                parts = coord_string.split(':')
+                for i, part in enumerate(parts, start=1):
+                    if i > 17:
+                        logger.warning(f"Found more than 17 axes in coordinate string. Ignoring from index {i}.")
+                        break
+                    if part and part != '*':
+                        try:
+                            axis_coord = cls.parse_axis_coordinate(part, axis_number=i)
+                            coord.set_axis(i, axis_coord.value, axis_coord.meta_tag)
+                        except ValueError as e:
+                            logger.error(f"Error parsing axis {i} part '{part}': {e}")
+            else:
+                try:
+                    axis_coord = cls.parse_axis_coordinate(coord_string)
                     coord.set_axis(
                         axis_coord.axis_number,
                         axis_coord.value,
                         axis_coord.meta_tag
                     )
-        elif ':' in coord_string:
-            parts = coord_string.split(':')
-            for i, part in enumerate(parts, start=1):
-                if part and part != '*':
-                    axis_coord = cls.parse_axis_coordinate(part, axis_number=i)
-                    coord.set_axis(i, axis_coord.value, axis_coord.meta_tag)
-        else:
-            axis_coord = cls.parse_axis_coordinate(coord_string)
-            coord.set_axis(
-                axis_coord.axis_number,
-                axis_coord.value,
-                axis_coord.meta_tag
-            )
+                except ValueError as e:
+                    logger.error(f"Error parsing single coordinate '{coord_string}': {e}")
+        except Exception as e:
+            logger.critical(f"Failed to parse coordinate string '{coord_string}': {e}")
+            # Return empty or partially parsed coordinate instead of crashing
         
         return coord
 

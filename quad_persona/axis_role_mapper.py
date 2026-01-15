@@ -1,7 +1,7 @@
 """
 Universal Knowledge Graph (UKG) System - Axis Role Mapper
 
-This module maps between the UKG's 13-axis coordinate system and the quad persona roles,
+This module maps between the UKG's 17-axis coordinate system and the quad persona roles,
 focusing on axes 8-11 which represent different expert roles.
 """
 
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class AxisRoleMapper:
     """
-    Maps between the UKG's 13-axis coordinate system and quad persona roles.
+    Maps between the UKG's 17-axis coordinate system and quad persona roles.
     
     This class handles:
     1. Mapping query coordinates to appropriate expert personas
@@ -39,11 +39,17 @@ class AxisRoleMapper:
         self.influencing_axes = {
             1: "pillar_level",  # Knowledge Pillar Levels
             2: "sector",        # Industry/Field
-            3: "domain",        # Knowledge Domain
-            4: "method",        # Methodological approach
-            5: "temporal",      # Time context
-            6: "regulatory",    # Regulatory framework
-            7: "compliance"     # Compliance framework
+            3: "honeycomb",     # Cross-domain
+            4: "branches",      # Branching
+            5: "nodes",         # Leaves
+            6: "octopus",       # Hubs
+            7: "spiderweb",     # Mesh
+            12: "location",     # Spatial
+            13: "temporal",     # Time
+            14: "risk",         # Risk/Confidence
+            15: "federated",    # Federated
+            16: "causality",    # Arrows of Time
+            17: "audit"         # Observability
         }
     
     def get_persona_type_for_axis(self, axis_number: int) -> Optional[str]:
@@ -204,8 +210,8 @@ class AxisRoleMapper:
         Returns:
             A dictionary mapping axis numbers to influence values (0.0-1.0)
         """
-        # Initialize with zeros for all 13 axes
-        axis_vector = {i: 0.0 for i in range(1, 14)}
+        # Initialize with zeros for all 17 axes
+        axis_vector = {i: 0.0 for i in range(1, 18)}
         
         # Set primary axis based on persona type
         persona_axis = self.get_axis_for_persona_type(persona.persona_type)
