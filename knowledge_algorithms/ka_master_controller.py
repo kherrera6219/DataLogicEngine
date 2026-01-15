@@ -13,6 +13,8 @@ from pydantic import BaseModel
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 from celery import Celery
 
+from core.knowledge_algorithm.exceptions import KAError, KAConfigError
+
 logger = logging.getLogger(__name__)
 
 # Initialize celery
@@ -24,6 +26,7 @@ class KAMasterController(KnowledgeAlgorithm):
     """
     def __init__(self, context: Dict[str, Any] = None):
         super().__init__(context or {}, None, None, None)
+        self.ka_id = "KA-Master"
         self._registry_path = os.path.join(os.path.dirname(__file__), "ka_registry.yaml")
         self.algorithms = self._load_registry()
 
@@ -37,8 +40,7 @@ class KAMasterController(KnowledgeAlgorithm):
                     return {k: {"id": k, "metadata": {"KA_ID": k, "Status": "Active", "Implementation": v}} for k, v in reg.items()}
             return {}
         except Exception as e:
-            logger.error(f"Failed to load KA registry: {e}")
-            return {}
+            raise KAConfigError(f"Failed to load KA registry: {str(e)}")
 
     def get_available_algorithms(self) -> Dict[str, Any]:
         return self.algorithms
@@ -58,14 +60,14 @@ class KAMasterController(KnowledgeAlgorithm):
             return ka_id
 
     def execute_algorithm(self, ka_id: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Dynamically imports and executes a specific Knowledge Algorithm."""
+        """Dynamically imports and executes a specific Knowledge Algorithm with error propagation."""
         norm_id = self._normalize_ka_id(ka_id)
         is_async = input_data.get("async", False)
         
         self.log_execution_step("Dispatching Algorithm", {"ka_id": norm_id, "mode": "async" if is_async else "sync"})
         
         if norm_id not in self.algorithms:
-            return {"success": False, "error": f"Algorithm {norm_id} not registered."}
+            raise KAError(f"Algorithm {norm_id} not registered.", error_code="E404")
             
         if is_async:
             task = run_ka_task.delay(norm_id, input_data)
@@ -78,14 +80,15 @@ class KAMasterController(KnowledgeAlgorithm):
             run_func = getattr(module, function_name)
             return run_func(input_data)
         except Exception as e:
-            logger.error(f"Execution of {norm_id} failed: {e}")
-            return {"success": False, "error": str(e)}
+            self.logger.error(f"Execution of {norm_id} failed: {e}")
+            raise KAError(f"Recursive Execution Failure on {norm_id}", error_code="E502", details={"inner_error": str(e)})
 
     def _run_logic(self, input_data: BaseModel) -> Dict[str, Any]:
         """High-level query orchestration."""
         data = input_data.data if hasattr(input_data, "data") else {}
         query = data.get("query", "status_check")
         
+        # In a real system, this would call execute_algorithm multiple times
         executed_flow = ["KA-111", "KA-113", "KA-066", "KA-056", "KA-093"]
         
         return {
@@ -94,6 +97,16 @@ class KAMasterController(KnowledgeAlgorithm):
             "system_state": "NOMINAL",
             "active_kas": len(self.algorithms),
             "final_conclusion": f"Resolved query '{query}' via {len(executed_flow)} specialized KAs."
+        }
+
+    def _fallback_logic(self, input_data: BaseModel, error: Exception) -> Dict[str, Any]:
+        """Master-level fallback for orchestration failures."""
+        return {
+            "success": False,
+            "system_state": "DEGRADED",
+            "error": str(error),
+            "fallback_engaged": True,
+            "message": "Orchestration failed. Entering safe mode."
         }
 
 @celery_app.task(name="ka_engine.run_ka_task")
@@ -112,9 +125,6 @@ def get_controller() -> KAMasterController:
     return _controller_instance
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = get_controller()
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-Master Failed: {e}")
-        return {"success": False, "error": str(e)}
+    # Redundant wrapper kept for compatibility, base class .run() handles internal logic
+    algo = get_controller()
+    return algo.run(context)

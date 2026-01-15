@@ -10,16 +10,14 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-import random
+from core.knowledge_algorithm.exceptions import KAError, KAConfigError
 
 class KA106FaultInput(BaseModel):
     operation: str = Field("generic", description="The operation to apply fault tolerance policies to")
 
 class KA106FaultTolerance(KnowledgeAlgorithm):
     """
-    KA-106: System reliability and fault tolerance engine for high-availability knowledge processing.
+    KA-106: System reliability and fault tolerance engine with resilience patterns.
     """
     input_schema = KA106FaultInput
 
@@ -42,7 +40,11 @@ class KA106FaultTolerance(KnowledgeAlgorithm):
         target_op = input_data.operation
         self.log_execution_step("Enforcing Reliability Policies", {"op": target_op})
         
+        if not self.config:
+            raise KAConfigError("Reliability configuration missing")
+
         circuit_breakers = self.config.get("circuit_breakers", {"payment_gateway": "CLOSED"})
+        # Simulate circuit check
         status = "OPEN" if target_op in circuit_breakers and random.random() > 0.95 else "CLOSED"
         
         return {
@@ -53,10 +55,17 @@ class KA106FaultTolerance(KnowledgeAlgorithm):
             "fallback_engaged": False
         }
 
+    def _fallback_logic(self, input_data: KA106FaultInput, error: Exception) -> Dict[str, Any]:
+        """Failsafe: Force open circuits if the fault tolerance engine itself is failing."""
+        self.logger.critical(f"Fault Tolerance ENGINE FAILURE: {str(error)}")
+        return {
+            "success": False,
+            "circuit_state": "OPEN",
+            "retry_policy_applied": "IMMEDIATE_STOP",
+            "fallback_engaged": True,
+            "error_msg": "Emergency circuit break triggered by engine failure."
+        }
+
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA106FaultTolerance(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-106 Failed: {e}")
-        return {"success": False, "error": str(e)}
+    algo = KA106FaultTolerance(context)
+    return algo.run(context)

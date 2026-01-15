@@ -10,8 +10,7 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from core.knowledge_algorithm.exceptions import KAError, KAConfigError, KAIntegrationError
 
 class KA071IngestionInput(BaseModel):
     source_type: str = Field("local_file", description="The type of data source (e.g., local_file, stream, api)")
@@ -19,7 +18,7 @@ class KA071IngestionInput(BaseModel):
 
 class KA071DataIngestion(KnowledgeAlgorithm):
     """
-    KA-071: Enterprise-grade data ingestion engine with protocol-specific handlers.
+    KA-071: Enterprise-grade data ingestion engine with resilience patterns.
     """
     input_schema = KA071IngestionInput
 
@@ -43,7 +42,14 @@ class KA071DataIngestion(KnowledgeAlgorithm):
         payload = input_data.payload
         self.log_execution_step("Executing Ingestion Pipeline", {"source": source_type, "count": len(payload)})
         
+        if not self.config:
+            raise KAConfigError("Ingestion config missing")
+
         handler_name = self.config.get("handlers", {}).get(source_type, "DefaultHandler")
+        # Simulating a source-specifically failure
+        if source_type == "api" and not payload:
+             raise KAIntegrationError(f"API Source {source_type} returned no data and is considered down.")
+
         batch_size = self.config.get("batch_size", 1000)
         mode = "stream" if len(payload) < batch_size else "batch"
         
@@ -68,10 +74,17 @@ class KA071DataIngestion(KnowledgeAlgorithm):
             }
         }
 
+    def _fallback_logic(self, input_data: KA071IngestionInput, error: Exception) -> Dict[str, Any]:
+        """Failsafe: Return zero records but allow the system to remain up."""
+        self.logger.warning(f"Resilience Fallback for KA-071: {str(error)}")
+        return {
+            "success": False,
+            "records_ingested": 0,
+            "status": "DEGRADED",
+            "fallback_active": True,
+            "error_msg": str(error)
+        }
+
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA071DataIngestion(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-071 Failed: {e}")
-        return {"success": False, "error": str(e)}
+    algo = KA071DataIngestion(context)
+    return algo.run(context)

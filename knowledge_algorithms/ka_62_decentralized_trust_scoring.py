@@ -10,8 +10,7 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from core.knowledge_algorithm.exceptions import KAError, KAConfigError
 
 class KA062Input(BaseModel):
     evidence: List[Dict[str, Any]] = Field(default_factory=list, description="Evidence fragments to evaluate for trust and credibility")
@@ -41,9 +40,13 @@ class KA062DecentralizedTrustScoring(KnowledgeAlgorithm):
         evidence_nodes = input_data.evidence
         self.log_execution_step("Computing Trust Scores", {"evidence_count": len(evidence_nodes)})
         
+        if not self.config:
+            raise KAConfigError("Decentralized Trust configuration missing", details={"path": "config/ka_62_config.json"})
+
         provenance_weights = self.config.get("provenance_weights", {})
         trust_reports = []
         min_trust = self.config.get("min_trust_for_commitment", 0.7)
+        
         for e in evidence_nodes:
              source = e.get("source", "unknown")
              weight = provenance_weights.get(source, 1.0)
@@ -60,10 +63,17 @@ class KA062DecentralizedTrustScoring(KnowledgeAlgorithm):
             "average_trust": sum(r["final_score"] for r in trust_reports) / max(1, len(trust_reports))
         }
 
+    def _fallback_logic(self, input_data: KA062Input, error: Exception) -> Dict[str, Any]:
+        """Failsafe: Return zero trust for all evidence if calculation fails."""
+        self.logger.warning(f"Resilience Fallback for KA-062: {str(error)}")
+        return {
+            "success": False,
+            "reports": [],
+            "average_trust": 0.0,
+            "fallback_engaged": True,
+            "message": "Trust scoring failed. Defaulting to zero trust for all fragments."
+        }
+
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA062DecentralizedTrustScoring(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-062 Failed: {e}")
-        return {"success": False, "error": str(e)}
+    algo = KA062DecentralizedTrustScoring(context)
+    return algo.run(context)

@@ -11,8 +11,7 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from core.knowledge_algorithm.exceptions import KAError, KAConfigError
 
 class KA061Input(BaseModel):
     query: str = Field(..., description="The user query or content to scan for adversarial patterns")
@@ -42,8 +41,11 @@ class KA061AdversarialInputShield(KnowledgeAlgorithm):
         query = input_data.query
         self.log_execution_step("Scanning for Adversarial Patterns", {"query_len": len(query)})
         
+        if not self.config:
+            raise KAConfigError("Adversarial Shield configuration missing")
+
         threats_detected = []
-        block_patterns = self.config.get("block_patterns", [])
+        block_patterns = self.config.get("block_patterns", [r"(?i)DROP\s+TABLE", r"(?i)DELETE\s+FROM", r"(?i)<script>"])
         for pattern in block_patterns:
              if re.search(pattern, query, re.IGNORECASE):
                   threats_detected.append({
@@ -60,10 +62,18 @@ class KA061AdversarialInputShield(KnowledgeAlgorithm):
             "veto": is_blocked
         }
 
+    def _fallback_logic(self, input_data: KA061Input, error: Exception) -> Dict[str, Any]:
+        """Failsafe: Block the input if the scan fails."""
+        self.logger.warning(f"Resilience Fallback for KA-061: {str(error)}")
+        return {
+            "success": False,
+            "blocked": True,
+            "threats": [{"type": "SCAN_FAILURE_VETO"}],
+            "sanitized_query": "[FILTERED_BY_FAILSAFE]",
+            "veto": True
+        }
+
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA061AdversarialInputShield(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-061 Failed: {e}")
-        return {"success": False, "error": str(e)}
+    # Base class .run() handles registry invocation and error wrapping
+    algo = KA061AdversarialInputShield(context)
+    return algo.run(context)

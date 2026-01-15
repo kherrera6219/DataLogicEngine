@@ -10,15 +10,14 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from core.knowledge_algorithm.exceptions import KAError, KAConfigError
 
 class KA107RecoveryInput(BaseModel):
     failure_id: str = Field("none", description="The ID of the failure event to recover from")
 
 class KA107DisasterRecovery(KnowledgeAlgorithm):
     """
-    KA-107: System failover and recovery orchestration engine for business continuity.
+    KA-107: System failover and recovery orchestration engine with resilience patterns.
     """
     input_schema = KA107RecoveryInput
 
@@ -41,6 +40,9 @@ class KA107DisasterRecovery(KnowledgeAlgorithm):
         failure_id = input_data.failure_id
         self.log_execution_step("Executing Recovery Plan", {"plan": self.config.get("recovery_plan", "standard_failover")})
         
+        if not self.config:
+            raise KAConfigError("Disaster Recovery configuration missing")
+
         failover_region = self.config.get("failover_region", "us-east-1")
         
         return {
@@ -52,10 +54,17 @@ class KA107DisasterRecovery(KnowledgeAlgorithm):
             "data_sync_status": "SYNCHRONIZED"
         }
 
+    def _fallback_logic(self, input_data: KA107RecoveryInput, error: Exception) -> Dict[str, Any]:
+        """Failsafe: Trigger emergency failover to a hardcoded region if the orchestrator fails."""
+        self.logger.critical(f"Disaster Recovery ORCHESTRATOR FAILURE: {str(error)}")
+        return {
+            "success": False,
+            "recovery_status": "EMERGENCY_FAILOVER_TRIGGERED",
+            "target_region": "us-east-1_FAILSAFE",
+            "fallback_active": True,
+            "message": "Orchestrator failure. Hardcoded failover initiated."
+        }
+
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA107DisasterRecovery(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-107 Failed: {e}")
-        return {"success": False, "error": str(e)}
+    algo = KA107DisasterRecovery(context)
+    return algo.run(context)

@@ -11,8 +11,7 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from core.knowledge_algorithm.exceptions import KAError, KAConfigError
 
 class KA074ValidationInput(BaseModel):
     records: List[Any] = Field(default_factory=list, description="The list of records to validate")
@@ -42,6 +41,9 @@ class KA074DataValidation(KnowledgeAlgorithm):
         records = input_data.records
         self.log_execution_step("Validating Integrity Constraints", {"record_count": len(records)})
         
+        if not self.config:
+            raise KAConfigError("Validation rules configuration missing")
+
         rules = self.config.get("validation_rules", [])
         valid_records = []
         invalid_records = []
@@ -80,10 +82,20 @@ class KA074DataValidation(KnowledgeAlgorithm):
             "quarantined": invalid_records if self.config.get("quarantine_invalid_records", True) else []
         }
 
+    def _fallback_logic(self, input_data: KA074ValidationInput, error: Exception) -> Dict[str, Any]:
+        """Failsafe: Reject all records if validation logic fails."""
+        self.logger.critical(f"Validation CRITICAL FAILURE: {str(error)}")
+        return {
+            "success": False,
+            "validation_summary": {
+                "total": len(input_data.records),
+                "valid": 0,
+                "invalid": len(input_data.records)
+            },
+            "quarantined": [{"record": r, "errors": ["VALIDATION_ENGINE_FAILURE"]} for r in input_data.records],
+            "fallback_active": True
+        }
+
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA074DataValidation(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-074 Failed: {e}")
-        return {"success": False, "error": str(e)}
+    algo = KA074DataValidation(context)
+    return algo.run(context)

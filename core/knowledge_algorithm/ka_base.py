@@ -5,6 +5,10 @@ import time
 from datetime import datetime, UTC
 from pydantic import BaseModel, Field, ValidationError
 
+from core.knowledge_algorithm.exceptions import (
+    KAError, KAValidationError, KAExecutionError, KAConfigError, KATimeoutError
+)
+
 # Configure structured logging
 logger = logging.getLogger("ka_engine")
 
@@ -13,6 +17,12 @@ class KAInput(BaseModel):
     data: Dict[str, Any] = Field(default_factory=dict)
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
+class KAErrorInfo(BaseModel):
+    """Structured error information."""
+    code: str
+    message: str
+    details: Dict[str, Any] = Field(default_factory=dict)
+
 class KAResult(BaseModel):
     """Standard result schema for KAs."""
     ka_id: str
@@ -20,14 +30,14 @@ class KAResult(BaseModel):
     output: Dict[str, Any] = Field(default_factory=dict)
     confidence: float = Field(ge=0.0, le=1.0, default=1.0)
     execution_time_ms: float = 0.0
-    errors: List[str] = Field(default_factory=list)
+    errors: List[KAErrorInfo] = Field(default_factory=list)
     trace_id: Optional[str] = None
 
 class KnowledgeAlgorithm(ABC):
     """
     Enterprise-grade base class for all Knowledge Algorithms (KAs).
     
-    Includes Pydantic validation, performance telemetry, and standardized logging.
+    Includes Pydantic validation, performance telemetry, and standardized error handling.
     """
     
     # KAs should override these to enforce strict input/output validation
@@ -53,15 +63,23 @@ class KnowledgeAlgorithm(ABC):
         """
         pass
 
+    def _fallback_logic(self, input_data: BaseModel, error: Exception) -> Dict[str, Any]:
+        """
+        Optional hook for graceful degradation. 
+        Should return a safe 'fallback' result dictionary.
+        """
+        return {"success": False, "fallback_active": True}
+
     def run(self, input_data: Union[Dict[str, Any], BaseModel]) -> Dict[str, Any]:
         """
-        Standardized entry point with validation, timing, and error handling.
+        Standardized entry point with validation, timing, and multi-tier error handling.
         """
         start_time = time.perf_counter()
-        errors = []
+        error_list: List[KAErrorInfo] = []
         result_output = {}
         success = False
         confidence = 1.0
+        validated_input = None
 
         try:
             # 1. Validation
@@ -75,10 +93,17 @@ class KnowledgeAlgorithm(ABC):
             
         except ValidationError as ve:
             self.logger.error(f"Validation failed: {ve}")
-            errors.append(f"Validation Error: {str(ve)}")
+            error_list.append(KAErrorInfo(code="E400", message="Input Validation Failed", details=ve.errors()))
+        except KAError as ke:
+            self.logger.error(f"KA Logic Error [{ke.error_code}]: {ke.message}")
+            error_list.append(KAErrorInfo(code=ke.error_code, message=ke.message, details=ke.details))
+            if validated_input:
+                result_output = self._fallback_logic(validated_input, ke)
         except Exception as e:
-            self.logger.exception(f"Execution failed: {e}")
-            errors.append(f"Runtime Error: {str(e)}")
+            self.logger.exception(f"Unhandled System Error: {e}")
+            error_list.append(KAErrorInfo(code="E500", message="Internal System Error", details={"raw_msg": str(e)}))
+            if validated_input:
+                result_output = self._fallback_logic(validated_input, e)
         finally:
             execution_time = (time.perf_counter() - start_time) * 1000
             
@@ -89,7 +114,7 @@ class KnowledgeAlgorithm(ABC):
                 output=result_output.get("output", result_output) if isinstance(result_output, dict) else {},
                 confidence=confidence,
                 execution_time_ms=execution_time,
-                errors=errors
+                errors=error_list
             )
             
             self._record_telemetry(final_result)

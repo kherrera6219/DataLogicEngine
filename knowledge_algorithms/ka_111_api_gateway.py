@@ -7,6 +7,8 @@ from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
+from core.knowledge_algorithm.exceptions import KAError, KAConfigError
+
 class KA111Input(BaseModel):
     headers: Dict[str, str] = Field(default_factory=dict)
     query: Optional[str] = None
@@ -36,15 +38,31 @@ class KA111APIGateway(KnowledgeAlgorithm):
         headers = input_data.headers
         self.log_execution_step("Authorizing Request", {"origin": headers.get("X-Forwarded-For")})
         
-        # Simulate authentication and rate limiting
-        authorized = True if "Authorization" in headers else False
+        # Explicit logic error demo
+        if not self.config:
+             raise KAConfigError("API Gateway configuration missing", details={"path": "config/ka_111_config.json"})
+
+        # Simulate authentication
+        if "Authorization" not in headers:
+            # Raise custom error instead of returning success=False
+            raise KAError("Missing Authorization Header", error_code="E401", details={"required": "Bearer Token"})
         
         return {
-            "success": authorized,
-            "status_code": 200 if authorized else 401,
+            "success": True,
+            "status_code": 200,
             "gateway_node": "gw-01",
             "rate_limit_remaining": 99,
             "auth_mode": self.config.get("auth_provider", "apiKey")
+        }
+
+    def _fallback_logic(self, input_data: KA111Input, error: Exception) -> Dict[str, Any]:
+        """Graceful degradation for the API Gateway."""
+        self.logger.warning(f"Fallback engaged for KA-111: {str(error)}")
+        return {
+            "success": False,
+            "status_code": 503,
+            "gateway_node": "fallback-static-01",
+            "error_msg": "Service temporarily degraded. Using static routing."
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
