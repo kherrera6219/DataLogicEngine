@@ -111,9 +111,15 @@ ka_registry:
   "KA-110": "knowledge_algorithms.ka_110_integration_bus.run"
   "KA-111": "knowledge_algorithms.ka_111_api_gateway.run"
   "KA-112": "knowledge_algorithms.ka_112_message_broker.run"
-  "KA-113": "knowledge_algorithms.ka_113_complexity_router.run"
-  "KA-114": "knowledge_algorithms.ka_114_meta_orchestrator.run"
-  "KA-115": "knowledge_algorithms.ka_115_chaos_injection.run"
+  KA-113:
+    module: knowledge_algorithms.ka_113_complexity_router
+    function: run
+  KA-114:
+    module: knowledge_algorithms.ka_114_federated_outbox
+    function: run
+  KA-115:
+    module: knowledge_algorithms.ka_115_federated_inbox
+    function: run
   "KA-116": "knowledge_algorithms.ka_116_entropy_detection.run"
 
   # Master Controller

@@ -1,0 +1,18 @@
+apiVersion: ukg.io/v1alpha1
+kind: KnowledgeAlgorithm
+metadata:
+  name: ka-38-consensus
+  namespace: ukg-system
+spec:
+  kaId: KA-038
+  image: ukg-ka-worker:v2.0.0
+  replicas: 2
+  scaling:
+    minReplicas: 1
+    maxReplicas: 10
+    queueName: "consensus_queue"
+    targetQueueDepth: 50
+  config:
+    LOG_LEVEL: "INFO"
+    REFINEMENT_MODE: "weighted"
+    DB_SYNC: "true"

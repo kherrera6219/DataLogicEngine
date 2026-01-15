@@ -2,6 +2,7 @@
 
 ### Enterprise-Grade AI Knowledge Synthesis & Orchestration Platform
 
+[![Version](https://img.shields.io/badge/Version-2.0.0--stable-blue)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
@@ -62,6 +63,10 @@ The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchest
 - **GraphQL API** for flexible data querying (`/graphql`)
 - **WebSocket** real-time updates (simulation progress, notifications)
 - **3D Graph Visualization** with force-directed layout (Three.js)
+- **Multi-Persona Consensus** (KA-038) for high-stakes decision validation
+- **Local ML Serving** (vLLM/Ollama) with tier-prioritized routing
+- **Kubernetes Operator** for self-healing and auto-scaling workers
+- **Federated Knowledge Sharing** (KA-114/115) with ZKP verification
 
 ---
 

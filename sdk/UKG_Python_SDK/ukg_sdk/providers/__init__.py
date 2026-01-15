@@ -2,6 +2,7 @@ from .base import LLMProvider, LLMResponse
 from .openai import OpenAIProvider
 from .azure_openai import AzureOpenAIProvider
 from .anthropic import AnthropicProvider
+from .local_slm import LocalSLMProvider
 
 __all__ = [
     "LLMProvider",
@@ -9,4 +10,5 @@ __all__ = [
     "OpenAIProvider",
     "AzureOpenAIProvider",
     "AnthropicProvider",
+    "LocalSLMProvider",
 ]

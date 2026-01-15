@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.0] - 2026-01-15
+## [2.0.0] - 2026-01-15
+
+### Added - Intelligence & Ops (v2.0 Milestone)
+
+- **Multi-Persona Consensus Engine**: Implemented weighted semantic voting (KA-038) and expert arbitration (KA-030) in the Truth Engine.
+- **Local ML Model Serving**: Integrated `LocalSLMProvider` for vLLM/Ollama with automatic tier-based routing optimization.
+- **UKG K8s Operator**: Introduced a custom Kubernetes operator with CRDs for `KnowledgeAlgorithm` and `TraceRun`, support for custom scaling metrics, and DR orchestration.
+- **Federated Knowledge Sharing**: Launched `FederatedSyncEngine` (KA-114/115) for secure, ZKP-verified cross-tenant knowledge exchange.
+- **Enterprise Hardening**: Refactored the core Intelligence Layer for high-concurrency, isolated tenant operations.
+
+### Removed
+
+- **Mobile Native Track**: Scoped out of v2.0 to focus on premium Desktop/Enterprise experience.
 
 ### Added - Enterprise KA Resilience & Hardening
 

@@ -124,7 +124,7 @@ class LLMGateway:
         start_time = datetime.now(UTC)
         
         # 1. Get eligible providers
-        providers = await self._get_eligible_providers(request.provider)
+        providers = await self._get_eligible_providers(request.provider, request.meta)
         if not providers:
             return self._error_response(run_id, "No active providers found", start_time, request)
 
@@ -191,17 +191,28 @@ class LLMGateway:
         error_msg = f"All providers failed. Last error: {last_error}"
         return self._error_response(run_id, error_msg, start_time, request)
 
-    async def _get_eligible_providers(self, provider_name: Optional[str]) -> list[LLMProvider]:
-        """Get list of active providers ordered by priority."""
-        if provider_name:
+    async def _get_eligible_providers(self, preferred_name: Optional[str] = None, meta: dict = None) -> list[LLMProvider]:
+        """Get list of active providers ordered by priority and task complexity."""
+        meta = meta or {}
+        task_tier = meta.get("tier", "high_stakes").lower()
+        
+        if preferred_name:
             query = LLMProvider.query.filter(
-                (LLMProvider.name == provider_name) | (LLMProvider.provider_type == provider_name),
+                (LLMProvider.name == preferred_name) | (LLMProvider.provider_type == preferred_name),
                 LLMProvider.is_active == True
             )
+            providers = query.all()
         else:
-            query = LLMProvider.query.filter_by(is_active=True)
+            providers = LLMProvider.query.filter_by(is_active=True).order_by(LLMProvider.priority).all()
             
-        return query.order_by(LLMProvider.priority).all()
+        # Routing Optimization: Prefer Local SLMs for L1/L2 (trivial/moderate) tasks
+        if task_tier in ["trivial", "moderate", "t1", "t2"]:
+            # Move local_slm/ollama/vllm to the front of the list
+            locals = [p for p in providers if p.provider_type in ["local_slm", "ollama", "vllm"]]
+            remotes = [p for p in providers if p not in locals]
+            return locals + remotes
+            
+        return providers
 
     def _build_response(self, result: dict, run_id: str, provider: LLMProvider, model: str, latency_ms: int) -> GatewayResponse:
         usage_data = result.get("usage", {})
@@ -253,7 +264,7 @@ class LLMGateway:
     def _create_sdk_provider(self, provider_record: Optional[LLMProvider]) -> Any:
         """Create SDK provider instance from database config."""
         try:
-            from ukg_sdk.providers import OpenAIProvider, AzureOpenAIProvider, AnthropicProvider
+            from ukg_sdk.providers import OpenAIProvider, AzureOpenAIProvider, AnthropicProvider, LocalSLMProvider
         except ImportError:
             logger.warning("UKG SDK providers not available, using fallback")
             return None
@@ -276,6 +287,8 @@ class LLMGateway:
             )
         elif provider_type == "anthropic":
             return AnthropicProvider(api_key=api_key)
+        elif provider_type in ["local_slm", "ollama", "vllm"]:
+            return LocalSLMProvider(base_url=provider_record.endpoint or "http://localhost:11434/v1")
         else:
             # Default to OpenAI-compatible
             return OpenAIProvider(api_key=api_key, base_url=provider_record.endpoint)
