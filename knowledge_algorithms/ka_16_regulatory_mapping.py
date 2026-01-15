@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA016Input(BaseModel):
+    query: str = Field(..., description="The query to map to regulations")
+    frameworks: List[str] = Field(default_factory=list, description="Optional specific frameworks to check")
+
 class KA016RegulatoryMapping(KnowledgeAlgorithm):
     """
     KA-016: Compliance and Regulatory mapping engine.
     """
+    input_schema = KA016Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-016"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,15 +38,14 @@ class KA016RegulatoryMapping(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        query = input_data.get("query", "").lower()
-        requested_frameworks = input_data.get("frameworks", [])
+    def _run_logic(self, input_data: KA016Input) -> Dict[str, Any]:
+        query = input_data.query.lower()
+        requested_frameworks = input_data.frameworks
         
         self.log_execution_step("Regulatory Mapping", {"query": query, "frameworks": requested_frameworks})
         
         frameworks_config = self.config.get("compliance_frameworks", {})
         
-        # Auto-detect framework if not requested
         if not requested_frameworks:
             for fw, info in frameworks_config.items():
                 if fw.lower() in query:
@@ -56,8 +65,6 @@ class KA016RegulatoryMapping(KnowledgeAlgorithm):
                 })
                 
         return {
-            "ka_id": "KA-016",
-            "ka_name": "Regulatory Mapping",
             "success": True,
             "mappings": mappings,
             "highest_risk": max([m["risk_assessment"] for m in mappings]) if mappings else 0.0

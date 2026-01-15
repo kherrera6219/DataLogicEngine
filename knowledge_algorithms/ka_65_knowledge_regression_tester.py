@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA065RegressionInput(BaseModel):
+    snapshot: Dict[str, Any] = Field(default_factory=dict, description="The current knowledge base snapshot to test")
+    baseline: Dict[str, Any] = Field(default_factory=dict, description="Baseline established knowledge to compare against")
+
 class KA065KnowledgeRegressionTester(KnowledgeAlgorithm):
     """
-    KA-065: Knowledge regression and consistency testing engine.
+    KA-065: Knowledge regression and consistency testing engine to prevent stability violations.
     """
+    input_schema = KA065RegressionInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-065"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,16 +38,12 @@ class KA065KnowledgeRegressionTester(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        kb_snapshot = input_data.get("snapshot", {})
-        baseline_knowledge = input_data.get("baseline", {})
-        
+    def _run_logic(self, input_data: KA065RegressionInput) -> Dict[str, Any]:
+        kb_snapshot = input_data.snapshot
+        baseline_knowledge = input_data.baseline
         self.log_execution_step("Running Knowledge Regression Tests", {"baseline_size": len(baseline_knowledge)})
         
         failures = []
-        suite = self.config.get("regression_suite", [])
-        
-        # 1. Check for contradictions in core nodes (Stub)
         for node_id, baseline_val in baseline_knowledge.items():
              current_val = kb_snapshot.get("nodes", {}).get(node_id)
              if current_val and current_val != baseline_val:
@@ -49,10 +55,7 @@ class KA065KnowledgeRegressionTester(KnowledgeAlgorithm):
                   })
                   
         status = "PASSED" if not failures else "FAILED"
-        
         return {
-            "ka_id": "KA-065",
-            "ka_name": "Knowledge Regression Tester",
             "success": True,
             "status": status,
             "failure_count": len(failures),

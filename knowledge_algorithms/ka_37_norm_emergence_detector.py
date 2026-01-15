@@ -11,12 +11,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA037Input(BaseModel):
+    persona_results: List[Dict[str, Any]] = Field(default_factory=list, description="A list of persona results to analyze for convergence")
+
 class KA037NormEmergenceDetector(KnowledgeAlgorithm):
     """
-    KA-037: Groupthink and convergence detection engine.
+    KA-037: Groupthink and unhealthy convergence detection engine.
     """
+    input_schema = KA037Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-037"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,25 +38,19 @@ class KA037NormEmergenceDetector(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        persona_results = input_data.get("persona_results", [])
-        
+    def _run_logic(self, input_data: KA037Input) -> Dict[str, Any]:
+        persona_results = input_data.persona_results
         self.log_execution_step("Analyzing Convergence", {"perspective_count": len(persona_results)})
         
         if len(persona_results) < self.config.get("min_perspectives", 3):
-            return {"ka_id": "KA-037", "success": True, "msg": "Insufficient data for norm analysis"}
+            return {"success": True, "msg": "Insufficient data for norm analysis"}
             
-        # 1. Analyze Confidence Variance
         confidences = [p.get("confidence", 0.0) for p in persona_results]
         variance = statistics.variance(confidences) if len(confidences) > 1 else 0.0
         avg_conf = statistics.mean(confidences)
-        
-        # 2. Check for "High Confidence, Low Variance" (Groupthink signal)
         is_converged = avg_conf > self.config.get("convergence_threshold", 0.8) and variance < 0.01
         
         return {
-            "ka_id": "KA-037",
-            "ka_name": "Norm Emergence Detector",
             "success": True,
             "convergence_metrics": {
                 "average_confidence": avg_conf,

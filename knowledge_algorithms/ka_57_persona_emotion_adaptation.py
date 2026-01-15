@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA057Input(BaseModel):
+    output_object: Dict[str, Any] = Field(default_factory=dict, description="The output object to adapt")
+    persona: str = Field("general", description="The target stakeholder persona")
+
 class KA057PersonaEmotionAdaptation(KnowledgeAlgorithm):
     """
-    KA-057: Output styling and persona adaptation engine.
+    KA-057: Output styling and persona adaptation engine for empathetic context.
     """
+    input_schema = KA057Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-057"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,28 +38,20 @@ class KA057PersonaEmotionAdaptation(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        output_object = input_data.get("output_object", {})
-        target_persona = input_data.get("persona", "general")
-        
+    def _run_logic(self, input_data: KA057Input) -> Dict[str, Any]:
+        output_object = input_data.output_object
+        target_persona = input_data.persona
         self.log_execution_step("Adapting Output to Persona", {"persona": target_persona})
         
         vibe_overrides = self.config.get("vibe_overrides", {})
         vibe = vibe_overrides.get(target_persona, {"complexity": "medium", "empathy": "medium"})
-        
         adapted_plan = {
             "persona_applied": target_persona,
             "vibe_settings": vibe,
-            "style_hints": [
-                f"Complexity level: {vibe.get('complexity')}",
-                f"Empathy level: {vibe.get('empathy')}"
-            ],
+            "style_hints": [f"Complexity level: {vibe.get('complexity')}", f"Empathy level: {vibe.get('empathy')}"],
             "original_id": output_object.get("id")
         }
-        
         return {
-            "ka_id": "KA-057",
-            "ka_name": "Persona/Emotion Adaptation",
             "success": True,
             "adapted_style_plan": adapted_plan,
             "intensity": self.config.get("adaptation_intensity", 0.8)

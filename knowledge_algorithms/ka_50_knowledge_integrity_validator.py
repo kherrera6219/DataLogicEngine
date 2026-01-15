@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA050Input(BaseModel):
+    snapshot: Dict[str, Any] = Field(..., description="The knowledge graph snapshot to validate")
+
 class KA050KnowledgeIntegrityValidator(KnowledgeAlgorithm):
     """
-    KA-050: KB integrity and consistency validation engine.
+    KA-050: KB integrity and consistency validation engine for graph structures.
     """
+    input_schema = KA050Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-050"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,16 +37,13 @@ class KA050KnowledgeIntegrityValidator(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        kb_snapshot = input_data.get("snapshot", {})
+    def _run_logic(self, input_data: KA050Input) -> Dict[str, Any]:
+        kb_snapshot = input_data.snapshot
         nodes = kb_snapshot.get("nodes", [])
         edges = kb_snapshot.get("edges", [])
-        
         self.log_execution_step("Validating KB Integrity", {"node_count": len(nodes), "edge_count": len(edges)})
         
         issues = []
-        
-        # 1. Check for dangling edges
         node_ids = set(n.get("id") for n in nodes)
         for edge in edges:
             src = edge.get("source")
@@ -48,8 +54,6 @@ class KA050KnowledgeIntegrityValidator(KnowledgeAlgorithm):
                     "edge": edge,
                     "description": f"Edge references missing node: {src} -> {tgt}"
                 })
-                
-        # 2. Confidence Floor Validation
         min_conf = self.config.get("min_node_confidence", 0.3)
         for node in nodes:
             if node.get("confidence", 0.0) < min_conf:
@@ -64,8 +68,6 @@ class KA050KnowledgeIntegrityValidator(KnowledgeAlgorithm):
              status = "QUARANTINED"
              
         return {
-            "ka_id": "KA-050",
-            "ka_name": "Knowledge Integrity Validator",
             "success": True,
             "status": status,
             "issues_count": len(issues),

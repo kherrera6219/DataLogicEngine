@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA022Input(BaseModel):
+    recommendation: str = Field(..., description="The recommendation to assess for risk")
+    impact_scores: Dict[str, float] = Field(default_factory=dict, description="Impact scores across categories")
+
 class KA022RiskAssessment(KnowledgeAlgorithm):
     """
     KA-022: Risk profile calculation engine.
     """
+    input_schema = KA022Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-022"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,17 +38,15 @@ class KA022RiskAssessment(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        recommendation = input_data.get("recommendation", "")
-        impact_areas = input_data.get("impact_scores", {}) # e.g. {"FINANCIAL": 0.5, "OPERATIONAL": 0.2}
+    def _run_logic(self, input_data: KA022Input) -> Dict[str, Any]:
+        recommendation = input_data.recommendation
+        impact_areas = input_data.impact_scores
         
         self.log_execution_step("Risk Profiling", {"recommendation": recommendation[:50]})
         
         risk_factors = self.config.get("risk_factors", {})
-        
         total_risk = 0.0
         details = {}
-        
         for area, weight in risk_factors.items():
             area_score = impact_areas.get(area, 0.0)
             weighted_score = area_score * weight
@@ -55,8 +63,6 @@ class KA022RiskAssessment(KnowledgeAlgorithm):
             status = "WARNING"
             
         return {
-            "ka_id": "KA-022",
-            "ka_name": "Risk Assessment",
             "success": True,
             "overall_risk_score": total_risk,
             "risk_status": status,

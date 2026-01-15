@@ -12,24 +12,32 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA043Input(BaseModel):
+    findings: List[Dict[str, Any]] = Field(default_factory=list, description="Findings to track lineage for")
+    session_id: str = Field(..., description="Unique ID for the current trace session")
+
 class KA043KnowledgeLineageTracker(KnowledgeAlgorithm):
     """
-    KA-043: Versioning and provenance tracking engine.
+    KA-043: Versioning and provenance tracking engine for evolving knowledge.
     """
+    input_schema = KA043Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-043"
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        findings = input_data.get("findings", [])
-        session_id = input_data.get("session_id", str(uuid.uuid4()))
-        
+    def _run_logic(self, input_data: KA043Input) -> Dict[str, Any]:
+        findings = input_data.findings
+        session_id = input_data.session_id
         self.log_execution_step("Tracking Knowledge Lineage", {"finding_count": len(findings)})
         
         lineage_map = []
         for f in findings:
             fid = f.get("id", str(uuid.uuid4()))
             version = f.get("version", 1)
-            
             lineage_map.append({
                 "id": fid,
                 "current_version": version + 1,
@@ -39,8 +47,6 @@ class KA043KnowledgeLineageTracker(KnowledgeAlgorithm):
             })
             
         return {
-            "ka_id": "KA-043",
-            "ka_name": "Knowledge Lineage Tracker",
             "success": True,
             "lineage_records": lineage_map,
             "count": len(lineage_map)

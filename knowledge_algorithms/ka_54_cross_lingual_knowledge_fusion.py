@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA054Input(BaseModel):
+    multilingual_sources: List[Dict[str, Any]] = Field(default_factory=list, description="A list of high-fidelity sources in different languages to fuse")
+
 class KA054CrossLingualKnowledgeFusion(KnowledgeAlgorithm):
     """
-    KA-054: Multilingual alignment and concept fusion engine.
+    KA-054: Multilingual alignment and concept fusion engine for language-agnostic knowledge.
     """
+    input_schema = KA054Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-054"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,22 +37,16 @@ class KA054CrossLingualKnowledgeFusion(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        sources = input_data.get("multilingual_sources", []) # List of {lang: "en", nodes: [...]}
-        
+    def _run_logic(self, input_data: KA054Input) -> Dict[str, Any]:
+        sources = input_data.multilingual_sources
         self.log_execution_step("Fusing Cross-Lingual Knowledge", {"source_count": len(sources)})
         
-        unified_nodes = []
         alignments = []
-        
-        # 1. Align concepts across languages (Simulated)
-        # In practice, this would use cross-lingual embeddings (mBERT/XLM-R)
+        alignment_threshold = self.config.get("alignment_threshold", 0.85)
         for i in range(len(sources)):
             for j in range(i + 1, len(sources)):
                 s1 = sources[i]
                 s2 = sources[j]
-                
-                # Align if their primary concepts match (Stub)
                 for n1 in s1.get("nodes", []):
                     for n2 in s2.get("nodes", []):
                         if n1.get("concept_id") == n2.get("concept_id"):
@@ -51,12 +54,10 @@ class KA054CrossLingualKnowledgeFusion(KnowledgeAlgorithm):
                                 "source_node": n1.get("id"),
                                 "target_node": n2.get("id"),
                                 "languages": [s1.get("lang"), s2.get("lang")],
-                                "trust_score": self.config.get("alignment_threshold", 0.85)
+                                "trust_score": alignment_threshold
                             })
                             
         return {
-            "ka_id": "KA-054",
-            "ka_name": "Cross-Lingual Knowledge Fusion",
             "success": True,
             "alignment_records": alignments,
             "fusion_count": len(alignments),

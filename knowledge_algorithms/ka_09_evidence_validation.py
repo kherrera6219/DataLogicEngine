@@ -11,12 +11,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA009Input(BaseModel):
+    evidence: List[Dict[str, Any]] = Field(default_factory=list, description="A list of evidence snippets to validate")
+    query: str = Field("", description="The query to validate evidence against")
+
 class KA009EvidenceValidation(KnowledgeAlgorithm):
     """
     KA-009: Scorer and validator for evidence snippets.
     """
+    input_schema = KA009Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-009"
         self.config = self._load_config()
         self.sdk_module = "ukg_sdk.ka.handlers.ka_009"
 
@@ -30,21 +40,16 @@ class KA009EvidenceValidation(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        evidence_list = input_data.get("evidence", [])
-        query = input_data.get("query", "")
+    def _run_logic(self, input_data: KA009Input) -> Dict[str, Any]:
+        evidence_list = input_data.evidence
+        query = input_data.query
         
         self.log_execution_step("Validating Evidence", {"count": len(evidence_list)})
         
         results = []
         for item in evidence_list:
-            # 1. Local Scoping
             local_score = self._calculate_local_score(item, query)
-            
-            # 2. SDK Delegation (Optional per item or batch)
             sdk_res = self._delegate_to_sdk({"item": item, "query": query})
-            
-            # 3. Merge
             final_score = (local_score + sdk_res.get("score", local_score)) / 2
             
             results.append({
@@ -55,8 +60,6 @@ class KA009EvidenceValidation(KnowledgeAlgorithm):
             })
             
         return {
-            "ka_id": "KA-009",
-            "ka_name": "Evidence Validation",
             "success": True,
             "results": results,
             "overall_validity": all(r["is_valid"] for r in results) if results else True
@@ -65,17 +68,13 @@ class KA009EvidenceValidation(KnowledgeAlgorithm):
     def _calculate_local_score(self, item: Dict[str, Any], query: str) -> float:
         content = item.get("content", "").lower()
         source_type = item.get("source_type", "unknown")
-        
-        # 1. Source Credibility
         source_scores = self.config.get("trusted_sources", {})
         credibility = source_scores.get(source_type, 0.4)
         
-        # 2. Relevance (simple keyword overlap stub)
         query_words = set(query.lower().split())
         content_words = set(content.split())
         overlap = len(query_words.intersection(content_words)) / max(len(query_words), 1)
-        
-        relevance = min(1.0, overlap * 2.0) # Boost overlap score
+        relevance = min(1.0, overlap * 2.0)
         
         return (credibility * 0.6) + (relevance * 0.4)
 

@@ -11,12 +11,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA049Input(BaseModel):
+    nodes: List[Dict[str, Any]] = Field(default_factory=list, description="A list of knowledge nodes to analyze for redundancy")
+
 class KA049KnowledgeRedundancyDetector(KnowledgeAlgorithm):
     """
-    KA-049: Deduplication and redundancy analysis engine.
+    KA-049: Deduplication and redundancy analysis engine for KB fragments.
     """
+    input_schema = KA049Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-049"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,19 +38,15 @@ class KA049KnowledgeRedundancyDetector(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        nodes = input_data.get("nodes", []) # List of knowledge nodes
-        
+    def _run_logic(self, input_data: KA049Input) -> Dict[str, Any]:
+        nodes = input_data.nodes
         self.log_execution_step("Detecting Knowledge Redundancy", {"node_count": len(nodes)})
         
         duplicates = []
         hashes = {}
-        
-        # 1. Hash-based exact duplicate detection
         for node in nodes:
              content = node.get("content", "")
              h = hashlib.md5(content.encode()).hexdigest()
-             
              if h in hashes:
                   duplicates.append({
                       "node_id": node.get("id"),
@@ -51,12 +56,7 @@ class KA049KnowledgeRedundancyDetector(KnowledgeAlgorithm):
              else:
                   hashes[h] = node.get("id")
                   
-        # 2. Fuzzy/Jaccard Similarity (Stub)
-        # In a real implementation, we'd use rapidfuzz or embeddings
-        
         return {
-            "ka_id": "KA-049",
-            "ka_name": "Knowledge Redundancy Detector",
             "success": True,
             "redundancy_count": len(duplicates),
             "duplicate_groups": duplicates,

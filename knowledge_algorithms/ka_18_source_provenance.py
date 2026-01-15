@@ -11,12 +11,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA018Input(BaseModel):
+    source_metadata: Dict[str, Any] = Field(default_factory=dict, description="Metadata about the knowledge source")
+
 class KA018SourceProvenance(KnowledgeAlgorithm):
     """
     KA-018: Provenance and source trust engine.
     """
+    input_schema = KA018Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-018"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,26 +38,20 @@ class KA018SourceProvenance(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        source_data = input_data.get("source_metadata", {})
-        
+    def _run_logic(self, input_data: KA018Input) -> Dict[str, Any]:
+        source_data = input_data.source_metadata
         self.log_execution_step("Provenance Tracking", {"source_id": source_data.get("id", "unknown")})
         
         trust_levels = self.config.get("source_trust_levels", {})
-        
-        # Determine base trust
         stype = source_data.get("type", "unverified")
         base_trust = trust_levels.get(stype, 0.2)
         
-        # Check verification chain
         v_chain = source_data.get("verification_chain", [])
-        chain_score = len(v_chain) * 0.1 # Boost for verifiable chain
+        chain_score = len(v_chain) * 0.1
         
         integrity_score = min(1.0, base_trust + chain_score)
         
         return {
-            "ka_id": "KA-018",
-            "ka_name": "Source Provenance",
             "success": True,
             "integrity_score": integrity_score,
             "trust_category": stype,

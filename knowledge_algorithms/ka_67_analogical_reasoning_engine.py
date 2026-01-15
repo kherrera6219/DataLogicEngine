@@ -10,17 +10,27 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA067AnalogicalInput(BaseModel):
+    source_domain: Dict[str, Any] = Field(default_factory=dict, description="Source domain data for analogy mapping")
+    target_domain: Dict[str, Any] = Field(default_factory=dict, description="Target domain data for analogy mapping")
+
 class KA067AnalogicalReasoningEngine(KnowledgeAlgorithm):
     """
-    KA-067: Structural alignment and cross-domain transfer engine.
+    KA-067: Structural alignment and cross-domain transfer engine for analogical reasoning.
     """
+    input_schema = KA067AnalogicalInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-067"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
         try:
-            config_path = os.path.join(os.path.join(os.path.dirname(__file__), "config"), "ka_67_config.json")
+            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_67_config.json")
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
                     return json.load(f)
@@ -28,20 +38,15 @@ class KA067AnalogicalReasoningEngine(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        source_domain = input_data.get("source_domain", {})
-        target_domain = input_data.get("target_domain", {})
-        
+    def _run_logic(self, input_data: KA067AnalogicalInput) -> Dict[str, Any]:
+        source_domain = input_data.source_domain
+        target_domain = input_data.target_domain
         self.log_execution_step("Building Analogical Mappings", {"source": source_domain.get("name")})
         
         analogies = []
-        # 1. Structural Alignment (Stub)
-        # Match relations like (heart -> pump) in biology vs (power_source -> battery) in electronics
         source_relations = source_domain.get("relations", [])
         target_entities = target_domain.get("entities", [])
-        
         for rel in source_relations:
-             # Very simple heuristic: find a target entity with similar functional tags
              found_match = target_entities[0] if target_entities else None
              if found_match:
                   analogies.append({
@@ -52,8 +57,6 @@ class KA067AnalogicalReasoningEngine(KnowledgeAlgorithm):
                   })
                   
         return {
-            "ka_id": "KA-067",
-            "ka_name": "Analogical Reasoning Engine",
             "success": True,
             "analogies": analogies[:self.config.get("max_analogies", 3)],
             "strategy": self.config.get("mapping_strategy")

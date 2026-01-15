@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA038Input(BaseModel):
+    evidence: List[Dict[str, Any]] = Field(default_factory=list, description="Evidence items from different modalities")
+
 class KA038CrossModalSynthesis(KnowledgeAlgorithm):
     """
-    KA-038: Multi-modal evidence fusion engine.
+    KA-038: Multi-modal evidence fusion engine for unifying diverse content streams.
     """
+    input_schema = KA038Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-038"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,27 +37,20 @@ class KA038CrossModalSynthesis(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        evidence_list = input_data.get("evidence", [])
-        
+    def _run_logic(self, input_data: KA038Input) -> Dict[str, Any]:
+        evidence_list = input_data.evidence
         self.log_execution_step("Fusing Multi-Modal Evidence", {"evidence_count": len(evidence_list)})
         
         fused_content = []
         modalities_present = set()
-        
         for item in evidence_list:
              modality = item.get("modality", "text")
              modalities_present.add(modality)
-             
              content = item.get("content", "")
-             # Simple concatenation-based fusion logic
              fused_content.append(f"[{modality.upper()}]: {content}")
              
         unified_representation = "\n---\n".join(fused_content)
-        
         return {
-            "ka_id": "KA-038",
-            "ka_name": "Cross-Modal Synthesis",
             "success": True,
             "fused_evidence": unified_representation,
             "modalities_processed": list(modalities_present),

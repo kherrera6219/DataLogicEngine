@@ -11,12 +11,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA028Input(BaseModel):
+    query: str = Field(..., description="The query to expand perspectives for")
+    context: Dict[str, Any] = Field(default_factory=dict, description="Additional context for expansion")
+
 class KA028POVExpansion(KnowledgeAlgorithm):
     """
-    KA-028: Expand analysis with additional POVs.
+    KA-028: Expand analysis with additional stakeholder POVs to identify blind spots.
     """
+    input_schema = KA028Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-028"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,16 +39,12 @@ class KA028POVExpansion(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        query = input_data.get("query", "")
-        context = input_data.get("context", {})
-        
+    def _run_logic(self, input_data: KA028Input) -> Dict[str, Any]:
+        query = input_data.query
         self.log_execution_step("Expanding Perspectives", {"query": query})
         
         extra_personas = self.config.get("extra_personas", {})
         limit = self.config.get("expansion_limit", 2)
-        
-        # Select random personas from the available ones
         selected_keys = random.sample(list(extra_personas.keys()), min(len(extra_personas), limit))
         
         additional_findings = []
@@ -48,8 +54,6 @@ class KA028POVExpansion(KnowledgeAlgorithm):
             additional_findings.append(finding)
             
         return {
-            "ka_id": "KA-028",
-            "ka_name": "POV Expansion",
             "success": True,
             "additional_perspectives": additional_findings,
             "count": len(additional_findings)
@@ -58,11 +62,8 @@ class KA028POVExpansion(KnowledgeAlgorithm):
     def _generate_pov_finding(self, key: str, info: Dict[str, Any], query: str) -> Dict[str, Any]:
         focus = info.get("focus")
         tone = info.get("tone")
-        
-        # Simulated POV response
         response = f"[{key.upper()} Perspective]: Analyzing '{query}' with a focus on {focus}. " \
                    f"The primary concern from this standpoint is ensuring that we optimize for {tone} outcomes."
-                   
         return {
             "persona": key,
             "focus": focus,

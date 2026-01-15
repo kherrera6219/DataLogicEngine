@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA036Input(BaseModel):
+    options: List[Dict[str, Any]] = Field(default_factory=list, description="Options to evaluate for Pareto optimality")
+
 class KA036ParetoOptimizationEngine(KnowledgeAlgorithm):
     """
-    KA-036: Multi-objective optimization engine.
+    KA-036: Multi-objective optimization engine for trade-off analysis.
     """
+    input_schema = KA036Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-036"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,16 +37,11 @@ class KA036ParetoOptimizationEngine(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        options = input_data.get("options", []) # e.g. [{"id": "A", "cost": 10, "performance": 80}]
-        
+    def _run_logic(self, input_data: KA036Input) -> Dict[str, Any]:
+        options = input_data.options
         self.log_execution_step("Finding Pareto Front", {"option_count": len(options)})
         
-        # 1. Non-dominated Sorting (Stubbed logic)
-        # For simplicity, we filter for options that aren't clearly worse than others in both metrics
         def dominates(o1, o2):
-            # Assume we maximize performance and minimize cost (if present)
-            # This is a simplification
             return o1.get("performance", 0) >= o2.get("performance", 0) and o1.get("cost", 100) <= o2.get("cost", 100)
             
         pareto_front = []
@@ -51,8 +55,6 @@ class KA036ParetoOptimizationEngine(KnowledgeAlgorithm):
                 pareto_front.append(o1)
                 
         return {
-            "ka_id": "KA-036",
-            "ka_name": "Pareto Optimization Engine",
             "success": True,
             "pareto_options": pareto_front,
             "recommended_optima": pareto_front[0] if pareto_front else None

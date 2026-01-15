@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA027Input(BaseModel):
+    recommendation: str = Field(..., description="The recommendation to evaluate for ethical impact")
+    has_linguistic_bias: bool = Field(False, description="Whether linguistic bias was flagged by earlier KAs")
+
 class KA027EthicalImpactAnalysis(KnowledgeAlgorithm):
     """
-    KA-027: Ethical assessment engine.
+    KA-027: Ethical assessment engine for evaluating recommendations.
     """
+    input_schema = KA027Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-027"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,23 +38,19 @@ class KA027EthicalImpactAnalysis(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        recommendation = input_data.get("recommendation", "")
-        
+    def _run_logic(self, input_data: KA027Input) -> Dict[str, Any]:
+        recommendation = input_data.recommendation
         self.log_execution_step("Ethical Review", {"content_len": len(recommendation)})
         
         score = 0.0
         findings = []
-        
-        # 1. Keyword-based Harm Detection
         harm_keywords = self.config.get("harm_keywords", [])
         for kw in harm_keywords:
             if kw.lower() in recommendation.lower():
                 score += 0.25
                 findings.append(f"Potential Harm Category: {kw}")
                 
-        # 2. Bias signals (Stub for integration with KA-010)
-        if input_data.get("has_linguistic_bias", False):
+        if input_data.has_linguistic_bias:
             score += 0.2
             findings.append("Linguistic bias flagged by KA-010 integration")
             
@@ -53,8 +59,6 @@ class KA027EthicalImpactAnalysis(KnowledgeAlgorithm):
              status = "CRITICAL_FAILURE"
              
         return {
-            "ka_id": "KA-027",
-            "ka_name": "Ethical Impact Analysis",
             "success": True,
             "ethics_score": min(1.0, score),
             "findings": findings,

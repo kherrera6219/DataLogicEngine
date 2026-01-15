@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA055Input(BaseModel):
+    modal_evidence: List[Dict[str, Any]] = Field(default_factory=list, description="Evidence from different modalities to integrate")
+
 class KA055AdaptiveMultiModalIntegration(KnowledgeAlgorithm):
     """
-    KA-055: Cross-modal conflict resolution and integration engine.
+    KA-055: Cross-modal conflict resolution and integration engine using weighted trust models.
     """
+    input_schema = KA055Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-055"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,26 +37,20 @@ class KA055AdaptiveMultiModalIntegration(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        modal_evidence = input_data.get("modal_evidence", []) # List of {modality: "text", content: "...", confidence: 0.8}
-        
+    def _run_logic(self, input_data: KA055Input) -> Dict[str, Any]:
+        modal_evidence = input_data.modal_evidence
         self.log_execution_step("Integrating Multi-Modal Evidence", {"modality_count": len(modal_evidence)})
         
         trust_weights = self.config.get("trust_weights", {})
         fused_evidence = []
         disagreements = []
-        
-        # 1. Apply weights and detect clashes (Stub)
         for i in range(len(modal_evidence)):
             e = modal_evidence[i]
             modality = e.get("modality")
             weight = trust_weights.get(modality, 1.0)
-            
             e_fused = e.copy()
             e_fused["weighted_confidence"] = e.get("confidence", 0.5) * weight
             fused_evidence.append(e_fused)
-            
-            # Check for simple disagreement with others (Stub)
             for j in range(i+1, len(modal_evidence)):
                  other = modal_evidence[j]
                  if e.get("topic") == other.get("topic") and e.get("verdict") != other.get("verdict"):
@@ -58,8 +61,6 @@ class KA055AdaptiveMultiModalIntegration(KnowledgeAlgorithm):
                       })
                       
         return {
-            "ka_id": "KA-055",
-            "ka_name": "Adaptive Multi-Modal Integration",
             "success": True,
             "fused_results": fused_evidence,
             "disagreements": disagreements,

@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA056Input(BaseModel):
+    trace_dag: Dict[str, Any] = Field(default_factory=dict, description="The execution trace DAG to explain")
+    decision_log: List[Dict[str, Any]] = Field(default_factory=list, description="The log of decisions made during execution")
+
 class KA056NarrativeExplainabilityEngine(KnowledgeAlgorithm):
     """
-    KA-056: Explainability and rationale generation engine.
+    KA-056: Explainability and rationale generation engine for human-readable insights.
     """
+    input_schema = KA056Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-056"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,14 +38,12 @@ class KA056NarrativeExplainabilityEngine(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        trace_dag = input_data.get("trace_dag", {})
-        decision_log = input_data.get("decision_log", [])
-        
+    def _run_logic(self, input_data: KA056Input) -> Dict[str, Any]:
+        trace_dag = input_data.trace_dag
+        decision_log = input_data.decision_log
         self.log_execution_step("Generating Decision Rationale", {"decision_count": len(decision_log)})
         
         explanations = []
-        # 1. Map decisions to human-readable rationales (Stub)
         for d in decision_log:
              explanations.append({
                  "step": d.get("step_id"),
@@ -45,10 +53,7 @@ class KA056NarrativeExplainabilityEngine(KnowledgeAlgorithm):
              })
              
         summary = f"Processed {len(decision_log)} decision nodes. High-level path: {trace_dag.get('summary_path', 'N/A')}"
-        
         return {
-            "ka_id": "KA-056",
-            "ka_name": "Narrative Explainability Engine",
             "success": True,
             "narrative_summary": summary,
             "step_by_step_rationale": explanations,

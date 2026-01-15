@@ -11,12 +11,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA032Input(BaseModel):
+    pipeline: List[str] = Field(default_factory=list, description="Sequence of KA IDs to execute")
+    simulation_state: Dict[str, Any] = Field(default_factory=dict, description="Current state of the simulation")
+
 class KA032SimulationOrchestrationController(KnowledgeAlgorithm):
     """
-    KA-032: Orchestration and sequence management engine.
+    KA-032: Orchestration and sequence management engine for KA execution flow.
     """
+    input_schema = KA032Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-032"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,13 +39,10 @@ class KA032SimulationOrchestrationController(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        pipeline = input_data.get("pipeline", [])
-        state = input_data.get("simulation_state", {})
-        
+    def _run_logic(self, input_data: KA032Input) -> Dict[str, Any]:
+        pipeline = input_data.pipeline
         self.log_execution_step("Orchestrating Sequence", {"steps": len(pipeline), "mode": self.config.get("execution_mode", "sequential")})
         
-        # 1. Define Execution Schedule
         schedule = []
         for i, ka_id in enumerate(pipeline):
             schedule.append({
@@ -45,16 +52,12 @@ class KA032SimulationOrchestrationController(KnowledgeAlgorithm):
                 "checkpoint": self.config.get("checkpoint_enabled", True)
             })
             
-        # 2. Simulate Layer Transitions
-        # This is a stub for real execution control
         executed_steps = []
         for step in schedule:
             step["status"] = "SIMULATED_SUCCESS"
             executed_steps.append(step)
             
         return {
-            "ka_id": "KA-032",
-            "ka_name": "Simulation Orchestration Controller",
             "success": True,
             "execution_schedule": executed_steps,
             "final_status": "COMPLETED",

@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA040Input(BaseModel):
+    concepts: List[str] = Field(default_factory=list, description="A list of concepts to align and deduplicate")
+
 class KA040SemanticAlignmentEngine(KnowledgeAlgorithm):
     """
-    KA-040: Concept alignment and synonym resolution engine.
+    KA-040: Concept alignment and synonym resolution engine to prevent fragmentation.
     """
+    input_schema = KA040Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-040"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,23 +37,18 @@ class KA040SemanticAlignmentEngine(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        concepts = input_data.get("concepts", []) # e.g. ["User Profile", "Member Account"]
-        
+    def _run_logic(self, input_data: KA040Input) -> Dict[str, Any]:
+        concepts = input_data.concepts
         self.log_execution_step("Aligning Concepts", {"concept_count": len(concepts)})
         
         alignments = []
-        # 1. Simple Keyword Jaccard/Overlap analysis (Stub logic)
         for i in range(len(concepts)):
             for j in range(i + 1, len(concepts)):
                 c1 = concepts[i]
                 c2 = concepts[j]
-                
-                # If they share words, suggest alignment
                 words1 = set(c1.lower().split())
                 words2 = set(c2.lower().split())
                 intersection = words1.intersection(words2)
-                
                 if intersection:
                     score = len(intersection) / max(len(words1), len(words2))
                     if score >= self.config.get("alignment_threshold", 0.6):
@@ -56,11 +60,9 @@ class KA040SemanticAlignmentEngine(KnowledgeAlgorithm):
                         })
                         
         return {
-            "ka_id": "KA-040",
-            "ka_name": "Semantic Alignment Engine",
             "success": True,
             "alignment_suggestions": alignments,
-            "auto_merged": False # Based on config
+            "auto_merged": False
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

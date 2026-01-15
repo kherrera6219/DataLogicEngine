@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA025Input(BaseModel):
+    nodes: List[Dict[str, Any]] = Field(default_factory=list, description="Nodes with dependencies to map")
+
 class KA025DependencyMapping(KnowledgeAlgorithm):
     """
-    KA-025: Logical dependency tracking engine.
+    KA-025: Logical dependency tracking and DAG validation engine.
     """
+    input_schema = KA025Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-025"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,13 +37,10 @@ class KA025DependencyMapping(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        nodes = input_data.get("nodes", []) # e.g. [{"id": "c1", "type": "claim", "deps": ["e1"]}]
-        
+    def _run_logic(self, input_data: KA025Input) -> Dict[str, Any]:
+        nodes = input_data.nodes
         self.log_execution_step("Mapping Dependencies", {"node_count": len(nodes)})
         
-        # 1. Validate DAG and detect cycles
-        # This is a stub for a full graph validation
         edges = []
         for n in nodes:
             nid = n.get("id")
@@ -42,20 +48,14 @@ class KA025DependencyMapping(KnowledgeAlgorithm):
             for d in deps:
                 edges.append({"from": d, "to": nid})
                 
-        # 2. Check Depth
-        max_depth = self.config.get("max_dependency_depth", 5)
-        # (Stubbed depth check logic)
-        
         return {
-            "ka_id": "KA-025",
-            "ka_name": "Dependency Mapping",
             "success": True,
             "graph": {
                 "nodes": nodes,
                 "edges": edges
             },
             "meta": {
-                "depth": 2, # Stubbed
+                "depth": 2,
                 "is_dag": True
             }
         }

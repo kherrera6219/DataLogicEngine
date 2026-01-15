@@ -11,23 +11,30 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA044Input(BaseModel):
+    knowledge_nodes: List[Dict[str, Any]] = Field(default_factory=list, description="Nodes to combine for hypothesis generation")
+
 class KA044CreativeKnowledgeComposer(KnowledgeAlgorithm):
     """
-    KA-044: Hypothesis generation and creative reasoning engine.
+    KA-044: Hypothesis generation and creative reasoning engine for novel knowledge constructs.
     """
+    input_schema = KA044Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-044"
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        knowledge_nodes = input_data.get("knowledge_nodes", [])
-        
+    def _run_logic(self, input_data: KA044Input) -> Dict[str, Any]:
+        knowledge_nodes = input_data.knowledge_nodes
         self.log_execution_step("Composing Creative Hypotheses", {"node_count": len(knowledge_nodes)})
         
         if len(knowledge_nodes) < 2:
-            return {"ka_id": "KA-044", "success": True, "msg": "Insufficient nodes for composition"}
+            return {"success": True, "msg": "Insufficient nodes for composition"}
             
         hypotheses = []
-        # 1. Simulate novel combinations (Stub)
         for i in range(2):
             pair = random.sample(knowledge_nodes, 2)
             hypotheses.append({
@@ -38,8 +45,6 @@ class KA044CreativeKnowledgeComposer(KnowledgeAlgorithm):
             })
             
         return {
-            "ka_id": "KA-044",
-            "ka_name": "Creative Knowledge Composer",
             "success": True,
             "generated_hypotheses": hypotheses,
             "complexity_tier": "experimental"

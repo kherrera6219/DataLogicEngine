@@ -11,12 +11,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA052Input(BaseModel):
+    kb_nodes: List[Dict[str, Any]] = Field(default_factory=list, description="Knowledge nodes to evaluate for temporal evolution")
+
 class KA052TemporalKnowledgeEvolution(KnowledgeAlgorithm):
     """
     KA-052: Fact versioning and temporal lifecycle management engine.
     """
+    input_schema = KA052Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-052"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,29 +38,26 @@ class KA052TemporalKnowledgeEvolution(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        kb_nodes = input_data.get("kb_nodes", [])
+    def _run_logic(self, input_data: KA052Input) -> Dict[str, Any]:
+        kb_nodes = input_data.kb_nodes
         current_time = datetime.now()
-        
         self.log_execution_step("Managing Temporal Evolution", {"node_count": len(kb_nodes)})
         
         expired_nodes = []
         updated_nodes = []
         expiry_days = self.config.get("expiry_days", 30)
+        automatic_retirement = self.config.get("automatic_retirement", True)
+        version_limit = self.config.get("version_limit", 10)
         
         for node in kb_nodes:
             ts_str = node.get("timestamp")
             if ts_str:
                 ts = datetime.fromisoformat(ts_str)
-                # 1. Retirement check
-                if self.config.get("automatic_retirement", True) and (current_time - ts) > timedelta(days=expiry_days):
+                if automatic_retirement and (current_time - ts) > timedelta(days=expiry_days):
                     expired_nodes.append(node.get("id"))
                     continue
-            
-            # 2. Versioning logic (simulated)
             v = node.get("version", 1)
-            if v < self.config.get("version_limit", 10):
-                 # Mark for potential update/evolution
+            if v < version_limit:
                  updated_nodes.append({
                      "id": node.get("id"),
                      "new_version": v + 1,
@@ -59,8 +65,6 @@ class KA052TemporalKnowledgeEvolution(KnowledgeAlgorithm):
                  })
                  
         return {
-            "ka_id": "KA-052",
-            "ka_name": "Temporal Knowledge Evolution",
             "success": True,
             "expired_nodes": expired_nodes,
             "evolution_map": updated_nodes,

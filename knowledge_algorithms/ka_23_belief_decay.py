@@ -12,12 +12,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA023Input(BaseModel):
+    knowledge_items: List[Dict[str, Any]] = Field(default_factory=list, description="Knowledge entries with timestamps and confidence")
+    reference_time: str = Field(None, description="ISO reference time for decay calculation")
+
 class KA023BeliefDecay(KnowledgeAlgorithm):
     """
-    KA-023: Knowledge freshness and decay engine.
+    KA-023: Knowledge freshness and decay engine based on half-life configurations.
     """
+    input_schema = KA023Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-023"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -30,9 +40,9 @@ class KA023BeliefDecay(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        knowledge_items = input_data.get("knowledge_items", [])
-        reference_time = input_data.get("reference_time", datetime.now().isoformat())
+    def _run_logic(self, input_data: KA023Input) -> Dict[str, Any]:
+        knowledge_items = input_data.knowledge_items
+        reference_time = input_data.reference_time or datetime.now().isoformat()
         
         try:
             ref_dt = datetime.fromisoformat(reference_time)
@@ -47,25 +57,18 @@ class KA023BeliefDecay(KnowledgeAlgorithm):
         
         updated_items = []
         for item in knowledge_items:
-            # 1. Skip exclusions
             if item.get("category") in exclusions:
                 updated_items.append({**item, "decay_applied": False})
                 continue
-                
-            # 2. Compute age
             ts_str = item.get("timestamp")
             if not ts_str:
                 updated_items.append({**item, "decay_applied": False})
                 continue
-                
             try:
                 ts_dt = datetime.fromisoformat(ts_str)
                 age_days = (ref_dt - ts_dt).total_seconds() / (24 * 3600)
-                
-                # 3. Calculate Decay (Exponential: C = C0 * 0.5 ^ (age / half_life))
                 c0 = item.get("confidence", 1.0)
                 decayed_c = max(floor, c0 * (0.5 ** (age_days / half_life)))
-                
                 updated_items.append({
                     **item,
                     "original_confidence": c0,
@@ -77,12 +80,10 @@ class KA023BeliefDecay(KnowledgeAlgorithm):
                 updated_items.append({**item, "decay_applied": False, "error": "Invalid timestamp"})
                 
         return {
-            "ka_id": "KA-023",
-            "ka_name": "Belief Decay",
             "success": True,
             "processed_items": updated_items,
             "decay_stats": {
-                "average_decay": sum(i.get("original_confidence", 0) - i.get("confidence", 0) for i in updated_items if i.get("decay_applied"))
+                "average_loss": sum(i.get("original_confidence", 0) - i.get("confidence", 0) for i in updated_items if i.get("decay_applied"))
             }
         }
 

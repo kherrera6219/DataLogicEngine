@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA112Input(BaseModel):
+    payload: Dict[str, Any] = Field(default_factory=dict)
+    queue: str = "background_tasks"
+
 class KA112MessageBroker(KnowledgeAlgorithm):
     """
     KA-112: Asynchronous message brokering and task queueing engine.
     """
+    input_schema = KA112Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-112"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,22 +38,25 @@ class KA112MessageBroker(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        task_payload = input_data.get("payload", {})
-        queue_name = input_data.get("queue", "background_tasks")
-        
+    def _run_logic(self, input_data: KA112Input) -> Dict[str, Any]:
+        queue_name = input_data.queue
         self.log_execution_step("Queueing Task", {"queue": queue_name})
         
-        # Simulate message delivery
         return {
-            "ka_id": "KA-112",
-            "ka_name": "Message Broker",
             "success": True,
             "message_tag": f"mq_{os.urandom(4).hex()}",
             "queue_active": queue_name,
             "broker_type": self.config.get("broker_instance"),
             "ack_mode": self.config.get("acknowledgment_mode")
         }
+
+def run(context: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        algo = KA112MessageBroker(context)
+        return algo.run(context)
+    except Exception as e:
+        logger.error(f"KA-112 Failed: {e}")
+        return {"success": False, "error": str(e)}
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

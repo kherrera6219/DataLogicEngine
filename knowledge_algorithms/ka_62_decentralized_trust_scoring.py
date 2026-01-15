@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA062Input(BaseModel):
+    evidence: List[Dict[str, Any]] = Field(default_factory=list, description="Evidence fragments to evaluate for trust and credibility")
+
 class KA062DecentralizedTrustScoring(KnowledgeAlgorithm):
     """
-    KA-062: Provenance-based trust calculation engine.
+    KA-062: Provenance-based trust calculation engine for knowledge fragments.
     """
+    input_schema = KA062Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-062"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,30 +37,24 @@ class KA062DecentralizedTrustScoring(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        evidence_nodes = input_data.get("evidence", []) # List of {source: "...", hashes: [...]}
-        
+    def _run_logic(self, input_data: KA062Input) -> Dict[str, Any]:
+        evidence_nodes = input_data.evidence
         self.log_execution_step("Computing Trust Scores", {"evidence_count": len(evidence_nodes)})
         
         provenance_weights = self.config.get("provenance_weights", {})
         trust_reports = []
-        
+        min_trust = self.config.get("min_trust_for_commitment", 0.7)
         for e in evidence_nodes:
              source = e.get("source", "unknown")
              weight = provenance_weights.get(source, 1.0)
-             
-             # Simulate trust calculation based on source weight and evidence consistency
-             trust_score = weight * 0.8 # Base consistency factor
-             
+             trust_score = weight * 0.8
              trust_reports.append({
                  "source": source,
                  "final_score": min(1.0, trust_score),
-                 "status": "TRUSTED" if trust_score >= self.config.get("min_trust_for_commitment", 0.7) else "UNTRUSTED"
+                 "status": "TRUSTED" if trust_score >= min_trust else "UNTRUSTED"
              })
              
         return {
-            "ka_id": "KA-062",
-            "ka_name": "Decentralized Trust Scoring",
             "success": True,
             "reports": trust_reports,
             "average_trust": sum(r["final_score"] for r in trust_reports) / max(1, len(trust_reports))

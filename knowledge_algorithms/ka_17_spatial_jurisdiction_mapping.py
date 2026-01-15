@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA017Input(BaseModel):
+    location: str = Field("GLOBAL", description="The geographical location to map")
+    entity_scope: str = Field("GLOBAL", description="The scope of the entity")
+
 class KA017SpatialMapping(KnowledgeAlgorithm):
     """
     KA-017: Spatial and Jurisdiction mapping engine.
     """
+    input_schema = KA017Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-017"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,15 +38,13 @@ class KA017SpatialMapping(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        location_meta = input_data.get("location", "GLOBAL")
-        entity_scope = input_data.get("entity_scope", "GLOBAL")
+    def _run_logic(self, input_data: KA017Input) -> Dict[str, Any]:
+        location_meta = input_data.location
+        entity_scope = input_data.entity_scope
         
         self.log_execution_step("Jurisdiction Resolution", {"location": location_meta, "scope": entity_scope})
         
         jurisdictions_config = self.config.get("jurisdictions", {})
-        
-        # Simple resolution logic
         primary = location_meta.upper()
         if primary not in jurisdictions_config:
             primary = "GLOBAL"
@@ -44,8 +52,6 @@ class KA017SpatialMapping(KnowledgeAlgorithm):
         details = jurisdictions_config.get(primary, {})
         
         return {
-            "ka_id": "KA-017",
-            "ka_name": "Spatial/Jurisdiction Mapping",
             "success": True,
             "resolved_jurisdiction": primary,
             "sub_jurisdictions": details.get("sub_jurisdictions", []),

@@ -11,12 +11,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA115Input(BaseModel):
+    target: str = "ka_registry"
+
 class KA115ChaosInjection(KnowledgeAlgorithm):
     """
     KA-115: Chaos engineering and failure injection engine.
     """
+    input_schema = KA115Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-115"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,23 +38,28 @@ class KA115ChaosInjection(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        target_service = input_data.get("target", "ka_registry")
-        
+    def _run_logic(self, input_data: KA115Input) -> Dict[str, Any]:
+        target_service = input_data.target
         self.log_execution_step("Injecting Chaos", {"target": target_service})
         
         modes = self.config.get("injection_modes", ["latency"])
         selected_mode = random.choice(modes)
         
         return {
-            "ka_id": "KA-115",
-            "ka_name": "Chaos Injection",
             "success": True,
             "chaos_id": f"CHAOS_{os.urandom(4).hex().upper()}",
             "type": selected_mode,
             "impact_radius": self.config.get("blast_radius_percent"),
             "safe_mode": self.config.get("safe_mode_enabled")
         }
+
+def run(context: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        algo = KA115ChaosInjection(context)
+        return algo.run(context)
+    except Exception as e:
+        logger.error(f"KA-115 Failed: {e}")
+        return {"success": False, "error": str(e)}
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

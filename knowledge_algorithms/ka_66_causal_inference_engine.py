@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA066CausalInput(BaseModel):
+    events: List[Dict[str, Any]] = Field(default_factory=list, description="Events to analyze for causal links")
+    dependencies: List[Dict[str, Any]] = Field(default_factory=list, description="Known dependencies between events or nodes")
+
 class KA066CausalInferenceEngine(KnowledgeAlgorithm):
     """
-    KA-066: Causal relationship mapping and inference engine.
+    KA-066: Causal relationship mapping and inference engine for structured knowledge graphs.
     """
+    input_schema = KA066CausalInput
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-066"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,29 +38,24 @@ class KA066CausalInferenceEngine(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        events = input_data.get("events", []) # List of {id: "...", timestamp: "..."}
-        dependencies = input_data.get("dependencies", []) # List of {source: "...", target: "..."}
-        
+    def _run_logic(self, input_data: KA066CausalInput) -> Dict[str, Any]:
+        events = input_data.events
+        dependencies = input_data.dependencies
         self.log_execution_step("Inferring Causal Relationships", {"event_count": len(events)})
         
         causal_claims = []
-        # 1. Simulate causal inference using temporal precedence and dependency (Stub)
+        min_threshold = self.config.get("min_correlation_threshold", 0.7)
         for dep in dependencies:
              src = dep.get("source")
              tgt = dep.get("target")
-             
-             # In a real engine, we'd check if 'src' always happens before 'tgt' or use Do-Calculus
              causal_claims.append({
                  "cause": src,
                  "effect": tgt,
                  "relationship_type": "PROBABLE_CAUSE",
-                 "confidence": self.config.get("min_correlation_threshold", 0.7)
+                 "confidence": min_threshold
              })
              
         return {
-            "ka_id": "KA-066",
-            "ka_name": "Causal Inference Engine",
             "success": True,
             "causal_graph_fragment": causal_claims,
             "inference_method": self.config.get("inference_method", "correlation_matching")

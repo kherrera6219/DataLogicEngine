@@ -11,12 +11,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA039Input(BaseModel):
+    snapshot: Dict[str, Any] = Field(..., description="The current ontology snapshot")
+    previous_snapshot: Dict[str, Any] = Field(default_factory=dict, description="The previous ontology snapshot")
+
 class KA039OntologyDriftDetection(KnowledgeAlgorithm):
     """
-    KA-039: Semantic and ontology drift detection engine.
+    KA-039: Semantic and ontology drift detection engine for monitoring graph health.
     """
+    input_schema = KA039Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-039"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,32 +39,24 @@ class KA039OntologyDriftDetection(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        current_snapshot = input_data.get("snapshot", {})
-        previous_snapshot = input_data.get("previous_snapshot", {})
-        
+    def _run_logic(self, input_data: KA039Input) -> Dict[str, Any]:
+        current_snapshot = input_data.snapshot
+        previous_snapshot = input_data.previous_snapshot
         self.log_execution_step("Detecting Ontology Drift", {"nodes": len(current_snapshot.get("nodes", []))})
         
-        # 1. Compare Snapshot Hashes
         curr_hash = hashlib.sha256(json.dumps(current_snapshot, sort_keys=True).encode()).hexdigest()
         prev_hash = hashlib.sha256(json.dumps(previous_snapshot, sort_keys=True).encode()).hexdigest()
         
         drift_detected = curr_hash != prev_hash
         drift_magnitude = 0.0
-        
-        # 2. Basic Delta Analysis
         if drift_detected:
-            # Count added/removed nodes for magnitude (Stub logic)
             curr_nodes = set(n.get("id") for n in current_snapshot.get("nodes", []))
             prev_nodes = set(n.get("id") for n in previous_snapshot.get("nodes", []))
-            
             changes = len(curr_nodes.symmetric_difference(prev_nodes))
             total = max(len(curr_nodes), 1)
             drift_magnitude = min(1.0, changes / total)
             
         return {
-            "ka_id": "KA-039",
-            "ka_name": "Ontology Drift Detection",
             "success": True,
             "drift_detected": drift_detected,
             "drift_magnitude": drift_magnitude,

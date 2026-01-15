@@ -10,12 +10,24 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA020Input(BaseModel):
+    pass_count: int = Field(1, ge=1)
+    final_confidence: float = Field(1.0, ge=0.0, le=1.0)
+    entropy_level: float = Field(0.0, ge=0.0)
+    gap_count: int = Field(0, ge=0)
+
 class KA020LoopbackTrigger(KnowledgeAlgorithm):
     """
     KA-020: Control gate for recursive system loopbacks.
     """
+    input_schema = KA020Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-020"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,11 +40,11 @@ class KA020LoopbackTrigger(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        current_pass = input_data.get("pass_count", 1)
-        confidence = input_data.get("final_confidence", 1.0)
-        entropy = input_data.get("entropy_level", 0.0)
-        unresolved_gaps = input_data.get("gap_count", 0)
+    def _run_logic(self, input_data: KA020Input) -> Dict[str, Any]:
+        current_pass = input_data.pass_count
+        confidence = input_data.final_confidence
+        entropy = input_data.entropy_level
+        unresolved_gaps = input_data.gap_count
         
         self.log_execution_step("Loopback Evaluation", {
             "pass": current_pass,
@@ -46,16 +58,13 @@ class KA020LoopbackTrigger(KnowledgeAlgorithm):
         
         should_loop = False
         reason = []
-        
         if current_pass < max_passes:
             if confidence < conf_threshold:
                 should_loop = True
                 reason.append(f"Confidence {confidence:.2f} below threshold {conf_threshold}")
-            
             if entropy > entropy_threshold:
                 should_loop = True
                 reason.append(f"Entropy {entropy:.2f} above threshold {entropy_threshold}")
-                
             if unresolved_gaps > 0:
                 should_loop = True
                 reason.append(f"Unresolved gaps: {unresolved_gaps}")
@@ -63,8 +72,6 @@ class KA020LoopbackTrigger(KnowledgeAlgorithm):
             reason.append(f"Max passes ({max_passes}) reached.")
             
         return {
-            "ka_id": "KA-020",
-            "ka_name": "Loopback Trigger",
             "success": True,
             "should_loopback": should_loop,
             "reasoning": "; ".join(reason),

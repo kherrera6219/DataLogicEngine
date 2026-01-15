@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA059Input(BaseModel):
+    complexity_tier: str = Field("medium", description="The detected complexity tier of the query")
+    budget: float = Field(1.0, description="The remaining computational budget")
+
 class KA059PredictiveLayerPreemption(KnowledgeAlgorithm):
     """
-    KA-059: Fast-path routing and layer skipping engine.
+    KA-059: Fast-path routing and layer skipping engine for performance optimization.
     """
+    input_schema = KA059Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-059"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,16 +38,12 @@ class KA059PredictiveLayerPreemption(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        complexity_tier = input_data.get("complexity_tier", "medium")
-        remaining_budget = input_data.get("budget", 1.0)
-        
+    def _run_logic(self, input_data: KA059Input) -> Dict[str, Any]:
+        complexity_tier = input_data.complexity_tier
         self.log_execution_step("Executing Layer Preemption Check", {"tier": complexity_tier})
         
         skipped_layers = []
         fast_path = False
-        
-        # 1. Apply preemption rules based on complexity
         for rule in self.config.get("preemption_rules", []):
              if rule.get("complexity") == complexity_tier:
                   skipped_layers = rule.get("skip_layers", [])
@@ -45,8 +51,6 @@ class KA059PredictiveLayerPreemption(KnowledgeAlgorithm):
                   break
                   
         return {
-            "ka_id": "KA-059",
-            "ka_name": "Predictive Layer Preemption",
             "success": True,
             "fast_path_active": fast_path,
             "skipped_layers": skipped_layers,

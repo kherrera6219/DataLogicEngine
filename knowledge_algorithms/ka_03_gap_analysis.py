@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA003Input(BaseModel):
+    current_state: Dict[str, Any] = Field(default_factory=dict, description="The current state of the entity")
+    desired_state: Dict[str, Any] = Field(default_factory=dict, description="The target state of the entity")
+
 class KA003GapAnalysis(KnowledgeAlgorithm):
     """
-    KA-003: Performs structured Gap Analysis.
+    KA-003: Performs structured Gap Analysis between current and desired states.
     """
+    input_schema = KA003Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-003"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,24 +38,16 @@ class KA003GapAnalysis(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Execute Gap Analysis.
-        Expects 'current_state' (dict) and 'desired_state' (dict).
-        """
-        current = input_data.get("current_state", {})
-        desired = input_data.get("desired_state", {})
+    def _run_logic(self, input_data: KA003Input) -> Dict[str, Any]:
+        current = input_data.current_state
+        desired = input_data.desired_state
         
         self.log_execution_step("Gap Analysis", {"current_keys": list(current.keys())})
         
         gaps = self._find_gaps(current, desired)
-        
-        # Calculate impact
         impact_score = sum(g["impact"] for g in gaps)
         
         return {
-            "ka_id": "KA-003",
-            "ka_name": "Gap Analysis",
             "success": True,
             "gaps": gaps,
             "total_impact": impact_score,
@@ -65,7 +67,6 @@ class KA003GapAnalysis(KnowledgeAlgorithm):
                     "impact": severity.get("high", 0.5)
                 })
             elif current[key] != desired_val:
-                # Simple equality check, could be enhanced for types
                 gaps.append({
                     "type": "value_mismatch",
                     "field": key,
@@ -73,7 +74,6 @@ class KA003GapAnalysis(KnowledgeAlgorithm):
                     "expected": desired_val,
                     "impact": severity.get("low", 0.1)
                 })
-                
         return gaps
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

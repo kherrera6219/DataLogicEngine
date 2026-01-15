@@ -11,12 +11,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA011Input(BaseModel):
+    data: List[Any] = Field(default_factory=list, description="The data points to model")
+    model_type: str = Field(None, description="The type of modeling to perform (e.g., statistical)")
+
 class KA011AnalyticalModeling(KnowledgeAlgorithm):
     """
     KA-011: Performs data analysis and modeling.
     """
+    input_schema = KA011Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-011"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,16 +39,15 @@ class KA011AnalyticalModeling(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        data = input_data.get("data", [])
-        model_type = input_data.get("model_type", self.config.get("default_model_type", "statistical"))
+    def _run_logic(self, input_data: KA011Input) -> Dict[str, Any]:
+        data = input_data.data
+        model_type = input_data.model_type or self.config.get("default_model_type", "statistical")
         
         self.log_execution_step("Analytical Modeling", {"model_type": model_type, "data_points": len(data)})
         
-        if not data or not isinstance(data, list):
-             return {"ka_id": "KA-011", "success": True, "result": "No data for modeling"}
+        if not data:
+             return {"success": True, "result": "No data for modeling"}
              
-        # Filter for numbers
         nums = [x for x in data if isinstance(x, (int, float))]
         
         results = {}
@@ -53,8 +62,6 @@ class KA011AnalyticalModeling(KnowledgeAlgorithm):
             results = {"msg": f"Model type {model_type} implementation stubbed"}
             
         return {
-            "ka_id": "KA-011",
-            "ka_name": "Analytical Modeling",
             "success": True,
             "model_type": model_type,
             "results": results,

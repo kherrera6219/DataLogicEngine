@@ -11,12 +11,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA045Input(BaseModel):
+    corpus: List[Dict[str, Any]] = Field(default_factory=list, description="Findings to analyze for population-level bias")
+
 class KA045BiasPatternAnalyzer(KnowledgeAlgorithm):
     """
-    KA-045: Systemic and population-level bias analysis engine.
+    KA-045: Systemic and population-level bias analysis engine for large corpora.
     """
+    input_schema = KA045Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-045"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,22 +38,18 @@ class KA045BiasPatternAnalyzer(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        corpus = input_data.get("corpus", []) # List of findings/text objects
-        
+    def _run_logic(self, input_data: KA045Input) -> Dict[str, Any]:
+        corpus = input_data.corpus
         self.log_execution_step("Analyzing Population Bias", {"corpus_size": len(corpus)})
         
         if len(corpus) < self.config.get("min_sample_size", 10):
-            return {"ka_id": "KA-045", "success": True, "msg": "Insufficient corpus size for pattern analysis"}
+            return {"success": True, "msg": "Insufficient corpus size for pattern analysis"}
             
         results = {}
-        # 1. Simulate demographic skew detection (Stub)
         results["demographic_skew"] = {
             "detected": random.choice([True, False]),
             "significance": random.uniform(0.01, 0.1)
         }
-        
-        # 2. Source overreliance
         sources = [item.get("source") for item in corpus if item.get("source")]
         if sources:
              unique_sources = set(sources)
@@ -52,8 +57,6 @@ class KA045BiasPatternAnalyzer(KnowledgeAlgorithm):
                   results["source_overreliance"] = True
                   
         return {
-            "ka_id": "KA-045",
-            "ka_name": "Bias Pattern Analyzer",
             "success": True,
             "patterns_detected": results,
             "systemic_bias_alert": any(v for v in results.values() if isinstance(v, bool) and v)

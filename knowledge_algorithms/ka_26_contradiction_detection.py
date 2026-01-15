@@ -11,12 +11,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA026Input(BaseModel):
+    findings: List[Dict[str, Any]] = Field(default_factory=list, description="Findings to scan for contradictions")
+
 class KA026ContradictionDetection(KnowledgeAlgorithm):
     """
-    KA-026: Conflict and contradiction detection engine.
+    KA-026: Conflict and contradiction detection engine for multi-persona reasoning.
     """
+    input_schema = KA026Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-026"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,27 +38,18 @@ class KA026ContradictionDetection(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        findings = input_data.get("findings", [])
-        
+    def _run_logic(self, input_data: KA026Input) -> Dict[str, Any]:
+        findings = input_data.findings
         self.log_execution_step("Scanning for Contradictions", {"finding_count": len(findings)})
         
         conflicts = []
-        
-        # 1. Semantic Negation Detection (Rule-based stub)
-        # Compare every finding against every other finding
         for i in range(len(findings)):
             for j in range(i + 1, len(findings)):
-                f1 = findings[i]
-                f2 = findings[j]
-                
-                conflict = self._detect_conflict(f1, f2)
+                conflict = self._detect_conflict(findings[i], findings[j])
                 if conflict:
                     conflicts.append(conflict)
                     
         return {
-            "ka_id": "KA-026",
-            "ka_name": "Contradiction Detection",
             "success": True,
             "has_contradictions": len(conflicts) > 0,
             "conflicts": conflicts,
@@ -57,12 +57,8 @@ class KA026ContradictionDetection(KnowledgeAlgorithm):
         }
 
     def _detect_conflict(self, f1: Dict[str, Any], f2: Dict[str, Any]) -> Dict[str, Any]:
-        # Simple string-based negation check
         t1 = f1.get("content", "").lower()
         t2 = f2.get("content", "").lower()
-        
-        # Remove common words to find core subject
-        # If t2 is basically 'not' + t1
         if f"not {t1}" in t2 or f"no {t1}" in t2 or f"never {t1}" in t2:
              return {
                  "type": "DIRECT_NEGATION",
@@ -71,20 +67,16 @@ class KA026ContradictionDetection(KnowledgeAlgorithm):
                  "severity": 1.0,
                  "description": f"Finding 2 negates Finding 1: {t2} vs {t1}"
              }
-             
-        # Cross-persona stance clash (stub)
         if f1.get("persona") and f2.get("persona"):
             if f1.get("persona") != f2.get("persona") and f1.get("subject") == f2.get("subject"):
-                 # Different personas saying different things about the same subject
-                 if t1 != t2:
-                      return {
-                          "type": "STANCE_CLASH",
-                          "f1_id": f1.get("id"),
-                          "f2_id": f2.get("id"),
-                          "severity": 0.5,
-                          "description": "Stakeholder perspective clash detected."
-                      }
-                      
+                if t1 != t2:
+                    return {
+                        "type": "STANCE_CLASH",
+                        "f1_id": f1.get("id"),
+                        "f2_id": f2.get("id"),
+                        "severity": 0.5,
+                        "description": "Stakeholder perspective clash detected."
+                    }
         return None
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

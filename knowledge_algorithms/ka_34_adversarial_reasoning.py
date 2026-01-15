@@ -11,12 +11,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA034Input(BaseModel):
+    scenario: str = Field(..., description="The scenario to test adversarial hits against")
+    assumptions: List[str] = Field(default_factory=list, description="Assumptions to stress-test")
+
 class KA034AdversarialReasoning(KnowledgeAlgorithm):
     """
-    KA-034: Adversarial simulation and robustness testing engine.
+    KA-034: Adversarial simulation and robustness testing engine for system assumptions.
     """
+    input_schema = KA034Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-034"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,36 +39,27 @@ class KA034AdversarialReasoning(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        scenario = input_data.get("scenario", "")
-        assumptions = input_data.get("assumptions", [])
-        
+    def _run_logic(self, input_data: KA034Input) -> Dict[str, Any]:
+        scenario = input_data.scenario
+        assumptions = input_data.assumptions
         self.log_execution_step("Simulating Adversarial Attacks", {"assumption_count": len(assumptions)})
         
         threat_models = self.config.get("threat_models", {})
-        
         attacks = []
         robustness_score = 1.0
-        
-        # 1. Stress-test assumptions
         for asm in assumptions:
-            # Randomly select a threat model to apply
-            threat = random.choice(list(threat_models.keys()))
-            impact = threat_models[threat]
-            
+            threat = random.choice(list(threat_models.keys())) if threat_models else "DEFAULT"
+            impact = threat_models.get(threat, 0.4)
             attacks.append({
                 "target_assumption": asm,
                 "threat_type": threat,
                 "simulated_impact": impact,
                 "vulnerability_found": impact > 0.3
             })
-            
             if impact > 0.3:
                 robustness_score -= 0.1
                 
         return {
-            "ka_id": "KA-034",
-            "ka_name": "Adversarial Reasoning",
             "success": True,
             "robustness_score": max(0.0, robustness_score),
             "attacks_simulated": attacks,

@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA042Input(BaseModel):
+    conflicts: List[Dict[str, Any]] = Field(default_factory=list, description="List of conflicts to propagate")
+    dependencies: Dict[str, List[str]] = Field(default_factory=dict, description="Adjacency list of logical dependencies")
+
 class KA042ContradictionPropagationAnalysis(KnowledgeAlgorithm):
     """
-    KA-042: Contradiction impact and ripple effect analysis engine.
+    KA-042: Contradiction impact and ripple effect analysis engine for dependency chains.
     """
+    input_schema = KA042Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-042"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,41 +38,30 @@ class KA042ContradictionPropagationAnalysis(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        conflicts = input_data.get("conflicts", [])
-        dependencies = input_data.get("dependencies", {}) # Adjacency list
-        
+    def _run_logic(self, input_data: KA042Input) -> Dict[str, Any]:
+        conflicts = input_data.conflicts
+        dependencies = input_data.dependencies
         self.log_execution_step("Tracing Contradiction Ripples", {"conflict_count": len(conflicts)})
         
         affected_nodes = {}
         propagation_depth = self.config.get("propagation_depth", 3)
-        
         for c in conflicts:
             f1_id = c.get("f1_id")
             f2_id = c.get("f2_id")
             severity = c.get("severity", 1.0)
-            
-            # Start BFS from the conflicting nodes
             queue = [(f1_id, 0), (f2_id, 0)]
             visited = set()
-            
             while queue:
                 node_id, depth = queue.pop(0)
                 if node_id in visited or depth >= propagation_depth:
                     continue
                 visited.add(node_id)
-                
                 if node_id not in [f1_id, f2_id]:
-                    # This node is affected by the contradiction downstream
                     affected_nodes[node_id] = affected_nodes.get(node_id, 0.0) + (severity / (depth + 1))
-                
-                # Add neighbors
                 for neighbor in dependencies.get(node_id, []):
                     queue.append((neighbor, depth + 1))
                     
         return {
-            "ka_id": "KA-042",
-            "ka_name": "Contradiction Propagation Analysis",
             "success": True,
             "impacted_nodes": affected_nodes,
             "total_affected": len(affected_nodes),

@@ -10,12 +10,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA029Input(BaseModel):
+    seed_entities: List[str] = Field(default_factory=list, description="Entities to expand context for")
+    depth: int = Field(2, ge=1, le=5)
+
 class KA029KnowledgeExpansion(KnowledgeAlgorithm):
     """
-    KA-029: Graph-based knowledge traversal engine.
+    KA-029: Graph-based knowledge traversal engine for Context Enrichment.
     """
+    input_schema = KA029Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-029"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,17 +38,13 @@ class KA029KnowledgeExpansion(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        entities = input_data.get("seed_entities", [])
-        depth = input_data.get("depth", self.config.get("traversal_depth", 2))
-        
+    def _run_logic(self, input_data: KA029Input) -> Dict[str, Any]:
+        entities = input_data.seed_entities
+        depth = input_data.depth
         self.log_execution_step("Traversing UKG", {"seeds": entities, "depth": depth})
         
-        # 1. Simulate Graph Traversal
-        # In a real environment, this would call a GraphDB (Neo4j/Graph Manager)
         expanded_context = []
         for ent in entities:
-             # Stubbed expansion results
              expanded_context.append({
                  "source": ent,
                  "related_entities": [f"{ent}_related_1", f"{ent}_related_2"],
@@ -46,8 +52,6 @@ class KA029KnowledgeExpansion(KnowledgeAlgorithm):
              })
              
         return {
-            "ka_id": "KA-029",
-            "ka_name": "Knowledge Expansion",
             "success": True,
             "expanded_nodes": expanded_context,
             "graph_metadata": {

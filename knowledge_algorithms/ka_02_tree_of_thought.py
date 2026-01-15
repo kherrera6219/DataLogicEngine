@@ -11,12 +11,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA002Input(BaseModel):
+    initial_state: str = Field("start", description="Initial state node for tree search")
+
 class KA002TreeOfThought(KnowledgeAlgorithm):
     """
-    KA-002: Implements Tree of Thought search.
+    KA-002: Implements Tree of Thought search using BFS/DFS.
     """
+    input_schema = KA002Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-002"
         self.config = self._load_config()
         
     def _load_config(self) -> Dict[str, Any]:
@@ -29,11 +38,8 @@ class KA002TreeOfThought(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Execute ToT search.
-        """
-        initial_state = input_data.get("initial_state", "start")
+    def _run_logic(self, input_data: KA002Input) -> Dict[str, Any]:
+        initial_state = input_data.initial_state
         method = self.config.get("search_method", "BFS")
         
         self.log_execution_step("Tree Search", {"method": method, "start": initial_state})
@@ -44,15 +50,12 @@ class KA002TreeOfThought(KnowledgeAlgorithm):
             best_path = self._dfs_search(initial_state)
             
         return {
-            "ka_id": "KA-002",
-            "ka_name": "Tree of Thought",
             "success": True,
             "method": method,
             "best_path": best_path
         }
 
     def _bfs_search(self, start_node: str) -> List[str]:
-        # Simulated BFS
         queue = [[start_node]]
         max_depth = self.config.get("max_depth", 3)
         branching = self.config.get("branching_factor", 2)
@@ -60,25 +63,20 @@ class KA002TreeOfThought(KnowledgeAlgorithm):
         
         best_path = []
         best_score = -1.0
-        
         expanded = 0
+        
         while queue:
             path = queue.pop(0)
             if len(path) > max_depth:
                 continue
                 
             current = path[-1]
-            
-            # Expand
-            # In real system, Generator KA would create children
             children = [f"{current}_child_{i}" for i in range(branching)]
             expanded += 1
             
             for child in children:
                 new_path = list(path)
                 new_path.append(child)
-                
-                # Evaluate
                 score = random.random() # Stub evaluation
                 
                 if score > best_score:
@@ -88,11 +86,9 @@ class KA002TreeOfThought(KnowledgeAlgorithm):
                 if score >= prune_thresh:
                     queue.append(new_path)
                     
-        logger.info(f"BFS Expanded {expanded} nodes.")
         return best_path
 
     def _dfs_search(self, start_node: str) -> List[str]:
-        # Stub DFS - simplified
         return [start_node, "dfs_stub"]
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

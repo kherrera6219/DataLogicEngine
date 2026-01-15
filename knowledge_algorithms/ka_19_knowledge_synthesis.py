@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA019Input(BaseModel):
+    findings: List[Dict[str, Any]] = Field(default_factory=list, description="A list of knowledge fragments to synthesize")
+
 class KA019KnowledgeSynthesis(KnowledgeAlgorithm):
     """
-    KA-019: Synthesis engine for diverse findings.
+    KA-019: Synthesis engine for diverse findings onto a unified state.
     """
+    input_schema = KA019Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-019"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,14 +37,11 @@ class KA019KnowledgeSynthesis(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        findings = input_data.get("findings", [])
-        
+    def _run_logic(self, input_data: KA019Input) -> Dict[str, Any]:
+        findings = input_data.findings
         self.log_execution_step("Synthesizing Results", {"findingsCount": len(findings)})
         
-        # Unify findings by category
         unified_state = {cat: [] for cat in self.config.get("categories", ["FACT", "ASSUMPTION"])}
-        
         for f in findings:
             cat = f.get("category", "FACT").upper()
             if cat in unified_state:
@@ -45,21 +51,16 @@ class KA019KnowledgeSynthesis(KnowledgeAlgorithm):
                     "source_ka": f.get("source_ka", "unknown")
                 })
                 
-        # Resolve conflicts (highest confidence wins logic)
         for cat in unified_state:
             unified_state[cat] = self._resolve_conflicts(unified_state[cat])
             
         return {
-            "ka_id": "KA-019",
-            "ka_name": "Knowledge Synthesis",
             "success": True,
             "unified_knowledge": unified_state,
             "summary_points": self._generate_summary(unified_state)
         }
 
     def _resolve_conflicts(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        # This is a stub for sophisticated conflict resolution.
-        # Currently, it just keeps everything but sorts by confidence.
         return sorted(items, key=lambda x: x["confidence"], reverse=True)
 
     def _generate_summary(self, state: Dict[str, List[Dict[str, Any]]]) -> List[str]:

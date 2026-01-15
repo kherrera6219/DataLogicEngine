@@ -11,12 +11,22 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA035Input(BaseModel):
+    gaps: List[str] = Field(default_factory=list, description="Gaps to impute")
+    priors: Dict[str, float] = Field(default_factory=dict, description="Prior values for gaps")
+
 class KA035BayesianGapImputation(KnowledgeAlgorithm):
     """
-    KA-035: Bayesian imputation and gap-filling engine.
+    KA-035: Bayesian imputation and gap-filling engine for missing data.
     """
+    input_schema = KA035Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-035"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,21 +39,16 @@ class KA035BayesianGapImputation(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        gaps = input_data.get("gaps", []) # e.g. ["market_size", "competitor_count"]
-        priors = input_data.get("priors", {})
-        
+    def _run_logic(self, input_data: KA035Input) -> Dict[str, Any]:
+        gaps = input_data.gaps
+        priors = input_data.priors
         self.log_execution_step("Imputing Gaps", {"gap_count": len(gaps)})
         
         imputed_values = {}
+        sigma = self.config.get("uncertainty_sigma", 0.2)
         for gap in gaps:
-            # 1. Fetch prior if available
             prior_val = priors.get(gap, 0.5)
-            
-            # 2. Add uncertainty-based noise (Simulated EM/Bayesian)
-            sigma = self.config.get("uncertainty_sigma", 0.2)
             imputed_val = prior_val + random.uniform(-sigma, sigma)
-            
             imputed_values[gap] = {
                 "value": max(0.0, min(1.0, imputed_val)),
                 "confidence": 1.0 - sigma,
@@ -51,11 +56,9 @@ class KA035BayesianGapImputation(KnowledgeAlgorithm):
             }
             
         return {
-            "ka_id": "KA-035",
-            "ka_name": "Bayesian Gap Imputation",
             "success": True,
             "imputed_data": imputed_values,
-            "overall_uncertainty": self.config.get("uncertainty_sigma", 0.2)
+            "overall_uncertainty": sigma
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

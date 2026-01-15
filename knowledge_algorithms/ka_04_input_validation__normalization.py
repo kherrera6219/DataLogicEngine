@@ -12,12 +12,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA004Input(BaseModel):
+    query: str = Field(..., description="The input query to validate and normalize")
+
 class KA004InputValidation(KnowledgeAlgorithm):
     """
     KA-004: Performs local pre-validation and normalization before delegating to SDK.
     """
+    input_schema = KA004Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-004"
         self.config = self._load_config()
         self.sdk_module = "ukg_sdk.ka.handlers.ka_004"
 
@@ -28,19 +37,17 @@ class KA004InputValidation(KnowledgeAlgorithm):
                 with open(config_path, "r") as f:
                     return json.load(f)
             return {}
-        except Exception as e:
-            logger.error(f"Failed to load KA-04 config: {e}")
+        except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        query = input_data.get("query", "")
+    def _run_logic(self, input_data: KA004Input) -> Dict[str, Any]:
+        query = input_data.query
         
         # 1. Local Validation
         local_validation = self._perform_local_validation(query)
         if not local_validation["is_valid"]:
             return {
-                "ka_id": "KA-004",
-                "success": True, # KA itself ran successfully
+                "success": True, 
                 "is_valid": False,
                 "reason": local_validation["reason"],
                 "normalized_query": query
@@ -51,15 +58,12 @@ class KA004InputValidation(KnowledgeAlgorithm):
         
         # 3. SDK Delegation
         self.log_execution_step("Delegating to SDK for advanced validation", {"query_len": len(normalized_query)})
-        sdk_result = self._delegate_to_sdk({**input_data, "query": normalized_query})
+        sdk_result = self._delegate_to_sdk({"query": normalized_query})
         
-        # 4. Merge results
         final_query = sdk_result.get("normalized_query", normalized_query)
         final_valid = sdk_result.get("is_valid", True)
         
         return {
-            "ka_id": "KA-004",
-            "ka_name": "Input Validation & Normalization",
             "success": True,
             "is_valid": final_valid,
             "normalized_query": final_query,
@@ -82,20 +86,17 @@ class KA004InputValidation(KnowledgeAlgorithm):
         for pattern in blacklist:
             if pattern.lower() in query.lower():
                 return {"is_valid": False, "reason": f"Query contains blacklisted pattern: {pattern}"}
-                
         return {"is_valid": True, "reason": None}
 
     def _perform_local_normalization(self, query: str) -> str:
         rules = self.config.get("normalization_rules", {})
         processed = query
-        
         if rules.get("strip_html"):
             processed = re.sub(r'<[^>]*>', '', processed)
         if rules.get("trim_whitespace"):
             processed = processed.strip()
         if rules.get("lowercase"):
             processed = processed.lower()
-            
         return processed
 
     def _delegate_to_sdk(self, data: Dict[str, Any]) -> Dict[str, Any]:

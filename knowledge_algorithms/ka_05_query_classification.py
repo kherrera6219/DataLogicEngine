@@ -11,12 +11,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA005Input(BaseModel):
+    query: str = Field(..., description="The query to classify")
+
 class KA005QueryClassification(KnowledgeAlgorithm):
     """
     KA-005: Classifies queries into logical categories.
     """
+    input_schema = KA005Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-005"
         self.config = self._load_config()
         self.sdk_module = "ukg_sdk.ka.handlers.ka_005"
 
@@ -27,29 +36,23 @@ class KA005QueryClassification(KnowledgeAlgorithm):
                 with open(config_path, "r") as f:
                     return json.load(f)
             return {}
-        except Exception as e:
-            logger.error(f"Failed to load KA-05 config: {e}")
+        except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        query = input_data.get("query", "")
+    def _run_logic(self, input_data: KA005Input) -> Dict[str, Any]:
+        query = input_data.query
         
         # 1. Local Rule-based Classification
         local_category, local_conf = self._perform_local_classification(query)
         
-        # 2. SDK Delegation (for refined classification)
+        # 2. SDK Delegation
         self.log_execution_step("Delegating to SDK for refined classification", {"query": query})
-        sdk_result = self._delegate_to_sdk(input_data)
+        sdk_result = self._delegate_to_sdk({"query": query})
         
-        # 3. Conflict Resolution / Merging
-        # Prefer SDK if it has higher confidence or is more specific
         final_category = sdk_result.get("category", local_category)
         final_conf = sdk_result.get("confidence", local_conf)
         
-        # Ensure final result follows enterprise structure
         return {
-            "ka_id": "KA-005",
-            "ka_name": "Query Classification",
             "success": True,
             "category": final_category,
             "confidence": final_conf,
@@ -74,7 +77,6 @@ class KA005QueryClassification(KnowledgeAlgorithm):
             for kw in keywords:
                 if kw in query_lower:
                     return cat_name, info.get("default_confidence", 0.8)
-                    
         return best_cat, best_conf
 
     def _delegate_to_sdk(self, data: Dict[str, Any]) -> Dict[str, Any]:

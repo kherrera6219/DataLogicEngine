@@ -10,13 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA001Input(BaseModel):
+    query: str = Field(..., description="The complex query to decompose")
+
 class KA001AlgorithmOfThought(KnowledgeAlgorithm):
     """
     KA-001: Decomposes complex queries into a Directed Acyclic Graph (DAG) of tasks.
-    Enhanced to use external configuration for strategies.
     """
+    input_schema = KA001Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-001"
         self.config = self._load_config()
         
     def _load_config(self) -> Dict[str, Any]:
@@ -25,20 +33,12 @@ class KA001AlgorithmOfThought(KnowledgeAlgorithm):
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
                     return json.load(f)
-            logger.warning(f"Config not found at {config_path}, using defaults.")
             return {}
-        except Exception as e:
-            logger.error(f"Failed to load config: {e}")
+        except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Execute AoT decomposition.
-        """
-        query = input_data.get("query", "")
-        if not query:
-            return {"error": "No query provided", "success": False}
-            
+    def _run_logic(self, input_data: KA001Input) -> Dict[str, Any]:
+        query = input_data.query
         self.log_execution_step("Decomposing query", {"query": query})
         
         # Determine strategy
@@ -49,8 +49,6 @@ class KA001AlgorithmOfThought(KnowledgeAlgorithm):
         tasks = self._decompose(query, strategy_name)
         
         return {
-            "ka_id": "KA-001",
-            "ka_name": "Algorithm of Thought",
             "success": True,
             "strategy": strategy_name,
             "tasks": tasks,
@@ -58,9 +56,8 @@ class KA001AlgorithmOfThought(KnowledgeAlgorithm):
         }
 
     def _determine_strategy(self, query: str) -> str:
-        # Simple heuristic for complexity
         length = len(query.split())
-        complexity_score = 0.5 # Default
+        complexity_score = 0.5 
         if length > 20 or "research" in query.lower():
             complexity_score = 0.8
         elif length < 5:
@@ -86,17 +83,14 @@ class KA001AlgorithmOfThought(KnowledgeAlgorithm):
             task_id = f"t{i+1}"
             task = {
                 "id": task_id,
-                "name": step.get("desc", step["step"]), 
-                "step_type": step["step"],
+                "name": step.get("desc", step.get("step")), 
+                "step_type": step.get("step"),
                 "ka": step.get("ka")
             }
-            # Sequential dependency by default for AoT linear chains
             if prev_id:
                 task["deps"] = [prev_id]
-                
             tasks.append(task)
             prev_id = task_id
-            
         return tasks
 
     def _build_dependency_graph(self, tasks: List[Dict[str, Any]]) -> Dict[str, List[str]]:

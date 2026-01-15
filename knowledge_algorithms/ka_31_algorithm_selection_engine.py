@@ -10,12 +10,23 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA031Input(BaseModel):
+    query_class: str = Field("GENERAL", description="The classification of the query")
+    complexity_tier: str = Field("standard", description="The complexity tier (standard, deep, safety_critical)")
+    policy_flags: List[str] = Field(default_factory=list, description="Optional policy flags affecting selection")
+
 class KA031AlgorithmSelectionEngine(KnowledgeAlgorithm):
     """
-    KA-031: Routing and pipeline selection engine.
+    KA-031: Optimal KA pipeline selection engine based on query class and complexity.
     """
+    input_schema = KA031Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-031"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,28 +39,22 @@ class KA031AlgorithmSelectionEngine(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        query_class = input_data.get("query_class", "GENERAL")
-        complexity_tier = input_data.get("complexity_tier", self.config.get("default_complexity_tier", "standard"))
-        policy_flags = input_data.get("policy_flags", [])
+    def _run_logic(self, input_data: KA031Input) -> Dict[str, Any]:
+        query_class = input_data.query_class
+        complexity_tier = input_data.complexity_tier
+        policy_flags = input_data.policy_flags
         
         self.log_execution_step("Selecting KA Pipeline", {"query_class": query_class, "tier": complexity_tier})
         
-        # 1. Determine base pipeline from tier
         tier_mappings = self.config.get("tier_mappings", {})
         pipeline = tier_mappings.get(complexity_tier, tier_mappings.get("standard", []))
-        
-        # 2. Adjust for policy flags (e.g. if 'safety_high' is a flag, use safety_critical mapping)
         if "safety_critical" in policy_flags:
             pipeline = tier_mappings.get("safety_critical", pipeline)
             
-        # 3. Apply budget constraints
         max_kas = self.config.get("budget_constraints", {}).get("max_kas_per_pass", 10)
         final_pipeline = pipeline[:max_kas]
         
         return {
-            "ka_id": "KA-031",
-            "ka_name": "Algorithm Selection Engine",
             "success": True,
             "selected_pipeline": final_pipeline,
             "metadata": {

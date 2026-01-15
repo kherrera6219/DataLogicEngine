@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA053Input(BaseModel):
+    graph_segments: List[Dict[str, Any]] = Field(default_factory=list, description="Segments of the knowledge graph to compress")
+
 class KA053DynamicKnowledgeCompression(KnowledgeAlgorithm):
     """
-    KA-053: Graph compression and node unification engine.
+    KA-053: Graph compression and node unification engine to optimize the knowledge base.
     """
+    input_schema = KA053Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-053"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,35 +37,26 @@ class KA053DynamicKnowledgeCompression(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        graph_segments = input_data.get("graph_segments", [])
-        
+    def _run_logic(self, input_data: KA053Input) -> Dict[str, Any]:
+        graph_segments = input_data.graph_segments
         self.log_execution_step("Compressing Knowledge Graph", {"segment_count": len(graph_segments)})
         
         compressed_nodes = []
         mapping_table = {}
-        
-        # 1. Simulate merging high-similarity nodes (Stub)
         for segment in graph_segments:
              nodes = segment.get("nodes", [])
              if len(nodes) > 1:
                   primary = nodes[0]
-                  others = nodes[1:]
-                  
-                  # Create a "compressed" node
                   comp_id = f"COMP-{primary.get('id')}"
                   compressed_nodes.append({
                       "id": comp_id,
                       "merged_from": [n.get("id") for n in nodes],
                       "utility_preserved": True
                   })
-                  
                   for n in nodes:
                        mapping_table[n.get("id")] = comp_id
                        
         return {
-            "ka_id": "KA-053",
-            "ka_name": "Dynamic Knowledge Compression",
             "success": True,
             "compressed_nodes": compressed_nodes,
             "mapping": mapping_table,

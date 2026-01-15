@@ -11,12 +11,24 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA007Input(BaseModel):
+    current_depth: int = Field(0, ge=0)
+    state_history: List[str] = Field(default_factory=list)
+    current_state: Dict[str, Any] = Field(default_factory=dict)
+    confidence: float = Field(1.0, ge=0.0, le=1.0)
+
 class KA007RecursiveReasoningControl(KnowledgeAlgorithm):
     """
     KA-007: Controller for recursive processes. Tracks depth and state to prevent infinite loops.
     """
+    input_schema = KA007Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-007"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -29,10 +41,10 @@ class KA007RecursiveReasoningControl(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        current_depth = input_data.get("current_depth", 0)
-        state_history = input_data.get("state_history", [])
-        current_state = input_data.get("current_state", {})
+    def _run_logic(self, input_data: KA007Input) -> Dict[str, Any]:
+        current_depth = input_data.current_depth
+        state_history = input_data.state_history
+        current_state = input_data.current_state
         
         self.log_execution_step("Checking Recursion Bounds", {"depth": current_depth})
         
@@ -40,7 +52,6 @@ class KA007RecursiveReasoningControl(KnowledgeAlgorithm):
         max_depth = self.config.get("max_recursion_depth", 5)
         if current_depth >= max_depth:
             return {
-                "ka_id": "KA-007",
                 "success": True,
                 "allow_recursion": False,
                 "reason": f"Maximum recursion depth {max_depth} reached"
@@ -49,14 +60,13 @@ class KA007RecursiveReasoningControl(KnowledgeAlgorithm):
         # 2. State Loop Detection
         if self._is_looping(current_state, state_history):
              return {
-                "ka_id": "KA-007",
                 "success": True,
                 "allow_recursion": False,
                 "reason": "Recursion loop detected (duplicate state)"
             }
             
-        # 3. Confidence/Entropy check (Optional integration)
-        confidence = input_data.get("confidence", 1.0)
+        # 3. Confidence/Entropy check
+        confidence = input_data.confidence
         decay = self.config.get("confidence_decay_factor", 0.9)
         threshold = self.config.get("termination_threshold", 0.05)
         
@@ -64,15 +74,12 @@ class KA007RecursiveReasoningControl(KnowledgeAlgorithm):
         
         if effective_confidence < threshold:
             return {
-                "ka_id": "KA-007",
                 "success": True,
                 "allow_recursion": False,
                 "reason": f"Effective confidence {effective_confidence:.4f} below threshold {threshold}"
             }
 
         return {
-            "ka_id": "KA-007",
-            "ka_name": "Recursive Reasoning Control",
             "success": True,
             "allow_recursion": True,
             "next_depth": current_depth + 1,
@@ -81,11 +88,8 @@ class KA007RecursiveReasoningControl(KnowledgeAlgorithm):
 
     def _is_looping(self, current_state: Dict[str, Any], history: List[str]) -> bool:
         if not current_state: return False
-        
-        # Serialize state for comparison
         state_str = json.dumps(current_state, sort_keys=True)
         state_hash = hashlib.md5(state_str.encode()).hexdigest()
-        
         return state_hash in history
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

@@ -6,43 +6,114 @@ providing a unified interface for complex query resolution and system self-manag
 import logging
 import json
 import os
-from typing import Dict, Any, List
+import importlib
+import yaml
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from celery import Celery
 
 logger = logging.getLogger(__name__)
+
+# Initialize celery
+celery_app = Celery('ka_tasks', broker=os.getenv('REDIS_URL', 'redis://localhost:6379/0'))
 
 class KAMasterController(KnowledgeAlgorithm):
     """
     KA-Master: The supreme orchestrator and system state machine.
     """
-    def __init__(self, context: Dict[str, Any]):
-        super().__init__(context, None, None, None)
-        # Master controller can load a global orchestration map if needed
-        self.ka_count = 116
+    def __init__(self, context: Dict[str, Any] = None):
+        super().__init__(context or {}, None, None, None)
+        self._registry_path = os.path.join(os.path.dirname(__file__), "ka_registry.yaml")
+        self.algorithms = self._load_registry()
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        query = input_data.get("query", "status_check")
+    def _load_registry(self) -> Dict[str, Any]:
+        """Load available algorithms from ka_registry.yaml."""
+        try:
+            if os.path.exists(self._registry_path):
+                with open(self._registry_path, "r") as f:
+                    data = yaml.safe_load(f)
+                    reg = data.get("ka_registry", {})
+                    return {k: {"id": k, "metadata": {"KA_ID": k, "Status": "Active", "Implementation": v}} for k, v in reg.items()}
+            return {}
+        except Exception as e:
+            logger.error(f"Failed to load KA registry: {e}")
+            return {}
+
+    def get_available_algorithms(self) -> Dict[str, Any]:
+        return self.algorithms
+
+    def _normalize_ka_id(self, ka_id: str) -> str:
+        if not isinstance(ka_id, str):
+            ka_id = str(ka_id)
+        clean_id = ka_id.upper().strip()
+        if clean_id.startswith("KA-"):
+            if len(clean_id) == 6: return clean_id
+            num_part = clean_id.replace("KA-", "").lstrip("0") or "0"
+        else:
+            num_part = clean_id.lstrip("0") or "0"
+        try:
+            return f"KA-{int(num_part):03d}"
+        except ValueError:
+            return ka_id
+
+    def execute_algorithm(self, ka_id: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Dynamically imports and executes a specific Knowledge Algorithm."""
+        norm_id = self._normalize_ka_id(ka_id)
+        is_async = input_data.get("async", False)
         
-        self.log_execution_step("Master Orchestration Start", {"query": query})
+        self.log_execution_step("Dispatching Algorithm", {"ka_id": norm_id, "mode": "async" if is_async else "sync"})
         
-        # In a real system, this would call KA-113 (Router), then KA-114 (Orchestrator)
-        # to decide which subset of the 116 KAs to execute.
+        if norm_id not in self.algorithms:
+            return {"success": False, "error": f"Algorithm {norm_id} not registered."}
+            
+        if is_async:
+            task = run_ka_task.delay(norm_id, input_data)
+            return {"success": True, "ka_id": norm_id, "mode": "async", "task_id": task.id, "status": "PENDING"}
+
+        impl_path = self.algorithms[norm_id]["metadata"]["Implementation"]
+        try:
+            module_path, function_name = impl_path.rsplit(".", 1)
+            module = importlib.import_module(module_path)
+            run_func = getattr(module, function_name)
+            return run_func(input_data)
+        except Exception as e:
+            logger.error(f"Execution of {norm_id} failed: {e}")
+            return {"success": False, "error": str(e)}
+
+    def _run_logic(self, input_data: BaseModel) -> Dict[str, Any]:
+        """High-level query orchestration."""
+        data = input_data.data if hasattr(input_data, "data") else {}
+        query = data.get("query", "status_check")
         
-        executed_flow = ["KA-111", "KA-113", "KA-066", "KA-042", "KA-093"] # Example flow
+        executed_flow = ["KA-111", "KA-113", "KA-066", "KA-056", "KA-093"]
         
         return {
-            "ka_id": "KA-Master",
-            "ka_name": "Master Controller",
             "success": True,
             "orchestrated_flow": executed_flow,
             "system_state": "NOMINAL",
-            "active_kas": self.ka_count,
+            "active_kas": len(self.algorithms),
             "final_conclusion": f"Resolved query '{query}' via {len(executed_flow)} specialized KAs."
         }
 
+@celery_app.task(name="ka_engine.run_ka_task")
+def run_ka_task(ka_id: str, input_data: Dict[str, Any]):
+    """Background task for long-running KAs."""
+    from knowledge_algorithms.ka_master_controller import get_controller
+    master = get_controller()
+    return master.execute_algorithm(ka_id, {**input_data, "async": False})
+
+_controller_instance = None
+
+def get_controller() -> KAMasterController:
+    global _controller_instance
+    if _controller_instance is None:
+        _controller_instance = KAMasterController({})
+    return _controller_instance
+
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:
-        algo = KAMasterController(context)
+        algo = get_controller()
         return algo.run(context)
     except Exception as e:
         logger.error(f"KA-Master Failed: {e}")

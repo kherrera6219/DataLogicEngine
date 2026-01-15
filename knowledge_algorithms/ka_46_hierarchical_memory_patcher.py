@@ -10,12 +10,21 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+class KA046Input(BaseModel):
+    patches: List[Dict[str, Any]] = Field(default_factory=list, description="Patch requests to apply to memory tiers")
+
 class KA046HierarchicalMemoryPatcher(KnowledgeAlgorithm):
     """
-    KA-046: Memory patching and tier-aware persistence engine.
+    KA-046: Memory patching and tier-aware persistence engine for validated updates.
     """
+    input_schema = KA046Input
+
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-046"
         self.config = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -28,21 +37,18 @@ class KA046HierarchicalMemoryPatcher(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        patch_requests = input_data.get("patches", [])
-        
+    def _run_logic(self, input_data: KA046Input) -> Dict[str, Any]:
+        patch_requests = input_data.patches
         self.log_execution_step("Applying Memory Patches", {"patch_count": len(patch_requests)})
         
         results = []
+        default_tier = self.config.get("default_tier", "L2_SHORT_TERM")
+        val_required = self.config.get("validation_required", True)
         for patch in patch_requests:
-            tier = patch.get("tier", self.config.get("default_tier", "L2_SHORT_TERM"))
-            content = patch.get("content")
-            
-            # Simulated patching logic
+            tier = patch.get("tier", default_tier)
             status = "SUCCESS"
-            if self.config.get("validation_required", True) and not patch.get("validated", False):
+            if val_required and not patch.get("validated", False):
                 status = "QUEUED_FOR_VALIDATION"
-                
             results.append({
                 "patch_id": patch.get("id"),
                 "destination_tier": tier,
@@ -51,8 +57,6 @@ class KA046HierarchicalMemoryPatcher(KnowledgeAlgorithm):
             })
             
         return {
-            "ka_id": "KA-046",
-            "ka_name": "Hierarchical Memory Patcher",
             "success": True,
             "patch_results": results,
             "tier_stats": {tier: sum(1 for r in results if r["destination_tier"] == tier) for tier in self.config.get("memory_tiers", [])}
