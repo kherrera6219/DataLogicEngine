@@ -215,6 +215,13 @@ npm audit fix
    - **DoS Mitigation**: Strict limits on `MAX_DEPTH` (3) and `MAX_TOTAL_GOALS` (50) prevent infinite recursion or memory exhaustion.
    - **Fail-Safe Architecture**: Unhandled exceptions return a valid "Failed Plan" object rather than crashing, maintaining system stability.
 
+7. **Knowledge Algorithm (KA) Security Integration (2026)**
+   - **L1 Input Validation**: KA-004 sanitizes all incoming queries before processing.
+   - **L3 Bias Detection**: KA-010 scans agent outputs for potential bias or harmful content.
+   - **L3 Adversarial Reasoning**: KA-034 tests for logical contradictions and manipulation.
+   - **L7 Guardrail Integration**: All recursive planning passes through `AIGuardrailService`.
+   - **Graceful Degradation**: All KA invocations use try/except with logging—failures do not crash the system.
+
 ## Security Testing
 
 ### Automated Testing

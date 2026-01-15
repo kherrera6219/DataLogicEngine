@@ -15,6 +15,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Hardened User Model**: Progressive account lockout (5 attempts), password expiry tracking, and complexity enforcement.
 - **Enterprise Session Management**: Redis-backed sessions with rotation, concurrency limits, and strict idle timeouts.
 
+### Added - Knowledge Algorithm (KA) Integration Audit
+- **L1-L7 KA Wiring**: All simulation layers now invoke specific KAs from the 116-algorithm registry.
+- **L1**: KA-004 (Input Validation), KA-005 (Query Classification), KA-036 (Complexity Estimator), KA-113 (Complexity Router).
+- **L2**: KA-025 (Dependency Mapping), KA-018 (Source Provenance).
+- **L3**: KA-009 (Evidence Validation), KA-010 (Bias Detection), KA-034 (Adversarial Reasoning).
+- **L4**: KA-028 (POV Expansion), KA-057 (Persona Emotion Adaptation).
+- **L5**: KA-013 (Persona Weighting), KA-026 (Contradiction Detection) added to refinement pipeline.
+- **L6**: KA-039 (Anomaly Detection), KA-116 (Entropy Detection) integrated into `QuantValidationService`.
+- **L7**: KA-002 (Tree-of-Thought), KA-040 (Hypothesis Generation), KA-021 (Emergence Detection) wired into `AGIPlannerService`.
+- **TruthCoreEngine**: Expanded refinement steps from 15 to 24.
+
+
 ### Changed
 - Standardized all administrative API routes with granular permission checks.
 - Upgraded `User.email` and `SimulationSession` fields with automatic encryption properties.

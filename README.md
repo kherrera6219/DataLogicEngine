@@ -214,6 +214,21 @@ Instead of a single LLM pass, the engine executes a multi-layered pipeline:
 - **L9 (Synthesis)**: Final context-grounded response generation.
 - **L10 (Audit)**: Finalizing the hash-chained execution trace.
 
+#### Knowledge Algorithm (KA) Integration by Layer
+
+Each layer invokes specific KAs from the 116-algorithm registry:
+
+| Layer | KAs Wired | Description |
+| :--- | :--- | :--- |
+| **L1** | KA-004, KA-005, KA-036, KA-113 | Input validation, query classification, complexity routing |
+| **L2** | KA-025, KA-018 | Dependency mapping, source provenance tracking |
+| **L3** | KA-009, KA-010, KA-034 | Evidence validation, bias detection, adversarial reasoning |
+| **L4** | KA-028, KA-057 | POV expansion, persona emotion adaptation |
+| **L5** | KA-012, KA-013, KA-026, KA-038.KA-030 | Multi-persona reasoning, weighting, contradiction detection, consensus |
+| **L6** | KA-039, KA-116, KA-014 | Anomaly detection, entropy scoring, confidence scoring |
+| **L7** | KA-002, KA-006, KA-021, KA-040 | Tree-of-Thought, deep planning, emergence detection, hypothesis generation |
+
+
 ### 3. Traceable Response
 
 Returns answer **plus** complete audit trail:
