@@ -283,3 +283,53 @@ def sso_callback_route():
         logger.error(f"SSO Error: {e}")
         return error_response("SSO Authentication failed", 500)
 
+@auth_bp.route('/desktop/auto-login', methods=['POST'])
+def desktop_auto_login():
+    """
+    Auto-login based on Windows System Identity.
+    Used for 'Zero-Config' desktop experience.
+    """
+    import os
+    if os.name != 'nt':
+        return error_response("Desktop auto-login only supported on Windows", 400)
+    
+    from .windows_identity import get_windows_user_identity
+    try:
+        identity = get_windows_user_identity()
+    except Exception as e:
+        logger.error(f"Identity resolution failed: {e}")
+        return error_response("Failed to resolve Windows identity", 500)
+        
+    sid = identity.get('sid')
+    username = identity.get('username')
+    
+    if not sid:
+        return error_response("Could not resolve Windows identity", 500)
+    
+    # Prefix username to avoid collision with standard users if desired
+    # For now, we trust the SID as the primary identifier
+    user = User.query.filter_by(sid=sid).first()
+    
+    if not user:
+        # Check if any user has this username
+        if User.query.filter_by(username=username).first():
+            # Append part of SID to username for uniqueness
+            username = f"{username}_{sid[-4:]}"
+            
+        # Register new "Owner"
+        import secrets
+        user = User()
+        user.username = username
+        user.email = f"{username}@local.ukg"
+        user.set_password(secrets.token_urlsafe(32))
+        user.sid = sid # Need to add this field to User model
+        user.is_admin = True # First local user is admin
+        
+        db.session.add(user)
+        db.session.commit()
+        logger.info(f"Auto-registered new Windows user: {username}")
+    
+    login_user(user, remember=True)
+    return success_response(message="Desktop auto-login successful", data={"user": user.to_dict()})
+
+

@@ -33,5 +33,9 @@ export const auth = {
         }),
     
     logout: (): Promise<void> => 
-        request('/auth/logout', { method: 'POST' }).then(() => {}).catch(() => {})
+        request('/auth/logout', { method: 'POST' }).then(() => {}).catch(() => {}),
+
+    desktopAutoLogin: (): Promise<LoginResponse> =>
+        request<LoginResponse>('/auth/desktop/auto-login', { method: 'POST' })
 };
+

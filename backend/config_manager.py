@@ -31,6 +31,14 @@ class ConfigManager:
         if self._initialized:
             return
             
+        # Determine base data directory
+        default_data_dir = "data"
+        if os.name == 'nt':
+            # Windows default: C:\ProgramData\DataLogicEngine
+            default_data_dir = os.path.join(os.environ.get("ProgramData", "C:\\ProgramData"), "DataLogicEngine")
+        
+        base_data_dir = os.environ.get("UKG_DATA_DIR", default_data_dir)
+        
         self._config = {
             "ports": {
                 "api_gateway": int(os.environ.get("API_GATEWAY_PORT", 5000)),
@@ -42,7 +50,7 @@ class ConfigManager:
             },
             "services": {
                 "api_gateway": {
-                    "host": "0.0.0.0",
+                    "host": os.environ.get("API_HOST", "0.0.0.0"),
                     "health_check_path": "/health",
                     "workers": 2,
                     "enable_cors": True
@@ -65,12 +73,12 @@ class ConfigManager:
                 },
                 "frontend": {
                     "host": "0.0.0.0",
-                    "api_url": "http://0.0.0.0:5000"
+                    "api_url": f"http://{os.environ.get('API_HOST', '0.0.0.0')}:5000"
                 }
             },
             "system": {
-                "log_directory": "logs",
-                "data_directory": "data",
+                "log_directory": os.path.join(base_data_dir, "logs"),
+                "data_directory": base_data_dir,
                 "debug": os.environ.get("DEBUG", "False").lower() == "true",
                 "environment": os.environ.get("ENV", "development"),
                 "startup_timeout": 30  # seconds
@@ -80,6 +88,7 @@ class ConfigManager:
                 "token_expiry_minutes": 60
             }
         }
+
         
         self._initialized = True
         logger.info("Configuration manager initialized")

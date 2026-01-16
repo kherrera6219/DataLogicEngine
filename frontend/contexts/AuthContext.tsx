@@ -28,7 +28,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (data?.user) {
                 setUser(data.user);
             } else {
-                setUser(null);
+                // If not authenticated, try desktop auto-login if on Windows
+                // This is a "Zero-Config" experience for desktop users
+                const autoLoginResponse = await api.auth.desktopAutoLogin().catch(() => null);
+                if (autoLoginResponse && autoLoginResponse.success && autoLoginResponse.data.user) {
+                    setUser(autoLoginResponse.data.user);
+                } else {
+                    setUser(null);
+                }
             }
         } catch {
             setUser(null);
@@ -36,6 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsLoading(false);
         }
     };
+
 
     const login = async (credentials: LoginCredentials) => {
         const response = await api.auth.login(credentials);

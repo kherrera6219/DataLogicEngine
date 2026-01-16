@@ -14,6 +14,8 @@ class User(db.Model):
     username = db.Column(db.String(64), unique=True, nullable=False)
     _email = db.Column('email', db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(256))
+    sid = db.Column(db.String(255), unique=True, nullable=True) # Windows SID
+
     
     @property
     def email(self):

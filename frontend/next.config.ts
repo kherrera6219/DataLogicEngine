@@ -31,7 +31,9 @@ if (normalizedCdnUrl) {
 
 const nextConfig: NextConfig = {
   ...cdnConfig,
+  output: 'standalone',
   async rewrites() {
+
     return [
       {
         source: '/api/:path*',

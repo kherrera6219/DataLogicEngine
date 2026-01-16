@@ -1,0 +1,14 @@
+<service>
+  <id>DataLogic_Frontend</id>
+  <name>DataLogic_Frontend</name>
+  <description>DataLogicEngine Frontend Service (Next.js)</description>
+  <executable>%BASE%\runtime\node.exe</executable>
+  <arguments>%BASE%\frontend\server.js</arguments>
+  <env name="PORT" value="3000"/>
+  <env name="NEXT_PUBLIC_API_URL" value="http://localhost:5000/api/v1"/>
+  <log mode="roll">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>5</keepFiles>
+  </log>
+  <onfailure action="restart" delay="10 sec"/>
+</service>
