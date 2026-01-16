@@ -10,8 +10,8 @@ import sys
 import json
 from typing import Dict, Any
 
-from knowledge_algorithms.ka_demo import main as run_ka_demo
-from knowledge_algorithms.ka_system_integration import get_ka_integration
+from backend.knowledge_algorithms.ka_demo import main as run_ka_demo
+from backend.knowledge_algorithms.ka_system_integration import get_ka_integration
 
 # Configure logging
 logging.basicConfig(

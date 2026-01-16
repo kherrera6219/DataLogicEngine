@@ -3,7 +3,7 @@ import os
 import shutil
 import glob
 
-KA_DIR = r"c:\software\DataLogicEngine\knowledge_algorithms"
+KA_DIR = r"c:\software\DataLogicEngine\backend\knowledge_algorithms"
 LEGACY_DIR = os.path.join(KA_DIR, "legacy")
 
 def migrate():

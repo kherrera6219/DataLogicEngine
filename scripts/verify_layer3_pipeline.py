@@ -34,7 +34,7 @@ def test_kas():
     logger.info("--- Testing Knowledge Algorithms ---")
     
     # Tier 1
-    from knowledge_algorithms.ka_claim_extraction import KAClaimExtraction
+    from backend.knowledge_algorithms.ka_claim_extraction import KAClaimExtraction
     ka1 = KAClaimExtraction()
     # Sentences must be > 20 chars to pass noise filter
     text = "The sky is usually blue during the day. Water is generally considered wet by most people."
@@ -50,7 +50,7 @@ def test_kas():
     logger.info("✅ KA-ClaimExtraction OK")
     
     # Tier 3
-    from knowledge_algorithms.ka_29_online_validation import KAResearch
+    from backend.knowledge_algorithms.ka_29_online_validation import KAResearch
     ka3 = KAResearch({"delay_ms": 10})
     res3 = ka3.execute({"query": "cyber requirements", "domain": "test"})
     assert res3["success"]

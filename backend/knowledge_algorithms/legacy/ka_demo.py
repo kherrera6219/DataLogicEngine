@@ -10,7 +10,7 @@ import json
 import time
 from typing import Dict, Any
 
-from knowledge_algorithms.ka_master_controller import create_master_controller
+from backend.knowledge_algorithms.ka_master_controller import create_master_controller
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, 

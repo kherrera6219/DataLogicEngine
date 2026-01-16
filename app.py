@@ -5,14 +5,14 @@ import logging
 from datetime import UTC, datetime, timedelta
 from dotenv import load_dotenv
 
+# Load environment variables from .env file BEFORE any other imports
+load_dotenv()
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_limiter.util import get_remote_address
 from werkzeug.middleware.proxy_fix import ProxyFix
 from extensions import limiter
-
-# Load environment variables from .env file
-load_dotenv()
 
 # Initialize Sentry for error tracking (production only)
 sentry_dsn = os.environ.get("SENTRY_DSN")

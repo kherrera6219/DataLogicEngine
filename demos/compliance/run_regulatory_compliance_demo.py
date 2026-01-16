@@ -26,12 +26,12 @@ logger = logging.getLogger("regulatory_compliance_demo")
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Import Knowledge Algorithms
-from knowledge_algorithms.ka_06_coordinate_mapper import run as run_ka_06
-from knowledge_algorithms.ka_07_regulatory_expert_simulation import run as run_ka_07
-from knowledge_algorithms.ka_08_compliance_expert_simulation import run as run_ka_08
-from knowledge_algorithms.ka_09_conflict_resolution import run as run_ka_09
-from knowledge_algorithms.ka_10_contractual_logic_validator import run as run_ka_10
-from knowledge_algorithms.ka_16_simulation_memory_patch import run as run_ka_16
+from backend.knowledge_algorithms.ka_06_coordinate_mapper import run as run_ka_06
+from backend.knowledge_algorithms.ka_07_regulatory_expert_simulation import run as run_ka_07
+from backend.knowledge_algorithms.ka_08_compliance_expert_simulation import run as run_ka_08
+from backend.knowledge_algorithms.ka_09_conflict_resolution import run as run_ka_09
+from backend.knowledge_algorithms.ka_10_contractual_logic_validator import run as run_ka_10
+from backend.knowledge_algorithms.ka_16_simulation_memory_patch import run as run_ka_16
 
 
 def generate_coordinate_mappings(pillar_level: str, axes: List[int], domain: str) -> Dict[str, Any]:

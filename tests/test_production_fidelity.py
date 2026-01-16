@@ -5,7 +5,7 @@ from backend.truth_engine.truth_core.engine import TruthCoreEngine
 from backend.truth_engine.truth_core.personas import PersonaEnhancer, PersonaPod
 from backend.truth_engine.truth_core.persona_sufficiency import PersonaSufficiencyTool
 
-from knowledge_algorithms.ka_master_controller import get_controller
+from backend.knowledge_algorithms.ka_master_controller import get_controller
 
 @pytest.fixture
 def production_engine():

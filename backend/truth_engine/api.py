@@ -56,7 +56,7 @@ def init_truth_engine(db_session):
     except Exception as e:
         logger.warning(f"Could not create SimulationEngine: {e}")
     
-    from knowledge_algorithms.ka_master_controller import get_controller
+    from backend.knowledge_algorithms.ka_master_controller import get_controller
     ka_controller = get_controller()
     
     _truth_core = TruthCoreEngine(

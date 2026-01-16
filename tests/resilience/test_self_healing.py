@@ -1,5 +1,5 @@
 import pytest
-from knowledge_algorithms.ka_119_predictive_health import KA119PredictiveHealth
+from backend.knowledge_algorithms.ka_119_predictive_health import KA119PredictiveHealth
 from backend.core.resilience_router import ResilienceRouter
 
 class TestResilience:

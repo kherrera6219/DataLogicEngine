@@ -1,5 +1,5 @@
 import pytest
-from knowledge_algorithms.ka_120_purple_team import KA120PurpleTeam
+from backend.knowledge_algorithms.ka_120_purple_team import KA120PurpleTeam
 
 class TestAdversarial:
     

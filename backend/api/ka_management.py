@@ -10,7 +10,7 @@ from flask_login import login_required, current_user
 from datetime import datetime, UTC
 
 # Import KA Master Controller
-from knowledge_algorithms.ka_master_controller import get_controller
+from backend.knowledge_algorithms.ka_master_controller import get_controller
 
 logger = logging.getLogger(__name__)
 

@@ -9,7 +9,7 @@ REFACTORED: Implementation moved to knowledge_algorithms.ka56.core
 """
 
 import logging
-from knowledge_algorithms.ka56.core import RecursivePlanningAGICore
+from backend.knowledge_algorithms.ka56.core import RecursivePlanningAGICore
 
 # Re-export the class for backward compatibility
 RecursivePlanningAGICore = RecursivePlanningAGICore

@@ -25,31 +25,31 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 try:
     # Core Knowledge Mapping
-    from knowledge_algorithms.ka_32_simulation_orchestration import run as run_orchestration
+    from backend.knowledge_algorithms.ka_32_simulation_orchestration import run as run_orchestration
     
     # Neural and Identity Algorithms
-    from knowledge_algorithms.ka_39_quantum_trust_propagation import run as run_trust_propagation
-    from knowledge_algorithms.ka_40_simulated_neural_activation_mapper import run as run_neural_activation
+    from backend.knowledge_algorithms.ka_39_quantum_trust_propagation import run as run_trust_propagation
+    from backend.knowledge_algorithms.ka_40_simulated_neural_activation_mapper import run as run_neural_activation
     
     # Agent Verification Algorithms
-    from knowledge_algorithms.ka_41_multi_agent_consensus_resolver import run as run_consensus_resolver
-    from knowledge_algorithms.ka_42_agent_sanity_score_calculator import run as run_sanity_calculator
+    from backend.knowledge_algorithms.ka_41_multi_agent_consensus_resolver import run as run_consensus_resolver
+    from backend.knowledge_algorithms.ka_42_agent_sanity_score_calculator import run as run_sanity_calculator
     
     # Visualization and Explanation
-    from knowledge_algorithms.ka_43_confidence_heatmap_visualizer import run as run_heatmap_visualizer
-    from knowledge_algorithms.ka_49_explainability_trace_constructor import run as run_explanation_trace
+    from backend.knowledge_algorithms.ka_43_confidence_heatmap_visualizer import run as run_heatmap_visualizer
+    from backend.knowledge_algorithms.ka_49_explainability_trace_constructor import run as run_explanation_trace
     
     # Safety and Monitoring
-    from knowledge_algorithms.ka_44_entropy_detection_and_rewind import run as run_entropy_detection
-    from knowledge_algorithms.ka_45_emergence_containment_manager import run as run_emergence_containment
+    from backend.knowledge_algorithms.ka_44_entropy_detection_and_rewind import run as run_entropy_detection
+    from backend.knowledge_algorithms.ka_45_emergence_containment_manager import run as run_emergence_containment
     
     # Performance and Optimization
-    from knowledge_algorithms.ka_46_belief_energy_cost_calculator import run as run_energy_calculator
-    from knowledge_algorithms.ka_47_recursive_confidence_optimizer import run as run_confidence_optimizer
+    from backend.knowledge_algorithms.ka_46_belief_energy_cost_calculator import run as run_energy_calculator
+    from backend.knowledge_algorithms.ka_47_recursive_confidence_optimizer import run as run_confidence_optimizer
     
     # Domain-Specific
-    from knowledge_algorithms.ka_48_simulated_curriculum_builder import run as run_curriculum_builder
-    from knowledge_algorithms.ka_50_agent_identity_consistency_checker import run as run_identity_checker
+    from backend.knowledge_algorithms.ka_48_simulated_curriculum_builder import run as run_curriculum_builder
+    from backend.knowledge_algorithms.ka_50_agent_identity_consistency_checker import run as run_identity_checker
     
     all_imports_successful = True
     logger.info("All knowledge algorithms imported successfully")

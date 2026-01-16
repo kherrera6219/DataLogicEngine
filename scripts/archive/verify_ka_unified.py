@@ -4,7 +4,7 @@ import os
 # Add project root to path
 sys.path.append(os.getcwd())
 
-from knowledge_algorithms.ka_master_controller import get_controller
+from backend.knowledge_algorithms.ka_master_controller import get_controller
 
 def test_controller():
     controller = get_controller()

@@ -476,7 +476,7 @@ class TruthCoreEngine:
                     'step': step,
                     'ka_id': 'L6-QUANT-SERVICE',
                     'status': 'completed',
-                    'output': result.dict() if hasattr(result, 'dict') else result,
+                    'output': result.model_dump() if hasattr(result, 'model_dump') else result,
                     'confidence': result.confidence if hasattr(result, 'confidence') else 0.9
                 }
             except Exception as e:
@@ -492,7 +492,7 @@ class TruthCoreEngine:
                     'step': step,
                     'ka_id': 'L7-AGI-PLANNER',
                     'status': 'completed',
-                    'output': plan.dict() if hasattr(plan, 'dict') else plan,
+                    'output': plan.model_dump() if hasattr(plan, 'model_dump') else plan,
                     'confidence': plan.convergence_score if hasattr(plan, 'convergence_score') else 0.95
                 }
             except Exception as e:

@@ -4,7 +4,7 @@ import os
 import re
 
 REGISTRY_PATH = r"c:\software\DataLogicEngine\sdk\UKG_Python_SDK\ukg_sdk\data\ka_registry_by_id.json"
-KA_DIR = r"c:\software\DataLogicEngine\knowledge_algorithms"
+KA_DIR = r"c:\software\DataLogicEngine\backend\knowledge_algorithms"
 
 def create_stubs():
     with open(REGISTRY_PATH, 'r', encoding='utf-8') as f:

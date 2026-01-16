@@ -28,8 +28,8 @@ sys.modules["backend.ukg_db"] = mock_db_mod
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from backend.truth_engine.federated_sync import FederatedSyncEngine, FederatedClaim
-from knowledge_algorithms.ka_114_federated_outbox import KA114FederatedOutbox
-from knowledge_algorithms.ka_115_federated_inbox import KA115FederatedInbox
+from backend.knowledge_algorithms.ka_114_federated_outbox import KA114FederatedOutbox
+from backend.knowledge_algorithms.ka_115_federated_inbox import KA115FederatedInbox
 
 async def test_federated_sync():
     logging.basicConfig(level=logging.INFO)

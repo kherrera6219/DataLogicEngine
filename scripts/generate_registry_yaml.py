@@ -3,7 +3,7 @@ import os
 import glob
 import re
 
-KA_DIR = r"c:\software\DataLogicEngine\knowledge_algorithms"
+KA_DIR = r"c:\software\DataLogicEngine\backend\knowledge_algorithms"
 OUT_PATH = os.path.join(KA_DIR, "ka_registry.yaml")
 
 def gen_registry():
@@ -26,7 +26,7 @@ def gen_registry():
         
         ka_id = f"KA-{int(num_str):03d}"
         mod_name = fname.replace(".py", "")
-        entries[ka_id] = f"knowledge_algorithms.{mod_name}.run"
+        entries[ka_id] = f"backend.knowledge_algorithms.{mod_name}.run"
 
     with open(OUT_PATH, 'w', encoding='utf-8') as f:
         f.write("ka_registry:\n")
@@ -35,7 +35,7 @@ def gen_registry():
             f.write(f'  "{kid}": "{entries[kid]}"\n')
             
         f.write('\n  # Master Controller\n')
-        f.write('  "KA-Master": "knowledge_algorithms.ka_master_controller.run"\n')
+        f.write('  "KA-Master": "backend.knowledge_algorithms.ka_master_controller.run"\n')
 
     print(f"Generated registry with {len(entries)} entries.")
 

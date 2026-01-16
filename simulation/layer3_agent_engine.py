@@ -13,8 +13,8 @@ import uuid
 
 from quad_persona.quad_models import EvidencePack, EvidenceItem
 # Import KA implementations directly or via Registry
-from knowledge_algorithms.ka_claim_extraction import KAClaimExtraction
-from knowledge_algorithms.ka_29_online_validation import KAResearch
+from backend.knowledge_algorithms.ka_claim_extraction import KAClaimExtraction
+from backend.knowledge_algorithms.ka_29_online_validation import KAResearch
 
 logger = logging.getLogger(__name__)
 

@@ -7,9 +7,11 @@ Handles all admin-only routes with proper access control via REST API.
 import datetime
 from datetime import UTC
 import logging
+from flask import Blueprint, jsonify, request
+from flask_login import login_required, current_user
 
 from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge
-from backend.security.rbac import require_permission, Permission
+from backend.security.rbac import require_permission, Permission, get_rbac_manager
 
 logger = logging.getLogger(__name__)
 

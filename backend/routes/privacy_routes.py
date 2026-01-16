@@ -58,7 +58,7 @@ def purge_user_data():
 
 @privacy_bp.route('/tenant-cleanup', methods=['POST'])
 @login_required
-@require_permission(Permission.SYSTEM_CONFIG)
+@require_permission(Permission.SYSTEM_CONFIG_READ)
 def cleanup_tenant_data():
     """
     Administrative endpoint to purge all data for a specific tenant.

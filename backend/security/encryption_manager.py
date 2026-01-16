@@ -364,10 +364,9 @@ class EncryptionManager:
     def _log_audit(self, event_type: str, details: Dict[str, Any]):
         """Log encryption operation to audit log."""
         if self.audit_logger:
-            self.audit_logger.log_security_event(
+            self.audit_logger.log_audit_event(
                 event_type=event_type,
-                details=details,
-                severity="INFO"
+                details=details
             )
 
 

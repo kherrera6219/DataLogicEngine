@@ -9,7 +9,7 @@ import logging
 from typing import Dict, List, Any, Optional
 import time
 
-from knowledge_algorithms.ka_master_controller import create_master_controller
+from backend.knowledge_algorithms.ka_master_controller import create_master_controller
 
 logger = logging.getLogger(__name__)
 

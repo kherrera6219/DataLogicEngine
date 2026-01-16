@@ -21,7 +21,7 @@ logging.basicConfig(
 logger = logging.getLogger("UKG-Demo")
 
 # Import Master Controller
-from knowledge_algorithms.ka_master_controller import get_controller
+from backend.knowledge_algorithms.ka_master_controller import get_controller
 
 def print_header(title):
     """Print a formatted header."""

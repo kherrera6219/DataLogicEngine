@@ -12,7 +12,7 @@ import logging
 import json
 import os
 
-from knowledge_algorithms.ka_master_controller import get_controller
+from backend.knowledge_algorithms.ka_master_controller import get_controller
 
 logger = logging.getLogger(__name__)
 

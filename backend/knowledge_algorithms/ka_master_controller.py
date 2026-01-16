@@ -113,7 +113,7 @@ class KAMasterController(KnowledgeAlgorithm):
 @celery_app.task(name="ka_engine.run_ka_task")
 def run_ka_task(ka_id: str, input_data: Dict[str, Any]):
     """Background task for long-running KAs."""
-    from knowledge_algorithms.ka_master_controller import get_controller
+    from backend.knowledge_algorithms.ka_master_controller import get_controller
     master = get_controller()
     return master.execute_algorithm(ka_id, {**input_data, "async": False})
 

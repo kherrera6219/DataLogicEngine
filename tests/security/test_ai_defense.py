@@ -3,7 +3,7 @@ import base64
 from backend.security.ai_guardrail import AIGuardrailService
 from backend.security.context_aware import ContextDriftDetector
 from backend.core.rag_sanitizer import RAGSanitizer
-from knowledge_algorithms.ka_120_purple_team import KA120PurpleTeam
+from backend.knowledge_algorithms.ka_120_purple_team import KA120PurpleTeam
 
 class TestAIDefenseFortress:
     

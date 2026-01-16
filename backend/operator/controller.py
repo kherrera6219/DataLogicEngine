@@ -39,7 +39,7 @@ class DRController:
         # In a real system, this could create a TraceRun CRD or call a KA dispatcher
         # Here we simulate the dispatch
         try:
-            from knowledge_algorithms.ka_107_disaster_recovery import run
+            from backend.knowledge_algorithms.ka_107_disaster_recovery import run
             context = {"failure_id": "auto_ops_failure", "trigger": "K8s_Operator"}
             result = run(context)
             logger.info(f"KA-107 Execution Result: {result.get('recovery_status')} -> {result.get('target_region')}")

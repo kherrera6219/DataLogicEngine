@@ -23,7 +23,7 @@ logging.basicConfig(
 logger = logging.getLogger("UKG-13-Axis-Demo")
 
 # Import Master Controller
-from knowledge_algorithms.ka_master_controller import get_controller
+from backend.knowledge_algorithms.ka_master_controller import get_controller
 
 # Axis System Constants
 AXIS_NAMES = {

@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
-from knowledge_algorithms.ka_118_sensitive_data_discovery import KA118SensitiveDataDiscovery
+from backend.knowledge_algorithms.ka_118_sensitive_data_discovery import KA118SensitiveDataDiscovery
 from backend.security.rbac import RBACManager, Permission
 
 class MockUser:
