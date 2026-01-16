@@ -15,6 +15,12 @@
 
 > **NOTICE**: Effective 2026-01-15, this project transitioned from the MIT License to the PolyForm Noncommercial License 1.0.0. See [`LICENSE`](LICENSE) for details.
 
+> **DEPLOYMENT MODES**: This application supports **two separate deployment modes**:
+> - **Cloud Mode**: Traditional SaaS deployment with OAuth/SSO authentication
+> - **Desktop Mode**: Windows-native installation with zero-login identity system
+> 
+> These are **mutually exclusive** modes - choose one for your deployment. See [Deployment Documentation](#deployment) for details.
+
 ## 🏗️ Executive Summary
 
 The **Universal Knowledge Graph (UKG) Engine** is a sophisticated, hardened middleware platform designed to bridge the gap between enterprise data and Large Language Models. Built for mission-critical applications, it provides a "Reasoning-as-a-Service" layer that ensures every AI interaction is **grounded, traceable, and secure**.
@@ -1483,24 +1489,94 @@ We welcome contributions! Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for gu
 Please report security issues to: [security@example.com](mailto:security@example.com)
 
 See [`SECURITY.md`](SECURITY.md) for our security policy and response process.
+---
 
-### Security Best Practices
+## 🚀 Deployment
 
-**For Deployment:**
+DataLogicEngine supports **two separate deployment modes**. Choose the mode that fits your infrastructure:
 
-- Use strong `SECRET_KEY` (32+ random characters)
-- Enable HTTPS in production
-- Configure firewall rules
-- Use environment variables for secrets
-- Enable audit logging
-- Regularly update dependencies
-- Implement rate limiting
-- Use strong password policies
-- Enable 2FA for admin accounts
+### Cloud Mode (SaaS)
+**Best for**: Multi-tenant SaaS, team collaboration, cloud infrastructure
 
-**For Development:**
+**Features**:
+- Traditional OAuth/SSO authentication
+- Multi-tenant isolation
+- Cloud database (PostgreSQL on AWS/Heroku)
+- Horizontal scaling
+- API-first architecture
 
-- Never commit secrets to Git
+**Deployment Targets**:
+- Heroku
+- AWS (ECS/EKS)
+- Google Cloud Platform
+- Azure App Service
+- DigitalOcean
+
+**Documentation**: See `docs/DEPLOYMENT_CLOUD.md` (coming soon)
+
+---
+
+### Desktop Mode (Windows Native)
+**Best for**: Local-first workflows, air-gapped environments, personal use
+
+**Features**:
+- Windows SID-based "Zero-Login" authentication
+- Local PostgreSQL + Redis stack
+- DPAPI-encrypted API keys
+- Multi-user Windows support
+- Offline-capable
+
+**Requirements**:
+- Windows 10/11 (64-bit)
+- Administrator privileges (installation only)
+- 8GB RAM minimum
+
+**Deployment**: See [`docs/DEPLOYMENT_DESKTOP.md`](docs/DEPLOYMENT_DESKTOP.md)
+
+**Quick Start**:
+```powershell
+# Run as Administrator
+.\scripts\windows\install.ps1
+```
+
+---
+
+### Mode Comparison
+
+| Feature | Cloud Mode | Desktop Mode |
+|---------|------------|--------------|
+| **Authentication** | OAuth/SSO | Windows SID (Zero-Login) |
+| **Database** | Cloud PostgreSQL | Local PostgreSQL |
+| **Encryption** | Cloud KMS | Windows DPAPI |
+| **Scaling** | Horizontal | Single-machine |
+| **Offline** | No | Yes |
+| **Multi-tenant** | Yes | No (multi-user) |
+| **Deployment** | CI/CD Pipeline | Windows Installer |
+
+---
+
+## 📚 Additional Resources
+
+- [Production Readiness Checklist](docs/PRODUCTION_READINESS.md)
+- [Security Hardening Guide](docs/SECURITY.md)
+- [Desktop Cross-User Testing](docs/CROSS_USER_TESTING.md)
+- [Release Notes v2.5.0](docs/RELEASE_NOTES_v2.5.0.md)
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! Please read our contributing guidelines before submitting PRs.
+
+## 📄 License
+
+**Polyform Noncommercial 1.0.0** - Free for non-commercial use.
+
+For commercial licensing, contact: [See COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md)
+
+---
+
+**Built with ❤️ for enterprise knowledge management**
 - Use `.env` for local configuration
 - Keep dependencies updated
 - Run security scans regularly

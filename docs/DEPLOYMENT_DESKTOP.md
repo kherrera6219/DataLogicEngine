@@ -1,5 +1,9 @@
 # Desktop Deployment Guide
 
+> **DEPLOYMENT MODE**: This guide is for **Desktop Mode** only (Windows-native) installation.  
+> For cloud deployment, see `DEPLOYMENT_CLOUD.md`.  
+> These are **mutually exclusive modes** - do not attempt to run both simultaneously.
+
 ## Overview
 This guide covers deploying the DataLogicEngine Windows desktop application with the integrated "Zero-Login" identity system.
 

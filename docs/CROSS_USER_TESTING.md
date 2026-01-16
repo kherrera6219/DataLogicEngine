@@ -1,5 +1,8 @@
 # Cross-User Isolation Testing Guide
 
+> **DESKTOP MODE ONLY**: This testing guide is specific to **Desktop Mode** deployment.  
+> It validates Windows SID-based identity isolation, which is not applicable to Cloud Mode.
+
 ## Purpose
 Verify that the Windows-native identity system correctly isolates user data and maintains per-user profiles when multiple Windows accounts access the same DataLogicEngine installation.
 

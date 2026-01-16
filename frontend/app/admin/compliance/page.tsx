@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { api } from '@/lib/api';
-import { ComplianceStandard } from '@/lib/api/compliance';
 import useSWR from 'swr';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -106,11 +105,10 @@ export default function ComplianceDashboard() {
                 <div className="text-sm text-muted-foreground">Loading compliance data...</div>
              ) : (
                  <div className="space-y-2">
-                    {(standards as any[]) && (standards as any[]).length > 0 ? (
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        (standards as any[]).map((child: any) => (
-                            <div key={child.uid || Math.random()} className="flex justify-between items-center p-2 rounded-md border">
-                               <span className="font-medium">{child.name || child.id}</span>
+                    {(standards as Record<string, unknown>[]) && (standards as Record<string, unknown>[]).length > 0 ? (
+                        (standards as Record<string, unknown>[]).map((child: Record<string, unknown>) => (
+                            <div key={(child.uid as string) || Math.random()} className="flex justify-between items-center p-2 rounded-md border">
+                               <span className="font-medium">{(child.name || child.id) as string}</span>
                                <Badge variant="outline">Active</Badge>
                             </div>
                         ))

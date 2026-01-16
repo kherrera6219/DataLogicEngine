@@ -1,20 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Cloud, X, ExternalLink, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export function CloudDisclosureBanner() {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    // Standard mount check for client-side localStorage
-    const isDismissed = localStorage.getItem('ukg_cloud_disclosure_dismissed');
-    if (!isDismissed) {
-      setIsVisible(true);
+  const [isVisible, setIsVisible] = useState(() => {
+    // Check during initial render (client-side only)
+    if (typeof window !== 'undefined') {
+      return !localStorage.getItem('ukg_cloud_disclosure_dismissed');
     }
-  }, []);
+    return false;
+  });
 
 
   const handleDismiss = () => {

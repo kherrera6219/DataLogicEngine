@@ -3,6 +3,11 @@
 ## Overview
 This release completes the Windows-native desktop adaptation of DataLogicEngine, featuring a "Zero-Login" identity system, comprehensive security hardening, and production-ready deployment tooling.
 
+> **IMPORTANT**: This release is for **Desktop Mode** (Windows-native) deployment.  
+> DataLogicEngine supports two **separate, mutually exclusive** deployment modes:
+> - **Cloud Mode**: Traditional SaaS deployment (separate codebase/configuration)
+> - **Desktop Mode**: Windows-native with zero-login (this release)
+
 ---
 
 ## Key Features
