@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext'; // Added useAuth import
 import { Menu, X, Hexagon, User as UserIcon, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { CloudStatusIndicator } from '@/components/ui/cloud-status-indicator';
 import { // Added DropdownMenu imports
   DropdownMenu,
   DropdownMenuContent,
@@ -71,6 +72,7 @@ export function NavBar() {
 
           {/* User Menu / Auth */}
           <div className="hidden md:flex items-center gap-2">
+             <CloudStatusIndicator className="mr-2" />
              <ThemeToggle />
              {isAuthenticated && user ? (
                 <DropdownMenu>
