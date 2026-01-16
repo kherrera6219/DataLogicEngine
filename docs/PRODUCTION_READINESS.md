@@ -20,8 +20,9 @@
 DataLogicEngine is an enterprise-grade AI/ML knowledge management platform designed for production deployment. This guide outlines the critical steps, configurations, and best practices for deploying the system in a production environment.
 
 **Current Status**: Production v2.4.0 Hardened
-**Version**: 2.4.0
-**Last Updated**: January 16, 2026
+# Universal Knowledge Graph (UKG) System Architecture
+
+**Version 2.4.0 - January 16, 2026**
 
 ## Production Checklist
 
@@ -48,6 +49,8 @@ DataLogicEngine is an enterprise-grade AI/ML knowledge management platform desig
 - [x] **Enable database connection pooling**
 - [ ] **Configure firewall rules** and network security groups
 
+---
+
 ### High Priority (Complete Within First Week)
 
 - [ ] **Implement comprehensive test suite** (current coverage: minimal)
@@ -70,6 +73,8 @@ DataLogicEngine is an enterprise-grade AI/ML knowledge management platform desig
 - [x] **AI Transparency Labeling**: Added badges and disclaimers to all AI-generated content.
 - [x] **Cloud Disclosure Banner**: Implemented first-run disclosure for cloud-hybrid processing.
 - [x] **AI Limitations Disclosure**: Created dedicated page documenting AI risks and mitigation.
+- [x] **Standalone Distribution**: Created a structured `dist_package/` with local launchers and orchestration scripts.
+- [x] **Zero-Ops Installer**: Finalized WiX-based `Setup.exe` with silent dependency bundling (PostgreSQL/Redis) and automated backup/restore orchestration.
 - [x] **User Data Rights**: Implemented self-service Data Export and Account Deletion.
 - [x] **Secure Secret Storage**: Switched to Windows DPAPI for local secret management.
 - [x] **Adversarial Hardening**: Enhanced KA-61 shield with 5-point adversarial check.

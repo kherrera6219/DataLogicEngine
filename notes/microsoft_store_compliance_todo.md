@@ -12,16 +12,16 @@
 **Effort:** High (Legal review recommended)  
 **Timeline:** 1-2 weeks
 
-- [ ] Draft comprehensive privacy policy document
-- [ ] Include all data collection (account info, usage data, AI prompts)
-- [ ] Disclose third-party sharing (OpenAI, Anthropic, Google, Azure)
-- [ ] Document data retention periods
-- [ ] Explain user rights (export, delete, opt-out)
-- [ ] Publish to public URL (e.g., `https://datalogicengine.com/privacy`)
-- [ ] Add privacy policy link to Partner Center
-- [ ] Add privacy policy link to app footer
-- [ ] Add privacy policy link to settings page
-- [ ] Implement first-run privacy disclosure with acceptance
+- [x] Draft comprehensive privacy policy document
+- [x] Include all data collection (account info, usage data, AI prompts)
+- [x] Disclose third-party sharing (OpenAI, Anthropic, Google, Azure)
+- [x] Document data retention periods
+- [x] Explain user rights (export, delete, opt-out)
+- [x] Publish to public URL (e.g., `https://datalogicengine.com/privacy`)
+- [x] Add privacy policy link to Partner Center
+- [x] Add privacy policy link to app footer
+- [x] Add privacy policy link to settings page
+- [x] Implement first-run privacy disclosure with acceptance
 
 **Files to Create:**
 - `docs/PRIVACY_POLICY.md`
@@ -35,11 +35,11 @@
 **Effort:** Medium  
 **Timeline:** 3-5 days
 
-- [ ] Add in-app cloud disclosure banner
-- [ ] Create "About Cloud Services" page
-- [ ] List all cloud providers (OpenAI, Azure, Anthropic, Google Vertex AI)
-- [ ] Add to store listing description
-- [ ] Document offline behavior (app requires internet)
+- [x] Add in-app cloud disclosure banner
+- [x] Create "About Cloud Services" page
+- [x] List all cloud providers (OpenAI, Azure, Anthropic, Google Vertex AI)
+- [x] Add to store listing description
+- [x] Document offline behavior (app requires internet)
 
 **Implementation:**
 ```tsx
@@ -63,10 +63,10 @@ and Microsoft Azure."
 **Effort:** Low  
 **Timeline:** 1-2 days
 
-- [ ] Add "⚠️ AI-Generated Content" label to all LLM responses
-- [ ] Add disclaimer text below AI outputs
-- [ ] Create "AI Limitations" page
-- [ ] Link to AI limitations from every AI response
+- [x] Add "⚠️ AI-Generated Content" label to all LLM responses
+- [x] Add disclaimer text below AI outputs
+- [x] Create "AI Limitations" page
+- [x] Link to AI limitations from every AI response
 
 **Implementation:**
 ```tsx
@@ -95,13 +95,13 @@ and Microsoft Azure."
 **Effort:** Medium  
 **Timeline:** 5-7 days
 
-- [ ] Create user-accessible data export endpoint (`/api/v1/user/data/export`)
-- [ ] Create user-accessible data deletion endpoint (`/api/v1/user/data/delete`)
-- [ ] Create "Privacy & Data" settings page
-- [ ] Add "Download My Data" button (JSON/CSV export)
-- [ ] Add "Delete My Account" button with confirmation dialog
-- [ ] Show "My Data" dashboard (what data is collected)
-- [ ] Implement 30-day data retention after deletion request
+- [x] Create user-accessible data export endpoint (`/api/v1/user/data/export`)
+- [x] Create user-accessible data deletion endpoint (`/api/v1/user/data/delete`)
+- [x] Create "Privacy & Data" settings page
+- [x] Add "Download My Data" button (JSON/CSV export)
+- [x] Add "Delete My Account" button with confirmation dialog
+- [x] Show "My Data" dashboard (what data is collected)
+- [x] Implement 30-day data retention after deletion request
 
 **Current Issue:** Export functionality exists but requires admin privileges
 
@@ -119,11 +119,11 @@ and Microsoft Azure."
 **Effort:** Low  
 **Timeline:** 1-2 days
 
-- [ ] Create `/about/ai` page explaining AI usage
-- [ ] Document what AI models are used (GPT-4, Claude, etc.)
-- [ ] Explain AI limitations (hallucinations, bias, errors)
-- [ ] Provide guidance on when to verify outputs
-- [ ] Add link from settings and about pages
+- [x] Create `/about/ai` page explaining AI usage
+- [x] Document what AI models are used (GPT-4, Claude, etc.)
+- [x] Explain AI limitations (hallucinations, bias, errors)
+- [x] Provide guidance on when to verify outputs
+- [x] Add link from settings and about pages
 
 **Files to Create:**
 - `frontend/app/about/ai/page.tsx`

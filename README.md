@@ -76,7 +76,9 @@ The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchest
 - **Kubernetes Operator** for self-healing and auto-scaling workers
 - **Federated Knowledge Sharing** (KA-114/115) with ZKP verification
 
-3. **Zero-Ops Windows Installer**: A professional WiX-based Setup.exe that bundles PostgreSQL, Redis, and native Windows services.
+### Distributable Packaging
+
+1.  **Zero-Ops Windows Installer**: A professional WiX-based `Setup.exe` that bundles PostgreSQL, Redis, and native Windows services.
 
 ---
 
@@ -84,8 +86,18 @@ The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchest
 
 DataLogicEngine is built for versatility, supporting two first-class deployment paths:
 
-1. **Enterprise Cloud Logic Layer**: High-scale, multi-tenant middleware for enterprise AI applications.
-2. **Local-First Desktop Engine**: A private, high-performance reasoning engine for Windows 11.
+1.  **Enterprise Cloud Logic Layer**: High-scale, multi-tenant middleware for enterprise AI applications.
+2.  **Local-First Desktop Engine**: A private, high-performance reasoning engine for Windows 11.
+
+---
+
+## 🌐 Cloud & AI Transparency (v2.4.0)
+
+The system is now compliant with modern AI safety and transparency standards:
+- **AI-Output Labeling**: Every response is tagged with "⚠️ AI-Generated Content" and links to boundaries.
+- **Cloud Disclosure**: Prominent first-run banner disclosing data processing by OpenAI, Anthropic, and Google.
+- **User Data Rights**: Self-service data export (JSON) and permanent "Right to Erasure" via the Privacy Dashboard.
+- **Security Shield (KA-61)**: L1 adversarial input hardening against prompt injection and persona hijacking.
 
 ---
 
@@ -96,7 +108,7 @@ DataLogicEngine is built for versatility, supporting two first-class deployment 
 Multi-dimensional knowledge organization contextualizing data across:
 
 | Axis | Name | Description |
-|------|------|-------------|
+| :--- | :--- | :--- |
 | **1** | Pillar Levels | Core knowledge pillars (FAR, DFARS, CFR) |
 | **2** | Sectors | Industry sectors and market areas |
 | **3** | Honeycomb | Cross-domain intra-expansion |
@@ -119,11 +131,11 @@ Multi-dimensional knowledge organization contextualizing data across:
 
 Sophisticated reasoning with graduated complexity:
 
-1. **Trivial** - Simple lookups (<1s)
-2. **Simple** - Single-step logic
-3. **Complex** - Multi-step reasoning with validation
-4. **Critical** - High-stakes decisions with multiple validators
-5. **Expert** - Domain expert involvement required
+1.  **Trivial** - Simple lookups (<1s)
+2.  **Simple** - Single-step logic
+3.  **Complex** - Multi-step reasoning with validation
+4.  **Critical** - High-stakes decisions with multiple validators
+5.  **Expert** - Domain expert involvement required
 
 **Features**: Budget tracking, policy gates, confidence scoring, hash-chain audit trails
 
@@ -134,6 +146,9 @@ Every AI decision is captured with:
 - **TraceRun**: UUID-based execution trace
 - **TraceStage**: Stage-by-stage breakdown with timing
 - **TraceEvidence**: Supporting evidence items
+- **Layer 5: KA-61 Adversarial Shield (v2.4.0)**
+    - Proactive rejection of "System Override" attempts and persona hijacking.
+    - 5-point adversarial check including Obfuscation Detection (Base64/Hex/Leet) and Multi-Stage Paradox rejection.
 - **TraceClaim**: Factual claims with verification
 - **TracePersona**: Persona involvement tracking
 - **TracePolicyDecision**: Policy enforcement audit
@@ -417,13 +432,13 @@ graph TB
 
 ### Required Software
 
-| Component      | Version | Purpose                | Installation                                     |
+| Component | Version | Purpose | Installation |
 | -------------- | ------- | ---------------------- | ------------------------------------------------ |
-| **Node.js**    | 18.17+  | Frontend runtime       | [Download](https://nodejs.org/)                  |
-| **Python**     | 3.11+   | Backend runtime        | [Download](https://www.python.org/downloads/)    |
-| **PostgreSQL** | 15+     | Primary database       | [Download](https://www.postgresql.org/download/) |
-| **Redis**      | 5+      | Cache/queue (optional) | [Download](https://redis.io/download)            |
-| **Git**        | Latest  | Version control        | [Download](https://git-scm.com/)                 |
+| **Node.js** | 18.17+ | Frontend runtime | [Download](https://nodejs.org/) |
+| **Python** | 3.11+ | Backend runtime | [Download](https://www.python.org/downloads/) |
+| **PostgreSQL** | 15+ | Primary database | [Download](https://www.postgresql.org/download/) |
+| **Redis** | 5+ | Cache/queue (optional) | [Download](https://redis.io/download) |
+| **Git** | Latest | Version control | [Download](https://git-scm.com/) |
 
 ### System Requirements
 
@@ -535,10 +550,10 @@ Frontend will start on **http://localhost:3000**
 
 ### 5. Verify Installation
 
-1. Open browser to http://localhost:3000
-2. You should see the landing page
-3. Navigate to `/dashboard` (may require login)
-4. Check backend health: http://localhost:5000/health
+1.  Open browser to [http://localhost:3000](http://localhost:3000)
+2.  You should see the landing page
+3.  Navigate to `/dashboard` (may require login)
+4.  Check backend health: [http://localhost:5000/health](http://localhost:5000/health)
 
 ---
 
@@ -729,6 +744,11 @@ evidence = client.runs.evidence("abc-123-def-456")
 for e in evidence:
     print(f"Source: {e.source.type} - {e.snippet}")
 
+# Get claims
+claims = client.runs.claims("abc-123-def-456")
+for claim in claims:
+    print(f"{claim.claim_text} (confidence: {claim.confidence})")
+
 # Export for compliance
 export = client.exports.create("abc-123-def-456", format="json")
 client.exports.download(export.export_id, "audit-trail.json")
@@ -821,12 +841,12 @@ POST /api/v1/ka/execute
 
 **Layers of Defense:**
 
-1. **Network**: HTTPS enforcement, TLS 1.3, reverse proxy support
-2. **Application**: CSRF, XSS, SQL injection prevention
-3. **Authentication**: Session, SSO, API keys, OAuth, JWT
-4. **Authorization**: RBAC, tenant isolation, API key scoping
-5. **Data**: Encryption at rest, encryption in transit, Fernet key storage
-6. **Audit**: Complete request logging, SIEM integration
+1.  **Network**: HTTPS enforcement, TLS 1.3, reverse proxy support
+2.  **Application**: CSRF, XSS, SQL injection prevention
+3.  **Authentication**: Session, SSO, API keys, OAuth, JWT
+4.  **Authorization**: RBAC, tenant isolation, API key scoping
+5.  **Data**: Encryption at rest, encryption in transit, Fernet key storage
+6.  **Audit**: Complete request logging, SIEM integration
 
 **Security Headers Applied:**
 
@@ -853,9 +873,9 @@ def get_knowledge_nodes():
 
 **Tenant ID Sources:**
 
-1. User.tenant_id from database
-2. Azure AD 'tid' claim from SSO token
-3. API key tenant association
+1.  User.tenant_id from database
+2.  Azure AD 'tid' claim from SSO token
+3.  API key tenant association
 
 **Isolation Scope:**
 
@@ -1080,20 +1100,20 @@ curl -H "X-API-Key: your-api-key" \
 
 ### Endpoint Categories
 
-| Service        | Prefix               | Description             | Key Endpoints                                   |
+| Service | Prefix | Description | Key Endpoints |
 | -------------- | -------------------- | ----------------------- | ----------------------------------------------- |
-| **Auth**       | `/api/v1/auth`       | Authentication & SSO    | `POST /login`, `GET /login/sso`, `POST /logout` |
-| **Gateway**    | `/api/v1/gateway`    | LLM orchestration       | `POST /chat`, `POST /stream`                    |
-| **Trace**      | `/api/v1/trace`      | Execution tracing       | `GET /runs`, `GET /runs/:id/stages`             |
-| **MCP**        | `/api/v1/mcp`        | Model Context Protocol  | `GET /servers`, `POST /tools/:id/call`          |
-| **Knowledge**  | `/api/v1/knowledge`  | Graph operations        | `GET /nodes`, `POST /edges`                     |
-| **KA**         | `/api/v1/ka`         | Algorithm execution     | `GET /algorithms`, `POST /execute`              |
-| **Compliance** | `/api/v1/compliance` | Audit & reporting       | `GET /audit-logs`, `GET /audit/export`          |
-| **Analytics**  | `/api/v1/analytics`  | Dashboard metrics       | `GET /summary`, `GET /trends`, `GET /axis-distribution` |
-| **GraphQL**    | `/graphql`           | Flexible queries        | GraphiQL IDE, queries, mutations                |
-| **Admin**      | `/api/v1/admin`      | User & provider mgmt    | `GET /users`, `POST /providers`                 |
-| **Simulation** | `/api/v1/simulation` | Scenario simulation     | `POST /start`, `GET /:id`                       |
-| **System**     | `/health`            | Health check            | `GET /health`                                   |
+| **Auth** | `/api/v1/auth` | Authentication & SSO | `POST /login`, `GET /login/sso`, `POST /logout` |
+| **Gateway** | `/api/v1/gateway` | LLM orchestration | `POST /chat`, `POST /stream` |
+| **Trace** | `/api/v1/trace` | Execution tracing | `GET /runs`, `GET /runs/:id/stages` |
+| **MCP** | `/api/v1/mcp` | Model Context Protocol | `GET /servers`, `POST /tools/:id/call` |
+| **Knowledge** | `/api/v1/knowledge` | Graph operations | `GET /nodes`, `POST /edges` |
+| **KA** | `/api/v1/ka` | Algorithm execution | `GET /algorithms`, `POST /execute` |
+| **Compliance** | `/api/v1/compliance` | Audit & reporting | `GET /audit-logs`, `GET /audit/export` |
+| **Analytics** | `/api/v1/analytics` | Dashboard metrics | `GET /summary`, `GET /trends`, `GET /axis-distribution` |
+| **GraphQL** | `/graphql` | Flexible queries | GraphiQL IDE, queries, mutations |
+| **Admin** | `/api/v1/admin` | User & provider mgmt | `GET /users`, `POST /providers` |
+| **Simulation** | `/api/v1/simulation` | Scenario simulation | `POST /start`, `GET /:id` |
+| **System** | `/health` | Health check | `GET /health` |
 
 ### Example Requests
 
