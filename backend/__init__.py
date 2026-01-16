@@ -24,6 +24,7 @@ def create_legacy_app():
     from .admin import admin_bp
     from .ukg_api import ukg_bp
     from .routes.user_data_routes import user_data_bp
+    from .routes.settings_routes import settings_bp
     from .middleware import log_request_info
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -31,6 +32,7 @@ def create_legacy_app():
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(ukg_bp, url_prefix='/api/ukg')
     app.register_blueprint(user_data_bp)
+    app.register_blueprint(settings_bp)
     
     # Apply middleware
     log_request_info(app)

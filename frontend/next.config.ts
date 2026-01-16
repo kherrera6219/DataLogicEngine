@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 
+// Next.js 16 Configuration
+// Note: Middleware is handled via root middleware.ts
+// Rewrites are used for API proxying to Flask backend
+
 const cdnUrl = process.env.NEXT_PUBLIC_CDN_URL ?? process.env.CDN_URL ?? "";
 const normalizedCdnUrl = cdnUrl ? cdnUrl.replace(/\/$/, "") : "";
 
@@ -13,9 +17,9 @@ if (normalizedCdnUrl) {
     cdnConfig.images = {
       remotePatterns: [
         {
-          protocol: cdn.protocol.replace(":", ""),
+          protocol: cdn.protocol.replace(":", "") as "http" | "https",
           hostname: cdn.hostname,
-          port: cdn.port || undefined,
+          port: cdn.port || '', 
           pathname: "/**",
         },
       ],

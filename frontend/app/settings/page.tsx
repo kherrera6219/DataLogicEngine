@@ -10,7 +10,7 @@ import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 
 import { PageLayout } from "@/components/ui/page-layout";
-import { Settings as SettingsIcon, Shield, Bell, Key, Save, Trash2, RotateCcw } from "lucide-react";
+import { Settings as SettingsIcon, Shield, Bell, Key, Save, Trash2, RotateCcw, Brain } from "lucide-react";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
@@ -47,6 +47,9 @@ export default function SettingsPage() {
           </TabsTrigger>
           <TabsTrigger value="notifications" className="rounded-xl px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white font-bold transition-all gap-2">
             <Bell className="h-4 w-4" /> Alerts
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="rounded-xl px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white font-bold transition-all gap-2">
+            <Brain className="h-4 w-4" /> AI Controls
           </TabsTrigger>
           <TabsTrigger value="api" className="rounded-xl px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white font-bold transition-all gap-2">
             <Key className="h-4 w-4" /> API Access
@@ -151,6 +154,55 @@ export default function SettingsPage() {
                 <Switch checked={systemAlerts} onCheckedChange={setSystemAlerts} className="data-[state=checked]:bg-blue-600" aria-label="Toggle system alerts" />
               </div>
             </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="ai" className="animate-in fade-in slide-in-from-left-2 duration-300">
+          <Card className="glass-card border-white/10 shadow-2xl">
+            <CardHeader className="border-b border-white/5 mx-6 px-0 pb-6">
+              <CardTitle className="text-xl font-bold">AI Processing Controls</CardTitle>
+              <CardDescription className="text-muted-foreground font-medium">Configure cloud provider preference and data handling.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-8 pt-8">
+               <div className="flex items-center justify-between group">
+                 <div className="space-y-0.5">
+                   <div className="font-bold uppercase tracking-widest text-[10px] text-blue-500">Enable AI Processing</div>
+                   <div className="text-xs text-muted-foreground">Master toggle for all LLM interactions. Disabling stops all cloud calls.</div>
+                 </div>
+                 <Switch defaultChecked aria-label="Toggle AI Processing" className="data-[state=checked]:bg-blue-600" />
+               </div>
+
+               <div className="flex items-center justify-between group">
+                <div className="space-y-0.5">
+                  <div className="font-bold uppercase tracking-widest text-[10px]">Preferred Provider</div>
+                  <div className="text-xs text-muted-foreground">Select primary inference engine. Auto-failover enabled.</div>
+                </div>
+                <Select defaultValue="auto" aria-label="Select AI provider" className="w-[180px] bg-white/5 border-white/10 rounded-xl h-11 focus:ring-blue-500 font-semibold">
+                  <option value="auto">Auto (Recommended)</option>
+                  <option value="openai">OpenAI (GPT-4o)</option>
+                  <option value="azure">Azure OpenAI</option>
+                  <option value="anthropic">Anthropic Claude</option>
+                  <option value="google">Vertex AI</option>
+                </Select>
+              </div>
+
+              <div className="p-6 bg-red-500/5 border border-red-500/20 rounded-2xl">
+                 <div className="flex items-center justify-between group">
+                   <div className="space-y-1">
+                     <div className="font-bold text-red-500 uppercase tracking-tighter flex items-center gap-2">
+                       Store AI Conversation History
+                     </div>
+                     <div className="text-xs text-red-100/60 font-medium">Allow system to persist prompts for context memory.</div>
+                   </div>
+                   <Switch defaultChecked className="data-[state=checked]:bg-red-600" aria-label="Toggle History Storage" />
+                 </div>
+              </div>
+            </CardContent>
+            <CardFooter className="border-t border-white/5 mx-6 px-0 py-6">
+              <Button className="h-11 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 font-bold transition-all gap-2" onClick={handleSave}>
+                <Save className="h-4 w-4" /> Save AI Preferences
+              </Button>
+            </CardFooter>
           </Card>
         </TabsContent>
 

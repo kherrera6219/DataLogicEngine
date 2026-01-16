@@ -49,11 +49,13 @@ export default function RootLayout({
           }}>
             <AuthProvider>
               <ToastProvider>
-                 <CloudDisclosureBanner />
-                 <NavBar />
-                 <main id="main-content" className="outline-none" tabIndex={-1}>
+                <aside aria-label="Cloud Dependency">
+                  <CloudDisclosureBanner />
+                </aside>
+                <NavBar />
+                <div id="main-content" className="min-h-[calc(100vh-4rem)] outline-none" tabIndex={-1}>
                   {children}
-                </main>
+                </div>
               </ToastProvider>
             </AuthProvider>
           </SWRConfig>
