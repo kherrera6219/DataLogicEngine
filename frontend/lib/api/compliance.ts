@@ -1,4 +1,4 @@
-import { request } from "./index";
+import { request, API_BASE } from "./index";
 
 export interface ComplianceStandard {
   uid: string;

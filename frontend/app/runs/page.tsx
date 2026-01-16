@@ -16,7 +16,7 @@ export default function TraceRunsPage() {
      let mounted = true;
      api.trace.list(20).then(data => {
         if (mounted) {
-           setRuns(data || []);
+           setRuns((data || []) as TraceRun[]);
            setIsLoading(false);
         }
      }).catch(() => {

@@ -49,6 +49,20 @@ export default function Home() {
       icon: Settings,
       href: "/settings",
       color: "gray"
+    },
+    {
+       title: "Data Sovereignty",
+       desc: "Protected by KA-61 Adversarial Shields & Zero Retention policies.",
+       icon: ShieldCheck,
+       href: "/about/cloud-services",
+       color: "blue"
+    },
+    {
+       title: "Knowledge Base",
+       desc: "Explore the 17-dimensional graph visualization engine.",
+       icon: Share2,
+       href: "/graph",
+       color: "violet"
     }
   ];
 
@@ -111,6 +125,11 @@ export default function Home() {
           </div>
           <div className="hidden md:block w-px h-4 bg-gray-200 dark:bg-gray-800" />
           <div className="font-medium tracking-tight">v1.2.4 Production</div>
+          <div className="hidden md:block w-px h-4 bg-gray-200 dark:bg-gray-800" />
+           <div className="flex gap-4">
+             <Link href="/legal/privacy" className="hover:text-blue-500 transition-colors">Privacy</Link>
+             <Link href="/about" className="hover:text-blue-500 transition-colors">About</Link>
+           </div>
         </footer>
       </div>
     </main>

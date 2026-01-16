@@ -49,16 +49,9 @@ export default function PrivacySettingsPage() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      toast({
-        title: "Export Started",
-        description: "Your data has been successfully exported.",
-      });
+      toast("Export Started: Your data has been successfully exported.", "success");
     } catch (error) {
-      toast({
-        title: "Export Failed",
-        description: "Could not retrieve your data. Please try again.",
-        variant: "destructive"
-      });
+      toast("Export Failed: Could not retrieve your data.", "error");
     } finally {
       setIsExporting(false);
     }
@@ -80,20 +73,13 @@ export default function PrivacySettingsPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Deletion failed');
 
-      toast({
-        title: "Account Scheduled for Deletion",
-        description: "You will be logged out now. Your data will be permanently removed in 30 days.",
-      });
+      toast("Account Scheduled for Deletion. Logging out...", "warning");
 
       // Wait a moment then logout
       setTimeout(() => logout(), 2000);
 
     } catch (error) {
-      toast({
-        title: "Deletion Failed",
-        description: String(error),
-        variant: "destructive"
-      });
+      toast("Deletion Failed: " + String(error), "error");
     } finally {
       setIsDeleting(false);
     }

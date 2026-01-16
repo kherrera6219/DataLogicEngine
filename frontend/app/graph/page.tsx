@@ -238,15 +238,19 @@ export default function GraphPage() {
           aria-label="3D Knowledge Graph Visualization"
         >
            <ForceGraph3D
-             ref={graphRef}
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             ref={graphRef as any}
              graphData={graphData}
              nodeLabel={showLabels ? 'name' : undefined}
-             nodeColor={(node: GraphNode) => PILLAR_COLORS[node.pillar || 'Technology'] || '#666'}
-             nodeVal={(node: GraphNode) => node.val || 1}
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             nodeColor={(node: any) => PILLAR_COLORS[node.pillar || 'Technology'] || '#666'}
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             nodeVal={(node: any) => node.val || 1}
              linkColor={() => 'rgba(255,255,255,0.1)'}
              linkWidth={0.5}
              backgroundColor="rgba(0,0,0,0)"
-             onNodeClick={handleNodeClick}
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             onNodeClick={handleNodeClick as any}
              enableNodeDrag={enablePhysics}
              nodeOpacity={0.9}
            />

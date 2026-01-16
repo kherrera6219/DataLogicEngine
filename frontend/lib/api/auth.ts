@@ -33,5 +33,5 @@ export const auth = {
         }),
     
     logout: (): Promise<void> => 
-        request('/auth/logout', { method: 'POST' }).catch(() => {})
+        request('/auth/logout', { method: 'POST' }).then(() => {}).catch(() => {})
 };

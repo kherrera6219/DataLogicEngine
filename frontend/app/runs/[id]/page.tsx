@@ -19,7 +19,7 @@ export default function TraceDetailPage({ params }: { params: { id: string } }) 
      if (runId) {
         api.trace.get(runId).then(data => {
            if (mounted) {
-              setTrace(data);
+              setTrace(data as TraceDetail);
               setIsLoading(false);
            }
         });

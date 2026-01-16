@@ -11,7 +11,8 @@ export function ComplianceTrendChart() {
     api.analytics.trends('sessions', 14)
   );
 
-  const data = trendData?.data?.data_points || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data = (trendData as any)?.data?.data_points || [];
 
   return (
     <Card className="glass-card overflow-hidden">

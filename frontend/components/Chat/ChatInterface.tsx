@@ -3,13 +3,15 @@
 import { useState, useRef, useEffect } from 'react';
 import { Message, sendChat } from '@/lib/api';
 import { MessageBubble } from './MessageBubble';
-import { Sparkles, Send, Terminal, ShieldCheck } from 'lucide-react';
+import { Sparkles, Send, Terminal, ShieldCheck, Bot } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom
   useEffect(() => {

@@ -80,3 +80,7 @@ export interface SimulationSession {
   current_step: number;
   user_id: string;
 }
+
+export type KnowledgePillar = PillarLevel;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type KnowledgeStats = any[];

@@ -65,6 +65,34 @@ export default function AboutPage() {
                 </div>
             </div>
         </section>
+        <section className="mb-12">
+            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Microsoft Store Compliance</h2>
+            <Card className="border-blue-100 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-900/10">
+                <CardContent className="pt-6">
+                    <div className="flex flex-col md:flex-row gap-6 items-start">
+                        <div className="flex-1 space-y-4">
+                            <h3 className="font-bold text-lg text-blue-900 dark:text-blue-300">Certified Secure & Transparent</h3>
+                            <p className="text-blue-800/80 dark:text-blue-200/80 text-sm leading-relaxed">
+                                DataLogicEngine is built to strict enterprise standards. We provide full transparency on AI usage, cloud dependencies, and data handling.
+                            </p>
+                            <div className="flex flex-wrap gap-2 text-xs font-semibold text-blue-700 dark:text-blue-400">
+                                <span className="bg-white dark:bg-blue-950 px-2 py-1 rounded border border-blue-200 dark:border-blue-800">KA-61 Adversarial Shield</span>
+                                <span className="bg-white dark:bg-blue-950 px-2 py-1 rounded border border-blue-200 dark:border-blue-800">ISO 27001 Aligned</span>
+                                <span className="bg-white dark:bg-blue-950 px-2 py-1 rounded border border-blue-200 dark:border-blue-800">Zero-Retention Mode</span>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2 w-full md:w-auto">
+                           <a href="/legal/privacy" className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+                               View Privacy Policy
+                           </a>
+                           <a href="/about/ai-limitations" className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-white dark:bg-transparent border border-gray-200 dark:border-gray-700 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                               AI Limitations
+                           </a>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </section>
       </div>
     </main>
   );
