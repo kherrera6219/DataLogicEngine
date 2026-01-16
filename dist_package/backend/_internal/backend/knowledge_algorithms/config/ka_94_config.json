@@ -1,0 +1,9 @@
+{
+    "report_types": ["daily_health", "audit_weekly", "accuracy_trend", "resource_usage"],
+    "formats": ["pdf", "html", "csv"],
+    "scheduling_enabled": true,
+    "distribution_lists": {
+        "ops": ["ops@example.com"],
+        "exec": ["cto@example.com"]
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "max_passes": 3,
+    "confidence_threshold": 0.85,
+    "entropy_threshold": 0.4,
+    "gap_sensitivity": 0.7,
+    "allow_infinite": false
+}

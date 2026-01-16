@@ -1,0 +1,40 @@
+[MASTER]
+ignore=CVS,.git,.hg,.svn
+ignore-patterns=.*_test.py,test_.*.py
+load-plugins=pylint.extensions.docparams
+
+[MESSAGES CONTROL]
+disable=
+    C0303, # trailing-whitespace
+    C0114, # missing-module-docstring
+    C0115, # missing-class-docstring (encourage but don't fail for now)
+    C0116, # missing-function-docstring (encourage but don't fail for now)
+    W1203, # logging-fstring-interpolation (f-strings are fine usually)
+    C0301, # line-too-long (100 is strict, we allow 120 sometimes)
+    R0903, # too-few-public-methods
+    R0913, # too-many-arguments
+    C0411, # wrong-import-order (noisy)
+    C0413, # wrong-import-position (noisy)
+    C0415, # import-outside-toplevel
+    W0718, # broad-exception-caught (sometimes needed)
+    W0611, # unused-import
+    E0401, # import-error
+    E0611, # no-name-in-module (flaky import resolution)
+    W1514, # unspecified-encoding (default UTF-8 is fine)
+    C0103, # invalid-name (naming conventions)
+    W0613, # unused-argument
+    R0902, # too-many-instance-attributes
+    R0911, # too-many-return-statements
+    R0912, # too-many-branches
+    R0914, # too-many-local-variables
+    R0917, # too-many-positional-arguments
+    R1705, # no-else-return
+    R1702, # too-many-nested-blocks
+    W0603, # global-statement
+    W0212  # protected-access
+
+[FORMAT]
+max-line-length=120
+
+[DESIGN]
+max-args=8

@@ -1,0 +1,10 @@
+{
+    "log_level": "DEBUG",
+    "structured_logging": true,
+    "storage_backend": "elasticsearch",
+    "log_rotation": {
+        "max_size_mb": 100,
+        "backup_count": 5
+    },
+    "sensitive_fields_masking": ["password", "api_key", "ssn"]
+}

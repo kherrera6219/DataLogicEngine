@@ -1,0 +1,5 @@
+{
+    "default_model_type": "statistical",
+    "supported_types": ["statistical", "structural", "bayesian"],
+    "confidence_boost": 0.1
+}

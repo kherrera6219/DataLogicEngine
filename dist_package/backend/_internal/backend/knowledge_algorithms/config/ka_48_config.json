@@ -1,0 +1,6 @@
+{
+    "resolution_mode": "majority_vote",
+    "fallback_ontology": "UKG_CORE",
+    "similarity_threshold": 0.9,
+    "log_resolutions": true
+}

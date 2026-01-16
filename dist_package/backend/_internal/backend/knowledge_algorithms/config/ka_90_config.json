@@ -1,0 +1,7 @@
+{
+    "quantization_type": "post_training_integer",
+    "target_bit_depth": 8,
+    "optimization_target": "latency",
+    "per_channel": true,
+    "calibration_dataset_size": 100
+}

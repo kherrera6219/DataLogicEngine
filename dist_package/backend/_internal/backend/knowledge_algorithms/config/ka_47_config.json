@@ -1,0 +1,6 @@
+{
+    "tuning_mode": "performance_optimized",
+    "min_accuracy_threshold": 0.85,
+    "max_cost_threshold": 0.5,
+    "enable_custom_kadets": true
+}

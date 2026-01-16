@@ -1,0 +1,12 @@
+{
+    "modalities": ["text", "image", "audio", "video", "structured_data"],
+    "trust_weights": {
+        "structured_data": 1.2,
+        "text": 1.0,
+        "image": 0.9,
+        "audio": 0.8,
+        "video": 0.85
+    },
+    "conflict_strategy": "weighted_consensus",
+    "min_modality_count": 2
+}

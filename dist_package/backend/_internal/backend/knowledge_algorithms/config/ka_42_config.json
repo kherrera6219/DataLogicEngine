@@ -1,0 +1,6 @@
+{
+    "propagation_depth": 3,
+    "severity_threshold": 0.5,
+    "trace_indirect_dependencies": true,
+    "alert_on_cycle": true
+}

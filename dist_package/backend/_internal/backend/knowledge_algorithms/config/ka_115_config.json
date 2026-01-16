@@ -1,0 +1,7 @@
+{
+    "injection_modes": ["latency", "resource_starvation", "network_partition", "process_kill"],
+    "blast_radius_percent": 10,
+    "intensity": 0.5,
+    "automated_chaos_tests": true,
+    "safe_mode_enabled": true
+}

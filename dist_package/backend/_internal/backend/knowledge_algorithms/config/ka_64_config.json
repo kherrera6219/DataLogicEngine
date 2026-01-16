@@ -1,0 +1,9 @@
+{
+    "signature_db": [
+        {"regex": "timeout", "tag": "LATENCY_THRESHOLD_EXCEEDED"},
+        {"regex": "none_type", "tag": "NULL_REFERENCE_ERROR"},
+        {"regex": "forbidden", "tag": "ACL_VETO"}
+    ],
+    "enable_automatic_blacklisting": false,
+    "min_occurrence_count": 3
+}

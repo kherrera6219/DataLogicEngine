@@ -1,0 +1,7 @@
+{
+    "deduplication_strategy": "fuzzy",
+    "fuzzy_threshold": 0.95,
+    "cleaning_ops": ["null_removal", "outlier_clipping", "whitespace_trim"],
+    "outlier_z_score": 3.0,
+    "drop_corrupt_records": true
+}

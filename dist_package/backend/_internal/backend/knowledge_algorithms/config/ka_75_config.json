@@ -1,0 +1,8 @@
+{
+    "canonical_schemas": {
+        "user_profile": ["first_name", "last_name", "email", "registration_date"],
+        "transaction": ["id", "amount", "currency", "timestamp"]
+    },
+    "default_alignment_mode": "best_fit",
+    "similarity_threshold": 0.8
+}

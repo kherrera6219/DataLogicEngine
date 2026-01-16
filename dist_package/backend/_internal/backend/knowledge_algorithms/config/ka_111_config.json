@@ -1,0 +1,10 @@
+{
+    "gateway_port": 8080,
+    "auth_provider": "jwt_plus_oauth2",
+    "rate_limiting": {
+        "requests_per_second": 100,
+        "burst_limit": 20
+    },
+    "cors_origins": ["*"],
+    "enable_request_signing": true
+}

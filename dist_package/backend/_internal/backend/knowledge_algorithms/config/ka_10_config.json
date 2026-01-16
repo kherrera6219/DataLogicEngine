@@ -1,0 +1,27 @@
+{
+    "bias_categories": {
+        "GENDER": {
+            "keywords": ["chairman", "manpower", "mankind", "stewardess"],
+            "suggestions": {
+                "chairman": "chairperson",
+                "manpower": "workforce",
+                "mankind": "humanity",
+                "stewardess": "flight attendant"
+            }
+        },
+        "RACIAL": {
+            "keywords": ["blacklist", "whitelist", "master", "slave"],
+            "suggestions": {
+                "blacklist": "denylist",
+                "whitelist": "allowlist",
+                "master": "primary / main",
+                "slave": "secondary / replica"
+            }
+        },
+        "POLITICAL": {
+            "keywords": ["liberal", "conservative", "radical", "extremist"],
+            "suggestions": {}
+        }
+    },
+    "severity_threshold": 0.2
+}

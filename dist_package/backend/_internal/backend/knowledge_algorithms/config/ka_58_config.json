@@ -1,0 +1,6 @@
+{
+    "ambiguity_threshold": 0.6,
+    "max_clarifications_per_turn": 2,
+    "strategy": "competing_intents",
+    "suggest_options": true
+}

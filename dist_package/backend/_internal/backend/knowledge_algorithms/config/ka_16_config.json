@@ -1,0 +1,17 @@
+{
+    "compliance_frameworks": {
+        "GDPR": {
+            "obligations": ["Data Privacy", "Right to be Forgotten", "Consent Management"],
+            "risk_score": 0.9
+        },
+        "HIPAA": {
+            "obligations": ["Patient Confidentiality", "PHI Security", "Audit Trails"],
+            "risk_score": 0.85
+        },
+        "INTERNAL": {
+            "obligations": ["Ethical AI", "Bias Mitigation", "Audit Logging"],
+            "risk_score": 0.5
+        }
+    },
+    "default_framework": "INTERNAL"
+}

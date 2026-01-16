@@ -1,0 +1,6 @@
+{
+    "pattern_types": ["demographic_skew", "sentiment_imbalance", "source_overreliance"],
+    "min_sample_size": 20,
+    "significance_threshold": 0.05,
+    "enable_auto_alerts": true
+}

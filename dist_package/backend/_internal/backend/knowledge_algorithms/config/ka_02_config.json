@@ -1,0 +1,6 @@
+{
+    "search_method": "BFS",
+    "max_depth": 3,
+    "branching_factor": 3,
+    "pruning_threshold": 0.4
+}

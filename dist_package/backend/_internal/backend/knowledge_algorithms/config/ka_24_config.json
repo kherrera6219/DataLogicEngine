@@ -1,0 +1,6 @@
+{
+    "trust_threshold": 0.8,
+    "max_risk_tolerance": 0.5,
+    "strict_policy": true,
+    "bypass_allowed": false
+}

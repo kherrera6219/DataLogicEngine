@@ -1,0 +1,6 @@
+{
+    "regression_suite": ["core_schema", "regulatory_compliance", "primary_physics"],
+    "strict_mode": true,
+    "allow_contradiction_on_new_evidence": false,
+    "diff_threshold": 0.05
+}

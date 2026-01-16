@@ -1,0 +1,6 @@
+{
+    "compression_threshold": 0.8,
+    "utility_weight": 0.7,
+    "preserve_nodes": ["CORE_TRUTH", "LEGAL_SCHEMA"],
+    "max_merge_groups": 10
+}

@@ -1,0 +1,10 @@
+{
+    "impact_categories": {
+        "BIAS": 0.4,
+        "PRIVACY": 0.3,
+        "HARM": 0.2,
+        "EQUITY": 0.1
+    },
+    "harm_keywords": ["lethal", "dangerous", "discriminatory", "invasive"],
+    "critical_threshold": 0.7
+}

@@ -1,0 +1,7 @@
+{
+    "pruning_method": "magnitude_based_unstructured",
+    "target_sparsity": 0.4,
+    "pruning_schedule": "polynomial_decay",
+    "retrain_after_pruning": true,
+    "ignored_layers": ["embedding", "output_projection"]
+}

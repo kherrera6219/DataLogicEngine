@@ -1,0 +1,6 @@
+{
+    "novelty_threshold": 0.7,
+    "pattern_drift_limit": 0.5,
+    "monitored_signals": ["entropy", "confidence_delta", "perspective_clash"],
+    "alerts_enabled": true
+}

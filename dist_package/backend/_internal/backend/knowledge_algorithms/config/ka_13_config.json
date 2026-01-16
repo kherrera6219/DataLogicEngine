@@ -1,0 +1,23 @@
+{
+    "domain_weights": {
+        "TECHNICAL": {
+            "knowledge": 0.6,
+            "sector": 0.2,
+            "regulatory": 0.1,
+            "compliance": 0.1
+        },
+        "REGULATORY": {
+            "knowledge": 0.1,
+            "sector": 0.1,
+            "regulatory": 0.6,
+            "compliance": 0.2
+        },
+        "GENERAL": {
+            "knowledge": 0.25,
+            "sector": 0.25,
+            "regulatory": 0.25,
+            "compliance": 0.25
+        }
+    },
+    "normalization_enabled": true
+}

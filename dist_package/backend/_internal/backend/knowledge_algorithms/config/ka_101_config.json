@@ -1,0 +1,13 @@
+{
+    "active_environment": "production",
+    "env_variables": {
+        "DEBUG": "false",
+        "API_VERSION": "v2"
+    },
+    "provider_configs": {
+        "aws": {"region": "us-east-1"},
+        "k8s": {"namespace": "data-logic-engine"}
+    },
+    "isolation_level": "container",
+    "hot_reload_enabled": true
+}

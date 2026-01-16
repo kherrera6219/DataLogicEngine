@@ -1,0 +1,29 @@
+{
+    "default_strategy": "standard",
+    "strategies": {
+        "standard": [
+            {"step": "validate", "ka": "KA-004", "desc": "Validate Input"},
+            {"step": "analyze", "ka": "KA-005", "desc": "Analyze Query intent"},
+            {"step": "plan", "ka": "KA-006", "desc": "Create execution plan"},
+            {"step": "execute", "type": "dynamic", "desc": "Execute planned tasks"},
+            {"step": "verify", "ka": "KA-009", "desc": "Verify evidence"},
+            {"step": "synthesize", "ka": "KA-019", "desc": "Synthesize final answer"}
+        ],
+        "simple": [
+            {"step": "validate", "ka": "KA-004"},
+            {"step": "execute", "type": "direct"},
+            {"step": "synthesize", "ka": "KA-019"}
+        ],
+        "research": [
+            {"step": "validate", "ka": "KA-004"},
+            {"step": "plan", "ka": "KA-006"},
+            {"step": "search", "ka": "KA-114", "desc": "Deep Research"},
+            {"step": "analyze_findings", "ka": "KA-011"},
+            {"step": "synthesize", "ka": "KA-019"}
+        ]
+    },
+    "complexity_thresholds": {
+        "simple": 0.3,
+        "standard": 0.7
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "supported_cultures": ["global", "regional_na", "regional_eu", "regional_asia"],
+    "adaptation_rules": [
+        {"culture": "regional_eu", "framing": "privacy_first"},
+        {"culture": "regional_na", "framing": "innovation_first"}
+    ],
+    "default_culture": "global"
+}

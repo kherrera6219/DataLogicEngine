@@ -1,0 +1,7 @@
+{
+    "profiling_modes": ["cpu", "memory", "latency", "call_graph"],
+    "sampling_rate": 0.1,
+    "max_depth": 20,
+    "output_dir": "profiling/dumps/",
+    "continuous_profiling": false
+}

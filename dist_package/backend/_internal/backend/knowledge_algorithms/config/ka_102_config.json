@@ -1,0 +1,10 @@
+{
+    "injection_strategy": "constructor",
+    "dependency_map": {
+        "db_client": "PostgresClient",
+        "cache_client": "RedisClusterClient",
+        "llm_client": "OpenAIProxyClient"
+    },
+    "enable_singleton_pattern": true,
+    "circular_dependency_detection": true
+}
