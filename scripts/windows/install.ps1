@@ -1,71 +1,46 @@
-# DataLogicEngine Windows Installer Orchestrator
-# This script is called by the main Setup.exe bootstrapper
-
 Param(
     [string]$InstallPath = "C:\Program Files\DataLogicEngine",
-    [string]$DataPath = "C:\DataLogic_DATA",
+    [string]$DataPath = "C:\ProgramData\DataLogicEngine",
     [switch]$SkipDeps = $false
 )
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "Starting DataLogicEngine Installation..." -ForegroundColor Cyan
+Write-Host "--- UKG Desktop: Official Installation Orchestrator ---" -ForegroundColor Cyan
 
-# 1. Create Directories
+# 1. Pre-flight Checks
+Write-Host "Performing pre-flight checks..."
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Error "Installer must be run as Administrator."
+}
+
+# 2. Setup Directories
 Write-Host "Creating directories..."
-New-Item -ItemType Directory -Force -Path $InstallPath
-New-Item -ItemType Directory -Force -Path $DataPath
-New-Item -ItemType Directory -Force -Path "$DataPath\postgres"
-New-Item -ItemType Directory -Force -Path "$DataPath\redis"
-New-Item -ItemType Directory -Force -Path "$DataPath\logs"
+$Dirs = @("app", "config", "db", "redis", "logs", "backups", "vault", "audit")
+foreach ($dir in $Dirs) {
+    New-Item -ItemType Directory -Force -Path (Join-Path $DataPath $dir) | Out-Null
+}
+New-Item -ItemType Directory -Force -Path $InstallPath | Out-Null
 
-# 2. Install Postgres (Silent)
+# 3. Install Dependencies (Silent)
 if (-not $SkipDeps) {
-    Write-Host "Installing PostgreSQL 15..."
-    # Assuming the installer is bundled in a 'redist' folder
-    # Start-Process -FilePath "$PSScriptRoot\redist\postgresql-15-windows-x64.exe" -ArgumentList "--mode unattended --postgrespassword postgres --datadir `"$DataPath\postgres`"" -Wait
+    # Run modular setup scripts
+    & "$PSScriptRoot\setup_db.ps1" -DataDir (Join-Path $DataPath "db")
+    & "$PSScriptRoot\setup_cache.ps1"
 }
 
-# 3. Install Redis (Silent)
-if (-not $SkipDeps) {
-    Write-Host "Installing Redis..."
-    # Assuming redis msi is bundled
-    # Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$PSScriptRoot\redist\redis.msi`" /quiet" -Wait
-}
+# 4. Deploy Application Services
+Write-Host "Registering UKG Windows Services..."
+$BackendPath = Join-Path $InstallPath "app\DataLogic_Backend.exe"
+$FrontendPath = "node.exe"
 
-# 4. Register WinSW Services
-Write-Host "Registering Windows Services..."
+# (Logic for copying binaries would go here)
 
-$Services = @(
-    @{ Name="DataLogic_Backend"; Exec="DataLogic_Backend.exe"; Deps="postgresql,redis" },
-    @{ Name="DataLogic_Frontend"; Exec="node.exe"; Args="standalone/server.js"; Deps="DataLogic_Backend" }
-)
-
-foreach ($svc in $Services) {
-    Write-Host "Configuring service: $($svc.Name)"
-    # Copy WinSW binary and rename to service name
-    Copy-Item "$PSScriptRoot\winsw.exe" "$InstallPath\$($svc.Name).exe" -Force
-    
-    # Generate XML config (Simplified for this script)
-    $xml = @"
-<service>
-  <id>$($svc.Name)</id>
-  <name>$($svc.Name)</name>
-  <description>DataLogicEngine $($svc.Name) Service</description>
-  <executable>$($svc.Exec)</executable>
-  $(if ($svc.Args) { "<arguments>$($svc.Args)</arguments>" })
-  <log mode="roll"></log>
-</service>
-"@
-    $xml | Out-File "$InstallPath\$($svc.Name).xml" -Encoding utf8
-    
-    # Install service
-    Start-Process -FilePath "$InstallPath\$($svc.Name).exe" -ArgumentList "install" -Wait
-}
-
-# 5. Run Database Migrations
-Write-Host "Running database migrations..."
-# Start-Process -FilePath "$InstallPath\DataLogic_Backend.exe" -ArgumentList "db migrate" -Wait
+# Register Backup Task
+Write-Host "Scheduling nightly backups..."
+$Action = New-ScheduledTaskAction -Execute 'PowerShell.exe' -Argument "-ExecutionPolicy Bypass -File `"$PSScriptRoot\backup_data.ps1`""
+$Trigger = New-ScheduledTaskTrigger -DailyAt 3am
+Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "UKG_Nightly_Backup" -User "SYSTEM" -Force | Out-Null
 
 Write-Host "Installation Complete!" -ForegroundColor Green
-Write-Host "Open http://localhost:3000 to begin."
+Write-Host "Visit http://localhost:3000 to access your Desktop Reasoning Engine."

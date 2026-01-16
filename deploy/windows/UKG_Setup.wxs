@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
     <Product Id="*" Name="DataLogicEngine" Language="1033" Version="1.2.4.0" Manufacturer="DataLogic" UpgradeCode="a8342468-b391-4d1a-96e0-1c8632607831">
         <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
@@ -8,6 +8,7 @@
 
         <Feature Id="ProductFeature" Title="DataLogicEngine" Level="1">
             <ComponentGroupRef Id="ProductComponents" />
+            <ComponentGroupRef Id="ScriptComponents" />
             <ComponentGroupRef Id="ServiceComponents" />
         </Feature>
 
@@ -17,12 +18,32 @@
             <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2">1</Publish>
         </UI>
         <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+        <!-- Custom Actions for PowerShell Orchestration -->
+        <Binary Id="InstallScript" SourceFile="scripts/windows/install.ps1" />
+        <Binary Id="UninstallScript" SourceFile="scripts/windows/uninstall.ps1" />
+
+        <CustomAction Id="RunInstallScript" 
+                      BinaryKey="WixCA" 
+                      DllEntry="WixQuietExec" 
+                      Execute="deferred" 
+                      Return="check" 
+                      Impersonate="no" />
+        
+        <Property Id="RunInstallScript" Value="&quot;powershell.exe&quot; -ExecutionPolicy Bypass -File &quot;[INSTALLFOLDER]scripts\install.ps1&quot; -InstallPath &quot;[INSTALLFOLDER]&quot; -DataPath &quot;[DATAFOLDER]&quot;" />
+
+        <InstallExecuteSequence>
+            <Custom Action="RunInstallScript" After="InstallFiles">NOT Installed</Custom>
+        </InstallExecuteSequence>
+
     </Product>
 
     <Fragment>
         <Directory Id="TARGETDIR" Name="SourceDir">
             <Directory Id="ProgramFiles64Folder">
-                <Directory Id="INSTALLFOLDER" Name="DataLogicEngine" />
+                <Directory Id="INSTALLFOLDER" Name="DataLogicEngine">
+                    <Directory Id="SCRIPTFOLDER" Name="scripts" />
+                </Directory>
             </Directory>
             <Directory Id="CommonAppDataFolder">
                 <Directory Id="DATAFOLDER" Name="DataLogicEngine" />
@@ -35,31 +56,57 @@
 
     <Fragment>
         <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-            <!-- Backend Binary -->
+            <!-- Backend Binary (Bundled by PyInstaller) -->
             <Component Id="BackendExe" Guid="*">
-                <File Id="BackendExeFile" Source="dist\DataLogic_Backend\DataLogic_Backend.exe" KeyPath="yes" />
+                <File Id="BackendExeFile" Source="dist/DataLogic_Backend/DataLogic_Backend.exe" KeyPath="yes" />
             </Component>
             
-            <!-- Frontend Standalone -->
+            <!-- Frontend Standalone (Next.js) -->
             <Component Id="FrontendServer" Guid="*">
-                <File Id="FrontendServerFile" Source="frontend\.next\standalone\server.js" KeyPath="yes" />
+                <File Id="FrontendServerFile" Source="frontend/.next/standalone/server.js" KeyPath="yes" />
             </Component>
 
-            <!-- Shortcut -->
+            <!-- Shortcut to Localhost UI -->
             <Component Id="ApplicationShortcut" Guid="*">
                 <Shortcut Id="ApplicationStartMenuShortcut" 
                           Name="DataLogicEngine" 
                           Description="Launch DataLogicEngine Desktop" 
-                          Target="[BROWSER_PATH]" 
-                          Arguments="http://localhost:3000"
+                          Target="[ProgramFiles64Folder]Microsoft\Edge\Application\msedge.exe" 
+                          Arguments="--app=http://localhost:3000"
                           WorkingDirectory="INSTALLFOLDER"/>
                 <RemoveFolder Id="CleanupShortcut" On="uninstall"/>
                 <RegistryValue Root="HKCU" Key="Software\DataLogic\DataLogicEngine" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
             </Component>
         </ComponentGroup>
 
+        <ComponentGroup Id="ScriptComponents" Directory="SCRIPTFOLDER">
+            <Component Id="InstallPs1" Guid="*">
+                <File Id="InstallPs1File" Source="scripts/windows/install.ps1" KeyPath="yes" />
+            </Component>
+            <Component Id="UninstallPs1" Guid="*">
+                <File Id="UninstallPs1File" Source="scripts/windows/uninstall.ps1" KeyPath="yes" />
+            </Component>
+            <Component Id="SetupDbPs1" Guid="*">
+                <File Id="SetupDbPs1File" Source="scripts/windows/setup_db.ps1" KeyPath="yes" />
+            </Component>
+            <Component Id="SetupCachePs1" Guid="*">
+                <File Id="SetupCachePs1File" Source="scripts/windows/setup_cache.ps1" KeyPath="yes" />
+            </Component>
+            <Component Id="BackupDataPs1" Guid="*">
+                <File Id="BackupDataPs1File" Source="scripts/windows/backup_data.ps1" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
         <ComponentGroup Id="ServiceComponents" Directory="INSTALLFOLDER">
-            <!-- WinSW Binaries and Configs will be handled here -->
+            <Component Id="WinSWExe" Guid="*">
+                <File Id="WinSWExeFile" Source="deploy/windows/winsw.exe" KeyPath="yes" />
+            </Component>
+            <Component Id="BackendSvcXml" Guid="*">
+                <File Id="BackendSvcXmlFile" Source="deploy/windows/DataLogic_Backend.xml" />
+            </Component>
+            <Component Id="FrontendSvcXml" Guid="*">
+                <File Id="FrontendSvcXmlFile" Source="deploy/windows/DataLogic_Frontend.xml" />
+            </Component>
         </ComponentGroup>
     </Fragment>
 </Wix>

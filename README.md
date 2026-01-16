@@ -1,8 +1,8 @@
 # Universal Knowledge Graph (UKG) Engine
 
-### Enterprise-Grade AI Knowledge Synthesis & Orchestration Platform
+## Enterprise-Grade AI Knowledge Synthesis & Orchestration Platform
 
-[![Version](https://img.shields.io/badge/Version-2.3.1-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-2.4.0-blue)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-Polyform--Noncommercial-red)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
@@ -31,6 +31,10 @@ By utilizing a unique **17-Axis Coordinate Framework**, the engine contextualize
 | **Failover Logic**: Multi-provider resilience (OpenAI, Azure, Anthropic). | **Encryption**: AES-256 field-level encryption for PII at rest.     | **Optimized IO**: Gunicorn/Celery workers for high-concurrency tasks. | **Audit Chain**: Hash-linked audit trails for compliance (SOC2/HIPAA). |
 
 The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchestration platform that acts as an intelligent middleware layer between applications and Large Language Models (LLMs). It injects verified enterprise knowledge into AI reasoning while maintaining complete auditability and compliance.
+
+---
+
+## 🛠️ System Overview
 
 ### What Problem Does It Solve?
 
@@ -71,6 +75,17 @@ The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchest
 - **Local ML Serving** (vLLM/Ollama) with tier-prioritized routing
 - **Kubernetes Operator** for self-healing and auto-scaling workers
 - **Federated Knowledge Sharing** (KA-114/115) with ZKP verification
+
+3. **Zero-Ops Windows Installer**: A professional WiX-based Setup.exe that bundles PostgreSQL, Redis, and native Windows services.
+
+---
+
+## 🌟 Dual-Mode Architecture
+
+DataLogicEngine is built for versatility, supporting two first-class deployment paths:
+
+1. **Enterprise Cloud Logic Layer**: High-scale, multi-tenant middleware for enterprise AI applications.
+2. **Local-First Desktop Engine**: A private, high-performance reasoning engine for Windows 11.
 
 ---
 
@@ -175,6 +190,15 @@ Production-ready compliance features:
 - **SOC2**: Evidence collection, encryption at rest, access controls
 - **GDPR**: Data minimization, tenant isolation, right to be forgotten
 - **HIPAA**: Audit trails, encryption, role-based access
+
+### 🖥️ Windows 11 Desktop Experience
+New first-class support for local-first desktop execution.
+- **Local-First Execution**: Fully functional without cloud-based backends for data storage.
+- **Native Windows Services**: Backend and Frontend managed via WinSW for zero-config background execution.
+- **Zero-Config Identity**: Automatic user recognition via Windows Security Identifier (SID).
+- **Secure Secret Storage**: API keys encrypted via Windows DPAPI and tied to the user profile.
+- **Multi-Mode Operation**: Seamlessly switch between Local-Only and Cloud-Hybrid execution.
+
 
 ---
 

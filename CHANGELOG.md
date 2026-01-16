@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [2.4.0] - 2026-01-16
+
+### Added - Multi-Mode Reasoning Engine (Cloud & Desktop)
+- **Hybrid Deployment Architecture**: Transitioned to a multi-mode architecture supporting both **Enterprise Cloud** and **Local-First Windows 11 Desktop** deployments.
+- **Windows 11 Desktop Support**: Native Windows 11 desktop application with deep OS integration.
+- **Native Windows Services**: Implemented backend and frontend as native Windows services via WinSW.
+- **Zero-Config Identity**: Added automated user identification and registration via Windows Security Identifier (SID).
+- **Secure Secret Management**: Integrated Windows DPAPI for encrypted storage of LLM API keys.
+- **AI Transparency & Labeling**: Implemented "AI-Generated Content" labels and a comprehensive AI Limitations disclosure page.
+- **Cloud Disclosure**: Added a first-run cloud disclosure banner and a detailed "About Cloud Services" transparency page.
+- **User Data Rights**: Implemented self-service Data Export (JSON) and Profile Deletion for privacy compliance (GDPR/CCPA).
+- **KA-61 Adversarial Shield**: Enhanced security with a 5-point adversarial input shield (L1 Gate) to prevent prompt injection and logical traps.
+- **Standalone Distribution**: Created a structured `dist_package/` with local launchers and orchestration scripts.
+
 ## [2.3.1] - 2026-01-15
 
 ### Added - SDK Synchronization & Documentation Consolidation

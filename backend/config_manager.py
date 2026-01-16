@@ -86,6 +86,17 @@ class ConfigManager:
             "auth": {
                 "jwt_secret": os.environ.get("JWT_SECRET", "ukg-development-secret"),
                 "token_expiry_minutes": 60
+            },
+            "database": {
+                "url": os.environ.get("DATABASE_URL", "postgresql://localhost/ukg"),
+                "pool_size": 10,
+                "pool_recycle": 3600,
+                "engine_options": {
+                    "pool_pre_ping": True,  # Essential for service-restart resilience
+                    "connect_args": {
+                        "connect_timeout": 10
+                    }
+                }
             }
         }
 

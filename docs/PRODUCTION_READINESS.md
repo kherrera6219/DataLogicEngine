@@ -19,9 +19,9 @@
 
 DataLogicEngine is an enterprise-grade AI/ML knowledge management platform designed for production deployment. This guide outlines the critical steps, configurations, and best practices for deploying the system in a production environment.
 
-**Current Status**: Production v2.3.0 Hardened
-**Version**: 2.3.0
-**Last Updated**: January 15, 2026
+**Current Status**: Production v2.4.0 Hardened
+**Version**: 2.4.0
+**Last Updated**: January 16, 2026
 
 ## Production Checklist
 
@@ -63,8 +63,22 @@ DataLogicEngine is an enterprise-grade AI/ML knowledge management platform desig
 - [x] **Implement API rate limit quotas** per user
 - [x] **Set up Redis** for session storage and caching
 - [x] **Configure CDN** for static assets (NEXT_PUBLIC_CDN_URL assetPrefix support)
-- [ ] **Implement data retention policies**
+- [x] **Implement data retention policies** (User-controlled deletion implemented)
 - [ ] **Set up security incident response team**
+
+### Phase 8: Microsoft Store & Compliance ✅
+- [x] **AI Transparency Labeling**: Added badges and disclaimers to all AI-generated content.
+- [x] **Cloud Disclosure Banner**: Implemented first-run disclosure for cloud-hybrid processing.
+- [x] **AI Limitations Disclosure**: Created dedicated page documenting AI risks and mitigation.
+- [x] **User Data Rights**: Implemented self-service Data Export and Account Deletion.
+- [x] **Secure Secret Storage**: Switched to Windows DPAPI for local secret management.
+- [x] **Adversarial Hardening**: Enhanced KA-61 shield with 5-point adversarial check.
+
+## Phase 9: Distributable Installer & Lifecycle [/]
+- [x] **Setup.exe (WiX)**: Professional installer UI with programmable installation directory.
+- [x] **Silent Dependencies**: Automated MSI delivery of PostgreSQL and Redis.
+- [x] **Automated Lifecycle**: Nightly backup task registration and interactive uninstallation.
+- [ ] **Store Packaging**: Final MSIX conversion for Microsoft Store submission.
 
 ### Medium Priority (Complete Within First Month)
 
@@ -221,13 +235,17 @@ DataLogicEngine is an enterprise-grade AI/ML knowledge management platform desig
    TESTING = False
 
    # Custom error handlers (already implemented ✅)
-   @app.errorhandler(500)
-   def internal_error(error):
-       # Log error internally
-       logger.error(f"Internal error: {error}")
-       # Return generic message to user
-       return render_template('errors/500.html'), 500
-   ```
+    return render_template('errors/500.html'), 500
+    ```
+
+### 4. Adversarial Input Hardening (KA-61) ✅
+The application implements the **KA-61 Adversarial Shield** at the first reasoning gate (L1) to protect against modern prompt injection and social engineering attacks.
+- **Prompt Injection**: Detects attempt to override system instructions.
+- **Logical Traps**: Identifies paradoxes designed to hang the reasoning engine.
+- **Obfuscation Detection**: Catches encoded malicious payloads (Base64/Hex).
+- **Resource Exhaustion**: Prevents instruction-looping (DoS) attacks.
+- **Persona Hijacking**: Protects expert personas from forced safety guideline bypass.
+
 
 ## Performance Optimization
 

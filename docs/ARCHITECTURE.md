@@ -1,5 +1,5 @@
 # Universal Knowledge Graph (UKG) System Architecture
-**Version 2.3.1 - January 2026**
+**Version 2.4.0 - January 16, 2026**
 
 ## Overview
 
@@ -109,7 +109,40 @@ This coordinate system allows the engine to retrieve exactly the right "slice" o
 
 ---
 
+## 🖥️ Desktop & Local-First Architecture (Windows 11)
+
+In v2.4.0, the system introduced first-class support for **Local-First** desktop execution on Windows 11.
+
+### 1. Multi-Mode Execution Layer
+The system can operate in two primary modes defined by environment variables:
+- **Local-Only**: Uses local instances of PostgreSQL and Redis. Data residency is strictly on the local machine.
+- **Cloud-Hybrid**: Connects to existing cloud-hosted databases while maintaining local application state.
+
+### 2. Service Orchestration (WinSW)
+Both the Flask backend and Next.js frontend are managed as native Windows Services using **WinSW (Windows Service Wrapper)**.
+- **Backend Service**: `DataLogic_Backend.exe` (PyInstaller bundle) supervised by `DataLogic_Backend.xml`.
+- **Frontend Service**: Next.js standalone server supervised by `DataLogic_Frontend.xml`.
+- **LifeCycle**: Services start automatically on boot and support automatic restart on failure.
+
+### 3. Native Identity & Security
+- **Zero-Config Identity**: The application retrieves the Windows **Security Identifier (SID)** to automatically identify and register the local user without requiring manual login.
+- **DPAPI Secret Storage**: Sensitve LLM API keys are encrypted using the **Windows Data Protection API (DPAPI)**, ensuring secrets are tied to the specific user and machine.
+
+### 4. Local Data Paths
+The application respects Windows standards for data residency:
+- **Data Directory**: `C:\ProgramData\DataLogicEngine` (Configurable via `UKG_DATA_DIR`).
+- **Log Residency**: All service logs are stored in the local data directory under `/logs`.
+
+### 5. Distributable Packaging (Setup.exe)
+For standalone distribution, the system uses a **WiX Toolset** based installer system.
+- **Payload**: Bundles the PyInstaller backend, Next.js standalone frontend, WinSW binaries, and modular PowerShell setup scripts.
+- **CustomActions**: The installer executes `install.ps1` with elevated privileges to handle silent MSI delivery of PostgreSQL and Redis, ensuring a "Zero-Ops" experience for the end user.
+- **Lifecycle**: Handles MSI-compliant upgrades, repairs, and clean uninstallation with data-retention prompts.
+
+---
+
 ## 🧠 Unified Knowledge Algorithm (KA) Infrastructure
+
 
 The system employs a unified infrastructure for managing and executing **Knowledge Algorithms (KAs)**. These algorithms (KA-001 to KA-116, L9-KA-001 to 007) are implemented as modern Python modules that inherit from a standard base class and register themselves via a central registry.
 
