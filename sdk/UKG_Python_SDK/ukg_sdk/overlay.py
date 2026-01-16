@@ -198,8 +198,6 @@ class UKGOverlay:
             
             # Prompt Injection / Policy Bait
             import re
-            # Using compiled regexes is efficient but for this handler doing it inline is acceptable 
-            # as long as they are simple.
             
             if re.search(r"(ignore|disregard)\s+(previous|all)\s+instructions", query, re.I):
                 reasons.append("prompt_injection")
@@ -211,14 +209,20 @@ class UKGOverlay:
                  reasons.append("hidden_constraint_trap")
                  verdict = "AMBIGUOUS"
                  action = "ask_clarifying"
+
+            # 2. Obfuscation & Encoding Checks
+            # Check for high concentration of non-printable or encoded-looking strings
+            if re.search(r"([A-Za-z0-9+/]{20,}=|[a-f0-9]{40,})", query):
+                 reasons.append("obfuscation_risk")
+                 verdict = "AMBIGUOUS"
+                 action = "ask_clarifying"
     
-            # 2. Heuristic Checks
+            # 3. Heuristic & Logical Checks
             if verdict == "OK": 
                  # Impossible Premise (Time based)
                  current_year = datetime.now().year
-                 # Check for future years 2026-2099 explicitly
                  if re.search(r"\b(202[6-9]|20[3-9][0-9])\b", query): 
-                     if "when did" in query.lower() or "happened" in query.lower():
+                     if any(k in query.lower() for k in ["when did", "happened", "history", "recorded"]):
                           reasons.append("possible_future_premise")
                           verdict = "AMBIGUOUS"
                           action = "ask_clarifying"
@@ -229,6 +233,18 @@ class UKGOverlay:
                      reasons.append("self_reference_trap")
                      verdict = "ADVERSARIAL"
                      action = "refuse"
+                 
+                 # 4. Recursive Loop / Resource Exhaustion Bait
+                 if q_lower.count("summarize") > 3 or q_lower.count("explain") > 4:
+                     reasons.append("instruction_loop_risk")
+                     verdict = "AMBIGUOUS"
+                     action = "ask_clarifying"
+
+                 # 5. Multi-Persona Bait (Asking models to fight)
+                 if "ignore" in q_lower and "persona" in q_lower:
+                     reasons.append("persona_hijack_attempt")
+                     verdict = "ADVERSARIAL"
+                     action = "refuse"
                      
             return KAExecutionResult(
                 ok=True, 
@@ -236,9 +252,10 @@ class UKGOverlay:
                     "verdict": verdict,
                     "reasons": reasons,
                     "action": action,
-                    "safe_query": query # Pass through if OK
+                    "safe_query": query 
                 }
             )
+
         except Exception as e:
             # Fallback: Log error and Fail Safe (or Fail Open depending on policy).
             # We will Fail Safe (Block) for security triggers if we crash.

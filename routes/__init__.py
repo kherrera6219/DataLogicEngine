@@ -42,4 +42,9 @@ def register_routes(app):
     # Compliance Routes (JSON API)
     from .compliance_routes import compliance_bp
     app.register_blueprint(compliance_bp)
+    
+    # User Data Rights
+    from .user_data_routes import user_data_bp
+    app.register_blueprint(user_data_bp)
+
 

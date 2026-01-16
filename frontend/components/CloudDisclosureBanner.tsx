@@ -1,8 +1,7 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
-import { X, Cloud, Info } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Cloud, X, ExternalLink, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -10,45 +9,59 @@ export function CloudDisclosureBanner() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Check if user has already dismissed the banner
-    const dismissed = localStorage.getItem('cloud_disclosure_dismissed');
-    if (!dismissed) {
+    // Standard mount check for client-side localStorage
+    const isDismissed = localStorage.getItem('ukg_cloud_disclosure_dismissed');
+    if (!isDismissed) {
       setIsVisible(true);
     }
   }, []);
 
-  const dismiss = () => {
+
+  const handleDismiss = () => {
+    localStorage.setItem('ukg_cloud_disclosure_dismissed', 'true');
     setIsVisible(false);
-    localStorage.setItem('cloud_disclosure_dismissed', 'true');
   };
 
   if (!isVisible) return null;
 
   return (
-    <div className="relative isolate flex items-center gap-x-6 overflow-hidden bg-background px-6 py-2.5 sm:px-3.5 sm:before:flex-1 border-b border-blue-500/20 bg-blue-500/5">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <p className="text-sm leading-6 text-foreground">
-          <strong className="font-semibold inline-flex items-center gap-2">
-            <Cloud className="h-4 w-4 text-blue-500" />
-            Cloud-Based Application
-          </strong>
-          <svg viewBox="0 0 2 2" className="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true">
-            <circle cx={1} cy={1} r={1} />
-          </svg>
-          This application requires internet access and processes data using cloud AI services (OpenAI, Azure, Anthropic).
-        </p>
-        <Link
-          href="/about/cloud-services"
-          className="flex-none rounded-full bg-blue-600/10 px-3.5 py-1 text-sm font-semibold text-blue-500 shadow-sm hover:bg-blue-600/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
-        >
-          Learn more <span aria-hidden="true">&rarr;</span>
-        </Link>
-      </div>
-      <div className="flex flex-1 justify-end">
-        <button type="button" className="-m-3 p-3 focus-visible:outline-offset-[-4px]" onClick={dismiss}>
-          <span className="sr-only">Dismiss</span>
-          <X className="h-5 w-5 text-gray-500 hover:text-foreground" aria-hidden="true" />
-        </button>
+    <div className="bg-blue-600 text-white py-3 px-4 relative z-[100] animate-in slide-in-from-top duration-500">
+      <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+            <Cloud className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-bold flex items-center gap-2">
+              Cloud-Hybrid Architecture Active
+              <ShieldCheck className="h-3 w-3" />
+            </p>
+            <p className="text-xs text-blue-100 font-medium leading-tight">
+              DataLogicEngine stores data locally but processes intelligence via cloud providers (OpenAI, Anthropic, Google).
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            asChild
+            className="text-white hover:bg-white/20 transition-colors border border-white/20 h-8 text-[11px] font-bold"
+          >
+            <Link href="/about/cloud-services" className="inline-flex items-center gap-1">
+              LEARN MORE <ExternalLink className="h-3 w-3" />
+            </Link>
+          </Button>
+          
+          <button 
+            onClick={handleDismiss}
+            className="p-1 hover:bg-white/20 rounded-md transition-all outline-none focus-visible:ring-2 focus-visible:ring-white"
+            aria-label="Dismiss cloud disclosure"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
       </div>
     </div>
   );

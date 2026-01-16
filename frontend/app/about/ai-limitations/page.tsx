@@ -1,107 +1,109 @@
+'use client';
 
-import { AlertTriangle, Info, CheckCircle, ShieldAlert } from 'lucide-react';
+import React from 'react';
 import Link from 'next/link';
+import { ShieldAlert, Info, AlertTriangle, CheckCircle, ExternalLink } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function AILimitationsPage() {
   return (
-    <div className="container max-w-4xl py-12 space-y-8">
-      <div className="space-y-4">
-        <h1 className="text-4xl font-bold tracking-tight">AI Limitations & Disclaimers</h1>
+    <div className="container mx-auto py-12 px-4 max-w-4xl space-y-12">
+      <header className="space-y-4 text-center">
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">AI Transparency & Limitations</h1>
         <p className="text-xl text-muted-foreground">
-          Understanding the capabilities and constraints of the Artificial Intelligence powering DataLogicEngine.
+          Understanding how DataLogicEngine utilizes Artificial Intelligence and the boundaries of this technology.
         </p>
-      </div>
+      </header>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="p-6 rounded-xl border bg-card text-card-foreground shadow-sm">
-           <div className="flex items-center gap-3 mb-4">
-             <div className="p-2 w-fit rounded-lg bg-orange-500/10 text-orange-500">
-               <AlertTriangle className="h-6 w-6" />
-             </div>
-             <h3 className="font-semibold text-lg">Potential for Inaccuracy</h3>
-           </div>
-           <p className="text-sm text-muted-foreground leading-relaxed">
-             AI models may occasionally produce incorrect or misleading information (&quot;hallucinations&quot;). 
-             While our Truth Engine adds verification layers, the underlying models are probabilistic 
-             and can make confident-sounding mistakes.
-           </p>
+      <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive-foreground dark:text-destructive">
+        <ShieldAlert className="h-5 w-5" />
+        <AlertTitle className="font-bold">Crucial Notice</AlertTitle>
+        <AlertDescription>
+          DataLogicEngine is an augmented reasoning system. It is NOT a substitute for professional human judgment, legal advice, or medical diagnosis. Always verify critical implementation details.
+        </AlertDescription>
+      </Alert>
+
+      <section className="space-y-6">
+        <div className="flex items-center gap-2">
+          <Info className="text-blue-500 h-6 w-6" />
+          <h2 className="text-2xl font-bold">The Nature of Our AI</h2>
         </div>
+        <p className="text-lg leading-relaxed">
+          DataLogicEngine acts as a <strong>17-Dimensional Gateway</strong> to multiple Large Language Models (LLMs). While these models are highly capable, they operate based on probabilistic patterns rather than absolute internal truth.
+        </p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="bg-background/50 backdrop-blur-sm border-premium">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="text-yellow-500 h-5 w-5" />
+                Hallucinations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                AI may confidently generate facts, names, or code snippets that do not exist or are factually incorrect. This is inherent to the way transformers predict the next token.
+              </p>
+            </CardContent>
+          </Card>
 
-        <div className="p-6 rounded-xl border bg-card text-card-foreground shadow-sm">
-           <div className="flex items-center gap-3 mb-4">
-             <div className="p-2 w-fit rounded-lg bg-blue-500/10 text-blue-500">
-               <Info className="h-6 w-6" />
-             </div>
-             <h3 className="font-semibold text-lg">Knowledge Cutoffs</h3>
-           </div>
-           <p className="text-sm text-muted-foreground leading-relaxed">
-             The base AI models have knowledge cutoffs and may not know about very recent events 
-             unless explicitly provided via our real-time retrieval tools.
-           </p>
+          <Card className="bg-background/50 backdrop-blur-sm border-premium">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShieldAlert className="text-red-500 h-5 w-5" />
+                Inherent Bias
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Training data may contain human biases. The AI may inadvertently reflect these biases in its reasoning, although we apply KA-61 adversarial filters to mitigate this.
+              </p>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      </section>
 
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold border-b pb-2">When to Verify AI Outputs</h2>
-        <div className="grid gap-4">
-            <div className="flex gap-4 p-4 rounded-lg bg-secondary/50 border border-border/50">
-              <ShieldAlert className="h-6 w-6 text-red-500 shrink-0 mt-1" />
+      <section className="space-y-6">
+        <h2 className="text-2xl font-bold">Our AI Providers</h2>
+        <p className="text-muted-foreground">
+          Depending on your settings and the task complexity, we route queries to various industry-standard providers:
+        </p>
+        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[
+            { name: "OpenAI", models: "GPT-4o, o1" },
+            { name: "Anthropic", models: "Claude 3.5 Sonnet" },
+            { name: "Google Cloud", models: "Gemini 1.5 Pro" },
+            { name: "Microsoft Azure", models: "Enterprise GPT instances" }
+          ].map(p => (
+            <li key={p.name} className="flex items-center gap-3 p-4 rounded-xl bg-muted/50 border border-border">
+              <CheckCircle className="text-green-500 h-5 w-5" />
               <div>
-                <h4 className="font-medium text-foreground">Critical Decisions</h4>
-                <p className="text-sm text-muted-foreground">
-                   Do not rely solely on AI for medical, legal, financial, or safety-critical decisions. 
-                   Always consult a qualified professional.
-                </p>
+                <span className="font-bold block">{p.name}</span>
+                <span className="text-xs text-muted-foreground">{p.models}</span>
               </div>
-            </div>
-            
-            <div className="flex gap-4 p-4 rounded-lg bg-secondary/50 border border-border/50">
-               <CheckCircle className="h-6 w-6 text-green-500 shrink-0 mt-1" />
-               <div>
-                 <h4 className="font-medium text-foreground">Verification Recommended</h4>
-                 <p className="text-sm text-muted-foreground">
-                    For code generation, factual reporting, or compliance tasks, use the "Trace" feature 
-                    to audit the AI's reasoning steps and source citations.
-                 </p>
-               </div>
-            </div>
-        </div>
-      </div>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-      <div className="space-y-6">
-         <h2 className="text-2xl font-bold border-b pb-2">Our Risk Mitigation Features</h2>
-         <ul className="grid gap-3 md:grid-cols-2">
-            <li className="flex items-start gap-2">
-               <span className="text-blue-500 mt-1">•</span>
-               <span className="text-sm text-muted-foreground">
-                 <strong>Truth Engine:</strong> Cross-references claims against verified knowledge bases.
-               </span>
-            </li>
-            <li className="flex items-start gap-2">
-               <span className="text-blue-500 mt-1">•</span>
-               <span className="text-sm text-muted-foreground">
-                 <strong>Audit Trails:</strong> Every AI action is logged for accountability (EU AI Act Article 53).
-               </span>
-            </li>
-            <li className="flex items-start gap-2">
-               <span className="text-blue-500 mt-1">•</span>
-               <span className="text-sm text-muted-foreground">
-                 <strong>Multi-Persona Consensus:</strong> Uses multiple viewpoints to reduce individual bias.
-               </span>
-            </li>
-            <li className="flex items-start gap-2">
-               <span className="text-blue-500 mt-1">•</span>
-               <span className="text-sm text-muted-foreground">
-                 <strong>Adversarial Shields:</strong> Dedicated layers to block harmful inputs.
-               </span>
-            </li>
-         </ul>
-      </div>
-      
-      <div className="pt-8 border-t flex justify-between items-center text-sm text-muted-foreground">
-         <p>Last Updated: January 16, 2026</p>
-         <Link href="/" className="hover:underline">Return to Home</Link>
-      </div>
+      <section className="p-8 rounded-[2rem] bg-blue-600/5 border border-blue-500/10 space-y-4">
+        <h2 className="text-2xl font-bold">Risk Mitigation: Our Truth Engine</h2>
+        <p className="leading-relaxed">
+          To combat AI limitations, the <strong>DataLogicEngine Truth Engine</strong> applies systematic deconfliction across multiple personas. This &quot;Quad-Persona&quot; approach reduces individual model error by requiring consensus across different reasoning vectors.
+        </p>
+        <div className="flex justify-end">
+          <Link href="/about" className="inline-flex items-center gap-2 text-blue-500 font-bold hover:underline">
+            Read technical whitepaper <ExternalLink className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+
+      <footer className="text-center pt-8 border-t border-border">
+        <p className="text-sm text-muted-foreground">
+          Last Updated: January 2026 | Compliant with MS-A10 Store Standards
+        </p>
+      </footer>
     </div>
   );
 }

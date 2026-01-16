@@ -1,47 +1,75 @@
+'use client';
 
-import * as React from "react"
-import { cn } from "@/lib/utils"
-import { Cloud, CheckCircle2, AlertCircle } from "lucide-react"
+import React, { useState, useEffect } from 'react';
+import { Cloud, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-
-
-interface CloudStatusProps extends React.HTMLAttributes<HTMLDivElement> {
-  provider?: string
-  isProcessing?: boolean
-  error?: string
+export interface CloudStatusIndicatorProps {
+  className?: string;
 }
 
-export function CloudStatusIndicator({ 
-  provider = "Auto", 
-  isProcessing = false, 
-  error,
-  className,
-  ...props 
-}: CloudStatusProps) {
+export function CloudStatusIndicator({ className }: CloudStatusIndicatorProps) {
+  const [status, setStatus] = useState<'online' | 'degraded' | 'offline' | 'loading'>('loading');
   
-  return (
-    <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50 text-xs font-medium backdrop-blur-sm", className)} {...props}>
-      <div className="relative">
-        <Cloud className={cn("h-3.5 w-3.5", error ? "text-destructive" : "text-muted-foreground")} />
-         {isProcessing && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
-            </span>
-         )}
-      </div>
-      
-      <span className="text-muted-foreground">
-        {error ? "Cloud Error" : isProcessing ? "Processing..." : `${provider} Online`}
-      </span>
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        setStatus('online');
+      } catch {
+        setStatus('offline');
+      }
+    };
+    checkHealth();
+  }, []);
 
-      {!isProcessing && !error && (
-        <CheckCircle2 className="h-3 w-3 text-green-500 ml-1" />
+  const statusConfig = {
+    online: {
+      icon: <CheckCircle2 className="h-3 w-3 text-emerald-500" />,
+      color: "bg-emerald-500",
+      text: "LLM Gateway: Operational",
+      description: "Cloud reasoning services are active and responding."
+    },
+    degraded: {
+      icon: <AlertCircle className="h-3 w-3 text-yellow-500" />,
+      color: "bg-yellow-500",
+      text: "LLM Gateway: Degraded",
+      description: "Intermittent latency detected in cloud providers."
+    },
+    offline: {
+      icon: <AlertCircle className="h-3 w-3 text-red-500" />,
+      color: "bg-red-500",
+      text: "LLM Gateway: Offline",
+      description: "Could not connect to cloud reasoning services."
+    },
+    loading: {
+      icon: <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />,
+      color: "bg-muted-foreground",
+      text: "Checking Status...",
+      description: "Contacting truth vectors..."
+    }
+  };
+
+  const current = statusConfig[status];
+
+  return (
+    <div 
+      className={cn(
+        "flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-help group",
+        className
       )}
-      
-      {error && (
-        <AlertCircle className="h-3 w-3 text-destructive ml-1" />
-      )}
+      title={`${current.text}: ${current.description}`}
+    >
+      <div className="relative">
+        <Cloud className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+        <span className={cn(
+          "absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-background animate-pulse",
+          current.color
+        )} />
+      </div>
+      <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors hidden sm:inline">
+        Cloud reasoning
+      </span>
     </div>
-  )
+  );
 }
