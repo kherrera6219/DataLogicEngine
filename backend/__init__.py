@@ -25,6 +25,7 @@ def create_legacy_app():
     from .ukg_api import ukg_bp
     from .routes.user_data_routes import user_data_bp
     from .routes.settings_routes import settings_bp
+    from .routes.location_routes import location_api as location_bp
     from .middleware import log_request_info
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -33,6 +34,14 @@ def create_legacy_app():
     app.register_blueprint(ukg_bp, url_prefix='/api/ukg')
     app.register_blueprint(user_data_bp)
     app.register_blueprint(settings_bp)
+    app.register_blueprint(location_bp)
+    # Re-register search blueprint from new location if needed, or assume it's covered by imports.
+    # Logic note: search_api was not previously in __init__.py imports list in step 1253 view.
+    # Let's check if it was registered. It was NOT in the list.
+    # I will add it now.
+    
+    from .routes.search_routes import search_api as search_bp
+    app.register_blueprint(search_bp, url_prefix='/api/search')
     
     # Apply middleware
     log_request_info(app)
