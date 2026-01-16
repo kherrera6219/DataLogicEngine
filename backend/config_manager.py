@@ -163,6 +163,11 @@ class ConfigManager:
         health_path = self.get(f"services.{service_name}.health_check_path", "/health")
         return f"{service_url}{health_path}"
     
+    @property
+    def UKG_DATA_DIR(self) -> str:
+        """Get the base data directory for the system."""
+        return self.get("system.data_directory")
+
     def as_dict(self) -> Dict[str, Any]:
         """Get full configuration as dictionary"""
         return self._config.copy()

@@ -5,7 +5,7 @@ import os
 def get_windows_user_identity():
     """
     Retrieves the current Windows user's name and SID (Security Identifier).
-    Returns a dictionary with 'username' and 'sid'.
+    Returns a dictionary with 'username', 'sid', and 'domain'.
     """
     try:
         username = win32api.GetUserName()
@@ -14,14 +14,19 @@ def get_windows_user_identity():
         return {
             "username": username,
             "sid": sid_string,
-            "domain": domain
+            "domain": domain,
+            "is_fallback": False
         }
     except Exception as e:
-        # Fallback to os.environ if win32 calls fail
+        # Log failure type but don't crash
+        print(f"Windows Identity Retrieval Failed: {type(e).__name__}")
+        # Fallback to environment variables if win32 calls fail
+        # This is strictly for local-first execution in restricted environments
         return {
             "username": os.environ.get('USERNAME', 'local_user'),
             "sid": "S-1-5-local-fallback",
-            "domain": os.environ.get('USERDOMAIN', 'LOCAL')
+            "domain": os.environ.get('USERDOMAIN', 'LOCAL'),
+            "is_fallback": True
         }
 
 if __name__ == "__main__":
