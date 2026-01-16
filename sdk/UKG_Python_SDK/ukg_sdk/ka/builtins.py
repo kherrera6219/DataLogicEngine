@@ -75,9 +75,15 @@ def ka_113_router(ctx: KAExecutionContext) -> KAExecutionResult:
     # Decide tier and how deep to run
     c = (ctx.input.get("complexity_hint") or "easy").lower()
     high_stakes = bool(ctx.input.get("high_stakes"))
+    verdict = ctx.input.get("verdict", "OK")
+    
     tier = "T1"
     layers = ["L1", "L2", "L9"]
-    if c == "easy" and not high_stakes:
+    
+    # Shield enforcement: If Ambiguous, force robust refinement (T4)
+    if verdict == "AMBIGUOUS":
+        tier, layers = "T4", ["L1", "L2", "L3", "L4", "L5", "L6", "L8", "L9", "L10"]
+    elif c == "easy" and not high_stakes:
         tier, layers = "T0", ["L1", "L9"]
     elif c == "easy" and high_stakes:
         tier, layers = "T2", ["L1", "L2", "L6", "L8", "L9"]

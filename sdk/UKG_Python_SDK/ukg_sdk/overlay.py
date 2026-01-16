@@ -59,6 +59,7 @@ class UKGOverlay:
 
         self.executor = KAExecutor(registry=self.registry)
         register_builtin_handlers(self.executor)
+        self.executor.register("KA-061", self._ka_61_handler)
 
         self.coordinate_resolver = coordinate_resolver or CoordinateResolver17(
             axis2_catalog_xlsx=self.data_dir / "axis2_catalog.xlsx",
@@ -89,6 +90,31 @@ class UKGOverlay:
         def t(ka_id: str, status: str, output: Dict[str, Any] | None = None):
             trace.append({"ka_id": ka_id, "status": status, "output": output or {}})
 
+        # KA-61 Adversarial Shield (L1 Gate)
+        # Goal: decide "is this a genuine query?" before retrieval or reasoning.
+        out_shield = self.executor.execute("KA-061", input={"query": query}, layer="L1", state={}, memory=self.memory, audit=self.audit, strict=False)
+        t("KA-061", "ok", out_shield.output)
+        
+        verdict = out_shield.output.get("verdict", "OK")
+        if verdict in ["ADVERSARIAL", "UNSAFE"]:
+             # Rejection / Safe Rewrite path
+             action = out_shield.output.get("action", "refuse")
+             reasons = out_shield.output.get("reasons", [])
+             
+             await self._audit(session_id, user_id, "blocked", coord, "KA-061", "L1", out_shield.output, correlation_id)
+             
+             error_msg = f"Request blocked by Adversarial Shield: {', '.join(reasons)}"
+             if action == "ask_clarifying":
+                 error_msg = f"Clarification needed: {out_shield.output.get('safe_query', 'Please clarify functionality.')}"
+                 
+             return {
+                 "ok": False,
+                 "error": error_msg,
+                 "trace": trace,
+                 "coordinate": coord,
+                 "verdict": out_shield.output
+             }
+
         # L1 hygiene
         out_valid = self.executor.execute("KA-004", input={"query": query}, layer="L1", state={}, memory=self.memory, audit=self.audit, strict=False)
         t("KA-004", "ok" if out_valid.ok else "fail", out_valid.output)
@@ -100,7 +126,7 @@ class UKGOverlay:
         out_cls = self.executor.execute("KA-005", input=out_valid.output, layer="L1", state={}, memory=self.memory, audit=self.audit, strict=False)
         t("KA-005", "ok", out_cls.output)
 
-        router_input = {**out_valid.output, **out_cls.output}
+        router_input = {**out_valid.output, **out_cls.output, **out_shield.output}
         out_route = self.executor.execute("KA-113", input=router_input, layer="L1", state={}, memory=self.memory, audit=self.audit, strict=False)
         t("KA-113", "ok", out_route.output)
 
@@ -142,6 +168,89 @@ class UKGOverlay:
             "trace": trace,
             "explainability": explain.output.get("explainability"),
         }
+        
+    def _ka_61_handler(self, ctx: KAExecutionContext) -> KAExecutionResult:
+        """KA-61: Adversarial Input Shield.
+        
+        Detects trick questions, paradoxes, and prompt injections.
+        """
+        query = (ctx.input.get("query") or "").strip()
+        
+        # 1. Fast Regex Checks (Deterministic)
+        reasons = []
+        verdict = "OK"
+        action = "answer"
+        
+        # Prompt Injection / Policy Bait
+        import re
+        if re.search(r"(ignore|disregard)\s+(previous|all)\s+instructions", query, re.I):
+            reasons.append("prompt_injection")
+            verdict = "ADVERSARIAL"
+            action = "refuse"
+            
+        if re.search(r"answer\s+(only|always)\s+with\s+(json|xml|yaml)", query, re.I) and len(query.split()) < 10:
+             # Suspicious constraint without context
+             reasons.append("hidden_constraint_trap")
+             verdict = "AMBIGUOUS"
+             action = "ask_clarifying"
+
+        # 2. Self-Ask Check (LLM-based) if suspicious or just as a general gate
+        # For performance, maybe only run if it looks complex or ambiguous, 
+        # but user asked for it as a "Gate".
+        # We'll run a lightweight self-ask via the provider.
+        # Note: This makes L1 slower but safer.
+        
+        if verdict == "OK": # Only check if not already caught
+             # Simple heuristic for "Is this complex enough to need a check?"
+             # or just always run it. Let's start with always for "Safety First".
+             # In production, you might cache this or use a faster SLM.
+             
+             # We can't easily await inside this synchronous handler if KAExecutor is sync.
+             # KAExecutor.execute is sync. The handler must be sync.
+             # BUT self.provider.complete is async!
+             # We have a problem. The current SDK architecture seems to assume synchronous KAs 
+             # (except the main run flow is async).
+             # Steps: 
+             # 1. KAExecutor should probably support async, OR
+             # 2. We skip the LLM check here and rely on regex, OR
+             # 3. We use a sync wrapper (bad for asyncio).
+             
+             # Checking executor.py: It calls `handler(ctx)`. Sync.
+             # This means we technically CANNOT await self.provider.complete inside a standard KA handler
+             # unless we change the executor to be async.
+             
+             # User said: "Make it deterministic by turning it into a checklist with scores".
+             # This implies deterministic code (regex/logic) is preferred/acceptable if async is hard.
+             # However, "Impossible premise" (e.g. 2027 eclipse) mandates knowledge.
+             
+             # Workaround: For now, implement robust regex/heuristics. 
+             # If async KA support is needed, it's a bigger refactor.
+             # I will implement the regex checklist + logic.
+             
+             # Impossible Premise (Time based)
+             current_year = datetime.now().year
+             if re.search(r"\b(202[6-9]|20[3-9][0-9])\b", query): # Future dates
+                 # Weak heuristic, but maybe "When did X happen?"
+                 if "when did" in query.lower():
+                      reasons.append("possible_future_premise")
+                      verdict = "AMBIGUOUS"
+                      action = "ask_clarifying"
+                      
+             # Self-Ref Paradox
+             if "answer 'no' to this" in query.lower() or "this statement is false" in query.lower():
+                 reasons.append("self_reference_trap")
+                 verdict = "ADVERSARIAL"
+                 action = "refuse"
+                 
+        return KAExecutionResult(
+            ok=True, 
+            output={
+                "verdict": verdict,
+                "reasons": reasons,
+                "action": action,
+                "safe_query": query # Pass through if OK
+            }
+        )
 
     async def _audit(self, sid: str, uid: str, kind: str, coord: str, ka_id: str | None, layer: str | None, payload: Dict[str, Any], correlation_id: Optional[str] = None) -> None:
         event = AuditEvent(
