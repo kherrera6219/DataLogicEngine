@@ -53,7 +53,8 @@ try {
     # 3. Install Dependencies (Silent & Hardened)
     if (-not $SkipDeps) {
         Write-Log "Starting dependency installation phase (PostgreSQL & Redis)..."
-        & "$PSScriptRoot\setup_db.ps1" -DataDir (Join-Path $DataPath "db") -DbUser $LocalDbUser -Database $LocalDbName -Password $LocalDbPwd
+        $SecurePwd = ConvertTo-SecureString -String $LocalDbPwd -AsPlainText -Force
+        & "$PSScriptRoot\setup_db.ps1" -DataDir (Join-Path $DataPath "db") -DbUser $LocalDbUser -Database $LocalDbName -Password $SecurePwd
         & "$PSScriptRoot\setup_cache.ps1"
     }
 

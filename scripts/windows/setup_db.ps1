@@ -6,7 +6,7 @@ param(
     [String]$DataDir = "C:\ProgramData\DataLogicEngine\db",
 
     [Parameter(Mandatory = $false)]
-    [String]$Password = "ukg_local_pwd",
+    [SecureString]$Password,
 
     [Parameter(Mandatory = $false)]
     [String]$Database = "ukg_local",
@@ -17,6 +17,14 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+# Convert password to plain text for PostgreSQL (it requires PGPASSWORD env var)
+if (-not $Password) {
+    $Password = ConvertTo-SecureString -String "ukg_local_pwd" -AsPlainText -Force
+}
+$PlainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
+    [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password)
+)
 
 $ServiceName = "UKG-Postgres"
 $ExpectedMsiHash = "815C815C815C815C815C815C815C815C815C815C815C815C815C815C815C815C" # Placeholder
@@ -89,11 +97,11 @@ try {
 
     # 8. Create Application DB and User
     Write-Host "Initializing $Database and $DbUser..."
-    $env:PGPASSWORD = $Password
+    $env:PGPASSWORD = $PlainPassword
     $Psql = Join-Path $InstallDir "bin\psql.exe"
     
     # Create Role
-    & $Psql -U postgres -c "CREATE ROLE $DbUser WITH LOGIN PASSWORD '$Password';" -h localhost 2>$null
+    & $Psql -U postgres -c "CREATE ROLE $DbUser WITH LOGIN PASSWORD '$PlainPassword';" -h localhost 2>$null
     # Create DB
     & $Psql -U postgres -c "CREATE DATABASE $Database OWNER $DbUser;" -h localhost 2>$null
     
