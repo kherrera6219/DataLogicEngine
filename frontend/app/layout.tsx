@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 };
 
 import { ToastProvider } from "@/components/ui/use-toast";
+import { CloudDisclosureBanner } from "@/components/CloudDisclosureBanner";
 
 export default function RootLayout({
   children,
@@ -48,8 +49,9 @@ export default function RootLayout({
           }}>
             <AuthProvider>
               <ToastProvider>
-                <NavBar />
-                <main id="main-content" className="outline-none" tabIndex={-1}>
+                 <CloudDisclosureBanner />
+                 <NavBar />
+                 <main id="main-content" className="outline-none" tabIndex={-1}>
                   {children}
                 </main>
               </ToastProvider>
