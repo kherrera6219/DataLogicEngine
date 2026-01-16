@@ -1,4 +1,4 @@
-from ukg_sdk import WorkflowRunner, ComplexityTier
+from ukg_sdk.workflow import WorkflowRunner, ComplexityTier
 
 def test_workflow_loads():
     runner = WorkflowRunner.load_default()

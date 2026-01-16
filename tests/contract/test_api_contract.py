@@ -3,7 +3,7 @@ try:
     import schemathesis
 except ImportError:
     schemathesis = None
-from backend.app import app
+from app import app
 
 @pytest.mark.skipif(schemathesis is None, reason="Schemathesis not installed")
 # Load schema from the running application or a file

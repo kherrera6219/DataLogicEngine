@@ -20,10 +20,9 @@ def purge_user_data():
     
     try:
         # 1. Log the intent
-        audit_logger.log_security_event(
+        audit_logger.log_audit_event(
             event_type="data_purge_started",
-            details={"user_id": user_id, "username": username},
-            severity="CRITICAL"
+            details={"user_id": user_id, "username": username, "severity": "CRITICAL"}
         )
         
         # 2. Perform cascade deletion (Simplified for this implementaiton)
@@ -72,10 +71,9 @@ def cleanup_tenant_data():
     try:
         # Perform tenant-wide deletion
         # This is a high-risk operation
-        audit_logger.log_security_event(
+        audit_logger.log_audit_event(
             event_type="tenant_purge_started",
-            details={"tenant_id": target_tenant_id, "admin_user": current_user.id},
-            severity="CRITICAL"
+            details={"tenant_id": target_tenant_id, "admin_user": current_user.id, "severity": "CRITICAL"}
         )
         
         # Implementation of cascade deletion for tenant_id across all relevant tables

@@ -8,7 +8,7 @@ import logging
 from flask import Blueprint, jsonify, request
 from flask_login import login_required
 
-from backend.auth.decorators import admin_required
+from backend.decorators import admin_required
 from backend.retention_service import DataRetentionService, RetentionCategory
 
 logger = logging.getLogger(__name__)
