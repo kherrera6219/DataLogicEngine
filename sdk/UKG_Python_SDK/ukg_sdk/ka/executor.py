@@ -35,9 +35,10 @@ KAHandler = Callable[[KAExecutionContext], KAExecutionResult]
 class KAExecutor:
     """Executes KAs by ID using a live handler map."""
 
-    def __init__(self, registry_path: Optional[str] = None):
+    def __init__(self, registry_path: Optional[str] = None, registry: Any = None):
         self.handlers: Dict[str, KAHandler] = {}
         self.registry_path = registry_path
+        self.registry = registry
 
     def register(self, ka_id: str, handler: KAHandler):
         self.handlers[ka_id] = handler

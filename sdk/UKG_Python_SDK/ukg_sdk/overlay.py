@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 from .coordinates17 import CoordinateResolver17
 from .ka.models import KARegistry
 from .ka.registry import load_default_registry, load_registry_from_json
-from .ka.executor import KAExecutor
+from .ka.executor import KAExecutor, KAExecutionContext, KAExecutionResult
 from .ka.builtins import register_builtin_handlers
 from .memory import MemoryAdapter, InMemoryMemoryAdapter
 from .audit import AuditStore, FileAuditStore, AuditEvent
@@ -62,9 +62,8 @@ class UKGOverlay:
         self.executor.register("KA-061", self._ka_61_handler)
 
         self.coordinate_resolver = coordinate_resolver or CoordinateResolver17(
-            axis2_catalog_xlsx=self.data_dir / "axis2_catalog.xlsx",
-            pillar_catalog_xlsx=self.data_dir / "pillar_catalog.xlsx",
-            strict_validation=False,
+            axis2_json=str(self.data_dir / "axis2_catalog.json"),
+            pillar_json=str(self.data_dir / "pillar_catalog.json"),
         )
 
         self.memory = memory or InMemoryMemoryAdapter()
@@ -174,83 +173,84 @@ class UKGOverlay:
         
         Detects trick questions, paradoxes, and prompt injections.
         """
-        query = (ctx.input.get("query") or "").strip()
-        
-        # 1. Fast Regex Checks (Deterministic)
-        reasons = []
-        verdict = "OK"
-        action = "answer"
-        
-        # Prompt Injection / Policy Bait
-        import re
-        if re.search(r"(ignore|disregard)\s+(previous|all)\s+instructions", query, re.I):
-            reasons.append("prompt_injection")
-            verdict = "ADVERSARIAL"
-            action = "refuse"
-            
-        if re.search(r"answer\s+(only|always)\s+with\s+(json|xml|yaml)", query, re.I) and len(query.split()) < 10:
-             # Suspicious constraint without context
-             reasons.append("hidden_constraint_trap")
-             verdict = "AMBIGUOUS"
-             action = "ask_clarifying"
-
-        # 2. Self-Ask Check (LLM-based) if suspicious or just as a general gate
-        # For performance, maybe only run if it looks complex or ambiguous, 
-        # but user asked for it as a "Gate".
-        # We'll run a lightweight self-ask via the provider.
-        # Note: This makes L1 slower but safer.
-        
-        if verdict == "OK": # Only check if not already caught
-             # Simple heuristic for "Is this complex enough to need a check?"
-             # or just always run it. Let's start with always for "Safety First".
-             # In production, you might cache this or use a faster SLM.
-             
-             # We can't easily await inside this synchronous handler if KAExecutor is sync.
-             # KAExecutor.execute is sync. The handler must be sync.
-             # BUT self.provider.complete is async!
-             # We have a problem. The current SDK architecture seems to assume synchronous KAs 
-             # (except the main run flow is async).
-             # Steps: 
-             # 1. KAExecutor should probably support async, OR
-             # 2. We skip the LLM check here and rely on regex, OR
-             # 3. We use a sync wrapper (bad for asyncio).
-             
-             # Checking executor.py: It calls `handler(ctx)`. Sync.
-             # This means we technically CANNOT await self.provider.complete inside a standard KA handler
-             # unless we change the executor to be async.
-             
-             # User said: "Make it deterministic by turning it into a checklist with scores".
-             # This implies deterministic code (regex/logic) is preferred/acceptable if async is hard.
-             # However, "Impossible premise" (e.g. 2027 eclipse) mandates knowledge.
-             
-             # Workaround: For now, implement robust regex/heuristics. 
-             # If async KA support is needed, it's a bigger refactor.
-             # I will implement the regex checklist + logic.
-             
-             # Impossible Premise (Time based)
-             current_year = datetime.now().year
-             if re.search(r"\b(202[6-9]|20[3-9][0-9])\b", query): # Future dates
-                 # Weak heuristic, but maybe "When did X happen?"
-                 if "when did" in query.lower():
-                      reasons.append("possible_future_premise")
-                      verdict = "AMBIGUOUS"
-                      action = "ask_clarifying"
-                      
-             # Self-Ref Paradox
-             if "answer 'no' to this" in query.lower() or "this statement is false" in query.lower():
-                 reasons.append("self_reference_trap")
-                 verdict = "ADVERSARIAL"
-                 action = "refuse"
+        try:
+            raw_query = ctx.input.get("query")
+            if not isinstance(raw_query, str):
+                 return KAExecutionResult(ok=True, output={"verdict": "OK", "reasons": []})
                  
-        return KAExecutionResult(
-            ok=True, 
-            output={
-                "verdict": verdict,
-                "reasons": reasons,
-                "action": action,
-                "safe_query": query # Pass through if OK
-            }
-        )
+            query = raw_query.strip()
+            
+            # Hardening: Fail fast on huge inputs to prevent DoS via regex/processing
+            if len(query) > 50000:
+                return KAExecutionResult(
+                    ok=True, 
+                    output={
+                        "verdict": "UNSAFE",
+                        "reasons": ["input_too_large"],
+                        "action": "refuse"
+                    }
+                )
+            
+            # 1. Fast Regex Checks (Deterministic)
+            reasons = []
+            verdict = "OK"
+            action = "answer"
+            
+            # Prompt Injection / Policy Bait
+            import re
+            # Using compiled regexes is efficient but for this handler doing it inline is acceptable 
+            # as long as they are simple.
+            
+            if re.search(r"(ignore|disregard)\s+(previous|all)\s+instructions", query, re.I):
+                reasons.append("prompt_injection")
+                verdict = "ADVERSARIAL"
+                action = "refuse"
+                
+            if re.search(r"answer\s+(only|always)\s+with\s+(json|xml|yaml)", query, re.I) and len(query.split()) < 10:
+                 # Suspicious constraint without context
+                 reasons.append("hidden_constraint_trap")
+                 verdict = "AMBIGUOUS"
+                 action = "ask_clarifying"
+    
+            # 2. Heuristic Checks
+            if verdict == "OK": 
+                 # Impossible Premise (Time based)
+                 current_year = datetime.now().year
+                 # Check for future years 2026-2099 explicitly
+                 if re.search(r"\b(202[6-9]|20[3-9][0-9])\b", query): 
+                     if "when did" in query.lower() or "happened" in query.lower():
+                          reasons.append("possible_future_premise")
+                          verdict = "AMBIGUOUS"
+                          action = "ask_clarifying"
+                          
+                 # Self-Ref Paradox / Logical Traps
+                 q_lower = query.lower()
+                 if "answer 'no' to this" in q_lower or "this statement is false" in q_lower:
+                     reasons.append("self_reference_trap")
+                     verdict = "ADVERSARIAL"
+                     action = "refuse"
+                     
+            return KAExecutionResult(
+                ok=True, 
+                output={
+                    "verdict": verdict,
+                    "reasons": reasons,
+                    "action": action,
+                    "safe_query": query # Pass through if OK
+                }
+            )
+        except Exception as e:
+            # Fallback: Log error and Fail Safe (or Fail Open depending on policy).
+            # We will Fail Safe (Block) for security triggers if we crash.
+            return KAExecutionResult(
+                ok=False, 
+                output={
+                    "verdict": "UNSAFE",
+                    "reasons": ["internal_shield_error"],
+                    "action": "refuse"
+                },
+                error=str(e)
+            )
 
     async def _audit(self, sid: str, uid: str, kind: str, coord: str, ka_id: str | None, layer: str | None, payload: Dict[str, Any], correlation_id: Optional[str] = None) -> None:
         event = AuditEvent(
