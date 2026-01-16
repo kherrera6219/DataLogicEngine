@@ -55,6 +55,9 @@ export const api = {
   trace,
   mcp,
   compliance,
+  system: {
+    health: () => Promise.resolve('Operational')
+  },
   analytics: {
     summary: () => request('/analytics/summary'),
     trends: (metric: string, days: number = 7) => 

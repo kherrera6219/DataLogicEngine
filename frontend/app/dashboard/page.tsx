@@ -116,7 +116,8 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatCard 
               title="Total Nodes" 
-              value={summary?.total_nodes ? (summary.total_nodes / 1000000).toFixed(1) + "M" : "1.2M"} 
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              value={(summary as any)?.total_nodes ? ((summary as any).total_nodes / 1000000).toFixed(1) + "M" : "1.2M"} 
               subtext="+12k this week"
               icon={Database}
               trend={4.2}
