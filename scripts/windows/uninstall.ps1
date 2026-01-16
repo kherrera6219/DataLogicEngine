@@ -6,8 +6,10 @@ try {
 
     # 1. Stop and Remove Application Services
     Write-Host "Stopping Services..."
-    Stop-Service "DataLogic_Backend" -Force
-    Stop-Service "DataLogic_Frontend" -Force
+    Stop-Service "DataLogic_Backend" -Force -ErrorAction SilentlyContinue
+    Stop-Service "DataLogic_Frontend" -Force -ErrorAction SilentlyContinue
+    Stop-Service "UKG-Postgres" -Force -ErrorAction SilentlyContinue
+    Stop-Service "UKG-Redis" -Force -ErrorAction SilentlyContinue
 
     Write-Host "Unregistering Services..."
     & "C:\Program Files\DataLogicEngine\app\DataLogic_Backend.exe" uninstall

@@ -47,20 +47,43 @@ def export_user_data():
 def delete_user_profile():
     """
     Deletes the current user's profile and all associated local data.
-    This is a destructive action.
+    Requires explicit confirmation for desktop residency protection.
     """
     try:
         user_id = current_user.id
         username = current_user.username
+        data = request.get_json() or {}
         
-        # 1. Delete associated data (cascading normally handles this, but being explicit for compliance)
+        # 0. Confirmation Gating (Security Shield)
+        if data.get('confirm') != 'DELETE':
+            return jsonify({
+                "success": False, 
+                "error": "Confirmation required. Please provide 'confirm': 'DELETE' in request."
+            }), 400
+
+        # 1. Audit destructive action
+        from extensions import audit_logger
+        sid = getattr(current_user, 'windows_sid', 'LOCAL_FALLBACK')
+        audit_logger.log_audit_event(
+            event_type="DATA_DELETION",
+            user_id=user_id,
+            action="PROFILE_WIPE",
+            status="initiated",
+            details={
+                "username": username,
+                "windows_sid": sid,
+                "scope": "FULL_PROFILE_AND_SIMULATIONS"
+            }
+        )
+        
+        # 2. Delete associated data
         SimulationSession.query.filter_by(user_id=user_id).delete()
         
-        # 2. Delete the user
+        # 3. Delete the user
         db.session.delete(current_user)
         db.session.commit()
         
-        logger.info(f"User {username} (ID: {user_id}) has deleted their profile and all data.")
+        logger.info(f"User {username} (SID: {sid}) has permanently wiped their profile.")
         
         return jsonify({
             "success": True, 

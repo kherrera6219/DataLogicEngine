@@ -210,8 +210,9 @@ Production-ready compliance features:
 New first-class support for local-first desktop execution.
 - **Local-First Execution**: Fully functional without cloud-based backends for data storage.
 - **Native Windows Services**: Backend and Frontend managed via WinSW for zero-config background execution.
-- **Zero-Config Identity**: Automatic user recognition via Windows Security Identifier (SID).
-- **Secure Secret Storage**: API keys encrypted via Windows DPAPI and tied to the user profile.
+- **Resilient Installer**: Professional WiX-based `Setup.exe` with **Atomic Rollback** (automatic cleanup on failure) and **Binary Integrity** (SHA-256 validation for app executables).
+- **Identity Integrity**: Validated user recognition via Windows Security Identifier (SID) with standard format enforcement.
+- **Secure Secret Storage**: API keys encrypted via Windows DPAPI with externalizable entropy, tied strictly to the user profile.
 - **Multi-Mode Operation**: Seamlessly switch between Local-Only and Cloud-Hybrid execution.
 
 

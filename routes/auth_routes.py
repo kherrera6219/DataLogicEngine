@@ -293,7 +293,7 @@ def desktop_auto_login():
     if os.name != 'nt':
         return error_response("Desktop auto-login only supported on Windows", 400)
     
-    from .windows_identity import get_windows_user_identity
+    from backend.auth.windows_identity import get_windows_user_identity
     try:
         identity = get_windows_user_identity()
     except Exception as e:
@@ -306,28 +306,48 @@ def desktop_auto_login():
     if not sid:
         return error_response("Could not resolve Windows identity", 500)
     
-    # Prefix username to avoid collision with standard users if desired
-    # For now, we trust the SID as the primary identifier
-    user = User.query.filter_by(sid=sid).first()
+    # Check if user exists by Windows SID
+    user = User.query.filter_by(windows_sid=sid).first()
     
     if not user:
-        # Check if any user has this username
-        if User.query.filter_by(username=username).first():
-            # Append part of SID to username for uniqueness
-            username = f"{username}_{sid[-4:]}"
+        # Check if this is the FIRST user in the system
+        total_users = User.query.count()
+        role = 'owner' if total_users == 0 else 'user'
+        
+        # Ensure unique username
+        base_username = username
+        counter = 1
+        username_candidate = username
+        while User.query.filter_by(username=username_candidate).first():
+            username_candidate = f"{base_username}_{counter}"
+            counter += 1
+        username = username_candidate
             
-        # Register new "Owner"
         import secrets
         user = User()
         user.username = username
         user.email = f"{username}@local.ukg"
+        # We set a random password hash but use SID for actual auth
         user.set_password(secrets.token_urlsafe(32))
-        user.sid = sid # Need to add this field to User model
-        user.is_admin = True # First local user is admin
+        user.windows_sid = sid
+        user.role = role
+        user.is_admin = (role == 'owner')
         
         db.session.add(user)
         db.session.commit()
-        logger.info(f"Auto-registered new Windows user: {username}")
+        
+        # Audit registration
+        from models.user import AuditLog
+        audit = AuditLog(
+            windows_sid=sid,
+            user_id=user.id,
+            action="FIRST_RUN_REGISTRATION" if role == 'owner' else "USER_AUTO_REGISTRATION",
+            details=f"User registered with role: {role}"
+        )
+        db.session.add(audit)
+        db.session.commit()
+        
+        logger.info(f"Auto-registered new Windows user: {username} (Role: {role})")
     
     login_user(user, remember=True)
     return success_response(message="Desktop auto-login successful", data={"user": user.to_dict()})

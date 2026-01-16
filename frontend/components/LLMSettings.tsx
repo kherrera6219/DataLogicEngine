@@ -1,6 +1,7 @@
 "use strict";
 
 import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -10,6 +11,7 @@ import { Key, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 
 
 const LLMSettings = () => {
+  const { user } = useAuth();
   const [provider, setProvider] = useState('openai');
   const [apiKey, setApiKey] = useState('');
   const [status, setStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
@@ -56,6 +58,21 @@ const LLMSettings = () => {
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
+        {user?.windows_sid && (
+          <div className="p-3 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-primary" />
+              <div>
+                <p className="text-sm font-bold text-primary">Windows Native Identity</p>
+                <p className="text-xs text-muted-foreground truncate max-w-[200px]">{user.windows_sid}</p>
+              </div>
+            </div>
+            <div className="px-2 py-1 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase border border-primary/20">
+              UKG {user.role}
+            </div>
+          </div>
+        )}
+
         <div className="space-y-2">
           <Label htmlFor="provider">Provider</Label>
           <select

@@ -158,6 +158,33 @@ class AuditLogger:
             with open(self.current_log_file, 'a') as f:
                 f.write(json.dumps(audit_event) + "\n")
             
+            # --- Windows Desktop: Database Persistence ---
+            try:
+                # Use deferred import to avoid circular dependency with models
+                from models.user import AuditLog
+                from extensions import db
+                from flask import has_app_context
+                
+                if has_app_context():
+                    db_audit = AuditLog(
+                        user_id=user_id,
+                        action=action or event_type,
+                        details=json.dumps(details) if details else None,
+                        ip_address=ip_address
+                    )
+                    
+                    # If this is a Windows identity, we might have SID in details or as user_id prefix
+                    if details and "windows_sid" in details:
+                        db_audit.windows_sid = details["windows_sid"]
+                    elif user_id and str(user_id).startswith("S-"):
+                        db_audit.windows_sid = str(user_id)
+                        
+                    db.session.add(db_audit)
+                    db.session.commit()
+            except Exception as db_err:
+                 # Log error but don't fail the primary file logging
+                 logger.warning(f"Failed to persist audit event to DB: {db_err}")
+
             return event_id
             
         except Exception as e:

@@ -88,7 +88,7 @@ class ConfigManager:
                 "token_expiry_minutes": 60
             },
             "database": {
-                "url": os.environ.get("DATABASE_URL", "postgresql://localhost/ukg"),
+                "url": self._get_db_url(),
                 "pool_size": 10,
                 "pool_recycle": 3600,
                 "engine_options": {
@@ -103,6 +103,26 @@ class ConfigManager:
         
         self._initialized = True
         logger.info("Configuration manager initialized")
+
+    def _get_db_url(self) -> str:
+        """Resolves the database URL based on the environment."""
+        env_url = os.environ.get("DATABASE_URL")
+        if env_url:
+            return env_url
+            
+        if os.name == 'nt':
+            # Desktop Build Default: Local PostgreSQL with ukg_app
+            db_user = "ukg_app"
+            db_name = "ukg_local"
+            db_host = "localhost"
+            db_port = 5432
+            
+            # Fetch password from environmental override or default
+            db_pwd = os.environ.get("UKG_DB_PASSWORD", "ukg_local_pwd") 
+            
+            return f"postgresql://{db_user}:{db_pwd}@{db_host}:{db_port}/{db_name}"
+            
+        return "postgresql://localhost/ukg"
     
     def load_from_file(self, file_path: str) -> bool:
         """Load configuration from JSON file"""

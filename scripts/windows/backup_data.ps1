@@ -5,8 +5,8 @@
 param(
     [string]$BaseDir = "C:\ProgramData\DataLogicEngine",
     [string]$BackupDir = "C:\ProgramData\DataLogicEngine\backups",
-    [string]$DbUser = "postgres",
-    [string]$DbName = "ukg"
+    [string]$DbUser = "ukg_app",
+    [string]$DbName = "ukg_local"
 )
 
 Set-StrictMode -Version Latest

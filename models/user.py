@@ -108,12 +108,40 @@ class User(UserMixin, db.Model):
     mfa_secret = db.Column(db.String(32))
     mfa_backup_codes = db.Column(db.JSON)
 
+    # Identifiers
+    windows_sid = db.Column(db.String(255), unique=True, nullable=True, index=True)
+    role = db.Column(db.String(20), default='user') # Owner, admin, user, viewer
+    
     password_history_entries = db.relationship(
         'PasswordHistory',
         backref='user',
         lazy='dynamic',
         order_by='PasswordHistory.created_at.desc()'
     )
+
+class AuditLog(db.Model):
+    """Compliance audit log for tracking sensitive system actions."""
+    __tablename__ = 'audit_logs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=_utcnow, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    windows_sid = db.Column(db.String(255))
+    action = db.Column(db.String(100), nullable=False)
+    details = db.Column(db.Text)
+    ip_address = db.Column(db.String(45)) # IPv4/IPv6 support
+
+    user = db.relationship('User', backref=db.backref('audit_logs', lazy='dynamic'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'timestamp': self.timestamp.isoformat(),
+            'user_id': self.user_id,
+            'windows_sid': self.windows_sid,
+            'action': self.action,
+            'details': self.details
+        }
 
     @property
     def is_active(self):
@@ -217,6 +245,8 @@ class User(UserMixin, db.Model):
             'tenant_id': self.tenant_id,
             'is_active': self.is_active,
             'is_admin': self.is_admin,
+            'role': self.role,
+            'windows_sid': self.windows_sid,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'last_login': self.last_login.isoformat() if self.last_login else None,
             'mfa_enabled': self.mfa_enabled,

@@ -125,8 +125,8 @@ Both the Flask backend and Next.js frontend are managed as native Windows Servic
 - **LifeCycle**: Services start automatically on boot and support automatic restart on failure.
 
 ### 3. Native Identity & Security
-- **Zero-Config Identity**: The application retrieves the Windows **Security Identifier (SID)** to automatically identify and register the local user without requiring manual login.
-- **DPAPI Secret Storage**: Sensitve LLM API keys are encrypted using the **Windows Data Protection API (DPAPI)**, ensuring secrets are tied to the specific user and machine.
+- **Identity Integrity**: Validated user recognition via Windows Security Identifier (SID) with standard format enforcement, ensuring that local data residency is tied to a verified profile.
+- **DPAPI Secret Storage**: Sensitive LLM API keys are encrypted using the **Windows Data Protection API (DPAPI)** with externalizable entropy (UKG_DPAPI_ENTROPY), ensuring secrets are tied strictly to the user and machine.
 
 ### 4. Local Data Paths
 The application respects Windows standards for data residency:
@@ -136,6 +136,7 @@ The application respects Windows standards for data residency:
 ### 5. Distributable Packaging (Setup.exe)
 For standalone distribution, the system uses a **WiX Toolset** based installer system.
 - **Payload**: Bundles the PyInstaller backend, Next.js standalone frontend, WinSW binaries, and modular PowerShell setup scripts.
+- **Resilient Orchestration**: The installer features **Atomic Rollback** and **Binary Integrity** via SHA-256 hash checks for all app executables and dependency MSIs.
 - **CustomActions**: The installer executes `install.ps1` with elevated privileges to handle silent MSI delivery of PostgreSQL and Redis, ensuring a "Zero-Ops" experience for the end user.
 - **Lifecycle**: Handles MSI-compliant upgrades, repairs, and clean uninstallation with data-retention prompts.
 

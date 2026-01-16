@@ -86,8 +86,17 @@ export function NavBar() {
                     <DropdownMenuContent className="w-56" align="end" forceMount>
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">{user.username}</p>
-                                <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                                <div className="flex items-center justify-between">
+                                    <p className="text-sm font-medium leading-none">{user.username}</p>
+                                    {user.role && (
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider font-bold">
+                                            {user.role}
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="text-xs leading-none text-muted-foreground truncate">
+                                    {user.windows_sid ? `Windows Identity: ${user.username}` : user.email}
+                                </p>
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />

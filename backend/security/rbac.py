@@ -130,19 +130,17 @@ class RBACManager:
     def _initialize_default_roles(self):
         """Initialize default system roles."""
 
-        # Super Admin - Full system access
+        # Owner - Ultimate machine owner
+        self.roles["owner"] = Role(
+            name="owner",
+            permissions=set(Permission),
+            description="Ultimate machine owner with full system access and data residency control"
+        )
+
+        # Super Admin - Full system access (Cloud)
         self.roles["super_admin"] = Role(
             name="super_admin",
-            permissions={
-                Permission.SYSTEM_ADMIN,
-                Permission.USER_MANAGE_ROLES,
-                Permission.SECURITY_ADMIN,
-                Permission.COMPLIANCE_ADMIN,
-                Permission.AUDIT_READ,
-                Permission.AUDIT_EXPORT,
-                Permission.DATA_BACKUP,
-                Permission.DATA_RESTORE,
-            } | set(Permission),  # All permissions
+            permissions=set(Permission),
             description="Super administrator with full system access"
         )
 
