@@ -1,0 +1,144 @@
+2026-01-16 03:38:41,853 - UKG-Audit - INFO - Audit log rotation started
+2026-01-16 03:38:41,854 - UKG-Audit - INFO - Audit Logger initialized
+2026-01-16 03:38:41,854 - backend.security.encryption_manager - WARNING - Generated temporary KEK secret. Set ENCRYPTION_KEK_SECRET in production!
+2026-01-16 03:38:41,854 - backend.security.encryption_manager - WARNING - Add to .env: ENCRYPTION_KEK_SECRET=zbaoGYXClyHMzwoNe_j3NOyNW0_Zk4YHHn0sBkHESng=
+2026-01-16 03:38:42,806 - backend.security.encryption_manager - WARNING - Generated temporary KEK secret. Set ENCRYPTION_KEK_SECRET in production!
+2026-01-16 03:38:42,806 - backend.security.encryption_manager - WARNING - Add to .env: ENCRYPTION_KEK_SECRET=wY1ePQz4bQGmnCDhS7HaqsG7xm1sPNhNUi2uPsn9HwU=
+2026-01-16 03:38:43,107 - routes.auth_routes - INFO - DEBUG: user type=<class 'models.user.User'>
+2026-01-16 03:38:43,107 - routes.auth_routes - INFO - DEBUG: user dir=['__annotations__', '__class__', '__class_getitem__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__firstlineno__', '__format__', '__fsa__', '__ge__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__mapper__', '__module__', '__ne__', '__new__', '__orig_bases__', '__parameters__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__slots__', '__static_attributes__', '__str__', '__subclasshook__', '__table__', '__table_cls__', '__tablename__', '__weakref__', '_sa_class_manager', '_sa_instance_state', '_sa_registry', 'active', 'api_keys', 'audit_logs', 'created_at', 'email', 'failed_login_attempts', 'force_password_change', 'get_id', 'id', 'is_active', 'is_admin', 'is_anonymous', 'is_authenticated', 'is_sso', 'last_login', 'locked_until', 'metadata', 'mfa_backup_codes', 'mfa_enabled', 'mfa_secret', 'oauth_accounts', 'password_changed_at', 'password_expires_at', 'password_hash', 'password_history_entries', 'query', 'query_class', 'registry', 'role', 'simulations', 'tenant_id', 'truth_budgets', 'truth_sessions', 'ukg_sessions', 'username', 'windows_sid']
+E2026-01-16 03:38:43,111 - backend.security.encryption_manager - WARNING - Generated temporary KEK secret. Set ENCRYPTION_KEK_SECRET in production!
+2026-01-16 03:38:43,111 - backend.security.encryption_manager - WARNING - Add to .env: ENCRYPTION_KEK_SECRET=pRK1BnzdNvZBwk1e_2s5Nn1V6I0GXptn-Bsfl7Yqdws=
+2026-01-16 03:38:43,318 - routes.auth_routes - INFO - DEBUG: user type=<class 'models.user.User'>
+2026-01-16 03:38:43,318 - routes.auth_routes - INFO - DEBUG: user dir=['__annotations__', '__class__', '__class_getitem__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__firstlineno__', '__format__', '__fsa__', '__ge__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__mapper__', '__module__', '__ne__', '__new__', '__orig_bases__', '__parameters__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__slots__', '__static_attributes__', '__str__', '__subclasshook__', '__table__', '__table_cls__', '__tablename__', '__weakref__', '_sa_class_manager', '_sa_instance_state', '_sa_registry', 'active', 'api_keys', 'audit_logs', 'created_at', 'email', 'failed_login_attempts', 'force_password_change', 'get_id', 'id', 'is_active', 'is_admin', 'is_anonymous', 'is_authenticated', 'is_sso', 'last_login', 'locked_until', 'metadata', 'mfa_backup_codes', 'mfa_enabled', 'mfa_secret', 'oauth_accounts', 'password_changed_at', 'password_expires_at', 'password_hash', 'password_history_entries', 'query', 'query_class', 'registry', 'role', 'simulations', 'tenant_id', 'truth_budgets', 'truth_sessions', 'ukg_sessions', 'username', 'windows_sid']
+E2026-01-16 03:38:43,321 - backend.security.encryption_manager - WARNING - Generated temporary KEK secret. Set ENCRYPTION_KEK_SECRET in production!
+2026-01-16 03:38:43,321 - backend.security.encryption_manager - WARNING - Add to .env: ENCRYPTION_KEK_SECRET=KO3WJYur2LDcRKs3npuOFAvppLZsg6rMCOEmxBz01fo=
+2026-01-16 03:38:43,536 - routes.auth_routes - INFO - DEBUG: user type=<class 'models.user.User'>
+2026-01-16 03:38:43,536 - routes.auth_routes - INFO - DEBUG: user dir=['__annotations__', '__class__', '__class_getitem__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__firstlineno__', '__format__', '__fsa__', '__ge__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__mapper__', '__module__', '__ne__', '__new__', '__orig_bases__', '__parameters__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__slots__', '__static_attributes__', '__str__', '__subclasshook__', '__table__', '__table_cls__', '__tablename__', '__weakref__', '_sa_class_manager', '_sa_instance_state', '_sa_registry', 'active', 'api_keys', 'audit_logs', 'created_at', 'email', 'failed_login_attempts', 'force_password_change', 'get_id', 'id', 'is_active', 'is_admin', 'is_anonymous', 'is_authenticated', 'is_sso', 'last_login', 'locked_until', 'metadata', 'mfa_backup_codes', 'mfa_enabled', 'mfa_secret', 'oauth_accounts', 'password_changed_at', 'password_expires_at', 'password_hash', 'password_history_entries', 'query', 'query_class', 'registry', 'role', 'simulations', 'tenant_id', 'truth_budgets', 'truth_sessions', 'ukg_sessions', 'username', 'windows_sid']
+E
+======================================================================
+ERROR: test_first_run_owner_assignment (__main__.TestIdentityIsolation.test_first_run_owner_assignment)
+Verify that the first registered Windows user becomes the Owner.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\scripts\windows\verify_identity_logic.py", line 58, in test_first_run_owner_assignment
+    response = client.post('/api/v1/auth/desktop/auto-login')
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\werkzeug\test.py", line 1167, in post
+    return self.open(*args, **kw)
+           ~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\testing.py", line 235, in open
+    response = super().open(
+        request,
+        buffered=buffered,
+        follow_redirects=follow_redirects,
+    )
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\werkzeug\test.py", line 1116, in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\werkzeug\test.py", line 988, in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\werkzeug\test.py", line 1264, in run_wsgi_app
+    app_rv = app(environ, start_response)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\routes\auth_routes.py", line 335, in desktop_auto_login
+    user.set_password(secrets.token_urlsafe(32))
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'set_password'
+
+======================================================================
+ERROR: test_subsequent_user_assignment (__main__.TestIdentityIsolation.test_subsequent_user_assignment)
+Verify that subsequent Windows users become standard users.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\scripts\windows\verify_identity_logic.py", line 86, in test_subsequent_user_assignment
+    response = client.post('/api/v1/auth/desktop/auto-login')
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\werkzeug\test.py", line 1167, in post
+    return self.open(*args, **kw)
+           ~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\testing.py", line 235, in open
+    response = super().open(
+        request,
+        buffered=buffered,
+        follow_redirects=follow_redirects,
+    )
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\werkzeug\test.py", line 1116, in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\werkzeug\test.py", line 988, in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\werkzeug\test.py", line 1264, in run_wsgi_app
+    app_rv = app(environ, start_response)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\routes\auth_routes.py", line 335, in desktop_auto_login
+    user.set_password(secrets.token_urlsafe(32))
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'set_password'
+
+======================================================================
+ERROR: test_username_deconfliction (__main__.TestIdentityIsolation.test_username_deconfliction)
+Verify that identical Windows usernames result in unique app usernames.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\scripts\windows\verify_identity_logic.py", line 109, in test_username_deconfliction
+    response = client.post('/api/v1/auth/desktop/auto-login')
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\werkzeug\test.py", line 1167, in post
+    return self.open(*args, **kw)
+           ~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\testing.py", line 235, in open
+    response = super().open(
+        request,
+        buffered=buffered,
+        follow_redirects=follow_redirects,
+    )
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\werkzeug\test.py", line 1116, in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\werkzeug\test.py", line 988, in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\werkzeug\test.py", line 1264, in run_wsgi_app
+    app_rv = app(environ, start_response)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\routes\auth_routes.py", line 335, in desktop_auto_login
+    user.set_password(secrets.token_urlsafe(32))
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'set_password'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.733s
+
+FAILED (errors=3)

@@ -48,14 +48,17 @@ class EncryptionManager:
     - Comprehensive audit logging
     """
 
-    def __init__(self, key_dir: str = "data/security/keys", audit_logger=None):
+    def __init__(self, key_dir: Optional[str] = None, audit_logger=None):
         """
         Initialize encryption manager.
 
         Args:
-            key_dir: Directory for storing encrypted keys
+            key_dir: Directory for storing encrypted keys (overriden by UKG_KEY_DIR env var)
             audit_logger: Optional audit logger instance
         """
+        if key_dir is None:
+            key_dir = os.environ.get("UKG_KEY_DIR", "data/security/keys")
+            
         self.key_dir = key_dir
         self.audit_logger = audit_logger
         self.kek_file = os.path.join(key_dir, "kek.enc")

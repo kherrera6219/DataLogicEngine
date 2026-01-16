@@ -327,8 +327,9 @@ def desktop_auto_login():
         user = User()
         user.username = username
         user.email = f"{username}@local.ukg"
-        # We set a random password hash but use SID for actual auth
-        user.set_password(secrets.token_urlsafe(32))
+        # Ensure password meets security requirements (length, case, digit, special)
+        temp_password = secrets.token_urlsafe(32) + "!A1a"
+        user.set_password(temp_password)
         user.windows_sid = sid
         user.role = role
         user.is_admin = (role == 'owner')

@@ -1,9 +1,18 @@
 param(
-    [string]$InstallDir = "C:\Program Files\PostgreSQL\15",
-    [string]$DataDir = "C:\ProgramData\DataLogicEngine\db",
-    [string]$Password = "ukg_local_pwd",
-    [string]$Database = "ukg_local",
-    [string]$User = "ukg_app"
+    [Parameter(Mandatory = $false)]
+    [String]$InstallDir = "C:\Program Files\PostgreSQL\15",
+
+    [Parameter(Mandatory = $false)]
+    [String]$DataDir = "C:\ProgramData\DataLogicEngine\db",
+
+    [Parameter(Mandatory = $false)]
+    [String]$Password = "ukg_local_pwd",
+
+    [Parameter(Mandatory = $false)]
+    [String]$Database = "ukg_local",
+
+    [Parameter(Mandatory = $false)]
+    [String]$DbUser = "ukg_app"
 )
 
 Set-StrictMode -Version Latest
@@ -79,14 +88,14 @@ try {
     }
 
     # 8. Create Application DB and User
-    Write-Host "Initializing $Database and $User..."
+    Write-Host "Initializing $Database and $DbUser..."
     $env:PGPASSWORD = $Password
     $Psql = Join-Path $InstallDir "bin\psql.exe"
     
     # Create Role
-    & $Psql -U postgres -c "CREATE ROLE $User WITH LOGIN PASSWORD '$Password';" -h localhost 2>$null
+    & $Psql -U postgres -c "CREATE ROLE $DbUser WITH LOGIN PASSWORD '$Password';" -h localhost 2>$null
     # Create DB
-    & $Psql -U postgres -c "CREATE DATABASE $Database OWNER $User;" -h localhost 2>$null
+    & $Psql -U postgres -c "CREATE DATABASE $Database OWNER $DbUser;" -h localhost 2>$null
     
     Write-Host "PostgreSQL setup complete." -ForegroundColor Green
 }

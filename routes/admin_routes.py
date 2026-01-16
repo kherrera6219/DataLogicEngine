@@ -10,6 +10,7 @@ import logging
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 
+from extensions import db
 from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge
 from backend.security.rbac import require_permission, Permission, get_rbac_manager
 

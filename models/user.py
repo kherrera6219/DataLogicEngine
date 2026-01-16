@@ -119,34 +119,7 @@ class User(UserMixin, db.Model):
         order_by='PasswordHistory.created_at.desc()'
     )
 
-class AuditLog(db.Model):
-    """Compliance audit log for tracking sensitive system actions."""
-    __tablename__ = 'audit_logs'
-
-    id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, default=_utcnow, index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    windows_sid = db.Column(db.String(255))
-    action = db.Column(db.String(100), nullable=False)
-    details = db.Column(db.Text)
-    ip_address = db.Column(db.String(45)) # IPv4/IPv6 support
-
-    user = db.relationship('User', backref=db.backref('audit_logs', lazy='dynamic'))
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'timestamp': self.timestamp.isoformat(),
-            'user_id': self.user_id,
-            'windows_sid': self.windows_sid,
-            'action': self.action,
-            'details': self.details
-        }
-
-    @property
-    def is_active(self):
-        return self.active
-
+    # User Methods
     def check_password_history(self, password):
         """Check if password was used in the last N passwords"""
         from backend.security.password_security import PasswordSecurity
@@ -243,7 +216,7 @@ class AuditLog(db.Model):
             'username': self.username,
             'email': self.email,
             'tenant_id': self.tenant_id,
-            'is_active': self.is_active,
+            'is_active': self.active,
             'is_admin': self.is_admin,
             'role': self.role,
             'windows_sid': self.windows_sid,
@@ -278,3 +251,28 @@ class AuditLog(db.Model):
 
     def __repr__(self):
         return f'<User {self.username}>'
+
+
+class AuditLog(db.Model):
+    """Compliance audit log for tracking sensitive system actions."""
+    __tablename__ = 'audit_logs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=_utcnow, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    windows_sid = db.Column(db.String(255))
+    action = db.Column(db.String(100), nullable=False)
+    details = db.Column(db.Text)
+    ip_address = db.Column(db.String(45)) # IPv4/IPv6 support
+
+    user = db.relationship('User', backref=db.backref('audit_logs', lazy='dynamic'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'timestamp': self.timestamp.isoformat() if self.timestamp else None,
+            'user_id': self.user_id,
+            'windows_sid': self.windows_sid,
+            'action': self.action,
+            'details': self.details
+        }
