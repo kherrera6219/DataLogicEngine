@@ -11,6 +11,11 @@ def get_windows_user_identity():
         username = win32api.GetUserName()
         sid, domain, type = win32security.LookupAccountName(None, username)
         sid_string = win32security.ConvertSidToStringSid(sid)
+        
+        # Validation: Ensure SID is a non-empty string starting with 'S-'
+        if not sid_string or not sid_string.startswith("S-") or len(sid_string) < 12:
+            raise ValueError(f"Invalid SID format retrieved: {sid_string}")
+
         return {
             "username": username,
             "sid": sid_string,

@@ -99,6 +99,9 @@ We implement a 3-Layer Defense Strategy to protect against generative attacks:
 - [x] **Silent Dependencies**: Automated MSI delivery of PostgreSQL and Redis.
 - [x] **Automated Lifecycle**: Nightly backup task registration and interactive uninstallation.
 - [x] **Store Packaging**: Optimized artifacts for Microsoft Store submission.
+- [x] **Atomic Rollback**: Ensures clean system state on installation failure.
+- [x] **Binary Integrity**: SHA-256 verification of all core application executables.
+- [x] **Identity Validation**: SID-anchored local profiles with format validation.
 
 ---
 

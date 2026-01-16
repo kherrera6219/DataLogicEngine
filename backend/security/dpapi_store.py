@@ -1,9 +1,11 @@
 import win32crypt
 import base64
+import os
 
 # Optional secondary entropy to prevent other apps from decrypting this app's data easily
-# In production, this could be a machine-unique value or a hardcoded pepper
-ENTROPY = "DataLogicEngine_Secret_V1_Pepper".encode('utf-8')
+# In production, this can be set via UKG_DPAPI_ENTROPY env var
+_DEFAULT_ENTROPY = "DataLogicEngine_Secret_V1_Pepper"
+ENTROPY = os.environ.get("UKG_DPAPI_ENTROPY", _DEFAULT_ENTROPY).encode('utf-8')
 
 def encrypt_data(data: str) -> str:
     """

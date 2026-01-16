@@ -66,16 +66,16 @@
                 <File Id="FrontendServerFile" Source="frontend/.next/standalone/server.js" KeyPath="yes" />
             </Component>
 
-            <!-- Shortcut to Localhost UI -->
+            <!-- Generic Shortcut to Web UI -->
             <Component Id="ApplicationShortcut" Guid="*">
+                <File Id="WebShortcut" Name="DataLogicEngine.url" Source="deploy/windows/DataLogicEngine.url" KeyPath="yes" />
                 <Shortcut Id="ApplicationStartMenuShortcut" 
+                          Directory="ApplicationProgramsFolder"
                           Name="DataLogicEngine" 
                           Description="Launch DataLogicEngine Desktop" 
-                          Target="[ProgramFiles64Folder]Microsoft\Edge\Application\msedge.exe" 
-                          Arguments="--app=http://localhost:3000"
-                          WorkingDirectory="INSTALLFOLDER"/>
+                          Target="[#WebShortcut]" />
                 <RemoveFolder Id="CleanupShortcut" On="uninstall"/>
-                <RegistryValue Root="HKCU" Key="Software\DataLogic\DataLogicEngine" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+                <RegistryValue Root="HKCU" Key="Software\DataLogic\DataLogicEngine" Name="installed" Type="integer" Value="1"/>
             </Component>
         </ComponentGroup>
 

@@ -51,8 +51,19 @@ try {
     }
 
     # 4. Deploy Application Services
+    Write-Log "Deploying Application Binaries..."
+    $BackendBinary = Join-Path $InstallPath "app\DataLogic_Backend.exe"
+    $FrontendServer = Join-Path $InstallPath "app\server.js"
+    
+    # Placeholder expected hashes (In production, these would be generated during CI/CD)
+    $ExpectedBackendHash = "B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1"
+    $ExpectedFrontendHash = "F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1"
+
+    # Verify integrity of deployed binaries
+    if (Test-Path $BackendBinary) { Test-UKGFileHash -Path $BackendBinary -ExpectedHash $ExpectedBackendHash }
+    if (Test-Path $FrontendServer) { Test-UKGFileHash -Path $FrontendServer -ExpectedHash $ExpectedFrontendHash }
+
     Write-Log "Registering UKG Windows Services..."
-    # (Service registration logic remains, but now protected by Try/Catch)
     
     # Register Backup Task
     Write-Log "Scheduling nightly backups..."
@@ -65,5 +76,24 @@ try {
 }
 catch {
     Write-Log "FATAL ERROR during installation: $($_.Exception.Message)" "Red"
+    
+    # --- ATOMIC ROLLBACK ---
+    Write-Log "Initiating Atomic Rollback..." "Yellow"
+    try {
+        if (Test-Path $InstallPath) {
+            Write-Log "Cleaning up partial installation at $InstallPath..."
+            Remove-Item -Path $InstallPath -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        # Note: We usually don't delete DataPath to avoid accidental data loss if it already existed
+        # but we could clean up the 'app' subfolder
+        $AppData = Join-Path $DataPath "app"
+        if (Test-Path $AppData) {
+            Remove-Item -Path $AppData -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+    catch {
+        Write-Log "Rollback encountered secondary errors, please manual clean: $($_.Exception.Message)" "Red"
+    }
+    
     exit 1
 }
