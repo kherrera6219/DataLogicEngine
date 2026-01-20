@@ -1,26 +1,44 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { api, User } from '@/lib/api';
 import { LoginCredentials } from '@/lib/api/auth';
+
+interface MFAState {
+    required: boolean;
+    sessionId?: string;
+}
 
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     isLoading: boolean;
+    mfaState: MFAState;
     login: (credentials: LoginCredentials) => Promise<void>;
     logout: () => Promise<void>;
     checkAuth: () => Promise<void>;
+    showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Notification event for cross-component communication
+const NOTIFICATION_EVENT = 'auth-notification';
+
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [mfaState, setMfaState] = useState<MFAState>({ required: false });
     const router = useRouter();
     const pathname = usePathname();
+
+    const showNotification = useCallback((message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+        // Dispatch custom event that ToastProvider can listen to
+        window.dispatchEvent(new CustomEvent(NOTIFICATION_EVENT, {
+            detail: { message, type }
+        }));
+    }, []);
 
     const checkAuth = async () => {
         try {
@@ -52,8 +70,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             router.push('/dashboard');
             router.refresh();
         } else if (response.status === 202) {
-             // Handle MFA (Placeholder)
-             alert("MFA Required - Implementation Pending");
+             // Handle MFA requirement
+             setMfaState({ required: true, sessionId: response.data?.session_id });
+             showNotification('MFA verification required. Please enter your authentication code.', 'warning');
         } else {
             throw new Error(response.error || 'Login failed');
         }
@@ -83,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [user, isLoading, pathname, router]);
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout, checkAuth }}>
+        <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, mfaState, login, logout, checkAuth, showNotification }}>
             {children}
         </AuthContext.Provider>
     );

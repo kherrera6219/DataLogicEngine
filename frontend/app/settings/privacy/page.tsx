@@ -7,9 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function PrivacySettingsPage() {
   const { user, logout } = useAuth();
+  const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -50,8 +52,8 @@ export default function PrivacySettingsPage() {
       const data = await response.json();
       
       if (data.success) {
-        alert('Your data has been deleted. You will now be logged out.');
-        logout();
+        toast('Your data has been deleted. You will now be logged out.', 'success');
+        setTimeout(() => logout(), 2000);
       } else {
         throw new Error(data.error || 'Deletion failed');
       }

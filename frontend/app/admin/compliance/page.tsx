@@ -8,22 +8,25 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Download, ShieldCheck, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function ComplianceDashboard() {
   const router = useRouter();
+  const { toast } = useToast();
   const [exporting, setExporting] = useState(false);
   const [days, setDays] = useState(30);
 
   // Fetch standards (just to show dashboard is alive)
   const { data: standards, error } = useSWR('compliance.standards', () => api.compliance.standards());
-  
+
   const handleExport = async () => {
     try {
       setExporting(true);
       await api.compliance.exportAuditLogs(days);
+      toast('Audit log export started successfully.', 'success');
     } catch (e) {
       console.error('Export failed', e);
-      alert('Failed to trigger export.');
+      toast('Failed to trigger export. Please try again.', 'error');
     } finally {
       setExporting(false);
     }
