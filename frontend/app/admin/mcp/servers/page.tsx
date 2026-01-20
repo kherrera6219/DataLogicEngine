@@ -8,11 +8,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Plus, RefreshCw, Box } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function MCPServersPage() {
   const [servers, setServers] = useState<MCPServer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchServers();
@@ -35,10 +37,11 @@ export default function MCPServersPage() {
     if (!confirm('Are you sure you want to delete this server?')) return;
     try {
       await mcp.deleteServer(id);
+      toast('Server deleted successfully.', 'success');
       fetchServers();
     } catch (err) {
       console.error(err);
-      alert('Failed to delete server');
+      toast('Failed to delete server. Please try again.', 'error');
     }
   };
 
