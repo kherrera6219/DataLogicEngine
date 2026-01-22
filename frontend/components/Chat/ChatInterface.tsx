@@ -5,11 +5,13 @@ import { Message, sendChat } from '@/lib/api';
 import { MessageBubble } from './MessageBubble';
 import { Sparkles, Send, Terminal, ShieldCheck, Bot } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { CloudStatusIndicator } from '@/components/ui/cloud-status-indicator';
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -19,6 +21,19 @@ export function ChatInterface() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setShowTimeoutWarning(false);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setShowTimeoutWarning(true);
+    }, 10000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,6 +122,20 @@ export function ChatInterface() {
       </div>
 
       <div className="bg-black/20 backdrop-blur-xl p-2 rounded-2xl border border-white/5 shadow-2xl">
+        <div className="flex items-start justify-between px-2 pb-2">
+          <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold uppercase tracking-wide">Cloud status</span>
+              {isLoading && <span className="text-blue-400">Processing…</span>}
+            </div>
+            {showTimeoutWarning && (
+              <span className="text-amber-400">
+                This request is taking longer than usual. Check connectivity or try again.
+              </span>
+            )}
+          </div>
+          <CloudStatusIndicator isProcessing={isLoading} />
+        </div>
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
             type="text"

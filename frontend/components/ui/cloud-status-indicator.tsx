@@ -6,9 +6,10 @@ import { cn } from '@/lib/utils';
 
 export interface CloudStatusIndicatorProps {
   className?: string;
+  isProcessing?: boolean;
 }
 
-export function CloudStatusIndicator({ className }: CloudStatusIndicatorProps) {
+export function CloudStatusIndicator({ className, isProcessing = false }: CloudStatusIndicatorProps) {
   const [status, setStatus] = useState<'online' | 'degraded' | 'offline' | 'loading'>('loading');
   
   useEffect(() => {
@@ -47,10 +48,16 @@ export function CloudStatusIndicator({ className }: CloudStatusIndicatorProps) {
       color: "bg-muted-foreground",
       text: "Checking Status...",
       description: "Contacting truth vectors..."
+    },
+    processing: {
+      icon: <Loader2 className="h-3 w-3 animate-spin text-blue-400" />,
+      color: "bg-blue-500",
+      text: "LLM Gateway: Processing",
+      description: "A cloud reasoning task is currently in progress."
     }
   };
 
-  const current = statusConfig[status];
+  const current = isProcessing ? statusConfig.processing : statusConfig[status];
 
   return (
     <div 
@@ -68,7 +75,7 @@ export function CloudStatusIndicator({ className }: CloudStatusIndicatorProps) {
         )} />
       </div>
       <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors hidden sm:inline">
-        Cloud reasoning
+        {isProcessing ? "Cloud processing" : "Cloud reasoning"}
       </span>
     </div>
   );
