@@ -34,3 +34,40 @@ asyncio_mode = "auto"
 filterwarnings = [
     "ignore::DeprecationWarning:pytest_asyncio.*:",
 ]
+# Code coverage settings
+addopts = """
+    --cov=backend
+    --cov=models
+    --cov-report=html
+    --cov-report=term-missing
+    --cov-report=json
+    --cov-fail-under=70
+"""
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["backend", "."]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/env/*",
+    "*/migrations/*",
+    "*/config.py",
+    "*/.venv/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
