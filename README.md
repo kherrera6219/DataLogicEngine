@@ -173,9 +173,39 @@ Native MCP implementation exposing:
 
 - **Resources**: Knowledge graph stats, pillars, algorithms
 - **Tools**: 116 Knowledge Algorithms as executable tools
+- **Enterprise Connectors** (NEW):
+  - **Salesforce**: CRM lookup, Lead creation
+  - **Jira**: Ticket creation, Status checking
 - **Prompts**: Expert persona templates, regulatory analysis
 
+**Architecture**:
+- `MCPRouter`: JSON-RPC 2.0 message handler
+- `ToolRegistry`: Decorator-based tool registration
+- Async/sync function support
+
 **Compatible with**: Claude AI, GPT-4 with function calling, any MCP-compliant agent
+
+### 🎬 Multimodal Processing (NEW)
+
+Advanced media processing capabilities:
+
+**Document Intelligence** (`backend/services/document_processor.py`):
+- PDF text extraction
+- OCR for images (PNG, JPG)
+- DOCX parsing
+- Supported formats: PDF, Images, Office documents
+
+**Audio Service** (`backend/services/audio_service.py`):
+- Speech-to-Text (STT) transcription
+- Text-to-Speech (TTS) synthesis
+- Ready for Whisper/Azure Speech integration
+
+**Video Service** (`backend/services/video_service.py`):
+- Frame extraction
+- Video analysis
+- Keyframe detection
+- Ready for ffmpeg/Vision LLM integration
+
 
 ### 🌐 LLM Gateway (Universal Adapter)
 

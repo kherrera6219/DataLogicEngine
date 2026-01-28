@@ -44,6 +44,15 @@ The following items from prior TODO lists have been **verified as implemented**:
     - [x] `SimulationEngine` (10-Layer Stack) implemented (`backend/simulation/`)
     - [x] `QuadPersonaEngine` (4-Way Concurrent) implemented (`backend/quad_persona/`)
     - [x] Engine verification scripts passed (`verify_engines.py`)
+- [x] **Phase 2: Enterprise Integration (MCP)**:
+    - [x] MCP Server infrastructure (`backend/mcp_server/router.py`, `registry.py`)
+    - [x] Salesforce connector tools (`salesforce_crm_lookup`, `salesforce_lead_create`)
+    - [x] Jira connector tools (`jira_ticket_create`, `jira_status_check`)
+- [x] **Phase 3: Multimodal Capabilities**:
+    - [x] `DocumentProcessor` (PDF/OCR/DOCX) implemented (`backend/services/`)
+    - [x] `AudioService` (STT/TTS) implemented
+    - [x] `VideoService` (Frame extraction) implemented
+
 - [x] **Pagination** implemented (`routes/ka_routes.py`, `backend/tracing/api.py`, SDK)
 
 - [x] **CDN configuration** in security headers
