@@ -23,11 +23,8 @@ export default function ProjectsPage() {
   return (
     <div className="flex h-screen bg-[#111111] text-white font-sans overflow-hidden">
       
-      {/* Global Sidebar should be here if layout.tsx handled it, but adding for completeness if standalone */}
-      {/* <AppSidebar /> assumed present in layout or added here if needed. 
-          For now, keeping it consistent with moving towards global layout. 
-          If not global yet, I should add it. I will import it below.
-      */}
+      {/* Global Sidebar */}
+      <AppSidebar />
       
       <div className="flex-1 flex flex-col overflow-y-auto bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
          

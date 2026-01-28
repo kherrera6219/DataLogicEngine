@@ -1,4 +1,5 @@
 import { ChatInterface } from '@/components/chat/ChatInterface';
+import { AppSidebar } from '@/components/layout/AppSidebar';
 
 export const metadata = {
   title: 'UKG Enterprise AI Assistant',
@@ -8,6 +9,10 @@ export const metadata = {
 export default function ChatPage() {
   return (
     <div className="flex h-screen bg-[#111111] text-white font-sans overflow-hidden bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
+      {/* Global Navigation */}
+      <AppSidebar />
+      
+      {/* Chat Workspace */}
       <ChatInterface />
     </div>
   );
