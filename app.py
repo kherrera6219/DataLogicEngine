@@ -152,12 +152,17 @@ else:
     app.config["CELERY_TASK_ALWAYS_EAGER"] = True # Run synchronously
 
 # Initialize extensions with app
-from extensions import db, login_manager, csrf, migrate, cache, compress, cors
+from extensions import db, login_manager, csrf, migrate, cache, compress, cors, limiter
 from models import User, APIKey, SimulationSession
 db.init_app(app)
 login_manager.init_app(app)
 csrf.init_app(app)
 migrate.init_app(app, db)
+
+# Configure limiter storage
+if not use_redis:
+    limiter.storage_uri = "memory://"
+limiter.init_app(app)
 cache.init_app(app)
 compress.init_app(app)
 # Configure CORS with strict origins from config (default to '*' if not set to prevent init errors)

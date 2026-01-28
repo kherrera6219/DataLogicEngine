@@ -12,20 +12,17 @@ from flask import Blueprint, request, jsonify, Response, stream_with_context, g
 from flask_login import login_required, current_user
 import json
 import logging
+import os
 
 from backend.llm_gateway.models import LLMProvider, LLMProviderUsage, ExternalAPIKey
 from backend.llm_gateway.gateway import LLMGateway, GatewayRequest
 try:
     from extensions import db, cache
 except ImportError:
-    # Fallback for alternative execution contexts
-    try:
-        from backend.extensions import db, cache
-    except ImportError:
-        # Final fallback to root
-        import sys
-        sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-        from extensions import db, cache
+    # Final fallback for unusual packaging contexts
+    import sys
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    from extensions import db, cache
 
 logger = logging.getLogger(__name__)
 

@@ -361,7 +361,14 @@ class LLMGateway:
         """Create TraceRun and TraceStage records from SDK result."""
         try:
             from backend.tracing.models import TraceRun, TraceStage
-            from backend.extensions import db
+            try:
+                from extensions import db, cache
+            except ImportError:
+                # Final fallback
+                import sys
+                import os
+                sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+                from extensions import db, cache
             import uuid
             
             # Create TraceRun

@@ -4,6 +4,7 @@ import time
 import socket
 import logging
 import signal
+import sys
 from typing import Optional
 
 logger = logging.getLogger(__name__)
@@ -15,8 +16,18 @@ class DatabaseLifecycleManager:
     """
     
     def __init__(self, base_dir: Optional[str] = None):
-        # Default to root database directory
-        self.base_dir = base_dir or os.path.join(os.getcwd(), 'databases')
+        if base_dir:
+            self.base_dir = base_dir
+        else:
+            # Handle PyInstaller frozen state
+            if getattr(sys, 'frozen', False):
+                # If frozen, base_dir is adjacent to the executable
+                application_path = os.path.dirname(sys.executable)
+            else:
+                # If running as script, base_dir is root of project (assuming script in root)
+                application_path = os.getcwd()
+            
+            self.base_dir = os.path.join(application_path, 'databases')
         
         # Postgres Config
         self.pg_bin = os.path.join(self.base_dir, 'postgresql', 'bin')
