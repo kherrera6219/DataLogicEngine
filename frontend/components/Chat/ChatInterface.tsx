@@ -1,162 +1,204 @@
-'use client';
-
-import { useState, useRef, useEffect } from 'react';
-import { Message, sendChat } from '@/lib/api';
-import { MessageBubble } from './MessageBubble';
-import { Sparkles, Send, Terminal, ShieldCheck, Bot } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-import { CloudStatusIndicator } from '@/components/ui/cloud-status-indicator';
+import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  Plus, Search, Pin, Calendar, Folder, 
+  Settings, Mic, Paperclip, Zap, ArrowRight 
+} from "lucide-react";
+import { ChatMessage } from './types';
+import { LiveTracePanel } from './LiveTracePanel';
+import { DetailedResponseView } from './DetailedResponseView';
+import { TraceVisualizer } from './TraceVisualizer';
+import { AdvancedControls } from './AdvancedControls';
 
 export function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
-  const { toast } = useToast();
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to bottom
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: '1',
+      role: 'user',
+      content: 'What are the HIPAA compliance requirements for storing patient data in cloud environments?',
+      timestamp: '2:34 PM'
+    },
+    {
+      id: '2',
+      role: 'assistant',
+      content: '', // Content handled by DetailedResponseView or summary
+      finalAnswer: "Based on comprehensive analysis across regulatory, technical, and compliance frameworks, storing patient data in cloud environments under HIPAA requires...",
+      timestamp: '2:34 PM',
+      isEnhanced: true
     }
-  }, [messages]);
-
-  useEffect(() => {
-    if (!isLoading) {
-      setShowTimeoutWarning(false);
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setShowTimeoutWarning(true);
-    }, 10000);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [isLoading]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
-
-    const userMsg: Message = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    setIsLoading(true);
-
-    try {
-      const response = await sendChat({
-        messages: [...messages, userMsg],
-        run_ukg_pipeline: true,
-        mode: 'chat'
-      });
-
-      const assistantMsg: Message = { role: 'assistant', content: response.response };
-      setMessages(prev => [...prev, assistantMsg]);
-    } catch (error) {
-      console.error(error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to connect to Gateway';
-      const errorMsg: Message = {
-        role: 'system',
-        content: `Error: ${errorMessage}. \n\nCheck if the backend is running at localhost:5000.`
-      };
-      setMessages(prev => [...prev, errorMsg]);
-      toast("Intelligence Pipeline Disrupted", "error", 4000);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  ]);
+  const [inputValue, setInputValue] = useState("");
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] max-w-5xl mx-auto w-full" role="application" aria-label="Intelligence Chat Interface">
-      <div 
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto mb-6 p-6 rounded-3xl bg-black/10 backdrop-blur-sm border border-white/5 scroll-smooth no-scrollbar"
-        role="log"
-        aria-live="polite"
-        aria-label="Conversation history"
-      >
-        {messages.length === 0 && (
-          <div className="h-full flex flex-col items-center justify-center text-center p-8 scale-in-center">
-            <div className="w-20 h-20 bg-blue-500/20 rounded-3xl flex items-center justify-center mb-6 border border-blue-500/30 animate-pulse shadow-2xl shadow-blue-500/20">
-               <Sparkles className="h-10 w-10 text-blue-500" aria-hidden="true" />
+    <div className="flex h-screen bg-black text-white font-sans overflow-hidden">
+      
+      {/* 📁 Conversational Sidebar */}
+      <div className="w-64 border-r border-white/10 flex flex-col bg-gray-900/50">
+         <div className="p-4 border-b border-white/10 space-y-4">
+            <Button className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700">
+               <Plus className="h-4 w-4" /> New Chat
+            </Button>
+            <div className="relative">
+               <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+               <Input placeholder="Search..." className="pl-8 bg-white/5 border-white/10 h-9" />
             </div>
-            <h2 className="text-3xl font-bold mb-3 tracking-tighter">Intelligence <span className="text-blue-500">Gateway</span></h2>
-            <p className="max-w-md mx-auto mb-10 text-muted-foreground text-sm font-medium">
-              Enterprise Knowledge Graph system with hardened 17-axis reasoning. 
-              Ask about compliance benchmarks, pillar definitions, or expert personas.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl w-full" role="group" aria-label="Suggested queries">
-              {[
-                { label: "17-Axis reasoning guide", icon: Terminal },
-                { label: "Analyze GDPR vs NIST 800-171", icon: ShieldCheck },
-                { label: "Honeycomb expansion logic", icon: Sparkles },
-                { label: "Simulate audit persona", icon: Bot }
-              ].map(({ label, icon: Icon }) => (
-                <button 
-                  key={label}
-                  onClick={() => setInput(label)}
-                  className="group flex items-center gap-3 p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-blue-600/10 hover:border-blue-500/30 transition-all text-left outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                  aria-label={`Ask: ${label}`}
-                >
-                  <div className="p-2 bg-gray-800/50 rounded-lg group-hover:text-blue-500 transition-colors">
-                    <Icon className="h-4 w-4" aria-hidden="true" />
+         </div>
+         
+         <ScrollArea className="flex-1">
+            <div className="p-4 space-y-6">
+               <div>
+                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                     <Pin className="h-3 w-3" /> Pinned
+                  </h3>
+                  <div className="space-y-1">
+                     <Button variant="ghost" className="w-full justify-start text-sm text-gray-300 h-8 px-2 font-normal">
+                        Compliance Q&A
+                     </Button>
+                     <Button variant="ghost" className="w-full justify-start text-sm text-gray-300 h-8 px-2 font-normal">
+                        Risk Analysis
+                     </Button>
                   </div>
-                  <span className="text-sm font-semibold">{label}</span>
-                </button>
-              ))}
+               </div>
+
+               <div>
+                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                     <Calendar className="h-3 w-3" /> Recent
+                  </h3>
+                  <div className="space-y-1">
+                     <Button variant="ghost" className="w-full justify-start text-sm text-gray-300 h-8 px-2 font-normal">
+                        Today (8)
+                     </Button>
+                     <Button variant="ghost" className="w-full justify-start text-sm text-gray-300 h-8 px-2 font-normal">
+                        Yesterday (12)
+                     </Button>
+                     <Button variant="ghost" className="w-full justify-start text-sm text-gray-300 h-8 px-2 font-normal">
+                        Last Week (45)
+                     </Button>
+                  </div>
+               </div>
+               
+               <div>
+                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                     <Folder className="h-3 w-3" /> By Topic
+                  </h3>
+                  <div className="space-y-1">
+                     {['Healthcare', 'Financial', 'Legal', 'Technical', 'Operations'].map(topic => (
+                        <Button key={topic} variant="ghost" className="w-full justify-start text-sm text-gray-300 h-8 px-2 font-normal">
+                           {topic}
+                        </Button>
+                     ))}
+                  </div>
+               </div>
             </div>
-          </div>
-        )}
-        
-        {messages.map((m, i) => (
-          <MessageBubble key={i} message={m} />
-        ))}
-        
-        {isLoading && (
-          <MessageBubble 
-            message={{ role: 'assistant', content: 'Processing knowledge graph...' }} 
-            isThinking 
-          />
-        )}
+         </ScrollArea>
+         
+         <div className="p-4 border-t border-white/10">
+            <div className="flex justify-between">
+               <Button variant="ghost" size="sm" className="text-gray-400">Export</Button>
+               <Button variant="ghost" size="sm" className="text-gray-400">Clear All</Button>
+            </div>
+         </div>
       </div>
 
-      <div className="bg-black/20 backdrop-blur-xl p-2 rounded-2xl border border-white/5 shadow-2xl">
-        <div className="flex items-start justify-between px-2 pb-2">
-          <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold uppercase tracking-wide">Cloud status</span>
-              {isLoading && <span className="text-blue-400">Processing…</span>}
+      {/* 💬 Main Chat Area */}
+      <div className="flex-1 flex flex-col relative z-10">
+         {/* Header */}
+         <div className="h-14 border-b border-white/10 flex items-center justify-between px-6 bg-gray-900/30 backdrop-blur-md">
+            <h1 className="font-bold text-sm tracking-wide flex items-center gap-2">
+               🎯 UKG Enterprise AI Assistant
+            </h1>
+            <div className="flex items-center gap-3">
+               <span className="text-xs text-gray-400">@username</span>
+               <Button variant="ghost" size="sm" className="h-8 gap-2 border border-white/10 hover:bg-white/5">
+                  <Settings className="h-4 w-4" /> Settings
+               </Button>
+               <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/5">
+                  <span className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></span>
+               </Button>
             </div>
-            {showTimeoutWarning && (
-              <span className="text-amber-400">
-                This request is taking longer than usual. Check connectivity or try again.
-              </span>
-            )}
-          </div>
-          <CloudStatusIndicator isProcessing={isLoading} />
-        </div>
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Interrogate the graph..."
-            disabled={isLoading}
-            className="flex-1 p-4 bg-transparent outline-none text-foreground placeholder-gray-500 text-sm md:text-base font-medium"
-            aria-label="Ask the knowledge graph a question"
-          />
-          <button 
-            type="submit" 
-            disabled={isLoading || !input.trim()}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/20 font-bold disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-            aria-label="Send message"
-          >
-            <span className="hidden sm:inline">Dispatch</span>
-            <Send className="w-4 h-4" aria-hidden="true" />
-          </button>
-        </form>
+         </div>
+
+         {/* Messages */}
+         <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            {messages.map((msg) => (
+                <div key={msg.id} className={`flex gap-4 ${msg.role === 'assistant' ? 'bg-white/5 p-6 rounded-xl border border-white/10' : ''}`}>
+                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'assistant' ? 'bg-blue-600' : 'bg-gray-700'}`}>
+                      {msg.role === 'assistant' ? '🤖' : '👤'}
+                   </div>
+                   <div className="flex-1 space-y-2">
+                      <div className="flex items-center justify-between">
+                         <span className="font-bold text-sm">{msg.role === 'assistant' ? 'UKG Assistant' : 'User'}</span>
+                         <span className="text-xs text-gray-500">{msg.timestamp}</span>
+                      </div>
+                      
+                      {msg.role === 'assistant' && msg.isEnhanced && (
+                         <div className="flex items-center gap-2 text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded w-fit mb-2">
+                            <Zap className="h-3 w-3" /> Enhanced Mode Active
+                         </div>
+                      )}
+
+                      <div className="text-sm leading-relaxed text-gray-200">
+                         {msg.role === 'assistant' ? (
+                            <div className="space-y-4">
+                               <p className="italic text-gray-400">Let me analyze this through the UKG validation framework...</p>
+                               <div className="bg-black/40 rounded p-3 text-xs space-y-1 font-mono text-gray-400 border border-white/5">
+                                  <div className="flex items-center gap-2 text-green-400"><span className="text-green-500">✓</span> TruthGate Security Screening</div>
+                                  <div className="flex items-center gap-2"><span className="animate-pulse text-yellow-500">⏳</span> 17-Axis Coordinate Resolution</div>
+                                  <div className="flex items-center gap-2"><span className="animate-pulse text-yellow-500">⏳</span> Quad Persona Analysis</div>
+                                  <div className="flex items-center gap-2"><span className="animate-pulse text-yellow-500">⏳</span> 12-Step Refinement</div>
+                               </div>
+                               
+                               <div className="mt-4 pt-4 border-t border-white/5">
+                                  {msg.finalAnswer}
+                               </div>
+
+                               {/* Detailed Response Analysis */}
+                               <DetailedResponseView />
+                            </div>
+                         ) : (
+                            msg.content
+                         )}
+                      </div>
+                   </div>
+                </div>
+            ))}
+         </div>
+
+         {/* Input Area */}
+         <div className="p-4 border-t border-white/10 bg-gray-900/50">
+            <div className="max-w-4xl mx-auto bg-black/50 border border-white/10 rounded-xl p-2 relative shadow-lg">
+               <textarea 
+                  className="w-full bg-transparent border-none focus:ring-0 text-sm p-3 min-h-[60px] resize-none pr-32"
+                  placeholder="Enter your question..."
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+               />
+               <div className="absolute bottom-2 left-3 flex gap-2">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white"><Paperclip className="h-4 w-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white"><Mic className="h-4 w-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/10"><Zap className="h-4 w-4" /></Button>
+                  <AdvancedControls />
+               </div>
+               <Button className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-700 h-8 px-4 text-xs font-bold gap-2">
+                  Send <ArrowRight className="h-3 w-3" />
+               </Button>
+            </div>
+            
+            <div className="max-w-4xl mx-auto">
+               <TraceVisualizer />
+            </div>
+
+            <div className="text-center text-[10px] text-gray-600 mt-2">UKG AI v2.1.0 • Enterprise Edition • Confidential</div>
+         </div>
       </div>
+
+      {/* 🔬 Live Trace Sidebar */}
+      <div className="w-72 border-l border-white/10 flex flex-col">
+         <LiveTracePanel />
+      </div>
+
     </div>
   );
 }
