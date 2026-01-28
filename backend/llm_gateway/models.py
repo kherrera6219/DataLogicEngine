@@ -10,7 +10,14 @@ from sqlalchemy.dialects.postgresql import UUID, JSONB
 from cryptography.fernet import Fernet
 from flask import current_app
 
-from backend.extensions import db
+try:
+    from extensions import db
+except ImportError:
+    import os
+    import sys
+    # Add root to path as fallback
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    from extensions import db
 
 
 class LLMProvider(db.Model):
