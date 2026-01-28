@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 export const AXIS_NAMES = [

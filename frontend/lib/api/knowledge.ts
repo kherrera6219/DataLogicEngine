@@ -1,4 +1,4 @@
-import { PillarLevel, KnowledgePillar, KnowledgeStats } from './types';
+import { KnowledgePillar, KnowledgeStats } from './types';
 import { request } from './index';
 
 export const knowledge = {

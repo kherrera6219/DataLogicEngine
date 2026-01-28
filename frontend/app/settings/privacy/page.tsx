@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
-import { api } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function PrivacySettingsPage() {
@@ -33,7 +32,7 @@ export default function PrivacySettingsPage() {
       window.URL.revokeObjectURL(url);
       
       setMessage({ type: 'success', text: 'Data export started successfully.' });
-    } catch (err) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to export data. Please try again later.' });
     } finally {
       setIsExporting(false);
@@ -57,7 +56,7 @@ export default function PrivacySettingsPage() {
       } else {
         throw new Error(data.error || 'Deletion failed');
       }
-    } catch (err) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to delete profile. Please contact support.' });
       setIsDeleting(false);
     }

@@ -20,7 +20,7 @@ export function CopyButton({ text, className }: CopyButtonProps) {
       setCopied(true);
       toast("Response copied to clipboard", "success", 2000);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch {
       toast("Failed to copy text", "error", 2000);
     }
   };

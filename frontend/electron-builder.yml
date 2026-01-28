@@ -14,10 +14,9 @@ extraResources:
     filter:
       - "**/*"
 win:
-  target: nsis
+  target: dir
+  # target: nsis # Disabled due to winCodeSign privilege issues
   icon: public/favicon.ico
-  forceCodeSigning: false
-  sign: null
   verifyUpdateCodeSignature: false
 nsis:
   oneClick: false

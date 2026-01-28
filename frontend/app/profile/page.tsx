@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { PageLayout } from "@/components/ui/page-layout";
-import { User, Mail, Briefcase, Calendar, ShieldCheck, Save } from "lucide-react";
+import { Mail, Briefcase, Calendar, ShieldCheck, Save } from "lucide-react";
 
 export default function ProfilePage() {
   return (

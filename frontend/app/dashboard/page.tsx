@@ -14,12 +14,6 @@ import { MessageSquarePlus, Activity, Database, ShieldCheck, AlertTriangle, Tren
 import { ApiErrorBoundary } from "@/components/ui/api-error-boundary";
 import { ComplianceTrendChart } from "@/components/Dashboard/ComplianceTrendChart";
 
-interface TraceRun {
-  run_id: string;
-  ka_id: string;
-  status: string;
-  created_at: string;
-}
 
 interface StatCardProps {
   title: string;

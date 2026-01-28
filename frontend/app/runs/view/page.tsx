@@ -12,7 +12,7 @@ function TraceDetailContent() {
   const runId = searchParams.get('id');
   
   const [trace, setTrace] = useState<TraceDetail | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!!runId);
 
   useEffect(() => {
      let mounted = true;
@@ -25,8 +25,6 @@ function TraceDetailContent() {
         }).catch(() => {
            if (mounted) setIsLoading(false);
         });
-     } else {
-        setIsLoading(false);
      }
      return () => { mounted = false; };
   }, [runId]);

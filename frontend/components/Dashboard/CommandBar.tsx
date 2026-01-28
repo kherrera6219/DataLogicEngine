@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Settings, User, Bell, LayoutGrid, Download, HelpCircle } from 'lucide-react';
+import { Search, Settings, Bell, LayoutGrid, Download, HelpCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";

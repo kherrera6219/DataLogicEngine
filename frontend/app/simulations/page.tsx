@@ -41,7 +41,7 @@ export default function SimulationsPage() {
         .filter(sim => sim.status === 'active')
         .forEach(sim => socket.subscribeToSimulation(sim.uid));
     }
-  }, [simulations, socket.isConnected]);
+  }, [simulations, socket, socket.isConnected]);
 
   const handleCreate = async () => {
     setIsCreating(true);
