@@ -46,7 +46,8 @@ The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchest
 
 **The Challenge**: Standard LLMs operate as "black boxes" - you can't verify their reasoning, ensure they use your enterprise data correctly, or comply with regulatory requirements (SOC2, GDPR, HIPAA, EU AI Act).
 
-**The Solution**: DataLogicEngine intercepts LLM requests, enriches them with your verified knowledge graph, executes reasoning through a **10-Layer High-Fidelity Simulation Stack**, and provides complete audit trails for every decision. **The system is now fully productionized with all mocks removed.**
+**The Solution**: DataLogicEngine intercepts LLM requests, enriches them with your verified knowledge graph, executes reasoning through a **10-Layer High-Fidelity Simulation Stack** (powered by the now-active **SimulationEngine** and **QuadPersonaEngine**), and provides complete audit trails for every decision. **The system is now fully productionized with core reasoning logic active.**
+
 
 ### Technology Stack
 
@@ -143,7 +144,11 @@ Sophisticated reasoning with graduated complexity:
 4.  **Critical** - High-stakes decisions with multiple validators
 5.  **Expert** - Domain expert involvement required
 
-**Features**: Budget tracking, policy gates, confidence scoring, hash-chain audit trails
+**Features**: Budget tracking, policy gates, confidence scoring, hash-chain audit trails.
+**Core Engines**:
+- **SimulationEngine**: Runs counterfactual scenarios to test reasoning robustness (10-Layer Stack).
+- **QuadPersonaEngine**: Concurrent expert analysis (Knowledge, Sector, Regulatory, Compliance).
+
 
 ### 🔍 Full Execution Traceability
 
