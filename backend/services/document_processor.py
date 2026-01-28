@@ -1,79 +1,184 @@
 """
-Document Processor Service
--------------------------
-Handles text extraction from PDF, Images, and Office documents.
+Document Processor - PRODUCTION VERSION
+---------------------------------------
+Real document processing using PyPDF2, pytesseract, and python-docx.
 """
 import logging
 import io
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
 class DocumentProcessor:
     """
-    Service for parsing and extracting content from uploaded files.
+    Processes documents using real libraries (not mocks).
     """
     
     def __init__(self):
-        self.supported_types = ['pdf', 'png', 'jpg', 'jpeg', 'docx']
-        logger.info("DocumentProcessor initialized.")
-
+        self.supported_types = {
+            'application/pdf': self._process_pdf,
+            'image/png': self._process_image,
+            'image/jpeg': self._process_image,
+            'image/jpg': self._process_image,
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': self._process_docx,
+            'text/plain': self._process_text
+        }
+        logger.info("DocumentProcessor initialized (PRODUCTION MODE)")
+    
     def process_file(self, file_bytes: bytes, filename: str, mime_type: str) -> Dict[str, Any]:
         """
-        Process a file and return extracted text and metadata.
+        Process a document file using real libraries.
+        
+        Args:
+            file_bytes: File content as bytes
+            filename: Original filename
+            mime_type: MIME type of the file
+            
+        Returns:
+            Dictionary with extracted text and metadata
+            
+        Raises:
+            ValueError: If file type not supported or processing fails
         """
-        ext = filename.split('.')[-1].lower() if '.' in filename else ''
+        if not file_bytes:
+            raise ValueError("File content cannot be empty")
         
-        logger.info(f"Processing document: {filename} ({mime_type})")
+        if mime_type not in self.supported_types:
+            raise ValueError(f"Unsupported file type: {mime_type}")
         
-        if ext == 'pdf':
-            return self._process_pdf(file_bytes)
-        elif ext in ['png', 'jpg', 'jpeg']:
-            return self._process_image(file_bytes)
-        elif ext == 'docx':
-            return self._process_docx(file_bytes)
-        elif ext == 'txt':
-             return {
-                "text": file_bytes.decode('utf-8', errors='ignore'),
-                "metadata": {"type": "text", "pages": 1}
+        try:
+            processor = self.supported_types[mime_type]
+            result = processor(file_bytes, filename)
+            result['processed_at'] = datetime.now().isoformat()
+            result['filename'] = filename
+            result['mime_type'] = mime_type
+            result['size_bytes'] = len(file_bytes)
+            
+            logger.info(f"Processed {filename} ({mime_type}): {len(result.get('text', ''))} chars extracted")
+            return result
+        except Exception as e:
+            logger.error(f"Document processing failed for {filename}: {e}", exc_info=True)
+            raise ValueError(f"Failed to process document: {e}")
+    
+    def _process_pdf(self, file_bytes: bytes, filename: str) -> Dict[str, Any]:
+        """Extract text from PDF using PyPDF2."""
+        try:
+            import PyPDF2
+            
+            pdf_file = io.BytesIO(file_bytes)
+            pdf_reader = PyPDF2.PdfReader(pdf_file)
+            
+            text_parts = []
+            for page_num, page in enumerate(pdf_reader.pages):
+                text = page.extract_text()
+                if text:
+                    text_parts.append(text)
+            
+            full_text = "\n\n".join(text_parts)
+            
+            return {
+                "text": full_text,
+                "metadata": {
+                    "type": "pdf",
+                    "pages": len(pdf_reader.pages),
+                    "encryption": pdf_reader.is_encrypted,
+                    "metadata": pdf_reader.metadata if hasattr(pdf_reader, 'metadata') else {}
+                }
             }
-        else:
-            raise ValueError(f"Unsupported file type: {ext}")
-
-    def _process_pdf(self, file_bytes: bytes) -> Dict[str, Any]:
-        """Mock PDF extraction."""
-        # In prod: use pypdf2 or pdfminer
-        return {
-            "text": "[PDF CONTENT EXTRACTED] This is a simulated PDF extraction result.",
-            "metadata": {
-                "type": "pdf",
-                "pages": 5,
-                "encryption": False
+        except ImportError:
+            logger.warning("PyPDF2 not installed, using fallback")
+            return {
+                "text": "[PDF processing requires PyPDF2 library]",
+                "metadata": {"type": "pdf", "error": "PyPDF2 not installed"}
             }
-        }
-
-    def _process_image(self, file_bytes: bytes) -> Dict[str, Any]:
-        """Mock OCR extraction."""
-        # In prod: use pytesseract
-        return {
-            "text": "[OCR RESULT] Scanned text from image.",
-            "metadata": {
-                "type": "image",
-                "width": 1920,
-                "height": 1080
+        except Exception as e:
+            logger.error(f"PDF processing error: {e}")
+            raise ValueError(f"PDF processing failed: {e}")
+    
+    def _process_image(self, file_bytes: bytes, filename: str) -> Dict[str, Any]:
+        """Extract text from image using pytesseract OCR."""
+        try:
+            from PIL import Image
+            import pytesseract
+            
+            image = Image.open(io.BytesIO(file_bytes))
+            text = pytesseract.image_to_string(image)
+            
+            return {
+                "text": text,
+                "metadata": {
+                    "type": "image",
+                    "format": image.format,
+                    "size": image.size,
+                    "mode": image.mode
+                }
             }
-        }
-
-    def _process_docx(self, file_bytes: bytes) -> Dict[str, Any]:
-        """Mock DOCX extraction."""
-        # In prod: use python-docx
-        return {
-            "text": "[DOCX CONTENT] Extracted text from Word document.",
-            "metadata": {
-                "type": "docx",
-                "paragraphs": 12
+        except ImportError as e:
+            logger.warning(f"OCR libraries not installed: {e}")
+            return {
+                "text": "[Image OCR requires PIL and pytesseract libraries]",
+                "metadata": {"type": "image", "error": "OCR libraries not installed"}
             }
-        }
+        except Exception as e:
+            logger.error(f"Image processing error: {e}")
+            raise ValueError(f"Image OCR failed: {e}")
+    
+    def _process_docx(self, file_bytes: bytes, filename: str) -> Dict[str, Any]:
+        """Extract text from DOCX using python-docx."""
+        try:
+            from docx import Document
+            
+            doc = Document(io.BytesIO(file_bytes))
+            text_parts = [paragraph.text for paragraph in doc.paragraphs if paragraph.text]
+            full_text = "\n".join(text_parts)
+            
+            return {
+                "text": full_text,
+                "metadata": {
+                    "type": "docx",
+                    "paragraphs": len(doc.paragraphs),
+                    "sections": len(doc.sections) if hasattr(doc, 'sections') else 0
+                }
+            }
+        except ImportError:
+            logger.warning("python-docx not installed, using fallback")
+            return {
+                "text": "[DOCX processing requires python-docx library]",
+                "metadata": {"type": "docx", "error": "python-docx not installed"}
+            }
+        except Exception as e:
+            logger.error(f"DOCX processing error: {e}")
+            raise ValueError(f"DOCX processing failed: {e}")
+    
+    def _process_text(self, file_bytes: bytes, filename: str) -> Dict[str, Any]:
+        """Process plain text file."""
+        try:
+            text = file_bytes.decode('utf-8')
+            return {
+                "text": text,
+                "metadata": {
+                    "type": "text",
+                    "encoding": "utf-8",
+                    "lines": len(text.split('\n'))
+                }
+            }
+        except UnicodeDecodeError:
+            # Try other encodings
+            for encoding in ['latin-1', 'cp1252', 'iso-8859-1']:
+                try:
+                    text = file_bytes.decode(encoding)
+                    return {
+                        "text": text,
+                        "metadata": {
+                            "type": "text",
+                            "encoding": encoding,
+                            "lines": len(text.split('\n'))
+                        }
+                    }
+                except:
+                    continue
+            raise ValueError("Unable to decode text file with any common encoding")
 
-# Global Instance
+# Global instance
 document_processor = DocumentProcessor()
