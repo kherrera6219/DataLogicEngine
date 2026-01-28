@@ -1,6 +1,6 @@
 """
 Knowledge Regression Tester (KA-065)
-Purpose: Ensure updates don’t break prior knowledge
+Purpose: Ensure updates don't break prior knowledge
 """
 import logging
 

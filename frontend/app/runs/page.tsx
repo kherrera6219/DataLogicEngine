@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
+import { PageLayout } from "@/components/ui/page-layout";
+
 export default function TraceRunsPage() {
   const [runs, setRuns] = useState<TraceRun[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,8 +28,11 @@ export default function TraceRunsPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8">
-      <div className="container mx-auto max-w-7xl">
+    <PageLayout
+      title="Trace History"
+      description="Recent system reasoning traces and execution logs."
+      breadcrumbs={[{ label: "System Traces" }]}
+    >
          <header className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Trace Explorer</h1>
             <p className="text-gray-500">Detailed execution logs of Knowledge Algorithms.</p>
@@ -84,7 +89,6 @@ export default function TraceRunsPage() {
                </Table>
             </CardContent>
          </Card>
-      </div>
-    </main>
+    </PageLayout>
   );
 }

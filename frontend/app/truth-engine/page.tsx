@@ -1,5 +1,6 @@
 'use client';
 
+import { PageLayout } from "@/components/ui/page-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -13,12 +14,11 @@ const truthEvents = [
 
 export default function TruthEnginePage() {
   return (
-    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8">
-      <div className="container mx-auto max-w-7xl">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Truth Engine</h1>
-          <p className="text-gray-500">Real-time validation of logic and causality across the Knowledge Graph.</p>
-        </header>
+    <PageLayout
+      title="Truth Engine"
+      description="Real-time validation of logic and causality across the Knowledge Graph."
+      breadcrumbs={[{ label: "Truth Engine" }]}
+    >
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
            <Card className="bg-blue-600 text-white border-none">
@@ -94,7 +94,6 @@ export default function TruthEnginePage() {
               </Table>
            </CardContent>
         </Card>
-      </div>
-    </main>
+    </PageLayout>
   );
 }

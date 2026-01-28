@@ -5,17 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
+import { PageLayout } from "@/components/ui/page-layout";
+
 export default function AdminPage() {
   return (
-    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8">
-      <div className="container mx-auto max-w-7xl">
-         <header className="mb-8 flex justify-between items-center">
-            <div>
-               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">System Administration</h1>
-               <p className="text-gray-500">Platform-wide controls and user management.</p>
-            </div>
-            <Button variant="destructive">Emergency Shutdown</Button>
-         </header>
+    <PageLayout
+      title="System Administration"
+      description="Platform-wide controls and user management."
+      breadcrumbs={[{ label: "Admin Console" }]}
+      actions={<Button variant="destructive">Emergency Shutdown</Button>}
+    >
 
          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
              <Card className="lg:col-span-3">
@@ -80,7 +79,6 @@ export default function AdminPage() {
                  </CardContent>
              </Card>
          </div>
-      </div>
-    </main>
+    </PageLayout>
   );
 }

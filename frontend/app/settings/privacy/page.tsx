@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Shield, Download, Trash2, AlertTriangle, CheckCircle, FileJson } from 'lucide-react';
+import { Download, Trash2, AlertTriangle, CheckCircle, FileJson } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+
+import { PageLayout } from "@/components/ui/page-layout";
 
 export default function PrivacySettingsPage() {
   const { user, logout } = useAuth();
@@ -63,16 +65,11 @@ export default function PrivacySettingsPage() {
   };
 
   return (
-    <div className="container mx-auto py-10 px-4 max-w-4xl space-y-8">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <Shield className="text-blue-500 h-8 w-8" />
-          Privacy & Data Management
-        </h1>
-        <p className="text-muted-foreground">
-          Manage your local information and exercise your data rights.
-        </p>
-      </header>
+    <PageLayout
+      title="Privacy & Data Management"
+      description="Manage your local information and exercise your data rights."
+      breadcrumbs={[{ label: "Settings" }, { label: "Privacy" }]}
+    >
 
       {message && (
         <Alert variant={message.type === 'success' ? 'default' : 'destructive'} className={message.type === 'success' ? 'border-green-500/50 bg-green-500/10' : ''}>
@@ -143,6 +140,6 @@ export default function PrivacySettingsPage() {
           For cloud-specific data queries, please refer to our <a href="/about/cloud-services" className="text-blue-500 hover:underline">Cloud Disclosure</a>.
         </p>
       </footer>
-    </div>
+    </PageLayout>
   );
 }
