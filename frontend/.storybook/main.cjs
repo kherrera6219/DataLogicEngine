@@ -22,6 +22,10 @@ const config = {
   ],
   docs: {
     autodocs: "tag"
+  },
+  webpackFinal: async (config) => {
+    config.resolve.alias['next/config'] = require.resolve('./next-config-mock.js');
+    return config;
   }
 };
 module.exports = config;
