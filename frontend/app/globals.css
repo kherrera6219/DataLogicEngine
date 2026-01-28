@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
 
 :root {
   --background: #ffffff;
@@ -58,11 +59,11 @@
 
   /* Legacy aliases for backward compatibility if needed, but updated to map to new styles */
   .glass-card {
-    @apply fluent-card bg-opacity-70 backdrop-blur-xl border-white/20;
+    @apply bg-white/70 dark:bg-[#2d2d2d]/70 border border-gray-200 dark:border-[#383838] shadow-[0_4px_12px_rgba(0,0,0,0.05)] rounded-xl transition-all duration-300 backdrop-blur-xl border-white/20;
   }
 
   .glass-morphism {
-    @apply fluent-acrylic;
+    @apply backdrop-blur-[20px] bg-white/70 dark:bg-[#202020]/60 border border-white/40 dark:border-white/5;
   }
 
   .no-scrollbar::-webkit-scrollbar {
