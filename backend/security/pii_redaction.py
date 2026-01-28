@@ -15,7 +15,7 @@ class PIIRedactor:
     Detects and redacts PII using regex patterns and heuristics.
     """
     
-    def __init__(self):
+    def __init__(self, max_text_length: int = 1000000):
         # Regex patterns for common PII
         self.patterns = {
             'email': r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
@@ -26,37 +26,61 @@ class PIIRedactor:
         }
         
         self.redaction_map = {}  # Store original -> redacted mapping
-        logger.info("PIIRedactor initialized")
+        self.max_text_length = max_text_length
+        self.redaction_count = 0
+        logger.info(f"PIIRedactor initialized (max text length: {max_text_length})")
+
     
     def redact_text(self, text: str, preserve_format: bool = True) -> Tuple[str, List[str]]:
         """
-        Redact PII from text.
+        Redact PII from text with input validation.
         
+        Args:
+            text: Input text to redact
+            preserve_format: Whether to preserve PII type in redaction
+            
         Returns:
             Tuple of (redacted_text, list_of_pii_types_found)
+            
+        Raises:
+            ValueError: If input validation fails
         """
-        redacted = text
-        pii_found = []
+        # Input validation
+        if not isinstance(text, str):
+            raise ValueError("Input must be a string")
         
-        for pii_type, pattern in self.patterns.items():
-            matches = re.findall(pattern, redacted)
-            if matches:
-                pii_found.append(pii_type)
-                for match in matches:
-                    if preserve_format:
-                        # Replace with [REDACTED_TYPE]
-                        replacement = f"[REDACTED_{pii_type.upper()}]"
-                    else:
-                        replacement = "[REDACTED]"
-                    redacted = redacted.replace(match, replacement)
-                    
-                    # Store mapping for audit
-                    self.redaction_map[replacement] = match
+        if len(text) > self.max_text_length:
+            raise ValueError(f"Text exceeds maximum length of {self.max_text_length} characters")
         
-        if pii_found:
-            logger.warning(f"Redacted PII types: {pii_found}")
+        try:
+            redacted = text
+            pii_found = []
         
-        return redacted, pii_found
+            for pii_type, pattern in self.patterns.items():
+                matches = re.findall(pattern, redacted)
+                if matches:
+                    pii_found.append(pii_type)
+                    for match in matches:
+                        if preserve_format:
+                            # Replace with [REDACTED_TYPE]
+                            replacement = f"[REDACTED_{pii_type.upper()}]"
+                        else:
+                            replacement = "[REDACTED]"
+                        redacted = redacted.replace(match, replacement)
+                        
+                        # Store mapping for audit
+                        self.redaction_map[replacement] = match
+        
+            if pii_found:
+                self.redaction_count += len(pii_found)
+                logger.warning(f"Redacted PII types: {pii_found} (total redactions: {self.redaction_count})")
+            
+            return redacted, pii_found
+        except Exception as e:
+            logger.error(f"PII redaction failed: {e}", exc_info=True)
+            # Return original text on error to avoid data loss
+            return text, []
+
     
     def redact_dict(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
