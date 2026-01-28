@@ -1,0 +1,58 @@
+
+[90mΓöî[39m  Building storybook v10.2.1
+[90mΓöé[39m
+[32mΓùç[39m  Cleaning outputDir: [36mstorybook-static[39m
+[90mΓöé[39m
+[32mΓùç[39m  Loading presets
+[90mΓöé[39m
+[32mΓùç[39m  Building manager..
+[90mΓöé[39m
+[34mΓùÅ[39m  Building preview..
+[90mΓöé[39m
+[33mΓû▓[39m  Unable to parse tags from project configuration. If defined, tags
+[90mΓöé[39m  should be specified inline, e.g.
+
+[90mΓöé[39m  export default {
+[90mΓöé[39m  tags: ['foo'],
+[90mΓöé[39m  }
+
+[90mΓöé[39m  ---
+
+[90mΓöé[39m  Received:
+
+[90mΓöé[39m  date: /Date$/i,
+[90mΓöé[39m  },
+[90mΓöé[39m  },
+
+[90mΓöé[39m  a11y: {
+[90mΓöé[39m  // 'todo' - show a11y violations in the test UI only
+[90mΓöé[39m  // 'error' - fail CI on a11y violations
+[90mΓöé[39m  // 'off' - skip a11y checks entirely
+[90mΓöé[39m  test: 'todo'
+[90mΓöé[39m  }
+[90mΓöé[39m  },
+[90mΓöé[39m  };
+
+[90mΓöé[39m  export default preview;
+[90mΓöé[39m
+[34mΓùÅ[39m  Copying static files: [36mpublic[39m at [36mstorybook-static[39m
+[90mΓöé[39m
+[31mΓûá[39m  Failed to build the preview
+[90mΓöé[39m
+[31mΓûá[39m  [38;2;241;97;97mReferenceError: __dirname is not defined[39m
+[90mΓöé[39m  at Object.viteFinal
+[90mΓöé[39m  (file:///C:/software/DataLogicEngine/frontend/.storybook/main.ts:23:29)
+[90mΓöé[39m  at async build
+[90mΓöé[39m  (file:///C:/software/DataLogicEngine/frontend/node_modules/@storybook/builder-vite/dist/index.js:1694:21)
+[90mΓöé[39m  at async Promise.all (index 0)
+[90mΓöé[39m  at async buildStaticStandalone
+[90mΓöé[39m  (file:///C:/software/DataLogicEngine/frontend/node_modules/storybook/dist/core-server/index.js:6290:7)
+[90mΓöé[39m  at async withTelemetry
+[90mΓöé[39m  (file:///C:/software/DataLogicEngine/frontend/node_modules/storybook/dist/_node-chunks/chunk-KNMEGL7N.js:218:12)
+[90mΓöé[39m  at async build
+[90mΓöé[39m  (file:///C:/software/DataLogicEngine/frontend/node_modules/storybook/dist/bin/core.js:2679:3)
+[90mΓöé[39m  at async _Command.<anonymous>
+[90mΓöé[39m  (file:///C:/software/DataLogicEngine/frontend/node_modules/storybook/dist/bin/core.js:2819:7)
+[90mΓöé[39m
+[90mΓöö[39m  Storybook exited with an error
+

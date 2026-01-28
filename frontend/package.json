@@ -47,21 +47,24 @@
     "electron-updater": "^6.7.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "playwright": "^1.58.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wait-on": "^9.0.3",
-    "storybook": "^10.2.1",
-    "@storybook/nextjs-vite": "^10.2.1",
-    "@chromatic-com/storybook": "^5.0.0",
-    "@storybook/addon-vitest": "^10.2.1",
-    "@storybook/addon-a11y": "^10.2.1",
-    "@storybook/addon-docs": "^10.2.1",
-    "@storybook/addon-onboarding": "^10.2.1",
-    "vite": "^7.3.1",
-    "eslint-plugin-storybook": "^10.2.1",
-    "vitest": "^4.0.18",
-    "playwright": "^1.58.0",
-    "@vitest/browser-playwright": "^4.0.18",
-    "@vitest/coverage-v8": "^4.0.18"
+    "storybook": "8.4.7",
+    "@storybook/nextjs": "8.4.7",
+    "@storybook/react": "8.4.7",
+    "@storybook/addon-essentials": "8.4.7",
+    "@storybook/addon-interactions": "8.4.7",
+    "@storybook/addon-links": "8.4.7",
+    "@storybook/addon-onboarding": "8.4.7",
+    "@storybook/blocks": "8.4.7",
+    "@chromatic-com/storybook": "3.2.3",
+    "eslint-plugin-storybook": "^0.11.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "plugin:storybook/recommended"
+    ]
   }
 }
