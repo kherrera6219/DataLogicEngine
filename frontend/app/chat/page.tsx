@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function ChatPage() {
   return (
-    <div className="h-screen w-full bg-black">
+    <div className="flex h-screen bg-[#111111] text-white font-sans overflow-hidden bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
       <ChatInterface />
     </div>
   );

@@ -11,12 +11,58 @@
 }
 
 @layer components {
+  /* Materials */
+  .fluent-acrylic {
+    @apply backdrop-blur-[20px] bg-white/70 dark:bg-[#202020]/60 border border-white/40 dark:border-white/5;
+  }
+
+  .fluent-mica {
+    @apply bg-gray-100 dark:bg-[#181818];
+  }
+
+  /* Cards */
+  .fluent-card {
+    @apply bg-white dark:bg-[#2d2d2d] border border-gray-200 dark:border-[#383838] shadow-[0_4px_12px_rgba(0,0,0,0.05)] rounded-xl transition-all duration-300;
+  }
+  .fluent-card:hover {
+    @apply shadow-[0_8px_24px_rgba(0,0,0,0.12)] border-gray-300 dark:border-[#505050] scale-[1.01];
+  }
+
+  /* Reveal Effect (Simulated) */
+  .reveal-hover {
+    @apply relative overflow-hidden;
+  }
+  .reveal-hover::before {
+    content: "";
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full transition-transform duration-700 pointer-events-none;
+  }
+  .reveal-hover:hover::before {
+    @apply translate-x-full;
+  }
+
+  /* Typography */
+  .text-display {
+    @apply text-4xl font-semibold tracking-tight;
+  }
+  .text-title {
+    @apply text-xl font-semibold tracking-wide;
+  }
+  .text-base-fluent {
+    @apply text-[14px] leading-5 font-normal;
+  }
+
+  /* Animations */
+  .animate-connected-enter {
+    @apply animate-in fade-in slide-in-from-bottom-2 duration-500 ease-out fill-mode-backwards;
+  }
+
+  /* Legacy aliases for backward compatibility if needed, but updated to map to new styles */
   .glass-card {
-    @apply bg-white/70 dark:bg-gray-900/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl;
+    @apply fluent-card bg-opacity-70 backdrop-blur-xl border-white/20;
   }
 
   .glass-morphism {
-    @apply backdrop-blur-md bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10;
+    @apply fluent-acrylic;
   }
 
   .no-scrollbar::-webkit-scrollbar {
