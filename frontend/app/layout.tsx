@@ -24,6 +24,7 @@ export const metadata: Metadata = {
 
 import { ToastProvider } from "@/components/ui/use-toast";
 import { CloudDisclosureBanner } from "@/components/CloudDisclosureBanner";
+import DesktopStatus from "@/components/DesktopStatus";
 
 export default function RootLayout({
   children,
@@ -56,6 +57,7 @@ export default function RootLayout({
                 <div id="main-content" className="min-h-[calc(100vh-4rem)] outline-none" tabIndex={-1}>
                   {children}
                 </div>
+                <DesktopStatus />
               </ToastProvider>
             </AuthProvider>
           </SWRConfig>
