@@ -16,7 +16,7 @@
     "Can_Trigger_Recursion": "Yes",
     "Can_Veto": "No",
     "Risk_Class": "Low",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-4",
@@ -58,7 +58,7 @@
     "Can_Trigger_Recursion": "Yes",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "Contributes",
     "Default_Params": null,
     "Dependencies": "KA-1,KA-29",
@@ -226,7 +226,7 @@
     "Can_Trigger_Recursion": "Yes",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-3,KA-5",
@@ -310,7 +310,7 @@
     "Can_Trigger_Recursion": "Yes",
     "Can_Veto": "No",
     "Risk_Class": "Low",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -352,7 +352,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Direct \u2191",
+    "Confidence_Impact": "Direct ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-18,KA-62",
@@ -436,7 +436,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -478,7 +478,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "Contributes",
     "Default_Params": null,
     "Dependencies": "KA-29,KA-13",
@@ -562,7 +562,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Critical",
-    "Confidence_Impact": "Direct \u2191/\u2193",
+    "Confidence_Impact": "Direct ↑/↓",
     "Entropy_Signal": "Produces",
     "Default_Params": null,
     "Dependencies": "KA-9,KA-26,KA-41,KA-102",
@@ -584,7 +584,7 @@
     "Math_Object_IDs": "F-CONF-01; F-CONF-02",
     "Math_Scope": "TruthEngine/KA",
     "Variables_Used": "C,H,w_i,e_i",
-    "Units_Normalization": "C\u2208[0,1]",
+    "Units_Normalization": "C∈[0,1]",
     "Assumptions_Constraints": "Requires validated evidence weights"
   },
   {
@@ -604,7 +604,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-52",
@@ -646,7 +646,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Critical",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-17,KA-18",
@@ -688,7 +688,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -730,7 +730,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -772,7 +772,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-30,KA-9",
@@ -940,7 +940,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191/\u2193",
+    "Confidence_Impact": "Indirect ↑/↓",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -1066,7 +1066,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Direct \u2193",
+    "Confidence_Impact": "Direct ↓",
     "Entropy_Signal": "Produces",
     "Default_Params": null,
     "Dependencies": "KA-12,KA-9",
@@ -1150,7 +1150,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "Contributes",
     "Default_Params": null,
     "Dependencies": null,
@@ -1192,7 +1192,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -1234,7 +1234,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "Consumes",
     "Default_Params": null,
     "Dependencies": "KA-26,KA-13",
@@ -1308,7 +1308,7 @@
     "Purpose": "Sequence KAs; manage layer transitions; enforce exit rules",
     "Category": "Control",
     "Primary_Layers": "L1,L2,L3,L4,L5,L6,L7,L8,L9,L10",
-    "Allowed_Layers": "L1\u2013L10",
+    "Allowed_Layers": "L1–L10",
     "Inputs": "KA pipeline; simulation state",
     "Outputs": "Execution schedule; checkpoints",
     "Reads_Memory": "Yes",
@@ -1402,7 +1402,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "Contributes",
     "Default_Params": null,
     "Dependencies": null,
@@ -1444,7 +1444,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Direct \u2193/\u2191",
+    "Confidence_Impact": "Direct ↓/↑",
     "Entropy_Signal": "Produces",
     "Default_Params": null,
     "Dependencies": null,
@@ -1465,8 +1465,8 @@
     "Math_Component_Type": "Equation",
     "Math_Object_IDs": "F-IMPUTE-01",
     "Math_Scope": "KA",
-    "Variables_Used": "x,\u03bc,\u03c3,D",
-    "Units_Normalization": "\u03c3>0",
+    "Variables_Used": "x,μ,σ,D",
+    "Units_Normalization": "σ>0",
     "Assumptions_Constraints": "Assumes reasonable priors"
   },
   {
@@ -1486,7 +1486,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -1570,7 +1570,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -1612,7 +1612,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2193",
+    "Confidence_Impact": "Indirect ↓",
     "Entropy_Signal": "Produces",
     "Default_Params": null,
     "Dependencies": null,
@@ -1654,7 +1654,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -1696,7 +1696,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Direct \u2191",
+    "Confidence_Impact": "Direct ↑",
     "Entropy_Signal": "Consumes",
     "Default_Params": null,
     "Dependencies": null,
@@ -1738,7 +1738,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2193",
+    "Confidence_Impact": "Indirect ↓",
     "Entropy_Signal": "Produces",
     "Default_Params": null,
     "Dependencies": "KA-26,KA-25",
@@ -1906,7 +1906,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Critical",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-109,KA-79",
@@ -1990,7 +1990,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "Consumes",
     "Default_Params": null,
     "Dependencies": null,
@@ -2074,7 +2074,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "Yes",
     "Risk_Class": "Critical",
-    "Confidence_Impact": "Direct \u2191/\u2193",
+    "Confidence_Impact": "Direct ↑/↓",
     "Entropy_Signal": "Produces",
     "Default_Params": null,
     "Dependencies": "KA-94,KA-99",
@@ -2116,7 +2116,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-46,KA-79",
@@ -2158,7 +2158,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2191/\u2193",
+    "Confidence_Impact": "Indirect ↑/↓",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-83",
@@ -2222,8 +2222,8 @@
     "Math_Object_IDs": "A-COMP-01",
     "Math_Scope": "System",
     "Variables_Used": "utility,rate",
-    "Units_Normalization": "utility\u2208[0,1]",
-    "Assumptions_Constraints": "Preserve utility \u2265 threshold"
+    "Units_Normalization": "utility∈[0,1]",
+    "Assumptions_Constraints": "Preserve utility ≥ threshold"
   },
   {
     "KA_ID": "KA-054",
@@ -2242,7 +2242,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-40",
@@ -2284,7 +2284,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "Produces",
     "Default_Params": null,
     "Dependencies": "KA-9,KA-18",
@@ -2410,7 +2410,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Low",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "Consumes",
     "Default_Params": null,
     "Dependencies": "KA-73,KA-102",
@@ -2494,7 +2494,7 @@
     "Can_Trigger_Recursion": "Yes",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "Consumes",
     "Default_Params": null,
     "Dependencies": "KA-80,KA-81",
@@ -2515,7 +2515,7 @@
     "Math_Component_Type": "Algorithm",
     "Math_Object_IDs": "A-LOAD-01",
     "Math_Scope": "FROST/System",
-    "Variables_Used": "b_i,c_i,\u03c4",
+    "Variables_Used": "b_i,c_i,τ",
     "Units_Normalization": "budget units",
     "Assumptions_Constraints": "Requires cost estimator"
   },
@@ -2578,7 +2578,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Critical",
-    "Confidence_Impact": "Direct \u2191/\u2193",
+    "Confidence_Impact": "Direct ↑/↓",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-18",
@@ -2600,7 +2600,7 @@
     "Math_Object_IDs": "F-TRUST-01",
     "Math_Scope": "TruthEngine/System",
     "Variables_Used": "w_i,p_i",
-    "Units_Normalization": "T\u2208[0,1]",
+    "Units_Normalization": "T∈[0,1]",
     "Assumptions_Constraints": "Provenance weights required"
   },
   {
@@ -2691,7 +2691,7 @@
     "KA_ID": "KA-065",
     "KA_Name": "Knowledge Regression Tester",
     "Short_Name": "REGRESS",
-    "Purpose": "Ensure updates don\u2019t break prior knowledge",
+    "Purpose": "Ensure updates don’t break prior knowledge",
     "Category": "Safety",
     "Primary_Layers": "L10",
     "Allowed_Layers": "L10",
@@ -2704,7 +2704,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "Yes",
     "Risk_Class": "Critical",
-    "Confidence_Impact": "Direct \u2191/\u2193",
+    "Confidence_Impact": "Direct ↑/↓",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-99,KA-50",
@@ -2746,7 +2746,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -2788,7 +2788,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "Produces",
     "Default_Params": null,
     "Dependencies": null,
@@ -2998,7 +2998,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -3040,7 +3040,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "Produces",
     "Default_Params": null,
     "Dependencies": null,
@@ -3166,7 +3166,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2191/\u2193",
+    "Confidence_Impact": "Indirect ↑/↓",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-77,KA-94",
@@ -3292,7 +3292,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "Yes",
     "Risk_Class": "Critical",
-    "Confidence_Impact": "Direct \u2191/\u2193",
+    "Confidence_Impact": "Direct ↑/↓",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-14,KA-62,KA-109",
@@ -3397,7 +3397,7 @@
     "Math_Component_Type": "Algorithm",
     "Math_Object_IDs": "A-BUDGET-01",
     "Math_Scope": "FROST",
-    "Variables_Used": "B,K\u0302",
+    "Variables_Used": "B,K̂",
     "Units_Normalization": "budget units",
     "Assumptions_Constraints": "Hard caps enforced"
   },
@@ -3418,7 +3418,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Direct \u2193",
+    "Confidence_Impact": "Direct ↓",
     "Entropy_Signal": "Produces",
     "Default_Params": null,
     "Dependencies": null,
@@ -3439,8 +3439,8 @@
     "Math_Component_Type": "Equation",
     "Math_Object_IDs": "F-DRIFT-01",
     "Math_Scope": "System",
-    "Variables_Used": "C_t,\u0394t",
-    "Units_Normalization": "C\u2208[0,1]",
+    "Variables_Used": "C_t,Δt",
+    "Units_Normalization": "C∈[0,1]",
     "Assumptions_Constraints": "Requires history"
   },
   {
@@ -3502,7 +3502,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2191/\u2193",
+    "Confidence_Impact": "Indirect ↑/↓",
     "Entropy_Signal": "Produces",
     "Default_Params": null,
     "Dependencies": null,
@@ -3628,7 +3628,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2191",
+    "Confidence_Impact": "Indirect ↑",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-56",
@@ -3657,7 +3657,7 @@
     "KA_ID": "KA-088",
     "KA_Name": "Knowledge Lifecycle Manager",
     "Short_Name": "LIFECYCLE",
-    "Purpose": "Coordinate create\u2192validate\u2192decay\u2192archive",
+    "Purpose": "Coordinate create→validate→decay→archive",
     "Category": "Lifecycle",
     "Primary_Layers": "L10",
     "Allowed_Layers": "L10",
@@ -3712,7 +3712,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Critical",
-    "Confidence_Impact": "Indirect \u2191/\u2193",
+    "Confidence_Impact": "Indirect ↑/↓",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -3741,7 +3741,7 @@
     "KA_ID": "KA-090",
     "KA_Name": "Compliance Regression Validator",
     "Short_Name": "COMP-REG",
-    "Purpose": "Ensure updates don\u2019t violate compliance baselines",
+    "Purpose": "Ensure updates don’t violate compliance baselines",
     "Category": "Compliance",
     "Primary_Layers": "L8,L10",
     "Allowed_Layers": "L8,L10",
@@ -3754,7 +3754,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "Yes",
     "Risk_Class": "Critical",
-    "Confidence_Impact": "Direct \u2191/\u2193",
+    "Confidence_Impact": "Direct ↑/↓",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": "KA-16,KA-89",
@@ -3880,7 +3880,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "Medium",
-    "Confidence_Impact": "Indirect \u2193",
+    "Confidence_Impact": "Indirect ↓",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -3901,8 +3901,8 @@
     "Math_Component_Type": "Equation",
     "Math_Object_IDs": "F-DECAY-01",
     "Math_Scope": "System",
-    "Variables_Used": "T0,\u03bb,t,u",
-    "Units_Normalization": "T\u2208[0,1]",
+    "Variables_Used": "T0,λ,t,u",
+    "Units_Normalization": "T∈[0,1]",
     "Assumptions_Constraints": "Exponential decay default"
   },
   {
@@ -4090,7 +4090,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Direct \u2191/\u2193",
+    "Confidence_Impact": "Direct ↑/↓",
     "Entropy_Signal": "No",
     "Default_Params": null,
     "Dependencies": null,
@@ -4132,7 +4132,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "Yes",
     "Risk_Class": "Critical",
-    "Confidence_Impact": "Direct \u2191/\u2193",
+    "Confidence_Impact": "Direct ↑/↓",
     "Entropy_Signal": "Produces",
     "Default_Params": null,
     "Dependencies": "KA-50,KA-65",
@@ -4237,9 +4237,9 @@
     "Math_Component_Type": "Algorithm",
     "Math_Object_IDs": "A-CHAOS-01",
     "Math_Scope": "FROST",
-    "Variables_Used": "H*,r,\u03b5max",
-    "Units_Normalization": "\u03b5 bounded",
-    "Assumptions_Constraints": "Chaos disabled in L8\u2013L10"
+    "Variables_Used": "H*,r,εmax",
+    "Units_Normalization": "ε bounded",
+    "Assumptions_Constraints": "Chaos disabled in L8–L10"
   },
   {
     "KA_ID": "KA-102",
@@ -4280,7 +4280,7 @@
     "Math_Object_IDs": "F-ENT-01; F-ENT-02",
     "Math_Scope": "TruthEngine/FROST",
     "Variables_Used": "p_k,Var,D",
-    "Units_Normalization": "H\u2208[0,1]",
+    "Units_Normalization": "H∈[0,1]",
     "Assumptions_Constraints": "Normalize entropy"
   },
   {
@@ -4384,7 +4384,7 @@
     "Can_Trigger_Recursion": "No",
     "Can_Veto": "No",
     "Risk_Class": "High",
-    "Confidence_Impact": "Indirect \u2193",
+    "Confidence_Impact": "Indirect ↓",
     "Entropy_Signal": "Produces",
     "Default_Params": null,
     "Dependencies": "KA-82,KA-83",
@@ -4786,5 +4786,1472 @@
     "Variables_Used": null,
     "Units_Normalization": null,
     "Assumptions_Constraints": null
+  },
+  {
+    "KA_ID": "KA-115",
+    "KA_Name": "Input Validation  Normalization",
+    "Short_Name": "INPUT",
+    "Purpose": "Functional logic for Input Validation  Normalization",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-116",
+    "KA_Name": "Self Critique  Reflection",
+    "Short_Name": "SELF ",
+    "Purpose": "Functional logic for Self Critique  Reflection",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-117",
+    "KA_Name": "Optimization",
+    "Short_Name": "OPTIM",
+    "Purpose": "Functional logic for Optimization",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-118",
+    "KA_Name": "Environment Management",
+    "Short_Name": "ENVIR",
+    "Purpose": "Functional logic for Environment Management",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-119",
+    "KA_Name": "Dependency Injection",
+    "Short_Name": "DEPEN",
+    "Purpose": "Functional logic for Dependency Injection",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-120",
+    "KA_Name": "Service Mesh",
+    "Short_Name": "SERVI",
+    "Purpose": "Functional logic for Service Mesh",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-121",
+    "KA_Name": "Load Balancing",
+    "Short_Name": "LOAD ",
+    "Purpose": "Functional logic for Load Balancing",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-122",
+    "KA_Name": "Scalability Manager",
+    "Short_Name": "SCALA",
+    "Purpose": "Functional logic for Scalability Manager",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-123",
+    "KA_Name": "Fault Tolerance",
+    "Short_Name": "FAULT",
+    "Purpose": "Functional logic for Fault Tolerance",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-124",
+    "KA_Name": "Disaster Recovery",
+    "Short_Name": "DISAS",
+    "Purpose": "Functional logic for Disaster Recovery",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-125",
+    "KA_Name": "Backup Strategy",
+    "Short_Name": "BACKU",
+    "Purpose": "Functional logic for Backup Strategy",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-126",
+    "KA_Name": "System Health",
+    "Short_Name": "SYSTE",
+    "Purpose": "Functional logic for System Health",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-127",
+    "KA_Name": "Integration Bus",
+    "Short_Name": "INTEG",
+    "Purpose": "Functional logic for Integration Bus",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-128",
+    "KA_Name": "Api Gateway",
+    "Short_Name": "API G",
+    "Purpose": "Functional logic for Api Gateway",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-129",
+    "KA_Name": "Message Broker",
+    "Short_Name": "MESSA",
+    "Purpose": "Functional logic for Message Broker",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-130",
+    "KA_Name": "Complexity Router",
+    "Short_Name": "COMPL",
+    "Purpose": "Functional logic for Complexity Router",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-131",
+    "KA_Name": "Federated Outbox",
+    "Short_Name": "FEDER",
+    "Purpose": "Functional logic for Federated Outbox",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-132",
+    "KA_Name": "Meta Orchestrator",
+    "Short_Name": "META ",
+    "Purpose": "Functional logic for Meta Orchestrator",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-133",
+    "KA_Name": "Chaos Injection",
+    "Short_Name": "CHAOS",
+    "Purpose": "Functional logic for Chaos Injection",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-134",
+    "KA_Name": "Federated Inbox",
+    "Short_Name": "FEDER",
+    "Purpose": "Functional logic for Federated Inbox",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-135",
+    "KA_Name": "Entropy Detection",
+    "Short_Name": "ENTRO",
+    "Purpose": "Functional logic for Entropy Detection",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-136",
+    "KA_Name": "Threat Model Agent",
+    "Short_Name": "THREA",
+    "Purpose": "Functional logic for Threat Model Agent",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-137",
+    "KA_Name": "Sensitive Data Discovery",
+    "Short_Name": "SENSI",
+    "Purpose": "Functional logic for Sensitive Data Discovery",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-138",
+    "KA_Name": "Predictive Health",
+    "Short_Name": "PREDI",
+    "Purpose": "Functional logic for Predictive Health",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-139",
+    "KA_Name": "Purple Team",
+    "Short_Name": "PURPL",
+    "Purpose": "Functional logic for Purple Team",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-140",
+    "KA_Name": "Spatial Jurisdiction Mapping",
+    "Short_Name": "SPATI",
+    "Purpose": "Functional logic for Spatial Jurisdiction Mapping",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-141",
+    "KA_Name": "Point Of View Expansion",
+    "Short_Name": "POINT",
+    "Purpose": "Functional logic for Point Of View Expansion",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-142",
+    "KA_Name": "Reserved Expansion Slot",
+    "Short_Name": "RESER",
+    "Purpose": "Functional logic for Reserved Expansion Slot",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-143",
+    "KA_Name": "Complexity Estimator",
+    "Short_Name": "COMPL",
+    "Purpose": "Functional logic for Complexity Estimator",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-144",
+    "KA_Name": "Resource Allocator",
+    "Short_Name": "RESOU",
+    "Purpose": "Functional logic for Resource Allocator",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-145",
+    "KA_Name": "Consensus Engine",
+    "Short_Name": "CONSE",
+    "Purpose": "Functional logic for Consensus Engine",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-146",
+    "KA_Name": "Cross Modal Synthesis",
+    "Short_Name": "CROSS",
+    "Purpose": "Functional logic for Cross Modal Synthesis",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-147",
+    "KA_Name": "Anomaly Detection",
+    "Short_Name": "ANOMA",
+    "Purpose": "Functional logic for Anomaly Detection",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-148",
+    "KA_Name": "Hypothesis Generation",
+    "Short_Name": "HYPOT",
+    "Purpose": "Functional logic for Hypothesis Generation",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-149",
+    "KA_Name": "Abductive Reasoning",
+    "Short_Name": "ABDUC",
+    "Purpose": "Functional logic for Abductive Reasoning",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-150",
+    "KA_Name": "Counterfactual Simulator",
+    "Short_Name": "COUNT",
+    "Purpose": "Functional logic for Counterfactual Simulator",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-151",
+    "KA_Name": "Causal Inference",
+    "Short_Name": "CAUSA",
+    "Purpose": "Functional logic for Causal Inference",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-152",
+    "KA_Name": "Analogical Mapping",
+    "Short_Name": "ANALO",
+    "Purpose": "Functional logic for Analogical Mapping",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-153",
+    "KA_Name": "Pattern Recognition",
+    "Short_Name": "PATTE",
+    "Purpose": "Functional logic for Pattern Recognition",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-154",
+    "KA_Name": "Trend Analysis",
+    "Short_Name": "TREND",
+    "Purpose": "Functional logic for Trend Analysis",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-155",
+    "KA_Name": "Meta Algorithm Selection",
+    "Short_Name": "META ",
+    "Purpose": "Functional logic for Meta Algorithm Selection",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-156",
+    "KA_Name": "Sentiment Analysis",
+    "Short_Name": "SENTI",
+    "Purpose": "Functional logic for Sentiment Analysis",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-157",
+    "KA_Name": "Entity Extraction",
+    "Short_Name": "ENTIT",
+    "Purpose": "Functional logic for Entity Extraction",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-158",
+    "KA_Name": "Relation Extraction",
+    "Short_Name": "RELAT",
+    "Purpose": "Functional logic for Relation Extraction",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-159",
+    "KA_Name": "Summarization",
+    "Short_Name": "SUMMA",
+    "Purpose": "Functional logic for Summarization",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-160",
+    "KA_Name": "Self Correcting Knowledge Distillation",
+    "Short_Name": "SELF ",
+    "Purpose": "Functional logic for Self Correcting Knowledge Distillation",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-161",
+    "KA_Name": "Translation",
+    "Short_Name": "TRANS",
+    "Purpose": "Functional logic for Translation",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-162",
+    "KA_Name": "Paraphrasing",
+    "Short_Name": "PARAP",
+    "Purpose": "Functional logic for Paraphrasing",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-163",
+    "KA_Name": "Style Transfer",
+    "Short_Name": "STYLE",
+    "Purpose": "Functional logic for Style Transfer",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-164",
+    "KA_Name": "Cross Lingual Knowledge Fusion",
+    "Short_Name": "CROSS",
+    "Purpose": "Functional logic for Cross Lingual Knowledge Fusion",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-165",
+    "KA_Name": "Topic Modeling",
+    "Short_Name": "TOPIC",
+    "Purpose": "Functional logic for Topic Modeling",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-166",
+    "KA_Name": "Adaptive Multi Modal Integration",
+    "Short_Name": "ADAPT",
+    "Purpose": "Functional logic for Adaptive Multi Modal Integration",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-167",
+    "KA_Name": "Keyword Extraction",
+    "Short_Name": "KEYWO",
+    "Purpose": "Functional logic for Keyword Extraction",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-168",
+    "KA_Name": "Explainability",
+    "Short_Name": "EXPLA",
+    "Purpose": "Functional logic for Explainability",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-169",
+    "KA_Name": "Fairness Audit",
+    "Short_Name": "FAIRN",
+    "Purpose": "Functional logic for Fairness Audit",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-170",
+    "KA_Name": "Persona Emotion Adaptation",
+    "Short_Name": "PERSO",
+    "Purpose": "Functional logic for Persona Emotion Adaptation",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-171",
+    "KA_Name": "Interactive Clarification Learning",
+    "Short_Name": "INTER",
+    "Purpose": "Functional logic for Interactive Clarification Learning",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-172",
+    "KA_Name": "Safety Check",
+    "Short_Name": "SAFET",
+    "Purpose": "Functional logic for Safety Check",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-173",
+    "KA_Name": "Privacy Filter",
+    "Short_Name": "PRIVA",
+    "Purpose": "Functional logic for Privacy Filter",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-174",
+    "KA_Name": "Compliance Check",
+    "Short_Name": "COMPL",
+    "Purpose": "Functional logic for Compliance Check",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-175",
+    "KA_Name": "Security Audit",
+    "Short_Name": "SECUR",
+    "Purpose": "Functional logic for Security Audit",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-176",
+    "KA_Name": "Governance Validation",
+    "Short_Name": "GOVER",
+    "Purpose": "Functional logic for Governance Validation",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-177",
+    "KA_Name": "Policy Enforcement",
+    "Short_Name": "POLIC",
+    "Purpose": "Functional logic for Policy Enforcement",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-178",
+    "KA_Name": "Identity Resolution",
+    "Short_Name": "IDENT",
+    "Purpose": "Functional logic for Identity Resolution",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-179",
+    "KA_Name": "Access Control",
+    "Short_Name": "ACCES",
+    "Purpose": "Functional logic for Access Control",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-180",
+    "KA_Name": "Encryption Manager",
+    "Short_Name": "ENCRY",
+    "Purpose": "Functional logic for Encryption Manager",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-181",
+    "KA_Name": "Key Management",
+    "Short_Name": "KEY M",
+    "Purpose": "Functional logic for Key Management",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-182",
+    "KA_Name": "Threat Detection",
+    "Short_Name": "THREA",
+    "Purpose": "Functional logic for Threat Detection",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-183",
+    "KA_Name": "Vulnerability Scanning",
+    "Short_Name": "VULNE",
+    "Purpose": "Functional logic for Vulnerability Scanning",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-184",
+    "KA_Name": "Incident Response",
+    "Short_Name": "INCID",
+    "Purpose": "Functional logic for Incident Response",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-185",
+    "KA_Name": "Data Ingestion",
+    "Short_Name": "DATA ",
+    "Purpose": "Functional logic for Data Ingestion",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-186",
+    "KA_Name": "Data Cleaning",
+    "Short_Name": "DATA ",
+    "Purpose": "Functional logic for Data Cleaning",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-187",
+    "KA_Name": "Data Transformation",
+    "Short_Name": "DATA ",
+    "Purpose": "Functional logic for Data Transformation",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-188",
+    "KA_Name": "Data Validation",
+    "Short_Name": "DATA ",
+    "Purpose": "Functional logic for Data Validation",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-189",
+    "KA_Name": "Schema Mapping",
+    "Short_Name": "SCHEM",
+    "Purpose": "Functional logic for Schema Mapping",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-190",
+    "KA_Name": "Entity Resolution",
+    "Short_Name": "ENTIT",
+    "Purpose": "Functional logic for Entity Resolution",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-191",
+    "KA_Name": "Data Enrichment",
+    "Short_Name": "DATA ",
+    "Purpose": "Functional logic for Data Enrichment",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-192",
+    "KA_Name": "Data Archival",
+    "Short_Name": "DATA ",
+    "Purpose": "Functional logic for Data Archival",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-193",
+    "KA_Name": "Data Retrieval",
+    "Short_Name": "DATA ",
+    "Purpose": "Functional logic for Data Retrieval",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-194",
+    "KA_Name": "Cache Management",
+    "Short_Name": "CACHE",
+    "Purpose": "Functional logic for Cache Management",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-195",
+    "KA_Name": "Model Training",
+    "Short_Name": "MODEL",
+    "Purpose": "Functional logic for Model Training",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-196",
+    "KA_Name": "Model Evaluation",
+    "Short_Name": "MODEL",
+    "Purpose": "Functional logic for Model Evaluation",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-197",
+    "KA_Name": "Model Deployment",
+    "Short_Name": "MODEL",
+    "Purpose": "Functional logic for Model Deployment",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-198",
+    "KA_Name": "Model Monitoring",
+    "Short_Name": "MODEL",
+    "Purpose": "Functional logic for Model Monitoring",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-199",
+    "KA_Name": "Feature Engineering",
+    "Short_Name": "FEATU",
+    "Purpose": "Functional logic for Feature Engineering",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-200",
+    "KA_Name": "Hyperparameter Tuning",
+    "Short_Name": "HYPER",
+    "Purpose": "Functional logic for Hyperparameter Tuning",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-201",
+    "KA_Name": "Model Versioning",
+    "Short_Name": "MODEL",
+    "Purpose": "Functional logic for Model Versioning",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-202",
+    "KA_Name": "Ab Testing",
+    "Short_Name": "AB TE",
+    "Purpose": "Functional logic for Ab Testing",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-203",
+    "KA_Name": "Model Pruning",
+    "Short_Name": "MODEL",
+    "Purpose": "Functional logic for Model Pruning",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-204",
+    "KA_Name": "Model Quantization",
+    "Short_Name": "MODEL",
+    "Purpose": "Functional logic for Model Quantization",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-205",
+    "KA_Name": "Visualization",
+    "Short_Name": "VISUA",
+    "Purpose": "Functional logic for Visualization",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-206",
+    "KA_Name": "Dashboarding",
+    "Short_Name": "DASHB",
+    "Purpose": "Functional logic for Dashboarding",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-207",
+    "KA_Name": "Notification",
+    "Short_Name": "NOTIF",
+    "Purpose": "Functional logic for Notification",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-208",
+    "KA_Name": "Reporting",
+    "Short_Name": "REPOR",
+    "Purpose": "Functional logic for Reporting",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-209",
+    "KA_Name": "Alerting",
+    "Short_Name": "ALERT",
+    "Purpose": "Functional logic for Alerting",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-210",
+    "KA_Name": "Logging",
+    "Short_Name": "LOGGI",
+    "Purpose": "Functional logic for Logging",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-211",
+    "KA_Name": "Auditing",
+    "Short_Name": "AUDIT",
+    "Purpose": "Functional logic for Auditing",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-212",
+    "KA_Name": "Profiling",
+    "Short_Name": "PROFI",
+    "Purpose": "Functional logic for Profiling",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-213",
+    "KA_Name": "Debugging",
+    "Short_Name": "DEBUG",
+    "Purpose": "Functional logic for Debugging",
+    "Category": "General",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-214",
+    "KA_Name": "Advanced Security Module 214",
+    "Short_Name": "ADV-214",
+    "Purpose": "Advanced security capabilities for UKG scale 214",
+    "Category": "Security",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-215",
+    "KA_Name": "Advanced Data Module 215",
+    "Short_Name": "ADV-215",
+    "Purpose": "Advanced data capabilities for UKG scale 215",
+    "Category": "Data",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-216",
+    "KA_Name": "Advanced Synthesis Module 216",
+    "Short_Name": "ADV-216",
+    "Purpose": "Advanced synthesis capabilities for UKG scale 216",
+    "Category": "Synthesis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-217",
+    "KA_Name": "Advanced Reasoning Module 217",
+    "Short_Name": "ADV-217",
+    "Purpose": "Advanced reasoning capabilities for UKG scale 217",
+    "Category": "Reasoning",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-218",
+    "KA_Name": "Advanced Analysis Module 218",
+    "Short_Name": "ADV-218",
+    "Purpose": "Advanced analysis capabilities for UKG scale 218",
+    "Category": "Analysis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-219",
+    "KA_Name": "Advanced Compliance Module 219",
+    "Short_Name": "ADV-219",
+    "Purpose": "Advanced compliance capabilities for UKG scale 219",
+    "Category": "Compliance",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-220",
+    "KA_Name": "Advanced Optimization Module 220",
+    "Short_Name": "ADV-220",
+    "Purpose": "Advanced optimization capabilities for UKG scale 220",
+    "Category": "Optimization",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-221",
+    "KA_Name": "Advanced Security Module 221",
+    "Short_Name": "ADV-221",
+    "Purpose": "Advanced security capabilities for UKG scale 221",
+    "Category": "Security",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-222",
+    "KA_Name": "Advanced Data Module 222",
+    "Short_Name": "ADV-222",
+    "Purpose": "Advanced data capabilities for UKG scale 222",
+    "Category": "Data",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-223",
+    "KA_Name": "Advanced Synthesis Module 223",
+    "Short_Name": "ADV-223",
+    "Purpose": "Advanced synthesis capabilities for UKG scale 223",
+    "Category": "Synthesis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-224",
+    "KA_Name": "Advanced Reasoning Module 224",
+    "Short_Name": "ADV-224",
+    "Purpose": "Advanced reasoning capabilities for UKG scale 224",
+    "Category": "Reasoning",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-225",
+    "KA_Name": "Advanced Analysis Module 225",
+    "Short_Name": "ADV-225",
+    "Purpose": "Advanced analysis capabilities for UKG scale 225",
+    "Category": "Analysis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-226",
+    "KA_Name": "Advanced Compliance Module 226",
+    "Short_Name": "ADV-226",
+    "Purpose": "Advanced compliance capabilities for UKG scale 226",
+    "Category": "Compliance",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-227",
+    "KA_Name": "Advanced Optimization Module 227",
+    "Short_Name": "ADV-227",
+    "Purpose": "Advanced optimization capabilities for UKG scale 227",
+    "Category": "Optimization",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-228",
+    "KA_Name": "Advanced Security Module 228",
+    "Short_Name": "ADV-228",
+    "Purpose": "Advanced security capabilities for UKG scale 228",
+    "Category": "Security",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-229",
+    "KA_Name": "Advanced Data Module 229",
+    "Short_Name": "ADV-229",
+    "Purpose": "Advanced data capabilities for UKG scale 229",
+    "Category": "Data",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-230",
+    "KA_Name": "Advanced Synthesis Module 230",
+    "Short_Name": "ADV-230",
+    "Purpose": "Advanced synthesis capabilities for UKG scale 230",
+    "Category": "Synthesis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-231",
+    "KA_Name": "Advanced Reasoning Module 231",
+    "Short_Name": "ADV-231",
+    "Purpose": "Advanced reasoning capabilities for UKG scale 231",
+    "Category": "Reasoning",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-232",
+    "KA_Name": "Advanced Analysis Module 232",
+    "Short_Name": "ADV-232",
+    "Purpose": "Advanced analysis capabilities for UKG scale 232",
+    "Category": "Analysis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-233",
+    "KA_Name": "Advanced Compliance Module 233",
+    "Short_Name": "ADV-233",
+    "Purpose": "Advanced compliance capabilities for UKG scale 233",
+    "Category": "Compliance",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-234",
+    "KA_Name": "Advanced Optimization Module 234",
+    "Short_Name": "ADV-234",
+    "Purpose": "Advanced optimization capabilities for UKG scale 234",
+    "Category": "Optimization",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-235",
+    "KA_Name": "Advanced Security Module 235",
+    "Short_Name": "ADV-235",
+    "Purpose": "Advanced security capabilities for UKG scale 235",
+    "Category": "Security",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-236",
+    "KA_Name": "Advanced Data Module 236",
+    "Short_Name": "ADV-236",
+    "Purpose": "Advanced data capabilities for UKG scale 236",
+    "Category": "Data",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-237",
+    "KA_Name": "Advanced Synthesis Module 237",
+    "Short_Name": "ADV-237",
+    "Purpose": "Advanced synthesis capabilities for UKG scale 237",
+    "Category": "Synthesis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-238",
+    "KA_Name": "Advanced Reasoning Module 238",
+    "Short_Name": "ADV-238",
+    "Purpose": "Advanced reasoning capabilities for UKG scale 238",
+    "Category": "Reasoning",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-239",
+    "KA_Name": "Advanced Analysis Module 239",
+    "Short_Name": "ADV-239",
+    "Purpose": "Advanced analysis capabilities for UKG scale 239",
+    "Category": "Analysis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-240",
+    "KA_Name": "Advanced Compliance Module 240",
+    "Short_Name": "ADV-240",
+    "Purpose": "Advanced compliance capabilities for UKG scale 240",
+    "Category": "Compliance",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-241",
+    "KA_Name": "Advanced Optimization Module 241",
+    "Short_Name": "ADV-241",
+    "Purpose": "Advanced optimization capabilities for UKG scale 241",
+    "Category": "Optimization",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-242",
+    "KA_Name": "Advanced Security Module 242",
+    "Short_Name": "ADV-242",
+    "Purpose": "Advanced security capabilities for UKG scale 242",
+    "Category": "Security",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-243",
+    "KA_Name": "Advanced Data Module 243",
+    "Short_Name": "ADV-243",
+    "Purpose": "Advanced data capabilities for UKG scale 243",
+    "Category": "Data",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-244",
+    "KA_Name": "Advanced Synthesis Module 244",
+    "Short_Name": "ADV-244",
+    "Purpose": "Advanced synthesis capabilities for UKG scale 244",
+    "Category": "Synthesis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-245",
+    "KA_Name": "Advanced Reasoning Module 245",
+    "Short_Name": "ADV-245",
+    "Purpose": "Advanced reasoning capabilities for UKG scale 245",
+    "Category": "Reasoning",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-246",
+    "KA_Name": "Advanced Analysis Module 246",
+    "Short_Name": "ADV-246",
+    "Purpose": "Advanced analysis capabilities for UKG scale 246",
+    "Category": "Analysis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-247",
+    "KA_Name": "Advanced Compliance Module 247",
+    "Short_Name": "ADV-247",
+    "Purpose": "Advanced compliance capabilities for UKG scale 247",
+    "Category": "Compliance",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-248",
+    "KA_Name": "Advanced Optimization Module 248",
+    "Short_Name": "ADV-248",
+    "Purpose": "Advanced optimization capabilities for UKG scale 248",
+    "Category": "Optimization",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-249",
+    "KA_Name": "Advanced Security Module 249",
+    "Short_Name": "ADV-249",
+    "Purpose": "Advanced security capabilities for UKG scale 249",
+    "Category": "Security",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-250",
+    "KA_Name": "Advanced Data Module 250",
+    "Short_Name": "ADV-250",
+    "Purpose": "Advanced data capabilities for UKG scale 250",
+    "Category": "Data",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-251",
+    "KA_Name": "Advanced Synthesis Module 251",
+    "Short_Name": "ADV-251",
+    "Purpose": "Advanced synthesis capabilities for UKG scale 251",
+    "Category": "Synthesis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-252",
+    "KA_Name": "Advanced Reasoning Module 252",
+    "Short_Name": "ADV-252",
+    "Purpose": "Advanced reasoning capabilities for UKG scale 252",
+    "Category": "Reasoning",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-253",
+    "KA_Name": "Advanced Analysis Module 253",
+    "Short_Name": "ADV-253",
+    "Purpose": "Advanced analysis capabilities for UKG scale 253",
+    "Category": "Analysis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-254",
+    "KA_Name": "Advanced Compliance Module 254",
+    "Short_Name": "ADV-254",
+    "Purpose": "Advanced compliance capabilities for UKG scale 254",
+    "Category": "Compliance",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-255",
+    "KA_Name": "Advanced Optimization Module 255",
+    "Short_Name": "ADV-255",
+    "Purpose": "Advanced optimization capabilities for UKG scale 255",
+    "Category": "Optimization",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-256",
+    "KA_Name": "Advanced Security Module 256",
+    "Short_Name": "ADV-256",
+    "Purpose": "Advanced security capabilities for UKG scale 256",
+    "Category": "Security",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-257",
+    "KA_Name": "Advanced Data Module 257",
+    "Short_Name": "ADV-257",
+    "Purpose": "Advanced data capabilities for UKG scale 257",
+    "Category": "Data",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-258",
+    "KA_Name": "Advanced Synthesis Module 258",
+    "Short_Name": "ADV-258",
+    "Purpose": "Advanced synthesis capabilities for UKG scale 258",
+    "Category": "Synthesis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-259",
+    "KA_Name": "Advanced Reasoning Module 259",
+    "Short_Name": "ADV-259",
+    "Purpose": "Advanced reasoning capabilities for UKG scale 259",
+    "Category": "Reasoning",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-260",
+    "KA_Name": "Advanced Analysis Module 260",
+    "Short_Name": "ADV-260",
+    "Purpose": "Advanced analysis capabilities for UKG scale 260",
+    "Category": "Analysis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-261",
+    "KA_Name": "Advanced Compliance Module 261",
+    "Short_Name": "ADV-261",
+    "Purpose": "Advanced compliance capabilities for UKG scale 261",
+    "Category": "Compliance",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-262",
+    "KA_Name": "Advanced Optimization Module 262",
+    "Short_Name": "ADV-262",
+    "Purpose": "Advanced optimization capabilities for UKG scale 262",
+    "Category": "Optimization",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-263",
+    "KA_Name": "Advanced Security Module 263",
+    "Short_Name": "ADV-263",
+    "Purpose": "Advanced security capabilities for UKG scale 263",
+    "Category": "Security",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-264",
+    "KA_Name": "Advanced Data Module 264",
+    "Short_Name": "ADV-264",
+    "Purpose": "Advanced data capabilities for UKG scale 264",
+    "Category": "Data",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-265",
+    "KA_Name": "Advanced Synthesis Module 265",
+    "Short_Name": "ADV-265",
+    "Purpose": "Advanced synthesis capabilities for UKG scale 265",
+    "Category": "Synthesis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-266",
+    "KA_Name": "Advanced Reasoning Module 266",
+    "Short_Name": "ADV-266",
+    "Purpose": "Advanced reasoning capabilities for UKG scale 266",
+    "Category": "Reasoning",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-267",
+    "KA_Name": "Advanced Analysis Module 267",
+    "Short_Name": "ADV-267",
+    "Purpose": "Advanced analysis capabilities for UKG scale 267",
+    "Category": "Analysis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-268",
+    "KA_Name": "Advanced Compliance Module 268",
+    "Short_Name": "ADV-268",
+    "Purpose": "Advanced compliance capabilities for UKG scale 268",
+    "Category": "Compliance",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-269",
+    "KA_Name": "Advanced Optimization Module 269",
+    "Short_Name": "ADV-269",
+    "Purpose": "Advanced optimization capabilities for UKG scale 269",
+    "Category": "Optimization",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-270",
+    "KA_Name": "Advanced Security Module 270",
+    "Short_Name": "ADV-270",
+    "Purpose": "Advanced security capabilities for UKG scale 270",
+    "Category": "Security",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-271",
+    "KA_Name": "Advanced Data Module 271",
+    "Short_Name": "ADV-271",
+    "Purpose": "Advanced data capabilities for UKG scale 271",
+    "Category": "Data",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-272",
+    "KA_Name": "Advanced Synthesis Module 272",
+    "Short_Name": "ADV-272",
+    "Purpose": "Advanced synthesis capabilities for UKG scale 272",
+    "Category": "Synthesis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-273",
+    "KA_Name": "Advanced Reasoning Module 273",
+    "Short_Name": "ADV-273",
+    "Purpose": "Advanced reasoning capabilities for UKG scale 273",
+    "Category": "Reasoning",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-274",
+    "KA_Name": "Advanced Analysis Module 274",
+    "Short_Name": "ADV-274",
+    "Purpose": "Advanced analysis capabilities for UKG scale 274",
+    "Category": "Analysis",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-275",
+    "KA_Name": "Advanced Compliance Module 275",
+    "Short_Name": "ADV-275",
+    "Purpose": "Advanced compliance capabilities for UKG scale 275",
+    "Category": "Compliance",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-276",
+    "KA_Name": "Advanced Optimization Module 276",
+    "Short_Name": "ADV-276",
+    "Purpose": "Advanced optimization capabilities for UKG scale 276",
+    "Category": "Optimization",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
+  },
+  {
+    "KA_ID": "KA-277",
+    "KA_Name": "Advanced Security Module 277",
+    "Short_Name": "ADV-277",
+    "Purpose": "Advanced security capabilities for UKG scale 277",
+    "Category": "Security",
+    "Status": "Active",
+    "Implementation_Mode": "PYTHON_LIB"
   }
 ]

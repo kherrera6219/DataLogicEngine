@@ -406,9 +406,10 @@ class MCPManager:
                 short_name = ka.get('Short_Name', ka_id)
                 purpose = ka.get('Purpose', 'No description')
                 
-                # Sanitize tool name: execute_ka_shortname
+                # Sanitize tool name: execute_ka_###_shortname
                 safe_short_name = short_name.lower().replace('-', '_').replace('/', '_').replace(' ', '_')
-                tool_name = f"execute_{safe_short_name}"
+                safe_ka_id = ka_id.lower().replace('-', '_')
+                tool_name = f"execute_{safe_ka_id}_{safe_short_name}"
                 
                 # Define handler using closure to capture ka_id
                 def make_handler(kid, kname, slug):
