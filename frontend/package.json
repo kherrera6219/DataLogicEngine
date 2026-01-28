@@ -1,6 +1,8 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "description": "DataLogicEngine Desktop Application",
+  "author": "UKG",
   "private": true,
   "main": "dist-electron/main.js",
   "scripts": {

@@ -74,7 +74,7 @@ export default function TraceRunsPage() {
                               </Badge>
                            </TableCell>
                            <TableCell className="text-right">
-                              <Link href={`/runs/${run.run_id}`}>
+                              <Link href={`/runs/view?id=${run.run_id}`}>
                                  <Button size="sm" variant="outline">View Trace</Button>
                               </Link>
                            </TableCell>

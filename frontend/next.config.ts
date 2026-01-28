@@ -15,6 +15,7 @@ if (normalizedCdnUrl) {
   try {
     const cdn = new URL(normalizedCdnUrl);
     cdnConfig.images = {
+      unoptimized: true, // Required for static export
       remotePatterns: [
         {
           protocol: cdn.protocol.replace(":", "") as "http" | "https",
@@ -25,37 +26,28 @@ if (normalizedCdnUrl) {
       ],
     };
   } catch {
-    cdnConfig.images = undefined;
+    cdnConfig.images = { unoptimized: true };
   }
+} else {
+  // Even if no CDN, unoptimized is needed for export if usage exists
+  cdnConfig.images = { unoptimized: true };
 }
 
 const nextConfig: NextConfig = {
   ...cdnConfig,
-  output: 'standalone',
-  async rewrites() {
-
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://127.0.0.1:5000/api/:path*',
-      },
-      {
-         // Proxy auth routes if they are used
-        source: '/auth/:path*',
-        destination: 'http://127.0.0.1:5000/auth/:path*',
-      },
-      {
-        // Proxy health check
-        source: '/health',
-        destination: 'http://127.0.0.1:5000/health',
-      },
-      {
-        // Proxy Swagger UI JSON
-        source: '/static/swagger.json',
-        destination: 'http://127.0.0.1:5000/static/swagger.json',
-      }
-    ];
-  },
+  ...cdnConfig,
+  output: 'export',
+  // Rewrites are NOT supported in static export mode.
+  // API requests must be handled by the client using absolute URLs or a proxy in the main process.
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: '/api/:path*',
+  //       destination: 'http://127.0.0.1:5000/api/:path*',
+  //     },
+  //     // ... other rewrites
+  //   ];
+  // },
 };
 
 export default nextConfig;

@@ -1,0 +1,25 @@
+appId: com.ukg.datalogicengine
+productName: DataLogicEngine Desktop
+directories:
+  output: dist
+  buildResources: build
+files:
+  - "dist-electron"
+  - "out"
+  - "package.json"
+  # - electron-builder.yml
+extraResources:
+  - from: ../dist/DataLogic_Backend
+    to: backend
+    filter:
+      - "**/*"
+win:
+  target: nsis
+  icon: public/favicon.ico
+  forceCodeSigning: false
+  sign: null
+  verifyUpdateCodeSignature: false
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: true

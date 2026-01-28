@@ -6,6 +6,7 @@ const electron_1 = require("electron");
 electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     ping: () => electron_1.ipcRenderer.invoke('ping'),
     getBackendStatus: () => electron_1.ipcRenderer.invoke('get-backend-status'),
+    getDbStatus: () => electron_1.ipcRenderer.invoke('get-db-status'),
     onBackendLog: (callback) => {
         electron_1.ipcRenderer.on('backend-log', (_event, value) => callback(value));
     },

@@ -1,18 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { api, TraceDetail } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-export default function TraceDetailPage({ params }: { params: { id: string } }) {
+function TraceDetailContent() {
+  const searchParams = useSearchParams();
+  const runId = searchParams.get('id');
+  
   const [trace, setTrace] = useState<TraceDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Unwrap params (Next.js 15+ may require await, but Next 14 handles it fine usually. 
-  // However, strict types might complain. Treating as simple obj for now.)
-  const runId = params.id;
 
   useEffect(() => {
      let mounted = true;
@@ -22,7 +22,11 @@ export default function TraceDetailPage({ params }: { params: { id: string } }) 
               setTrace(data as TraceDetail);
               setIsLoading(false);
            }
+        }).catch(() => {
+           if (mounted) setIsLoading(false);
         });
+     } else {
+        setIsLoading(false);
      }
      return () => { mounted = false; };
   }, [runId]);
@@ -32,11 +36,10 @@ export default function TraceDetailPage({ params }: { params: { id: string } }) 
   }
 
   if (!trace) {
-     return <div className="p-8 text-center text-red-500">Trace not found</div>;
+     return <div className="p-8 text-center text-red-500">{runId ? 'Trace not found' : 'No trace ID provided'}</div>;
   }
 
   return (
-    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8">
       <div className="container mx-auto max-w-7xl">
          <header className="mb-8 flex justify-between items-center">
             <div>
@@ -109,6 +112,15 @@ export default function TraceDetailPage({ params }: { params: { id: string } }) 
             </div>
          </div>
       </div>
+  );
+}
+
+export default function TraceDetailPage() {
+  return (
+    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8">
+      <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading...</div>}>
+         <TraceDetailContent />
+      </Suspense>
     </main>
   );
 }

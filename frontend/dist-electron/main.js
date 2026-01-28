@@ -77,7 +77,12 @@ function startBackend() {
         scriptPath = ''; // Not used when running exe directly
     }
     const args = scriptPath ? [scriptPath] : [];
-    const env = { ...process.env, PORT: '5000', FLASK_ENV: isDev ? 'development' : 'production' };
+    const env = {
+        ...process.env,
+        PORT: '5000',
+        FLASK_ENV: isDev ? 'development' : 'production',
+        IS_DESKTOP_APP: 'true'
+    };
     backendProcess = (0, child_process_1.spawn)(pythonPath, args, { env, cwd: rootDir });
     backendProcess.stdout?.on('data', (data) => {
         const log = data.toString();
@@ -117,4 +122,8 @@ electron_1.app.on('activate', () => {
 electron_1.ipcMain.handle('ping', () => 'pong');
 electron_1.ipcMain.handle('get-backend-status', () => {
     return backendProcess ? (backendProcess.exitCode === null ? 'running' : 'stopped') : 'not_started';
+});
+electron_1.ipcMain.handle('get-db-status', () => {
+    // This is a simplification; a real check would query the ports
+    return backendProcess ? 'managed' : 'offline';
 });
