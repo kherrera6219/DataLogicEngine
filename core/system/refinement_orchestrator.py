@@ -44,7 +44,7 @@ class RefinementOrchestrator:
         self.trace = trace
         
         self.target_confidence = 0.995
-
+    
     def run_refinement(self, 
                        initial_artifact: UnifiedArtifactEnvelope, 
                        max_iterations: int = 3) -> UnifiedArtifactEnvelope:
@@ -59,7 +59,7 @@ class RefinementOrchestrator:
             self.logger.info(f"Starting refinement iteration {iteration} for {current_artifact.artifact_id}")
             
             # Record base state in FROST
-            base_snap = self.frost.snapshot(current_artifact.dict()) if self.frost else None
+            base_snap = self.frost.snapshot(current_artifact.model_dump()) if self.frost else None
             
             # Execute steps (simplified for now: calling KAs or logic)
             for step in self.STEPS:
@@ -84,7 +84,7 @@ class RefinementOrchestrator:
         # 3. Update the artifact's payload and confidence vector.
         
         # Simulated advancement
-        new_artifact = artifact.copy(deep=True)
+        new_artifact = artifact.model_copy(deep=True)
         new_artifact.confidence_vector.overall = min(1.0, new_artifact.confidence_vector.overall + 0.05)
         
         if self.trace:

@@ -1,6 +1,17 @@
+import os
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
+
+# Load environment variables for tests
+load_dotenv()
+
+# Force in-memory storage for tests to avoid Redis dependencies
+os.environ['RATELIMIT_STORAGE_URI'] = 'memory://'
+os.environ['REDIS_URL'] = 'redis://localhost:6379/0' # Keep URL but we'll disable it
+os.environ['USE_REDIS'] = 'False'
+os.environ['SESSION_TYPE'] = 'null' # Disable flask-session for tests if possible
+
 import pytest
 from app import app, db
 from extensions import limiter

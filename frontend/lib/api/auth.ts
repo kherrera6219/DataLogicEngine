@@ -13,13 +13,10 @@ export interface AuthCheckResponse {
 }
 
 export interface LoginResponse {
-    success: boolean;
-    status?: number;
-    data: {
-        user: User;
-        token?: string;
-    };
-    error?: string;
+    user?: User;
+    token?: string;
+    mfa_required?: boolean;
+    session_id?: string;
 }
 
 export const auth = {

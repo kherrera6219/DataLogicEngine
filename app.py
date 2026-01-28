@@ -176,7 +176,6 @@ from flask_wtf.csrf import CSRFError
 
 @app.errorhandler(CSRFError)
 def handle_csrf_error(e):
-    """Handle CSRF errors gracefully."""
     from flask import request
     if request.is_json or request.headers.get('Content-Type', '').startswith('application/json'):
         return jsonify({'error': 'CSRF token missing or invalid', 'success': False}), 400
@@ -184,8 +183,11 @@ def handle_csrf_error(e):
     return redirect(request.url)
 
 # Initialize session management (Redis-based for enterprise scalability)
-from backend.security.session_manager import configure_session_manager
-configure_session_manager(app)
+if use_redis:
+    from backend.security.session_manager import configure_session_manager
+    configure_session_manager(app)
+else:
+    app.logger.info("[startup] - Using default cookie-based session storage (Redis disabled)")
 
 # Initialize security headers (Phase 1 security hardening)
 from backend.security.security_headers import configure_security_headers

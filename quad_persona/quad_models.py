@@ -5,7 +5,7 @@ Defines the structured outputs for the Deep Research Agent Layer.
 
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional, Any
-from datetime import datetime
+from datetime import datetime, UTC
 import uuid
 
 @dataclass
@@ -27,7 +27,7 @@ class EvidenceItem:
     security_level: str = "unclassified" # A17: Who can see this?
     
     metadata: Dict[str, Any] = field(default_factory=dict)
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -57,7 +57,7 @@ class EvidencePack:
     # Metadata about the research process
     research_tier: str = "tier1" # tier1, tier2, tier3
     agents_involved: List[str] = field(default_factory=list)
-    created_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def add_item(self, item: EvidenceItem):
         self.items.append(item)

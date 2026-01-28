@@ -1,0 +1,29 @@
+2026-01-27 22:36:51,612 - UKG-Audit - INFO - Audit log rotation started
+2026-01-27 22:36:51,612 - UKG-Audit - INFO - Audit Logger initialized
+2026-01-27 22:36:52,140 - app - INFO - [startup] - Using default cookie-based session storage (Redis disabled)
+2026-01-27 22:36:52,140 - backend.security.security_headers - INFO - Security headers middleware initialized
+2026-01-27 22:36:52,140 - backend.security.security_headers - INFO - Security headers configured
+2026-01-27 22:36:52,141 - backend.middleware.request_limits - INFO - Request limits middleware initialized (max size: 16.0MB)
+2026-01-27 22:36:52,141 - backend.middleware.request_limits - INFO - Request limits configured
+2026-01-27 22:36:52,142 - backend.middleware.correlation_id - INFO - Correlation ID middleware initialized
+2026-01-27 22:36:52,144 - backend.middleware.correlation_id - INFO - Correlation ID middleware configured
+2026-01-27 22:36:52,144 - backend.middleware.correlation_id - INFO - [startup] - Correlation ID logging configured
+2026-01-27 22:36:52,145 - backend.middleware.timeout - WARNING - [startup] - Signal-based timeout not available on this platform. Configure gunicorn worker timeout instead: --timeout 30
+2026-01-27 22:36:52,150 - app - INFO - [startup] - Database tables created
+2026-01-27 22:36:52,181 - app - INFO - [startup] - Truth Engine API blueprint registered (v1 + legacy)
+2026-01-27 22:36:52,184 - app - INFO - [startup] - Persona API blueprint registered (v1 + legacy)
+2026-01-27 22:36:52,193 - app - INFO - [startup] - Pillar API blueprint registered (v1 + legacy)
+2026-01-27 22:36:52,203 - app - INFO - [startup] - Regulatory/Compliance API blueprint registered (v1 + legacy)
+2026-01-27 22:36:52,214 - app - WARNING - [startup] - Could not register Replit Auth blueprint: No module named 'replit_auth'
+2026-01-27 22:36:52,218 - app - INFO - [startup] - Swagger UI registered at /api/docs
+2026-01-27 22:36:52,266 - app - INFO - [startup] - Trace API blueprint registered at /api/v1/trace
+2026-01-27 22:36:52,267 - app - WARNING - [startup] - Could not register LLM Gateway API: No module named 'backend.extensions'
+2026-01-27 22:36:52,270 - app - INFO - [startup] - Analytics API registered at /api/v1/analytics
+2026-01-27 22:36:52,403 - app - WARNING - [startup] - Could not register GraphQL API: cannot import name 'MutableMapping' from 'collections' (C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\collections\__init__.py)
+2026-01-27 22:36:52,406 - app - INFO - [startup] - GDPR API registered at /api/v1/gdpr
+2026-01-27 22:36:52,410 - app - INFO - [startup] - Retention API registered at /api/v1/retention
+2026-01-27 22:36:52,411 - app - INFO - [startup] - Privacy API registered at /api/v1/privacy
+ImportError while loading conftest 'C:\software\DataLogicEngine\tests\conftest.py'.
+tests\conftest.py:23: in <module>
+    if str(ROOT_DIR) not in sys.path:
+E   NameError: name 'sys' is not defined. Did you forget to import 'sys'?

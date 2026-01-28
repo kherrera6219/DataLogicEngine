@@ -49,8 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 // If not authenticated, try desktop auto-login if on Windows
                 // This is a "Zero-Config" experience for desktop users
                 const autoLoginResponse = await api.auth.desktopAutoLogin().catch(() => null);
-                if (autoLoginResponse && autoLoginResponse.success && autoLoginResponse.data.user) {
-                    setUser(autoLoginResponse.data.user);
+                if (autoLoginResponse && autoLoginResponse.user) {
+                    setUser(autoLoginResponse.user);
                 } else {
                     setUser(null);
                 }
@@ -64,17 +64,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
     const login = async (credentials: LoginCredentials) => {
-        const response = await api.auth.login(credentials);
-        if (response.success && response.data.user) {
-            setUser(response.data.user);
-            router.push('/dashboard');
-            router.refresh();
-        } else if (response.status === 202) {
-             // Handle MFA requirement
-             setMfaState({ required: true, sessionId: response.data?.session_id });
-             showNotification('MFA verification required. Please enter your authentication code.', 'warning');
-        } else {
-            throw new Error(response.error || 'Login failed');
+        try {
+            const response = await api.auth.login(credentials);
+            // If we're here, the request was successful (2xx)
+            if (response && response.user) {
+                setUser(response.user);
+                router.push('/dashboard');
+                router.refresh();
+            } else if (response && response.mfa_required) {
+                 // Handle MFA requirement - status 202 is returned as success data by our request client
+                 setMfaState({ required: true, sessionId: response.session_id });
+                 showNotification('MFA verification required. Please enter your authentication code.', 'warning');
+            } else {
+                throw new Error('Login failed: Invalid response format');
+            }
+        } catch (error) {
+            // Re-throw or handle error
+            const message = error instanceof Error ? error.message : 'Authentication failed';
+            throw new Error(message);
         }
     };
 
