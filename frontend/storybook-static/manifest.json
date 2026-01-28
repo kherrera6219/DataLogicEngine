@@ -1,0 +1,39 @@
+  "name": "DataLogicEngine UKG",
+  "short_name": "UKG",
+  "description": "Enterprise-grade Universal Knowledge Graph system with AI-powered reasoning, compliance auditing, and adversarial defense.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#3b82f6",
+  "orientation": "any",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "/dashboard",
+      "description": "View System Dashboard"
+    },
+    {
+      "name": "Simulations",
+      "url": "/simulations",
+      "description": "Run Knowledge Simulations"
+    }
+  ]
+}
