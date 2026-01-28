@@ -5,6 +5,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 contextBridge.exposeInMainWorld('electronAPI', {
   ping: () => ipcRenderer.invoke('ping'),
   getBackendStatus: () => ipcRenderer.invoke('get-backend-status'),
+  getDbStatus: () => ipcRenderer.invoke('get-db-status'),
   onBackendLog: (callback: (log: string) => void) => {
     ipcRenderer.on('backend-log', (_event, value) => callback(value));
   },

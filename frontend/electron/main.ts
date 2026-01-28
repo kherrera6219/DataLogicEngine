@@ -51,7 +51,12 @@ function startBackend() {
   }
 
   const args = scriptPath ? [scriptPath] : [];
-  const env = { ...process.env, PORT: '5000', FLASK_ENV: isDev ? 'development' : 'production' };
+  const env = { 
+    ...process.env, 
+    PORT: '5000', 
+    FLASK_ENV: isDev ? 'development' : 'production',
+    IS_DESKTOP_APP: 'true' 
+  };
 
   backendProcess = spawn(pythonPath, args, { env, cwd: rootDir });
 
@@ -101,4 +106,9 @@ ipcMain.handle('ping', () => 'pong');
 
 ipcMain.handle('get-backend-status', () => {
   return backendProcess ? (backendProcess.exitCode === null ? 'running' : 'stopped') : 'not_started';
+});
+
+ipcMain.handle('get-db-status', () => {
+  // This is a simplification; a real check would query the ports
+  return backendProcess ? 'managed' : 'offline';
 });

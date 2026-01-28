@@ -130,9 +130,32 @@ class ProductionConfig(Config):
     DEFAULT_CONFIDENCE_THRESHOLD = 0.90
 
 
+class DesktopConfig(ProductionConfig):
+    """Desktop environment configuration for standalone usage."""
+    
+    DEBUG = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
+    
+    # Overrides for local embedded databases
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "postgresql://localhost:54320/ukg_local")
+    REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:63790/0")
+    NEO4J_URI = os.environ.get("NEO4J_URI", "bolt://localhost:7687")
+    NEO4J_USER = os.environ.get("NEO4J_USER", "neo4j")
+    NEO4J_PASSWORD = os.environ.get("NEO4J_PASSWORD", "ukg-local-neo4j")
+    
+    # Desktop apps typically don't have HTTPS locally
+    SESSION_COOKIE_SECURE = False
+    REMEMBER_COOKIE_SECURE = False
+    
+    # Enable all features by default in desktop
+    QUANTUM_SIMULATION_ENABLED = True
+
+
 def get_config():
     """Get the current configuration based on environment."""
     env = os.environ.get("FLASK_ENV", "development")
+    
+    if os.environ.get("IS_DESKTOP_APP", "False").lower() == "true":
+        return DesktopConfig()
     
     if env == "production":
         return ProductionConfig()

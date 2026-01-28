@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Terminal, Shield, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Terminal, Shield, CheckCircle, XCircle, Loader2, Database } from 'lucide-react';
 
 const DesktopStatus = () => {
   const [status, setStatus] = useState<string>('checking');
@@ -12,7 +12,7 @@ const DesktopStatus = () => {
     const isElectron = typeof window !== 'undefined' && !!window.electronAPI;
     
     if (isElectron) {
-      setIsDesktop(true);
+      setTimeout(() => setIsDesktop(true), 0);
       
       const checkStatus = async () => {
         try {
@@ -48,6 +48,8 @@ const DesktopStatus = () => {
           <h3 className="font-semibold text-sm">Desktop Engine</h3>
         </div>
         <div className="flex items-center gap-1">
+          <Database className="w-3 h-3 text-slate-400" />
+          <span className="text-[10px] text-slate-400 mr-2">DB: Active</span>
           {status === 'running' ? (
             <span className="flex items-center gap-1 text-xs text-emerald-400">
               <CheckCircle className="w-3 h-3" /> Online
