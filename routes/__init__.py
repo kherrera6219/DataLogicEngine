@@ -4,7 +4,6 @@ from .auth_routes import auth_bp
 from .api_routes import api_bp
 from .admin_routes import admin_bp
 from .knowledge_routes import knowledge_bp
-from .knowledge_routes import knowledge_bp
 from .simulation_routes import simulation_bp
 from .ka_routes import ka_bp
 from .mcp_routes import mcp_bp
@@ -34,10 +33,11 @@ def register_routes(app):
     
     # Knowledge Algorithm Routes (JSON API)
     app.register_blueprint(ka_bp, url_prefix='/api/v1/ka')
+    app.register_blueprint(ka_bp, name='ka_legacy', url_prefix='/api/ka')
     
     # MCP (Multi-Agent Coordination) Routes (JSON API)
-    # MCP (Multi-Agent Coordination) Routes (JSON API)
     app.register_blueprint(mcp_bp, url_prefix='/api/v1/mcp')
+    app.register_blueprint(mcp_bp, name='mcp_legacy', url_prefix='/api/mcp')
     
     # Compliance Routes (JSON API)
     from .compliance_routes import compliance_bp

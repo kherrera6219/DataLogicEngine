@@ -187,3 +187,8 @@ class SimulationEngine:
                 "persona": self.persona_construction is not None
             }
         }
+
+
+def create_simulation_engine(usm=None) -> SimulationEngine:
+    """Factory for SimulationEngine to keep legacy imports stable."""
+    return SimulationEngine(usm=usm)

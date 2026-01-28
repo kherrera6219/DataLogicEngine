@@ -50,7 +50,7 @@ def run_async(coro):
 from backend.auth.api_decorators import api_admin_required
 
 # Create blueprint
-mcp_bp = Blueprint('mcp', __name__, url_prefix='/api/mcp')
+mcp_bp = Blueprint('mcp', __name__)
 
 # Global MCP manager instance
 mcp_manager = None

@@ -14,7 +14,7 @@ from backend.middleware import api_response
 logger = logging.getLogger(__name__)
 
 # Create Blueprint for Pillar API
-pillar_api = Blueprint('pillar_api', __name__, url_prefix='/api/pillars')
+pillar_api = Blueprint('pillar_api', __name__)
 
 @pillar_api.route('/', methods=['GET'])
 @api_response

@@ -11,7 +11,7 @@ from backend.auth.api_decorators import api_login_required, api_admin_required
 
 regulatory_api = Blueprint('regulatory_api', __name__)
 
-@regulatory_api.route('/api/regulatory/frameworks', methods=['GET'])
+@regulatory_api.route('/frameworks', methods=['GET'])
 @api_login_required
 def get_frameworks():
     """Get all regulatory frameworks, optionally filtered by level."""
@@ -57,7 +57,7 @@ def get_frameworks():
             'timestamp': datetime.now().isoformat()
         }), 500
 
-@regulatory_api.route('/api/regulatory/frameworks', methods=['POST'])
+@regulatory_api.route('/frameworks', methods=['POST'])
 @api_admin_required
 def create_framework():
     """Create a new regulatory framework."""
@@ -116,7 +116,7 @@ def create_framework():
             'timestamp': datetime.now().isoformat()
         }), 500
 
-@regulatory_api.route('/api/regulatory/requirements', methods=['POST'])
+@regulatory_api.route('/requirements', methods=['POST'])
 @api_admin_required
 def create_requirement():
     """Create a new granular requirement."""
@@ -159,7 +159,7 @@ def create_requirement():
             'timestamp': datetime.now().isoformat()
         }), 500
 
-@regulatory_api.route('/api/regulatory/octopus/<framework_uid>', methods=['GET'])
+@regulatory_api.route('/octopus/<framework_uid>', methods=['GET'])
 @api_login_required
 def get_octopus_structure(framework_uid):
     """Get the complete octopus structure for a mega framework."""
@@ -193,7 +193,7 @@ def get_octopus_structure(framework_uid):
             'timestamp': datetime.now().isoformat()
         }), 500
 
-@regulatory_api.route('/api/regulatory/crosswalk', methods=['POST'])
+@regulatory_api.route('/crosswalk', methods=['POST'])
 @api_admin_required
 def create_crosswalk():
     """Create a crosswalk between regulatory frameworks or requirements."""
@@ -245,7 +245,7 @@ def create_crosswalk():
             'timestamp': datetime.now().isoformat()
         }), 500
 
-@regulatory_api.route('/api/regulatory/jurisdiction', methods=['POST'])
+@regulatory_api.route('/jurisdiction', methods=['POST'])
 @api_admin_required
 def map_jurisdiction():
     """Map a regulatory framework to a jurisdiction."""
@@ -290,7 +290,7 @@ def map_jurisdiction():
             'timestamp': datetime.now().isoformat()
         }), 500
 
-@regulatory_api.route('/api/regulatory/compliance_link', methods=['POST'])
+@regulatory_api.route('/compliance_link', methods=['POST'])
 @api_admin_required
 def create_compliance_link():
     """Create a link between a regulatory framework and a compliance standard."""

@@ -20,7 +20,7 @@ from models import Node, Edge, PillarLevel, Sector, Domain, KnowledgeNode
 logger = logging.getLogger(__name__)
 
 # Create Blueprint for UKG API
-ukg_api = Blueprint('ukg_api', __name__, url_prefix='/api')
+ukg_api = Blueprint('ukg_api', __name__)
 
 # -------------------------------------------------------------------------
 # Axis 1: Knowledge - Pillar Levels

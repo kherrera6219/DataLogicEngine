@@ -11,7 +11,7 @@ from functools import wraps
 
 logger = logging.getLogger(__name__)
 
-truth_api = Blueprint('truth_api', __name__, url_prefix='/api/truth')
+truth_api = Blueprint('truth_api', __name__)
 
 _truth_core: Optional['TruthCoreEngine'] = None  # type: ignore
 _truth_gate: Optional['TruthGateGateway'] = None  # type: ignore

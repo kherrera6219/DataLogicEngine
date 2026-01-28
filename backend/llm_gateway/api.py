@@ -6,6 +6,7 @@ Also includes admin endpoints for provider and API key management.
 """
 
 import asyncio
+from datetime import datetime
 from functools import wraps
 from flask import Blueprint, request, jsonify, Response, stream_with_context, g
 from flask_login import login_required, current_user
@@ -214,6 +215,39 @@ def list_active_providers():
             }
             for p in providers
         ]
+    })
+
+
+@gateway_bp.route('/keys', methods=['POST'])
+@login_required
+def save_provider_key():
+    """Create or update an LLM provider API key (basic UI helper)."""
+    data = request.get_json() or {}
+    provider_type = data.get('provider')
+    api_key = data.get('key')
+    
+    if not provider_type or not api_key:
+        return jsonify({'error': 'provider and key required'}), 400
+    
+    provider = LLMProvider.query.filter_by(provider_type=provider_type).order_by(
+        LLMProvider.created_at.desc()
+    ).first()
+    
+    if provider is None:
+        provider = LLMProvider(
+            name=str(provider_type).title(),
+            provider_type=provider_type,
+            is_active=True,
+            created_by=current_user.id,
+        )
+        db.session.add(provider)
+    
+    provider.set_api_key(api_key)
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'provider': provider.to_dict()
     })
 
 

@@ -16,7 +16,7 @@ from backend.knowledge_algorithms.ka_master_controller import get_controller
 
 logger = logging.getLogger(__name__)
 
-ka_bp = Blueprint('ka', __name__, url_prefix='/api/ka')
+ka_bp = Blueprint('ka', __name__)
 
 # Initialize Master Controller
 controller = get_controller()

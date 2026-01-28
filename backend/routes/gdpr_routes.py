@@ -31,7 +31,7 @@ def export_user_data():
     """
     try:
         from extensions import db
-        from db_models import User, ChatSession, ChatMessage, KnowledgeGraphNode
+        from models import Chat, Message, KnowledgeGraphNode
         
         user_id = current_user.id
         
@@ -53,16 +53,16 @@ def export_user_data():
         
         # Collect chat sessions
         try:
-            sessions = db.session.query(ChatSession).filter_by(user_id=user_id).all()
+            sessions = db.session.query(Chat).filter_by(user_id=user_id).all()
             for session in sessions:
                 session_data = {
-                    'id': session.uid,
+                    'id': session.id,
                     'created_at': str(session.created_at),
                     'messages': []
                 }
                 # Get messages if available
-                if hasattr(ChatMessage, 'session_id'):
-                    messages = db.session.query(ChatMessage).filter_by(session_id=session.uid).all()
+                if hasattr(Message, 'chat_id'):
+                    messages = db.session.query(Message).filter_by(chat_id=session.id).all()
                     session_data['messages'] = [
                         {'role': m.role, 'content': m.content, 'created_at': str(m.created_at)}
                         for m in messages
@@ -73,9 +73,13 @@ def export_user_data():
         
         # Collect knowledge nodes created by user
         try:
-            nodes = db.session.query(KnowledgeGraphNode).filter_by(created_by=user_id).all()
+            tenant_id = getattr(current_user, 'tenant_id', None)
+            if tenant_id:
+                nodes = db.session.query(KnowledgeGraphNode).filter_by(tenant_id=tenant_id).all()
+            else:
+                nodes = []
             user_data['knowledge_nodes'] = [
-                {'uid': n.uid, 'name': n.name, 'created_at': str(n.created_at)}
+                {'uid': n.node_id, 'name': n.label, 'created_at': str(n.created_at)}
                 for n in nodes
             ]
         except Exception as e:

@@ -14,7 +14,7 @@ import graphene
 from graphene import ObjectType, String, Int, Float, List, Field, Boolean
 from flask import Blueprint
 from flask_graphql import GraphQLView
-from flask_login import login_required, current_user
+from flask_login import current_user
 import logging
 
 logger = logging.getLogger(__name__)
@@ -139,7 +139,7 @@ class Query(ObjectType):
         """Query knowledge graph nodes."""
         try:
             from extensions import db
-            from db_models import KnowledgeGraphNode
+            from models import KnowledgeGraphNode
             
             query = db.session.query(KnowledgeGraphNode)
             
@@ -153,11 +153,11 @@ class Query(ObjectType):
             nodes = query.limit(limit).all()
             return [
                 KnowledgeNodeType(
-                    uid=n.uid,
-                    name=n.name,
+                    uid=n.node_id,
+                    name=n.label,
                     description=getattr(n, 'description', None),
                     node_type=getattr(n, 'node_type', None),
-                    pillar_id=getattr(n, 'pillar_id', None),
+                    pillar_id=None,
                     created_at=str(n.created_at) if hasattr(n, 'created_at') else None
                 )
                 for n in nodes
@@ -170,16 +170,16 @@ class Query(ObjectType):
         """Get single node by UID."""
         try:
             from extensions import db
-            from db_models import KnowledgeGraphNode
+            from models import KnowledgeGraphNode
             
-            node = db.session.query(KnowledgeGraphNode).filter_by(uid=uid).first()
+            node = db.session.query(KnowledgeGraphNode).filter_by(node_id=uid).first()
             if node:
                 return KnowledgeNodeType(
-                    uid=node.uid,
-                    name=node.name,
+                    uid=node.node_id,
+                    name=node.label,
                     description=getattr(node, 'description', None),
                     node_type=getattr(node, 'node_type', None),
-                    pillar_id=getattr(node, 'pillar_id', None)
+                    pillar_id=None
                 )
             return None
         except Exception as e:
@@ -190,7 +190,7 @@ class Query(ObjectType):
         """Query simulations."""
         try:
             from extensions import db
-            from db_models import SimulationSession
+            from models import SimulationSession
             
             query = db.session.query(SimulationSession)
             if status:
@@ -199,7 +199,7 @@ class Query(ObjectType):
             sims = query.order_by(SimulationSession.created_at.desc()).limit(limit).all()
             return [
                 SimulationType(
-                    uid=s.uid,
+                    uid=s.session_id,
                     name=s.name,
                     status=s.status,
                     current_step=getattr(s, 'current_step', 0),
@@ -215,7 +215,7 @@ class Query(ObjectType):
         """Get total node count."""
         try:
             from extensions import db
-            from db_models import KnowledgeGraphNode
+            from models import KnowledgeGraphNode
             return db.session.query(KnowledgeGraphNode).count()
         except Exception:
             return 0
@@ -224,7 +224,7 @@ class Query(ObjectType):
         """Get total edge count."""
         try:
             from extensions import db
-            from db_models import KnowledgeGraphEdge
+            from models import KnowledgeGraphEdge
             return db.session.query(KnowledgeGraphEdge).count()
         except Exception:
             return 0
@@ -245,11 +245,11 @@ class CreateSimulation(graphene.Mutation):
     def mutate(self, info, name, mode='standard'):
         try:
             from extensions import db
-            from db_models import SimulationSession
+            from models import SimulationSession
             import uuid
             
             sim = SimulationSession(
-                uid=str(uuid.uuid4()),
+                session_id=str(uuid.uuid4()),
                 name=name,
                 status='active',
                 user_id=str(current_user.id) if current_user.is_authenticated else None

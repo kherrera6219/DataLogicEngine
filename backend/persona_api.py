@@ -15,7 +15,7 @@ from flask_login import login_required, current_user
 logger = logging.getLogger(__name__)
 
 # Create blueprint
-persona_api = Blueprint('persona_api', __name__, url_prefix='/api/persona')
+persona_api = Blueprint('persona_api', __name__)
 
 # Lazy-loaded simulation engine (initialized on first use)
 _simulation_engine = None
