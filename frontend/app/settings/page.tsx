@@ -10,7 +10,8 @@ import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 
 import { PageLayout } from "@/components/ui/page-layout";
-import { Settings as SettingsIcon, Shield, Bell, Key, Save, Trash2, RotateCcw, Brain } from "lucide-react";
+import { Settings as SettingsIcon, Shield, Bell, Key, Save, Trash2, RotateCcw, Brain, Network } from "lucide-react";
+import { ApiOverlayConfig } from "@/components/settings/ApiOverlayConfig";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
@@ -41,6 +42,9 @@ export default function SettingsPage() {
         <TabsList className="bg-white/5 border border-white/5 p-1 rounded-2xl h-12">
           <TabsTrigger value="general" className="rounded-xl px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white font-bold transition-all gap-2">
             <SettingsIcon className="h-4 w-4" /> General
+          </TabsTrigger>
+          <TabsTrigger value="connect" className="rounded-xl px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white font-bold transition-all gap-2">
+            <Network className="h-4 w-4" /> Gateway
           </TabsTrigger>
           <TabsTrigger value="security" className="rounded-xl px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white font-bold transition-all gap-2">
             <Shield className="h-4 w-4" /> Security
@@ -204,6 +208,10 @@ export default function SettingsPage() {
               </Button>
             </CardFooter>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="connect" className="animate-in fade-in slide-in-from-left-2 duration-300">
+           <ApiOverlayConfig />
         </TabsContent>
 
         <TabsContent value="api" className="animate-in fade-in slide-in-from-left-2 duration-300">

@@ -85,3 +85,46 @@ export interface SimulationSession {
 export type KnowledgePillar = PillarLevel;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type KnowledgeStats = any[];
+// Advanced Tracing Interfaces
+
+export interface TracePersona {
+  persona_id: string;
+  run_id: string;
+  persona_type: 'analyst' | 'expert' | 'critic' | 'synthesizer' | 'custom' | 'knowledge' | 'sector' | 'regulatory' | 'compliance';
+  persona_name?: string;
+  status: string;
+  draft?: {
+    text?: string;
+    confidence?: number;
+  };
+  confidence?: number; // Top level confidence
+}
+
+export interface TraceAxisVector {
+  vector_id: string;
+  run_id: string;
+  axes: Record<string, {
+    name: string;
+    selected: boolean;
+    candidates?: string[];
+  }>;
+  coordinate_hash?: string;
+}
+
+export interface TraceStage {
+  stage_id: string;
+  run_id: string;
+  name: string;
+  stage_type: 'layer' | 'step';
+  layer_index?: number;
+  step_index?: number;
+  status: string;
+  start_time?: string;
+  end_time?: string;
+  duration_ms?: number;
+  inputs?: Record<string, unknown>;
+  outputs?: Record<string, unknown>;
+  metrics?: Record<string, unknown>;
+  algorithm_name?: string; // Legacy support if needed
+  started_at?: string;     // Legacy support
+}
