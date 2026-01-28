@@ -462,7 +462,13 @@ class LLMGateway:
     ) -> None:
         """Record usage for analytics."""
         try:
-            from backend.extensions import db
+            try:
+                from extensions import db
+            except ImportError:
+                import os
+                import sys
+                sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+                from extensions import db
             
             usage = LLMProviderUsage(
                 provider_id=provider_id,

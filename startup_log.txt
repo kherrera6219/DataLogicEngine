@@ -1,35 +1,35 @@
-2026-01-28 00:01:48,238 - UKG-Audit - INFO - Audit log rotation started
-2026-01-28 00:01:48,238 - UKG-Audit - INFO - Audit Logger initialized
-2026-01-28 00:01:49,311 - app - INFO - [startup] - Using default cookie-based session storage (Redis disabled)
-2026-01-28 00:01:49,311 - backend.security.security_headers - INFO - Security headers middleware initialized
-2026-01-28 00:01:49,311 - backend.security.security_headers - INFO - Security headers configured
-2026-01-28 00:01:49,312 - backend.middleware.request_limits - INFO - Request limits middleware initialized (max size: 16.0MB)
-2026-01-28 00:01:49,312 - backend.middleware.request_limits - INFO - Request limits configured
-2026-01-28 00:01:49,312 - backend.middleware.correlation_id - INFO - Correlation ID middleware initialized
-2026-01-28 00:01:49,312 - backend.middleware.correlation_id - INFO - Correlation ID middleware configured
-2026-01-28 00:01:49,312 - backend.middleware.correlation_id - INFO - [startup] - Correlation ID logging configured
-2026-01-28 00:01:49,312 - backend.middleware.timeout - WARNING - [startup] - Signal-based timeout not available on this platform. Configure gunicorn worker timeout instead: --timeout 30
-2026-01-28 00:01:49,655 - app - INFO - [startup] - Database tables created
-2026-01-28 00:01:49,682 - app - INFO - [startup] - Truth Engine API blueprint registered (v1 + legacy)
-2026-01-28 00:01:49,726 - app - INFO - [startup] - Persona API blueprint registered (v1 + legacy)
-2026-01-28 00:01:49,732 - app - INFO - [startup] - Pillar API blueprint registered (v1 + legacy)
-2026-01-28 00:01:49,740 - app - INFO - [startup] - Regulatory/Compliance API blueprint registered (v1 + legacy)
-2026-01-28 00:01:49,748 - app - WARNING - [startup] - Could not register Replit Auth blueprint: No module named 'replit_auth'
-2026-01-28 00:01:49,750 - app - INFO - [startup] - Swagger UI registered at /api/docs
-2026-01-28 00:01:49,795 - app - INFO - [startup] - Trace API blueprint registered at /api/v1/trace
-2026-01-28 00:01:49,797 - app - WARNING - [startup] - Could not register LLM Gateway API: No module named 'backend.extensions'
-2026-01-28 00:01:49,798 - app - INFO - [startup] - Analytics API registered at /api/v1/analytics
-2026-01-28 00:01:49,831 - backend.graphql_schema - INFO - [startup] - GraphQL API registered at /graphql
-2026-01-28 00:01:49,831 - app - INFO - [startup] - GraphQL API registered at /graphql (GraphiQL enabled)
-2026-01-28 00:01:49,832 - app - INFO - [startup] - GDPR API registered at /api/v1/gdpr
-2026-01-28 00:01:49,835 - app - INFO - [startup] - Retention API registered at /api/v1/retention
-2026-01-28 00:01:49,837 - app - INFO - [startup] - Privacy API registered at /api/v1/privacy
-2026-01-28 00:01:50,123 - backend.storage.database_manager - WARNING - [startup] - Database directory C:\software\DataLogicEngine\dist\DataLogic_Backend\databases\postgresql does not exist. Skipping postgresql startup.
-2026-01-28 00:01:50,124 - backend.storage.database_manager - WARNING - [startup] - Database directory C:\software\DataLogicEngine\dist\DataLogic_Backend\databases\redis does not exist. Skipping redis startup.
-2026-01-28 00:01:50,124 - backend.storage.database_manager - WARNING - [startup] - Database directory C:\software\DataLogicEngine\dist\DataLogic_Backend\databases\neo4j does not exist. Skipping neo4j startup.
+2026-01-28 00:06:43,674 - UKG-Audit - INFO - Audit log rotation started
+2026-01-28 00:06:43,674 - UKG-Audit - INFO - Audit Logger initialized
+2026-01-28 00:06:44,726 - app - INFO - [startup] - Using default cookie-based session storage (Redis disabled)
+2026-01-28 00:06:44,726 - backend.security.security_headers - INFO - Security headers middleware initialized
+2026-01-28 00:06:44,726 - backend.security.security_headers - INFO - Security headers configured
+2026-01-28 00:06:44,727 - backend.middleware.request_limits - INFO - Request limits middleware initialized (max size: 16.0MB)
+2026-01-28 00:06:44,727 - backend.middleware.request_limits - INFO - Request limits configured
+2026-01-28 00:06:44,727 - backend.middleware.correlation_id - INFO - Correlation ID middleware initialized
+2026-01-28 00:06:44,727 - backend.middleware.correlation_id - INFO - Correlation ID middleware configured
+2026-01-28 00:06:44,727 - backend.middleware.correlation_id - INFO - [startup] - Correlation ID logging configured
+2026-01-28 00:06:44,728 - backend.middleware.timeout - WARNING - [startup] - Signal-based timeout not available on this platform. Configure gunicorn worker timeout instead: --timeout 30
+2026-01-28 00:06:45,075 - app - INFO - [startup] - Database tables created
+2026-01-28 00:06:45,099 - app - INFO - [startup] - Truth Engine API blueprint registered (v1 + legacy)
+2026-01-28 00:06:45,144 - app - INFO - [startup] - Persona API blueprint registered (v1 + legacy)
+2026-01-28 00:06:45,150 - app - INFO - [startup] - Pillar API blueprint registered (v1 + legacy)
+2026-01-28 00:06:45,159 - app - INFO - [startup] - Regulatory/Compliance API blueprint registered (v1 + legacy)
+2026-01-28 00:06:45,166 - app - WARNING - [startup] - Could not register Replit Auth blueprint: No module named 'replit_auth'
+2026-01-28 00:06:45,168 - app - INFO - [startup] - Swagger UI registered at /api/docs
+2026-01-28 00:06:45,211 - app - INFO - [startup] - Trace API blueprint registered at /api/v1/trace
+2026-01-28 00:06:45,295 - app - INFO - [startup] - LLM Gateway API registered at /api/v1/gateway and /api/admin
+2026-01-28 00:06:45,297 - app - INFO - [startup] - Analytics API registered at /api/v1/analytics
+2026-01-28 00:06:45,325 - backend.graphql_schema - INFO - [startup] - GraphQL API registered at /graphql
+2026-01-28 00:06:45,325 - app - INFO - [startup] - GraphQL API registered at /graphql (GraphiQL enabled)
+2026-01-28 00:06:45,326 - app - INFO - [startup] - GDPR API registered at /api/v1/gdpr
+2026-01-28 00:06:45,329 - app - INFO - [startup] - Retention API registered at /api/v1/retention
+2026-01-28 00:06:45,330 - app - INFO - [startup] - Privacy API registered at /api/v1/privacy
+2026-01-28 00:06:45,561 - backend.storage.database_manager - WARNING - [startup] - Database directory C:\software\DataLogicEngine\dist\DataLogic_Backend\databases\postgresql does not exist. Skipping postgresql startup.
+2026-01-28 00:06:45,562 - backend.storage.database_manager - WARNING - [startup] - Database directory C:\software\DataLogicEngine\dist\DataLogic_Backend\databases\redis does not exist. Skipping redis startup.
+2026-01-28 00:06:45,562 - backend.storage.database_manager - WARNING - [startup] - Database directory C:\software\DataLogicEngine\dist\DataLogic_Backend\databases\neo4j does not exist. Skipping neo4j startup.
 Desktop Mode Detected: Initializing local databases...
  * Serving Flask app 'app'
  * Debug mode: off
-2026-01-28 00:01:50,139 - werkzeug - INFO - [startup] - WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+2026-01-28 00:06:45,592 - werkzeug - INFO - [startup] - WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on http://127.0.0.1:15001
-2026-01-28 00:01:50,139 - werkzeug - INFO - [startup] - Press CTRL+C to quit
+2026-01-28 00:06:45,592 - werkzeug - INFO - [startup] - Press CTRL+C to quit
