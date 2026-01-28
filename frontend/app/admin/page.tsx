@@ -12,7 +12,7 @@ export default function AdminPage() {
     <PageLayout
       title="System Administration"
       description="Platform-wide controls and user management."
-      breadcrumbs={[{ label: "Admin Console" }]}
+      breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Admin Console" }]}
       actions={<Button variant="destructive">Emergency Shutdown</Button>}
     >
 

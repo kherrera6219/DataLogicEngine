@@ -68,7 +68,7 @@ export default function PrivacySettingsPage() {
     <PageLayout
       title="Privacy & Data Management"
       description="Manage your local information and exercise your data rights."
-      breadcrumbs={[{ label: "Settings" }, { label: "Privacy" }]}
+      breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Settings", href: "/settings" }, { label: "Privacy" }]}
     >
 
       {message && (

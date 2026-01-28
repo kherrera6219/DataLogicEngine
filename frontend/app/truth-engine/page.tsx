@@ -1,5 +1,6 @@
 'use client';
 
+import Link from "next/link";
 import { PageLayout } from "@/components/ui/page-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +18,7 @@ export default function TruthEnginePage() {
     <PageLayout
       title="Truth Engine"
       description="Real-time validation of logic and causality across the Knowledge Graph."
-      breadcrumbs={[{ label: "Truth Engine" }]}
+      breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Truth Engine" }]}
     >
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
@@ -76,7 +77,11 @@ export default function TruthEnginePage() {
                  <TableBody>
                     {truthEvents.map((evt) => (
                        <TableRow key={evt.id}>
-                          <TableCell className="font-mono text-xs">{evt.id}</TableCell>
+                          <TableCell className="font-mono text-xs">
+                             <Link href={`/runs/view?id=${evt.id}`} className="text-blue-500 hover:underline">
+                                {evt.id}
+                             </Link>
+                          </TableCell>
                           <TableCell className="font-medium">{evt.statement}</TableCell>
                           <TableCell>{evt.ka}</TableCell>
                           <TableCell>

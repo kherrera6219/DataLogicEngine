@@ -150,6 +150,52 @@ export default function DashboardPage() {
                 <ComplianceTrendChart />
               </ApiErrorBoundary>
             </section>
+            
+            <section aria-label="Quick Access">
+              <h3 className="text-lg font-bold mb-4">Platform Modules</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                 <Link href="/truth-engine" className="group">
+                    <Card className="h-full hover:bg-white/5 transition-colors border-dashed hover:border-solid hover:border-blue-500/50 cursor-pointer">
+                       <CardContent className="flex flex-col items-center justify-center p-6 text-center space-y-2">
+                          <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl group-hover:scale-110 transition-transform">
+                             <ShieldCheck className="h-6 w-6" />
+                          </div>
+                          <div className="font-bold text-sm">Truth Engine</div>
+                       </CardContent>
+                    </Card>
+                 </Link>
+                 <Link href="/runs" className="group">
+                    <Card className="h-full hover:bg-white/5 transition-colors border-dashed hover:border-solid hover:border-emerald-500/50 cursor-pointer">
+                       <CardContent className="flex flex-col items-center justify-center p-6 text-center space-y-2">
+                          <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl group-hover:scale-110 transition-transform">
+                             <Database className="h-6 w-6" />
+                          </div>
+                          <div className="font-bold text-sm">Trace History</div>
+                       </CardContent>
+                    </Card>
+                 </Link>
+                 <Link href="/admin" className="group">
+                    <Card className="h-full hover:bg-white/5 transition-colors border-dashed hover:border-solid hover:border-purple-500/50 cursor-pointer">
+                       <CardContent className="flex flex-col items-center justify-center p-6 text-center space-y-2">
+                          <div className="p-3 bg-purple-500/10 text-purple-500 rounded-xl group-hover:scale-110 transition-transform">
+                             <ShieldCheck className="h-6 w-6" />
+                          </div>
+                          <div className="font-bold text-sm">Admin Console</div>
+                       </CardContent>
+                    </Card>
+                 </Link>
+                 <Link href="/settings" className="group">
+                    <Card className="h-full hover:bg-white/5 transition-colors border-dashed hover:border-solid hover:border-amber-500/50 cursor-pointer">
+                       <CardContent className="flex flex-col items-center justify-center p-6 text-center space-y-2">
+                          <div className="p-3 bg-amber-500/10 text-amber-500 rounded-xl group-hover:scale-110 transition-transform">
+                             <Activity className="h-6 w-6" />
+                          </div>
+                          <div className="font-bold text-sm">Settings</div>
+                       </CardContent>
+                    </Card>
+                 </Link>
+              </div>
+            </section>
 
             {/* Recent Activity Table */}
             <ApiErrorBoundary moduleName="Execution Trace Stream">

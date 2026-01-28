@@ -26,7 +26,7 @@ export default function SettingsPage() {
     <PageLayout
       title="Internal Controls"
       description="System-wide configuration and environmental preferences."
-      breadcrumbs={[{ label: "Control Plane" }, { label: "System Settings" }]}
+      breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "System Settings" }]}
       actions={
         <Button 
           variant="outline" 

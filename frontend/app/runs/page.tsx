@@ -31,7 +31,7 @@ export default function TraceRunsPage() {
     <PageLayout
       title="Trace History"
       description="Recent system reasoning traces and execution logs."
-      breadcrumbs={[{ label: "System Traces" }]}
+      breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "System Traces" }]}
     >
          <header className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Trace Explorer</h1>
