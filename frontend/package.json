@@ -12,7 +12,7 @@
     "lint": "eslint",
     "electron:build": "tsc -p electron",
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://127.0.0.1:3000 && npm run electron:build && electron .\"",
-    "electron:dist": "npm run build && npm run electron:build && electron-builder",
+    "electron:dist": "cross-env BUILD_MODE=electron npm run build && npm run electron:build && electron-builder",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
@@ -43,6 +43,7 @@
   "devDependencies": {
     "@axe-core/cli": "^4.11.0",
     "@chromatic-com/storybook": "3.2.3",
+    "@next/bundle-analyzer": "^16.1.6",
     "@storybook/addon-essentials": "8.4.7",
     "@storybook/addon-interactions": "8.4.7",
     "@storybook/addon-links": "8.4.7",
@@ -56,6 +57,7 @@
     "@types/react-dom": "^18.3.5",
     "@types/recharts": "^1.8.29",
     "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
     "electron": "^40.0.0",
     "electron-builder": "^26.4.0",
     "electron-store": "^11.0.2",

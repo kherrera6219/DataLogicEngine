@@ -1,108 +1,65 @@
-# Enterprise Deployment Guide
+# Deployment Guide
+
+**Phase**: 39
+**Last Updated**: 2026-01-29
 
 ## Overview
+DataLogicEngine supports two primary deployment targets:
+1.  **Desktop (Electron)**: A self-contained `.exe`/`.dmg` with bundled backend.
+2.  **Cloud (Docker)**: Containerized Frontend (Next.js Standalone) and Backend (Flask/Gunicorn).
 
-The DataLogicEngine is designed to be cloud-agnostic and container-ready. For enterprise environments, we recommend a **Kubernetes-based deployment** for the backend engine and an **Edge-optimized deployment** for the frontend.
+## 1. Desktop Deployment (Windows/Mac)
 
----
+The desktop build uses `output: 'export'` (Static HTML) served by Electron.
 
-## 🏗️ Recommended Infrastructure
-
-| Component         | Technology       | Target Service                                |
-| :---------------- | :--------------- | :-------------------------------------------- |
-| **Frontend**      | Next.js 14       | Vercel, AWS Amplify, or Azure Static Web Apps |
-| **Logic Engine**  | Flask + Gunicorn | AWS EKS, Azure AKS, or Google GKE             |
-| **Message Queue** | Celery + Redis   | ElastiCache Redis, Azure Cache for Redis      |
-| **Primary Store** | PostgreSQL 16    | AWS RDS, Azure Database for PostgreSQL        |
-| **Secrets**       | HashiCorp Vault  | AWS Secrets Manager, Azure Key Vault          |
-
----
-
-## 📦 Containerization
-
-### Logic Engine (Backend)
-
-The backend is packaged as a standard OCI-compliant image.
-
-```dockerfile
-FROM python:3.11-slim
-
-# Security: Run as non-privileged user
-RUN groupadd -r ukg && useradd -r -g ukg ukg
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-RUN chown -R ukg:ukg /app
-USER ukg
-
-EXPOSE 5000
-ENTRYPOINT ["gunicorn", "--config", "backend/gunicorn_config.py", "wsgi:app"]
+### Build Command
+```powershell
+# Windows
+npm run electron:dist
 ```
+*   **Under the hood**: Runs `cross-env BUILD_MODE=electron npm run build` (generates `out/`) -> Compiles Main Process -> Packages with `electron-builder`.
 
-### Dashboard (Frontend)
+### Output
+*   Artifacts location: `frontend/dist/`
+*   Includes: `DataLogicEngine Setup 0.1.0.exe` (Windows)
 
-Next.js should be built for production with the API URL baked into the environment or handled via Proxy.
+## 2. Cloud Deployment (Docker)
 
-```dockerfile
-FROM node:18-alpine AS builder
-WORKDIR /app
-COPY frontend/package*.json ./
-RUN npm install
-COPY frontend/ .
-RUN npm run build
+The cloud build uses `output: 'standalone'` (Node.js Server) to support API Rewrites and SSR features.
 
-FROM node:18-alpine AS runner
-WORKDIR /app
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-
-USER node
-EXPOSE 3000
-CMD ["npm", "start"]
-```
-
----
-
-## 🚦 Deployment Strategy
-
-### 1. Database Migrations
-
-Always run migrations as a **Pre-Deployment Job** (InitContainer) in Kubernetes.
-
+### Frontend
 ```bash
-flask db upgrade
+cd frontend
+docker build -t datalogic-frontend .
 ```
+*   **Note**: Uses default `npm run build` which defaults to `BUILD_MODE=standalone`.
+*   **Rewrites**: Configured to proxy `/api/*` to `http://127.0.0.1:5000` (or host networking).
 
-### 2. High Availability (HA)
+### Backend
+```bash
+cd backend
+docker build -t datalogic-backend .
+```
+*   **Port**: 5000
+*   **Env Vars**: Ensure `.env` is mounted or secrets injected.
 
-- **Engine Replicas**: Minimum 3 replicas across separate Availability Zones (AZs).
-- **Auto-Scaling**: Trigger HPA on CPU (>70%) or Memory (>80%).
-- **Liveness/Readiness**:
-  - `Liveness`: `/health` (checks process)
-  - `Readiness`: `/health?deep=true` (checks DB and Redis connectivity)
+## 3. Performance Optimization (Phase 38)
 
-### 3. CI/CD Pipeline
+### Frontend Bundle Analysis
+To visualize the JS bundle size:
+```powershell
+$env:ANALYZE="true"; npm run build
+```
+*   Reports saved to: `frontend/.next/analyze/{client,edge,nodejs}.html`
 
-We recommend a GitHub Actions or GitLab CI pipeline that:
+### Backend Profiling
+To profile the Simulation Engine (Async IO + CPU):
+```powershell
+python scripts/profile_simulation.py
+```
+*   Generates: `simulation_profile.html` (Flamegraph).
 
-1.  Runs `pytest` and `npm test`.
-2.  Performs a security scan (Snyk/Trivy).
-3.  Builds and pushes Docker images to a private registry (ECR/ACR).
-4.  Triggers a Blue-Green deployment on the K8s cluster.
+## 4. Troubleshooting
 
----
-
-## ☁️ Cloud Specific Templates
-
-- **AWS**: Use the provided `terraform/aws` directory.
-- **Azure**: Use the `bicep/main.bicep` template.
-- **GCP**: Use the `k8s/gke-deployment.yaml` manifest.
-
----
-
-© 2026 DataLogicEngine. Deployment & Infrastructure Group.
+*   **"Static worker exited"**: Usually occurs in `export` mode if a page crashes during rendering. Check `build_error.log`.
+*   **Rewrite Issues**: Rewrites work ONLY in Cloud/Standalone mode. Desktop uses direct IPC or absolute URLs.

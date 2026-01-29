@@ -36,18 +36,23 @@ if (normalizedCdnUrl) {
 const nextConfig: NextConfig = {
   ...cdnConfig,
   ...cdnConfig,
-  output: 'export',
-  // Rewrites are NOT supported in static export mode.
-  // API requests must be handled by the client using absolute URLs or a proxy in the main process.
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: '/api/:path*',
-  //       destination: 'http://127.0.0.1:5000/api/:path*',
-  //     },
-  //     // ... other rewrites
-  //   ];
-  // },
+  output: process.env.BUILD_MODE === 'electron' ? 'export' : 'standalone',
+  // Rewrites are supported in standalone mode, but not export.
+  async rewrites() {
+     if (process.env.BUILD_MODE === 'electron') return [];
+     return [
+       {
+         source: '/api/:path*',
+         destination: 'http://127.0.0.1:5000/api/:path*',
+       },
+     ];
+  },
 };
 
-export default nextConfig;
+import withBundleAnalyzer from '@next/bundle-analyzer';
+
+const bundler = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
+
+export default bundler(nextConfig);
