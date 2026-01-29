@@ -1,10 +1,33 @@
 """
-Jira MCP Connector
------------------
-Exposes Jira Project Management capabilities as MCP tools.
+Jira MCP Connector - PRODUCTION VERSION
+---------------------------------------
+Exposes Jira Project Management capabilities as MCP tools using the jira library.
 """
-
+import os
+import logging
+from jira import JIRA
 from backend.mcp_server.registry import registry
+
+logger = logging.getLogger(__name__)
+
+def get_jira_client():
+    """Initialize Jira client using environment variables."""
+    server = os.getenv("JIRA_SERVER_URL")
+    email = os.getenv("JIRA_USER_EMAIL")
+    api_token = os.getenv("JIRA_API_TOKEN") # Use API tokens for cloud, password for on-prem
+    
+    if not all([server, email, api_token]):
+        logger.warning("Jira credentials missing. Tools will operate in failover mode.")
+        return None
+        
+    try:
+        # Authentication via email and API token
+        options = {'server': server}
+        jira = JIRA(options=options, basic_auth=(email, api_token))
+        return jira
+    except Exception as e:
+        logger.error(f"Jira connection failed: {e}")
+        return None
 
 @registry.register(
     name="jira_ticket_create",
@@ -15,22 +38,37 @@ from backend.mcp_server.registry import registry
             "project_key": {"type": "string", "description": "e.g., UKG, PROJ"},
             "summary": {"type": "string"},
             "description": {"type": "string"},
-            "issue_type": {"type": "string", "enum": ["Bug", "Task", "Story"], "default": "Task"}
+            "issue_type": {"type": "string", "enum": ["Bug", "Task", "Story", "Incident"], "default": "Task"}
         },
         "required": ["project_key", "summary"]
     }
 )
 def ticket_create(project_key: str, summary: str, description: str = "", issue_type: str = "Task"):
     """
-    Mock implementation of Jira ticket creation.
+    Create an Issue in Jira.
     """
-    ticket_id = f"{project_key}-{(summary.__hash__() % 1000) + 1000}"
-    return {
-        "status": "created",
-        "key": ticket_id,
-        "link": f"https://jira.enterprise.com/browse/{ticket_id}",
-        "summary": summary
-    }
+    jira = get_jira_client()
+    if not jira:
+        return {"error": "Jira API unavailable. Check credentials.", "status": "fail"}
+
+    try:
+        issue_dict = {
+            'project': {'key': project_key},
+            'summary': summary,
+            'description': description,
+            'issuetype': {'name': issue_type},
+        }
+        new_issue = jira.create_issue(fields=issue_dict)
+        
+        return {
+            "status": "created",
+            "key": new_issue.key,
+            "link": f"{jira.client_info()}/browse/{new_issue.key}",
+            "summary": summary
+        }
+    except Exception as e:
+        logger.error(f"Jira ticket creation failed: {e}")
+        return {"error": str(e), "status": "error"}
 
 @registry.register(
     name="jira_status_check",
@@ -45,11 +83,22 @@ def ticket_create(project_key: str, summary: str, description: str = "", issue_t
 )
 def status_check(ticket_key: str):
     """
-    Mock implementation of Jira status check.
+    Retrieve status and metadata for a specific Jira issue.
     """
-    return {
-        "key": ticket_key,
-        "status": "In Progress",
-        "assignee": "Jane Doe",
-        "updated": "2024-03-15T10:30:00Z"
-    }
+    jira = get_jira_client()
+    if not jira:
+        return {"error": "Jira API unavailable.", "status": "fail"}
+
+    try:
+        issue = jira.issue(ticket_key)
+        return {
+            "key": ticket_key,
+            "status": str(issue.fields.status.name),
+            "summary": issue.fields.summary,
+            "assignee": str(issue.fields.assignee) if issue.fields.assignee else "Unassigned",
+            "priority": str(issue.fields.priority.name) if hasattr(issue.fields, 'priority') else "None",
+            "updated": issue.fields.updated
+        }
+    except Exception as e:
+        logger.error(f"Jira status check failed: {e}")
+        return {"error": str(e), "status": "error"}
