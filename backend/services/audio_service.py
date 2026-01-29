@@ -24,28 +24,66 @@ class AudioService:
 
     async def transcribe(self, audio_bytes: bytes, filename: str = "audio.wav") -> str:
         """
-        Convert speech to text (STT) using OpenAI Whisper.
+        Convert speech to text (STT) using 3-Layer Failover.
+        Layer 1: OpenAI Whisper (Primary)
+        Layer 2: Google Gemini Flash (Native Audio Support)
+        Layer 3: Error/Mock
         """
-        if not self.client:
-            logger.error("AudioService: OpenAI client not initialized.")
-            return "[Error: Audio transcription service unavailable]"
-
+        errors = []
+        
+        # --- Layer 1: OpenAI Whisper ---
         try:
-            # Whisper requires a file-like object with a name
-            from io import BytesIO
-            audio_file = BytesIO(audio_bytes)
-            audio_file.name = filename
+            if not self.client:
+                # Try lazy init
+                self.api_key = os.getenv("OPENAI_API_KEY")
+                if self.api_key:
+                    self.client = OpenAI(api_key=self.api_key)
             
-            transcript = self.client.audio.transcriptions.create(
-                model="whisper-1", 
-                file=audio_file
-            )
-            
-            logger.info(f"Successfully transcribed {len(audio_bytes)} bytes.")
-            return transcript.text
+            if self.client:
+                from io import BytesIO
+                audio_file = BytesIO(audio_bytes)
+                audio_file.name = filename
+                
+                transcript = self.client.audio.transcriptions.create(
+                    model="whisper-1", 
+                    file=audio_file
+                )
+                logger.info(f"AudioService: OpenAI Transcription successful.")
+                return transcript.text
+            else:
+                errors.append("OpenAI client not initialized")
         except Exception as e:
-            logger.error(f"AudioService transcription failed: {e}")
-            return f"[Error: {str(e)}]"
+            logger.warning(f"AudioService: OpenAI Whisper failed: {e}")
+            errors.append(f"OpenAI: {str(e)}")
+
+        # --- Layer 2: Google Gemini (Native Audio) ---
+        try:
+            google_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+            if google_key:
+                import google.generativeai as genai
+                genai.configure(api_key=google_key)
+                
+                # Gemini 2.0 Flash or 1.5 Flash supports native audio
+                model = genai.GenerativeModel('gemini-2.0-flash-exp') 
+                
+                logger.info("AudioService: Attempting Google Gemini failover for audio...")
+                response = model.generate_content([
+                    "Transcribe this audio file exactly.",
+                    {"mime_type": "audio/mp3", "data": audio_bytes} # Gemini handles raw bytes if typed
+                ])
+                
+                if response.text:
+                    logger.info("AudioService: Google Gemini transcription successful.")
+                    return response.text
+            else:
+                errors.append("Google API key not found")
+        except Exception as e:
+            logger.warning(f"AudioService: Google Gemini failed: {e}")
+            errors.append(f"Google: {str(e)}")
+
+        # --- Layer 3: Failure ---
+        logger.error(f"AudioService: All transcription layers failed. Errors: {errors}")
+        return f"[Error: Audio transcription unavailable. Details: {'; '.join(errors)}]"
 
     async def synthesize(self, text: str, voice: str = "alloy") -> bytes:
         """

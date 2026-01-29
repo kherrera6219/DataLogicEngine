@@ -19,7 +19,13 @@ class VideoService:
     """
     
     def __init__(self, llm_gateway=None):
-        self.llm_gateway = llm_gateway
+        if llm_gateway:
+            self.llm_gateway = llm_gateway
+        else:
+            # Lazy import to avoid circular dependency
+            from backend.llm_gateway.gateway import LLMGateway
+            self.llm_gateway = LLMGateway()
+            
         logger.info("VideoService initialized (PRODUCTION MODE).")
 
     async def analyze_video(self, video_bytes: bytes) -> Dict[str, Any]:
