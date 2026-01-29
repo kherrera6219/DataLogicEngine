@@ -135,3 +135,19 @@ bandit==1.8.0
 safety==3.2.11
 Flask-Session==0.8.0
 Flask-SocketIO==5.5.1
+
+# ============================================================================
+# Storage Layer (Vector DB & Object Storage)
+# ============================================================================
+chromadb>=0.4.0            # Local vector database
+boto3>=1.26.0              # S3/MinIO object storage client
+# Optional cloud vector providers (uncomment as needed):
+# pinecone-client>=3.0.0   # Pinecone cloud vector DB
+# qdrant-client>=1.7.0     # Qdrant vector DB
+
+# ============================================================================
+# RAG & Embeddings (LlamaIndex)
+# ============================================================================
+llama-index>=0.10.0                   # Enhanced RAG framework
+sentence-transformers>=2.2.0          # Local embedding models
+

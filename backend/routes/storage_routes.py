@@ -1,0 +1,365 @@
+"""
+Storage API Routes for DataLogicEngine.
+
+Provides endpoints for:
+- Health checking all storage services
+- Testing individual connections
+- Getting storage configuration status
+"""
+
+from flask import Blueprint, jsonify, request
+from flask_login import login_required
+
+storage_api = Blueprint('storage_api', __name__, url_prefix='/api/v1/storage')
+
+
+@storage_api.route('/health', methods=['GET'])
+@login_required
+def get_storage_health():
+    """Get health status of all storage services."""
+    try:
+        from backend.storage import get_connection_manager
+        
+        manager = get_connection_manager()
+        status = manager.get_status_report()
+        
+        return jsonify({
+            'success': True,
+            'data': status
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@storage_api.route('/health/<service>', methods=['GET'])
+@login_required
+def check_service_health(service: str):
+    """Check health of a specific storage service."""
+    try:
+        from backend.storage import get_connection_manager
+        
+        manager = get_connection_manager()
+        
+        valid_services = ['postgres', 'redis', 'neo4j', 'vector', 'object']
+        if service not in valid_services:
+            return jsonify({
+                'success': False,
+                'error': f'Invalid service. Must be one of: {valid_services}'
+            }), 400
+        
+        healthy = manager.check_health(service)
+        
+        return jsonify({
+            'success': True,
+            'data': {
+                'service': service,
+                'healthy': healthy
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@storage_api.route('/test-connection', methods=['POST'])
+@login_required
+def test_connection():
+    """Test a storage connection with provided credentials."""
+    try:
+        data = request.get_json() or {}
+        service = data.get('service')
+        
+        if not service:
+            return jsonify({
+                'success': False,
+                'error': 'service is required'
+            }), 400
+        
+        result = {
+            'service': service,
+            'connected': False,
+            'message': ''
+        }
+        
+        if service == 'postgres':
+            result = _test_postgres(data)
+        elif service == 'redis':
+            result = _test_redis(data)
+        elif service == 'neo4j':
+            result = _test_neo4j(data)
+        elif service == 'vector':
+            result = _test_vector(data)
+        elif service == 'object':
+            result = _test_object(data)
+        else:
+            return jsonify({
+                'success': False,
+                'error': f'Unknown service: {service}'
+            }), 400
+        
+        return jsonify({
+            'success': True,
+            'data': result
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+def _test_postgres(data: dict) -> dict:
+    """Test PostgreSQL connection."""
+    import socket
+    
+    host = data.get('host', '127.0.0.1')
+    port = int(data.get('port', 54320))
+    
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(3)
+        result = sock.connect_ex((host, port))
+        sock.close()
+        
+        if result == 0:
+            return {
+                'service': 'postgres',
+                'connected': True,
+                'message': f'Successfully connected to PostgreSQL at {host}:{port}'
+            }
+        else:
+            return {
+                'service': 'postgres',
+                'connected': False,
+                'message': f'Cannot connect to PostgreSQL at {host}:{port}'
+            }
+    except Exception as e:
+        return {
+            'service': 'postgres',
+            'connected': False,
+            'message': str(e)
+        }
+
+
+def _test_redis(data: dict) -> dict:
+    """Test Redis connection."""
+    import socket
+    
+    host = data.get('host', '127.0.0.1')
+    port = int(data.get('port', 63790))
+    
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(3)
+        result = sock.connect_ex((host, port))
+        sock.close()
+        
+        if result == 0:
+            return {
+                'service': 'redis',
+                'connected': True,
+                'message': f'Successfully connected to Redis at {host}:{port}'
+            }
+        else:
+            return {
+                'service': 'redis',
+                'connected': False,
+                'message': f'Cannot connect to Redis at {host}:{port}'
+            }
+    except Exception as e:
+        return {
+            'service': 'redis',
+            'connected': False,
+            'message': str(e)
+        }
+
+
+def _test_neo4j(data: dict) -> dict:
+    """Test Neo4j connection."""
+    import socket
+    
+    host = data.get('host', '127.0.0.1')
+    port = int(data.get('port', 7687))
+    
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(3)
+        result = sock.connect_ex((host, port))
+        sock.close()
+        
+        if result == 0:
+            return {
+                'service': 'neo4j',
+                'connected': True,
+                'message': f'Successfully connected to Neo4j at {host}:{port}'
+            }
+        else:
+            return {
+                'service': 'neo4j',
+                'connected': False,
+                'message': f'Cannot connect to Neo4j at {host}:{port}'
+            }
+    except Exception as e:
+        return {
+            'service': 'neo4j',
+            'connected': False,
+            'message': str(e)
+        }
+
+
+def _test_vector(data: dict) -> dict:
+    """Test vector database connection."""
+    provider = data.get('provider', 'chromadb')
+    
+    if provider == 'chromadb':
+        local_path = data.get('local_path', './databases/chroma')
+        try:
+            import os
+            os.makedirs(local_path, exist_ok=True)
+            return {
+                'service': 'vector',
+                'connected': True,
+                'message': f'ChromaDB path accessible: {local_path}'
+            }
+        except Exception as e:
+            return {
+                'service': 'vector',
+                'connected': False,
+                'message': str(e)
+            }
+    elif provider == 'pinecone':
+        api_key = data.get('api_key')
+        if not api_key:
+            return {
+                'service': 'vector',
+                'connected': False,
+                'message': 'Pinecone API key required'
+            }
+        try:
+            from pinecone import Pinecone
+            pc = Pinecone(api_key=api_key)
+            indexes = pc.list_indexes()
+            return {
+                'service': 'vector',
+                'connected': True,
+                'message': f'Connected to Pinecone. Found {len(indexes)} indexes.'
+            }
+        except Exception as e:
+            return {
+                'service': 'vector',
+                'connected': False,
+                'message': str(e)
+            }
+    else:
+        return {
+            'service': 'vector',
+            'connected': False,
+            'message': f'Unknown vector provider: {provider}'
+        }
+
+
+def _test_object(data: dict) -> dict:
+    """Test object storage connection."""
+    provider = data.get('provider', 'local')
+    
+    if provider == 'local':
+        local_path = data.get('local_path', './databases/objects')
+        try:
+            import os
+            os.makedirs(local_path, exist_ok=True)
+            return {
+                'service': 'object',
+                'connected': True,
+                'message': f'Local object storage path accessible: {local_path}'
+            }
+        except Exception as e:
+            return {
+                'service': 'object',
+                'connected': False,
+                'message': str(e)
+            }
+    elif provider == 's3':
+        endpoint = data.get('endpoint_url')
+        access_key = data.get('access_key')
+        secret_key = data.get('secret_key')
+        
+        if not access_key or not secret_key:
+            return {
+                'service': 'object',
+                'connected': False,
+                'message': 'S3 access_key and secret_key required'
+            }
+        
+        try:
+            import boto3
+            client = boto3.client(
+                's3',
+                endpoint_url=endpoint,
+                aws_access_key_id=access_key,
+                aws_secret_access_key=secret_key
+            )
+            client.list_buckets()
+            return {
+                'service': 'object',
+                'connected': True,
+                'message': f'Connected to S3-compatible storage at {endpoint or "AWS"}'
+            }
+        except Exception as e:
+            return {
+                'service': 'object',
+                'connected': False,
+                'message': str(e)
+            }
+    else:
+        return {
+            'service': 'object',
+            'connected': False,
+            'message': f'Unknown object storage provider: {provider}'
+        }
+
+
+@storage_api.route('/databases/start', methods=['POST'])
+@login_required
+def start_databases():
+    """Start local database services (desktop mode only)."""
+    try:
+        from backend.storage import get_db_manager
+        
+        manager = get_db_manager()
+        manager.start_all()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Database startup initiated'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@storage_api.route('/databases/stop', methods=['POST'])
+@login_required
+def stop_databases():
+    """Stop local database services."""
+    try:
+        from backend.storage import get_db_manager
+        
+        manager = get_db_manager()
+        manager.stop_all()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Database shutdown initiated'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500

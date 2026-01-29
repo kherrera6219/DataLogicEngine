@@ -146,11 +146,26 @@ class LLMGateway:
                 user_id = str(request.user_id) if request.user_id else "anonymous"
                 
                 if request.run_ukg_pipeline:
+                    # Retrieve relevant context from RAG (VectorStore)
+                    rag_context = ""
+                    if request.meta.get("use_rag", True):
+                        try:
+                            from backend.services.rag_service import get_rag_service
+                            rag = get_rag_service()
+                            rag_context = rag.get_context_for_query(query, max_tokens=1500)
+                            if rag_context:
+                                logger.debug(f"Retrieved RAG context: {len(rag_context)} chars")
+                        except Exception as e:
+                            logger.warning(f"RAG context retrieval failed: {e}")
+                    
+                    # Inject RAG context into meta for UKG overlay
+                    augmented_meta = {**request.meta, "rag_context": rag_context}
+                    
                     # Decide between standard overlay and quad persona analysis
                     if request.mode == "quad" or request.meta.get("quad_persona", False):
                         result = await self._run_quad_analysis(
                             query=query,
-                            context=request.meta,
+                            context=augmented_meta,
                         )
                     else:
                         result = await self._run_ukg_overlay(
@@ -159,7 +174,7 @@ class LLMGateway:
                             query=query,
                             user_id=user_id,
                             session_id=request.session_id,
-                            meta=request.meta,
+                            meta=augmented_meta,
                             temperature=request.temperature,
                             max_tokens=request.max_tokens or 1024,
                         )

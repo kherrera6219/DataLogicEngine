@@ -55,3 +55,7 @@ def register_routes(app):
 
     # Multimodal Routes
     app.register_blueprint(multimodal_bp)
+
+    # Storage Routes (Database Health & Configuration)
+    from backend.routes.storage_routes import storage_api
+    app.register_blueprint(storage_api)
