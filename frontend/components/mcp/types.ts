@@ -24,8 +24,8 @@ export interface McpTool {
   successRate: number;
   version?: string;
   complexity?: string;
-  inputSchema?: Record<string, any>;
-  outputSchema?: Record<string, any>;
+  inputSchema?: Record<string, unknown>;
+  outputSchema?: Record<string, unknown>;
 }
 
 export interface McpResource {

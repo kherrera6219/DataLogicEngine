@@ -25,7 +25,7 @@ function McpPageContent() {
                 <ChevronLeft className="h-4 w-4" />
              </Button>
           </Link>
-          <Tabs value={activeTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={() => {}} className="w-full">
              <div className="flex items-center justify-between mb-6">
                 <TabsList className="bg-white/5 border border-white/10">
                    <Link href="/mcp?tab=hub"><TabsTrigger value="hub">Hub Overview</TabsTrigger></Link>

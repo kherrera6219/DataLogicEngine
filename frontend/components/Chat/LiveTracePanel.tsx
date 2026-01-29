@@ -44,7 +44,7 @@ export function LiveTracePanel() {
                    <span className="text-xs text-yellow-500 font-bold">Processing...</span>
                 </div>
                 <p className="text-xs text-gray-300 italic line-clamp-2">
-                   "What are the HIPAA compliance requirements for storing patient data..."
+                   &quot;What are the HIPAA compliance requirements for storing patient data...&quot;
                 </p>
              </div>
           </div>
@@ -64,7 +64,7 @@ export function LiveTracePanel() {
                       </span>
                       <span className="text-xs text-blue-400 font-mono">4.2s</span>
                    </div>
-                   <Progress value={progress} className="h-1.5 bg-blue-900/30" indicatorClassName="bg-blue-500" />
+                   <Progress value={progress} className="h-1.5 bg-blue-900/30 [&>div]:bg-blue-500" />
                    <div className="flex justify-between mt-1 text-[10px] text-gray-500">
                       <span>0s</span>
                       <span>15s max</span>

@@ -62,6 +62,7 @@ export function DetailedResponseView({ message }: DetailedResponseViewProps) {
   ]).map(p => ({
     ...p,
     // Ensure icon exists for UI display
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     icon: (p as any).icon || <Users className="h-4 w-4 text-blue-400" />
   }));
 
@@ -77,6 +78,7 @@ export function DetailedResponseView({ message }: DetailedResponseViewProps) {
     label: m.name.replace(/_/g, ' ').toLowerCase().split(' ').map(s => s.charAt(0).toUpperCase() + s.substring(1)).join(' '),
     value: m.score > 1 ? m.score.toString() : `${(m.score * 100).toFixed(1)}%`,
     detail: m.details // compatibility mapping
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any));
 
   return (
@@ -94,6 +96,7 @@ export function DetailedResponseView({ message }: DetailedResponseViewProps) {
                       {m.status === 'pass' && <CheckCircle2 className="h-3 w-3 text-green-500" />}
                    </div>
                    <div className="text-lg font-bold text-white leading-none mb-1">{m.value}</div>
+                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                    <div className="text-[10px] text-gray-500 truncate">{(m as any).detail}</div>
                 </div>
              ))}

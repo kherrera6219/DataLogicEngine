@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { use } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -10,7 +10,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
-export default function ProjectDetailPage({ params }: { params: { id: string } }) {
+export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
   const files = [
     { name: 'hipaa_compliance_v1.pdf', size: '2.4 MB', type: 'pdf', updated: '2h ago' },
     { name: 'patient_data_schema.json', size: '14 KB', type: 'code', updated: '1d ago' },
@@ -31,7 +32,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                    HIPAA Compliance Audit 
                    <Badge variant="outline" className="text-[10px] bg-blue-900/10 text-blue-400 border-blue-500/30">Active</Badge>
                 </h1>
-                <div className="text-[10px] text-gray-400 font-mono">ID: {params.id} • Last synced 2m ago</div>
+                <div className="text-[10px] text-gray-400 font-mono">ID: {resolvedParams.id} • Last synced 2m ago</div>
              </div>
           </div>
           <div className="flex gap-2">
