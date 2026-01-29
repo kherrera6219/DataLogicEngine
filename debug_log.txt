@@ -1,0 +1,32 @@
+2026-01-28 20:29:47,288 - UKG-Audit - INFO - Audit log rotation started
+2026-01-28 20:29:47,288 - UKG-Audit - INFO - Audit Logger initialized
+2026-01-28 20:29:48,247 - app - INFO - [startup] - Using default cookie-based session storage (Redis disabled)
+2026-01-28 20:29:48,247 - backend.security.security_headers - INFO - Security headers middleware initialized
+2026-01-28 20:29:48,248 - backend.security.security_headers - INFO - Security headers configured
+2026-01-28 20:29:48,248 - backend.middleware.request_limits - INFO - Request limits middleware initialized (max size: 16.0MB)
+2026-01-28 20:29:48,248 - backend.middleware.request_limits - INFO - Request limits configured
+2026-01-28 20:29:48,249 - backend.middleware.correlation_id - INFO - Correlation ID middleware initialized
+2026-01-28 20:29:48,249 - backend.middleware.correlation_id - INFO - Correlation ID middleware configured
+2026-01-28 20:29:48,249 - backend.middleware.correlation_id - INFO - [startup] - Correlation ID logging configured
+2026-01-28 20:29:48,249 - backend.middleware.timeout - WARNING - [startup] - Signal-based timeout not available on this platform. Configure gunicorn worker timeout instead: --timeout 30
+2026-01-28 20:29:48,254 - app - INFO - [startup] - Database tables created
+2026-01-28 20:29:48,279 - app - INFO - [startup] - Truth Engine API blueprint registered (v1 + legacy)
+2026-01-28 20:29:48,281 - app - INFO - [startup] - Persona API blueprint registered (v1 + legacy)
+2026-01-28 20:29:48,287 - app - INFO - [startup] - Pillar API blueprint registered (v1 + legacy)
+2026-01-28 20:29:48,293 - app - INFO - [startup] - Regulatory/Compliance API blueprint registered (v1 + legacy)
+2026-01-28 20:29:48,299 - app - WARNING - [startup] - Could not register Replit Auth blueprint: No module named 'replit_auth'
+2026-01-28 20:29:48,301 - app - INFO - [startup] - Swagger UI registered at /api/docs
+2026-01-28 20:29:48,338 - app - INFO - [startup] - Trace API blueprint registered at /api/v1/trace
+2026-01-28 20:29:48,420 - app - INFO - [startup] - LLM Gateway API registered at /api/v1/gateway and /api/admin
+2026-01-28 20:29:48,424 - app - INFO - [startup] - Analytics API registered at /api/v1/analytics
+2026-01-28 20:29:48,569 - app - WARNING - [startup] - Could not register GraphQL API: cannot import name 'get_default_backend' from 'graphql' (C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\graphql\__init__.py)
+2026-01-28 20:29:48,572 - app - INFO - [startup] - GDPR API registered at /api/v1/gdpr
+2026-01-28 20:29:48,575 - app - INFO - [startup] - Retention API registered at /api/v1/retention
+2026-01-28 20:29:48,576 - app - INFO - [startup] - Privacy API registered at /api/v1/privacy
+2026-01-28 20:29:48,584 - backend.simulation.simulation_engine - INFO - [startup] - SimulationEngine v2.0 initialized (PRODUCTION MODE, max concurrent: 100).
+2026-01-28 20:29:49,191 - backend.services.audio_service - WARNING - [startup] - AudioService: OPENAI_API_KEY not found in environment.
+2026-01-28 20:29:49,191 - backend.services.audio_service - INFO - [startup] - AudioService initialized (PRODUCTION MODE).
+2026-01-28 20:29:49,309 - backend.services.video_service - INFO - [startup] - VideoService initialized (PRODUCTION MODE).
+2026-01-28 20:29:49,310 - backend.services.document_processor - INFO - [startup] - DocumentProcessor initialized (PRODUCTION MODE)
+DEBUG: Registering GraphQL...
+DEBUG: GraphQL registration failed: cannot import name 'get_default_backend' from 'graphql' (C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\graphql\__init__.py)

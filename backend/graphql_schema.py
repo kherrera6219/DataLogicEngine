@@ -1,19 +1,6 @@
-"""
-GraphQL Schema for DataLogicEngine
-
-Provides a GraphQL API for querying:
-- Knowledge Graph nodes and edges
-- Simulations and their results  
-- Trace runs and execution data
-- User profiles
-
-Uses graphene library for type definitions.
-"""
-
 import graphene
 from graphene import ObjectType, String, Int, Float, List, Field, Boolean
-from flask import Blueprint
-from flask_graphql import GraphQLView
+from flask import Blueprint, request, jsonify
 from flask_login import current_user
 import logging
 
@@ -252,14 +239,14 @@ class CreateSimulation(graphene.Mutation):
                 session_id=str(uuid.uuid4()),
                 name=name,
                 status='active',
-                user_id=str(current_user.id) if current_user.is_authenticated else None
+                user_id=current_user.id if current_user.is_authenticated else None
             )
             db.session.add(sim)
             db.session.commit()
             
             return CreateSimulation(
                 simulation=SimulationType(
-                    uid=sim.uid,
+                    uid=sim.session_id,
                     name=sim.name,
                     status=sim.status
                 ),
@@ -280,19 +267,42 @@ class Mutation(ObjectType):
 schema = graphene.Schema(query=Query, mutation=Mutation)
 
 
+# ============ Custom GraphQL View ============
+
+def graphql_view():
+    """Custom GraphQL view to handle requests without flask-graphql."""
+    if request.method == 'GET':
+        # Return simple message for browser access
+        return "GraphQL API is running. Use POST to query.", 200
+    
+    data = request.get_json()
+    if not data or 'query' not in data:
+        return jsonify({'errors': [{'message': 'No query provided'}]}), 400
+    
+    query = data.get('query')
+    variables = data.get('variables')
+    
+    result = schema.execute(query, variable_values=variables)
+    
+    response_data = {}
+    if result.data:
+        response_data['data'] = result.data
+    if result.errors:
+        response_data['errors'] = [{'message': str(error)} for error in result.errors]
+        
+    return jsonify(response_data)
+
+
 # ============ Blueprint Registration ============
 
 graphql_bp = Blueprint('graphql', __name__)
 
+@graphql_bp.route('/graphql', methods=['GET', 'POST'])
+def handle_graphql():
+    return graphql_view()
+
 
 def register_graphql(app):
     """Register GraphQL endpoint with Flask app."""
-    app.add_url_rule(
-        '/graphql',
-        view_func=GraphQLView.as_view(
-            'graphql',
-            schema=schema,
-            graphiql=True  # Enable GraphiQL IDE in development
-        )
-    )
+    app.register_blueprint(graphql_bp)
     logger.info("GraphQL API registered at /graphql")

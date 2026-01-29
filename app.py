@@ -378,11 +378,17 @@ except ImportError as e:
 
 # Register GraphQL API endpoint
 try:
+    print("DEBUG: Registering GraphQL...")
     from backend.graphql_schema import register_graphql
     register_graphql(app)
+    print("DEBUG: GraphQL registered successfully")
     logger.info("GraphQL API registered at /graphql (GraphiQL enabled)")
 except ImportError as e:
+    print(f"DEBUG: GraphQL registration failed: {e}")
     logger.warning(f"Could not register GraphQL API: {e}")
+except Exception as e:
+    print(f"DEBUG: GraphQL registration error: {e}")
+    logger.error(f"GraphQL registration error: {e}")
 
 # Register GDPR compliance API
 try:
