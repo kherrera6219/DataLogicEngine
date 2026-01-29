@@ -1,0 +1,15 @@
+2026-01-29 00:26:24,615 - UKG-Audit - INFO - Audit log rotation started
+2026-01-29 00:26:24,615 - UKG-Audit - INFO - Audit Logger initialized
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\scripts\verify_chat_persistence.py", line 9, in <module>
+    from app import app
+  File "C:\software\DataLogicEngine\app.py", line 156, in <module>
+    from models import User, APIKey, SimulationSession
+  File "C:\software\DataLogicEngine\models.py", line 577, in <module>
+    class Persona(db.Model):
+    ...<30 lines>...
+            }
+  File "C:\software\DataLogicEngine\models.py", line 587, in Persona
+    strengths = Column(JSON, nullable=True) # Assuming JSON from previous view
+                ^^^^^^
+NameError: name 'Column' is not defined

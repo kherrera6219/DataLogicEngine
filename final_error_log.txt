@@ -1,0 +1,12 @@
+2026-01-29 00:34:50,389 - UKG-Audit - INFO - Audit log rotation started
+2026-01-29 00:34:50,389 - UKG-Audit - INFO - Audit Logger initialized
+2026-01-29 00:34:50,646 - backend.security.encryption_manager - WARNING - Failed to decrypt DEK (KEK may have changed): 
+2026-01-29 00:34:50,646 - backend.security.encryption_manager - WARNING - Regenerating encryption keys. Old encrypted data may be unrecoverable.
+2026-01-29 00:34:50,674 - UKG-Audit - WARNING - Failed to persist audit event to DB: No module named 'models.user'; 'models' is not a package
+2026-01-29 00:34:50,676 - UKG-Audit - WARNING - Failed to persist audit event to DB: No module named 'models.user'; 'models' is not a package
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\scripts\verify_chat_persistence.py", line 9, in <module>
+    from app import app
+  File "C:\software\DataLogicEngine\app.py", line 156, in <module>
+    from models import User, APIKey, SimulationSession
+ImportError: cannot import name 'APIKey' from 'models' (C:\software\DataLogicEngine\models.py)

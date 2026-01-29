@@ -36,15 +36,14 @@ class User(db.Model):
     """
 
     __tablename__ = 'users'
-
-    # Add indexes for frequently queried fields
     __table_args__ = (
         Index('ix_users_username', 'username'),
         Index('ix_users_email', 'email'),
         Index('ix_users_role', 'role'),
         Index('ix_users_active', 'active'),
         Index('ix_users_created_at', 'created_at'),
-        Index('ix_users_role_active', 'role', 'active'),  # Composite index for common filter
+        Index('ix_users_role_active', 'role', 'active'),
+        {'extend_existing': True}
     )
 
     id: int = db.Column(db.Integer, primary_key=True)
@@ -77,10 +76,10 @@ class User(db.Model):
         from extensions import encryption_manager
         self._email = encryption_manager.encrypt(value, field_name='email')
 
-    active: bool = db.Column(db.Boolean, default=True, index=True)
+    active: bool = db.Column(db.Boolean, default=True)
     is_admin: bool = db.Column(db.Boolean, default=False)
-    role: str = db.Column(db.String(20), default='user', index=True)
-    created_at: datetime = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    role: str = db.Column(db.String(20), default='user')
+    created_at: datetime = db.Column(db.DateTime, default=datetime.utcnow)
 
     # MFA fields
     mfa_enabled: bool = db.Column(db.Boolean, default=False)
@@ -224,21 +223,114 @@ class User(db.Model):
         return f'<User {self.username}>'
 
 
+class APIKey(db.Model):
+    """API key used for authenticating programmatic requests."""
+    __tablename__ = 'api_keys'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    name = db.Column(db.String(120), nullable=False, default='Default Key')
+    key = db.Column(db.String(128), unique=True, nullable=False, index=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_used_at = db.Column(db.DateTime)
+    revoked_at = db.Column(db.DateTime)
+
+    user = db.relationship('User', backref=db.backref('api_keys', lazy='dynamic'))
+
+    def to_dict(self):
+        """Serialize the API key metadata (without exposing the secret)."""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'name': self.name,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_used_at': self.last_used_at.isoformat() if self.last_used_at else None,
+            'revoked_at': self.revoked_at.isoformat() if self.revoked_at else None,
+        }
+
+
+class OAuthAccount(db.Model):
+    """OAuth account linking for external authentication providers (e.g., Replit Auth)"""
+    __tablename__ = 'oauth_accounts'
+    __table_args__ = (
+        db.UniqueConstraint('provider', 'provider_user_id', name='uq_provider_user'),
+        {'extend_existing': True}
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    provider = db.Column(db.String(50), nullable=False)
+    provider_user_id = db.Column(db.String(255), nullable=False)
+    token = db.Column(db.JSON)
+    refresh_token = db.Column(db.String(512))
+    token_expires_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('oauth_accounts', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<OAuthAccount provider={self.provider} user_id={self.user_id}>'
+
+
+class PasswordHistory(db.Model):
+    """Password history for preventing password reuse"""
+    __tablename__ = 'password_history'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    password_hash = db.Column(db.String(256), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<PasswordHistory user_id={self.user_id} created={self.created_at}>'
+
+
+class AuditLog(db.Model):
+    """Compliance audit log for tracking sensitive system actions."""
+    __tablename__ = 'audit_logs'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    windows_sid = db.Column(db.String(255))
+    action = db.Column(db.String(100), nullable=False)
+    details = db.Column(db.Text)
+    ip_address = db.Column(db.String(45)) # IPv4/IPv6 support
+
+    user = db.relationship('User', backref=db.backref('audit_logs', lazy='dynamic'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'timestamp': self.timestamp.isoformat() if self.timestamp else None,
+            'user_id': self.user_id,
+            'windows_sid': self.windows_sid,
+            'action': self.action,
+            'details': self.details
+        }
+
+
 class SimulationSession(db.Model):
     """Simulation session model with encrypted fields."""
 
     __tablename__ = 'simulation_sessions'
-
     __table_args__ = (
         Index('ix_simulation_sessions_user_id', 'user_id'),
         Index('ix_simulation_sessions_status', 'status'),
         Index('ix_simulation_sessions_created_at', 'created_at'),
         Index('ix_simulation_sessions_user_status', 'user_id', 'status'),  # Composite
+        {'extend_existing': True}
     )
 
     id: int = db.Column(db.Integer, primary_key=True)
     session_id: str = db.Column(db.String(36), unique=True, nullable=False)
-    user_id: int = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    user_id: int = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     _name: Optional[str] = db.Column('name', db.String(100))
     _description: Optional[str] = db.Column('description', db.Text)
 
@@ -283,10 +375,10 @@ class SimulationSession(db.Model):
         self._description = encryption_manager.encrypt(value, field_name='sim_desc')
 
     parameters: Optional[Dict] = db.Column(JSON)
-    status: Optional[str] = db.Column(db.String(20), index=True)
+    status: Optional[str] = db.Column(db.String(20))
     current_step: Optional[int] = db.Column(db.Integer)
     total_steps: Optional[int] = db.Column(db.Integer)
-    created_at: datetime = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    created_at: datetime = db.Column(db.DateTime, default=datetime.utcnow)
     started_at: Optional[datetime] = db.Column(db.DateTime)
     completed_at: Optional[datetime] = db.Column(db.DateTime)
     results: Optional[Dict] = db.Column(JSON)
@@ -318,21 +410,25 @@ class SimulationSession(db.Model):
 class KnowledgeGraphNode(db.Model):
     """Knowledge graph node model."""
 
-    __tablename__ = 'kg_nodes'
-
+    __tablename__ = 'ukg_knowledge_nodes'
     __table_args__ = (
-        Index('ix_kg_nodes_node_type', 'node_type'),
-        Index('ix_kg_nodes_axis_number', 'axis_number'),
-        Index('ix_kg_nodes_type_axis', 'node_type', 'axis_number'),  # Composite
+        Index('ix_ukg_knowledge_nodes_node_type', 'node_type'),
+        Index('ix_ukg_knowledge_nodes_axis_number', 'axis_number'),
+        Index('ix_ukg_knowledge_nodes_type_axis', 'node_type', 'axis_number'),
+        {'extend_existing': True}
     )
 
     id: int = db.Column(db.Integer, primary_key=True)
-    node_id: str = db.Column(db.String(50), unique=True, nullable=False, index=True)
-    node_type: Optional[str] = db.Column(db.String(50), index=True)
+    node_id: str = db.Column(db.String(50), unique=True, nullable=False)
+    node_type: Optional[str] = db.Column(db.String(50))
     label: Optional[str] = db.Column(db.String(100))
     description: Optional[str] = db.Column(db.Text)
-    axis_number: Optional[int] = db.Column(db.Integer, index=True)
+    axis_number: Optional[int] = db.Column(db.Integer)
     data: Optional[Dict] = db.Column(JSON)
+
+    # Relationships
+    integrated_views = db.relationship("IntegratedView", back_populates="knowledge_node", cascade="all, delete-orphan")
+    perspectives = db.relationship("Perspective", back_populates="knowledge_node", cascade="all, delete-orphan")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert node to dictionary representation."""
@@ -353,25 +449,25 @@ class KnowledgeGraphNode(db.Model):
 class KnowledgeGraphEdge(db.Model):
     """Knowledge graph edge model."""
 
-    __tablename__ = 'kg_edges'
-
+    __tablename__ = 'ukg_knowledge_edges'
     __table_args__ = (
-        Index('ix_kg_edges_source_id', 'source_id'),
-        Index('ix_kg_edges_target_id', 'target_id'),
-        Index('ix_kg_edges_edge_type', 'edge_type'),
-        Index('ix_kg_edges_source_target', 'source_id', 'target_id'),  # Composite
+        Index('ix_ukg_knowledge_edges_source_node_id', 'source_node_id'),
+        Index('ix_ukg_knowledge_edges_target_node_id', 'target_node_id'),
+        Index('ix_ukg_knowledge_edges_edge_type', 'edge_type'),
+        Index('ix_ukg_knowledge_edges_source_target', 'source_node_id', 'target_node_id'),
+        {'extend_existing': True}
     )
 
     id: int = db.Column(db.Integer, primary_key=True)
-    edge_id: str = db.Column(db.String(50), unique=True, nullable=False, index=True)
-    source_id: int = db.Column(db.Integer, db.ForeignKey('kg_nodes.id'), nullable=False, index=True)
-    target_id: int = db.Column(db.Integer, db.ForeignKey('kg_nodes.id'), nullable=False, index=True)
-    edge_type: Optional[str] = db.Column(db.String(50), index=True)
+    edge_id: str = db.Column(db.String(50), unique=True, nullable=False)
+    source_node_id: str = db.Column(db.String(50), db.ForeignKey('ukg_knowledge_nodes.node_id'), nullable=False)
+    target_node_id: str = db.Column(db.String(50), db.ForeignKey('ukg_knowledge_nodes.node_id'), nullable=False)
+    edge_type: Optional[str] = db.Column(db.String(50))
     weight: Optional[float] = db.Column(db.Float)
     data: Optional[Dict] = db.Column(JSON)
 
-    source = db.relationship('KnowledgeGraphNode', foreign_keys=[source_id], backref='out_edges')
-    target = db.relationship('KnowledgeGraphNode', foreign_keys=[target_id], backref='in_edges')
+    source = db.relationship('KnowledgeGraphNode', foreign_keys=[source_node_id], backref=db.backref('out_edges', lazy='dynamic'))
+    target = db.relationship('KnowledgeGraphNode', foreign_keys=[target_node_id], backref=db.backref('in_edges', lazy='dynamic'))
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert edge to dictionary representation."""
@@ -392,6 +488,8 @@ class KnowledgeGraphEdge(db.Model):
 class LLMProvider(db.Model):
     """LLM Provider configuration with encrypted API keys."""
     __tablename__ = 'llm_providers'
+    __table_args__ = {'extend_existing': True}
+
     
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = db.Column(db.String(100), nullable=False)
@@ -453,6 +551,8 @@ class LLMProvider(db.Model):
 class LLMProviderUsage(db.Model):
     """Usage tracking for LLM providers."""
     __tablename__ = 'llm_provider_usage'
+    __table_args__ = {'extend_existing': True}
+
     
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     provider_id = db.Column(UUID(as_uuid=True), db.ForeignKey('llm_providers.id'), nullable=False)
@@ -470,6 +570,8 @@ class LLMProviderUsage(db.Model):
 class ExternalAPIKey(db.Model):
     """API keys for external clients."""
     __tablename__ = 'external_api_keys'
+    __table_args__ = {'extend_existing': True}
+
     
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = db.Column(db.String(100), nullable=False)
@@ -485,6 +587,8 @@ class ExternalAPIKey(db.Model):
 class ChatSession(db.Model):
     """A collection of related messages."""
     __tablename__ = 'chat_sessions'
+    __table_args__ = {'extend_existing': True}
+
     
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -500,6 +604,8 @@ class ChatSession(db.Model):
 class ChatMessage(db.Model):
     """A single turn in a chat session."""
     __tablename__ = 'chat_messages'
+    __table_args__ = {'extend_existing': True}
+
     
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     session_id = db.Column(UUID(as_uuid=True), db.ForeignKey('chat_sessions.id'), nullable=False)
@@ -573,3 +679,590 @@ class TracePolicyDecision(db.Model):
     decision_type = db.Column(db.String(20), nullable=False)
     reason = db.Column(db.Text, nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Persona(db.Model):
+    """Model for Personas in the Quad Persona System."""
+    __tablename__ = 'ukg_personas'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    persona_id = db.Column(db.String(50), unique=True, nullable=False)  # e.g., "analyst", "explorer"
+    name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    traits = db.Column(JSON, nullable=True)
+    strengths = db.Column(JSON, nullable=True) # Assuming JSON from previous view
+    focus = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    perspectives = db.relationship("Perspective", back_populates="persona", foreign_keys="Perspective.persona_id")
+    
+    def to_dict(self):
+        """Convert persona to dictionary."""
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'persona_id': self.persona_id,
+            'name': self.name,
+            'description': self.description,
+            'traits': self.traits,
+            'strengths': self.strengths,
+            'focus': self.focus,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+class Perspective(db.Model):
+    """Model for Perspectives generated by personas on knowledge nodes."""
+    __tablename__ = 'ukg_perspectives'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    persona_id = db.Column(db.Integer, db.ForeignKey('ukg_personas.id'), nullable=False)
+    knowledge_node_id = db.Column(db.Integer, db.ForeignKey('ukg_knowledge_nodes.id'), nullable=False)
+    key_insights = db.Column(JSON, nullable=True)
+    strengths_identified = db.Column(JSON, nullable=True)
+    blind_spots = db.Column(JSON, nullable=True)
+    recommendations = db.Column(JSON, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    persona = db.relationship("Persona", back_populates="perspectives", foreign_keys=[persona_id])
+    knowledge_node = db.relationship("KnowledgeGraphNode", back_populates="perspectives", foreign_keys=[knowledge_node_id])
+    
+    def to_dict(self):
+        """Convert perspective to dictionary."""
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'persona_id': self.persona_id,
+            'knowledge_node_id': self.knowledge_node_id,
+            'key_insights': self.key_insights,
+            'strengths_identified': self.strengths_identified,
+            'blind_spots': self.blind_spots,
+            'recommendations': self.recommendations,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+class IntegratedView(db.Model):
+    """Model for Integrated Views synthesized from multiple perspectives."""
+    __tablename__ = 'ukg_integrated_views'
+    __table_args__ = {'extend_existing': True}
+    
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    knowledge_node_id = db.Column(db.Integer, db.ForeignKey('ukg_knowledge_nodes.id'), nullable=False)
+    synthesis_method = db.Column(db.String(100), nullable=False)
+    key_insights = db.Column(JSON, nullable=True)
+    comprehensive_strengths = db.Column(JSON, nullable=True)
+    potential_limitations = db.Column(JSON, nullable=True)
+    balanced_recommendations = db.Column(JSON, nullable=True)
+    perspectives = db.Column(JSON, nullable=True)  # Store IDs of contributing perspectives
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    knowledge_node = db.relationship("KnowledgeGraphNode", back_populates="integrated_views")
+    
+    def to_dict(self):
+        """Convert integrated view to dictionary."""
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'knowledge_node_id': self.knowledge_node_id,
+            'synthesis_method': self.synthesis_method,
+            'key_insights': self.key_insights,
+            'comprehensive_strengths': self.comprehensive_strengths,
+            'potential_limitations': self.potential_limitations,
+            'balanced_recommendations': self.balanced_recommendations,
+            'perspectives': self.perspectives,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+# Compatibility Aliases
+# APIKey = ExternalAPIKey  # Replaced by direct class definition
+
+class MCPServer(db.Model):
+    """Model for MCP server configurations"""
+    __tablename__ = 'mcp_servers'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    server_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    name = db.Column(db.String(128), nullable=False)
+    version = db.Column(db.String(32), default='1.0.0')
+    description = db.Column(db.Text)
+    status = db.Column(db.String(20), default='inactive')  # active, inactive, error
+    protocol_version = db.Column(db.String(32), default='2024-11-05')
+
+    # Capabilities
+    supports_resources = db.Column(db.Boolean, default=True)
+    supports_tools = db.Column(db.Boolean, default=True)
+    supports_prompts = db.Column(db.Boolean, default=True)
+    supports_logging = db.Column(db.Boolean, default=True)
+
+    # Configuration
+    config = db.Column(db.JSON)
+    server_metadata = db.Column(db.JSON)
+
+    # Stats
+    total_requests = db.Column(db.Integer, default=0)
+    successful_requests = db.Column(db.Integer, default=0)
+    failed_requests = db.Column(db.Integer, default=0)
+    tenant_id = db.Column(db.String(64), index=True)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_active = db.Column(db.DateTime)
+
+    # Relationships
+    resources = db.relationship('MCPResource', backref='server', lazy='dynamic', cascade='all, delete-orphan')
+    tools = db.relationship('MCPTool', backref='server', lazy='dynamic', cascade='all, delete-orphan')
+    prompts = db.relationship('MCPPrompt', backref='server', lazy='dynamic', cascade='all, delete-orphan')
+
+    def to_dict(self):
+        """Convert server to dictionary"""
+        return {
+            'id': self.id,
+            'server_id': self.server_id,
+            'name': self.name,
+            'version': self.version,
+            'description': self.description,
+            'status': self.status,
+            'protocol_version': self.protocol_version,
+            'capabilities': {
+                'resources': self.supports_resources,
+                'tools': self.supports_tools,
+                'prompts': self.supports_prompts,
+                'logging': self.supports_logging
+            }
+        ,
+            'config': self.config,
+            'metadata': self.server_metadata,
+            'stats': {
+                'total_requests': self.total_requests,
+                'successful_requests': self.successful_requests,
+                'failed_requests': self.failed_requests
+            },
+            'tenant_id': self.tenant_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'last_active': self.last_active.isoformat() if self.last_active else None
+        }
+
+
+class MCPResource(db.Model):
+    """Model for MCP resources"""
+    __tablename__ = 'mcp_resources'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    server_id = db.Column(db.Integer, db.ForeignKey('mcp_servers.id'), nullable=False)
+    uri = db.Column(db.String(256), nullable=False, index=True)
+    name = db.Column(db.String(128), nullable=False)
+    description = db.Column(db.Text)
+    mime_type = db.Column(db.String(64))
+
+    # Resource metadata
+    resource_metadata = db.Column(db.JSON)
+
+    # Access stats
+    access_count = db.Column(db.Integer, default=0)
+    last_accessed = db.Column(db.DateTime)
+    tenant_id = db.Column(db.String(64), index=True)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        """Convert resource to dictionary"""
+        return {
+            'id': self.id,
+            'server_id': self.server_id,
+            'uri': self.uri,
+            'name': self.name,
+            'description': self.description,
+            'mime_type': self.mime_type,
+            'metadata': self.resource_metadata,
+            'access_count': self.access_count,
+            'last_accessed': self.last_accessed.isoformat() if self.last_accessed else None,
+            'tenant_id': self.tenant_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class MCPTool(db.Model):
+    """Model for MCP tools"""
+    __tablename__ = 'mcp_tools'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    server_id = db.Column(db.Integer, db.ForeignKey('mcp_servers.id'), nullable=False)
+    name = db.Column(db.String(128), nullable=False, index=True)
+    description = db.Column(db.Text, nullable=False)
+
+    # Tool schema
+    input_schema = db.Column(db.JSON, nullable=False)
+
+    # Tool metadata
+    tool_metadata = db.Column(db.JSON)
+
+    # Execution stats
+    execution_count = db.Column(db.Integer, default=0)
+    success_count = db.Column(db.Integer, default=0)
+    failure_count = db.Column(db.Integer, default=0)
+    last_executed = db.Column(db.DateTime)
+    tenant_id = db.Column(db.String(64), index=True)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        """Convert tool to dictionary"""
+        return {
+            'id': self.id,
+            'server_id': self.server_id,
+            'name': self.name,
+            'description': self.description,
+            'input_schema': self.input_schema,
+            'metadata': self.tool_metadata,
+            'stats': {
+                'execution_count': self.execution_count,
+                'success_count': self.success_count,
+                'failure_count': self.failure_count
+            },
+            'last_executed': self.last_executed.isoformat() if self.last_executed else None,
+            'tenant_id': self.tenant_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class MCPPrompt(db.Model):
+    """Model for MCP prompt templates"""
+    __tablename__ = 'mcp_prompts'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    server_id = db.Column(db.Integer, db.ForeignKey('mcp_servers.id'), nullable=False)
+    name = db.Column(db.String(128), nullable=False, index=True)
+    description = db.Column(db.Text, nullable=False)
+
+    # Prompt arguments schema
+    arguments = db.Column(db.JSON)  # List of argument definitions
+
+    # Prompt metadata
+    prompt_metadata = db.Column(db.JSON)
+
+    # Usage stats
+    usage_count = db.Column(db.Integer, default=0)
+    last_used = db.Column(db.DateTime)
+    tenant_id = db.Column(db.String(64), index=True)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        """Convert prompt to dictionary"""
+        return {
+            'id': self.id,
+            'server_id': self.server_id,
+            'name': self.name,
+            'description': self.description,
+            'arguments': self.arguments,
+            'metadata': self.prompt_metadata,
+            'usage_count': self.usage_count,
+            'last_used': self.last_used.isoformat() if self.last_used else None,
+            'tenant_id': self.tenant_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+class TruthSession(db.Model):
+    """Track Truth Engine reasoning sessions with 5-tier workflow support"""
+    __tablename__ = 'truth_sessions'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    tenant_id = db.Column(db.String(64), index=True)
+
+    tier = db.Column(db.String(20), default='trivial')
+    status = db.Column(db.String(20), default='pending')
+
+    query = db.Column(db.Text)
+    response = db.Column(db.Text)
+
+    budget_limit = db.Column(db.Float, default=0.0)
+    budget_spent = db.Column(db.Float, default=0.0)
+    token_count = db.Column(db.Integer, default=0)
+
+    confidence_score = db.Column(db.Float, default=0.0)
+    safety_score = db.Column(db.Float, default=1.0)
+
+    llm_model = db.Column(db.String(64))
+    routing_profile = db.Column(db.String(32))
+
+    personas_used = db.Column(db.JSON)
+    axis_context = db.Column(db.JSON)
+    workflow_steps = db.Column(db.JSON)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    started_at = db.Column(db.DateTime)
+    completed_at = db.Column(db.DateTime)
+
+    user = db.relationship('User', backref=db.backref('truth_sessions', lazy='dynamic'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'session_id': self.session_id,
+            'user_id': self.user_id,
+            'tenant_id': self.tenant_id,
+            'tier': self.tier,
+            'status': self.status,
+            'query': self.query,
+            'response': self.response,
+            'budget_limit': self.budget_limit,
+            'budget_spent': self.budget_spent,
+            'token_count': self.token_count,
+            'confidence_score': self.confidence_score,
+            'safety_score': self.safety_score,
+            'llm_model': self.llm_model,
+            'routing_profile': self.routing_profile,
+            'personas_used': self.personas_used,
+            'axis_context': self.axis_context,
+            'workflow_steps': self.workflow_steps,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'started_at': self.started_at.isoformat() if self.started_at else None,
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None
+        }
+
+class TruthAuditEvent(db.Model):
+    """EU AI Act Article 53 compliant audit trail with hash chain immutability"""
+    __tablename__ = 'truth_audit_events'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    session_id = db.Column(db.String(64), db.ForeignKey('truth_sessions.session_id'), index=True)
+
+    event_type = db.Column(db.String(50), nullable=False, index=True)
+    event_category = db.Column(db.String(50))
+
+    event_data = db.Column(db.JSON)
+    decision_rationale = db.Column(db.Text)
+
+    hash_chain = db.Column(db.String(64), nullable=False)
+    previous_hash = db.Column(db.String(64))
+
+    actor_id = db.Column(db.String(64))
+    actor_type = db.Column(db.String(32))
+
+    axis_involved = db.Column(db.JSON)
+    compliance_flags = db.Column(db.JSON)
+
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    retention_until = db.Column(db.DateTime)
+
+    session = db.relationship('TruthSession', backref=db.backref('audit_events', lazy='dynamic'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'event_id': self.event_id,
+            'session_id': self.session_id,
+            'event_type': self.event_type,
+            'event_category': self.event_category,
+            'event_data': self.event_data,
+            'decision_rationale': self.decision_rationale,
+            'hash_chain': self.hash_chain,
+            'previous_hash': self.previous_hash,
+            'actor_id': self.actor_id,
+            'actor_type': self.actor_type,
+            'axis_involved': self.axis_involved,
+            'compliance_flags': self.compliance_flags,
+            'timestamp': self.timestamp.isoformat() if self.timestamp else None,
+            'retention_until': self.retention_until.isoformat() if self.retention_until else None
+        }
+
+class TruthArtifact(db.Model):
+    """Store simulation outputs, graphs, deliverables with 7-year retention"""
+    __tablename__ = 'truth_artifacts'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    artifact_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    session_id = db.Column(db.String(64), db.ForeignKey('truth_sessions.session_id'), index=True)
+
+    artifact_type = db.Column(db.String(50), nullable=False)
+    artifact_name = db.Column(db.String(256))
+
+    content = db.Column(db.JSON)
+    content_hash = db.Column(db.String(64))
+    file_path = db.Column(db.String(512))
+    file_size = db.Column(db.Integer)
+    mime_type = db.Column(db.String(128))
+
+    artifact_metadata = db.Column(db.JSON)
+    tags = db.Column(db.JSON)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    retention_until = db.Column(db.DateTime)
+
+    session = db.relationship('TruthSession', backref=db.backref('artifacts', lazy='dynamic'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'artifact_id': self.artifact_id,
+            'session_id': self.session_id,
+            'artifact_type': self.artifact_type,
+            'artifact_name': self.artifact_name,
+            'content': self.content,
+            'content_hash': self.content_hash,
+            'file_path': self.file_path,
+            'file_size': self.file_size,
+            'mime_type': self.mime_type,
+            'metadata': self.artifact_metadata,
+            'tags': self.tags,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'retention_until': self.retention_until.isoformat() if self.retention_until else None
+        }
+
+class TruthBudget(db.Model):
+    """Per-tenant budget tracking with kill-switch capability"""
+    __tablename__ = 'truth_budgets'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
+    budget_limit = db.Column(db.Float, default=100.0)
+    budget_spent = db.Column(db.Float, default=0.0)
+    budget_period = db.Column(db.String(20), default='monthly')
+
+    kill_switch_triggered = db.Column(db.Boolean, default=False)
+    kill_switch_threshold = db.Column(db.Float, default=0.95)
+    downgrade_tier = db.Column(db.String(20), default='trivial')
+
+    tier_limits = db.Column(db.JSON)
+
+    alerts_enabled = db.Column(db.Boolean, default=True)
+    alert_thresholds = db.Column(db.JSON)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    reset_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('truth_budgets', lazy='dynamic'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'tenant_id': self.tenant_id,
+            'user_id': self.user_id,
+            'budget_limit': self.budget_limit,
+            'budget_spent': self.budget_spent,
+            'budget_period': self.budget_period,
+            'budget_remaining': self.budget_limit - self.budget_spent,
+            'budget_utilization': (self.budget_spent / self.budget_limit * 100) if self.budget_limit > 0 else 0,
+            'kill_switch_triggered': self.kill_switch_triggered,
+            'kill_switch_threshold': self.kill_switch_threshold,
+            'downgrade_tier': self.downgrade_tier,
+            'tier_limits': self.tier_limits,
+            'alerts_enabled': self.alerts_enabled,
+            'alert_thresholds': self.alert_thresholds,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'reset_at': self.reset_at.isoformat() if self.reset_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+class TruthMetric(db.Model):
+    """MLflow-style metrics tracking for Truth Engine performance"""
+    __tablename__ = 'truth_metrics'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    metric_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    session_id = db.Column(db.String(64), db.ForeignKey('truth_sessions.session_id'), nullable=True, index=True)
+
+    metric_name = db.Column(db.String(128), nullable=False, index=True)
+    metric_value = db.Column(db.Float, nullable=False)
+    metric_unit = db.Column(db.String(32))
+
+    metric_type = db.Column(db.String(32), default='gauge')
+
+    tier = db.Column(db.String(20))
+    llm_model = db.Column(db.String(64))
+
+    labels = db.Column(db.JSON)
+
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+    session = db.relationship('TruthSession', backref=db.backref('metrics', lazy='dynamic'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'metric_id': self.metric_id,
+            'session_id': self.session_id,
+            'metric_name': self.metric_name,
+            'metric_value': self.metric_value,
+            'metric_unit': self.metric_unit,
+            'metric_type': self.metric_type,
+            'tier': self.tier,
+            'llm_model': self.llm_model,
+            'labels': self.labels,
+            'timestamp': self.timestamp.isoformat() if self.timestamp else None
+        }
+
+class TruthLinkMessage(db.Model):
+    """Inter-module messaging for TruthLink event bus"""
+    __tablename__ = 'truth_link_messages'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    message_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+
+    source_module = db.Column(db.String(32), nullable=False)
+    target_module = db.Column(db.String(32))
+
+    message_type = db.Column(db.String(50), nullable=False, index=True)
+    priority = db.Column(db.Integer, default=1)
+
+    payload = db.Column(db.JSON)
+
+    status = db.Column(db.String(20), default='pending')
+    retry_count = db.Column(db.Integer, default=0)
+    max_retries = db.Column(db.Integer, default=3)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'message_id': self.message_id,
+            'source_module': self.source_module,
+            'target_module': self.target_module,
+            'message_type': self.message_type,
+            'priority': self.priority,
+            'status': self.status,
+            'retry_count': self.retry_count,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+# Moved IntegratedView back up to maintain logical grouping if needed, 
+# but ensuring it's not double-defined or merged with TruthLinkMessage.
