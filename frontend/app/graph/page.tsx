@@ -8,17 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { ApiErrorBoundary } from "@/components/ui/api-error-boundary";
 import {
-  Search,
-  Filter,
-  ChevronRight,
-  RotateCcw,
-  Zap,
-  Info,
-  ChevronLeft,
-  ZoomIn,
-  ZoomOut,
-  Maximize2,
-  Shield
+  Shield, Info, Search, Filter, ChevronRight, RotateCcw, Zap, ChevronLeft, ZoomIn, ZoomOut, Maximize2
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { AxisSelector } from "@/components/Graph/AxisSelector";
@@ -38,26 +28,6 @@ const ForceGraph3D = dynamic(() => import('react-force-graph-3d'), {
   )
 });
 
-interface GraphNode {
-  id: string;
-  name: string;
-  pillar?: string;
-  group?: number;
-  val?: number;
-  details?: Record<string, string>;
-}
-
-interface GraphLink {
-  source: string;
-  target: string;
-  type?: string;
-}
-
-interface GraphData {
-  nodes: GraphNode[];
-  links: GraphLink[];
-}
-
 // Fixed color palette
 const PILLAR_COLORS: Record<string, string> = {
   'Technology': '#3b82f6',
@@ -67,64 +37,46 @@ const PILLAR_COLORS: Record<string, string> = {
   'Regulatory': '#ef4444'
 };
 
-function generateDemoData(): GraphData {
-  const pillars = ['Technology', 'Healthcare', 'Finance', 'Identity', 'Regulatory'];
-  const nodes: GraphNode[] = [];
-  const links: GraphLink[] = [];
-
-  pillars.forEach((pillar, pillarIdx) => {
-    const nodeCount = 15 + Math.floor(Math.random() * 10);
-    for (let i = 0; i < nodeCount; i++) {
-      const nodeId = `${pillar.toLowerCase()}-${i}`;
-      nodes.push({
-        id: nodeId,
-        name: `${pillar} Node ${i + 1}`,
-        pillar: pillar,
-        group: pillarIdx,
-        val: 1 + Math.random() * 3,
-        details: {
-          'Type': 'Core Asset',
-          'Confidence': '0.94',
-          'Coordinate': `Axis 1: ${pillarIdx + i}.0`
-        }
-      });
-      if (i > 0) {
-        links.push({ source: `${pillar.toLowerCase()}-${Math.floor(Math.random() * i)}`, target: nodeId, type: 'Part-Of' });
-      }
-    }
-  });
-
-  for (let i = 0; i < 20; i++) {
-    const sIdx = Math.floor(Math.random() * pillars.length);
-    const tIdx = Math.floor(Math.random() * pillars.length);
-    if (sIdx !== tIdx) {
-      links.push({
-        source: `${pillars[sIdx].toLowerCase()}-0`,
-        target: `${pillars[tIdx].toLowerCase()}-0`,
-        type: 'Crosswalk'
-      });
-    }
-  }
-
-  return { nodes, links };
-}
+import { api, GraphNode, GraphEdge } from '@/lib/api';
 
 export default function GraphPage() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const graphRef = useRef<any>(null);
   const { toast } = useToast();
-  const [graphData] = useState<GraphData>(generateDemoData);
+  const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphEdge[] }>({ nodes: [], links: [] });
   const [activeAxis, setActiveAxis] = useState(1);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const [showLabels, setShowLabels] = useState(true);
   const [enablePhysics, setEnablePhysics] = useState(true);
 
   useEffect(() => {
-    toast("Graph Engine initialized with 17-axis standard.", "info", 3000);
+    async function fetchGraphData() {
+      try {
+        const [nodes, edges] = await Promise.all([
+          api.knowledge.getNodes(),
+          api.knowledge.getEdges()
+        ]);
+
+        const links = edges.map(e => {
+          const raw = e as unknown as Record<string, unknown>;
+          return {
+            ...e,
+            source: (raw.source_node_id as string) || e.source,
+            target: (raw.target_node_id as string) || e.target
+          };
+        });
+
+        setGraphData({ nodes, links });
+        toast("Graph Engine synchronized with production DB.", "success", 3000);
+      } catch (err) {
+        console.error("Failed to fetch graph data:", err);
+        toast("Failed to load production graph data.", "error", 3000);
+      }
+    }
+    fetchGraphData();
   }, [toast]);
 
   const handleNodeClick = useCallback((node: GraphNode) => {
@@ -148,10 +100,9 @@ export default function GraphPage() {
       <h1 className="sr-only">17-Axis Knowledge Graph Explorer</h1>
       <CommandBar />
       <AxisSelector activeAxis={activeAxis} onChange={setActiveAxis} />
-      
+
       <div className="flex-1 flex relative">
-        {/* Left Sidebar: Filters */}
-        <aside 
+        <aside
           className={cn(
             "h-full bg-gray-900 border-r border-gray-800 transition-all duration-300 flex flex-col z-20 shadow-2xl",
             leftSidebarOpen ? "w-72" : "w-0 overflow-hidden border-none"
@@ -166,8 +117,8 @@ export default function GraphPage() {
                  </div>
                  <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                    <Input 
-                      placeholder="Quick find..." 
+                    <Input
+                      placeholder="Quick find..."
                       className="bg-gray-800/50 border-gray-700 h-10 pl-10 rounded-xl"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -180,15 +131,15 @@ export default function GraphPage() {
                  <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">Pillars</div>
                  <div className="flex flex-col gap-2">
                     {Object.entries(PILLAR_COLORS).map(([name, color]) => (
-                      <div 
-                        key={name} 
+                      <div
+                        key={name}
                         className="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 cursor-pointer group"
                         role="button"
                         aria-pressed="false"
                         aria-label={`Filter by ${name} pillar`}
                       >
                         <div className="flex items-center gap-3">
-                           <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} aria-hidden="true" />
+                           <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color } as React.CSSProperties} aria-hidden="true" />
                            <span className="text-sm font-medium">{name}</span>
                         </div>
                         <Badge variant="outline" className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] px-1 h-4">Active</Badge>
@@ -210,8 +161,8 @@ export default function GraphPage() {
            </div>
 
            <div className="p-4 bg-black/20 border-t border-gray-800">
-              <Button 
-                size="sm" variant="ghost" className="w-full text-blue-500 text-xs gap-2" 
+              <Button
+                size="sm" variant="ghost" className="w-full text-blue-500 text-xs gap-2"
                 onClick={resetCamera}
                 aria-label="Reset camera view to center"
               >
@@ -220,36 +171,31 @@ export default function GraphPage() {
            </div>
         </aside>
 
-        {/* Left Toggle Button */}
-        <button 
+        <button
           onClick={() => setLeftSidebarOpen(!leftSidebarOpen)}
           className="absolute left-0 top-1/2 -translate-y-1/2 translate-x-[272px] z-30 h-12 w-4 bg-gray-900 border border-gray-800 rounded-r-lg flex items-center justify-center hover:bg-gray-800 transition-all"
-          style={{ transform: leftSidebarOpen ? 'translateX(288px)' : 'translateX(0)' }}
+          style={{ transform: leftSidebarOpen ? 'translateX(288px)' : 'translateX(0)' } as React.CSSProperties}
           aria-label={leftSidebarOpen ? "Collapse filters" : "Expand filters"}
-          aria-expanded={leftSidebarOpen}
+          aria-expanded={leftSidebarOpen ? "true" : "false"}
         >
           {leftSidebarOpen ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
         </button>
 
-        {/* Main Graph Area */}
-        <div 
+        <div
+          id="graph-viewport"
           className="flex-1 relative bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-900 to-black"
           role="application"
           aria-label="3D Knowledge Graph Visualization"
         >
            <ForceGraph3D
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-             ref={graphRef as any}
+             ref={graphRef}
              graphData={graphData}
              nodeLabel={showLabels ? 'name' : undefined}
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
              nodeColor={(node: any) => PILLAR_COLORS[node.pillar || 'Technology'] || '#666'}
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
              nodeVal={(node: any) => node.val || 1}
              linkColor={() => 'rgba(255,255,255,0.1)'}
              linkWidth={0.5}
              backgroundColor="rgba(0,0,0,0)"
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
              onNodeClick={handleNodeClick as any}
              enableNodeDrag={enablePhysics}
              nodeOpacity={0.9}
@@ -274,7 +220,6 @@ export default function GraphPage() {
            </div>
         </div>
 
-        {/* Right Sidebar: Details */}
         <ApiErrorBoundary moduleName="Node Inspector">
           <aside 
             className={cn(
@@ -302,8 +247,8 @@ export default function GraphPage() {
                 <div className="space-y-6">
                    <div>
                       <h3 className="text-xl font-bold text-white mb-2 leading-tight">{selectedNode.name}</h3>
-                      <Badge 
-                        style={{ backgroundColor: PILLAR_COLORS[selectedNode.pillar || 'Technology'] }}
+                       <Badge 
+                        style={{ backgroundColor: PILLAR_COLORS[selectedNode.pillar || 'Technology'] } as React.CSSProperties}
                         aria-label={`Pillar classification: ${selectedNode.pillar}`}
                       >
                         {selectedNode.pillar}

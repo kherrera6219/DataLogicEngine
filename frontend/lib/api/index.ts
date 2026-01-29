@@ -61,6 +61,10 @@ export const api = {
   analytics: {
     summary: () => request('/analytics/summary'),
     trends: (metric: string, days: number = 7) => 
-      request(`/analytics/trends?metric=${metric}&days=${days}`)
-  }
+      request(`/analytics/trends?metric=${metric}&days=${days}`),
+    overview: () => request('/analytics/overview'),
+    activity: (limit: number = 10) => request(`/analytics/activity?limit=${limit}`),
+    mcp: () => request('/analytics/mcp')
+  },
+  get: <T>(url: string) => request<T>(url, { method: 'GET' }),
 };

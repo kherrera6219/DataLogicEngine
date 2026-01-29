@@ -128,3 +128,57 @@ export interface TraceStage {
   algorithm_name?: string; // Legacy support if needed
   started_at?: string;     // Legacy support
 }
+export interface AnalyticsOverview {
+  api_requests_24h: number;
+  kg_nodes: number;
+  kg_edges: number;
+  kg_size_display: string;
+  compliance_status: string;
+  compliance_score: string;
+  timestamp: string;
+}
+
+export interface McpStats {
+  time_series: { time: string; requests: number; responses: number; errors: number }[];
+  top_tools: { name: string; calls: number; percent: number }[];
+  server_health: { name: string; status: string; latency: number }[];
+  error_stats: { name: string; value: number; color?: string; colorCode?: string }[];
+}
+
+export interface Activity {
+  type: string;
+  title: string;
+  time: string;
+  id?: string;
+  color?: string;
+}
+
+export interface GraphNode {
+  id: string;
+  uid?: string;
+  name: string;
+  label?: string;
+  node_type?: string;
+  pillar?: string;
+  group?: number;
+  val?: number;
+  details?: Record<string, string>;
+  attributes?: Record<string, unknown>;
+}
+
+export interface GraphEdge {
+  id?: string;
+  uid?: string;
+  source: string;
+  target: string;
+  type?: string;
+  edge_type?: string;
+  weight?: number;
+  attributes?: Record<string, unknown>;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  error?: string;
+}

@@ -35,7 +35,7 @@ export function AxisSelector({ activeAxis, onChange }: AxisSelectorProps) {
               key={name}
               onClick={() => onChange(axisNum)}
               role="tab"
-              aria-selected={isActive}
+              aria-selected={isActive ? "true" : "false"}
               aria-controls="graph-viewport"
               className={cn(
                 "relative flex-shrink-0 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ring-offset-black",

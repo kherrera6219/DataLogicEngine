@@ -38,7 +38,7 @@ export function TraceVisualizer() {
          <div className="relative pt-6 pb-2">
             <div className="absolute top-0 left-0 w-full h-1 bg-white/5 top-[18px]"></div>
             <div className="flex justify-between relative z-10">
-               {steps.map((step, i) => (
+               {steps.map((step) => (
                   <div key={step.id} className="flex flex-col items-center gap-2 group cursor-pointer">
                      <div className={`
                         w-3 h-3 rounded-full border-2 
@@ -69,7 +69,7 @@ export function TraceVisualizer() {
                         </div>
                         {step.status === 'processing' && (
                            <div className="w-24 h-1 bg-gray-800 rounded mt-1 overflow-hidden">
-                              <div className="h-full bg-blue-500 animate-progress" style={{ width: `${step.percentage}%` }}></div>
+                              <div className="h-full bg-blue-500 animate-progress" style={{ width: `var(--step-progress, ${step.percentage}%)` } as React.CSSProperties}></div>
                            </div>
                         )}
                      </div>

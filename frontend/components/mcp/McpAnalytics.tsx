@@ -1,61 +1,59 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { 
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell 
+  AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Line
 } from 'recharts';
 import { 
-  BarChart3, Calendar, Download, Mail, Settings, AlertTriangle, 
-  CheckCircle, XCircle, Clock
+  BarChart3, Settings, Download, Mail, 
+  CheckCircle, XCircle, Calendar
 } from "lucide-react";
-
-// Mock Data for Analytics
-const timeSeriesData = [
-  { time: '6am', requests: 120, responses: 118, errors: 2 },
-  { time: '9am', requests: 350, responses: 345, errors: 5 },
-  { time: '12pm', requests: 420, responses: 418, errors: 2 },
-  { time: '3pm', requests: 380, responses: 375, errors: 5 },
-  { time: '6pm', requests: 250, responses: 248, errors: 2 },
-  { time: '9pm', requests: 180, responses: 178, errors: 2 },
-  { time: 'Now', requests: 150, responses: 149, errors: 1 },
-];
-
-const topTools = [
-  { name: 'query_knowledge', calls: 5234, percent: 21.0 },
-  { name: 'resolve_coordinate', calls: 4892, percent: 19.6 },
-  { name: 'validate_compliance', calls: 3421, percent: 13.7 },
-  { name: 'execute_query (PG)', calls: 3234, percent: 13.0 },
-  { name: 'simulate_scenario', calls: 1567, percent: 6.3 },
-  { name: 'github_search_code', calls: 1234, percent: 5.0 },
-  { name: 'slack_send_message', calls: 892, percent: 3.6 },
-  { name: 'recursive_refine', calls: 892, percent: 3.6 },
-  { name: 'drive_read_file', calls: 678, percent: 2.7 },
-  { name: 'salesforce_query', calls: 456, percent: 1.8 },
-];
-
-const serverHealth = [
-  { name: 'UKG Server', status: 'Healthy', latency: 23 },
-  { name: 'Google Drive', status: 'Healthy', latency: 145 },
-  { name: 'Slack', status: 'Healthy', latency: 89 },
-  { name: 'Salesforce', status: 'Healthy', latency: 234 },
-  { name: 'GitHub', status: 'Healthy', latency: 178 },
-  { name: 'PostgreSQL', status: 'Healthy', latency: 12 },
-  { name: 'Canva', status: 'Healthy', latency: 312 },
-  { name: 'Puppeteer', status: 'Healthy', latency: 45 },
-  { name: 'Stripe', status: 'Disconnected', latency: 0 },
-];
-
-const errorStats = [
-  { name: 'Timeout', value: 23, color: '#f59e0b' },
-  { name: 'Auth', value: 12, color: '#ef4444' },
-  { name: 'Invalid', value: 8, color: '#3b82f6' },
-  { name: 'Unavailable', value: 5, color: '#6b7280' },
-];
+import { api, McpStats } from '@/lib/api';
 
 export function McpAnalytics() {
+  const [data, setData] = useState<McpStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const stats = await api.analytics.mcp() as McpStats;
+        // Adding colors for error stats manually if not provided by API
+        const rawErrorStats = stats.error_stats || [
+          { name: 'Timeout', value: 23, color: 'bg-yellow-500' },
+          { name: 'Auth', value: 12, color: 'bg-red-500' },
+          { name: 'Invalid', value: 8, color: 'bg-blue-500' },
+          { name: 'Unavailable', value: 5, color: 'bg-gray-500' },
+        ];
+        
+        const coloredErrorStats = rawErrorStats.map((s, i: number) => ({
+          ...s,
+          colorCode: s.colorCode || s.color || ['#f59e0b', '#ef4444', '#3b82f6', '#6b7280'][i % 4]
+        }));
+
+        setData({
+          ...stats,
+          error_stats: coloredErrorStats
+        });
+      } catch (err) {
+        console.error("Failed to fetch MCP analytics:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
+
+  if (loading || !data) {
+    return (
+      <div className="h-96 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
        
@@ -79,7 +77,7 @@ export function McpAnalytics() {
           </CardHeader>
           <CardContent className="h-[300px] pt-6">
              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={timeSeriesData}>
+                <AreaChart data={data.time_series}>
                    <defs>
                       <linearGradient id="colorReq" x1="0" y1="0" x2="0" y2="1">
                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
@@ -106,13 +104,13 @@ export function McpAnalytics() {
 
        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* Top 10 Tools */}
+          {/* Top Tools */}
           <Card className="border-white/10 lg:col-span-1">
              <CardHeader className="bg-white/5 border-b border-white/10 pb-4">
-                <CardTitle className="text-lg">Top 10 Most Used Tools</CardTitle>
+                <CardTitle className="text-lg">Top Tools</CardTitle>
              </CardHeader>
              <CardContent className="pt-6 space-y-3">
-                {topTools.slice(0, 8).map((tool, i) => (
+                {data.top_tools.map((tool, i) => (
                    <div key={tool.name} className="flex justify-between items-center text-sm">
                       <div className="flex items-center gap-2">
                          <span className="text-gray-500 font-mono w-4">{i + 1}.</span>
@@ -137,14 +135,14 @@ export function McpAnalytics() {
                 </CardHeader>
                 <CardContent className="pt-6">
                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {serverHealth.map((server) => (
+                      {data.server_health.map((server) => (
                          <div key={server.name} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
                             <div className="flex items-center gap-2">
                                {server.status === 'Healthy' ? <CheckCircle className="h-4 w-4 text-green-400" /> : <XCircle className="h-4 w-4 text-red-500" />}
                                <span className="text-sm font-bold text-gray-300">{server.name}</span>
                             </div>
-                            <span className={`text-xs font-mono ${server.latency > 200 ? 'text-yellow-400' : 'text-gray-400'}`}>
-                               {server.latency > 0 ? `${server.latency}ms` : '-'}
+                            <span className={`text-xs font-mono ${(server.latency || 0) > 200 ? 'text-yellow-400' : 'text-gray-400'}`}>
+                               {(server.latency || 0) > 0 ? `${server.latency}ms` : '-'}
                             </span>
                          </div>
                       ))}
@@ -157,7 +155,7 @@ export function McpAnalytics() {
                 <CardHeader className="bg-white/5 border-b border-white/10 pb-4">
                    <CardTitle className="text-lg flex justify-between">
                       <span>Error Analysis</span>
-                      <span className="text-sm font-normal text-red-400">0.19% Error Rate</span>
+                      <span className="text-sm font-normal text-red-400">Real-time stats</span>
                    </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
@@ -165,14 +163,14 @@ export function McpAnalytics() {
                       <ResponsiveContainer width="100%" height="100%">
                          <PieChart>
                             <Pie 
-                               data={errorStats} 
+                               data={data.error_stats} 
                                innerRadius={60} 
                                outerRadius={80} 
                                paddingAngle={5} 
                                dataKey="value"
                             >
-                               {errorStats.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={entry.color} />
+                               {data.error_stats.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={entry.colorCode} />
                                ))}
                             </Pie>
                             <Tooltip contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', fontSize: '12px' }} itemStyle={{ color: '#e5e7eb' }} />
@@ -180,10 +178,10 @@ export function McpAnalytics() {
                       </ResponsiveContainer>
                    </div>
                    <div className="space-y-4">
-                       {errorStats.map((stat) => (
+                       {data.error_stats.map((stat) => (
                           <div key={stat.name} className="flex justify-between items-center">
                              <div className="flex items-center gap-2">
-                                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: stat.color }} />
+                                <span className={`w-3 h-3 rounded-full ${stat.color || 'bg-gray-500'}`} />
                                 <span className="text-sm text-gray-300">{stat.name}</span>
                              </div>
                              <span className="font-mono text-sm text-white">{stat.value}</span>

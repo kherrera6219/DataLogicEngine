@@ -5,20 +5,60 @@ import Link from "next/link";
 import { 
   MessageSquare, Upload, Key, Activity, 
   ArrowRight, Clock, ShieldCheck, Database,
-  TrendingUp, AlertTriangle, CheckCircle2 
+  TrendingUp, AlertTriangle, Settings, BarChart3, Download, Mail
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AppSidebar } from '@/components/layout/AppSidebar';
 
+import { api, AnalyticsOverview, Activity as ActivityType } from '@/lib/api';
+import { useToast } from "@/components/ui/use-toast";
+
 export default function DashboardPage() {
-  const recentActivity = [
-    { type: 'chat', title: 'HIPAA Compliance Analysis', time: '2 mins ago', icon: MessageSquare, color: 'text-blue-400' },
-    { type: 'upload', title: 'Uploaded patient_schema.json', time: '1 hour ago', icon: Upload, color: 'text-green-400' },
-    { type: 'system', title: 'API Key Rotated (AWS-Prod)', time: '3 hours ago', icon: Key, color: 'text-yellow-400' },
-    { type: 'alert', title: 'High Latency Warning (EU-West)', time: '5 hours ago', icon: AlertTriangle, color: 'text-red-400' },
-  ];
+  const { toast } = useToast();
+  const [overview, setOverview] = React.useState<AnalyticsOverview | null>(null);
+  const [activity, setActivity] = React.useState<ActivityType[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function fetchData() {
+      try {
+        const [overviewData, activityData] = await Promise.all([
+          api.analytics.overview() as Promise<AnalyticsOverview>,
+          api.analytics.activity() as Promise<ActivityType[]>
+        ]);
+        setOverview(overviewData);
+        setActivity(activityData);
+      } catch (err) {
+        console.error("Failed to fetch dashboard data:", err);
+        // Fallback to empty states if API fails
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [toast]);
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'chat': return MessageSquare;
+      case 'upload': return Upload;
+      case 'system': return Key;
+      case 'alert': return Mail; // Changed from AlertTriangle
+      default: return Activity;
+    }
+  };
+
+  const getActivityColor = (type: string) => {
+    switch (type) {
+      case 'chat': return 'text-blue-400';
+      case 'upload': return 'text-green-400';
+      case 'system': return 'text-yellow-400';
+      case 'alert': return 'text-red-400';
+      default: return 'text-gray-400';
+    }
+  };
 
   return (
     <div className="flex h-screen bg-[#111111] text-white font-sans overflow-hidden">
@@ -35,9 +75,13 @@ export default function DashboardPage() {
            <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 px-3 py-1 bg-green-900/10 border border-green-500/20 rounded-full backdrop-blur-sm">
                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-                 <span className="text-xs font-bold text-green-400 tracking-wide">SYSTEMS NORMAL</span>
+                 <span className="text-xs font-bold text-green-400 tracking-wide">
+                    {overview ? "SYSTEMS NORMAL" : "INITIALIZING..."}
+                 </span>
               </div>
-              <div className="text-xs text-gray-400 font-mono opacity-60">10:42 AM EST</div>
+              <div className="text-xs text-gray-400 font-mono opacity-60">
+                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
            </div>
         </div>
 
@@ -47,9 +91,11 @@ export default function DashboardPage() {
            <div className="flex items-center justify-between">
               <div>
                  <h2 className="text-display mb-1 bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-gray-500">
-                    Good morning, Sarah
+                    Unified Knowledge Gateway
                  </h2>
-                 <p className="text-gray-400 text-lg font-light">Here's what's happening in your registry today.</p>
+                 <p className="text-gray-400 text-lg font-light">
+                   {loading ? "Synchronizing core intelligence engines..." : "Your intelligence distribution network is active."}
+                 </p>
               </div>
               <div className="flex gap-3">
                  <Link href="/chat">
@@ -68,9 +114,33 @@ export default function DashboardPage() {
            {/* Metrics Overview - Fluent Cards */}
            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                 { label: 'Daily API Requests', value: '2,842', trend: '+12%', icon: Activity, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-                 { label: 'Knowledge Graph Size', value: '14.2 GB', status: 'Active', icon: Database, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
-                 { label: 'Compliance Status', value: 'Secure', score: '99.9%', icon: ShieldCheck, color: 'text-green-400', bg: 'bg-green-500/10', border: 'border-green-500/20' }
+                 { 
+                   label: 'Daily API Requests', 
+                   value: overview?.api_requests_24h?.toLocaleString() || '--', 
+                   trend: '+12%', 
+                   icon: Activity, 
+                   color: 'text-blue-400', 
+                   bg: 'bg-blue-500/10', 
+                   border: 'border-blue-500/20' 
+                 },
+                 { 
+                   label: 'Knowledge Graph Size', 
+                   value: overview?.kg_size_display || '--', 
+                   status: `${overview?.kg_nodes?.toLocaleString() || 0} Nodes`, 
+                   icon: BarChart3, // Changed from Database
+                   color: 'text-purple-400', 
+                   bg: 'bg-purple-500/10', 
+                   border: 'border-purple-500/20' 
+                 },
+                 { 
+                   label: 'Compliance Status', 
+                   value: overview?.compliance_status || 'Secure', 
+                   score: overview?.compliance_score || '--', 
+                   icon: Settings, // Changed from ShieldCheck
+                   color: 'text-green-400', 
+                   bg: 'bg-green-500/10', 
+                   border: 'border-green-500/20' 
+                 }
               ].map((m, i) => (
                   <Card key={i} className="bg-[#1a1a1a] border-[#333] shadow-lg hover:border-[#444] transition-all duration-300 hover:-translate-y-1">
                      <CardContent className="p-6 relative overflow-hidden group">
@@ -105,18 +175,26 @@ export default function DashboardPage() {
                  </div>
                  
                  <div className="space-y-3">
-                    {recentActivity.map((item, i) => (
-                       <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] hover:border-[#404040] hover:bg-[#202020] transition-all group cursor-pointer reveal-hover">
-                          <div className={`p-2.5 rounded-lg bg-white/5 ${item.color} bg-opacity-10 ring-1 ring-white/5`}>
-                             <item.icon className="h-5 w-5" />
-                          </div>
-                          <div className="flex-1">
-                             <div className="font-medium text-gray-200 group-hover:text-white transition-colors text-base-fluent">{item.title}</div>
-                             <div className="text-xs text-gray-500 mt-0.5">{item.time}</div>
-                          </div>
-                          <ArrowRight className="h-4 w-4 text-gray-600 group-hover:text-white opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
-                       </div>
-                    ))}
+                    {activity.map((item, i) => {
+                       const Icon = getActivityIcon(item.type);
+                       return (
+                        <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] hover:border-[#404040] hover:bg-[#202020] transition-all group cursor-pointer reveal-hover">
+                           <div className={`p-2.5 rounded-lg bg-white/5 ${getActivityColor(item.type)} bg-opacity-10 ring-1 ring-white/5`}>
+                              <Icon className="h-5 w-5" />
+                           </div>
+                           <div className="flex-1">
+                              <div className="font-medium text-gray-200 group-hover:text-white transition-colors text-base-fluent">{item.title}</div>
+                              <div className="text-xs text-gray-500 mt-0.5">{item.time}</div>
+                           </div>
+                           <ArrowRight className="h-4 w-4 text-gray-600 group-hover:text-white opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
+                        </div>
+                       );
+                    })}
+                    {activity.length === 0 && !loading && (
+                      <div className="p-8 text-center border-2 border-dashed border-white/5 rounded-xl text-gray-500 italic">
+                        No recent activity recorded.
+                      </div>
+                    )}
                  </div>
               </div>
 

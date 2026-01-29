@@ -1,8 +1,9 @@
-import { KnowledgePillar, KnowledgeStats } from './types';
+import { KnowledgePillar, KnowledgeStats, GraphNode, GraphEdge } from './types';
 import { request } from './index';
 
 export const knowledge = {
-    pillars: () => request<KnowledgePillar[]>('/knowledge/pillars'),
-    stats: () => request<KnowledgeStats>('/knowledge/stats')
-.then(d => d.length).catch(() => 0)
+    pillars: () => request<KnowledgePillar[]>('/ukg/pillars'),
+    stats: () => request<KnowledgeStats>('/analytics/summary'),
+    getNodes: () => request<GraphNode[]>('/ukg/nodes'),
+    getEdges: () => request<GraphEdge[]>('/ukg/edges')
 };

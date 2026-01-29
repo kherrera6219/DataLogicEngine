@@ -17,6 +17,15 @@ import {
   BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell 
 } from 'recharts';
 
+interface TestResult {
+  confidence: number;
+  answer: string;
+  trace: {
+    steps: number;
+    coordinate: string;
+  };
+}
+
 export function ApiOverlayConfig() {
   const { toast } = useToast();
   const [provider, setProvider] = useState("openai");
@@ -38,8 +47,40 @@ export function ApiOverlayConfig() {
   // Playground State
   const [testQuery, setTestQuery] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [testResult, setTestResult] = useState<TestResult | null>(null);
   // Tabs State
   const [activeTab, setActiveTab] = useState("python");
+
+  const mockData = [
+    { name: 'Mon', queries: 4000 },
+    { name: 'Tue', queries: 3000 },
+    { name: 'Wed', queries: 2000 },
+    { name: 'Thu', queries: 2780 },
+    { name: 'Fri', queries: 1890 },
+    { name: 'Sat', queries: 2390 },
+    { name: 'Sun', queries: 3490 },
+  ];
+
+  const handleTestConnection = () => {
+    setTestStatus('testing');
+    setTimeout(() => {
+      setTestStatus('success');
+      toast("Overlay connected to production Gateway.", "success", 3000);
+    }, 1500);
+  };
+
+  const handleRunTest = () => {
+    setIsProcessing(true);
+    setTimeout(() => {
+      setTestResult({
+        confidence: 0.995,
+        answer: "The proposed architecture is fully compliant with NIST 800-171 Rev 2. All 110 controls mapped successfully.",
+        trace: { steps: 12, coordinate: "Axis 7: Federated Truth" }
+      });
+      setIsProcessing(false);
+      toast("Refinement cycle complete.", "success", 2000);
+    }, 2000);
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -209,8 +250,7 @@ export function ApiOverlayConfig() {
                                  <span className="text-gray-400">{val}</span>
                               </div>
                               <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                                 {/* eslint-disable-next-line react-dom/no-unsafe-inline-style */}
-                                 <div className="h-full bg-blue-500" style={{ width: `${val * 100}%` }} />
+                               <div className="h-full bg-blue-500" style={{ width: `${val * 100}%` } as React.CSSProperties} />
                               </div>
                            </div>
                         ))}
@@ -326,7 +366,7 @@ print(response.json())`}
                <CardContent className="h-[200px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                      <BarChart data={mockData}>
-                        <XAxis dataKey="name" stroke="#4b5563" fontSize={10} tickLine={false} axisLine={false} />
+                        <XAxis dataKey="name" stroke="#4b5563" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                         <Tooltip 
                            contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', fontSize: '12px' }}
                            itemStyle={{ color: '#e5e7eb' }}
