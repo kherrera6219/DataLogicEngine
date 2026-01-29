@@ -2,12 +2,12 @@ import { auth } from './auth';
 import { simulation } from './simulation';
 import { knowledge } from './knowledge';
 import { trace } from './trace';
-import { chat, sendChat } from './system_chat';
+import { chat } from './chat';
 import { mcp } from './mcp';
 import { compliance } from './compliance';
 
 export * from './types';
-export { sendChat };
+
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 

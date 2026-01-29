@@ -269,7 +269,17 @@ def get_session_messages(session_id):
         .order_by(ChatMessage.created_at.asc()).all()
     
     return jsonify({
-        'messages': [m.to_dict() for m in messages]
+        'messages': [
+            {
+                'id': str(m.id),
+                'role': m.role,
+                'content': m.content,
+                'timestamp': m.created_at.strftime('%H:%M') if m.created_at else '',
+                'is_enhanced': m.is_enhanced,
+                'run_id': str(m.run_id) if m.run_id else None
+            } 
+            for m in messages
+        ]
     })
 
 

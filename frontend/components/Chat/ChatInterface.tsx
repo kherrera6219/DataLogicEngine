@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -7,43 +8,13 @@ import {
   Plus, Search, Pin, Calendar, Folder, 
   Settings, Mic, Paperclip, Zap, ArrowRight 
 } from "lucide-react";
-import { ChatMessage } from './types';
+import { ChatMessage } from './Types';
+import { api } from '@/lib/api';
+import { socketClient, useSocket } from '@/lib/socket';
 import { LiveTracePanel } from './LiveTracePanel';
 import { DetailedResponseView } from './DetailedResponseView';
 import { TraceVisualizer } from './TraceVisualizer';
 import { AdvancedControls } from './AdvancedControls';
-
-// API call helper
-async function callGateway(content: string, mode: string = 'chat', sessionId?: string) {
-  const response = await fetch('/api/v1/gateway/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      messages: [{ role: 'user', content }],
-      mode: mode,
-      session_id: sessionId,
-      run_ukg_pipeline: true
-    })
-  });
-  if (!response.ok) throw new Error('Gateway request failed');
-  return response.json();
-}
-
-async function uploadFile(file: File) {
-  const formData = new FormData();
-  formData.append('file', file);
-  
-  const endpoint = file.type.startsWith('video/') 
-    ? '/api/v1/multimodal/video/analyze' 
-    : '/api/v1/multimodal/document/process';
-
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    body: formData
-  });
-  if (!response.ok) throw new Error('File processing failed');
-  return response.json();
-}
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -53,27 +24,73 @@ export function ChatInterface() {
   const [currentSessionId, setCurrentSessionId] = useState<string>(uuidv4());
   const [sessions, setSessions] = useState<any[]>([]);
 
-  // Hydrate history from persistence layer
+  // WebSocket Integration
+  useSocket({
+    onChatResponse: (data) => {
+      if (data.session_id === currentSessionId) {
+        const assistantMsg: ChatMessage = {
+          id: uuidv4(),
+          role: 'assistant',
+          content: data.response,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isEnhanced: true
+        };
+        setMessages(prev => [...prev, assistantMsg]);
+        setIsLoading(false);
+      }
+    },
+    onChatTyping: (data) => {
+      if (data.session_id === currentSessionId) {
+        // Handle typing indicator if needed
+      }
+    }
+  });
+
+  // Load User Sessions on mount
   useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const data = await api.chat.listSessions();
+        setSessions(data.sessions || []);
+      } catch (err) {
+        console.error("Failed to load sessions:", err);
+      }
+    };
+    fetchSessions();
+  }, []);
+
+  // Hydrate history when session changes
+  useEffect(() => {
+    if (!currentSessionId) return;
+    
+    // Join WebSocket room for this session
+    socketClient.joinRoom(`chat_${currentSessionId}`);
+
     const fetchHistory = async () => {
       try {
-        const response = await fetch(`/api/v1/gateway/sessions/${currentSessionId}/messages`);
-        if (response.ok) {
-          const data = await response.json();
-          setMessages(data.messages || []);
+        const data = await api.chat.getSessionMessages(currentSessionId);
+        if (data.messages && data.messages.length > 0) {
+          setMessages(data.messages);
+        } else {
+          setMessages([]);
         }
       } catch (err) {
         console.warn("Failed to load history, starting fresh.");
+        setMessages([]);
       }
     };
     fetchHistory();
+
+    return () => {
+      socketClient.leaveRoom(`chat_${currentSessionId}`);
+    };
   }, [currentSessionId]);
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
 
     const userMsg: ChatMessage = {
-      id: Date.now().toString(),
+      id: uuidv4(),
       role: 'user',
       content: inputValue,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -84,31 +101,49 @@ export function ChatInterface() {
     setIsLoading(true);
 
     try {
-      const data = await callGateway(userMsg.content, mode, currentSessionId);
+      // Use the centralized API
+      const data = await api.chat.sendMessage({
+        messages: [{ role: 'user', content: userMsg.content }],
+        mode: mode,
+        session_id: currentSessionId,
+        run_ukg_pipeline: true
+      } as any);
       
-      const assistantMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: '',
-        finalAnswer: data.response,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isEnhanced: true,
-        traces: data.trace_summary // Optional trace data
-      };
+      // If the API returns a direct response (not just via WS)
+      if (data && data.response) {
+        const assistantMsg: ChatMessage = {
+          id: uuidv4(),
+          role: 'assistant',
+          content: '',
+          finalAnswer: data.response,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isEnhanced: true,
+          traces: (data as any).trace_summary
+        };
+        setMessages(prev => [...prev.filter(m => m.id !== assistantMsg.id), assistantMsg]);
+        setIsLoading(false);
+      }
+      
+      // Refresh session list in case a new session was created
+      const sessionData = await api.chat.listSessions();
+      setSessions(sessionData.sessions || []);
 
-      setMessages(prev => [...prev, assistantMsg]);
     } catch (error) {
       console.error(error);
       const errorMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+        id: uuidv4(),
         role: 'assistant',
-        content: 'I encountered an error while processing your request. Please check your connection and try again.',
+        content: 'I encountered an error while processing your request.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, errorMsg]);
-    } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleNewChat = () => {
+    setCurrentSessionId(uuidv4());
+    setMessages([]);
   };
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -119,7 +154,7 @@ export function ChatInterface() {
 
     setIsLoading(true);
     const userMsg: ChatMessage = {
-      id: Date.now().toString(),
+      id: uuidv4(),
       role: 'user',
       content: `Uploaded file: ${file.name}`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -127,12 +162,26 @@ export function ChatInterface() {
     setMessages(prev => [...prev, userMsg]);
 
     try {
-      const data = await uploadFile(file);
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const endpoint = file.type.startsWith('video/') 
+        ? '/api/v1/multimodal/video/analyze' 
+        : '/api/v1/multimodal/document/process';
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) throw new Error('File processing failed');
+      const data = await response.json();
+      
       const assistantMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+        id: uuidv4(),
         role: 'assistant',
         content: '',
-        finalAnswer: `File processed successfully. Analysis: ${JSON.stringify(data.result || data.analysis)}`,
+        finalAnswer: `File processed successfully. Analysis: ${data.message || JSON.stringify(data.result || data.analysis)}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         isEnhanced: true
       };
@@ -140,7 +189,7 @@ export function ChatInterface() {
     } catch (error) {
       console.error(error);
       const errorMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+        id: uuidv4(),
         role: 'assistant',
         content: 'Failed to process the uploaded file.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -157,7 +206,10 @@ export function ChatInterface() {
       {/* 📁 Conversational Sidebar */}
       <div className="w-64 border-r border-white/5 flex flex-col fluent-acrylic z-20">
          <div className="p-4 border-b border-white/5 space-y-4">
-            <Button className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-900/20">
+            <Button 
+              className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-900/20"
+              onClick={handleNewChat}
+            >
                <Plus className="h-4 w-4" /> New Chat
             </Button>
             <div className="relative">
@@ -170,45 +222,26 @@ export function ChatInterface() {
             <div className="p-4 space-y-6">
                <div>
                   <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                     <Pin className="h-3 w-3" /> Pinned
+                     <Calendar className="h-3 w-3" /> Recent Sessions
                   </h3>
                   <div className="space-y-1">
-                     <Button variant="ghost" className="w-full justify-start text-sm text-gray-300 h-8 px-2 font-normal hover:bg-white/5 hover:text-white rounded-md">
-                        Compliance Q&A
-                     </Button>
-                     <Button variant="ghost" className="w-full justify-start text-sm text-gray-300 h-8 px-2 font-normal hover:bg-white/5 hover:text-white rounded-md">
-                        Risk Analysis
-                     </Button>
-                  </div>
-               </div>
-
-               <div>
-                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                     <Calendar className="h-3 w-3" /> Recent
-                  </h3>
-                  <div className="space-y-1">
-                     <Button variant="ghost" className="w-full justify-start text-sm text-gray-300 h-8 px-2 font-normal hover:bg-white/5 hover:text-white rounded-md">
-                        Today (8)
-                     </Button>
-                     <Button variant="ghost" className="w-full justify-start text-sm text-gray-300 h-8 px-2 font-normal hover:bg-white/5 hover:text-white rounded-md">
-                        Yesterday (12)
-                     </Button>
-                     <Button variant="ghost" className="w-full justify-start text-sm text-gray-300 h-8 px-2 font-normal hover:bg-white/5 hover:text-white rounded-md">
-                        Last Week (45)
-                     </Button>
-                  </div>
-               </div>
-               
-               <div>
-                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                     <Folder className="h-3 w-3" /> By Topic
-                  </h3>
-                  <div className="space-y-1">
-                     {['Healthcare', 'Financial', 'Legal', 'Technical', 'Operations'].map(topic => (
-                        <Button key={topic} variant="ghost" className="w-full justify-start text-sm text-gray-300 h-8 px-2 font-normal hover:bg-white/5 hover:text-white rounded-md">
-                           {topic}
+                     {sessions.length > 0 ? (
+                       sessions.map((s) => (
+                        <Button 
+                          key={s.id} 
+                          variant="ghost" 
+                          className={cn(
+                            "w-full justify-start text-sm h-10 px-2 font-normal hover:bg-white/5 hover:text-white rounded-md truncate",
+                            currentSessionId === s.id ? "bg-white/10 text-white font-medium border border-white/5" : "text-gray-400"
+                          )}
+                          onClick={() => setCurrentSessionId(s.id)}
+                        >
+                           {s.title || "Untitled Session"}
                         </Button>
-                     ))}
+                       ))
+                     ) : (
+                       <div className="text-xs text-gray-600 px-2 italic py-4">No recent sessions found</div>
+                     )}
                   </div>
                </div>
             </div>
