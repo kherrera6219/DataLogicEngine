@@ -160,19 +160,25 @@ export default function SimulationsPage() {
                         </Badge>
                     </TableCell>
                     <TableCell className="font-mono">
-                      {liveProgress[sim.uid] ? (
-                        <div className="flex flex-col gap-1">
-                          <span className="text-blue-400 text-xs font-bold">
-                            {liveProgress[sim.uid].step}/{liveProgress[sim.uid].total_steps}
-                          </span>
-                          <div className="w-16 h-1 bg-white/5 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-blue-500 transition-all duration-500" 
-                              style={{ width: `${(liveProgress[sim.uid].step / liveProgress[sim.uid].total_steps) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-                      ) : (
+                          {liveProgress[sim.uid] ? (() => {
+                            const progress = Math.round((liveProgress[sim.uid].step / liveProgress[sim.uid].total_steps) * 100);
+                            return (
+                              <div className="flex flex-col gap-1">
+                                <span className="text-blue-400 text-xs font-bold">
+                                  {liveProgress[sim.uid].step}/{liveProgress[sim.uid].total_steps}
+                                </span>
+                                <div className="w-16 h-1 bg-white/5 rounded-full overflow-hidden">
+                                  <div 
+                                    className={`h-full bg-blue-500 transition-all duration-500 ${
+                                      progress >= 75 ? 'w-full' : 
+                                      progress >= 50 ? 'w-3/4' : 
+                                      progress >= 25 ? 'w-1/2' : 'w-1/4'
+                                    }`}
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })() : (
                         <span className="text-gray-400">{sim.current_step}</span>
                       )}
                     </TableCell>

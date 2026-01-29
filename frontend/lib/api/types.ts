@@ -11,6 +11,7 @@ export interface ChatRequest {
   messages: Message[];
   run_ukg_pipeline?: boolean;
   mode?: string;
+  session_id?: string;
   provider?: string;
   model?: string;
 }
@@ -19,6 +20,7 @@ export interface ChatResponse {
   response: string;
   history?: Message[];
   trace_id?: string;
+  trace_summary?: unknown;
   error?: string;
 }
 

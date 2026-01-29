@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { 
   Settings, Zap, Layers, Users, 
-  Lock, Globe, Calendar
+  Lock, Globe, Calendar, GitBranch
 } from "lucide-react";
 import { 
     Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger 

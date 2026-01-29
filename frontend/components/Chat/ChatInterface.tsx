@@ -1,16 +1,17 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
-  Plus, Search, Pin, Calendar, Folder, 
+  Plus, Search, Calendar, 
   Settings, Mic, Paperclip, Zap, ArrowRight 
 } from "lucide-react";
-import { ChatMessage } from './types';
+import { ChatMessage, TracePipeline } from './types';
+import { ChatSession } from '@/lib/api/chat';
 import { api } from '@/lib/api';
 import { socketClient, useSocket } from '@/lib/socket';
 import { LiveTracePanel } from './LiveTracePanel';
@@ -24,7 +25,7 @@ export function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<'chat' | 'quad'>('chat');
   const [currentSessionId, setCurrentSessionId] = useState<string>(uuidv4());
-  const [sessions, setSessions] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
 
   // WebSocket Integration
   useSocket({
@@ -76,7 +77,7 @@ export function ChatInterface() {
         } else {
           setMessages([]);
         }
-      } catch (err) {
+      } catch {
         console.warn("Failed to load history, starting fresh.");
         setMessages([]);
       }
@@ -109,7 +110,7 @@ export function ChatInterface() {
         mode: mode,
         session_id: currentSessionId,
         run_ukg_pipeline: true
-      } as any);
+      });
       
       // If the API returns a direct response (not just via WS)
       if (data && data.response) {
@@ -120,7 +121,7 @@ export function ChatInterface() {
           finalAnswer: data.response,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           isEnhanced: true,
-          traces: (data as any).trace_summary
+          traces: data.trace_summary as TracePipeline | undefined
         };
         setMessages(prev => [...prev.filter(m => m.id !== assistantMsg.id), assistantMsg]);
         setIsLoading(false);

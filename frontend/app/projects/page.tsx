@@ -104,7 +104,12 @@ export default function ProjectsPage() {
                             
                             {/* Progress bar mock for aesthetic */}
                             <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                               <div className={`h-full ${p.color} opacity-60`} style={{ width: `${30 + (i * 15)}%` }}></div>
+                               <div className={`h-full ${p.color} opacity-60 ${
+                                 i === 0 ? 'w-1/3' : 
+                                 i === 1 ? 'w-1/2' : 
+                                 i === 2 ? 'w-2/3' : 
+                                 i === 3 ? 'w-4/5' : 'w-full'
+                               }`}></div>
                             </div>
                          </div>
                       </CardContent>

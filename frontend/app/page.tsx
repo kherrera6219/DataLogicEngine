@@ -13,7 +13,6 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
@@ -87,8 +86,13 @@ export default function Home() {
       
       <div className="relative z-10 max-w-5xl w-full text-center space-y-12 animate-in fade-in zoom-in-95 duration-1000">
         <header className="space-y-6">
-          <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest backdrop-blur-md">
-            <Zap className="h-3 w-3 mr-2 fill-blue-500/20" /> System Operational
+          <Badge variant="outline" className={cn(
+            "px-4 py-1.5 text-xs font-bold uppercase tracking-widest backdrop-blur-md",
+            isOperational 
+              ? "bg-blue-500/10 text-blue-400 border-blue-500/20" 
+              : "bg-red-500/10 text-red-400 border-red-500/20"
+          )}>
+            <Zap className="h-3 w-3 mr-2 fill-blue-500/20" /> {isOperational ? 'System Operational' : 'System Degraded'}
           </Badge>
           
           <div className="space-y-4">

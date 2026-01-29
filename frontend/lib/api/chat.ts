@@ -1,5 +1,5 @@
 import { request } from './index';
-import { ChatMessage, ChatRequest, ChatResponse } from './types';
+import { ChatRequest, ChatResponse } from './types';
 
 export interface ChatSession {
   id: string;
@@ -7,6 +7,15 @@ export interface ChatSession {
   title: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface ApiChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: string;
+  is_enhanced?: boolean;
+  run_id?: string;
 }
 
 export const chat = {
@@ -21,7 +30,7 @@ export const chat = {
    * Get messages for a specific session
    */
   getSessionMessages: async (sessionId: string) => {
-    return request<{ messages: any[] }>(`/gateway/sessions/${sessionId}/messages`);
+    return request<{ messages: ApiChatMessage[] }>(`/gateway/sessions/${sessionId}/messages`);
   },
 
   /**

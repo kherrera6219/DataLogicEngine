@@ -4,7 +4,7 @@ export interface TraceStep {
   status: 'pending' | 'processing' | 'completed' | 'error';
   durationMs?: number;
   percentage: number;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   timestamp: string;
 }
 
@@ -36,7 +36,7 @@ export interface ValidationMetric {
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: string;
   traces?: TracePipeline;

@@ -40,6 +40,7 @@ const PILLAR_COLORS: Record<string, string> = {
 import { api, GraphNode, GraphEdge } from '@/lib/api';
 
 export default function GraphPage() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const graphRef = useRef<any>(null);
   const { toast } = useToast();
   const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphEdge[] }>({ nodes: [], links: [] });
@@ -141,6 +142,7 @@ export default function GraphPage() {
                          <div className="flex items-center gap-3">
                            <div
                              className="w-2.5 h-2.5 rounded-full ring-1 ring-white/20 shadow-[0_0_8px_var(--pillar-color)]"
+                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                              style={{ backgroundColor: color, '--pillar-color': color } as any}
                              aria-hidden="true"
                            />
@@ -197,11 +199,14 @@ export default function GraphPage() {
              ref={graphRef}
              graphData={graphData}
              nodeLabel={showLabels ? 'name' : undefined}
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
              nodeColor={(node: any) => PILLAR_COLORS[node.pillar || 'Technology'] || '#666'}
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
              nodeVal={(node: any) => node.val || 1}
              linkColor={() => 'rgba(255,255,255,0.1)'}
              linkWidth={0.5}
              backgroundColor="rgba(0,0,0,0)"
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
              onNodeClick={handleNodeClick as any}
              enableNodeDrag={enablePhysics}
              nodeOpacity={0.9}
@@ -256,6 +261,7 @@ export default function GraphPage() {
                        <Badge 
                         variant="secondary"
                         className="text-white border-none shadow-sm"
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         style={{ backgroundColor: PILLAR_COLORS[selectedNode.pillar || 'Technology'] } as any}
                         aria-label={`Pillar classification: ${selectedNode.pillar}`}
                       >
