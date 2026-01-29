@@ -95,15 +95,46 @@ class VideoService:
 
     async def _analyze_frames_with_llm(self, frames_bytes: List[bytes]) -> str:
         """
-        Sends extracted frames to a vision model.
+        Sends extracted frames to a vision model via the LLM Gateway.
         """
-        # Placeholder for actual gateway call since we need to format the Vision message
-        # In a real system, we'd use the LLMGateway process() with vision content
-        logger.info(f"Analyzing {len(frames_bytes)} frames with Vision LLM...")
+        if not self.llm_gateway:
+            logger.warning("LLM Gateway not provided to VideoService, returning mock summary.")
+            return f"Video Analysis: Found {len(frames_bytes)} frames. (Gateway not connected)"
+
+        logger.info(f"Analyzing {len(frames_bytes)} frames with Vision LLM via Gateway...")
         
-        # Mocking the gateway call for vision for now as LLMGateway messages usually expect text
-        # But here we show how it WOULD be done with a vision-capable model
-        return f"Video Analysis: The video contains {len(frames_bytes)} scenes. Key activities involve document review and system interaction."
+        # Format content for Vision API (OpenAI style)
+        content = [
+            {"type": "text", "text": "Analyze these sequence of frames from a video. Describe the key actions, objects, and any text visible. Focus on compliance and security risks if any."}
+        ]
+        
+        for frame in frames_bytes:
+            b64_frame = base64.b64encode(frame).decode('utf-8')
+            content.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{b64_frame}"
+                }
+            })
+
+        from backend.llm_gateway.gateway import GatewayRequest
+        request = GatewayRequest(
+            messages=[{"role": "user", "content": content}],
+            model="gpt-4o",  # Prefer vision-capable model
+            run_ukg_pipeline=False, # Direct vision call usually better than overlay for raw frames
+            meta={"task": "video_analysis", "priority": "high"}
+        )
+
+        try:
+            response = await self.llm_gateway.process(request)
+            if response.ok:
+                return response.content
+            else:
+                logger.error(f"Gateway video analysis failed: {response.error}")
+                return f"Vision analysis error: {response.error}"
+        except Exception as e:
+            logger.error(f"Exception during gateway video analysis: {e}")
+            return f"Vision analysis exception: {str(e)}"
 
 # Global Instance
 video_service = VideoService()

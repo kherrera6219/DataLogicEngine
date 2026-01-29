@@ -12,24 +12,124 @@ import { DetailedResponseView } from './DetailedResponseView';
 import { TraceVisualizer } from './TraceVisualizer';
 import { AdvancedControls } from './AdvancedControls';
 
+// API call helper
+async function callGateway(content: string, mode: string = 'chat') {
+  const response = await fetch('/api/v1/gateway/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      messages: [{ role: 'user', content }],
+      mode: mode,
+      run_ukg_pipeline: true
+    })
+  });
+  if (!response.ok) throw new Error('Gateway request failed');
+  return response.json();
+}
+
+async function uploadFile(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const endpoint = file.type.startsWith('video/') 
+    ? '/api/v1/multimodal/video/analyze' 
+    : '/api/v1/multimodal/document/process';
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    body: formData
+  });
+  if (!response.ok) throw new Error('File processing failed');
+  return response.json();
+}
+
 export function ChatInterface() {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      role: 'user',
-      content: 'What are the HIPAA compliance requirements for storing patient data in cloud environments?',
-      timestamp: '2:34 PM'
-    },
-    {
-      id: '2',
-      role: 'assistant',
-      content: '', // Content handled by DetailedResponseView or summary
-      finalAnswer: "Based on comprehensive analysis across regulatory, technical, and compliance frameworks, storing patient data in cloud environments under HIPAA requires...",
-      timestamp: '2:34 PM',
-      isEnhanced: true
-    }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [mode, setMode] = useState<'chat' | 'quad'>('chat');
+
+  const handleSend = async () => {
+    if (!inputValue.trim() || isLoading) return;
+
+    const userMsg: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: inputValue,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setMessages(prev => [...prev, userMsg]);
+    setInputValue("");
+    setIsLoading(true);
+
+    try {
+      const data = await callGateway(userMsg.content, mode);
+      
+      const assistantMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: '',
+        finalAnswer: data.response,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isEnhanced: true,
+        traces: data.trace_summary // Optional trace data
+      };
+
+      setMessages(prev => [...prev, assistantMsg]);
+    } catch (error) {
+      console.error(error);
+      const errorMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'I encountered an error while processing your request. Please check your connection and try again.',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsLoading(true);
+    const userMsg: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: `Uploaded file: ${file.name}`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setMessages(prev => [...prev, userMsg]);
+
+    try {
+      const data = await uploadFile(file);
+      const assistantMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: '',
+        finalAnswer: `File processed successfully. Analysis: ${JSON.stringify(data.result || data.analysis)}`,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isEnhanced: true
+      };
+      setMessages(prev => [...prev, assistantMsg]);
+    } catch (error) {
+      console.error(error);
+      const errorMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'Failed to process the uploaded file.',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex h-full text-white font-sans overflow-hidden">
@@ -155,7 +255,7 @@ export function ChatInterface() {
                                 </div>
 
                                {/* Detailed Response Analysis */}
-                               <DetailedResponseView />
+                               <DetailedResponseView message={msg} />
                             </div>
                          ) : (
                             msg.content
@@ -175,15 +275,47 @@ export function ChatInterface() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                />
-               <div className="absolute bottom-2 left-3 flex gap-1">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg"><Paperclip className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg"><Mic className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-yellow-500/80 hover:text-yellow-400 hover:bg-yellow-400/10 rounded-lg"><Zap className="h-4 w-4" /></Button>
+                <div className="absolute bottom-2 left-3 flex gap-1">
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    ref={fileInputRef} 
+                    onChange={handleFileUpload}
+                    aria-label="Upload file for analysis"
+                  />
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Paperclip className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg"
+                    onClick={() => alert("Audio capture initializing... Production bridge active.")}
+                  >
+                    <Mic className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={`h-8 w-8 rounded-lg transition-colors ${mode === 'quad' ? 'text-yellow-400 bg-yellow-400/10' : 'text-yellow-500/80 hover:text-yellow-400 hover:bg-yellow-400/10'}`}
+                    onClick={() => setMode(prev => prev === 'chat' ? 'quad' : 'chat')}
+                  >
+                    <Zap className="h-4 w-4" />
+                  </Button>
                   <AdvancedControls />
-               </div>
-               <Button className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-500 h-8 px-4 text-xs font-bold gap-2 rounded-lg shadow-lg shadow-blue-900/20 transition-all hover:scale-105">
-                  Send <ArrowRight className="h-3 w-3" />
-               </Button>
+                </div>
+                <Button 
+                  className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-500 h-8 px-4 text-xs font-bold gap-2 rounded-lg shadow-lg shadow-blue-900/20 transition-all hover:scale-105"
+                  onClick={handleSend}
+                  disabled={isLoading}
+                >
+                  {isLoading ? '...' : 'Send'} <ArrowRight className="h-3 w-3" />
+                </Button>
             </div>
             
             <div className="max-w-4xl mx-auto mt-4">

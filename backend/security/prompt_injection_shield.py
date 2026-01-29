@@ -27,6 +27,7 @@ class PromptInjectionShield:
             r'admin\s+mode',
             r'developer\s+mode',
             r'jailbreak',
+            r'jailbroken',
             r'DAN\s+mode',  # "Do Anything Now"
             r'pretend\s+you\s+are',
             r'act\s+as\s+if',

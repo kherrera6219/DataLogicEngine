@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class GatewayRequest:
     """Incoming gateway request."""
-    messages: list[dict[str, str]]
+    messages: list[dict[str, Any]]
     provider: Optional[str] = None
     model: Optional[str] = None
     mode: str = "chat"  # chat, explain, trace
@@ -300,12 +300,17 @@ class LLMGateway:
             # Default to OpenAI-compatible
             return OpenAIProvider(api_key=api_key, base_url=provider_record.endpoint)
     
-    def _extract_query(self, messages: list[dict[str, str]]) -> str:
-        """Extract user query from messages."""
+    def _extract_query(self, messages: list[dict[str, Any]]) -> str:
+        """Extract user query from messages, handling multimodal content."""
         for msg in reversed(messages):
             if msg.get("role") == "user":
-                return msg.get("content", "")
-        return messages[-1].get("content", "") if messages else ""
+                content = msg.get("content", "")
+                if isinstance(content, list):
+                    # Extract text parts from multimodal content
+                    text_parts = [part.get("text", "") for part in content if part.get("type") == "text"]
+                    return " ".join(text_parts)
+                return content
+        return ""
     
     async def _run_quad_analysis(
         self,

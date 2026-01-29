@@ -1713,6 +1713,37 @@ For commercial licensing, contact: [See COMMERCIAL_LICENSE.md](COMMERCIAL_LICENS
 
 ---
 
+## 📦 Desktop Distribution & Build
+
+To package the application for standalone Windows deployment, follow these steps:
+
+### 1. Build Backend Executable
+Ensure you have the production dependencies installed and run PyInstaller using the provided `.spec` file.
+```bash
+# From project root
+pip install pyinstaller
+pyinstaller backend.spec --clean
+```
+The output will be in `dist/DataLogic_Backend`.
+
+### 2. Build Desktop Application
+Navigate to the frontend directory and run the Electron distribution script.
+```bash
+cd frontend
+npm install
+npm run build          # Next.js build
+npm run electron:dist  # Electron-builder packaging
+```
+The installer (`.exe`) will be generated in `frontend/dist`.
+
+### 🛡️ Security Verification
+Run the integrated security hardening tests to verify PII redaction and injection protection:
+```bash
+python test_security_hardening.py
+```
+
+---
+
 ## 🤝 Support & Compliance
 
 For enterprise support, SOC2 report requests, or HIPAA BAA inquiries, please contact the security team via the [Security portal](SECURITY.md).
