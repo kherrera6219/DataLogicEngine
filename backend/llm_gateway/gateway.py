@@ -324,52 +324,85 @@ class LLMGateway:
                 def get_api_key(self):
                     return None # _create_sdk_provider will fetch from env
             
-            # Logic: 
-            # Complex Reasoning = OpenAI o1 / GPT-5 (Priority 1)
-            # RAG/Long Context = Gemini 3 Pro (Priority 1)
-            # Fast Chat = Gemini 3 Flash (Priority 1)
-            # Default = GPT-5 (Priority 1), Gemini 3 Pro (Priority 2)
+            # Logic (2026 Generation) - 3 Layer Redundancy
+            # We need 3 slots: [Primary, Failover 1 (Cross-Provider), Failover 2 (Safety/Speed)]
             
             openai_key = os.environ.get("OPENAI_API_KEY")
             google_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+            anthropic_key = os.environ.get("ANTHROPIC_API_KEY") # Optional 3rd physical provider
+
+            providers_list = []
+
+            # Helpers to add unique providers
+            def add_provider(p_list, name, p_type, model, prio):
+                # Simple check to avoid exact duplicates if logic overlaps
+                for p in p_list:
+                    if p.name == name: return
+                p_list.append(EnvProvider(name, p_type, priority=prio, model=model))
+
+            # --- Construct 3-Layer List based on Tier ---
             
-            # 1. Complex Reasoning Provider (OpenAI)
-            if openai_key:
-                prio = 1
-                model = "gpt-5" # Default high-end
-                
-                if task_tier == "complex_reasoning":
-                    model = "o1" # Strawberry for deep reasoning
-                    prio = 1
-                elif task_tier in ["rag_heavy", "fast_chat"] and google_key:
-                    prio = 2 # Demote if better suited for Gemini
-                
-                env_providers.append(EnvProvider("openai-env", "openai", priority=prio, model=model))
+            if task_tier == "complex_reasoning":
+                # Layer 1: Peak Intelligence (OpenAI)
+                if openai_key: add_provider(providers_list, "openai-primary", "openai", "gpt-5.2-pro", 1)
+                # Layer 2: Cross-Provider Strong (Google)
+                if google_key: add_provider(providers_list, "google-fallback", "google", "gemini-3-pro", 2)
+                # Layer 3: Same-Provider Standard (OpenAI) or Other
+                if openai_key: add_provider(providers_list, "openai-safety", "openai", "gpt-5.2", 3)
+                elif google_key: add_provider(providers_list, "google-safety", "google", "gemini-3-flash", 3)
+
+            elif task_tier == "security_defense":
+                # High-Stakes Security Analysis routing
+                # Layer 1: Best Reasoning Available (OpenAI)
+                if openai_key: add_provider(providers_list, "openai-defense", "openai", "gpt-5.2-pro", 1)
+                # Layer 2: Strongest Alternate (Google)
+                if google_key: add_provider(providers_list, "google-defense", "google", "gemini-3-pro", 2)
+                # Layer 3: Fallback (OpenAI Standard)
+                if openai_key: add_provider(providers_list, "openai-defense-fallback", "openai", "gpt-5.2", 3)
+
+            elif task_tier == "deep_research":
+                # Layer 1: Autonomous Research (OpenAI)
+                if openai_key: add_provider(providers_list, "openai-research", "openai", "o3-deep-research", 1)
+                # Layer 2: Strong Reasoning (Google)
+                if google_key: add_provider(providers_list, "google-fallback", "google", "gemini-3-pro", 2)
+                # Layer 3: High Logic (OpenAI)
+                if openai_key: add_provider(providers_list, "openai-fallback", "openai", "gpt-5.2-pro", 3)
+
+            elif task_tier in ["rag_heavy", "context_heavy"]:
+                # Layer 1: Massive Context (Google)
+                if google_key: add_provider(providers_list, "google-context", "google", "gemini-3-pro", 1)
+                # Layer 2: Large Context Reliability (OpenAI)
+                if openai_key: add_provider(providers_list, "openai-fallback", "openai", "gpt-4.1", 2) # 4.1 has 1M context
+                # Layer 3: Speed/Capacity (Google)
+                if google_key: add_provider(providers_list, "google-flash", "google", "gemini-3-flash", 3)
+
+            elif task_tier in ["fast_chat", "structured_workflow"]:
+                # Layer 1: Speed King (Google)
+                if google_key: add_provider(providers_list, "google-flash", "google", "gemini-3-flash", 1)
+                # Layer 2: Structured Efficient (OpenAI)
+                if openai_key: add_provider(providers_list, "openai-mini", "openai", "gpt-5-mini", 2)
+                # Layer 3: Robust Fallback (Google)
+                if google_key: add_provider(providers_list, "google-std", "google", "gemini-3-pro", 3)
+                elif openai_key: add_provider(providers_list, "openai-nano", "openai", "gpt-5-nano", 3)
+
+            else:
+                # Default / General Chat
+                # Layer 1: Balanced (OpenAI)
+                if openai_key: add_provider(providers_list, "openai-default", "openai", "gpt-5.2", 1)
+                # Layer 2: Balanced (Google)
+                if google_key: add_provider(providers_list, "google-default", "google", "gemini-3-pro", 2)
+                # Layer 3: Speed (Google)
+                if google_key: add_provider(providers_list, "google-speed", "google", "gemini-3-flash", 3)
             
-            # 2. Context/Speed Provider (Google)
-            if google_key:
-                prio = 2
-                model = "gemini-3-pro-preview" # Default high-end
-                
-                if task_tier == "rag_heavy":
-                    prio = 1
-                    model = "gemini-3-pro-preview" # Massive context
-                elif task_tier == "fast_chat":
-                    prio = 1
-                    model = "gemini-3-flash-preview" # Low latency
-                elif task_tier == "complex_reasoning" and openai_key:
-                    prio = 2 # Demote if reasoning needed
-                
-                env_providers.append(EnvProvider("google-env", "google", priority=prio, model=model))
-            
-            if os.environ.get("ANTHROPIC_API_KEY"):
-                env_providers.append(EnvProvider("anthropic-env", "anthropic", priority=3))
-            
-            if env_providers:
+            # If we still have space and Anthropic key exists, inject it as ultimate backup
+            if anthropic_key and len(providers_list) < 3:
+                add_provider(providers_list, "anthropic-backup", "anthropic", "claude-3-5-sonnet", 4)
+
+            if providers_list:
                 # Sort by priority
-                env_providers.sort(key=lambda x: x.priority)
-                logger.info(f"Using {len(env_providers)} environment-based providers. Top: {env_providers[0].name} ({env_providers[0].model_id}) for tier {task_tier}")
-                return env_providers
+                providers_list.sort(key=lambda x: x.priority)
+                logger.info(f"Using {len(providers_list)} environment-based providers for tier '{task_tier}': {[p.name for p in providers_list]}")
+                return providers_list
         
         # Routing Optimization: Prefer Local SLMs for L1/L2 (trivial/moderate) tasks
         if task_tier in ["trivial", "moderate", "t1", "t2"]:

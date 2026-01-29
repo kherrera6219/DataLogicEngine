@@ -34,9 +34,11 @@ class GoogleGeminiProvider(LLMProvider):
         """Generate completion using Gemini."""
         model_name = model or self.default_model
         
-        # Map common model aliases
-        if "gemini-pro" in model_name:
-            model_name = "gemini-pro"
+        # Map common model aliases (2025/2026 Generation)
+        if "gemini-3-pro" in model_name and "preview" not in model_name:
+            model_name = "gemini-3-pro-preview"
+        elif "gemini-3-flash" in model_name and "preview" not in model_name:
+            model_name = "gemini-3-flash-preview"
         elif "gemini-1.5" in model_name:
              # Basic mapping, can be refined
             model_name = "gemini-1.5-pro-latest"

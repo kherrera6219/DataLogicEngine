@@ -391,36 +391,58 @@ def delete_provider(provider_id):
     return jsonify({'message': 'Provider deleted'}), 200
 
 
-@admin_bp.route('/providers/<provider_id>/test', methods=['POST'])
+@gateway_bp.route('/providers/<provider_id>/test', methods=['POST'])
 @login_required
 def test_provider(provider_id):
-    """Test provider connection."""
+    """Test provider connection using the Gateway SDK adapter."""
     provider = LLMProvider.query.get_or_404(provider_id)
     
-    from backend.llm_gateway.providers import get_provider, ProviderConfig
-    
-    config = ProviderConfig(
-        api_key=provider.get_api_key() or "",
-        endpoint=provider.endpoint,
-        model_id=provider.model_id,
-        deployment_name=provider.deployment_name,
-        api_version=provider.api_version,
-        timeout=provider.timeout_seconds or 30,
-    )
-    
     try:
-        adapter = get_provider(provider.provider_type, config)
+        # Use the Gateway's internal factory to create the provider instance
+        # This ensures we test exactly what the Gateway uses
+        gateway = LLMGateway()
+        
+        # We need to manually construct the EnvProvider-like object or use the DB provider directly
+        # The gateway._create_sdk_provider expects an object with specific attributes
+        
+        # Use the internal helper to instantiate the adapter
+        adapter = gateway._create_sdk_provider(provider)
+        
+        if not adapter:
+             return jsonify({
+                'success': False,
+                'status': 'error',
+                'error': 'Failed to create provider adapter (configuration invalid?)',
+            })
+
+        # Run a simple completion check
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        result = loop.run_until_complete(adapter.health_check())
-        loop.close()
         
-        return jsonify({
-            'success': result.get('status') == 'healthy',
-            'status': result.get('status'),
-            'model': result.get('model'),
-            'error': result.get('error'),
-        })
+        # Simple "Hello" test
+        try:
+            start_time = datetime.now()
+            # Most providers support a simple prompt
+            response = loop.run_until_complete(adapter.complete(
+                messages=[{"role": "user", "content": "Hello, are you online?"}],
+                model=provider.model_id or "default",
+                max_tokens=5
+            ))
+            duration = (datetime.now() - start_time).total_seconds() * 1000
+            loop.close()
+            
+            return jsonify({
+                'success': True,
+                'status': 'healthy',
+                'model': response.model or provider.model_id,
+                'latency_ms': round(duration, 2),
+                'message': 'Provider connection successful'
+            })
+            
+        except Exception as exc:
+            loop.close()
+            raise exc
+
     except Exception as e:
         return jsonify({
             'success': False,

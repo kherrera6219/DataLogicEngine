@@ -57,25 +57,46 @@ async def verify():
         from backend.llm_gateway.gateway import LLMGateway
         gateway = LLMGateway()
         
-        # We need to mock the DB, but let's test the _get_eligible_providers env fallback
-        # This requires an app context and mocked DB queries usually, but 
-        # _get_eligible_providers falls back to env if DB fails.
+        # Test 1: Complex Reasoning -> Expect GPT-5.2 Pro + Fallbacks (Total ~3)
+        print("Test 1: Tier='complex_reasoning' (Expect 3 layers: GPT-5.2 Pro -> Gemini -> Fallback)")
+        # Mock env for testing routing purely
+        os.environ["OPENAI_API_KEY"] = "sk-test-mock"
+        os.environ["GOOGLE_API_KEY"] = "AIza-test-mock"
         
-        # We need to prevent it from failing hard on DB query
-        # Since we are running standalone, DB query will fail, triggering fallback.
+        providers = await gateway._get_eligible_providers(meta={"tier": "complex_reasoning"})
+        print(f"   -> Found {len(providers)} providers")
+        for i, p in enumerate(providers):
+            print(f"      [{i+1}] {p.name} ({p.provider_type}/{p.model_id})")
         
-        with app.app_context():
-            # Mock DB session in a very hacky way just to avoid crash if possible?
-            # Actually catch exception in gateway handles it.
+        if len(providers) >= 3:
+             print("[PASS] 3-Layer Redundancy confirmed for Complex Reasoning")
+        else:
+             print(f"[FAIL] Expected 3+ layers, got {len(providers)}")
+
+        # Test 2: RAG Heavy -> Expect Gemini 3 Pro + Fallbacks
+        print("\nTest 2: Tier='rag_heavy' (Expect 3 layers: Gemini 3 Pro -> GPT-4.1 -> Flash)")
+        providers = await gateway._get_eligible_providers(meta={"tier": "rag_heavy"})
+        print(f"   -> Found {len(providers)} providers")
+        for i, p in enumerate(providers):
+             print(f"      [{i+1}] {p.name} ({p.provider_type}/{p.model_id})")
             
-            providers = await gateway._get_eligible_providers(meta={"tier": "complex_reasoning"})
-            print(f"Complex Reasoning Tier Providers: {[p.name for p in providers]}")
+        if len(providers) >= 3:
+            print("[PASS] 3-Layer Redundancy confirmed for RAG Heavy")
+        else:
+            print(f"[FAIL] Expected 3+ layers, got {len(providers)}")
             
-            providers = await gateway._get_eligible_providers(meta={"tier": "fast_chat"})
-            print(f"Fast Chat Tier Providers: {[p.name for p in providers]}")
-            
+        # Test 3: Structured Workflow -> Expect GPT-5 Mini or Gemini Flash
+        print("Test 3: Tier='structured_workflow' (Expect GPT-5 Mini)")
+        providers = await gateway._get_eligible_providers(meta={"tier": "structured_workflow"})
+        top = providers[0]
+        print(f"   -> Top Provider: {top.name} | Model: {top.model_id}")
+        if "mini" in top.model_id or "flash" in top.model_id:
+             print("[PASS] Routing correct for Structured Workflow")
+        else:
+             print(f"[FAIL] Expected mini/flash, got {top.model_id}")
+
     except Exception as e:
-        print(f"[WARN] Gateway routing test hit expected DB issue: {e}")
+        print(f"[WARN] Gateway routing test issue: {e}")
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

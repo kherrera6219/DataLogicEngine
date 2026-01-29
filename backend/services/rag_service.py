@@ -83,21 +83,20 @@ class RAGService:
     
     def _default_embedding(self, text: str) -> List[float]:
         """
-        Generate embedding using available provider.
+        Generate embedding using strict 3-Layer Failover Strategy.
         
-        Priority:
-        1. OpenAI (if API key available)
-        2. HuggingFace local model
-        3. Mock embedding for testing
+        Layer 1: OpenAI (text-embedding-3-small) - Fast, standard.
+        Layer 2: Google Gemini (models/text-embedding-004) - High quality fallback.
+        Layer 3: Local HuggingFace (all-MiniLM-L6-v2) - Startup safe/Total outage safe.
         """
-        # Try OpenAI
-        # Check env var dynamically each time to handle late-bound keys
+        errors = []
+        
+        # --- Layer 1: OpenAI ---
         try:
             import os
-            # Force fresh check of environment
+            # Check env dynamically
             openai_key = os.environ.get('OPENAI_API_KEY')
             if openai_key:
-                # Use langchain or openai directly
                 import openai
                 client = openai.OpenAI(api_key=openai_key)
                 response = client.embeddings.create(
@@ -106,19 +105,16 @@ class RAGService:
                 )
                 return response.data[0].embedding
         except Exception as e:
-            # Only log warning if we actually tried and failed
-            # This prevents noise when fallback is expected
-            logger.warning(f"OpenAI embedding failed: {e}")
-            
-        # Try Google Gemini
+            errors.append(f"OpenAI Failed: {str(e)}")
+            logger.warning(f"Embedding Layer 1 (OpenAI) failed: {e}")
+
+        # --- Layer 2: Google Gemini ---
         try:
-            # Check env var dynamically
             import os
             google_key = os.environ.get('GOOGLE_API_KEY') or os.environ.get('GEMINI_API_KEY')
             if google_key:
                 import google.generativeai as genai
                 genai.configure(api_key=google_key)
-                # Use models/text-embedding-004 (latest stable) or embedding-001
                 result = genai.embed_content(
                     model="models/text-embedding-004",
                     content=text,
@@ -126,20 +122,23 @@ class RAGService:
                 )
                 return result['embedding']
         except Exception as e:
-            logger.debug(f"Google embedding failed: {e}")
-        
-        # Try HuggingFace sentence-transformers
+            errors.append(f"Google Failed: {str(e)}")
+            logger.warning(f"Embedding Layer 2 (Google) failed: {e}")
+
+        # --- Layer 3: Local HuggingFace ---
         try:
             from sentence_transformers import SentenceTransformer
             if not hasattr(self, '_hf_model'):
+                # Load efficient local model
                 self._hf_model = SentenceTransformer('all-MiniLM-L6-v2')
             return self._hf_model.encode(text).tolist()
-        except ImportError:
-            pass
         except Exception as e:
-            logger.debug(f"HuggingFace embedding init failed: {e}")
-        
-        # Fallback to mock embedding
+            errors.append(f"Local Failed: {str(e)}")
+            logger.error(f"Embedding Layer 3 (Local) failed: {e}")
+            
+        # --- Failed All Layers ---
+        logger.error(f"All Embedding Layers Failed: {errors}")
+        # Return mock embedding as absolute last resort to prevent crash
         return self._mock_embedding(text)
     
     def _mock_embedding(self, text: str) -> List[float]:
