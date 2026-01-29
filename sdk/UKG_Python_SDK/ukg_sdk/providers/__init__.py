@@ -3,6 +3,7 @@ from .openai import OpenAIProvider
 from .azure_openai import AzureOpenAIProvider
 from .anthropic import AnthropicProvider
 from .local_slm import LocalSLMProvider
+from .google import GoogleGeminiProvider
 
 __all__ = [
     "LLMProvider",
@@ -11,4 +12,5 @@ __all__ = [
     "AzureOpenAIProvider",
     "AnthropicProvider",
     "LocalSLMProvider",
+    "GoogleGeminiProvider",
 ]

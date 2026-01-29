@@ -213,11 +213,80 @@ class LLMGateway:
         error_msg = f"All providers failed. Last error: {last_error}"
         return self._error_response(run_id, error_msg, start_time, request)
 
+    def _create_sdk_provider(self, provider_record: Optional[LLMProvider]) -> Any:
+        """Create SDK provider instance from database config."""
+        import os
+        try:
+            from ukg_sdk.providers import (
+                OpenAIProvider, 
+                AzureOpenAIProvider, 
+                AnthropicProvider, 
+                LocalSLMProvider,
+                GoogleGeminiProvider
+            )
+        except ImportError:
+            logger.warning("UKG SDK providers not available, using fallback")
+            return None
+        
+        if not provider_record:
+            # Fallback to environment
+            return OpenAIProvider()
+        
+        # Try to get API key from database, fallback to environment
+        api_key = None
+        try:
+            api_key = provider_record.get_api_key()
+        except Exception as e:
+            logger.warning(f"Failed to decrypt API key for {provider_record.name}: {e}")
+        
+        provider_type = provider_record.provider_type.lower()
+        
+        # Fallback to environment variable if decryption failed
+        if not api_key:
+            env_key_map = {
+                "openai": "OPENAI_API_KEY",
+                "anthropic": "ANTHROPIC_API_KEY",
+                "azure": "AZURE_OPENAI_API_KEY",
+                "google": "GOOGLE_API_KEY",
+                "gemini": "GMENI_API_KEY"
+            }
+            env_var = env_key_map.get(provider_type, f"{provider_type.upper()}_API_KEY")
+            api_key = os.environ.get(env_var)
+            
+            # Special check for Gemini if Google key missing
+            if provider_type == "google" and not api_key:
+                api_key = os.environ.get("GEMINI_API_KEY")
+
+            if api_key:
+                logger.info(f"Using {env_var} environment variable for {provider_record.name}")
+            else:
+                logger.warning(f"No API key available for {provider_record.name}")
+        
+        if provider_type == "openai":
+            return OpenAIProvider(api_key=api_key)
+        elif provider_type == "azure":
+            return AzureOpenAIProvider(
+                api_key=api_key,
+                endpoint=provider_record.endpoint,
+                deployment=provider_record.deployment_name,
+                api_version=provider_record.api_version,
+            )
+        elif provider_type == "anthropic":
+            return AnthropicProvider(api_key=api_key)
+        elif provider_type in ["google", "gemini"]:
+             return GoogleGeminiProvider(api_key=api_key, model=provider_record.model_id or "gemini-pro")
+        elif provider_type in ["local_slm", "ollama", "vllm"]:
+            return LocalSLMProvider(base_url=provider_record.endpoint or "http://localhost:11434/v1")
+        else:
+            # Default to OpenAI-compatible
+            return OpenAIProvider(api_key=api_key, base_url=provider_record.endpoint)
+
     async def _get_eligible_providers(self, preferred_name: Optional[str] = None, meta: dict = None) -> list[LLMProvider]:
         """Get list of active providers ordered by priority and task complexity."""
         import os
         meta = meta or {}
         task_tier = meta.get("tier", "high_stakes").lower()
+        use_rag = meta.get("use_rag", False)
         
         providers = []
         
@@ -241,27 +310,65 @@ class LLMGateway:
             # Create synthetic provider entries based on available API keys
             env_providers = []
             
-            if os.environ.get("OPENAI_API_KEY"):
-                # Create a mock provider object that _create_sdk_provider can use
-                class EnvProvider:
-                    def __init__(self, name, provider_type):
-                        self.id = name
-                        self.name = name
-                        self.provider_type = provider_type
-                        self.endpoint = None
-                        self.deployment_name = None
-                        self.api_version = None
-                        self.model_id = "gpt-4o-mini"
-                    def get_api_key(self):
-                        return os.environ.get(f"{self.provider_type.upper()}_API_KEY")
+            # Helper class for synthetic providers
+            class EnvProvider:
+                def __init__(self, name, provider_type, priority=10, model="gpt-4o"):
+                    self.id = name
+                    self.name = name
+                    self.provider_type = provider_type
+                    self.endpoint = None
+                    self.deployment_name = None
+                    self.api_version = None
+                    self.model_id = model
+                    self.priority = priority
+                def get_api_key(self):
+                    return None # _create_sdk_provider will fetch from env
+            
+            # Logic: 
+            # Complex Reasoning = OpenAI o1 / GPT-5 (Priority 1)
+            # RAG/Long Context = Gemini 3 Pro (Priority 1)
+            # Fast Chat = Gemini 3 Flash (Priority 1)
+            # Default = GPT-5 (Priority 1), Gemini 3 Pro (Priority 2)
+            
+            openai_key = os.environ.get("OPENAI_API_KEY")
+            google_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+            
+            # 1. Complex Reasoning Provider (OpenAI)
+            if openai_key:
+                prio = 1
+                model = "gpt-5" # Default high-end
                 
-                env_providers.append(EnvProvider("openai-env", "openai"))
+                if task_tier == "complex_reasoning":
+                    model = "o1" # Strawberry for deep reasoning
+                    prio = 1
+                elif task_tier in ["rag_heavy", "fast_chat"] and google_key:
+                    prio = 2 # Demote if better suited for Gemini
+                
+                env_providers.append(EnvProvider("openai-env", "openai", priority=prio, model=model))
+            
+            # 2. Context/Speed Provider (Google)
+            if google_key:
+                prio = 2
+                model = "gemini-3-pro-preview" # Default high-end
+                
+                if task_tier == "rag_heavy":
+                    prio = 1
+                    model = "gemini-3-pro-preview" # Massive context
+                elif task_tier == "fast_chat":
+                    prio = 1
+                    model = "gemini-3-flash-preview" # Low latency
+                elif task_tier == "complex_reasoning" and openai_key:
+                    prio = 2 # Demote if reasoning needed
+                
+                env_providers.append(EnvProvider("google-env", "google", priority=prio, model=model))
             
             if os.environ.get("ANTHROPIC_API_KEY"):
-                env_providers.append(EnvProvider("anthropic-env", "anthropic"))
+                env_providers.append(EnvProvider("anthropic-env", "anthropic", priority=3))
             
             if env_providers:
-                logger.info(f"Using {len(env_providers)} environment-based providers")
+                # Sort by priority
+                env_providers.sort(key=lambda x: x.priority)
+                logger.info(f"Using {len(env_providers)} environment-based providers. Top: {env_providers[0].name} ({env_providers[0].model_id}) for tier {task_tier}")
                 return env_providers
         
         # Routing Optimization: Prefer Local SLMs for L1/L2 (trivial/moderate) tasks

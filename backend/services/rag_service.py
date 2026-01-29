@@ -109,6 +109,24 @@ class RAGService:
             # Only log warning if we actually tried and failed
             # This prevents noise when fallback is expected
             logger.warning(f"OpenAI embedding failed: {e}")
+            
+        # Try Google Gemini
+        try:
+            # Check env var dynamically
+            import os
+            google_key = os.environ.get('GOOGLE_API_KEY') or os.environ.get('GEMINI_API_KEY')
+            if google_key:
+                import google.generativeai as genai
+                genai.configure(api_key=google_key)
+                # Use models/text-embedding-004 (latest stable) or embedding-001
+                result = genai.embed_content(
+                    model="models/text-embedding-004",
+                    content=text,
+                    task_type="retrieval_document"
+                )
+                return result['embedding']
+        except Exception as e:
+            logger.debug(f"Google embedding failed: {e}")
         
         # Try HuggingFace sentence-transformers
         try:
