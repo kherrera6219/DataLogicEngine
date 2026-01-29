@@ -1,5 +1,7 @@
 from flask import Blueprint
 from .auth_routes import auth_bp
+from flask import Blueprint
+from .auth_routes import auth_bp
 # from .page_routes import page_bp
 from .api_routes import api_bp
 from .admin_routes import admin_bp
@@ -7,6 +9,8 @@ from .knowledge_routes import knowledge_bp
 from .simulation_routes import simulation_bp
 from .ka_routes import ka_bp
 from .mcp_routes import mcp_bp
+from .multimodal_routes import multimodal_bp
+
 
 def register_routes(app):
     """Register all application blueprints."""
@@ -47,4 +51,5 @@ def register_routes(app):
     from .user_data_routes import user_data_bp
     app.register_blueprint(user_data_bp)
 
-
+    # Multimodal Routes
+    app.register_blueprint(multimodal_bp)

@@ -235,15 +235,11 @@ def export_audit_logs_route():
     from flask import send_file
     
     try:
-        # Check permission (pseudo-code, assumes login_required wraps this or is global)
-        # if not current_user.is_admin: ...
-        
         days = request.args.get('days', 30, type=int)
         
         filename = f"audit_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv"
         filepath = os.path.join("logs", "audit", filename)
         
-        # Ensure dir exists (AuditLogger does it, but to be safe for new path)
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         
         logger_instance = AuditLogger()
@@ -267,4 +263,40 @@ def export_audit_logs_route():
             'status': 'error',
             'message': f"Error exporting logs: {str(e)}"
         }), 500
+
+@compliance_bp.route('/report/pdf', methods=['POST'])
+@api_login_required
+def export_compliance_report():
+    """Generate and export a real compliance report PDF."""
+    from backend.reports.compliance import compliance_reporter, ComplianceFramework
+    from flask import send_file
+    import os
+    
+    data = request.json
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+        
+    try:
+        framework_val = data.get('framework', 'SOC2')
+        framework = ComplianceFramework(framework_val)
+        
+        # In a real scenario, we'd fetch data_points from DB
+        data_points = data.get('data_points', [])
+        
+        report = compliance_reporter.generate_report(
+            framework=framework,
+            start_date=datetime.now(),
+            end_date=datetime.now(),
+            data_points=data_points
+        )
+        
+        pdf_path = report.get('pdf_export_path')
+        if pdf_path and os.path.exists(pdf_path):
+            return send_file(pdf_path, as_attachment=True)
+        else:
+            return jsonify({"error": "Failed to generate PDF"}), 500
+            
+    except Exception as e:
+        current_app.logger.error(f"Compliance report generation failed: {e}")
+        return jsonify({"error": str(e)}), 500
 

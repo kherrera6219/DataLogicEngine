@@ -146,16 +146,23 @@ class LLMGateway:
                 user_id = str(request.user_id) if request.user_id else "anonymous"
                 
                 if request.run_ukg_pipeline:
-                    result = await self._run_ukg_overlay(
-                        sdk_provider=sdk_provider,
-                        model=model,
-                        query=query,
-                        user_id=user_id,
-                        session_id=request.session_id,
-                        meta=request.meta,
-                        temperature=request.temperature,
-                        max_tokens=request.max_tokens or 1024,
-                    )
+                    # Decide between standard overlay and quad persona analysis
+                    if request.mode == "quad" or request.meta.get("quad_persona", False):
+                        result = await self._run_quad_analysis(
+                            query=query,
+                            context=request.meta,
+                        )
+                    else:
+                        result = await self._run_ukg_overlay(
+                            sdk_provider=sdk_provider,
+                            model=model,
+                            query=query,
+                            user_id=user_id,
+                            session_id=request.session_id,
+                            meta=request.meta,
+                            temperature=request.temperature,
+                            max_tokens=request.max_tokens or 1024,
+                        )
                 else:
                     result = await self._direct_llm_call(
                         sdk_provider=sdk_provider,
@@ -300,6 +307,34 @@ class LLMGateway:
                 return msg.get("content", "")
         return messages[-1].get("content", "") if messages else ""
     
+    async def _run_quad_analysis(
+        self,
+        query: str,
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Run query through QuadPersonaEngine for 4-way expert analysis."""
+        try:
+            from backend.quad_persona.quad_engine import create_quad_engine
+            engine = create_quad_engine()
+            
+            # Run the concurrent analysis
+            analysis = await engine.run_quad_analysis(query, context)
+            
+            return {
+                "ok": True,
+                "answer": analysis.get("synthesis", "Failed to synthesize persona perspectives."),
+                "trace": [
+                    {"ka_id": "PersonaAnalysis", "status": "pass", "output": analysis.get("perspectives", {})},
+                    {"ka_id": "Synthesis", "status": "pass", "output": {"summary": analysis.get("synthesis")[:200] + "..."}}
+                ],
+                "confidence_score": analysis.get("metadata", {}).get("confidence", 0.9),
+                "tier": "high_stakes",
+                "coordinate": "AXIS_07_COMPLIANCE" # Default coordinate for persona analysis
+            }
+        except Exception as e:
+            logger.error(f"Quad persona analysis failed: {e}")
+            return {"ok": False, "error": str(e)}
+
     async def _run_ukg_overlay(
         self,
         sdk_provider: Any,

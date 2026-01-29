@@ -17,6 +17,10 @@ from flask_login import current_user
 simulation_bp = Blueprint('simulation_api', __name__, url_prefix='/api/v1')
 logger = logging.getLogger(__name__)
 
+# Initialize production engine
+from backend.simulation.simulation_engine import create_simulation_engine
+engine = create_simulation_engine()
+
 def error_response(message, status_code=400):
     return jsonify({"error": message, "success": False}), status_code
 
@@ -73,20 +77,30 @@ def run_simulation_step(uid):
     if not simulation: return error_response(f"Simulation {uid} not found", 404)
     if simulation.status != "active": return error_response(f"Simulation not active: {simulation.status}")
     
-    # Mock Step Execution
-    simulation.current_step += 1
-    simulation.last_step_at = datetime.datetime.now(UTC)
-    
-    results = simulation.results or {}
-    results[str(simulation.current_step)] = {
-        "timestamp": datetime.datetime.now(UTC).isoformat(),
-        "step": simulation.current_step,
-        "data": {"message": "Step executed successfully"}
-    }
-    simulation.results = results
-    
-    db.session.commit()
-    return success_response(simulation.to_dict(), "Step executed")
+    # Real Production Execution
+    try:
+        query = simulation.parameters.get('query', 'Standard Analysis')
+        context = simulation.parameters.get('context', {})
+        
+        # Run one step of the production engine
+        result = engine.process_query(query, context)
+        
+        simulation.current_step += 1
+        simulation.last_step_at = datetime.datetime.now(UTC)
+        
+        results = simulation.results or {}
+        results[str(simulation.current_step)] = result
+        simulation.results = results
+        
+        if result.get('status') == 'completed':
+            simulation.status = "completed"
+            simulation.completed_at = datetime.datetime.now(UTC)
+            
+        db.session.commit()
+        return success_response(simulation.to_dict(), "Step executed with production engine")
+    except Exception as e:
+        logger.error(f"Engine execution failed: {e}")
+        return error_response(f"Engine failure: {str(e)}", 500)
 
 @simulation_bp.route('/simulations/<uid>/stop', methods=['POST'])
 @api_login_required
