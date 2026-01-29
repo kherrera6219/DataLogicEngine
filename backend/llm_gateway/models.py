@@ -83,15 +83,21 @@ class LLMProvider(db.Model):
         if not self.api_key_encrypted:
             return None
         
-        key = current_app.config.get('ENCRYPTION_KEY')
-        if not key:
-            import hashlib
-            import base64
-            secret = current_app.config.get('SECRET_KEY', 'default-secret')
-            key = base64.urlsafe_b64encode(hashlib.sha256(secret.encode()).digest())
-        
-        f = Fernet(key)
-        return f.decrypt(self.api_key_encrypted).decode()
+        try:
+            key = current_app.config.get('ENCRYPTION_KEY')
+            if not key:
+                import hashlib
+                import base64
+                secret = current_app.config.get('SECRET_KEY', 'default-secret')
+                key = base64.urlsafe_b64encode(hashlib.sha256(secret.encode()).digest())
+            
+            f = Fernet(key)
+            return f.decrypt(self.api_key_encrypted).decode()
+        except Exception as e:
+            # Handle decryption errors (InvalidToken, wrong key, etc.)
+            import logging
+            logging.getLogger(__name__).warning(f"Failed to decrypt API key for provider {self.name}: {e}")
+            return None
     
     def to_dict(self, include_key: bool = False) -> dict:
         """Serialize provider (optionally include masked key)."""

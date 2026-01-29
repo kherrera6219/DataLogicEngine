@@ -158,11 +158,27 @@ class EncryptionManager:
             return self._rotate_dek()
 
         # Load current DEK
-        current_key_entry = self.dek_registry["keys"][-1]
-        encrypted_dek = base64.b64decode(current_key_entry["encrypted_key"])
-        dek = self._kek.decrypt(encrypted_dek)
-
-        return Fernet(dek)
+        try:
+            current_key_entry = self.dek_registry["keys"][-1]
+            encrypted_dek = base64.b64decode(current_key_entry["encrypted_key"])
+            dek = self._kek.decrypt(encrypted_dek)
+            return Fernet(dek)
+        except Exception as e:
+            # KEK changed or DEK corrupted - need to regenerate
+            logger.warning(f"Failed to decrypt DEK (KEK may have changed): {e}")
+            logger.warning("Regenerating encryption keys. Old encrypted data may be unrecoverable.")
+            
+            # Clear old keys and create new one
+            self.dek_registry["keys"] = []
+            self.dek_registry["current_version"] = 1
+            self._save_dek_registry()
+            
+            self._log_audit("key_regeneration", {
+                "reason": "dek_decryption_failed",
+                "error": str(e)
+            })
+            
+            return self._rotate_dek()
 
     def _rotate_dek(self) -> Fernet:
         """

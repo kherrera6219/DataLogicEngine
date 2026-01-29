@@ -215,18 +215,55 @@ class LLMGateway:
 
     async def _get_eligible_providers(self, preferred_name: Optional[str] = None, meta: dict = None) -> list[LLMProvider]:
         """Get list of active providers ordered by priority and task complexity."""
+        import os
         meta = meta or {}
         task_tier = meta.get("tier", "high_stakes").lower()
         
-        if preferred_name:
-            query = LLMProvider.query.filter(
-                (LLMProvider.name == preferred_name) | (LLMProvider.provider_type == preferred_name),
-                LLMProvider.is_active == True
-            )
-            providers = query.all()
-        else:
-            providers = LLMProvider.query.filter_by(is_active=True).order_by(LLMProvider.priority).all()
+        providers = []
+        
+        # Try to get providers from database
+        try:
+            if preferred_name:
+                query = LLMProvider.query.filter(
+                    (LLMProvider.name == preferred_name) | (LLMProvider.provider_type == preferred_name),
+                    LLMProvider.is_active == True
+                )
+                providers = query.all()
+            else:
+                providers = LLMProvider.query.filter_by(is_active=True).order_by(LLMProvider.priority).all()
+        except Exception as e:
+            logger.warning(f"Failed to query providers from DB: {e}")
+            providers = []
+        
+        # If no providers found or DB failed, check for environment-based providers
+        if not providers:
+            logger.info("No DB providers found, checking environment variables")
+            # Create synthetic provider entries based on available API keys
+            env_providers = []
             
+            if os.environ.get("OPENAI_API_KEY"):
+                # Create a mock provider object that _create_sdk_provider can use
+                class EnvProvider:
+                    def __init__(self, name, provider_type):
+                        self.id = name
+                        self.name = name
+                        self.provider_type = provider_type
+                        self.endpoint = None
+                        self.deployment_name = None
+                        self.api_version = None
+                        self.model_id = "gpt-4o-mini"
+                    def get_api_key(self):
+                        return os.environ.get(f"{self.provider_type.upper()}_API_KEY")
+                
+                env_providers.append(EnvProvider("openai-env", "openai"))
+            
+            if os.environ.get("ANTHROPIC_API_KEY"):
+                env_providers.append(EnvProvider("anthropic-env", "anthropic"))
+            
+            if env_providers:
+                logger.info(f"Using {len(env_providers)} environment-based providers")
+                return env_providers
+        
         # Routing Optimization: Prefer Local SLMs for L1/L2 (trivial/moderate) tasks
         if task_tier in ["trivial", "moderate", "t1", "t2"]:
             # Move local_slm/ollama/vllm to the front of the list
@@ -285,6 +322,7 @@ class LLMGateway:
     
     def _create_sdk_provider(self, provider_record: Optional[LLMProvider]) -> Any:
         """Create SDK provider instance from database config."""
+        import os
         try:
             from ukg_sdk.providers import OpenAIProvider, AzureOpenAIProvider, AnthropicProvider, LocalSLMProvider
         except ImportError:
@@ -295,7 +333,28 @@ class LLMGateway:
             # Fallback to environment
             return OpenAIProvider()
         
-        api_key = provider_record.get_api_key()
+        # Try to get API key from database, fallback to environment
+        api_key = None
+        try:
+            api_key = provider_record.get_api_key()
+        except Exception as e:
+            logger.warning(f"Failed to decrypt API key for {provider_record.name}: {e}")
+        
+        # Fallback to environment variable if decryption failed
+        if not api_key:
+            provider_type = provider_record.provider_type.lower()
+            env_key_map = {
+                "openai": "OPENAI_API_KEY",
+                "anthropic": "ANTHROPIC_API_KEY",
+                "azure": "AZURE_OPENAI_API_KEY",
+            }
+            env_var = env_key_map.get(provider_type, f"{provider_type.upper()}_API_KEY")
+            api_key = os.environ.get(env_var)
+            if api_key:
+                logger.info(f"Using {env_var} environment variable for {provider_record.name}")
+            else:
+                logger.warning(f"No API key available for {provider_record.name}")
+        
         provider_type = provider_record.provider_type.lower()
         
         if provider_type == "openai":
