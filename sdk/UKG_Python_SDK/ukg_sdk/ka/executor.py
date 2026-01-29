@@ -43,9 +43,23 @@ class KAExecutor:
     def register(self, ka_id: str, handler: KAHandler):
         self.handlers[ka_id] = handler
 
-    def execute(self, ka_id: str, inputs: Dict[str, Any], meta: Optional[Dict[str, Any]] = None) -> KAExecutionResult:
+    def execute(self, ka_id: str, inputs: Optional[Dict[str, Any]] = None, meta: Optional[Dict[str, Any]] = None, **kwargs) -> KAExecutionResult:
+        """
+        Execute a Knowledge Agent by ID.
+        Supports both 'inputs' (plural) and 'input' (singular) for backward compatibility with overlay.py.
+        All extra keyword arguments are merged into 'meta'.
+        """
         start = time.time()
-        ctx = KAExecutionContext(ka_id=ka_id, input=inputs, meta=meta or {})
+        
+        # Handle input name variation
+        actual_input = inputs or kwargs.pop("input", {})
+        
+        # Merge extra kwargs into meta
+        actual_meta = meta or {}
+        if kwargs:
+            actual_meta.update(kwargs)
+            
+        ctx = KAExecutionContext(ka_id=ka_id, input=actual_input, meta=actual_meta)
         handler = self.handlers.get(ka_id)
         if handler is None:
             dur = int((time.time() - start) * 1000)

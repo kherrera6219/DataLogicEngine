@@ -130,7 +130,18 @@ class LLMGateway:
 
         last_error = None
         
-        # 2. Try providers in order
+        # 2. Extract Query and Load History
+        query = self._extract_query(request.messages)
+        user_id_str = str(request.user_id) if request.user_id else "anonymous"
+        
+        history = []
+        if request.session_id:
+            # Save user message once before trying providers
+            await self._save_chat_message(request.session_id, request.user_id, "user", query)
+            # Load history for context injection
+            history = await self._get_recent_history(request.session_id)
+        
+        # 3. Try providers in order
         for provider_record in providers:
             cb = self._get_circuit_breaker(str(provider_record.id))
             
@@ -139,15 +150,13 @@ class LLMGateway:
                 continue
                 
             try:
-                # 3. Create SDK provider and run
+                # 4. Create SDK provider and run
                 sdk_provider = self._create_sdk_provider(provider_record)
                 model = request.model or (provider_record.model_id if provider_record else "gpt-4")
-                query = self._extract_query(request.messages)
-                user_id_str = str(request.user_id) if request.user_id else "anonymous"
                 
-                # Persist user message if session context exists
-                if request.session_id:
-                    await self._save_chat_message(request.session_id, request.user_id, "user", query)
+                # Combine history with current query for context
+                # If using standard messages, we should prepend history
+                full_messages = history + request.messages
                 
                 if request.run_ukg_pipeline:
                     # Retrieve relevant context from RAG (VectorStore)
@@ -163,7 +172,7 @@ class LLMGateway:
                             logger.warning(f"RAG context retrieval failed: {e}")
                     
                     # Inject RAG context into meta for UKG overlay
-                    augmented_meta = {**request.meta, "rag_context": rag_context}
+                    augmented_meta = {**request.meta, "rag_context": rag_context, "chat_history": history}
                     
                     # Decide between standard overlay and quad persona analysis
                     if request.mode == "quad" or request.meta.get("quad_persona", False):
@@ -186,7 +195,7 @@ class LLMGateway:
                     result = await self._direct_llm_call(
                         sdk_provider=sdk_provider,
                         model=model,
-                        messages=request.messages,
+                        messages=full_messages,
                         temperature=request.temperature,
                         max_tokens=request.max_tokens or 1024,
                     )
@@ -200,7 +209,8 @@ class LLMGateway:
                                           result.get("usage", {}).get("prompt_tokens", 0), 
                                           result.get("usage", {}).get("completion_tokens", 0), 
                                           latency_ms, True)
-                                          
+                    
+                    # Persist assistant response
                     if request.session_id:
                         await self._save_chat_message(request.session_id, request.user_id, "assistant", result.get("answer", ""), run_id)
                                           
@@ -246,7 +256,9 @@ class LLMGateway:
         except Exception as e:
             logger.warning(f"Failed to decrypt API key for {provider_record.name}: {e}")
         
-        provider_type = provider_record.provider_type.lower()
+        # Safety check for provider_type attribute
+        raw_type = getattr(provider_record, 'provider_type', 'openai')
+        provider_type = str(raw_type).lower() if raw_type else 'openai'
         
         # Fallback to environment variable if decryption failed
         if not api_key:
@@ -255,7 +267,7 @@ class LLMGateway:
                 "anthropic": "ANTHROPIC_API_KEY",
                 "azure": "AZURE_OPENAI_API_KEY",
                 "google": "GOOGLE_API_KEY",
-                "gemini": "GMENI_API_KEY"
+                "gemini": "GEMINI_API_KEY"
             }
             env_var = env_key_map.get(provider_type, f"{provider_type.upper()}_API_KEY")
             api_key = os.environ.get(env_var)
@@ -453,73 +465,6 @@ class LLMGateway:
             error=error
         )
     
-    async def _get_provider_record(self, provider_name: Optional[str]) -> Optional[LLMProvider]:
-        """Get provider config from database."""
-        if provider_name:
-            record = LLMProvider.query.filter_by(name=provider_name, is_active=True).first()
-            if not record:
-                record = LLMProvider.query.filter_by(provider_type=provider_name, is_active=True).first()
-            return record
-        
-        # Get default
-        record = LLMProvider.query.filter_by(is_default=True, is_active=True).first()
-        if not record:
-            record = LLMProvider.query.filter_by(is_active=True).order_by(LLMProvider.priority).first()
-        return record
-    
-    def _create_sdk_provider(self, provider_record: Optional[LLMProvider]) -> Any:
-        """Create SDK provider instance from database config."""
-        import os
-        try:
-            from ukg_sdk.providers import OpenAIProvider, AzureOpenAIProvider, AnthropicProvider, LocalSLMProvider
-        except ImportError:
-            logger.warning("UKG SDK providers not available, using fallback")
-            return None
-        
-        if not provider_record:
-            # Fallback to environment
-            return OpenAIProvider()
-        
-        # Try to get API key from database, fallback to environment
-        api_key = None
-        try:
-            api_key = provider_record.get_api_key()
-        except Exception as e:
-            logger.warning(f"Failed to decrypt API key for {provider_record.name}: {e}")
-        
-        # Fallback to environment variable if decryption failed
-        if not api_key:
-            provider_type = provider_record.provider_type.lower()
-            env_key_map = {
-                "openai": "OPENAI_API_KEY",
-                "anthropic": "ANTHROPIC_API_KEY",
-                "azure": "AZURE_OPENAI_API_KEY",
-            }
-            env_var = env_key_map.get(provider_type, f"{provider_type.upper()}_API_KEY")
-            api_key = os.environ.get(env_var)
-            if api_key:
-                logger.info(f"Using {env_var} environment variable for {provider_record.name}")
-            else:
-                logger.warning(f"No API key available for {provider_record.name}")
-        
-        provider_type = provider_record.provider_type.lower()
-        
-        if provider_type == "openai":
-            return OpenAIProvider(api_key=api_key)
-        elif provider_type == "azure":
-            return AzureOpenAIProvider(
-                api_key=api_key,
-                endpoint=provider_record.endpoint,
-                deployment=provider_record.deployment_name,
-                api_version=provider_record.api_version,
-            )
-        elif provider_type == "anthropic":
-            return AnthropicProvider(api_key=api_key)
-        elif provider_type in ["local_slm", "ollama", "vllm"]:
-            return LocalSLMProvider(base_url=provider_record.endpoint or "http://localhost:11434/v1")
-        else:
-            # Default to OpenAI-compatible
-            return OpenAIProvider(api_key=api_key, base_url=provider_record.endpoint)
     
     def _extract_query(self, messages: list[dict[str, Any]]) -> str:
         """Extract user query from messages, handling multimodal content."""

@@ -11,6 +11,22 @@ from __future__ import annotations
 from typing import Any, Dict
 
 
+class Coordinate:
+    """A 17-axis coordinate vector."""
+    def __init__(self, axes: Dict[str, Any]):
+        self.axes = axes
+
+    def as_compact_string(self) -> str:
+        """Return a compact string representation of the coordinate."""
+        # Focus on Pillar (axis_1) and Sector (axis_2) for compact representation
+        p = self.axes.get("axis_1", "unk")
+        s = self.axes.get("axis_2", "unk")
+        return f"UKG:{p}:{s}"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.axes
+
+
 class CoordinateResolver17:
     """
     Resolve queries into 17‑axis coordinates.
@@ -48,31 +64,29 @@ class CoordinateResolver17:
             except Exception:
                 self.pillar_data = {}
 
-    def resolve(self, query: str) -> Dict[str, Any]:
+    def resolve(self, input_data: str | Dict[str, Any]) -> Coordinate:
         """
-        Resolve a query into a 17‑axis coordinate vector.
-
-        The resolver uses keyword matching to identify sectors or pillars from
-        the loaded axis taxonomies.  For demonstration purposes the logic is
-        intentionally simple: if a token in the query matches a known
-        industry keyword (from NAICS or SIC terms), it selects the
-        corresponding axis_2 value.  Similarly, certain geography cues map
-        to axis_12 (location) and basic temporal expressions to axis_13.
+        Resolve a query or meta dict into a 17‑axis coordinate vector.
 
         Parameters
         ----------
-        query:
-            The raw user query (already normalised by the TruthGate).
+        input_data:
+            The raw user query or a metadata dictionary containing the query.
 
         Returns
         -------
-        Dict[str, Any]
-            A dictionary of axis identifiers to selected values.  Unknown
-            axes default to generic placeholders.
+        Coordinate
+            A Coordinate object containing the 17-axis vector.
         """
-        text = (query or "").lower()
+        # Handle dict/meta input gracefully
+        if isinstance(input_data, dict):
+             query = input_data.get("query", "") or input_data.get("input", "") or str(input_data)
+        else:
+             query = str(input_data or "")
+
+        text = query.lower()
         # Initialise coordinate with defaults
-        coord: Dict[str, Any] = {
+        axes: Dict[str, Any] = {
             "axis_1": "unknown_pillar",
             "axis_2": "unknown_sector",
             "axis_3": "unknown_domain",
@@ -104,18 +118,19 @@ class CoordinateResolver17:
                         keywords[name] = coords
             for word in text.split():
                 if word in keywords:
-                    coord["axis_2"] = keywords[word]
+                    axes["axis_2"] = keywords[word]
                     break
         # Simple location detection
         for loc in ["us", "europe", "asia", "africa"]:
             if loc in text:
-                coord["axis_12"] = loc
+                axes["axis_12"] = loc
                 break
         # Simple temporal detection
         if any(t in text for t in ["today", "now", "current"]):
-            coord["axis_13"] = "present"
+            axes["axis_13"] = "present"
         elif any(t in text for t in ["yesterday", "last week", "last month"]):
-            coord["axis_13"] = "past"
+            axes["axis_13"] = "past"
         elif any(t in text for t in ["tomorrow", "next week", "next year"]):
-            coord["axis_13"] = "future"
-        return coord
+            axes["axis_13"] = "future"
+            
+        return Coordinate(axes)
