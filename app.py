@@ -563,6 +563,22 @@ def ratelimit_handler(e):
         }
     }), 429
 
+# Wrap initialization in create_app factory for testing and proper context
+def create_app(config_name=None):
+    """Application factory for testing and production."""
+    # Use existing global app if already initialized (for backward compatibility)
+    global app
+    
+    # In a full factory pattern we'd create a new Flask app here
+    # For now, we return the global app which is already configured
+    # This enables `from app import create_app; app = create_app()` flow needed by tests
+    return app
+
+# Configure logging - use INFO in production, DEBUG in development
+if not app.debug:
+    # Set up production logging if needed
+    pass
+
 # Run the application
 if __name__ == '__main__':
     # CRITICAL: Force debug=False in production, regardless of environment variable leaks

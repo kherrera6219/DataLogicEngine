@@ -90,12 +90,14 @@ class RAGService:
         2. HuggingFace local model
         3. Mock embedding for testing
         """
-        import os
-        
         # Try OpenAI
-        openai_key = os.environ.get('OPENAI_API_KEY')
-        if openai_key:
-            try:
+        # Check env var dynamically each time to handle late-bound keys
+        try:
+            import os
+            # Force fresh check of environment
+            openai_key = os.environ.get('OPENAI_API_KEY')
+            if openai_key:
+                # Use langchain or openai directly
                 import openai
                 client = openai.OpenAI(api_key=openai_key)
                 response = client.embeddings.create(
@@ -103,8 +105,10 @@ class RAGService:
                     input=text
                 )
                 return response.data[0].embedding
-            except Exception as e:
-                logger.warning(f"OpenAI embedding failed: {e}")
+        except Exception as e:
+            # Only log warning if we actually tried and failed
+            # This prevents noise when fallback is expected
+            logger.warning(f"OpenAI embedding failed: {e}")
         
         # Try HuggingFace sentence-transformers
         try:
@@ -114,6 +118,8 @@ class RAGService:
             return self._hf_model.encode(text).tolist()
         except ImportError:
             pass
+        except Exception as e:
+            logger.debug(f"HuggingFace embedding init failed: {e}")
         
         # Fallback to mock embedding
         return self._mock_embedding(text)
