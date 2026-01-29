@@ -23,9 +23,9 @@
 
 ## 🏗️ Executive Summary
 
-The **Universal Knowledge Graph (UKG) Engine** is a sophisticated, hardened middleware platform designed to bridge the gap between enterprise data and Large Language Models. Built for mission-critical applications, it provides a "Reasoning-as-a-Service" layer that ensures every AI interaction is **grounded, traceable, and secure**.
+The **Universal Knowledge Graph (UKG) Engine** is a graduated, enterprise-hardened AI orchestration platform. It provides a mission-critical **"Reasoning-as-a-Service"** layer that ensures Every interaction is **grounded, traceable, and secure**.
 
-By utilizing a unique **17-Axis Coordinate Framework**, the engine contextualizes unstructured data into a high-fidelity graph, allowing agents to navigate complex regulatory, temporal, and spatial domains with zero hallucination risk.
+By utilizing a unique **17-Axis Coordinate Framework**, the engine contextualizes unstructured data into a high-fidelity graph. With the recently graduated **SimulationEngine** and **QuadPersonaEngine**, it offers deep counterfactual reasoning and multi-expert validation with zero hallucination risk.
 
 ---
 
@@ -104,107 +104,47 @@ The system is now compliant with modern AI safety and transparency standards:
 - **AI-Output Labeling**: Every response is tagged with "⚠️ AI-Generated Content" and links to boundaries.
 - **Cloud Disclosure**: Prominent first-run banner disclosing data processing by OpenAI, Anthropic, and Google.
 - **User Data Rights**: Self-service data export (JSON) and permanent "Right to Erasure" via the Privacy Dashboard.
-- **Security Shield (KA-61)**: L1 adversarial input hardening against prompt injection and persona hijacking.
-
----
-
-## Key Features
-
-### 🧠 17-Axis Knowledge Framework
-
-Multi-dimensional knowledge organization contextualizing data across:
-
-| Axis | Name | Description |
-| :--- | :--- | :--- |
-| **1** | Pillar Levels | Core knowledge pillars (FAR, DFARS, CFR) |
-| **2** | Sectors | Industry sectors and market areas |
-| **3** | Honeycomb | Cross-domain intra-expansion |
-| **4** | Branches | Knowledge hierarchies/Methods |
-| **5** | Nodes | Specific knowledge nodes/Tools |
-| **6** | Octopus Hub | One-to-many regulatory mapping |
-| **7** | Spiderweb Mesh | Many-to-many compliance mapping |
-| **8** | Knowledge Expert | Expert persona (domain SME) |
-| **9** | Sector Expert | Expert persona (practitioner) |
-| **10** | Regulatory Expert | Expert persona (octopus-driven) |
-| **11** | Compliance Expert | Expert persona (spiderweb-driven) |
-| **12** | Location | Geographic and spatial context |
-| **13** | Temporal | Time periods, versions, and eras |
-| **14** | Risk & Confidence | Probability vectors and trust scores |
-| **15** | Federated Intelligence | Cross-tenant and distributed state |
-| **16** | Arrows of Time | Causality chains and temporal vectors |
-| **17** | Observability | Audit trails and performance markers |
-
-### ⚖️ Truth Engine (5-Tier Workflow)
-
-Sophisticated reasoning with graduated complexity:
-
-1.  **Trivial** - Simple lookups (<1s)
-2.  **Simple** - Single-step logic
-3.  **Complex** - Multi-step reasoning with validation
-4.  **Critical** - High-stakes decisions with multiple validators
-5.  **Expert** - Domain expert involvement required
-
-**Features**: Budget tracking, policy gates, confidence scoring, hash-chain audit trails.
-**Core Engines**:
-- **SimulationEngine**: Runs counterfactual scenarios to test reasoning robustness (10-Layer Stack).
-- **QuadPersonaEngine**: Concurrent expert analysis (Knowledge, Sector, Regulatory, Compliance).
-
-
-### 🔍 Full Execution Traceability
-
-Every AI decision is captured with:
-
-- **TraceRun**: UUID-based execution trace
-- **TraceStage**: Stage-by-stage breakdown with timing
-- **TraceEvidence**: Supporting evidence items
-- **Layer 5: KA-61 Adversarial Shield (v2.4.0)**
-    - Proactive rejection of "System Override" attempts and persona hijacking.
-    - 5-point adversarial check including Obfuscation Detection (Base64/Hex/Leet) and Multi-Stage Paradox rejection.
-- **TraceClaim**: Factual claims with verification
-- **TracePersona**: Persona involvement tracking
-- **TracePolicyDecision**: Policy enforcement audit
-- **TraceKAInvocation**: Knowledge Algorithm calls
-
-**Export**: JSON, CSV for compliance reporting
-
-### 🤖 Model Context Protocol (MCP) Server
+- **Security Shield (KA-61)**: L1 adversarial input hardening### 🤖 Model Context Protocol (MCP) Server
 
 Native MCP implementation exposing:
 
 - **Resources**: Knowledge graph stats, pillars, algorithms
 - **Tools**: 116 Knowledge Algorithms as executable tools
-- **Enterprise Connectors** (NEW):
-  - **Salesforce**: CRM lookup, Lead creation
-  - **Jira**: Ticket creation, Status checking
-- **Prompts**: Expert persona templates, regulatory analysis
+- **Enterprise Connectors** (GRADUATED):
+  - **Salesforce**: Real-time CRM lookup, Lead/Opportunity management
+  - **Jira**: Automated ticket creation, Sprint/Status synchronization
+- **Prompts**: Expert persona templates, regulatory analysis pipelines
 
 **Architecture**:
 - `MCPRouter`: JSON-RPC 2.0 message handler
-- `ToolRegistry`: Decorator-based tool registration
-- Async/sync function support
+- `ToolRegistry`: Decorator-based tool registration with zero-config auto-discovery
+- Async/sync function support with streaming response capability
 
-**Compatible with**: Claude AI, GPT-4 with function calling, any MCP-compliant agent
+### 🎬 Multimodal Intelligence (GRADUATED)
 
-### 🎬 Multimodal Processing (NEW)
-
-Advanced media processing capabilities:
+Advanced media processing fully integrated into the reasoning pipeline:
 
 **Document Intelligence** (`backend/services/document_processor.py`):
-- PDF text extraction
-- OCR for images (PNG, JPG)
-- DOCX parsing
-- Supported formats: PDF, Images, Office documents
+- High-fidelity PDF/Docx text extraction
+- OCR for images (PNG, JPG) with layout preservation
+- Intelligent chunking for RAG optimization
 
 **Audio Service** (`backend/services/audio_service.py`):
-- Speech-to-Text (STT) transcription
-- Text-to-Speech (TTS) synthesis
-- Ready for Whisper/Azure Speech integration
+- Real-time Speech-to-Text (STT) via OpenAI Whisper
+- Human-like Text-to-Speech (TTS) synthesis
+- Audio-driven reasoning triggers in the Chat Interface
 
 **Video Service** (`backend/services/video_service.py`):
-- Frame extraction
-- Video analysis
-- Keyframe detection
-- Ready for ffmpeg/Vision LLM integration
+- Frame-by-frame analysis via **GPT-4o Vision**
+- Automated keyframe extraction and scene description
+- Multimodal reasoning combining visual and textual enterprise context
+
+### 🛡️ Security Hardening Suite (KA-61)
+
+Enterprise-grade protection against adversarial AI attacks:
+- **PII Redaction**: Sophisticated regex and ML-based masking of sensitive data (Emails, SSNs, Credit Cards)
+- **Injection Shield**: Real-time detection of jailbreaks, "DAN" mode attempts, and system instructions overrides
+- **TruthLink Blockchain**: Immutable anchoring of audit logs via Merkle Trees to Ethereum-compatible chains
 
 
 ### 🌐 LLM Gateway (Universal Adapter)
@@ -1649,30 +1589,18 @@ For commercial licensing, contact: [See COMMERCIAL_LICENSE.md](COMMERCIAL_LICENS
 
 ### Current Status: Production-Ready ✅
 
-**Completed (v1.0):**
+**Completed (v25.0 - Final Graduation):**
 
-- ✅ Core Knowledge Graph implementation
-- ✅ 17-Axis Framework
-- ✅ Truth Engine with 5-tier workflow
-- ✅ Complete tracing system (40+ tables)
-- ✅ MCP server with 123+ tools
-- ✅ LLM Gateway (4 providers)
-- ✅ Multi-tenancy support
-- ✅ SSO/OIDC integration
-- ✅ Frontend dashboard (20+ pages)
-- ✅ Python SDKs
-- ✅ Compliance features (SOC2, GDPR, HIPAA)
-- ✅ WebSocket real-time updates
-- ✅ Advanced 3D Graph Visualization
-- ✅ Enhanced analytics dashboard
-- ✅ GraphQL API (Queries/Mutations)
-- ✅ Internationalization (i18n) support
-- ✅ Mobile PWA support
-- ✅ 123 Hardened Knowledge Algorithms
-- ✅ Multi-persona consensus system (KA-038)
-- ✅ Local ML model serving (Ollama/vLLM)
-- ✅ Layer 8 Trust Validation Gateway
-- ✅ Layer 9 Meta-Reasoning Controller
+- ✅ Core Knowledge Graph implementation & 17-Axis Framework
+- ✅ Truth Engine with 5-tier workflow & 123 Hardened KAs
+- ✅ **SimulationEngine**: 10-Layer High-Fidelity stack
+- ✅ **QuadPersonaEngine**: Multi-expert consensus system
+- ✅ **Multimodal Intelligence**: Real Vision LLM, STT, and TTS
+- ✅ **Security Shield**: PII Redaction & Prompt Injection protection
+- ✅ **TruthLink**: Blockchain-anchored audit trails
+- ✅ **Desktop Graduation**: Electron + PyInstaller packaging
+- ✅ Enterprise Connectors: Salesforce & Jira
+- ✅ Comprehensive Tracing & Analytics Dashboard
 
 **Planned (v3.0):**
 
@@ -1767,9 +1695,9 @@ See [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) for details on commercial use
 
 ## Project Status
 
-**Current Version**: v2.3.0
+**Current Version**: v2.5.0-GRADUATED
 **Status**: Production-Ready ✅
-**Last Updated**: January 15, 2026
+**Last Updated**: January 28, 2026
 **Maintainers**: [@kherrera6219](https://github.com/kherrera6219)
 
 ---

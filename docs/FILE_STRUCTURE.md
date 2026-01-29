@@ -45,174 +45,39 @@ DataLogicEngine/
 
 ### 3.1. Frontend (`/frontend`)
 
-This directory contains the **Next.js 16** (React 19) App Router application.
+This directory contains the **Next.js 16** (React 19) App Router application, packaged for desktop via **Electron**.
 
 ```text
 frontend/
 ├── app/                        # Application Routes (App Router)
-│   ├── (auth)/                 # Auth Route Group
-│   │   ├── login/
-│   │   │   └── page.tsx        # Login page
-│   │   └── register/
-│   │       └── page.tsx        # Registration page
-│   ├── dashboard/
-│   │   └── page.tsx            # Main dashboard with system metrics
-│   ├── chat/
-│   │   └── page.tsx            # Interactive chat interface
-│   ├── graph/
-│   │   └── page.tsx            # Knowledge graph visualization
-│   ├── knowledge/
-│   │   └── page.tsx            # Knowledge browser (nodes/edges)
-│   ├── runs/
-│   │   ├── [id]/               # Dynamic route for run details
-│   │   │   └── page.tsx
-│   │   └── page.tsx            # Trace runs explorer
-│   ├── analytics/
-│   │   └── page.tsx            # System analytics dashboard
-│   ├── algorithms/
-│   │   └── page.tsx            # Knowledge Algorithm browser
-│   ├── admin/
-│   │   ├── page.tsx            # Admin dashboard
-│   │   ├── compliance/
-│   │   │   └── page.tsx        # Compliance audit interface
-│   │   └── mcp/
-│   │       └── page.tsx        # MCP server management
-│   ├── settings/
-│   │   └── page.tsx            # User settings
-│   ├── profile/
-│   │   └── page.tsx            # User profile
-│   ├── about/
-│   │   └── page.tsx            # About page
-│   ├── layout.tsx              # Root layout (providers, navbar)
-│   ├── page.tsx                # Landing page
-│   └── globals.css             # Global styles
-│
 ├── components/                 # React Components
-│   ├── Chat/                   # Chat-specific components
-│   │   ├── ChatInterface.tsx
-│   │   ├── MessageBubble.tsx
-│   │   └── ChatInput.tsx
-│   ├── ui/                     # Base UI components (Shadcn/Radix)
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── dialog.tsx
-│   │   ├── dropdown-menu.tsx
-│   │   ├── input.tsx
-│   │   ├── select.tsx
-│   │   ├── table.tsx
-│   │   ├── tabs.tsx
-│   │   ├── badge.tsx
-│   │   ├── tooltip.tsx
-│   │   └── ... (20+ components)
-│   ├── Graph/                  # Graph visualization
-│   │   └── GraphVisualization.tsx
-│   ├── Analytics/              # Analytics widgets
-│   │   └── MetricsCard.tsx
-│   ├── NavBar.tsx              # Main navigation bar
-│   └── ... (other shared components)
-│
-├── lib/                        # Utilities & helpers
-│   ├── api/                    # API client functions
-│   │   ├── types.ts            # TypeScript interfaces
-│   │   ├── trace.ts            # Trace API client
-│   │   ├── auth.ts             # Auth API client
-│   │   ├── mcp.ts              # MCP API client
-│   │   ├── knowledge.ts        # Knowledge graph client
-│   │   └── compliance.ts       # Compliance API client
-│   └── utils.ts                # Utility functions (cn, formatters)
-│
-├── contexts/                   # React Context providers
-│   └── AuthContext.tsx         # Authentication context
-│
-├── public/                     # Static assets
-│   ├── images/
-│   ├── icons/
-│   └── favicon.ico
-│
-├── next.config.ts              # Next.js configuration (proxy, rewrites)
-├── tailwind.config.ts          # Tailwind CSS configuration
-├── tsconfig.json               # TypeScript configuration
-├── package.json                # Dependencies (Next.js 16, React 19, etc.)
-├── .eslintrc.json              # ESLint configuration
-└── README.md                   # Frontend documentation
+│   ├── Chat/                   # Chat-specific (DetailedResponseView, TraceVisualizer)
+│   ├── ui/                     # Base UI components (ScrollArea, Button, etc.)
+│   ├── mcp/                    # MCP Analytics & Management
+│   └── Graph/                  # 3D Axis Visualization
+├── lib/                        # Utilities & API Clients
+├── electron/                   # Desktop process logic (main.ts, preload.ts)
+├── electron-builder.yml        # Desktop build configuration
+├── next.config.ts              # Next.js configuration
+└── package.json                # Dependencies & Build Scripts
 ```
 
 ### 3.2. Backend (`/backend`)
 
-Contains the **Flask 3.1** application logic, API endpoints, and service integrations.
+Flask 3.1 application logic, including the high-fidelity graduation engines.
 
 ```text
 backend/
-├── __init__.py                         # Legacy app factory (transitional)
-├── llm_gateway/                        # LLM Gateway Module
-│   ├── __init__.py
-│   ├── api.py                          # Public chat endpoints (17 KB)
-│   ├── gateway.py                      # Core gateway logic (25 KB)
-│   ├── providers.py                    # Provider adapters (OpenAI, Azure, Anthropic, Google)
-│   ├── models.py                       # LLMProvider, LLMProviderUsage models
-│   └── schemas.py                      # Pydantic validation schemas
-│
-├── truth_engine/                       # Truth Engine Module
-│   ├── __init__.py
-│   ├── api.py                          # REST API endpoints (12 KB)
-│   ├── truth_core/                     # Core reasoning logic
-│   │   ├── __init__.py
-│   │   └── reasoning.py
-│   ├── truth_gate/                     # Policy enforcement
-│   │   ├── __init__.py
-│   │   └── gates.py
-│   ├── truth_link/                     # Evidence linking
-│   │   ├── __init__.py
-│   │   └── linker.py
-│   └── truth_memory/                   # Memory management
-│       ├── __init__.py
-│       └── memory.py
-│
-├── tracing/                            # Tracing System
-│   ├── __init__.py
-│   ├── api.py                          # Trace endpoints (18 KB)
-│   └── models.py                       # TraceRun, TraceStage, etc. (9 tables)
-│
-├── auth/                               # Authentication
-│   ├── __init__.py
-│   ├── sso.py                          # OIDC/SSO integration (Authlib)
-│   ├── api_decorators.py               # Auth decorators (@login_required, etc.)
-│   └── password_policy.py              # Password validation
-│
-├── security/                           # Security Module
-│   ├── __init__.py
-│   ├── security_headers.py             # HTTP security headers
-│   └── audit_logger.py                 # SIEM audit logging
-│
-├── middleware/                         # Cross-cutting concerns
-│   ├── __init__.py
-│   ├── correlation_id.py               # Distributed tracing (X-Request-ID)
-│   ├── request_limits.py               # Max content length
-│   ├── timeout.py                      # Request timeout
-│   └── security_headers.py             # Security headers middleware
-│
-├── api_gateway/                        # API Gateway
-│   ├── __init__.py
-│   └── gateway.py                      # Request routing
-│
-├── model_context/                      # Model Context
-│   ├── __init__.py
-│   └── context.py                      # Context management
-│
-├── webhook_server/                     # Webhook Handling
-│   ├── __init__.py
-│   └── webhooks.py
-│
-├── ukg_api.py                          # Main UKG API (17 KB)
-├── ukg_db.py                           # UKG Database Manager (39 KB)
-├── config_manager.py                   # Configuration management
-├── data_loader.py                      # Data initialization
-├── seed_data.py                        # Test data seeding
-├── celery_app.py                       # Celery task queue
-├── compliance_api.py                   # Compliance operations
-├── regulatory_api.py                   # Regulatory framework
-├── location_api.py                     # Location services
-└── ... (additional service files)
+├── app.py                      # Main entry point & Flask instance
+├── mcp_server/                 # MCP Implementation (Router/Registry)
+├── services/                   # Multimodal (Audio/Video/DocProcessor)
+├── security/                   # Hardening (PII/Injection Shield)
+├── quad_persona/               # QuadPersonaEngine
+├── simulation/                 # SimulationEngine (10-Layer)
+├── truth_engine/               # TruthEngine & Blockchain Adapter
+├── tracing/                    # Tracing models & Logic
+├── llm_gateway/                # Model orchestration
+└── routes/                     # Blueprint registration
 ```
 
 ### 3.3. Core (`/core`)
@@ -385,7 +250,8 @@ routes/
 | **PyJWT** | 2.10.1 | JWT tokens |
 | **Cryptography** | 44.0.0 | Encryption |
 | **bcrypt** | 4.2.1 | Password hashing |
-| **Flask-Limiter** | 3.10.1 | Rate limiting |
+| **Last Updated:** 2026-01-28
+| **Version:** 2.5.0-GRADUATED
 | **Pydantic** | 2.x | Data validation |
 | **Marshmallow** | 3.x | Schema validation |
 | **OpenAI** | 1.58.1 | LLM integration |

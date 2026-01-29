@@ -1,7 +1,7 @@
 # DataLogicEngine Developer Guide
 
-**Last Updated:** 2026-01-12  
-**Version:** 1.0
+**Last Updated:** 2026-01-28  
+**Version:** 2.5.0-GRADUATED
 
 ---
 
@@ -10,9 +10,10 @@
 ### Prerequisites
 
 - Python 3.11+
-- PostgreSQL 14+
-- Redis 6+
-- Node.js 18+ (for frontend)
+- PostgreSQL 16+
+- Redis 7+
+- Node.js 20+ (for frontend)
+- **OpenAI API Key** (Vision support required for VideoService)
 
 ### Initial Setup
 
@@ -36,7 +37,7 @@ cp .env.template .env
 flask db upgrade
 
 # Run development server
-python run.py
+python app.py
 ```
 
 ---
@@ -45,25 +46,20 @@ python run.py
 
 ```
 DataLogicEngine/
-├── app.py                 # Flask application factory
-├── config.py              # Configuration classes
-├── models.py              # SQLAlchemy models (core)
-├── extensions.py          # Flask extensions init
 ├── backend/
-│   ├── security/          # Auth, CSRF, headers
-│   ├── tracing/           # Enterprise traceability
-│   ├── llm_gateway/       # LLM provider abstraction
-│   └── *.py               # Core services
-├── core/
-│   ├── engine/            # KA engine, simulation
-│   ├── graph/             # Knowledge graph
-│   └── algorithms/        # Processing algorithms
-├── knowledge_algorithms/  # 58+ KA implementations
-├── quad_persona/          # Quad persona engine
-├── simulation/            # 10-layer simulation stack
-├── routes/                # Flask blueprints
-├── tests/                 # Test suites
-└── docs/                  # Documentation
+│   ├── mcp_server/        # MCP Router & Registry
+│   ├── services/          # Multimodal (Audio, Video, Doc)
+│   ├── security/          # PII & Injection Shiels
+│   ├── quad_persona/      # Multi-expert engine
+│   ├── simulation/        # 10-layer scenario stack
+│   └── truth_engine/      # Compliance & Blockchain
+├── frontend/
+│   ├── app/               # Next.js Routes
+│   ├── components/        # React UI
+│   └── electron/          # Desktop process
+├── sdk/                   # UKG Python SDK
+├── tests/                 # Security & Quality suites
+└── docs/                  # Graduation documentation
 ```
 
 ---

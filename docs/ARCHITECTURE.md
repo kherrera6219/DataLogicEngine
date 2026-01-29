@@ -1,5 +1,5 @@
 # Universal Knowledge Graph (UKG) System Architecture
-**Version 2.4.0 - January 16, 2026**
+**Version 2.5.0 - January 28, 2026**
 
 ## Overview
 
@@ -29,18 +29,20 @@ graph TD
     subgraph "Middleware Stack"
         API -->|Middleware| AUTH[SSO/OIDC Mapping]
         API -->|Middleware| TM[Correlation/Trace Engine]
-        API -->|Middleware| CB[Circuit Breaker & Failover]
+        API -->|Middleware| SEC[Security: PII/Injection Shield]
     end
 
     subgraph "Knowledge Processing"
-        CB -->|Logic| UKG[17-Axis Pipeline]
+        SEC -->|Logic| UKG[17-Axis Pipeline]
         UKG -->|Retrieval| DB[(PostgreSQL)]
-        UKG -->|Cache| RC[(Redis Cache)]
-        UKG -->|Tools| MCP[MCP KA Server]
+        UKG -->|Engines| ENG[Simulation & QuadPersona]
+        UKG -->|Tools| MCP[MCP Server: Salesforce/Jira]
     end
 
+    UKG -->|Multimodal| SVC[Audio/Video/Doc Services]
     UKG -->|Grounded| LLM[LLM Gateway]
     LLM -->|Request| PROVIDER[OpenAI / Azure / Anthropic]
+    TM -->|Audit| BC[TruthLink Blockchain]
 ```
 
 ---
@@ -205,54 +207,29 @@ The system employs a unified infrastructure for managing and executing **Knowled
 - Persona-based reasoning
 - Workflow step tracking
 
-**Database Models**:
-
-- `TruthSession` - Reasoning sessions
-- `TruthAuditEvent` - Immutable events with hash chain
-- `TruthArtifact` - Reasoning artifacts
-- `TruthBudget` - Resource allocation
-
-#### 3. Tracing System (`backend/tracing/`)
-
-**Purpose**: Comprehensive execution traceability for AI decisions
-
-**Data Models** (9 tables):
-
-- `TraceRun` - Top-level execution (UUID-based)
-- `TraceStage` - Execution stages with timing
-- `TraceEvidence` - Supporting evidence items
-- `TraceClaim` - Factual claims made
-- `TracePersona` - Persona involvement
-- `TraceKAInvocation` - Knowledge Algorithm calls
-- `TracePolicyDecision` - Policy enforcement decisions
-- `TraceMemoryEvent` - Memory operations
-- `TraceArtifact` - Execution artifacts
-
-**Features**:
-
-- Full audit chain with correlation IDs
-- Confidence, entropy, bias_risk scoring
-- Stage-by-stage timing and performance metrics
-- Evidence and claim linking
-- Export to JSON/CSV
-
-#### 4. MCP Server (`core/mcp/`)
+#### 4. MCP Server (`backend/mcp_server/`)
 
 **Purpose**: Model Context Protocol implementation for LLM agent integration
 
 **Components**:
 
-- `mcp_server.py` - MCP server implementation
-- `mcp_client.py` - MCP client
-- `mcp_manager.py` - Server/client orchestration
-- `mcp_protocol.py` - JSON-RPC 2.0 protocol definitions
+- `router.py` - MCP JSON-RPC router (25 KB)
+- `registry.py` - Decorator-based tool registry
+- `tools/` - Salesforce, Jira, and KA tool implementations
 
 **Exposes**:
 
 - **Resources**: Knowledge graph stats, pillars, algorithms
-- **Tools**: 100+ Knowledge Algorithms (query_kg, execute_simulation, check_compliance)
+- **Tools**: 116 Knowledge Algorithms + CRM/Jira connectors
 - **Prompts**: Expert persona templates, regulatory analysis templates
-- **Subscriptions**: Real-time resource updates
+
+#### 5. Multimodal Services (`backend/services/`)
+
+**Purpose**: High-fidelity media processing services
+
+- `document_processor.py`: PDF/OCR/Docx extraction
+- `audio_service.py`: Real-time STT (Whisper) and TTS synthesis
+- `video_service.py`: Keyframe extraction and Vision LLM (GPT-4o) analysis
 
 **Database Models**:
 
@@ -829,16 +806,19 @@ services:
 
 ## 9. Technology Summary
 
-| Layer          | Technology    | Version | Purpose          |
-| -------------- | ------------- | ------- | ---------------- |
-| **Frontend**   | Next.js       | 16.1.1  | React framework  |
-| **Backend**    | Flask         | 3.1.2   | Web framework    |
-| **Database**   | PostgreSQL    | 16.6    | Knowledge Store  |
-| **Release**    | v2.0.0 Stable | 2026-01 | Production Ready |
-
----
-
-## 10. v2.0 Intelligence Pillars
+|├── ukg_api.py                          # Main UKG API (17 KB)
+├── ukg_db.py                           # UKG Database Manager (39 KB)
+├── mcp_server/                         # MCP Server Implementation
+│   ├── router.py                       # JSON-RPC Router
+│   ├── registry.py                     # Tool Registry
+│   └── tools/                          # Salesforce/Jira tools
+├── services/                           # Multimodal Services
+│   ├── document_processor.py           # PDF/OCR/Docx
+│   ├── audio_service.py                # STT/TTS
+│   └── video_service.py                # Video/Vision
+├── security/                           # Security Hardening
+│   ├── pii_redaction.py                # PII Masking
+│   └── prompt_injection_shield.py      # Adversarial Defense
 
 - **Consensus Intelligence**: Multi-persona arbitration and conflict resolution.
 - **Local ML Efficiency**: Local SLM routing for L1/L2 tasks.
