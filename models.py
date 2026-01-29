@@ -13,8 +13,7 @@ from typing import Optional, Dict, Any, List
 import logging
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import Index, event
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy import Index, event, JSON, UUID
 from sqlalchemy.exc import SQLAlchemyError
 
 from extensions import db
@@ -83,7 +82,7 @@ class User(db.Model):
     # MFA fields
     mfa_enabled: bool = db.Column(db.Boolean, default=False)
     mfa_secret: Optional[str] = db.Column(db.String(255))
-    backup_codes: Optional[List] = db.Column(JSONB)  # Encrypted list of backup codes
+    backup_codes: Optional[List] = db.Column(JSON)  # Encrypted list of backup codes
 
     # Account security fields
     failed_login_attempts: int = db.Column(db.Integer, default=0)
@@ -280,14 +279,14 @@ class SimulationSession(db.Model):
         from extensions import encryption_manager
         self._description = encryption_manager.encrypt(value, field_name='sim_desc')
 
-    parameters: Optional[Dict] = db.Column(JSONB)
+    parameters: Optional[Dict] = db.Column(JSON)
     status: Optional[str] = db.Column(db.String(20), index=True)
     current_step: Optional[int] = db.Column(db.Integer)
     total_steps: Optional[int] = db.Column(db.Integer)
     created_at: datetime = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     started_at: Optional[datetime] = db.Column(db.DateTime)
     completed_at: Optional[datetime] = db.Column(db.DateTime)
-    results: Optional[Dict] = db.Column(JSONB)
+    results: Optional[Dict] = db.Column(JSON)
 
     user = db.relationship('User', backref=db.backref('simulations', lazy='dynamic'))
 
@@ -330,7 +329,7 @@ class KnowledgeGraphNode(db.Model):
     label: Optional[str] = db.Column(db.String(100))
     description: Optional[str] = db.Column(db.Text)
     axis_number: Optional[int] = db.Column(db.Integer, index=True)
-    data: Optional[Dict] = db.Column(JSONB)
+    data: Optional[Dict] = db.Column(JSON)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert node to dictionary representation."""
@@ -366,7 +365,7 @@ class KnowledgeGraphEdge(db.Model):
     target_id: int = db.Column(db.Integer, db.ForeignKey('kg_nodes.id'), nullable=False, index=True)
     edge_type: Optional[str] = db.Column(db.String(50), index=True)
     weight: Optional[float] = db.Column(db.Float)
-    data: Optional[Dict] = db.Column(JSONB)
+    data: Optional[Dict] = db.Column(JSON)
 
     source = db.relationship('KnowledgeGraphNode', foreign_keys=[source_id], backref='out_edges')
     target = db.relationship('KnowledgeGraphNode', foreign_keys=[target_id], backref='in_edges')

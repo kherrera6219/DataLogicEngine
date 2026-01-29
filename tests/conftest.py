@@ -12,17 +12,14 @@ os.environ['REDIS_URL'] = 'redis://localhost:6379/0' # Keep URL but we'll disabl
 os.environ['USE_REDIS'] = 'False'
 os.environ['SESSION_TYPE'] = 'null' # Disable flask-session for tests if possible
 
-import pytest
-from app import app, db
-from extensions import limiter
-
-# Load environment variables for tests
-load_dotenv()
-
 # Ensure repository root is on the Python path for tests
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
+
+import pytest
+from app import app, db
+from extensions import limiter
 
 @pytest.fixture
 def client():

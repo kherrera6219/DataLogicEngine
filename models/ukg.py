@@ -1,6 +1,6 @@
 from datetime import datetime, UTC
 from extensions import db
-from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy import JSON
 
 def _utcnow():
     """Return current UTC datetime."""

@@ -9,7 +9,7 @@ from .knowledge_routes import knowledge_bp
 from .simulation_routes import simulation_bp
 from .ka_routes import ka_bp
 from .mcp_routes import mcp_bp
-from .multimodal_routes import multimodal_bp
+from backend.routes.multimodal_routes import multimodal_bp
 
 
 def register_routes(app):

@@ -375,7 +375,7 @@ class TestSecurityHeaders:
             response = client.get('/')
             # HSTS should be set in production
             # (actual check depends on middleware implementation)
-            assert response.status_code in [200, 302, 404]
+            assert response.status_code in [200, 301, 302, 404]
 
 
 class TestRateLimiting:

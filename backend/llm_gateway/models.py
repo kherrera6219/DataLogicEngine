@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime, UTC
 from typing import Optional
 
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import JSON, UUID
 from cryptography.fernet import Fernet
 from flask import current_app
 
@@ -51,7 +51,7 @@ class LLMProvider(db.Model):
     max_retries = db.Column(db.Integer, default=3)
     
     # Additional config
-    config = db.Column(JSONB, nullable=True)  # Extra provider-specific config
+    config = db.Column(JSON, nullable=True)  # Extra provider-specific config
     
     # Ownership
     tenant_id = db.Column(db.String(100), nullable=True)
@@ -185,9 +185,9 @@ class ExternalAPIKey(db.Model):
     tenant_id = db.Column(db.String(100), nullable=True)
     
     # Permissions
-    permissions = db.Column(JSONB, default=lambda: {'read': True, 'write': True, 'admin': False})
-    allowed_providers = db.Column(JSONB, nullable=True)  # Restrict to specific providers
-    allowed_models = db.Column(JSONB, nullable=True)  # Restrict to specific models
+    permissions = db.Column(JSON, default=lambda: {'read': True, 'write': True, 'admin': False})
+    allowed_providers = db.Column(JSON, nullable=True)  # Restrict to specific providers
+    allowed_models = db.Column(JSON, nullable=True)  # Restrict to specific models
     
     # Limits
     rate_limit_rpm = db.Column(db.Integer, default=60)
