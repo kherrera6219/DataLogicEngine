@@ -2,6 +2,12 @@ import asyncio
 import uuid
 import sys
 import os
+from datetime import datetime
+
+# Handle Windows console encoding for emojis
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # Add parent to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -26,7 +32,7 @@ async def verify_chat_persistence():
         user = User.query.filter_by(username="test_user").first()
         if not user:
             user = User(username="test_user", email="test@example.com")
-            user.set_password("TestPassword123!")
+            user.set_password("SecureAuth_2026!")
             db.session.add(user)
             db.session.commit()
             print(f"✅ Created test user: {user.id}")

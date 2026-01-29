@@ -5,7 +5,7 @@ from datetime import datetime, UTC
 from typing import Dict, Any, Optional
 
 from extensions import db
-from backend.tracing.models import TraceKAInvocation, TraceRun, TraceStage
+from models import TraceKAInvocation, TraceRun, TraceStage
 
 logger = logging.getLogger(__name__)
 

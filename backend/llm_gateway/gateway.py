@@ -621,7 +621,7 @@ class LLMGateway:
     ) -> None:
         """Create TraceRun and TraceStage records from SDK result."""
         try:
-            from backend.tracing.models import TraceRun, TraceStage
+            from models import TraceRun, TraceStage
             try:
                 from extensions import db, cache
             except ImportError:

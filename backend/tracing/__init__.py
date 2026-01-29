@@ -4,7 +4,7 @@ Tracing Backend Package
 Provides full traceability infrastructure for the enterprise chatbot.
 """
 
-from backend.tracing.models import (
+from models import (
     TraceRun,
     TraceStage,
     TraceEvidence,

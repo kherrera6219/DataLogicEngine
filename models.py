@@ -8,12 +8,13 @@ This module defines the core SQLAlchemy models with:
 - Proper exception handling
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Optional, Dict, Any, List
 import logging
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import Index, event, JSON, UUID, LargeBinary
+from sqlalchemy import JSON as JSONB
 from sqlalchemy.exc import SQLAlchemyError
 from cryptography.fernet import Fernet
 from flask import current_app
@@ -613,72 +614,555 @@ class ChatMessage(db.Model):
     content = db.Column(db.Text, nullable=False)
     run_id = db.Column(UUID(as_uuid=True), nullable=True)
     is_enhanced = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
 
 class TraceRun(db.Model):
     """Top-level trace run capturing a complete chat interaction."""
     __tablename__ = 'trace_runs'
-    
+
     run_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     session_id = db.Column(UUID(as_uuid=True), nullable=True)
+    tenant_id = db.Column(db.String(100), nullable=True)
+    workspace_id = db.Column(db.String(100), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    status = db.Column(db.String(20), default='running')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    correlation_id = db.Column(db.String(100), nullable=True)
+
+    # Status and timing
+    status = db.Column(db.String(20), default='running')  # running, pass, warn, fail
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     completed_at = db.Column(db.DateTime, nullable=True)
+
+    # Model and policy context
     model_name = db.Column(db.String(100), nullable=True)
+    model_version = db.Column(db.String(50), nullable=True)
+    policy_pack_id = db.Column(db.String(100), nullable=True)
+    policy_pack_version = db.Column(db.String(50), nullable=True)
+
+    # Data snapshot references
+    data_snapshot = db.Column(JSONB, nullable=True)  # ukg_snapshot, uskd_snapshot, index_versions
+
+    # Scores
+    confidence = db.Column(db.Float, default=0.0)
+    entropy = db.Column(db.Float, default=0.0)
+    bias_risk = db.Column(db.Float, default=0.0)
+
+    # Input/Output
     input_message = db.Column(db.Text, nullable=True)
     final_answer = db.Column(db.Text, nullable=True)
-    
+
+    # Relationships
     stages = db.relationship('TraceStage', backref='run', lazy='dynamic', cascade='all, delete-orphan')
+    evidence_items = db.relationship('TraceEvidence', backref='run', lazy='dynamic', cascade='all, delete-orphan')
+    claims = db.relationship('TraceClaim', backref='run', lazy='dynamic', cascade='all, delete-orphan')
+    personas = db.relationship('TracePersona', backref='run', lazy='dynamic', cascade='all, delete-orphan')
+    ka_invocations = db.relationship('TraceKAInvocation', backref='run', lazy='dynamic', cascade='all, delete-orphan')
+    policy_decisions = db.relationship('TracePolicyDecision', backref='run', lazy='dynamic', cascade='all, delete-orphan')
+    memory_events = db.relationship('TraceMemoryEvent', backref='run', lazy='dynamic', cascade='all, delete-orphan')
+
+    def to_dict(self):
+        return {
+            'run_id': str(self.run_id),
+            'session_id': str(self.session_id) if self.session_id else None,
+            'tenant_id': self.tenant_id,
+            'user_id': self.user_id,
+            'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
+            'model': {'name': self.model_name, 'version': self.model_version},
+            'policy_pack': {'id': self.policy_pack_id, 'version': self.policy_pack_version},
+            'data_snapshot': self.data_snapshot,
+            'scores': {
+                'confidence': self.confidence,
+                'entropy': self.entropy,
+                'bias_risk': self.bias_risk
+            },
+            'input_message': self.input_message,
+            'final_answer': self.final_answer
+        }
 
 
 class TraceStage(db.Model):
-    """Individual stage in the execution pipeline."""
+    """Individual stage in the execution pipeline (Layer 1-10 or Step 1-12)."""
     __tablename__ = 'trace_stages'
-    
+
     stage_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+
+    # Stage identification
     name = db.Column(db.String(100), nullable=False)
-    status = db.Column(db.String(20), default='running')
-    start_time = db.Column(db.DateTime, default=datetime.utcnow)
+    stage_type = db.Column(db.String(20), default='layer')  # layer, step
+    layer_index = db.Column(db.Integer, nullable=True)  # 1-10 for layers
+    step_index = db.Column(db.Integer, nullable=True)   # 1-12 for steps
+
+    # Status and timing
+    status = db.Column(db.String(20), default='running')  # running, pass, warn, fail, skipped
+    start_time = db.Column(db.DateTime, nullable=True)
     end_time = db.Column(db.DateTime, nullable=True)
     duration_ms = db.Column(db.Integer, nullable=True)
+
+    # Inputs/Outputs (artifact references)
+    inputs = db.Column(JSONB, nullable=True)   # [{artifact_id, label}]
+    outputs = db.Column(JSONB, nullable=True)  # [{artifact_id, label}]
+
+    # Decisions made at this stage
+    decisions = db.Column(JSONB, nullable=True)  # [{description, rationale, alternatives}]
+
+    # Metrics
+    metrics = db.Column(JSONB, nullable=True)  # tokens_in, tokens_out, retrieval_count, cache_hits, retries
+
+    def to_dict(self):
+        return {
+            'stage_id': str(self.stage_id),
+            'run_id': str(self.run_id),
+            'name': self.name,
+            'type': self.stage_type,
+            'layer_index': self.layer_index,
+            'step_index': self.step_index,
+            'status': self.status,
+            'timing': {
+                'start_time': self.start_time.isoformat() if self.start_time else None,
+                'end_time': self.end_time.isoformat() if self.end_time else None,
+                'duration_ms': self.duration_ms
+            },
+            'inputs': self.inputs,
+            'outputs': self.outputs,
+            'decisions': self.decisions,
+            'metrics': self.metrics
+        }
 
 
 class TraceEvidence(db.Model):
     """Evidence item used in a run."""
     __tablename__ = 'trace_evidence'
-    
+
     evidence_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
-    source_type = db.Column(db.String(50), nullable=True)
+
+    # Source information
+    source_type = db.Column(db.String(50), nullable=True)  # doc, url, db_record, user_upload
+    source_id = db.Column(db.String(255), nullable=True)
     source_title = db.Column(db.String(500), nullable=True)
+    authority = db.Column(db.String(20), default='medium')  # high, medium, low
+
+    # Location within source
+    locator = db.Column(JSONB, nullable=True)  # page, section, line_range, url
+
+    # Content
     snippet = db.Column(db.Text, nullable=True)
+    content_hash = db.Column(db.String(100), nullable=True)  # sha256
+
+    # Retrieval metadata
+    retrieval_method = db.Column(db.String(50), nullable=True)  # vector, graph, rules, manual
     relevance_score = db.Column(db.Float, nullable=True)
+    axis_match_score = db.Column(db.Float, nullable=True)
+
+    # Usage tracking
+    used_by_claims = db.Column(JSONB, nullable=True)    # [claim_id]
+    used_by_personas = db.Column(JSONB, nullable=True)  # [persona_id]
+    used_by_stages = db.Column(JSONB, nullable=True)    # [stage_id]
+
+    # Conflicts
+    conflicts_with = db.Column(JSONB, nullable=True)  # [evidence_id]
+
+    def to_dict(self):
+        return {
+            'evidence_id': str(self.evidence_id),
+            'run_id': str(self.run_id),
+            'source': {
+                'type': self.source_type,
+                'id': self.source_id,
+                'title': self.source_title,
+                'authority': self.authority
+            },
+            'locator': self.locator,
+            'snippet': self.snippet,
+            'hash': self.content_hash,
+            'retrieval': {
+                'method': self.retrieval_method,
+                'relevance_score': self.relevance_score,
+                'axis_match': self.axis_match_score
+            },
+            'used_by': {
+                'claims': self.used_by_claims,
+                'personas': self.used_by_personas,
+                'stages': self.used_by_stages
+            },
+            'conflicts_with': self.conflicts_with
+        }
 
 
 class TraceClaim(db.Model):
     """Individual claim extracted from the final answer."""
     __tablename__ = 'trace_claims'
-    
+
     claim_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+
+    # Claim content
     text = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(20), default='pending')
+    answer_span_start = db.Column(db.Integer, nullable=True)
+    answer_span_end = db.Column(db.Integer, nullable=True)
+
+    # Support status
+    status = db.Column(db.String(20), default='pending')  # supported, partial, unsupported, contested
     confidence = db.Column(db.Float, default=0.0)
+
+    # Evidence links
+    evidence_ids = db.Column(JSONB, nullable=True)  # [evidence_id]
+    stage_ids = db.Column(JSONB, nullable=True)     # [stage_id]
+
+    def to_dict(self):
+        return {
+            'claim_id': str(self.claim_id),
+            'run_id': str(self.run_id),
+            'text': self.text,
+            'answer_span': {'start': self.answer_span_start, 'end': self.answer_span_end},
+            'support': {
+                'status': self.status,
+                'confidence': self.confidence,
+                'evidence_ids': self.evidence_ids,
+                'stage_ids': self.stage_ids
+            }
+        }
+
+
+class TraceAxisVector(db.Model):
+    """17-axis coordinate vector for a run."""
+    __tablename__ = 'trace_axis_vectors'
+
+    vector_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False, unique=True)
+
+    # Per-axis data
+    axes = db.Column(JSONB, nullable=False)  # [{axis_id, name, selected, candidates, trigger_evidence}]
+
+    # Coordinate hash for comparison
+    coordinate_hash = db.Column(db.String(100), nullable=True)
+
+    def to_dict(self):
+        return {
+            'vector_id': str(self.vector_id),
+            'run_id': str(self.run_id),
+            'axes': self.axes,
+            'coordinate_hash': self.coordinate_hash
+        }
+
+
+class TracePersona(db.Model):
+    """Persona execution trace (Quad Persona + custom)."""
+    __tablename__ = 'trace_personas'
+
+    persona_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+
+    # Persona identification
+    persona_type = db.Column(db.String(50), nullable=False)  # analyst, expert, critic, synthesizer, custom
+    persona_name = db.Column(db.String(100), nullable=True)
+
+    # Status
+    status = db.Column(db.String(20), default='pending')  # pending, running, pass, warn, fail
+
+    # Inputs (what this persona was given)
+    evidence_ids = db.Column(JSONB, nullable=True)
+    context_scope = db.Column(db.Text, nullable=True)
+
+    # Output
+    draft_text = db.Column(db.Text, nullable=True)
+    confidence = db.Column(db.Float, default=0.0)
+
+    # Objections and consensus
+    objections = db.Column(JSONB, nullable=True)  # [{type, detail}]
+    consensus_impact = db.Column(JSONB, nullable=True)  # {changed_answer, delta_summary}
+
+    def to_dict(self):
+        return {
+            'persona_id': str(self.persona_id),
+            'run_id': str(self.run_id),
+            'persona_type': self.persona_type,
+            'persona_name': self.persona_name,
+            'status': self.status,
+            'inputs': {
+                'evidence_ids': self.evidence_ids,
+                'context_scope': self.context_scope
+            },
+            'draft': {
+                'text': self.draft_text,
+                'confidence': self.confidence
+            },
+            'objections': self.objections,
+            'consensus_impact': self.consensus_impact
+        }
+
+
+class TraceKAInvocation(db.Model):
+    """Knowledge Algorithm invocation trace."""
+    __tablename__ = 'trace_ka_invocations'
+
+    invocation_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+    stage_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_stages.stage_id'), nullable=True)
+
+    # KA identification
+    ka_id = db.Column(db.String(100), nullable=False)
+    ka_name = db.Column(db.String(200), nullable=True)
+    ka_version = db.Column(db.String(50), nullable=True)
+
+    # Execution
+    status = db.Column(db.String(20), default='pending')
+    duration_ms = db.Column(db.Integer, nullable=True)
+
+    # Inputs/Outputs
+    inputs = db.Column(JSONB, nullable=True)
+    outputs = db.Column(JSONB, nullable=True)
+
+    # Routing decision
+    routing = db.Column(JSONB, nullable=True)  # {complexity_score, axis_triggers, reason}
+
+    # Side effects
+    side_effects = db.Column(JSONB, nullable=True)  # [{type, ref_id}]
+
+    def to_dict(self):
+        return {
+            'invocation_id': str(self.invocation_id),
+            'run_id': str(self.run_id),
+            'stage_id': str(self.stage_id) if self.stage_id else None,
+            'ka_id': self.ka_id,
+            'ka_name': self.ka_name,
+            'ka_version': self.ka_version,
+            'status': self.status,
+            'timing': {'duration_ms': self.duration_ms},
+            'inputs': self.inputs,
+            'outputs': self.outputs,
+            'routing': self.routing,
+            'side_effects': self.side_effects
+        }
 
 
 class TracePolicyDecision(db.Model):
     """Policy/guardrail decision trace."""
     __tablename__ = 'trace_policy_decisions'
-    
+
     decision_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
-    policy_rule_id = db.Column(db.String(100), nullable=True)
-    decision_type = db.Column(db.String(20), nullable=False)
-    reason = db.Column(db.Text, nullable=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    stage_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_stages.stage_id'), nullable=True)
+
+    # Policy identification
+    policy_id = db.Column(db.String(100), nullable=False)
+    policy_name = db.Column(db.String(200), nullable=True)
+    rule_id = db.Column(db.String(100), nullable=True)
+
+    # Decision
+    decision = db.Column(db.String(20), nullable=False)  # allow, block, flag, redact
+    rationale = db.Column(db.Text, nullable=True)
+    sensitivity_score = db.Column(db.Float, default=0.0)
+
+    # Modifications (if redacted)
+    modifications = db.Column(JSONB, nullable=True)  # [{type, original, replacement}]
+
+    def to_dict(self):
+        return {
+            'decision_id': str(self.decision_id),
+            'run_id': str(self.run_id),
+            'stage_id': str(self.stage_id) if self.stage_id else None,
+            'policy': {'id': self.policy_id, 'name': self.policy_name, 'rule_id': self.rule_id},
+            'decision': self.decision,
+            'rationale': self.rationale,
+            'sensitivity': self.sensitivity_score,
+            'modifications': self.modifications
+        }
+
+
+class TraceMemoryEvent(db.Model):
+    """Event capturing memory interaction during a run."""
+    __tablename__ = 'trace_memory_events'
+
+    event_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+
+    # Event identification
+    event_type = db.Column(db.String(50), nullable=False)  # recall, commit, forget, consolidate
+    memory_type = db.Column(db.String(20), default='short')  # short, long, semantic, episodic
+
+    # Content
+    content = db.Column(JSONB, nullable=False)
+    context_keys = db.Column(JSONB, nullable=True)
+
+    # Impact
+    impact_score = db.Column(db.Float, default=0.0)
+
+    def to_dict(self):
+        return {
+            'event_id': str(self.event_id),
+            'run_id': str(self.run_id),
+            'type': self.event_type,
+            'memory_type': self.memory_type,
+            'content': self.content,
+            'context': self.context_keys,
+            'impact': self.impact_score
+        }
+
+
+class TraceArtifact(db.Model):
+    """Intermediate artifact generated during a run."""
+    __tablename__ = 'trace_artifacts'
+
+    artifact_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+    stage_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_stages.stage_id'), nullable=True)
+
+    # Artifact metadata
+    label = db.Column(db.String(100), nullable=False)
+    artifact_type = db.Column(db.String(50), nullable=True)  # code, diagram, summary, search_query
+    media_type = db.Column(db.String(100), default='text/plain')
+
+    # Content
+    content = db.Column(db.Text, nullable=False)
+    version = db.Column(db.Integer, default=1)
+
+    # Redaction status
+    is_redacted = db.Column(db.Boolean, default=False)
+    redaction_level = db.Column(db.String(20), nullable=True)
+
+    def to_dict(self):
+        return {
+            'artifact_id': str(self.artifact_id),
+            'run_id': str(self.run_id),
+            'stage_id': str(self.stage_id) if self.stage_id else None,
+            'label': self.label,
+            'type': self.artifact_type,
+            'media_type': self.media_type,
+            'content': self.content,
+            'version': self.version,
+            'is_redacted': self.is_redacted
+        }
+
+
+class ClaimEvidenceLink(db.Model):
+    """Explicit link between claims and evidence with confidence."""
+    __tablename__ = 'claim_evidence_links'
+
+    id = db.Column(db.Integer, primary_key=True)
+    claim_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_claims.claim_id'), nullable=False)
+    evidence_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_evidence.evidence_id'), nullable=False)
+
+    confidence = db.Column(db.Float, default=1.0)
+    rationale = db.Column(db.Text, nullable=True)
+
+
+class TraceSpan(db.Model):
+    """Detailed timing span for performance tracing."""
+    __tablename__ = 'trace_spans'
+
+    span_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+    parent_id = db.Column(UUID(as_uuid=True), nullable=True)
+
+    name = db.Column(db.String(200), nullable=False)
+    service = db.Column(db.String(100), nullable=True)
+
+    start_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime, nullable=True)
+    tags = db.Column(JSONB, nullable=True)
+
+
+class StageLog(db.Model):
+    """Raw logs from a specific stage."""
+    __tablename__ = 'trace_stage_logs'
+
+    log_id = db.Column(db.Integer, primary_key=True)
+    stage_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_stages.stage_id'), nullable=False)
+
+    level = db.Column(db.String(20), default='info')
+    message = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    extra = db.Column(JSONB, nullable=True)
+
+
+class TraceExport(db.Model):
+    """History of trace exports."""
+    __tablename__ = 'trace_exports'
+
+    export_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+
+    format = db.Column(db.String(20), default='json')
+    destination = db.Column(db.String(100), nullable=True)  # s3, local, webhook
+    exported_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
+
+class ComplianceMapping(db.Model):
+    """Mapping of trace data to compliance requirements."""
+    __tablename__ = 'compliance_mappings'
+
+    mapping_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+
+    framework = db.Column(db.String(50), nullable=False)  # gdpr, soc2, hipaa
+    control_id = db.Column(db.String(100), nullable=False)
+    status = db.Column(db.String(20), default='compliant')
+    evidence_refs = db.Column(JSONB, nullable=True)
+
+
+class ArtifactRedaction(db.Model):
+    """Record of redaction operations on artifacts."""
+    __tablename__ = 'artifact_redactions'
+
+    redaction_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    artifact_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_artifacts.artifact_id'), nullable=False)
+
+    rule_id = db.Column(db.String(100), nullable=True)
+    redactor_name = db.Column(db.String(100), nullable=True)
+    pattern_matched = db.Column(db.String(255), nullable=True)
+
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+
+
+class EvidenceConflict(db.Model):
+    """Record of identified evidence conflicts."""
+    __tablename__ = 'evidence_conflicts'
+
+    conflict_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+
+    evidence_a_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_evidence.evidence_id'), nullable=False)
+    evidence_b_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_evidence.evidence_id'), nullable=False)
+
+    conflict_type = db.Column(db.String(50), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    resolution = db.Column(db.String(100), nullable=True)
+
+
+class PersonaEvidenceLink(db.Model):
+    """Link between persona and evidence items."""
+    __tablename__ = 'persona_evidence_links'
+
+    id = db.Column(db.Integer, primary_key=True)
+    persona_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_personas.persona_id'), nullable=False)
+    evidence_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_evidence.evidence_id'), nullable=False)
+
+
+class StageArtifactLink(db.Model):
+    """Link between stage and its artifacts."""
+    __tablename__ = 'stage_artifact_links'
+
+    id = db.Column(db.Integer, primary_key=True)
+    stage_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_stages.stage_id'), nullable=False)
+    artifact_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_artifacts.artifact_id'), nullable=False)
+
+    role = db.Column(db.String(20), default='output')  # input, output
+
+
+class KAArtifactLink(db.Model):
+    """Link between KA invocation and artifacts."""
+    __tablename__ = 'ka_artifact_links'
+
+    id = db.Column(db.Integer, primary_key=True)
+    invocation_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_ka_invocations.invocation_id'), nullable=False)
+    artifact_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_artifacts.artifact_id'), nullable=False)
+
+    role = db.Column(db.String(20), default='output')
 
 class Persona(db.Model):
     """Model for Personas in the Quad Persona System."""
@@ -1261,6 +1745,389 @@ class TruthLinkMessage(db.Model):
             'priority': self.priority,
             'status': self.status,
             'retry_count': self.retry_count,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+# -------------------------------------------------------------------------
+# Missing UKG Model Definitions
+# -------------------------------------------------------------------------
+
+class PillarLevel(db.Model):
+    """Model for Pillar Levels (Axis 1: Knowledge)."""
+    __tablename__ = 'ukg_pillar_levels'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    pillar_id = db.Column(db.String(10), unique=True, nullable=False)  # e.g., "PL01", "PL48"
+    name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    sublevels = db.Column(db.JSON, nullable=True)
+    tenant_id = db.Column(db.String(64), index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'pillar_id': self.pillar_id,
+            'name': self.name,
+            'description': self.description,
+            'sublevels': self.sublevels,
+            'tenant_id': self.tenant_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+class Sector(db.Model):
+    """Model for Sectors (Axis 2)."""
+    __tablename__ = 'ukg_sectors'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    sector_code = db.Column(db.String(50), unique=True, nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    tenant_id = db.Column(db.String(64), index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'sector_code': self.sector_code,
+            'name': self.name,
+            'description': self.description,
+            'tenant_id': self.tenant_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+class Domain(db.Model):
+    """Model for Domains (Axis 3)."""
+    __tablename__ = 'ukg_domains'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    name = db.Column(db.String(255), nullable=False, unique=True)
+    description = db.Column(db.Text, nullable=True)
+    tenant_id = db.Column(db.String(64), index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'name': self.name,
+            'description': self.description,
+            'tenant_id': self.tenant_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+class Location(db.Model):
+    """Model for Locations (Axis 12)."""
+    __tablename__ = 'ukg_locations'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    tenant_id = db.Column(db.String(64), index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'name': self.name,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'tenant_id': self.tenant_id
+        }
+
+class TimeContext(db.Model):
+    """Model for Time Contexts (Axis 13)."""
+    __tablename__ = 'ukg_time_contexts'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    start_time = db.Column(db.DateTime, nullable=True)
+    end_time = db.Column(db.DateTime, nullable=True)
+    tenant_id = db.Column(db.String(64), index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'name': self.name,
+            'start_time': self.start_time.isoformat() if self.start_time else None,
+            'end_time': self.end_time.isoformat() if self.end_time else None,
+            'tenant_id': self.tenant_id
+        }
+
+class KnowledgeNode(db.Model):
+    """Model for Knowledge Nodes containing actual knowledge content."""
+    __tablename__ = 'ukg_knowledge_nodes'
+    __table_args__ = (
+        db.Index('ix_ukg_knowledge_nodes_tenant_id', 'tenant_id'),
+        {'extend_existing': True}
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    content_type = db.Column(db.String(50), nullable=False)  # e.g., "text", "markdown", "code"
+    pillar_level_id = db.Column(db.Integer, db.ForeignKey('ukg_pillar_levels.id'), nullable=True)
+    domain_id = db.Column(db.Integer, db.ForeignKey('ukg_domains.id'), nullable=True)
+    location_id = db.Column(db.Integer, db.ForeignKey('ukg_locations.id'), nullable=True)
+    node_metadata = db.Column(db.JSON, nullable=True)
+    tenant_id = db.Column(db.String(64))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'title': self.title,
+            'content': self.content,
+            'content_type': self.content_type,
+            'pillar_level_id': self.pillar_level_id,
+            'domain_id': self.domain_id,
+            'location_id': self.location_id,
+            'metadata': self.node_metadata,
+            'tenant_id': self.tenant_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+class MethodNode(db.Model):
+    """Model for Method Nodes (Axis 4: Methods)."""
+    __tablename__ = 'ukg_method_nodes'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    method_type = db.Column(db.String(100), nullable=False)
+    implementation_details = db.Column(db.Text, nullable=True)
+    tenant_id = db.Column(db.String(64), index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'name': self.name,
+            'method_type': self.method_type,
+            'tenant_id': self.tenant_id
+        }
+
+class KnowledgeAlgorithm(db.Model):
+    """Model for Knowledge Algorithms (KA)."""
+    __tablename__ = 'ukg_knowledge_algorithms'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    ka_id = db.Column(db.String(50), unique=True, nullable=False)  # e.g., "KA-117"
+    name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    version = db.Column(db.String(20), default="1.0.0")
+    config_schema = db.Column(db.JSON, nullable=True)
+    tenant_id = db.Column(db.String(64), index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'ka_id': self.ka_id,
+            'name': self.name,
+            'description': self.description,
+            'version': self.version,
+            'tenant_id': self.tenant_id
+        }
+
+class KAExecution(db.Model):
+    """Model for tracking Knowledge Algorithm executions."""
+    __tablename__ = 'ukg_ka_executions'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    ka_id = db.Column(db.String(50), db.ForeignKey('ukg_knowledge_algorithms.ka_id'), nullable=False)
+    status = db.Column(db.String(50), default="pending")  # pending, running, completed, failed
+    input_data = db.Column(db.JSON, nullable=True)
+    output_data = db.Column(db.JSON, nullable=True)
+    error_message = db.Column(db.Text, nullable=True)
+    execution_time_ms = db.Column(db.Integer, nullable=True)
+    tenant_id = db.Column(db.String(64), index=True)
+    started_at = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at = db.Column(db.DateTime, nullable=True)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'ka_id': self.ka_id,
+            'status': self.status,
+            'execution_time_ms': self.execution_time_ms,
+            'started_at': self.started_at.isoformat() if self.started_at else None,
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None
+        }
+
+class Node(db.Model):
+    """Base model for all nodes in the UKG system (ukg_nodes)."""
+    __tablename__ = 'ukg_nodes'
+    __table_args__ = (
+        db.Index('ix_ukg_nodes_node_type', 'node_type'),
+        db.Index('ix_ukg_nodes_axis_number', 'axis_number'),
+        {'extend_existing': True}
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    node_type = db.Column(db.String(100), nullable=False)
+    label = db.Column(db.String(255), nullable=False)
+    axis_number = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    attributes = db.Column(db.JSON, nullable=True)
+    tenant_id = db.Column(db.String(64), index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    active = db.Column(db.Boolean, default=True)
+
+    # Relationships
+    outgoing_edges = db.relationship("Edge", foreign_keys="Edge.source_node_id", back_populates="source_node")
+    incoming_edges = db.relationship("Edge", foreign_keys="Edge.target_node_id", back_populates="target_node")
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'node_type': self.node_type,
+            'label': self.label,
+            'axis_number': self.axis_number,
+            'description': self.description,
+            'attributes': self.attributes or {},
+            'tenant_id': self.tenant_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'active': self.active
+        }
+
+class Edge(db.Model):
+    """Base model for all edges in the UKG system (ukg_edges)."""
+    __tablename__ = 'ukg_edges'
+    __table_args__ = (
+        db.Index('ix_ukg_edges_edge_type', 'edge_type'),
+        {'extend_existing': True}
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False)
+    edge_type = db.Column(db.String(100), nullable=False)
+    weight = db.Column(db.Float, default=1.0)
+    source_node_id = db.Column(db.Integer, db.ForeignKey('ukg_nodes.id'), nullable=False)
+    target_node_id = db.Column(db.Integer, db.ForeignKey('ukg_nodes.id'), nullable=False)
+    attributes = db.Column(db.JSON, nullable=True)
+    tenant_id = db.Column(db.String(64), index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    active = db.Column(db.Boolean, default=True)
+
+    # Relationships
+    source_node = db.relationship("Node", foreign_keys=[source_node_id], back_populates="outgoing_edges")
+    target_node = db.relationship("Node", foreign_keys=[target_node_id], back_populates="incoming_edges")
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'edge_type': self.edge_type,
+            'weight': self.weight,
+            'source_node_id': self.source_node_id,
+            'target_node_id': self.target_node_id,
+            'attributes': self.attributes or {},
+            'tenant_id': self.tenant_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'active': self.active
+        }
+
+class UkgSession(db.Model):
+    """Model representing a user interaction session with the UKG"""
+    __tablename__ = 'ukg_sessions'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.String(255), unique=True, nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Optional link to a user
+    user_query = db.Column(db.Text, nullable=True)
+    target_confidence = db.Column(db.Float, default=0.85)
+    final_confidence = db.Column(db.Float, nullable=True)
+    status = db.Column(db.String(50), default='active')
+    tenant_id = db.Column(db.String(64), index=True)
+    started_at = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at = db.Column(db.DateTime, nullable=True)
+
+    # Relationships
+    memory_entries = db.relationship('MemoryEntry', backref='session', lazy='dynamic')
+    user = db.relationship('User', backref='ukg_sessions')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'session_id': self.session_id,
+            'user_id': self.user_id,
+            'user_query': self.user_query,
+            'target_confidence': self.target_confidence,
+            'final_confidence': self.final_confidence,
+            'status': self.status,
+            'tenant_id': self.tenant_id,
+            'started_at': self.started_at.isoformat() if self.started_at else None,
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None
+        }
+
+class MemoryEntry(db.Model):
+    """Model representing entries in the structured memory store"""
+    __tablename__ = 'memory_entries'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(255), unique=True, nullable=False, index=True)
+    session_id = db.Column(db.String(255), db.ForeignKey('ukg_sessions.session_id'), nullable=False)
+    entry_type = db.Column(db.String(100), nullable=False, index=True)
+    pass_num = db.Column(db.Integer, default=0)
+    layer_num = db.Column(db.Integer, default=0)
+    content = db.Column(db.JSON, nullable=True)
+    confidence = db.Column(db.Float, default=1.0)
+    tenant_id = db.Column(db.String(64), index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'uid': self.uid,
+            'session_id': self.session_id,
+            'entry_type': self.entry_type,
+            'pass_num': self.pass_num,
+            'layer_num': self.layer_num,
+            'content': self.content,
+            'confidence': self.confidence,
+            'tenant_id': self.tenant_id,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
 

@@ -161,7 +161,7 @@ class AuditLogger:
             # --- Windows Desktop: Database Persistence ---
             try:
                 # Use deferred import to avoid circular dependency with models
-                from models.user import AuditLog
+                from models import AuditLog
                 from extensions import db
                 from flask import has_app_context
                 
