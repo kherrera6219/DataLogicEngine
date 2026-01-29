@@ -1,9 +1,0 @@
-{
-    "conflict_detection_strategy": "semantic_negation",
-    "severity_weights": {
-        "DIRECT_NEGATION": 1.0,
-        "NUMERIC_MISMATCH": 0.8,
-        "STANCE_CLASH": 0.5
-    },
-    "automatic_flagging": true
-}

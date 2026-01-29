@@ -1,7 +1,11 @@
 import logging
 from datetime import datetime
 from typing import Dict, List, Optional
-from .models import db, UkgNode, UkgEdge
+from models import (
+    Node as UkgNode, 
+    Edge as UkgEdge
+)
+from extensions import db
 from .ukg_db import UkgDatabaseManager
 
 class LocationContextEngine:

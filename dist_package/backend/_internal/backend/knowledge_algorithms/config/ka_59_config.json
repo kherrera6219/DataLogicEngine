@@ -1,8 +1,0 @@
-{
-    "preemption_rules": [
-        {"complexity": "low", "skip_layers": ["L6", "L7", "L10"]},
-        {"complexity": "medium", "skip_layers": ["L10"]}
-    ],
-    "min_budget_for_full_scan": 0.9,
-    "enable_fast_path": true
-}

@@ -1,7 +1,0 @@
-{
-    "orchestration_mode": "distributed_state_machine",
-    "supported_pipelines": ["data_sync", "ml_retrain", "inference_cascade"],
-    "max_concurrent_workflows": 50,
-    "timeout_seconds": 3600,
-    "retry_limit": 5
-}

@@ -12,7 +12,9 @@ def create_legacy_app():
     app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key')
     
     # Initialize extensions
-    from .models import db
+    from models import User
+    # In legacy app, we still need to initialize db if it's used elsewhere
+    # but models should come from the unified registry.
     db.init_app(app)
 
     JWTManager(app)  # Initialize JWT extension
@@ -43,11 +45,9 @@ def create_legacy_app():
     from .routes.search_routes import search_api as search_bp
     app.register_blueprint(search_bp, url_prefix='/api/search')
     
-    # Apply middleware
-    log_request_info(app)
-    
     # Create database tables
-    with app.app_context():
-        db.create_all()
+    # db is already initialized in extensions.py
+    # db.create_all() is handled by app.py or init_db.py
+    pass
     
     return app

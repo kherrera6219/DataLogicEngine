@@ -9,7 +9,10 @@ import logging
 import uuid
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .models import db, Chat, Message
+from models import ChatSession, ChatMessage
+from extensions import db
+Chat = ChatSession
+Message = ChatMessage
 
 logger = logging.getLogger(__name__)
 

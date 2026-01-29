@@ -1,6 +1,0 @@
-{
-    "similarity_threshold": 0.95,
-    "strategy": "hash_and_fuzzy",
-    "block_size": 1000,
-    "resolve_on_conflict": false
-}

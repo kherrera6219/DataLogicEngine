@@ -1,7 +1,0 @@
-{
-    "interactive_debugger": true,
-    "remote_debugging_port": 5678,
-    "stack_trace_depth": 50,
-    "auto_capture_on_error": true,
-    "snapshot_storage": "/tmp/debug_snapshots/"
-}

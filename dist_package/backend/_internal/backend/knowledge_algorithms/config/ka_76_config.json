@@ -1,6 +1,0 @@
-{
-    "matching_keys": ["email", "phone", "national_id"],
-    "fuzzy_threshold": 0.85,
-    "conflict_resolution_strategy": "most_recent",
-    "enable_recursive_merging": true
-}

@@ -1,7 +1,0 @@
-{
-    "retention_policy_days": 180,
-    "archive_destination": "s3_glacier",
-    "compression_format": "zstd",
-    "cleanup_local_after_archive": true,
-    "encryption_enabled": true
-}

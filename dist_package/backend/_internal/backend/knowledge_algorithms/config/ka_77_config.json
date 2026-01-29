@@ -1,6 +1,0 @@
-{
-    "external_providers": ["osm_geocoding", "clearbit_enrichment", "wikidata_lookup"],
-    "enrichment_fields": ["location_coords", "company_industry", "entity_topics"],
-    "max_retries": 3,
-    "cache_ttl_hours": 24
-}

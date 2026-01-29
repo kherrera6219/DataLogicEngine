@@ -1,7 +1,0 @@
-{
-    "alert_levels": ["warning", "error", "critical", "fatal"],
-    "aggregation_window_seconds": 60,
-    "deduplication_key": "${source}_${error_code}",
-    "auto_resolve_after_minutes": 30,
-    "escalation_policy": "ops_on_call"
-}

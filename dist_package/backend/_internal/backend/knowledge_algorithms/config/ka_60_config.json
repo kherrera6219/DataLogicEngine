@@ -1,6 +1,0 @@
-{
-    "allocation_strategy": "priority_first",
-    "min_yield_threshold": 0.2,
-    "max_branches": 8,
-    "pruning_enabled": true
-}

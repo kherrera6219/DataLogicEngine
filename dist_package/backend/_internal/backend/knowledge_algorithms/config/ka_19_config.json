@@ -1,6 +1,0 @@
-{
-    "synthesis_strategy": "confidence_weighted_merge",
-    "conflict_resolution": "highest_confidence",
-    "categories": ["FACT", "ASSUMPTION", "RISK", "CONSTRAINT"],
-    "min_synthesis_confidence": 0.4
-}

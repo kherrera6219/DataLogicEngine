@@ -1,8 +1,0 @@
-{
-    "supported_personas": ["technical_expert", "business_leader", "end_user", "skeptic"],
-    "adaptation_intensity": 0.8,
-    "vibe_overrides": {
-        "end_user": {"complexity": "low", "empathy": "high"},
-        "technical_expert": {"complexity": "high", "empathy": "low"}
-    }
-}

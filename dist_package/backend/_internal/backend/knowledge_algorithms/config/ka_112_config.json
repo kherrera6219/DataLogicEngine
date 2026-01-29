@@ -1,9 +1,0 @@
-{
-    "broker_instance": "rabbitmq_cluster",
-    "queues": {
-        "high_priority": {"durable": true, "auto_delete": false},
-        "background_tasks": {"durable": true}
-    },
-    "max_message_size_kb": 512,
-    "acknowledgment_mode": "manual_ack"
-}

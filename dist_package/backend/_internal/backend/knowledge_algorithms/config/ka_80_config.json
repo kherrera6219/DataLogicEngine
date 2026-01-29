@@ -1,7 +1,0 @@
-{
-    "cache_layer": "redis_cluster",
-    "eviction_policy": "LRU",
-    "default_ttl_seconds": 3600,
-    "max_memory_mb": 2048,
-    "enable_compression": true
-}

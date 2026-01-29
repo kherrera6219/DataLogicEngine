@@ -1,7 +1,0 @@
-{
-    "audit_backend": "postgresql_immutable",
-    "retention_years": 7,
-    "sign_audit_entries": true,
-    "audit_events": ["login", "data_access", "config_change", "ka_execution"],
-    "alert_on_tamper": true
-}

@@ -1,7 +1,0 @@
-{
-    "search_engine": "elasticsearch_fallback",
-    "indexing_enabled": true,
-    "max_results_size": 200,
-    "enable_vector_search": true,
-    "timeout_ms": 1500
-}

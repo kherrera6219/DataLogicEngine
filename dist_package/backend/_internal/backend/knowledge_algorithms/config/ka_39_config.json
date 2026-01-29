@@ -1,6 +1,0 @@
-{
-    "drift_threshold": 0.3,
-    "monitoring_interval_days": 7,
-    "compare_target": "previous_snapshot",
-    "alert_severity": "medium"
-}

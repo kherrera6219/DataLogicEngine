@@ -1,6 +1,0 @@
-{
-    "distillation_threshold": 0.9,
-    "max_rules_per_session": 5,
-    "abstraction_level": "medium",
-    "enable_self_correction": true
-}

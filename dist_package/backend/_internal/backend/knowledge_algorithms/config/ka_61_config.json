@@ -1,6 +1,0 @@
-{
-    "block_patterns": ["drop database", "rm -rf", "script alert"],
-    "sanitization_level": "strict",
-    "enable_veto_on_threat": true,
-    "log_security_events": true
-}

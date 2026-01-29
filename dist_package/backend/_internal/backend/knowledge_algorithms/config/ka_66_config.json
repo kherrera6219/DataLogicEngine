@@ -1,6 +1,0 @@
-{
-    "inference_method": "do-calculus",
-    "min_correlation_threshold": 0.7,
-    "max_causal_depth": 5,
-    "handle_confounders": true
-}

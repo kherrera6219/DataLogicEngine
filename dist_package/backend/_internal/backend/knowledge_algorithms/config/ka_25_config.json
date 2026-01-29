@@ -1,5 +1,0 @@
-{
-    "max_dependency_depth": 5,
-    "tracking_levels": ["CLAIMS", "TASKS", "EVIDENCE"],
-    "graph_storage": "memory"
-}

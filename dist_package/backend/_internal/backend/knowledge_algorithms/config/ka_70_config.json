@@ -1,6 +1,0 @@
-{
-    "simulation_depth": 3,
-    "max_parallel_scenarios": 5,
-    "divergence_threshold": 0.4,
-    "persistence_policy": "memory_only"
-}

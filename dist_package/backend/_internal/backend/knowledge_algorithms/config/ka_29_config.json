@@ -1,6 +1,0 @@
-{
-    "traversal_depth": 2,
-    "max_nodes": 20,
-    "priority_link_types": ["DEPENDS_ON", "PART_OF", "REGULATED_BY"],
-    "auto_discover_entities": true
-}

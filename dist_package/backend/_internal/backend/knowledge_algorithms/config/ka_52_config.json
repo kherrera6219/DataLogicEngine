@@ -1,6 +1,0 @@
-{
-    "retention_policy": "dynamic",
-    "expiry_days": 30,
-    "version_limit": 10,
-    "automatic_retirement": true
-}

@@ -1,7 +1,0 @@
-{
-    "feature_scaling": "standard_scaler",
-    "automated_features": ["polynomial_interactions", "one_hot_encoding", "binning"],
-    "target_encoding": true,
-    "handle_missing_strategy": "median_imputation",
-    "feature_selection_method": "mutual_info"
-}

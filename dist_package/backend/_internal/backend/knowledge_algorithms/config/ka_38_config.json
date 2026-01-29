@@ -1,6 +1,0 @@
-{
-    "supported_modalities": ["text", "table", "image_meta", "code"],
-    "primary_modality": "text",
-    "fusion_strategy": "semantic_concatenation",
-    "normalize_confidence": true
-}

@@ -1,6 +1,0 @@
-{
-    "convergence_threshold": 0.8,
-    "min_perspectives": 3,
-    "groupthink_signal": "low_variance_high_confidence",
-    "alert_on_drift": true
-}

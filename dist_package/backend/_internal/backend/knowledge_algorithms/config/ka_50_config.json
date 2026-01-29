@@ -1,6 +1,0 @@
-{
-    "validation_rules": ["no_dangling_edges", "schema_compliance", "acyclic_graph", "min_confidence_met"],
-    "min_node_confidence": 0.3,
-    "quarantine_on_failure": true,
-    "report_format": "json"
-}

@@ -1,7 +1,0 @@
-{
-    "chart_types": ["line", "bar", "radar", "sankey", "graph"],
-    "theme": "dark_modern",
-    "export_formats": ["png", "svg", "pdf"],
-    "interaction_enabled": true,
-    "max_nodes_to_render": 500
-}
