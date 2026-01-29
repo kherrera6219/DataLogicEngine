@@ -1,0 +1,32 @@
+2026-01-28 23:19:07,771 - UKG-Audit - INFO - Audit log rotation started
+2026-01-28 23:19:07,771 - UKG-Audit - INFO - Audit Logger initialized
+2026-01-28 23:19:07,772 - backend.security.encryption_manager - WARNING - Generated temporary KEK secret. Set ENCRYPTION_KEK_SECRET in production!
+2026-01-28 23:19:07,772 - backend.security.encryption_manager - WARNING - Add to .env: ENCRYPTION_KEK_SECRET=enXNuh7uMsZm5Qx8e2H_wYfYbxXI927bZzW_guls-Sk=
+2026-01-28 23:19:08,045 - backend.security.encryption_manager - WARNING - Failed to decrypt DEK (KEK may have changed): 
+2026-01-28 23:19:08,045 - backend.security.encryption_manager - WARNING - Regenerating encryption keys. Old encrypted data may be unrecoverable.
+
+=== Verifying KA-117 (Threat Model) Upgrade ===
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\scripts\verify_ka_upgrades.py", line 84, in <module>
+    asyncio.run(run_all())
+    ~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "C:\software\DataLogicEngine\scripts\verify_ka_upgrades.py", line 80, in run_all
+    await verify_ka117_threat_model()
+  File "C:\software\DataLogicEngine\scripts\verify_ka_upgrades.py", line 16, in verify_ka117_threat_model
+    with unittest.mock.patch('backend.llm_gateway.gateway.get_gateway') as MockGetGateway:
+         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\unittest\mock.py", line 1481, in __enter__
+    self.target = self.getter()
+                  ~~~~~~~~~~~^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\pkgutil.py", line 528, in resolve_name
+    result = getattr(result, p)
+AttributeError: module 'backend' has no attribute 'llm_gateway'

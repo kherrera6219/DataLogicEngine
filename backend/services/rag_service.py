@@ -111,16 +111,16 @@ class RAGService:
         # --- Layer 2: Google Gemini ---
         try:
             import os
-            google_key = os.environ.get('GOOGLE_API_KEY') or os.environ.get('GEMINI_API_KEY')
+            google_key = os.environ.get('GOOGLE_API_KEY')
             if google_key:
-                import google.generativeai as genai
-                genai.configure(api_key=google_key)
-                result = genai.embed_content(
-                    model="models/text-embedding-004",
-                    content=text,
-                    task_type="retrieval_document"
+                from google import genai
+                client = genai.Client(api_key=google_key)
+                # Use models/text-embedding-004 which is standard for genai sdk
+                result = client.models.embed_content(
+                    model="text-embedding-004",
+                    contents=text,
                 )
-                return result['embedding']
+                return result.embeddings[0].values
         except Exception as e:
             errors.append(f"Google Failed: {str(e)}")
             logger.warning(f"Embedding Layer 2 (Google) failed: {e}")

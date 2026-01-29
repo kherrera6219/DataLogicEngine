@@ -79,18 +79,74 @@ class KA005QueryClassification(KnowledgeAlgorithm):
                     return cat_name, info.get("default_confidence", 0.8)
         return best_cat, best_conf
 
+    async def _delegate_to_sdk_async(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Async version of SDK delegation."""
+        return await self._classify_via_gateway(data.get("query", ""))
+
     def _delegate_to_sdk(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Replacement for SDK delegation: Use LLMGateway directly.
+        """
+        import asyncio
         try:
-            mod = importlib.import_module(self.sdk_module)
-            if hasattr(mod, "run"):
-                return mod.run(data)
-            else:
-                func = getattr(mod, "ka_005", None) or getattr(mod, "classify", None)
-                if func:
-                    return func(data)
-                return {}
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # If loop is running, we can't use run_until_complete.
+                # Ideally, the caller should be async.
+                # For safety, we return a fallback or try to schedule it.
+                # But since KA base `run` is sync, this is tricky.
+                # We'll try to create a new task if we are in a thread with a loop?
+                # Actually, standard KAs run in Celery (sync) or via async API.
+                # We'll assume sync context for now.
+                 raise RuntimeError("Cannot call sync _delegate_to_sdk from inside running loop")
+        except RuntimeError:
+             loop = asyncio.new_event_loop()
+             asyncio.set_event_loop(loop)
+            
+        return loop.run_until_complete(self._classify_via_gateway(data.get("query", "")))
+
+    async def _classify_via_gateway(self, query: str) -> Dict[str, Any]:
+        """
+        Use LLMGateway (Fast Chat Tier) to classify query.
+        """
+        try:
+             # Lazy import
+            from backend.llm_gateway.gateway import get_gateway
+            gateway = get_gateway()
+            
+            prompt = f"""
+            Classify the following user query into a domain category.
+            Query: "{query}"
+            
+            Return ONLY a JSON object:
+            {{
+                "category": "ACCESS_CONTROL|FINANCE|COMPLIANCE|GENERAL|HR|IT_SUPPORT",
+                "confidence": 0.0-1.0
+            }}
+            """
+            
+            result = await gateway.process(
+                prompt=prompt,
+                tier="fast_chat", # Cost effective for high volume
+                system_instruction="You are a precise semantic classifier.",
+                metadata={"ka_id": "KA-005"}
+            )
+            
+            if result and result.content:
+                import json
+                try:
+                    content = result.content.strip()
+                    if content.startswith("```json"):
+                        content = content[7:]
+                    if content.endswith("```"):
+                        content = content[:-3]
+                    return json.loads(content.strip())
+                except json.JSONDecodeError:
+                    pass
+            
+            return {}
         except Exception as e:
-            logger.warning(f"KA-005 SDK fallback: {e}")
+            logger.warning(f"KA-005 Gateway classification failed: {e}")
             return {}
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

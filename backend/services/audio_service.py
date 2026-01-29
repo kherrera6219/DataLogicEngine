@@ -58,19 +58,25 @@ class AudioService:
 
         # --- Layer 2: Google Gemini (Native Audio) ---
         try:
-            google_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+            google_key = os.getenv("GOOGLE_API_KEY")
             if google_key:
-                import google.generativeai as genai
-                genai.configure(api_key=google_key)
+                from google import genai
+                from google.genai import types
+                client = genai.Client(api_key=google_key)
                 
                 # Gemini 2.0 Flash or 1.5 Flash supports native audio
-                model = genai.GenerativeModel('gemini-2.0-flash-exp') 
+                # Using 1.5 Flash as stable fallback for multimodal
+                model_id = 'gemini-1.5-flash'
                 
                 logger.info("AudioService: Attempting Google Gemini failover for audio...")
-                response = model.generate_content([
-                    "Transcribe this audio file exactly.",
-                    {"mime_type": "audio/mp3", "data": audio_bytes} # Gemini handles raw bytes if typed
-                ])
+                
+                response = client.models.generate_content(
+                    model=model_id,
+                    contents=[
+                        "Transcribe this audio file exactly.",
+                        types.Part.from_bytes(data=audio_bytes, mime_type="audio/mp3")
+                    ]
+                )
                 
                 if response.text:
                     logger.info("AudioService: Google Gemini transcription successful.")

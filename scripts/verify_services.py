@@ -91,15 +91,18 @@ async def verify_audio_failover():
     
     # Ensure module is loaded for patching
     try:
-        import google.generativeai
+        import google.genai
     except ImportError:
-        print("[SKIP] google.generativeai not installed, cannot test failover logic deeply")
+        print("[SKIP] google-genai not installed, cannot test failover logic deeply")
         return
 
-    # Mock the class on the actual module object
-    with unittest.mock.patch.object(google.generativeai, 'GenerativeModel') as MockGenModel:
-        mock_model_instance = MockGenModel.return_value
-        mock_model_instance.generate_content.return_value.text = "Google Transcription Success"
+    # Mock the Client class on the actual module object
+    with unittest.mock.patch('google.genai.Client') as MockClient:
+        mock_client_instance = MockClient.return_value
+        # Mock models.generate_content -> object with .text
+        mock_response = unittest.mock.Mock()
+        mock_response.text = "Google Transcription Success"
+        mock_client_instance.models.generate_content.return_value = mock_response
         
         # Trigger the logic
         result = await service.transcribe(b"fake-audio-bytes")

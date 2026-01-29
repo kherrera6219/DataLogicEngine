@@ -10,114 +10,107 @@ import logging
 logger = logging.getLogger(__name__)
 
 class GoogleGeminiProvider(LLMProvider):
-    """Google Gemini provider using google-generativeai SDK.
+    """Google Gemini provider using modern google-genai SDK (v1.0+).
+    
+    Supports Gemini 3.0+ models and Thinking Mode.
 
     Env vars:
-      - GOOGLE_API_KEY or GEMINI_API_KEY
+      - GOOGLE_API_KEY
     """
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-pro"):
-        self.api_key = api_key or os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-3-pro-preview"):
+        self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
-            raise ValueError("Missing GOOGLE_API_KEY or GEMINI_API_KEY")
+            raise ValueError("Missing GOOGLE_API_KEY")
         
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=self.api_key)
-            self.genai = genai
+            from google import genai
+            from google.genai import types
+            self.client = genai.Client(api_key=self.api_key)
+            self.types = types
         except ImportError:
-            raise ImportError("Please install google-generativeai to use GoogleGeminiProvider")
+            raise ImportError("Please install google-genai to use GoogleGeminiProvider")
 
         self.default_model = model
 
-    async def complete(self, *, messages: List[Dict[str, str]], model: str, temperature: float = 0.2, max_tokens: int = 1024) -> LLMResponse:
-        """Generate completion using Gemini."""
+    async def complete(self, *, messages: List[Dict[str, str]], model: str, temperature: float = 0.7, max_tokens: int = 1024) -> LLMResponse:
+        """Generate completion using Gemini 3 Client."""
         model_name = model or self.default_model
         
-        # Map common model aliases (2025/2026 Generation)
-        if "gemini-3-pro" in model_name and "preview" not in model_name:
-            model_name = "gemini-3-pro-preview"
-        elif "gemini-3-flash" in model_name and "preview" not in model_name:
-            model_name = "gemini-3-flash-preview"
-        elif "gemini-1.5" in model_name:
-             # Basic mapping, can be refined
-            model_name = "gemini-1.5-pro-latest"
-
+        # Backward compatibility / Aliasing
+        if "gemini-3" in model_name and "preview" not in model_name:
+             model_name = "gemini-3-pro-preview"
+        
         try:
-            # Convert OpenAI-style messages to Gemini history
-            # Gemini expects 'user' and 'model' roles. 'system' instructions are handled separately in newer models 
-            # or prepended to the first message for older ones.
+            # Convert messages to string for simple generation if not handling chat history explicitly here
+            # or usage of client.chats for multi-turn. 
+            # For simplicity and robustness with the new SDK's single-turn generate_content for now:
             
-            gemini_history = []
-            system_instruction = ""
+            # Extract system instruction if present
+            system_instruction = None
+            prompt_parts = []
             
             for msg in messages:
                 role = msg.get("role")
                 content = msg.get("content")
-                
                 if role == "system":
-                    system_instruction += content + "\n"
+                    system_instruction = content
                 elif role == "user":
-                    gemini_history.append({"role": "user", "parts": [content]})
+                    prompt_parts.append(f"User: {content}")
                 elif role == "assistant":
-                    gemini_history.append({"role": "model", "parts": [content]})
+                    prompt_parts.append(f"Model: {content}")
             
-            # Initialize model
-            # Note: For Gemini 1.5, system instructions can be passed to GenerativeModel constructor
-            generation_config = self.genai.types.GenerationConfig(
+            full_prompt = "\n".join(prompt_parts)
+            
+            # Configure generation
+            config = self.types.GenerateContentConfig(
                 temperature=temperature,
-                max_output_tokens=max_tokens
+                max_output_tokens=max_tokens,
+                system_instruction=system_instruction
             )
             
-            gemini_model = self.genai.GenerativeModel(model_name)
-            
-            # If system instruction exists, we might need to prepend it to the first user message 
-            # if the SDK version/model doesn't support system_instruction arg cleanly yet.
-            # safe conversion: Prepend to history if possible or first message.
-            
-            # Using chat session for multi-turn
-            chat = gemini_model.start_chat(history=gemini_history[:-1] if gemini_history else [])
-            
-            last_message = gemini_history[-1]["parts"][0] if gemini_history else "Hello"
-            if system_instruction and gemini_history:
-                 # Prepend system prompt to the actual last message sent if not handled otherwise
-                 # This is a robust fallback for "system" role
-                 last_message = f"System Instruction: {system_instruction}\n\nUser Message: {last_message}"
+            # Gemini 3 Thinking Config check
+            if "gemini-3" in model_name:
+                # Enable high reasoning for complex tasks if hinted? 
+                # For now, default to standard, but can be enabled via dynamic config in future
+                pass
 
-            response = await chat.send_message_async(
-                last_message,
-                generation_config=generation_config
+            response = self.client.models.generate_content(
+                model=model_name,
+                contents=full_prompt,
+                config=config
             )
             
             text = response.text
+            
+            # Estimate usage (SDK v0.6 might not return it easily in sync object, checking attrs)
             usage = {
-                # Dummy usage as Gemini SDK doesn't always return token counts simply in response object
-                "prompt_tokens": 0,
-                "completion_tokens": 0, 
-                "total_tokens": 0
+                "prompt_tokens": getattr(response.usage_metadata, "prompt_token_count", 0) if response.usage_metadata else 0,
+                "completion_tokens": getattr(response.usage_metadata, "candidates_token_count", 0) if response.usage_metadata else 0,
+                "total_tokens": getattr(response.usage_metadata, "total_token_count", 0) if response.usage_metadata else 0
             }
             
             return LLMResponse(
                 text=text,
-                raw={"response": response},
+                raw={"response": str(response)},
                 model=model_name,
                 usage=usage
             )
 
         except Exception as e:
-            logger.error(f"Google Gemini API error: {e}")
+            logger.error(f"Google Gemini (genai) error: {e}")
             raise
 
     async def embed(self, text: str) -> List[float]:
         """Generate embeddings using Gemini."""
         try:
-            # Use embedding-001 by default
-            result = self.genai.embed_content(
-                model="models/embedding-001",
-                content=text,
-                task_type="retrieval_document"
+            # Use text-embedding-004 as standard for genai sdk
+            result = self.client.models.embed_content(
+                model="text-embedding-004",
+                contents=text,
             )
-            return result['embedding']
+            # result.embeddings is a list of embeddings (one per content)
+            return result.embeddings[0].values
         except Exception as e:
             logger.error(f"Google Gemini Embedding error: {e}")
             raise

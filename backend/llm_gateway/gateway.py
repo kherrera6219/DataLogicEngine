@@ -254,8 +254,8 @@ class LLMGateway:
             api_key = os.environ.get(env_var)
             
             # Special check for Gemini if Google key missing
-            if provider_type == "google" and not api_key:
-                api_key = os.environ.get("GEMINI_API_KEY")
+            if provider_type == "google":
+                api_key = api_key or os.getenv("GOOGLE_API_KEY")
 
             if api_key:
                 logger.info(f"Using {env_var} environment variable for {provider_record.name}")
@@ -752,3 +752,19 @@ class LLMGateway:
     async def close(self) -> None:
         """Clean up."""
         self._overlays.clear()
+
+# Singleton instance
+_gateway_instance = None
+
+def get_gateway() -> LLMGateway:
+    """Get or create global LLMGateway instance."""
+    global _gateway_instance
+    if _gateway_instance is None:
+        try:
+            from extensions import db
+            _gateway_instance = LLMGateway(db_session=db.session)
+        except (ImportError, RuntimeError):
+            # Fallback for tests/environments without db
+            _gateway_instance = LLMGateway()
+    return _gateway_instance
+
