@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, MessageSquare, Database, Folder, 
-  ShieldAlert, Settings, LogOut, Hexagon, X 
+  ShieldAlert, Settings, LogOut, Hexagon 
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -55,9 +55,12 @@ export function AppSidebar() {
       return false;
   };
 
+  // Hide on auth pages
+  if (pathname === '/login' || pathname === '/register') return null;
+
   return (
     <div className={cn(
-      "h-screen fluent-acrylic border-r border-white/5 flex flex-col transition-all duration-300 z-50 shadow-2xl",
+      "h-screen fluent-acrylic border-r border-white/5 flex flex-col transition-all duration-300 z-50 shadow-2xl shrink-0",
       isCollapsed ? "w-20" : "w-64"
     )}>
       

@@ -162,7 +162,7 @@ class DataRetentionService:
         
         try:
             from extensions import db
-            from db_models import ChatSession
+            from models import ChatSession
             
             # Count sessions to delete
             query = ChatSession.query.filter(ChatSession.created_at < cutoff)
@@ -205,7 +205,7 @@ class DataRetentionService:
         
         try:
             from extensions import db
-            from backend.tracing.models import TraceRun
+            from models import TraceRun
             
             query = TraceRun.query.filter(TraceRun.created_at < cutoff)
             count = query.count()

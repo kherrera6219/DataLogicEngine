@@ -12,10 +12,12 @@ from flask import Blueprint, jsonify, request, Response
 from flask_login import login_required, current_user
 
 from extensions import db
-from backend.tracing.models import (
+from models import (
     TraceRun, TraceStage, TraceEvidence, TraceClaim,
     TraceAxisVector, TracePersona, TraceKAInvocation,
-    TracePolicyDecision, TraceMemoryEvent, TraceArtifact
+    TracePolicyDecision, TraceMemoryEvent, TraceArtifact,
+    ChatSession, TraceSpan, StageLog, TraceExport,
+    ClaimEvidenceLink, ComplianceMapping
 )
 
 trace_bp = Blueprint('trace', __name__, url_prefix='/api/v1/trace')
@@ -376,7 +378,6 @@ def get_artifact(run_id, artifact_id):
 @login_required
 def list_sessions():
     """List chat sessions for the current user."""
-    from backend.tracing.models import ChatSession
     
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 20, type=int)
@@ -397,7 +398,6 @@ def list_sessions():
 @login_required
 def create_session():
     """Create a new chat session."""
-    from backend.tracing.models import ChatSession
     
     data = request.get_json() or {}
     
@@ -418,7 +418,6 @@ def create_session():
 @login_required
 def get_session(session_id):
     """Get a specific session."""
-    from backend.tracing.models import ChatSession
     
     session = ChatSession.query.filter_by(session_id=session_id).first_or_404()
     
@@ -432,7 +431,6 @@ def get_session(session_id):
 @login_required
 def update_session(session_id):
     """Update a session (title, mode, constraints)."""
-    from backend.tracing.models import ChatSession
     
     session = ChatSession.query.filter_by(session_id=session_id).first_or_404()
     
@@ -459,7 +457,6 @@ def update_session(session_id):
 @login_required
 def get_run_spans(run_id):
     """Get OpenTelemetry spans for a run."""
-    from backend.tracing.models import TraceSpan
     
     run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
     
@@ -479,7 +476,6 @@ def get_run_spans(run_id):
 @login_required
 def get_run_logs(run_id):
     """Get logs for a run."""
-    from backend.tracing.models import StageLog
     
     run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
     
@@ -509,7 +505,6 @@ def get_run_logs(run_id):
 @login_required
 def list_exports():
     """List exports for the current user."""
-    from backend.tracing.models import TraceExport
     
     exports = TraceExport.query.filter_by(user_id=current_user.id).order_by(
         TraceExport.created_at.desc()
@@ -524,7 +519,6 @@ def list_exports():
 @login_required
 def get_export(export_id):
     """Get a specific export."""
-    from backend.tracing.models import TraceExport
     
     export = TraceExport.query.filter_by(export_id=export_id).first_or_404()
     
@@ -538,7 +532,6 @@ def get_export(export_id):
 @login_required
 def download_export(export_id):
     """Download an export bundle."""
-    from backend.tracing.models import TraceExport
     
     export = TraceExport.query.filter_by(export_id=export_id).first_or_404()
     
@@ -563,7 +556,6 @@ def download_export(export_id):
 @login_required
 def get_claim_evidence(run_id, claim_id):
     """Get evidence linked to a specific claim."""
-    from backend.tracing.models import ClaimEvidenceLink
     
     run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
     
@@ -593,7 +585,6 @@ def get_claim_evidence(run_id, claim_id):
 @login_required
 def get_run_compliance(run_id):
     """Get compliance framework mappings for a run."""
-    from backend.tracing.models import ComplianceMapping
     
     run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
     
@@ -626,7 +617,6 @@ def get_run_compliance(run_id):
 @login_required
 def add_compliance_mapping(run_id):
     """Add a compliance mapping for a run (admin only)."""
-    from backend.tracing.models import ComplianceMapping
     
     # Only admins can add compliance mappings
     if not (hasattr(current_user, 'is_admin') and current_user.is_admin):

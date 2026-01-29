@@ -14,7 +14,7 @@ import json
 import logging
 import os
 
-from backend.llm_gateway.models import LLMProvider, LLMProviderUsage, ExternalAPIKey
+from models import LLMProvider, LLMProviderUsage, ExternalAPIKey, ChatSession, ChatMessage
 from backend.llm_gateway.gateway import LLMGateway, GatewayRequest
 try:
     from extensions import db, cache
@@ -255,9 +255,33 @@ def gateway_health():
     providers = LLMProvider.query.filter_by(is_active=True).count()
     
     return jsonify({
-        'status': 'healthy' if providers > 0 else 'degraded',
         'active_providers': providers,
         'message': 'Gateway operational' if providers > 0 else 'No providers configured',
+    })
+
+
+@gateway_bp.route('/sessions/<session_id>/messages', methods=['GET'])
+@api_key_required
+def get_session_messages(session_id):
+    """Retrieve message history for a session."""
+    import uuid
+    messages = ChatMessage.query.filter_by(session_id=uuid.UUID(session_id))\
+        .order_by(ChatMessage.created_at.asc()).all()
+    
+    return jsonify({
+        'messages': [m.to_dict() for m in messages]
+    })
+
+
+@gateway_bp.route('/sessions', methods=['GET'])
+@api_key_required
+def list_user_sessions():
+    """List chat sessions for the current user."""
+    sessions = ChatSession.query.filter_by(user_id=g.user_id)\
+        .order_by(ChatSession.updated_at.desc()).all()
+    
+    return jsonify({
+        'sessions': [s.to_dict() for s in sessions]
     })
 
 

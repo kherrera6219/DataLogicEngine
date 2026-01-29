@@ -13,8 +13,11 @@ from typing import Optional, Dict, Any, List
 import logging
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import Index, event, JSON, UUID
+from sqlalchemy import Index, event, JSON, UUID, LargeBinary
 from sqlalchemy.exc import SQLAlchemyError
+from cryptography.fernet import Fernet
+from flask import current_app
+import uuid
 
 from extensions import db
 
@@ -384,3 +387,189 @@ class KnowledgeGraphEdge(db.Model):
 
     def __repr__(self) -> str:
         return f'<KnowledgeGraphEdge {self.edge_id}>'
+
+
+class LLMProvider(db.Model):
+    """LLM Provider configuration with encrypted API keys."""
+    __tablename__ = 'llm_providers'
+    
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name = db.Column(db.String(100), nullable=False)
+    provider_type = db.Column(db.String(50), nullable=False)
+    api_key_encrypted = db.Column(LargeBinary, nullable=True)
+    endpoint = db.Column(db.String(500), nullable=True)
+    model_id = db.Column(db.String(100), nullable=True)
+    deployment_name = db.Column(db.String(100), nullable=True)
+    api_version = db.Column(db.String(20), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    is_default = db.Column(db.Boolean, default=False)
+    priority = db.Column(db.Integer, default=100)
+    rate_limit_rpm = db.Column(db.Integer, nullable=True)
+    rate_limit_tpm = db.Column(db.Integer, nullable=True)
+    timeout_seconds = db.Column(db.Integer, default=30)
+    max_retries = db.Column(db.Integer, default=3)
+    config = db.Column(JSON, nullable=True)
+    tenant_id = db.Column(db.String(100), nullable=True)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_used_at = db.Column(db.DateTime, nullable=True)
+    
+    usage_records = db.relationship('LLMProviderUsage', backref='provider', lazy='dynamic', cascade='all, delete-orphan')
+    
+    def set_api_key(self, api_key: str) -> None:
+        key = current_app.config.get('ENCRYPTION_KEY')
+        if not key:
+            import hashlib, base64
+            secret = current_app.config.get('SECRET_KEY', 'default-secret')
+            key = base64.urlsafe_b64encode(hashlib.sha256(secret.encode()).digest())
+        f = Fernet(key)
+        self.api_key_encrypted = f.encrypt(api_key.encode())
+    
+    def get_api_key(self) -> Optional[str]:
+        if not self.api_key_encrypted: return None
+        try:
+            key = current_app.config.get('ENCRYPTION_KEY')
+            if not key:
+                import hashlib, base64
+                secret = current_app.config.get('SECRET_KEY', 'default-secret')
+                key = base64.urlsafe_b64encode(hashlib.sha256(secret.encode()).digest())
+            f = Fernet(key)
+            return f.decrypt(self.api_key_encrypted).decode()
+        except: return None
+
+    def to_dict(self, include_key: bool = False) -> dict:
+        result = {
+            'id': str(self.id),
+            'name': self.name,
+            'provider_type': self.provider_type,
+            'is_active': self.is_active,
+            'is_default': self.is_default,
+            'has_api_key': self.api_key_encrypted is not None,
+        }
+        return result
+
+
+class LLMProviderUsage(db.Model):
+    """Usage tracking for LLM providers."""
+    __tablename__ = 'llm_provider_usage'
+    
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    provider_id = db.Column(UUID(as_uuid=True), db.ForeignKey('llm_providers.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    api_key_id = db.Column(UUID(as_uuid=True), db.ForeignKey('external_api_keys.id'), nullable=True)
+    run_id = db.Column(UUID(as_uuid=True), nullable=True)
+    model = db.Column(db.String(100), nullable=True)
+    tokens_in = db.Column(db.Integer, default=0)
+    tokens_out = db.Column(db.Integer, default=0)
+    latency_ms = db.Column(db.Integer, nullable=True)
+    success = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ExternalAPIKey(db.Model):
+    """API keys for external clients."""
+    __tablename__ = 'external_api_keys'
+    
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name = db.Column(db.String(100), nullable=False)
+    key_prefix = db.Column(db.String(12), nullable=False)
+    key_hash = db.Column(db.String(256), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    usage_records = db.relationship('LLMProviderUsage', backref='api_key', lazy='dynamic')
+
+
+class ChatSession(db.Model):
+    """A collection of related messages."""
+    __tablename__ = 'chat_sessions'
+    
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    title = db.Column(db.String(255), nullable=True)
+    model = db.Column(db.String(100), nullable=True)
+    mode = db.Column(db.String(50), default='chat')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    messages = db.relationship('ChatMessage', backref='session', lazy='dynamic', cascade='all, delete-orphan')
+
+
+class ChatMessage(db.Model):
+    """A single turn in a chat session."""
+    __tablename__ = 'chat_messages'
+    
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id = db.Column(UUID(as_uuid=True), db.ForeignKey('chat_sessions.id'), nullable=False)
+    role = db.Column(db.String(20), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    run_id = db.Column(UUID(as_uuid=True), nullable=True)
+    is_enhanced = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class TraceRun(db.Model):
+    """Top-level trace run capturing a complete chat interaction."""
+    __tablename__ = 'trace_runs'
+    
+    run_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id = db.Column(UUID(as_uuid=True), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    status = db.Column(db.String(20), default='running')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    model_name = db.Column(db.String(100), nullable=True)
+    input_message = db.Column(db.Text, nullable=True)
+    final_answer = db.Column(db.Text, nullable=True)
+    
+    stages = db.relationship('TraceStage', backref='run', lazy='dynamic', cascade='all, delete-orphan')
+
+
+class TraceStage(db.Model):
+    """Individual stage in the execution pipeline."""
+    __tablename__ = 'trace_stages'
+    
+    stage_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    status = db.Column(db.String(20), default='running')
+    start_time = db.Column(db.DateTime, default=datetime.utcnow)
+    end_time = db.Column(db.DateTime, nullable=True)
+    duration_ms = db.Column(db.Integer, nullable=True)
+
+
+class TraceEvidence(db.Model):
+    """Evidence item used in a run."""
+    __tablename__ = 'trace_evidence'
+    
+    evidence_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+    source_type = db.Column(db.String(50), nullable=True)
+    source_title = db.Column(db.String(500), nullable=True)
+    snippet = db.Column(db.Text, nullable=True)
+    relevance_score = db.Column(db.Float, nullable=True)
+
+
+class TraceClaim(db.Model):
+    """Individual claim extracted from the final answer."""
+    __tablename__ = 'trace_claims'
+    
+    claim_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+    text = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), default='pending')
+    confidence = db.Column(db.Float, default=0.0)
+
+
+class TracePolicyDecision(db.Model):
+    """Policy/guardrail decision trace."""
+    __tablename__ = 'trace_policy_decisions'
+    
+    decision_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
+    policy_rule_id = db.Column(db.String(100), nullable=True)
+    decision_type = db.Column(db.String(20), nullable=False)
+    reason = db.Column(db.Text, nullable=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)

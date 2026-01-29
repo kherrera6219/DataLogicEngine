@@ -96,7 +96,7 @@ export default function GraphPage() {
   }, [toast]);
 
   return (
-    <div className="min-h-screen bg-black p-6 md:p-8 relative">
+    <div className="h-full relative flex flex-col overflow-hidden">
       <h1 className="sr-only">17-Axis Knowledge Graph Explorer</h1>
       <CommandBar />
       <AxisSelector activeAxis={activeAxis} onChange={setActiveAxis} />
@@ -138,10 +138,14 @@ export default function GraphPage() {
                         aria-pressed="false"
                         aria-label={`Filter by ${name} pillar`}
                       >
-                        <div className="flex items-center gap-3">
-                           <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color } as React.CSSProperties} aria-hidden="true" />
+                         <div className="flex items-center gap-3">
+                           <div
+                             className="w-2.5 h-2.5 rounded-full ring-1 ring-white/20 shadow-[0_0_8px_var(--pillar-color)]"
+                             style={{ backgroundColor: color, '--pillar-color': color } as any}
+                             aria-hidden="true"
+                           />
                            <span className="text-sm font-medium">{name}</span>
-                        </div>
+                         </div>
                         <Badge variant="outline" className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] px-1 h-4">Active</Badge>
                       </div>
                     ))}
@@ -173,8 +177,10 @@ export default function GraphPage() {
 
         <button
           onClick={() => setLeftSidebarOpen(!leftSidebarOpen)}
-          className="absolute left-0 top-1/2 -translate-y-1/2 translate-x-[272px] z-30 h-12 w-4 bg-gray-900 border border-gray-800 rounded-r-lg flex items-center justify-center hover:bg-gray-800 transition-all"
-          style={{ transform: leftSidebarOpen ? 'translateX(288px)' : 'translateX(0)' } as React.CSSProperties}
+          className={cn(
+            "absolute top-1/2 -translate-y-1/2 z-30 h-12 w-4 bg-gray-900 border border-gray-800 rounded-r-lg flex items-center justify-center hover:bg-gray-800 transition-all duration-300 shadow-xl",
+            leftSidebarOpen ? "translate-x-[288px]" : "translate-x-0"
+          )}
           aria-label={leftSidebarOpen ? "Collapse filters" : "Expand filters"}
           aria-expanded={leftSidebarOpen ? "true" : "false"}
         >
@@ -248,7 +254,9 @@ export default function GraphPage() {
                    <div>
                       <h3 className="text-xl font-bold text-white mb-2 leading-tight">{selectedNode.name}</h3>
                        <Badge 
-                        style={{ backgroundColor: PILLAR_COLORS[selectedNode.pillar || 'Technology'] } as React.CSSProperties}
+                        variant="secondary"
+                        className="text-white border-none shadow-sm"
+                        style={{ backgroundColor: PILLAR_COLORS[selectedNode.pillar || 'Technology'] } as any}
                         aria-label={`Pillar classification: ${selectedNode.pillar}`}
                       >
                         {selectedNode.pillar}

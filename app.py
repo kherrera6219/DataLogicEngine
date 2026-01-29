@@ -165,6 +165,10 @@ if not use_redis:
 limiter.init_app(app)
 cache.init_app(app)
 compress.init_app(app)
+
+# Initialize WebSockets
+from backend.websocket import init_socketio, socketio
+init_socketio(app)
 # Configure CORS with strict origins from config (default to '*' if not set to prevent init errors)
 origins = app.config.get('CORS_ORIGINS')
 if not origins:
@@ -246,6 +250,10 @@ from models import (
     MCPTool,
     MCPPrompt,
     PasswordHistory,
+    ChatSession,
+    ChatMessage,
+    LLMProvider,
+    LLMProviderUsage,
 )
 
 @login_manager.user_loader

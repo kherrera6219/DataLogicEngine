@@ -487,7 +487,7 @@ class MCPManager:
             try:
                 # Lazy import to avoid circular dependencies
                 # Assuming backend is in python path
-                from backend.tracing.models import TraceRun
+                from models import TraceRun
                 
                 limit = 10
                 runs = TraceRun.query.order_by(TraceRun.created_at.desc()).limit(limit).all()

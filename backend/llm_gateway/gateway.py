@@ -26,7 +26,7 @@ SDK_PATH = Path(__file__).resolve().parent.parent.parent / "sdk" / "UKG_Python_S
 if str(SDK_PATH) not in sys.path:
     sys.path.insert(0, str(SDK_PATH))
 
-from backend.llm_gateway.models import LLMProvider, LLMProviderUsage
+from models import LLMProvider, LLMProviderUsage, ChatSession, ChatMessage
 
 logger = logging.getLogger(__name__)
 
@@ -143,7 +143,11 @@ class LLMGateway:
                 sdk_provider = self._create_sdk_provider(provider_record)
                 model = request.model or (provider_record.model_id if provider_record else "gpt-4")
                 query = self._extract_query(request.messages)
-                user_id = str(request.user_id) if request.user_id else "anonymous"
+                user_id_str = str(request.user_id) if request.user_id else "anonymous"
+                
+                # Persist user message if session context exists
+                if request.session_id:
+                    await self._save_chat_message(request.session_id, request.user_id, "user", query)
                 
                 if request.run_ukg_pipeline:
                     # Retrieve relevant context from RAG (VectorStore)
@@ -172,7 +176,7 @@ class LLMGateway:
                             sdk_provider=sdk_provider,
                             model=model,
                             query=query,
-                            user_id=user_id,
+                            user_id=user_id_str,
                             session_id=request.session_id,
                             meta=augmented_meta,
                             temperature=request.temperature,
@@ -196,6 +200,9 @@ class LLMGateway:
                                           result.get("usage", {}).get("prompt_tokens", 0), 
                                           result.get("usage", {}).get("completion_tokens", 0), 
                                           latency_ms, True)
+                                          
+                    if request.session_id:
+                        await self._save_chat_message(request.session_id, request.user_id, "assistant", result.get("answer", ""), run_id)
                                           
                     return self._build_response(result, run_id, provider_record, model, latency_ms)
                 else:
@@ -752,6 +759,67 @@ class LLMGateway:
     async def close(self) -> None:
         """Clean up."""
         self._overlays.clear()
+
+    async def _save_chat_message(self, session_id: str, user_id: Optional[int], role: str, content: str, run_id: Optional[str] = None) -> None:
+        """Persist message to SQL database and update session."""
+        try:
+            from extensions import db
+            import uuid
+            
+            # 1. Ensure Session exists
+            session = ChatSession.query.get(uuid.UUID(session_id))
+            if not session:
+                # Fallback: if we don't have a user_id, we can't create a session properly 
+                # but we'll try to find the current user if possible or just skip
+                if not user_id: return
+                
+                session = ChatSession(
+                    id=uuid.UUID(session_id),
+                    user_id=user_id,
+                    title=content[:50] + "..." if role == "user" else "New Chat"
+                )
+                db.session.add(session)
+            
+            # 2. Add Message
+            msg = ChatMessage(
+                session_id=session.id,
+                role=role,
+                content=content,
+                run_id=uuid.UUID(run_id) if run_id else None,
+                is_enhanced=(role == "assistant")
+            )
+            db.session.add(msg)
+            
+            # 3. Update session timestamp and title if it's the first message
+            session.updated_at = datetime.now(UTC)
+            if not session.title and role == "user":
+                session.title = content[:50] + "..."
+                
+            db.session.commit()
+            
+            # 4. Optional: Sync to RAG for semantic search
+            if role in ["user", "assistant"]:
+                try:
+                    from backend.services.rag_service import get_rag_service
+                    rag = get_rag_service()
+                    rag.store_chat_message(str(session.id), str(msg.id), role, content)
+                except Exception as e:
+                    logger.warning(f"Failed to sync message to RAG: {e}")
+                    
+        except Exception as e:
+            logger.error(f"Failed to save chat message: {e}")
+
+    async def _get_recent_history(self, session_id: str, limit: int = 10) -> list[dict]:
+        """Load recent messages for context."""
+        try:
+            import uuid
+            messages = ChatMessage.query.filter_by(session_id=uuid.UUID(session_id))\
+                .order_by(ChatMessage.created_at.desc())\
+                .limit(limit).all()
+            return [{"role": m.role, "content": m.content} for m in reversed(messages)]
+        except Exception as e:
+            logger.warning(f"Failed to load chat history: {e}")
+            return []
 
 # Singleton instance
 _gateway_instance = None

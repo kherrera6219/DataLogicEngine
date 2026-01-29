@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -13,13 +14,14 @@ import { TraceVisualizer } from './TraceVisualizer';
 import { AdvancedControls } from './AdvancedControls';
 
 // API call helper
-async function callGateway(content: string, mode: string = 'chat') {
+async function callGateway(content: string, mode: string = 'chat', sessionId?: string) {
   const response = await fetch('/api/v1/gateway/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       messages: [{ role: 'user', content }],
       mode: mode,
+      session_id: sessionId,
       run_ukg_pipeline: true
     })
   });
@@ -48,6 +50,24 @@ export function ChatInterface() {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<'chat' | 'quad'>('chat');
+  const [currentSessionId, setCurrentSessionId] = useState<string>(uuidv4());
+  const [sessions, setSessions] = useState<any[]>([]);
+
+  // Hydrate history from persistence layer
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const response = await fetch(`/api/v1/gateway/sessions/${currentSessionId}/messages`);
+        if (response.ok) {
+          const data = await response.json();
+          setMessages(data.messages || []);
+        }
+      } catch (err) {
+        console.warn("Failed to load history, starting fresh.");
+      }
+    };
+    fetchHistory();
+  }, [currentSessionId]);
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -64,7 +84,7 @@ export function ChatInterface() {
     setIsLoading(true);
 
     try {
-      const data = await callGateway(userMsg.content, mode);
+      const data = await callGateway(userMsg.content, mode, currentSessionId);
       
       const assistantMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),

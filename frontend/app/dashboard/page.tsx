@@ -4,13 +4,11 @@ import React from 'react';
 import Link from "next/link";
 import { 
   MessageSquare, Upload, Key, Activity, 
-  ArrowRight, Clock, ShieldCheck, Database,
-  TrendingUp, AlertTriangle, Settings, BarChart3, Download, Mail
+  ArrowRight, Clock, Settings, BarChart3, Mail, TrendingUp
 } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AppSidebar } from '@/components/layout/AppSidebar';
 
 import { api, AnalyticsOverview, Activity as ActivityType } from '@/lib/api';
 import { useToast } from "@/components/ui/use-toast";
@@ -61,13 +59,10 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex h-screen bg-[#111111] text-white font-sans overflow-hidden">
+    <div className="min-h-full bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed flex flex-col">
       
-      {/* Global Sidebar */}
-      <AppSidebar />
-
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-y-auto bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
+      <div className="flex-1 flex flex-col">
         
         {/* Top Bar with Acrylic Blur */}
         <div className="h-16 border-b border-white/5 fluent-acrylic sticky top-0 z-10 flex items-center justify-between px-8 backdrop-blur-3xl">
