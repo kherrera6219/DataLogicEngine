@@ -2,14 +2,11 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
-  Settings as SettingsIcon, Shield, Bell, Key, Save, 
-  RotateCcw, Brain, Network, Monitor, Moon, Sun,
-  Smartphone, Eye, Lock
+  Settings as SettingsIcon, Shield, Bell, Save, 
+  Brain, Network, Monitor, Sun, Lock
 } from "lucide-react";
 import { ApiOverlayConfig } from "@/components/settings/ApiOverlayConfig";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";

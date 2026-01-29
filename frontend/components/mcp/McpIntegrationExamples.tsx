@@ -94,6 +94,8 @@ const transport = new WebSocketServerTransport({
 
 await server.connect(transport);`;
 
+  const [activeTab, setActiveTab] = useState("python");
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
        
@@ -108,7 +110,7 @@ await server.connect(transport);`;
           </div>
        </div>
 
-       <Tabs defaultValue="python" className="w-full">
+       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex items-center justify-between mb-4">
              <TabsList className="bg-white/5 border border-white/10">
                 <TabsTrigger value="python">Python Client</TabsTrigger>

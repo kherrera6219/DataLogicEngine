@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectItem } from "@/components/ui/select";
 import { 
   Plus, Search, Server, Settings, Trash2, RefreshCw, Download, 
-  ExternalLink, HardDrive, MessageSquare, Database, Globe,
-  CheckCircle, AlertCircle, Eye, EyeOff
+  HardDrive, MessageSquare, Globe,
+  CheckCircle, Eye, EyeOff
 } from "lucide-react";
 import { McpServer, McpTool } from './types';
 
@@ -148,13 +148,10 @@ export function McpClientConfig() {
                       className="bg-white/5 border-white/10 pl-9"
                    />
                 </div>
-                <Select defaultValue="all">
-                   <SelectTrigger className="w-[180px] bg-white/5 border-white/10"><SelectValue placeholder="All Categories" /></SelectTrigger>
-                   <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      <SelectItem value="knowledge">Knowledge Ops</SelectItem>
-                      <SelectItem value="devops">DevOps</SelectItem>
-                   </SelectContent>
+                <Select defaultValue="all" className="w-[180px] bg-white/5 border-white/10 text-white">
+                   <SelectItem value="all">All Categories</SelectItem>
+                   <SelectItem value="knowledge">Knowledge Ops</SelectItem>
+                   <SelectItem value="devops">DevOps</SelectItem>
                 </Select>
              </div>
 
@@ -196,13 +193,10 @@ export function McpClientConfig() {
                    </div>
                    <div className="space-y-2">
                        <label className="text-xs font-bold text-gray-500 uppercase">Connection Type</label>
-                       <Select defaultValue="websocket">
-                         <SelectTrigger className="bg-black/20 border-white/10"><SelectValue /></SelectTrigger>
-                         <SelectContent>
-                            <SelectItem value="websocket">WebSocket (wss://)</SelectItem>
-                            <SelectItem value="stdio">STDIO (Local)</SelectItem>
-                            <SelectItem value="sse">HTTP SSE</SelectItem>
-                         </SelectContent>
+                       <Select defaultValue="websocket" className="bg-black/20 border-white/10 text-white">
+                          <SelectItem value="websocket">WebSocket (wss://)</SelectItem>
+                          <SelectItem value="stdio">STDIO (Local)</SelectItem>
+                          <SelectItem value="sse">HTTP SSE</SelectItem>
                        </Select>
                    </div>
                 </div>

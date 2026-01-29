@@ -5,11 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, RefreshCw, Eye, Settings, Terminal, Activity, CheckCircle, AlertCircle, Play, Database, MessageSquare } from "lucide-react";
+import { Select, SelectItem } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Copy, RefreshCw, Settings, Terminal, Activity, CheckCircle, MessageSquare, Database } from "lucide-react";
 import { McpTool } from './types';
 
 export function McpServerConfig() {
@@ -75,15 +73,10 @@ export function McpServerConfig() {
                    
                    <div className="space-y-2">
                       <label className="text-xs font-bold uppercase text-gray-500">Connection Protocol</label>
-                      <Select defaultValue="websocket">
-                         <SelectTrigger className="bg-white/5 border-white/10">
-                            <SelectValue placeholder="Select Protocol" />
-                         </SelectTrigger>
-                         <SelectContent>
-                            <SelectItem value="websocket">WebSocket (Recommended)</SelectItem>
-                            <SelectItem value="stdio">STDIO (Local Process)</SelectItem>
-                            <SelectItem value="sse">HTTP SSE</SelectItem>
-                         </SelectContent>
+                      <Select defaultValue="websocket" className="bg-white/5 border-white/10 text-white">
+                         <SelectItem value="websocket">WebSocket (Recommended)</SelectItem>
+                         <SelectItem value="stdio">STDIO (Local Process)</SelectItem>
+                         <SelectItem value="sse">HTTP SSE</SelectItem>
                       </Select>
                    </div>
 
@@ -302,16 +295,14 @@ export function McpServerConfig() {
                       <div className="grid grid-cols-2 gap-4">
                          <div className="space-y-2">
                             <label className="text-xs font-bold text-gray-500">Timeout</label>
-                            <Select defaultValue="30">
-                               <SelectTrigger className="bg-white/5 border-white/10"><SelectValue /></SelectTrigger>
-                               <SelectContent><SelectItem value="30">30 seconds</SelectItem></SelectContent>
+                            <Select defaultValue="30" className="bg-white/5 border-white/10 text-white">
+                               <SelectItem value="30">30 seconds</SelectItem>
                             </Select>
                          </div>
                          <div className="space-y-2">
                             <label className="text-xs font-bold text-gray-500">Rate Limit</label>
-                            <Select defaultValue="100">
-                               <SelectTrigger className="bg-white/5 border-white/10"><SelectValue /></SelectTrigger>
-                               <SelectContent><SelectItem value="100">100 calls/min</SelectItem></SelectContent>
+                            <Select defaultValue="100" className="bg-white/5 border-white/10 text-white">
+                               <SelectItem value="100">100 calls/min</SelectItem>
                             </Select>
                          </div>
                       </div>
