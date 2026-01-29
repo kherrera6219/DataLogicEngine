@@ -1,9 +1,6 @@
-import { ChatInterface } from '@/components/chat/ChatInterface';
+'use client';
 
-export const metadata = {
-  title: 'UKG Enterprise AI Assistant',
-  description: 'Advanced reasoning and compliance chatbots for enterprise.',
-};
+import { ChatInterface } from '@/components/Chat/ChatInterface';
 
 export default function ChatPage() {
   return (

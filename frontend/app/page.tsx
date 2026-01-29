@@ -132,25 +132,3 @@ export default function Home() {
     </main>
   );
 }
-footer className="pt-8 flex flex-col md:flex-row items-center justify-center gap-6 text-sm text-gray-400 border-t border-gray-100 dark:border-gray-800">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-bold text-gray-600 dark:text-gray-300">Status: {isOperational ? "Operational" : "Degraded"}</span>
-          </div>
-          <div className="hidden md:block w-px h-4 bg-gray-200 dark:bg-gray-800" />
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-blue-500" />
-            <span className="font-medium">Protocol L10 Certified</span>
-          </div>
-          <div className="hidden md:block w-px h-4 bg-gray-200 dark:bg-gray-800" />
-          <div className="font-medium tracking-tight">v1.2.4 Production</div>
-          <div className="hidden md:block w-px h-4 bg-gray-200 dark:bg-gray-800" />
-           <div className="flex gap-4">
-             <Link href="/legal/privacy" className="hover:text-blue-500 transition-colors">Privacy</Link>
-             <Link href="/about" className="hover:text-blue-500 transition-colors">About</Link>
-           </div>
-        </footer>
-      </div>
-    </main>
-  );
-}

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { cn } from "@/lib/utils";
@@ -8,7 +10,7 @@ import {
   Plus, Search, Pin, Calendar, Folder, 
   Settings, Mic, Paperclip, Zap, ArrowRight 
 } from "lucide-react";
-import { ChatMessage } from './Types';
+import { ChatMessage } from './types';
 import { api } from '@/lib/api';
 import { socketClient, useSocket } from '@/lib/socket';
 import { LiveTracePanel } from './LiveTracePanel';
