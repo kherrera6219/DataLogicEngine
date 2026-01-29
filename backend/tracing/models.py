@@ -8,8 +8,26 @@ stages, evidence, claims, personas, KAs, and policy decisions.
 import uuid
 from datetime import datetime, UTC
 from typing import Optional, List
-from sqlalchemy import JSON as JSONB
-from sqlalchemy.types import Uuid as UUID, Uuid
+from sqlalchemy import JSON as JSONB, String
+from sqlalchemy import TypeDecorator
+
+# Create a UUID type that works with SQLite
+class UUID(TypeDecorator):
+    """Platform-independent UUID type that uses String(36) for storage."""
+    impl = String(36)
+    cache_ok = True
+    
+    def __init__(self, as_uuid=False, **kwargs):
+        super().__init__(**kwargs)
+    
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            return str(value)
+        return value
+    
+    def process_result_value(self, value, dialect):
+        return value
+
 from extensions import db
 
 

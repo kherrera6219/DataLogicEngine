@@ -311,9 +311,9 @@ except ImportError as e:
 
 # Register UKG API (defined in backend/ukg_api.py, prefix set in BP)
 from backend.ukg_api import ukg_api
-# ukg_api defines url_prefix='/api', so we need to override or re-register carefully
-# Ideally, we change ukg_api definition, but here we can re-register with new prefix
-app.register_blueprint(ukg_api, url_prefix='/api/v1') 
+app.register_blueprint(ukg_api, url_prefix='/api/v1')
+# Add legacy alias for tests
+app.register_blueprint(ukg_api, name='ukg_legacy', url_prefix='/api/ukg')
 # Legacy '/api' is covered by original BP definition if imported/registered
 # Check how it was imported before. It was via 'routes' maybe? 
 # Wait, ukg_api was not explicitly registered in the previous file content I saw?

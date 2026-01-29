@@ -32,12 +32,14 @@ def register_routes(app):
     # Knowledge Routes (Core Entities)
     app.register_blueprint(knowledge_bp)
     
-    # Simulation Routes (JSON API)
-    app.register_blueprint(simulation_bp)
-    
     # Knowledge Algorithm Routes (JSON API)
     app.register_blueprint(ka_bp, url_prefix='/api/v1/ka')
     app.register_blueprint(ka_bp, name='ka_legacy', url_prefix='/api/ka')
+    
+    # Simulation Routes (JSON API)
+    app.register_blueprint(simulation_bp)
+    # Add legacy alias for simulations
+    app.register_blueprint(simulation_bp, name='simulation_legacy', url_prefix='/api')
     
     # MCP (Multi-Agent Coordination) Routes (JSON API)
     app.register_blueprint(mcp_bp, url_prefix='/api/v1/mcp')
