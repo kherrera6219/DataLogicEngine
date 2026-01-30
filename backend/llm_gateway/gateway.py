@@ -148,87 +148,93 @@ class LLMGateway:
             if not cb.can_execute():
                 logger.warning(f"Circuit OPEN for provider {provider_record.name}, skipping...")
                 continue
-                
-            try:
-                # 4. Create SDK provider and run
-                sdk_provider = self._create_sdk_provider(provider_record)
-                model = request.model or (provider_record.model_id if provider_record else "gpt-4")
-                
-                # Combine history with current query for context
-                # If using standard messages, we should prepend history
-                full_messages = history + request.messages
-                
-                if request.run_ukg_pipeline:
-                    # Retrieve relevant context from RAG (VectorStore)
-                    rag_context = ""
-                    if request.meta.get("use_rag", True):
-                        try:
-                            from backend.services.rag_service import get_rag_service
-                            rag = get_rag_service()
-                            rag_context = rag.get_context_for_query(query, max_tokens=1500)
-                            if rag_context:
-                                logger.debug(f"Retrieved RAG context: {len(rag_context)} chars")
-                        except Exception as e:
-                            logger.warning(f"RAG context retrieval failed: {e}")
+            
+            # Implementation of Retries with Exponential Backoff + Jitter
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    # 4. Create SDK provider and run
+                    sdk_provider = self._create_sdk_provider(provider_record)
+                    model = request.model or (provider_record.model_id if provider_record else "gpt-4")
                     
-                    # Inject RAG context into meta for UKG overlay
-                    augmented_meta = {**request.meta, "rag_context": rag_context, "chat_history": history}
+                    full_messages = history + request.messages
                     
-                    # Decide between standard overlay and quad persona analysis
-                    if request.mode == "quad" or request.meta.get("quad_persona", False):
-                        result = await self._run_quad_analysis(
-                            query=query,
-                            context=augmented_meta,
-                        )
+                    if request.run_ukg_pipeline:
+                        # Retrieve relevant context from RAG (VectorStore)
+                        rag_context = ""
+                        if request.meta.get("use_rag", True):
+                            try:
+                                from backend.services.rag_service import get_rag_service
+                                rag = get_rag_service()
+                                rag_context = rag.get_context_for_query(query, max_tokens=1500)
+                                if rag_context:
+                                    logger.debug(f"Retrieved RAG context: {len(rag_context)} chars")
+                            except Exception as e:
+                                logger.warning(f"RAG context retrieval failed: {e}")
+                        
+                        # Inject RAG context into meta for UKG overlay
+                        augmented_meta = {**request.meta, "rag_context": rag_context, "chat_history": history}
+                        
+                        # Decide between standard overlay and quad persona analysis
+                        if request.mode == "quad" or request.meta.get("quad_persona", False):
+                            result = await self._run_quad_analysis(
+                                query=query,
+                                context=augmented_meta,
+                            )
+                        else:
+                            result = await self._run_ukg_overlay(
+                                sdk_provider=sdk_provider,
+                                model=model,
+                                query=query,
+                                user_id=user_id_str,
+                                session_id=request.session_id,
+                                meta=augmented_meta,
+                                temperature=request.temperature,
+                                max_tokens=request.max_tokens or 1024,
+                            )
                     else:
-                        result = await self._run_ukg_overlay(
+                        result = await self._direct_llm_call(
                             sdk_provider=sdk_provider,
                             model=model,
-                            query=query,
-                            user_id=user_id_str,
-                            session_id=request.session_id,
-                            meta=augmented_meta,
+                            messages=full_messages,
                             temperature=request.temperature,
                             max_tokens=request.max_tokens or 1024,
                         )
-                else:
-                    result = await self._direct_llm_call(
-                        sdk_provider=sdk_provider,
-                        model=model,
-                        messages=full_messages,
-                        temperature=request.temperature,
-                        max_tokens=request.max_tokens or 1024,
-                    )
-                
-                if result.get("ok", True):
-                    cb.record_success()
                     
-                    # Record usage and return
-                    latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
-                    await self._record_usage(provider_record.id, request.user_id, request.api_key_id, run_id, model, 
-                                          result.get("usage", {}).get("prompt_tokens", 0), 
-                                          result.get("usage", {}).get("completion_tokens", 0), 
-                                          latency_ms, True)
+                    if result.get("ok", True):
+                        cb.record_success()
+                        latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
+                        await self._record_usage(provider_record.id, request.user_id, request.api_key_id, run_id, model, 
+                                              result.get("usage", {}).get("prompt_tokens", 0), 
+                                              result.get("usage", {}).get("completion_tokens", 0), 
+                                              latency_ms, True)
+                        
+                        if request.session_id:
+                            await self._save_chat_message(request.session_id, request.user_id, "assistant", result.get("answer", ""), run_id)
+                                              
+                        return self._build_response(result, run_id, provider_record, model, latency_ms)
                     
-                    # Persist assistant response
-                    if request.session_id:
-                        await self._save_chat_message(request.session_id, request.user_id, "assistant", result.get("answer", ""), run_id)
-                                          
-                    return self._build_response(result, run_id, provider_record, model, latency_ms)
-                else:
+                    # If provider returned !ok but might be retryable (e.g., 429, 503)
                     last_error = result.get("error", "Unknown provider error")
-                    cb.record_failure()
-                    logger.warning(f"Provider {provider_record.name} failed: {last_error}")
+                    logger.warning(f"Provider {provider_record.name} attempt {attempt+1} failed: {last_error}")
                     
-            except Exception as e:
-                cb.record_failure()
-                last_error = str(e)
-                logger.error(f"Provider {provider_record.name} exception: {e}")
-                continue
-                
-        # If all providers failed
-        error_msg = f"All providers failed. Last error: {last_error}"
-        return self._error_response(run_id, error_msg, start_time, request)
+                    if attempt < max_retries - 1:
+                        import random
+                        sleep_time = (2 ** attempt) + random.uniform(0, 1)
+                        await asyncio.sleep(sleep_time)
+                    else:
+                        cb.record_failure()
+                        
+                except Exception as e:
+                    last_error = str(e)
+                    logger.error(f"Provider {provider_record.name} attempt {attempt+1} exception: {e}")
+                    if attempt < max_retries - 1:
+                        import random
+                        sleep_time = (2 ** attempt) + random.uniform(0, 1)
+                        await asyncio.sleep(sleep_time)
+                    else:
+                        cb.record_failure()
+                        break # Try next provider
 
     def _create_sdk_provider(self, provider_record: Optional[LLMProvider]) -> Any:
         """Create SDK provider instance from database config."""

@@ -41,7 +41,11 @@ const DesktopStatus = () => {
   if (!isDesktop) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-sm bg-slate-900/90 backdrop-blur border border-slate-700 rounded-lg p-4 shadow-2xl text-slate-200">
+    <div 
+      className="fixed bottom-4 right-4 z-50 max-w-sm bg-slate-900/90 backdrop-blur border border-slate-700 rounded-lg p-4 shadow-2xl text-slate-200"
+      role="status"
+      aria-live="polite"
+    >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Shield className="w-5 h-5 text-indigo-400" />

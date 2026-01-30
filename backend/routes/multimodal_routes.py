@@ -32,18 +32,22 @@ async def transcribe_audio():
 @multimodal_bp.route('/audio/synthesize', methods=['POST'])
 @api_login_required
 async def synthesize_speech():
-    data = request.json
-    if not data or 'text' not in data:
-        return jsonify({"error": "No text provided"}), 400
+    from backend.schemas.request_schemas import AudioSynthesizeRequest
+    from pydantic import ValidationError
     
     try:
-        audio_bytes = await audio_service.synthesize(data['text'], voice=data.get('voice', 'alloy'))
+        req = AudioSynthesizeRequest(**(request.get_json() or {}))
+    except ValidationError as e:
+        return jsonify({"error": e.errors()}), 400
+    
+    try:
+        audio_bytes = await audio_service.synthesize(req.text, voice=req.voice)
         # In a real app, you might save to cloud storage and return a URL
         # For now, we return a success indicator
         return jsonify({"success": True, "message": "Speech synthesized successfully", "size": len(audio_bytes)})
     except Exception as e:
         logger.error(f"Synthesis failed: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Internal synthesis error"}), 500
 
 @multimodal_bp.route('/video/analyze', methods=['POST'])
 @api_login_required

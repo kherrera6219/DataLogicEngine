@@ -24,6 +24,24 @@ class Base(DeclarativeBase):
 
 
 db = SQLAlchemy(model_class=Base)
+
+# Security & Performance: Enable SQLite WAL mode and Foreign Keys
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    """Enable WAL mode and Foreign Keys for SQLite connections."""
+    # Check if we are really dealing with a sqlite3 connection
+    if type(dbapi_connection).__module__ == 'sqlite3':
+        cursor = dbapi_connection.cursor()
+        try:
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA synchronous=NORMAL")
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
+        except Exception:
+            pass
 login_manager = LoginManager()
 csrf = CSRFProtect()
 migrate = Migrate()

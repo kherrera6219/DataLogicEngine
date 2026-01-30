@@ -34,8 +34,10 @@ class ConfigManager:
         # Determine base data directory
         default_data_dir = "data"
         if os.name == 'nt':
-            # Windows default: C:\ProgramData\DataLogicEngine
-            default_data_dir = os.path.join(os.environ.get("ProgramData", "C:\\ProgramData"), "DataLogicEngine")
+            # Windows default: %LOCALAPPDATA%\DataLogicEngine
+            # This is preferred for per-user desktop apps over ProgramData
+            local_app_data = os.environ.get("LOCALAPPDATA", os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\Default"), "AppData", "Local"))
+            default_data_dir = os.path.join(local_app_data, "DataLogicEngine")
         
         base_data_dir = os.environ.get("UKG_DATA_DIR", default_data_dir)
         

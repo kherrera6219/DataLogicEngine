@@ -15,7 +15,23 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: true,
     },
+  });
+
+  // Security: Stop navigation to external sites unless specifically allowed
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.origin !== 'http://localhost:3000' && !url.startsWith('file://')) {
+      console.warn(`Blocked navigation to: ${url}`);
+      event.preventDefault();
+    }
+  });
+
+  // Security: Block new window creation
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    console.warn(`Blocked window open request to: ${url}`);
+    return { action: 'deny' };
   });
 
   const isDev = !app.isPackaged;
@@ -78,6 +94,24 @@ function startBackend() {
 }
 
 app.on('ready', () => {
+  // Security: Set CSP headers for all responses
+  const { session } = require('electron'); // Inline require for session to avoid early access
+  session.defaultSession.webRequest.onHeadersReceived((details: any, callback: any) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [
+          "default-src 'self'; " +
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+          "style-src 'self' 'unsafe-inline'; " +
+          "img-src 'self' data: https:; " +
+          "connect-src 'self' http://localhost:5000 https://api.openai.com https://api.anthropic.com; " +
+          "font-src 'self' data:;"
+        ]
+      }
+    });
+  });
+
   startBackend();
   createWindow();
 });

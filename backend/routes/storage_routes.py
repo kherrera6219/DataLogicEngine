@@ -71,14 +71,19 @@ def check_service_health(service: str):
 def test_connection():
     """Test a storage connection with provided credentials."""
     try:
-        data = request.get_json() or {}
-        service = data.get('service')
+        from backend.schemas.request_schemas import StorageTestRequest
+        from pydantic import ValidationError
         
-        if not service:
+        try:
+            req = StorageTestRequest(**(request.get_json() or {}))
+        except ValidationError as e:
             return jsonify({
                 'success': False,
-                'error': 'service is required'
+                'error': e.errors()
             }), 400
+        
+        service = req.service
+        data = req.dict()
         
         result = {
             'service': service,
@@ -96,20 +101,16 @@ def test_connection():
             result = _test_vector(data)
         elif service == 'object':
             result = _test_object(data)
-        else:
-            return jsonify({
-                'success': False,
-                'error': f'Unknown service: {service}'
-            }), 400
         
         return jsonify({
             'success': True,
             'data': result
         })
     except Exception as e:
+        logger.error(f"Connection test failed: {e}")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': "Internal server error during connection test"
         }), 500
 
 
@@ -217,20 +218,23 @@ def _test_vector(data: dict) -> dict:
     provider = data.get('provider', 'chromadb')
     
     if provider == 'chromadb':
-        local_path = data.get('local_path', './databases/chroma')
+        local_path = data.get('local_path', 'databases/chroma')
         try:
+            from backend.utils.safe_path import get_safe_path
+            safe_local_path = get_safe_path(os.getcwd(), local_path)
+            
             import os
-            os.makedirs(local_path, exist_ok=True)
+            os.makedirs(safe_local_path, exist_ok=True)
             return {
                 'service': 'vector',
                 'connected': True,
-                'message': f'ChromaDB path accessible: {local_path}'
+                'message': f'ChromaDB path accessible: {safe_local_path}'
             }
         except Exception as e:
             return {
                 'service': 'vector',
                 'connected': False,
-                'message': str(e)
+                'message': f"Path access refused: {str(e)}"
             }
     elif provider == 'pinecone':
         api_key = data.get('api_key')
