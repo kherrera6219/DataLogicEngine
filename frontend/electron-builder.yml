@@ -14,11 +14,18 @@ extraResources:
     filter:
       - "**/*"
 win:
-  target: dir
-  # target: nsis # Disabled due to winCodeSign privilege issues
+  target:
+    - nsis
+    - portable
   icon: public/favicon.ico
   verifyUpdateCodeSignature: false
+  publisherName: "UKG"
 nsis:
   oneClick: false
+  allowElevation: true
   allowToChangeInstallationDirectory: true
-  deleteAppDataOnUninstall: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: "DataLogicEngine"
+  artifactName: "${productName} Setup ${version}.${ext}"
+  deleteAppDataOnUninstall: false # Managed by our custom uninstall.ps1

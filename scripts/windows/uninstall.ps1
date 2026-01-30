@@ -12,10 +12,18 @@ try {
     Stop-Service "UKG-Redis" -Force -ErrorAction SilentlyContinue
 
     Write-Host "Unregistering Services..."
-    & "C:\Program Files\DataLogicEngine\app\DataLogic_Backend.exe" uninstall
-    & "C:\Program Files\DataLogicEngine\app\DataLogic_Frontend.exe" uninstall
+    if (Test-Path "C:\Program Files\DataLogicEngine\app\DataLogic_Backend.exe") {
+        & "C:\Program Files\DataLogicEngine\app\DataLogic_Backend.exe" uninstall
+    }
 
-    # 2. Ask whether to keep data
+    # 2. Registry Cleanup
+    Write-Host "Removing Registry entries..." -ForegroundColor Cyan
+    $RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\DataLogicEngine"
+    if (Test-Path $RegPath) {
+        Remove-Item -Path $RegPath -Force
+    }
+
+    # 3. Ask whether to keep data
     $title = "Keep Your Data?"
     $message = "Do you want to keep your local chat history, profiles, and settings? (Saved in C:\ProgramData\DataLogicEngine)"
     $choices = [System.Management.Automation.Host.ChoiceDescription[]] @(
@@ -23,24 +31,39 @@ try {
         New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Permanently delete everything."
     )
 
-    $decision = $Host.UI.PromptForChoice($title, $message, $choices, 0)
+    # Use standard host UI but handle non-interactive environments
+    if ($Host.Name -ne "ConsoleHost") {
+        Write-Host "Non-interactive environment detected. Defaulting to Preserve Data." -ForegroundColor Yellow
+        $decision = 0
+    } else {
+        $decision = $Host.UI.PromptForChoice($title, $message, $choices, 0)
+    }
 
     if ($decision -eq 1) {
-        Write-Host "Permanently deleting user data..." -ForegroundColor Red
-        Remove-Item -Path "C:\ProgramData\DataLogicEngine" -Recurse -Force
+        Write-Host "Permanently deleting user data residency..." -ForegroundColor Red
+        if (Test-Path "C:\ProgramData\DataLogicEngine") {
+            Remove-Item -Path "C:\ProgramData\DataLogicEngine" -Recurse -Force
+        }
     }
     else {
         Write-Host "Preserving user data residency." -ForegroundColor Yellow
     }
 
-    # 3. Remove Program Files
+    # 4. Remove Program Files
     Write-Host "Removing Program Binaries..."
-    Remove-Item -Path "C:\Program Files\DataLogicEngine" -Recurse -Force
+    if (Test-Path "C:\Program Files\DataLogicEngine") {
+        Remove-Item -Path "C:\Program Files\DataLogicEngine" -Recurse -Force
+    }
+
+    # 5. Scheduled Tasks Cleanup
+    Write-Host "Cleaning up scheduled tasks..."
+    if (Get-ScheduledTask -TaskName "UKG_Nightly_Backup" -ErrorAction SilentlyContinue) {
+        Unregister-ScheduledTask -TaskName "UKG_Nightly_Backup" -Confirm:$false
+    }
 
     Write-Host "Uninstallation Complete." -ForegroundColor Green
 }
 catch {
     Write-Host "Uninstallation encountered errors: $($_.Exception.Message)" -ForegroundColor Yellow
-    # Still attempt to return success as partial uninstall is better than none
     exit 0
 }

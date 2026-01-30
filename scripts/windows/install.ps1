@@ -19,6 +19,19 @@ function Write-Log([string]$Message, [string]$Color = "White") {
 
 Write-Log "--- UKG Desktop: Official Installation Orchestrator ---" "Cyan"
 
+# Helper: Windows 11 and Architecture Check
+function Test-Win11Environment {
+    $OS = Get-CimInstance Win32_OperatingSystem
+    Write-Log "OS Detected: $($OS.Caption) (Version: $($OS.Version))"
+    
+    # Windows 11 is version 10.0.22000 or higher
+    if ([version]$OS.Version -ge [version]"10.0.22000") {
+        Write-Log "Windows 11 environment confirmed." "Green"
+    } else {
+        Write-Log "Pre-Windows 11 environment detected. Applying compatibility defaults." "Yellow"
+    }
+}
+
 # Helper: Hash Verification
 function Test-UKGFileHash([string]$Path, [string]$ExpectedHash) {
     if (-not (Test-Path $Path)) { throw "File not found: $Path" }
@@ -36,6 +49,7 @@ try {
     if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         throw "Installer must be run as Administrator."
     }
+    Test-Win11Environment
 
     # 2. Setup Directories
     Write-Log "Creating directories..."
@@ -49,6 +63,20 @@ try {
     if (-not (Test-Path $InstallPath)) {
         New-Item -ItemType Directory -Force -Path $InstallPath | Out-Null
     }
+
+    # 2.1 Registry Registration (Win11 Settings Integration)
+    Write-Log "Registering application in Windows Registry..."
+    $RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\DataLogicEngine"
+    if (-not (Test-Path $RegPath)) { New-Item -Path $RegPath -Force | Out-Null }
+    
+    Set-ItemProperty -Path $RegPath -Name "DisplayName" -Value "DataLogicEngine Desktop"
+    Set-ItemProperty -Path $RegPath -Name "DisplayVersion" -Value "0.1.0"
+    Set-ItemProperty -Path $RegPath -Name "Publisher" -Value "UKG"
+    Set-ItemProperty -Path $RegPath -Name "InstallLocation" -Value $InstallPath
+    Set-ItemProperty -Path $RegPath -Name "UninstallString" -Value "powershell.exe -ExecutionPolicy Bypass -File `"$PSScriptRoot\uninstall.ps1`""
+    Set-ItemProperty -Path $RegPath -Name "DisplayIcon" -Value (Join-Path $InstallPath "app\DataLogicEngine.exe")
+    Set-ItemProperty -Path $RegPath -Name "NoModify" -Value 1
+    Set-ItemProperty -Path $RegPath -Name "NoRepair" -Value 1
 
     # 3. Install Dependencies (Silent & Hardened)
     if (-not $SkipDeps) {
