@@ -136,6 +136,7 @@ safety==3.2.11
 Flask-Session==0.8.0
 Flask-SocketIO==5.5.1
 pyinstrument>=4.6.0
+pyinstaller>=6.3.0
 
 # ============================================================================
 # Storage Layer (Vector DB & Object Storage)

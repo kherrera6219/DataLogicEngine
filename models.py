@@ -621,6 +621,14 @@ class TraceRun(db.Model):
     """Top-level trace run capturing a complete chat interaction."""
     __tablename__ = 'trace_runs'
 
+    __table_args__ = (
+        Index('ix_trace_runs_session_id', 'session_id'),
+        Index('ix_trace_runs_user_id', 'user_id'),
+        Index('ix_trace_runs_created_at', 'created_at'),
+        Index('ix_trace_runs_status', 'status'),
+        {'extend_existing': True}
+    )
+
     run_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     session_id = db.Column(UUID(as_uuid=True), nullable=True)
     tenant_id = db.Column(db.String(100), nullable=True)
@@ -686,6 +694,13 @@ class TraceStage(db.Model):
     """Individual stage in the execution pipeline (Layer 1-10 or Step 1-12)."""
     __tablename__ = 'trace_stages'
 
+    __table_args__ = (
+        Index('ix_trace_stages_run_id', 'run_id'),
+        Index('ix_trace_stages_layer_index', 'layer_index'),
+        Index('ix_trace_stages_step_index', 'step_index'),
+        {'extend_existing': True}
+    )
+
     stage_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)
 
@@ -735,6 +750,12 @@ class TraceStage(db.Model):
 class TraceEvidence(db.Model):
     """Evidence item used in a run."""
     __tablename__ = 'trace_evidence'
+
+    __table_args__ = (
+        Index('ix_trace_evidence_run_id', 'run_id'),
+        Index('ix_trace_evidence_source_type', 'source_type'),
+        {'extend_existing': True}
+    )
 
     evidence_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     run_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_runs.run_id'), nullable=False)

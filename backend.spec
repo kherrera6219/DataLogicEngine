@@ -9,7 +9,6 @@ a = Analysis(
     datas=[
         ('backend', 'backend'),
         ('core', 'core'),
-        ('models', 'models'),
         ('routes', 'routes'),
         ('utils', 'utils'),
         ('simulation', 'simulation'),
