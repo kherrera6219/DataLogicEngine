@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.ComponentModel;
 
 class UKGWrapper
 {
@@ -17,12 +18,14 @@ class UKGWrapper
         {
             Console.WriteLine("Error: Required script not found at: " + scriptPath);
             Console.WriteLine("Please ensure the 'scripts' directory is present in the application root.");
+            Console.WriteLine("\nPress Enter to exit...");
             Console.ReadLine();
             return;
         }
 
         Console.WriteLine("--- DataLogicEngine Bootstrap Loader ---");
         Console.WriteLine("Launching: " + scriptFile);
+        Console.WriteLine("\n** A Windows security prompt will appear. Please click 'Yes' to continue. **\n");
 
         ProcessStartInfo startInfo = new ProcessStartInfo();
         startInfo.FileName = "powershell.exe";
@@ -34,11 +37,27 @@ class UKGWrapper
         {
             Process process = Process.Start(startInfo);
             process.WaitForExit();
+            Console.WriteLine("\nInstallation process completed. Exit code: " + process.ExitCode);
+        }
+        catch (Win32Exception ex)
+        {
+            if (ex.NativeErrorCode == 1223)
+            {
+                // ERROR_CANCELLED - User clicked "No" on UAC
+                Console.WriteLine("\n*** Installation cancelled by user. ***");
+                Console.WriteLine("Administrator privileges are required to install DataLogicEngine.");
+            }
+            else
+            {
+                Console.WriteLine("Failed to launch process: " + ex.Message);
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine("Failed to launch process: " + ex.Message);
-            Console.ReadLine();
         }
+
+        Console.WriteLine("\nPress Enter to exit...");
+        Console.ReadLine();
     }
 }
