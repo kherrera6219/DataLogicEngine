@@ -7,8 +7,22 @@ Param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Continue" # Allow uninstaller to proceed even if some steps fail
 
+# Function to kill any running instances
+function Stop-ActiveAppProcesses {
+    Write-Host "Checking for active application processes..." -ForegroundColor Gray
+    $AppProcesses = @("DataLogic_Backend", "DataLogic_Frontend", "DataLogicEngine")
+    foreach ($proc in $AppProcesses) {
+        $Instances = Get-Process -Name $proc -ErrorAction SilentlyContinue
+        if ($Instances) {
+            Write-Host "Terminating active process: $proc" -ForegroundColor Yellow
+            $Instances | Stop-Process -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+
 try {
     Write-Host "--- UKG Desktop: Uninstallation Initiated ---" -ForegroundColor Cyan
+    Stop-ActiveAppProcesses
 
     # 0. Retrieve Install Location from Registry
     $RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\DataLogicEngine"
@@ -25,18 +39,22 @@ try {
     $DataPath = "C:\ProgramData\DataLogicEngine"
 
     # 1. Stop and Remove Application Services
-    Write-Host "Stopping Services..."
+    Write-Host "Removing Windows Services..."
     $Services = @("DataLogic_Backend", "DataLogic_Frontend", "UKG-Postgres", "UKG-Redis")
     foreach ($svc in $Services) {
-        Stop-Service $svc -Force -ErrorAction SilentlyContinue
-        # Explicitly delete to prevent "marked for deletion" locks
-        & sc.exe delete $svc | Out-Null
+        if (Get-Service $svc -ErrorAction SilentlyContinue) {
+            Write-Host "Stopping and deleting $svc..." -ForegroundColor Gray
+            Stop-Service $svc -Force -ErrorAction SilentlyContinue
+            & sc.exe delete $svc | Out-Null
+            Write-Host "Audit: Service $svc deleted." -ForegroundColor DarkGray
+        }
     }
 
     # 2. Registry Cleanup
     Write-Host "Removing Registry entries..." -ForegroundColor Cyan
     if (Test-Path $RegPath) {
         Remove-Item -Path $RegPath -Force -ErrorAction SilentlyContinue
+        Write-Host "Audit: Registry key $RegPath removed." -ForegroundColor DarkGray
     }
 
     # 3. Handle Data Removal
@@ -59,6 +77,7 @@ try {
         Write-Host "Deleting user data residency..." -ForegroundColor Red
         if (Test-Path $DataPath) {
             Remove-Item -Path $DataPath -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "Audit: Data path $DataPath removed." -ForegroundColor DarkGray
         }
     }
     else {
@@ -68,8 +87,15 @@ try {
     # 4. Remove Program Files
     Write-Host "Removing Program Binaries..."
     if (Test-Path $InstallPath) {
+        Write-Host "Purging directory: $InstallPath" -ForegroundColor Gray
         # Attempt cleanup, but don't fail if files are locked (common in uninstalls)
         Remove-Item -Path $InstallPath -Recurse -Force -ErrorAction SilentlyContinue
+        if (-not (Test-Path $InstallPath)) {
+            Write-Host "Audit: Binary directory removed successfully." -ForegroundColor DarkGray
+        }
+        else {
+            Write-Host "Audit: [FAIL] Binary directory locked or partially removed." -ForegroundColor Red
+        }
     }
 
     # 5. Scheduled Tasks Cleanup

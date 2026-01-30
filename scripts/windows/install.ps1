@@ -35,7 +35,48 @@ function Write-Log([string]$Message, [string]$Color = "White") {
     }
 }
 
+# Function to get hardware telemetry
+function Get-SystemSnapshot {
+    $Mem = Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize, FreePhysicalMemory
+    $Disk = Get-PSDrive C | Select-Object Used, Free
+    Write-Log "--- System Telemetry Snapshot ---" "Gray"
+    Write-Log "OS Architecture: $((Get-CimInstance Win32_Processor).AddressWidth)-bit" "Gray"
+    Write-Log "Total Physical RAM: $([Math]::Round($Mem.TotalVisibleMemorySize / 1MB, 2)) GB" "Gray"
+    Write-Log "Available C: Drive Space: $([Math]::Round($Disk.Free / 1GB, 2)) GB" "Gray"
+}
+
+# Function for pre-flight requirements
+function Test-SystemRequirements {
+    $DiskFree = (Get-PSDrive C).Free / 1GB
+    $MemTotal = (Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize / 1MB
+    
+    if ($DiskFree -lt 2) { 
+        Write-Log "[WARN] Available disk space is low ($([Math]::Round($DiskFree, 2)) GB). 2GB recommended." "Yellow"
+    }
+    else {
+        Write-Log "[PASS] Disk space requirement met." "Green"
+    }
+    
+    if ($MemTotal -lt 4) {
+        Write-Log "[WARN] Total RAM is low ($([Math]::Round($MemTotal, 2)) GB). 4GB recommended for enterprise stability." "Yellow"
+    }
+    else {
+        Write-Log "[PASS] RAM requirement met." "Green"
+    }
+}
+
+# Function to check port availability
+function Test-PortAvailability([int]$Port, [string]$ServiceName) {
+    if (Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue) {
+        Write-Log "[WARN] Port $Port (standard for $ServiceName) is already in use. Local setup might conflict." "Yellow"
+    }
+    else {
+        Write-Log "[PASS] Port $Port available for $ServiceName." "Green"
+    }
+}
+
 Write-Log "--- UKG Desktop: Official Installation Orchestrator ---" "Cyan"
+Get-SystemSnapshot
 
 try {
     # 1. Pre-flight Checks
@@ -43,20 +84,31 @@ try {
     if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         throw "Installer must be run as Administrator."
     }
+    
+    Test-SystemRequirements
+    Test-PortAvailability 5432 "PostgreSQL"
+    Test-PortAvailability 6379 "Redis"
 
     # 2. Setup Directories
     Write-Log "Creating directories..."
+    $CreatedDirs = @()
     $Dirs = @("app", "config", "db", "redis", "logs", "backups", "vault", "audit")
     foreach ($dir in $Dirs) {
         $TargetPath = Join-Path $DataPath $dir
         if (-not (Test-Path $TargetPath)) {
             if ($DryRun) { Write-Log "DRY RUN: Would create directory $TargetPath" "Gray" }
-            else { New-Item -ItemType Directory -Force -Path $TargetPath | Out-Null }
+            else { 
+                New-Item -ItemType Directory -Force -Path $TargetPath | Out-Null 
+                $CreatedDirs += $TargetPath
+            }
         }
     }
     if (-not (Test-Path $InstallPath)) {
         if ($DryRun) { Write-Log "DRY RUN: Would create directory $InstallPath" "Gray" }
-        else { New-Item -ItemType Directory -Force -Path $InstallPath | Out-Null }
+        else { 
+            New-Item -ItemType Directory -Force -Path $InstallPath | Out-Null 
+            $CreatedDirs += $InstallPath
+        }
     }
 
     # 3. Registry Registration

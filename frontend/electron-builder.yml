@@ -19,7 +19,7 @@ extraResources:
 win:
   target:
     - nsis
-  icon: public/favicon.ico
+  icon: public/icon.png
   verifyUpdateCodeSignature: false
 nsis:
   oneClick: false

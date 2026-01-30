@@ -27,6 +27,27 @@ import { CloudDisclosureBanner } from "@/components/CloudDisclosureBanner";
 import DesktopStatus from "@/components/DesktopStatus";
 
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
+
+function AppInitializer({ children }: { children: React.ReactNode }) {
+  const { isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-[#0a0a0a] text-white">
+        <div className="flex flex-col items-center space-y-4 animate-in fade-in duration-500">
+          <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+          <p className="text-sm font-medium tracking-widest uppercase text-gray-400">
+            Initializing DataLogicEngine...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
 
 export default function RootLayout({
   children,
@@ -51,21 +72,23 @@ export default function RootLayout({
             shouldRetryOnError: true
           }}>
             <AuthProvider>
-              <ToastProvider>
-                <div className="flex h-screen w-full bg-[#111111] overflow-hidden">
-                  <AppSidebar />
-                  <div className="flex-1 flex flex-col min-w-0">
-                    <aside aria-label="Cloud Dependency">
-                      <CloudDisclosureBanner />
-                    </aside>
-                    <NavBar />
-                    <div id="main-content" className="flex-1 overflow-y-auto scroll-smooth outline-none" tabIndex={-1}>
-                      {children}
+              <AppInitializer>
+                <ToastProvider>
+                  <div className="flex h-screen w-full bg-[#111111] overflow-hidden">
+                    <AppSidebar />
+                    <div className="flex-1 flex flex-col min-w-0">
+                      <aside aria-label="Cloud Dependency">
+                        <CloudDisclosureBanner />
+                      </aside>
+                      <NavBar />
+                      <div id="main-content" className="flex-1 overflow-y-auto scroll-smooth outline-none" tabIndex={-1}>
+                        {children}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <DesktopStatus />
-              </ToastProvider>
+                  <DesktopStatus />
+                </ToastProvider>
+              </AppInitializer>
             </AuthProvider>
           </SWRConfig>
         </ThemeProvider>
