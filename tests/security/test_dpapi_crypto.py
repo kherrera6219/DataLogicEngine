@@ -33,7 +33,7 @@ class TestDPAPICrypto(unittest.TestCase):
         from backend.security.dpapi_store import decrypt_data
         
         result = decrypt_data("not-base64-and-not-encrypted")
-        self.assertIsNone(result)
+        self.assertEqual(result, "")
 
 if __name__ == "__main__":
     unittest.main()

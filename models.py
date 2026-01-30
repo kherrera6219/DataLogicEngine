@@ -18,6 +18,7 @@ from sqlalchemy import JSON as JSONB
 from sqlalchemy.exc import SQLAlchemyError
 from cryptography.fernet import Fernet
 from flask import current_app
+from flask_login import UserMixin
 import uuid
 
 from extensions import db
@@ -25,7 +26,7 @@ from extensions import db
 logger = logging.getLogger(__name__)
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     """
     User model with security features.
 

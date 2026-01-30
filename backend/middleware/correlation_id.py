@@ -7,7 +7,7 @@ and improved debugging capabilities.
 
 import uuid
 import logging
-from flask import has_request_context
+from flask import has_request_context, request, g
 
 logger = logging.getLogger(__name__)
 
