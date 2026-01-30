@@ -1,0 +1,29 @@
+
+> frontend@0.1.0 build
+> next build
+
+   Γû▓ Next.js 15.1.4
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+
+./components/Chat/LiveTracePanel.tsx
+13:23  Warning: 'setCurrentStep' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./components/mcp/McpHub.tsx
+4:29  Warning: 'CardHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+4:41  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+Failed to compile.
+
+./playwright-electron.config.ts:1:39
+Type error: Cannot find module '@playwright/test' or its corresponding type declarations.
+
+> 1 | import { defineConfig, devices } from '@playwright/test';
+    |                                       ^
+  2 |
+  3 | /**
+  4 |  * See https://playwright.dev/docs/test-configuration
+Static worker exited with code: 1 and signal: null

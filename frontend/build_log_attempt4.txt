@@ -1,0 +1,72 @@
+
+> frontend@0.1.0 build
+> next build
+
+   Γû▓ Next.js 15.1.4
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+
+./app/layout.tsx
+29:10  Warning: 'Loader2' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./components/Chat/LiveTracePanel.tsx
+13:23  Warning: 'setCurrentStep' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./components/mcp/McpHub.tsx
+4:29  Warning: 'CardHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+4:41  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/35) ...
+   Generating static pages (8/35) 
+   Generating static pages (17/35) 
+   Generating static pages (26/35) 
+ Γ£ô Generating static pages (35/35)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+Γöî Γùï /                                    4.57 kB         128 kB
+Γö£ Γùï /_not-found                          145 B           106 kB
+Γö£ Γùï /about                               2.51 kB         116 kB
+Γö£ Γùï /about/ai-limitations                3.95 kB         121 kB
+Γö£ Γùï /about/cloud-services                3.42 kB         117 kB
+Γö£ Γùï /admin                               7.65 kB         125 kB
+Γö£ Γùï /admin/compliance                    6.7 kB          126 kB
+Γö£ Γùï /admin/mcp                           5.42 kB         123 kB
+Γö£ Γùï /admin/mcp/servers                   6.86 kB         124 kB
+Γö£ Γùï /algorithms                          3.59 kB         117 kB
+Γö£ Γùï /analytics                           2.97 kB         122 kB
+Γö£ Γùï /chat                                20.4 kB         163 kB
+Γö£ Γùï /dashboard                           8.64 kB         126 kB
+Γö£ Γùï /graph                               12.7 kB         130 kB
+Γö£ Γùï /knowledge                           3.78 kB         123 kB
+Γö£ Γùï /legal/privacy                       177 B           109 kB
+Γö£ Γùï /login                               8.15 kB         126 kB
+Γö£ Γùï /mcp                                 25.7 kB         260 kB
+Γö£ Γùï /profile                             5.73 kB         123 kB
+Γö£ Γùï /projects                            6.54 kB         124 kB
+Γö£ ΓùÅ /projects/[id]                       5.87 kB         120 kB
+Γö£   Γö£ /projects/1
+Γö£   Γö£ /projects/2
+Γö£   Γö£ /projects/3
+Γö£   Γöö [+2 more paths]
+Γö£ Γùï /register                            2 kB            119 kB
+Γö£ Γùï /runs                                5.99 kB         123 kB
+Γö£ Γùï /runs/view                           5.89 kB         120 kB
+Γö£ Γùï /settings                            17.6 kB         238 kB
+Γö£ Γùï /settings/privacy                    8.69 kB         126 kB
+Γö£ Γùï /simulations                         7.44 kB         140 kB
+Γöö Γùï /truth-engine                        4 kB            121 kB
++ First Load JS shared by all            106 kB
+  Γö£ chunks/1517-2ab827b766c83e7c.js      50.6 kB
+  Γö£ chunks/4bd1b696-5298bc3540ce1bb0.js  53 kB
+  Γöö other shared chunks (total)          2.06 kB
+
+
+Γùï  (Static)  prerendered as static content
+ΓùÅ  (SSG)     prerendered as static HTML (uses generateStaticParams)
+

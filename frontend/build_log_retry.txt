@@ -1,0 +1,47 @@
+
+> frontend@0.1.0 build
+> next build
+
+   Γû▓ Next.js 15.1.4
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+
+./components/Chat/LiveTracePanel.tsx
+13:23  Warning: 'setCurrentStep' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./components/mcp/McpHub.tsx
+4:29  Warning: 'CardHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+4:41  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/35) ...
+Error occurred prerendering page "/truth-engine". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Attempted to call useAuth() from the server but useAuth is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.
+    at C:\software\DataLogicEngine\frontend\.next\server\chunks\259.js:1:41411
+    at g (C:\software\DataLogicEngine\frontend\.next\server\chunks\259.js:1:35540)
+    at ek (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:13368)
+    at e (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:17266)
+    at e$ (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:17728)
+    at Object.toJSON (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:14874)
+    at stringify (<anonymous>)
+    at eU (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:26231)
+    at eB (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:26461)
+    at eq (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:27015)
+Export encountered an error on /truth-engine/page: /truth-engine, exiting the build.
+Error occurred prerendering page "/about/cloud-services". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Attempted to call useAuth() from the server but useAuth is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.
+    at C:\software\DataLogicEngine\frontend\.next\server\chunks\259.js:1:41411
+    at g (C:\software\DataLogicEngine\frontend\.next\server\chunks\259.js:1:35540)
+    at ek (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:13368)
+    at e (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:17266)
+    at e$ (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:17728)
+    at Object.toJSON (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:14874)
+    at stringify (<anonymous>)
+    at eU (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:26231)
+    at eB (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:26461)
+    at eq (C:\software\DataLogicEngine\frontend\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:84:27015)
+Export encountered an error on /about/cloud-services/page: /about/cloud-services, exiting the build.
+ Γ¿» Static worker exited with code: 1 and signal: null

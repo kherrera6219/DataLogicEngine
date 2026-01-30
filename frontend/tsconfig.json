@@ -40,6 +40,7 @@
     "node_modules",
     "**/*.stories.tsx",
     "**/*.test.ts",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    "playwright-electron.config.ts"
   ]
 }
