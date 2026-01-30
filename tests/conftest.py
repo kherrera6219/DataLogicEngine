@@ -18,41 +18,44 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 import pytest
-from app import app, db
+from app import app as flask_app, db
 from extensions import limiter
 
 @pytest.fixture
-def client():
-    """Create test client."""
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    app.config['WTF_CSRF_ENABLED'] = False
-    app.config['CACHE_TYPE'] = 'NullCache'
-    app.config['RATELIMIT_ENABLED'] = False
-    app.config['CORS_ORIGINS'] = "*"
-    app.config['CORS_RESOURCES'] = {r"/*": {"origins": "*"}}
+def app():
+    """Provide app fixture for tests that need app context."""
+    flask_app.config['TESTING'] = True
+    flask_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    flask_app.config['WTF_CSRF_ENABLED'] = False
+    flask_app.config['CACHE_TYPE'] = 'NullCache'
+    flask_app.config['RATELIMIT_ENABLED'] = False
+    flask_app.config['CORS_ORIGINS'] = "*"
+    flask_app.config['CORS_RESOURCES'] = {r"/*": {"origins": "*"}}
     
     # Remove Limiter from before_request_funcs to avoid Redis connection
-    for key in list(app.before_request_funcs.keys()):
-        app.before_request_funcs[key] = [
-            f for f in app.before_request_funcs[key]
+    for key in list(flask_app.before_request_funcs.keys()):
+        flask_app.before_request_funcs[key] = [
+            f for f in flask_app.before_request_funcs[key]
             if 'check_request_limit' not in getattr(f, '__name__', '')
         ]
     
-    # Also patch storage just in case direct calls happen
     from limits.storage.memory import MemoryStorage
     limiter._storage = MemoryStorage() 
     limiter.enabled = False
 
-    with app.test_client() as client:
-        with app.app_context():
-            db.create_all()
-        yield client
-        with app.app_context():
-            db.drop_all()
+    with flask_app.app_context():
+        db.create_all()
+        yield flask_app
+        db.drop_all()
 
 @pytest.fixture
-def authenticated_client(client):
+def client(app):
+    """Create test client."""
+    with app.test_client() as test_client:
+        yield test_client
+
+@pytest.fixture
+def authenticated_client(app, client):
     """Create authenticated test client."""
     # Register and login user using JSON data
     test_pass = 'SecureTest789$#@'

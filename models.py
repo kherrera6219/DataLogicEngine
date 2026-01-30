@@ -109,7 +109,7 @@ class User(db.Model, UserMixin):
         if not is_strong:
             raise ValueError(f"Password too weak: {', '.join(errors)}")
         self.password_hash = generate_password_hash(password)
-        self.last_password_change = datetime.utcnow()
+        self.last_password_change = datetime.now(UTC)
 
     def check_password(self, password: str) -> bool:
         """Verify password against stored hash."""
@@ -119,7 +119,7 @@ class User(db.Model, UserMixin):
 
     def is_account_locked(self) -> bool:
         """Check if account is currently locked."""
-        if self.locked_until and self.locked_until > datetime.utcnow():
+        if self.locked_until and self.locked_until > datetime.now(UTC):
             return True
         return False
 
@@ -150,7 +150,7 @@ class User(db.Model, UserMixin):
                 db.session.execute(
                     db.update(User)
                     .where(User.id == self.id)
-                    .values(locked_until=datetime.utcnow() + lockout_duration)
+                    .values(locked_until=datetime.now(UTC) + lockout_duration)
                 )
                 db.session.commit()
                 logger.warning(
@@ -177,7 +177,7 @@ class User(db.Model, UserMixin):
                 .values(
                     failed_login_attempts=0,
                     locked_until=None,
-                    last_successful_login=datetime.utcnow()
+                    last_successful_login=datetime.now(UTC)
                 )
             )
             db.session.commit()
