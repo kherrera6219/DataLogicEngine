@@ -148,3 +148,29 @@ Implementations:
 
 - `FileAuditStore` (JSONL, hash-chained)
 - `PostgresAuditStore` (requires `asyncpg`)
+
+---
+
+## Workflow & Truth Engine (`ukg_sdk.truth_engine.*`, `ukg_sdk.workflow.*`)
+
+### `TruthEngine`
+
+**Purpose:** Composite engine combining properties of Gate, Core, Link, and Memory.
+
+```python
+class TruthEngine:
+    def evaluate(self, claim: str, context: dict | None = None) -> TruthResult
+    def summarize(self) -> dict
+```
+
+### `WorkflowRunner`
+
+**Purpose:** Load and execute KA pipelines defined in `workflow.json`.
+
+```python
+class WorkflowRunner:
+    @classmethod
+    def load_default(cls) -> WorkflowRunner
+    def choose_tier(self, complexity_score: float) -> ComplexityTier
+    def run_local_stub(self, query: str, tier: ComplexityTier) -> WorkflowResult
+```

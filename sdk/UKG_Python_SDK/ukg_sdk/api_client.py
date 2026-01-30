@@ -9,6 +9,9 @@ from typing import Any, Optional, TypeVar, Generic
 from urllib.parse import urljoin
 
 import httpx
+import logging
+
+logger = logging.getLogger("ukg_sdk")
 
 from ukg_sdk.exceptions import (
     AuthenticationError,
@@ -76,7 +79,8 @@ class BaseClient:
         headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "User-Agent": "ukg-sdk-python/1.0.0",
+            "User-Agent": "ukg-sdk-python/0.3.1",
+            "X-API-Version": "1.0",
         }
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
@@ -159,6 +163,8 @@ class UKGClient(BaseClient):
         last_error: Optional[Exception] = None
         for attempt in range(self.max_retries):
             try:
+                logger.debug(f"{method} {url}")
+                start_time = time.time()
                 response = self._client.request(
                     method=method,
                     url=url,
@@ -166,6 +172,8 @@ class UKGClient(BaseClient):
                     params=params,
                     json=json,
                 )
+                duration = time.time() - start_time
+                logger.info(f"{method} {url} {response.status_code} ({duration:.3f}s)")
                 
                 if response.status_code >= 400:
                     self._handle_error(response)
@@ -249,6 +257,8 @@ class UKGAsyncClient(BaseClient):
         last_error: Optional[Exception] = None
         for attempt in range(self.max_retries):
             try:
+                logger.debug(f"{method} {url}")
+                start_time = time.time()
                 response = await self._client.request(
                     method=method,
                     url=url,
@@ -256,6 +266,8 @@ class UKGAsyncClient(BaseClient):
                     params=params,
                     json=json,
                 )
+                duration = time.time() - start_time
+                logger.info(f"{method} {url} {response.status_code} ({duration:.3f}s)")
                 
                 if response.status_code >= 400:
                     self._handle_error(response)

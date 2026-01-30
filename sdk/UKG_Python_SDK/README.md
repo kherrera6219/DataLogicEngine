@@ -1,4 +1,4 @@
-# UKG SDK (Python) — v2.3.1
+# UKG SDK (Python) — v0.3.1
 
 This SDK is the **public API overlay** for the UKG/USKD system:
 
@@ -42,11 +42,7 @@ async def main():
 asyncio.run(main())
 ```
 
-## Next docs
-
-- `docs/HOWTO.md` — practical setup (providers, Postgres/Redis, audit, KA handlers)
 - `docs/API_REFERENCE.md` — developer API reference
-
 
 ## Included Specs (Full Source Documents)
 

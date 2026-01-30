@@ -14,6 +14,8 @@ Primary entrypoints:
 from .api import TruthEngineAPI
 from .api_client import UKGClient, UKGAsyncClient, BaseClient
 from .ka.executor import KAExecutor, KAExecutionContext, KAExecutionResult
+
+__version__ = "0.3.1"
 from .truth_engine.core import TruthEngine, TruthEngineConfig, TruthResult
 from .overlay import UKGOverlay
 from .workflow import WorkflowRunner, ComplexityTier, WorkflowConfig
