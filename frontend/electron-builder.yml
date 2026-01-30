@@ -19,7 +19,6 @@ win:
     - portable
   icon: public/favicon.ico
   verifyUpdateCodeSignature: false
-  publisherName: "UKG"
 nsis:
   oneClick: false
   allowElevation: true
