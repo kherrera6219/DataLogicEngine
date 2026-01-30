@@ -139,6 +139,7 @@ pyinstrument>=4.6.0
 pyinstaller>=6.3.0
 kopf>=1.36.0
 kubernetes>=28.1.0
+Flask-Mail>=0.9.1
 
 # ============================================================================
 # Storage Layer (Vector DB & Object Storage)

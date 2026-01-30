@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         checkAuth();
     }, []);
 
-    // Protected Route Logic
+    // Protected Route Logic + Desktop Auto-Redirect
     useEffect(() => {
         if (isLoading) return;
         const publicRoutes = ['/login', '/register', '/'];
@@ -104,6 +104,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (!user && !isPublic) {
             router.push('/login');
+        }
+        
+        // Desktop "Zero-Login" Experience: If user is authenticated and on landing page, go to dashboard
+        if (user && pathname === '/') {
+            router.push('/dashboard');
         }
         
     }, [user, isLoading, pathname, router]);

@@ -7,7 +7,7 @@ from flask import Flask, session
 from flask_login import LoginManager, UserMixin
 from app import app, db, User
 import pyotp
-from backend.tracing.models import TraceRun
+from models import TraceRun
 
 class TestCriticalFixes(unittest.TestCase):
     def setUp(self):
