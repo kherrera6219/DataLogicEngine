@@ -183,6 +183,7 @@ celery = make_celery(app)
 # CSRF is still enforced on all HTML form submissions
 from flask_wtf.csrf import CSRFError
 
+# Handle CSRF errors
 @app.errorhandler(CSRFError)
 def handle_csrf_error(e):
     from flask import request
@@ -191,49 +192,17 @@ def handle_csrf_error(e):
     flash('Security token expired. Please try again.', 'danger')
     return redirect(request.url)
 
-# Initialize session management (Redis-based for enterprise scalability)
+# Initialize Unified Middleware Stack (Hardened)
+from backend.middleware import setup_middleware
+setup_middleware(app)
+
+# Initialize Session Management
 if use_redis:
     from backend.security.session_manager import configure_session_manager
     configure_session_manager(app)
 else:
     app.logger.info("[startup] - Using default cookie-based session storage (Redis disabled)")
 
-# Initialize security headers (Phase 1 security hardening)
-from backend.security.security_headers import configure_security_headers
-configure_security_headers(app, {'ENV': os.environ.get('FLASK_ENV', 'production')})
-
-# Initialize request limits (Phase 1 security hardening)
-from backend.middleware.request_limits import configure_request_limits
-configure_request_limits(app, {
-    'MAX_CONTENT_LENGTH': int(os.environ.get('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))
-})
-
-# Initialize correlation ID middleware for request tracing
-from backend.middleware.correlation_id import configure_correlation_id, setup_correlation_logging
-configure_correlation_id(app)
-setup_correlation_logging()
-
-# Initialize Request Timeout
-from backend.middleware.timeout import RequestTimeout
-RequestTimeout(app)
-
-# Initialize Audit Logging for API requests
-from extensions import audit_logger
-
-@app.after_request
-def log_api_request(response):
-    """Log API requests to audit log."""
-    if request.path.startswith('/api/') and request.endpoint != 'api.api_health':
-        user_id = str(current_user.id) if current_user.is_authenticated else None
-        audit_logger.log_api_request(
-            request_id=request.headers.get('X-Request-ID', ''),
-            user_id=user_id,
-            endpoint=request.path,
-            method=request.method,
-            status_code=response.status_code,
-            ip_address=request.remote_addr
-        )
-    return response
 
 # Import models (after extensions initialization)
 # Note: Importing models ensures SQLAlchemy creates their tables during db.create_all()

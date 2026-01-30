@@ -19,9 +19,17 @@ from backend.utils.pagination import (
 )
 from backend.utils.validation import (
     Validator,
-    ValidationError,
+    ValidationError as LegacyValidationError,
     validate_json_body,
     validate_query_params
+)
+from backend.utils.exceptions import (
+    UKGException,
+    AuthenticationError,
+    AuthorizationError,
+    ResourceNotFoundError,
+    SecurityBreachError,
+    ValidationError
 )
 
 __all__ = [
@@ -43,7 +51,14 @@ __all__ = [
     'pagination_meta',
     # Validation
     'Validator',
-    'ValidationError',
+    'LegacyValidationError',
     'validate_json_body',
-    'validate_query_params'
+    'validate_query_params',
+    # Exceptions
+    'UKGException',
+    'AuthenticationError',
+    'AuthorizationError',
+    'ResourceNotFoundError',
+    'SecurityBreachError',
+    'ValidationError'
 ]

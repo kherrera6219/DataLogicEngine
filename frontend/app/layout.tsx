@@ -49,6 +49,8 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+import { ApiErrorBoundary } from "@/components/ui/api-error-boundary";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -74,19 +76,21 @@ export default function RootLayout({
             <AuthProvider>
               <AppInitializer>
                 <ToastProvider>
-                  <div className="flex h-screen w-full bg-[#111111] overflow-hidden">
-                    <AppSidebar />
-                    <div className="flex-1 flex flex-col min-w-0">
-                      <aside aria-label="Cloud Dependency">
-                        <CloudDisclosureBanner />
-                      </aside>
-                      <NavBar />
-                      <div id="main-content" className="flex-1 overflow-y-auto scroll-smooth outline-none" tabIndex={-1}>
-                        {children}
+                  <ApiErrorBoundary moduleName="UKG Root">
+                    <div className="flex h-screen w-full bg-[#111111] overflow-hidden">
+                      <AppSidebar />
+                      <div className="flex-1 flex flex-col min-w-0">
+                        <aside aria-label="Cloud Dependency">
+                          <CloudDisclosureBanner />
+                        </aside>
+                        <NavBar />
+                        <div id="main-content" className="flex-1 overflow-y-auto scroll-smooth outline-none" tabIndex={-1}>
+                          {children}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <DesktopStatus />
+                    <DesktopStatus />
+                  </ApiErrorBoundary>
                 </ToastProvider>
               </AppInitializer>
             </AuthProvider>

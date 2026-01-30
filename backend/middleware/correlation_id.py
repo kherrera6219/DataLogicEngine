@@ -7,7 +7,7 @@ and improved debugging capabilities.
 
 import uuid
 import logging
-from flask import request, g
+from flask import has_request_context
 
 logger = logging.getLogger(__name__)
 
@@ -63,12 +63,14 @@ def get_correlation_id():
         str: The correlation ID or 'startup' if not in request context
     """
     try:
-        from flask import has_request_context
+        from flask import has_request_context, g
         if has_request_context():
+            # Use getattr with a default to avoid potential proxy resolution errors
+            # accessing 'g' itself might raise RuntimeError in some edge cases
             return getattr(g, 'correlation_id', 'unknown')
-        return 'startup'
-    except RuntimeError:
-        return 'startup'
+    except Exception:
+        pass
+    return 'startup'
 
 
 def configure_correlation_id(app):

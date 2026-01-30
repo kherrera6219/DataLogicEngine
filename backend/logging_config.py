@@ -11,21 +11,28 @@ import json
 import socket
 from datetime import datetime, UTC
 from typing import Optional
-from flask import Flask, request, g
+from flask import Flask
 from pythonjsonlogger import jsonlogger
 
 
+from backend.security.pii_redaction import pii_redactor
+
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
-    """Custom JSON formatter with additional fields."""
+    """Custom JSON formatter with additional fields and PII redaction."""
     
     def add_fields(self, log_record, record, message_dict):
         super().add_fields(log_record, record, message_dict)
+        
+        # Redact message if it's a string
+        message = log_record.get('message')
+        if isinstance(message, str):
+            log_record['message'], _ = pii_redactor.redact_text(message)
         
         # Add timestamp
         log_record['timestamp'] = datetime.now(UTC).isoformat()
         
         # Add level
-        log_record['level'] = record.levelname
+        log_record['level'] = getattr(record, 'levelname', 'INFO')
         
         # Add service name
         log_record['service'] = 'datalogicengine'
@@ -33,16 +40,37 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
         # Add environment
         log_record['environment'] = os.environ.get('FLASK_ENV', 'production')
         
-        # Add request context if available
+        # Add request context if available (ultra-defensive)
         try:
-            if request:
-                log_record['request_id'] = g.get('correlation_id', '')
-                log_record['path'] = request.path
-                log_record['method'] = request.method
-                log_record['user_agent'] = request.headers.get('User-Agent', '')[:100]
-                log_record['ip'] = request.remote_addr
-        except RuntimeError:
-            pass  # Outside request context
+            from flask import has_request_context
+            if has_request_context():
+                from flask import request, g
+                log_record['request_id'] = getattr(g, 'correlation_id', '')
+                log_record['path'] = getattr(request, 'path', '')
+                log_record['method'] = getattr(request, 'method', '')
+                
+                # Safe header access
+                headers = getattr(request, 'headers', {})
+                log_record['user_agent'] = str(headers.get('User-Agent', ''))[:100]
+                log_record['ip'] = getattr(request, 'remote_addr', '')
+                
+                # Redact PII from request path if present
+                if log_record.get('path'):
+                    log_record['path'], _ = pii_redactor.redact_text(log_record['path'])
+        except Exception:
+            pass
+        
+        # Deep redaction for all fields (excluding structural ones)
+        for key in list(log_record.keys()):
+            value = log_record[key]
+            if key in ('timestamp', 'level', 'environment', 'service', 'request_id'):
+                continue
+                
+            if isinstance(value, str):
+                redacted_val, _ = pii_redactor.redact_text(value)
+                log_record[key] = redacted_val
+            elif isinstance(value, dict):
+                log_record[key] = pii_redactor.redact_dict(value)
 
 
 def configure_structured_logging(app: Flask) -> None:

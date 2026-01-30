@@ -38,7 +38,11 @@ class RequestLimitsMiddleware:
             app: Flask application instance
         """
         # Set maximum content length (16MB default)
-        max_content_length = self.config.get('MAX_CONTENT_LENGTH', 16 * 1024 * 1024)
+        config_val = self.config.get('MAX_CONTENT_LENGTH')
+        if config_val is None:
+            config_val = 16 * 1024 * 1024
+        
+        max_content_length = int(config_val)
         app.config['MAX_CONTENT_LENGTH'] = max_content_length
 
         # Register error handler for request entity too large
