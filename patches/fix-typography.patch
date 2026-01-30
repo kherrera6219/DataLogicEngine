@@ -1,0 +1,10 @@
+--- a/frontend/app/globals.css
++++ b/frontend/app/globals.css
+@@ -52,7 +52,7 @@
+   }
+   .text-base-fluent {
+-    @apply text-[14px] leading-5 font-normal;
++    @apply text-[16px] leading-6 font-normal;
+   }
+ 
+  /* Animations */
