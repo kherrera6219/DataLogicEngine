@@ -64,3 +64,18 @@ class TruthGate:
             return "T2"
         # Otherwise default to a moderate tier
         return "T1"
+
+    def check(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Perform a unified check (redaction + tier selection).
+        Returns a dict with 'veto': False (unless extended), 'tier': ..., 'request': ...
+        """
+        request = self.create_request(query, context)
+        tier = self.select_tier(request)
+        # Skeleton implementation never vetos
+        return {
+            "veto": False,
+            "tier": tier,
+            "request": request,
+            "confidence": 1.0
+        }

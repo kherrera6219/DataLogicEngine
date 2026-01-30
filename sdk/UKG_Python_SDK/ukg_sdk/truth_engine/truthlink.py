@@ -22,3 +22,8 @@ class TruthLink:
         """
         # Placeholder to satisfy interface
         pass
+
+    def link(self, claim: str, context: Dict[str, Any], frost: Any = None) -> List[Dict[str, Any]]:
+        """Link the claim to external knowledge."""
+        # Stub implementation
+        return []

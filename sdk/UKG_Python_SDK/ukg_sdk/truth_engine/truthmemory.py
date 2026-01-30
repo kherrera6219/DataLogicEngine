@@ -77,3 +77,8 @@ class TruthMemory:
 
     def get_history(self) -> List[Dict[str, Any]]:
         return self._adapter.get_history()
+
+    def recall(self, claim: str, context: Dict[str, Any], frost: Any = None) -> List[Dict[str, Any]]:
+        """Retrieve relevant memories."""
+        # Stub implementation
+        return []

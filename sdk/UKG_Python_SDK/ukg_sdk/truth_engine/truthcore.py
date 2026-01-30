@@ -72,4 +72,5 @@ class TruthCore:
             "coordinate": coordinate,
             "ka_outputs": ka_outputs,
             "frost_context": self.frost.as_list(),
+            "confidence": 1.0, # Stub default
         }

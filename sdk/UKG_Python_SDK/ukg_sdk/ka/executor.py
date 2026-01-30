@@ -78,3 +78,19 @@ class KAExecutor:
         except Exception as e:
             dur = int((time.time() - start) * 1000)
             return KAExecutionResult(ok=False, output={}, error=str(e), duration_ms=dur, ka_id=ka_id)
+
+    def run_all(self, inputs: Dict[str, Any], tier: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Run all registered KAs (optionally filtering by tier if logic permits).
+        Returns a dict of {ka_id: output_dict}.
+        """
+        results = {}
+        # Simple iteration over all registered handlers
+        # In a real system, we would filter based on 'tier' vs KA metadata (layers, etc.)
+        for ka_id in self.handlers:
+            res = self.execute(ka_id, input=inputs)
+            if res.ok:
+                results[ka_id] = res.output
+            else:
+                results[ka_id] = {"error": res.error}
+        return results
