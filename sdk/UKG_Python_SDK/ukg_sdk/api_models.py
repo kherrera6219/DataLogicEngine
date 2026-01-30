@@ -80,6 +80,7 @@ class ChatMode(str, Enum):
 
 # ============== Nested Models ==============
 
+# No changes needed for api_models.py
 class ModelInfo(BaseModel):
     name: str
     version: str

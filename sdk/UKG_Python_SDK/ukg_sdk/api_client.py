@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 
 import httpx
 
-from .exceptions import (
+from ukg_sdk.exceptions import (
     AuthenticationError,
     AuthorizationError,
     NotFoundError,
@@ -19,7 +19,7 @@ from .exceptions import (
     UKGError,
     ValidationError,
 )
-from .api_models import (
+from ukg_sdk.api_models import (
     AxisVector,
     ChatSession,
     Claim,
