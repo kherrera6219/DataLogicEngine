@@ -7,24 +7,29 @@ files:
   - "dist-electron"
   - "out"
   - "package.json"
-  # - electron-builder.yml
 extraResources:
   - from: ../dist/DataLogic_Backend
     to: backend
     filter:
       - "**/*"
+  - from: ../scripts/windows
+    to: scripts
+    filter:
+      - "*.ps1"
 win:
   target:
     - nsis
-    - portable
   icon: public/favicon.ico
   verifyUpdateCodeSignature: false
 nsis:
   oneClick: false
+  perMachine: true
   allowElevation: true
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: always
   createStartMenuShortcut: true
   shortcutName: "DataLogicEngine"
-  artifactName: "${productName} Setup ${version}.${ext}"
-  deleteAppDataOnUninstall: false # Managed by our custom uninstall.ps1
+  artifactName: "DataLogicEngine Setup 0.1.0.exe"
+  deleteAppDataOnUninstall: false
+  runAfterFinish: true
+  include: build/installer.nsh
