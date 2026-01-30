@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 from .exceptions import UKGWorkflowError
 from .models import WorkflowResult, EvidencePacket
-from .truth_engine import TruthEngine
+from ukg_sdk.truth_engine.core import TruthEngine
 from .utils import package_data_path, read_json
 
 
