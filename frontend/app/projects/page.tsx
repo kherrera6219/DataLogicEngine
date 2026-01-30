@@ -45,7 +45,7 @@ export default function ProjectsPage() {
           <div className="flex items-center justify-between bg-white/5 p-2 rounded-2xl border border-white/5 backdrop-blur-md shadow-inner">
              <div className="relative w-96">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
-                <Input placeholder="Search projects..." className="pl-9 bg-black/20 border-transparent hover:bg-black/40 focus:bg-black/50 transition-colors h-9 text-sm" />
+                <Input aria-label="Search projects" placeholder="Search projects..." className="pl-9 bg-black/20 border-transparent hover:bg-black/40 focus:bg-black/50 transition-colors h-9 text-sm" />
              </div>
              <div className="flex gap-2">
                 <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white hover:bg-white/5 h-8 text-xs px-3">
@@ -78,6 +78,7 @@ export default function ProjectsPage() {
                                <p.icon className={`h-6 w-6 ${p.color.replace('bg-', 'text-').replace('-600', '-400')}`} />
                             </div>
                             <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2 text-gray-500 hover:text-white hover:bg-white/10 rounded-lg">
+                               <span className="sr-only">More options for {p.title}</span>
                                <MoreVertical className="h-4 w-4" />
                             </Button>
                          </div>

@@ -338,12 +338,14 @@ export function ChatInterface() {
                     ref={fileInputRef} 
                     onChange={handleFileUpload}
                     aria-label="Upload file for analysis"
+                    title="Upload file"
                   />
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg"
                     onClick={() => fileInputRef.current?.click()}
+                    aria-label="Attach file"
                   >
                     <Paperclip className="h-4 w-4" />
                   </Button>
@@ -352,6 +354,7 @@ export function ChatInterface() {
                     size="icon" 
                     className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg"
                     onClick={() => alert("Audio capture initializing... Production bridge active.")}
+                    aria-label="Start voice input"
                   >
                     <Mic className="h-4 w-4" />
                   </Button>
@@ -360,6 +363,7 @@ export function ChatInterface() {
                     size="icon" 
                     className={`h-8 w-8 rounded-lg transition-colors ${mode === 'quad' ? 'text-yellow-400 bg-yellow-400/10' : 'text-yellow-500/80 hover:text-yellow-400 hover:bg-yellow-400/10'}`}
                     onClick={() => setMode(prev => prev === 'chat' ? 'quad' : 'chat')}
+                    aria-label="Toggle Quad Persona Mode"
                   >
                     <Zap className="h-4 w-4" />
                   </Button>
