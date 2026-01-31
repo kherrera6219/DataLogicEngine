@@ -1,0 +1,980 @@
+{
+  "summary": {
+    "total_files": 2335,
+    "unique_content_files": 2236,
+    "content_duplicates_sets": 63,
+    "name_duplicates_sets": 141
+  },
+  "content_duplicates": {
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855": [
+      "archive\\audit_scripts\\audit_report.txt",
+      "backend\\auth\\__init__.py",
+      "backend\\knowledge_algorithms\\ka_088_knowledge_lifecycle_manager.py",
+      "backend\\knowledge_algorithms\\legacy\\__init__.py",
+      "core\\mcp\\servers\\__init__.py",
+      "frontend\\storybook-static\\sb-addons\\essentials-actions-3\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\essentials-backgrounds-4\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\essentials-controls-2\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\essentials-measure-7\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\essentials-outline-8\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\essentials-toolbars-6\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\essentials-viewport-5\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\interactions-9\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\links-10\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\storybook-core-core-server-presets-0\\common-manager-bundle.js.LEGAL.txt",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\py.typed",
+      "tests\\integration_routes\\__init__.py"
+    ],
+    "46821465b51e9eb8b48d2d9379e62b5bf886c64ca2cf7c7130043d9d518dd7dd": [
+      "backend\\api\\specs\\ukg_api_v3_2.yaml",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\openapi.yaml"
+    ],
+    "a1055cdf3436256b000a66a6646f1dd3870918aa772a9e0a78fd53962355da34": [
+      "backend\\knowledge_algorithm\\workflows\\simulation_v2_5.json",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\workflow.json"
+    ],
+    "4dfa62093f54b701ea8f5b23cc1d6a8ad011ccc0711f476c25d032b691defc64": [
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted--Generate-Python-code-files-for-KA-39-to-KA-50-ka-batch-39-to-50-ka-39-quantum-trust-p-1747673785923.txt",
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted--Generate-Python-code-files-for-KA-39-to-KA-50-ka-batch-39-to-50-ka-39-quantum-trust-p-1747675917698.txt"
+    ],
+    "c5597fc5d0391c19143151a87fce31c77f8c8121db1b77eb43cefaf54aa78008": [
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted--USER-How-best-to-code-in-the-13-axis-system-for-the-universe-knowledge-graph-ASSISTANT-To--1747634659073.txt",
+      "docs\\archive\\legacy_assets\\reference\\Numbe 1.txt"
+    ],
+    "1b891d0c1ccfb762013959f3c9ead78ce81f9ebc36f00a67101a152f858a2859": [
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted-Based-on-your-uploaded-AKF-YAML-AKF-Simulation-Base-and-regulatory-architecture-from-the-4D-Databa-1747690799302.txt",
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted-Based-on-your-uploaded-AKF-YAML-AKF-Simulation-Base-and-regulatory-architecture-from-the-4D-Databa-1747690984794.txt",
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted-Based-on-your-uploaded-AKF-YAML-AKF-Simulation-Base-and-regulatory-architecture-from-the-4D-Databa-1747691482962.txt"
+    ],
+    "5d18ced06ee629186498c9a18e0ee892de0f56d7c22729e345f6735a02c383b0": [
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted-o-design-the-Point-of-View-POV-Engine-for-the-Universal-Knowledge-Graph-UKG-and-Universal-Simula-1747683335869.txt",
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted-o-design-the-Point-of-View-POV-Engine-for-the-Universal-Knowledge-Graph-UKG-and-Universal-Simula-1747683710936.txt"
+    ],
+    "30fc244b141b1be0f02fc1543e0ae550edc1a6b3e674f7c5a85ea946b079b05a": [
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted-You-said-build-the-dynamic-knowleadge-mapping-and-database-cloning-system-that-uses-thr-13-axis-sys-1747677078375.txt",
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted-You-said-build-the-dynamic-knowleadge-mapping-and-database-cloning-system-that-uses-thr-13-axis-sys-1747677824289.txt"
+    ],
+    "5a1cb362cd3a0b2eb93d18aa166853548e72a8d40f34ea0a30577ba3c4a3624b": [
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted-You-said-create-build-instructing-for-layer-5-ChatGPT-said-To-build-Layer-5-of-the-Universal-Kno-1747686292959.txt",
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted-You-said-create-build-instructing-for-layer-5-ChatGPT-said-To-build-Layer-5-of-the-Universal-Kno-1747686304942.txt"
+    ],
+    "27eee4499007edd0d0b9d424e79568b78306f03126fe9c73263b7e4380f98ada": [
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted-You-said-design-layer-8-the-simulated-quantum-computer-ChatGPT-said-To-design-Layer-8-The-Simu-1747688494448.txt",
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted-You-said-design-layer-8-the-simulated-quantum-computer-ChatGPT-said-To-design-Layer-8-The-Simu-1747688708296.txt"
+    ],
+    "db576438e96d13b05a2b9ed49c0c323ef04a62ace982b136c84fd8b1a0cf232e": [
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted-You-said-lets-design-and-build-the-gatekeeper-agent-ChatGPT-said-To-design-and-build-the-Gatekee-1747679687691.txt",
+      "docs\\archive\\legacy_assets\\chat-exports\\Pasted-You-said-lets-design-and-build-the-gatekeeper-agent-ChatGPT-said-To-design-and-build-the-Gatekee-1747683198694.txt"
+    ],
+    "7ba321c2a137186063b0453e7ca9d7e06eb6b26905bc9cb85d5bdd3b57545fe8": [
+      "docs\\archive\\legacy_assets\\documents\\Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm"
+    ],
+    "480d122491edc7b730c6ca0ab087a511f37e6a188fe03ec5f4c2e4ae9987b59f": [
+      "docs\\archive\\legacy_assets\\documents\\The_17_Axis_System__Comprehensive_Technical_Architecture_1765942306012.pdf",
+      "documents\\The_17_Axis_System__Comprehensive_Technical_Architecture.pdf"
+    ],
+    "751d170d26c13ce814806e1ce28d0c9ecb4b8716011fb956132d12b25e237425": [
+      "docs\\archive\\legacy_assets\\documents\\Unified_Coordinate_System_for_UKG_USKD_\u2013_Technical_Documentati_1766025988120.pdf",
+      "docs\\archive\\supporting-documents\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf",
+      "documents\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation (1).pdf",
+      "documents\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation (2).pdf",
+      "documents\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf"
+    ],
+    "adff081d04eb0614124d0ce596506a2c78468b3abbb1c419a1828084d58d9bb3": [
+      "docs\\archive\\legacy_assets\\reference\\10-38-54-PL_Levels_Mapping_Request.txt",
+      "docs\\archive\\legacy_assets\\reference\\number 2.txt"
+    ],
+    "2aa3690cc926125bd851fb578a0c865c28e2c00f31ce89ee3c075eb41fbba876": [
+      "docs\\archive\\legacy_assets\\reference\\23-14-9-KGs_and_LLMs_for_AGI (1).txt",
+      "docs\\archive\\legacy_assets\\reference\\number 15.txt"
+    ],
+    "74cc3e896370b27c19ad32e98583f216ab8077eda79ab5dad0a2e2b09e29084b": [
+      "docs\\archive\\legacy_assets\\reference\\number 13.txt",
+      "docs\\archive\\legacy_assets\\reference\\number 4.txt"
+    ],
+    "9f423def1540f522d717b8581704fe06c5ab4b7c05343229a465824c2d655a13": [
+      "docs\\archive\\legacy_assets\\reference\\number 5.txt",
+      "docs\\archive\\legacy_assets\\reference\\number 9.txt"
+    ],
+    "3cb82cd4a27972b69c1aa4010db5287dc30f296ed5cef91be34981d02a203c02": [
+      "docs\\archive\\supporting-documents\\Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf"
+    ],
+    "27f5258ebfca9f8c641357c354baec3f083da2c71213b4dbda1823b1b6984bd9": [
+      "docs\\archive\\supporting-documents\\Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf"
+    ],
+    "aca4b953fe88fa54b61ad0daec1398740fb8e262c70b0e579df3be71a9eba23e": [
+      "docs\\archive\\supporting-documents\\Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf"
+    ],
+    "f6c72025d614f0592555850fc37c79401c15e82d49bd49498d40ff2a13dbfe3c": [
+      "docs\\archive\\supporting-documents\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf",
+      "documents\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report (1).pdf",
+      "documents\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report (2).pdf",
+      "documents\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf"
+    ],
+    "188344a101f33559030e7209ea523890619e1385b2a0c12a69cae91cc357074a": [
+      "docs\\archive\\supporting-documents\\Universal Knowledge Graph (UKG) MVP \u2013 System Documentation.pdf",
+      "documents\\Universal Knowledge Graph (UKG) MVP \u2013 System Documentation (1).pdf",
+      "documents\\Universal Knowledge Graph (UKG) MVP \u2013 System Documentation (2).pdf",
+      "documents\\Universal Knowledge Graph (UKG) MVP \u2013 System Documentation.pdf"
+    ],
+    "5256426cbc62f53802b79f0de0c966ccb9f77e01f39a43404b3749b23da4a647": [
+      "docs\\archive\\supporting-documents\\Universal Knowledge Graph Simulation Stack \u2013 10-Layer Architecture Report.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Knowledge Graph Simulation Stack \u2013 10-Layer Architecture Report.pdf"
+    ],
+    "29b8b20350673cc9df0065134323dcec94855fe84d2ae8ff52e56826ec253e8a": [
+      "docs\\archive\\supporting-documents\\Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) \u2013 System Documentati.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) \u2013 System Documentati.pdf"
+    ],
+    "ef86721119731e2fcfa18bf6fb6851da0d57c87debdf32d1e923562264bd4b98": [
+      "docs\\archive\\supporting-documents\\Universal Simulated Knowledge Graph (UKG) \u2013 A Comprehensive White Paper.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Simulated Knowledge Graph (UKG) \u2013 A Comprehensive White Paper.pdf"
+    ],
+    "b6b7bcb9a8c7d74a58f92e90381816f999e7625e64994aae618cdeb1da5ef720": [
+      "docs\\archive\\supporting-documents\\__Nested Simulated Memory Architecture of UKG_USKD \u2013 10-Layer Technical Documentation__ (1).pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\__Nested Simulated Memory Architecture of UKG_USKD \u2013 10-Layer Technical Documentation__ (1).pdf"
+    ],
+    "a0f389f3fce9be476ee388ae3a9277a2c5909f310015271696f8f93944c5b60c": [
+      "frontend\\build_log_attempt3.txt",
+      "frontend\\build_log_attempt4.txt"
+    ],
+    "ee4c582acc3dad7f1b29a7f119b6794fa293e487cf8bdb3bdd6dfa2f188eb0d5": [
+      "frontend\\build_report.txt",
+      "frontend\\build_verbose.log"
+    ],
+    "e000e3427c7aabe4bf12b6d95154de65dd2cede18f72f68786d8203dd736e5ba": [
+      "frontend\\lint_final.txt",
+      "frontend\\lint_output_v2.txt"
+    ],
+    "2b8ad2d33455a8f736fc3a8ebf8f0bdea8848ad4c0db48a2833bd0f9cd775932": [
+      "frontend\\app\\favicon.ico",
+      "frontend\\out\\favicon.ico"
+    ],
+    "2b67812c325c199a02536cdbeea0c593a72f707d323b72ee3e08dbab06753bd4": [
+      "frontend\\out\\file.svg",
+      "frontend\\public\\file.svg",
+      "frontend\\storybook-static\\file.svg"
+    ],
+    "b614b9bf183925957661ac851498fe1d8029fd43a62fbfed86f9e2624a57e7cf": [
+      "frontend\\out\\globe.svg",
+      "frontend\\public\\globe.svg",
+      "frontend\\storybook-static\\globe.svg"
+    ],
+    "37007b60c0e65f0710436c1bbe0a662dacb93e968ea30922c99c00c998d7c653": [
+      "frontend\\out\\icon.png",
+      "frontend\\public\\icon.png"
+    ],
+    "3edf0baf73d00a569835268b0693997f41414e9889bd60194772556d1f821ecd": [
+      "frontend\\out\\manifest.json",
+      "frontend\\public\\manifest.json",
+      "frontend\\storybook-static\\manifest.json"
+    ],
+    "55995dfad6ecb4945a1e856ddca03c5e16aa5bf13fd21b4df6a74ae79357bcfc": [
+      "frontend\\out\\next.svg",
+      "frontend\\public\\next.svg",
+      "frontend\\storybook-static\\next.svg"
+    ],
+    "d04ba286da78723ba7eee1043a4c2cdccdb7c6d626dca140156319500f58e6bf": [
+      "frontend\\out\\sw.js",
+      "frontend\\public\\sw.js",
+      "frontend\\storybook-static\\sw.js"
+    ],
+    "f081337b2fee635b455b63275406a3e7f39d6a014e25ad90dab5a67e62a12ac4": [
+      "frontend\\out\\vercel.svg",
+      "frontend\\public\\vercel.svg",
+      "frontend\\storybook-static\\vercel.svg"
+    ],
+    "644768c4aaeb4767bce293344eeb0c125fb804a94d801440424072202d85e3a1": [
+      "frontend\\out\\window.svg",
+      "frontend\\public\\window.svg",
+      "frontend\\storybook-static\\window.svg"
+    ],
+    "ce0e009efc9555d480d5207a98b5beca6f300a88103d5ab3908e757ab448a2a0": [
+      "frontend\\out\\_next\\static\\chunks\\app\\(auth)\\layout-93da09c0e99fc553.js",
+      "frontend\\out\\_next\\static\\chunks\\app\\_not-found\\page-9585eacd715926c8.js"
+    ],
+    "cd6d60f7f8fee968e7687b6d886f766990424923f2a4c4b7d03b7ba54ccee191": [
+      "frontend\\stories\\assets\\accessibility.png",
+      "frontend\\storybook-static\\static\\media\\accessibility.b812909c.png"
+    ],
+    "bc7ba70560462f6ddc4d22a6fcaaf40e577b2f37f3c3df88fcaa5b08a708a5e8": [
+      "frontend\\stories\\assets\\addon-library.png",
+      "frontend\\storybook-static\\static\\media\\addon-library.7d60eaf1.png"
+    ],
+    "2c90cb173ddcf13fec797baf538fbb211f4675eb6cd438b09ec64a84d7a2ffde": [
+      "frontend\\stories\\assets\\assets.png",
+      "frontend\\storybook-static\\static\\media\\assets.74434bfb.png"
+    ],
+    "c612d889d515d6e680ecf1131c4f116532eb19ae17654c6df5bc8ff0864f96fa": [
+      "frontend\\stories\\assets\\context.png",
+      "frontend\\storybook-static\\static\\media\\context.0aaeed46.png"
+    ],
+    "728ff2659cd453eb3abca53948ac35e815e6b8880a78582ba4ccab3c50564803": [
+      "frontend\\stories\\assets\\discord.svg",
+      "frontend\\storybook-static\\static\\media\\discord.c13ab8cc.svg"
+    ],
+    "5b0c7100c80607174ad6e930376103fae0d729328e9de85ee292b36b6b102214": [
+      "frontend\\stories\\assets\\docs.png",
+      "frontend\\storybook-static\\static\\media\\docs.78ff2c00.png"
+    ],
+    "b0a5ad2d021efea93a13ae3829211714ab162a49b0b9e215559dab01c2328149": [
+      "frontend\\stories\\assets\\figma-plugin.png",
+      "frontend\\storybook-static\\static\\media\\figma-plugin.92feae99.png"
+    ],
+    "a4113cf2c6e0e6fba99a85498e6b7c84c42d8c13928f89e0eede78bc596e0add": [
+      "frontend\\stories\\assets\\github.svg",
+      "frontend\\storybook-static\\static\\media\\github.bf1215e7.svg"
+    ],
+    "b59d6c77b3ac1fc89d6d026e9e70ba5204801d6864022e801322ce8d579bcbd9": [
+      "frontend\\stories\\assets\\share.png",
+      "frontend\\storybook-static\\static\\media\\share.b661f220.png"
+    ],
+    "c83082e0e8386ae5d56e13dc4cd85b06a53162a4b6575a0fbb2e45c95ec7f82e": [
+      "frontend\\stories\\assets\\styling.png",
+      "frontend\\storybook-static\\static\\media\\styling.6ea0e96c.png"
+    ],
+    "6a59f68143c561f5feb549cf417fa084d0c761b856b0d9903f4fed44d850da16": [
+      "frontend\\stories\\assets\\testing.png",
+      "frontend\\storybook-static\\static\\media\\testing.6f11ce8b.png"
+    ],
+    "b6e819c3dd77c466a6509b199a33dd2bbc9471b42891c3fcb469d9bf849bc976": [
+      "frontend\\stories\\assets\\theming.png",
+      "frontend\\storybook-static\\static\\media\\theming.3ca117fd.png"
+    ],
+    "92011d59300200edd459f01eee8203576a90d5f2b0cf1a15481a0205d84c1f74": [
+      "frontend\\stories\\assets\\tutorials.svg",
+      "frontend\\storybook-static\\static\\media\\tutorials.f9b22f92.svg"
+    ],
+    "9d265ff6f05ea0610040f990152026109bba39cc505b8e5aec2bdcd0e84d0ff2": [
+      "frontend\\stories\\assets\\youtube.svg",
+      "frontend\\storybook-static\\static\\media\\youtube.0220385a.svg"
+    ],
+    "385afdf77854a872cb3809242cdddea4df1fbeb023cb70787e96bca51ae9d682": [
+      "frontend\\storybook-static\\575.8f851b07.iframe.bundle.js.LICENSE.txt",
+      "frontend\\storybook-static\\Alert-stories.8ad5b5e9.iframe.bundle.js.LICENSE.txt",
+      "frontend\\storybook-static\\AppSidebar-stories.615f9e5a.iframe.bundle.js.LICENSE.txt",
+      "frontend\\storybook-static\\Button-stories.fcb2ceee.iframe.bundle.js.LICENSE.txt",
+      "frontend\\storybook-static\\Card-stories.d400a96e.iframe.bundle.js.LICENSE.txt",
+      "frontend\\storybook-static\\CloudStatusIndicator-stories.dd8e6853.iframe.bundle.js.LICENSE.txt"
+    ],
+    "d638674cba21b2442a92464d3046fb6dd884d1f82bf81fe8dce03effed61ebc1": [
+      "frontend\\storybook-static\\favicon.svg",
+      "frontend\\storybook-static\\sb-common-assets\\favicon.svg"
+    ],
+    "36aadf15d24dfa97c0446c9ca713b9d004f0f5674d1043b2b51c75105962cab9": [
+      "frontend\\storybook-static\\nunito-sans-bold-italic.woff2",
+      "frontend\\storybook-static\\sb-common-assets\\nunito-sans-bold-italic.woff2"
+    ],
+    "6bccbfaa70688e0348109160e90c771587866c21717bfd3adec38ea606362cf8": [
+      "frontend\\storybook-static\\nunito-sans-bold.woff2",
+      "frontend\\storybook-static\\sb-common-assets\\nunito-sans-bold.woff2"
+    ],
+    "992f331636deda09193ac0453c274ac3fb7e66f70af98e1cbff119a7384f09ae": [
+      "frontend\\storybook-static\\nunito-sans-italic.woff2",
+      "frontend\\storybook-static\\sb-common-assets\\nunito-sans-italic.woff2"
+    ],
+    "49fe05ec477bb0f2f815a7494c933070606b5c68e84f96e11374e07c59a64d61": [
+      "frontend\\storybook-static\\nunito-sans-regular.woff2",
+      "frontend\\storybook-static\\sb-common-assets\\nunito-sans-regular.woff2"
+    ],
+    "69039f631dc3de4d4ed548b1e0c2bfce87566c5949a04d7de9de35be49d58b55": [
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\axis2.xlsx",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\axis2_catalog.xlsx"
+    ],
+    "e414fe867619d52bef9d897329d8991dae42766cae655d4cc0c2afb293b92bd7": [
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\pillar_catalog.xlsx",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\pl1_107.xlsx"
+    ],
+    "39bb9e1e027f4497eca485f6e98f4d73a66ad6818a874c1afbbb9ac48fef0336": [
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\truth_engine_master.json",
+      "sdk\\UKG_Python_SDK\\ukg_sdk-0.3.1\\ukg_sdk\\data\\truth_engine_master.json"
+    ]
+  },
+  "name_duplicates": {
+    ".gitignore": [
+      ".gitignore",
+      "frontend\\.gitignore"
+    ],
+    "CHANGELOG.md": [
+      "CHANGELOG.md",
+      "sdk\\UKG_Python_SDK\\CHANGELOG.md"
+    ],
+    "config.py": [
+      "config.py",
+      "backend\\config.py"
+    ],
+    "CONTRIBUTING.md": [
+      "CONTRIBUTING.md",
+      "docs\\CONTRIBUTING.md"
+    ],
+    "coverage.json": [
+      "coverage.json",
+      "data\\coverage.json"
+    ],
+    "LICENSE": [
+      "LICENSE",
+      "sdk\\UKG_Python_SDK\\LICENSE"
+    ],
+    "models.py": [
+      "models.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\models.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\ka\\models.py"
+    ],
+    "pyproject.toml": [
+      "pyproject.toml",
+      "sdk\\UKG_Python_SDK\\pyproject.toml"
+    ],
+    "README.md": [
+      "README.md",
+      "core\\mcp\\README.md",
+      "demos\\README.md",
+      "docs\\archive\\supporting-documents\\README.md",
+      "docs\\wireframes\\README.md",
+      "frontend\\README.md",
+      "sdk\\UKG_Python_SDK\\README.md"
+    ],
+    "SECURITY.md": [
+      "SECURITY.md",
+      "docs\\SECURITY.md"
+    ],
+    ".dockerignore": [
+      "backend\\.dockerignore",
+      "frontend\\.dockerignore"
+    ],
+    "Dockerfile": [
+      "backend\\Dockerfile",
+      "frontend\\Dockerfile"
+    ],
+    "location_context_engine.py": [
+      "backend\\location_context_engine.py",
+      "core\\simulation\\location_context_engine.py"
+    ],
+    "logging_config.py": [
+      "backend\\logging_config.py",
+      "utils\\logging_config.py"
+    ],
+    "__init__.py": [
+      "backend\\__init__.py",
+      "backend\\auth\\__init__.py",
+      "backend\\config\\__init__.py",
+      "backend\\knowledge_algorithm\\__init__.py",
+      "backend\\knowledge_algorithms\\__init__.py",
+      "backend\\knowledge_algorithms\\l10\\__init__.py",
+      "backend\\knowledge_algorithms\\l9\\__init__.py",
+      "backend\\knowledge_algorithms\\legacy\\__init__.py",
+      "backend\\llm_gateway\\__init__.py",
+      "backend\\mcp_server\\__init__.py",
+      "backend\\mcp_server\\tools\\__init__.py",
+      "backend\\middleware\\__init__.py",
+      "backend\\quad_persona\\__init__.py",
+      "backend\\reports\\__init__.py",
+      "backend\\repositories\\__init__.py",
+      "backend\\schemas\\__init__.py",
+      "backend\\security\\__init__.py",
+      "backend\\services\\__init__.py",
+      "backend\\simulation\\__init__.py",
+      "backend\\storage\\__init__.py",
+      "backend\\tracing\\__init__.py",
+      "backend\\truth_engine\\__init__.py",
+      "backend\\truth_engine\\truth_core\\__init__.py",
+      "backend\\truth_engine\\truth_gate\\__init__.py",
+      "backend\\truth_engine\\truth_link\\__init__.py",
+      "backend\\truth_engine\\truth_memory\\__init__.py",
+      "backend\\utils\\__init__.py",
+      "core\\__init__.py",
+      "core\\axes\\__init__.py",
+      "core\\knowledge_algorithm\\__init__.py",
+      "core\\knowledge_algorithm\\implementations\\__init__.py",
+      "core\\mcp\\__init__.py",
+      "core\\mcp\\servers\\__init__.py",
+      "core\\nlp\\__init__.py",
+      "core\\orchestration\\__init__.py",
+      "core\\persona\\__init__.py",
+      "core\\simulation\\__init__.py",
+      "data\\ukg\\__init__.py",
+      "quad_persona\\__init__.py",
+      "routes\\__init__.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\__init__.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\audit\\__init__.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\ka\\__init__.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\memory\\__init__.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\providers\\__init__.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\truth_engine\\__init__.py",
+      "simulation\\__init__.py",
+      "tests\\integration_routes\\__init__.py",
+      "utils\\__init__.py"
+    ],
+    "base.py": [
+      "backend\\knowledge_algorithm\\base.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\audit\\base.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\memory\\base.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\providers\\base.py"
+    ],
+    "registry.py": [
+      "backend\\knowledge_algorithm\\registry.py",
+      "backend\\mcp_server\\registry.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\ka\\registry.py"
+    ],
+    "truth_engine.py": [
+      "backend\\knowledge_algorithm\\truth_engine.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\truth_engine.py",
+      "simulation\\truth_engine.py"
+    ],
+    "ka_02_tree_of_thought.py": [
+      "backend\\knowledge_algorithms\\ka_02_tree_of_thought.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_02_tree_of_thought.py"
+    ],
+    "ka_03_gap_analysis.py": [
+      "backend\\knowledge_algorithms\\ka_03_gap_analysis.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_03_gap_analysis.py"
+    ],
+    "ka_05_query_classification.py": [
+      "backend\\knowledge_algorithms\\ka_05_query_classification.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_05_query_classification.py"
+    ],
+    "ka_100_autonomous_system_evolution_controller.py": [
+      "backend\\knowledge_algorithms\\ka_100_autonomous_system_evolution_controller.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_100_autonomous_system_evolution_controller.py"
+    ],
+    "ka_101_chaos_injection_governor.py": [
+      "backend\\knowledge_algorithms\\ka_101_chaos_injection_governor.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_101_chaos_injection_governor.py"
+    ],
+    "ka_102_global_entropy_quantifier.py": [
+      "backend\\knowledge_algorithms\\ka_102_global_entropy_quantifier.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_102_global_entropy_quantifier.py"
+    ],
+    "ka_103_simulation_state_rollback_manager.py": [
+      "backend\\knowledge_algorithms\\ka_103_simulation_state_rollback_manager.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_103_simulation_state_rollback_manager.py"
+    ],
+    "ka_104_truth_vs_utility_arbiter.py": [
+      "backend\\knowledge_algorithms\\ka_104_truth_vs_utility_arbiter.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_104_truth_vs_utility_arbiter.py"
+    ],
+    "ka_105_conceptual_obsolescence_monitor.py": [
+      "backend\\knowledge_algorithms\\ka_105_conceptual_obsolescence_monitor.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_105_conceptual_obsolescence_monitor.py"
+    ],
+    "ka_106_human_override_reason_capture.py": [
+      "backend\\knowledge_algorithms\\ka_106_human_override_reason_capture.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_106_human_override_reason_capture.py"
+    ],
+    "ka_107_reasoning_boundary_enforcer.py": [
+      "backend\\knowledge_algorithms\\ka_107_reasoning_boundary_enforcer.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_107_reasoning_boundary_enforcer.py"
+    ],
+    "ka_108_capability_escalation_detector.py": [
+      "backend\\knowledge_algorithms\\ka_108_capability_escalation_detector.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_108_capability_escalation_detector.py"
+    ],
+    "ka_109_knowledge_containment_classifier.py": [
+      "backend\\knowledge_algorithms\\ka_109_knowledge_containment_classifier.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_109_knowledge_containment_classifier.py"
+    ],
+    "ka_110_cross_domain_coupling_risk_analyzer.py": [
+      "backend\\knowledge_algorithms\\ka_110_cross_domain_coupling_risk_analyzer.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_110_cross_domain_coupling_risk_analyzer.py"
+    ],
+    "ka_111_long_horizon_goal_drift_monitor.py": [
+      "backend\\knowledge_algorithms\\ka_111_long_horizon_goal_drift_monitor.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_111_long_horizon_goal_drift_monitor.py"
+    ],
+    "ka_112_system_self_introspection_auditor.py": [
+      "backend\\knowledge_algorithms\\ka_112_system_self_introspection_auditor.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_112_system_self_introspection_auditor.py"
+    ],
+    "ka_114_external_deep_research_invocation.py": [
+      "backend\\knowledge_algorithms\\ka_114_external_deep_research_invocation.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_114_external_deep_research_invocation.py"
+    ],
+    "ka_12_persona_simulation.py": [
+      "backend\\knowledge_algorithms\\ka_12_persona_simulation.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_12_persona_simulation.py"
+    ],
+    "ka_14_confidence_scoring.py": [
+      "backend\\knowledge_algorithms\\ka_14_confidence_scoring.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_14_confidence_scoring.py"
+    ],
+    "ka_15_temporal_reasoning.py": [
+      "backend\\knowledge_algorithms\\ka_15_temporal_reasoning.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_15_temporal_reasoning.py"
+    ],
+    "ka_17_spatial_jurisdiction_mapping.py": [
+      "backend\\knowledge_algorithms\\ka_17_spatial_jurisdiction_mapping.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_17_spatial_jurisdiction_mapping.py"
+    ],
+    "ka_18_source_provenance.py": [
+      "backend\\knowledge_algorithms\\ka_18_source_provenance.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_18_source_provenance.py"
+    ],
+    "ka_19_knowledge_synthesis.py": [
+      "backend\\knowledge_algorithms\\ka_19_knowledge_synthesis.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_19_knowledge_synthesis.py"
+    ],
+    "ka_22_risk_assessment.py": [
+      "backend\\knowledge_algorithms\\ka_22_risk_assessment.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_22_risk_assessment.py"
+    ],
+    "ka_23_belief_decay.py": [
+      "backend\\knowledge_algorithms\\ka_23_belief_decay.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_23_belief_decay.py"
+    ],
+    "ka_24_trust_gate.py": [
+      "backend\\knowledge_algorithms\\ka_24_trust_gate.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_24_trust_gate.py"
+    ],
+    "ka_25_dependency_mapping.py": [
+      "backend\\knowledge_algorithms\\ka_25_dependency_mapping.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_25_dependency_mapping.py"
+    ],
+    "ka_36_pareto_optimization_engine.py": [
+      "backend\\knowledge_algorithms\\ka_36_pareto_optimization_engine.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_36_pareto_optimization_engine.py"
+    ],
+    "ka_37_norm_emergence_detector.py": [
+      "backend\\knowledge_algorithms\\ka_37_norm_emergence_detector.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_37_norm_emergence_detector.py"
+    ],
+    "ka_38_cross_modal_synthesis.py": [
+      "backend\\knowledge_algorithms\\ka_38_cross_modal_synthesis.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_38_cross_modal_synthesis.py"
+    ],
+    "ka_39_ontology_drift_detection.py": [
+      "backend\\knowledge_algorithms\\ka_39_ontology_drift_detection.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_39_ontology_drift_detection.py"
+    ],
+    "ka_40_semantic_alignment_engine.py": [
+      "backend\\knowledge_algorithms\\ka_40_semantic_alignment_engine.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_40_semantic_alignment_engine.py"
+    ],
+    "ka_41_concept_confidence_normalization.py": [
+      "backend\\knowledge_algorithms\\ka_41_concept_confidence_normalization.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_41_concept_confidence_normalization.py"
+    ],
+    "ka_42_contradiction_propagation_analysis.py": [
+      "backend\\knowledge_algorithms\\ka_42_contradiction_propagation_analysis.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_42_contradiction_propagation_analysis.py"
+    ],
+    "ka_43_knowledge_lineage_tracker.py": [
+      "backend\\knowledge_algorithms\\ka_43_knowledge_lineage_tracker.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_43_knowledge_lineage_tracker.py"
+    ],
+    "ka_44_creative_knowledge_composer.py": [
+      "backend\\knowledge_algorithms\\ka_44_creative_knowledge_composer.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_44_creative_knowledge_composer.py"
+    ],
+    "ka_45_bias_pattern_analyzer.py": [
+      "backend\\knowledge_algorithms\\ka_45_bias_pattern_analyzer.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_45_bias_pattern_analyzer.py"
+    ],
+    "ka_46_hierarchical_memory_patcher.py": [
+      "backend\\knowledge_algorithms\\ka_46_hierarchical_memory_patcher.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_46_hierarchical_memory_patcher.py"
+    ],
+    "ka_47_meta_algorithm_selection.py": [
+      "backend\\knowledge_algorithms\\ka_47_meta_algorithm_selection.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_47_meta_algorithm_selection.py"
+    ],
+    "ka_48_ontological_conflict_resolver.py": [
+      "backend\\knowledge_algorithms\\ka_48_ontological_conflict_resolver.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_48_ontological_conflict_resolver.py"
+    ],
+    "ka_49_knowledge_redundancy_detector.py": [
+      "backend\\knowledge_algorithms\\ka_49_knowledge_redundancy_detector.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_49_knowledge_redundancy_detector.py"
+    ],
+    "ka_50_knowledge_integrity_validator.py": [
+      "backend\\knowledge_algorithms\\ka_50_knowledge_integrity_validator.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_50_knowledge_integrity_validator.py"
+    ],
+    "ka_51_self_correcting_knowledge_distillation.py": [
+      "backend\\knowledge_algorithms\\ka_51_self_correcting_knowledge_distillation.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_51_self_correcting_knowledge_distillation.py"
+    ],
+    "ka_52_temporal_knowledge_evolution.py": [
+      "backend\\knowledge_algorithms\\ka_52_temporal_knowledge_evolution.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_52_temporal_knowledge_evolution.py"
+    ],
+    "ka_53_dynamic_knowledge_compression.py": [
+      "backend\\knowledge_algorithms\\ka_53_dynamic_knowledge_compression.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_53_dynamic_knowledge_compression.py"
+    ],
+    "ka_54_cross_lingual_knowledge_fusion.py": [
+      "backend\\knowledge_algorithms\\ka_54_cross_lingual_knowledge_fusion.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_54_cross_lingual_knowledge_fusion.py"
+    ],
+    "ka_55_adaptive_multi_modal_integration.py": [
+      "backend\\knowledge_algorithms\\ka_55_adaptive_multi_modal_integration.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_55_adaptive_multi_modal_integration.py"
+    ],
+    "ka_56_narrative_explainability_engine.py": [
+      "backend\\knowledge_algorithms\\ka_56_narrative_explainability_engine.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_56_narrative_explainability_engine.py"
+    ],
+    "ka_57_persona_emotion_adaptation.py": [
+      "backend\\knowledge_algorithms\\ka_57_persona_emotion_adaptation.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_57_persona_emotion_adaptation.py"
+    ],
+    "ka_59_predictive_layer_preemption.py": [
+      "backend\\knowledge_algorithms\\ka_59_predictive_layer_preemption.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_59_predictive_layer_preemption.py"
+    ],
+    "ka_60_cognitive_load_balancer.py": [
+      "backend\\knowledge_algorithms\\ka_60_cognitive_load_balancer.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_60_cognitive_load_balancer.py"
+    ],
+    "ka_61_adversarial_input_shield.py": [
+      "backend\\knowledge_algorithms\\ka_61_adversarial_input_shield.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_61_adversarial_input_shield.py"
+    ],
+    "ka_62_decentralized_trust_scoring.py": [
+      "backend\\knowledge_algorithms\\ka_62_decentralized_trust_scoring.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_62_decentralized_trust_scoring.py"
+    ],
+    "ka_63_continuous_performance_learning.py": [
+      "backend\\knowledge_algorithms\\ka_63_continuous_performance_learning.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_63_continuous_performance_learning.py"
+    ],
+    "ka_64_failure_pattern_detection.py": [
+      "backend\\knowledge_algorithms\\ka_64_failure_pattern_detection.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_64_failure_pattern_detection.py"
+    ],
+    "ka_65_knowledge_regression_tester.py": [
+      "backend\\knowledge_algorithms\\ka_65_knowledge_regression_tester.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_65_knowledge_regression_tester.py"
+    ],
+    "ka_66_causal_inference_engine.py": [
+      "backend\\knowledge_algorithms\\ka_66_causal_inference_engine.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_66_causal_inference_engine.py"
+    ],
+    "ka_67_analogical_reasoning_engine.py": [
+      "backend\\knowledge_algorithms\\ka_67_analogical_reasoning_engine.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_67_analogical_reasoning_engine.py"
+    ],
+    "ka_68_domain_specialization_tuner.py": [
+      "backend\\knowledge_algorithms\\ka_68_domain_specialization_tuner.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_68_domain_specialization_tuner.py"
+    ],
+    "ka_69_cultural_context_adapter.py": [
+      "backend\\knowledge_algorithms\\ka_69_cultural_context_adapter.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_69_cultural_context_adapter.py"
+    ],
+    "ka_70_counterfactual_scenario_simulator.py": [
+      "backend\\knowledge_algorithms\\ka_70_counterfactual_scenario_simulator.py",
+      "backend\\knowledge_algorithms\\legacy\\ka_70_counterfactual_scenario_simulator.py"
+    ],
+    "ka_registry.yaml": [
+      "backend\\knowledge_algorithms\\ka_registry.yaml",
+      "data\\registries\\ka_registry.yaml"
+    ],
+    "core.py": [
+      "backend\\knowledge_algorithms\\legacy\\ka56_legacy\\core.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\truth_engine\\core.py"
+    ],
+    "api.py": [
+      "backend\\llm_gateway\\api.py",
+      "backend\\tracing\\api.py",
+      "backend\\truth_engine\\api.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\api.py"
+    ],
+    "gateway.py": [
+      "backend\\llm_gateway\\gateway.py",
+      "backend\\truth_engine\\truth_gate\\gateway.py"
+    ],
+    "schemas.py": [
+      "backend\\llm_gateway\\schemas.py",
+      "backend\\truth_engine\\truth_gate\\schemas.py"
+    ],
+    "router.py": [
+      "backend\\mcp_server\\router.py",
+      "backend\\truth_engine\\truth_core\\router.py"
+    ],
+    "quad_engine.py": [
+      "backend\\quad_persona\\quad_engine.py",
+      "quad_persona\\quad_engine.py"
+    ],
+    "compliance.py": [
+      "backend\\reports\\compliance.py",
+      "backend\\truth_engine\\truth_gate\\compliance.py"
+    ],
+    "simulation_engine.py": [
+      "backend\\simulation\\simulation_engine.py",
+      "core\\simulation\\simulation_engine.py",
+      "simulation\\simulation_engine.py"
+    ],
+    "refinement_orchestrator.py": [
+      "backend\\truth_engine\\truth_core\\refinement_orchestrator.py",
+      "core\\simulation\\refinement_orchestrator.py",
+      "core\\system\\refinement_orchestrator.py"
+    ],
+    "exceptions.py": [
+      "backend\\utils\\exceptions.py",
+      "core\\knowledge_algorithm\\exceptions.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\exceptions.py"
+    ],
+    "coordinate_system.py": [
+      "core\\coordinate_system.py",
+      "simulation\\coordinate_system.py"
+    ],
+    "persona_manager.py": [
+      "core\\persona\\persona_manager.py",
+      "scripts\\persona_manager.py"
+    ],
+    "layer1_entry.py": [
+      "core\\simulation\\layer1_entry.py",
+      "simulation\\layer1_entry.py"
+    ],
+    "layer2_knowledge.py": [
+      "core\\simulation\\layer2_knowledge.py",
+      "simulation\\layer2_knowledge.py"
+    ],
+    "layer5_integration.py": [
+      "core\\simulation\\layer5_integration.py",
+      "simulation\\layer5_integration.py"
+    ],
+    "layer7_agi_system.py": [
+      "core\\simulation\\layer7_agi_system.py",
+      "simulation\\layer7_agi_system.py"
+    ],
+    "workflow.json": [
+      "data\\workflow.json",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\workflow.json"
+    ],
+    "backup_database.sh": [
+      "deploy\\backup_database.sh",
+      "scripts\\backup_database.sh"
+    ],
+    "openapi.yaml": [
+      "docs\\openapi.yaml",
+      "docs\\api\\openapi.yaml",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\openapi.yaml"
+    ],
+    "Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm": [
+      "docs\\archive\\legacy_assets\\documents\\Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm"
+    ],
+    "Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf": [
+      "docs\\archive\\supporting-documents\\Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf"
+    ],
+    "Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf": [
+      "docs\\archive\\supporting-documents\\Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf"
+    ],
+    "Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf": [
+      "docs\\archive\\supporting-documents\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf",
+      "documents\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf"
+    ],
+    "Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf": [
+      "docs\\archive\\supporting-documents\\Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf"
+    ],
+    "Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf": [
+      "docs\\archive\\supporting-documents\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf",
+      "documents\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf"
+    ],
+    "Universal Knowledge Graph (UKG) MVP \u2013 System Documentation.pdf": [
+      "docs\\archive\\supporting-documents\\Universal Knowledge Graph (UKG) MVP \u2013 System Documentation.pdf",
+      "documents\\Universal Knowledge Graph (UKG) MVP \u2013 System Documentation.pdf"
+    ],
+    "Universal Knowledge Graph Simulation Stack \u2013 10-Layer Architecture Report.pdf": [
+      "docs\\archive\\supporting-documents\\Universal Knowledge Graph Simulation Stack \u2013 10-Layer Architecture Report.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Knowledge Graph Simulation Stack \u2013 10-Layer Architecture Report.pdf"
+    ],
+    "Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) \u2013 System Documentati.pdf": [
+      "docs\\archive\\supporting-documents\\Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) \u2013 System Documentati.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) \u2013 System Documentati.pdf"
+    ],
+    "Universal Simulated Knowledge Graph (UKG) \u2013 A Comprehensive White Paper.pdf": [
+      "docs\\archive\\supporting-documents\\Universal Simulated Knowledge Graph (UKG) \u2013 A Comprehensive White Paper.pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Simulated Knowledge Graph (UKG) \u2013 A Comprehensive White Paper.pdf"
+    ],
+    "__Nested Simulated Memory Architecture of UKG_USKD \u2013 10-Layer Technical Documentation__ (1).pdf": [
+      "docs\\archive\\supporting-documents\\__Nested Simulated Memory Architecture of UKG_USKD \u2013 10-Layer Technical Documentation__ (1).pdf",
+      "sdk\\UKG_Python_SDK\\docs\\specs\\__Nested Simulated Memory Architecture of UKG_USKD \u2013 10-Layer Technical Documentation__ (1).pdf"
+    ],
+    "tsconfig.json": [
+      "frontend\\tsconfig.json",
+      "frontend\\electron\\tsconfig.json"
+    ],
+    "favicon.ico": [
+      "frontend\\app\\favicon.ico",
+      "frontend\\out\\favicon.ico"
+    ],
+    "globals.css": [
+      "frontend\\app\\globals.css",
+      "styles\\globals.css"
+    ],
+    "layout.tsx": [
+      "frontend\\app\\layout.tsx",
+      "frontend\\app\\(auth)\\layout.tsx"
+    ],
+    "page.tsx": [
+      "frontend\\app\\page.tsx",
+      "frontend\\app\\(auth)\\login\\page.tsx",
+      "frontend\\app\\(auth)\\register\\page.tsx",
+      "frontend\\app\\about\\page.tsx",
+      "frontend\\app\\about\\ai-limitations\\page.tsx",
+      "frontend\\app\\about\\cloud-services\\page.tsx",
+      "frontend\\app\\admin\\page.tsx",
+      "frontend\\app\\admin\\compliance\\page.tsx",
+      "frontend\\app\\admin\\mcp\\page.tsx",
+      "frontend\\app\\admin\\mcp\\servers\\page.tsx",
+      "frontend\\app\\algorithms\\page.tsx",
+      "frontend\\app\\analytics\\page.tsx",
+      "frontend\\app\\chat\\page.tsx",
+      "frontend\\app\\dashboard\\page.tsx",
+      "frontend\\app\\graph\\page.tsx",
+      "frontend\\app\\knowledge\\page.tsx",
+      "frontend\\app\\legal\\privacy\\page.tsx",
+      "frontend\\app\\mcp\\page.tsx",
+      "frontend\\app\\profile\\page.tsx",
+      "frontend\\app\\projects\\page.tsx",
+      "frontend\\app\\projects\\[id]\\page.tsx",
+      "frontend\\app\\runs\\page.tsx",
+      "frontend\\app\\runs\\view\\page.tsx",
+      "frontend\\app\\settings\\page.tsx",
+      "frontend\\app\\settings\\privacy\\page.tsx",
+      "frontend\\app\\simulations\\page.tsx",
+      "frontend\\app\\truth-engine\\page.tsx"
+    ],
+    "types.ts": [
+      "frontend\\components\\Chat\\types.ts",
+      "frontend\\components\\mcp\\types.ts",
+      "frontend\\lib\\api\\types.ts"
+    ],
+    "main.js": [
+      "frontend\\dist-electron\\main.js",
+      "public\\js\\main.js"
+    ],
+    "file.svg": [
+      "frontend\\out\\file.svg",
+      "frontend\\public\\file.svg",
+      "frontend\\storybook-static\\file.svg"
+    ],
+    "globe.svg": [
+      "frontend\\out\\globe.svg",
+      "frontend\\public\\globe.svg",
+      "frontend\\storybook-static\\globe.svg"
+    ],
+    "icon.png": [
+      "frontend\\out\\icon.png",
+      "frontend\\public\\icon.png"
+    ],
+    "index.html": [
+      "frontend\\out\\index.html",
+      "frontend\\storybook-static\\index.html"
+    ],
+    "manifest.json": [
+      "frontend\\out\\manifest.json",
+      "frontend\\public\\manifest.json",
+      "frontend\\storybook-static\\manifest.json"
+    ],
+    "mcp.html": [
+      "frontend\\out\\mcp.html",
+      "frontend\\out\\admin\\mcp.html"
+    ],
+    "mcp.txt": [
+      "frontend\\out\\mcp.txt",
+      "frontend\\out\\admin\\mcp.txt"
+    ],
+    "next.svg": [
+      "frontend\\out\\next.svg",
+      "frontend\\public\\next.svg",
+      "frontend\\storybook-static\\next.svg"
+    ],
+    "sw.js": [
+      "frontend\\out\\sw.js",
+      "frontend\\public\\sw.js",
+      "frontend\\storybook-static\\sw.js"
+    ],
+    "vercel.svg": [
+      "frontend\\out\\vercel.svg",
+      "frontend\\public\\vercel.svg",
+      "frontend\\storybook-static\\vercel.svg"
+    ],
+    "window.svg": [
+      "frontend\\out\\window.svg",
+      "frontend\\public\\window.svg",
+      "frontend\\storybook-static\\window.svg"
+    ],
+    "privacy.html": [
+      "frontend\\out\\legal\\privacy.html",
+      "frontend\\out\\settings\\privacy.html"
+    ],
+    "privacy.txt": [
+      "frontend\\out\\legal\\privacy.txt",
+      "frontend\\out\\settings\\privacy.txt"
+    ],
+    "favicon.svg": [
+      "frontend\\storybook-static\\favicon.svg",
+      "frontend\\storybook-static\\sb-common-assets\\favicon.svg"
+    ],
+    "nunito-sans-bold-italic.woff2": [
+      "frontend\\storybook-static\\nunito-sans-bold-italic.woff2",
+      "frontend\\storybook-static\\sb-common-assets\\nunito-sans-bold-italic.woff2"
+    ],
+    "nunito-sans-bold.woff2": [
+      "frontend\\storybook-static\\nunito-sans-bold.woff2",
+      "frontend\\storybook-static\\sb-common-assets\\nunito-sans-bold.woff2"
+    ],
+    "nunito-sans-italic.woff2": [
+      "frontend\\storybook-static\\nunito-sans-italic.woff2",
+      "frontend\\storybook-static\\sb-common-assets\\nunito-sans-italic.woff2"
+    ],
+    "nunito-sans-regular.woff2": [
+      "frontend\\storybook-static\\nunito-sans-regular.woff2",
+      "frontend\\storybook-static\\sb-common-assets\\nunito-sans-regular.woff2"
+    ],
+    "manager-bundle.js": [
+      "frontend\\storybook-static\\sb-addons\\chromatic-com-storybook-1\\manager-bundle.js",
+      "frontend\\storybook-static\\sb-addons\\essentials-actions-3\\manager-bundle.js",
+      "frontend\\storybook-static\\sb-addons\\essentials-backgrounds-4\\manager-bundle.js",
+      "frontend\\storybook-static\\sb-addons\\essentials-controls-2\\manager-bundle.js",
+      "frontend\\storybook-static\\sb-addons\\essentials-measure-7\\manager-bundle.js",
+      "frontend\\storybook-static\\sb-addons\\essentials-outline-8\\manager-bundle.js",
+      "frontend\\storybook-static\\sb-addons\\essentials-toolbars-6\\manager-bundle.js",
+      "frontend\\storybook-static\\sb-addons\\essentials-viewport-5\\manager-bundle.js",
+      "frontend\\storybook-static\\sb-addons\\interactions-9\\manager-bundle.js",
+      "frontend\\storybook-static\\sb-addons\\links-10\\manager-bundle.js",
+      "frontend\\storybook-static\\sb-addons\\onboarding-11\\manager-bundle.js"
+    ],
+    "manager-bundle.js.LEGAL.txt": [
+      "frontend\\storybook-static\\sb-addons\\chromatic-com-storybook-1\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\essentials-actions-3\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\essentials-backgrounds-4\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\essentials-controls-2\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\essentials-measure-7\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\essentials-outline-8\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\essentials-toolbars-6\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\essentials-viewport-5\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\interactions-9\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\links-10\\manager-bundle.js.LEGAL.txt",
+      "frontend\\storybook-static\\sb-addons\\onboarding-11\\manager-bundle.js.LEGAL.txt"
+    ],
+    "globals.js": [
+      "frontend\\storybook-static\\sb-manager\\globals.js",
+      "frontend\\storybook-static\\sb-preview\\globals.js"
+    ],
+    "runtime.js": [
+      "frontend\\storybook-static\\sb-manager\\runtime.js",
+      "frontend\\storybook-static\\sb-preview\\runtime.js"
+    ],
+    "postgres.py": [
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\audit\\postgres.py",
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\memory\\postgres.py"
+    ],
+    "truth_engine_master.json": [
+      "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\truth_engine_master.json",
+      "sdk\\UKG_Python_SDK\\ukg_sdk-0.3.1\\ukg_sdk\\data\\truth_engine_master.json"
+    ]
+  }
+}

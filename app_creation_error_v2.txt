@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "<string>", line 6, in <module>
-    from app import create_app
-ImportError: cannot import name 'create_app' from 'app' (C:\software\DataLogicEngine\app.py)
