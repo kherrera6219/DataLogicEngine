@@ -715,9 +715,12 @@ class TestIntegration:
     """Integration tests for email service"""
 
     @patch('backend.email_service.mail.send')
-    def test_complete_email_workflow(self, mock_send, initialized_mail):
+    @patch('backend.email_service.render_template')
+    def test_complete_email_workflow(self, mock_render, mock_send, initialized_mail):
         """Test complete email sending workflow"""
         with initialized_mail.app_context():
+            mock_render.return_value = "<html><body>Mock Email Content</body></html>"
+            
             # Send various types of emails
             send_password_reset_email(
                 "user@test.com",

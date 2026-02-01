@@ -31,7 +31,7 @@ def export_user_data():
     """
     try:
         from extensions import db
-        from models import Chat, Message, KnowledgeGraphNode
+        from models import ChatSession as Chat, ChatMessage as Message, KnowledgeGraphNode
         
         user_id = current_user.id
         
