@@ -34,8 +34,9 @@ admin_bp = Blueprint('gateway_admin', __name__, url_prefix='/api/admin')
 
 def api_key_required(f):
     """Decorator for endpoints that accept API key or session auth."""
+    import inspect
     @wraps(f)
-    def decorated(*args, **kwargs):
+    async def decorated(*args, **kwargs):
         # Check for API key in header
         api_key = request.headers.get('X-API-Key') or request.headers.get('Authorization', '').replace('Bearer ', '')
         
@@ -47,7 +48,7 @@ def api_key_required(f):
             
             # Rate Limiting (Redis-backed)
             if cache and key_record.rate_limit_rpm:
-                limit_key = f"rl:{key_record.id}:{int(asyncio.get_event_loop().time() // 60) if asyncio.get_event_loop().is_running() else int(datetime.now().timestamp() // 60)}"
+                limit_key = f"rl:{key_record.id}:{int(datetime.now().timestamp() // 60)}"
                 # Use current minute bucket
                 current_usage = cache.get(limit_key) or 0
                 if current_usage >= key_record.rate_limit_rpm:
@@ -62,12 +63,17 @@ def api_key_required(f):
             
             g.api_key = key_record
             g.user_id = key_record.user_id
+            
+            if inspect.iscoroutinefunction(f):
+                return await f(*args, **kwargs)
             return f(*args, **kwargs)
         
         # Fall back to session auth
         if current_user.is_authenticated:
             g.api_key = None
             g.user_id = current_user.id
+            if inspect.iscoroutinefunction(f):
+                return await f(*args, **kwargs)
             return f(*args, **kwargs)
         
         return jsonify({'error': 'Authentication required'}), 401
@@ -79,7 +85,8 @@ def api_key_required(f):
 
 @gateway_bp.route('/chat', methods=['POST'])
 @api_key_required
-def gateway_chat():
+async def gateway_chat():
+
     """
     Main gateway endpoint for chat completions.
     Validates request using Pydantic schema.
@@ -110,13 +117,10 @@ def gateway_chat():
     gateway = LLMGateway()
     
     try:
-        # Run async gateway in sync context
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        response = loop.run_until_complete(gateway.process(gateway_request))
-        loop.close()
+        response = await gateway.process(gateway_request)
         
         return jsonify({
+
             'response': response.content,
             'run_id': response.run_id,
             'provider_used': response.provider_used,

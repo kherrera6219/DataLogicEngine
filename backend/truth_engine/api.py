@@ -87,12 +87,16 @@ def _lazy_init_truth_engine():
 
 def require_truth_engine(f):
     """Decorator to ensure Truth Engine is initialized (lazy loading)."""
+    import inspect
     @wraps(f)
-    def decorated(*args, **kwargs):
+    async def decorated(*args, **kwargs):
         # Lazy initialize on first request
         _lazy_init_truth_engine()
         if not all([_truth_core, _truth_gate, _truth_memory, _truth_link]):
             return jsonify({'error': 'Truth Engine initialization failed'}), 503
+        
+        if inspect.iscoroutinefunction(f):
+            return await f(*args, **kwargs)
         return f(*args, **kwargs)
     return decorated
 
@@ -174,7 +178,8 @@ def health():
 
 @truth_api.route('/core/session', methods=['POST'])
 @require_truth_engine
-def create_session():
+async def create_session():
+
     """Create a new TruthCore processing session."""
     data = request.get_json() or {}
     
@@ -191,14 +196,13 @@ def create_session():
         'tenant_id': tenant_id,
         'user_context': context
     })
-    
     if not gate_result.get('passed'):
         return jsonify({
             'error': gate_result.get('block_reason', 'Request blocked'),
             'security_flags': gate_result.get('security_flags', [])
         }), 403
     
-    session = _truth_core.create_session(
+    session = await _truth_core.create_session(
         query=gate_result.get('sanitized_query', query),
         user_id=user_id,
         tenant_id=tenant_id,
@@ -215,12 +219,14 @@ def create_session():
     return jsonify(session), 201
 
 
+
 @truth_api.route('/core/session/<session_id>/process', methods=['POST'])
 @require_truth_engine
-def process_session(session_id):
+async def process_session(session_id):
+
     """Process a TruthCore session."""
     try:
-        result = _truth_core.process(session_id)
+        result = await _truth_core.process(session_id)
         
         _truth_memory.record_session(result)
         
@@ -232,6 +238,8 @@ def process_session(session_id):
         )
         
         return jsonify(result)
+
+
     except ValueError as e:
         return jsonify({'error': str(e)}), 404
     except Exception as e:

@@ -581,9 +581,50 @@ class ExternalAPIKey(db.Model):
     key_hash = db.Column(db.String(256), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     is_active = db.Column(db.Boolean, default=True)
+    
+    # Missing fields required by LLM Gateway
+    total_requests = db.Column(db.Integer, default=0)
+    last_used_at = db.Column(db.DateTime)
+    rate_limit_rpm = db.Column(db.Integer, default=60)
+    permissions = db.Column(db.JSON)
+    allowed_providers = db.Column(db.JSON)
+    allowed_models = db.Column(db.JSON)
+    
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     
     usage_records = db.relationship('LLMProviderUsage', backref='api_key', lazy='dynamic')
+
+    @staticmethod
+    def generate_key():
+        """Generate a new secure API key."""
+        import secrets
+        import hashlib
+        prefix = f"ukg_{secrets.token_hex(4)}"
+        secret = secrets.token_urlsafe(32)
+        full_key = f"{prefix}_{secret}"
+        key_hash = hashlib.sha256(full_key.encode()).hexdigest()
+        return full_key, prefix, key_hash
+
+    @classmethod
+    def verify_key(cls, full_key: str):
+        """Verify an API key and return the record."""
+        import hashlib
+        if not full_key or '_' not in full_key:
+            return None
+        
+        key_hash = hashlib.sha256(full_key.encode()).hexdigest()
+        return cls.query.filter_by(key_hash=key_hash, is_active=True).first()
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'name': self.name,
+            'prefix': self.key_prefix,
+            'is_active': self.is_active,
+            'total_requests': self.total_requests,
+            'last_used_at': self.last_used_at.isoformat() if self.last_used_at else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
 
 
 class ChatSession(db.Model):

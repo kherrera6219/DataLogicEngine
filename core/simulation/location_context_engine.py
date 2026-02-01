@@ -10,6 +10,14 @@ import json
 import uuid
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Union
+try:
+    from models import Node as UkgNode, Edge as UkgEdge
+    from extensions import db as ukg_db
+except ImportError:
+    UkgNode = None
+    UkgEdge = None
+    ukg_db = None
+
 
 class LocationContextEngine:
     """
@@ -20,7 +28,7 @@ class LocationContextEngine:
     apply location-specific rules, and filter knowledge based on location context.
     """
     
-    def __init__(self, config=None, graph_manager=None, united_system_manager=None):
+    def __init__(self, config=None, graph_manager=None, united_system_manager=None, ukg_db_manager=None):
         """
         Initialize the Location Context Engine.
         
@@ -28,11 +36,15 @@ class LocationContextEngine:
             config (dict, optional): Configuration dictionary
             graph_manager: Graph Manager instance
             united_system_manager: United System Manager instance
+            ukg_db_manager: Database manager for UKG operations (optional)
         """
+
         logging.info(f"[{datetime.now()}] Initializing LocationContextEngine...")
         self.config = config or {}
         self.graph_manager = graph_manager
         self.usm = united_system_manager
+        self.ukg_db = ukg_db_manager
+
         
         # Configuration
         self.location_config = self.config.get('axis12_location_logic', {})
@@ -55,7 +67,149 @@ class LocationContextEngine:
         
         logging.info(f"[{datetime.now()}] LocationContextEngine initialized")
     
+    
+    def determine_active_location_context(self, 
+                                         query_text: Optional[str] = None, 
+                                         explicit_location_uids: Optional[List[str]] = None,
+                                         user_profile_location_uid: Optional[str] = None) -> List[str]:
+        """
+        Determines the active location context UIDs for the current simulation.
+        Priority: Explicit UIDs > Query Text > User Profile > Default.
+        
+        Args:
+            query_text (str, optional): The user's query text to extract locations from
+            explicit_location_uids (List[str], optional): Explicitly provided location UIDs
+            user_profile_location_uid (str, optional): User's profile location UID
+            
+        Returns:
+            List[str]: A list of relevant location UIDs (e.g., [City_UID, State_UID, Country_UID])
+        """
+        active_loc_uids = []
+        
+        # 1. Check explicit location UIDs first (highest priority)
+        if explicit_location_uids:
+            for uid in explicit_location_uids:
+                location_info = self.get_location_by_id(uid)
+                if location_info:
+                    active_loc_uids.append(uid)
+            
+            if active_loc_uids:
+                logging.info(f"Using explicit location UIDs: {[uid[:10] for uid in active_loc_uids]}")
+                return self._expand_location_hierarchy(active_loc_uids)
+        
+        # 2. Extract locations from query text
+        if query_text:
+            extracted = self.extract_location(query_text)
+            if extracted:
+                active_loc_uids.append(extracted['location_id'])
+                logging.info(f"Extracted locations from query: {extracted['name']}")
+                return self._expand_location_hierarchy(active_loc_uids)
+        
+        # 3. Use user profile location if available
+        if user_profile_location_uid:
+            location_info = self.get_location_by_id(user_profile_location_uid)
+            if location_info:
+                logging.info(f"Using user profile location: {location_info.get('name')}")
+                return self._expand_location_hierarchy([user_profile_location_uid])
+        
+        # 4. Fall back to default location
+        logging.info(f"Using default location: {self.default_location}")
+        return self._expand_location_hierarchy([self.default_location])
+
+    def _expand_location_hierarchy(self, leaf_location_uids: List[str]) -> List[str]:
+        """
+        Given leaf location UIDs, traces up to get their parent location UIDs.
+        
+        Args:
+            leaf_location_uids (List[str]): The starting location UIDs
+            
+        Returns:
+            List[str]: Full hierarchy of location UIDs including parents
+        """
+        full_hierarchy_uids = set(leaf_location_uids)
+        
+        for leaf_uid in leaf_location_uids:
+            current_uid = leaf_uid
+            visited = set()
+            
+            while current_uid and current_uid not in visited:
+                visited.add(current_uid)
+                parent_uid = None
+                
+                # Check graph manager
+                if self.graph_manager:
+                    try:
+                        edges = self.graph_manager.find_edges_by_properties(
+                            target_uid=current_uid,
+                            edge_type='contains_sub_location'
+                        )
+                        if edges:
+                            parent_uid = edges[0].get('source_uid')
+                    except Exception:
+                        pass
+                
+                # Check SQL DB if no graph or if graph failed
+                if not parent_uid and UkgNode and UkgEdge and ukg_db:
+                    try:
+                        node = UkgNode.query.filter_by(uid=current_uid).first()
+                        if node:
+                            edge = UkgEdge.query.filter_by(target_id=node.id, edge_type='contains_sub_location').first()
+                            if edge:
+                                parent_node = UkgNode.query.get(edge.source_id)
+                                if parent_node:
+                                    parent_uid = parent_node.uid
+                    except Exception:
+                        pass
+                
+                if parent_uid:
+                    full_hierarchy_uids.add(parent_uid)
+                    current_uid = parent_uid
+                else:
+                    break
+                    
+        return list(full_hierarchy_uids)
+
+    def get_applicable_regulations_for_locations(self, location_uids: List[str]) -> List[str]:
+        """
+        Given a list of active location UIDs, find all regulatory frameworks linked to them.
+        """
+        applicable_reg_uids = set()
+        
+        for loc_uid in location_uids:
+            location_info = self.get_location_by_id(loc_uid)
+            if not location_info:
+                continue
+                
+            # Attributes can be in dict format or SQLAlchemy attributes
+            attrs = location_info.get('attributes', {})
+            if 'linked_regulatory_framework_uids' in attrs:
+                reg_orig_ids = attrs['linked_regulatory_framework_uids']
+                for reg_orig_id in reg_orig_ids:
+                    # In a real system, we'd resolve original_id to UID
+                    # For now, we'll assume the UID is what's stored or do a lookup
+                    applicable_reg_uids.add(reg_orig_id)
+        
+        return list(applicable_reg_uids)
+
+    def filter_nodes_by_location_context(self, nodes: List[Dict], active_location_uids: List[str]) -> List[Dict]:
+        """
+        Filter a list of nodes based on location context relevance.
+        """
+        if not active_location_uids:
+            return nodes
+            
+        filtered_nodes = []
+        for node_data in nodes:
+            attrs = node_data.get('attributes', {})
+            applicable_locs = attrs.get('applicable_locations', [])
+            
+            if not applicable_locs or any(loc_uid in applicable_locs for loc_uid in active_location_uids):
+                filtered_nodes.append(node_data)
+                
+        return filtered_nodes
+
     def extract_location(self, text: str) -> Optional[Dict]:
+
         """
         Extract location information from text.
         
