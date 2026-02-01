@@ -59,3 +59,10 @@ def register_routes(app):
     # Storage Routes (Database Health & Configuration)
     from backend.routes.storage_routes import storage_api
     app.register_blueprint(storage_api)
+
+    # Location Routes (UKG context)
+    try:
+        from backend.routes.location_routes import location_api
+        app.register_blueprint(location_api)
+    except ImportError:
+        pass

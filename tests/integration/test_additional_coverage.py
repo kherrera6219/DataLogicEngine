@@ -71,7 +71,7 @@ def test_gdpr_consent(authenticated_client):
 # Storage Routes Tests
 # -----------------------------------------------------------------------------
 
-@patch('backend.storage.get_connection_manager')
+@patch('backend.routes.storage_routes.get_connection_manager')
 def test_storage_health(mock_mgr_func, authenticated_client):
     mock_mgr = Mock()
     mock_mgr.get_status_report.return_value = {"postgres": "healthy", "redis": "healthy"}
@@ -81,7 +81,7 @@ def test_storage_health(mock_mgr_func, authenticated_client):
     assert response.status_code == 200
     assert response.get_json()['data']['postgres'] == "healthy"
 
-@patch('backend.storage.get_connection_manager')
+@patch('backend.routes.storage_routes.get_connection_manager')
 def test_storage_service_health(mock_mgr_func, authenticated_client):
     mock_mgr = Mock()
     mock_mgr.check_health.return_value = True

@@ -1,0 +1,26 @@
+ImportError while loading conftest 'C:\software\DataLogicEngine\tests\conftest.py'.
+tests\conftest.py:21: in <module>
+    from app import app as flask_app, db
+app.py:15: in <module>
+    from extensions import limiter
+extensions.py:16: in <module>
+    from backend.security.audit_logger import AuditLogger
+backend\__init__.py:4: in <module>
+    from flask_jwt_extended import JWTManager
+C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask_jwt_extended\__init__.py:1: in <module>
+    from .jwt_manager import JWTManager as JWTManager
+C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\flask_jwt_extended\jwt_manager.py:6: in <module>
+    import jwt
+C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jwt\__init__.py:1: in <module>
+    from .api_jwk import PyJWK, PyJWKSet
+C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jwt\api_jwk.py:7: in <module>
+    from .algorithms import get_default_algorithms, has_crypto, requires_cryptography
+C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jwt\algorithms.py:11: in <module>
+    from .utils import (
+C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jwt\utils.py:7: in <module>
+    from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurve
+C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\cryptography\hazmat\primitives\asymmetric\ec.py:11: in <module>
+    from cryptography.exceptions import UnsupportedAlgorithm, _Reasons
+C:\Users\kevin\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\cryptography\exceptions.py:9: in <module>
+    from cryptography.hazmat.bindings._rust import exceptions as rust_exceptions
+E   ImportError: PyO3 modules compiled for CPython 3.8 or older may only be initialized once per interpreter process
