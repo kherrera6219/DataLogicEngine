@@ -11,6 +11,7 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from core.knowledge_algorithm.exceptions import KAError, KAConfigError
+from pydantic import BaseModel
 
 class KA062Input(BaseModel):
     evidence: List[Dict[str, Any]] = Field(default_factory=list, description="Evidence fragments to evaluate for trust and credibility")

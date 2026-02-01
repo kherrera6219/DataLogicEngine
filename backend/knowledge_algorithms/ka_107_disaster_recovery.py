@@ -11,6 +11,7 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from core.knowledge_algorithm.exceptions import KAError, KAConfigError
+from pydantic import BaseModel
 
 class KA107RecoveryInput(BaseModel):
     failure_id: str = Field("none", description="The ID of the failure event to recover from")

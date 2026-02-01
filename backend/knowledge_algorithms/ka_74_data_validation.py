@@ -12,6 +12,7 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from core.knowledge_algorithm.exceptions import KAError, KAConfigError
+from pydantic import BaseModel
 
 class KA074ValidationInput(BaseModel):
     records: List[Any] = Field(default_factory=list, description="The list of records to validate")

@@ -12,6 +12,9 @@ class KA033ReservedSlot(KnowledgeAlgorithm):
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
 
+    def _run_logic(self, input_data):
+        return {}
+
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         return {
             "ka_id": "KA-033",
