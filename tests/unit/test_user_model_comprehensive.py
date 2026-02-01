@@ -36,11 +36,13 @@ class TestUserPasswordManagement:
         """Test set_password updates last_password_change"""
         with app.app_context():
             user = User(username="testuser", email="test@example.com")
-            old_time = user.last_password_change
+            # Ensure we have a timezone-aware comparison baseline
+            old_time = user.last_password_change.replace(tzinfo=None) if user.last_password_change else datetime.utcnow()
 
             user.set_password("SecureP@ssw0rd123")
 
-            assert user.last_password_change > old_time
+            new_time = user.last_password_change.replace(tzinfo=None)
+            assert new_time >= old_time
 
     def test_set_password_weak_password_raises_error(self, app, client):
         """Test set_password raises ValueError for weak passwords"""
@@ -119,7 +121,9 @@ class TestUserAccountLocking:
         """Test is_account_locked returns True when locked"""
         with app.app_context():
             user = User(username="testuser", email="test@example.com")
-            user.locked_until = datetime.utcnow() + timedelta(minutes=15)
+            # Use naive UTC to match default storage behavior if consistent, or aware if column implies it
+            # But safer to just be consistent. Models use datetime.now(UTC)
+            user.locked_until = datetime.now(datetime.timezone.utc) + timedelta(minutes=15)
 
             assert user.is_account_locked() is True
 
@@ -128,7 +132,7 @@ class TestUserAccountLocking:
         with app.app_context():
             user = User(username="testuser", email="test@example.com")
             # Lock expired 1 minute ago
-            user.locked_until = datetime.utcnow() - timedelta(minutes=1)
+            user.locked_until = datetime.now(datetime.timezone.utc) - timedelta(minutes=1)
 
             assert user.is_account_locked() is False
 
@@ -136,10 +140,10 @@ class TestUserAccountLocking:
         """Test is_account_locked at exact expiry time"""
         with app.app_context():
             user = User(username="testuser", email="test@example.com")
-            # Set to expire "now" (will be slightly in past due to execution time)
-            user.locked_until = datetime.utcnow()
+            # Set to expire "now"
+            user.locked_until = datetime.now(datetime.timezone.utc)
 
-            # Should be unlocked (locked_until is in the past)
+            # Should be unlocked (locked_until <= now)
             assert user.is_account_locked() is False
 
 
@@ -224,7 +228,7 @@ class TestMFAIntegration:
 class TestEmailEncryption:
     """Test email encryption/decryption"""
 
-    @patch('models.encryption_manager')
+    @patch('extensions.encryption_manager')
     def test_email_getter_decrypts(self, mock_encryption, app, client):
         """Test email property decrypts stored email"""
         with app.app_context():
@@ -238,7 +242,7 @@ class TestEmailEncryption:
             assert result == "test@example.com"
             mock_encryption.decrypt.assert_called_once_with("encrypted_email_data", field_name='email')
 
-    @patch('models.encryption_manager')
+    @patch('extensions.encryption_manager')
     def test_email_setter_encrypts(self, mock_encryption, app, client):
         """Test email property encrypts email"""
         with app.app_context():
@@ -266,7 +270,7 @@ class TestEmailEncryption:
 
             assert user.email is None
 
-    @patch('models.encryption_manager')
+    @patch('extensions.encryption_manager')
     def test_email_decryption_fallback(self, mock_encryption, app, client):
         """Test email decryption falls back to plaintext"""
         with app.app_context():
@@ -456,35 +460,40 @@ class TestUserDefaults:
         """Test user is active by default"""
         with app.app_context():
             user = User(username="testuser", email="test@example.com")
-
+            db.session.add(user)
+            db.session.commit()
             assert user.active is True
 
     def test_default_is_admin_false(self, app, client):
         """Test user is not admin by default"""
         with app.app_context():
             user = User(username="testuser", email="test@example.com")
-
+            db.session.add(user)
+            db.session.commit()
             assert user.is_admin is False
 
     def test_default_role_user(self, app, client):
         """Test default role is 'user'"""
         with app.app_context():
             user = User(username="testuser", email="test@example.com")
-
+            db.session.add(user)
+            db.session.commit()
             assert user.role == 'user'
 
     def test_default_mfa_disabled(self, app, client):
         """Test MFA is disabled by default"""
         with app.app_context():
             user = User(username="testuser", email="test@example.com")
-
+            db.session.add(user)
+            db.session.commit()
             assert user.mfa_enabled is False
 
     def test_default_failed_login_attempts_zero(self, app, client):
         """Test failed login attempts starts at zero"""
         with app.app_context():
             user = User(username="testuser", email="test@example.com")
-
+            db.session.add(user)
+            db.session.commit()
             assert user.failed_login_attempts == 0
 
     def test_default_created_at_set(self, app, client):

@@ -236,7 +236,7 @@ class TestL9KAs:
     
     def test_belief_drift_ka(self):
         """Test L9-KA-002 Belief Drift Detector."""
-
+        from backend.knowledge_algorithms.l9.l9_ka_002_belief_drift import BeliefDriftDetectorKA
         
         ka = BeliefDriftDetectorKA()
         
@@ -251,7 +251,7 @@ class TestL9KAs:
     
     def test_recursion_trigger_ka(self):
         """Test L9-KA-005 Recursion Trigger."""
-
+        from backend.knowledge_algorithms.l9.l9_ka_005_recursion_trigger import RecursionTriggerKA
         
         ka = RecursionTriggerKA()
         
