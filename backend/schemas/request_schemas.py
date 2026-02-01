@@ -24,7 +24,7 @@ class AudioSynthesizeRequest(BaseModel):
     voice: Optional[str] = "alloy"
 
 class PillarCreateRequest(BaseModel):
-    pillar_id: str = Field(..., pattern="^PL\d+$")
+    pillar_id: str = Field(..., pattern=r"^PL\d+$")
     name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = None
     sublevels: Optional[Dict[str, Any]] = None

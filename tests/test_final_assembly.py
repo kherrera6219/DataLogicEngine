@@ -11,6 +11,8 @@ class MockKAController:
         self.llm_gateway = None
 
     def execute_algorithm(self, ka_id, context):
+        if "step_name" in context.get("step_metadata", {}):
+            return {"output": "Refined by Mock", "refined_content": "Refined by Mock KA", "confidence": 0.99}
         return {"output": "Mock output", "confidence": 0.9}
     
     def process_with_persona(self, query, persona, context):
@@ -42,13 +44,14 @@ def test_persona_sufficiency_trigger():
     assert result['spawn']['knowledge'] > 0
     assert "High stakes/assurance detected" in result['reasons'][0]
 
-def test_refinement_orchestrator_flow():
+@pytest.mark.asyncio
+async def test_refinement_orchestrator_flow():
     from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator
     ka_ctrl = MockKAController()
     orchestrator = RefinementOrchestrator(ka_controller=ka_ctrl)
     
     initial_response = {"content": "Initial answer", "confidence": 0.8}
-    refined = orchestrator.refine(initial_response, {})
+    refined = await orchestrator.refine(initial_response, {})
     
     assert refined['final_confidence'] > 0.8
     assert len(refined['refinement_history']) == 12
@@ -61,8 +64,8 @@ async def test_engine_integration_high_stakes(engine):
     query = "defense strategy for autonomous systems"
     context = {"force_tier": "high_stakes", "tags": ["defense"]}
     
-    session = engine.create_session(query, context=context)
-    result_session = engine.process(session['session_id'])
+    session = await engine.create_session(query, context=context)
+    result_session = await engine.process(session['session_id'])
     
     result = result_session['result']
     assert result_session['tier'] == 'high_stakes'
