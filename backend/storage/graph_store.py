@@ -1,7 +1,7 @@
 import logging
 from typing import List, Dict, Any, Optional
 from neo4j import GraphDatabase, Driver
-from config import get_config
+from backend.config_manager import get_config
 
 logger = logging.getLogger(__name__)
 

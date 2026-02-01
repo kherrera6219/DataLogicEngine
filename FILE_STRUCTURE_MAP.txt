@@ -1,1443 +1,2127 @@
 Project Structure Map (Updated)
---- Backend ---
-Folder PATH listing for volume OS
-Volume serial number is A87A-407C
-C:\SOFTWARE\DATALOGICENGINE\BACKEND
-|   .dockerignore
-|   .pylintrc
-|   admin.py
-|   celery_app.py
-|   chat.py
-|   config.py
-|   config_manager.py
-|   contextual_api.py
-|   data_loader.py
-|   decorators.py
-|   Dockerfile
-|   email_service.py
-|   enterprise_architecture.py
-|   export_service.py
-|   graphql_schema.py
-|   honeycomb_api.py
-|   i18n.py
-|   init_db.py
-|   location_context_engine.py
-|   logging_config.py
-|   methods_api.py
-|   persona_api.py
-|   pillar_api.py
-|   regulatory_api.py
-|   rest_api.py
-|   retention_service.py
-|   search_service.py
-|   security_api.py
-|   security_scan_api.py
-|   seed_data.py
-|   time_api.py
-|   ukg_api.py
-|   ukg_db.py
-|   unified_mapping_api.py
-|   websocket.py
-|   __init__.py
-|   
-+---api
-|   |   ka_management.py
-|   |   
-|   +---specs
-|   |       ukg_api_v3_2.yaml
-|   |       
-|   \---__pycache__
-|           ka_management.cpython-313.pyc
-|           
-+---api_gateway
-|   |   api_gateway.py
-|   |   unified_middleware.py
-|   |   
-|   \---__pycache__
-|           api_gateway.cpython-313.pyc
-|           unified_middleware.cpython-313.pyc
-|           
-+---auth
-|   |   api_decorators.py
-|   |   sso.py
-|   |   windows_identity.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           api_decorators.cpython-313.pyc
-|           sso.cpython-313.pyc
-|           windows_identity.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---config
-|   |   settings.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           settings.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---core
-|   |   rag_sanitizer.py
-|   |   resilience_router.py
-|   |   
-|   \---__pycache__
-|           rag_sanitizer.cpython-313.pyc
-|           resilience_router.cpython-313.pyc
-|           
-+---knowledge_algorithm
-|   |   axis_mapper.py
-|   |   base.py
-|   |   context.py
-|   |   lineage_store.py
-|   |   registry.py
-|   |   subworkflow_manager.py
-|   |   truth_engine.py
-|   |   workflow_loader.py
-|   |   __init__.py
-|   |   
-|   +---definitions
-|   +---modules
-|   |   |   ka00_control_core.py
-|   |   |   ka00_reasoning_core.py
-|   |   |   ka012_persona.py
-|   |   |   ka03_gap_analysis.py
-|   |   |   ka04_input_validation.py
-|   |   |   ka09_evidence_validation.py
-|   |   |   ka100_evolution_controller.py
-|   |   |   ka101_chaos_governor.py
-|   |   |   ka102_entropy_quantifier.py
-|   |   |   ka103_rollback_manager.py
-|   |   |   ka104_truth_utility.py
-|   |   |   ka105_obsolescence_monitor.py
-|   |   |   ka106_override_capture.py
-|   |   |   ka107_boundary_enforcer.py
-|   |   |   ka108_escalation_detector.py
-|   |   |   ka109_containment_classifier.py
-|   |   |   ka10_bias_detection.py
-|   |   |   ka10_synthesis_core.py
-|   |   |   ka110_coupling_risk.py
-|   |   |   ka111_goal_drift.py
-|   |   |   ka112_introspection_auditor.py
-|   |   |   ka113_complexity_router.py
-|   |   |   ka114_external_research.py
-|   |   |   ka15_temporal_reasoning.py
-|   |   |   ka16_regulatory_mapping.py
-|   |   |   ka18_source_provenance.py
-|   |   |   ka20_resolution_core.py
-|   |   |   ka22_risk_assessment.py
-|   |   |   ka23_belief_decay.py
-|   |   |   ka24_trust_gate.py
-|   |   |   ka26_contradiction_detection.py
-|   |   |   ka27_ethical_impact.py
-|   |   |   ka31_algorithm_selection.py
-|   |   |   ka32_orchestration_controller.py
-|   |   |   ka34_adversarial_reasoning.py
-|   |   |   ka35_bayesian_imputation.py
-|   |   |   ka36_pareto_optimization.py
-|   |   |   ka37_norm_emergence.py
-|   |   |   ka38_cross_modal_synthesis.py
-|   |   |   ka39_ontology_drift.py
-|   |   |   ka40_semantic_alignment.py
-|   |   |   ka41_confidence_normalization.py
-|   |   |   ka42_contradiction_propagation.py
-|   |   |   ka43_knowledge_lineage.py
-|   |   |   ka44_creative_composer.py
-|   |   |   ka45_bias_pattern_analyzer.py
-|   |   |   ka46_memory_patcher.py
-|   |   |   ka47_meta_algo.py
-|   |   |   ka48_ontological_resolver.py
-|   |   |   ka49_redundancy_detector.py
-|   |   |   ka50_integrity_validator.py
-|   |   |   ka51_knowledge_distillation.py
-|   |   |   ka52_temporal_evolution.py
-|   |   |   ka53_knowledge_compression.py
-|   |   |   ka54_cross_lingual_fusion.py
-|   |   |   ka55_multimodal_integration.py
-|   |   |   ka56_narrative_explainability.py
-|   |   |   ka57_persona_adaptation.py
-|   |   |   ka58_interactive_clarification.py
-|   |   |   ka59_predictive_preemption.py
-|   |   |   ka60_cognitive_load_balancer.py
-|   |   |   ka61_adversarial_shield.py
-|   |   |   ka62_trust_scoring.py
-|   |   |   ka63_performance_learning.py
-|   |   |   ka64_failure_pattern.py
-|   |   |   ka65_regression_tester.py
-|   |   |   ka66_causal_inference.py
-|   |   |   ka67_analogical_reasoning.py
-|   |   |   ka68_domain_tuner.py
-|   |   |   ka69_cultural_adapter.py
-|   |   |   ka70_counterfactual_sim.py
-|   |   |   ka71_provenance_tracker.py
-|   |   |   ka72_context_optimizer.py
-|   |   |   ka73_intent_clarifier.py
-|   |   |   ka74_privacy_preserver.py
-|   |   |   ka75_bias_mitigation.py
-|   |   |   ka76_graph_pruner.py
-|   |   |   ka77_importance_scorer.py
-|   |   |   ka78_memory_tier.py
-|   |   |   ka79_promotion_gate.py
-|   |   |   ka80_sim_cost_estimator.py
-|   |   |   ka81_sim_budget_enforcer.py
-|   |   |   ka82_drift_monitor.py
-|   |   |   ka83_revalidation_scheduler.py
-|   |   |   ka84_consensus_engine.py
-|   |   |   ka85_anomaly_detection.py
-|   |   |   ka86_usage_analytics.py
-|   |   |   ka87_explainability_coverage.py
-|   |   |   ka88_lifecycle_manager.py
-|   |   |   ka89_policy_tracker.py
-|   |   |   ka90_compliance_validator.py
-|   |   |   ka91_scenario_archivist.py
-|   |   |   ka92_dependency_auditor.py
-|   |   |   ka93_trust_decay.py
-|   |   |   ka94_quarantine_engine.py
-|   |   |   ka95_hitl_escalation.py
-|   |   |   ka96_release_manager.py
-|   |   |   ka97_performance_optimizer.py
-|   |   |   ka98_benchmarking.py
-|   |   |   ka99_integrity_auditor.py
-|   |   |   
-|   |   \---__pycache__
-|   |           ka00_control_core.cpython-313.pyc
-|   |           ka00_reasoning_core.cpython-313.pyc
-|   |           ka012_persona.cpython-313.pyc
-|   |           ka03_gap_analysis.cpython-313.pyc
-|   |           ka04_input_validation.cpython-313.pyc
-|   |           ka09_evidence_validation.cpython-313.pyc
-|   |           ka100_evolution_controller.cpython-313.pyc
-|   |           ka101_chaos_governor.cpython-313.pyc
-|   |           ka102_entropy_quantifier.cpython-313.pyc
-|   |           ka103_rollback_manager.cpython-313.pyc
-|   |           ka104_truth_utility.cpython-313.pyc
-|   |           ka105_obsolescence_monitor.cpython-313.pyc
-|   |           ka106_override_capture.cpython-313.pyc
-|   |           ka107_boundary_enforcer.cpython-313.pyc
-|   |           ka108_escalation_detector.cpython-313.pyc
-|   |           ka109_containment_classifier.cpython-313.pyc
-|   |           ka10_bias_detection.cpython-313.pyc
-|   |           ka10_synthesis_core.cpython-313.pyc
-|   |           ka110_coupling_risk.cpython-313.pyc
-|   |           ka111_goal_drift.cpython-313.pyc
-|   |           ka112_introspection_auditor.cpython-313.pyc
-|   |           ka113_complexity_router.cpython-313.pyc
-|   |           ka114_external_research.cpython-313.pyc
-|   |           ka15_temporal_reasoning.cpython-313.pyc
-|   |           ka16_regulatory_mapping.cpython-313.pyc
-|   |           ka18_source_provenance.cpython-313.pyc
-|   |           ka20_resolution_core.cpython-313.pyc
-|   |           ka22_risk_assessment.cpython-313.pyc
-|   |           ka23_belief_decay.cpython-313.pyc
-|   |           ka24_trust_gate.cpython-313.pyc
-|   |           ka26_contradiction_detection.cpython-313.pyc
-|   |           ka27_ethical_impact.cpython-313.pyc
-|   |           ka31_algorithm_selection.cpython-313.pyc
-|   |           ka32_orchestration_controller.cpython-313.pyc
-|   |           ka34_adversarial_reasoning.cpython-313.pyc
-|   |           ka35_bayesian_imputation.cpython-313.pyc
-|   |           ka36_pareto_optimization.cpython-313.pyc
-|   |           ka37_norm_emergence.cpython-313.pyc
-|   |           ka38_cross_modal_synthesis.cpython-313.pyc
-|   |           ka39_ontology_drift.cpython-313.pyc
-|   |           ka40_semantic_alignment.cpython-313.pyc
-|   |           ka41_confidence_normalization.cpython-313.pyc
-|   |           ka42_contradiction_propagation.cpython-313.pyc
-|   |           ka43_knowledge_lineage.cpython-313.pyc
-|   |           ka44_creative_composer.cpython-313.pyc
-|   |           ka45_bias_pattern_analyzer.cpython-313.pyc
-|   |           ka46_memory_patcher.cpython-313.pyc
-|   |           ka47_meta_algo.cpython-313.pyc
-|   |           ka48_ontological_resolver.cpython-313.pyc
-|   |           ka49_redundancy_detector.cpython-313.pyc
-|   |           ka50_integrity_validator.cpython-313.pyc
-|   |           ka51_knowledge_distillation.cpython-313.pyc
-|   |           ka52_temporal_evolution.cpython-313.pyc
-|   |           ka53_knowledge_compression.cpython-313.pyc
-|   |           ka54_cross_lingual_fusion.cpython-313.pyc
-|   |           ka55_multimodal_integration.cpython-313.pyc
-|   |           ka56_narrative_explainability.cpython-313.pyc
-|   |           ka57_persona_adaptation.cpython-313.pyc
-|   |           ka58_interactive_clarification.cpython-313.pyc
-|   |           ka59_predictive_preemption.cpython-313.pyc
-|   |           ka60_cognitive_load_balancer.cpython-313.pyc
-|   |           ka61_adversarial_shield.cpython-313.pyc
-|   |           ka62_trust_scoring.cpython-313.pyc
-|   |           ka63_performance_learning.cpython-313.pyc
-|   |           ka64_failure_pattern.cpython-313.pyc
-|   |           ka65_regression_tester.cpython-313.pyc
-|   |           ka66_causal_inference.cpython-313.pyc
-|   |           ka67_analogical_reasoning.cpython-313.pyc
-|   |           ka68_domain_tuner.cpython-313.pyc
-|   |           ka69_cultural_adapter.cpython-313.pyc
-|   |           ka70_counterfactual_sim.cpython-313.pyc
-|   |           ka71_provenance_tracker.cpython-313.pyc
-|   |           ka72_context_optimizer.cpython-313.pyc
-|   |           ka73_intent_clarifier.cpython-313.pyc
-|   |           ka74_privacy_preserver.cpython-313.pyc
-|   |           ka75_bias_mitigation.cpython-313.pyc
-|   |           ka76_graph_pruner.cpython-313.pyc
-|   |           ka77_importance_scorer.cpython-313.pyc
-|   |           ka78_memory_tier.cpython-313.pyc
-|   |           ka79_promotion_gate.cpython-313.pyc
-|   |           ka80_sim_cost_estimator.cpython-313.pyc
-|   |           ka81_sim_budget_enforcer.cpython-313.pyc
-|   |           ka82_drift_monitor.cpython-313.pyc
-|   |           ka83_revalidation_scheduler.cpython-313.pyc
-|   |           ka84_consensus_engine.cpython-313.pyc
-|   |           ka85_anomaly_detection.cpython-313.pyc
-|   |           ka86_usage_analytics.cpython-313.pyc
-|   |           ka87_explainability_coverage.cpython-313.pyc
-|   |           ka88_lifecycle_manager.cpython-313.pyc
-|   |           ka89_policy_tracker.cpython-313.pyc
-|   |           ka90_compliance_validator.cpython-313.pyc
-|   |           ka91_scenario_archivist.cpython-313.pyc
-|   |           ka92_dependency_auditor.cpython-313.pyc
-|   |           ka93_trust_decay.cpython-313.pyc
-|   |           ka94_quarantine_engine.cpython-313.pyc
-|   |           ka95_hitl_escalation.cpython-313.pyc
-|   |           ka96_release_manager.cpython-313.pyc
-|   |           ka97_performance_optimizer.cpython-313.pyc
-|   |           ka98_benchmarking.cpython-313.pyc
-|   |           ka99_integrity_auditor.cpython-313.pyc
-|   |           
-|   +---registry
-|   |   |   ka_registry_enterprise.yaml
-|   |   |   
-|   |   \---coordinates
-|   |           axis1_pillars.yaml
-|   |           axis2_sectors.yaml
-|   |           
-|   +---workflows
-|   |       simulation_v2_5.json
-|   |       
-|   \---__pycache__
-|           axis_mapper.cpython-313.pyc
-|           base.cpython-313.pyc
-|           context.cpython-313.pyc
-|           lineage_store.cpython-313.pyc
-|           registry.cpython-313.pyc
-|           subworkflow_manager.cpython-313.pyc
-|           truth_engine.cpython-313.pyc
-|           workflow_loader.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---knowledge_algorithms
-|   |   ka_01_algorithm_of_thought.py
-|   |   ka_02_tree_of_thought.py
-|   |   ka_03_gap_analysis.py
-|   |   ka_04_input_validation__normalization.py
-|   |   ka_05_query_classification.py
-|   |   ka_06_deep_planning.py
-|   |   ka_07_recursive_reasoning_control.py
-|   |   ka_08_self_critique__reflection.py
-|   |   ka_09_evidence_validation.py
-|   |   ka_100_optimization.py
-|   |   ka_101_environment_management.py
-|   |   ka_102_dependency_injection.py
-|   |   ka_103_service_mesh.py
-|   |   ka_104_load_balancing.py
-|   |   ka_105_scalability_manager.py
-|   |   ka_106_fault_tolerance.py
-|   |   ka_107_disaster_recovery.py
-|   |   ka_108_backup_strategy.py
-|   |   ka_109_system_health.py
-|   |   ka_10_bias_detection.py
-|   |   ka_110_integration_bus.py
-|   |   ka_111_api_gateway.py
-|   |   ka_112_message_broker.py
-|   |   ka_113_complexity_router.py
-|   |   ka_114_federated_outbox.py
-|   |   ka_115_federated_inbox.py
-|   |   ka_116_entropy_detection.py
-|   |   ka_11_analytical_modeling.py
-|   |   ka_12_persona_simulation.py
-|   |   ka_13_persona_weighting.py
-|   |   ka_14_confidence_scoring.py
-|   |   ka_15_temporal_reasoning.py
-|   |   ka_16_regulatory_mapping.py
-|   |   ka_17_spatial_jurisdiction_mapping.py
-|   |   ka_18_source_provenance.py
-|   |   ka_19_knowledge_synthesis.py
-|   |   ka_20_loopback_trigger.py
-|   |   ka_21_emergence_detection.py
-|   |   ka_22_risk_assessment.py
-|   |   ka_23_belief_decay.py
-|   |   ka_24_trust_gate.py
-|   |   ka_25_dependency_mapping.py
-|   |   ka_26_contradiction_detection.py
-|   |   ka_27_ethical_impact_analysis.py
-|   |   ka_28_point_of_view_expansion.py
-|   |   ka_29_knowledge_expansion.py
-|   |   ka_30_conflict_resolution.py
-|   |   ka_31_algorithm_selection_engine.py
-|   |   ka_32_simulation_orchestration_controller.py
-|   |   ka_33_reserved_expansion_slot.py
-|   |   ka_34_adversarial_reasoning.py
-|   |   ka_35_bayesian_gap_imputation.py
-|   |   ka_36_complexity_estimator.py
-|   |   ka_37_resource_allocator.py
-|   |   ka_38_consensus_engine.py
-|   |   ka_39_anomaly_detection.py
-|   |   ka_40_hypothesis_generation.py
-|   |   ka_41_abductive_reasoning.py
-|   |   ka_42_counterfactual_simulator.py
-|   |   ka_43_causal_inference.py
-|   |   ka_44_analogical_mapping.py
-|   |   ka_45_pattern_recognition.py
-|   |   ka_46_trend_analysis.py
-|   |   ka_47_sentiment_analysis.py
-|   |   ka_48_entity_extraction.py
-|   |   ka_49_relation_extraction.py
-|   |   ka_50_knowledge_integrity_validator.py
-|   |   ka_50_summarization.py
-|   |   ka_51_self_correcting_knowledge_distillation.py
-|   |   ka_52_temporal_knowledge_evolution.py
-|   |   ka_53_dynamic_knowledge_compression.py
-|   |   ka_54_cross_lingual_knowledge_fusion.py
-|   |   ka_55_adaptive_multi_modal_integration.py
-|   |   ka_56_narrative_explainability_engine.py
-|   |   ka_57_persona_emotion_adaptation.py
-|   |   ka_58_interactive_clarification_learning.py
-|   |   ka_59_predictive_layer_preemption.py
-|   |   ka_60_cognitive_load_balancer.py
-|   |   ka_61_adversarial_input_shield.py
-|   |   ka_62_decentralized_trust_scoring.py
-|   |   ka_63_continuous_performance_learning.py
-|   |   ka_64_failure_pattern_detection.py
-|   |   ka_65_knowledge_regression_tester.py
-|   |   ka_66_causal_inference_engine.py
-|   |   ka_67_analogical_reasoning_engine.py
-|   |   ka_68_domain_specialization_tuner.py
-|   |   ka_69_cultural_context_adapter.py
-|   |   ka_70_counterfactual_scenario_simulator.py
-|   |   ka_71_data_ingestion.py
-|   |   ka_72_data_cleaning.py
-|   |   ka_73_data_transformation.py
-|   |   ka_74_data_validation.py
-|   |   ka_75_schema_mapping.py
-|   |   ka_76_entity_resolution.py
-|   |   ka_77_data_enrichment.py
-|   |   ka_78_data_archival.py
-|   |   ka_79_data_retrieval.py
-|   |   ka_80_cache_management.py
-|   |   ka_81_model_training.py
-|   |   ka_82_model_evaluation.py
-|   |   ka_83_model_deployment.py
-|   |   ka_84_model_monitoring.py
-|   |   ka_85_feature_engineering.py
-|   |   ka_86_hyperparameter_tuning.py
-|   |   ka_87_model_versioning.py
-|   |   ka_88_ab_testing.py
-|   |   ka_89_model_pruning.py
-|   |   ka_90_model_quantization.py
-|   |   ka_91_visualization.py
-|   |   ka_92_dashboarding.py
-|   |   ka_93_notification.py
-|   |   ka_94_reporting.py
-|   |   ka_95_alerting.py
-|   |   ka_96_logging.py
-|   |   ka_97_auditing.py
-|   |   ka_98_profiling.py
-|   |   ka_99_debugging.py
-|   |   ka_master_controller.py
-|   |   ka_registry.yaml
-|   |   __init__.py
-|   |   
-|   +---config
-|   |       ka_01_config.json
-|   |       ka_02_config.json
-|   |       ka_03_config.json
-|   |       ka_04_config.json
-|   |       ka_05_config.json
-|   |       ka_06_config.json
-|   |       ka_07_config.json
-|   |       ka_08_config.json
-|   |       ka_09_config.json
-|   |       ka_100_config.json
-|   |       ka_101_config.json
-|   |       ka_102_config.json
-|   |       ka_103_config.json
-|   |       ka_104_config.json
-|   |       ka_105_config.json
-|   |       ka_106_config.json
-|   |       ka_107_config.json
-|   |       ka_108_config.json
-|   |       ka_109_config.json
-|   |       ka_10_config.json
-|   |       ka_110_config.json
-|   |       ka_111_config.json
-|   |       ka_112_config.json
-|   |       ka_113_config.json
-|   |       ka_114_config.json
-|   |       ka_115_config.json
-|   |       ka_116_config.json
-|   |       ka_11_config.json
-|   |       ka_12_config.json
-|   |       ka_13_config.json
-|   |       ka_14_config.json
-|   |       ka_15_config.json
-|   |       ka_16_config.json
-|   |       ka_17_config.json
-|   |       ka_18_config.json
-|   |       ka_19_config.json
-|   |       ka_20_config.json
-|   |       ka_21_config.json
-|   |       ka_22_config.json
-|   |       ka_23_config.json
-|   |       ka_24_config.json
-|   |       ka_25_config.json
-|   |       ka_26_config.json
-|   |       ka_27_config.json
-|   |       ka_28_config.json
-|   |       ka_29_config.json
-|   |       ka_30_config.json
-|   |       ka_31_config.json
-|   |       ka_32_config.json
-|   |       ka_34_config.json
-|   |       ka_35_config.json
-|   |       ka_36_config.json
-|   |       ka_37_config.json
-|   |       ka_38_config.json
-|   |       ka_39_config.json
-|   |       ka_40_config.json
-|   |       ka_41_config.json
-|   |       ka_42_config.json
-|   |       ka_45_config.json
-|   |       ka_46_config.json
-|   |       ka_47_config.json
-|   |       ka_48_config.json
-|   |       ka_49_config.json
-|   |       ka_50_config.json
-|   |       ka_51_config.json
-|   |       ka_52_config.json
-|   |       ka_53_config.json
-|   |       ka_54_config.json
-|   |       ka_55_config.json
-|   |       ka_56_config.json
-|   |       ka_57_config.json
-|   |       ka_58_config.json
-|   |       ka_59_config.json
-|   |       ka_60_config.json
-|   |       ka_61_config.json
-|   |       ka_62_config.json
-|   |       ka_63_config.json
-|   |       ka_64_config.json
-|   |       ka_65_config.json
-|   |       ka_66_config.json
-|   |       ka_67_config.json
-|   |       ka_68_config.json
-|   |       ka_69_config.json
-|   |       ka_70_config.json
-|   |       ka_71_config.json
-|   |       ka_72_config.json
-|   |       ka_73_config.json
-|   |       ka_74_config.json
-|   |       ka_75_config.json
-|   |       ka_76_config.json
-|   |       ka_77_config.json
-|   |       ka_78_config.json
-|   |       ka_79_config.json
-|   |       ka_80_config.json
-|   |       ka_81_config.json
-|   |       ka_82_config.json
-|   |       ka_83_config.json
-|   |       ka_84_config.json
-|   |       ka_85_config.json
-|   |       ka_86_config.json
-|   |       ka_87_config.json
-|   |       ka_88_config.json
-|   |       ka_89_config.json
-|   |       ka_90_config.json
-|   |       ka_91_config.json
-|   |       ka_92_config.json
-|   |       ka_93_config.json
-|   |       ka_94_config.json
-|   |       ka_95_config.json
-|   |       ka_96_config.json
-|   |       ka_97_config.json
-|   |       ka_98_config.json
-|   |       ka_99_config.json
-|   |       
-|   +---l10
-|   |   |   __init__.py
-|   |   |   
-|   |   \---__pycache__
-|   |           __init__.cpython-313.pyc
-|   |           
-|   +---l9
-|   |   |   l9_ka_001_trace_analyzer.py
-|   |   |   l9_ka_002_belief_drift.py
-|   |   |   l9_ka_003_persona_auditor.py
-|   |   |   l9_ka_004_meta_evaluator.py
-|   |   |   l9_ka_005_recursion_trigger.py
-|   |   |   l9_ka_006_confidence_calc.py
-|   |   |   l9_ka_007_loop_controller.py
-|   |   |   __init__.py
-|   |   |   
-|   |   \---__pycache__
-|   |           l9_ka_001_trace_analyzer.cpython-313.pyc
-|   |           l9_ka_002_belief_drift.cpython-313.pyc
-|   |           l9_ka_003_persona_auditor.cpython-313.pyc
-|   |           l9_ka_004_meta_evaluator.cpython-313.pyc
-|   |           l9_ka_005_recursion_trigger.cpython-313.pyc
-|   |           l9_ka_006_confidence_calc.cpython-313.pyc
-|   |           l9_ka_007_loop_controller.cpython-313.pyc
-|   |           __init__.cpython-313.pyc
-|   |           
-|   \---__pycache__
-|           ka_001_algorithm_of_thought.cpython-313.pyc
-|           ka_002_tree_of_thought.cpython-313.pyc
-|           ka_003_gap_analysis.cpython-313.pyc
-|           ka_004_input_validation_and_normalization.cpython-313.pyc
-|           ka_005_query_classification.cpython-313.pyc
-|           ka_006_deep_planning.cpython-313.pyc
-|           ka_007_recursive_reasoning_control.cpython-313.pyc
-|           ka_008_self_critique_and_reflection.cpython-313.pyc
-|           ka_009_evidence_validation.cpython-313.pyc
-|           ka_010_bias_detection.cpython-313.pyc
-|           ka_011_analytical_modeling.cpython-313.pyc
-|           ka_012_persona_simulation.cpython-313.pyc
-|           ka_013_persona_weighting.cpython-313.pyc
-|           ka_014_confidence_scoring.cpython-313.pyc
-|           ka_015_temporal_reasoning.cpython-313.pyc
-|           ka_016_regulatory_mapping.cpython-313.pyc
-|           ka_017_spatial_jurisdiction_mapping.cpython-313.pyc
-|           ka_018_source_provenance.cpython-313.pyc
-|           ka_019_knowledge_synthesis.cpython-313.pyc
-|           ka_01_algorithm_of_thought.cpython-313.pyc
-|           ka_020_loopback_trigger.cpython-313.pyc
-|           ka_021_emergence_detection.cpython-313.pyc
-|           ka_022_risk_assessment.cpython-313.pyc
-|           ka_023_belief_decay.cpython-313.pyc
-|           ka_024_trust_gate.cpython-313.pyc
-|           ka_025_dependency_mapping.cpython-313.pyc
-|           ka_026_contradiction_detection.cpython-313.pyc
-|           ka_027_ethical_impact_analysis.cpython-313.pyc
-|           ka_028_point_of_view_expansion.cpython-313.pyc
-|           ka_029_knowledge_expansion.cpython-313.pyc
-|           ka_02_tree_of_thought.cpython-313.pyc
-|           ka_030_conflict_resolution.cpython-313.pyc
-|           ka_031_algorithm_selection_engine.cpython-313.pyc
-|           ka_032_simulation_orchestration_controller.cpython-313.pyc
-|           ka_033_reserved_(expansion_slot).cpython-313.pyc
-|           ka_034_adversarial_reasoning.cpython-313.pyc
-|           ka_035_bayesian_gap_imputation.cpython-313.pyc
-|           ka_036_pareto_optimization_engine.cpython-313.pyc
-|           ka_037_norm_emergence_detector.cpython-313.pyc
-|           ka_038_cross_modal_synthesis.cpython-313.pyc
-|           ka_039_ontology_drift_detection.cpython-313.pyc
-|           ka_03_gap_analysis.cpython-313.pyc
-|           ka_040_semantic_alignment_engine.cpython-313.pyc
-|           ka_041_concept_confidence_normalization.cpython-313.pyc
-|           ka_042_contradiction_propagation_analysis.cpython-313.pyc
-|           ka_043_knowledge_lineage_tracker.cpython-313.pyc
-|           ka_044_creative_knowledge_composer.cpython-313.pyc
-|           ka_045_bias_pattern_analyzer.cpython-313.pyc
-|           ka_046_hierarchical_memory_patcher.cpython-313.pyc
-|           ka_047_meta_algorithm_selection.cpython-313.pyc
-|           ka_048_ontological_conflict_resolver.cpython-313.pyc
-|           ka_049_knowledge_redundancy_detector.cpython-313.pyc
-|           ka_04_input_validation__normalization.cpython-313.pyc
-|           ka_050_knowledge_integrity_validator.cpython-313.pyc
-|           ka_051_self_correcting_knowledge_distillation.cpython-313.pyc
-|           ka_052_temporal_knowledge_evolution.cpython-313.pyc
-|           ka_053_dynamic_knowledge_compression.cpython-313.pyc
-|           ka_054_cross_lingual_knowledge_fusion.cpython-313.pyc
-|           ka_055_adaptive_multi_modal_integration.cpython-313.pyc
-|           ka_056_narrative_explainability_engine.cpython-313.pyc
-|           ka_057_persona_emotion_adaptation.cpython-313.pyc
-|           ka_058_interactive_clarification_and_learning.cpython-313.pyc
-|           ka_059_predictive_layer_preemption.cpython-313.pyc
-|           ka_05_query_classification.cpython-313.pyc
-|           ka_060_cognitive_load_balancer.cpython-313.pyc
-|           ka_061_adversarial_input_shield.cpython-313.pyc
-|           ka_062_decentralized_trust_scoring.cpython-313.pyc
-|           ka_063_continuous_performance_learning.cpython-313.pyc
-|           ka_064_failure_pattern_detection.cpython-313.pyc
-|           ka_065_knowledge_regression_tester.cpython-313.pyc
-|           ka_066_causal_inference_engine.cpython-313.pyc
-|           ka_067_analogical_reasoning_engine.cpython-313.pyc
-|           ka_068_domain_specialization_tuner.cpython-313.pyc
-|           ka_069_cultural_context_adapter.cpython-313.pyc
-|           ka_06_deep_planning.cpython-313.pyc
-|           ka_070_counterfactual_scenario_simulator.cpython-313.pyc
-|           ka_071_knowledge_provenance_tracker.cpython-313.pyc
-|           ka_072_context_window_optimizer.cpython-313.pyc
-|           ka_073_intent_clarifier.cpython-313.pyc
-|           ka_074_privacy_preserver.cpython-313.pyc
-|           ka_075_bias_mitigation_engine.cpython-313.pyc
-|           ka_076_knowledge_graph_pruner.cpython-313.pyc
-|           ka_077_knowledge_importance_scorer.cpython-313.pyc
-|           ka_078_memory_tier_classifier.cpython-313.pyc
-|           ka_079_knowledge_promotion_gate.cpython-313.pyc
-|           ka_07_recursive_reasoning_control.cpython-313.pyc
-|           ka_080_simulation_cost_estimator.cpython-313.pyc
-|           ka_081_simulation_budget_enforcer.cpython-313.pyc
-|           ka_082_confidence_drift_monitor.cpython-313.pyc
-|           ka_083_knowledge_revalidation_scheduler.cpython-313.pyc
-|           ka_084_cross_instance_consensus_engine.cpython-313.pyc
-|           ka_085_anomaly_detection_engine.cpython-313.pyc
-|           ka_086_knowledge_usage_analytics.cpython-313.pyc
-|           ka_087_explainability_coverage_checker.cpython-313.pyc
-|           ka_088_knowledge_lifecycle_manager.cpython-313.pyc
-|           ka_089_policy_evolution_tracker.cpython-313.pyc
-|           ka_08_self_critique__reflection.cpython-313.pyc
-|           ka_090_compliance_regression_validator.cpython-313.pyc
-|           ka_091_scenario_outcome_archivist.cpython-313.pyc
-|           ka_092_knowledge_dependency_auditor.cpython-313.pyc
-|           ka_093_trust_decay_engine.cpython-313.pyc
-|           ka_094_knowledge_quarantine_engine.cpython-313.pyc
-|           ka_095_human_in_the_loop_escalation.cpython-313.pyc
-|           ka_096_knowledge_release_manager.cpython-313.pyc
-|           ka_097_system_performance_optimizer.cpython-313.pyc
-|           ka_098_self_evaluation_and_benchmarking.cpython-313.pyc
-|           ka_099_system_integrity_auditor.cpython-313.pyc
-|           ka_09_evidence_validation.cpython-313.pyc
-|           ka_100_autonomous_system_evolution_controller.cpython-313.pyc
-|           ka_100_optimization.cpython-313.pyc
-|           ka_101_chaos_injection_governor.cpython-313.pyc
-|           ka_101_environment_management.cpython-313.pyc
-|           ka_102_dependency_injection.cpython-313.pyc
-|           ka_102_global_entropy_quantifier.cpython-313.pyc
-|           ka_103_service_mesh.cpython-313.pyc
-|           ka_103_simulation_state_rollback_manager.cpython-313.pyc
-|           ka_104_load_balancing.cpython-313.pyc
-|           ka_104_truth_vs_utility_arbiter.cpython-313.pyc
-|           ka_105_conceptual_obsolescence_monitor.cpython-313.pyc
-|           ka_105_scalability_manager.cpython-313.pyc
-|           ka_106_fault_tolerance.cpython-313.pyc
-|           ka_106_human_override_reason_capture.cpython-313.pyc
-|           ka_107_disaster_recovery.cpython-313.pyc
-|           ka_107_reasoning_boundary_enforcer.cpython-313.pyc
-|           ka_108_backup_strategy.cpython-313.pyc
-|           ka_108_capability_escalation_detector.cpython-313.pyc
-|           ka_109_knowledge_containment_classifier.cpython-313.pyc
-|           ka_109_system_health.cpython-313.pyc
-|           ka_10_bias_detection.cpython-313.pyc
-|           ka_110_cross_domain_coupling_risk_analyzer.cpython-313.pyc
-|           ka_110_integration_bus.cpython-313.pyc
-|           ka_111_api_gateway.cpython-313.pyc
-|           ka_111_long_horizon_goal_drift_monitor.cpython-313.pyc
-|           ka_112_message_broker.cpython-313.pyc
-|           ka_112_system_self_introspection_auditor.cpython-313.pyc
-|           ka_113_complexity_router.cpython-313.pyc
-|           ka_113_query_analysis_and_complexity_router.cpython-313.pyc
-|           ka_114_external_deep_research_invocation.cpython-313.pyc
-|           ka_114_federated_outbox.cpython-313.pyc
-|           ka_114_meta_orchestrator.cpython-313.pyc
-|           ka_115_chaos_injection.cpython-313.pyc
-|           ka_115_federated_inbox.cpython-313.pyc
-|           ka_115_input_validation_normalization.cpython-313.pyc
-|           ka_116_entropy_detection.cpython-313.pyc
-|           ka_116_self_critique_reflection.cpython-313.pyc
-|           ka_117_optimization.cpython-313.pyc
-|           ka_117_threat_model_agent.cpython-313.pyc
-|           ka_118_environment_management.cpython-313.pyc
-|           ka_118_sensitive_data_discovery.cpython-313.pyc
-|           ka_119_dependency_injection.cpython-313.pyc
-|           ka_119_predictive_health.cpython-313.pyc
-|           ka_11_analytical_modeling.cpython-313.pyc
-|           ka_120_purple_team.cpython-313.pyc
-|           ka_120_service_mesh.cpython-313.pyc
-|           ka_121_load_balancing.cpython-313.pyc
-|           ka_122_scalability_manager.cpython-313.pyc
-|           ka_123_fault_tolerance.cpython-313.pyc
-|           ka_124_disaster_recovery.cpython-313.pyc
-|           ka_125_backup_strategy.cpython-313.pyc
-|           ka_126_system_health.cpython-313.pyc
-|           ka_127_integration_bus.cpython-313.pyc
-|           ka_128_api_gateway.cpython-313.pyc
-|           ka_129_message_broker.cpython-313.pyc
-|           ka_12_persona_simulation.cpython-313.pyc
-|           ka_130_complexity_router.cpython-313.pyc
-|           ka_131_federated_outbox.cpython-313.pyc
-|           ka_132_meta_orchestrator.cpython-313.pyc
-|           ka_133_chaos_injection.cpython-313.pyc
-|           ka_134_federated_inbox.cpython-313.pyc
-|           ka_135_entropy_detection.cpython-313.pyc
-|           ka_136_threat_model_agent.cpython-313.pyc
-|           ka_137_sensitive_data_discovery.cpython-313.pyc
-|           ka_138_predictive_health.cpython-313.pyc
-|           ka_139_purple_team.cpython-313.pyc
-|           ka_13_persona_weighting.cpython-313.pyc
-|           ka_140_spatial_jurisdiction_mapping.cpython-313.pyc
-|           ka_141_point_of_view_expansion.cpython-313.pyc
-|           ka_142_reserved_expansion_slot.cpython-313.pyc
-|           ka_143_complexity_estimator.cpython-313.pyc
-|           ka_144_resource_allocator.cpython-313.pyc
-|           ka_145_consensus_engine.cpython-313.pyc
-|           ka_146_cross_modal_synthesis.cpython-313.pyc
-|           ka_147_anomaly_detection.cpython-313.pyc
-|           ka_148_hypothesis_generation.cpython-313.pyc
-|           ka_149_abductive_reasoning.cpython-313.pyc
-|           ka_14_confidence_scoring.cpython-313.pyc
-|           ka_150_counterfactual_simulator.cpython-313.pyc
-|           ka_151_causal_inference.cpython-313.pyc
-|           ka_152_analogical_mapping.cpython-313.pyc
-|           ka_153_pattern_recognition.cpython-313.pyc
-|           ka_154_trend_analysis.cpython-313.pyc
-|           ka_155_meta_algorithm_selection.cpython-313.pyc
-|           ka_156_sentiment_analysis.cpython-313.pyc
-|           ka_157_entity_extraction.cpython-313.pyc
-|           ka_158_relation_extraction.cpython-313.pyc
-|           ka_159_summarization.cpython-313.pyc
-|           ka_15_temporal_reasoning.cpython-313.pyc
-|           ka_160_self_correcting_knowledge_distillation.cpython-313.pyc
-|           ka_161_translation.cpython-313.pyc
-|           ka_162_paraphrasing.cpython-313.pyc
-|           ka_163_style_transfer.cpython-313.pyc
-|           ka_164_cross_lingual_knowledge_fusion.cpython-313.pyc
-|           ka_165_topic_modeling.cpython-313.pyc
-|           ka_166_adaptive_multi_modal_integration.cpython-313.pyc
-|           ka_167_keyword_extraction.cpython-313.pyc
-|           ka_168_explainability.cpython-313.pyc
-|           ka_169_fairness_audit.cpython-313.pyc
-|           ka_16_regulatory_mapping.cpython-313.pyc
-|           ka_170_persona_emotion_adaptation.cpython-313.pyc
-|           ka_171_interactive_clarification_learning.cpython-313.pyc
-|           ka_172_safety_check.cpython-313.pyc
-|           ka_173_privacy_filter.cpython-313.pyc
-|           ka_174_compliance_check.cpython-313.pyc
-|           ka_175_security_audit.cpython-313.pyc
-|           ka_176_governance_validation.cpython-313.pyc
-|           ka_177_policy_enforcement.cpython-313.pyc
-|           ka_178_identity_resolution.cpython-313.pyc
-|           ka_179_access_control.cpython-313.pyc
-|           ka_17_spatial_jurisdiction_mapping.cpython-313.pyc
-|           ka_180_encryption_manager.cpython-313.pyc
-|           ka_181_key_management.cpython-313.pyc
-|           ka_182_threat_detection.cpython-313.pyc
-|           ka_183_vulnerability_scanning.cpython-313.pyc
-|           ka_184_incident_response.cpython-313.pyc
-|           ka_185_data_ingestion.cpython-313.pyc
-|           ka_186_data_cleaning.cpython-313.pyc
-|           ka_187_data_transformation.cpython-313.pyc
-|           ka_188_data_validation.cpython-313.pyc
-|           ka_189_schema_mapping.cpython-313.pyc
-|           ka_18_source_provenance.cpython-313.pyc
-|           ka_190_entity_resolution.cpython-313.pyc
-|           ka_191_data_enrichment.cpython-313.pyc
-|           ka_192_data_archival.cpython-313.pyc
-|           ka_193_data_retrieval.cpython-313.pyc
-|           ka_194_cache_management.cpython-313.pyc
-|           ka_195_model_training.cpython-313.pyc
-|           ka_196_model_evaluation.cpython-313.pyc
-|           ka_197_model_deployment.cpython-313.pyc
-|           ka_198_model_monitoring.cpython-313.pyc
-|           ka_199_feature_engineering.cpython-313.pyc
-|           ka_19_knowledge_synthesis.cpython-313.pyc
-|           ka_200_hyperparameter_tuning.cpython-313.pyc
-|           ka_201_model_versioning.cpython-313.pyc
-|           ka_202_ab_testing.cpython-313.pyc
-|           ka_203_model_pruning.cpython-313.pyc
-|           ka_204_model_quantization.cpython-313.pyc
-|           ka_205_visualization.cpython-313.pyc
-|           ka_206_dashboarding.cpython-313.pyc
-|           ka_207_notification.cpython-313.pyc
-|           ka_208_reporting.cpython-313.pyc
-|           ka_209_alerting.cpython-313.pyc
-|           ka_20_loopback_trigger.cpython-313.pyc
-|           ka_210_logging.cpython-313.pyc
-|           ka_211_auditing.cpython-313.pyc
-|           ka_212_profiling.cpython-313.pyc
-|           ka_213_debugging.cpython-313.pyc
-|           ka_214_advanced_security_module_214.cpython-313.pyc
-|           ka_215_advanced_data_module_215.cpython-313.pyc
-|           ka_216_advanced_synthesis_module_216.cpython-313.pyc
-|           ka_217_advanced_reasoning_module_217.cpython-313.pyc
-|           ka_218_advanced_analysis_module_218.cpython-313.pyc
-|           ka_219_advanced_compliance_module_219.cpython-313.pyc
-|           ka_21_emergence_detection.cpython-313.pyc
-|           ka_220_advanced_optimization_module_220.cpython-313.pyc
-|           ka_221_advanced_security_module_221.cpython-313.pyc
-|           ka_222_advanced_data_module_222.cpython-313.pyc
-|           ka_223_advanced_synthesis_module_223.cpython-313.pyc
-|           ka_224_advanced_reasoning_module_224.cpython-313.pyc
-|           ka_225_advanced_analysis_module_225.cpython-313.pyc
-|           ka_226_advanced_compliance_module_226.cpython-313.pyc
-|           ka_227_advanced_optimization_module_227.cpython-313.pyc
-|           ka_228_advanced_security_module_228.cpython-313.pyc
-|           ka_229_advanced_data_module_229.cpython-313.pyc
-|           ka_22_risk_assessment.cpython-313.pyc
-|           ka_230_advanced_synthesis_module_230.cpython-313.pyc
-|           ka_231_advanced_reasoning_module_231.cpython-313.pyc
-|           ka_232_advanced_analysis_module_232.cpython-313.pyc
-|           ka_233_advanced_compliance_module_233.cpython-313.pyc
-|           ka_234_advanced_optimization_module_234.cpython-313.pyc
-|           ka_235_advanced_security_module_235.cpython-313.pyc
-|           ka_236_advanced_data_module_236.cpython-313.pyc
-|           ka_237_advanced_synthesis_module_237.cpython-313.pyc
-|           ka_238_advanced_reasoning_module_238.cpython-313.pyc
-|           ka_239_advanced_analysis_module_239.cpython-313.pyc
-|           ka_23_belief_decay.cpython-313.pyc
-|           ka_240_advanced_compliance_module_240.cpython-313.pyc
-|           ka_241_advanced_optimization_module_241.cpython-313.pyc
-|           ka_242_advanced_security_module_242.cpython-313.pyc
-|           ka_243_advanced_data_module_243.cpython-313.pyc
-|           ka_244_advanced_synthesis_module_244.cpython-313.pyc
-|           ka_245_advanced_reasoning_module_245.cpython-313.pyc
-|           ka_246_advanced_analysis_module_246.cpython-313.pyc
-|           ka_247_advanced_compliance_module_247.cpython-313.pyc
-|           ka_248_advanced_optimization_module_248.cpython-313.pyc
-|           ka_249_advanced_security_module_249.cpython-313.pyc
-|           ka_24_trust_gate.cpython-313.pyc
-|           ka_250_advanced_data_module_250.cpython-313.pyc
-|           ka_251_advanced_synthesis_module_251.cpython-313.pyc
-|           ka_252_advanced_reasoning_module_252.cpython-313.pyc
-|           ka_253_advanced_analysis_module_253.cpython-313.pyc
-|           ka_254_advanced_compliance_module_254.cpython-313.pyc
-|           ka_255_advanced_optimization_module_255.cpython-313.pyc
-|           ka_256_advanced_security_module_256.cpython-313.pyc
-|           ka_257_advanced_data_module_257.cpython-313.pyc
-|           ka_258_advanced_synthesis_module_258.cpython-313.pyc
-|           ka_259_advanced_reasoning_module_259.cpython-313.pyc
-|           ka_25_dependency_mapping.cpython-313.pyc
-|           ka_260_advanced_analysis_module_260.cpython-313.pyc
-|           ka_261_advanced_compliance_module_261.cpython-313.pyc
-|           ka_262_advanced_optimization_module_262.cpython-313.pyc
-|           ka_263_advanced_security_module_263.cpython-313.pyc
-|           ka_264_advanced_data_module_264.cpython-313.pyc
-|           ka_265_advanced_synthesis_module_265.cpython-313.pyc
-|           ka_266_advanced_reasoning_module_266.cpython-313.pyc
-|           ka_267_advanced_analysis_module_267.cpython-313.pyc
-|           ka_268_advanced_compliance_module_268.cpython-313.pyc
-|           ka_269_advanced_optimization_module_269.cpython-313.pyc
-|           ka_26_contradiction_detection.cpython-313.pyc
-|           ka_270_advanced_security_module_270.cpython-313.pyc
-|           ka_271_advanced_data_module_271.cpython-313.pyc
-|           ka_272_advanced_synthesis_module_272.cpython-313.pyc
-|           ka_273_advanced_reasoning_module_273.cpython-313.pyc
-|           ka_274_advanced_analysis_module_274.cpython-313.pyc
-|           ka_275_advanced_compliance_module_275.cpython-313.pyc
-|           ka_276_advanced_optimization_module_276.cpython-313.pyc
-|           ka_277_advanced_security_module_277.cpython-313.pyc
-|           ka_278_input_validation_and_normalization.cpython-313.pyc
-|           ka_279_self_critique_and_reflection.cpython-313.pyc
-|           ka_27_ethical_impact_analysis.cpython-313.pyc
-|           ka_280_interactive_clarification_and_learning.cpython-313.pyc
-|           ka_281_cross_instance_consensus_engine.cpython-313.pyc
-|           ka_28_point_of_view_expansion.cpython-313.pyc
-|           ka_29_knowledge_expansion.cpython-313.pyc
-|           ka_30_conflict_resolution.cpython-313.pyc
-|           ka_31_algorithm_selection_engine.cpython-313.pyc
-|           ka_32_simulation_orchestration_controller.cpython-313.pyc
-|           ka_33_reserved_expansion_slot.cpython-313.pyc
-|           ka_34_adversarial_reasoning.cpython-313.pyc
-|           ka_35_bayesian_gap_imputation.cpython-313.pyc
-|           ka_36_complexity_estimator.cpython-313.pyc
-|           ka_36_pareto_optimization_engine.cpython-313.pyc
-|           ka_37_norm_emergence_detector.cpython-313.pyc
-|           ka_37_resource_allocator.cpython-313.pyc
-|           ka_38_consensus_engine.cpython-313.pyc
-|           ka_38_cross_modal_synthesis.cpython-313.pyc
-|           ka_39_anomaly_detection.cpython-313.pyc
-|           ka_39_ontology_drift_detection.cpython-313.pyc
-|           ka_40_hypothesis_generation.cpython-313.pyc
-|           ka_40_semantic_alignment_engine.cpython-313.pyc
-|           ka_41_abductive_reasoning.cpython-313.pyc
-|           ka_41_concept_confidence_normalization.cpython-313.pyc
-|           ka_42_contradiction_propagation_analysis.cpython-313.pyc
-|           ka_42_counterfactual_simulator.cpython-313.pyc
-|           ka_43_causal_inference.cpython-313.pyc
-|           ka_43_knowledge_lineage_tracker.cpython-313.pyc
-|           ka_44_analogical_mapping.cpython-313.pyc
-|           ka_44_creative_knowledge_composer.cpython-313.pyc
-|           ka_45_bias_pattern_analyzer.cpython-313.pyc
-|           ka_45_pattern_recognition.cpython-313.pyc
-|           ka_46_hierarchical_memory_patcher.cpython-313.pyc
-|           ka_46_trend_analysis.cpython-313.pyc
-|           ka_47_meta_algorithm_selection.cpython-313.pyc
-|           ka_47_sentiment_analysis.cpython-313.pyc
-|           ka_48_entity_extraction.cpython-313.pyc
-|           ka_48_ontological_conflict_resolver.cpython-313.pyc
-|           ka_49_knowledge_redundancy_detector.cpython-313.pyc
-|           ka_49_relation_extraction.cpython-313.pyc
-|           ka_50_knowledge_integrity_validator.cpython-313.pyc
-|           ka_50_summarization.cpython-313.pyc
-|           ka_51_self_correcting_knowledge_distillation.cpython-313.pyc
-|           ka_51_translation.cpython-313.pyc
-|           ka_52_paraphrasing.cpython-313.pyc
-|           ka_52_temporal_knowledge_evolution.cpython-313.pyc
-|           ka_53_dynamic_knowledge_compression.cpython-313.pyc
-|           ka_53_style_transfer.cpython-313.pyc
-|           ka_54_cross_lingual_knowledge_fusion.cpython-313.pyc
-|           ka_54_topic_modeling.cpython-313.pyc
-|           ka_55_adaptive_multi_modal_integration.cpython-313.pyc
-|           ka_55_keyword_extraction.cpython-313.pyc
-|           ka_56_explainability.cpython-313.pyc
-|           ka_56_narrative_explainability_engine.cpython-313.pyc
-|           ka_57_fairness_audit.cpython-313.pyc
-|           ka_57_persona_emotion_adaptation.cpython-313.pyc
-|           ka_58_interactive_clarification_learning.cpython-313.pyc
-|           ka_58_safety_check.cpython-313.pyc
-|           ka_59_predictive_layer_preemption.cpython-313.pyc
-|           ka_59_privacy_filter.cpython-313.pyc
-|           ka_60_cognitive_load_balancer.cpython-313.pyc
-|           ka_60_compliance_check.cpython-313.pyc
-|           ka_61_adversarial_input_shield.cpython-313.pyc
-|           ka_61_security_audit.cpython-313.pyc
-|           ka_62_decentralized_trust_scoring.cpython-313.pyc
-|           ka_62_governance_validation.cpython-313.pyc
-|           ka_63_continuous_performance_learning.cpython-313.pyc
-|           ka_63_policy_enforcement.cpython-313.pyc
-|           ka_64_failure_pattern_detection.cpython-313.pyc
-|           ka_64_identity_resolution.cpython-313.pyc
-|           ka_65_access_control.cpython-313.pyc
-|           ka_65_knowledge_regression_tester.cpython-313.pyc
-|           ka_66_causal_inference_engine.cpython-313.pyc
-|           ka_66_encryption_manager.cpython-313.pyc
-|           ka_67_analogical_reasoning_engine.cpython-313.pyc
-|           ka_67_key_management.cpython-313.pyc
-|           ka_68_domain_specialization_tuner.cpython-313.pyc
-|           ka_68_threat_detection.cpython-313.pyc
-|           ka_69_cultural_context_adapter.cpython-313.pyc
-|           ka_69_vulnerability_scanning.cpython-313.pyc
-|           ka_70_counterfactual_scenario_simulator.cpython-313.pyc
-|           ka_70_incident_response.cpython-313.pyc
-|           ka_71_data_ingestion.cpython-313.pyc
-|           ka_72_data_cleaning.cpython-313.pyc
-|           ka_73_data_transformation.cpython-313.pyc
-|           ka_74_data_validation.cpython-313.pyc
-|           ka_75_schema_mapping.cpython-313.pyc
-|           ka_76_entity_resolution.cpython-313.pyc
-|           ka_77_data_enrichment.cpython-313.pyc
-|           ka_78_data_archival.cpython-313.pyc
-|           ka_79_data_retrieval.cpython-313.pyc
-|           ka_80_cache_management.cpython-313.pyc
-|           ka_81_model_training.cpython-313.pyc
-|           ka_82_model_evaluation.cpython-313.pyc
-|           ka_83_model_deployment.cpython-313.pyc
-|           ka_84_model_monitoring.cpython-313.pyc
-|           ka_85_feature_engineering.cpython-313.pyc
-|           ka_86_hyperparameter_tuning.cpython-313.pyc
-|           ka_87_model_versioning.cpython-313.pyc
-|           ka_88_ab_testing.cpython-313.pyc
-|           ka_89_model_pruning.cpython-313.pyc
-|           ka_90_model_quantization.cpython-313.pyc
-|           ka_91_visualization.cpython-313.pyc
-|           ka_92_dashboarding.cpython-313.pyc
-|           ka_93_notification.cpython-313.pyc
-|           ka_94_reporting.cpython-313.pyc
-|           ka_95_alerting.cpython-313.pyc
-|           ka_96_logging.cpython-313.pyc
-|           ka_97_auditing.cpython-313.pyc
-|           ka_98_profiling.cpython-313.pyc
-|           ka_99_debugging.cpython-313.pyc
-|           ka_master_controller.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---llm_gateway
-|   |   api.py
-|   |   gateway.py
-|   |   schemas.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           api.cpython-313.pyc
-|           gateway.cpython-313.pyc
-|           models.cpython-313.pyc
-|           providers.cpython-313.pyc
-|           schemas.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---mcp_server
-|   |   registry.py
-|   |   router.py
-|   |   __init__.py
-|   |   
-|   +---tools
-|   |   |   jira.py
-|   |   |   salesforce.py
-|   |   |   __init__.py
-|   |   |   
-|   |   \---__pycache__
-|   |           jira.cpython-313.pyc
-|   |           salesforce.cpython-313.pyc
-|   |           __init__.cpython-313.pyc
-|   |           
-|   \---__pycache__
-|           registry.cpython-313.pyc
-|           router.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---middleware
-|   |   correlation_id.py
-|   |   etag.py
-|   |   input_sanitizer.py
-|   |   request_limits.py
-|   |   timeout.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           correlation_id.cpython-313.pyc
-|           etag.cpython-313.pyc
-|           input_sanitizer.cpython-313.pyc
-|           request_limits.cpython-313.pyc
-|           timeout.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---model_context
-|   |   model_context_server.py
-|   |   
-|   \---__pycache__
-|           model_context_server.cpython-313.pyc
-|           
-+---operator
-|   |   controller.py
-|   |   operator.py
-|   |   
-|   \---__pycache__
-|           controller.cpython-313.pyc
-|           operator.cpython-313.pyc
-|           
-+---quad_persona
-|   |   quad_engine.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           quad_engine.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---reports
-|   |   compliance.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           compliance.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---repositories
-|   |   node_repository.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           node_repository.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---routes
-|   |   analytics_routes.py
-|   |   gdpr_routes.py
-|   |   location_routes.py
-|   |   multimodal_routes.py
-|   |   privacy_routes.py
-|   |   retention_routes.py
-|   |   search_routes.py
-|   |   settings_routes.py
-|   |   storage_routes.py
-|   |   
-|   \---__pycache__
-|           analytics_routes.cpython-313.pyc
-|           gdpr_routes.cpython-313.pyc
-|           location_routes.cpython-313.pyc
-|           multimodal_routes.cpython-313.pyc
-|           privacy_routes.cpython-313.pyc
-|           retention_routes.cpython-313.pyc
-|           search_routes.cpython-313.pyc
-|           settings_routes.cpython-313.pyc
-|           storage_routes.cpython-313.pyc
-|           user_data_routes.cpython-313.pyc
-|           
-+---schemas
-|   |   request_schemas.py
-|   |   simulation_schemas.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           request_schemas.cpython-313.pyc
-|           simulation_schemas.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---security
-|   |   active_defense.py
-|   |   ai_guardrail.py
-|   |   api_security.py
-|   |   audit_logger.py
-|   |   compliance_manager.py
-|   |   context_aware.py
-|   |   data_classification.py
-|   |   dpapi_store.py
-|   |   encryption_manager.py
-|   |   honeypot.py
-|   |   mfa.py
-|   |   password_security.py
-|   |   pii_redaction.py
-|   |   prompt_injection_shield.py
-|   |   rbac.py
-|   |   sanitizer.py
-|   |   security_headers.py
-|   |   security_manager.py
-|   |   security_monitoring.py
-|   |   session_manager.py
-|   |   token_manager.py
-|   |   vulnerability_scanner.py
-|   |   zero_trust.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           active_defense.cpython-313.pyc
-|           ai_guardrail.cpython-313.pyc
-|           api_security.cpython-313.pyc
-|           audit_logger.cpython-313.pyc
-|           compliance_manager.cpython-313.pyc
-|           context_aware.cpython-313.pyc
-|           data_classification.cpython-313.pyc
-|           dpapi_store.cpython-313.pyc
-|           encryption_manager.cpython-313.pyc
-|           honeypot.cpython-313.pyc
-|           mfa.cpython-313.pyc
-|           password_security.cpython-313.pyc
-|           pii_redaction.cpython-313.pyc
-|           prompt_injection_shield.cpython-313.pyc
-|           rbac.cpython-313.pyc
-|           sanitizer.cpython-313.pyc
-|           security_headers.cpython-313.pyc
-|           security_manager.cpython-313.pyc
-|           security_monitoring.cpython-313.pyc
-|           session_manager.cpython-313.pyc
-|           token_manager.cpython-313.pyc
-|           vulnerability_scanner.cpython-313.pyc
-|           zero_trust.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---services
-|   |   analytics_service.py
-|   |   audio_service.py
-|   |   document_processor.py
-|   |   file_upload_service.py
-|   |   rag_service.py
-|   |   video_service.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           analytics_service.cpython-313.pyc
-|           audio_service.cpython-313.pyc
-|           document_processor.cpython-313.pyc
-|           file_upload_service.cpython-313.pyc
-|           rag_service.cpython-313.pyc
-|           video_service.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---simulation
-|   |   simulation_engine.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           simulation_engine.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---storage
-|   |   connection_manager.py
-|   |   database_manager.py
-|   |   graph_store.py
-|   |   object_store.py
-|   |   vector_store.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           connection_manager.cpython-313.pyc
-|           database_manager.cpython-313.pyc
-|           graph_store.cpython-313.pyc
-|           object_store.cpython-313.pyc
-|           vector_store.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---tracing
-|   |   api.py
-|   |   logger.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           api.cpython-313.pyc
-|           logger.cpython-313.pyc
-|           models.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---truth_engine
-|   |   api.py
-|   |   federated_sync.py
-|   |   __init__.py
-|   |   
-|   +---truth_core
-|   |   |   agi_planner.py
-|   |   |   emergence_controller.py
-|   |   |   engine.py
-|   |   |   l10_schemas.py
-|   |   |   l7_schemas.py
-|   |   |   l9_schemas.py
-|   |   |   meta_reasoning_controller.py
-|   |   |   personas.py
-|   |   |   persona_sufficiency.py
-|   |   |   refinement_orchestrator.py
-|   |   |   router.py
-|   |   |   tiers.py
-|   |   |   __init__.py
-|   |   |   
-|   |   \---__pycache__
-|   |           agi_planner.cpython-313.pyc
-|   |           emergence_controller.cpython-313.pyc
-|   |           engine.cpython-313.pyc
-|   |           l10_schemas.cpython-313.pyc
-|   |           l7_schemas.cpython-313.pyc
-|   |           l9_schemas.cpython-313.pyc
-|   |           meta_reasoning_controller.cpython-313.pyc
-|   |           personas.cpython-313.pyc
-|   |           persona_sufficiency.cpython-313.pyc
-|   |           refinement_orchestrator.cpython-313.pyc
-|   |           router.cpython-313.pyc
-|   |           tiers.cpython-313.pyc
-|   |           __init__.cpython-313.pyc
-|   |           
-|   +---truth_gate
-|   |   |   budget.py
-|   |   |   compliance.py
-|   |   |   gateway.py
-|   |   |   l8_schemas.py
-|   |   |   policies.py
-|   |   |   quant.py
-|   |   |   schemas.py
-|   |   |   trust_validation_gateway.py
-|   |   |   __init__.py
-|   |   |   
-|   |   +---quant_backends
-|   |   |   |   logical.py
-|   |   |   |   statistical.py
-|   |   |   |   
-|   |   |   \---__pycache__
-|   |   |           logical.cpython-313.pyc
-|   |   |           statistical.cpython-313.pyc
-|   |   |           
-|   |   \---__pycache__
-|   |           budget.cpython-313.pyc
-|   |           compliance.cpython-313.pyc
-|   |           gateway.cpython-313.pyc
-|   |           l8_schemas.cpython-313.pyc
-|   |           policies.cpython-313.pyc
-|   |           quant.cpython-313.pyc
-|   |           schemas.cpython-313.pyc
-|   |           trust_validation_gateway.cpython-313.pyc
-|   |           __init__.cpython-313.pyc
-|   |           
-|   +---truth_link
-|   |   |   blockchain_adapter.py
-|   |   |   bus.py
-|   |   |   queues.py
-|   |   |   transport.py
-|   |   |   __init__.py
-|   |   |   
-|   |   \---__pycache__
-|   |           blockchain_adapter.cpython-313.pyc
-|   |           bus.cpython-313.pyc
-|   |           queues.cpython-313.pyc
-|   |           transport.cpython-313.pyc
-|   |           __init__.cpython-313.pyc
-|   |           
-|   +---truth_memory
-|   |   |   audit.py
-|   |   |   cache.py
-|   |   |   manager.py
-|   |   |   metrics.py
-|   |   |   __init__.py
-|   |   |   
-|   |   \---__pycache__
-|   |           audit.cpython-313.pyc
-|   |           cache.cpython-313.pyc
-|   |           manager.cpython-313.pyc
-|   |           metrics.cpython-313.pyc
-|   |           __init__.cpython-313.pyc
-|   |           
-|   \---__pycache__
-|           api.cpython-313.pyc
-|           federated_sync.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---utils
-|   |   exceptions.py
-|   |   pagination.py
-|   |   responses.py
-|   |   safe_path.py
-|   |   validation.py
-|   |   __init__.py
-|   |   
-|   \---__pycache__
-|           exceptions.cpython-313.pyc
-|           pagination.cpython-313.pyc
-|           responses.cpython-313.pyc
-|           validation.cpython-313.pyc
-|           __init__.cpython-313.pyc
-|           
-+---webhook_server
-|   |   webhook_server.py
-|   |   
-|   \---__pycache__
-|           webhook_server.cpython-313.pyc
-|           
-\---__pycache__
-        admin.cpython-313.pyc
-        celery_app.cpython-313.pyc
-        chat.cpython-313.pyc
-        config.cpython-313.pyc
-        config_manager.cpython-313.pyc
-        contextual_api.cpython-313.pyc
-        data_loader.cpython-313.pyc
-        decorators.cpython-313.pyc
-        email_service.cpython-313.pyc
-        enterprise_architecture.cpython-313.pyc
-        export_service.cpython-313.pyc
-        graphql_schema.cpython-313.pyc
-        honeycomb_api.cpython-313.pyc
-        i18n.cpython-313.pyc
-        init_db.cpython-313.pyc
-        location_context_engine.cpython-313.pyc
-        logging_config.cpython-313.pyc
-        methods_api.cpython-313.pyc
-        middleware.cpython-313.pyc
-        persona_api.cpython-313.pyc
-        pillar_api.cpython-313.pyc
-        regulatory_api.cpython-313.pyc
-        rest_api.cpython-313.pyc
-        retention_service.cpython-313.pyc
-        search_service.cpython-313.pyc
-        security_api.cpython-313.pyc
-        security_scan_api.cpython-313.pyc
-        seed_data.cpython-313.pyc
-        time_api.cpython-313.pyc
-        ukg_api.cpython-313.pyc
-        ukg_db.cpython-313.pyc
-        unified_mapping_api.cpython-313.pyc
-        websocket.cpython-313.pyc
-        __init__.cpython-313.pyc
-        
---- Documents ---
-Folder PATH listing for volume OS
-Volume serial number is A87A-407C
-C:\SOFTWARE\DATALOGICENGINE\DOCUMENTS
-    4D_Database_Solution Metadata acquation knowleagde graph.pdf
-    6f03c298-3e35-4c13-b222-4199bcf889c7_Advanced_4D_Acquisition_Knowledge_Framework_A_Comprehensive_Model_for_Federal_State_City_and_Local_Acquisition_Regulations.pdf
-    Algorithm of Thoughts- Enhancing Exploration of Ideas in Large Language Models.pdf
-    analysis of layered nested simulated database - Monica AI Chat.pdf
-    ARCHITECTURE_BLUEPRINT.md
-    Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf
-    Full-Stack Chatbot with UKG Overlay � Developer Blueprint.pdf
-    Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf
-    Mathematical_Formulas_for_Universal_Knowledge_Framework_2.0.pdf
-    Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm
-    MVP Plan_ Universal Knowledge Graph (UKG) System.pdf
-    The Universal Knowledge Graph A Theoretical Framework for Next-Generation AI Architecture.pdf
-    The_17_Axis_System__Comprehensive_Technical_Architecture.pdf
-    ukg_yaml_v2_all_documents.pdf
-    Unified Coordinate System for UKG_USKD � Technical Documentation.pdf
-    Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf
-    Universal Knowledge Algorithm (KA) System � Technical Report.pdf
-    Universal Knowledge Graph (UKG) Application Design & Development Guide.pdf
-    Universal Knowledge Graph (UKG) MVP � System Documentation.pdf
-    Universal Knowledge Graph Simulation Stack � 10-Layer Architecture Report.pdf
-    Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) � System Documentati.pdf
-    Universal Simulated Knowledge Graph (UKG) � A Comprehensive White Paper.pdf
-    Universal_Knowledge_Database_Mathematical_Framework_White_Paper.pdf
-    Universal_Knowledge_Framework_-_Enhanced_Design_System.pdf
-    Universal_Knowledge_Graph_(UKG)_Mathematical_Framework_Conversion.pdf
-    __Nested Simulated Memory Architecture of UKG_USKD � 10-Layer Technical Documentation__ (1).pdf
-    
-No subfolders exist 
 
+├── CHANGELOG.md
+├── CODE_OF_CONDUCT.md
+├── COMMERCIAL_LICENSE.md
+├── CONTRIBUTING.md
+├── Dockerfile.cloud
+├── FILE_STRUCTURE_MAP.txt
+├── FULL_FILE_INVENTORY.csv
+├── LICENSE
+├── README.md
+├── SECURITY.md
+├── app.py
+├── archive
+│   ├── audit_scripts
+│   │   ├── all_ka_specs.txt
+│   │   ├── audit_ka_suite.py
+│   │   ├── audit_report.txt
+│   │   ├── audit_results.md
+│   │   ├── dump_all_specs.py
+│   │   ├── find_batch_c_kas.py
+│   │   └── read_low_ids.py
+│   ├── logs
+│   │   ├── compile_errors.log
+│   │   ├── error.log
+│   │   ├── pytest_collection.log
+│   │   ├── startup_log.txt
+│   │   ├── test_api_result.txt
+│   │   ├── test_batch_result.txt
+│   │   ├── test_debug.txt
+│   │   ├── test_debug_2.txt
+│   │   ├── test_debug_3.txt
+│   │   ├── test_debug_4.txt
+│   │   └── test_sim_result.txt
+│   ├── one-offs
+│   │   ├── test_all_imports.py
+│   │   └── verify_production_libs.py
+│   ├── output_logs
+│   │   ├── e2e_error.log
+│   │   ├── final_regression_output.txt
+│   │   ├── flow_output.txt
+│   │   ├── flow_output_final.txt
+│   │   ├── flow_output_v2.txt
+│   │   ├── flow_output_v3.txt
+│   │   ├── output.txt
+│   │   ├── output2.txt
+│   │   ├── output_integ.txt
+│   │   ├── output_integ_2.txt
+│   │   ├── output_integ_final.txt
+│   │   ├── output_integ_verify.txt
+│   │   ├── output_integ_verify_final.txt
+│   │   ├── output_integ_verify_final_2.txt
+│   │   ├── output_integ_verify_final_3.txt
+│   │   ├── output_integ_verify_final_green.txt
+│   │   ├── output_integ_verify_green.txt
+│   │   ├── output_integ_verify_green_2.txt
+│   │   ├── pylint_final.txt
+│   │   ├── pylint_final_v2.txt
+│   │   ├── pylint_report.txt
+│   │   ├── verification_output.txt
+│   │   └── verify_ka_unified_log.txt
+│   ├── replit.md
+│   ├── replit_auth.py
+│   ├── requirements-enterprise.txt
+│   └── requirements-phase1.txt
+├── backend
+│   ├── Dockerfile
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── api
+│   │   ├── ka_management.py
+│   │   └── specs
+│   │       └── ukg_api_v3_2.yaml
+│   ├── api_gateway
+│   │   ├── api_gateway.py
+│   │   └── unified_middleware.py
+│   ├── auth
+│   │   ├── __init__.py
+│   │   ├── api_decorators.py
+│   │   ├── sso.py
+│   │   └── windows_identity.py
+│   ├── celery_app.py
+│   ├── chat.py
+│   ├── config
+│   │   ├── __init__.py
+│   │   └── settings.py
+│   ├── config.py
+│   ├── config_manager.py
+│   ├── contextual_api.py
+│   ├── core
+│   │   ├── rag_sanitizer.py
+│   │   └── resilience_router.py
+│   ├── data_loader.py
+│   ├── decorators.py
+│   ├── email_service.py
+│   ├── enterprise_architecture.py
+│   ├── export_service.py
+│   ├── graphql_schema.py
+│   ├── honeycomb_api.py
+│   ├── i18n.py
+│   ├── init_db.py
+│   ├── knowledge_algorithm
+│   │   ├── __init__.py
+│   │   ├── axis_mapper.py
+│   │   ├── base.py
+│   │   ├── context.py
+│   │   ├── definitions
+│   │   ├── lineage_store.py
+│   │   ├── modules
+│   │   │   ├── ka00_control_core.py
+│   │   │   ├── ka00_reasoning_core.py
+│   │   │   ├── ka012_persona.py
+│   │   │   ├── ka03_gap_analysis.py
+│   │   │   ├── ka04_input_validation.py
+│   │   │   ├── ka09_evidence_validation.py
+│   │   │   ├── ka100_evolution_controller.py
+│   │   │   ├── ka101_chaos_governor.py
+│   │   │   ├── ka102_entropy_quantifier.py
+│   │   │   ├── ka103_rollback_manager.py
+│   │   │   ├── ka104_truth_utility.py
+│   │   │   ├── ka105_obsolescence_monitor.py
+│   │   │   ├── ka106_override_capture.py
+│   │   │   ├── ka107_boundary_enforcer.py
+│   │   │   ├── ka108_escalation_detector.py
+│   │   │   ├── ka109_containment_classifier.py
+│   │   │   ├── ka10_bias_detection.py
+│   │   │   ├── ka10_synthesis_core.py
+│   │   │   ├── ka110_coupling_risk.py
+│   │   │   ├── ka111_goal_drift.py
+│   │   │   ├── ka112_introspection_auditor.py
+│   │   │   ├── ka113_complexity_router.py
+│   │   │   ├── ka114_external_research.py
+│   │   │   ├── ka15_temporal_reasoning.py
+│   │   │   ├── ka16_regulatory_mapping.py
+│   │   │   ├── ka18_source_provenance.py
+│   │   │   ├── ka20_resolution_core.py
+│   │   │   ├── ka22_risk_assessment.py
+│   │   │   ├── ka23_belief_decay.py
+│   │   │   ├── ka24_trust_gate.py
+│   │   │   ├── ka26_contradiction_detection.py
+│   │   │   ├── ka27_ethical_impact.py
+│   │   │   ├── ka31_algorithm_selection.py
+│   │   │   ├── ka32_orchestration_controller.py
+│   │   │   ├── ka34_adversarial_reasoning.py
+│   │   │   ├── ka35_bayesian_imputation.py
+│   │   │   ├── ka36_pareto_optimization.py
+│   │   │   ├── ka37_norm_emergence.py
+│   │   │   ├── ka38_cross_modal_synthesis.py
+│   │   │   ├── ka39_ontology_drift.py
+│   │   │   ├── ka40_semantic_alignment.py
+│   │   │   ├── ka41_confidence_normalization.py
+│   │   │   ├── ka42_contradiction_propagation.py
+│   │   │   ├── ka43_knowledge_lineage.py
+│   │   │   ├── ka44_creative_composer.py
+│   │   │   ├── ka45_bias_pattern_analyzer.py
+│   │   │   ├── ka46_memory_patcher.py
+│   │   │   ├── ka47_meta_algo.py
+│   │   │   ├── ka48_ontological_resolver.py
+│   │   │   ├── ka49_redundancy_detector.py
+│   │   │   ├── ka50_integrity_validator.py
+│   │   │   ├── ka51_knowledge_distillation.py
+│   │   │   ├── ka52_temporal_evolution.py
+│   │   │   ├── ka53_knowledge_compression.py
+│   │   │   ├── ka54_cross_lingual_fusion.py
+│   │   │   ├── ka55_multimodal_integration.py
+│   │   │   ├── ka56_narrative_explainability.py
+│   │   │   ├── ka57_persona_adaptation.py
+│   │   │   ├── ka58_interactive_clarification.py
+│   │   │   ├── ka59_predictive_preemption.py
+│   │   │   ├── ka60_cognitive_load_balancer.py
+│   │   │   ├── ka61_adversarial_shield.py
+│   │   │   ├── ka62_trust_scoring.py
+│   │   │   ├── ka63_performance_learning.py
+│   │   │   ├── ka64_failure_pattern.py
+│   │   │   ├── ka65_regression_tester.py
+│   │   │   ├── ka66_causal_inference.py
+│   │   │   ├── ka67_analogical_reasoning.py
+│   │   │   ├── ka68_domain_tuner.py
+│   │   │   ├── ka69_cultural_adapter.py
+│   │   │   ├── ka70_counterfactual_sim.py
+│   │   │   ├── ka71_provenance_tracker.py
+│   │   │   ├── ka72_context_optimizer.py
+│   │   │   ├── ka73_intent_clarifier.py
+│   │   │   ├── ka74_privacy_preserver.py
+│   │   │   ├── ka75_bias_mitigation.py
+│   │   │   ├── ka76_graph_pruner.py
+│   │   │   ├── ka77_importance_scorer.py
+│   │   │   ├── ka78_memory_tier.py
+│   │   │   ├── ka79_promotion_gate.py
+│   │   │   ├── ka80_sim_cost_estimator.py
+│   │   │   ├── ka81_sim_budget_enforcer.py
+│   │   │   ├── ka82_drift_monitor.py
+│   │   │   ├── ka83_revalidation_scheduler.py
+│   │   │   ├── ka84_consensus_engine.py
+│   │   │   ├── ka85_anomaly_detection.py
+│   │   │   ├── ka86_usage_analytics.py
+│   │   │   ├── ka87_explainability_coverage.py
+│   │   │   ├── ka88_lifecycle_manager.py
+│   │   │   ├── ka89_policy_tracker.py
+│   │   │   ├── ka90_compliance_validator.py
+│   │   │   ├── ka91_scenario_archivist.py
+│   │   │   ├── ka92_dependency_auditor.py
+│   │   │   ├── ka93_trust_decay.py
+│   │   │   ├── ka94_quarantine_engine.py
+│   │   │   ├── ka95_hitl_escalation.py
+│   │   │   ├── ka96_release_manager.py
+│   │   │   ├── ka97_performance_optimizer.py
+│   │   │   ├── ka98_benchmarking.py
+│   │   │   └── ka99_integrity_auditor.py
+│   │   ├── registry
+│   │   │   ├── coordinates
+│   │   │   │   ├── axis1_pillars.yaml
+│   │   │   │   └── axis2_sectors.yaml
+│   │   │   └── ka_registry_enterprise.yaml
+│   │   ├── registry.py
+│   │   ├── subworkflow_manager.py
+│   │   ├── truth_engine.py
+│   │   ├── workflow_loader.py
+│   │   └── workflows
+│   │       └── simulation_v2_5.json
+│   ├── knowledge_algorithms
+│   │   ├── __init__.py
+│   │   ├── config
+│   │   │   ├── ka_01_config.json
+│   │   │   ├── ka_02_config.json
+│   │   │   ├── ka_03_config.json
+│   │   │   ├── ka_04_config.json
+│   │   │   ├── ka_05_config.json
+│   │   │   ├── ka_06_config.json
+│   │   │   ├── ka_07_config.json
+│   │   │   ├── ka_08_config.json
+│   │   │   ├── ka_09_config.json
+│   │   │   ├── ka_100_config.json
+│   │   │   ├── ka_101_config.json
+│   │   │   ├── ka_102_config.json
+│   │   │   ├── ka_103_config.json
+│   │   │   ├── ka_104_config.json
+│   │   │   ├── ka_105_config.json
+│   │   │   ├── ka_106_config.json
+│   │   │   ├── ka_107_config.json
+│   │   │   ├── ka_108_config.json
+│   │   │   ├── ka_109_config.json
+│   │   │   ├── ka_10_config.json
+│   │   │   ├── ka_110_config.json
+│   │   │   ├── ka_111_config.json
+│   │   │   ├── ka_112_config.json
+│   │   │   ├── ka_113_config.json
+│   │   │   ├── ka_114_config.json
+│   │   │   ├── ka_115_config.json
+│   │   │   ├── ka_116_config.json
+│   │   │   ├── ka_11_config.json
+│   │   │   ├── ka_12_config.json
+│   │   │   ├── ka_13_config.json
+│   │   │   ├── ka_14_config.json
+│   │   │   ├── ka_15_config.json
+│   │   │   ├── ka_16_config.json
+│   │   │   ├── ka_17_config.json
+│   │   │   ├── ka_18_config.json
+│   │   │   ├── ka_19_config.json
+│   │   │   ├── ka_20_config.json
+│   │   │   ├── ka_21_config.json
+│   │   │   ├── ka_22_config.json
+│   │   │   ├── ka_23_config.json
+│   │   │   ├── ka_24_config.json
+│   │   │   ├── ka_25_config.json
+│   │   │   ├── ka_26_config.json
+│   │   │   ├── ka_27_config.json
+│   │   │   ├── ka_28_config.json
+│   │   │   ├── ka_29_config.json
+│   │   │   ├── ka_30_config.json
+│   │   │   ├── ka_31_config.json
+│   │   │   ├── ka_32_config.json
+│   │   │   ├── ka_34_config.json
+│   │   │   ├── ka_35_config.json
+│   │   │   ├── ka_36_config.json
+│   │   │   ├── ka_37_config.json
+│   │   │   ├── ka_38_config.json
+│   │   │   ├── ka_39_config.json
+│   │   │   ├── ka_40_config.json
+│   │   │   ├── ka_41_config.json
+│   │   │   ├── ka_42_config.json
+│   │   │   ├── ka_45_config.json
+│   │   │   ├── ka_46_config.json
+│   │   │   ├── ka_47_config.json
+│   │   │   ├── ka_48_config.json
+│   │   │   ├── ka_49_config.json
+│   │   │   ├── ka_50_config.json
+│   │   │   ├── ka_51_config.json
+│   │   │   ├── ka_52_config.json
+│   │   │   ├── ka_53_config.json
+│   │   │   ├── ka_54_config.json
+│   │   │   ├── ka_55_config.json
+│   │   │   ├── ka_56_config.json
+│   │   │   ├── ka_57_config.json
+│   │   │   ├── ka_58_config.json
+│   │   │   ├── ka_59_config.json
+│   │   │   ├── ka_60_config.json
+│   │   │   ├── ka_61_config.json
+│   │   │   ├── ka_62_config.json
+│   │   │   ├── ka_63_config.json
+│   │   │   ├── ka_64_config.json
+│   │   │   ├── ka_65_config.json
+│   │   │   ├── ka_66_config.json
+│   │   │   ├── ka_67_config.json
+│   │   │   ├── ka_68_config.json
+│   │   │   ├── ka_69_config.json
+│   │   │   ├── ka_70_config.json
+│   │   │   ├── ka_71_config.json
+│   │   │   ├── ka_72_config.json
+│   │   │   ├── ka_73_config.json
+│   │   │   ├── ka_74_config.json
+│   │   │   ├── ka_75_config.json
+│   │   │   ├── ka_76_config.json
+│   │   │   ├── ka_77_config.json
+│   │   │   ├── ka_78_config.json
+│   │   │   ├── ka_79_config.json
+│   │   │   ├── ka_80_config.json
+│   │   │   ├── ka_81_config.json
+│   │   │   ├── ka_82_config.json
+│   │   │   ├── ka_83_config.json
+│   │   │   ├── ka_84_config.json
+│   │   │   ├── ka_85_config.json
+│   │   │   ├── ka_86_config.json
+│   │   │   ├── ka_87_config.json
+│   │   │   ├── ka_88_config.json
+│   │   │   ├── ka_89_config.json
+│   │   │   ├── ka_90_config.json
+│   │   │   ├── ka_91_config.json
+│   │   │   ├── ka_92_config.json
+│   │   │   ├── ka_93_config.json
+│   │   │   ├── ka_94_config.json
+│   │   │   ├── ka_95_config.json
+│   │   │   ├── ka_96_config.json
+│   │   │   ├── ka_97_config.json
+│   │   │   ├── ka_98_config.json
+│   │   │   └── ka_99_config.json
+│   │   ├── ka_01_algorithm_of_thought.py
+│   │   ├── ka_02_tree_of_thought.py
+│   │   ├── ka_03_gap_analysis.py
+│   │   ├── ka_04_input_validation__normalization.py
+│   │   ├── ka_05_query_classification.py
+│   │   ├── ka_06_deep_planning.py
+│   │   ├── ka_07_recursive_reasoning_control.py
+│   │   ├── ka_08_self_critique__reflection.py
+│   │   ├── ka_09_evidence_validation.py
+│   │   ├── ka_100_optimization.py
+│   │   ├── ka_101_environment_management.py
+│   │   ├── ka_102_dependency_injection.py
+│   │   ├── ka_103_service_mesh.py
+│   │   ├── ka_104_load_balancing.py
+│   │   ├── ka_105_scalability_manager.py
+│   │   ├── ka_106_fault_tolerance.py
+│   │   ├── ka_107_disaster_recovery.py
+│   │   ├── ka_108_backup_strategy.py
+│   │   ├── ka_109_system_health.py
+│   │   ├── ka_10_bias_detection.py
+│   │   ├── ka_110_integration_bus.py
+│   │   ├── ka_111_api_gateway.py
+│   │   ├── ka_112_message_broker.py
+│   │   ├── ka_113_complexity_router.py
+│   │   ├── ka_114_federated_outbox.py
+│   │   ├── ka_115_federated_inbox.py
+│   │   ├── ka_116_entropy_detection.py
+│   │   ├── ka_11_analytical_modeling.py
+│   │   ├── ka_12_persona_simulation.py
+│   │   ├── ka_13_persona_weighting.py
+│   │   ├── ka_14_confidence_scoring.py
+│   │   ├── ka_15_temporal_reasoning.py
+│   │   ├── ka_16_regulatory_mapping.py
+│   │   ├── ka_17_spatial_jurisdiction_mapping.py
+│   │   ├── ka_18_source_provenance.py
+│   │   ├── ka_19_knowledge_synthesis.py
+│   │   ├── ka_20_loopback_trigger.py
+│   │   ├── ka_21_emergence_detection.py
+│   │   ├── ka_22_risk_assessment.py
+│   │   ├── ka_23_belief_decay.py
+│   │   ├── ka_24_trust_gate.py
+│   │   ├── ka_25_dependency_mapping.py
+│   │   ├── ka_26_contradiction_detection.py
+│   │   ├── ka_27_ethical_impact_analysis.py
+│   │   ├── ka_28_point_of_view_expansion.py
+│   │   ├── ka_29_knowledge_expansion.py
+│   │   ├── ka_30_conflict_resolution.py
+│   │   ├── ka_31_algorithm_selection_engine.py
+│   │   ├── ka_32_simulation_orchestration_controller.py
+│   │   ├── ka_33_reserved_expansion_slot.py
+│   │   ├── ka_34_adversarial_reasoning.py
+│   │   ├── ka_35_bayesian_gap_imputation.py
+│   │   ├── ka_36_complexity_estimator.py
+│   │   ├── ka_37_resource_allocator.py
+│   │   ├── ka_38_consensus_engine.py
+│   │   ├── ka_39_anomaly_detection.py
+│   │   ├── ka_40_hypothesis_generation.py
+│   │   ├── ka_41_abductive_reasoning.py
+│   │   ├── ka_42_counterfactual_simulator.py
+│   │   ├── ka_43_causal_inference.py
+│   │   ├── ka_44_analogical_mapping.py
+│   │   ├── ka_45_pattern_recognition.py
+│   │   ├── ka_46_trend_analysis.py
+│   │   ├── ka_47_sentiment_analysis.py
+│   │   ├── ka_48_entity_extraction.py
+│   │   ├── ka_49_relation_extraction.py
+│   │   ├── ka_50_knowledge_integrity_validator.py
+│   │   ├── ka_50_summarization.py
+│   │   ├── ka_51_self_correcting_knowledge_distillation.py
+│   │   ├── ka_52_temporal_knowledge_evolution.py
+│   │   ├── ka_53_dynamic_knowledge_compression.py
+│   │   ├── ka_54_cross_lingual_knowledge_fusion.py
+│   │   ├── ka_55_adaptive_multi_modal_integration.py
+│   │   ├── ka_56_narrative_explainability_engine.py
+│   │   ├── ka_57_persona_emotion_adaptation.py
+│   │   ├── ka_58_interactive_clarification_learning.py
+│   │   ├── ka_59_predictive_layer_preemption.py
+│   │   ├── ka_60_cognitive_load_balancer.py
+│   │   ├── ka_61_adversarial_input_shield.py
+│   │   ├── ka_62_decentralized_trust_scoring.py
+│   │   ├── ka_63_continuous_performance_learning.py
+│   │   ├── ka_64_failure_pattern_detection.py
+│   │   ├── ka_65_knowledge_regression_tester.py
+│   │   ├── ka_66_causal_inference_engine.py
+│   │   ├── ka_67_analogical_reasoning_engine.py
+│   │   ├── ka_68_domain_specialization_tuner.py
+│   │   ├── ka_69_cultural_context_adapter.py
+│   │   ├── ka_70_counterfactual_scenario_simulator.py
+│   │   ├── ka_71_data_ingestion.py
+│   │   ├── ka_72_data_cleaning.py
+│   │   ├── ka_73_data_transformation.py
+│   │   ├── ka_74_data_validation.py
+│   │   ├── ka_75_schema_mapping.py
+│   │   ├── ka_76_entity_resolution.py
+│   │   ├── ka_77_data_enrichment.py
+│   │   ├── ka_78_data_archival.py
+│   │   ├── ka_79_data_retrieval.py
+│   │   ├── ka_80_cache_management.py
+│   │   ├── ka_81_model_training.py
+│   │   ├── ka_82_model_evaluation.py
+│   │   ├── ka_83_model_deployment.py
+│   │   ├── ka_84_model_monitoring.py
+│   │   ├── ka_85_feature_engineering.py
+│   │   ├── ka_86_hyperparameter_tuning.py
+│   │   ├── ka_87_model_versioning.py
+│   │   ├── ka_88_ab_testing.py
+│   │   ├── ka_89_model_pruning.py
+│   │   ├── ka_90_model_quantization.py
+│   │   ├── ka_91_visualization.py
+│   │   ├── ka_92_dashboarding.py
+│   │   ├── ka_93_notification.py
+│   │   ├── ka_94_reporting.py
+│   │   ├── ka_95_alerting.py
+│   │   ├── ka_96_logging.py
+│   │   ├── ka_97_auditing.py
+│   │   ├── ka_98_profiling.py
+│   │   ├── ka_99_debugging.py
+│   │   ├── ka_master_controller.py
+│   │   ├── ka_registry.yaml
+│   │   ├── l10
+│   │   │   └── __init__.py
+│   │   └── l9
+│   │       ├── __init__.py
+│   │       ├── l9_ka_001_trace_analyzer.py
+│   │       ├── l9_ka_002_belief_drift.py
+│   │       ├── l9_ka_003_persona_auditor.py
+│   │       ├── l9_ka_004_meta_evaluator.py
+│   │       ├── l9_ka_005_recursion_trigger.py
+│   │       ├── l9_ka_006_confidence_calc.py
+│   │       └── l9_ka_007_loop_controller.py
+│   ├── llm_gateway
+│   │   ├── __init__.py
+│   │   ├── api.py
+│   │   ├── gateway.py
+│   │   └── schemas.py
+│   ├── location_context_engine.py
+│   ├── logging_config.py
+│   ├── mcp_server
+│   │   ├── __init__.py
+│   │   ├── registry.py
+│   │   ├── router.py
+│   │   └── tools
+│   │       ├── __init__.py
+│   │       ├── jira.py
+│   │       └── salesforce.py
+│   ├── methods_api.py
+│   ├── middleware
+│   │   ├── __init__.py
+│   │   ├── correlation_id.py
+│   │   ├── etag.py
+│   │   ├── input_sanitizer.py
+│   │   ├── request_limits.py
+│   │   └── timeout.py
+│   ├── model_context
+│   │   └── model_context_server.py
+│   ├── operator
+│   │   ├── controller.py
+│   │   └── operator.py
+│   ├── persona_api.py
+│   ├── pillar_api.py
+│   ├── quad_persona
+│   │   ├── __init__.py
+│   │   └── quad_engine.py
+│   ├── regulatory_api.py
+│   ├── reports
+│   │   ├── __init__.py
+│   │   └── compliance.py
+│   ├── repositories
+│   │   ├── __init__.py
+│   │   └── node_repository.py
+│   ├── rest_api.py
+│   ├── retention_service.py
+│   ├── routes
+│   │   ├── analytics_routes.py
+│   │   ├── gdpr_routes.py
+│   │   ├── location_routes.py
+│   │   ├── multimodal_routes.py
+│   │   ├── privacy_routes.py
+│   │   ├── retention_routes.py
+│   │   ├── search_routes.py
+│   │   ├── settings_routes.py
+│   │   └── storage_routes.py
+│   ├── schemas
+│   │   ├── __init__.py
+│   │   ├── request_schemas.py
+│   │   └── simulation_schemas.py
+│   ├── search_service.py
+│   ├── security
+│   │   ├── __init__.py
+│   │   ├── active_defense.py
+│   │   ├── ai_guardrail.py
+│   │   ├── api_security.py
+│   │   ├── audit_logger.py
+│   │   ├── compliance_manager.py
+│   │   ├── context_aware.py
+│   │   ├── data_classification.py
+│   │   ├── dpapi_store.py
+│   │   ├── encryption_manager.py
+│   │   ├── honeypot.py
+│   │   ├── mfa.py
+│   │   ├── password_security.py
+│   │   ├── pii_redaction.py
+│   │   ├── prompt_injection_shield.py
+│   │   ├── rbac.py
+│   │   ├── sanitizer.py
+│   │   ├── security_headers.py
+│   │   ├── security_manager.py
+│   │   ├── security_monitoring.py
+│   │   ├── session_manager.py
+│   │   ├── token_manager.py
+│   │   ├── vulnerability_scanner.py
+│   │   └── zero_trust.py
+│   ├── security_api.py
+│   ├── security_scan_api.py
+│   ├── seed_data.py
+│   ├── services
+│   │   ├── __init__.py
+│   │   ├── analytics_service.py
+│   │   ├── audio_service.py
+│   │   ├── document_processor.py
+│   │   ├── file_upload_service.py
+│   │   ├── rag_service.py
+│   │   └── video_service.py
+│   ├── simulation
+│   │   ├── __init__.py
+│   │   └── simulation_engine.py
+│   ├── storage
+│   │   ├── __init__.py
+│   │   ├── connection_manager.py
+│   │   ├── database_manager.py
+│   │   ├── graph_store.py
+│   │   ├── object_store.py
+│   │   └── vector_store.py
+│   ├── time_api.py
+│   ├── tracing
+│   │   ├── __init__.py
+│   │   ├── api.py
+│   │   └── logger.py
+│   ├── truth_engine
+│   │   ├── __init__.py
+│   │   ├── api.py
+│   │   ├── federated_sync.py
+│   │   ├── truth_core
+│   │   │   ├── __init__.py
+│   │   │   ├── agi_planner.py
+│   │   │   ├── emergence_controller.py
+│   │   │   ├── engine.py
+│   │   │   ├── l10_schemas.py
+│   │   │   ├── l7_schemas.py
+│   │   │   ├── l9_schemas.py
+│   │   │   ├── meta_reasoning_controller.py
+│   │   │   ├── persona_sufficiency.py
+│   │   │   ├── personas.py
+│   │   │   ├── refinement_orchestrator.py
+│   │   │   ├── router.py
+│   │   │   └── tiers.py
+│   │   ├── truth_gate
+│   │   │   ├── __init__.py
+│   │   │   ├── budget.py
+│   │   │   ├── compliance.py
+│   │   │   ├── gateway.py
+│   │   │   ├── l8_schemas.py
+│   │   │   ├── policies.py
+│   │   │   ├── quant.py
+│   │   │   ├── quant_backends
+│   │   │   │   ├── logical.py
+│   │   │   │   └── statistical.py
+│   │   │   ├── schemas.py
+│   │   │   └── trust_validation_gateway.py
+│   │   ├── truth_link
+│   │   │   ├── __init__.py
+│   │   │   ├── blockchain_adapter.py
+│   │   │   ├── bus.py
+│   │   │   ├── queues.py
+│   │   │   └── transport.py
+│   │   └── truth_memory
+│   │       ├── __init__.py
+│   │       ├── audit.py
+│   │       ├── cache.py
+│   │       ├── manager.py
+│   │       └── metrics.py
+│   ├── ukg_api.py
+│   ├── ukg_db.py
+│   ├── unified_mapping_api.py
+│   ├── utils
+│   │   ├── __init__.py
+│   │   ├── exceptions.py
+│   │   ├── pagination.py
+│   │   ├── responses.py
+│   │   ├── safe_path.py
+│   │   └── validation.py
+│   ├── webhook_server
+│   │   └── webhook_server.py
+│   └── websocket.py
+├── backend.spec
+├── components
+│   ├── Layout.js
+│   ├── ProductHeader.js
+│   └── ui
+│       ├── Avatar.js
+│       ├── Badge.js
+│       ├── Button.js
+│       ├── Card.js
+│       ├── ChatMessage.js
+│       ├── ComplianceSpiderweb.js
+│       ├── ContextualExpertWeb.js
+│       ├── Dropdown.js
+│       ├── HoneycombGraph.js
+│       ├── Input.js
+│       ├── Label.js
+│       ├── LocationMap.js
+│       ├── Navbar.js
+│       ├── PillarMapping.js
+│       ├── RegulatoryOctopus.js
+│       ├── Sidebar.js
+│       ├── Text.js
+│       ├── Textarea.js
+│       ├── Timeline.js
+│       ├── UnifiedMapping.js
+│       └── index.js
+├── config
+│   ├── axis12_config.yaml
+│   ├── axis_14_17_governance_schema.yaml
+│   ├── config.env
+│   └── master_orchestration_registry.yaml
+├── core
+│   ├── __init__.py
+│   ├── algorithms
+│   │   ├── base_algorithm.py
+│   │   ├── perspective_analyzer.py
+│   │   └── query_analyzer.py
+│   ├── axes
+│   │   ├── __init__.py
+│   │   ├── axis10_regulatory_expert.py
+│   │   ├── axis11_compliance_expert.py
+│   │   ├── axis11_contextual.py
+│   │   ├── axis12_location.py
+│   │   ├── axis13_time.py
+│   │   ├── axis14_provenance.py
+│   │   ├── axis15_object_type.py
+│   │   ├── axis16_validation_state.py
+│   │   ├── axis17_security.py
+│   │   ├── axis1_identity.py
+│   │   ├── axis1_knowledge.py
+│   │   ├── axis2_sector.py
+│   │   ├── axis3_domain.py
+│   │   ├── axis4_knowledge.py
+│   │   ├── axis4_methods.py
+│   │   ├── axis5_honeycomb.py
+│   │   ├── axis5_temporal.py
+│   │   ├── axis6_regulatory.py
+│   │   ├── axis7_compliance.py
+│   │   ├── axis8_knowledge_expert.py
+│   │   ├── axis9_sector_expert.py
+│   │   └── axis_system.py
+│   ├── coordinate_system.py
+│   ├── data
+│   │   └── ka_registry.json
+│   ├── engine
+│   │   └── ka_engine.py
+│   ├── graph
+│   │   └── graph_manager.py
+│   ├── knowledge_algorithm
+│   │   ├── __init__.py
+│   │   ├── exceptions.py
+│   │   ├── implementations
+│   │   │   ├── __init__.py
+│   │   │   ├── ka01_query_analyzer.py
+│   │   │   └── ka02_axis_scorer.py
+│   │   ├── ka_base.py
+│   │   └── ka_loader.py
+│   ├── mcp
+│   │   ├── README.md
+│   │   ├── __init__.py
+│   │   ├── mcp_client.py
+│   │   ├── mcp_manager.py
+│   │   ├── mcp_protocol.py
+│   │   ├── mcp_server.py
+│   │   └── servers
+│   │       ├── __init__.py
+│   │       └── system.py
+│   ├── memory
+│   │   └── structured_memory_manager.py
+│   ├── nlp
+│   │   ├── __init__.py
+│   │   └── coordinate_mapper.py
+│   ├── orchestration
+│   │   ├── __init__.py
+│   │   └── master_workflow.py
+│   ├── persona
+│   │   ├── __init__.py
+│   │   ├── memory_system.py
+│   │   ├── persona_manager.py
+│   │   ├── persona_models.py
+│   │   ├── persona_system.py
+│   │   └── quad_persona_engine.py
+│   ├── self_evolving
+│   │   └── sekre_engine.py
+│   ├── simulation
+│   │   ├── __init__.py
+│   │   ├── app_orchestrator.py
+│   │   ├── layer10_synthesis.py
+│   │   ├── layer1_entry.py
+│   │   ├── layer2_knowledge.py
+│   │   ├── layer3_expert.py
+│   │   ├── layer4_reasoning.py
+│   │   ├── layer5_integration.py
+│   │   ├── layer6_enhancement.py
+│   │   ├── layer7_agi_system.py
+│   │   ├── layer8_quantum.py
+│   │   ├── layer9_recursive.py
+│   │   ├── location_context_engine.py
+│   │   ├── memory_simulation.py
+│   │   ├── query_persona_engine.py
+│   │   ├── refinement_orchestrator.py
+│   │   └── simulation_engine.py
+│   └── system
+│       ├── code_crosswalk_service.py
+│       ├── frost_service.py
+│       ├── persona_construction_service.py
+│       ├── refinement_orchestrator.py
+│       ├── system_initializer.py
+│       ├── trace_service.py
+│       ├── uae_models.py
+│       ├── unified_identity_service.py
+│       ├── unified_mapping_system.py
+│       ├── unified_numbering_service.py
+│       └── united_system_manager.py
+├── coverage.json
+├── data
+│   ├── coverage.json
+│   ├── layer1_database.json
+│   ├── lineage
+│   │   └── lineage_FACT-001.json
+│   ├── memory.json
+│   ├── memory_store.json
+│   ├── personas_db.json
+│   ├── registries
+│   │   ├── UKG_KA_1_to_114_Enterprise_Registry.xlsx
+│   │   ├── axis_registry.json
+│   │   └── ka_registry.yaml
+│   ├── security
+│   │   └── keys
+│   │       ├── dek_registry.json
+│   │       └── kek.salt
+│   ├── simulation_memory.json
+│   ├── ukg
+│   │   ├── __init__.py
+│   │   ├── axis_definitions.yaml
+│   │   ├── compliance_standards.yaml
+│   │   ├── contextual_experts.yaml
+│   │   ├── locations_gazetteer.yaml
+│   │   ├── methods.yaml
+│   │   ├── personas.yaml
+│   │   ├── pillar_levels.yaml
+│   │   ├── pillar_levels_expanded.yaml
+│   │   ├── regulatory_frameworks.yaml
+│   │   ├── sectors.yaml
+│   │   ├── time_periods.yaml
+│   │   ├── tools.yaml
+│   │   └── topics.yaml
+│   ├── ukg_result_20250519_152636.json
+│   ├── ukg_result_20250519_152639.json
+│   └── workflow.json
+├── databases
+│   └── chroma
+├── demos
+│   ├── README.md
+│   ├── compliance
+│   │   ├── run_refinement_workflow_demo.py
+│   │   ├── run_regulatory_compliance_demo.py
+│   │   └── security_compliance_demo.py
+│   ├── ka
+│   │   ├── run_ka_demo.py
+│   │   ├── run_ka_master_demo.py
+│   │   └── run_ka_orchestration_demo.py
+│   ├── layers
+│   │   ├── run_layer1_demo.py
+│   │   ├── run_layered_database_demo.py
+│   │   ├── run_ukg_layer7_demo.py
+│   │   ├── run_ukg_layer8_demo.py
+│   │   └── run_ukg_layer9_10_demo.py
+│   ├── simulation
+│   │   ├── quad_demo.py
+│   │   ├── run_quad_demo.py
+│   │   ├── run_ukg_simulation_demo.py
+│   │   └── ukg_simulation_demo.py
+│   └── standalone
+│       ├── run_standalone.py
+│       ├── run_standalone_demo.py
+│       ├── run_ukg_13axis_demo.py
+│       ├── run_ukg_demo.py
+│       └── run_ukg_standalone.py
+├── deploy
+│   ├── DEPLOYMENT_CHECKLIST.md
+│   ├── DISASTER_RECOVERY.md
+│   ├── PHASE1_DEPLOYMENT_CHECKLIST.md
+│   ├── SENTRY_ALERTS.md
+│   ├── UPTIME_MONITORING.md
+│   ├── aws
+│   │   ├── buildspec.yml
+│   │   └── task-definition.json
+│   ├── azure
+│   │   ├── azure-pipelines.yml
+│   │   └── startup.sh
+│   ├── backup_database.sh
+│   ├── gcp
+│   │   └── cloudbuild.yaml
+│   ├── k8s
+│   │   └── operator
+│   │       ├── mcpserver_crd.yaml
+│   │       ├── operator_deploy.yaml
+│   │       ├── rbac.yaml
+│   │       └── ukgnode_crd.yaml
+│   ├── nginx.conf
+│   ├── setup_ssl.sh
+│   ├── validate_production.py
+│   └── windows
+│       ├── DataLogicEngine.url
+│       ├── DataLogic_Backend.xml
+│       ├── DataLogic_Frontend.xml
+│       └── UKG_Setup.wxs
+├── docker-compose.yml
+├── docs
+│   ├── AI_MANAGEMENT_SYSTEM_42001.md
+│   ├── API.md
+│   ├── API_VERSIONING.md
+│   ├── ARCHITECTURE.md
+│   ├── CIS_BENCHMARKS.md
+│   ├── CONTRIBUTING.md
+│   ├── CROSS_USER_TESTING.md
+│   ├── DEPLOYMENT.md
+│   ├── DEVELOPER_GUIDE.md
+│   ├── FILE_STRUCTURE.md
+│   ├── K8S_OPERATOR_DESIGN.md
+│   ├── MCP_INTEGRATION.md
+│   ├── OPERATIONAL_RUNBOOKS.md
+│   ├── PRIVACY_POLICY.md
+│   ├── PRODUCTION_READINESS.md
+│   ├── REACT_NATIVE_RESEARCH.md
+│   ├── RELEASE_NOTES_v2.5.0.md
+│   ├── SDLC_SSDF_MAPPING.md
+│   ├── SECURITY.md
+│   ├── SLSA_LEVEL_3_ATTESTATION.md
+│   ├── SSL_CONFIGURATION.md
+│   ├── STORE_LISTING.md
+│   ├── TESTING.md
+│   ├── TODO.md
+│   ├── WORKFLOW.md
+│   ├── api
+│   │   ├── openapi.yaml
+│   │   └── postman_collection.json
+│   ├── archive
+│   │   ├── -UKG_Simulation_Build_Guide.txt
+│   │   ├── ACCESSIBILITY_AND_ERROR_HANDLING.md
+│   │   ├── AUDIT_SUMMARY_2026.md
+│   │   ├── BRANCH_CONSOLIDATION_REPORT.md
+│   │   ├── DEPENDENCY_VULNERABILITIES.md
+│   │   ├── ENTERPRISE_ROADMAP.md
+│   │   ├── ENTERPRISE_STANDARDS_2025.md
+│   │   ├── FRONTEND_REVIEW.md
+│   │   ├── GAP_ANALYSIS.md
+│   │   ├── GRAND_PLAN_EXCELLENCE_2026.md
+│   │   ├── IMPLEMENTATION_EXAMPLE.md
+│   │   ├── PHASE1_COMPLETION_SUMMARY.md
+│   │   ├── PHASE1_FINAL_STATUS.md
+│   │   ├── PRODUCTION_CODE_REVIEW.md
+│   │   ├── SECRETS.md
+│   │   ├── TODO_legacy.md
+│   │   ├── UKG_Quarry_System_Example.md
+│   │   ├── UKG_Unified_System_Technical_Supplement.md
+│   │   ├── USER_JOURNEY_REVIEW.md
+│   │   ├── dotnet_service
+│   │   │   └── Program.cs
+│   │   ├── how_to_run_simulation.md
+│   │   ├── legacy_assets
+│   │   │   ├── chat-exports
+│   │   │   │   ├── Pasted--Creating-a-database-Please-help-me-add-a-database-to-my-app-Just-now-KH-KevinHerrera21-C-1747628165423.txt
+│   │   │   │   ├── Pasted--Generate-Python-code-files-for-KA-39-to-KA-50-ka-batch-39-to-50-ka-39-quantum-trust-p-1747673785923.txt
+│   │   │   │   ├── Pasted--Generate-Python-code-files-for-KA-39-to-KA-50-ka-batch-39-to-50-ka-39-quantum-trust-p-1747675917698.txt
+│   │   │   │   ├── Pasted--KA-26-to-KA-30-have-been-created-and-registered-into-your-simulation-system--1747669066963.txt
+│   │   │   │   ├── Pasted--KA-31-to-KA-38-are-now-complete-and-fully-integrated-completing-the-entire-KA-01-through-K-1747669190572.txt
+│   │   │   │   ├── Pasted--Next-Building-KA-06-to-KA-10-I-will-now-proceed-to-generate-and-display-the-full-source-code-for--1747668973537.txt
+│   │   │   │   ├── Pasted--SYSTEM-SETUP-Nested-In-Memory-Simulation-Management-System-Overview-of-the-Simulation-Stack--1747668544512.txt
+│   │   │   │   ├── Pasted--USER-How-best-to-code-in-the-13-axis-system-for-the-universe-knowledge-graph-ASSISTANT-To--1747634659073.txt
+│   │   │   │   ├── Pasted--python-Always-show-details-Copy-Generate-Python-code-files-for-KA-39-to-KA-50-ka-batch-39-to-50-1747672225778.txt
+│   │   │   │   ├── Pasted--this-is-a-core-piece-of-the-UKG-USKD-intelligence-We-re-going-to-build-out-the-QuadPersonaEngine-t-1747643775529.txt
+│   │   │   │   ├── Pasted--ukg-system-0-1-0-build-Next-js-14-2-28-Environments-env-Linting-and-checking-validi-1747685545198.txt
+│   │   │   │   ├── Pasted-Based-on-your-uploaded-AKF-YAML-AKF-Simulation-Base-and-regulatory-architecture-from-the-4D-Databa-1747690799302.txt
+│   │   │   │   ├── Pasted-Based-on-your-uploaded-AKF-YAML-AKF-Simulation-Base-and-regulatory-architecture-from-the-4D-Databa-1747690984794.txt
+│   │   │   │   ├── Pasted-Based-on-your-uploaded-AKF-YAML-AKF-Simulation-Base-and-regulatory-architecture-from-the-4D-Databa-1747691482962.txt
+│   │   │   │   ├── Pasted-Here-are-10-user-stories-designed-for-the-Universal-Knowledge-Graph-UKG-and-Universal-Simulated-Kn-1747689886118.txt
+│   │   │   │   ├── Pasted-Here-is-a-full-Replit-Build-Instruction-Guide-for-deploying-the-Quad-Persona-Simulation-System-as-pa-1747666155439.txt
+│   │   │   │   ├── Pasted-Here-is-a-step-by-step-instruction-set-for-building-the-Nested-Layered-In-Memory-Simulation-Manageme-1747666810918.txt
+│   │   │   │   ├── Pasted-Would-you-like-to-Proceed-with-KA-31-to-KA-38-AGI-and-emergence-logic-Package-all-30-modules-i-1747672141189.txt
+│   │   │   │   ├── Pasted-You-said-Create-plan-to-build-all-parts-of-the-universal-knowledge-graph-and-simulated-universe-dat-1747683847455.txt
+│   │   │   │   ├── Pasted-You-said-Create-plan-to-build-all-parts-of-the-universal-knowledge-graph-and-simulated-universe-dat-1747689813442.txt
+│   │   │   │   ├── Pasted-You-said-build-the-dynamic-knowleadge-mapping-and-database-cloning-system-that-uses-thr-13-axis-sys-1747677078375.txt
+│   │   │   │   ├── Pasted-You-said-build-the-dynamic-knowleadge-mapping-and-database-cloning-system-that-uses-thr-13-axis-sys-1747677824289.txt
+│   │   │   │   ├── Pasted-You-said-create-build-instructing-for-layer-5-ChatGPT-said-To-build-Layer-5-of-the-Universal-Kno-1747685200611.txt
+│   │   │   │   ├── Pasted-You-said-create-build-instructing-for-layer-5-ChatGPT-said-To-build-Layer-5-of-the-Universal-Kno-1747686292959.txt
+│   │   │   │   ├── Pasted-You-said-create-build-instructing-for-layer-5-ChatGPT-said-To-build-Layer-5-of-the-Universal-Kno-1747686304942.txt
+│   │   │   │   ├── Pasted-You-said-design-layer-8-the-simulated-quantum-computer-ChatGPT-said-To-design-Layer-8-The-Simu-1747688009469.txt
+│   │   │   │   ├── Pasted-You-said-design-layer-8-the-simulated-quantum-computer-ChatGPT-said-To-design-Layer-8-The-Simu-1747688494448.txt
+│   │   │   │   ├── Pasted-You-said-design-layer-8-the-simulated-quantum-computer-ChatGPT-said-To-design-Layer-8-The-Simu-1747688708296.txt
+│   │   │   │   ├── Pasted-You-said-desing-Layer-9-Recursive-AGI-Core-or-Layer-10-Self-Awareness-Engine-ChatGPT-said--1747689462218.txt
+│   │   │   │   ├── Pasted-You-said-lets-design-and-build-the-gatekeeper-agent-ChatGPT-said-To-design-and-build-the-Gatekee-1747679687691.txt
+│   │   │   │   ├── Pasted-You-said-lets-design-and-build-the-gatekeeper-agent-ChatGPT-said-To-design-and-build-the-Gatekee-1747683198694.txt
+│   │   │   │   ├── Pasted-You-said-next-design-layer-7-and-crete-build-instructions-ChatGPT-said-Here-is-the-full-design-a-1747687371187.txt
+│   │   │   │   ├── Pasted-You-ve-now-implemented-KA-01-to-KA-38-which-are-the-full-set-of-algorithms-originally-scoped-for-th-1747676098378.txt
+│   │   │   │   ├── Pasted-o-design-the-Point-of-View-POV-Engine-for-the-Universal-Knowledge-Graph-UKG-and-Universal-Simula-1747683335869.txt
+│   │   │   │   └── Pasted-o-design-the-Point-of-View-POV-Engine-for-the-Universal-Knowledge-Graph-UKG-and-Universal-Simula-1747683710936.txt
+│   │   │   ├── data
+│   │   │   │   ├── AXIS-2_world_wide_codes_systems_1766028647731.xlsx
+│   │   │   │   ├── PL-1-107_with_members_1766028647731.xlsx
+│   │   │   │   ├── UKG_KA_1_to_114_Enterprise_Registry_with_Libraries_and_Formul_1765941721302.xlsx
+│   │   │   │   ├── truth_engine_v7_3_master_1766005797657.json
+│   │   │   │   ├── truth_engine_v7_3_master_tree_1766005797657.yaml
+│   │   │   │   ├── truthcore_v7_3_1766005797657.json
+│   │   │   │   ├── truthgate_v7_3_1766005797657.json
+│   │   │   │   ├── truthlink_v7_3_1766005797657.json
+│   │   │   │   └── truthmemory_v7_3_1766005797657.json
+│   │   │   ├── documents
+│   │   │   │   ├── Mathematical_Formulas_for_Quad_Persona_System_with_Dynamic_Kno_1766028243802.pdf
+│   │   │   │   ├── POV Engine for KBR contract writer use case exsample.docx
+│   │   │   │   ├── Point of View engine 2.docx
+│   │   │   │   ├── The_17_Axis_System__Comprehensive_Technical_Architecture_1765942306012.pdf
+│   │   │   │   ├── UKG_17-Axis_System_Configuration_Files_1766621504177.pdf
+│   │   │   │   ├── Unified_Coordinate_System_for_UKG_USKD_–_Technical_Documentati_1766025988120.pdf
+│   │   │   │   ├── Universal_Knowledge_Graph_Simulation_Stack_–_10-Layer_Archite_1766027783727.docx
+│   │   │   │   └── pov exsample 3.docx
+│   │   │   ├── images
+│   │   │   │   ├── NotebookLM Mind Map (1).png
+│   │   │   │   ├── NotebookLM Mind Map.png
+│   │   │   │   └── Screenshot 2025-03-14 095931.png
+│   │   │   └── reference
+│   │   │       ├── 10-38-54-PL_Levels_Mapping_Request.txt
+│   │   │       ├── 23-14-9-KGs_and_LLMs_for_AGI (1).txt
+│   │   │       ├── App high level build plan give to agents last'.txt
+│   │   │       ├── Core logic B 5-18.txt
+│   │   │       ├── Core logic D 5-18.txt
+│   │   │       ├── Core logic E PL levels 5-18.txt
+│   │   │       ├── CoreLogic A 5-18.txt
+│   │   │       ├── Numbe 1.txt
+│   │   │       ├── core logic C 5-18.txt
+│   │   │       ├── number 10.txt
+│   │   │       ├── number 13.txt
+│   │   │       ├── number 14.txt
+│   │   │       ├── number 15.txt
+│   │   │       ├── number 2.txt
+│   │   │       ├── number 3.txt
+│   │   │       ├── number 4.txt
+│   │   │       ├── number 5.txt
+│   │   │       ├── number 6.txt
+│   │   │       ├── number 8.txt
+│   │   │       ├── number 9.txt
+│   │   │       └── number12.txt
+│   │   ├── legacy_chat
+│   │   │   ├── ai_chat.py
+│   │   │   └── chat_api.py
+│   │   ├── obsolete
+│   │   │   ├── CLOUD_REQUIREMENTS.md
+│   │   │   ├── DEPLOYMENT_CLOUD.md
+│   │   │   ├── DEPLOYMENT_DESKTOP.md
+│   │   │   ├── TEST_STATUS.md
+│   │   │   └── UKG_WINDOWS_DESKTOP_GAP_ANALYSIS.md
+│   │   ├── persona_editor_walkthrough.md
+│   │   ├── style-guide.md
+│   │   ├── supporting-documents
+│   │   │   └── README.md
+│   │   ├── ui-ux-improvement-plan.md
+│   │   └── v1-legacy
+│   ├── openapi.yaml
+│   ├── v3_ROADMAP.md
+│   ├── whitepapers
+│   │   ├── Gap Analysis_ UKG_USKD White Paper vs. Full Technical Design Documentation.pdf
+│   │   ├── Integration of Knowledge Algorithms (KAs) into the UKG_USKD Architecture.pdf
+│   │   ├── Modular Design for UKG’s 12-Step Workflow and 17-Axis System.pdf
+│   │   ├── UKG_Grok_Whitepaper.md
+│   │   ├── UKG_USKD Deep Architecture and Compliance System – Supplementary White Paper Part 2.pdf
+│   │   ├── UKG_Workflow_Architecture.md
+│   │   └── Universal Knowledge Graph (UKG) and Universal Simulated Knowledge Database (USKD) – Technical White  (1).pdf
+│   └── wireframes
+│       ├── 2025-design-system.md
+│       ├── README.md
+│       ├── chat-interface-2025.md
+│       ├── knowledge-graph-dashboard-2025.md
+│       ├── landing-page-2025.md
+│       └── login-auth-2025.md
+├── documents
+│   ├── 4D_Database_Solution Metadata acquation knowleagde graph.pdf
+│   ├── 6f03c298-3e35-4c13-b222-4199bcf889c7_Advanced_4D_Acquisition_Knowledge_Framework_A_Comprehensive_Model_for_Federal_State_City_and_Local_Acquisition_Regulations.pdf
+│   ├── ARCHITECTURE_BLUEPRINT.md
+│   ├── Algorithm of Thoughts- Enhancing Exploration of Ideas in Large Language Models.pdf
+│   ├── Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf
+│   ├── Full-Stack Chatbot with UKG Overlay – Developer Blueprint.pdf
+│   ├── Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf
+│   ├── MVP Plan_ Universal Knowledge Graph (UKG) System.pdf
+│   ├── Mathematical_Formulas_for_Universal_Knowledge_Framework_2.0.pdf
+│   ├── Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm
+│   ├── The Universal Knowledge Graph A Theoretical Framework for Next-Generation AI Architecture.pdf
+│   ├── The_17_Axis_System__Comprehensive_Technical_Architecture.pdf
+│   ├── Unified Coordinate System for UKG_USKD – Technical Documentation.pdf
+│   ├── Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf
+│   ├── Universal Knowledge Algorithm (KA) System – Technical Report.pdf
+│   ├── Universal Knowledge Graph (UKG) Application Design & Development Guide.pdf
+│   ├── Universal Knowledge Graph (UKG) MVP – System Documentation.pdf
+│   ├── Universal Knowledge Graph Simulation Stack – 10-Layer Architecture Report.pdf
+│   ├── Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) – System Documentati.pdf
+│   ├── Universal Simulated Knowledge Graph (UKG) – A Comprehensive White Paper.pdf
+│   ├── Universal_Knowledge_Database_Mathematical_Framework_White_Paper.pdf
+│   ├── Universal_Knowledge_Framework_-_Enhanced_Design_System.pdf
+│   ├── Universal_Knowledge_Graph_(UKG)_Mathematical_Framework_Conversion.pdf
+│   ├── __Nested Simulated Memory Architecture of UKG_USKD – 10-Layer Technical Documentation__ (1).pdf
+│   ├── analysis of layered nested simulated database - Monica AI Chat.pdf
+│   └── ukg_yaml_v2_all_documents.pdf
+├── exe_list.txt
+├── extensions.py
+├── failures.txt
+├── frontend
+│   ├── Dockerfile
+│   ├── README.md
+│   ├── app
+│   │   ├── (auth)
+│   │   │   ├── layout.tsx
+│   │   │   ├── login
+│   │   │   │   └── page.tsx
+│   │   │   └── register
+│   │   │       └── page.tsx
+│   │   ├── about
+│   │   │   ├── ai-limitations
+│   │   │   │   └── page.tsx
+│   │   │   ├── cloud-services
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── admin
+│   │   │   ├── compliance
+│   │   │   │   └── page.tsx
+│   │   │   ├── mcp
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── servers
+│   │   │   │       └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── algorithms
+│   │   │   └── page.tsx
+│   │   ├── analytics
+│   │   │   └── page.tsx
+│   │   ├── chat
+│   │   │   └── page.tsx
+│   │   ├── dashboard
+│   │   │   └── page.tsx
+│   │   ├── favicon.ico
+│   │   ├── global-error.tsx
+│   │   ├── globals.css
+│   │   ├── graph
+│   │   │   └── page.tsx
+│   │   ├── knowledge
+│   │   │   └── page.tsx
+│   │   ├── layout.tsx
+│   │   ├── legal
+│   │   │   └── privacy
+│   │   │       └── page.tsx
+│   │   ├── mcp
+│   │   │   └── page.tsx
+│   │   ├── not-found.tsx
+│   │   ├── page.tsx
+│   │   ├── profile
+│   │   │   └── page.tsx
+│   │   ├── projects
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── runs
+│   │   │   ├── page.tsx
+│   │   │   └── view
+│   │   │       └── page.tsx
+│   │   ├── settings
+│   │   │   ├── page.tsx
+│   │   │   └── privacy
+│   │   │       └── page.tsx
+│   │   ├── simulations
+│   │   │   └── page.tsx
+│   │   └── truth-engine
+│   │       └── page.tsx
+│   ├── build.log
+│   ├── build_error.log
+│   ├── build_error_2.log
+│   ├── build_installer.ps1
+│   ├── build_log.txt
+│   ├── build_log_5.txt
+│   ├── build_log_attempt3.txt
+│   ├── build_log_attempt4.txt
+│   ├── build_log_deps_fix.txt
+│   ├── build_log_final.txt
+│   ├── build_log_fix.txt
+│   ├── build_log_retry.txt
+│   ├── build_output.txt
+│   ├── build_report.txt
+│   ├── build_standalone_error.log
+│   ├── build_verbose.log
+│   ├── components
+│   │   ├── AppInitializer.tsx
+│   │   ├── Chat
+│   │   │   ├── AdvancedControls.tsx
+│   │   │   ├── ChatInterface.tsx
+│   │   │   ├── DetailedResponseView.tsx
+│   │   │   ├── LiveTracePanel.tsx
+│   │   │   ├── MessageBubble.tsx
+│   │   │   ├── TraceVisualizer.tsx
+│   │   │   └── types.ts
+│   │   ├── CloudDisclosureBanner.tsx
+│   │   ├── Dashboard
+│   │   │   ├── CommandBar.tsx
+│   │   │   └── ComplianceTrendChart.tsx
+│   │   ├── DesktopStatus.tsx
+│   │   ├── Graph
+│   │   │   └── AxisSelector.tsx
+│   │   ├── LLMSettings.tsx
+│   │   ├── NavBar.tsx
+│   │   ├── PlaceholderPage.tsx
+│   │   ├── ThemeToggle.tsx
+│   │   ├── layout
+│   │   │   └── AppSidebar.tsx
+│   │   ├── mcp
+│   │   │   ├── McpAnalytics.tsx
+│   │   │   ├── McpClientConfig.tsx
+│   │   │   ├── McpHub.tsx
+│   │   │   ├── McpIntegrationExamples.tsx
+│   │   │   ├── McpServerConfig.tsx
+│   │   │   └── types.ts
+│   │   ├── projects
+│   │   │   └── ProjectDetail.tsx
+│   │   ├── settings
+│   │   │   ├── ApiOverlayConfig.tsx
+│   │   │   └── DatabaseSettings.tsx
+│   │   └── ui
+│   │       ├── alert-dialog.tsx
+│   │       ├── alert.tsx
+│   │       ├── api-error-boundary.tsx
+│   │       ├── avatar.tsx
+│   │       ├── badge.tsx
+│   │       ├── breadcrumbs.tsx
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── cloud-status-indicator.tsx
+│   │       ├── copy-button.tsx
+│   │       ├── dialog.tsx
+│   │       ├── dropdown-menu.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── page-layout.tsx
+│   │       ├── progress.tsx
+│   │       ├── scroll-area.tsx
+│   │       ├── select.tsx
+│   │       ├── separator.tsx
+│   │       ├── sheet.tsx
+│   │       ├── skeleton.tsx
+│   │       ├── slider.tsx
+│   │       ├── switch.tsx
+│   │       ├── table.tsx
+│   │       ├── tabs.tsx
+│   │       └── use-toast.tsx
+│   ├── contexts
+│   │   ├── AuthContext.tsx
+│   │   └── ThemeContext.tsx
+│   ├── dist-electron
+│   │   ├── main.js
+│   │   └── preload.js
+│   ├── eb_build.log
+│   ├── eb_build_nosign.log
+│   ├── eb_error.log
+│   ├── electron
+│   │   ├── main.ts
+│   │   ├── preload.ts
+│   │   └── tsconfig.json
+│   ├── electron-builder.yml
+│   ├── eslint.config.mjs
+│   ├── lib
+│   │   ├── api
+│   │   │   ├── auth.ts
+│   │   │   ├── chat.ts
+│   │   │   ├── compliance.ts
+│   │   │   ├── index.ts
+│   │   │   ├── knowledge.ts
+│   │   │   ├── mcp.ts
+│   │   │   ├── simulation.ts
+│   │   │   ├── system_chat.ts
+│   │   │   ├── trace.ts
+│   │   │   └── types.ts
+│   │   ├── socket.ts
+│   │   └── utils.ts
+│   ├── lint-results.json
+│   ├── lint_final.txt
+│   ├── lint_final_v2.txt
+│   ├── lint_output.txt
+│   ├── lint_output_final.txt
+│   ├── lint_output_fresh.txt
+│   ├── lint_output_qa.txt
+│   ├── lint_output_v2.txt
+│   ├── manual_build.log
+│   ├── middleware.ts.bak
+│   ├── next-env.d.ts
+│   ├── next.config.ts
+│   ├── nsis_build.log
+│   ├── out
+│   │   ├── 404.html
+│   │   ├── _next
+│   │   │   ├── ba-oVPwOvEXfQA4or8-Kb
+│   │   │   └── static
+│   │   │       ├── ba-oVPwOvEXfQA4or8-Kb
+│   │   │       │   ├── _buildManifest.js
+│   │   │       │   └── _ssgManifest.js
+│   │   │       ├── chunks
+│   │   │       │   ├── 1063-0d88f3ba5dc0511c.js
+│   │   │       │   ├── 1181-119667eaabfaddcf.js
+│   │   │       │   ├── 1474-f405f7795f633929.js
+│   │   │       │   ├── 1517-203af8542e5d2ad4.js
+│   │   │       │   ├── 1866-0977ab5a486cd864.js
+│   │   │       │   ├── 2406-d0a09379ebe8ff1d.js
+│   │   │       │   ├── 2990.8d16090c4126c005.js
+│   │   │       │   ├── 3571-373991fc5a605ac0.js
+│   │   │       │   ├── 3971-d9b152a28a0a7fc7.js
+│   │   │       │   ├── 4bd1b696-5298bc3540ce1bb0.js
+│   │   │       │   ├── 5203.7c54c202406d4620.js
+│   │   │       │   ├── 5424-6998ad623e41aa7a.js
+│   │   │       │   ├── 5576-7a34d0b2562aeb75.js
+│   │   │       │   ├── 6133-a70a26fef7b37b6d.js
+│   │   │       │   ├── 6160-7cb2cea0950448d4.js
+│   │   │       │   ├── 6218.c1764d418ebdf6a2.js
+│   │   │       │   ├── 6966-917918a8280d50b6.js
+│   │   │       │   ├── 7685-06e6bbf213b92a22.js
+│   │   │       │   ├── 778-4dbaaec6824c61e1.js
+│   │   │       │   ├── 795-6480359fada5d07b.js
+│   │   │       │   ├── 8173-3126814022fa00c4.js
+│   │   │       │   ├── 8590-5bcb9d6b434db6de.js
+│   │   │       │   ├── 8877-29470a60cacd5a79.js
+│   │   │       │   ├── 922-7302be597391a86a.js
+│   │   │       │   ├── 9876-9dcc9d94575b2ac2.js
+│   │   │       │   ├── app
+│   │   │       │   │   ├── (auth)
+│   │   │       │   │   │   ├── layout-93da09c0e99fc553.js
+│   │   │       │   │   │   ├── login
+│   │   │       │   │   │   │   └── page-a75e596cb831ca9e.js
+│   │   │       │   │   │   └── register
+│   │   │       │   │   │       └── page-b1ef3d2212d21aa7.js
+│   │   │       │   │   ├── _not-found
+│   │   │       │   │   │   └── page-9585eacd715926c8.js
+│   │   │       │   │   ├── about
+│   │   │       │   │   │   ├── ai-limitations
+│   │   │       │   │   │   │   └── page-f0ee9b98a5aecc22.js
+│   │   │       │   │   │   ├── cloud-services
+│   │   │       │   │   │   │   └── page-4eec8b0fb95dbcb9.js
+│   │   │       │   │   │   └── page-9e2967083fb258b4.js
+│   │   │       │   │   ├── admin
+│   │   │       │   │   │   ├── compliance
+│   │   │       │   │   │   │   └── page-61f0bc0d2e25c24e.js
+│   │   │       │   │   │   ├── mcp
+│   │   │       │   │   │   │   ├── page-1adc4ce0f9face43.js
+│   │   │       │   │   │   │   └── servers
+│   │   │       │   │   │   │       └── page-a37e120236a2a6d5.js
+│   │   │       │   │   │   └── page-b26d020ef10e3ec0.js
+│   │   │       │   │   ├── algorithms
+│   │   │       │   │   │   └── page-778f621300f68093.js
+│   │   │       │   │   ├── analytics
+│   │   │       │   │   │   └── page-d5803cb4d168588b.js
+│   │   │       │   │   ├── chat
+│   │   │       │   │   │   └── page-d9ab2e4fe67477ce.js
+│   │   │       │   │   ├── dashboard
+│   │   │       │   │   │   └── page-8c64582dd538ee1f.js
+│   │   │       │   │   ├── global-error-9648c91bde17d4e2.js
+│   │   │       │   │   ├── graph
+│   │   │       │   │   │   └── page-c81221143c7433e2.js
+│   │   │       │   │   ├── knowledge
+│   │   │       │   │   │   └── page-3cb12e8cf542375c.js
+│   │   │       │   │   ├── layout-b01bc20260da31f3.js
+│   │   │       │   │   ├── legal
+│   │   │       │   │   │   └── privacy
+│   │   │       │   │   │       └── page-4434bd6529ca9524.js
+│   │   │       │   │   ├── mcp
+│   │   │       │   │   │   └── page-e5e690470f61f790.js
+│   │   │       │   │   ├── not-found-bc14008d0fd8171a.js
+│   │   │       │   │   ├── page-6db2de437e38014d.js
+│   │   │       │   │   ├── profile
+│   │   │       │   │   │   └── page-82d455896b2321e2.js
+│   │   │       │   │   ├── projects
+│   │   │       │   │   │   ├── [id]
+│   │   │       │   │   │   │   └── page-9b6b9225a80d1d6f.js
+│   │   │       │   │   │   └── page-0317770ee43396f5.js
+│   │   │       │   │   ├── runs
+│   │   │       │   │   │   ├── page-80735a2a48d300a7.js
+│   │   │       │   │   │   └── view
+│   │   │       │   │   │       └── page-61fcb1830bd42f82.js
+│   │   │       │   │   ├── settings
+│   │   │       │   │   │   ├── page-016c19778c1d95f3.js
+│   │   │       │   │   │   └── privacy
+│   │   │       │   │   │       └── page-4beb5a7adbaed862.js
+│   │   │       │   │   ├── simulations
+│   │   │       │   │   │   └── page-59537ade69b2d33a.js
+│   │   │       │   │   └── truth-engine
+│   │   │       │   │       └── page-eae93a4ba2b34b17.js
+│   │   │       │   ├── b055d1fb.7e4fa01f937dae23.js
+│   │   │       │   ├── b536a0f1.41051656a3e96e50.js
+│   │   │       │   ├── bd904a5c.02abc20db8145116.js
+│   │   │       │   ├── framework-1ec85e83ffeb8a74.js
+│   │   │       │   ├── main-71b505d777c4a0a0.js
+│   │   │       │   ├── main-app-09e24ba3aa908160.js
+│   │   │       │   ├── pages
+│   │   │       │   │   ├── _app-c9ef09d97714d9a0.js
+│   │   │       │   │   └── _error-0fb868bd92e65875.js
+│   │   │       │   ├── polyfills-42372ed130431b0a.js
+│   │   │       │   └── webpack-5e57fca31032769e.js
+│   │   │       ├── css
+│   │   │       │   ├── 64f033e4578b56e6.css
+│   │   │       │   └── 7e7d96b1e6991756.css
+│   │   │       └── media
+│   │   │           ├── 19cfc7226ec3afaa-s.woff2
+│   │   │           ├── 21350d82a1f187e9-s.woff2
+│   │   │           ├── 8e9860b6e62d6359-s.woff2
+│   │   │           ├── ba9851c3c22cd980-s.woff2
+│   │   │           ├── c5fe6dc8356a8c31-s.woff2
+│   │   │           ├── df0a9ae256c0569c-s.woff2
+│   │   │           └── e4af272ccee01ff0-s.p.woff2
+│   │   ├── about
+│   │   │   ├── ai-limitations.html
+│   │   │   ├── ai-limitations.txt
+│   │   │   ├── cloud-services.html
+│   │   │   └── cloud-services.txt
+│   │   ├── about.html
+│   │   ├── about.txt
+│   │   ├── admin
+│   │   │   ├── compliance.html
+│   │   │   ├── compliance.txt
+│   │   │   ├── mcp
+│   │   │   │   ├── servers.html
+│   │   │   │   └── servers.txt
+│   │   │   ├── mcp.html
+│   │   │   └── mcp.txt
+│   │   ├── admin.html
+│   │   ├── admin.txt
+│   │   ├── algorithms.html
+│   │   ├── algorithms.txt
+│   │   ├── analytics.html
+│   │   ├── analytics.txt
+│   │   ├── chat.html
+│   │   ├── chat.txt
+│   │   ├── dashboard.html
+│   │   ├── dashboard.txt
+│   │   ├── favicon.ico
+│   │   ├── file.svg
+│   │   ├── globe.svg
+│   │   ├── graph.html
+│   │   ├── graph.txt
+│   │   ├── icon.png
+│   │   ├── index.html
+│   │   ├── index.txt
+│   │   ├── knowledge.html
+│   │   ├── knowledge.txt
+│   │   ├── legal
+│   │   │   ├── privacy.html
+│   │   │   └── privacy.txt
+│   │   ├── login.html
+│   │   ├── login.txt
+│   │   ├── manifest.json
+│   │   ├── mcp.html
+│   │   ├── mcp.txt
+│   │   ├── next.svg
+│   │   ├── profile.html
+│   │   ├── profile.txt
+│   │   ├── projects
+│   │   │   ├── 1.html
+│   │   │   ├── 1.txt
+│   │   │   ├── 2.html
+│   │   │   ├── 2.txt
+│   │   │   ├── 3.html
+│   │   │   ├── 3.txt
+│   │   │   ├── 4.html
+│   │   │   ├── 4.txt
+│   │   │   ├── 5.html
+│   │   │   └── 5.txt
+│   │   ├── projects.html
+│   │   ├── projects.txt
+│   │   ├── register.html
+│   │   ├── register.txt
+│   │   ├── runs
+│   │   │   ├── view.html
+│   │   │   └── view.txt
+│   │   ├── runs.html
+│   │   ├── runs.txt
+│   │   ├── settings
+│   │   │   ├── privacy.html
+│   │   │   └── privacy.txt
+│   │   ├── settings.html
+│   │   ├── settings.txt
+│   │   ├── simulations.html
+│   │   ├── simulations.txt
+│   │   ├── sw.js
+│   │   ├── truth-engine.html
+│   │   ├── truth-engine.txt
+│   │   ├── vercel.svg
+│   │   └── window.svg
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── packaging_error.log
+│   ├── packaging_error_2.log
+│   ├── packaging_error_3.log
+│   ├── playwright-electron.config.ts
+│   ├── postcss.config.mjs
+│   ├── public
+│   │   ├── file.svg
+│   │   ├── globe.svg
+│   │   ├── icon.png
+│   │   ├── manifest.json
+│   │   ├── next.svg
+│   │   ├── sw.js
+│   │   ├── vercel.svg
+│   │   └── window.svg
+│   ├── stories
+│   │   ├── Alert.stories.tsx
+│   │   ├── AppSidebar.stories.tsx
+│   │   ├── Avatar.stories.tsx
+│   │   ├── Badge.stories.tsx
+│   │   ├── Button.stories.tsx
+│   │   ├── Card.stories.tsx
+│   │   ├── CloudStatusIndicator.stories.tsx
+│   │   ├── Configure.mdx
+│   │   ├── DropdownMenu.stories.tsx
+│   │   ├── Input.stories.tsx
+│   │   ├── Select.stories.tsx
+│   │   ├── Skeleton.stories.tsx
+│   │   ├── Switch.stories.tsx
+│   │   ├── Tabs.stories.tsx
+│   │   └── assets
+│   │       ├── accessibility.png
+│   │       ├── accessibility.svg
+│   │       ├── addon-library.png
+│   │       ├── assets.png
+│   │       ├── avif-test-image.avif
+│   │       ├── context.png
+│   │       ├── discord.svg
+│   │       ├── docs.png
+│   │       ├── figma-plugin.png
+│   │       ├── github.svg
+│   │       ├── share.png
+│   │       ├── styling.png
+│   │       ├── testing.png
+│   │       ├── theming.png
+│   │       ├── tutorials.svg
+│   │       └── youtube.svg
+│   ├── storybook-static
+│   │   ├── 294.2fb72186.iframe.bundle.js
+│   │   ├── 364.79e84f03.iframe.bundle.js
+│   │   ├── 463.7c68f743.iframe.bundle.js
+│   │   ├── 463.7c68f743.iframe.bundle.js.map
+│   │   ├── 548.5cfb0135.iframe.bundle.js
+│   │   ├── 575.8f851b07.iframe.bundle.js
+│   │   ├── 575.8f851b07.iframe.bundle.js.LICENSE.txt
+│   │   ├── 681.709f10c2.iframe.bundle.js
+│   │   ├── 735.fae0a42a.iframe.bundle.js
+│   │   ├── 735.fae0a42a.iframe.bundle.js.LICENSE.txt
+│   │   ├── 831.d487ce8c.iframe.bundle.js
+│   │   ├── 869.7acdd0a9.iframe.bundle.js
+│   │   ├── 942.26ae8019.iframe.bundle.js
+│   │   ├── 942.26ae8019.iframe.bundle.js.LICENSE.txt
+│   │   ├── 942.26ae8019.iframe.bundle.js.map
+│   │   ├── Alert-stories.8ad5b5e9.iframe.bundle.js
+│   │   ├── Alert-stories.8ad5b5e9.iframe.bundle.js.LICENSE.txt
+│   │   ├── AppSidebar-stories.615f9e5a.iframe.bundle.js
+│   │   ├── AppSidebar-stories.615f9e5a.iframe.bundle.js.LICENSE.txt
+│   │   ├── Avatar-stories.0d7cb7d8.iframe.bundle.js
+│   │   ├── Badge-stories.997a1cbe.iframe.bundle.js
+│   │   ├── Button-stories.fcb2ceee.iframe.bundle.js
+│   │   ├── Button-stories.fcb2ceee.iframe.bundle.js.LICENSE.txt
+│   │   ├── Card-stories.d400a96e.iframe.bundle.js
+│   │   ├── Card-stories.d400a96e.iframe.bundle.js.LICENSE.txt
+│   │   ├── CloudStatusIndicator-stories.dd8e6853.iframe.bundle.js
+│   │   ├── CloudStatusIndicator-stories.dd8e6853.iframe.bundle.js.LICENSE.txt
+│   │   ├── Configure-mdx.c8f9adf5.iframe.bundle.js
+│   │   ├── DropdownMenu-stories.2999d612.iframe.bundle.js
+│   │   ├── Input-stories.f6c28fdc.iframe.bundle.js
+│   │   ├── Select-stories.50f1ab7c.iframe.bundle.js
+│   │   ├── Skeleton-stories.1f778d8b.iframe.bundle.js
+│   │   ├── Switch-stories.2d262101.iframe.bundle.js
+│   │   ├── Tabs-stories.3d9bb4ef.iframe.bundle.js
+│   │   ├── favicon.svg
+│   │   ├── file.svg
+│   │   ├── globe.svg
+│   │   ├── iframe.html
+│   │   ├── index.html
+│   │   ├── index.json
+│   │   ├── main.83036384.iframe.bundle.js
+│   │   ├── manifest.json
+│   │   ├── next.svg
+│   │   ├── nunito-sans-bold-italic.woff2
+│   │   ├── nunito-sans-bold.woff2
+│   │   ├── nunito-sans-italic.woff2
+│   │   ├── nunito-sans-regular.woff2
+│   │   ├── project.json
+│   │   ├── runtime~main.0a56814e.iframe.bundle.js
+│   │   ├── sb-addons
+│   │   │   ├── chromatic-com-storybook-1
+│   │   │   │   ├── manager-bundle.js
+│   │   │   │   └── manager-bundle.js.LEGAL.txt
+│   │   │   ├── essentials-actions-3
+│   │   │   │   ├── manager-bundle.js
+│   │   │   │   └── manager-bundle.js.LEGAL.txt
+│   │   │   ├── essentials-backgrounds-4
+│   │   │   │   ├── manager-bundle.js
+│   │   │   │   └── manager-bundle.js.LEGAL.txt
+│   │   │   ├── essentials-controls-2
+│   │   │   │   ├── manager-bundle.js
+│   │   │   │   └── manager-bundle.js.LEGAL.txt
+│   │   │   ├── essentials-measure-7
+│   │   │   │   ├── manager-bundle.js
+│   │   │   │   └── manager-bundle.js.LEGAL.txt
+│   │   │   ├── essentials-outline-8
+│   │   │   │   ├── manager-bundle.js
+│   │   │   │   └── manager-bundle.js.LEGAL.txt
+│   │   │   ├── essentials-toolbars-6
+│   │   │   │   ├── manager-bundle.js
+│   │   │   │   └── manager-bundle.js.LEGAL.txt
+│   │   │   ├── essentials-viewport-5
+│   │   │   │   ├── manager-bundle.js
+│   │   │   │   └── manager-bundle.js.LEGAL.txt
+│   │   │   ├── interactions-9
+│   │   │   │   ├── manager-bundle.js
+│   │   │   │   └── manager-bundle.js.LEGAL.txt
+│   │   │   ├── links-10
+│   │   │   │   ├── manager-bundle.js
+│   │   │   │   └── manager-bundle.js.LEGAL.txt
+│   │   │   ├── onboarding-11
+│   │   │   │   ├── manager-bundle.js
+│   │   │   │   └── manager-bundle.js.LEGAL.txt
+│   │   │   └── storybook-core-core-server-presets-0
+│   │   │       ├── common-manager-bundle.js
+│   │   │       └── common-manager-bundle.js.LEGAL.txt
+│   │   ├── sb-common-assets
+│   │   │   ├── favicon.svg
+│   │   │   ├── nunito-sans-bold-italic.woff2
+│   │   │   ├── nunito-sans-bold.woff2
+│   │   │   ├── nunito-sans-italic.woff2
+│   │   │   └── nunito-sans-regular.woff2
+│   │   ├── sb-manager
+│   │   │   ├── globals-module-info.js
+│   │   │   ├── globals-runtime.js
+│   │   │   ├── globals.js
+│   │   │   └── runtime.js
+│   │   ├── sb-preview
+│   │   │   ├── globals.js
+│   │   │   └── runtime.js
+│   │   ├── static
+│   │   │   └── media
+│   │   │       ├── accessibility.b812909c.png
+│   │   │       ├── addon-library.7d60eaf1.png
+│   │   │       ├── assets.74434bfb.png
+│   │   │       ├── context.0aaeed46.png
+│   │   │       ├── discord.c13ab8cc.svg
+│   │   │       ├── docs.78ff2c00.png
+│   │   │       ├── figma-plugin.92feae99.png
+│   │   │       ├── github.bf1215e7.svg
+│   │   │       ├── share.b661f220.png
+│   │   │       ├── styling.6ea0e96c.png
+│   │   │       ├── testing.6f11ce8b.png
+│   │   │       ├── theming.3ca117fd.png
+│   │   │       ├── tutorials.f9b22f92.svg
+│   │   │       └── youtube.0220385a.svg
+│   │   ├── sw.js
+│   │   ├── vercel.svg
+│   │   └── window.svg
+│   ├── storybook.log
+│   ├── storybook_build_log.txt
+│   ├── storybook_build_log_2.txt
+│   ├── storybook_debug_3.txt
+│   ├── tests
+│   │   └── visual-audit.spec.ts
+│   ├── tsconfig.json
+│   ├── tsconfig.tsbuildinfo
+│   ├── types
+│   │   └── electron.d.ts
+│   ├── vitest.config.ts
+│   └── vitest.shims.d.ts
+├── instance
+│   ├── ukg_database.db
+│   ├── ukg_database.db-shm
+│   └── ukg_database.db-wal
+├── inventory_report.json
+├── k8s
+│   ├── base
+│   │   ├── backend-deployment.yaml
+│   │   └── frontend-deployment.yaml
+│   └── operator
+│       ├── crds
+│       │   ├── ka_crd.yaml
+│       │   └── tracerun_crd.yaml
+│       └── samples
+│           └── ka_38_example.yaml
+├── logs
+│   ├── audit
+│   │   ├── audit_20250519.jsonl
+│   │   ├── audit_20260106.jsonl
+│   │   ├── audit_20260108.jsonl
+│   │   ├── audit_20260110.jsonl
+│   │   ├── audit_20260116.jsonl
+│   │   ├── audit_20260128.jsonl
+│   │   ├── audit_20260129.jsonl
+│   │   ├── audit_20260130.jsonl
+│   │   └── audit_20260131.jsonl
+│   ├── compliance
+│   │   ├── events.jsonl
+│   │   ├── state_20250519_193015.json
+│   │   ├── state_20250519_193123.json
+│   │   ├── state_20250519_193324.json
+│   │   ├── state_20250519_193441.json
+│   │   ├── state_20250519_193447.json
+│   │   ├── state_20250519_193947.json
+│   │   ├── state_20250519_194139.json
+│   │   ├── state_20250519_194432.json
+│   │   ├── state_20250519_194524.json
+│   │   ├── state_20250519_195024.json
+│   │   ├── state_20250519_195100.json
+│   │   ├── state_20250519_195411.json
+│   │   ├── state_20250519_195634.json
+│   │   ├── state_20250519_200606.json
+│   │   ├── state_20250519_200831.json
+│   │   ├── state_20250519_201101.json
+│   │   ├── state_20250519_201410.json
+│   │   ├── state_20250519_202608.json
+│   │   ├── state_20250519_202933.json
+│   │   ├── state_20250519_202951.json
+│   │   ├── state_20250519_203000.json
+│   │   ├── state_20250519_203029.json
+│   │   ├── state_20250519_203529.json
+│   │   ├── state_20250519_204029.json
+│   │   ├── state_20250519_204529.json
+│   │   ├── state_20250519_204847.json
+│   │   ├── state_20250519_204853.json
+│   │   ├── state_20250519_205057.json
+│   │   ├── state_20250519_205137.json
+│   │   ├── state_20250519_205236.json
+│   │   ├── state_20250519_205252.json
+│   │   ├── state_20250519_205430.json
+│   │   ├── state_20250519_205655.json
+│   │   ├── state_20250519_205951.json
+│   │   ├── state_20250519_210002.json
+│   │   ├── state_20250519_210248.json
+│   │   ├── state_20250519_210403.json
+│   │   ├── state_20250519_210423.json
+│   │   ├── state_20250519_210542.json
+│   │   ├── state_20250519_210923.json
+│   │   ├── state_20250519_211423.json
+│   │   ├── state_20250519_211923.json
+│   │   ├── state_20250519_212423.json
+│   │   ├── state_20250519_212923.json
+│   │   ├── state_20250519_213423.json
+│   │   ├── state_20250519_213923.json
+│   │   ├── state_20250519_214409.json
+│   │   ├── state_20250519_214413.json
+│   │   ├── state_20250519_215417.json
+│   │   └── state_20250519_220244.json
+│   └── security
+│       ├── scan_20250519_193015.json
+│       ├── scan_20250519_193123.json
+│       ├── scan_20250519_193324.json
+│       ├── scan_20250519_193441.json
+│       ├── scan_20250519_193447.json
+│       ├── scan_20250519_194139.json
+│       ├── scan_20250519_194432.json
+│       ├── scan_20250519_194524.json
+│       ├── scan_20250519_195100.json
+│       ├── scan_20250519_195411.json
+│       ├── scan_20250519_195634.json
+│       ├── scan_20250519_200606.json
+│       ├── scan_20250519_200831.json
+│       ├── scan_20250519_201101.json
+│       ├── scan_20250519_201410.json
+│       ├── scan_20250519_202608.json
+│       ├── scan_20250519_202933.json
+│       ├── scan_20250519_202951.json
+│       ├── scan_20250519_203000.json
+│       ├── scan_20250519_203029.json
+│       ├── scan_20250519_204529.json
+│       ├── scan_20250519_204847.json
+│       ├── scan_20250519_204853.json
+│       ├── scan_20250519_205057.json
+│       ├── scan_20250519_205137.json
+│       ├── scan_20250519_205236.json
+│       ├── scan_20250519_205252.json
+│       ├── scan_20250519_205430.json
+│       ├── scan_20250519_205655.json
+│       ├── scan_20250519_205951.json
+│       ├── scan_20250519_210002.json
+│       ├── scan_20250519_210248.json
+│       ├── scan_20250519_210403.json
+│       ├── scan_20250519_210423.json
+│       ├── scan_20250519_210542.json
+│       ├── scan_20250519_211923.json
+│       ├── scan_20250519_213423.json
+│       ├── scan_20250519_214409.json
+│       ├── scan_20250519_214413.json
+│       ├── scan_20250519_215417.json
+│       └── scan_20250519_220244.json
+├── main.py
+├── migrations
+│   ├── README
+│   ├── alembic.ini
+│   ├── env.py
+│   ├── script.py.mako
+│   └── versions
+│       ├── a1b2c3d4e5f6_add_llm_gateway_tables.py
+│       └── b0d09ef7daef_add_tracing_tables.py
+├── models.py
+├── notes
+│   ├── current_plan.md
+│   ├── microsoft_store_compliance_assessment.md
+│   ├── microsoft_store_compliance_todo.md
+│   └── microsoft_store_implementation_plan.md
+├── patches
+│   ├── accessibility-fixes.patch
+│   ├── fix-typography.patch
+│   └── improve-csp.patch
+├── phase1_failures.txt
+├── phase1_failures_2.txt
+├── phase1_failures_3.txt
+├── prompts
+│   └── defense_supervisor.txt
+├── public
+│   ├── css
+│   │   ├── style.css
+│   │   └── styles.css
+│   └── js
+│       └── main.js
+├── pyproject.toml
+├── quad_persona
+│   ├── __init__.py
+│   ├── axis_role_mapper.py
+│   ├── mathematical_framework.py
+│   ├── persona_loader.py
+│   ├── persona_scaling.py
+│   ├── pod_models.py
+│   ├── pod_orchestrator.py
+│   ├── quad_config.yaml
+│   ├── quad_engine.py
+│   └── quad_models.py
+├── reports
+│   └── RPT-20260128183324_SOC2.pdf
+├── routes
+│   ├── __init__.py
+│   ├── admin_routes.py
+│   ├── api_routes.py
+│   ├── auth_routes.py
+│   ├── compliance_routes.py
+│   ├── ka_routes.py
+│   ├── knowledge_routes.py
+│   ├── mcp_routes.py
+│   ├── simulation_routes.py
+│   └── user_data_routes.py
+├── run_test_suite.py
+├── scripts
+│   ├── archive
+│   │   ├── verify_axis_mapper.py
+│   │   ├── verify_batch_e.py
+│   │   ├── verify_deep_logic.py
+│   │   ├── verify_final_integration.py
+│   │   ├── verify_ka_infra.py
+│   │   ├── verify_ka_unified.py
+│   │   ├── verify_phase2_full_flow.py
+│   │   ├── verify_phase4_workflow.py
+│   │   ├── verify_phase5_coordinates.py
+│   │   ├── verify_phase6_full_axes.py
+│   │   ├── verify_stack_integration.py
+│   │   ├── verify_truth_engine.py
+│   │   ├── verify_updates.py
+│   │   └── verify_workflow_wiring.py
+│   ├── audit_ka_files.py
+│   ├── backup_database.sh
+│   ├── build_backend.py
+│   ├── check_circular_deps.py
+│   ├── check_enterprise_health.py
+│   ├── create_admin_user.py
+│   ├── create_missing_kas.py
+│   ├── custom_start.sh
+│   ├── deploy.py
+│   ├── dev_setup.py
+│   ├── expand_mcp_library.py
+│   ├── export_audit_logs.py
+│   ├── find_duplicates.py
+│   ├── generate_keys.py
+│   ├── generate_registry_yaml.py
+│   ├── generate_secrets.py
+│   ├── generate_soc2_report.py
+│   ├── import_reference_data.py
+│   ├── inventory_scan.py
+│   ├── migrate_legacy_kas.py
+│   ├── persona_manager.py
+│   ├── profile_simulation.py
+│   ├── restore_database.sh
+│   ├── run_enterprise_services.py
+│   ├── run_enterprise_ukg.py
+│   ├── run_security_tests.sh
+│   ├── run_tests.sh
+│   ├── run_ukg.py
+│   ├── run_ukg_server.py
+│   ├── runtime_precheck.py
+│   ├── send_sentry_test_event.py
+│   ├── setup_database.sh
+│   ├── setup_gateway.py
+│   ├── setup_local_databases.ps1
+│   ├── setup_ssl_letsencrypt.sh
+│   ├── start_enterprise.sh
+│   ├── start_server.sh
+│   ├── start_ukg.sh
+│   ├── test_gateway.py
+│   ├── update_docs.py
+│   ├── validate_production_config.py
+│   ├── verify_advanced_features.py
+│   ├── verify_agentic_simulation.py
+│   ├── verify_api_keys.py
+│   ├── verify_backup_cron.sh
+│   ├── verify_chat_persistence.py
+│   ├── verify_gemini_integration.py
+│   ├── verify_ka_upgrades.py
+│   ├── verify_l1_l2_flow.py
+│   ├── verify_l1_l4_flow.py
+│   ├── verify_l1_l5_flow.py
+│   ├── verify_layer3_pipeline.py
+│   ├── verify_layer5_new.py
+│   ├── verify_mcp_system.py
+│   ├── verify_services.py
+│   ├── verify_sqlite.py
+│   ├── verify_unified_system.py
+│   └── windows
+│       ├── UKGWrapper.cs
+│       ├── backup_data.ps1
+│       ├── install.ps1
+│       ├── run_visual_audit.ps1
+│       ├── setup_cache.ps1
+│       ├── setup_db.ps1
+│       ├── test_installer.ps1
+│       ├── uninstall.ps1
+│       ├── verify_auditing.py
+│       ├── verify_components.py
+│       └── verify_identity_logic.py
+├── sdk
+│   └── UKG_Python_SDK
+│       ├── CHANGELOG.md
+│       ├── HOW_TO_USE.md
+│       ├── LICENSE
+│       ├── README.md
+│       ├── docs
+│       │   ├── API_REFERENCE.md
+│       │   ├── DEVELOPER_API_REFERENCE.md
+│       │   ├── HOWTO.md
+│       │   └── specs
+│       │       ├── AXIS-2 world wide codes systems.xlsx
+│       │       ├── PL-1-107 with members.xlsx
+│       │       └── UKG_KA_1_to_114_Enterprise_Registry_with_Libraries.xlsx
+│       ├── examples
+│       │   ├── basic_overlay.py
+│       │   └── quickstart.py
+│       ├── pyproject.toml
+│       ├── pytest.ini
+│       ├── tests
+│       │   ├── test_ka61_shield.py
+│       │   ├── test_smoke.py
+│       │   ├── test_truth_engine.py
+│       │   └── test_workflow.py
+│       ├── ukg_sdk
+│       │   ├── __init__.py
+│       │   ├── api.py
+│       │   ├── api_client.py
+│       │   ├── api_models.py
+│       │   ├── audit
+│       │   │   ├── __init__.py
+│       │   │   ├── base.py
+│       │   │   ├── file_store.py
+│       │   │   └── postgres.py
+│       │   ├── auth.py
+│       │   ├── client.py
+│       │   ├── coordinates17.py
+│       │   ├── data
+│       │   │   ├── audit
+│       │   │   │   └── ukg_audit.jsonl
+│       │   │   ├── axis2.xlsx
+│       │   │   ├── axis2_catalog.xlsx
+│       │   │   ├── ka_registry.xlsx
+│       │   │   ├── ka_registry_by_id.json
+│       │   │   ├── openapi.json
+│       │   │   ├── openapi.yaml
+│       │   │   ├── pillar_catalog.xlsx
+│       │   │   ├── pl1_107.xlsx
+│       │   │   ├── truth_engine_master.json
+│       │   │   ├── truth_engine_master.yaml
+│       │   │   ├── truthgate.json
+│       │   │   ├── truthlink.json
+│       │   │   ├── truthmemory.json
+│       │   │   └── workflow.json
+│       │   ├── exceptions.py
+│       │   ├── indexing.py
+│       │   ├── ka
+│       │   │   ├── __init__.py
+│       │   │   ├── builtins.py
+│       │   │   ├── executor.py
+│       │   │   ├── handlers.py
+│       │   │   ├── models.py
+│       │   │   └── registry.py
+│       │   ├── mcp.py
+│       │   ├── memory
+│       │   │   ├── __init__.py
+│       │   │   ├── base.py
+│       │   │   ├── in_memory.py
+│       │   │   ├── postgres.py
+│       │   │   └── redis.py
+│       │   ├── models.py
+│       │   ├── overlay.py
+│       │   ├── providers
+│       │   │   ├── __init__.py
+│       │   │   ├── anthropic.py
+│       │   │   ├── azure_openai.py
+│       │   │   ├── base.py
+│       │   │   ├── google.py
+│       │   │   ├── local_slm.py
+│       │   │   └── openai.py
+│       │   ├── py.typed
+│       │   ├── registries.py
+│       │   ├── tenlayer.py
+│       │   ├── truth_engine
+│       │   │   ├── __init__.py
+│       │   │   ├── core.py
+│       │   │   ├── frost.py
+│       │   │   ├── loader.py
+│       │   │   ├── truthcore.py
+│       │   │   ├── truthgate.py
+│       │   │   ├── truthlink.py
+│       │   │   └── truthmemory.py
+│       │   ├── truth_engine.py
+│       │   ├── twelve_step.py
+│       │   ├── utils.py
+│       │   └── workflow.py
+│       ├── ukg_sdk-0.3.1
+│       │   └── ukg_sdk
+│       │       └── data
+│       │           └── truth_engine_master.json
+│       └── ukg_sdk.egg-info
+│           ├── PKG-INFO
+│           ├── SOURCES.txt
+│           ├── dependency_links.txt
+│           ├── requires.txt
+│           └── top_level.txt
+├── simulation
+│   ├── __init__.py
+│   ├── agentic
+│   │   ├── graph_state.py
+│   │   └── simulation_graph.py
+│   ├── coordinate_system.py
+│   ├── create_database_script.py
+│   ├── data_generator.py
+│   ├── gatekeeper_agent.py
+│   ├── layer10_self_awareness.py
+│   ├── layer1_database.py
+│   ├── layer1_entry.py
+│   ├── layer1_planning.py
+│   ├── layer2_knowledge.py
+│   ├── layer2_retrieval.py
+│   ├── layer3_agent_engine.py
+│   ├── layer3_agents.py
+│   ├── layer5_integration.py
+│   ├── layer5_pipeline.py
+│   ├── layer5_schemas.py
+│   ├── layer6_neural_analysis.py
+│   ├── layer7_agi_system.py
+│   ├── layer8_quantum_computer.py
+│   ├── layer9_recursive_agi.py
+│   ├── layer_controller.py
+│   ├── memory_manager.py
+│   ├── orchestrator.py
+│   ├── pov_delta.py
+│   ├── pov_engine.py
+│   ├── pov_engine_enterprise.py
+│   ├── pov_policy.py
+│   ├── query_analysis_system.py
+│   ├── refinement_loop_handler.py
+│   ├── refinement_workflow.py
+│   ├── simulation_engine.py
+│   ├── trace_system.py
+│   ├── truth_engine.py
+│   └── viewpoint_registry.py
+├── simulation_profile.html
+├── static
+│   └── swagger.json
+├── styles
+│   ├── app.css
+│   ├── chat.css
+│   ├── globals.css
+│   ├── theme.js
+│   └── timeline.css
+├── test_log.txt
+├── test_log_2.txt
+├── tests
+│   ├── COMPLETE_TEST_COVERAGE_SUMMARY.md
+│   ├── PHASE_2_SUMMARY.md
+│   ├── TEST_IMPROVEMENTS_SUMMARY.md
+│   ├── axes
+│   │   └── test_persona_axes.py
+│   ├── compliance
+│   │   └── test_gdpr_comprehensive.py
+│   ├── conftest.py
+│   ├── contract
+│   │   └── test_api_contract.py
+│   ├── end_to_end
+│   │   └── test_full_simulation.py
+│   ├── integration
+│   │   ├── test_additional_coverage.py
+│   │   ├── test_analytics_api.py
+│   │   ├── test_api_endpoints.py
+│   │   ├── test_app_routes.py
+│   │   └── test_graphql_api.py
+│   ├── integration_routes
+│   │   ├── __init__.py
+│   │   └── test_admin_routes.py
+│   ├── knowledge_algorithms
+│   │   ├── test_ka_master_controller.py
+│   │   └── test_ka_suite.py
+│   ├── performance
+│   │   └── locustfile.py
+│   ├── quad_persona
+│   │   └── test_persona_scaling.py
+│   ├── resilience
+│   │   └── test_self_healing.py
+│   ├── security
+│   │   ├── test_active_defense.py
+│   │   ├── test_adversarial.py
+│   │   ├── test_ai_defense.py
+│   │   ├── test_audit_logger_comprehensive.py
+│   │   ├── test_data_discovery.py
+│   │   ├── test_dpapi_crypto.py
+│   │   ├── test_mfa_comprehensive.py
+│   │   ├── test_password_security_comprehensive.py
+│   │   ├── test_rbac_comprehensive.py
+│   │   ├── test_request_limits.py
+│   │   ├── test_request_schemas.py
+│   │   ├── test_security_critical.py
+│   │   ├── test_security_headers.py
+│   │   ├── test_session_security.py
+│   │   └── test_system_chaos.py
+│   ├── simulation
+│   │   ├── test_e2e_simulation_pipeline.py
+│   │   └── test_simulation_layers.py
+│   ├── test_app_security.py
+│   ├── test_config.py
+│   ├── test_critical_fixes.py
+│   ├── test_db_migration.py
+│   ├── test_e2e_phases.py
+│   ├── test_final_assembly.py
+│   ├── test_hardening_assembly.py
+│   ├── test_health_endpoint.py
+│   ├── test_logging_config.py
+│   ├── test_password_policy.py
+│   ├── test_production_fidelity.py
+│   ├── test_security_hardening.py
+│   ├── test_simulation_stack.py
+│   ├── test_unified_services.py
+│   ├── truth_engine
+│   │   ├── test_layer10_emergence.py
+│   │   ├── test_layer6_quant.py
+│   │   ├── test_layer7_agi.py
+│   │   ├── test_layer8_trust_gate.py
+│   │   ├── test_layer9_meta_reasoning.py
+│   │   └── test_master_workflow.py
+│   ├── unit
+│   │   ├── test_email_service_comprehensive.py
+│   │   ├── test_graphql_and_gdpr.py
+│   │   ├── test_user_model_comprehensive.py
+│   │   ├── test_user_model_concurrency.py
+│   │   └── test_websocket.py
+│   ├── utils
+│   │   └── test_db_migration_utils.py
+│   ├── verify_consensus_v2.py
+│   ├── verify_federated_sync_v2.py
+│   ├── verify_ml_routing_v2.py
+│   └── windows
+│       ├── installer_tests.Tests.ps1
+│       ├── test_windows_platform.py
+│       └── verify_registry.ps1
+├── utils
+│   ├── __init__.py
+│   ├── db_migration.py
+│   ├── db_utils.py
+│   ├── logging_config.py
+│   └── responsive.js
+├── uv.lock
+├── verify_models_schema.py
+└── wsgi.py

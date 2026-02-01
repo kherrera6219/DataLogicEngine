@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Any
 import os
 
@@ -13,7 +13,8 @@ class StorageTestRequest(BaseModel):
     access_key: Optional[str] = None
     secret_key: Optional[str] = None
 
-    @validator('local_path')
+    @field_validator('local_path')
+    @classmethod
     def validate_path(cls, v):
         if v and ('..' in v or v.startswith('/') or v.startswith('\\') or ':' in v):
             raise ValueError("Path traversal or absolute paths not allowed")

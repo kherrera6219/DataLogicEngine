@@ -372,7 +372,7 @@ The data model organizes information across 17 dimensions for multi-dimensional 
 9. **Axis 9 - Sector Expert**: Practitioner persona (industry implementation)
 10. **Axis 10 - Regulatory Expert**: Regulatory strategist persona (octopus-driven)
 11. **Axis 11 - Compliance Expert**: Compliance/audit persona (spiderweb-driven)
-12. **Axis 12 - Location**: Geospatial context (country, region, jurisdiction)
+12. **Axis 12 - Location**: Geospatial context (country, region, jurisdiction) with hierarchical parent-child relationships and proximity-based retrieval.
 13. **Axis 13 - Temporal**: Time context (effective date, version, validity)
 14. **Axis 14 - Risk & Confidence**: Probability vectors and trust scores
 15. **Axis 15 - Federated Intelligence**: Federated knowledge sharing and distributed state
@@ -389,7 +389,7 @@ Each axis is implemented as a comprehensive module (30+ KB each) in `core/axes/`
 - `axis3_domain.py` - Domain expertise mapping
 - `axis6_regulatory.py` - Regulatory framework resolver
 - `axis7_compliance.py` - Compliance obligation mapping
-- `axis12_location.py` - Geolocation resolver
+- `axis12_location.py` - Geolocation resolver and hierarchy manager
 - `axis13_time.py` - Temporal context resolver
 - `axis17_observability.py` - Tracing and metrics
 

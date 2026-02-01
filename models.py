@@ -81,7 +81,7 @@ class User(db.Model, UserMixin):
     active: bool = db.Column(db.Boolean, default=True)
     is_admin: bool = db.Column(db.Boolean, default=False)
     role: str = db.Column(db.String(20), default='user')
-    created_at: datetime = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at: datetime = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     # MFA fields
     mfa_enabled: bool = db.Column(db.Boolean, default=False)
@@ -92,7 +92,7 @@ class User(db.Model, UserMixin):
     failed_login_attempts: int = db.Column(db.Integer, default=0)
     locked_until: Optional[datetime] = db.Column(db.DateTime)
     last_successful_login: Optional[datetime] = db.Column(db.DateTime)
-    last_password_change: datetime = db.Column(db.DateTime, default=datetime.utcnow)
+    last_password_change: datetime = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     def set_password(self, password: str) -> None:
         """
@@ -235,7 +235,7 @@ class APIKey(db.Model):
     name = db.Column(db.String(120), nullable=False, default='Default Key')
     key = db.Column(db.String(128), unique=True, nullable=False, index=True)
     is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     last_used_at = db.Column(db.DateTime)
     revoked_at = db.Column(db.DateTime)
 
@@ -269,8 +269,8 @@ class OAuthAccount(db.Model):
     token = db.Column(db.JSON)
     refresh_token = db.Column(db.String(512))
     token_expires_at = db.Column(db.DateTime)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     user = db.relationship('User', backref=db.backref('oauth_accounts', lazy='dynamic'))
 
@@ -286,7 +286,7 @@ class PasswordHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     def __repr__(self):
         return f'<PasswordHistory user_id={self.user_id} created={self.created_at}>'
@@ -298,7 +298,7 @@ class AuditLog(db.Model):
     __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(UTC), index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     windows_sid = db.Column(db.String(255))
     action = db.Column(db.String(100), nullable=False)
@@ -380,7 +380,7 @@ class SimulationSession(db.Model):
     status: Optional[str] = db.Column(db.String(20))
     current_step: Optional[int] = db.Column(db.Integer)
     total_steps: Optional[int] = db.Column(db.Integer)
-    created_at: datetime = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at: datetime = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     started_at: Optional[datetime] = db.Column(db.DateTime)
     completed_at: Optional[datetime] = db.Column(db.DateTime)
     results: Optional[Dict] = db.Column(JSON)
@@ -511,8 +511,8 @@ class LLMProvider(db.Model):
     config = db.Column(JSON, nullable=True)
     tenant_id = db.Column(db.String(100), nullable=True)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
     last_used_at = db.Column(db.DateTime, nullable=True)
     
     usage_records = db.relationship('LLMProviderUsage', backref='provider', lazy='dynamic', cascade='all, delete-orphan')
@@ -566,7 +566,7 @@ class LLMProviderUsage(db.Model):
     tokens_out = db.Column(db.Integer, default=0)
     latency_ms = db.Column(db.Integer, nullable=True)
     success = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
 
 class ExternalAPIKey(db.Model):
@@ -581,7 +581,7 @@ class ExternalAPIKey(db.Model):
     key_hash = db.Column(db.String(256), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     
     usage_records = db.relationship('LLMProviderUsage', backref='api_key', lazy='dynamic')
 
@@ -597,8 +597,8 @@ class ChatSession(db.Model):
     title = db.Column(db.String(255), nullable=True)
     model = db.Column(db.String(100), nullable=True)
     mode = db.Column(db.String(50), default='chat')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
     
     messages = db.relationship('ChatMessage', backref='session', lazy='dynamic', cascade='all, delete-orphan')
 
@@ -1198,8 +1198,8 @@ class Persona(db.Model):
     traits = db.Column(JSON, nullable=True)
     strengths = db.Column(JSON, nullable=True) # Assuming JSON from previous view
     focus = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
     
     # Relationships
     perspectives = db.relationship("Perspective", back_populates="persona", foreign_keys="Perspective.persona_id")
@@ -1231,8 +1231,8 @@ class Perspective(db.Model):
     strengths_identified = db.Column(JSON, nullable=True)
     blind_spots = db.Column(JSON, nullable=True)
     recommendations = db.Column(JSON, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
     
     # Relationships
     persona = db.relationship("Persona", back_populates="perspectives", foreign_keys=[persona_id])
@@ -1268,8 +1268,8 @@ class IntegratedView(db.Model):
     balanced_recommendations = db.Column(JSON, nullable=True)
     perspectives = db.Column(JSON, nullable=True)  # Store IDs of contributing perspectives
     
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
     
     # Relationships
     knowledge_node = db.relationship("KnowledgeGraphNode", back_populates="integrated_views")
@@ -1323,8 +1323,8 @@ class MCPServer(db.Model):
     tenant_id = db.Column(db.String(64), index=True)
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
     last_active = db.Column(db.DateTime)
 
     # Relationships
@@ -1384,8 +1384,8 @@ class MCPResource(db.Model):
     tenant_id = db.Column(db.String(64), index=True)
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     def to_dict(self):
         """Convert resource to dictionary"""
@@ -1429,8 +1429,8 @@ class MCPTool(db.Model):
     tenant_id = db.Column(db.String(64), index=True)
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     def to_dict(self):
         """Convert tool to dictionary"""
@@ -1475,8 +1475,8 @@ class MCPPrompt(db.Model):
     tenant_id = db.Column(db.String(64), index=True)
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     def to_dict(self):
         """Convert prompt to dictionary"""
@@ -1524,7 +1524,7 @@ class TruthSession(db.Model):
     axis_context = db.Column(db.JSON)
     workflow_steps = db.Column(db.JSON)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     started_at = db.Column(db.DateTime)
     completed_at = db.Column(db.DateTime)
 
@@ -1579,7 +1579,7 @@ class TruthAuditEvent(db.Model):
     axis_involved = db.Column(db.JSON)
     compliance_flags = db.Column(db.JSON)
 
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(UTC), index=True)
     retention_until = db.Column(db.DateTime)
 
     session = db.relationship('TruthSession', backref=db.backref('audit_events', lazy='dynamic'))
@@ -1624,7 +1624,7 @@ class TruthArtifact(db.Model):
     artifact_metadata = db.Column(db.JSON)
     tags = db.Column(db.JSON)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     retention_until = db.Column(db.DateTime)
 
     session = db.relationship('TruthSession', backref=db.backref('artifacts', lazy='dynamic'))
@@ -1669,9 +1669,9 @@ class TruthBudget(db.Model):
     alerts_enabled = db.Column(db.Boolean, default=True)
     alert_thresholds = db.Column(db.JSON)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     reset_at = db.Column(db.DateTime)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     user = db.relationship('User', backref=db.backref('truth_budgets', lazy='dynamic'))
 
@@ -1716,7 +1716,7 @@ class TruthMetric(db.Model):
 
     labels = db.Column(db.JSON)
 
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(UTC), index=True)
 
     session = db.relationship('TruthSession', backref=db.backref('metrics', lazy='dynamic'))
 
@@ -1755,7 +1755,7 @@ class TruthLinkMessage(db.Model):
     retry_count = db.Column(db.Integer, default=0)
     max_retries = db.Column(db.Integer, default=3)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     def to_dict(self):
         return {
@@ -1786,8 +1786,8 @@ class PillarLevel(db.Model):
     description = db.Column(db.Text, nullable=True)
     sublevels = db.Column(db.JSON, nullable=True)
     tenant_id = db.Column(db.String(64), index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     def to_dict(self):
         return {
@@ -1813,8 +1813,8 @@ class Sector(db.Model):
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
     tenant_id = db.Column(db.String(64), index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     def to_dict(self):
         return {
@@ -1837,8 +1837,8 @@ class Domain(db.Model):
     name = db.Column(db.String(255), nullable=False, unique=True)
     description = db.Column(db.Text, nullable=True)
     tenant_id = db.Column(db.String(64), index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     def to_dict(self):
         return {
@@ -1858,19 +1858,28 @@ class Location(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.String(255), unique=True, nullable=False)
     name = db.Column(db.String(255), nullable=False)
+    location_type = db.Column(db.String(50), nullable=True)
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
     description = db.Column(db.Text, nullable=True)
+    parent_location_id = db.Column(db.Integer, db.ForeignKey('ukg_locations.id'), nullable=True)
+    attributes = db.Column(db.JSON, nullable=True)
     tenant_id = db.Column(db.String(64), index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+
+    # Relationship for hierarchy
+    parent = db.relationship('Location', remote_side=[id], backref='children')
 
     def to_dict(self):
         return {
             'id': self.id,
             'uid': self.uid,
             'name': self.name,
+            'location_type': self.location_type,
             'latitude': self.latitude,
             'longitude': self.longitude,
+            'parent_location_id': self.parent_location_id,
+            'attributes': self.attributes,
             'tenant_id': self.tenant_id
         }
 
@@ -1885,7 +1894,7 @@ class TimeContext(db.Model):
     start_time = db.Column(db.DateTime, nullable=True)
     end_time = db.Column(db.DateTime, nullable=True)
     tenant_id = db.Column(db.String(64), index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     def to_dict(self):
         return {
@@ -1915,8 +1924,8 @@ class KnowledgeNode(db.Model):
     location_id = db.Column(db.Integer, db.ForeignKey('ukg_locations.id'), nullable=True)
     node_metadata = db.Column(db.JSON, nullable=True)
     tenant_id = db.Column(db.String(64))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     def to_dict(self):
         return {
@@ -1945,7 +1954,7 @@ class MethodNode(db.Model):
     method_type = db.Column(db.String(100), nullable=False)
     implementation_details = db.Column(db.Text, nullable=True)
     tenant_id = db.Column(db.String(64), index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     def to_dict(self):
         return {
@@ -1969,7 +1978,7 @@ class KnowledgeAlgorithm(db.Model):
     version = db.Column(db.String(20), default="1.0.0")
     config_schema = db.Column(db.JSON, nullable=True)
     tenant_id = db.Column(db.String(64), index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     def to_dict(self):
         return {
@@ -1996,7 +2005,7 @@ class KAExecution(db.Model):
     error_message = db.Column(db.Text, nullable=True)
     execution_time_ms = db.Column(db.Integer, nullable=True)
     tenant_id = db.Column(db.String(64), index=True)
-    started_at = db.Column(db.DateTime, default=datetime.utcnow)
+    started_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     completed_at = db.Column(db.DateTime, nullable=True)
 
     def to_dict(self):
@@ -2027,8 +2036,8 @@ class Node(db.Model):
     description = db.Column(db.Text, nullable=True)
     attributes = db.Column(db.JSON, nullable=True)
     tenant_id = db.Column(db.String(64), index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
     active = db.Column(db.Boolean, default=True)
 
     # Relationships
@@ -2066,8 +2075,8 @@ class Edge(db.Model):
     target_node_id = db.Column(db.Integer, db.ForeignKey('ukg_nodes.id'), nullable=False)
     attributes = db.Column(db.JSON, nullable=True)
     tenant_id = db.Column(db.String(64), index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
     active = db.Column(db.Boolean, default=True)
 
     # Relationships
@@ -2102,7 +2111,7 @@ class UkgSession(db.Model):
     final_confidence = db.Column(db.Float, nullable=True)
     status = db.Column(db.String(50), default='active')
     tenant_id = db.Column(db.String(64), index=True)
-    started_at = db.Column(db.DateTime, default=datetime.utcnow)
+    started_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     completed_at = db.Column(db.DateTime, nullable=True)
 
     # Relationships
@@ -2137,7 +2146,7 @@ class MemoryEntry(db.Model):
     content = db.Column(db.JSON, nullable=True)
     confidence = db.Column(db.Float, default=1.0)
     tenant_id = db.Column(db.String(64), index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     def to_dict(self):
         return {

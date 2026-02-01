@@ -1,16 +1,14 @@
 {
   "summary": {
-    "total_files": 2335,
-    "unique_content_files": 2236,
-    "content_duplicates_sets": 63,
-    "name_duplicates_sets": 141
+    "total_files": 1863,
+    "unique_content_files": 1785,
+    "content_duplicates_sets": 53,
+    "name_duplicates_sets": 67
   },
   "content_duplicates": {
     "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855": [
       "archive\\audit_scripts\\audit_report.txt",
       "backend\\auth\\__init__.py",
-      "backend\\knowledge_algorithms\\ka_088_knowledge_lifecycle_manager.py",
-      "backend\\knowledge_algorithms\\legacy\\__init__.py",
       "core\\mcp\\servers\\__init__.py",
       "frontend\\storybook-static\\sb-addons\\essentials-actions-3\\manager-bundle.js.LEGAL.txt",
       "frontend\\storybook-static\\sb-addons\\essentials-backgrounds-4\\manager-bundle.js.LEGAL.txt",
@@ -66,21 +64,13 @@
       "docs\\archive\\legacy_assets\\chat-exports\\Pasted-You-said-lets-design-and-build-the-gatekeeper-agent-ChatGPT-said-To-design-and-build-the-Gatekee-1747679687691.txt",
       "docs\\archive\\legacy_assets\\chat-exports\\Pasted-You-said-lets-design-and-build-the-gatekeeper-agent-ChatGPT-said-To-design-and-build-the-Gatekee-1747683198694.txt"
     ],
-    "7ba321c2a137186063b0453e7ca9d7e06eb6b26905bc9cb85d5bdd3b57545fe8": [
-      "docs\\archive\\legacy_assets\\documents\\Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm"
-    ],
     "480d122491edc7b730c6ca0ab087a511f37e6a188fe03ec5f4c2e4ae9987b59f": [
       "docs\\archive\\legacy_assets\\documents\\The_17_Axis_System__Comprehensive_Technical_Architecture_1765942306012.pdf",
       "documents\\The_17_Axis_System__Comprehensive_Technical_Architecture.pdf"
     ],
     "751d170d26c13ce814806e1ce28d0c9ecb4b8716011fb956132d12b25e237425": [
       "docs\\archive\\legacy_assets\\documents\\Unified_Coordinate_System_for_UKG_USKD_\u2013_Technical_Documentati_1766025988120.pdf",
-      "docs\\archive\\supporting-documents\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf",
-      "documents\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation (1).pdf",
-      "documents\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation (2).pdf",
-      "documents\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf"
+      "documents\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf"
     ],
     "adff081d04eb0614124d0ce596506a2c78468b3abbb1c419a1828084d58d9bb3": [
       "docs\\archive\\legacy_assets\\reference\\10-38-54-PL_Levels_Mapping_Request.txt",
@@ -97,47 +87,6 @@
     "9f423def1540f522d717b8581704fe06c5ab4b7c05343229a465824c2d655a13": [
       "docs\\archive\\legacy_assets\\reference\\number 5.txt",
       "docs\\archive\\legacy_assets\\reference\\number 9.txt"
-    ],
-    "3cb82cd4a27972b69c1aa4010db5287dc30f296ed5cef91be34981d02a203c02": [
-      "docs\\archive\\supporting-documents\\Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf"
-    ],
-    "27f5258ebfca9f8c641357c354baec3f083da2c71213b4dbda1823b1b6984bd9": [
-      "docs\\archive\\supporting-documents\\Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf"
-    ],
-    "aca4b953fe88fa54b61ad0daec1398740fb8e262c70b0e579df3be71a9eba23e": [
-      "docs\\archive\\supporting-documents\\Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf"
-    ],
-    "f6c72025d614f0592555850fc37c79401c15e82d49bd49498d40ff2a13dbfe3c": [
-      "docs\\archive\\supporting-documents\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf",
-      "documents\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report (1).pdf",
-      "documents\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report (2).pdf",
-      "documents\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf"
-    ],
-    "188344a101f33559030e7209ea523890619e1385b2a0c12a69cae91cc357074a": [
-      "docs\\archive\\supporting-documents\\Universal Knowledge Graph (UKG) MVP \u2013 System Documentation.pdf",
-      "documents\\Universal Knowledge Graph (UKG) MVP \u2013 System Documentation (1).pdf",
-      "documents\\Universal Knowledge Graph (UKG) MVP \u2013 System Documentation (2).pdf",
-      "documents\\Universal Knowledge Graph (UKG) MVP \u2013 System Documentation.pdf"
-    ],
-    "5256426cbc62f53802b79f0de0c966ccb9f77e01f39a43404b3749b23da4a647": [
-      "docs\\archive\\supporting-documents\\Universal Knowledge Graph Simulation Stack \u2013 10-Layer Architecture Report.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Knowledge Graph Simulation Stack \u2013 10-Layer Architecture Report.pdf"
-    ],
-    "29b8b20350673cc9df0065134323dcec94855fe84d2ae8ff52e56826ec253e8a": [
-      "docs\\archive\\supporting-documents\\Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) \u2013 System Documentati.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) \u2013 System Documentati.pdf"
-    ],
-    "ef86721119731e2fcfa18bf6fb6851da0d57c87debdf32d1e923562264bd4b98": [
-      "docs\\archive\\supporting-documents\\Universal Simulated Knowledge Graph (UKG) \u2013 A Comprehensive White Paper.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Simulated Knowledge Graph (UKG) \u2013 A Comprehensive White Paper.pdf"
-    ],
-    "b6b7bcb9a8c7d74a58f92e90381816f999e7625e64994aae618cdeb1da5ef720": [
-      "docs\\archive\\supporting-documents\\__Nested Simulated Memory Architecture of UKG_USKD \u2013 10-Layer Technical Documentation__ (1).pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\__Nested Simulated Memory Architecture of UKG_USKD \u2013 10-Layer Technical Documentation__ (1).pdf"
     ],
     "a0f389f3fce9be476ee388ae3a9277a2c5909f310015271696f8f93944c5b60c": [
       "frontend\\build_log_attempt3.txt",
@@ -304,10 +253,6 @@
       "CHANGELOG.md",
       "sdk\\UKG_Python_SDK\\CHANGELOG.md"
     ],
-    "config.py": [
-      "config.py",
-      "backend\\config.py"
-    ],
     "CONTRIBUTING.md": [
       "CONTRIBUTING.md",
       "docs\\CONTRIBUTING.md"
@@ -366,7 +311,6 @@
       "backend\\knowledge_algorithms\\__init__.py",
       "backend\\knowledge_algorithms\\l10\\__init__.py",
       "backend\\knowledge_algorithms\\l9\\__init__.py",
-      "backend\\knowledge_algorithms\\legacy\\__init__.py",
       "backend\\llm_gateway\\__init__.py",
       "backend\\mcp_server\\__init__.py",
       "backend\\mcp_server\\tools\\__init__.py",
@@ -425,257 +369,9 @@
       "sdk\\UKG_Python_SDK\\ukg_sdk\\truth_engine.py",
       "simulation\\truth_engine.py"
     ],
-    "ka_02_tree_of_thought.py": [
-      "backend\\knowledge_algorithms\\ka_02_tree_of_thought.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_02_tree_of_thought.py"
-    ],
-    "ka_03_gap_analysis.py": [
-      "backend\\knowledge_algorithms\\ka_03_gap_analysis.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_03_gap_analysis.py"
-    ],
-    "ka_05_query_classification.py": [
-      "backend\\knowledge_algorithms\\ka_05_query_classification.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_05_query_classification.py"
-    ],
-    "ka_100_autonomous_system_evolution_controller.py": [
-      "backend\\knowledge_algorithms\\ka_100_autonomous_system_evolution_controller.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_100_autonomous_system_evolution_controller.py"
-    ],
-    "ka_101_chaos_injection_governor.py": [
-      "backend\\knowledge_algorithms\\ka_101_chaos_injection_governor.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_101_chaos_injection_governor.py"
-    ],
-    "ka_102_global_entropy_quantifier.py": [
-      "backend\\knowledge_algorithms\\ka_102_global_entropy_quantifier.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_102_global_entropy_quantifier.py"
-    ],
-    "ka_103_simulation_state_rollback_manager.py": [
-      "backend\\knowledge_algorithms\\ka_103_simulation_state_rollback_manager.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_103_simulation_state_rollback_manager.py"
-    ],
-    "ka_104_truth_vs_utility_arbiter.py": [
-      "backend\\knowledge_algorithms\\ka_104_truth_vs_utility_arbiter.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_104_truth_vs_utility_arbiter.py"
-    ],
-    "ka_105_conceptual_obsolescence_monitor.py": [
-      "backend\\knowledge_algorithms\\ka_105_conceptual_obsolescence_monitor.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_105_conceptual_obsolescence_monitor.py"
-    ],
-    "ka_106_human_override_reason_capture.py": [
-      "backend\\knowledge_algorithms\\ka_106_human_override_reason_capture.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_106_human_override_reason_capture.py"
-    ],
-    "ka_107_reasoning_boundary_enforcer.py": [
-      "backend\\knowledge_algorithms\\ka_107_reasoning_boundary_enforcer.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_107_reasoning_boundary_enforcer.py"
-    ],
-    "ka_108_capability_escalation_detector.py": [
-      "backend\\knowledge_algorithms\\ka_108_capability_escalation_detector.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_108_capability_escalation_detector.py"
-    ],
-    "ka_109_knowledge_containment_classifier.py": [
-      "backend\\knowledge_algorithms\\ka_109_knowledge_containment_classifier.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_109_knowledge_containment_classifier.py"
-    ],
-    "ka_110_cross_domain_coupling_risk_analyzer.py": [
-      "backend\\knowledge_algorithms\\ka_110_cross_domain_coupling_risk_analyzer.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_110_cross_domain_coupling_risk_analyzer.py"
-    ],
-    "ka_111_long_horizon_goal_drift_monitor.py": [
-      "backend\\knowledge_algorithms\\ka_111_long_horizon_goal_drift_monitor.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_111_long_horizon_goal_drift_monitor.py"
-    ],
-    "ka_112_system_self_introspection_auditor.py": [
-      "backend\\knowledge_algorithms\\ka_112_system_self_introspection_auditor.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_112_system_self_introspection_auditor.py"
-    ],
-    "ka_114_external_deep_research_invocation.py": [
-      "backend\\knowledge_algorithms\\ka_114_external_deep_research_invocation.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_114_external_deep_research_invocation.py"
-    ],
-    "ka_12_persona_simulation.py": [
-      "backend\\knowledge_algorithms\\ka_12_persona_simulation.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_12_persona_simulation.py"
-    ],
-    "ka_14_confidence_scoring.py": [
-      "backend\\knowledge_algorithms\\ka_14_confidence_scoring.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_14_confidence_scoring.py"
-    ],
-    "ka_15_temporal_reasoning.py": [
-      "backend\\knowledge_algorithms\\ka_15_temporal_reasoning.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_15_temporal_reasoning.py"
-    ],
-    "ka_17_spatial_jurisdiction_mapping.py": [
-      "backend\\knowledge_algorithms\\ka_17_spatial_jurisdiction_mapping.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_17_spatial_jurisdiction_mapping.py"
-    ],
-    "ka_18_source_provenance.py": [
-      "backend\\knowledge_algorithms\\ka_18_source_provenance.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_18_source_provenance.py"
-    ],
-    "ka_19_knowledge_synthesis.py": [
-      "backend\\knowledge_algorithms\\ka_19_knowledge_synthesis.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_19_knowledge_synthesis.py"
-    ],
-    "ka_22_risk_assessment.py": [
-      "backend\\knowledge_algorithms\\ka_22_risk_assessment.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_22_risk_assessment.py"
-    ],
-    "ka_23_belief_decay.py": [
-      "backend\\knowledge_algorithms\\ka_23_belief_decay.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_23_belief_decay.py"
-    ],
-    "ka_24_trust_gate.py": [
-      "backend\\knowledge_algorithms\\ka_24_trust_gate.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_24_trust_gate.py"
-    ],
-    "ka_25_dependency_mapping.py": [
-      "backend\\knowledge_algorithms\\ka_25_dependency_mapping.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_25_dependency_mapping.py"
-    ],
-    "ka_36_pareto_optimization_engine.py": [
-      "backend\\knowledge_algorithms\\ka_36_pareto_optimization_engine.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_36_pareto_optimization_engine.py"
-    ],
-    "ka_37_norm_emergence_detector.py": [
-      "backend\\knowledge_algorithms\\ka_37_norm_emergence_detector.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_37_norm_emergence_detector.py"
-    ],
-    "ka_38_cross_modal_synthesis.py": [
-      "backend\\knowledge_algorithms\\ka_38_cross_modal_synthesis.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_38_cross_modal_synthesis.py"
-    ],
-    "ka_39_ontology_drift_detection.py": [
-      "backend\\knowledge_algorithms\\ka_39_ontology_drift_detection.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_39_ontology_drift_detection.py"
-    ],
-    "ka_40_semantic_alignment_engine.py": [
-      "backend\\knowledge_algorithms\\ka_40_semantic_alignment_engine.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_40_semantic_alignment_engine.py"
-    ],
-    "ka_41_concept_confidence_normalization.py": [
-      "backend\\knowledge_algorithms\\ka_41_concept_confidence_normalization.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_41_concept_confidence_normalization.py"
-    ],
-    "ka_42_contradiction_propagation_analysis.py": [
-      "backend\\knowledge_algorithms\\ka_42_contradiction_propagation_analysis.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_42_contradiction_propagation_analysis.py"
-    ],
-    "ka_43_knowledge_lineage_tracker.py": [
-      "backend\\knowledge_algorithms\\ka_43_knowledge_lineage_tracker.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_43_knowledge_lineage_tracker.py"
-    ],
-    "ka_44_creative_knowledge_composer.py": [
-      "backend\\knowledge_algorithms\\ka_44_creative_knowledge_composer.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_44_creative_knowledge_composer.py"
-    ],
-    "ka_45_bias_pattern_analyzer.py": [
-      "backend\\knowledge_algorithms\\ka_45_bias_pattern_analyzer.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_45_bias_pattern_analyzer.py"
-    ],
-    "ka_46_hierarchical_memory_patcher.py": [
-      "backend\\knowledge_algorithms\\ka_46_hierarchical_memory_patcher.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_46_hierarchical_memory_patcher.py"
-    ],
-    "ka_47_meta_algorithm_selection.py": [
-      "backend\\knowledge_algorithms\\ka_47_meta_algorithm_selection.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_47_meta_algorithm_selection.py"
-    ],
-    "ka_48_ontological_conflict_resolver.py": [
-      "backend\\knowledge_algorithms\\ka_48_ontological_conflict_resolver.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_48_ontological_conflict_resolver.py"
-    ],
-    "ka_49_knowledge_redundancy_detector.py": [
-      "backend\\knowledge_algorithms\\ka_49_knowledge_redundancy_detector.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_49_knowledge_redundancy_detector.py"
-    ],
-    "ka_50_knowledge_integrity_validator.py": [
-      "backend\\knowledge_algorithms\\ka_50_knowledge_integrity_validator.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_50_knowledge_integrity_validator.py"
-    ],
-    "ka_51_self_correcting_knowledge_distillation.py": [
-      "backend\\knowledge_algorithms\\ka_51_self_correcting_knowledge_distillation.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_51_self_correcting_knowledge_distillation.py"
-    ],
-    "ka_52_temporal_knowledge_evolution.py": [
-      "backend\\knowledge_algorithms\\ka_52_temporal_knowledge_evolution.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_52_temporal_knowledge_evolution.py"
-    ],
-    "ka_53_dynamic_knowledge_compression.py": [
-      "backend\\knowledge_algorithms\\ka_53_dynamic_knowledge_compression.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_53_dynamic_knowledge_compression.py"
-    ],
-    "ka_54_cross_lingual_knowledge_fusion.py": [
-      "backend\\knowledge_algorithms\\ka_54_cross_lingual_knowledge_fusion.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_54_cross_lingual_knowledge_fusion.py"
-    ],
-    "ka_55_adaptive_multi_modal_integration.py": [
-      "backend\\knowledge_algorithms\\ka_55_adaptive_multi_modal_integration.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_55_adaptive_multi_modal_integration.py"
-    ],
-    "ka_56_narrative_explainability_engine.py": [
-      "backend\\knowledge_algorithms\\ka_56_narrative_explainability_engine.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_56_narrative_explainability_engine.py"
-    ],
-    "ka_57_persona_emotion_adaptation.py": [
-      "backend\\knowledge_algorithms\\ka_57_persona_emotion_adaptation.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_57_persona_emotion_adaptation.py"
-    ],
-    "ka_59_predictive_layer_preemption.py": [
-      "backend\\knowledge_algorithms\\ka_59_predictive_layer_preemption.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_59_predictive_layer_preemption.py"
-    ],
-    "ka_60_cognitive_load_balancer.py": [
-      "backend\\knowledge_algorithms\\ka_60_cognitive_load_balancer.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_60_cognitive_load_balancer.py"
-    ],
-    "ka_61_adversarial_input_shield.py": [
-      "backend\\knowledge_algorithms\\ka_61_adversarial_input_shield.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_61_adversarial_input_shield.py"
-    ],
-    "ka_62_decentralized_trust_scoring.py": [
-      "backend\\knowledge_algorithms\\ka_62_decentralized_trust_scoring.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_62_decentralized_trust_scoring.py"
-    ],
-    "ka_63_continuous_performance_learning.py": [
-      "backend\\knowledge_algorithms\\ka_63_continuous_performance_learning.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_63_continuous_performance_learning.py"
-    ],
-    "ka_64_failure_pattern_detection.py": [
-      "backend\\knowledge_algorithms\\ka_64_failure_pattern_detection.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_64_failure_pattern_detection.py"
-    ],
-    "ka_65_knowledge_regression_tester.py": [
-      "backend\\knowledge_algorithms\\ka_65_knowledge_regression_tester.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_65_knowledge_regression_tester.py"
-    ],
-    "ka_66_causal_inference_engine.py": [
-      "backend\\knowledge_algorithms\\ka_66_causal_inference_engine.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_66_causal_inference_engine.py"
-    ],
-    "ka_67_analogical_reasoning_engine.py": [
-      "backend\\knowledge_algorithms\\ka_67_analogical_reasoning_engine.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_67_analogical_reasoning_engine.py"
-    ],
-    "ka_68_domain_specialization_tuner.py": [
-      "backend\\knowledge_algorithms\\ka_68_domain_specialization_tuner.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_68_domain_specialization_tuner.py"
-    ],
-    "ka_69_cultural_context_adapter.py": [
-      "backend\\knowledge_algorithms\\ka_69_cultural_context_adapter.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_69_cultural_context_adapter.py"
-    ],
-    "ka_70_counterfactual_scenario_simulator.py": [
-      "backend\\knowledge_algorithms\\ka_70_counterfactual_scenario_simulator.py",
-      "backend\\knowledge_algorithms\\legacy\\ka_70_counterfactual_scenario_simulator.py"
-    ],
     "ka_registry.yaml": [
       "backend\\knowledge_algorithms\\ka_registry.yaml",
       "data\\registries\\ka_registry.yaml"
-    ],
-    "core.py": [
-      "backend\\knowledge_algorithms\\legacy\\ka56_legacy\\core.py",
-      "sdk\\UKG_Python_SDK\\ukg_sdk\\truth_engine\\core.py"
     ],
     "api.py": [
       "backend\\llm_gateway\\api.py",
@@ -754,52 +450,6 @@
       "docs\\openapi.yaml",
       "docs\\api\\openapi.yaml",
       "sdk\\UKG_Python_SDK\\ukg_sdk\\data\\openapi.yaml"
-    ],
-    "Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm": [
-      "docs\\archive\\legacy_assets\\documents\\Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Multi Dimensional AI Driven Knowledge Framework A Technical Deep Dive.docm"
-    ],
-    "Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf": [
-      "docs\\archive\\supporting-documents\\Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Comprehensive Enterprise Workflow & Process Guide for the Knowledge System.pdf"
-    ],
-    "Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf": [
-      "docs\\archive\\supporting-documents\\Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Integrating the Model Context Protocol (MCP) into the Universal Knowledge Graph (UKG).pdf"
-    ],
-    "Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf": [
-      "docs\\archive\\supporting-documents\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf",
-      "documents\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Unified Coordinate System for UKG_USKD \u2013 Technical Documentation.pdf"
-    ],
-    "Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf": [
-      "docs\\archive\\supporting-documents\\Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Unified Knowledge System_ 13 Axes and Multi-Perspective Workflow.pdf"
-    ],
-    "Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf": [
-      "docs\\archive\\supporting-documents\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf",
-      "documents\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Knowledge Algorithm (KA) System \u2013 Technical Report.pdf"
-    ],
-    "Universal Knowledge Graph (UKG) MVP \u2013 System Documentation.pdf": [
-      "docs\\archive\\supporting-documents\\Universal Knowledge Graph (UKG) MVP \u2013 System Documentation.pdf",
-      "documents\\Universal Knowledge Graph (UKG) MVP \u2013 System Documentation.pdf"
-    ],
-    "Universal Knowledge Graph Simulation Stack \u2013 10-Layer Architecture Report.pdf": [
-      "docs\\archive\\supporting-documents\\Universal Knowledge Graph Simulation Stack \u2013 10-Layer Architecture Report.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Knowledge Graph Simulation Stack \u2013 10-Layer Architecture Report.pdf"
-    ],
-    "Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) \u2013 System Documentati.pdf": [
-      "docs\\archive\\supporting-documents\\Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) \u2013 System Documentati.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Simulated Knowledge Database (USKD) & Universal Knowledge Graph (UKG) \u2013 System Documentati.pdf"
-    ],
-    "Universal Simulated Knowledge Graph (UKG) \u2013 A Comprehensive White Paper.pdf": [
-      "docs\\archive\\supporting-documents\\Universal Simulated Knowledge Graph (UKG) \u2013 A Comprehensive White Paper.pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\Universal Simulated Knowledge Graph (UKG) \u2013 A Comprehensive White Paper.pdf"
-    ],
-    "__Nested Simulated Memory Architecture of UKG_USKD \u2013 10-Layer Technical Documentation__ (1).pdf": [
-      "docs\\archive\\supporting-documents\\__Nested Simulated Memory Architecture of UKG_USKD \u2013 10-Layer Technical Documentation__ (1).pdf",
-      "sdk\\UKG_Python_SDK\\docs\\specs\\__Nested Simulated Memory Architecture of UKG_USKD \u2013 10-Layer Technical Documentation__ (1).pdf"
     ],
     "tsconfig.json": [
       "frontend\\tsconfig.json",

@@ -5,6 +5,8 @@ import uuid
 from datetime import datetime, UTC
 from unittest.mock import Mock, patch, MagicMock
 from flask import Flask, url_for
+import backend.storage
+import backend.routes.location_routes
 
 # Import models/extensions for mocking
 try:
@@ -71,7 +73,7 @@ def test_gdpr_consent(authenticated_client):
 # Storage Routes Tests
 # -----------------------------------------------------------------------------
 
-@patch('backend.routes.storage_routes.get_connection_manager')
+@patch('backend.storage.get_connection_manager')
 def test_storage_health(mock_mgr_func, authenticated_client):
     mock_mgr = Mock()
     mock_mgr.get_status_report.return_value = {"postgres": "healthy", "redis": "healthy"}
@@ -81,7 +83,7 @@ def test_storage_health(mock_mgr_func, authenticated_client):
     assert response.status_code == 200
     assert response.get_json()['data']['postgres'] == "healthy"
 
-@patch('backend.routes.storage_routes.get_connection_manager')
+@patch('backend.storage.get_connection_manager')
 def test_storage_service_health(mock_mgr_func, authenticated_client):
     mock_mgr = Mock()
     mock_mgr.check_health.return_value = True
@@ -106,10 +108,6 @@ def test_storage_test_connection(mock_test, authenticated_client):
     })
     assert response.status_code == 200
     assert response.get_json()['data']['connected'] is True
-
-# -----------------------------------------------------------------------------
-# Location Routes Tests
-# -----------------------------------------------------------------------------
 
 def test_location_crud(authenticated_client):
     # 1. Create
@@ -138,37 +136,75 @@ def test_location_crud(authenticated_client):
     assert response.status_code == 200
     assert response.get_json()['location']['name'] == 'Updated HQ'
 
-def test_location_nearest(authenticated_client):
-    # Add a location first
-    authenticated_client.post('/api/locations', json={
-        'name': 'San Francisco',
-        'location_type': 'city',
-        'latitude': 37.7749,
-        'longitude': -122.4194
-    })
+def test_location_features_extended(authenticated_client):
+    """Test specialized location features like filtering and hierarchy root"""
+    # 1. Setup multiple locations
+    p1 = authenticated_client.post('/api/locations', json={'name': 'Region A', 'location_type': 'region'}).get_json()['location']
+    p2 = authenticated_client.post('/api/locations', json={'name': 'Region B', 'location_type': 'region'}).get_json()['location']
     
-    # Find nearest to SF
-    response = authenticated_client.get('/api/locations/nearest?lat=37.78&lng=-122.42&radius=10')
-    assert response.status_code == 200
-    data = response.get_json()
-    assert data['count'] >= 1
-    assert 'distance' in data['locations'][0]
+    c1 = authenticated_client.post('/api/locations', json={
+        'name': 'Office 1', 
+        'location_type': 'office', 
+        'parent_location_id': p1['id'],
+        'latitude': 10.0,
+        'longitude': 10.0
+    }).get_json()['location']
+    
+    # 2. Test filtering in get_locations
+    # Filter by type
+    res = authenticated_client.get('/api/locations?type=region')
+    assert res.status_code == 200
+    assert all(loc['location_type'] == 'region' for loc in res.get_json()['locations'])
+    
+    # Filter by name
+    res = authenticated_client.get('/api/locations?search=Office')
+    assert res.status_code == 200
+    assert len(res.get_json()['locations']) >= 1
+    
+    # Filter by parent
+    res = authenticated_client.get(f'/api/locations?parent_id={p1["id"]}')
+    assert res.status_code == 200
+    assert any(loc['uid'] == c1['uid'] for loc in res.get_json()['locations'])
+    
+    # Filter by geo (radius filter)
+    res = authenticated_client.get('/api/locations?lat=10.01&lng=10.01&radius=5')
+    assert res.status_code == 200
+    assert any(loc['uid'] == c1['uid'] for loc in res.get_json()['locations'])
+    
+    # 3. Test hierarchy
+    res = authenticated_client.get('/api/locations/hierarchy')
+    assert res.status_code == 200
+    assert len(res.get_json()['hierarchies']) >= 2
+    
+    # 4. Test hierarchy with root_uid
+    res = authenticated_client.get(f'/api/locations/hierarchy?root_uid={p1["uid"]}')
+    assert res.status_code == 200
+    assert res.get_json()['hierarchy']['uid'] == p1['uid']
+    assert len(res.get_json()['hierarchy']['children']) >= 1
+    
+    # 5. Test hierarchy with invalid root_uid (404)
+    res = authenticated_client.get('/api/locations/hierarchy?root_uid=invalid-uid')
+    assert res.status_code == 404
+    
+    # 6. Test nearest with type filter
+    res = authenticated_client.get('/api/locations/nearest?lat=10.0&lng=10.0&type=office')
+    assert res.status_code == 200
+    assert all(loc['location_type'] == 'office' for loc in res.get_json()['locations'])
 
-def test_location_hierarchy(authenticated_client):
-    # Create parent
-    res_p = authenticated_client.post('/api/locations', json={'name': 'Parent', 'location_type': 'region'})
-    p_id = res_p.get_json()['location']['id'] # Integer ID for DB relations
+def test_location_error_conditions(authenticated_client):
+    """Test error conditions for location routes"""
+    # 1. GET non-existent
+    res = authenticated_client.get('/api/locations/non-existent-uid')
+    assert res.status_code == 404
     
-    # Create child
-    authenticated_client.post('/api/locations', json={'name': 'Child', 'location_type': 'office', 'parent_location_id': p_id})
+    # 2. POST missing name
+    res = authenticated_client.post('/api/locations', json={'location_type': 'office'})
+    assert res.status_code == 400
     
-    # Get hierarchy
-    response = authenticated_client.get('/api/locations/hierarchy')
-    assert response.status_code == 200
-    hierarchies = response.get_json()['hierarchies']
+    # 3. PUT non-existent
+    res = authenticated_client.put('/api/locations/non-existent-uid', json={'name': 'New Name'})
+    assert res.status_code == 404
     
-    # Find Parent in hierarchy
-    parent_node = next((h for h in hierarchies if h['name'] == 'Parent'), None)
-    assert parent_node is not None
-    assert len(parent_node['children']) >= 1
-    assert parent_node['children'][0]['name'] == 'Child'
+    # 4. Nearest missing params
+    res = authenticated_client.get('/api/locations/nearest?lat=10.0') # Missing lng
+    assert res.status_code == 400

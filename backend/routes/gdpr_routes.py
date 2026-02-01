@@ -9,7 +9,7 @@ Provides endpoints for:
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from flask import Blueprint, jsonify, request, send_file
 from flask_login import login_required, current_user
 import json
@@ -37,7 +37,7 @@ def export_user_data():
         
         # Collect user profile data
         user_data = {
-            'export_date': datetime.utcnow().isoformat(),
+            'export_date': datetime.now(UTC).isoformat(),
             'export_type': 'gdpr_data_portability',
             'user_profile': {
                 'id': current_user.id,
@@ -94,7 +94,7 @@ def export_user_data():
             buffer,
             mimetype='application/json',
             as_attachment=True,
-            download_name=f'user_data_export_{datetime.utcnow().strftime("%Y%m%d")}.json'
+            download_name=f'user_data_export_{datetime.now(UTC).strftime("%Y%m%d")}.json'
         )
         
     except Exception as e:
@@ -119,9 +119,9 @@ def request_data_deletion():
         # Record deletion request
         deletion_request = {
             'user_id': current_user.id,
-            'requested_at': datetime.utcnow().isoformat(),
+            'requested_at': datetime.now(UTC).isoformat(),
             'status': 'pending',
-            'scheduled_deletion': (datetime.utcnow()).isoformat(),
+            'scheduled_deletion': (datetime.now(UTC)).isoformat(),
             'grace_period_days': 30
         }
         
@@ -137,7 +137,7 @@ def request_data_deletion():
             'success': True,
             'message': 'Deletion request received',
             'data': {
-                'request_id': f'gdpr-del-{current_user.id}-{datetime.utcnow().strftime("%Y%m%d")}',
+                'request_id': f'gdpr-del-{current_user.id}-{datetime.now(UTC).strftime("%Y%m%d")}',
                 'grace_period_days': 30,
                 'scheduled_deletion': deletion_request['scheduled_deletion'],
                 'instructions': 'Your data will be permanently deleted after the grace period. '
@@ -167,7 +167,7 @@ def get_consent_status():
             'third_party_sharing': False,
             'ai_training': False,
             'personalization': True,
-            'last_updated': datetime.utcnow().isoformat()
+            'last_updated': datetime.now(UTC).isoformat()
         }
         
         return jsonify({
@@ -226,12 +226,12 @@ def submit_access_request():
         data = request.get_json() or {}
         
         request_details = {
-            'request_id': f'gdpr-access-{current_user.id}-{datetime.utcnow().strftime("%Y%m%d%H%M")}',
+            'request_id': f'gdpr-access-{current_user.id}-{datetime.now(UTC).strftime("%Y%m%d%H%M")}',
             'user_id': current_user.id,
             'email': current_user.email,
             'request_type': data.get('type', 'full_export'),
             'specific_data': data.get('specific_data', []),
-            'submitted_at': datetime.utcnow().isoformat(),
+            'submitted_at': datetime.now(UTC).isoformat(),
             'status': 'pending',
             'estimated_response': '30 days'
         }

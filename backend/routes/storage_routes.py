@@ -83,7 +83,7 @@ def test_connection():
             }), 400
         
         service = req.service
-        data = req.dict(exclude_none=True)
+        data = req.model_dump(exclude_none=True)
         
         result = {
             'service': service,

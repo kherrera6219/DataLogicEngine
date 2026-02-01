@@ -210,6 +210,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from models import (
+    Location,
     User,
     SimulationSession,
     KnowledgeGraphNode,

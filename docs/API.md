@@ -228,6 +228,37 @@ Manage Sectors, Domains, and Knowledge Nodes. Prefix: `/api/v1` or `/api`.
 
 ---
 
+## 11. Location API Routes (`/locations`)
+
+Manage geospatial context and hierarchy. Prefix: `/api` or `/api/v1`.
+
+### List & Filter Locations
+- **GET** `/locations`
+  - List and filter locations.
+  - **Query Params**:
+    - `type`: Filter by location type (e.g., 'office', 'region').
+    - `parent_id`: Filter by parent location ID.
+    - `search`: Name search.
+    - `lat`, `lng`, `radius`: Proximity filtering.
+
+### Get Hierarchy
+- **GET** `/locations/hierarchy`
+  - Get hierarchical tree structure of locations.
+  - **Query Params**: `root_uid` (optional)
+
+### Find Nearest
+- **GET** `/locations/nearest`
+  - Find locations nearest to coordinates.
+  - **Required Params**: `lat`, `lng`
+  - **Optional Params**: `radius`, `limit`, `type`
+
+### CRUD Operations
+- **POST** `/locations`: Create a new location.
+- **GET** `/locations/<uid>`: Get specific location.
+- **PUT** `/locations/<uid>`: Update location.
+
+---
+
 ## 7. MCP Routes (`/mcp`)
 
 Model Context Protocol management. Prefix: `/api/mcp`.

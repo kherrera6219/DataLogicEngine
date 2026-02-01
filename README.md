@@ -77,7 +77,7 @@ The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchest
 - **Field-Level Encryption**: AES-256-GCM protection for PII (emails, metadata)
 - **GraphQL API** for flexible data querying (`/graphql`)
 - **WebSocket** real-time updates (simulation progress, notifications)
-- **3D Graph Visualization** with force-directed layout (Three.js)
+- **Hierarchical Geo-Location**: Advanced proximity and tree-based location management (Axis 12)
 - **Multi-Persona Consensus** (KA-038) for high-stakes decision validation
 - **Local ML Serving** (vLLM/Ollama) with tier-prioritized routing
 - **Kubernetes Operator** for self-healing and auto-scaling workers
