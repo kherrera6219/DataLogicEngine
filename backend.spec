@@ -12,7 +12,7 @@ a = Analysis(
         ('routes', 'routes'),
         ('utils', 'utils'),
         ('simulation', 'simulation'),
-        ('config.py', '.'),
+
         ('extensions.py', '.'),
         ('models.py', '.'),
         ('core/data', 'core/data'),

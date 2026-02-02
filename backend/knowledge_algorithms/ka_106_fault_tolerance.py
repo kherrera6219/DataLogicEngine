@@ -11,7 +11,7 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from core.knowledge_algorithm.exceptions import KAError, KAConfigError
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class KA106FaultInput(BaseModel):
     operation: str = Field("generic", description="The operation to apply fault tolerance policies to")
