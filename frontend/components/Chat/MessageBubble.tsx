@@ -1,3 +1,4 @@
+import React from 'react';
 import { Message } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { CopyButton } from '@/components/ui/copy-button';
