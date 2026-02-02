@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { auth } from './auth';
 import { request } from './index';
 
@@ -13,7 +13,7 @@ describe('Auth API', () => {
   });
 
   it('check should call request with correect endpoint', async () => {
-    (request as any).mockResolvedValue({ authenticated: true });
+    (request as Mock).mockResolvedValue({ authenticated: true });
     const res = await auth.check();
     expect(request).toHaveBeenCalledWith('/auth/check');
     expect(res).toEqual({ authenticated: true });
@@ -21,7 +21,7 @@ describe('Auth API', () => {
 
   it('login should post credentials', async () => {
     const creds = { email: 'test@example.com', password: 'password' };
-    (request as any).mockResolvedValue({ user: { id: 1 } });
+    (request as Mock).mockResolvedValue({ user: { id: 1 } });
     await auth.login(creds);
     expect(request).toHaveBeenCalledWith('/auth/login', {
       method: 'POST',
@@ -30,7 +30,7 @@ describe('Auth API', () => {
   });
 
   it('logout should call logout endpoint', async () => {
-    (request as any).mockResolvedValue({});
+    (request as Mock).mockResolvedValue({});
     await auth.logout();
     expect(request).toHaveBeenCalledWith('/auth/logout', { method: 'POST' });
   });

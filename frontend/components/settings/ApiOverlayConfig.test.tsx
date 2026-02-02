@@ -16,7 +16,7 @@ vi.mock('@/components/ui/card', () => ({
 }));
 
 vi.mock('@/components/ui/select', () => ({
-  Select: ({ children, value, onChange }: any) => (
+  Select: ({ children, value, onChange }: { children: React.ReactNode; value: string; onChange: (e: any) => void }) => (
     <select value={value} onChange={onChange} data-testid="select">
       {children}
     </select>
@@ -30,6 +30,21 @@ vi.mock('recharts', () => ({
   XAxis: () => null,
   Tooltip: () => null,
   Cell: () => null
+}));
+
+vi.mock('lucide-react', () => ({
+  BarChart3: () => <div data-testid="bar-chart-icon" />,
+  Terminal: () => <div data-testid="terminal-icon" />,
+  Play: () => <div data-testid="play-icon" />,
+  Copy: () => <div data-testid="copy-icon" />,
+  RefreshCw: () => <div data-testid="refresh-cw-icon" />,
+  Eye: () => <div data-testid="eye-icon" />,
+  CheckCircle: () => <div data-testid="check-circle-icon" />,
+  Shield: () => <div data-testid="shield-icon" />,
+  ArrowRight: () => <div data-testid="arrow-right-icon" />,
+  Server: () => <div data-testid="server-icon" />,
+  Activity: () => <div data-testid="activity-icon" />,
+  Lock: () => <div data-testid="lock-icon" />,
 }));
 
 describe('ApiOverlayConfig', () => {
@@ -71,7 +86,7 @@ describe('ApiOverlayConfig', () => {
     fireEvent.click(runBtn);
     
     // Check loading state
-    expect(screen.getByTestId('refresh-cw-icon')).toBeInTheDocument; // implied since spinner is rendered
+    expect(screen.getByTestId('refresh-cw-icon')).toBeInTheDocument();
     
     await waitFor(() => {
         expect(screen.getByText(/The proposed architecture/i)).toBeInTheDocument();

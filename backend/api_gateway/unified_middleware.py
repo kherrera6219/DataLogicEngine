@@ -1,9 +1,12 @@
 import time
 import logging
 import uuid
+import re
+import json
 from typing import Dict, Any, List, Optional
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
 
@@ -15,49 +18,110 @@ class UnifiedMiddleWare(BaseHTTPMiddleware):
     2. Nurnburg/SAM.gov naming compliance in headers.
     3. Parity with core reasoning stack (Layer 1-10 enforcement).
     4. Comprehensive audit logging.
+    5. Robust Input Sanitization (SQLi, XSS, Command Injection).
     """
+
+    # Compiled regex patterns for sanitization
+    SQL_PATTERNS = [
+        re.compile(r"(?i)(union[\s\+]+select)"),
+        re.compile(r"(?i)(insert[\s\+]+into)"),
+        re.compile(r"(?i)(delete[\s\+]+from)"),
+        re.compile(r"(?i)(drop[\s\+]+table)"),
+        re.compile(r"(?i)(update[\s\+]+.*?set)"), # Fixed \w+ to .*? to allow spaces/table names
+        re.compile(r"(?i)(exec\s*\()"),
+        re.compile(r"(?i)(exec\s*\()"),
+        re.compile(r"--"),
+        re.compile(r"(?i)(xp_cmdshell)"),
+    ]
+
+    CMD_PATTERNS = [
+        re.compile(r"[;&|`$]"),  # Shell metacharacters
+        re.compile(r"(?i)(wget|curl|nc|ncat)\s+"),
+        re.compile(r"(?i)(bash|sh|cmd|powershell)\s+"),
+    ]
+
+    PATH_PATTERNS = [
+        re.compile(r"\.\./"),
+        re.compile(r"\.\.\\"),
+        re.compile(r"%2e%2e"),
+    ]
 
     async def dispatch(self, request: Request, call_next: Any) -> Response:
         request_id = str(uuid.uuid4())
         start_time = time.time()
-        
-        # 1. Input Hardening: Sanitize Axis and Alias headers
-        axis_raw = request.headers.get("X-UKG-Axis", "0")
-        axis_hint = "".join(c for c in axis_raw if c.isdigit() or c == ':')[:20]
-        
-        nurnburg_raw = request.headers.get("X-Nurnburg-Alias", f"TRUTH-GATE-{request_id[:8]}")
-        nurnburg_alias = "".join(c for c in nurnburg_raw if c.isalnum() or c in ['-', '_', '.', '/'])[:50]
-        
-        logger.info(f"[{nurnburg_alias}] Hardened processing {request.method} {request.url.path}")
-        
-        # 2. Add tracing metadata
-        request.state.ukg_metadata = {
-            "request_id": request_id,
-            "axis": axis_hint,
-            "nurnburg_alias": nurnburg_alias,
-            "start_time": start_time
-        }
-        
-        # 3. Process Request
-        response = await call_next(request)
-        
-        # 4. Security Headers (Lockdown)
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["X-Frame-Options"] = "DENY"
-        response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
-        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-        
-        # 5. PII / Sensitive Data Shield (Outgoing)
-        if response.status_code == 200:
-            response.headers["X-Nurnburg-Compliance"] = "hardened_v2_active_shield"
-            # Note: Final production implementation uses KA-118 for deep discovery.
-            # Here we apply the hardened regex shield.
-        
-        process_time = time.time() - start_time
-        response.headers["X-Process-Time"] = f"{process_time:.4f}"
-        response.headers["X-UKG-Trace-ID"] = request_id
+
+        try:
+            # 1. Input Hardening: Sanitize Axis and Alias headers
+            axis_raw = request.headers.get("X-UKG-Axis", "0")
+            axis_hint = "".join(c for c in axis_raw if c.isdigit() or c == ':')[:20]
             
-        return response
+            nurnburg_raw = request.headers.get("X-Nurnburg-Alias", f"TRUTH-GATE-{request_id[:8]}")
+            nurnburg_alias = "".join(c for c in nurnburg_raw if c.isalnum() or c in ['-', '_', '.', '/'])[:50]
+            
+            logger.info(f"[{nurnburg_alias}] Hardened processing {request.method} {request.url.path}")
+
+            # 2. Deep Inspection (Sanitization)
+            # Inspect query params
+            for key, value in request.query_params.items():
+                if self._detect_malicious(str(value)):
+                    logger.warning(f"Malicious input detected in query param {key}: {value}")
+                    return JSONResponse(
+                        status_code=400,
+                        content={"error": "Invalid Input", "code": "SECURITY_VIOLATION"}
+                    )
+
+            # 3. Add tracing metadata
+            request.state.ukg_metadata = {
+                "request_id": request_id,
+                "axis": axis_hint,
+                "nurnburg_alias": nurnburg_alias,
+                "start_time": start_time
+            }
+            
+            # 4. Process Request
+            response = await call_next(request)
+            
+            # 5. Security Headers (Lockdown)
+            response.headers["X-Content-Type-Options"] = "nosniff"
+            response.headers["X-Frame-Options"] = "DENY"
+            response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+            
+            # 6. PII / Sensitive Data Shield (Outgoing)
+            if response.status_code == 200:
+                response.headers["X-Nurnburg-Compliance"] = "hardened_v2_active_shield"
+            
+            process_time = time.time() - start_time
+            response.headers["X-Process-Time"] = f"{process_time:.4f}"
+            response.headers["X-UKG-Trace-ID"] = request_id
+                
+            return response
+
+        except Exception as e:
+            logger.error(f"Middleware Error [{request_id}]: {str(e)}", exc_info=True)
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Internal Server Error", "request_id": request_id}
+            )
+
+    def _detect_malicious(self, value: str) -> bool:
+        """Helper to check string against all security patterns."""
+        if not value:
+            return False
+            
+        # Check SQL Injection
+        if any(pattern.search(value) for pattern in self.SQL_PATTERNS):
+            return True
+            
+        # Check Command Injection
+        if any(pattern.search(value) for pattern in self.CMD_PATTERNS):
+            return True
+            
+        # Check Path Traversal
+        if any(pattern.search(value, re.IGNORECASE) for pattern in self.PATH_PATTERNS):
+            return True
+            
+        return False
 
 import re
 
@@ -72,6 +136,10 @@ class PIIShield:
 
     @classmethod
     def redact(cls, text: str) -> str:
+        # If input is not a string, return as is (or stringify)
+        if not isinstance(text, str):
+            return str(text)
+            
         for label, pattern in cls.PATTERNS.items():
             text = pattern.sub(f"[PROTECTED_{label.upper()}]", text)
         return text

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { socketClient, useSocket } from './socket';
 import { io } from 'socket.io-client';
@@ -16,7 +16,14 @@ vi.mock('socket.io-client', () => ({
 }));
 
 describe('SocketClient', () => {
-  let mockSocket: any;
+  let mockSocket: {
+    on: Mock;
+    emit: Mock;
+    off: Mock;
+    connect: Mock;
+    disconnect: Mock;
+    connected: boolean;
+  };
 
   beforeEach(() => {
     mockSocket = {
@@ -27,7 +34,7 @@ describe('SocketClient', () => {
       disconnect: vi.fn(),
       connected: false,
     };
-    (io as any).mockReturnValue(mockSocket);
+    (io as Mock).mockReturnValue(mockSocket);
     // Reset singleton if possible or just test public API
     // Since it's a singleton instantiated at module level, re-importing might be tricky.
     // We'll trust the public API interactions.
@@ -54,6 +61,6 @@ describe('useSocket', () => {
   it('should return socket state', () => {
     const { result } = renderHook(() => useSocket());
     expect(result.current.isConnected).toBeDefined();
-    expect(typeof result.current.sendMessage).toBe('function');
+    expect(typeof result.current.sendChatMessage).toBe('function');
   });
 });

@@ -7,15 +7,14 @@ import { api } from './index';
 // Let's just mock the 'fetch' global if they use it, or inspect the structure.
 // If 'api' is an object with methods, we can just test if methods exist and call fetch.
 
-global.fetch = vi.fn();
-
 describe('API Modules', () => {
   beforeEach(() => {
-    (global.fetch as any).mockReset();
-    (global.fetch as any).mockResolvedValue({
+    const mockFetch = vi.fn();
+    mockFetch.mockResolvedValue({
       ok: true,
       json: async () => ({ success: true, data: {} })
     });
+    vi.stubGlobal('fetch', mockFetch);
   });
 
   it('should have compliance methods', async () => {

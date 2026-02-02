@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { chat } from './chat';
 import { request } from './index';
 
@@ -27,13 +27,13 @@ describe('Chat API', () => {
   });
 
   it('listSessions should call correct endpoint', async () => {
-    (request as any).mockResolvedValue({ sessions: [] });
+    (request as Mock).mockResolvedValue({ sessions: [] });
     await chat.listSessions();
     expect(request).toHaveBeenCalledWith('/gateway/sessions');
   });
 
   it('getSessionMessages should call correct endpoint', async () => {
-    (request as any).mockResolvedValue({ messages: [] });
+    (request as Mock).mockResolvedValue({ messages: [] });
     await chat.getSessionMessages('123');
     expect(request).toHaveBeenCalledWith('/gateway/sessions/123/messages');
   });
@@ -43,7 +43,7 @@ describe('Chat API', () => {
         messages: [{ role: 'user' as const, content: 'hello' }], 
         session_id: '123' 
     };
-    (request as any).mockResolvedValue({ response: 'hi' });
+    (request as Mock).mockResolvedValue({ response: 'hi' });
     await chat.sendMessage(payload);
     expect(request).toHaveBeenCalledWith('/gateway/chat', {
       method: 'POST',
@@ -52,7 +52,7 @@ describe('Chat API', () => {
   });
 
   it('getHealth should call health endpoint', async () => {
-    (request as any).mockResolvedValue({ status: 'ok' });
+    (request as Mock).mockResolvedValue({ status: 'ok' });
     await chat.getHealth();
     expect(request).toHaveBeenCalledWith('/gateway/health');
   });
