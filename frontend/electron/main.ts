@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, protocol, net } from 'electron';
+import { app, BrowserWindow, ipcMain, protocol, session } from 'electron';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
 import * as os from 'os';
@@ -75,7 +75,7 @@ app.on('ready', () => {
     // When packaged, __dirname is inside resources/app.asar/dist-electron
     // The 'out' folder is at resources/app.asar/out
     const appPath = path.join(__dirname, '../out');
-    let filePath = path.join(appPath, pathname);
+    const filePath = path.join(appPath, pathname);
 
     // If file doesn't exist, try appending .html (for clean URLs) or serve index.html (SPA routing)
     let finalPath = filePath;
@@ -88,7 +88,7 @@ app.on('ready', () => {
                  finalPath = path.join(appPath, 'index.html');
             }
         }
-    } catch (e) {
+    } catch {
         // Fallback for whatever reason (e.g. invalid path chars)
         finalPath = path.join(appPath, 'index.html');
     }
@@ -116,7 +116,7 @@ app.on('ready', () => {
   });
 
   // Security: Set CSP headers
-  const { session } = require('electron'); // Inline require for session to avoid early access
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session.defaultSession.webRequest.onHeadersReceived((details: any, callback: any) => {
     callback({
       responseHeaders: {

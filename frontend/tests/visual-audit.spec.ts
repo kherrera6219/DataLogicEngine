@@ -1,12 +1,12 @@
-import { _electron as electron, test, expect } from '@playwright/test';
+import { _electron as electron, test, expect, ElectronApplication, Page } from '@playwright/test';
 import * as path from 'path';
 import * as fs from 'fs';
 
 const AUDIT_DIR = 'C:/ProgramData/DataLogicEngine/audit/visual_checks';
 
 test.describe('UKG Desktop Visual Audit', () => {
-  let electronApp: any;
-  let page: any;
+  let electronApp: ElectronApplication;
+  let page: Page;
 
   test.beforeAll(async () => {
     // Ensure audit directory exists
@@ -24,8 +24,9 @@ test.describe('UKG Desktop Visual Audit', () => {
     page = await electronApp.firstWindow();
     
     // Capture crashes or errors
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     page.on('crash', (p: any) => console.error('PAGE CRASHED!', p.url()));
-    page.on('pageerror', (err: any) => console.error('BROWSER ERROR:', err.message));
+    page.on('pageerror', (err: Error) => console.error('BROWSER ERROR:', err.message));
   });
 
   test.afterAll(async () => {
@@ -50,7 +51,7 @@ test.describe('UKG Desktop Visual Audit', () => {
         console.log('App is in Initializing state...');
         await takeScreenshot('01_Startup_Initializing');
         // Wait for dashboard or login
-        await page.waitForURL(url => url.includes('/dashboard') || url.includes('/login'), { timeout: 30000 });
+        await page.waitForURL((url: URL) => url.toString().includes('/dashboard') || url.toString().includes('/login'), { timeout: 30000 });
     }
   });
 

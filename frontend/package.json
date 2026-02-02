@@ -44,6 +44,7 @@
     "@axe-core/cli": "^4.11.0",
     "@chromatic-com/storybook": "3.2.3",
     "@next/bundle-analyzer": "^16.1.6",
+    "@playwright/test": "^1.58.1",
     "@storybook/addon-essentials": "8.4.7",
     "@storybook/addon-interactions": "8.4.7",
     "@storybook/addon-links": "8.4.7",
