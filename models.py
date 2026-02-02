@@ -586,6 +586,8 @@ class ExternalAPIKey(db.Model):
     total_requests = db.Column(db.Integer, default=0)
     last_used_at = db.Column(db.DateTime)
     rate_limit_rpm = db.Column(db.Integer, default=60)
+    rate_limit_daily = db.Column(db.Integer)
+    max_tokens_per_request = db.Column(db.Integer)
     permissions = db.Column(db.JSON)
     allowed_providers = db.Column(db.JSON)
     allowed_models = db.Column(db.JSON)

@@ -100,7 +100,7 @@ async def gateway_chat():
     
     # Build request from validated model
     gateway_request = GatewayRequest(
-        messages=[m.dict() for m in req_model.messages],
+        messages=[m.model_dump() for m in req_model.messages],
         provider=req_model.provider,
         model=req_model.model,
         mode=req_model.mode,
@@ -119,8 +119,10 @@ async def gateway_chat():
     try:
         response = await gateway.process(gateway_request)
         
-        return jsonify({
+        if not response:
+            return jsonify({'error': 'No response generated from any provider'}), 503
 
+        return jsonify({
             'response': response.content,
             'run_id': response.run_id,
             'provider_used': response.provider_used,
@@ -259,6 +261,7 @@ def gateway_health():
     providers = LLMProvider.query.filter_by(is_active=True).count()
     
     return jsonify({
+        'status': 'healthy' if providers > 0 else 'degraded',
         'active_providers': providers,
         'message': 'Gateway operational' if providers > 0 else 'No providers configured',
     })

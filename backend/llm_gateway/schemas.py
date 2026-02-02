@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, constr, validator
+from pydantic import BaseModel, Field, constr, validator, ConfigDict
 from typing import List, Optional, Dict, Any, Union, Literal
 
 class Message(BaseModel):
@@ -10,9 +10,11 @@ class TraceSettings(BaseModel):
     level: Literal["basic", "full"] = "full"
 
 class GatewayChatRequest(BaseModel):
-    messages: List[Message] = Field(..., min_items=1)
+    model_config = ConfigDict(extra="ignore")
+
+    messages: List[Message] = Field(..., min_length=1)
     provider: Optional[str] = None
-    model: Optional[str] = None
+    model: str = Field(..., min_length=1)
     mode: Literal["chat", "trace", "explain"] = "chat"
     constraints: Dict[str, Any] = Field(default_factory=dict)
     run_ukg_pipeline: bool = True
@@ -24,9 +26,6 @@ class GatewayChatRequest(BaseModel):
     
     # Metadata for 17-axis resolution
     meta: Dict[str, Any] = Field(default_factory=dict)
-
-    class Config:
-        extra = "ignore"
 
 class APIKeyCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)

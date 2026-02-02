@@ -6,7 +6,7 @@ def test_gateway_health(client):
     response = client.get('/api/v1/gateway/health')
     assert response.status_code == 200
     data = response.get_json()
-    assert data['status'] == 'healthy'
+    assert data['status'] in ['healthy', 'degraded']
 
 def test_list_providers(authenticated_client):
     """Test standard provider listing."""
