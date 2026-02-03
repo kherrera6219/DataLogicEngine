@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+
+## [2.5.0] - 2026-02-02
+
+### Added - Phase 2 Coverage & Core Stability
+
+- **Frontend Logic Coverage**: Reached targeted coverage for `ChatInterface.tsx` and `socket.ts` through comprehensive unit tests.
+- **Backend Security Hardening**: Implemented advanced security middleware tests for path traversal and SQL injection patterns.
+- **Backend Core Integration**: Added integration tests for `KAMasterController` and `TruthEngine` coordination.
+- **Stability Fixes**: Resolved critical race conditions in the Chat Interface during session hydration.
+- **Phase 2 Milestone**: Successfully met coverage targets for core coordination layers (~68% FE, ~50% BE).
+
 ## [2.4.0] - 2026-01-16
 
 ### Added - Multi-Mode Reasoning Engine (Cloud & Desktop)
