@@ -14,26 +14,22 @@ vi.mock('@/lib/api', () => ({
 }));
 
 // Mock Recharts
-vi.mock('recharts', () => {
-  const OriginalModule = vi.importActual('recharts');
-  return {
-    ...OriginalModule,
-    ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-    AreaChart: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-    PieChart: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-    Area: () => null,
-    Pie: () => null,
-    Line: () => null,
-    XAxis: () => null,
-    YAxis: () => null,
-    Tooltip: () => null,
-    Cell: () => null,
-  };
-});
+vi.mock('recharts', () => ({
+  ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <svg>{children}</svg>,
+  AreaChart: ({ children }: { children: React.ReactNode }) => <g>{children}</g>,
+  PieChart: ({ children }: { children: React.ReactNode }) => <g>{children}</g>,
+  Area: () => <g />,
+  Pie: () => <g />,
+  Line: () => <g />,
+  XAxis: () => <g />,
+  YAxis: () => <g />,
+  Tooltip: () => <div />,
+  Cell: () => <g />,
+}));
 
 describe('McpAnalytics', () => {
   it('should render loading state initially', () => {
-    (api.analytics.mcp as any).mockReturnValue(new Promise(() => {})); // Never resolves
+    vi.mocked(api.analytics.mcp).mockReturnValue(new Promise(() => {})); // Never resolves
     render(<McpAnalytics />);
     // Check for spinner or loading indicator
     // The component renders a spinner div
@@ -48,7 +44,7 @@ describe('McpAnalytics', () => {
       server_health: [{ name: 'Server 1', status: 'Healthy', latency: 20 }],
       error_stats: [{ name: 'Error 1', value: 5, color: 'red' }]
     };
-    (api.analytics.mcp as any).mockResolvedValue(mockData);
+    vi.mocked(api.analytics.mcp).mockResolvedValue(mockData as any);
 
     render(<McpAnalytics />);
 

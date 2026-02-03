@@ -12,6 +12,7 @@ def create_legacy_app():
     app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key')
     
     # Initialize extensions
+    from extensions import db
     from models import User
     # In legacy app, we still need to initialize db if it's used elsewhere
     # but models should come from the unified registry.
@@ -21,14 +22,15 @@ def create_legacy_app():
     CORS(app)
     
     # Register blueprints
-    from .auth import auth_bp
+    from routes.auth_routes import auth_bp
     from .chat import chat_bp
     from .admin import admin_bp
-    from .ukg_api import ukg_bp
-    from .routes.user_data_routes import user_data_bp
+    from .ukg_api import ukg_api as ukg_bp
+    from routes.user_data_routes import user_data_bp
     from .routes.settings_routes import settings_bp
     from .routes.location_routes import location_api as location_bp
-    from .middleware import log_request_info
+    from routes.admin_routes import admin_bp as routes_admin_bp
+    from routes.api_routes import api_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(chat_bp, url_prefix='/api/chat')
@@ -36,7 +38,9 @@ def create_legacy_app():
     app.register_blueprint(ukg_bp, url_prefix='/api/ukg')
     app.register_blueprint(user_data_bp)
     app.register_blueprint(settings_bp)
-    app.register_blueprint(location_bp)
+    app.register_blueprint(location_bp, url_prefix='/api/v1/location')
+    app.register_blueprint(routes_admin_bp)
+    app.register_blueprint(api_bp)
     # Re-register search blueprint from new location if needed, or assume it's covered by imports.
     # Logic note: search_api was not previously in __init__.py imports list in step 1253 view.
     # Let's check if it was registered. It was NOT in the list.

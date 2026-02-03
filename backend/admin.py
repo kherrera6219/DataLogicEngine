@@ -3,7 +3,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from models import User
 from extensions import db
-from .middleware import admin_required
+from backend.auth.api_decorators import api_admin_required as admin_required
 
 admin_bp = Blueprint('admin', __name__)
 

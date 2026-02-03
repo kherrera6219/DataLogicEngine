@@ -104,6 +104,7 @@ def test_ka_contract(ka_file):
     assert "execution_time_ms" in result
     # We don't strictly assert success=True because some KAs might fail due to lack of real data/services
     # but we DO assert it didn't crash with an E500 (Unhandled System Error)
+    # but we DO assert it didn't crash with an E500 (Unhandled System Error)
     if not result["success"]:
         for error in result.get("errors", []):
             assert error["code"] != "E500", f"KA {ka_file} crashed with: {error['message']}\n{error.get('details')}"

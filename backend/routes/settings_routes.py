@@ -1,7 +1,8 @@
 
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
-from backend.models import User, db
+from models import User
+from extensions import db
 
 settings_bp = Blueprint('settings', __name__, url_prefix='/api/settings')
 

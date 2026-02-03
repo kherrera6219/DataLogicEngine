@@ -5,6 +5,7 @@ Purpose: Manage system environments, configuration injection, and orchestration 
 import logging
 import json
 import os
+import hashlib
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 

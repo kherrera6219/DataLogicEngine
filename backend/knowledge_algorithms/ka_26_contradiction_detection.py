@@ -59,7 +59,8 @@ class KA026ContradictionDetection(KnowledgeAlgorithm):
     def _detect_conflict(self, f1: Dict[str, Any], f2: Dict[str, Any]) -> Dict[str, Any]:
         t1 = f1.get("content", "").lower()
         t2 = f2.get("content", "").lower()
-        if f"not {t1}" in t2 or f"no {t1}" in t2 or f"never {t1}" in t2:
+        words1 = [w for w in re.split(r'\W+', t1) if w]
+        if f"not {t1}" in t2 or f"no {t1}" in t2 or f"never {t1}" in t2 or (("not" in t2 or "no" in t2) and all(w in t2 for w in words1)):
              return {
                  "type": "DIRECT_NEGATION",
                  "f1_id": f1.get("id"),

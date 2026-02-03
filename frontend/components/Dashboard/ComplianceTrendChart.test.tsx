@@ -16,23 +16,15 @@ vi.mock('@/lib/api', () => ({
   }
 }));
 
-// Mock Recharts
-vi.mock('recharts', () => {
-  const OriginalModule = vi.importActual('recharts');
-  return {
-    ...OriginalModule,
-    ResponsiveContainer: ({ children }) => <div>{children}</div>,
-    AreaChart: ({ children }) => <div>{children}</div>,
-    Area: () => null,
-    XAxis: () => null,
-    YAxis: () => null,
-    CartesianGrid: () => null,
-    Tooltip: () => null,
-    defs: ({ children }) => <defs>{children}</defs>,
-    linearGradient: ({ children }) => <linearGradient>{children}</linearGradient>,
-    stop: () => <stop />
-  };
-});
+vi.mock('recharts', () => ({
+  ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <svg>{children}</svg>,
+  AreaChart: ({ children }: { children: React.ReactNode }) => <g>{children}</g>,
+  Area: () => <g />,
+  XAxis: () => <g />,
+  YAxis: () => <g />,
+  CartesianGrid: () => <g />,
+  Tooltip: () => <div />,
+}));
 
 // Mock Skeleton
 vi.mock('@/components/ui/skeleton', () => ({
@@ -50,8 +42,11 @@ describe('ComplianceTrendChart', () => {
   });
 
   it('should render chart when data loads', () => {
-    (useSWR as any).mockReturnValue({
+    vi.mocked(useSWR).mockReturnValue({
       data: { data: { data_points: [{ date: '2023-01-01', value: 10 }] } },
+      error: undefined,
+      mutate: vi.fn(),
+      isValidating: false,
       isLoading: false
     });
     render(<ComplianceTrendChart />);

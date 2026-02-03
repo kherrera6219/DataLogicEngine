@@ -23,7 +23,7 @@ def check_api_auth():
 def api_login_required(f):
     """Decorator to require authentication via session or API key."""
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def api_login_required_wrapper(*args, **kwargs):
         is_auth, _ = check_api_auth()
         if not is_auth:
             return jsonify({
@@ -33,12 +33,21 @@ def api_login_required(f):
                 'code': 'UNAUTHORIZED'
             }), 401
         return f(*args, **kwargs)
-    return decorated_function
+        
+    # Manually preserve function attributes to prevent Flask endpoint collisions
+    try:
+        api_login_required_wrapper.__name__ = f.__name__
+        api_login_required_wrapper.__doc__ = f.__doc__
+        api_login_required_wrapper.__module__ = f.__module__
+    except (AttributeError, TypeError):
+        pass
+        
+    return api_login_required_wrapper
 
 def api_admin_required(f):
     """Decorator to require admin privileges (only via session for now)."""
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def api_admin_required_wrapper(*args, **kwargs):
         if not current_user.is_authenticated:
             return jsonify({
                 'status': 'error',
@@ -55,4 +64,4 @@ def api_admin_required(f):
                 'code': 'FORBIDDEN'
             }), 403
         return f(*args, **kwargs)
-    return decorated_function
+    return api_admin_required_wrapper

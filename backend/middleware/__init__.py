@@ -29,7 +29,7 @@ def api_response(f):
     - Exceptions (wrapped in error response with sanitized messages)
     """
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def api_response_wrapper(*args, **kwargs):
         is_dev = current_app.config.get('ENV') == 'development' or current_app.debug
 
         try:
@@ -101,7 +101,15 @@ def api_response(f):
                 'timestamp': datetime.now(UTC).isoformat()
             }), 500
     
-    return decorated_function
+    # Manually preserve function attributes to prevent Flask endpoint collisions
+    try:
+        api_response_wrapper.__name__ = f.__name__
+        api_response_wrapper.__doc__ = f.__doc__
+        api_response_wrapper.__module__ = f.__module__
+    except (AttributeError, TypeError):
+        pass
+        
+    return api_response_wrapper
 
 
 def audit_request_middleware():
