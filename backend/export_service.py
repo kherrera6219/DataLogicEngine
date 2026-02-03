@@ -147,51 +147,50 @@ def generate_pdf_report(title: str, content: Dict[str, Any]) -> bytes:
     Returns:
         PDF bytes or HTML string if weasyprint unavailable
     """
+    # Generate HTML
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{title}</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; margin: 40px; }}
+            h1 {{ color: #333; border-bottom: 2px solid #007bff; }}
+            h2 {{ color: #555; margin-top: 20px; }}
+            table {{ border-collapse: collapse; width: 100%; margin: 10px 0; }}
+            th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+            th {{ background-color: #007bff; color: white; }}
+            .meta {{ color: #666; font-size: 12px; }}
+        </style>
+    </head>
+    <body>
+        <h1>{title}</h1>
+        <p class="meta">Generated: {datetime.now(UTC).isoformat()}</p>
+    """
+    
+    for section, data in content.items():
+        html_content += f"<h2>{section}</h2>"
+        if isinstance(data, dict):
+            html_content += "<table>"
+            for key, value in data.items():
+                html_content += f"<tr><th>{key}</th><td>{value}</td></tr>"
+            html_content += "</table>"
+        elif isinstance(data, list):
+            html_content += "<ul>"
+            for item in data:
+                html_content += f"<li>{item}</li>"
+            html_content += "</ul>"
+        else:
+            html_content += f"<p>{data}</p>"
+    
+    html_content += """
+    </body>
+    </html>
+    """
+    
     try:
         from weasyprint import HTML
-        
-        # Generate HTML
-        html_content = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>{title}</title>
-            <style>
-                body {{ font-family: Arial, sans-serif; margin: 40px; }}
-                h1 {{ color: #333; border-bottom: 2px solid #007bff; }}
-                h2 {{ color: #555; margin-top: 20px; }}
-                table {{ border-collapse: collapse; width: 100%; margin: 10px 0; }}
-                th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-                th {{ background-color: #007bff; color: white; }}
-                .meta {{ color: #666; font-size: 12px; }}
-            </style>
-        </head>
-        <body>
-            <h1>{title}</h1>
-            <p class="meta">Generated: {datetime.now(UTC).isoformat()}</p>
-        """
-        
-        for section, data in content.items():
-            html_content += f"<h2>{section}</h2>"
-            if isinstance(data, dict):
-                html_content += "<table>"
-                for key, value in data.items():
-                    html_content += f"<tr><th>{key}</th><td>{value}</td></tr>"
-                html_content += "</table>"
-            elif isinstance(data, list):
-                html_content += "<ul>"
-                for item in data:
-                    html_content += f"<li>{item}</li>"
-                html_content += "</ul>"
-            else:
-                html_content += f"<p>{data}</p>"
-        
-        html_content += """
-        </body>
-        </html>
-        """
-        
         # Generate PDF
         pdf = HTML(string=html_content).write_pdf()
         return pdf

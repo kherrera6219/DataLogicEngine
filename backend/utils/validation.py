@@ -256,8 +256,10 @@ def validate_query_params(
                 for param, expected_type in allowed.items():
                     if param in request.args:
                         try:
-                            # Try to convert to expected type
-                            request.args.get(param, type=expected_type)
+                            # Explicitly cast to check type validity
+                            val = request.args.get(param)
+                            if val is not None:
+                                expected_type(val)
                         except (ValueError, TypeError):
                             errors.append(f"Parameter '{param}' must be of type {expected_type.__name__}")
 

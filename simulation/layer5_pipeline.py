@@ -175,7 +175,6 @@ def persona_runner_node(state: Layer5State) -> Layer5State:
     new_outputs: List[Dict[str, Any]] = []
 
     # Import KA-20 on demand to avoid circular deps at top level if any
-    try:
     # Import KA-012 (Persona Simulation) instead of deprecated KA-20
     try:
         from backend.knowledge_algorithms.ka_12_persona_simulation import KA012PersonaSimulation
