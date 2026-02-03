@@ -10,13 +10,13 @@ def get_ka_files():
     files = [f for f in os.listdir(ka_dir) if f.startswith("ka_") and f.endswith(".py") and "master" not in f]
     return sorted(files)
 
+import importlib
+# ...
 def load_ka_module(filename: str):
     module_name = filename[:-3]
-    module_path = os.path.join("backend", "knowledge_algorithms", filename)
-    spec = importlib.util.spec_from_file_location(module_name, module_path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    # Use dotted path relative to backend package
+    full_module_name = f"backend.knowledge_algorithms.{module_name}"
+    return importlib.import_module(full_module_name)
 
 @pytest.mark.parametrize("ka_file", get_ka_files())
 def test_ka_contract(ka_file):
