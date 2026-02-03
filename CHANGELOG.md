@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [4.0.0] - 2026-02-02
+
+### Added
+
+- Phase 4: Production Resilience complete.
+- Hardened `Validator` and `Pagination` utility unit tests.
+- Full unit test coverage for `mcp`, `simulation`, and `compliance` API clients.
+- Simulated E2E integration test covering the 12-step Orchestrator lifecycle.
+
+## [3.0.0] - 2026-02-02
+### Added
+- Phase 3: Integration & Security Hardening complete.
+- Comprehensive integration tests for LLM Gateway (failover, circuit breaking).
+- Reliability tests for `UkgDatabaseManager` (tenant isolation, caching).
+- Full-stack compliance verification for Nurnburg/SAM logic via `RefinementOrchestrator`.
+- Standardized backend test configuration via `conftest.py`.
 
 ## [2.5.0] - 2026-02-02
 

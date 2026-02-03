@@ -48,6 +48,10 @@ The following items from prior TODO lists have been **verified as implemented**:
   - [x] `ChatInterface.tsx` stable coverage achieved.
   - [x] `socket.ts` 100% test coverage.
   - [x] Security middleware edge-case tests.
+- [x] **Phase 3: Integration & Security Hardening**:
+  - [x] LLM Gateway Integration Tests (Failover/Circuit-Breaking).
+  - [x] UKG DB & Repository Reliability (Tenant Isolation/Caching).
+  - [x] Full-Stack Compliance Verification (Nurnburg/SAM).
 - [x] **Phase 3: Integration (MCP)**:
   - [x] MCP Server infrastructure (`backend/mcp_server/router.py`, `registry.py`)
   - [x] Salesforce connector tools (`salesforce_crm_lookup`, `salesforce_lead_create`)
