@@ -46,4 +46,37 @@ describe('MCP API Client', () => {
         expect(request).toHaveBeenCalledWith('/mcp/stats');
         expect(result).toEqual(mockStats);
     });
+
+    it('createServer should post data', async () => {
+        const mockData = { name: 'New Server', server_id: 'new1' };
+        vi.mocked(request).mockResolvedValue(mockData);
+
+        const result = await mcp.createServer(mockData);
+
+        expect(request).toHaveBeenCalledWith('/mcp/servers', expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify(mockData)
+        }));
+        expect(result).toEqual(mockData);
+    });
+
+    it('deleteServer should send delete request', async () => {
+        vi.mocked(request).mockResolvedValue(undefined);
+
+        await mcp.deleteServer('s1');
+
+        expect(request).toHaveBeenCalledWith('/mcp/servers/s1', expect.objectContaining({
+            method: 'DELETE'
+        }));
+    });
+
+    it('getResources should return unwrapped resources list', async () => {
+         const mockResources = [{ name: 'res1', uri: 'file:///', mimeType: 'text/plain' }];
+         vi.mocked(request).mockResolvedValue({ resources: mockResources });
+
+         const result = await mcp.getResources('s1');
+
+         expect(request).toHaveBeenCalledWith('/mcp/servers/s1/resources');
+         expect(result).toEqual(mockResources);
+    });
 });
