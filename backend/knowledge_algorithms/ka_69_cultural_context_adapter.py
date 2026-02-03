@@ -5,12 +5,18 @@ Purpose: Adjust the framing, terminology, and sensitivity of outputs to align wi
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+
+class KA069Input(BaseModel):
+    class Config:
+        extra = 'allow'
 class KA069CulturalContextAdapter(KnowledgeAlgorithm):
+    input_schema = KA069Input
     """
     KA-069: Localized framing and cultural adaptation engine.
     """
@@ -28,9 +34,10 @@ class KA069CulturalContextAdapter(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        target_culture = input_data.get("culture", self.config.get("default_culture", "global"))
-        output_text = input_data.get("output_text", "")
+    def _run_logic(self, input_data: KA069Input) -> Dict[str, Any]:
+        input_dict = input_data.model_dump()
+        target_culture = input_dict.get("culture", self.config.get("default_culture", "global"))
+        output_text = input_dict.get("output_text", "")
         
         self.log_execution_step("Adapting to Cultural Context", {"culture": target_culture})
         

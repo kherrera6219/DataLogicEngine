@@ -6,12 +6,18 @@ import logging
 import json
 import os
 import re
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+
+class KA064Input(BaseModel):
+    class Config:
+        extra = 'allow'
 class KA064FailurePatternDetection(KnowledgeAlgorithm):
+    input_schema = KA064Input
     """
     KA-064: Error signature matching and pattern analysis engine.
     """
@@ -29,8 +35,9 @@ class KA064FailurePatternDetection(KnowledgeAlgorithm):
         except Exception:
             return {}
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        error_logs = input_data.get("error_logs", [])
+    def _run_logic(self, input_data: KA064Input) -> Dict[str, Any]:
+        input_dict = input_data.model_dump()
+        error_logs = input_dict.get("error_logs", [])
         
         self.log_execution_step("Scanning for Failure Patterns", {"log_count": len(error_logs)})
         

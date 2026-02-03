@@ -3,21 +3,28 @@ KA-042: Counterfactual Simulator
 Purpose: Simulate "what if" scenarios.
 """
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+
+class KA042Input(BaseModel):
+    class Config:
+        extra = 'allow'
 class KA042CounterfactualSimulator(KnowledgeAlgorithm):
+    input_schema = KA042Input
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _run_logic(self, input_data: KA042Input) -> Dict[str, Any]:
+        input_dict = input_data.model_dump()
         """
         Simulate counterfactuals.
         """
-        scenario = input_data.get("scenario", "")
-        change = input_data.get("change", "")
+        scenario = input_dict.get("scenario", "")
+        change = input_dict.get("change", "")
         
         self.log_execution_step("Simulating Counterfactual", {"scenario": scenario, "change": change})
         

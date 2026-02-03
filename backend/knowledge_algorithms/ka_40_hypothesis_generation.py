@@ -3,20 +3,27 @@ KA-040: Hypothesis Generation
 Purpose: Generate hypotheses for unknown phenomena.
 """
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+
+class KA040Input(BaseModel):
+    class Config:
+        extra = 'allow'
 class KA040HypothesisGeneration(KnowledgeAlgorithm):
+    input_schema = KA040Input
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _run_logic(self, input_data: KA040Input) -> Dict[str, Any]:
+        input_dict = input_data.model_dump()
         """
         Generate hypotheses.
         """
-        observation = input_data.get("observation", "")
+        observation = input_dict.get("observation", "")
         
         self.log_execution_step("Generating Hypotheses", {"obs": observation})
         

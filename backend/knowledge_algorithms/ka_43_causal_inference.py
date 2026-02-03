@@ -3,21 +3,28 @@ KA-043: Causal Inference
 Purpose: Infer cause-effect relationships.
 """
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+
+class KA043Input(BaseModel):
+    class Config:
+        extra = 'allow'
 class KA043CausalInference(KnowledgeAlgorithm):
+    input_schema = KA043Input
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _run_logic(self, input_data: KA043Input) -> Dict[str, Any]:
+        input_dict = input_data.model_dump()
         """
         Infer causality.
         """
-        effect = input_data.get("effect", "")
-        candidates = input_data.get("candidates", [])
+        effect = input_dict.get("effect", "")
+        candidates = input_dict.get("candidates", [])
         
         self.log_execution_step("Inferring Cause", {"effect": effect})
         

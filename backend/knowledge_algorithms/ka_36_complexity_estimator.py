@@ -3,20 +3,27 @@ KA-036: Complexity Estimator
 Purpose: Estimate problem complexity (time/space/cognitive).
 """
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+
+class KA036Input(BaseModel):
+    class Config:
+        extra = 'allow'
 class KA036ComplexityEstimator(KnowledgeAlgorithm):
+    input_schema = KA036Input
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _run_logic(self, input_data: KA036Input) -> Dict[str, Any]:
+        input_dict = input_data.model_dump()
         """
         Estimate complexity.
         """
-        problem = input_data.get("problem", "")
+        problem = input_dict.get("problem", "")
         
         self.log_execution_step("Estimating Complexity", {})
         

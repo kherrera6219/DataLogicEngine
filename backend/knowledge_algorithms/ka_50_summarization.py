@@ -3,21 +3,28 @@ KA-050: Summarization
 Purpose: Summarize text or data.
 """
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+
+class KA050Input(BaseModel):
+    class Config:
+        extra = 'allow'
 class KA050Summarization(KnowledgeAlgorithm):
+    input_schema = KA050Input
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _run_logic(self, input_data: KA050Input) -> Dict[str, Any]:
+        input_dict = input_data.model_dump()
         """
         Summarize content.
         """
-        text = input_data.get("text", "")
-        max_len = input_data.get("max_length", 100)
+        text = input_dict.get("text", "")
+        max_len = input_dict.get("max_length", 100)
         
         self.log_execution_step("Summarizing", {"len": len(text)})
         

@@ -3,20 +3,27 @@ KA-045: Pattern Recognition
 Purpose: Identify recurring patterns in data.
 """
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+
+class KA045Input(BaseModel):
+    class Config:
+        extra = 'allow'
 class KA045PatternRecognition(KnowledgeAlgorithm):
+    input_schema = KA045Input
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _run_logic(self, input_data: KA045Input) -> Dict[str, Any]:
+        input_dict = input_data.model_dump()
         """
         Recognize patterns.
         """
-        data_stream = input_data.get("stream", [])
+        data_stream = input_dict.get("stream", [])
         
         self.log_execution_step("Recognizing Patterns", {"len": len(data_stream)})
         

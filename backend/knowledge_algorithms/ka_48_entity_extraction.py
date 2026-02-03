@@ -3,20 +3,27 @@ KA-048: Entity Extraction
 Purpose: Extract named entities from text.
 """
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
+
+class KA048Input(BaseModel):
+    class Config:
+        extra = 'allow'
 class KA048EntityExtraction(KnowledgeAlgorithm):
+    input_schema = KA048Input
     def __init__(self, context: Dict[str, Any]):
         super().__init__(context, None, None, None)
 
-    def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _run_logic(self, input_data: KA048Input) -> Dict[str, Any]:
+        input_dict = input_data.model_dump()
         """
         Extract entities.
         """
-        text = input_data.get("text", "")
+        text = input_dict.get("text", "")
         
         self.log_execution_step("Extracting Entities", {})
         
