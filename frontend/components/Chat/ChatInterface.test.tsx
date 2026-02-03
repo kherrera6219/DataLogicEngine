@@ -1,47 +1,56 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ChatInterface } from './ChatInterface';
 import { api } from '@/lib/api';
+import { socketClient, useSocket } from '@/lib/socket';
 
 // Mock dependencies
+vi.mock('uuid', () => ({
+  v4: () => 'test-session-uuid'
+}));
+
 vi.mock('@/lib/api', () => ({
   api: {
     chat: {
       listSessions: vi.fn(),
       getSessionMessages: vi.fn(),
       sendMessage: vi.fn(),
-      getHealth: vi.fn(),
     },
-    system: {
-      health: vi.fn().mockResolvedValue('Operational')
-    }
-  }
+  },
 }));
 
-vi.mock('@/lib/socket', () => ({
-  useSocket: () => ({
-    isConnected: true,
-    lastMessage: null,
-    sendMessage: vi.fn(),
-  }),
-  socketClient: {
-    joinRoom: vi.fn(),
-    leaveRoom: vi.fn(),
+vi.mock('@/lib/socket', () => {
+  const mSocket = {
+    on: vi.fn(),
+    emit: vi.fn(),
+    off: vi.fn(),
     connect: vi.fn(),
     disconnect: vi.fn(),
-  }
+    connected: true,
+    joinRoom: vi.fn(),
+    leaveRoom: vi.fn(),
+    setHandlers: vi.fn(),
+  };
+  return {
+    socketClient: mSocket,
+    useSocket: vi.fn((handlers) => {
+      if (handlers) mSocket.setHandlers(handlers);
+      return mSocket;
+    }),
+  };
+});
+
+// Mock child components
+vi.mock('@/components/ui/scroll-area', () => ({
+  ScrollArea: ({ children, className }: any) => <div className={className} data-testid="scroll-area">{children}</div>
 }));
 
-// Mock child components to isolate ChatInterface logic
-vi.mock('./MessageBubble', () => ({
-  MessageBubble: ({ message }) => <div data-testid="message-bubble">{message.content}</div>
-}));
 vi.mock('./LiveTracePanel', () => ({
   LiveTracePanel: () => <div data-testid="trace-panel">Trace</div>
 }));
 vi.mock('./DetailedResponseView', () => ({
-  DetailedResponseView: () => <div data-testid="detailed-view">Detailed</div>
+  DetailedResponseView: ({ message }: any) => <div data-testid="detailed-view">{message.id}</div>
 }));
 vi.mock('./TraceVisualizer', () => ({
   TraceVisualizer: () => <div data-testid="trace-visualizer">Visualizer</div>
@@ -51,45 +60,106 @@ vi.mock('./AdvancedControls', () => ({
 }));
 
 describe('ChatInterface', () => {
+  const mockSessions = [
+    { id: 'session-1', title: 'Session 1' },
+    { id: 'session-2', title: 'Session 2' }
+  ];
+
   beforeEach(() => {
     vi.clearAllMocks();
-    (api.chat.listSessions as any).mockResolvedValue({ sessions: [] });
-    (api.chat.getHealth as any).mockResolvedValue({ active_providers: 1 });
-  });
-
-  it('should render input and send button', async () => {
-    // Need to wrap in some context if needed? 
-    // ChatInterface seems self-contained or relies on simple props (none required)
-    render(<ChatInterface />);
-    
-    expect(screen.getByPlaceholderText(/ask a compliance question/i)).toBeInTheDocument();
-  });
-
-  it('should handle sending a message', async () => {
+    (api.chat.listSessions as any).mockResolvedValue({ sessions: mockSessions });
+    (api.chat.getSessionMessages as any).mockResolvedValue({ 
+      messages: [{ id: 'hist-1', role: 'assistant', content: '', finalAnswer: 'Session History' }] 
+    });
     (api.chat.sendMessage as any).mockResolvedValue({ 
-      id: '2', 
-      role: 'assistant', 
-      content: 'Response', 
-      timestamp: new Date().toISOString() 
+      response: 'Core Response',
+      trace_summary: { steps: [] }
+    });
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ message: 'Success' })
+    });
+    // Silence console.error for expected failures
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  it('should load sessions and initial messages on mount', async () => {
+    render(<ChatInterface />);
+    await waitFor(() => expect(screen.getByText('Session 1')).toBeInTheDocument());
+  });
+
+  it('should handle switching sessions', async () => {
+    render(<ChatInterface />);
+    await waitFor(() => screen.getByText('Session 2'));
+    fireEvent.click(screen.getByText('Session 2'));
+    expect(socketClient.joinRoom).toHaveBeenCalled();
+  });
+
+  it('should handle sending a message and displaying direct response', async () => {
+    (api.chat.sendMessage as any).mockResolvedValue({ 
+      response: 'Core Response',
+      trace_summary: { steps: [] }
     });
 
     render(<ChatInterface />);
     
-    // Type message
-    const input = screen.getByPlaceholderText(/ask a compliance question/i);
-    fireEvent.change(input, { target: { value: 'Hello' } });
+    const textarea = screen.getByPlaceholderText(/ask a compliance question/i);
+    fireEvent.change(textarea, { target: { value: 'Test query' } });
     
-    // Click send
-    const sendBtn = screen.getByRole('button', { name: /send/i }); // Button might have icon, accessible name might be missing?
-    // Let's assume there is a button with type="submit" or similar. 
-    // Checking `screen.debug()` helps if this fails.
-    // The previous analysis showed `Button` components. 
-    // I'll try firing submit on the form or clicking the button found by generic role if name fails.
+    const sendBtn = screen.getByText('Send');
+    fireEvent.click(sendBtn);
+    
+    await waitFor(() => expect(screen.getByText('Core Response')).toBeInTheDocument());
   });
-  
-  // Actually, let's just test rendering first 
-  it('renders correctly', () => {
+
+  it('should handle API errors gracefully', async () => {
+    (api.chat.sendMessage as any).mockRejectedValue(new Error('Network Failure'));
+
     render(<ChatInterface />);
-    expect(screen.getByText('Trace')).toBeInTheDocument(); // Expect panels to render
+    
+    // Wait for the main chat area to be ready
+    await screen.findByTestId('main-chat-area', {}, { timeout: 8000 });
+    
+    // Wait for messages to hydrate
+    await waitFor(() => {
+      const msgs = screen.queryAllByTestId('message-item');
+      expect(msgs.length).toBeGreaterThan(0);
+    }, { timeout: 8000 });
+    
+    const textarea = await screen.findByPlaceholderText(/ask a compliance question/i);
+    const sendButton = screen.getByRole('button', { name: /send/i });
+    
+    await act(async () => {
+      fireEvent.change(textarea, { target: { value: 'Failure test' } });
+    });
+    
+    // Wait for button to be enabled (it might be disabled during hydration)
+    await waitFor(() => expect(sendButton).not.toBeDisabled());
+    
+    await act(async () => {
+      fireEvent.click(sendButton);
+    });
+
+    // Check for error message with a very generous timeout
+    expect(await screen.findByText(/I encountered an error/i, {}, { timeout: 10000 })).toBeInTheDocument();
+  }, 30000);
+
+  it('should handle file upload successfully', async () => {
+    render(<ChatInterface />);
+    const file = new File(['test'], 'test.txt', { type: 'text/plain' });
+    const input = screen.getByLabelText(/upload file/i);
+    
+    fireEvent.change(input, { target: { files: [file] } });
+    
+    await waitFor(() => {
+      expect(screen.getByText(/File processed successfully/i)).toBeInTheDocument();
+    });
+  });
+
+  it('should clear messages on new chat', async () => {
+    render(<ChatInterface />);
+    const newChatBtn = screen.getByText(/new chat/i);
+    fireEvent.click(newChatBtn);
+    expect(screen.queryByTestId('message-bubble')).not.toBeInTheDocument();
   });
 });

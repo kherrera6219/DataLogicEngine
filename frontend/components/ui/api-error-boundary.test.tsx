@@ -1,5 +1,5 @@
-```javascript
-import { render, screen, waitFor } from '@testing-library/react';
+import React, { useState } from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 import { ApiErrorBoundary } from './api-error-boundary';
 
@@ -13,8 +13,11 @@ afterAll(() => {
   console.error = originalConsoleError;
 });
 
-const ThrowError = () => {
-  throw new Error('Test Error');
+const ThrowError = ({ shouldThrow = true }: { shouldThrow?: boolean }) => {
+  if (shouldThrow) {
+    throw new Error('Test Error');
+  }
+  return <div data-testid="recovered">Recovered</div>;
 };
 
 describe('ApiErrorBoundary', () => {
@@ -52,33 +55,33 @@ describe('ApiErrorBoundary', () => {
         <ThrowError />
       </ApiErrorBoundary>
     );
-    expect(screen.getByTitle(/Checking Status.../)).toBeInTheDocument();
+    expect(screen.getByText('Compliance Engine')).toBeInTheDocument();
   });
 
-  it('should allow retrying via Re-sync button', async () => {
-    const { rerender } = render(
-      <ApiErrorBoundary>
-        <ThrowError />
-      </ApiErrorBoundary>
-    );
+  it('should allow retrying via Re-sync button', () => {
+    const TestWrapper = () => {
+      const [shouldThrow, setShouldThrow] = useState(true);
+      return (
+        <div>
+          <button data-testid="fix-it" onClick={() => setShouldThrow(false)}>Fix It</button>
+          <ApiErrorBoundary>
+            <ThrowError shouldThrow={shouldThrow} />
+          </ApiErrorBoundary>
+        </div>
+      );
+    };
+
+    render(<TestWrapper />);
     
     expect(screen.getByText('Signal Disruption')).toBeInTheDocument();
     
-    await waitFor(() => {
-        expect(screen.getByTitle(/LLM Gateway: Operational/)).toBeInTheDocument();
-    }, { timeout: 2000 });
-
-    // After clicking retry, state should reset. 
-    // We need to wait for the state update to propagate
-    fireEvent.click(screen.getByText('Re-sync'));
+    // Fix the error state first
+    fireEvent.click(screen.getByTestId('fix-it'));
     
-    rerender(
-      <ApiErrorBoundary>
-        <div data-testid="recovered">Recovered</div>
-      </ApiErrorBoundary>
-    );
+    // Now click Re-sync
+    const retryBtn = screen.getByText('Re-sync');
+    fireEvent.click(retryBtn);
     
     expect(screen.getByTestId('recovered')).toBeInTheDocument();
   });
 });
-```

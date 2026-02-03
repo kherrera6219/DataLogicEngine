@@ -24,7 +24,7 @@ export function ChatInterface() {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<'chat' | 'quad'>('chat');
-  const [currentSessionId, setCurrentSessionId] = useState<string>(uuidv4());
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
 
   // WebSocket Integration
@@ -62,6 +62,13 @@ export function ChatInterface() {
     fetchSessions();
   }, []);
 
+  // Auto-select first session when sessions are loaded
+  useEffect(() => {
+    if (sessions.length > 0 && !currentSessionId) {
+      setCurrentSessionId(sessions[0].id);
+    }
+  }, [sessions, currentSessionId]);
+
   // Hydrate history when session changes
   useEffect(() => {
     if (!currentSessionId) return;
@@ -70,6 +77,7 @@ export function ChatInterface() {
     socketClient.joinRoom(`chat_${currentSessionId}`);
 
     const fetchHistory = async () => {
+      // console.log("fetchHistory starting for:", currentSessionId);
       try {
         const data = await api.chat.getSessionMessages(currentSessionId);
         if (data.messages && data.messages.length > 0) {
@@ -77,8 +85,8 @@ export function ChatInterface() {
         } else {
           setMessages([]);
         }
-      } catch {
-        console.warn("Failed to load history, starting fresh.");
+      } catch (err) {
+        console.warn("Failed to load history, starting fresh.", err);
         setMessages([]);
       }
     };
@@ -104,6 +112,7 @@ export function ChatInterface() {
     setIsLoading(true);
 
     try {
+      console.log('ChatInterface: handleSend starting');
       // Use the centralized API
       const data = await api.chat.sendMessage({
         messages: [{ role: 'user', content: userMsg.content }],
@@ -111,6 +120,7 @@ export function ChatInterface() {
         session_id: currentSessionId,
         run_ukg_pipeline: true
       });
+      console.log('ChatInterface: handleSend success', data);
       
       // If the API returns a direct response (not just via WS)
       if (data && data.response) {
@@ -132,12 +142,14 @@ export function ChatInterface() {
       setSessions(sessionData.sessions || []);
 
     } catch (error) {
+      console.log('ChatInterface: handleSend caught error', error);
       console.error(error);
       const errorMsg: ChatMessage = {
         id: uuidv4(),
         role: 'assistant',
-        content: 'I encountered an error while processing your request.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        content: '',
+        finalAnswer: 'I encountered an error processing your request. Please try again.',
+        timestamp: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorMsg]);
       setIsLoading(false);
@@ -212,6 +224,7 @@ export function ChatInterface() {
             <Button 
               className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-900/20"
               onClick={handleNewChat}
+              data-testid="new-chat-button"
             >
                <Plus className="h-4 w-4" /> New Chat
             </Button>
@@ -259,10 +272,10 @@ export function ChatInterface() {
       </div>
 
       {/* 💬 Main Chat Area */}
-      <div className="flex-1 flex flex-col relative z-10 bg-transparent">
+      <div className="flex-1 flex flex-col relative z-10 bg-transparent" data-testid="main-chat-area">
          {/* Header */}
          <div className="h-14 border-b border-white/5 flex items-center justify-between px-6 fluent-acrylic sticky top-0 z-30">
-            <h1 className="font-bold text-sm tracking-wide flex items-center gap-2 text-gray-100">
+            <h1 className="font-bold text-sm tracking-wide flex items-center gap-2 text-gray-100" data-testid="app-header">
                🎯 UKG Enterprise AI Assistant
             </h1>
             <div className="flex items-center gap-3">
@@ -277,9 +290,9 @@ export function ChatInterface() {
          </div>
 
          {/* Messages */}
-         <div className="flex-1 overflow-y-auto p-6 space-y-6">
+         <div className="flex-1 overflow-y-auto p-6 space-y-6" data-testid="messages-container">
             {messages.map((msg) => (
-                <div key={msg.id} className={`flex gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500 ${msg.role === 'assistant' ? 'bg-white/5 p-6 rounded-2xl border border-white/5 backdrop-blur-sm shadow-sm' : ''}`}>
+                <div key={msg.id} data-testid="message-item" className={`flex gap-4 animate-in ...`}>
                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${msg.role === 'assistant' ? 'bg-blue-600' : 'bg-[#2a2a2a] border border-white/10'}`}>
                       {msg.role === 'assistant' ? '🤖' : '👤'}
                    </div>
