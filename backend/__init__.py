@@ -31,6 +31,9 @@ def create_legacy_app():
     from .routes.location_routes import location_api as location_bp
     from routes.admin_routes import admin_bp as routes_admin_bp
     from routes.api_routes import api_bp
+    from routes.ka_routes import ka_bp
+    from .truth_engine.api import truth_api
+    from .tracing.api import trace_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(chat_bp, url_prefix='/api/chat')
@@ -41,6 +44,9 @@ def create_legacy_app():
     app.register_blueprint(location_bp, url_prefix='/api/v1/location')
     app.register_blueprint(routes_admin_bp)
     app.register_blueprint(api_bp)
+    app.register_blueprint(ka_bp, url_prefix='/api/v1/ka')
+    app.register_blueprint(truth_api, url_prefix='/api/v1/truth')
+    app.register_blueprint(trace_bp)
     # Re-register search blueprint from new location if needed, or assume it's covered by imports.
     # Logic note: search_api was not previously in __init__.py imports list in step 1253 view.
     # Let's check if it was registered. It was NOT in the list.
@@ -60,9 +66,13 @@ def create_legacy_app():
     app.register_blueprint(pillar_api, url_prefix='/api/v1/pillars_axis')
     app.register_blueprint(rest_api)
     
-    # Create database tables
-    # db is already initialized in extensions.py
-    # db.create_all() is handled by app.py or init_db.py
-    pass
-    
+    # Error handlers
+    @app.errorhandler(404)
+    def not_found(e):
+        return jsonify({'success': False, 'error': 'Not Found'}), 404
+
+    @app.errorhandler(500)
+    def server_error(e):
+        return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
+
     return app

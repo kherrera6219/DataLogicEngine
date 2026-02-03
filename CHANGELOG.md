@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2026-02-02
+
+### Added
+- **Phase 6: Enterprise Hardening complete**.
+- **Public API Fuzz Testing**: 100% pass rate across 42 endpoints with robust payload validation.
+- **Unified API Response Middleware**: Standardized async/sync handlers with PII redaction and production error sanitization.
+- **Database Lifecycle Hardening**: Robust graceful shutdown for PostgreSQL, Redis, and Neo4j in desktop mode.
+- **Security Audit Graduation**: Full documentation sweep and version alignment for production graduation.
 
 ## [4.0.0] - 2026-02-02
 

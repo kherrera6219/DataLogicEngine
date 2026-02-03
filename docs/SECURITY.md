@@ -40,9 +40,9 @@ The `API Gateway` implements multi-tiered rate limiting using **Redis**:
 - **User/Tenant Quotas**: Ensures fair usage and cost predictability.
 - **Endpoint Specific**: Critical reasoning endpoints have tighter limits than static asset routes.
 
-**Current Status**: Production v2.4.0 Hardened
-**Version**: 2.4.0
-**Last Updated**: January 16, 2026
+**Current Status**: Production v4.1.0 Hardened
+**Version**: 4.1.0
+**Last Updated**: February 3, 2026
 
 ---
 

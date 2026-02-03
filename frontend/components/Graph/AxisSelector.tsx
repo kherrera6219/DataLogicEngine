@@ -29,14 +29,13 @@ export function AxisSelector({ activeAxis, onChange }: AxisSelectorProps) {
         {AXIS_NAMES.map((name, index) => {
           const axisNum = index + 1;
           const isActive = activeAxis === axisNum;
-          const ariaSelected = isActive ? "true" : "false";
           
           return (
             <button
               key={name}
               onClick={() => onChange(axisNum)}
               role="tab"
-              aria-selected={ariaSelected}
+              aria-selected={isActive}
               className={cn(
                 "relative flex-shrink-0 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ring-offset-black",
                 isActive 

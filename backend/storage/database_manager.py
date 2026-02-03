@@ -142,18 +142,31 @@ class DatabaseLifecycleManager:
 
     def stop_all(self):
         """Gracefully shutdown all managed database services."""
+        processes = []
         if self.pg_process:
             logger.info("Stopping PostgreSQL...")
             self.pg_process.terminate()
+            processes.append(('PostgreSQL', self.pg_process))
             
         if self.redis_process:
             logger.info("Stopping Redis...")
             self.redis_process.terminate()
+            processes.append(('Redis', self.redis_process))
 
         if self.neo4j_process:
             logger.info("Stopping Neo4j...")
-            # Neo4j might need a specific stop command or just terminate
             self.neo4j_process.terminate()
+            processes.append(('Neo4j', self.neo4j_process))
+
+        # Wait for all processes to exit
+        for name, proc in processes:
+            try:
+                proc.wait(timeout=10)
+                logger.info(f"{name} stopped.")
+            except subprocess.TimeoutExpired:
+                logger.warning(f"{name} did not stop gracefully. Killing...")
+                proc.kill()
+                proc.wait()
 
 def get_db_manager() -> DatabaseLifecycleManager:
     """Factory for DatabaseLifecycleManager."""

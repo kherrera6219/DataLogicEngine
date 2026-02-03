@@ -85,19 +85,13 @@ def api_key_required(f):
 
 @gateway_bp.route('/chat', methods=['POST'])
 @api_key_required
+@api_response
 async def gateway_chat():
 
     """
     Main gateway endpoint for chat completions.
     Validates request using Pydantic schema.
     """
-    try:
-        from backend.llm_gateway.schemas import GatewayChatRequest
-        data = request.get_json() or {}
-        req_model = GatewayChatRequest(**data)
-    except Exception as e:
-        return jsonify({'error': f'Validation error: {str(e)}'}), 400
-    
     # Build request from validated model
     gateway_request = GatewayRequest(
         messages=[m.model_dump() for m in req_model.messages],
@@ -115,30 +109,24 @@ async def gateway_chat():
     
     # Process request
     gateway = LLMGateway()
+    response = await gateway.process(gateway_request)
     
-    try:
-        response = await gateway.process(gateway_request)
-        
-        if not response:
-            return jsonify({'error': 'No response generated from any provider'}), 503
+    if not response:
+        return {'error': 'No response generated from any provider'}, 503
 
-        return jsonify({
-            'response': response.content,
-            'run_id': response.run_id,
-            'provider_used': response.provider_used,
-            'model_used': response.model_used,
-            'usage': response.usage,
-            'trace_summary': response.trace_summary,
-            'coordinates': response.coordinates,
-            'confidence_score': response.confidence_score,
-            'claims': response.claims,
-            'evidence_count': response.evidence_count,
-            'warnings': response.warnings,
-        })
-        
-    except Exception as e:
-        logger.error(f"Gateway error: {e}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
+    return {
+        'response': response.content,
+        'run_id': response.run_id,
+        'provider_used': response.provider_used,
+        'model_used': response.model_used,
+        'usage': response.usage,
+        'trace_summary': response.trace_summary,
+        'coordinates': response.coordinates,
+        'confidence_score': response.confidence_score,
+        'claims': response.claims,
+        'evidence_count': response.evidence_count,
+        'warnings': response.warnings,
+    }
 
 
 @gateway_bp.route('/chat/stream', methods=['POST'])

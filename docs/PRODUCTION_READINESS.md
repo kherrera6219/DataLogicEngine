@@ -19,10 +19,11 @@
 
 DataLogicEngine is an enterprise-grade AI/ML knowledge management platform designed for production deployment. This guide outlines the critical steps, configurations, and best practices for deploying the system in a production environment.
 
-**Current Status**: Production v2.4.0 Hardened
-# Universal Knowledge Graph (UKG) System Architecture
+**Current Status**: Production v4.1.0 Hardened
 
-**Version 2.4.0 - January 16, 2026**
+## Universal Knowledge Graph (UKG) System Architecture
+
+**Version 4.1.0 - February 3, 2026**
 
 ## Production Checklist
 

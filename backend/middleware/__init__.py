@@ -27,57 +27,70 @@ def api_response(f):
     - UKGException (wrapped in error response with sanitized messages)
     - Flask Response objects (passed through unchanged)
     - Exceptions (wrapped in error response with sanitized messages)
+    - Both synchronous and asynchronous functions
     """
-    @wraps(f)
-    def api_response_wrapper(*args, **kwargs):
-        is_dev = current_app.config.get('ENV') == 'development' or current_app.debug
+    import inspect
 
+    async def async_wrapper(*args, **kwargs):
+        is_dev = current_app.config.get('ENV') == 'development' or current_app.debug
+        try:
+            result = await f(*args, **kwargs)
+            return _format_response(result, f, is_dev)
+        except Exception as e:
+            return _handle_exception(e, f, is_dev)
+
+    def sync_wrapper(*args, **kwargs):
+        is_dev = current_app.config.get('ENV') == 'development' or current_app.debug
         try:
             result = f(*args, **kwargs)
-            
-            if isinstance(result, Response):
-                return result
-            
-            if isinstance(result, tuple):
-                if len(result) == 3: # (data, status, headers)
-                    data, status_code, headers = result
-                elif len(result) == 2:
-                    data, status_code = result
-                    headers = {}
-                else:
-                    data = result
-                    status_code = 200
-                    headers = {}
+            return _format_response(result, f, is_dev)
+        except Exception as e:
+            return _handle_exception(e, f, is_dev)
+
+    def _format_response(result, func, is_dev):
+        if isinstance(result, Response):
+            return result
+        
+        if isinstance(result, tuple):
+            if len(result) == 3: # (data, status, headers)
+                data, status_code, headers = result
+            elif len(result) == 2:
+                data, status_code = result
+                headers = {}
             else:
                 data = result
                 status_code = 200
                 headers = {}
-            
-            # PII Redaction for outgoing data
-            if isinstance(data, (dict, list)):
-                if isinstance(data, dict):
-                    data = pii_redactor.redact_dict(data)
-                else:
-                    data = [pii_redactor.redact_dict(item) if isinstance(item, dict) else (pii_redactor.redact_text(item)[0] if isinstance(item, str) else item) for item in data]
+        else:
+            data = result
+            status_code = 200
+            headers = {}
+        
+        # PII Redaction for outgoing data
+        if isinstance(data, (dict, list)):
+            if isinstance(data, dict):
+                data = pii_redactor.redact_dict(data)
+            else:
+                data = [pii_redactor.redact_dict(item) if isinstance(item, dict) else (pii_redactor.redact_text(item)[0] if isinstance(item, str) else item) for item in data]
 
-            if isinstance(data, dict) and 'error' in data:
-                return jsonify({
-                    'success': False,
-                    'error': data.get('error'),
-                    'data': None,
-                    'timestamp': datetime.now(UTC).isoformat()
-                }), status_code, headers
-            
+        if isinstance(data, dict) and 'error' in data:
             return jsonify({
-                'success': True,
-                'data': data,
-                'error': None,
+                'success': False,
+                'error': data.get('error'),
+                'data': None,
                 'timestamp': datetime.now(UTC).isoformat()
             }), status_code, headers
-            
-        except UKGException as e:
-            # Standardized internal exception handling
-            logger.warning(f"UKG Error in {f.__name__}: {e.message} ({e.error_code})")
+        
+        return jsonify({
+            'success': True,
+            'data': data,
+            'error': None,
+            'timestamp': datetime.now(UTC).isoformat()
+        }), status_code, headers
+
+    def _handle_exception(e, func, is_dev):
+        if isinstance(e, UKGException):
+            logger.warning(f"UKG Error in {func.__name__}: {e.message} ({e.error_code})")
             return jsonify({
                 'success': False,
                 'error': e.message,
@@ -86,30 +99,27 @@ def api_response(f):
                 'timestamp': datetime.now(UTC).isoformat()
             }), e.status_code
 
-        except Exception as e:
-            # Log the full error internally
-            logger.error(f"Unhandled API error in {f.__name__}: {str(e)}", exc_info=True)
-            
-            # Sanitize error message for production
-            error_msg = str(e) if is_dev else "An internal server error occurred."
-            
-            return jsonify({
-                'success': False,
-                'error': error_msg,
-                'data': None,
-                'code': 'INTERNAL_SERVER_ERROR',
-                'timestamp': datetime.now(UTC).isoformat()
-            }), 500
+        logger.error(f"Unhandled API error in {func.__name__}: {str(e)}", exc_info=True)
+        error_msg = str(e) if is_dev else "An internal server error occurred."
+        return jsonify({
+            'success': False,
+            'error': error_msg,
+            'data': None,
+            'code': 'INTERNAL_SERVER_ERROR',
+            'timestamp': datetime.now(UTC).isoformat()
+        }), 500
+
+    wrapper = async_wrapper if inspect.iscoroutinefunction(f) else sync_wrapper
     
     # Manually preserve function attributes to prevent Flask endpoint collisions
     try:
-        api_response_wrapper.__name__ = f.__name__
-        api_response_wrapper.__doc__ = f.__doc__
-        api_response_wrapper.__module__ = f.__module__
+        wrapper.__name__ = f.__name__
+        wrapper.__doc__ = f.__doc__
+        wrapper.__module__ = f.__module__
     except (AttributeError, TypeError):
         pass
         
-    return api_response_wrapper
+    return wrapper
 
 
 def audit_request_middleware():
