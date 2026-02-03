@@ -49,6 +49,17 @@ def create_legacy_app():
     from .routes.search_routes import search_api as search_bp
     app.register_blueprint(search_bp, url_prefix='/api/search')
     
+    # LLM Gateway Blueprints
+    from .llm_gateway.api import gateway_bp, admin_bp as gateway_admin_bp
+    app.register_blueprint(gateway_bp)
+    app.register_blueprint(gateway_admin_bp)
+    
+    # UKG Structural APIs
+    from .pillar_api import pillar_api
+    from .rest_api import rest_api
+    app.register_blueprint(pillar_api, url_prefix='/api/v1/pillars_axis')
+    app.register_blueprint(rest_api)
+    
     # Create database tables
     # db is already initialized in extensions.py
     # db.create_all() is handled by app.py or init_db.py

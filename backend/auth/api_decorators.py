@@ -64,4 +64,13 @@ def api_admin_required(f):
                 'code': 'FORBIDDEN'
             }), 403
         return f(*args, **kwargs)
+        
+    # Manually preserve function attributes to prevent Flask endpoint collisions
+    try:
+        api_admin_required_wrapper.__name__ = f.__name__
+        api_admin_required_wrapper.__doc__ = f.__doc__
+        api_admin_required_wrapper.__module__ = f.__module__
+    except (AttributeError, TypeError):
+        pass
+        
     return api_admin_required_wrapper

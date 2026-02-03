@@ -28,7 +28,7 @@ ukg_api = Blueprint('ukg_api', __name__)
 # Axis 1: Knowledge - Pillar Levels
 # -------------------------------------------------------------------------
 
-@ukg_api.route('/pillars', methods=['GET'])
+@ukg_api.route('/pillars', methods=['GET'], endpoint='get_pillars')
 @api_login_required
 @api_response
 @cache.cached(timeout=300)
@@ -37,7 +37,7 @@ def get_pillars():
     pillars = PillarLevel.query.all()
     return [pillar.to_dict() for pillar in pillars]
 
-@ukg_api.route('/pillars/<pillar_id>', methods=['GET'])
+@ukg_api.route('/pillars/<pillar_id>', methods=['GET'], endpoint='get_pillar')
 @api_login_required
 @api_response
 def get_pillar(pillar_id):
@@ -45,7 +45,7 @@ def get_pillar(pillar_id):
     pillar = PillarLevel.query.filter_by(pillar_id=pillar_id).first_or_404()
     return pillar.to_dict()
 
-@ukg_api.route('/pillars', methods=['POST'])
+@ukg_api.route('/pillars', methods=['POST'], endpoint='create_pillar')
 @api_admin_required
 @api_response
 def create_pillar():
@@ -69,7 +69,7 @@ def create_pillar():
 # Axis 2: Sectors
 # -------------------------------------------------------------------------
 
-@ukg_api.route('/sectors', methods=['GET'])
+@ukg_api.route('/sectors', methods=['GET'], endpoint='get_sectors')
 @api_login_required
 @api_response
 @cache.cached(timeout=300)
@@ -78,7 +78,7 @@ def get_sectors():
     sectors = Sector.query.all()
     return [sector.to_dict() for sector in sectors]
 
-@ukg_api.route('/sectors/<sector_id>', methods=['GET'])
+@ukg_api.route('/sectors/<sector_id>', methods=['GET'], endpoint='get_sector')
 @api_login_required
 @api_response
 def get_sector(sector_id):
@@ -86,7 +86,7 @@ def get_sector(sector_id):
     sector = Sector.query.filter_by(id=sector_id).first_or_404()
     return sector.to_dict()
 
-@ukg_api.route('/sectors', methods=['POST'])
+@ukg_api.route('/sectors', methods=['POST'], endpoint='create_sector')
 @api_admin_required
 @api_response
 def create_sector():
@@ -110,7 +110,7 @@ def create_sector():
 # Axis 3: Domains
 # -------------------------------------------------------------------------
 
-@ukg_api.route('/domains', methods=['GET'])
+@ukg_api.route('/domains', methods=['GET'], endpoint='get_domains')
 @api_login_required
 @api_response
 @cache.cached(timeout=300)
@@ -119,7 +119,7 @@ def get_domains():
     domains = Domain.query.all()
     return [domain.to_dict() for domain in domains]
 
-@ukg_api.route('/domains/<domain_id>', methods=['GET'])
+@ukg_api.route('/domains/<domain_id>', methods=['GET'], endpoint='get_domain')
 @api_login_required
 @api_response
 def get_domain(domain_id):
@@ -127,7 +127,7 @@ def get_domain(domain_id):
     domain = Domain.query.filter_by(id=domain_id).first_or_404()
     return domain.to_dict()
 
-@ukg_api.route('/domains', methods=['POST'])
+@ukg_api.route('/domains', methods=['POST'], endpoint='create_domain')
 @api_admin_required
 @api_response
 def create_domain():
@@ -152,7 +152,7 @@ def create_domain():
 # Knowledge Nodes
 # -------------------------------------------------------------------------
 
-@ukg_api.route('/knowledge', methods=['GET'])
+@ukg_api.route('/knowledge', methods=['GET'], endpoint='get_knowledge_nodes')
 @api_login_required
 @api_response
 def get_knowledge_nodes():
@@ -160,7 +160,7 @@ def get_knowledge_nodes():
     nodes = KnowledgeNode.query.all()
     return [node.to_dict() for node in nodes]
 
-@ukg_api.route('/knowledge/<node_id>', methods=['GET'])
+@ukg_api.route('/knowledge/<node_id>', methods=['GET'], endpoint='get_knowledge_node')
 @api_login_required
 @api_response
 def get_knowledge_node(node_id):
@@ -168,7 +168,7 @@ def get_knowledge_node(node_id):
     node = KnowledgeNode.query.filter_by(id=node_id).first_or_404()
     return node.to_dict()
 
-@ukg_api.route('/knowledge', methods=['POST'])
+@ukg_api.route('/knowledge', methods=['POST'], endpoint='create_knowledge_node')
 @api_admin_required
 @api_response
 def create_knowledge_node():
@@ -195,7 +195,7 @@ def create_knowledge_node():
 # Knowledge Graph - Base Nodes and Edges
 # -------------------------------------------------------------------------
 
-@ukg_api.route('/nodes', methods=['GET'])
+@ukg_api.route('/nodes', methods=['GET'], endpoint='get_nodes')
 @api_login_required
 @api_response
 def get_nodes():
@@ -203,7 +203,7 @@ def get_nodes():
     nodes = Node.query.all()
     return [node.to_dict() for node in nodes]
 
-@ukg_api.route('/nodes/<node_id>', methods=['GET'])
+@ukg_api.route('/nodes/<node_id>', methods=['GET'], endpoint='get_node')
 @api_login_required
 @api_response
 def get_node(node_id):
@@ -211,7 +211,7 @@ def get_node(node_id):
     node = Node.query.filter_by(id=node_id).first_or_404()
     return node.to_dict()
 
-@ukg_api.route('/nodes', methods=['POST'])
+@ukg_api.route('/nodes', methods=['POST'], endpoint='create_node')
 @api_admin_required
 @api_response
 def create_node():
@@ -232,7 +232,7 @@ def create_node():
     
     return node.to_dict(), 201
 
-@ukg_api.route('/edges', methods=['GET'])
+@ukg_api.route('/edges', methods=['GET'], endpoint='get_edges')
 @api_login_required
 @api_response
 def get_edges():
@@ -240,7 +240,7 @@ def get_edges():
     edges = Edge.query.all()
     return [edge.to_dict() for edge in edges]
 
-@ukg_api.route('/edges/<edge_id>', methods=['GET'])
+@ukg_api.route('/edges/<edge_id>', methods=['GET'], endpoint='get_edge')
 @api_login_required
 @api_response
 def get_edge(edge_id):
@@ -248,7 +248,7 @@ def get_edge(edge_id):
     edge = Edge.query.filter_by(id=edge_id).first_or_404()
     return edge.to_dict()
 
-@ukg_api.route('/edges', methods=['POST'])
+@ukg_api.route('/edges', methods=['POST'], endpoint='create_edge')
 @api_admin_required
 @api_response
 def create_edge():
@@ -280,7 +280,7 @@ def create_edge():
 # Seed Data Functions (for development)
 # -------------------------------------------------------------------------
 
-@ukg_api.route('/seed/pillars', methods=['POST'])
+@ukg_api.route('/seed/pillars', methods=['POST'], endpoint='seed_pillar_levels')
 @api_admin_required
 @api_response
 def seed_pillar_levels():
@@ -376,7 +376,7 @@ def seed_pillar_levels():
     
     return {"message": f"Seeded {len(pillars)} pillar levels"}
 
-@ukg_api.route('/seed/sectors', methods=['POST'])
+@ukg_api.route('/seed/sectors', methods=['POST'], endpoint='seed_sectors')
 @api_admin_required
 @api_response
 def seed_sectors():
@@ -437,7 +437,7 @@ def seed_sectors():
     
     return {"message": f"Seeded {len(sectors)} sectors"}
 
-@ukg_api.route('/seed/domains', methods=['POST'])
+@ukg_api.route('/seed/domains', methods=['POST'], endpoint='seed_domains')
 @api_admin_required
 @api_response
 def seed_domains():

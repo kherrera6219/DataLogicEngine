@@ -36,8 +36,9 @@ def test_fuzz_gateway_chat(client, iteration):
     """Fuzz the gateway chat endpoint with random JSON payloads."""
     payload = random_json_garbage()
     
-    # Mock authentication
-    with patch('backend.llm_gateway.api.ExternalAPIKey.verify_key') as mock_verify:
+    # Mock authentication and cache
+    with patch('backend.llm_gateway.api.ExternalAPIKey.verify_key') as mock_verify, \
+         patch('backend.llm_gateway.api.cache.get', return_value=0):
         mock_key = MagicMock()
         mock_key.id = "test-key-id"
         mock_key.user_id = 1
@@ -86,29 +87,48 @@ def test_fuzz_malformed_json(client):
     
     for payload in malformed_payloads:
         # Gateway chat
-        response = client.post(
-            '/api/v1/gateway/chat',
-            data=payload,
-            content_type='application/json',
-            headers={'X-API-Key': 'ukg_test_key'}
-        )
-        assert response.status_code in [400, 500]
+        with patch('backend.llm_gateway.api.ExternalAPIKey.verify_key') as mock_verify, \
+             patch('backend.llm_gateway.api.cache.get', return_value=0):
+            mock_key = MagicMock()
+            mock_key.id = "test-key-id"
+            mock_key.user_id = 1
+            mock_key.rate_limit_rpm = 1000
+            mock_verify.return_value = mock_key
+            
+            response = client.post(
+                '/api/v1/gateway/chat',
+                data=payload,
+                content_type='application/json',
+                headers={'X-API-Key': 'ukg_test_key'}
+            )
+            assert response.status_code in [400, 500]
         
         # UKG Nodes
-        response = client.post(
-            '/api/ukg/nodes',
-            data=payload,
-            content_type='application/json'
-        )
-        assert response.status_code in [400, 500]
+        with patch('backend.auth.api_decorators.api_admin_required', lambda x: x), \
+             patch('flask_login.utils._get_user', return_value=MagicMock(is_authenticated=True, is_admin=True)):
+            response = client.post(
+                '/api/ukg/nodes',
+                data=payload,
+                content_type='application/json'
+            )
+            assert response.status_code in [400, 500]
 
 def test_fuzz_large_payload(client):
     """Test sending excessively large payloads."""
     large_payload = {"data": "A" * 1024 * 1024} # 1MB string
     
-    response = client.post(
-        '/api/v1/gateway/chat',
-        json=large_payload,
-        headers={'X-API-Key': 'ukg_test_key'}
-    )
-    assert response.status_code in [400, 413, 500]
+    # Mock authentication and cache
+    with patch('backend.llm_gateway.api.ExternalAPIKey.verify_key') as mock_verify, \
+         patch('backend.llm_gateway.api.cache.get', return_value=0):
+        mock_key = MagicMock()
+        mock_key.id = "test-key-id"
+        mock_key.user_id = 1
+        mock_key.rate_limit_rpm = 1000
+        mock_verify.return_value = mock_key
+        
+        response = client.post(
+            '/api/v1/gateway/chat',
+            json=large_payload,
+            headers={'X-API-Key': 'ukg_test_key'}
+        )
+        assert response.status_code in [400, 413, 500]
