@@ -8,8 +8,8 @@ def get_safe_path(base_dir: str, user_path: str) -> str:
     """
     base = Path(base_dir).resolve()
     
-    # Remove leading slashes/dots to prevent absolute or relative traversal
-    cleaned_user_path = user_path.lstrip('./\\')
+    # Remove leading separators to prevent absolute path injection
+    cleaned_user_path = user_path.lstrip('/\\')
     
     # Join and resolve
     requested_path = (base / cleaned_user_path).resolve()

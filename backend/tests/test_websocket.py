@@ -11,6 +11,11 @@ def app():
     app.config['TESTING'] = True
     return app
 
+@pytest.fixture(autouse=True)
+def mock_flask_app():
+    """Override conftest fixture to avoid conflict with test_request_context."""
+    yield
+
 @pytest.fixture
 def socketio_client(app):
     # Mocking socketio for unit testing without full server

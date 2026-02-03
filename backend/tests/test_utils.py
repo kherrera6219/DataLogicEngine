@@ -176,3 +176,27 @@ def test_validate_query_params(mock_flask_app):
         data = resp.get_json()
         assert data['error']['message'] == "Invalid query parameters"
         assert any("Missing required query parameters" in err for err in data['error']['details']['errors'])
+
+# --- Safe Path Tests ---
+
+from backend.utils.safe_path import get_safe_path
+import os
+import pytest
+
+def test_get_safe_path():
+    base = os.getcwd()
+    
+    # Safe paths
+    path = get_safe_path(base, "file.txt")
+    assert path == os.path.join(base, "file.txt")
+    
+    path = get_safe_path(base, "subdir/file.txt")
+    assert path == os.path.join(base, "subdir", "file.txt")
+    
+    # Unsafe paths
+    with pytest.raises(ValueError, match="Security Violation"):
+        get_safe_path(base, "../secret.txt")
+        
+    # Sanitized path (leading slash stripped)
+    path = get_safe_path(base, "/etc/passwd")
+    assert path == os.path.join(base, "etc", "passwd")
