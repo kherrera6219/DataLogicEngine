@@ -230,6 +230,15 @@ npm audit fix
 # Run security tests
 python -m pytest tests/security/
 
+# Run Knowledge Algorithm Bulk Verification (117 KAs)
+python -m pytest backend/tests/test_ka_bulk.py
+
+# Run API Fuzz Testing (Enterprise Hardening)
+python -m pytest backend/tests/test_fuzzing.py
+
+# Run Gateway API Coverage
+python -m pytest backend/tests/test_gateway_api_coverage.py
+
 # Static analysis
 bandit -r backend/ core/
 
@@ -302,7 +311,7 @@ We recognize and thank security researchers who have responsibly disclosed vulne
 
 For security-related questions or concerns:
 
-- **Email**: security@datalogicengine.com
+- **Email**: `security@datalogicengine.com`
 - **PGP Key**: [Link to PGP key if available]
 
 ---

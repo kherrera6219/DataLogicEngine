@@ -537,6 +537,25 @@ Frontend will start on **http://localhost:3000**
 3.  Navigate to `/dashboard` (may require login)
 4.  Check backend health: [http://localhost:5000/health](http://localhost:5000/health)
 
+
+## 🧪 Testing
+
+The system includes comprehensive test suites for stability and security:
+
+```bash
+# Run Knowledge Algorithm Bulk Verification
+python -m pytest backend/tests/test_ka_bulk.py
+
+# Run Gateway API Coverage
+python -m pytest backend/tests/test_gateway_api_coverage.py
+
+# Run Enterprise Fuzz Testing
+python -m pytest backend/tests/test_fuzzing.py
+
+# Run Full Backend Suite
+python -m pytest backend/tests/
+```
+
 ---
 
 ## Configuration
