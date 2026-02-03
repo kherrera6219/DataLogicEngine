@@ -9,16 +9,17 @@ Provides endpoints for:
 """
 
 import logging
+import json
+import io
 from datetime import datetime, UTC
 from flask import Blueprint, jsonify, request, send_file
 from flask_login import login_required, current_user
-import json
-import io
+from extensions import db
+from models import ChatSession as Chat, ChatMessage as Message, KnowledgeGraphNode
 
 logger = logging.getLogger(__name__)
 
 gdpr_bp = Blueprint('gdpr', __name__, url_prefix='/api/v1/gdpr')
-
 
 @gdpr_bp.route('/export', methods=['POST'])
 @login_required
@@ -30,9 +31,6 @@ def export_user_data():
         JSON file with all user's personal data
     """
     try:
-        from extensions import db
-        from models import ChatSession as Chat, ChatMessage as Message, KnowledgeGraphNode
-        
         user_id = current_user.id
         
         # Collect user profile data
@@ -61,8 +59,8 @@ def export_user_data():
                     'messages': []
                 }
                 # Get messages if available
-                if hasattr(Message, 'chat_id'):
-                    messages = db.session.query(Message).filter_by(chat_id=session.id).all()
+                if hasattr(Message, 'session_id'):
+                    messages = db.session.query(Message).filter_by(session_id=session.id).all()
                     session_data['messages'] = [
                         {'role': m.role, 'content': m.content, 'created_at': str(m.created_at)}
                         for m in messages
@@ -137,7 +135,7 @@ def request_data_deletion():
             'success': True,
             'message': 'Deletion request received',
             'data': {
-                'request_id': f'gdpr-del-{current_user.id}-{datetime.now(UTC).strftime("%Y%m%d")}',
+                'request_id': f'gdpr-del-{current_user.id}-{datetime.now(UTC).strftime("%Y%m%d%H%M%S")}',
                 'grace_period_days': 30,
                 'scheduled_deletion': deletion_request['scheduled_deletion'],
                 'instructions': 'Your data will be permanently deleted after the grace period. '
@@ -226,7 +224,7 @@ def submit_access_request():
         data = request.get_json() or {}
         
         request_details = {
-            'request_id': f'gdpr-access-{current_user.id}-{datetime.now(UTC).strftime("%Y%m%d%H%M")}',
+            'request_id': f'gdpr-access-{current_user.id}-{datetime.now(UTC).strftime("%Y%m%d%H%M%S")}',
             'user_id': current_user.id,
             'email': current_user.email,
             'request_type': data.get('type', 'full_export'),

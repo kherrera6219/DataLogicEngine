@@ -5,20 +5,34 @@ import { AdvancedControls } from './AdvancedControls';
 
 // Mock UI components
 vi.mock('@/components/ui/sheet', () => ({
-  Sheet: ({ children }) => <div>{children}</div>,
-  SheetTrigger: ({ children }) => <div data-testid="sheet-trigger">{children}</div>,
-  SheetContent: ({ children }) => <div data-testid="sheet-content">{children}</div>,
-  SheetHeader: ({ children }) => <div>{children}</div>,
-  SheetTitle: ({ children }) => <div>{children}</div>,
-  SheetDescription: ({ children }) => <div>{children}</div>,
+  Sheet: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  SheetTrigger: ({ children }: { children: React.ReactNode }) => <div data-testid="sheet-trigger">{children}</div>,
+  SheetContent: ({ children }: { children: React.ReactNode }) => <div data-testid="sheet-content">{children}</div>,
+  SheetHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  SheetTitle: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  SheetDescription: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock('@/components/ui/slider', () => ({
-  Slider: () => <input type="range" data-testid="slider" />
+  Slider: () => (
+    <input
+      type="range"
+      data-testid="slider"
+      title="Enhancement Level"
+      aria-label="Enhancement Level"
+    />
+  ),
 }));
 
 vi.mock('@/components/ui/switch', () => ({
-  Switch: () => <input type="checkbox" data-testid="switch" />
+  Switch: () => (
+    <input
+      type="checkbox"
+      data-testid="switch"
+      title="Toggle Feature"
+      aria-label="Toggle Feature"
+    />
+  ),
 }));
 
 describe('AdvancedControls', () => {

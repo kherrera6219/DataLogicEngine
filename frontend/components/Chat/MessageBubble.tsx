@@ -55,14 +55,26 @@ export function MessageBubble({ message, isThinking }: Props) {
               <div className="flex items-center gap-2">
                  <div className="flex gap-1">
                     {[1, 2, 3].map(i => (
-                      <span key={i} className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: `${i * 150}ms` }} />
+                      <span 
+                        key={i} 
+                        className={cn(
+                          "w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce",
+                          i === 1 ? "delay-[150ms]" : i === 2 ? "delay-[300ms]" : "delay-[450ms]"
+                        )} 
+                      />
                     ))}
                  </div>
                  <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Reasoning Logic active</span>
               </div>
               <div className="grid grid-cols-6 gap-0.5 h-1">
                  {Array.from({ length: 17 }).map((_, i) => (
-                    <div key={i} className="bg-blue-500/40 rounded-full animate-pulse" style={{ animationDelay: `${i * 50}ms` }} />
+                    <div 
+                      key={i} 
+                      className={cn(
+                        "bg-blue-500/40 rounded-full animate-pulse",
+                        `[animation-delay:${i * 50}ms]`
+                      )} 
+                    />
                  ))}
               </div>
               <p className="text-[10px] text-gray-500 font-medium">Processing across 17 vectors of truth...</p>

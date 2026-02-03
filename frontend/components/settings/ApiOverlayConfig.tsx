@@ -13,6 +13,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { 
   BarChart3, Terminal, Play, Copy, RefreshCw, Eye, CheckCircle, Shield 
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { 
   BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell 
 } from 'recharts';
@@ -250,7 +251,12 @@ export function ApiOverlayConfig() {
                                  <span className="text-gray-400">{val}</span>
                               </div>
                               <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                               <div className="h-full bg-blue-500" style={{ width: `${val * 100}%` } as React.CSSProperties} />
+                               <div 
+                                 className={cn(
+                                   "h-full bg-blue-500",
+                                   `w-[${(val * 100).toFixed(0)}%]`
+                                 )} 
+                               />
                               </div>
                            </div>
                         ))}

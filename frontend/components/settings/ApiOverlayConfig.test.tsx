@@ -16,8 +16,8 @@ vi.mock('@/components/ui/card', () => ({
 }));
 
 vi.mock('@/components/ui/select', () => ({
-  Select: ({ children, value, onChange }: { children: React.ReactNode; value: string; onChange: (e: any) => void }) => (
-    <select value={value} onChange={onChange} data-testid="select">
+  Select: ({ children, value, onChange }: { children: React.ReactNode; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void }) => (
+    <select value={value} onChange={onChange} data-testid="select" title="API Provider Selection" aria-label="API Provider Selection">
       {children}
     </select>
   )
