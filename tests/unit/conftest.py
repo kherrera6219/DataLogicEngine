@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def mock_flask_app():
     """Provide a global mock for Flask application context."""
     mock_app = MagicMock()
@@ -12,7 +12,7 @@ def mock_flask_app():
     with patch('flask.current_app', mock_app):
         yield mock_app
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def mock_db_extensions():
     """Mock db and cache extensions globally."""
     mock_db = MagicMock()
