@@ -41,9 +41,9 @@ class UnifiedMiddleWare(BaseHTTPMiddleware):
     ]
 
     PATH_PATTERNS = [
-        re.compile(r"\.\./"),
-        re.compile(r"\.\.\\"),
-        re.compile(r"%2e%2e"),
+        re.compile(r"(?i)\.\./"),
+        re.compile(r"(?i)\.\.\\"),
+        re.compile(r"(?i)%2e%2e"),
     ]
 
     async def dispatch(self, request: Request, call_next: Any) -> Response:
@@ -118,7 +118,9 @@ class UnifiedMiddleWare(BaseHTTPMiddleware):
             return True
             
         # Check Path Traversal
-        if any(pattern.search(value, re.IGNORECASE) for pattern in self.PATH_PATTERNS):
+        # Fix: pattern.search does not take flags as 2nd arg (that's pos). 
+        # Patterns should be compiled with flags if needed.
+        if any(pattern.search(value) for pattern in self.PATH_PATTERNS):
             return True
             
         return False

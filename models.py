@@ -476,8 +476,8 @@ class KnowledgeGraphEdge(db.Model):
         return {
             'id': self.id,
             'edge_id': self.edge_id,
-            'source_id': self.source_id,
-            'target_id': self.target_id,
+            'source_id': self.source_node_id,
+            'target_id': self.target_node_id,
             'edge_type': self.edge_type,
             'weight': self.weight,
             'data': self.data
