@@ -3,15 +3,9 @@ import { chat } from '@/lib/api/chat';
 import { request } from '@/lib/api/index';
 
 // Mock the request function
-vi.mock('./index', () => ({
+vi.mock('@/lib/api/index', () => ({
   request: vi.fn(),
-  chat: {
-    ...vi.importActual('./chat'),
-    listSessions: vi.fn(),
-    getSessionMessages: vi.fn(),
-    sendMessage: vi.fn(),
-    getHealth: vi.fn()
-  }
+  API_BASE: 'http://localhost:5000/api/v1'
 }));
 
 // We need to test the real implementation, so we should unmock chat if we want to test it calling request.
@@ -19,7 +13,7 @@ vi.mock('./index', () => ({
 // But the mock above mocks 'chat' too.
 // Let's rely on standard testing: import real chat, mock dependencies (request).
 
-vi.unmock('./chat');
+
 
 describe('Chat API', () => {
   beforeEach(() => {

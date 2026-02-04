@@ -1,5 +1,5 @@
 import { SimulationSession } from './types';
-import { request } from './index';
+import { request } from '@/lib/api/index';
 
 export const simulation = {
     list: () => request<SimulationSession[]>('/simulations').catch(() => []),

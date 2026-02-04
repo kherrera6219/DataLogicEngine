@@ -1,4 +1,4 @@
-import { request } from './index';
+import { request } from '@/lib/api/index';
 
 export const trace = {
     list: (limit: number = 20) => request<unknown[]>(`/traces/runs?per_page=${limit}`),

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { compliance } from '@/lib/api/compliance';
 import { request, API_BASE } from '@/lib/api/index';
 
-vi.mock('./index', () => ({
+vi.mock('@/lib/api/index', () => ({
     request: vi.fn(),
     API_BASE: 'http://localhost:5000/api'
 }));

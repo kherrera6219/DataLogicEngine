@@ -1,4 +1,4 @@
-import { request } from './index';
+import { request } from '@/lib/api/index';
 
 // Types
 export interface MCPServer {
