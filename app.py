@@ -449,7 +449,13 @@ def health() -> tuple:
 # Note: /login, /register, /logout, /dashboard are defined in routes.py with more complete implementations
 
 
-# Simulation routes moved to routes/simulation_pages.py
+# Register Simulation API routes
+try:
+    from backend.routes.simulation_routes import simulation_bp
+    app.register_blueprint(simulation_bp, url_prefix='/api/v1/simulations')
+    logger.info("Simulation API routes registered")
+except ImportError as e:
+    logger.warning(f"Could not register Simulation API routes: {e}")
 
 
 @app.route('/chat')

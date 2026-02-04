@@ -26,7 +26,7 @@ import { ToastProvider } from "@/components/ui/use-toast";
 import DesktopStatus from "@/components/DesktopStatus";
 
 import { AppSidebar } from "@/components/layout/AppSidebar";
-import { Loader2 } from "lucide-react";
+
 import { AppInitializer } from "@/components/AppInitializer";
 
 import { ApiErrorBoundary } from "@/components/ui/api-error-boundary";

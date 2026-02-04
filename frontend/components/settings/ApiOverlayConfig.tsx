@@ -62,12 +62,32 @@ export function ApiOverlayConfig() {
     { name: 'Sun', queries: 3490 },
   ];
 
-  const handleTestConnection = () => {
+  const handleTestConnection = async () => {
     setTestStatus('testing');
-    setTimeout(() => {
-      setTestStatus('success');
-      toast("Overlay connected to production Gateway.", "success", 3000);
-    }, 1500);
+    try {
+      const response = await fetch('/api/v1/gateway/keys', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          provider,
+          key: apiKey,
+        }),
+      });
+
+      if (response.ok) {
+        setTestStatus('success');
+        toast("API Key saved securely via Windows DPAPI.", "success");
+      } else {
+        const error = await response.json();
+        setTestStatus('error');
+        toast(error.message || 'Failed to save key', "error");
+      }
+    } catch (error) {
+      setTestStatus('error');
+      toast(`Failed to connect to backend: ${String(error)}`, "error");
+    }
   };
 
   const handleRunTest = () => {
