@@ -16,22 +16,25 @@ KA_DIR = ROOT_DIR / "backend" / "knowledge_algorithms"
 # Get only ka_*.py files
 ka_files = sorted([f.name for f in KA_DIR.glob("ka_*.py") if f.name != "__init__.py"])
 
-# --- Global Mocks ---
-# These mocks prevent ImportError or RuntimeErrors when KAs import backend modules
-sys.modules['extensions'] = MagicMock()
-sys.modules['models'] = MagicMock()
-sys.modules['backend.llm_gateway'] = MagicMock()
-# Mock core if needed, though it exists on disk. 
-# Some KAs might use backend.services
-sys.modules['backend.services'] = MagicMock()
+# --- Global Mocks (Moved to Fixture) ---
 
 @pytest.fixture(scope="module", autouse=True)
 def setup_mocks():
-    """Ensure common dependencies are mocked for all KAs."""
-    with patch('extensions.db'), \
-         patch('models.User'), \
-         patch('models.ChatSession'):
-        yield
+    """Ensure common dependencies are mocked for all KAs, cleanly."""
+    mocks = {
+        'extensions': MagicMock(),
+        'models': MagicMock(),
+        'backend.llm_gateway': MagicMock(),
+        'backend.services': MagicMock(),
+    }
+    
+    # We use patch.dict to safely apply and revert sys.modules changes
+    with patch.dict(sys.modules, mocks):
+        # Also patch internal attributes of extensions/models if needed by imports
+        with patch('extensions.db', create=True), \
+             patch('models.User', create=True), \
+             patch('models.ChatSession', create=True):
+            yield
 
 @pytest.mark.parametrize("filename", ka_files)
 def test_ka_structure_and_survival(filename):
