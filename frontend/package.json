@@ -17,6 +17,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test -c playwright-electron.config.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
