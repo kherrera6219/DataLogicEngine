@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { system, sendChat, chat } from './system_chat';
-import * as apiBase from './index';
+import { system, sendChat, chat } from '@/lib/api/system_chat';
+import * as apiBase from '@/lib/api/index';
 
 vi.mock('./index', () => ({
   request: vi.fn(),

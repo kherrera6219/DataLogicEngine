@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { api } from './index';
+import { api } from '@/lib/api/index';
 
 // Mock the base API fetch/helper if possible, but here they might import it.
 // Assuming 'index.ts' exports 'api' object which gathers all modules.

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
-import { chat } from './chat';
-import { request } from './index';
+import { chat } from '@/lib/api/chat';
+import { request } from '@/lib/api/index';
 
 // Mock the request function
 vi.mock('./index', () => ({

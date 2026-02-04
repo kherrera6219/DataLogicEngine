@@ -1,6 +1,6 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { request, api } from './index';
+import { request, api } from '@/lib/api/index';
 
 // Mock fetch
 const mockFetch = vi.fn();

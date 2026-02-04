@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { simulation } from './simulation';
-import { request } from './index';
+import { simulation } from '@/lib/api/simulation';
+import { request } from '@/lib/api/index';
 
 vi.mock('./index', () => ({
     request: vi.fn()

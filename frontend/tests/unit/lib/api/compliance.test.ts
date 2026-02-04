@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { compliance } from './compliance';
-import { request, API_BASE } from './index';
+import { compliance } from '@/lib/api/compliance';
+import { request, API_BASE } from '@/lib/api/index';
 
 vi.mock('./index', () => ({
     request: vi.fn(),

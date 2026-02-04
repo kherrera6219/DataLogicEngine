@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { knowledge } from './knowledge';
-import * as apiBase from './index';
+import { knowledge } from '@/lib/api/knowledge';
+import * as apiBase from '@/lib/api/index';
 
 vi.mock('./index', () => ({
   request: vi.fn(),
