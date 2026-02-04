@@ -3,6 +3,7 @@ from graphene import ObjectType, String, Int, Float, List, Field, Boolean
 from flask import Blueprint, request, jsonify
 from flask_login import current_user
 import logging
+import uuid
 
 logger = logging.getLogger(__name__)
 

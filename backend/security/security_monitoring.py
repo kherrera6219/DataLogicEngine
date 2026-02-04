@@ -232,7 +232,7 @@ class SecurityMonitor:
         self.metrics["total_events"] += 1
 
         # Store event in history
-        event_key = f"{event_type.value}:{user_id or 'anonymous'}"
+        event_key = f"{event_type.value}:{user_id or ip_address or 'anonymous'}"
         self.event_history[event_key].append({
             "timestamp": datetime.now(UTC),
             "details": details,
