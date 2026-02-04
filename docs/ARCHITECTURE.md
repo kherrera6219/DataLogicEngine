@@ -5,7 +5,7 @@
 
 The Universal Knowledge Graph (UKG) System employs a **hardened middleware architecture** designed for high-availability, consistent reasoning, and enterprise-grade security.
 
-- **Frontend**: Next.js 16 App Router (React 19)
+- **Frontend**: Next.js 15.1 App Router (React 18.3)
   - _Role_: User Interface, Visualization, State Management, Real-time Updates
 - **Backend**: Flask 3.1 (Python 3.11+)
   - _Role_: API Gateway, Knowledge Engine, MCP Server, LLM Gateway, Truth Engine

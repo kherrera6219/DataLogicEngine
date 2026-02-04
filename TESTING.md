@@ -90,7 +90,7 @@ npm run test:coverage
 
 ## 📊 Coverage Goals
 
-- **Backend**: >80% coverage enforced.
+- **Backend**: >70% coverage enforced (matches `pyproject.toml`).
 - **Frontend**: >70% coverage enforced.
 
 ## 🛠 Troubleshooting
