@@ -14,6 +14,8 @@
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://127.0.0.1:3000 && npm run electron:build && electron .\"",
     "electron:dist": "cross-env BUILD_MODE=electron npm run build && npm run electron:build && electron-builder",
     "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"

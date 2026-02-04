@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { middleware } from './middleware';
+import { middleware } from '../../middleware';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Mock NextResponse
@@ -91,7 +91,7 @@ describe('Middleware', () => {
     it('should fail open (redirect to /) on internal error', () => {
         // Force an error
         const req = createRequest('/dashboard');
-        // @ts-ignore
+
         req.cookies.get = () => { throw new Error('Simulation Error'); };
         
         middleware(req);
