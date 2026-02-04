@@ -38,7 +38,8 @@ def test_fuzz_gateway_chat(client, iteration):
     
     # Mock authentication and cache
     with patch('backend.llm_gateway.api.ExternalAPIKey.verify_key') as mock_verify, \
-         patch('backend.llm_gateway.api.cache.get', return_value=0):
+         patch('backend.llm_gateway.api.cache', create=True) as mock_cache:
+        mock_cache.get.return_value = 0
         mock_key = MagicMock()
         mock_key.id = "test-key-id"
         mock_key.user_id = 1
@@ -88,7 +89,8 @@ def test_fuzz_malformed_json(client):
     for payload in malformed_payloads:
         # Gateway chat
         with patch('backend.llm_gateway.api.ExternalAPIKey.verify_key') as mock_verify, \
-             patch('backend.llm_gateway.api.cache.get', return_value=0):
+             patch('backend.llm_gateway.api.cache', create=True) as mock_cache:
+            mock_cache.get.return_value = 0
             mock_key = MagicMock()
             mock_key.id = "test-key-id"
             mock_key.user_id = 1
@@ -119,7 +121,8 @@ def test_fuzz_large_payload(client):
     
     # Mock authentication and cache
     with patch('backend.llm_gateway.api.ExternalAPIKey.verify_key') as mock_verify, \
-         patch('backend.llm_gateway.api.cache.get', return_value=0):
+         patch('backend.llm_gateway.api.cache', create=True) as mock_cache:
+        mock_cache.get.return_value = 0
         mock_key = MagicMock()
         mock_key.id = "test-key-id"
         mock_key.user_id = 1

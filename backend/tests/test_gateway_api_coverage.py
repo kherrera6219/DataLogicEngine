@@ -49,6 +49,10 @@ def app_client():
         'backend.utils.responses': MagicMock(api_response=lambda x: (jsonify(x), 200))
     }):
         # Now import the blueprints
+        # FORCE RELOAD to ensure they pick up the patched sys.modules
+        if 'backend.llm_gateway.api' in sys.modules:
+            del sys.modules['backend.llm_gateway.api']
+
         from backend.llm_gateway.api import gateway_bp, admin_bp
         
         app = Flask(__name__)

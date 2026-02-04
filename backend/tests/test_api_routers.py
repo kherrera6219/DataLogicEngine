@@ -52,6 +52,11 @@ def router_app_client():
     }):
         # Import blueprints
         # We need to import them INSIDE the patch to pick up mocked models/extensions
+        # FORCE RELOAD to ensure they pick up the patched sys.modules
+        for mod in ['backend.api.ka_management', 'backend.llm_gateway.api']:
+            if mod in sys.modules:
+                del sys.modules[mod]
+
         from backend.api.ka_management import ka_management_bp
         from backend.llm_gateway.api import gateway_bp, admin_bp
         
