@@ -21,14 +21,39 @@ class UkgDatabaseManager:
     executions, sessions, and memory entries.
     """
     
-    def __init__(self, tenant_id: Optional[str] = None):
+    def __init__(self, tenant_id: Optional[str] = None, db_session=None, models_module=None, cache_client=None):
         """
         Initialize the UKG Database Manager.
         
         Args:
             tenant_id (str, optional): The active tenant ID for isolation
+            db_session: Optional SQLAlchemy session factory (dependency injection)
+            models_module: Optional module containing data models (dependency injection)
+            cache_client: Optional cache client (dependency injection)
         """
         self.tenant_id = tenant_id
+        
+        # Dependency Injection / Defaults
+        self.db = db_session if db_session else db
+        self.cache = cache_client if cache_client else cache
+        
+        # Setup Models
+        if models_module:
+            self.Node = getattr(models_module, 'Node', Node)
+            self.Edge = getattr(models_module, 'Edge', Edge)
+            self.KnowledgeAlgorithm = getattr(models_module, 'KnowledgeAlgorithm', KnowledgeAlgorithm)
+            self.KAExecution = getattr(models_module, 'KAExecution', KAExecution)
+            # Handle aliased import
+            self.Session = getattr(models_module, 'UkgSession', getattr(models_module, 'Session', Session))
+            self.MemoryEntry = getattr(models_module, 'MemoryEntry', MemoryEntry)
+        else:
+            self.Node = Node
+            self.Edge = Edge
+            self.KnowledgeAlgorithm = KnowledgeAlgorithm
+            self.KAExecution = KAExecution
+            self.Session = Session
+            self.MemoryEntry = MemoryEntry
+
         logging.info(f"UkgDatabaseManager initialized for tenant: {tenant_id}")
     
     # Node operations
@@ -45,7 +70,7 @@ class UkgDatabaseManager:
         """
         try:
             # Create a new Node object
-            node = Node(
+            node = self.Node(
                 uid=node_data.get('uid'),
                 node_type=node_data.get('node_type'),
                 label=node_data.get('label'),
@@ -58,8 +83,8 @@ class UkgDatabaseManager:
             )
             
             # Add to session and commit
-            db.session.add(node)
-            db.session.commit()
+            self.db.session.add(node)
+            self.db.session.commit()
             
             # Get the created node as a dictionary
             result = {
@@ -78,7 +103,7 @@ class UkgDatabaseManager:
             return result
             
         except SQLAlchemyError as e:
-            db.session.rollback()
+            self.db.session.rollback()
             logging.error(f"UKGDB: Error creating node: {str(e)}")
             return None
     
@@ -88,15 +113,15 @@ class UkgDatabaseManager:
         """
         # 1. Check Cache
         cache_key = f"node:{uid}:{self.tenant_id or 'global'}"
-        cached = cache.get(cache_key)
+        cached = self.cache.get(cache_key)
         if cached:
             return cached
 
         try:
             # 2. Query DB
-            query = db.session.query(Node).filter(Node.uid == uid)
+            query = self.db.session.query(self.Node).filter(self.Node.uid == uid)
             if self.tenant_id:
-                query = query.filter(Node.tenant_id == self.tenant_id)
+                query = query.filter(self.Node.tenant_id == self.tenant_id)
             
             node = query.first()
             if not node:
@@ -104,7 +129,7 @@ class UkgDatabaseManager:
             
             # 3. Cache and Return
             result = node.to_dict()
-            cache.set(cache_key, result, timeout=300)
+            self.cache.set(cache_key, result, timeout=300)
             return result
             
         except SQLAlchemyError as e:
@@ -124,9 +149,9 @@ class UkgDatabaseManager:
         """
         try:
             # Query the node with tenant isolation
-            query = db.session.query(Node).filter(Node.uid == uid)
+            query = self.db.session.query(self.Node).filter(self.Node.uid == uid)
             if self.tenant_id:
-                query = query.filter(Node.tenant_id == self.tenant_id)
+                query = query.filter(self.Node.tenant_id == self.tenant_id)
             
             node = query.first()
             
@@ -153,16 +178,16 @@ class UkgDatabaseManager:
             node.updated_at = datetime.now(UTC)
             
             # Commit changes
-            db.session.commit()
+            self.db.session.commit()
             
             # Invalidate Cache
             cache_key = f"node:{uid}:{self.tenant_id or 'global'}"
-            cache.delete(cache_key)
+            self.cache.delete(cache_key)
             
             return node.to_dict()
             
         except SQLAlchemyError as e:
-            db.session.rollback()
+            self.db.session.rollback()
             logging.error(f"UKGDB: Error updating node {uid}: {str(e)}")
             return None
     
@@ -178,9 +203,9 @@ class UkgDatabaseManager:
         """
         try:
             # Query the node with tenant isolation
-            query = db.session.query(Node).filter(Node.uid == uid)
+            query = self.db.session.query(self.Node).filter(self.Node.uid == uid)
             if self.tenant_id:
-                query = query.filter(Node.tenant_id == self.tenant_id)
+                query = query.filter(self.Node.tenant_id == self.tenant_id)
             
             node = query.first()
             
@@ -188,17 +213,17 @@ class UkgDatabaseManager:
                 return False
             
             # Delete node
-            db.session.delete(node)
-            db.session.commit()
+            self.db.session.delete(node)
+            self.db.session.commit()
             
             # Invalidate Cache
             cache_key = f"node:{uid}:{self.tenant_id or 'global'}"
-            cache.delete(cache_key)
+            self.cache.delete(cache_key)
             
             return True
             
         except SQLAlchemyError as e:
-            db.session.rollback()
+            self.db.session.rollback()
             logging.error(f"UKGDB: Error deleting node {uid}: {str(e)}")
             return False
     
@@ -216,9 +241,9 @@ class UkgDatabaseManager:
         """
         try:
             # Query nodes with tenant isolation
-            query = db.session.query(Node).filter(Node.node_type == node_type)
+            query = self.db.session.query(self.Node).filter(self.Node.node_type == node_type)
             if self.tenant_id:
-                query = query.filter(Node.tenant_id == self.tenant_id)
+                query = query.filter(self.Node.tenant_id == self.tenant_id)
             
             nodes = query.offset(offset).limit(limit).all()
             
@@ -258,12 +283,12 @@ class UkgDatabaseManager:
         """
         try:
             # Get source and target nodes with tenant isolation
-            source_query = db.session.query(Node).filter(Node.uid == edge_data.get('source_uid'))
-            target_query = db.session.query(Node).filter(Node.uid == edge_data.get('target_uid'))
+            source_query = self.db.session.query(self.Node).filter(self.Node.uid == edge_data.get('source_uid'))
+            target_query = self.db.session.query(self.Node).filter(self.Node.uid == edge_data.get('target_uid'))
             
             if self.tenant_id:
-                source_query = source_query.filter(Node.tenant_id == self.tenant_id)
-                target_query = target_query.filter(Node.tenant_id == self.tenant_id)
+                source_query = source_query.filter(self.Node.tenant_id == self.tenant_id)
+                target_query = target_query.filter(self.Node.tenant_id == self.tenant_id)
                 
             source_node = source_query.first()
             target_node = target_query.first()
@@ -273,7 +298,7 @@ class UkgDatabaseManager:
                 return None
             
             # Create a new Edge object
-            edge = Edge(
+            edge = self.Edge(
                 uid=edge_data.get('uid'),
                 edge_type=edge_data.get('edge_type'),
                 source_id=source_node.id,
@@ -285,17 +310,17 @@ class UkgDatabaseManager:
             )
             
             # Add to session and commit
-            db.session.add(edge)
-            db.session.commit()
+            self.db.session.add(edge)
+            self.db.session.commit()
             
             # Invalidate Cache
             cache_key = f"edge:{edge.uid}:{self.tenant_id or 'global'}"
-            cache.delete(cache_key)
+            self.cache.delete(cache_key)
             
             return edge.to_dict()
             
         except SQLAlchemyError as e:
-            db.session.rollback()
+            self.db.session.rollback()
             logging.error(f"UKGDB: Error creating edge: {str(e)}")
             return None
     
@@ -311,15 +336,15 @@ class UkgDatabaseManager:
         """
         # 1. Check Cache
         cache_key = f"edge:{uid}:{self.tenant_id or 'global'}"
-        cached = cache.get(cache_key)
+        cached = self.cache.get(cache_key)
         if cached:
             return cached
 
         try:
             # 2. Query the edge with tenant isolation
-            query = db.session.query(Edge).filter(Edge.uid == uid)
+            query = self.db.session.query(self.Edge).filter(self.Edge.uid == uid)
             if self.tenant_id:
-                query = query.filter(Edge.tenant_id == self.tenant_id)
+                query = query.filter(self.Edge.tenant_id == self.tenant_id)
             
             edge = query.first()
             
@@ -328,7 +353,7 @@ class UkgDatabaseManager:
             
             # 3. Cache and Return
             result = edge.to_dict()
-            cache.set(cache_key, result, timeout=300)
+            self.cache.set(cache_key, result, timeout=300)
             return result
             
         except SQLAlchemyError as e:
@@ -348,9 +373,9 @@ class UkgDatabaseManager:
         """
         try:
             # Query the edge with tenant isolation
-            query = db.session.query(Edge).filter(Edge.uid == uid)
+            query = self.db.session.query(self.Edge).filter(self.Edge.uid == uid)
             if self.tenant_id:
-                query = query.filter(Edge.tenant_id == self.tenant_id)
+                query = query.filter(self.Edge.tenant_id == self.tenant_id)
             
             edge = query.first()
             
@@ -369,17 +394,17 @@ class UkgDatabaseManager:
             
             # Update source/target IDs if UIDs provided
             if 'source_uid' in updates:
-                source_query = db.session.query(Node).filter(Node.uid == updates['source_uid'])
+                source_query = self.db.session.query(self.Node).filter(self.Node.uid == updates['source_uid'])
                 if self.tenant_id:
-                    source_query = source_query.filter(Node.tenant_id == self.tenant_id)
+                    source_query = source_query.filter(self.Node.tenant_id == self.tenant_id)
                 source_node = source_query.first()
                 if source_node:
                     edge.source_id = source_node.id
             
             if 'target_uid' in updates:
-                target_query = db.session.query(Node).filter(Node.uid == updates['target_uid'])
+                target_query = self.db.session.query(self.Node).filter(self.Node.uid == updates['target_uid'])
                 if self.tenant_id:
-                    target_query = target_query.filter(Node.tenant_id == self.tenant_id)
+                    target_query = target_query.filter(self.Node.tenant_id == self.tenant_id)
                 target_node = target_query.first()
                 if target_node:
                     edge.target_id = target_node.id
@@ -388,16 +413,16 @@ class UkgDatabaseManager:
             edge.updated_at = datetime.now(UTC)
             
             # Commit changes
-            db.session.commit()
+            self.db.session.commit()
             
             # Invalidate Cache
             cache_key = f"edge:{uid}:{self.tenant_id or 'global'}"
-            cache.delete(cache_key)
+            self.cache.delete(cache_key)
             
             return edge.to_dict()
             
         except SQLAlchemyError as e:
-            db.session.rollback()
+            self.db.session.rollback()
             logging.error(f"UKGDB: Error updating edge {uid}: {str(e)}")
             return None
     
@@ -413,9 +438,9 @@ class UkgDatabaseManager:
         """
         try:
             # Query the edge with tenant isolation
-            query = db.session.query(Edge).filter(Edge.uid == uid)
+            query = self.db.session.query(self.Edge).filter(self.Edge.uid == uid)
             if self.tenant_id:
-                query = query.filter(Edge.tenant_id == self.tenant_id)
+                query = query.filter(self.Edge.tenant_id == self.tenant_id)
             
             edge = query.first()
             
@@ -423,17 +448,17 @@ class UkgDatabaseManager:
                 return False
             
             # Delete edge
-            db.session.delete(edge)
-            db.session.commit()
+            self.db.session.delete(edge)
+            self.db.session.commit()
             
             # Invalidate Cache
             cache_key = f"edge:{uid}:{self.tenant_id or 'global'}"
-            cache.delete(cache_key)
+            self.cache.delete(cache_key)
             
             return True
             
         except SQLAlchemyError as e:
-            db.session.rollback()
+            self.db.session.rollback()
             logging.error(f"UKGDB: Error deleting edge {uid}: {str(e)}")
             return False
     
@@ -451,9 +476,9 @@ class UkgDatabaseManager:
         """
         try:
             # Query edges with tenant isolation
-            query = db.session.query(Edge).filter(Edge.edge_type == edge_type)
+            query = self.db.session.query(self.Edge).filter(self.Edge.edge_type == edge_type)
             if self.tenant_id:
-                query = query.filter(Edge.tenant_id == self.tenant_id)
+                query = query.filter(self.Edge.tenant_id == self.tenant_id)
                 
             edges = query.offset(offset).limit(limit).all()
             
@@ -461,8 +486,8 @@ class UkgDatabaseManager:
             results = []
             for edge in edges:
                 # Get source and target node UIDs
-                source_node = db.session.query(Node).filter(Node.id == edge.source_id).first()
-                target_node = db.session.query(Node).filter(Node.id == edge.target_id).first()
+                source_node = self.db.session.query(self.Node).filter(self.Node.id == edge.source_id).first()
+                target_node = self.db.session.query(self.Node).filter(self.Node.id == edge.target_id).first()
                 
                 source_uid = source_node.uid if source_node else None
                 target_uid = target_node.uid if target_node else None
@@ -497,25 +522,25 @@ class UkgDatabaseManager:
         """
         try:
             # Get node with tenant isolation
-            query = db.session.query(Node).filter(Node.uid == node_uid)
+            query = self.db.session.query(self.Node).filter(self.Node.uid == node_uid)
             if self.tenant_id:
-                query = query.filter(Node.tenant_id == self.tenant_id)
+                query = query.filter(self.Node.tenant_id == self.tenant_id)
             node = query.first()
             
             if not node:
                 return []
             
             # Query outgoing edges with tenant isolation
-            edge_query = db.session.query(Edge).filter(Edge.source_id == node.id)
+            edge_query = self.db.session.query(self.Edge).filter(self.Edge.source_id == node.id)
             if self.tenant_id:
-                edge_query = edge_query.filter(Edge.tenant_id == self.tenant_id)
+                edge_query = edge_query.filter(self.Edge.tenant_id == self.tenant_id)
             edges = edge_query.all()
             
             # Convert to dictionaries
             results = []
             for edge in edges:
                 # Get target node
-                target_node = db.session.query(Node).filter(Node.id == edge.target_id).first()
+                target_node = self.db.session.query(self.Node).filter(self.Node.id == edge.target_id).first()
                 target_uid = target_node.uid if target_node else None
                 
                 results.append({
@@ -548,25 +573,25 @@ class UkgDatabaseManager:
         """
         try:
             # Get node with tenant isolation
-            query = db.session.query(Node).filter(Node.uid == node_uid)
+            query = self.db.session.query(self.Node).filter(self.Node.uid == node_uid)
             if self.tenant_id:
-                query = query.filter(Node.tenant_id == self.tenant_id)
+                query = query.filter(self.Node.tenant_id == self.tenant_id)
             node = query.first()
             
             if not node:
                 return []
             
             # Query incoming edges with tenant isolation
-            edge_query = db.session.query(Edge).filter(Edge.target_id == node.id)
+            edge_query = self.db.session.query(self.Edge).filter(self.Edge.target_id == node.id)
             if self.tenant_id:
-                edge_query = edge_query.filter(Edge.tenant_id == self.tenant_id)
+                edge_query = edge_query.filter(self.Edge.tenant_id == self.tenant_id)
             edges = edge_query.all()
             
             # Convert to dictionaries
             results = []
             for edge in edges:
                 # Get source node
-                source_node = db.session.query(Node).filter(Node.id == edge.source_id).first()
+                source_node = self.db.session.query(self.Node).filter(self.Node.id == edge.source_id).first()
                 source_uid = source_node.uid if source_node else None
                 
                 results.append({
@@ -601,7 +626,7 @@ class UkgDatabaseManager:
         """
         try:
             # Create a new KnowledgeAlgorithm object
-            algorithm = KnowledgeAlgorithm(
+            algorithm = self.KnowledgeAlgorithm(
                 ka_id=algorithm_data.get('ka_id'),
                 name=algorithm_data.get('name'),
                 description=algorithm_data.get('description'),
@@ -612,8 +637,8 @@ class UkgDatabaseManager:
             )
             
             # Add to session and commit
-            db.session.add(algorithm)
-            db.session.commit()
+            self.db.session.add(algorithm)
+            self.db.session.commit()
             
             # Get the created algorithm as a dictionary
             result = {
@@ -646,9 +671,9 @@ class UkgDatabaseManager:
         """
         try:
             # Query the algorithm with tenant isolation
-            query = db.session.query(KnowledgeAlgorithm).filter(KnowledgeAlgorithm.ka_id == ka_id)
+            query = self.db.session.query(self.KnowledgeAlgorithm).filter(self.KnowledgeAlgorithm.ka_id == ka_id)
             if self.tenant_id:
-                query = query.filter(KnowledgeAlgorithm.tenant_id == self.tenant_id)
+                query = query.filter(self.KnowledgeAlgorithm.tenant_id == self.tenant_id)
             
             algorithm = query.first()
             
@@ -687,9 +712,9 @@ class UkgDatabaseManager:
         try:
             # Get algorithm ID with tenant isolation
             ka_id = execution_data.get('ka_id')
-            ka_query = db.session.query(KnowledgeAlgorithm).filter(KnowledgeAlgorithm.ka_id == ka_id)
+            ka_query = self.db.session.query(self.KnowledgeAlgorithm).filter(self.KnowledgeAlgorithm.ka_id == ka_id)
             if self.tenant_id:
-                ka_query = ka_query.filter(KnowledgeAlgorithm.tenant_id == self.tenant_id)
+                ka_query = ka_query.filter(self.KnowledgeAlgorithm.tenant_id == self.tenant_id)
             algorithm = ka_query.first()
             
             if not algorithm:
@@ -697,7 +722,7 @@ class UkgDatabaseManager:
                 return None
             
             # Create a new KAExecution object
-            execution = KAExecution(
+            execution = self.KAExecution(
                 algorithm_id=algorithm.id,
                 session_id=execution_data.get('session_id'),
                 pass_num=execution_data.get('pass_num', 0),
@@ -712,8 +737,8 @@ class UkgDatabaseManager:
             )
             
             # Add to session and commit
-            db.session.add(execution)
-            db.session.commit()
+            self.db.session.add(execution)
+            self.db.session.commit()
             
             # Get the created execution as a dictionary
             result = {
@@ -734,7 +759,7 @@ class UkgDatabaseManager:
             return result
             
         except SQLAlchemyError as e:
-            db.session.rollback()
+            self.db.session.rollback()
             logging.error(f"UKGDB: Error creating KA execution: {str(e)}")
             return None
     
@@ -751,7 +776,7 @@ class UkgDatabaseManager:
                 session_id = f"SS_{str(uuid.uuid4())[:8]}_{int(datetime.now().timestamp())}"
             
             # Create a new Session object
-            session_obj = Session(
+            session_obj = self.Session(
                 session_id=session_id,
                 user_query=user_query,
                 target_confidence=target_confidence,
@@ -760,13 +785,13 @@ class UkgDatabaseManager:
             )
             
             # Add to session and commit
-            db.session.add(session_obj)
-            db.session.commit()
+            self.db.session.add(session_obj)
+            self.db.session.commit()
             
             return session_obj.to_dict()
             
         except SQLAlchemyError as e:
-            db.session.rollback()
+            self.db.session.rollback()
             logging.error(f"UKGDB: Error creating session: {str(e)}")
             return None
     
@@ -776,9 +801,9 @@ class UkgDatabaseManager:
         """
         try:
             # Query the session with tenant isolation
-            query = db.session.query(Session).filter(Session.session_id == session_id)
+            query = self.db.session.query(self.Session).filter(self.Session.session_id == session_id)
             if self.tenant_id:
-                query = query.filter(Session.tenant_id == self.tenant_id)
+                query = query.filter(self.Session.tenant_id == self.tenant_id)
             
             session_obj = query.first()
             if not session_obj:
@@ -797,9 +822,9 @@ class UkgDatabaseManager:
         """
         try:
             # Query the session with tenant isolation
-            query = db.session.query(Session).filter(Session.session_id == session_id)
+            query = self.db.session.query(self.Session).filter(self.Session.session_id == session_id)
             if self.tenant_id:
-                query = query.filter(Session.tenant_id == self.tenant_id)
+                query = query.filter(self.Session.tenant_id == self.tenant_id)
             
             session_obj = query.first()
             if not session_obj:
@@ -811,11 +836,11 @@ class UkgDatabaseManager:
             session_obj.completed_at = datetime.now(UTC)
             
             # Commit changes
-            db.session.commit()
+            self.db.session.commit()
             return session_obj.to_dict()
             
         except SQLAlchemyError as e:
-            db.session.rollback()
+            self.db.session.rollback()
             logging.error(f"UKGDB: Error completing session {session_id}: {str(e)}")
             return None
     
@@ -829,9 +854,9 @@ class UkgDatabaseManager:
         """
         try:
             # Verify session exists for this tenant
-            session_query = db.session.query(Session).filter(Session.session_id == session_id)
+            session_query = self.db.session.query(self.Session).filter(self.Session.session_id == session_id)
             if self.tenant_id:
-                session_query = session_query.filter(Session.tenant_id == self.tenant_id)
+                session_query = session_query.filter(self.Session.tenant_id == self.tenant_id)
             
             if not session_query.first():
                 logging.error(f"UKGDB: Session {session_id} not found or access denied for tenant")
@@ -842,7 +867,7 @@ class UkgDatabaseManager:
                 uid = f"MEM_{entry_type.upper()}_{str(uuid.uuid4())[:8]}_{int(datetime.now().timestamp())}"
             
             # Create a new MemoryEntry object
-            memory_entry = MemoryEntry(
+            memory_entry = self.MemoryEntry(
                 uid=uid,
                 session_id=session_id,
                 entry_type=entry_type,
@@ -854,12 +879,12 @@ class UkgDatabaseManager:
             )
             
             # Add to session and commit
-            db.session.add(memory_entry)
-            db.session.commit()
+            self.db.session.add(memory_entry)
+            self.db.session.commit()
             return memory_entry.to_dict()
             
         except SQLAlchemyError as e:
-            db.session.rollback()
+            self.db.session.rollback()
             logging.error(f"UKGDB: Error adding memory entry: {str(e)}")
             return None
     
@@ -870,18 +895,18 @@ class UkgDatabaseManager:
         """
         try:
             # Build query with tenant isolation
-            query = db.session.query(MemoryEntry).filter(MemoryEntry.session_id == session_id)
+            query = self.db.session.query(self.MemoryEntry).filter(self.MemoryEntry.session_id == session_id)
             if self.tenant_id:
-                query = query.filter(MemoryEntry.tenant_id == self.tenant_id)
+                query = query.filter(self.MemoryEntry.tenant_id == self.tenant_id)
             
             if entry_type:
-                query = query.filter(MemoryEntry.entry_type == entry_type)
+                query = query.filter(self.MemoryEntry.entry_type == entry_type)
                 
             if pass_num is not None:
-                query = query.filter(MemoryEntry.pass_num == pass_num)
+                query = query.filter(self.MemoryEntry.pass_num == pass_num)
                 
             # Order by created_at (newest first) and apply limit
-            memory_entries = query.order_by(MemoryEntry.created_at.desc()).limit(limit).all()
+            memory_entries = query.order_by(self.MemoryEntry.created_at.desc()).limit(limit).all()
             return [entry.to_dict() for entry in memory_entries]
             
         except SQLAlchemyError as e:
@@ -932,7 +957,7 @@ class UkgDatabaseManager:
             sql_query += f" LIMIT {limit}"
             
             # Execute query
-            results = db.session.execute(text(sql_query), params).fetchall()
+            results = self.db.session.execute(text(sql_query), params).fetchall()
             
             # Convert to dictionaries
             nodes = []
@@ -957,9 +982,9 @@ class UkgDatabaseManager:
         """
         try:
             # Get starting node with tenant isolation
-            query = db.session.query(Node).filter(Node.uid == node_uid)
+            query = self.db.session.query(self.Node).filter(self.Node.uid == node_uid)
             if self.tenant_id:
-                query = query.filter(Node.tenant_id == self.tenant_id)
+                query = query.filter(self.Node.tenant_id == self.tenant_id)
             start_node = query.first()
             
             if not start_node:
@@ -975,11 +1000,11 @@ class UkgDatabaseManager:
                 next_node_ids = set()
                 
                 if direction in ('outgoing', 'both'):
-                    edge_query = db.session.query(Edge).filter(Edge.source_id.in_(current_node_ids))
+                    edge_query = self.db.session.query(self.Edge).filter(self.Edge.source_id.in_(current_node_ids))
                     if self.tenant_id:
-                        edge_query = edge_query.filter(Edge.tenant_id == self.tenant_id)
+                        edge_query = edge_query.filter(self.Edge.tenant_id == self.tenant_id)
                     if edge_types:
-                        edge_query = edge_query.filter(Edge.edge_type.in_(edge_types))
+                        edge_query = edge_query.filter(self.Edge.edge_type.in_(edge_types))
                     
                     edges = edge_query.all()
                     for edge in edges:
@@ -987,11 +1012,11 @@ class UkgDatabaseManager:
                         next_node_ids.add(edge.target_id)
                 
                 if direction in ('incoming', 'both'):
-                    edge_query = db.session.query(Edge).filter(Edge.target_id.in_(current_node_ids))
+                    edge_query = self.db.session.query(self.Edge).filter(self.Edge.target_id.in_(current_node_ids))
                     if self.tenant_id:
-                        edge_query = edge_query.filter(Edge.tenant_id == self.tenant_id)
+                        edge_query = edge_query.filter(self.Edge.tenant_id == self.tenant_id)
                     if edge_types:
-                        edge_query = edge_query.filter(Edge.edge_type.in_(edge_types))
+                        edge_query = edge_query.filter(self.Edge.edge_type.in_(edge_types))
                     
                     edges = edge_query.all()
                     for edge in edges:
@@ -1003,8 +1028,8 @@ class UkgDatabaseManager:
                 if not current_node_ids: break
             
             # Batch fetch all discovered nodes and edges
-            nodes = db.session.query(Node).filter(Node.id.in_(node_ids)).all()
-            edges = db.session.query(Edge).filter(Edge.id.in_(edge_ids)).all()
+            nodes = self.db.session.query(self.Node).filter(self.Node.id.in_(node_ids)).all()
+            edges = self.db.session.query(self.Edge).filter(self.Edge.id.in_(edge_ids)).all()
             
             return {
                 'nodes': [n.to_dict() for n in nodes],
@@ -1023,7 +1048,7 @@ class UkgDatabaseManager:
         """
         try:
             # Execute query
-            result = db.session.execute(text(query), params or {})
+            result = self.db.session.execute(text(query), params or {})
             
             # Convert results to dictionaries
             rows = []
