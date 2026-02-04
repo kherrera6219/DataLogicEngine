@@ -24,7 +24,7 @@ def discovery_kas():
     Dynamically discover all KA modules.
     Returns a list of tuples: (module_name, file_path)
     """
-    ka_dir = os.path.join(os.path.dirname(__file__), '..', 'knowledge_algorithms')
+    ka_dir = os.path.join(project_root, 'backend', 'knowledge_algorithms')
     ka_dir = os.path.abspath(ka_dir)
     ka_files = glob.glob(os.path.join(ka_dir, "ka_*.py"))
     
