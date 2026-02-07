@@ -80,9 +80,9 @@ export default function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center p-6 md:p-24 relative overflow-hidden bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
+    <main className="min-h-screen bg-gray-100 dark:bg-[#0a0a0a] text-gray-900 dark:text-white flex flex-col items-center justify-center p-6 md:p-24 relative overflow-hidden bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
       {/* Background Polish */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0a0a]/80 to-[#0a0a0a] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-100/80 to-gray-100 dark:via-[#0a0a0a]/80 dark:to-[#0a0a0a] pointer-events-none" />
       
       <div className="relative z-10 max-w-5xl w-full text-center space-y-12 animate-in fade-in zoom-in-95 duration-1000">
         <header className="space-y-6">
@@ -96,10 +96,10 @@ export default function Home() {
           </Badge>
           
           <div className="space-y-4">
-             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-white drop-shadow-2xl">
+             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-gray-900 dark:text-white drop-shadow-2xl">
                DataLogic<span className="text-blue-500">Engine</span>
              </h1>
-             <p className="text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed">
+             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto font-light leading-relaxed">
                Enterprise Universal Knowledge Graph System with 17-Axis Reasoning and MCP Unified Standards.
              </p>
           </div>
@@ -112,7 +112,7 @@ export default function Home() {
               href={f.href}
               className="group relative"
             >
-              <div className="h-full p-8 bg-[#151515] hover:bg-[#1a1a1a] rounded-2xl border border-white/5 hover:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group hover:ring-1 hover:ring-blue-500/30">
+              <div className="h-full p-8 bg-white/90 dark:bg-[#151515] hover:bg-white dark:hover:bg-[#1a1a1a] rounded-2xl border border-slate-300/70 dark:border-white/5 hover:border-slate-400/70 dark:hover:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group hover:ring-1 hover:ring-blue-500/30">
                 <div className={cn(
                   "mb-6 w-14 h-14 rounded-xl flex items-center justify-center transition-all shadow-inner border border-white/5",
                   f.bg, f.color
@@ -120,12 +120,12 @@ export default function Home() {
                   <f.icon className="h-7 w-7" />
                 </div>
                 
-                <h3 className="text-xl font-bold mb-3 text-gray-100 group-hover:text-white transition-colors flex items-center gap-2">
+                <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-gray-100 group-hover:text-slate-950 dark:group-hover:text-white transition-colors flex items-center gap-2">
                   {f.title}
                   <ArrowRight className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-blue-500" />
                 </h3>
                 
-                <p className="text-sm text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
+                <p className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed group-hover:text-slate-800 dark:group-hover:text-gray-300 transition-colors">
                   {f.desc}
                 </p>
               </div>

@@ -213,7 +213,7 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="flex h-full text-white font-sans overflow-hidden">
+    <div className="flex h-full text-gray-900 dark:text-white font-sans overflow-hidden">
       
       {/* 📁 Conversational Sidebar */}
       <div className="w-64 border-r border-white/5 flex flex-col fluent-acrylic z-20">
@@ -226,15 +226,15 @@ export function ChatInterface() {
                <Plus className="h-4 w-4" /> New Chat
             </Button>
             <div className="relative">
-               <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-               <Input placeholder="Search..." className="pl-8 bg-black/20 border-white/5 h-9 focus:bg-black/40 transition-colors" />
+               <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-500 dark:text-gray-400" />
+               <Input placeholder="Search..." className="pl-8 bg-white/80 dark:bg-black/20 border-slate-300/70 dark:border-white/5 h-9 focus:bg-white dark:focus:bg-black/40 transition-colors" />
             </div>
          </div>
          
          <ScrollArea className="flex-1">
             <div className="p-4 space-y-6">
                <div>
-                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <h3 className="text-xs font-bold text-slate-500 dark:text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
                      <Calendar className="h-3 w-3" /> Recent Sessions
                   </h3>
                   <div className="space-y-1">
@@ -244,8 +244,8 @@ export function ChatInterface() {
                           key={s.id} 
                           variant="ghost" 
                           className={cn(
-                            "w-full justify-start text-sm h-10 px-2 font-normal hover:bg-white/5 hover:text-white rounded-md truncate",
-                            currentSessionId === s.id ? "bg-white/10 text-white font-medium border border-white/5" : "text-gray-400"
+                            "w-full justify-start text-sm h-10 px-2 font-normal hover:bg-slate-200/70 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white rounded-md truncate",
+                            currentSessionId === s.id ? "bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white font-medium border border-slate-300/70 dark:border-white/5" : "text-slate-600 dark:text-gray-400"
                           )}
                           onClick={() => setCurrentSessionId(s.id)}
                         >
@@ -253,7 +253,7 @@ export function ChatInterface() {
                         </Button>
                        ))
                      ) : (
-                       <div className="text-xs text-gray-600 px-2 italic py-4">No recent sessions found</div>
+                       <div className="text-xs text-slate-500 dark:text-gray-600 px-2 italic py-4">No recent sessions found</div>
                      )}
                   </div>
                </div>
@@ -262,8 +262,8 @@ export function ChatInterface() {
          
          <div className="p-4 border-t border-white/5">
             <div className="flex justify-between">
-               <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white hover:bg-white/5">Export</Button>
-               <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white hover:bg-white/5">Clear All</Button>
+               <Button variant="ghost" size="sm" className="text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/5">Export</Button>
+               <Button variant="ghost" size="sm" className="text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/5">Clear All</Button>
             </div>
          </div>
       </div>
@@ -272,15 +272,15 @@ export function ChatInterface() {
       <div className="flex-1 flex flex-col relative z-10 bg-transparent" data-testid="main-chat-area">
          {/* Header */}
          <div className="h-14 border-b border-white/5 flex items-center justify-between px-6 fluent-acrylic sticky top-0 z-30">
-            <h1 className="font-bold text-sm tracking-wide flex items-center gap-2 text-gray-100" data-testid="app-header">
+            <h1 className="font-bold text-sm tracking-wide flex items-center gap-2 text-slate-900 dark:text-gray-100" data-testid="app-header">
                🎯 UKG Enterprise AI Assistant
             </h1>
             <div className="flex items-center gap-3">
-               <span className="text-xs text-gray-400">@username</span>
-               <Button variant="ghost" size="sm" className="h-8 gap-2 border border-white/10 hover:bg-white/5 text-gray-300">
+               <span className="text-xs text-slate-600 dark:text-gray-400">@username</span>
+               <Button variant="ghost" size="sm" className="h-8 gap-2 border border-slate-300/70 dark:border-white/10 hover:bg-slate-200/70 dark:hover:bg-white/5 text-slate-700 dark:text-gray-300">
                   <Settings className="h-3.5 w-3.5" /> Settings
                </Button>
-               <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/5 relative group">
+               <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-200/70 dark:hover:bg-white/5 relative group">
                   <span className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)] group-hover:shadow-[0_0_15px_rgba(34,197,94,0.8)] transition-all"></span>
                </Button>
             </div>
@@ -290,13 +290,13 @@ export function ChatInterface() {
          <div className="flex-1 overflow-y-auto p-6 space-y-6" data-testid="messages-container">
             {messages.map((msg) => (
                 <div key={msg.id} data-testid="message-item" className={`flex gap-4 animate-in ...`}>
-                   <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${msg.role === 'assistant' ? 'bg-blue-600' : 'bg-[#2a2a2a] border border-white/10'}`}>
+                   <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${msg.role === 'assistant' ? 'bg-blue-600' : 'bg-slate-200 dark:bg-[#2a2a2a] border border-slate-300/70 dark:border-white/10'}`}>
                       {msg.role === 'assistant' ? '🤖' : '👤'}
                    </div>
                    <div className="flex-1 space-y-2">
                       <div className="flex items-center justify-between">
-                         <span className="font-bold text-sm text-gray-200">{msg.role === 'assistant' ? 'UKG Assistant' : 'User'}</span>
-                         <span className="text-xs text-gray-500">{msg.timestamp}</span>
+                         <span className="font-bold text-sm text-slate-900 dark:text-gray-200">{msg.role === 'assistant' ? 'UKG Assistant' : 'User'}</span>
+                         <span className="text-xs text-slate-500 dark:text-gray-500">{msg.timestamp}</span>
                       </div>
                       
                       {msg.role === 'assistant' && msg.isEnhanced && (
@@ -305,11 +305,11 @@ export function ChatInterface() {
                          </div>
                       )}
 
-                      <div className="text-sm leading-relaxed text-gray-300">
+                      <div className="text-sm leading-relaxed text-slate-700 dark:text-gray-300">
                          {msg.role === 'assistant' ? (
                             <div className="space-y-4">
-                               <p className="italic text-gray-400">Let me analyze this through the UKG validation framework...</p>
-                               <div className="bg-black/20 rounded-lg p-3 text-xs space-y-1 font-mono text-gray-400 border border-white/5 shadow-inner">
+                               <p className="italic text-slate-600 dark:text-gray-400">Let me analyze this through the UKG validation framework...</p>
+                               <div className="bg-slate-100/70 dark:bg-black/20 rounded-lg p-3 text-xs space-y-1 font-mono text-slate-600 dark:text-gray-400 border border-slate-200 dark:border-white/5 shadow-inner">
                                   <div className="flex items-center gap-2 text-green-400"><span className="text-green-500">✓</span> TruthGate Security Screening</div>
                                   <div className="flex items-center gap-2"><span className="animate-pulse text-yellow-500">⏳</span> 17-Axis Coordinate Resolution</div>
                                   <div className="flex items-center gap-2"><span className="animate-pulse text-yellow-500">⏳</span> Quad Persona Analysis</div>
@@ -334,9 +334,9 @@ export function ChatInterface() {
 
          {/* Input Area */}
          <div className="p-4 border-t border-white/5 fluent-acrylic z-20">
-            <div className="max-w-4xl mx-auto bg-black/40 border border-white/10 rounded-2xl p-2 relative shadow-2xl backdrop-blur-md transition-all focus-within:ring-1 focus-within:ring-blue-500/30 focus-within:bg-black/60">
+            <div className="max-w-4xl mx-auto bg-white/80 dark:bg-black/40 border border-slate-300/70 dark:border-white/10 rounded-2xl p-2 relative shadow-2xl backdrop-blur-md transition-all focus-within:ring-1 focus-within:ring-blue-500/30 focus-within:bg-white dark:focus-within:bg-black/60">
                <textarea 
-                  className="w-full bg-transparent border-none focus:ring-0 text-gray-200 text-sm p-3 min-h-[60px] resize-none pr-32 placeholder:text-gray-600"
+                  className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-gray-200 text-sm p-3 min-h-[60px] resize-none pr-32 placeholder:text-slate-400 dark:placeholder:text-gray-600"
                   placeholder="Ask a compliance question..."
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
@@ -353,7 +353,7 @@ export function ChatInterface() {
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg"
+                    className="h-8 w-8 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/5 rounded-lg"
                     onClick={() => fileInputRef.current?.click()}
                     aria-label="Attach file"
                   >
@@ -362,7 +362,7 @@ export function ChatInterface() {
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg"
+                    className="h-8 w-8 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/5 rounded-lg"
                     onClick={() => alert("Audio capture initializing... Production bridge active.")}
                     aria-label="Start voice input"
                   >
@@ -392,7 +392,7 @@ export function ChatInterface() {
                <TraceVisualizer />
             </div>
 
-            <div className="text-center text-[10px] text-gray-600 mt-2 font-mono">UKG AI v2.1.0 • Enterprise Edition • Confidential</div>
+            <div className="text-center text-[10px] text-slate-500 dark:text-gray-600 mt-2 font-mono">UKG AI v2.1.0 • Enterprise Edition • Confidential</div>
          </div>
       </div>
 

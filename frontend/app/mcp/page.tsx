@@ -36,16 +36,16 @@ function McpPageContent() {
   const activeTab = searchParams.get('tab') || 'hub';
 
   return (
-    <div className="flex flex-col h-full bg-black/40 text-white p-6 space-y-6 overflow-y-auto">
+    <div className="flex flex-col h-full rounded-xl border border-slate-200/70 dark:border-white/10 bg-white/70 dark:bg-black/40 text-gray-900 dark:text-white p-6 space-y-6 overflow-y-auto">
        <div className="flex items-center gap-4">
           <Link href="/dashboard">
-             <Button variant="ghost" size="icon" className="hover:bg-white/10 text-gray-400">
+             <Button variant="ghost" size="icon" className="hover:bg-slate-200/70 dark:hover:bg-white/10 text-slate-600 dark:text-gray-400">
                 <ChevronLeft className="h-4 w-4" />
              </Button>
           </Link>
           <Tabs value={activeTab} onValueChange={(value) => router.push(`/mcp?tab=${value}`)} className="w-full">
              <div className="flex items-center justify-between mb-6">
-                <TabsList className="bg-white/5 border border-white/10">
+                <TabsList className="bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-white/10">
                    <TabsTrigger value="hub">Hub Overview</TabsTrigger>
                    <TabsTrigger value="server">Server Config</TabsTrigger>
                    <TabsTrigger value="client">Client & Tools</TabsTrigger>
@@ -81,7 +81,7 @@ function McpPageContent() {
 
 export default function McpPage() {
    return (
-      <Suspense fallback={<div className="p-6 text-white">Loading MCP Hub...</div>}>
+      <Suspense fallback={<div className="p-6 text-foreground">Loading MCP Hub...</div>}>
          <McpPageContent />
       </Suspense>
    );

@@ -51,15 +51,15 @@ export default function SettingsPage() {
   }, []);
 
   return (
-    <div className="min-h-full bg-[#111111] text-white font-sans">
+    <div className="min-h-full bg-background text-foreground font-sans">
       <div className="min-h-full bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
          
          {/* Acrylic Header */}
          <div className="h-16 border-b border-white/5 fluent-acrylic sticky top-0 z-10 flex items-center justify-between px-8 backdrop-blur-3xl">
-            <h1 className="text-title font-bold text-gray-100 flex items-center gap-3">
-               <SettingsIcon className="h-5 w-5 text-gray-400" />
+            <h1 className="text-title font-bold text-slate-900 dark:text-gray-100 flex items-center gap-3">
+               <SettingsIcon className="h-5 w-5 text-slate-500 dark:text-gray-400" />
                Settings 
-               <span className="text-sm font-normal text-gray-500">/ Configuration</span>
+               <span className="text-sm font-normal text-slate-500 dark:text-gray-500">/ Configuration</span>
             </h1>
             <Button className="bg-blue-600 hover:bg-blue-700 font-bold shadow-lg shadow-blue-900/20">
                <Save className="h-4 w-4 mr-2" /> Save Changes
@@ -84,7 +84,7 @@ export default function SettingsPage() {
                         <TabsTrigger 
                            key={tab.id} 
                            value={tab.id}
-                           className="w-full justify-start px-4 py-3 h-auto text-sm font-medium data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:bg-white/5 rounded-xl transition-all"
+                           className="w-full justify-start px-4 py-3 h-auto text-sm font-medium text-slate-700 dark:text-gray-300 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:bg-slate-200/70 dark:hover:bg-white/5 rounded-xl transition-all"
                         >
                            <tab.icon className="h-4 w-4 mr-3" />
                            {tab.label}
@@ -97,7 +97,7 @@ export default function SettingsPage() {
                         <div className="flex items-center gap-2 text-blue-400 font-semibold text-sm">
                            <Shield className="h-4 w-4" /> Enterprise Protected
                         </div>
-                        <p className="text-xs text-gray-400">Settings are enforced by global registry policies.</p>
+                        <p className="text-xs text-slate-600 dark:text-gray-400">Settings are enforced by global registry policies.</p>
                      </CardContent>
                   </Card>
                </div>
@@ -107,20 +107,20 @@ export default function SettingsPage() {
                   
                   {/* GENERAL SETTINGS */}
                   <TabsContent value="general" className="space-y-6 m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
-                     <Card className="fluent-card bg-[#1a1a1a] border-[#333]">
+                     <Card className="fluent-card">
                         <CardHeader>
                            <CardTitle>Appearance</CardTitle>
                            <CardDescription>Customize the interface look and feel.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                           <div className="flex items-center justify-between p-4 rounded-xl bg-black/20 border border-white/5">
+                           <div className="flex items-center justify-between p-4 rounded-xl bg-white/70 dark:bg-black/20 border border-slate-200 dark:border-white/5">
                               <div className="flex items-center gap-4">
-                                 <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center">
+                                 <div className="h-10 w-10 rounded-full bg-slate-200/70 dark:bg-white/5 flex items-center justify-center">
                                     <Sun className="h-5 w-5 text-yellow-400" />
                                  </div>
                                  <div>
-                                    <div className="font-medium text-gray-200">Theme Preference</div>
-                                    <div className="text-xs text-gray-500">Select your preferred system theme</div>
+                                    <div className="font-medium text-slate-900 dark:text-gray-200">Theme Preference</div>
+                                    <div className="text-xs text-slate-500 dark:text-gray-500">Select your preferred system theme</div>
                                  </div>
                               </div>
                               <div className="flex gap-2">
@@ -128,7 +128,7 @@ export default function SettingsPage() {
                                    variant="outline"
                                    size="sm"
                                    onClick={() => setTheme('dark')}
-                                   className={resolvedTheme === 'dark' && theme !== 'light' ? "bg-blue-600/20 border-blue-500/50 text-blue-400" : "text-gray-400"}
+                                   className={resolvedTheme === 'dark' && theme !== 'light' ? "bg-blue-600/20 border-blue-500/50 text-blue-400" : "text-slate-700 dark:text-gray-400"}
                                  >
                                    Dark
                                  </Button>
@@ -136,7 +136,7 @@ export default function SettingsPage() {
                                    variant="ghost"
                                    size="sm"
                                    onClick={() => setTheme('light')}
-                                   className={resolvedTheme === 'light' ? "bg-blue-600/20 border-blue-500/50 text-blue-400" : "text-gray-500"}
+                                   className={resolvedTheme === 'light' ? "bg-blue-600/20 border-blue-500/50 text-blue-400" : "text-slate-600 dark:text-gray-500"}
                                  >
                                    Light
                                  </Button>
@@ -148,12 +148,12 @@ export default function SettingsPage() {
 
                   {/* NOTIFICATIONS */}
                   <TabsContent value="notifications" className="space-y-6 m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
-                     <Card className="fluent-card bg-[#1a1a1a] border-[#333]">
+                     <Card className="fluent-card">
                         <CardHeader>
                            <CardTitle>Notification Preferences</CardTitle>
                            <CardDescription>Manage how and when you receive system alerts.</CardDescription>
                         </CardHeader>
-                        <CardContent className="min-h-[300px] flex flex-col items-center justify-center text-gray-500">
+                        <CardContent className="min-h-[300px] flex flex-col items-center justify-center text-slate-500 dark:text-gray-500">
                            <Bell className="h-12 w-12 mb-4 opacity-20" />
                            <p>Notification settings coming soon</p>
                         </CardContent>
@@ -164,7 +164,7 @@ export default function SettingsPage() {
                    <TabsContent value="api" className="space-y-6 m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
                       <div className="space-y-1 mb-6">
                          <h2 className="text-lg font-bold">API Gateway Configuration</h2>
-                         <p className="text-sm text-gray-400">Manage API keys and connection usage.</p>
+                         <p className="text-sm text-slate-600 dark:text-gray-400">Manage API keys and connection usage.</p>
                       </div>
                       <ApiOverlayConfig />
                    </TabsContent>
@@ -176,19 +176,19 @@ export default function SettingsPage() {
 
                    {/* SECURITY */}
                    <TabsContent value="security" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
-                      <Card className="fluent-card bg-[#1a1a1a] border-[#333]">
+                      <Card className="fluent-card">
                          <CardHeader>
                             <CardTitle className="flex items-center gap-2"><Lock className="h-5 w-5" /> Privacy & Security</CardTitle>
                             <CardDescription>Current account and local data posture.</CardDescription>
                          </CardHeader>
                          <CardContent className="space-y-4">
-                            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-                               <div className="text-sm text-gray-300">Local simulation records</div>
-                               <div className="text-2xl font-bold text-white">{summary?.data_summary?.total_simulations ?? 'Unknown'}</div>
+                            <div className="rounded-xl border border-slate-300/70 dark:border-white/10 bg-slate-50 dark:bg-black/20 p-4">
+                               <div className="text-sm text-slate-700 dark:text-gray-300">Local simulation records</div>
+                               <div className="text-2xl font-bold text-slate-900 dark:text-white">{summary?.data_summary?.total_simulations ?? 'Unknown'}</div>
                             </div>
-                            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-                               <div className="text-sm text-gray-300">Account provisioned</div>
-                               <div className="text-base font-semibold text-white">{summary?.account_created ? new Date(summary.account_created).toLocaleDateString() : 'Unknown'}</div>
+                            <div className="rounded-xl border border-slate-300/70 dark:border-white/10 bg-slate-50 dark:bg-black/20 p-4">
+                               <div className="text-sm text-slate-700 dark:text-gray-300">Account provisioned</div>
+                               <div className="text-base font-semibold text-slate-900 dark:text-white">{summary?.account_created ? new Date(summary.account_created).toLocaleDateString() : 'Unknown'}</div>
                             </div>
                             <Button asChild className="bg-blue-600 hover:bg-blue-700">
                               <Link href="/settings/privacy">Open Privacy Controls</Link>
@@ -199,8 +199,8 @@ export default function SettingsPage() {
 
                    {/* AI MODELS */}
                    <TabsContent value="ai" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
-                      <Card className="fluent-card bg-[#1a1a1a] border-[#333]">
-                         <CardContent className="min-h-[300px] flex flex-col items-center justify-center text-gray-500">
+                      <Card className="fluent-card">
+                         <CardContent className="min-h-[300px] flex flex-col items-center justify-center text-slate-500 dark:text-gray-500">
                              <Brain className="h-12 w-12 mb-4 opacity-20" />
                              <p>AI Model Controls Pending</p>
                          </CardContent>

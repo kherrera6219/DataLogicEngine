@@ -75,6 +75,18 @@ Start the local stack:
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
 ```
 
+`start_local_stack.ps1` now runs frontend route-policy smoke checks automatically after frontend boot:
+
+1. Public routes must return `200`.
+2. Protected routes must redirect to login for unauthenticated web requests.
+3. Protected routes must return `200` with desktop header bypass (`X-DataLogic-Desktop: 1`).
+
+Skip these checks only when needed:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1 -SkipRouteSmoke
+```
+
 Start with full local data services (PostgreSQL + Redis + Neo4j + MinIO) using Docker:
 
 ```powershell
@@ -109,6 +121,19 @@ Validate storage/memory data-plane wiring:
 
 ```powershell
 .venv\Scripts\python.exe .\scripts\verify_local_data_stack.py
+```
+
+Run route-policy smoke checks directly:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\test_frontend_route_policy.ps1 -FrontendPort 3000
+```
+
+Run frontend visual smoke checks in both dark and light themes (Playwright):
+
+```powershell
+cd frontend
+npm run test:e2e:visual
 ```
 
 ## Validation Gates

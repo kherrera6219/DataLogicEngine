@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Download, Trash2, AlertTriangle, CheckCircle, FileJson } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -143,7 +144,7 @@ export default function PrivacySettingsPage() {
         <p className="text-xs text-muted-foreground">
           DataLogicEngine complies with MS-P1 Privacy Standards. 
           <br />
-          For cloud-specific data queries, please refer to our <a href="/about/cloud-services" className="text-blue-500 hover:underline">Cloud Disclosure</a>.
+          For cloud-specific data queries, please refer to our <Link href="/about/cloud-services" className="text-blue-500 hover:underline">Cloud Disclosure</Link>.
         </p>
       </footer>
     </PageLayout>

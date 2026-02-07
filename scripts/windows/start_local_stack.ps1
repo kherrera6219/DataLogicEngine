@@ -3,6 +3,7 @@ Param(
     [switch]$SkipPrecheck,
     [switch]$SkipMigrations,
     [switch]$NoFrontend,
+    [switch]$SkipRouteSmoke,
     [switch]$WithDataServices,
     [int]$BackendPort = 5000,
     [int]$FrontendPort = 3000
@@ -297,12 +298,28 @@ if (-not $SkipMigrations) {
     Write-Step "Applying database migrations..."
     & $PythonPath -m flask --app app.py db upgrade
     if ($LASTEXITCODE -ne 0) {
-        Write-Step "Migration failed. Attempting local recovery with Alembic stamp..." "Yellow"
-        & $PythonPath -m flask --app app.py db stamp head
-        if ($LASTEXITCODE -ne 0) {
-            throw "Database migration failed and recovery stamp failed."
+        $dbUrl = ""
+        if ($env:DATABASE_URL) {
+            $dbUrl = "$($env:DATABASE_URL)"
         }
-        Write-Step "Migration recovery completed (stamped head)." "Yellow"
+        elseif ($envMap["DATABASE_URL"]) {
+            $dbUrl = "$($envMap["DATABASE_URL"])"
+        }
+        $dbUrlLower = $dbUrl.ToLowerInvariant()
+        $isSqlite = $dbUrlLower.StartsWith("sqlite")
+        $allowStampFallback = "$($env:UKG_ALLOW_ALEMBIC_STAMP_FALLBACK)".ToLowerInvariant() -eq "true"
+
+        if ($isSqlite -or $allowStampFallback) {
+            Write-Step "Migration failed. Attempting local recovery with Alembic stamp..." "Yellow"
+            & $PythonPath -m flask --app app.py db stamp head
+            if ($LASTEXITCODE -ne 0) {
+                throw "Database migration failed and recovery stamp failed."
+            }
+            Write-Step "Migration recovery completed (stamped head)." "Yellow"
+        }
+        else {
+            throw "Database migration failed for non-SQLite database. Resolve schema drift or set UKG_ALLOW_ALEMBIC_STAMP_FALLBACK=true to force stamp."
+        }
     }
 }
 
@@ -360,6 +377,22 @@ if (-not $NoFrontend) {
         throw "Frontend did not respond on port $FrontendPort within timeout. ExitCode=$exitCode"
     }
     Write-Step "Frontend port $FrontendPort is open." "Green"
+
+    if (-not $SkipRouteSmoke) {
+        $routeSmokeScript = Join-Path $PSScriptRoot "test_frontend_route_policy.ps1"
+        Assert-Path $routeSmokeScript "Route smoke script missing at $routeSmokeScript."
+        try {
+            & $routeSmokeScript -FrontendPort $FrontendPort
+        }
+        catch {
+            Stop-Process -Id $frontendProcess.Id -Force -ErrorAction SilentlyContinue
+            Stop-Process -Id $backendProcess.Id -Force -ErrorAction SilentlyContinue
+            throw "Frontend route policy smoke checks failed."
+        }
+    }
+    else {
+        Write-Step "Skipping frontend route policy smoke checks (--SkipRouteSmoke)." "Yellow"
+    }
 }
 
 $pidRecord = @{

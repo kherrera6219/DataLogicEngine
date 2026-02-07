@@ -66,7 +66,7 @@ export default function DashboardPage() {
         
         {/* Top Bar with Acrylic Blur */}
         <div className="h-16 border-b border-white/5 fluent-acrylic sticky top-0 z-10 flex items-center justify-between px-8 backdrop-blur-3xl">
-           <h1 className="text-title font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">Command Center</h1>
+           <h1 className="text-title font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-500 dark:from-white dark:to-gray-400">Command Center</h1>
            <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 px-3 py-1 bg-green-900/10 border border-green-500/20 rounded-full backdrop-blur-sm">
                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -85,7 +85,7 @@ export default function DashboardPage() {
            {/* Hero / Welcome */}
            <div className="flex items-center justify-between">
               <div>
-                 <h2 className="text-display mb-1 bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-gray-500">
+                 <h2 className="text-display mb-1 bg-clip-text text-transparent bg-gradient-to-br from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-white dark:to-gray-500">
                     Unified Knowledge Gateway
                  </h2>
                  <p className="text-gray-400 text-lg font-light">

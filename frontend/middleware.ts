@@ -29,6 +29,13 @@ function isDesktopRequest(request: NextRequest): boolean {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const requestId = crypto.randomUUID();
+  const publicPrefixes = ['/', '/login', '/register', '/about', '/legal/privacy'];
+  const isPublicPath = publicPrefixes.some((prefix) => {
+    if (prefix === '/') {
+      return pathname === '/';
+    }
+    return pathname === prefix || pathname.startsWith(`${prefix}/`);
+  });
 
   try {
     // 1. Session Validation
@@ -36,10 +43,7 @@ export function middleware(request: NextRequest) {
     const sessionToken = request.cookies.get('session')?.value || request.cookies.get('session_id')?.value;
     const desktopRequest = isDesktopRequest(request);
     
-    // Allow public paths that might have slipped through matcher (just in case), though matcher should handle most
-    const isLoginPage = pathname === '/login' || pathname === '/register';
-
-    if (!sessionToken && !isLoginPage && !desktopRequest) {
+    if (!sessionToken && !isPublicPath && !desktopRequest) {
       console.warn(`[Middleware] [${requestId}] Unauthorized access attempt to ${pathname}`);
       const url = request.nextUrl.clone();
       url.pathname = '/login';

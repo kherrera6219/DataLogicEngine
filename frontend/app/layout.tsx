@@ -58,7 +58,7 @@ export default function RootLayout({
               <AppInitializer>
                 <ToastProvider>
                   <ApiErrorBoundary moduleName="UKG Root">
-                    <div className="flex h-screen w-full bg-[#111111] overflow-hidden">
+                    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden">
                       <AppSidebar />
                       <div className="flex-1 flex flex-col min-w-0">
                         <aside aria-label="Cloud Dependency">

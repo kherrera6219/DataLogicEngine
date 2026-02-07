@@ -1,5 +1,6 @@
 'use client';
 
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -82,12 +83,12 @@ export default function AboutPage() {
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 w-full md:w-auto">
-                           <a href="/legal/privacy" className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+                           <Link href="/legal/privacy" className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors">
                                View Privacy Policy
-                           </a>
-                           <a href="/about/ai-limitations" className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-white dark:bg-transparent border border-gray-200 dark:border-gray-700 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                           </Link>
+                           <Link href="/about/ai-limitations" className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-white dark:bg-transparent border border-gray-200 dark:border-gray-700 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                                AI Limitations
-                           </a>
+                           </Link>
                         </div>
                     </div>
                 </CardContent>

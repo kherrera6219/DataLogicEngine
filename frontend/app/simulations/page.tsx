@@ -62,12 +62,12 @@ export default function SimulationsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-transparent p-8 text-white">
+    <main className="min-h-screen bg-transparent p-8 text-gray-900 dark:text-white">
       <div className="container mx-auto max-w-7xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <header className="flex justify-between items-center mb-12">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-500 dark:from-white dark:to-white/60 bg-clip-text text-transparent">
                 Simulation Monitor
               </h1>
               {isConnected ? (
@@ -76,12 +76,12 @@ export default function SimulationsPage() {
                   Live Connection
                 </div>
               ) : (
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-400 text-xs font-medium">
+                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-600 dark:text-gray-400 text-xs font-medium">
                   <WifiOff className="h-3 w-3" /> Offline
                 </div>
               )}
             </div>
-            <p className="text-gray-400 max-w-2xl text-sm leading-relaxed">
+            <p className="text-slate-600 dark:text-gray-400 max-w-2xl text-sm leading-relaxed">
               Track and control active reasoning simulations and agent swarms through the UKG Enterprise validation framework.
             </p>
           </div>
@@ -99,8 +99,8 @@ export default function SimulationsPage() {
           <CardHeader className="border-b border-white/5 bg-white/5">
              <div className="flex items-center justify-between">
                <div>
-                  <CardTitle className="text-gray-100 text-lg">Active Sessions</CardTitle>
-                  <CardDescription className="text-gray-500">Real-time view of running simulation instances.</CardDescription>
+                  <CardTitle className="text-slate-900 dark:text-gray-100 text-lg">Active Sessions</CardTitle>
+                  <CardDescription className="text-slate-600 dark:text-gray-500">Real-time view of running simulation instances.</CardDescription>
                </div>
                <div className="flex gap-2 text-[10px] font-mono text-gray-600">
                   <span>SYSTEM_UPTIME: 99.9%</span>
@@ -137,7 +137,7 @@ export default function SimulationsPage() {
                     <TableRow className="hover:bg-transparent">
                         <TableCell colSpan={6} className="text-center py-24 text-gray-500">
                             <div className="flex flex-col items-center gap-3">
-                              <RefreshCw className="h-8 w-8 text-white/10" />
+                              <RefreshCw className="h-8 w-8 text-slate-300 dark:text-white/10" />
                               <p>No active simulations. Create one to begin data synthesis.</p>
                             </div>
                         </TableCell>
@@ -147,7 +147,7 @@ export default function SimulationsPage() {
                 {simulations?.map((sim) => (
                     <TableRow key={sim.uid} className="border-white/5 hover:bg-white/5 group transition-colors">
                     <TableCell className="font-mono text-[10px] text-gray-500">{sim.uid}</TableCell>
-                    <TableCell className="font-medium text-gray-100">{sim.name}</TableCell>
+                    <TableCell className="font-medium text-slate-900 dark:text-gray-100">{sim.name}</TableCell>
                     <TableCell>
                         <Badge 
                           className={cn(
@@ -191,7 +191,7 @@ export default function SimulationsPage() {
                             size="icon" 
                             onClick={() => handleStep(sim.uid)}
                             disabled={sim.status !== 'active'}
-                            className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                            className="h-8 w-8 text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
                         >
                             <PlayCircle className="h-4 w-4" />
                         </Button>
@@ -204,7 +204,7 @@ export default function SimulationsPage() {
         </Card>
 
         {/* System Diagnostics Footer */}
-        <div className="flex justify-between items-center text-[10px] text-gray-600 font-mono pt-4 border-t border-white/5">
+        <div className="flex justify-between items-center text-[10px] text-slate-500 dark:text-gray-600 font-mono pt-4 border-t border-white/5">
            <div className="flex gap-4">
               <span>UKG_OS_v2.5</span>
               <span>SIM_ENGINE_BRIDGE: CONNECTED</span>
