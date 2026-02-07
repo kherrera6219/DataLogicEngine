@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,16 +9,35 @@ import {
   MoreHorizontal, Plus, Search, Filter 
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { AppSidebar } from "@/components/layout/AppSidebar";
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function AdminPage() {
-  return (
-    <div className="flex h-screen bg-[#111111] text-white font-sans overflow-hidden">
-      
-      {/* Global Sidebar */}
-      <AppSidebar />
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  const isAdmin = Boolean(user?.is_admin || user?.role === 'admin' || user?.role === 'owner');
 
-      <div className="flex-1 flex flex-col overflow-y-auto bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
+  useEffect(() => {
+    if (!isLoading && !isAdmin) {
+      router.replace('/dashboard?error=admin_required');
+    }
+  }, [isAdmin, isLoading, router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
+        <p className="text-sm text-muted-foreground">Checking administrative access...</p>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-full bg-[#111111] text-white font-sans">
+      <div className="min-h-full bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
          {/* Header */}
          <div className="h-16 border-b border-white/5 fluent-acrylic sticky top-0 z-10 flex items-center justify-between px-8 backdrop-blur-3xl">
             <div className="flex items-center gap-3">

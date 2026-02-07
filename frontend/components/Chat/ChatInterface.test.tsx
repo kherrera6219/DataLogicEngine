@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ChatInterface } from './ChatInterface';
-import { api } from '@/lib/api';
+import { api, request } from '@/lib/api';
 import { socketClient, useSocket } from '@/lib/socket';
 
 // Mock dependencies
@@ -18,6 +18,7 @@ vi.mock('@/lib/api', () => ({
       sendMessage: vi.fn(),
     },
   },
+  request: vi.fn(),
 }));
 
 vi.mock('@/lib/socket', () => {
@@ -75,10 +76,7 @@ describe('ChatInterface', () => {
       response: 'Core Response',
       trace_summary: { steps: [] }
     });
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ message: 'Success' })
-    });
+    (request as any).mockResolvedValue({ message: 'Success' });
     // Silence console.error for expected failures
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });

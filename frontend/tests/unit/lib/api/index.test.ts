@@ -1,5 +1,5 @@
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { request, api } from '@/lib/api/index';
 
 // Mock fetch
@@ -26,9 +26,9 @@ describe('api module', () => {
   describe('request helper', () => {
     it('makes a request with default headers', async () => {
         const res = await request('/test');
-        expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/test'), expect.objectContaining({
-            headers: expect.objectContaining({ 'Content-Type': 'application/json' })
-        }));
+        expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/test'), expect.any(Object));
+        const [, options] = mockFetch.mock.calls[0];
+        expect((options.headers as Headers).get('Content-Type')).toBe('application/json');
         expect(res).toBe('success');
     });
 

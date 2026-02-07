@@ -28,6 +28,12 @@ instance/
 # Build outputs
 frontend/build/
 frontend/dist/
+frontend/dist-smoke/
+frontend/dist-electron/
+deploy/windows/build/
+deploy/windows/*.exe
+deploy/windows/*.msi
+*.asar
 
 # Environment
 .env

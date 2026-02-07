@@ -8,8 +8,8 @@ import { compliance } from './compliance';
 
 export * from './types';
 
-
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const DEFAULT_API_BASE = 'http://localhost:5000/api/v1';
+export const API_BASE = (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_BASE).replace(/\/$/, '');
 
 function isDesktopRuntime(): boolean {
   if (typeof window === 'undefined') return false;
@@ -19,8 +19,17 @@ function isDesktopRuntime(): boolean {
   );
 }
 
+export function buildApiUrl(endpoint: string): string {
+  if (/^https?:\/\//i.test(endpoint)) {
+    return endpoint;
+  }
+
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${API_BASE}${normalizedEndpoint}`;
+}
+
 async function tryDesktopAutoLogin(): Promise<boolean> {
-  const response = await fetch(`${API_BASE}/auth/desktop/auto-login`, {
+  const response = await fetch(buildApiUrl('/auth/desktop/auto-login'), {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -30,21 +39,69 @@ async function tryDesktopAutoLogin(): Promise<boolean> {
   return response.ok;
 }
 
+function buildHeaders(options: RequestInit): Headers {
+  const headers = new Headers(options.headers || {});
+  const isFormDataBody = typeof FormData !== 'undefined' && options.body instanceof FormData;
+
+  if (!isFormDataBody && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  return headers;
+}
+
+async function parseResponse<T>(response: Response): Promise<T> {
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const contentType = response.headers?.get?.('content-type') || '';
+  const canReadJson = typeof response.json === 'function';
+  if (contentType.includes('application/json') || (!contentType && canReadJson)) {
+    const json = await response.json().catch(() => null);
+    if (json !== null) {
+      return (json.data !== undefined ? json.data : json) as T;
+    }
+  }
+
+  if (typeof response.text === 'function') {
+    return (await response.text()) as T;
+  }
+
+  return undefined as T;
+}
+
+async function parseErrorMessage(response: Response): Promise<string> {
+  if (typeof response.json === 'function') {
+    const errorData = await response.json().catch(() => null) as { message?: string } | null;
+    if (errorData?.message) {
+      return errorData.message;
+    }
+  }
+
+  if (typeof response.text === 'function') {
+    const text = await response.text().catch(() => '');
+    if (text) {
+      return text;
+    }
+  }
+
+  return `System Error: ${response.statusText}`;
+}
+
 /**
  * Standardized API Client for Enterprise Resilience
  */
 export async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
+  const url = buildApiUrl(endpoint);
   const desktopRuntime = isDesktopRuntime();
+  const headers = buildHeaders(options);
   
   try {
     const response = await fetch(url, {
       ...options,
       credentials: options.credentials ?? 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
     });
 
     if (response.status === 401 || response.status === 403) {
@@ -54,14 +111,10 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
           const retryResponse = await fetch(url, {
             ...options,
             credentials: options.credentials ?? 'include',
-            headers: {
-              'Content-Type': 'application/json',
-              ...options.headers,
-            },
+            headers,
           });
           if (retryResponse.ok) {
-            const retryJson = await retryResponse.json();
-            return retryJson.data !== undefined ? retryJson.data : retryJson;
+            return parseResponse<T>(retryResponse);
           }
         }
       }
@@ -76,12 +129,11 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
     }
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `System Error: ${response.statusText}`);
+      const message = await parseErrorMessage(response);
+      throw new Error(message);
     }
 
-    const json = await response.json();
-    return json.data !== undefined ? json.data : json;
+    return parseResponse<T>(response);
   } catch (error) {
     console.error(`API Error [${endpoint}]:`, error);
     throw error;

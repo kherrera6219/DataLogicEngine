@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { ChatMessage, TracePipeline } from './types';
 import { ChatSession } from '@/lib/api/chat';
-import { api } from '@/lib/api';
+import { api, request } from '@/lib/api';
 import { socketClient, useSocket } from '@/lib/socket';
 import { LiveTracePanel } from './LiveTracePanel';
 import { DetailedResponseView } from './DetailedResponseView';
@@ -181,16 +181,13 @@ export function ChatInterface() {
       formData.append('file', file);
       
       const endpoint = file.type.startsWith('video/') 
-        ? '/api/v1/multimodal/video/analyze' 
-        : '/api/v1/multimodal/document/process';
+        ? '/multimodal/video/analyze' 
+        : '/multimodal/document/process';
 
-      const response = await fetch(endpoint, {
+      const data = await request<{ message?: string; result?: unknown; analysis?: unknown }>(endpoint, {
         method: 'POST',
         body: formData
       });
-      
-      if (!response.ok) throw new Error('File processing failed');
-      const data = await response.json();
       
       const assistantMsg: ChatMessage = {
         id: uuidv4(),

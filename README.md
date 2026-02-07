@@ -172,6 +172,11 @@ For a single-command local startup path (API keys + internet only), use:
 - `scripts/windows/start_local_stack.ps1`
 - `scripts/windows/stop_local_stack.ps1`
 
+### GitHub Push Safety
+
+Do not commit generated desktop/build outputs (`.next`, `frontend/dist`, `frontend/dist-smoke`, `deploy/windows/build`).
+These can exceed GitHub file-size limits and are intentionally ignored in `.gitignore`.
+
 ---
 
 ## 🧪 Testing

@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { request } from '@/lib/api';
 
 interface ServiceStatus {
   healthy: boolean;
@@ -59,14 +60,9 @@ export function DatabaseSettings() {
 
   const fetchHealth = async () => {
     try {
-      const response = await fetch('/api/v1/storage/health');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setHealth(data.data);
-          setMode(data.data.mode as 'local' | 'cloud' | 'hybrid');
-        }
-      }
+      const data = await request<StorageHealth>('/storage/health');
+      setHealth(data);
+      setMode(data.mode as 'local' | 'cloud' | 'hybrid');
     } catch (error) {
       console.error('Failed to fetch storage health:', error);
     } finally {
@@ -87,10 +83,8 @@ export function DatabaseSettings() {
   const handleTestConnection = async (service: string) => {
     setTesting(service);
     try {
-      const response = await fetch(`/api/v1/storage/health/${service}`);
-      if (response.ok) {
-        await fetchHealth();
-      }
+      await request(`/storage/health/${service}`);
+      await fetchHealth();
     } catch (error) {
       console.error(`Failed to test ${service}:`, error);
     } finally {
@@ -100,7 +94,7 @@ export function DatabaseSettings() {
 
   const handleStartDatabases = async () => {
     try {
-      await fetch('/api/v1/storage/databases/start', { method: 'POST' });
+      await request('/storage/databases/start', { method: 'POST' });
       setTimeout(fetchHealth, 2000);
     } catch (error) {
       console.error('Failed to start databases:', error);
@@ -109,7 +103,7 @@ export function DatabaseSettings() {
 
   const handleStopDatabases = async () => {
     try {
-      await fetch('/api/v1/storage/databases/stop', { method: 'POST' });
+      await request('/storage/databases/stop', { method: 'POST' });
       setTimeout(fetchHealth, 1000);
     } catch (error) {
       console.error('Failed to stop databases:', error);

@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { compliance } from '@/lib/api/compliance';
-import { request, API_BASE } from '@/lib/api/index';
+import { request, buildApiUrl } from '@/lib/api/index';
 
 vi.mock('@/lib/api/index', () => ({
     request: vi.fn(),
-    API_BASE: 'http://localhost:5000/api'
+    buildApiUrl: vi.fn((endpoint: string) => `http://localhost:5000/api/v1${endpoint}`)
 }));
 
 describe('Compliance API Client', () => {
@@ -30,8 +30,9 @@ describe('Compliance API Client', () => {
 
     it('exportAuditLogs should open the export endpoint in a new tab', async () => {
         await compliance.exportAuditLogs(15);
+        expect(buildApiUrl).toHaveBeenCalledWith('/compliance/audit/export?days=15');
         expect(window.open).toHaveBeenCalledWith(
-            'http://localhost:5000/api/compliance/audit/export?days=15',
+            'http://localhost:5000/api/v1/compliance/audit/export?days=15',
             '_blank'
         );
     });

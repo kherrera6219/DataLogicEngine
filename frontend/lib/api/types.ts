@@ -45,6 +45,7 @@ export interface User {
   is_admin: boolean;
   role: string;
   windows_sid?: string;
+  created_at?: string;
 }
 
 export interface KAExecution {

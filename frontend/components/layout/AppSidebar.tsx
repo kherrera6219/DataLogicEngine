@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SidebarItemProps {
   icon: React.ElementType;
@@ -46,7 +47,18 @@ function SidebarItem({ icon: Icon, label, href, isActive, isCollapsed }: Sidebar
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const isAdmin = Boolean(user?.is_admin || user?.role === 'admin' || user?.role === 'owner');
+  const initials = user?.username
+    ? user.username
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase())
+        .join('')
+    : 'U';
+  const roleLabel = user?.role || (user?.is_admin ? 'admin' : 'user');
 
   // Helper to determine active state
   const isActive = (path: string) => {
@@ -96,7 +108,9 @@ export function AppSidebar() {
             System
          </div>
          
-         <SidebarItem icon={ShieldAlert} label="Admin" href="/admin" isActive={isActive('/admin')} isCollapsed={isCollapsed} />
+         {isAdmin && (
+           <SidebarItem icon={ShieldAlert} label="Admin" href="/admin" isActive={isActive('/admin')} isCollapsed={isCollapsed} />
+         )}
          <SidebarItem icon={Settings} label="Settings" href="/settings" isActive={isActive('/settings')} isCollapsed={isCollapsed} />
       </div>
 
@@ -104,18 +118,25 @@ export function AppSidebar() {
       <div className="p-4 border-t border-white/5 bg-black/20">
         <div className={cn("flex items-center gap-3", isCollapsed ? "justify-center" : "")}>
            <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 border border-white/10 flex items-center justify-center shrink-0 ring-2 ring-transparent group-hover:ring-blue-500/50 transition-all">
-              <span className="text-xs font-bold text-white">SC</span>
+              <span className="text-xs font-bold text-white">{initials}</span>
            </div>
            
            {!isCollapsed && (
               <div className="flex-1 min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
-                 <div className="text-sm font-medium text-white truncate">Sarah Connor</div>
-                 <div className="text-xs text-blue-400 truncate">System Admin</div>
+                 <div className="text-sm font-medium text-white truncate">{user?.username || 'User'}</div>
+                 <div className="text-xs text-blue-400 truncate">{roleLabel}</div>
               </div>
            )}
            
            {!isCollapsed && (
-             <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-white hover:bg-white/5 shrink-0">
+             <Button
+               variant="ghost"
+               size="icon"
+               className="h-8 w-8 text-gray-500 hover:text-white hover:bg-white/5 shrink-0"
+               onClick={() => { void logout(); }}
+               aria-label="Log out"
+               title="Log out"
+             >
                 <LogOut className="h-4 w-4" />
              </Button>
            )}

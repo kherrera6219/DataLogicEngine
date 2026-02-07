@@ -17,11 +17,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme') as Theme | null;
-      return saved || 'system';
+      return saved || 'dark';
     }
-    return 'system';
+    return 'dark';
   });
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
     const root = document.documentElement;
@@ -29,9 +29,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const applyTheme = (isDark: boolean) => {
       if (isDark) {
         root.classList.add('dark');
+        root.classList.remove('light');
         setResolvedTheme('dark');
       } else {
         root.classList.remove('dark');
+        root.classList.add('light');
         setResolvedTheme('light');
       }
     };

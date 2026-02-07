@@ -1,20 +1,38 @@
 'use client';
 
 import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { McpHub } from '@/components/mcp/McpHub';
+import { useRouter, useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
-import { McpServerConfig } from '@/components/mcp/McpServerConfig';
-import { McpClientConfig } from '@/components/mcp/McpClientConfig';
-import { McpAnalytics } from '@/components/mcp/McpAnalytics';
-import { McpIntegrationExamples } from '@/components/mcp/McpIntegrationExamples';
+
+const McpHub = dynamic(
+  () => import('@/components/mcp/McpHub').then((module) => ({ default: module.McpHub })),
+  { loading: () => <div className="p-6 text-muted-foreground">Loading hub...</div> }
+);
+const McpServerConfig = dynamic(
+  () => import('@/components/mcp/McpServerConfig').then((module) => ({ default: module.McpServerConfig })),
+  { loading: () => <div className="p-6 text-muted-foreground">Loading server config...</div> }
+);
+const McpClientConfig = dynamic(
+  () => import('@/components/mcp/McpClientConfig').then((module) => ({ default: module.McpClientConfig })),
+  { loading: () => <div className="p-6 text-muted-foreground">Loading client tools...</div> }
+);
+const McpAnalytics = dynamic(
+  () => import('@/components/mcp/McpAnalytics').then((module) => ({ default: module.McpAnalytics })),
+  { loading: () => <div className="p-6 text-muted-foreground">Loading analytics...</div> }
+);
+const McpIntegrationExamples = dynamic(
+  () => import('@/components/mcp/McpIntegrationExamples').then((module) => ({ default: module.McpIntegrationExamples })),
+  { loading: () => <div className="p-6 text-muted-foreground">Loading integration examples...</div> }
+);
 
 function McpPageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const activeTab = searchParams.get('tab') || 'hub';
 
   return (
@@ -25,14 +43,14 @@ function McpPageContent() {
                 <ChevronLeft className="h-4 w-4" />
              </Button>
           </Link>
-          <Tabs value={activeTab} onValueChange={() => {}} className="w-full">
+          <Tabs value={activeTab} onValueChange={(value) => router.push(`/mcp?tab=${value}`)} className="w-full">
              <div className="flex items-center justify-between mb-6">
                 <TabsList className="bg-white/5 border border-white/10">
-                   <Link href="/mcp?tab=hub"><TabsTrigger value="hub">Hub Overview</TabsTrigger></Link>
-                   <Link href="/mcp?tab=server"><TabsTrigger value="server">Server Config</TabsTrigger></Link>
-                   <Link href="/mcp?tab=client"><TabsTrigger value="client">Client & Tools</TabsTrigger></Link>
-                   <Link href="/mcp?tab=analytics"><TabsTrigger value="analytics">Analytics</TabsTrigger></Link>
-                   <Link href="/mcp?tab=integration"><TabsTrigger value="integration">Integration</TabsTrigger></Link>
+                   <TabsTrigger value="hub">Hub Overview</TabsTrigger>
+                   <TabsTrigger value="server">Server Config</TabsTrigger>
+                   <TabsTrigger value="client">Client & Tools</TabsTrigger>
+                   <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                   <TabsTrigger value="integration">Integration</TabsTrigger>
                 </TabsList>
              </div>
 

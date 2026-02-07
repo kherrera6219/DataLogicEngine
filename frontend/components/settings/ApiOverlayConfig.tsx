@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { 
   BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell 
 } from 'recharts';
+import { request } from '@/lib/api';
 
 interface TestResult {
   confidence: number;
@@ -65,25 +66,15 @@ export function ApiOverlayConfig() {
   const handleTestConnection = async () => {
     setTestStatus('testing');
     try {
-      const response = await fetch('/api/v1/gateway/keys', {
+      await request('/gateway/keys', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           provider,
           key: apiKey,
         }),
       });
-
-      if (response.ok) {
-        setTestStatus('success');
-        toast("API Key saved securely via Windows DPAPI.", "success");
-      } else {
-        const error = await response.json();
-        setTestStatus('error');
-        toast(error.message || 'Failed to save key', "error");
-      }
+      setTestStatus('success');
+      toast("API Key saved securely via Windows DPAPI.", "success");
     } catch (error) {
       setTestStatus('error');
       toast(`Failed to connect to backend: ${String(error)}`, "error");

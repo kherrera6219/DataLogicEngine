@@ -6,6 +6,11 @@
   --foreground: #171717;
 }
 
+.light {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+}
+
 .dark {
   --background: #0a0a0a;
   --foreground: #ededed;
@@ -78,6 +83,30 @@
 }
 
 @layer base {
+  .light .text-gray-300 {
+    color: #334155;
+  }
+
+  .light .text-gray-400 {
+    color: #475569;
+  }
+
+  .light .text-gray-500 {
+    color: #334155;
+  }
+
+  .light .text-gray-600 {
+    color: #1e293b;
+  }
+
+  .light .border-white\/5 {
+    border-color: rgb(100 116 139 / 0.3);
+  }
+
+  .light .bg-white\/5 {
+    background-color: rgb(148 163 184 / 0.18);
+  }
+
   body {
     @apply bg-gray-50 dark:bg-gray-950 text-foreground antialiased;
   }
@@ -88,13 +117,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {

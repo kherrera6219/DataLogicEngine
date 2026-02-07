@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+import { buildApiUrl, request } from '@/lib/api';
 
 import { PageLayout } from "@/components/ui/page-layout";
 
@@ -21,7 +22,9 @@ export default function PrivacySettingsPage() {
     setIsExporting(true);
     setMessage(null);
     try {
-      const response = await fetch('/api/v1/user/data/export');
+      const response = await fetch(buildApiUrl('/user/data/export'), {
+        credentials: 'include',
+      });
       if (!response.ok) throw new Error('Export failed');
       
       const blob = await response.blob();
@@ -49,17 +52,20 @@ export default function PrivacySettingsPage() {
     setIsDeleting(true);
     setMessage(null);
     try {
-      const response = await fetch('/api/v1/user/data/delete', { method: 'POST' });
-      const data = await response.json();
+      const data = await request<{ success?: boolean; error?: string; message?: string }>('/user/data/delete', {
+        method: 'POST',
+        body: JSON.stringify({ confirm: 'DELETE' }),
+      });
       
-      if (data.success) {
+      if (data?.success !== false) {
         toast('Your data has been deleted. You will now be logged out.', 'success');
         setTimeout(() => logout(), 2000);
       } else {
-        throw new Error(data.error || 'Deletion failed');
+        throw new Error(data.error || data.message || 'Deletion failed');
       }
     } catch {
       setMessage({ type: 'error', text: 'Failed to delete profile. Please contact support.' });
+    } finally {
       setIsDeleting(false);
     }
   };

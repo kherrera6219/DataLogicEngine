@@ -1,4 +1,4 @@
-import { request, API_BASE } from "./index";
+import { request, buildApiUrl } from "./index";
 
 export interface ComplianceStandard {
   uid: string;
@@ -18,6 +18,6 @@ export const compliance = {
 
   exportAuditLogs: async (days: number = 30) => {
       // Trigger download
-      window.open(`${API_BASE}/compliance/audit/export?days=${days}`, '_blank');
+      window.open(buildApiUrl(`/compliance/audit/export?days=${days}`), '_blank');
   }
 };

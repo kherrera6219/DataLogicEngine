@@ -34,6 +34,15 @@ Phase 5 update:
 2. Updated WinSW XML defaults to avoid hardcoded PostgreSQL/Redis assumptions.
 3. Aligned installer diagnostics to warn clearly when WiX assets are missing.
 
+Phase 6 update:
+
+1. Frontend API transport is unified through `frontend/lib/api/index.ts` so desktop-export mode does not rely on Next rewrites.
+2. Privacy deletion flow now sends explicit confirmation payload (`confirm: "DELETE"`) required by backend policy.
+3. Admin access is role-gated in UI (`owner`/`admin`) and hidden from non-admin side navigation.
+4. Profile and project views now load live session/user data instead of static placeholders.
+5. Theme default is dark mode. Light mode now has stronger text contrast for readability.
+6. Build artifacts and tracked `.next` output were removed from git index to avoid GitHub size/push failures.
+
 ## Quick Local Bring-Up (Windows 11)
 
 Run from repository root:
@@ -80,6 +89,7 @@ For each local setup attempt, validate:
 2. Frontend availability: `http://127.0.0.1:3000`
 3. Chat/gateway call succeeds with configured provider key
 4. No startup import errors in backend logs
+5. Desktop-mode route smoke: protected routes should return `200` when `X-DataLogic-Desktop: true` header is present.
 
 ## Phase 2 Runtime Notes (Verified)
 
@@ -110,3 +120,4 @@ curl.exe -s -X POST http://127.0.0.1:5000/graphql -H "Content-Type: application/
 3. Normalize desktop packaging artifacts:
    ensure WinSW/WiX assets are either fully maintained or explicitly marked legacy.
 4. Expand CI coverage for Windows startup smoke tests using the local scripts.
+5. Continue reducing lint warning debt in test files (currently warnings, not build blockers).

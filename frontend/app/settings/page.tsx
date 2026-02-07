@@ -1,27 +1,58 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
   Settings as SettingsIcon, Shield, Bell, Save, 
-  Brain, Network, Monitor, Sun, Lock
+  Brain, Network, Monitor, Sun, Lock, Database
 } from "lucide-react";
-import { ApiOverlayConfig } from "@/components/settings/ApiOverlayConfig";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { AppSidebar } from "@/components/layout/AppSidebar";
+import { request } from '@/lib/api';
+import { useTheme } from '@/contexts/ThemeContext';
+
+const ApiOverlayConfig = dynamic(
+  () => import("@/components/settings/ApiOverlayConfig").then((module) => ({ default: module.ApiOverlayConfig })),
+  { loading: () => <div className="p-6 text-sm text-muted-foreground">Loading API overlay...</div> }
+);
+const DatabaseSettings = dynamic(
+  () => import("@/components/settings/DatabaseSettings"),
+  { loading: () => <div className="p-6 text-sm text-muted-foreground">Loading storage configuration...</div> }
+);
+
+interface UserDataSummary {
+  account_created?: string;
+  data_summary?: {
+    total_simulations?: number;
+  };
+}
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
+  const [summary, setSummary] = useState<UserDataSummary | null>(null);
+  const { theme, setTheme, resolvedTheme } = useTheme();
+
+  useEffect(() => {
+    let cancelled = false;
+    void request<UserDataSummary>('/user/data/summary')
+      .then((result) => {
+        if (!cancelled) setSummary(result);
+      })
+      .catch(() => {
+        if (!cancelled) setSummary(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
-    <div className="flex h-screen bg-[#111111] text-white font-sans overflow-hidden">
-      
-      {/* Global Sidebar */}
-      <AppSidebar />
-
-      <div className="flex-1 flex flex-col overflow-y-auto bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
+    <div className="min-h-full bg-[#111111] text-white font-sans">
+      <div className="min-h-full bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
          
          {/* Acrylic Header */}
          <div className="h-16 border-b border-white/5 fluent-acrylic sticky top-0 z-10 flex items-center justify-between px-8 backdrop-blur-3xl">
@@ -46,6 +77,7 @@ export default function SettingsPage() {
                         { id: 'general', label: 'General', icon: Monitor },
                         { id: 'notifications', label: 'Notifications', icon: Bell },
                         { id: 'api', label: 'API Gateway', icon: Network },
+                        { id: 'storage', label: 'Storage', icon: Database },
                         { id: 'security', label: 'Security', icon: Shield },
                         { id: 'ai', label: 'AI Models', icon: Brain },
                      ].map(tab => (
@@ -92,8 +124,22 @@ export default function SettingsPage() {
                                  </div>
                               </div>
                               <div className="flex gap-2">
-                                 <Button variant="outline" size="sm" className="bg-blue-600/20 border-blue-500/50 text-blue-400">Dark</Button>
-                                 <Button variant="ghost" size="sm" className="text-gray-500">Light</Button>
+                                 <Button
+                                   variant="outline"
+                                   size="sm"
+                                   onClick={() => setTheme('dark')}
+                                   className={resolvedTheme === 'dark' && theme !== 'light' ? "bg-blue-600/20 border-blue-500/50 text-blue-400" : "text-gray-400"}
+                                 >
+                                   Dark
+                                 </Button>
+                                 <Button
+                                   variant="ghost"
+                                   size="sm"
+                                   onClick={() => setTheme('light')}
+                                   className={resolvedTheme === 'light' ? "bg-blue-600/20 border-blue-500/50 text-blue-400" : "text-gray-500"}
+                                 >
+                                   Light
+                                 </Button>
                               </div>
                            </div>
                         </CardContent>
@@ -123,12 +169,30 @@ export default function SettingsPage() {
                       <ApiOverlayConfig />
                    </TabsContent>
 
+                   {/* STORAGE */}
+                   <TabsContent value="storage" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
+                      <DatabaseSettings />
+                   </TabsContent>
+
                    {/* SECURITY */}
                    <TabsContent value="security" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
                       <Card className="fluent-card bg-[#1a1a1a] border-[#333]">
-                         <CardContent className="min-h-[300px] flex flex-col items-center justify-center text-gray-500">
-                             <Lock className="h-12 w-12 mb-4 opacity-20" />
-                             <p>Security Hub Implementation Pending</p>
+                         <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Lock className="h-5 w-5" /> Privacy & Security</CardTitle>
+                            <CardDescription>Current account and local data posture.</CardDescription>
+                         </CardHeader>
+                         <CardContent className="space-y-4">
+                            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                               <div className="text-sm text-gray-300">Local simulation records</div>
+                               <div className="text-2xl font-bold text-white">{summary?.data_summary?.total_simulations ?? 'Unknown'}</div>
+                            </div>
+                            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                               <div className="text-sm text-gray-300">Account provisioned</div>
+                               <div className="text-base font-semibold text-white">{summary?.account_created ? new Date(summary.account_created).toLocaleDateString() : 'Unknown'}</div>
+                            </div>
+                            <Button asChild className="bg-blue-600 hover:bg-blue-700">
+                              <Link href="/settings/privacy">Open Privacy Controls</Link>
+                            </Button>
                          </CardContent>
                       </Card>
                    </TabsContent>
