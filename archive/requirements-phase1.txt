@@ -2,12 +2,12 @@
 # Install these in addition to base requirements.txt
 
 # Input Validation
-marshmallow==3.20.1
+marshmallow==3.26.2
 flask-marshmallow==0.15.0
 marshmallow-sqlalchemy==0.29.0
 
 # Password Security - Breach Detection
-requests==2.31.0
+requests==2.32.5
 
 # Multi-Factor Authentication
 pyotp==2.9.0

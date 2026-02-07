@@ -4,7 +4,9 @@ fastapi>=0.95.0
 uvicorn[standard]>=0.22.0
 httpx>=0.24.0
 python-multipart>=0.0.6
-python-jose[cryptography]>=3.3.0
+# Avoid python-jose transitive ecdsa timing issue (GHSA-wj6h-64fc-37mp).
+# Authlib provides JOSE/JWT support without that vulnerable dependency path.
+authlib>=1.6.0
 pydantic>=2.0.0
 aiohttp>=3.8.5
 asyncio>=3.4.3
