@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
     <Product Id="*" Name="DataLogicEngine" Language="1033" Version="1.2.4.0" Manufacturer="DataLogic" UpgradeCode="a8342468-b391-4d1a-96e0-1c8632607831">
-        <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+        <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />
 
         <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
         <MediaTemplate EmbedCab="yes" />
 
         <Feature Id="ProductFeature" Title="DataLogicEngine" Level="1">
             <ComponentGroupRef Id="ProductComponents" />
+            <ComponentGroupRef Id="StartMenuComponents" />
             <ComponentGroupRef Id="ScriptComponents" />
             <ComponentGroupRef Id="ServiceComponents" />
         </Feature>
@@ -48,7 +49,7 @@
             <Directory Id="CommonAppDataFolder">
                 <Directory Id="DATAFOLDER" Name="DataLogicEngine" />
             </Directory>
-            <Directory Id="ProgramMenuFolder">
+            <Directory Id="CommonProgramsFolder">
                 <Directory Id="ApplicationProgramsFolder" Name="DataLogicEngine"/>
             </Directory>
         </Directory>
@@ -57,57 +58,64 @@
     <Fragment>
         <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
             <!-- Backend Binary (Bundled by PyInstaller) -->
-            <Component Id="BackendExe" Guid="*">
+            <Component Id="BackendExe" Guid="*" Win64="yes">
                 <File Id="BackendExeFile" Source="dist/DataLogic_Backend/DataLogic_Backend.exe" Name="DataLogic_Backend_App.exe" KeyPath="yes" />
             </Component>
             
             <!-- Frontend Standalone (Next.js) -->
-            <Component Id="FrontendServer" Guid="*">
+            <Component Id="FrontendServer" Guid="*" Win64="yes">
                 <File Id="FrontendServerFile" Source="frontend/.next/standalone/server.js" KeyPath="yes" />
             </Component>
 
-            <!-- Generic Shortcut to Web UI -->
-            <Component Id="ApplicationShortcut" Guid="*">
+            <!-- URL launcher file -->
+            <Component Id="ApplicationShortcutFile" Guid="*" Win64="yes">
                 <File Id="WebShortcut" Name="DataLogicEngine.url" Source="deploy/windows/DataLogicEngine.url" KeyPath="yes" />
-                <Shortcut Id="ApplicationStartMenuShortcut" 
-                          Directory="ApplicationProgramsFolder"
-                          Name="DataLogicEngine" 
-                          Description="Launch DataLogicEngine Desktop" 
-                          Target="[#WebShortcut]" />
-                <RemoveFolder Id="CleanupShortcut" On="uninstall"/>
-                <RegistryValue Root="HKCU" Key="Software\DataLogic\DataLogicEngine" Name="installed" Type="integer" Value="1"/>
+            </Component>
+
+        </ComponentGroup>
+
+        <ComponentGroup Id="StartMenuComponents" Directory="ApplicationProgramsFolder">
+            <!-- Start menu shortcut -->
+            <Component Id="ApplicationStartMenuShortcut" Guid="*">
+                <CreateFolder />
+                <Shortcut Id="ApplicationStartMenuShortcut"
+                          Name="DataLogicEngine"
+                          Description="Launch DataLogicEngine Desktop"
+                          Target="[INSTALLFOLDER]DataLogicEngine.url" />
+                <RemoveFolder Id="CleanupShortcut" On="uninstall" />
+                <RegistryValue Root="HKLM" Key="Software\DataLogic\DataLogicEngine" Name="installed" Type="integer" Value="1" KeyPath="yes" />
             </Component>
         </ComponentGroup>
 
         <ComponentGroup Id="ScriptComponents" Directory="SCRIPTFOLDER">
-            <Component Id="InstallPs1" Guid="*">
+            <Component Id="InstallPs1" Guid="*" Win64="yes">
                 <File Id="InstallPs1File" Source="scripts/windows/install.ps1" KeyPath="yes" />
             </Component>
-            <Component Id="UninstallPs1" Guid="*">
+            <Component Id="UninstallPs1" Guid="*" Win64="yes">
                 <File Id="UninstallPs1File" Source="scripts/windows/uninstall.ps1" KeyPath="yes" />
             </Component>
-            <Component Id="SetupDbPs1" Guid="*">
+            <Component Id="SetupDbPs1" Guid="*" Win64="yes">
                 <File Id="SetupDbPs1File" Source="scripts/windows/setup_db.ps1" KeyPath="yes" />
             </Component>
-            <Component Id="SetupCachePs1" Guid="*">
+            <Component Id="SetupCachePs1" Guid="*" Win64="yes">
                 <File Id="SetupCachePs1File" Source="scripts/windows/setup_cache.ps1" KeyPath="yes" />
             </Component>
-            <Component Id="BackupDataPs1" Guid="*">
+            <Component Id="BackupDataPs1" Guid="*" Win64="yes">
                 <File Id="BackupDataPs1File" Source="scripts/windows/backup_data.ps1" KeyPath="yes" />
             </Component>
         </ComponentGroup>
 
         <ComponentGroup Id="ServiceComponents" Directory="INSTALLFOLDER">
-            <Component Id="BackendWinSWExe" Guid="*">
+            <Component Id="BackendWinSWExe" Guid="*" Win64="yes">
                 <File Id="BackendWinSWExeFile" Source="deploy/windows/DataLogic_Backend.exe" KeyPath="yes" />
             </Component>
-            <Component Id="FrontendWinSWExe" Guid="*">
+            <Component Id="FrontendWinSWExe" Guid="*" Win64="yes">
                 <File Id="FrontendWinSWExeFile" Source="deploy/windows/DataLogic_Frontend.exe" KeyPath="yes" />
             </Component>
-            <Component Id="BackendSvcXml" Guid="*">
+            <Component Id="BackendSvcXml" Guid="*" Win64="yes">
                 <File Id="BackendSvcXmlFile" Source="deploy/windows/DataLogic_Backend.xml" KeyPath="yes" />
             </Component>
-            <Component Id="FrontendSvcXml" Guid="*">
+            <Component Id="FrontendSvcXml" Guid="*" Win64="yes">
                 <File Id="FrontendSvcXmlFile" Source="deploy/windows/DataLogic_Frontend.xml" KeyPath="yes" />
             </Component>
         </ComponentGroup>
