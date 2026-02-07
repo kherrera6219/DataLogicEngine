@@ -178,8 +178,7 @@ jobs:
       run: |
         if [ -d frontend ]; then
           cd frontend
-          npm install --package-lock-only
-          npx @cyclonedx/cyclonedx-npm --output-file ../sbom-frontend.json
+          npx @cyclonedx/cyclonedx-npm --package-lock-only --ignore-npm-errors --output-file ../sbom-frontend.json
         fi
 
     - name: Upload SBOMs

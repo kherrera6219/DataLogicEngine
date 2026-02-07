@@ -37,7 +37,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pip-audit
-        pip install neo4j bleach user-agents web3 fastapi
+        pip install neo4j bleach user-agents web3 fastapi reportlab
 
     - name: Security Audit
       run: |
