@@ -8,7 +8,7 @@ Works with DocumentProcessor for content extraction and RAG for embeddings.
 import logging
 import uuid
 import hashlib
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, Any, Optional, List, BinaryIO
 from dataclasses import dataclass, field
 
@@ -173,7 +173,7 @@ class FileUploadService:
         
         # Generate unique ID and storage path
         file_id = str(uuid.uuid4())
-        timestamp = datetime.utcnow()
+        timestamp = datetime.now(UTC)
         date_prefix = timestamp.strftime("%Y/%m/%d")
         ext = filename.split(".")[-1] if "." in filename else ""
         storage_key = f"{date_prefix}/{file_id}.{ext}" if ext else f"{date_prefix}/{file_id}"

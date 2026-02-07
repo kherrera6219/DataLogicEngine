@@ -1,5 +1,6 @@
 import os
 import sys
+import gc
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -22,6 +23,32 @@ TEST_DB_PATH = ROOT_DIR / "test_suite.sqlite3"
 import pytest
 from app import app as flask_app, db
 from extensions import limiter, login_manager
+from sqlalchemy.engine import Engine
+
+
+def _dispose_sqlalchemy_engines() -> None:
+    """Dispose SQLAlchemy engines to reduce leaked sqlite handles in tests."""
+    try:
+        engines = db.engines
+    except Exception:
+        return
+
+    for engine in list(engines.values()):
+        try:
+            engine.dispose()
+        except Exception:
+            pass
+
+
+def _dispose_stray_sqlalchemy_engines() -> None:
+    """Dispose any Engine instances not tracked by flask-sqlalchemy bind maps."""
+    for obj in gc.get_objects():
+        if isinstance(obj, Engine):
+            try:
+                obj.dispose()
+            except Exception:
+                pass
+
 
 @pytest.fixture
 def app():
@@ -57,6 +84,7 @@ def app():
             return None
 
     with flask_app.app_context():
+        _dispose_sqlalchemy_engines()
         if TEST_DB_PATH.exists():
             TEST_DB_PATH.unlink()
         # Ensure test runs start from a clean schema even if the module-level
@@ -66,8 +94,19 @@ def app():
         yield flask_app
         db.session.remove()
         db.drop_all()
+        _dispose_sqlalchemy_engines()
         if TEST_DB_PATH.exists():
             TEST_DB_PATH.unlink()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _final_engine_cleanup():
+    """Ensure all SQLAlchemy pools are disposed once at the end of the test session."""
+    yield
+    with flask_app.app_context():
+        db.session.remove()
+        _dispose_sqlalchemy_engines()
+        _dispose_stray_sqlalchemy_engines()
 
 @pytest.fixture
 def client(app):

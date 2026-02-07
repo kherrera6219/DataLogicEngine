@@ -102,7 +102,7 @@ class UnifiedCoordinate:
     
     coordinates: Dict[int, AxisCoordinate] = field(default_factory=dict)
     node_id: Optional[str] = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     meta_tags: Dict[str, str] = field(default_factory=dict)
     
     AXIS_NAMES = {

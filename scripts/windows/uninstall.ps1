@@ -20,6 +20,31 @@ function Stop-ActiveAppProcesses {
     }
 }
 
+function Remove-WinSWService([string]$ServiceName, [string]$WrapperPath) {
+    if (Test-Path -LiteralPath $WrapperPath) {
+        try {
+            & $WrapperPath stop | Out-Null
+        }
+        catch {
+            # Service might already be stopped or not installed.
+        }
+        try {
+            & $WrapperPath uninstall | Out-Null
+            Write-Host "Audit: Service $ServiceName removed via WinSW wrapper." -ForegroundColor DarkGray
+            return
+        }
+        catch {
+            # Fall through to SCM deletion fallback.
+        }
+    }
+
+    if (Get-Service $ServiceName -ErrorAction SilentlyContinue) {
+        Stop-Service $ServiceName -Force -ErrorAction SilentlyContinue
+        & sc.exe delete $ServiceName | Out-Null
+        Write-Host "Audit: Service $ServiceName deleted via SCM fallback." -ForegroundColor DarkGray
+    }
+}
+
 try {
     Write-Host "--- UKG Desktop: Uninstallation Initiated ---" -ForegroundColor Cyan
     Stop-ActiveAppProcesses
@@ -40,15 +65,11 @@ try {
 
     # 1. Stop and Remove Application Services
     Write-Host "Removing Windows Services..."
-    $Services = @("DataLogic_Backend", "DataLogic_Frontend", "UKG-Postgres", "UKG-Redis")
-    foreach ($svc in $Services) {
-        if (Get-Service $svc -ErrorAction SilentlyContinue) {
-            Write-Host "Stopping and deleting $svc..." -ForegroundColor Gray
-            Stop-Service $svc -Force -ErrorAction SilentlyContinue
-            & sc.exe delete $svc | Out-Null
-            Write-Host "Audit: Service $svc deleted." -ForegroundColor DarkGray
-        }
-    }
+    Remove-WinSWService -ServiceName "DataLogic_Backend" -WrapperPath (Join-Path $InstallPath "DataLogic_Backend.exe")
+    Remove-WinSWService -ServiceName "DataLogic_Frontend" -WrapperPath (Join-Path $InstallPath "DataLogic_Frontend.exe")
+    # Optional local dependency services created by legacy scripts
+    Remove-WinSWService -ServiceName "UKG-Postgres" -WrapperPath ""
+    Remove-WinSWService -ServiceName "UKG-Redis" -WrapperPath ""
 
     # 2. Registry Cleanup
     Write-Host "Removing Registry entries..." -ForegroundColor Cyan

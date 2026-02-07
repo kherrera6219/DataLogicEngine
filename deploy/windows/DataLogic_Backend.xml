@@ -2,7 +2,8 @@
   <id>DataLogic_Backend</id>
   <name>DataLogic_Backend</name>
   <description>DataLogicEngine Backend Service (Flask)</description>
-  <executable>%BASE%\DataLogic_Backend.exe</executable>
+  <workingdirectory>%BASE%</workingdirectory>
+  <executable>%BASE%\DataLogic_Backend_App.exe</executable>
   <env name="PORT" value="5000"/>
   <env name="FLASK_ENV" value="production"/>
   <env name="USE_REDIS" value="false"/>

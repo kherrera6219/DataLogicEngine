@@ -118,6 +118,35 @@ function Test-PortAvailability([int]$Port, [string]$ServiceName) {
     }
 }
 
+function Install-WinSWService([string]$ServiceName, [string]$WrapperPath) {
+    if (-not (Test-Path -LiteralPath $WrapperPath)) {
+        Write-Log "[WARN] Service wrapper missing for $ServiceName at $WrapperPath. Skipping service install." "Yellow"
+        return
+    }
+
+    if ($DryRun) {
+        Write-Log "DRY RUN: Would install and start service $ServiceName using $WrapperPath" "Gray"
+        return
+    }
+
+    try {
+        & $WrapperPath install | Out-Null
+        Write-Log "[PASS] Service installed: $ServiceName" "Green"
+    }
+    catch {
+        Write-Log "[WARN] Service install failed for ${ServiceName}: $($_.Exception.Message)" "Yellow"
+        return
+    }
+
+    try {
+        & $WrapperPath start | Out-Null
+        Write-Log "[PASS] Service started: $ServiceName" "Green"
+    }
+    catch {
+        Write-Log "[WARN] Service start failed for ${ServiceName}: $($_.Exception.Message)" "Yellow"
+    }
+}
+
 Write-Log "--- UKG Desktop: Official Installation Orchestrator ---" "Cyan"
 Get-SystemSnapshot
 
@@ -163,14 +192,19 @@ try {
     else {
         if (-not (Test-Path $RegPath)) { New-Item -Path $RegPath -Force | Out-Null }
         Set-ItemProperty -Path $RegPath -Name "DisplayName" -Value "DataLogicEngine Desktop"
-        Set-ItemProperty -Path $RegPath -Name "DisplayVersion" -Value "0.1.0"
+        Set-ItemProperty -Path $RegPath -Name "DisplayVersion" -Value "1.2.4.0"
         Set-ItemProperty -Path $RegPath -Name "Publisher" -Value "UKG"
         Set-ItemProperty -Path $RegPath -Name "InstallLocation" -Value $InstallPath
         Set-ItemProperty -Path $RegPath -Name "UninstallString" -Value "powershell.exe -ExecutionPolicy Bypass -File `"$PSScriptRoot\uninstall.ps1`""
-        Set-ItemProperty -Path $RegPath -Name "DisplayIcon" -Value (Join-Path $InstallPath "app\DataLogicEngine.exe")
+        Set-ItemProperty -Path $RegPath -Name "DisplayIcon" -Value (Join-Path $InstallPath "DataLogic_Backend_App.exe")
     }
 
-    # 4. Success Completion
+    # 4. Install Windows services when WinSW wrappers are available.
+    Write-Log "Installing service wrappers..."
+    Install-WinSWService -ServiceName "DataLogic_Backend" -WrapperPath (Join-Path $InstallPath "DataLogic_Backend.exe")
+    Install-WinSWService -ServiceName "DataLogic_Frontend" -WrapperPath (Join-Path $InstallPath "DataLogic_Frontend.exe")
+
+    # 5. Success Completion
     Write-Log "Installation Process Finished!" "Green"
     
     if (-not $DryRun -and -not $Quiet) {

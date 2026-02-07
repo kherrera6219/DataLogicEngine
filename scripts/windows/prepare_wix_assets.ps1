@@ -9,6 +9,8 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $DeployDir = Join-Path $RepoRoot "deploy\windows"
 $WinSWPath = Join-Path $DeployDir "winsw.exe"
+$BackendWrapperPath = Join-Path $DeployDir "DataLogic_Backend.exe"
+$FrontendWrapperPath = Join-Path $DeployDir "DataLogic_Frontend.exe"
 $WinSWUrl = "https://github.com/winsw/winsw/releases/latest/download/WinSW-x64.exe"
 
 Write-Host "--- Preparing WiX/WinSW Assets ---" -ForegroundColor Cyan
@@ -29,6 +31,24 @@ else {
     }
     Write-Host "[PASS] WinSW downloaded ($($downloaded.Length) bytes)" -ForegroundColor Green
 }
+
+# WinSW resolves config by executable basename. Create dedicated wrappers
+# for each service so XML files are discovered correctly at runtime.
+Copy-Item -LiteralPath $WinSWPath -Destination $BackendWrapperPath -Force
+Copy-Item -LiteralPath $WinSWPath -Destination $FrontendWrapperPath -Force
+Write-Host "[PASS] Refreshed service wrappers:" -ForegroundColor Green
+Write-Host "       $BackendWrapperPath"
+Write-Host "       $FrontendWrapperPath"
+
+$backendXml = Join-Path $DeployDir "DataLogic_Backend.xml"
+$frontendXml = Join-Path $DeployDir "DataLogic_Frontend.xml"
+if (-not (Test-Path -LiteralPath $backendXml)) {
+    throw "Missing WinSW config: $backendXml"
+}
+if (-not (Test-Path -LiteralPath $frontendXml)) {
+    throw "Missing WinSW config: $frontendXml"
+}
+Write-Host "[PASS] WinSW XML configs found." -ForegroundColor Green
 
 $backendExe = Join-Path $RepoRoot "dist\DataLogic_Backend\DataLogic_Backend.exe"
 $frontendServer = Join-Path $RepoRoot "frontend\.next\standalone\server.js"

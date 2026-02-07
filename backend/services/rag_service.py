@@ -99,11 +99,16 @@ class RAGService:
             if openai_key:
                 import openai
                 client = openai.OpenAI(api_key=openai_key)
-                response = client.embeddings.create(
-                    model="text-embedding-3-small",
-                    input=text
-                )
-                return response.data[0].embedding
+                try:
+                    response = client.embeddings.create(
+                        model="text-embedding-3-small",
+                        input=text
+                    )
+                    return response.data[0].embedding
+                finally:
+                    close_client = getattr(client, "close", None)
+                    if callable(close_client):
+                        close_client()
         except Exception as e:
             errors.append(f"OpenAI Failed: {str(e)}")
             logger.warning(f"Embedding Layer 1 (OpenAI) failed: {e}")
@@ -115,12 +120,17 @@ class RAGService:
             if google_key:
                 from google import genai
                 client = genai.Client(api_key=google_key)
-                # Use models/text-embedding-004 which is standard for genai sdk
-                result = client.models.embed_content(
-                    model="text-embedding-004",
-                    contents=text,
-                )
-                return result.embeddings[0].values
+                try:
+                    # Use models/text-embedding-004 which is standard for genai sdk
+                    result = client.models.embed_content(
+                        model="text-embedding-004",
+                        contents=text,
+                    )
+                    return result.embeddings[0].values
+                finally:
+                    close_client = getattr(client, "close", None)
+                    if callable(close_client):
+                        close_client()
         except Exception as e:
             errors.append(f"Google Failed: {str(e)}")
             logger.warning(f"Embedding Layer 2 (Google) failed: {e}")

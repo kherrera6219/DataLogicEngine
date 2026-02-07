@@ -30,6 +30,7 @@ The repository is close to local-runtime ready. Core backend/frontend startup no
 Phase 5 update:
 
 1. Added `scripts/windows/prepare_wix_assets.ps1` to fetch `deploy/windows/winsw.exe` and validate WiX inputs.
+   It also prepares service-specific wrappers (`DataLogic_Backend.exe`, `DataLogic_Frontend.exe`).
 2. Updated WinSW XML defaults to avoid hardcoded PostgreSQL/Redis assumptions.
 3. Aligned installer diagnostics to warn clearly when WiX assets are missing.
 

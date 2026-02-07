@@ -2,6 +2,7 @@
   <id>DataLogic_Frontend</id>
   <name>DataLogic_Frontend</name>
   <description>DataLogicEngine Frontend Service (Next.js)</description>
+  <workingdirectory>%BASE%</workingdirectory>
   <executable>node.exe</executable>
   <arguments>%BASE%\server.js</arguments>
   <env name="PORT" value="3000"/>

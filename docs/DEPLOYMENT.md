@@ -32,6 +32,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows\prepare_wix_assets.ps
 ```
 
 This fetches `deploy/windows/winsw.exe` and validates expected backend/frontend WiX inputs.
+It also generates dedicated service wrappers:
+- `deploy/windows/DataLogic_Backend.exe`
+- `deploy/windows/DataLogic_Frontend.exe`
 
 ## 2. Cloud Deployment (Docker)
 

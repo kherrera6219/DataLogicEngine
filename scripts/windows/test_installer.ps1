@@ -4,6 +4,8 @@ Param(
 
 $ErrorActionPreference = "Continue"
 
+$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+
 Write-Host "--- DataLogicEngine Installer Diagnostics ---" -ForegroundColor Cyan
 
 # 1. Admin Check
@@ -34,9 +36,11 @@ foreach ($path in $TestPaths) {
 
 # 3. Source Assets Check (Simulating what electron-builder would provide)
 Write-Host "`nChecking source assets..." -ForegroundColor Cyan
-$FrontendDist = "c:\software\DataLogicEngine\frontend\dist\win-unpacked"
-$BackendDist = "c:\software\DataLogicEngine\dist\DataLogic_Backend"
-$WinSWExe = "c:\software\DataLogicEngine\deploy\windows\winsw.exe"
+$FrontendDist = Join-Path $RepoRoot "frontend\dist\win-unpacked"
+$BackendDist = Join-Path $RepoRoot "dist\DataLogic_Backend"
+$WinSWExe = Join-Path $RepoRoot "deploy\windows\winsw.exe"
+$BackendWrapperExe = Join-Path $RepoRoot "deploy\windows\DataLogic_Backend.exe"
+$FrontendWrapperExe = Join-Path $RepoRoot "deploy\windows\DataLogic_Frontend.exe"
 
 if (Test-Path $FrontendDist) {
     Write-Host "[PASS] Frontend distribution found at $FrontendDist" -ForegroundColor Green
@@ -58,6 +62,13 @@ if (Test-Path $WinSWExe) {
 else {
     Write-Host "[WARN] WinSW binary missing for WiX/WinSW packaging path." -ForegroundColor Yellow
     Write-Host "       Run '.\\scripts\\windows\\prepare_wix_assets.ps1' before WiX packaging." -ForegroundColor Yellow
+}
+
+if ((Test-Path $BackendWrapperExe) -and (Test-Path $FrontendWrapperExe)) {
+    Write-Host "[PASS] Service wrappers found for backend/frontend WinSW services." -ForegroundColor Green
+}
+else {
+    Write-Host "[WARN] Service wrappers missing. Run '.\\scripts\\windows\\prepare_wix_assets.ps1' to generate them." -ForegroundColor Yellow
 }
 
 # 4. Running DRY RUN Installation

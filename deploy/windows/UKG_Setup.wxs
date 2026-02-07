@@ -58,7 +58,7 @@
         <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
             <!-- Backend Binary (Bundled by PyInstaller) -->
             <Component Id="BackendExe" Guid="*">
-                <File Id="BackendExeFile" Source="dist/DataLogic_Backend/DataLogic_Backend.exe" KeyPath="yes" />
+                <File Id="BackendExeFile" Source="dist/DataLogic_Backend/DataLogic_Backend.exe" Name="DataLogic_Backend_App.exe" KeyPath="yes" />
             </Component>
             
             <!-- Frontend Standalone (Next.js) -->
@@ -98,14 +98,17 @@
         </ComponentGroup>
 
         <ComponentGroup Id="ServiceComponents" Directory="INSTALLFOLDER">
-            <Component Id="WinSWExe" Guid="*">
-                <File Id="WinSWExeFile" Source="deploy/windows/winsw.exe" KeyPath="yes" />
+            <Component Id="BackendWinSWExe" Guid="*">
+                <File Id="BackendWinSWExeFile" Source="deploy/windows/DataLogic_Backend.exe" KeyPath="yes" />
+            </Component>
+            <Component Id="FrontendWinSWExe" Guid="*">
+                <File Id="FrontendWinSWExeFile" Source="deploy/windows/DataLogic_Frontend.exe" KeyPath="yes" />
             </Component>
             <Component Id="BackendSvcXml" Guid="*">
-                <File Id="BackendSvcXmlFile" Source="deploy/windows/DataLogic_Backend.xml" />
+                <File Id="BackendSvcXmlFile" Source="deploy/windows/DataLogic_Backend.xml" KeyPath="yes" />
             </Component>
             <Component Id="FrontendSvcXml" Guid="*">
-                <File Id="FrontendSvcXmlFile" Source="deploy/windows/DataLogic_Frontend.xml" />
+                <File Id="FrontendSvcXmlFile" Source="deploy/windows/DataLogic_Frontend.xml" KeyPath="yes" />
             </Component>
         </ComponentGroup>
     </Fragment>
