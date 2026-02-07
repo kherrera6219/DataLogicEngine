@@ -1,6 +1,31 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+function isDesktopRequest(request: NextRequest): boolean {
+  if (process.env.NEXT_PUBLIC_DESKTOP_AUTH_BYPASS === 'true') {
+    return true;
+  }
+
+  const hostHeader = request.headers.get('host') || request.nextUrl.host;
+  const hostname = hostHeader.split(':')[0].replace(/^\[|\]$/g, '').toLowerCase();
+  const isLoopbackHost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+  if (!isLoopbackHost) {
+    return false;
+  }
+
+  const desktopHeader = request.headers.get('x-datalogic-desktop');
+  if (desktopHeader === 'true' || desktopHeader === '1') {
+    return true;
+  }
+
+  const userAgent = request.headers.get('user-agent') || '';
+  if (userAgent.includes('Electron')) {
+    return true;
+  }
+
+  return false;
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const requestId = crypto.randomUUID();
@@ -9,11 +34,12 @@ export function middleware(request: NextRequest) {
     // 1. Session Validation
     // Check for both standard session cookie and fallback
     const sessionToken = request.cookies.get('session')?.value || request.cookies.get('session_id')?.value;
+    const desktopRequest = isDesktopRequest(request);
     
     // Allow public paths that might have slipped through matcher (just in case), though matcher should handle most
     const isLoginPage = pathname === '/login' || pathname === '/register';
 
-    if (!sessionToken && !isLoginPage) {
+    if (!sessionToken && !isLoginPage && !desktopRequest) {
       console.warn(`[Middleware] [${requestId}] Unauthorized access attempt to ${pathname}`);
       const url = request.nextUrl.clone();
       url.pathname = '/login';

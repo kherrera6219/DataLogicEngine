@@ -71,12 +71,12 @@ function createWindow() {
     });
     const isDev = !electron_1.app.isPackaged;
     if (isDev) {
-        mainWindow.loadURL('http://localhost:3000');
+        mainWindow.loadURL('http://localhost:3000/dashboard');
         mainWindow.webContents.openDevTools();
     }
     else {
         // In production, load via custom protocol
-        mainWindow.loadURL('app://index.html');
+        mainWindow.loadURL('app://-/dashboard');
     }
     mainWindow.on('closed', () => {
         mainWindow = null;
@@ -99,7 +99,7 @@ electron_1.app.on('ready', () => {
         // When packaged, __dirname is inside resources/app.asar/dist-electron
         // The 'out' folder is at resources/app.asar/out
         const appPath = path.join(__dirname, '../out');
-        let filePath = path.join(appPath, pathname);
+        const filePath = path.join(appPath, pathname);
         // If file doesn't exist, try appending .html (for clean URLs) or serve index.html (SPA routing)
         let finalPath = filePath;
         try {
@@ -113,7 +113,7 @@ electron_1.app.on('ready', () => {
                 }
             }
         }
-        catch (e) {
+        catch {
             // Fallback for whatever reason (e.g. invalid path chars)
             finalPath = path.join(appPath, 'index.html');
         }
@@ -144,9 +144,18 @@ electron_1.app.on('ready', () => {
             return new Response('Not Found', { status: 404 });
         }
     });
+    // Tag desktop-originated requests so Next middleware can bypass web login redirects.
+    electron_1.session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+        const requestHeaders = { ...details.requestHeaders };
+        if (details.url.startsWith('http://localhost:3000') ||
+            details.url.startsWith('http://127.0.0.1:3000')) {
+            requestHeaders['X-DataLogic-Desktop'] = 'true';
+        }
+        callback({ requestHeaders });
+    });
     // Security: Set CSP headers
-    const { session } = require('electron'); // Inline require for session to avoid early access
-    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    electron_1.session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
         callback({
             responseHeaders: {
                 ...details.responseHeaders,
@@ -181,7 +190,10 @@ function startBackend() {
         ...process.env,
         PORT: '5000',
         FLASK_ENV: isDev ? 'development' : 'production',
-        IS_DESKTOP_APP: 'true'
+        IS_DESKTOP_APP: 'true',
+        SESSION_COOKIE_SECURE: 'false',
+        SESSION_COOKIE_SAMESITE: 'Lax',
+        CORS_ORIGINS: 'http://localhost:3000,http://127.0.0.1:3000,app://dashboard,app://-'
     };
     backendProcess = (0, child_process_1.spawn)(pythonPath, args, { env, cwd: rootDir });
     backendProcess.stdout?.on('data', (data) => {

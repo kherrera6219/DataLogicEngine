@@ -43,11 +43,11 @@ function createWindow() {
   const isDev = !app.isPackaged;
   
   if (isDev) {
-    mainWindow.loadURL('http://localhost:3000');
+    mainWindow.loadURL('http://localhost:3000/dashboard');
     mainWindow.webContents.openDevTools();
   } else {
     // In production, load via custom protocol
-    mainWindow.loadURL('app://index.html');
+    mainWindow.loadURL('app://-/dashboard');
   }
 
   mainWindow.on('closed', () => {
@@ -115,6 +115,19 @@ app.on('ready', () => {
     }
   });
 
+  // Tag desktop-originated requests so Next middleware can bypass web login redirects.
+  session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+    const requestHeaders = { ...details.requestHeaders };
+    if (
+      details.url.startsWith('http://localhost:3000') ||
+      details.url.startsWith('http://127.0.0.1:3000')
+    ) {
+      requestHeaders['X-DataLogic-Desktop'] = 'true';
+    }
+
+    callback({ requestHeaders });
+  });
+
   // Security: Set CSP headers
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session.defaultSession.webRequest.onHeadersReceived((details: any, callback: any) => {
@@ -158,7 +171,10 @@ function startBackend() {
     ...process.env, 
     PORT: '5000', 
     FLASK_ENV: isDev ? 'development' : 'production',
-    IS_DESKTOP_APP: 'true' 
+    IS_DESKTOP_APP: 'true',
+    SESSION_COOKIE_SECURE: 'false',
+    SESSION_COOKIE_SAMESITE: 'Lax',
+    CORS_ORIGINS: 'http://localhost:3000,http://127.0.0.1:3000,app://dashboard,app://-'
   };
 
   backendProcess = spawn(pythonPath, args, { env, cwd: rootDir });

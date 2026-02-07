@@ -32,4 +32,4 @@ nsis:
   artifactName: "DataLogicEngine Setup 0.1.0.exe"
   deleteAppDataOnUninstall: false
   runAfterFinish: true
-  include: build/installer.nsh
+  include: electron/installer.nsh
