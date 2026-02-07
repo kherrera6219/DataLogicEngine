@@ -118,7 +118,7 @@ def test_test_provider_endpoint(mock_curr_user, app_client):
     # _create_sdk_provider returns the adapter
     mock_gw_instance._create_sdk_provider.return_value = mock_adapter
     
-    resp = app_client.post('/api/v1/gateway/providers/p1/test')
+    resp = app_client.post('/api/v1/gateway/providers/11111111-1111-1111-1111-111111111111/test')
     
     assert resp.status_code == 200
     assert resp.json['success'] is True
@@ -137,8 +137,15 @@ def test_test_provider_fail(mock_curr_user, app_client):
     mock_gw_instance = mock_gateway_cls.return_value
     mock_gw_instance._create_sdk_provider.return_value = None # Adapter creation fails
     
-    resp = app_client.post('/api/v1/gateway/providers/p1/test')
+    resp = app_client.post('/api/v1/gateway/providers/11111111-1111-1111-1111-111111111111/test')
     
-    assert resp.status_code == 200
+    assert resp.status_code == 503
     assert resp.json['success'] is False
     assert 'Failed to create provider adapter' in resp.json['error']
+
+
+@patch('flask_login.utils._get_user')
+def test_test_provider_invalid_uuid_returns_404(mock_curr_user, app_client):
+    mock_curr_user.return_value = MockUser()
+    resp = app_client.post('/api/v1/gateway/providers/not-a-uuid/test')
+    assert resp.status_code == 404

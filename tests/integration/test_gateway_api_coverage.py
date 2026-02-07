@@ -152,6 +152,7 @@ def test_gateway_chat_endpoint(app_client):
     mock_resp.usage = {}
     mock_resp.coordinate = None
     mock_resp.warnings = []
+    mock_resp.ok = True
     
     mock_gw_instance = mock_gateway_cls.return_value
     mock_gw_instance.process = AsyncMock(return_value=mock_resp)
@@ -175,6 +176,36 @@ def test_gateway_chat_no_messages(app_client):
                            headers={'X-API-Key': 'ukg_valid'},
                            json={})
     assert resp.status_code == 400
+
+
+def test_gateway_chat_provider_failure_returns_503(app_client):
+    mocks = app_client.application.mocks
+    MockAPIKey = mocks['APIKey']
+    mock_gateway_cls = mocks['Gateway']
+
+    mock_key = MagicMock()
+    mock_key.id = "key1"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = 100
+    MockAPIKey.verify_key.return_value = mock_key
+
+    mock_resp = MagicMock()
+    mock_resp.ok = False
+    mock_resp.error = "provider timeout"
+    mock_resp.run_id = "run-failed"
+    mock_resp.provider_used = "openai"
+    mock_resp.model_used = "gpt-4"
+
+    mock_gw_instance = mock_gateway_cls.return_value
+    mock_gw_instance.process = AsyncMock(return_value=mock_resp)
+
+    resp = app_client.post(
+        '/api/v1/gateway/chat',
+        headers={'X-API-Key': 'ukg_valid'},
+        json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]},
+    )
+    assert resp.status_code == 503
+    assert resp.json['error'] == "provider timeout"
 
 # --- Provider Admin Tests ---
 

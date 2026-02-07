@@ -236,6 +236,14 @@ class LLMGateway:
                         cb.record_failure()
                         break # Try next provider
 
+        # All eligible providers failed or were unavailable.
+        return self._error_response(
+            run_id,
+            last_error or "All providers failed",
+            start_time,
+            request,
+        )
+
     def _create_sdk_provider(self, provider_record: Optional[LLMProvider]) -> Any:
         """Create SDK provider instance from database config."""
         import os

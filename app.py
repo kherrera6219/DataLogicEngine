@@ -183,6 +183,24 @@ celery = make_celery(app)
 # CSRF is still enforced on all HTML form submissions
 from flask_wtf.csrf import CSRFError
 
+# Keep CSRF protection for non-API forms while allowing JSON API clients.
+# This matches the documented local/API behavior and prevents CSRF blocks
+# on auth and gateway endpoints used by SDK/desktop flows.
+app.config["WTF_CSRF_CHECK_DEFAULT"] = False
+
+
+@app.before_request
+def csrf_for_forms_only():
+    if request.method in ("GET", "HEAD", "OPTIONS", "TRACE"):
+        return None
+    if request.path.startswith("/api/"):
+        return None
+    # GraphQL endpoint accepts JSON POST bodies and is consumed by API clients/tests.
+    if request.path.startswith("/graphql"):
+        return None
+    csrf.protect()
+    return None
+
 # Handle CSRF errors
 @app.errorhandler(CSRFError)
 def handle_csrf_error(e):

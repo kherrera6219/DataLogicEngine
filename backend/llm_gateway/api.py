@@ -13,6 +13,7 @@ from flask_login import login_required, current_user
 import json
 import logging
 import os
+import uuid
 
 from models import LLMProvider, LLMProviderUsage, ExternalAPIKey, ChatSession, ChatMessage
 from backend.llm_gateway.gateway import LLMGateway, GatewayRequest
@@ -28,6 +29,14 @@ logger = logging.getLogger(__name__)
 
 gateway_bp = Blueprint('gateway', __name__, url_prefix='/api/v1/gateway')
 admin_bp = Blueprint('gateway_admin', __name__, url_prefix='/api/admin')
+
+
+def _parse_uuid_or_404(value: str, field_name: str):
+    """Parse UUID path params and provide consistent 404-style errors."""
+    try:
+        return uuid.UUID(str(value))
+    except (ValueError, TypeError, AttributeError):
+        return jsonify({'error': f'Invalid {field_name}'}), 404
 
 
 # ============== API Key Authentication ==============
@@ -123,6 +132,13 @@ async def gateway_chat():
     
     if not response:
         return jsonify({'error': 'No response generated from any provider'}), 503
+    if not getattr(response, "ok", True):
+        return jsonify({
+            'error': response.error or 'Gateway failed to generate a response',
+            'run_id': response.run_id,
+            'provider_used': response.provider_used,
+            'model_used': response.model_used,
+        }), 503
 
     return api_response({
         'response': response.content,
@@ -373,7 +389,10 @@ def create_provider():
 @login_required
 def get_provider(provider_id):
     """Get provider details."""
-    provider = LLMProvider.query.get_or_404(provider_id)
+    parsed = _parse_uuid_or_404(provider_id, 'provider_id')
+    if isinstance(parsed, tuple):
+        return parsed
+    provider = LLMProvider.query.get_or_404(parsed)
     return jsonify(provider.to_dict(include_key=True))
 
 
@@ -381,7 +400,10 @@ def get_provider(provider_id):
 @admin_required
 def update_provider(provider_id):
     """Update a provider."""
-    provider = LLMProvider.query.get_or_404(provider_id)
+    parsed = _parse_uuid_or_404(provider_id, 'provider_id')
+    if isinstance(parsed, tuple):
+        return parsed
+    provider = LLMProvider.query.get_or_404(parsed)
     data = request.get_json() or {}
     
     # Update fields
@@ -427,7 +449,10 @@ def update_provider(provider_id):
 @admin_required
 def delete_provider(provider_id):
     """Delete a provider."""
-    provider = LLMProvider.query.get_or_404(provider_id)
+    parsed = _parse_uuid_or_404(provider_id, 'provider_id')
+    if isinstance(parsed, tuple):
+        return parsed
+    provider = LLMProvider.query.get_or_404(parsed)
     db.session.delete(provider)
     db.session.commit()
     return jsonify({'message': 'Provider deleted'}), 200
@@ -437,7 +462,10 @@ def delete_provider(provider_id):
 @login_required
 def test_provider(provider_id):
     """Test provider connection using the Gateway SDK adapter."""
-    provider = LLMProvider.query.get_or_404(provider_id)
+    parsed = _parse_uuid_or_404(provider_id, 'provider_id')
+    if isinstance(parsed, tuple):
+        return parsed
+    provider = LLMProvider.query.get_or_404(parsed)
     
     try:
         # Use the Gateway's internal factory to create the provider instance
@@ -455,7 +483,7 @@ def test_provider(provider_id):
                 'success': False,
                 'status': 'error',
                 'error': 'Failed to create provider adapter (configuration invalid?)',
-            })
+            }), 503
 
         # Run a simple completion check
         loop = asyncio.new_event_loop()
@@ -490,7 +518,7 @@ def test_provider(provider_id):
             'success': False,
             'status': 'error',
             'error': str(e),
-        })
+        }), 502
 
 
 # ============== API Key Management ==============
@@ -556,7 +584,10 @@ def create_api_key():
 @login_required
 def revoke_api_key(key_id):
     """Revoke an API key."""
-    api_key = ExternalAPIKey.query.get_or_404(key_id)
+    parsed = _parse_uuid_or_404(key_id, 'key_id')
+    if isinstance(parsed, tuple):
+        return parsed
+    api_key = ExternalAPIKey.query.get_or_404(parsed)
     
     # Only owner or admin can revoke
     if api_key.user_id != current_user.id:

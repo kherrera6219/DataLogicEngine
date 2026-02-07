@@ -80,6 +80,28 @@ For each local setup attempt, validate:
 3. Chat/gateway call succeeds with configured provider key
 4. No startup import errors in backend logs
 
+## Phase 2 Runtime Notes (Verified)
+
+1. CSRF policy:
+   `POST /api/*` and `POST /graphql` are allowed for JSON clients in local mode.
+   HTML form routes still enforce CSRF tokens.
+2. Gateway failure semantics:
+   `POST /api/v1/gateway/chat` now returns `503` when no provider can satisfy the request.
+   `POST /api/v1/gateway/providers/<provider_id>/test` returns provider-aware `502`/`503` failures instead of false-success `200`.
+3. Provider key diagnostics:
+   If a key is invalid, provider responses surface `401 invalid_api_key` details in gateway error payloads.
+   Update `.env` with a valid provider key and retry.
+
+## Quick API Smoke Checks
+
+Run after starting `scripts/windows/start_local_stack.ps1`:
+
+```powershell
+curl.exe -s http://127.0.0.1:5000/health
+curl.exe -s -X POST http://127.0.0.1:5000/api/v1/auth/register -H "Content-Type: application/json" -d "{\"username\":\"localuser\",\"email\":\"local@example.com\",\"password\":\"StrongPass123!\"}"
+curl.exe -s -X POST http://127.0.0.1:5000/graphql -H "Content-Type: application/json" -d "{\"query\":\"{ nodeCount edgeCount }\"}"
+```
+
 ## Focused Backlog to Reach "Fully Working"
 
 1. Consolidate duplicated/legacy launcher paths that still assume port `8080`.
