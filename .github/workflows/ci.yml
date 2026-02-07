@@ -37,7 +37,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pip-audit
-        pip install neo4j bleach user-agents web3 fastapi reportlab
+        pip install neo4j bleach user-agents web3 fastapi reportlab asgiref python-json-logger simple-salesforce jira
 
     - name: Security Audit
       run: |
@@ -50,6 +50,9 @@ jobs:
       env:
         DATABASE_URL: "sqlite:///:memory:"
         OPENAI_API_KEY: "mock-key-for-ci"
+        FLASK_ENV: "testing"
+        SECRET_KEY: "ci-test-secret-key"
+        JWT_SECRET_KEY: "ci-test-jwt-secret"
 
   # Frontend Build
   frontend-build:
