@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-const path = require('path');
-
-/** @type { import('@storybook/nextjs').StorybookConfig } */
+/** @type { import('@storybook/react-vite').StorybookConfig } */
 const config = {
   stories: [
     "../stories/**/*.mdx",
@@ -15,7 +13,7 @@ const config = {
     "@storybook/addon-onboarding"
   ],
   framework: {
-    name: "@storybook/nextjs",
+    name: "@storybook/react-vite",
     options: {}
   },
   staticDirs: [
@@ -24,7 +22,9 @@ const config = {
   docs: {
     autodocs: "tag"
   },
-  webpackFinal: async (config) => {
+  viteFinal: async (config) => {
+    config.resolve = config.resolve || {};
+    config.resolve.alias = config.resolve.alias || {};
     config.resolve.alias['next/config'] = require.resolve('./next-config-mock.js');
     return config;
   }
