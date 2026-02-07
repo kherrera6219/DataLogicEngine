@@ -10,11 +10,13 @@ import os
 import sys
 
 # Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 from app import app
-from backend.extensions import db
-from backend.llm_gateway.models import LLMProvider
+from extensions import db
+from models import LLMProvider, ExternalAPIKey, User
 
 
 def setup_default_providers():
@@ -105,8 +107,7 @@ def setup_default_providers():
 
 def create_test_api_key():
     """Create a test API key for development."""
-    from backend.llm_gateway.models import ExternalAPIKey
-    
+
     with app.app_context():
         # Check for existing keys
         existing = ExternalAPIKey.query.filter_by(name="Development Key").first()
@@ -118,7 +119,6 @@ def create_test_api_key():
         full_key, prefix, key_hash = ExternalAPIKey.generate_key()
         
         # Need a user - get admin or first user
-        from models.user import User
         user = User.query.filter_by(is_admin=True).first()
         if not user:
             user = User.query.first()

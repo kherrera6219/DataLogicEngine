@@ -121,8 +121,8 @@ DataLogicEngine is built for versatility, supporting two first-class deployment 
 
 - **Python 3.11+**
 - **Node.js 20.x+**
-- **PostgreSQL 15+**
-- **Redis 5+**
+- **PostgreSQL 15+** (optional for local SQLite fallback)
+- **Redis 5+** (optional for local development mode)
 
 ### 1. Clone Repository
 
@@ -143,7 +143,8 @@ pip install -r requirements.txt
 
 # Config
 cp .env.template .env
-# Set DATABASE_URL=postgresql://user:pass@localhost:5432/ukg_db
+# Set SESSION_SECRET and at least one provider key (OPENAI_API_KEY, etc.)
+# Optional: set DATABASE_URL=postgresql://user:pass@localhost:5432/ukg_db
 
 # Init DB
 flask db upgrade
@@ -162,6 +163,14 @@ npm run dev
 ```
 
 Visit `http://localhost:3000` to access the application.
+
+### Windows 11 Fast Path
+
+For a single-command local startup path (API keys + internet only), use:
+
+- `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+- `scripts/windows/start_local_stack.ps1`
+- `scripts/windows/stop_local_stack.ps1`
 
 ---
 

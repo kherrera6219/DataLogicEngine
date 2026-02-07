@@ -15,7 +15,7 @@ os.environ["UKG_KEY_DIR"] = TEST_KEY_DIR
 from datetime import datetime
 from flask import Flask
 from extensions import db, login_manager, audit_logger, rbac_manager
-from models.user import User, AuditLog
+from models import User, AuditLog
 from routes.auth_routes import auth_bp
 
 class TestIdentityIsolation(unittest.TestCase):
@@ -58,7 +58,7 @@ class TestIdentityIsolation(unittest.TestCase):
                     response = client.post('/api/v1/auth/desktop/auto-login')
                     self.assertEqual(response.status_code, 200)
                     
-                    user = User.query.filter_by(windows_sid='S-1-5-21-OWNER').first()
+                    user = User.query.filter_by(sid='S-1-5-21-OWNER').first()
                     self.assertIsNotNone(user)
                     self.assertEqual(user.role, 'owner')
                     self.assertTrue(user.is_admin)
@@ -74,7 +74,7 @@ class TestIdentityIsolation(unittest.TestCase):
             from unittest.mock import patch
             
             # 1. Register Owner
-            owner = User(username="owner", email="owner@local.ukg", password_hash="dummy", windows_sid="S-OWNER", role="owner", is_admin=True)
+            owner = User(username="owner", email="owner@local.ukg", password_hash="dummy", sid="S-OWNER", role="owner", is_admin=True)
             db.session.add(owner)
             db.session.commit()
             
@@ -86,7 +86,7 @@ class TestIdentityIsolation(unittest.TestCase):
                     response = client.post('/api/v1/auth/desktop/auto-login')
                     self.assertEqual(response.status_code, 200)
                     
-                    user = User.query.filter_by(windows_sid='S-SECOND').first()
+                    user = User.query.filter_by(sid='S-SECOND').first()
                     self.assertIsNotNone(user)
                     self.assertEqual(user.role, 'user')
                     self.assertFalse(user.is_admin)
@@ -97,7 +97,7 @@ class TestIdentityIsolation(unittest.TestCase):
             from unittest.mock import patch
             
             # 1. Existing user with name 'kevin'
-            user1 = User(username="kevin", email="kevin@local.ukg", password_hash="dummy", windows_sid="S-1")
+            user1 = User(username="kevin", email="kevin@local.ukg", password_hash="dummy", sid="S-1")
             db.session.add(user1)
             db.session.commit()
             
@@ -109,7 +109,7 @@ class TestIdentityIsolation(unittest.TestCase):
                     response = client.post('/api/v1/auth/desktop/auto-login')
                     self.assertEqual(response.status_code, 200)
                     
-                    user2 = User.query.filter_by(windows_sid='S-2').first()
+                    user2 = User.query.filter_by(sid='S-2').first()
                     self.assertEqual(user2.username, "kevin_1")
 
     def tearDown(self):

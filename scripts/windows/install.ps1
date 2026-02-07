@@ -2,15 +2,13 @@
 Param(
     [switch]$DryRun,
     [bool]$SkipDeps = $true,
-    [switch]$Quiet
+    [switch]$Quiet,
+    [string]$InstallPath = (Join-Path $env:ProgramFiles "DataLogicEngine"),
+    [string]$DataPath = (Join-Path $env:ProgramData "DataLogicEngine")
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
-
-# Configuration Defaults (Blueprint Aligned)
-$InstallPath = $env:ProgramFiles + "\DataLogicEngine"
-$DataPath = $env:ProgramData + "\DataLogicEngine"
 
 # Logging setup
 $LocalLogDir = Join-Path $PSScriptRoot "logs"
@@ -24,15 +22,60 @@ function Write-Log([string]$Message, [string]$Color = "White") {
     
     Write-Host "$Prefix$Message" -ForegroundColor $Color
     
+    $DidPersist = $false
+
     # Try to log to ProgramData first
     $GlobalLogDir = Split-Path $GlobalLogFile -Parent
     if (Test-Path $GlobalLogDir) {
-        $LogMessage | Out-File $GlobalLogFile -Append -ErrorAction SilentlyContinue
+        try {
+            $LogMessage | Out-File $GlobalLogFile -Append -ErrorAction Stop
+            $DidPersist = $true
+        }
+        catch {
+            # Fall back to local script folder log below.
+        }
     }
-    else {
-        if (-not (Test-Path $LocalLogDir)) { New-Item -ItemType Directory -Path $LocalLogDir -Force | Out-Null }
-        $LogMessage | Out-File $LocalLogFile -Append -ErrorAction SilentlyContinue
+
+    if (-not $DidPersist) {
+        try {
+            if (-not (Test-Path $LocalLogDir)) { New-Item -ItemType Directory -Path $LocalLogDir -Force | Out-Null }
+            $LogMessage | Out-File $LocalLogFile -Append -ErrorAction Stop
+        }
+        catch {
+            # Logging should never block installer control flow.
+        }
     }
+}
+
+# Shared integrity helper for dependency installers and diagnostics.
+function Test-UKGFileHash {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Path,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$ExpectedHash
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        throw "Hash verification failed. File not found: $Path"
+    }
+
+    $NormalizedExpected = ($ExpectedHash -replace '\s', '').ToUpperInvariant()
+    if ($NormalizedExpected -notmatch '^[A-F0-9]{64}$') {
+        throw "Hash verification failed. Expected SHA-256 hash must be a 64-character hex string."
+    }
+
+    $ActualHash = (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToUpperInvariant()
+    if ($ActualHash -ne $NormalizedExpected) {
+        throw "Hash mismatch for $Path. Expected $NormalizedExpected but got $ActualHash."
+    }
+
+    Write-Log "[PASS] Hash verification passed for $Path" "Green"
+    return $true
 }
 
 # Function to get hardware telemetry
@@ -148,7 +191,7 @@ catch {
         Write-Log "Rollback: Registry entries removed. Please manually verify $InstallPath cleanup if needed." "Gray"
     }
     
-    if (-not $Quiet) {
+    if (-not $Quiet -and -not $DryRun) {
         Write-Host "`nPress any key to close this window..." -ForegroundColor Cyan
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     }

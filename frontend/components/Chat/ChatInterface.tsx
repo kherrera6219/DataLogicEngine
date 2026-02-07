@@ -117,7 +117,7 @@ export function ChatInterface() {
       const data = await api.chat.sendMessage({
         messages: [{ role: 'user', content: userMsg.content }],
         mode: mode,
-        session_id: currentSessionId,
+        session_id: currentSessionId ?? undefined,
         run_ukg_pipeline: true
       });
       console.log('ChatInterface: handleSend success', data);

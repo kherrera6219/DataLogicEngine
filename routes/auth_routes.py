@@ -307,7 +307,7 @@ def desktop_auto_login():
         return error_response("Could not resolve Windows identity", 500)
     
     # Check if user exists by Windows SID
-    user = User.query.filter_by(windows_sid=sid).first()
+    user = User.query.filter_by(sid=sid).first()
     
     if not user:
         # Check if this is the FIRST user in the system
@@ -330,7 +330,7 @@ def desktop_auto_login():
         # Ensure password meets security requirements (length, case, digit, special)
         temp_password = secrets.token_urlsafe(32) + "!A1a"
         user.set_password(temp_password)
-        user.windows_sid = sid
+        user.sid = sid
         user.role = role
         user.is_admin = (role == 'owner')
         
@@ -338,7 +338,7 @@ def desktop_auto_login():
         db.session.commit()
         
         # Audit registration
-        from models.user import AuditLog
+        from models import AuditLog
         audit = AuditLog(
             windows_sid=sid,
             user_id=user.id,

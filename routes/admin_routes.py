@@ -290,7 +290,7 @@ def update_user_role(user_id: int) -> Tuple[Response, int]:
             "target_username": user.username,
             "old_role": old_role if new_role else user.role,
             "new_role": user.role,
-            "target_sid": getattr(user, 'windows_sid', None)
+            "target_sid": getattr(user, 'sid', getattr(user, 'windows_sid', None))
         })
 
         return success_response(user.to_dict(), "User role updated successfully")
@@ -345,7 +345,7 @@ def delete_user(user_id: int) -> Tuple[Response, int]:
             return forbidden_error("Cannot delete your own account via admin API")
 
         username = user.username
-        user_sid = getattr(user, 'windows_sid', None)
+        user_sid = getattr(user, 'sid', getattr(user, 'windows_sid', None))
 
         # Delete associated data first
         SimulationSession.query.filter_by(user_id=user_id).delete()
@@ -441,7 +441,7 @@ def transfer_ownership() -> Tuple[Response, int]:
             "from_username": old_owner_username,
             "to_user_id": target_user.id,
             "to_username": target_user.username,
-            "to_windows_sid": getattr(target_user, 'windows_sid', None)
+            "to_windows_sid": getattr(target_user, 'sid', getattr(target_user, 'windows_sid', None))
         })
 
         logger.warning(

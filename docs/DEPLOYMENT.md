@@ -23,6 +23,16 @@ npm run electron:dist
 *   Artifacts location: `frontend/dist/`
 *   Includes: `DataLogicEngine Setup 0.1.0.exe` (Windows)
 
+### Optional WiX/WinSW Path (Windows Service Packaging)
+
+If you are using the WiX manifests under `deploy/windows/`, prepare assets first:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\prepare_wix_assets.ps1
+```
+
+This fetches `deploy/windows/winsw.exe` and validates expected backend/frontend WiX inputs.
+
 ## 2. Cloud Deployment (Docker)
 
 The cloud build uses `output: 'standalone'` (Node.js Server) to support API Rewrites and SSR features.

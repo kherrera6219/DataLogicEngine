@@ -120,11 +120,11 @@ The system can operate in two primary modes defined by environment variables:
 - **Local-Only**: Uses local instances of PostgreSQL and Redis. Data residency is strictly on the local machine.
 - **Cloud-Hybrid**: Connects to existing cloud-hosted databases while maintaining local application state.
 
-### 2. Service Orchestration (WinSW)
-Both the Flask backend and Next.js frontend are managed as native Windows Services using **WinSW (Windows Service Wrapper)**.
-- **Backend Service**: `DataLogic_Backend.exe` (PyInstaller bundle) supervised by `DataLogic_Backend.xml`.
-- **Frontend Service**: Next.js standalone server supervised by `DataLogic_Frontend.xml`.
-- **LifeCycle**: Services start automatically on boot and support automatic restart on failure.
+### 2. Service Orchestration (Windows)
+For local Windows bring-up, the supported workflow uses `scripts/windows/start_local_stack.ps1` and `scripts/windows/stop_local_stack.ps1`.
+- **Backend Runtime**: Flask backend on `127.0.0.1:5000` (SQLite fallback supported).
+- **Frontend Runtime**: Next.js on `127.0.0.1:3000`.
+- **Optional Service Wrapper**: WinSW XML definitions (`DataLogic_Backend.xml`, `DataLogic_Frontend.xml`) are retained for service-based deployments.
 
 ### 3. Native Identity & Security
 - **Identity Integrity**: Validated user recognition via Windows Security Identifier (SID) with standard format enforcement, ensuring that local data residency is tied to a verified profile.
@@ -136,11 +136,11 @@ The application respects Windows standards for data residency:
 - **Log Residency**: All service logs are stored in the local data directory under `/logs`.
 
 ### 5. Distributable Packaging (Setup.exe)
-For standalone distribution, the system uses a **WiX Toolset** based installer system.
-- **Payload**: Bundles the PyInstaller backend, Next.js standalone frontend, WinSW binaries, and modular PowerShell setup scripts.
-- **Resilient Orchestration**: The installer features **Atomic Rollback** and **Binary Integrity** via SHA-256 hash checks for all app executables and dependency MSIs.
-- **CustomActions**: The installer executes `install.ps1` with elevated privileges to handle silent MSI delivery of PostgreSQL and Redis, ensuring a "Zero-Ops" experience for the end user.
-- **Lifecycle**: Handles MSI-compliant upgrades, repairs, and clean uninstallation with data-retention prompts.
+The current default installer path is **Electron Builder (NSIS)** (`frontend/build_installer.ps1`).
+- **Primary Build**: Packages desktop artifacts via `electron-builder`.
+- **Windows Script Integration**: Uses modular PowerShell scripts for setup/diagnostics.
+- **Optional WiX/WinSW Path**: WiX manifests remain available under `deploy/windows/` for service-based packaging workflows.
+- **WiX Asset Prep**: Run `scripts/windows/prepare_wix_assets.ps1` before WiX packaging to fetch required WinSW assets.
 
 ---
 

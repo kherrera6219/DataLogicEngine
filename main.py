@@ -1,6 +1,7 @@
 import signal
 import sys
 import collections
+import os
 
 # Polyfill for MutableMapping (moved to collections.abc in Python 3.10+)
 if not hasattr(collections, 'MutableMapping'):

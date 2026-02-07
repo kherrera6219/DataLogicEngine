@@ -2,8 +2,8 @@
 Runtime environment precheck for the DataLogicEngine stack.
 
 This script surfaces blocking issues that prevent the backend (Flask) and frontend (Next.js)
-from starting and communicating locally. It focuses on developer default ports (backend 8080,
-frontend 3000) and required configuration files.
+from starting and communicating locally. It focuses on developer default ports (backend 5000,
+frontend 3000), required configuration files, and bootstrap dependency manifests.
 """
 import os
 import sys
@@ -14,7 +14,7 @@ from pathlib import Path
 
 from dotenv import dotenv_values
 
-BACKEND_PORT = int(os.environ.get("PORT", os.environ.get("BACKEND_PORT", 8080)))
+BACKEND_PORT = int(os.environ.get("PORT", os.environ.get("BACKEND_PORT", 5000)))
 FRONTEND_PORT = int(os.environ.get("FRONTEND_PORT", 3000))
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -87,7 +87,7 @@ def check_env_files() -> list[CheckResult]:
     env_files = [ROOT / ".env", ROOT / "config.env"]
     existing = [path for path in env_files if path.exists()]
     if not existing:
-        results.append(CheckResult("BLOCKER", "Missing .env or config.env. Copy config.env to .env and adjust secrets."))
+        results.append(CheckResult("BLOCKER", "Missing .env or config.env. Copy .env.template to .env and adjust secrets."))
     else:
         for path in existing:
             results.append(CheckResult("OK", f"Found {path.name} at {path}"))
@@ -96,13 +96,18 @@ def check_env_files() -> list[CheckResult]:
     if sqlite_path.exists():
         results.append(CheckResult("OK", f"SQLite database file present at {sqlite_path}"))
     else:
-        results.append(CheckResult("ACTION", "Initialize the database: `python -c \"from app import app, db; app.app_context().push(); db.create_all()\"`"))
+        results.append(
+            CheckResult(
+                "ACTION",
+                "Initialize local schema via `scripts/windows/start_local_stack.ps1` (it handles migration stamping for local SQLite).",
+            )
+        )
 
     env_values: dict[str, str | None] = {}
     for path in existing:
         env_values.update(dotenv_values(path))
 
-    required_keys = ("SECRET_KEY", "DATABASE_URL")
+    required_keys = ("SESSION_SECRET",)
     missing_keys = [key for key in required_keys if not env_values.get(key)]
     if missing_keys:
         missing_display = ", ".join(missing_keys)
@@ -110,6 +115,38 @@ def check_env_files() -> list[CheckResult]:
             CheckResult(
                 "ACTION",
                 f"Missing recommended configuration values: {missing_display}. Populate them in .env for stable startup.",
+            )
+        )
+
+    if not env_values.get("DATABASE_URL"):
+        results.append(
+            CheckResult(
+                "ACTION",
+                "DATABASE_URL is not set. Local SQLite fallback is supported, but set DATABASE_URL explicitly for parity.",
+            )
+        )
+
+    provider_keys = (
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "AZURE_OPENAI_API_KEY",
+        "GOOGLE_API_KEY",
+        "MISTRAL_API_KEY",
+    )
+    if not any(env_values.get(key) for key in provider_keys):
+        results.append(
+            CheckResult(
+                "ACTION",
+                "No LLM provider key detected. Set at least one provider key for chat/runtime features.",
+            )
+        )
+
+    flask_env = (env_values.get("FLASK_ENV") or "").strip().lower()
+    if flask_env == "production":
+        results.append(
+            CheckResult(
+                "WARN",
+                "FLASK_ENV=production detected. For local HTTP development, use FLASK_ENV=development.",
             )
         )
 
@@ -143,7 +180,12 @@ def check_templates_and_static() -> list[CheckResult]:
     if templates_dir.exists():
         results.append(CheckResult("OK", f"Templates directory located at {templates_dir}"))
     else:
-        results.append(CheckResult("BLOCKER", "templates/ directory missing; Flask pages will fail to render."))
+        results.append(
+            CheckResult(
+                "WARN",
+                "templates/ directory missing; legacy server-rendered pages may be unavailable.",
+            )
+        )
 
     if static_dir.exists():
         results.append(CheckResult("OK", f"Static assets directory located at {static_dir}"))
@@ -159,16 +201,26 @@ def check_backend_dependencies() -> list[CheckResult]:
     header("Backend dependencies")
     results: list[CheckResult] = []
     req_file = ROOT / "requirements.txt"
+    pyproject_file = ROOT / "pyproject.toml"
+    uv_lock = ROOT / "uv.lock"
+
     if req_file.exists():
         results.append(CheckResult("OK", f"requirements.txt found at {req_file}"))
+        results.append(CheckResult("INFO", "Install with `pip install -r requirements.txt`."))
+    elif pyproject_file.exists():
+        results.append(CheckResult("WARN", "requirements.txt missing; fallback manifest pyproject.toml detected."))
+        if uv_lock.exists():
+            results.append(CheckResult("INFO", "Install with `uv sync` to honor uv.lock."))
+        else:
+            results.append(CheckResult("INFO", "Install with `pip install -e .` from repository root."))
     else:
-        results.append(CheckResult("BLOCKER", "requirements.txt missing; cannot install backend dependencies."))
+        results.append(CheckResult("BLOCKER", "No dependency manifest found (requirements.txt or pyproject.toml)."))
 
-    venv_site_packages = ROOT / "venv" / "lib"
-    if venv_site_packages.exists():
-        results.append(CheckResult("INFO", "Virtual environment directory detected; verify dependencies installed with `pip install -r requirements.txt`."))
+    venv_dir = ROOT / ".venv"
+    if venv_dir.exists():
+        results.append(CheckResult("OK", "Virtual environment directory detected at .venv."))
     else:
-        results.append(CheckResult("WARN", "No venv folder detected; create one to isolate dependencies."))
+        results.append(CheckResult("WARN", "No .venv folder detected; create one to isolate dependencies."))
 
     for item in results:
         print(f"[{item.level}] {item.message}")

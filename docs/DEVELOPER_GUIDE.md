@@ -10,8 +10,8 @@
 ### Prerequisites
 
 - Python 3.11+
-- PostgreSQL 16+
-- Redis 7+
+- PostgreSQL 16+ (optional for local SQLite fallback)
+- Redis 7+ (optional for local development mode)
 - Node.js 20+ (for frontend)
 - **OpenAI API Key** (Vision support required for VideoService)
 
@@ -31,7 +31,7 @@ pip install -r requirements.txt
 
 # Copy environment template
 cp .env.template .env
-# Edit .env with your configuration
+# Edit .env with your configuration (SESSION_SECRET + provider API keys minimum)
 
 # Initialize database
 flask db upgrade
@@ -39,6 +39,11 @@ flask db upgrade
 # Run development server
 python app.py
 ```
+
+For Windows 11 local bring-up with API keys only (SQLite/in-memory fallback), see:
+
+- `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+- `scripts/windows/start_local_stack.ps1`
 
 ---
 
@@ -163,7 +168,7 @@ See `.env.template` for full list. Key variables:
 
 | Variable | Description |
 |----------|-------------|
-| `SECRET_KEY` | Session encryption (64-char hex) |
+| `SESSION_SECRET` | Session signing key (required for local runtime) |
 | `DATABASE_URL` | PostgreSQL connection string |
 | `REDIS_URL` | Redis for caching/rate limiting |
 | `AZURE_OPENAI_*` | LLM provider credentials |

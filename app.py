@@ -450,12 +450,15 @@ def health() -> tuple:
 
 
 # Register Simulation API routes
-try:
-    from backend.routes.simulation_routes import simulation_bp
-    app.register_blueprint(simulation_bp, url_prefix='/api/v1/simulations')
-    logger.info("Simulation API routes registered")
-except ImportError as e:
-    logger.warning(f"Could not register Simulation API routes: {e}")
+if 'simulation_api' in app.blueprints:
+    logger.info("Simulation API routes already registered via routes package; skipping duplicate backend blueprint")
+else:
+    try:
+        from backend.routes.simulation_routes import simulation_bp
+        app.register_blueprint(simulation_bp, url_prefix='/api/v1/simulations')
+        logger.info("Simulation API routes registered")
+    except ImportError as e:
+        logger.warning(f"Could not register Simulation API routes: {e}")
 
 
 @app.route('/chat')

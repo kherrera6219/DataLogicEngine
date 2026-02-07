@@ -110,6 +110,7 @@ async def gateway_chat():
         temperature=data.get('temperature', 0.7),
         max_tokens=data.get('max_tokens'),
         user_id=g.user_id,
+        session_id=data.get('session_id'),
         api_key_id=str(g.api_key.id) if g.api_key else None,
         meta=data.get('meta', {}),
     )
@@ -160,6 +161,7 @@ def gateway_chat_stream():
         temperature=data.get('temperature', 0.7),
         max_tokens=data.get('max_tokens'),
         user_id=g.user_id,
+        session_id=data.get('session_id'),
         api_key_id=str(g.api_key.id) if g.api_key else None,
     )
     

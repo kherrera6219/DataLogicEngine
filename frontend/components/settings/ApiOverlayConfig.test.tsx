@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ApiOverlayConfig } from './ApiOverlayConfig';
 
 // Mock UI components
@@ -46,6 +46,17 @@ vi.mock('lucide-react', () => ({
   Activity: () => <div data-testid="activity-icon" />,
   Lock: () => <div data-testid="lock-icon" />,
 }));
+
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn(async () => ({
+    ok: true,
+    json: async () => ({ success: true })
+  })));
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe('ApiOverlayConfig', () => {
   it('should render configuration header', () => {

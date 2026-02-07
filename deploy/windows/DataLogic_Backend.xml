@@ -3,9 +3,10 @@
   <name>DataLogic_Backend</name>
   <description>DataLogicEngine Backend Service (Flask)</description>
   <executable>%BASE%\DataLogic_Backend.exe</executable>
-  <env name="UKG_DATA_DIR" value="%DATA%"/>
-  <env name="DATABASE_URL" value="postgresql://postgres:postgres@localhost:5432/ukg_db"/>
-  <env name="REDIS_URL" value="redis://localhost:6379/0"/>
+  <env name="PORT" value="5000"/>
+  <env name="FLASK_ENV" value="production"/>
+  <env name="USE_REDIS" value="false"/>
+  <env name="SESSION_COOKIE_SECURE" value="true"/>
   <log mode="roll">
     <sizeThreshold>10240</sizeThreshold>
     <keepFiles>5</keepFiles>

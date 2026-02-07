@@ -15,8 +15,8 @@ TEST_KEY_DIR = tempfile.mkdtemp()
 os.environ["UKG_KEY_DIR"] = TEST_KEY_DIR
 
 from flask import Flask
-from extensions import db, login_manager, audit_logger, rbac_manager
-from models.user import User, AuditLog
+from extensions import db, login_manager, cache, audit_logger, rbac_manager
+from models import User, AuditLog
 from routes.admin_routes import admin_bp
 from routes.user_data_routes import user_data_bp
 
@@ -28,9 +28,11 @@ class TestAuditSecurity(unittest.TestCase):
         cls.app.config['TESTING'] = True
         cls.app.config['SECRET_KEY'] = 'test-key'
         cls.app.config['WTF_CSRF_ENABLED'] = False
+        cls.app.config['CACHE_TYPE'] = 'SimpleCache'
         
         db.init_app(cls.app)
         login_manager.init_app(cls.app)
+        cache.init_app(cls.app)
         cls.app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
         cls.app.register_blueprint(user_data_bp, url_prefix='/api/v1/user/data')
         
@@ -47,8 +49,8 @@ class TestAuditSecurity(unittest.TestCase):
         """Verify that transferring ownership creates a valid audit log."""
         with self.app.app_context():
             # Create Owner and Admin
-            owner = User(username="owner", email="owner@local.ukg", password_hash="dummy", windows_sid="S-OWNER", role="owner", is_admin=True)
-            admin = User(username="admin_user", email="admin@local.ukg", password_hash="dummy", windows_sid="S-ADMIN", role="admin", is_admin=True)
+            owner = User(username="owner", email="owner@local.ukg", password_hash="dummy", sid="S-OWNER", role="owner", is_admin=True)
+            admin = User(username="admin_user", email="admin@local.ukg", password_hash="dummy", sid="S-ADMIN", role="admin", is_admin=True)
             db.session.add_all([owner, admin])
             db.session.commit()
             
@@ -68,16 +70,16 @@ class TestAuditSecurity(unittest.TestCase):
                     self.assertEqual(owner.role, 'admin')
                     
                     # Check Audit Log
-                    audit = AuditLog.query.filter_by(action="OWNER_PROMOTED").first()
+                    audit = AuditLog.query.filter_by(action="OWNERSHIP_TRANSFERRED").first()
                     self.assertIsNotNone(audit)
                     self.assertEqual(audit.user_id, owner.id)
                     details = json.loads(audit.details) if isinstance(audit.details, str) else audit.details
-                    self.assertEqual(details['to_user'], "admin_user")
+                    self.assertEqual(details['to_username'], "admin_user")
 
     def test_profile_deletion_auditing(self):
         """Verify that profile deletion creates a valid audit log before wiping."""
         with self.app.app_context():
-            user = User(username="audit_test", email="audit@local.ukg", password_hash="dummy", windows_sid="S-AUDIT", role="user")
+            user = User(username="audit_test", email="audit@local.ukg", password_hash="dummy", sid="S-AUDIT", role="user")
             db.session.add(user)
             db.session.commit()
             
@@ -95,7 +97,7 @@ class TestAuditSecurity(unittest.TestCase):
                     self.assertIsNotNone(audit)
                     self.assertEqual(audit.windows_sid, "S-AUDIT")
                     # User should be gone
-                    deleted_user = User.query.filter_by(windows_sid="S-AUDIT").first()
+                    deleted_user = User.query.filter_by(sid="S-AUDIT").first()
                     self.assertIsNone(deleted_user)
 
 if __name__ == "__main__":

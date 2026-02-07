@@ -16,6 +16,13 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "dist-electron/**",
+    // Generated artifacts and debug outputs
+    "storybook-static/**",
+    "test-results/**",
+    "playwright-report/**",
+    "*.log",
+    "*.txt",
+    "lint-results.json",
   ]),
   ...storybook.configs["flat/recommended"],
   {

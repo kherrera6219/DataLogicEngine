@@ -36,6 +36,7 @@ foreach ($path in $TestPaths) {
 Write-Host "`nChecking source assets..." -ForegroundColor Cyan
 $FrontendDist = "c:\software\DataLogicEngine\frontend\dist\win-unpacked"
 $BackendDist = "c:\software\DataLogicEngine\dist\DataLogic_Backend"
+$WinSWExe = "c:\software\DataLogicEngine\deploy\windows\winsw.exe"
 
 if (Test-Path $FrontendDist) {
     Write-Host "[PASS] Frontend distribution found at $FrontendDist" -ForegroundColor Green
@@ -49,6 +50,14 @@ if (Test-Path $BackendDist) {
 }
 else {
     Write-Host "[WARN] Backend distribution not found. Run pyinstaller build first." -ForegroundColor Yellow
+}
+
+if (Test-Path $WinSWExe) {
+    Write-Host "[PASS] WinSW binary found at $WinSWExe" -ForegroundColor Green
+}
+else {
+    Write-Host "[WARN] WinSW binary missing for WiX/WinSW packaging path." -ForegroundColor Yellow
+    Write-Host "       Run '.\\scripts\\windows\\prepare_wix_assets.ps1' before WiX packaging." -ForegroundColor Yellow
 }
 
 # 4. Running DRY RUN Installation

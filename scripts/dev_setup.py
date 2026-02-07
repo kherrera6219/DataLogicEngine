@@ -52,11 +52,24 @@ def setup_virtualenv():
 def install_dependencies():
     print_step("Installing Dependencies")
     pip_cmd = ".venv/bin/pip" if platform.system() != "Windows" else ".venv\\Scripts\\pip"
-    
-    # Core Dependencies
+
+    requirements = Path("requirements.txt")
+    pyproject = Path("pyproject.toml")
+
+    # Core dependencies
     subprocess.check_call([pip_cmd, "install", "--upgrade", "pip"])
-    subprocess.check_call([pip_cmd, "install", "-r", "requirements.txt"])
-    print_success("Dependencies installed")
+
+    if requirements.exists():
+        subprocess.check_call([pip_cmd, "install", "-r", str(requirements)])
+        print_success("Dependencies installed from requirements.txt")
+        return
+
+    if pyproject.exists():
+        subprocess.check_call([pip_cmd, "install", "-e", "."])
+        print_success("Dependencies installed from pyproject.toml (editable mode)")
+        return
+
+    raise FileNotFoundError("No dependency manifest found (requirements.txt or pyproject.toml)")
 
 def setup_env_file():
     print_step("Configuring Environment")
