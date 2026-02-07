@@ -1,0 +1,51 @@
+.git
+.github
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+.pytest_cache
+.ruff_cache
+.coverage
+htmlcov
+htmlcov_phase3
+.next
+
+# Local and generated artifacts
+archive
+build
+dist
+playwright-report
+reports
+logs
+instance
+
+# Frontend build artifacts and local deps
+frontend/node_modules
+frontend/.next
+frontend/dist
+frontend/dist-smoke
+frontend/out
+frontend/storybook-static
+frontend/test-results
+frontend/playwright-report-visual
+
+# Non-runtime project content
+docs
+documents
+tests
+deploy
+tools
+notes
+demos
+markdowns
+simulation
+
+# Other local tooling/editor files
+.vscode
+.idea
+*.tmp
+*.temp
+*.bak
