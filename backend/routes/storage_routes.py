@@ -7,10 +7,14 @@ Provides endpoints for:
 - Getting storage configuration status
 """
 
+import logging
+import os
+
 from flask import Blueprint, jsonify, request
 from flask_login import login_required
 
 storage_api = Blueprint('storage_api', __name__, url_prefix='/api/v1/storage')
+logger = logging.getLogger(__name__)
 
 
 @storage_api.route('/health', methods=['GET'])
@@ -119,7 +123,7 @@ def _test_postgres(data: dict) -> dict:
     import socket
     
     host = data.get('host', '127.0.0.1')
-    port = int(data.get('port', 54320))
+    port = int(data.get('port', 5432))
     
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -152,7 +156,7 @@ def _test_redis(data: dict) -> dict:
     import socket
     
     host = data.get('host', '127.0.0.1')
-    port = int(data.get('port', 63790))
+    port = int(data.get('port', 6379))
     
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -222,8 +226,6 @@ def _test_vector(data: dict) -> dict:
         try:
             from backend.utils.safe_path import get_safe_path
             safe_local_path = get_safe_path(os.getcwd(), local_path)
-            
-            import os
             os.makedirs(safe_local_path, exist_ok=True)
             return {
                 'service': 'vector',

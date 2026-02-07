@@ -1,5 +1,7 @@
 [CmdletBinding()]
-Param()
+Param(
+    [switch]$WithDataServices
+)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
@@ -35,4 +37,19 @@ foreach ($target in $targets) {
 }
 
 Remove-Item -LiteralPath $PidFile -Force -ErrorAction SilentlyContinue
+
+if ($WithDataServices) {
+    $dockerPath = Get-Command docker -ErrorAction SilentlyContinue
+    if ($dockerPath) {
+        Push-Location $RepoRoot
+        try {
+            docker compose stop db redis neo4j minio | Out-Null
+            Write-Host "Stopped local data services (db/redis/neo4j/minio)."
+        }
+        finally {
+            Pop-Location
+        }
+    }
+}
+
 Write-Host "Local stack stop complete."

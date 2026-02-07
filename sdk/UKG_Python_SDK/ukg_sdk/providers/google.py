@@ -15,13 +15,13 @@ class GoogleGeminiProvider(LLMProvider):
     Supports Gemini 3.0+ models and Thinking Mode.
 
     Env vars:
-      - GOOGLE_API_KEY
+      - GOOGLE_API_KEY or GEMINI_API_KEY
     """
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-3-pro-preview"):
-        self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
+    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-2.5-pro"):
+        self.api_key = api_key or os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
         if not self.api_key:
-            raise ValueError("Missing GOOGLE_API_KEY")
+            raise ValueError("Missing GOOGLE_API_KEY/GEMINI_API_KEY")
         
         try:
             from google import genai
@@ -35,11 +35,17 @@ class GoogleGeminiProvider(LLMProvider):
 
     async def complete(self, *, messages: List[Dict[str, str]], model: str, temperature: float = 0.7, max_tokens: int = 1024) -> LLMResponse:
         """Generate completion using Gemini 3 Client."""
-        model_name = model or self.default_model
+        model_name = (model or self.default_model).strip()
         
-        # Backward compatibility / Aliasing
-        if "gemini-3" in model_name and "preview" not in model_name:
-             model_name = "gemini-3-pro-preview"
+        # Backward compatibility aliases.
+        alias_map = {
+            "gemini-pro": "gemini-2.5-pro",
+            "gemini-2.5-pro-latest": "gemini-2.5-pro",
+            "gemini-2.5-flash-latest": "gemini-2.5-flash",
+            "gemini-3-pro-preview": "gemini-3-pro",
+            "gemini-3-flash-preview": "gemini-3-flash",
+        }
+        model_name = alias_map.get(model_name, model_name)
         
         try:
             # Convert messages to string for simple generation if not handling chat history explicitly here
@@ -69,12 +75,6 @@ class GoogleGeminiProvider(LLMProvider):
                 system_instruction=system_instruction
             )
             
-            # Gemini 3 Thinking Config check
-            if "gemini-3" in model_name:
-                # Enable high reasoning for complex tasks if hinted? 
-                # For now, default to standard, but can be enabled via dynamic config in future
-                pass
-
             response = self.client.models.generate_content(
                 model=model_name,
                 contents=full_prompt,

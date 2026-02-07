@@ -1,11 +1,20 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AppSidebar } from './AppSidebar';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Mock routing
 vi.mock('next/navigation', () => ({
   usePathname: vi.fn(() => '/dashboard')
+}));
+
+vi.mock('next/link', () => ({
+  default: ({ children, href, ...props }: any) => <a href={href} {...props}>{children}</a>,
+}));
+
+vi.mock('@/contexts/AuthContext', () => ({
+  useAuth: vi.fn(),
 }));
 
 // Mock icons
@@ -21,6 +30,20 @@ vi.mock('lucide-react', () => ({
 }));
 
 describe('AppSidebar', () => {
+  const mockLogout = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (useAuth as any).mockReturnValue({
+      user: {
+        username: 'Test User',
+        role: 'admin',
+        is_admin: true,
+      },
+      logout: mockLogout,
+    });
+  });
+
   it('should render sidebar items', () => {
     render(<AppSidebar />);
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
@@ -30,25 +53,16 @@ describe('AppSidebar', () => {
   it('should highlight active route', () => {
     render(<AppSidebar />);
     // "Dashboard" should be active based on mock pathname
-    const dashboardLink = screen.getByText('Dashboard').closest('a');
-    expect(dashboardLink?.firstChild).toHaveClass('bg-white/5');
+    const dashboardLink = screen.getByRole('link', { name: 'Dashboard' });
+    expect(dashboardLink.firstElementChild).toHaveClass('bg-white/5');
   });
 
   it('should toggle collapse', () => {
     render(<AppSidebar />);
-    const toggle = screen.getByTestId('icon-hexagon').closest('div');
+    const toggle = screen.getByTestId('icon-hexagon').closest('.group');
     if (toggle) fireEvent.click(toggle);
-    
-    // Check if label text disappears or width changes
-    // In our component, text fades out or is hidden. 
-    // IsCollapsed adds 'w-20' class to container.
-    // We can check if "UKG/REGISTRY" is not visible or removed.
-    // Actually, "UKG/REGISTRY" renders only if !isCollapsed.
-    // So fire event and expect it to be gone.
-    
-    // Note: State updates might need re-render or wait.
-    // But direct click in JSDOM usually updates sync if state is local.
-    // Let's check absence of title.
-    if (toggle) fireEvent.click(toggle); // Toggle back if logic was instant? No, default false. Click -> true.
+
+    expect(screen.queryByText(/UKG/i)).not.toBeInTheDocument();
+    expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
   });
 });

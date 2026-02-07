@@ -215,7 +215,7 @@ def test_rag_chat_history():
         ids=["msg1"],
         texts=["Hello"],
         embeddings=[[0.1]],
-        metadata=[{"session_id": "sess1", "role": "user"}]
+        metadata=[{"session_id": "sess1", "role": "user", "user_id": ""}]
     )
     
     # Test Search

@@ -36,7 +36,7 @@ def setup_default_providers():
             provider = LLMProvider(
                 name="OpenAI",
                 provider_type="openai",
-                model_id="gpt-4",
+                model_id="gpt-5.2",
                 is_active=True,
                 is_default=True,
                 priority=10,
@@ -65,32 +65,34 @@ def setup_default_providers():
             providers_created.append("Azure OpenAI")
         
         # Anthropic
-        if os.environ.get("ANTHROPIC_API_KEY"):
+        anthropic_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("anthropic_API_KEY")
+        if anthropic_key:
             provider = LLMProvider(
                 name="Anthropic Claude",
                 provider_type="anthropic",
-                model_id="claude-3-5-sonnet-20241022",
+                model_id="claude-opus-4-6",
                 is_active=True,
                 is_default=False,
                 priority=30,
                 timeout_seconds=60,
             )
-            provider.set_api_key(os.environ["ANTHROPIC_API_KEY"])
+            provider.set_api_key(anthropic_key)
             db.session.add(provider)
             providers_created.append("Anthropic Claude")
         
         # Google Gemini
-        if os.environ.get("GOOGLE_API_KEY"):
+        google_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+        if google_key:
             provider = LLMProvider(
                 name="Google Gemini",
                 provider_type="google",
-                model_id="gemini-1.5-pro",
+                model_id="gemini-2.5-pro",
                 is_active=True,
                 is_default=False,
                 priority=40,
                 timeout_seconds=60,
             )
-            provider.set_api_key(os.environ["GOOGLE_API_KEY"])
+            provider.set_api_key(google_key)
             db.session.add(provider)
             providers_created.append("Google Gemini")
         
@@ -102,7 +104,7 @@ def setup_default_providers():
             print("  - OPENAI_API_KEY")
             print("  - AZURE_OPENAI_API_KEY + AZURE_OPENAI_ENDPOINT")
             print("  - ANTHROPIC_API_KEY")
-            print("  - GOOGLE_API_KEY")
+            print("  - GOOGLE_API_KEY or GEMINI_API_KEY")
 
 
 def create_test_api_key():

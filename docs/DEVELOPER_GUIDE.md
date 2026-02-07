@@ -45,6 +45,12 @@ For Windows 11 local bring-up with API keys only (SQLite/in-memory fallback), se
 - `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
 - `scripts/windows/start_local_stack.ps1`
 
+For full local data services (PostgreSQL + Redis + Neo4j + MinIO), run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1 -WithDataServices
+```
+
 ---
 
 ## Project Structure
@@ -171,6 +177,9 @@ See `.env.template` for full list. Key variables:
 | `SESSION_SECRET` | Session signing key (required for local runtime) |
 | `DATABASE_URL` | PostgreSQL connection string |
 | `REDIS_URL` | Redis for caching/rate limiting |
+| `OPENAI_API_KEY` | OpenAI provider key |
+| `ANTHROPIC_API_KEY` | Anthropic provider key |
+| `GOOGLE_API_KEY` / `GEMINI_API_KEY` | Google Gemini provider key |
 | `AZURE_OPENAI_*` | LLM provider credentials |
 
 ---

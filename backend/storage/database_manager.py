@@ -32,19 +32,19 @@ class DatabaseLifecycleManager:
         # Postgres Config
         self.pg_bin = os.path.join(self.base_dir, 'postgresql', 'bin')
         self.pg_data = os.path.join(self.base_dir, 'postgresql', 'data')
-        self.pg_port = 54320
+        self.pg_port = int(os.environ.get("POSTGRES_LOCAL_PORT", "5432"))
         self.pg_process: Optional[subprocess.Popen] = None
         
         # Redis Config
         self.redis_bin = os.path.join(self.base_dir, 'redis')
         self.redis_data = os.path.join(self.base_dir, 'redis', 'data')
-        self.redis_port = 63790
+        self.redis_port = int(os.environ.get("REDIS_LOCAL_PORT", "6379"))
         self.redis_process: Optional[subprocess.Popen] = None
 
         # Neo4j Config
         self.neo4j_bin = os.path.join(self.base_dir, 'neo4j', 'bin')
         self.neo4j_data = os.path.join(self.base_dir, 'neo4j', 'data')
-        self.neo4j_port = 7687
+        self.neo4j_port = int(os.environ.get("NEO4J_LOCAL_PORT", "7687"))
         self.neo4j_process: Optional[subprocess.Popen] = None
 
     def is_port_in_use(self, port: int) -> bool:

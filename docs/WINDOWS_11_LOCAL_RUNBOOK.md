@@ -58,7 +58,7 @@ Edit `.env` and set:
 
 1. `SESSION_SECRET=<64+ char secret>`
 2. At least one provider key:
-   `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` or `AZURE_OPENAI_API_KEY` or `GOOGLE_API_KEY` or `MISTRAL_API_KEY`
+   `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` or `anthropic_API_KEY` or `GOOGLE_API_KEY` or `GEMINI_API_KEY` or `AZURE_OPENAI_API_KEY` or `MISTRAL_API_KEY`
 3. `FLASK_ENV=development` (recommended for local HTTP workflow)
 
 Install frontend dependencies:
@@ -75,10 +75,40 @@ Start the local stack:
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
 ```
 
+Start with full local data services (PostgreSQL + Redis + Neo4j + MinIO) using Docker:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1 -WithDataServices
+```
+
+If default ports are occupied, choose alternate app ports:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1 -WithDataServices -BackendPort 5100 -FrontendPort 3100
+```
+
 Stop the local stack:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\stop_local_stack.ps1
+```
+
+Stop stack and local data services:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\stop_local_stack.ps1 -WithDataServices
+```
+
+Validate provider keys and model access:
+
+```powershell
+.venv\Scripts\python.exe .\scripts\verify_api_keys.py
+```
+
+Validate storage/memory data-plane wiring:
+
+```powershell
+.venv\Scripts\python.exe .\scripts\verify_local_data_stack.py
 ```
 
 ## Validation Gates
@@ -90,6 +120,14 @@ For each local setup attempt, validate:
 3. Chat/gateway call succeeds with configured provider key
 4. No startup import errors in backend logs
 5. Desktop-mode route smoke: protected routes should return `200` when `X-DataLogic-Desktop: true` header is present.
+6. If using `-WithDataServices`, confirm ports are listening: `5432`, `6379`, `7687`, `9000`.
+
+`-WithDataServices` runtime behavior:
+
+1. If `.env` still points to SQLite, runtime switches to PostgreSQL for that process.
+2. When Docker services already occupy the data ports, startup attempts to detect container credentials and apply them to runtime env.
+3. Default Redis bindings in this mode should use isolated DB indexes (`10-13`) to avoid collisions with existing local Redis data.
+4. Object storage validation requires `boto3` (included in `requirements.txt`).
 
 ## Phase 2 Runtime Notes (Verified)
 

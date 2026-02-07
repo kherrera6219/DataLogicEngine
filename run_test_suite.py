@@ -1,5 +1,5 @@
-import sys
 import subprocess
+import sys
 import time
 
 PHASES = [
@@ -21,45 +21,70 @@ PHASES = [
     }
 ]
 
+
 def run_phase(phase):
-    print(f"\n{'='*50}")
+    print(f"\n{'=' * 50}")
     print(f"Running {phase['name']}...")
-    print(f"{'='*50}")
-    
-    cmd = [sys.executable, "-m", "pytest"] + phase["targets"] + ["-v"]
-    
-    # We ignore coverage exit code 1 if it's just coverage. 
-    # But pytest returns 1 for failures too.
-    # To differentiate, we can check output or just be strict.
-    # User said "zero error or warnings".
-    # We'll pass `-W error` to treat warnings as errors if requested, but for now just running.
-    
+    print(f"{'=' * 50}")
+
+    # Run phases without global pytest addopts so we can validate functional
+    # pass/fail first; coverage gating happens once at the end on the full suite.
+    cmd = [
+        sys.executable,
+        "-m",
+        "pytest",
+        *phase["targets"],
+        "--override-ini",
+        "addopts=",
+        "-v",
+    ]
+
     result = subprocess.run(cmd)
-    
+
     if result.returncode != 0:
-        print(f"\n❌ {phase['name']} FAILED with exit code {result.returncode}")
-        # Identify if it was just coverage failure (special code?) No, pytest-cov often uses 0 or 1.
-        # But assuming normal pytest failure is 1.
+        print(f"\n[FAIL] {phase['name']} failed with exit code {result.returncode}")
         return False
-        
-    print(f"\n✅ {phase['name']} PASSED")
+
+    print(f"\n[PASS] {phase['name']}")
     return True
+
+
+def run_full_coverage_gate():
+    print(f"\n{'=' * 50}")
+    print("Running full-suite coverage gate...")
+    print(f"{'=' * 50}")
+
+    cmd = [sys.executable, "-m", "pytest", "tests"]
+    result = subprocess.run(cmd)
+
+    if result.returncode != 0:
+        print(
+            f"\n[FAIL] Coverage/full-suite validation failed with exit code "
+            f"{result.returncode}"
+        )
+        return False
+
+    print("\n[PASS] Coverage gate met on full suite")
+    return True
+
 
 def main():
     print("Starting Phased Test Suite Execution...")
     start_time = time.time()
-    
+
     for phase in PHASES:
-        # Check if targets exist
-        exists = [t for t in phase["targets"]] # Simplified check, subprocess will complain if not found but pytest handles directories.
-        
         success = run_phase(phase)
         if not success:
-            print("\n⛔ Execution STOPPED due to failure in previous phase.")
+            print("\n[STOP] Execution stopped due to phase failure.")
             sys.exit(1)
-            
+
+    if not run_full_coverage_gate():
+        print("\n[STOP] Execution stopped due to coverage/full-suite failure.")
+        sys.exit(1)
+
     duration = time.time() - start_time
-    print(f"\n🎉 All phases completed successfully in {duration:.2f}s")
+    print(f"\n[PASS] All phases and coverage gate completed in {duration:.2f}s")
+
 
 if __name__ == "__main__":
     main()

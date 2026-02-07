@@ -24,6 +24,7 @@ ENV/
 *.sqlite3
 instance/
 *.db-journal
+databases/
 
 # Build outputs
 frontend/build/

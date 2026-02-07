@@ -1,50 +1,91 @@
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ProjectDetail } from './ProjectDetail';
+import { api } from '@/lib/api';
+
+vi.mock('@/lib/api', () => ({
+  api: {
+    chat: {
+      listSessions: vi.fn(),
+      getSessionMessages: vi.fn(),
+    },
+  },
+}));
 
 describe('ProjectDetail', () => {
-    // Mock the window.history.back
-    const mockBack = vi.fn();
+  const mockBack = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
     Object.defineProperty(window, 'history', {
-        value: { back: mockBack },
-        writable: true
+      value: { back: mockBack },
+      writable: true,
     });
 
-  it('renders project header and details', () => {
+    (api.chat.listSessions as any).mockResolvedValue({
+      sessions: [
+        {
+          id: 'PROJ-123',
+          user_id: 1,
+          title: 'HIPAA Compliance Audit',
+          created_at: '2026-01-01T08:00:00Z',
+          updated_at: '2026-01-01T10:01:00Z',
+        },
+      ],
+    });
+
+    (api.chat.getSessionMessages as any).mockResolvedValue({
+      messages: [
+        {
+          id: 'msg-1',
+          role: 'user',
+          content: 'hipaa_compliance_v1.pdf uploaded',
+          timestamp: '2026-01-01T10:00:00Z',
+        },
+        {
+          id: 'msg-2',
+          role: 'assistant',
+          content: 'Compliance score looks stable at 84%',
+          timestamp: '2026-01-01T10:01:00Z',
+        },
+      ],
+    });
+  });
+
+  it('renders project header and details', async () => {
     render(<ProjectDetail id="PROJ-123" />);
-    
-    expect(screen.getByText('HIPAA Compliance Audit')).toBeInTheDocument();
+
+    expect(await screen.findByText('HIPAA Compliance Audit')).toBeInTheDocument();
     expect(screen.getByText(/ID: PROJ-123/)).toBeInTheDocument();
   });
 
-  it('navigates back when back button is clicked', () => {
+  it('navigates back when back button is clicked', async () => {
     render(<ProjectDetail id="PROJ-123" />);
-    
-    // The back button is the first button in the header with an arrow icon
-    // Using a more specific selector or test-id would be better, but relying on implementation details for now:
-    // It is a button with an ArrowLeft icon.
-    // Let's assume it's the first button
+    await screen.findByText('HIPAA Compliance Audit');
+
     const backButton = screen.getAllByRole('button')[0];
-    
     fireEvent.click(backButton);
     expect(mockBack).toHaveBeenCalled();
   });
 
-  it('renders file list', () => {
+  it('renders message list from API', async () => {
     render(<ProjectDetail id="PROJ-123" />);
-    
-    expect(screen.getByText('hipaa_compliance_v1.pdf')).toBeInTheDocument();
-    expect(screen.getByText('patient_data_schema.json')).toBeInTheDocument();
-    expect(screen.getByText('2.4 MB')).toBeInTheDocument();
+
+    expect(await screen.findByText('hipaa_compliance_v1.pdf uploaded')).toBeInTheDocument();
+    expect(screen.getByText('Compliance score looks stable at 84%')).toBeInTheDocument();
+    expect(screen.getByText('user')).toBeInTheDocument();
+    expect(screen.getByText('assistant')).toBeInTheDocument();
   });
 
-  it('renders project stats', () => {
+  it('renders session stats', async () => {
     render(<ProjectDetail id="PROJ-123" />);
-    
-    expect(screen.getByText('Compliance Score')).toBeInTheDocument();
-    expect(screen.getByText('84%')).toBeInTheDocument();
-    expect(screen.getByText('Sarah Connor')).toBeInTheDocument();
+
+    expect(await screen.findByText('Session Stats')).toBeInTheDocument();
+    expect(screen.getByText('Total Messages')).toBeInTheDocument();
+    expect(screen.getByText('Created')).toBeInTheDocument();
+    expect(screen.getByText('Last Updated')).toBeInTheDocument();
   });
 });

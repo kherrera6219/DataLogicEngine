@@ -47,13 +47,13 @@ class OpenAIProvider(LLMProvider):
         """
         Generate completion using OpenAI Responses API (GPT-5.2 Standard).
         """
-        # Determine strict model ID
-        target_model = model
-        if "gpt-5" in model or "gpt-4" in model:
-             # Default to standard GPT-5.2 if generic high-tier requested
-             if model == "gpt-5.2-pro": target_model = "gpt-5.2-pro"
-             elif "chat" in model: target_model = "gpt-5.2-chat-latest"
-             else: target_model = "gpt-5.2"
+        # Keep explicit model IDs unchanged; only normalize generic aliases.
+        alias_map = {
+            "gpt-5": "gpt-5.2",
+            "gpt-5-latest": "gpt-5.2",
+            "gpt-5-chat": "gpt-5.2-chat-latest",
+        }
+        target_model = alias_map.get(model, model or "gpt-5.2")
         
         # Construct input for Responses API
         # It accepts string or list of messages

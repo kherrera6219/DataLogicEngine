@@ -166,7 +166,35 @@ class LLMGateway:
                             try:
                                 from backend.services.rag_service import get_rag_service
                                 rag = get_rag_service()
-                                rag_context = rag.get_context_for_query(query, max_tokens=1500)
+                                rag_chunks = []
+
+                                doc_context = rag.get_context_for_query(query, max_tokens=1200)
+                                if doc_context:
+                                    rag_chunks.append(doc_context)
+
+                                # Add semantic memory from prior chat sessions for this user.
+                                if request.user_id:
+                                    prior_hits = rag.search_user_chat_history(
+                                        user_id=str(request.user_id),
+                                        query=query,
+                                        k=6,
+                                        exclude_session_id=request.session_id,
+                                    )
+                                    if prior_hits:
+                                        memory_lines = []
+                                        for hit in prior_hits[:3]:
+                                            role = hit.get("metadata", {}).get("role", "message")
+                                            text = (hit.get("text") or "").strip()
+                                            if not text:
+                                                continue
+                                            clipped = text[:280] + ("..." if len(text) > 280 else "")
+                                            memory_lines.append(f"{role}: {clipped}")
+                                        if memory_lines:
+                                            rag_chunks.append(
+                                                "Relevant context from prior chat threads:\n" + "\n".join(memory_lines)
+                                            )
+
+                                rag_context = "\n\n---\n\n".join(rag_chunks)
                                 if rag_context:
                                     logger.debug(f"Retrieved RAG context: {len(rag_context)} chars")
                             except Exception as e:
@@ -288,7 +316,10 @@ class LLMGateway:
             
             # Special check for Gemini if Google key missing
             if provider_type == "google":
-                api_key = api_key or os.getenv("GOOGLE_API_KEY")
+                api_key = api_key or os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+            elif provider_type == "anthropic":
+                # Backward compatibility for older .env naming
+                api_key = api_key or os.getenv("anthropic_API_KEY")
 
             if api_key:
                 logger.info(f"Using {env_var} environment variable for {provider_record.name}")
@@ -307,7 +338,7 @@ class LLMGateway:
         elif provider_type == "anthropic":
             return AnthropicProvider(api_key=api_key)
         elif provider_type in ["google", "gemini"]:
-             return GoogleGeminiProvider(api_key=api_key, model=provider_record.model_id or "gemini-pro")
+             return GoogleGeminiProvider(api_key=api_key, model=provider_record.model_id or "gemini-2.5-pro")
         elif provider_type in ["local_slm", "ollama", "vllm"]:
             return LocalSLMProvider(base_url=provider_record.endpoint or "http://localhost:11434/v1")
         else:
@@ -362,7 +393,16 @@ class LLMGateway:
             
             openai_key = os.environ.get("OPENAI_API_KEY")
             google_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
-            anthropic_key = os.environ.get("ANTHROPIC_API_KEY") # Optional 3rd physical provider
+            anthropic_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("anthropic_API_KEY")
+            openai_primary_model = os.environ.get("OPENAI_MODEL_PRIMARY", "gpt-5.2-pro")
+            openai_standard_model = os.environ.get("OPENAI_MODEL_STANDARD", "gpt-5.2")
+            openai_fast_model = os.environ.get("OPENAI_MODEL_FAST", "gpt-5-mini")
+            openai_nano_model = os.environ.get("OPENAI_MODEL_NANO", "gpt-5-nano")
+            openai_long_context_model = os.environ.get("OPENAI_MODEL_LONG_CONTEXT", "gpt-4.1")
+            openai_research_model = os.environ.get("OPENAI_MODEL_RESEARCH", "o3-deep-research")
+            google_primary_model = os.environ.get("GOOGLE_MODEL_PRIMARY", "gemini-2.5-pro")
+            google_fast_model = os.environ.get("GOOGLE_MODEL_FAST", "gemini-2.5-flash")
+            anthropic_primary_model = os.environ.get("ANTHROPIC_MODEL_PRIMARY", "claude-opus-4-6")
 
             providers_list = []
 
@@ -377,59 +417,59 @@ class LLMGateway:
             
             if task_tier == "complex_reasoning":
                 # Layer 1: Peak Intelligence (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-primary", "openai", "gpt-5.2-pro", 1)
+                if openai_key: add_provider(providers_list, "openai-primary", "openai", openai_primary_model, 1)
                 # Layer 2: Cross-Provider Strong (Google)
-                if google_key: add_provider(providers_list, "google-fallback", "google", "gemini-3-pro", 2)
+                if google_key: add_provider(providers_list, "google-fallback", "google", google_primary_model, 2)
                 # Layer 3: Same-Provider Standard (OpenAI) or Other
-                if openai_key: add_provider(providers_list, "openai-safety", "openai", "gpt-5.2", 3)
-                elif google_key: add_provider(providers_list, "google-safety", "google", "gemini-3-flash", 3)
+                if openai_key: add_provider(providers_list, "openai-safety", "openai", openai_standard_model, 3)
+                elif google_key: add_provider(providers_list, "google-safety", "google", google_fast_model, 3)
 
             elif task_tier == "security_defense":
                 # High-Stakes Security Analysis routing
                 # Layer 1: Best Reasoning Available (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-defense", "openai", "gpt-5.2-pro", 1)
+                if openai_key: add_provider(providers_list, "openai-defense", "openai", openai_primary_model, 1)
                 # Layer 2: Strongest Alternate (Google)
-                if google_key: add_provider(providers_list, "google-defense", "google", "gemini-3-pro", 2)
+                if google_key: add_provider(providers_list, "google-defense", "google", google_primary_model, 2)
                 # Layer 3: Fallback (OpenAI Standard)
-                if openai_key: add_provider(providers_list, "openai-defense-fallback", "openai", "gpt-5.2", 3)
+                if openai_key: add_provider(providers_list, "openai-defense-fallback", "openai", openai_standard_model, 3)
 
             elif task_tier == "deep_research":
                 # Layer 1: Autonomous Research (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-research", "openai", "o3-deep-research", 1)
+                if openai_key: add_provider(providers_list, "openai-research", "openai", openai_research_model, 1)
                 # Layer 2: Strong Reasoning (Google)
-                if google_key: add_provider(providers_list, "google-fallback", "google", "gemini-3-pro", 2)
+                if google_key: add_provider(providers_list, "google-fallback", "google", google_primary_model, 2)
                 # Layer 3: High Logic (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-fallback", "openai", "gpt-5.2-pro", 3)
+                if openai_key: add_provider(providers_list, "openai-fallback", "openai", openai_primary_model, 3)
 
             elif task_tier in ["rag_heavy", "context_heavy"]:
                 # Layer 1: Massive Context (Google)
-                if google_key: add_provider(providers_list, "google-context", "google", "gemini-3-pro", 1)
+                if google_key: add_provider(providers_list, "google-context", "google", google_primary_model, 1)
                 # Layer 2: Large Context Reliability (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-fallback", "openai", "gpt-4.1", 2) # 4.1 has 1M context
+                if openai_key: add_provider(providers_list, "openai-fallback", "openai", openai_long_context_model, 2)
                 # Layer 3: Speed/Capacity (Google)
-                if google_key: add_provider(providers_list, "google-flash", "google", "gemini-3-flash", 3)
+                if google_key: add_provider(providers_list, "google-flash", "google", google_fast_model, 3)
 
             elif task_tier in ["fast_chat", "structured_workflow"]:
                 # Layer 1: Speed King (Google)
-                if google_key: add_provider(providers_list, "google-flash", "google", "gemini-3-flash", 1)
+                if google_key: add_provider(providers_list, "google-flash", "google", google_fast_model, 1)
                 # Layer 2: Structured Efficient (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-mini", "openai", "gpt-5-mini", 2)
+                if openai_key: add_provider(providers_list, "openai-mini", "openai", openai_fast_model, 2)
                 # Layer 3: Robust Fallback (Google)
-                if google_key: add_provider(providers_list, "google-std", "google", "gemini-3-pro", 3)
-                elif openai_key: add_provider(providers_list, "openai-nano", "openai", "gpt-5-nano", 3)
+                if google_key: add_provider(providers_list, "google-std", "google", google_primary_model, 3)
+                elif openai_key: add_provider(providers_list, "openai-nano", "openai", openai_nano_model, 3)
 
             else:
                 # Default / General Chat
                 # Layer 1: Balanced (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-default", "openai", "gpt-5.2", 1)
+                if openai_key: add_provider(providers_list, "openai-default", "openai", openai_standard_model, 1)
                 # Layer 2: Balanced (Google)
-                if google_key: add_provider(providers_list, "google-default", "google", "gemini-3-pro", 2)
+                if google_key: add_provider(providers_list, "google-default", "google", google_primary_model, 2)
                 # Layer 3: Speed (Google)
-                if google_key: add_provider(providers_list, "google-speed", "google", "gemini-3-flash", 3)
+                if google_key: add_provider(providers_list, "google-speed", "google", google_fast_model, 3)
             
             # If we still have space and Anthropic key exists, inject it as ultimate backup
             if anthropic_key and len(providers_list) < 3:
-                add_provider(providers_list, "anthropic-backup", "anthropic", "claude-3-5-sonnet", 4)
+                add_provider(providers_list, "anthropic-backup", "anthropic", anthropic_primary_model, 4)
 
             if providers_list:
                 # Sort by priority
@@ -761,7 +801,13 @@ class LLMGateway:
                 try:
                     from backend.services.rag_service import get_rag_service
                     rag = get_rag_service()
-                    rag.store_chat_message(str(session.id), str(msg.id), role, content)
+                    rag.store_chat_message(
+                        str(session.id),
+                        str(msg.id),
+                        role,
+                        content,
+                        user_id=str(user_id) if user_id else None,
+                    )
                 except Exception as e:
                     logger.warning(f"Failed to sync message to RAG: {e}")
                     

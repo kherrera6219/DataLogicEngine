@@ -116,7 +116,7 @@ class RAGService:
         # --- Layer 2: Google Gemini ---
         try:
             import os
-            google_key = os.environ.get('GOOGLE_API_KEY')
+            google_key = os.environ.get('GOOGLE_API_KEY') or os.environ.get('GEMINI_API_KEY')
             if google_key:
                 from google import genai
                 client = genai.Client(api_key=google_key)
@@ -365,7 +365,8 @@ class RAGService:
         session_id: str,
         message_id: str,
         role: str,
-        content: str
+        content: str,
+        user_id: Optional[str] = None,
     ) -> bool:
         """Store chat message embedding for semantic history search."""
         store = self._get_vector_store()
@@ -381,7 +382,8 @@ class RAGService:
                 embeddings=[embedding],
                 metadata=[{
                     "session_id": session_id,
-                    "role": role
+                    "role": role,
+                    "user_id": user_id or "",
                 }]
             )
             return True
@@ -402,6 +404,24 @@ class RAGService:
             filters={"session_id": session_id},
             collection=self.COLLECTION_CHAT_HISTORY
         )
+
+    def search_user_chat_history(
+        self,
+        user_id: str,
+        query: str,
+        k: int = 8,
+        exclude_session_id: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """Search semantically relevant chat history across all sessions for a user."""
+        results = self.search_documents(
+            query,
+            k=k,
+            filters={"user_id": user_id},
+            collection=self.COLLECTION_CHAT_HISTORY
+        )
+        if not exclude_session_id:
+            return results
+        return [r for r in results if r.get("metadata", {}).get("session_id") != exclude_session_id]
     
     def ingest_knowledge_node(
         self,

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Backend Service (Flask)
   backend:
@@ -13,10 +11,20 @@ services:
       - FLASK_ENV=production
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/ukg_db
       - REDIS_URL=redis://redis:6379/0
+      - USE_REDIS=true
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=neo4jpassword
+      - OBJECT_ENDPOINT_URL=http://minio:9000
+      - OBJECT_ACCESS_KEY=minioadmin
+      - OBJECT_SECRET_KEY=minioadmin123
+      - OBJECT_BUCKET=datalogic
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       - db
       - redis
+      - neo4j
+      - minio
     networks:
       - ukg-network
     restart: always
@@ -63,9 +71,43 @@ services:
       - ukg-network
     restart: always
 
+  # Graph Database (Neo4j)
+  neo4j:
+    image: neo4j:5-community
+    container_name: ukg-neo4j
+    environment:
+      - NEO4J_AUTH=neo4j/neo4jpassword
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - ukg-network
+    restart: always
+
+  # Object Storage (MinIO, S3-compatible)
+  minio:
+    image: minio/minio:latest
+    container_name: ukg-minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - ukg-network
+    restart: always
+
 networks:
   ukg-network:
     driver: bridge
 
 volumes:
   postgres_data:
+  neo4j_data:
+  minio_data:

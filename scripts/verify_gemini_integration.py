@@ -25,8 +25,8 @@ async def verify():
         return
 
     try:
-        provider = GoogleGeminiProvider(model="gemini-1.5-pro") # Using 1.5 for basic test as 3.0 might be preview
-        print(f"[PASS] Provider initialized with key: {api_key[:5]}...")
+        provider = GoogleGeminiProvider(model="gemini-2.5-pro")
+        print("[PASS] Provider initialized")
     except Exception as e:
         print(f"[FAIL] Provider initialization failed: {e}")
         return
@@ -46,7 +46,7 @@ async def verify():
     try:
         print("Testing Chat Completion...")
         messages = [{"role": "user", "content": "Hello, are you Gemini?"}]
-        response = await provider.complete(messages=messages, model="gemini-3-flash-preview")
+        response = await provider.complete(messages=messages, model="gemini-2.5-flash")
         print(f"[PASS] Chat response received: {response.text[:50]}...")
     except Exception as e:
         print(f"[FAIL] Chat completion failed: {e}")
@@ -73,8 +73,8 @@ async def verify():
         else:
              print(f"[FAIL] Expected 3+ layers, got {len(providers)}")
 
-        # Test 2: RAG Heavy -> Expect Gemini 3 Pro + Fallbacks
-        print("\nTest 2: Tier='rag_heavy' (Expect 3 layers: Gemini 3 Pro -> GPT-4.1 -> Flash)")
+        # Test 2: RAG Heavy -> Expect Gemini Pro + Fallbacks
+        print("\nTest 2: Tier='rag_heavy' (Expect 3 layers: Gemini Pro -> GPT-4.1 -> Flash)")
         providers = await gateway._get_eligible_providers(meta={"tier": "rag_heavy"})
         print(f"   -> Found {len(providers)} providers")
         for i, p in enumerate(providers):

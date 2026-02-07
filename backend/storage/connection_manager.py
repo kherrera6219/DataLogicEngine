@@ -10,6 +10,7 @@ import logging
 from enum import Enum
 from typing import Optional, Dict, Any
 from dataclasses import dataclass, field
+from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ class ConnectionMode(Enum):
 class PostgresConfig:
     """PostgreSQL connection configuration."""
     host: str = "127.0.0.1"
-    port: int = 54320
+    port: int = 5432
     database: str = "datalogic"
     user: str = "postgres"
     password: str = ""
@@ -47,7 +48,7 @@ class PostgresConfig:
 class RedisConfig:
     """Redis connection configuration."""
     host: str = "127.0.0.1"
-    port: int = 63790
+    port: int = 6379
     password: Optional[str] = None
     db: int = 0
     
@@ -175,17 +176,48 @@ class ConnectionManager:
         
         # PostgreSQL
         config.postgres.host = os.environ.get('POSTGRES_HOST', '127.0.0.1')
-        config.postgres.port = int(os.environ.get('POSTGRES_LOCAL_PORT', '54320'))
+        config.postgres.port = int(os.environ.get('POSTGRES_LOCAL_PORT', '5432'))
         config.postgres.database = os.environ.get('POSTGRES_DB', 'datalogic')
         config.postgres.user = os.environ.get('POSTGRES_USER', 'postgres')
         config.postgres.password = os.environ.get('POSTGRES_PASSWORD', '')
         config.postgres.cloud_url = os.environ.get('POSTGRES_CLOUD_URL')
+
+        database_url = os.environ.get('DATABASE_URL')
+        if database_url and database_url.startswith(("postgresql://", "postgres://")):
+            parsed = urlparse(database_url)
+            if parsed.hostname:
+                config.postgres.host = parsed.hostname
+            if parsed.port:
+                config.postgres.port = parsed.port
+            if parsed.path and len(parsed.path) > 1:
+                config.postgres.database = parsed.path.lstrip("/")
+            if parsed.username:
+                config.postgres.user = parsed.username
+            if parsed.password:
+                config.postgres.password = parsed.password
+            # If explicit cloud URL not provided, reuse DATABASE_URL for parity.
+            if not config.postgres.cloud_url:
+                config.postgres.cloud_url = database_url
         
         # Redis
         config.redis.host = os.environ.get('REDIS_HOST', '127.0.0.1')
-        config.redis.port = int(os.environ.get('REDIS_LOCAL_PORT', '63790'))
+        config.redis.port = int(os.environ.get('REDIS_LOCAL_PORT', '6379'))
         config.redis.password = os.environ.get('REDIS_PASSWORD')
         config.redis.cloud_url = os.environ.get('REDIS_CLOUD_URL')
+
+        redis_url = os.environ.get('REDIS_URL')
+        if redis_url and redis_url.startswith(("redis://", "rediss://")):
+            parsed = urlparse(redis_url)
+            if parsed.hostname:
+                config.redis.host = parsed.hostname
+            if parsed.port:
+                config.redis.port = parsed.port
+            if parsed.password:
+                config.redis.password = parsed.password
+            if parsed.path and parsed.path.strip("/").isdigit():
+                config.redis.db = int(parsed.path.strip("/"))
+            if not config.redis.cloud_url:
+                config.redis.cloud_url = redis_url
         
         # Neo4j
         config.neo4j.host = os.environ.get('NEO4J_HOST', '127.0.0.1')
@@ -195,9 +227,23 @@ class ConnectionManager:
         config.neo4j.cloud_url = os.environ.get('NEO4J_CLOUD_URL')
         config.neo4j.cloud_user = os.environ.get('NEO4J_CLOUD_USER')
         config.neo4j.cloud_password = os.environ.get('NEO4J_CLOUD_PASSWORD')
+
+        neo4j_uri = os.environ.get('NEO4J_URI')
+        if neo4j_uri and neo4j_uri.startswith(("bolt://", "neo4j://", "neo4j+s://", "neo4j+ssc://")):
+            parsed = urlparse(neo4j_uri)
+            if parsed.hostname:
+                config.neo4j.host = parsed.hostname
+            if parsed.port:
+                config.neo4j.port = parsed.port
+            if parsed.username:
+                config.neo4j.user = parsed.username
+            if parsed.password:
+                config.neo4j.password = parsed.password
+            if not config.neo4j.cloud_url:
+                config.neo4j.cloud_url = neo4j_uri
         
         # Vector DB
-        config.vector.local_path = os.environ.get('VECTOR_LOCAL_PATH', './databases/chroma')
+        config.vector.local_path = os.environ.get('VECTOR_LOCAL_PATH', os.environ.get('CHROMA_PERSIST_DIR', './databases/chroma'))
         config.vector.provider = os.environ.get('VECTOR_PROVIDER')
         config.vector.cloud_url = os.environ.get('VECTOR_CLOUD_URL')
         config.vector.api_key = os.environ.get('VECTOR_API_KEY')
@@ -205,11 +251,24 @@ class ConnectionManager:
         
         # Object Storage
         config.object_storage.local_path = os.environ.get('OBJECT_LOCAL_PATH', './databases/objects')
-        config.object_storage.endpoint_url = os.environ.get('OBJECT_ENDPOINT_URL')
-        config.object_storage.access_key = os.environ.get('OBJECT_ACCESS_KEY')
-        config.object_storage.secret_key = os.environ.get('OBJECT_SECRET_KEY')
-        config.object_storage.bucket = os.environ.get('OBJECT_BUCKET', 'datalogic')
-        config.object_storage.region = os.environ.get('OBJECT_REGION', 'us-east-1')
+        config.object_storage.endpoint_url = (
+            os.environ.get('OBJECT_ENDPOINT_URL')
+            or os.environ.get('OBJECT_STORAGE_ENDPOINT')
+            or os.environ.get('S3_ENDPOINT_URL')
+            or os.environ.get('MINIO_ENDPOINT')
+        )
+        config.object_storage.access_key = (
+            os.environ.get('OBJECT_ACCESS_KEY')
+            or os.environ.get('AWS_ACCESS_KEY_ID')
+            or os.environ.get('MINIO_ACCESS_KEY')
+        )
+        config.object_storage.secret_key = (
+            os.environ.get('OBJECT_SECRET_KEY')
+            or os.environ.get('AWS_SECRET_ACCESS_KEY')
+            or os.environ.get('MINIO_SECRET_KEY')
+        )
+        config.object_storage.bucket = os.environ.get('OBJECT_BUCKET', os.environ.get('S3_BUCKET', 'datalogic'))
+        config.object_storage.region = os.environ.get('OBJECT_REGION', os.environ.get('AWS_REGION', 'us-east-1'))
         
         return config
     
