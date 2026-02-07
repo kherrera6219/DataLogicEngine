@@ -5,6 +5,7 @@ Purpose: Implement circuit breakers, retry strategies, and graceful degradation 
 import logging
 import json
 import os
+import random
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
@@ -27,23 +28,28 @@ class KA106FaultTolerance(KnowledgeAlgorithm):
         self.ka_id = "KA-106"
         self.config = self._load_config()
 
+    def _default_config(self) -> Dict[str, Any]:
+        return {
+            "circuit_breakers": {"payment_gateway": "CLOSED"},
+            "retry_strategies": {"network": "exponential_backoff"},
+            "graceful_degradation_enabled": True,
+        }
+
     def _load_config(self) -> Dict[str, Any]:
         try:
             config_path = os.path.join(os.path.dirname(__file__), "config", "ka_106_config.json")
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
+                    loaded = json.load(f) or {}
+                    return {**self._default_config(), **loaded}
+            return self._default_config()
         except Exception:
-            return {}
+            return self._default_config()
 
     def _run_logic(self, input_data: KA106FaultInput) -> Dict[str, Any]:
         target_op = input_data.operation
         self.log_execution_step("Enforcing Reliability Policies", {"op": target_op})
         
-        if not self.config:
-            raise KAConfigError("Reliability configuration missing")
-
         circuit_breakers = self.config.get("circuit_breakers", {"payment_gateway": "CLOSED"})
         # Simulate circuit check
         status = "OPEN" if target_op in circuit_breakers and random.random() > 0.95 else "CLOSED"

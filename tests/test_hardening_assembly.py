@@ -66,7 +66,7 @@ async def test_parallel_pod_execution(engine):
     query = "Critical defense infrastructure audit"
     context = {"force_tier": "high_stakes", "tags": ["defense"]}
     
-    session = engine.create_session(query, context=context)
+    session = await engine.create_session(query, context=context)
     result_session = await engine.process(session['session_id'])
     
     # Debug info
@@ -108,7 +108,7 @@ async def test_api_middleware_hardening():
     # Check Security Headers
     assert response.headers["X-Content-Type-Options"] == "nosniff"
     assert response.headers["X-Frame-Options"] == "DENY"
-    assert "hardened_v1" in response.headers["X-Nurnburg-Compliance"]
+    assert "hardened_v2" in response.headers["X-Nurnburg-Compliance"]
     
     # Check trace context (internal state)
     assert request.state.ukg_metadata["axis"] == "8:9:" # Sanitized

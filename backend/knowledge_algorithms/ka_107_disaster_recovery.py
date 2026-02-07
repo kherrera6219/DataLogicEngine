@@ -27,23 +27,29 @@ class KA107DisasterRecovery(KnowledgeAlgorithm):
         self.ka_id = "KA-107"
         self.config = self._load_config()
 
+    def _default_config(self) -> Dict[str, Any]:
+        return {
+            "recovery_plan": "standard_failover",
+            "failover_region": "us-east-1",
+            "rpo_minutes": 5,
+            "rto_minutes": 15,
+        }
+
     def _load_config(self) -> Dict[str, Any]:
         try:
             config_path = os.path.join(os.path.dirname(__file__), "config", "ka_107_config.json")
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
+                    loaded = json.load(f) or {}
+                    return {**self._default_config(), **loaded}
+            return self._default_config()
         except Exception:
-            return {}
+            return self._default_config()
 
     def _run_logic(self, input_data: KA107RecoveryInput) -> Dict[str, Any]:
         failure_id = input_data.failure_id
         self.log_execution_step("Executing Recovery Plan", {"plan": self.config.get("recovery_plan", "standard_failover")})
         
-        if not self.config:
-            raise KAConfigError("Disaster Recovery configuration missing")
-
         failover_region = self.config.get("failover_region", "us-east-1")
         
         return {

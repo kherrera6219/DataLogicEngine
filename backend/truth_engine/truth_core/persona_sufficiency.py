@@ -163,12 +163,12 @@ class PersonaSufficiencyTool:
         }
     
     def _fail_safe_decision(self, reason: str) -> Dict[str, Any]:
-        """Returns a safe default decision (Quad-Only) in case of processing error."""
+        """Returns a safe default decision in case of calculation error or attack."""
         return {
             "mode": SufficiencyMode.QUAD_ONLY.value,
             "spawn": {"knowledge": 0, "sector": 0, "regulatory": 0, "compliance": 0},
-            "reasons": [f"Fail-safe engaged: {reason}"],
-            "scores": {"meta": "failed"},
+            "reasons": [f"Fail-safe triggered: {reason}"],
+            "scores": {},
             "caps": self.caps,
-            "stop_conditions": ["system_stability_reversion"]
+            "stop_conditions": ["standard_quad_verification"]
         }

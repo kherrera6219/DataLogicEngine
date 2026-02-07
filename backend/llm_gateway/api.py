@@ -98,6 +98,8 @@ async def gateway_chat():
     messages = data.get('messages', [])
     if not messages:
         return jsonify({'error': 'messages required'}), 400
+    if not data.get('model'):
+        return jsonify({'error': 'model required'}), 400
         
     # Build GatewayRequest
     gateway_request = GatewayRequest(
@@ -150,6 +152,8 @@ def gateway_chat_stream():
     messages = data.get('messages', [])
     if not messages:
         return jsonify({'error': 'messages required'}), 400
+    if not data.get('model'):
+        return jsonify({'error': 'model required'}), 400
     
     gateway_request = GatewayRequest(
         messages=messages,

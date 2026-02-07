@@ -24,28 +24,33 @@ class KA111APIGateway(KnowledgeAlgorithm):
         self.ka_id = "KA-111"
         self.config = self._load_config()
 
+    def _default_config(self) -> Dict[str, Any]:
+        return {"auth_provider": "apiKey"}
+
     def _load_config(self) -> Dict[str, Any]:
         try:
             config_path = os.path.join(os.path.dirname(__file__), "config", "ka_111_config.json")
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
+                    loaded = json.load(f) or {}
+                    return {**self._default_config(), **loaded}
+            return self._default_config()
         except Exception:
-            return {}
+            return self._default_config()
 
     def _run_logic(self, input_data: KA111Input) -> Dict[str, Any]:
         headers = input_data.headers
         self.log_execution_step("Authorizing Request", {"origin": headers.get("X-Forwarded-For")})
         
-        # Explicit logic error demo
-        if not self.config:
-             raise KAConfigError("API Gateway configuration missing", details={"path": "config/ka_111_config.json"})
-
         # Simulate authentication
         if "Authorization" not in headers:
-            # Raise custom error instead of returning success=False
-            raise KAError("Missing Authorization Header", error_code="E401", details={"required": "Bearer Token"})
+            return {
+                "success": False,
+                "status_code": 401,
+                "gateway_node": "gw-01",
+                "error_msg": "Missing Authorization Header",
+                "required": "Bearer Token",
+            }
         
         return {
             "success": True,

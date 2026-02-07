@@ -27,23 +27,27 @@ class KA062DecentralizedTrustScoring(KnowledgeAlgorithm):
         self.ka_id = "KA-062"
         self.config = self._load_config()
 
+    def _default_config(self) -> Dict[str, Any]:
+        return {
+            "provenance_weights": {},
+            "min_trust_for_commitment": 0.7,
+        }
+
     def _load_config(self) -> Dict[str, Any]:
         try:
             config_path = os.path.join(os.path.dirname(__file__), "config", "ka_62_config.json")
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
+                    loaded = json.load(f) or {}
+                    return {**self._default_config(), **loaded}
+            return self._default_config()
         except Exception:
-            return {}
+            return self._default_config()
 
     def _run_logic(self, input_data: KA062Input) -> Dict[str, Any]:
         evidence_nodes = input_data.evidence
         self.log_execution_step("Computing Trust Scores", {"evidence_count": len(evidence_nodes)})
         
-        if not self.config:
-            raise KAConfigError("Decentralized Trust configuration missing", details={"path": "config/ka_62_config.json"})
-
         provenance_weights = self.config.get("provenance_weights", {})
         trust_reports = []
         min_trust = self.config.get("min_trust_for_commitment", 0.7)

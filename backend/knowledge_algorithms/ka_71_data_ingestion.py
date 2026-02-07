@@ -28,24 +28,28 @@ class KA071DataIngestion(KnowledgeAlgorithm):
         self.ka_id = "KA-071"
         self.config = self._load_config()
 
+    def _default_config(self) -> Dict[str, Any]:
+        return {
+            "handlers": {},
+            "batch_size": 1000,
+        }
+
     def _load_config(self) -> Dict[str, Any]:
         try:
             config_path = os.path.join(os.path.dirname(__file__), "config", "ka_71_config.json")
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
+                    loaded = json.load(f) or {}
+                    return {**self._default_config(), **loaded}
+            return self._default_config()
         except Exception:
-            return {}
+            return self._default_config()
 
     def _run_logic(self, input_data: KA071IngestionInput) -> Dict[str, Any]:
         source_type = input_data.source_type
         payload = input_data.payload
         self.log_execution_step("Executing Ingestion Pipeline", {"source": source_type, "count": len(payload)})
         
-        if not self.config:
-            raise KAConfigError("Ingestion config missing")
-
         handler_name = self.config.get("handlers", {}).get(source_type, "DefaultHandler")
         # Simulating a source-specifically failure
         if source_type == "api" and not payload:

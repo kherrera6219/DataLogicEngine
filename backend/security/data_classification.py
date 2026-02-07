@@ -120,7 +120,8 @@ class DataClassifier:
         PIIType.PHONE: ['phone', 'phone_number', 'mobile', 'telephone'],
         PIIType.ADDRESS: ['address', 'street', 'street_address', 'home_address'],
         PIIType.CREDIT_CARD: ['credit_card', 'card_number', 'cc_number'],
-        PIIType.NAME: ['name', 'full_name', 'first_name', 'last_name', 'username'],
+        # Avoid broad false positives like "project_name".
+        PIIType.NAME: ['full_name', 'first_name', 'last_name', 'username'],
         PIIType.DATE_OF_BIRTH: ['dob', 'date_of_birth', 'birth_date', 'birthdate'],
         PIIType.PASSPORT: ['passport', 'passport_number'],
         PIIType.DRIVERS_LICENSE: ['drivers_license', 'license_number', 'dl_number'],

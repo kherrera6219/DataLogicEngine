@@ -28,23 +28,27 @@ class KA074DataValidation(KnowledgeAlgorithm):
         self.ka_id = "KA-074"
         self.config = self._load_config()
 
+    def _default_config(self) -> Dict[str, Any]:
+        return {
+            "validation_rules": [],
+            "quarantine_invalid_records": True,
+        }
+
     def _load_config(self) -> Dict[str, Any]:
         try:
             config_path = os.path.join(os.path.dirname(__file__), "config", "ka_74_config.json")
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
+                    loaded = json.load(f) or {}
+                    return {**self._default_config(), **loaded}
+            return self._default_config()
         except Exception:
-            return {}
+            return self._default_config()
 
     def _run_logic(self, input_data: KA074ValidationInput) -> Dict[str, Any]:
         records = input_data.records
         self.log_execution_step("Validating Integrity Constraints", {"record_count": len(records)})
         
-        if not self.config:
-            raise KAConfigError("Validation rules configuration missing")
-
         rules = self.config.get("validation_rules", [])
         valid_records = []
         invalid_records = []

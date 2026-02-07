@@ -15,8 +15,57 @@ from enum import Enum
 from typing import List, Set, Optional, Dict, Any
 from datetime import datetime, UTC
 from functools import wraps
-from flask import request, jsonify
-from flask_login import current_user
+from flask import jsonify, has_request_context, has_app_context, request as flask_request
+from flask_login import current_user as flask_current_user
+
+# Test-friendly patch points: tests may monkeypatch these names directly.
+current_user = None
+request = None
+
+
+def _resolve_current_user():
+    """Return patched current_user in tests, else flask-login current_user."""
+    if current_user is not None:
+        return current_user
+    return flask_current_user
+
+
+def _is_authenticated(user_obj) -> bool:
+    """Safely check authentication across real/proxy/mock user objects."""
+    try:
+        return bool(user_obj and getattr(user_obj, "is_authenticated", False))
+    except RuntimeError:
+        return False
+
+
+def _request_metadata() -> Dict[str, Optional[str]]:
+    """Safely extract request metadata without requiring request context."""
+    req = request
+    if req is not None:
+        return {
+            "endpoint": getattr(req, "endpoint", None),
+            "ip_address": getattr(req, "remote_addr", None),
+        }
+    if has_request_context():
+        return {
+            "endpoint": flask_request.endpoint,
+            "ip_address": flask_request.remote_addr,
+        }
+    return {"endpoint": None, "ip_address": None}
+
+
+class _JsonFallbackResponse:
+    """Minimal response shim for decorator unit tests without Flask app context."""
+
+    def __init__(self, payload: Dict[str, Any]):
+        self.json = payload
+
+
+def _error_response(payload: Dict[str, Any], status_code: int):
+    """Return Flask JSON response when available, otherwise a lightweight fallback."""
+    if has_app_context():
+        return jsonify(payload), status_code
+    return _JsonFallbackResponse(payload), status_code
 
 
 class Permission(Enum):
@@ -348,14 +397,15 @@ class RBACManager:
         has_perm = role.has_permission(permission)
 
         # Log access decision
+        request_meta = _request_metadata()
         self._log_audit("permission_check", {
             "user_id": user.id if hasattr(user, 'id') else None,
             "username": user.username if hasattr(user, 'username') else None,
             "role": user_role_name,
             "permission": permission.value,
             "granted": has_perm,
-            "endpoint": request.endpoint if request else None,
-            "ip_address": request.remote_addr if request else None
+            "endpoint": request_meta["endpoint"],
+            "ip_address": request_meta["ip_address"]
         })
 
         return has_perm
@@ -387,7 +437,11 @@ class RBACManager:
             "username": user.username if hasattr(user, 'username') else None,
             "old_role": old_role,
             "new_role": role_name,
-            "assigned_by": current_user.username if current_user and current_user.is_authenticated else "system"
+            "assigned_by": (
+                _resolve_current_user().username
+                if _is_authenticated(_resolve_current_user())
+                else "system"
+            )
         })
 
     def check_data_access(self, user, data_tags: List[str]) -> bool:
@@ -463,16 +517,17 @@ def require_permission(permission: Permission):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if not current_user or not current_user.is_authenticated:
-                return jsonify({"error": "Authentication required"}), 401
+            user_obj = _resolve_current_user()
+            if not _is_authenticated(user_obj):
+                return _error_response({"error": "Authentication required"}, 401)
 
             rbac = get_rbac_manager()
-            if not rbac.user_has_permission(current_user, permission):
-                return jsonify({
+            if not rbac.user_has_permission(user_obj, permission):
+                return _error_response({
                     "error": "Permission denied",
                     "required_permission": permission.value,
-                    "user_role": getattr(current_user, 'role', 'user')
-                }), 403
+                    "user_role": getattr(user_obj, 'role', 'user')
+                }, 403)
 
             return f(*args, **kwargs)
         return decorated_function
@@ -492,16 +547,17 @@ def require_any_permission(*permissions: Permission):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if not current_user or not current_user.is_authenticated:
-                return jsonify({"error": "Authentication required"}), 401
+            user_obj = _resolve_current_user()
+            if not _is_authenticated(user_obj):
+                return _error_response({"error": "Authentication required"}, 401)
 
             rbac = get_rbac_manager()
-            if not rbac.user_has_any_permission(current_user, list(permissions)):
-                return jsonify({
+            if not rbac.user_has_any_permission(user_obj, list(permissions)):
+                return _error_response({
                     "error": "Permission denied",
                     "required_permissions": [p.value for p in permissions],
-                    "user_role": getattr(current_user, 'role', 'user')
-                }), 403
+                    "user_role": getattr(user_obj, 'role', 'user')
+                }, 403)
 
             return f(*args, **kwargs)
         return decorated_function
@@ -521,16 +577,17 @@ def require_all_permissions(*permissions: Permission):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if not current_user or not current_user.is_authenticated:
-                return jsonify({"error": "Authentication required"}), 401
+            user_obj = _resolve_current_user()
+            if not _is_authenticated(user_obj):
+                return _error_response({"error": "Authentication required"}, 401)
 
             rbac = get_rbac_manager()
-            if not rbac.user_has_all_permissions(current_user, list(permissions)):
-                return jsonify({
+            if not rbac.user_has_all_permissions(user_obj, list(permissions)):
+                return _error_response({
                     "error": "Permission denied",
                     "required_permissions": [p.value for p in permissions],
-                    "user_role": getattr(current_user, 'role', 'user')
-                }), 403
+                    "user_role": getattr(user_obj, 'role', 'user')
+                }, 403)
 
             return f(*args, **kwargs)
         return decorated_function

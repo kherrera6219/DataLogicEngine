@@ -2,6 +2,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from flask import Flask
+import sys
 
 @pytest.fixture
 def app():
@@ -12,6 +13,10 @@ def app():
         def wrapper(*args, **kwargs):
             return f(*args, **kwargs)
         return wrapper
+
+    # Force fresh imports so decorators are applied with patched no-op wrappers.
+    sys.modules.pop('backend.ukg_api', None)
+    sys.modules.pop('backend.tracing.api', None)
 
     with patch('backend.auth.api_decorators.api_login_required', dummy_decorator), \
          patch('backend.auth.api_decorators.api_admin_required', dummy_decorator), \

@@ -97,3 +97,12 @@ npm run test:coverage
 
 - **Discovery**: If your test isn't running, ensure it starts with `test_` and is in a directory with valid `__init__.py` (if needed) or matching the `testpaths` config.
 - **Imports**: We use absolute imports. Ensure your `PYTHONPATH` includes the root directory (handled auto by `pytest`).
+
+## 📌 Current Snapshot (2026-02-07)
+
+- Full functional backend/system test pass:
+  - Command: `pytest tests --no-cov`
+  - Result: `1419 passed, 21 skipped`
+- Coverage gate status:
+  - Command: `pytest tests`
+  - Result: tests pass, but coverage is `64.20%` and does not meet `fail-under=70`.

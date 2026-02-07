@@ -12,7 +12,7 @@ import logging.handlers
 import json
 import time
 import hashlib
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 from typing import Dict, List, Any, Optional, Union
 import threading
 import uuid
@@ -51,16 +51,31 @@ class AuditLogger:
         # Initialize log rotation thread
         self.log_rotation_active = False
         self.log_rotation_thread = None
+        self._rotation_stop_event = threading.Event()
+        self._write_lock = threading.Lock()
+        self._managed_handlers: List[logging.Handler] = []
         
         # Start log rotation
         self.start_log_rotation()
         
         logger.info("Audit Logger initialized")
+
+    def _normalize_logger_handlers(self) -> None:
+        """Ensure attached handlers have comparable log levels."""
+        for handler in list(logger.handlers):
+            level = getattr(handler, "level", logging.NOTSET)
+            if not isinstance(level, int):
+                try:
+                    handler.level = logging.NOTSET
+                except Exception:
+                    logger.removeHandler(handler)
     
     def start_log_rotation(self):
         """Start the log rotation thread"""
+        self._normalize_logger_handlers()
         if not self.log_rotation_active:
             self.log_rotation_active = True
+            self._rotation_stop_event.clear()
             self.log_rotation_thread = threading.Thread(
                 target=self._log_rotation_loop,
                 daemon=True
@@ -71,13 +86,22 @@ class AuditLogger:
     def stop_log_rotation(self):
         """Stop the log rotation thread"""
         self.log_rotation_active = False
+        self._rotation_stop_event.set()
         if self.log_rotation_thread:
-            self.log_rotation_thread.join(timeout=5)
-            logger.info("Audit log rotation stopped")
+            self.log_rotation_thread.join(timeout=1)
+        for handler in list(self._managed_handlers):
+            try:
+                logger.removeHandler(handler)
+                handler.close()
+            except Exception:
+                pass
+        self._managed_handlers.clear()
+        self._normalize_logger_handlers()
+        logger.info("Audit log rotation stopped")
     
     def _log_rotation_loop(self):
         """Background thread for log rotation"""
-        while self.log_rotation_active:
+        while self.log_rotation_active and not self._rotation_stop_event.is_set():
             try:
                 current_date = datetime.now().strftime("%Y%m%d")
                 
@@ -87,12 +111,14 @@ class AuditLogger:
                     self.current_log_file = f"logs/audit/audit_{self.current_date}.jsonl"
                     logger.info(f"Rotated audit log to {self.current_log_file}")
                 
-                # Sleep until the next day (check every hour)
-                time.sleep(3600)
+                # Wait up to an hour but wake immediately on shutdown.
+                if self._rotation_stop_event.wait(timeout=3600):
+                    break
                 
             except Exception as e:
                 logger.error(f"Error in log rotation: {str(e)}")
-                time.sleep(300)  # Retry after 5 minutes
+                if self._rotation_stop_event.wait(timeout=300):
+                    break  # Retry after 5 minutes
     
     def log_audit_event(self, 
                          event_type: str,
@@ -120,7 +146,7 @@ class AuditLogger:
             The generated event ID
         """
         try:
-            timestamp = datetime.now().isoformat()
+            timestamp = datetime.now(UTC).isoformat()
             event_id = str(uuid.uuid4())
             
             # Create the audit event
@@ -155,8 +181,9 @@ class AuditLogger:
             audit_event["hash"] = hashlib.sha256(event_data.encode()).hexdigest()
             
             # Write to the audit log file
-            with open(self.current_log_file, 'a') as f:
-                f.write(json.dumps(audit_event) + "\n")
+            with self._write_lock:
+                with open(self.current_log_file, 'a') as f:
+                    f.write(json.dumps(audit_event) + "\n")
             
             # --- Windows Desktop: Database Persistence ---
             try:
@@ -182,6 +209,12 @@ class AuditLogger:
                     db.session.add(db_audit)
                     db.session.commit()
             except Exception as db_err:
+                 # Roll back failed transaction so the request-scoped session stays usable.
+                 try:
+                     from extensions import db as _db
+                     _db.session.rollback()
+                 except Exception:
+                     pass
                  # Log error but don't fail the primary file logging
                  logger.warning(f"Failed to persist audit event to DB: {db_err}")
 
@@ -193,7 +226,7 @@ class AuditLogger:
             # Try to log to a fallback location
             try:
                 with open("logs/audit_errors.log", 'a') as f:
-                    f.write(f"{datetime.now().isoformat()} | ERROR | {str(e)}\n")
+                    f.write(f"{datetime.now(UTC).isoformat()} | ERROR | {str(e)}\n")
             except (IOError, OSError):
                 pass
                 
@@ -365,7 +398,7 @@ class AuditLogger:
                     if os.path.exists(log_file):
                         log_files.append(log_file)
                         
-                    current_date = current_date.replace(day=current_date.day + 1)
+                    current_date = current_date + timedelta(days=1)
             else:
                 # Use the current log file if no date range specified
                 if os.path.exists(self.current_log_file):
@@ -503,7 +536,14 @@ class AuditLogger:
             handler = logging.handlers.SysLogHandler(address=(host, port), facility=facility)
             formatter = logging.Formatter('%(name)s: [%(levelname)s] %(message)s')
             handler.setFormatter(formatter)
+            try:
+                handler.setLevel(logging.NOTSET)
+            except Exception:
+                pass
+            if not isinstance(getattr(handler, "level", None), int):
+                handler.level = logging.NOTSET
             logger.addHandler(handler)
+            self._managed_handlers.append(handler)
             logger.info(f"Syslog forwarding enabled to {host}:{port}")
             return True
         except Exception as e:

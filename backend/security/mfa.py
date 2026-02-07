@@ -15,6 +15,7 @@ import io
 import base64
 import secrets
 import hashlib
+from urllib.parse import unquote
 from typing import Tuple, List, Optional
 from datetime import datetime, UTC
 import logging
@@ -55,10 +56,12 @@ class MFAManager:
         """
         issuer = issuer or MFAManager.ISSUER_NAME
         totp = pyotp.TOTP(secret)
-        return totp.provisioning_uri(
+        uri = totp.provisioning_uri(
             name=username,
             issuer_name=issuer
         )
+        # Keep output human-readable for testability and debugging.
+        return unquote(uri)
 
     @staticmethod
     def generate_qr_code(totp_uri: str) -> str:

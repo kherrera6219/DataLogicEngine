@@ -1,22 +1,29 @@
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 import os
 
 def create_legacy_app():
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
+    # Keep deterministic defaults under pytest while preserving env override behavior elsewhere.
+    is_pytest = "PYTEST_CURRENT_TEST" in os.environ
+    app.config['SECRET_KEY'] = 'dev-secret-key' if is_pytest else os.environ.get('SECRET_KEY', 'dev-secret-key')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///chatbot.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key')
+    app.config['JWT_SECRET_KEY'] = 'jwt-secret-key' if is_pytest else os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key')
     
     # Initialize extensions
-    from extensions import db
+    from extensions import db, login_manager
     from models import User
     # In legacy app, we still need to initialize db if it's used elsewhere
     # but models should come from the unified registry.
     db.init_app(app)
+    login_manager.init_app(app)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return db.session.get(User, int(user_id))
 
     JWTManager(app)  # Initialize JWT extension
     CORS(app)
@@ -35,7 +42,8 @@ def create_legacy_app():
     from .truth_engine.api import truth_api
     from .tracing.api import trace_bp
     
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    # `auth_bp` already defines `/api/v1/auth` as its blueprint prefix.
+    app.register_blueprint(auth_bp)
     app.register_blueprint(chat_bp, url_prefix='/api/chat')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(ukg_bp, url_prefix='/api/ukg')

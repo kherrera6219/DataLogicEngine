@@ -55,18 +55,22 @@ def login():
     user = User.query.filter_by(username=username).first()
     
     if not user:
+        logger.warning("Login failed: user not found for username=%s", username)
         return error_response("Invalid username or password", 401)
     
     if user.is_account_locked():
+        logger.warning("Login blocked: account locked for username=%s", username)
         return error_response("Account is locked. Try again later.", 403)
     
     if not user.check_password(password):
+        logger.warning("Login failed: bad password for username=%s", username)
         user.record_failed_login()
         db.session.commit()
         remaining = max(0, 5 - user.failed_login_attempts)
         return error_response(f"Invalid credentials. {remaining} attempts remaining.", 401)
     
     if user.is_password_expired():
+        logger.warning("Login blocked: password expired for username=%s", username)
         return error_response("Password expired", 403, code="PASSWORD_EXPIRED")
     
     # MFA Check
@@ -84,6 +88,7 @@ def login():
     user.record_successful_login()
     login_user(user, remember=remember)
     db.session.commit()
+    logger.info("Login successful for username=%s user_id=%s", username, user.id)
     
     return success_response(message="Login successful", data={"user": user.to_dict()})
 

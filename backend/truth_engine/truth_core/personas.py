@@ -5,6 +5,7 @@ Extends QuadPersonaEngine with multi-persona reasoning.
 """
 
 import logging
+import asyncio
 from typing import Dict, Any, List, Optional
 from datetime import datetime, UTC
 

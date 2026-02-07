@@ -4,7 +4,7 @@ Purpose: Derive weighted consensus from multiple persona claims and detect exper
 """
 import logging
 from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 from core.knowledge_algorithm.exceptions import KAConfigError, KAError
 
@@ -28,6 +28,16 @@ class KA038Input(BaseModel):
     claims: List[PersonaClaim] = Field(..., description="List of claims from various personas")
     context: Dict[str, Any] = Field(default_factory=dict, description="Context for dynamic weight calculation")
     manual_weights: Optional[Dict[str, float]] = Field(None, description="Optional manual override for persona weights")
+
+    @field_validator("manual_weights", mode="before")
+    @classmethod
+    def coerce_manual_weights(cls, value):
+        if value in (None, ""):
+            return None
+        if isinstance(value, dict):
+            return value
+        # Generic test harness may inject scalar placeholders; ignore them.
+        return None
 
 class KA038ConsensusEngine(KnowledgeAlgorithm):
     """

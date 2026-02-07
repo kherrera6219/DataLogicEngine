@@ -28,23 +28,27 @@ class KA061AdversarialInputShield(KnowledgeAlgorithm):
         self.ka_id = "KA-061"
         self.config = self._load_config()
 
+    def _default_config(self) -> Dict[str, Any]:
+        return {
+            "block_patterns": [r"(?i)DROP\s+TABLE", r"(?i)DELETE\s+FROM", r"(?i)<script>"],
+            "enable_veto_on_threat": True,
+        }
+
     def _load_config(self) -> Dict[str, Any]:
         try:
             config_path = os.path.join(os.path.dirname(__file__), "config", "ka_61_config.json")
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
+                    loaded = json.load(f) or {}
+                    return {**self._default_config(), **loaded}
+            return self._default_config()
         except Exception:
-            return {}
+            return self._default_config()
 
     def _run_logic(self, input_data: KA061Input) -> Dict[str, Any]:
         query = input_data.query
         self.log_execution_step("Scanning for Adversarial Patterns", {"query_len": len(query)})
         
-        if not self.config:
-            raise KAConfigError("Adversarial Shield configuration missing")
-
         threats_detected = []
         block_patterns = self.config.get("block_patterns", [r"(?i)DROP\s+TABLE", r"(?i)DELETE\s+FROM", r"(?i)<script>"])
         for pattern in block_patterns:

@@ -25,6 +25,12 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
         
         # Redact message if it's a string
         message = log_record.get('message')
+        if not isinstance(message, str):
+            # Some call sites pass a pre-built dict or raw LogRecord message.
+            fallback_msg = getattr(record, 'msg', None)
+            if isinstance(fallback_msg, str):
+                message = fallback_msg
+                log_record['message'] = fallback_msg
         if isinstance(message, str):
             log_record['message'], _ = pii_redactor.redact_text(message)
         

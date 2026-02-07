@@ -204,7 +204,7 @@ def test_gateway_chat_stream(mock_curr_user, router_app_client):
     mock_gw.process_stream = fake_stream
     
     resp = router_app_client.post('/api/v1/gateway/chat/stream', 
-        json={'messages': [{'role': 'user', 'content': 'hi'}]},
+        json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'hi'}]},
         headers={'Authorization': 'Bearer session'} # Fallback to session auth
     )
     

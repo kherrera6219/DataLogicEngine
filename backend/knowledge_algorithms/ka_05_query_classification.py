@@ -7,8 +7,6 @@ import json
 import os
 from typing import Dict, Any, List, Tuple
 import importlib
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
@@ -89,21 +87,16 @@ class KA005QueryClassification(KnowledgeAlgorithm):
         """
         import asyncio
         try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # If loop is running, we can't use run_until_complete.
-                # Ideally, the caller should be async.
-                # For safety, we return a fallback or try to schedule it.
-                # But since KA base `run` is sync, this is tricky.
-                # We'll try to create a new task if we are in a thread with a loop?
-                # Actually, standard KAs run in Celery (sync) or via async API.
-                # We'll assume sync context for now.
-                 raise RuntimeError("Cannot call sync _delegate_to_sdk from inside running loop")
+            running_loop = asyncio.get_running_loop()
         except RuntimeError:
-             loop = asyncio.new_event_loop()
-             asyncio.set_event_loop(loop)
-            
-        return loop.run_until_complete(self._classify_via_gateway(data.get("query", "")))
+            running_loop = None
+
+        if running_loop and running_loop.is_running():
+            # Running a nested loop here would fail; return a safe fallback.
+            logger.warning("KA-005 delegation skipped because an event loop is already running")
+            return {}
+
+        return asyncio.run(self._classify_via_gateway(data.get("query", "")))
 
     async def _classify_via_gateway(self, query: str) -> Dict[str, Any]:
         """

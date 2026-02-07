@@ -3,6 +3,7 @@ import logging
 import uuid
 import re
 import json
+from urllib.parse import parse_qsl
 from typing import Dict, Any, List, Optional
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -61,8 +62,14 @@ class UnifiedMiddleWare(BaseHTTPMiddleware):
             logger.info(f"[{nurnburg_alias}] Hardened processing {request.method} {request.url.path}")
 
             # 2. Deep Inspection (Sanitization)
-            # Inspect query params
-            for key, value in request.query_params.items():
+            # Inspect query params safely (scope may omit `query_string` in tests).
+            raw_query = request.scope.get("query_string", b"")
+            if isinstance(raw_query, bytes):
+                query_items = parse_qsl(raw_query.decode("utf-8", errors="ignore"), keep_blank_values=True)
+            else:
+                query_items = parse_qsl(str(raw_query), keep_blank_values=True)
+
+            for key, value in query_items:
                 if self._detect_malicious(str(value)):
                     logger.warning(f"Malicious input detected in query param {key}: {value}")
                     return JSONResponse(

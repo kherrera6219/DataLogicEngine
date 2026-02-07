@@ -27,10 +27,7 @@ def mock_db_extensions():
         yield mock_db, mock_cache
 
 @pytest.fixture
-def client():
-    """Create a test client for the application."""
-    from backend import create_legacy_app
-    app = create_legacy_app()
-    app.config['TESTING'] = True
-    with app.test_client() as client:
-        yield client
+def client(app):
+    """Reuse the shared test app fixture for unit tests that need HTTP routes."""
+    with app.test_client() as test_client:
+        yield test_client

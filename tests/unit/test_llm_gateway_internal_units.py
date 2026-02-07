@@ -1,11 +1,17 @@
 
 import pytest
 import sys
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from datetime import datetime, timedelta, UTC
 
 # Mocking the UKG SDK components before importing gateway
 # This is crucial because gateway.py tries to import from 'models' which might not be set up
+_original_models_module = sys.modules.get("models")
+_original_llm_provider = sys.modules.get("models.LLMProvider")
+_original_llm_provider_usage = sys.modules.get("models.LLMProviderUsage")
+_original_chat_session = sys.modules.get("models.ChatSession")
+_original_chat_message = sys.modules.get("models.ChatMessage")
+
 sys.modules["models"] = MagicMock()
 sys.modules["models.LLMProvider"] = MagicMock()
 sys.modules["models.LLMProviderUsage"] = MagicMock()
@@ -14,6 +20,32 @@ sys.modules["models.ChatMessage"] = MagicMock()
 
 # Now import the module under test
 from backend.llm_gateway.gateway import CircuitBreaker, GatewayRequest, GatewayResponse
+
+# Restore global import state to avoid polluting unrelated tests.
+if _original_models_module is not None:
+    sys.modules["models"] = _original_models_module
+else:
+    sys.modules.pop("models", None)
+
+if _original_llm_provider is not None:
+    sys.modules["models.LLMProvider"] = _original_llm_provider
+else:
+    sys.modules.pop("models.LLMProvider", None)
+
+if _original_llm_provider_usage is not None:
+    sys.modules["models.LLMProviderUsage"] = _original_llm_provider_usage
+else:
+    sys.modules.pop("models.LLMProviderUsage", None)
+
+if _original_chat_session is not None:
+    sys.modules["models.ChatSession"] = _original_chat_session
+else:
+    sys.modules.pop("models.ChatSession", None)
+
+if _original_chat_message is not None:
+    sys.modules["models.ChatMessage"] = _original_chat_message
+else:
+    sys.modules.pop("models.ChatMessage", None)
 
 class TestCircuitBreaker:
     def test_initial_state(self):

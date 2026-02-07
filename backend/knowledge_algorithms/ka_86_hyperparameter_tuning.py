@@ -11,12 +11,23 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from pydantic import BaseModel, Field, field_validator
 
 class KA086TuningInput(BaseModel):
     model_type: str = Field("transformer", description="The architecture type to optimize")
     max_trials: Optional[int] = Field(None, description="Maximum number of search trials")
+
+    @field_validator("max_trials", mode="before")
+    @classmethod
+    def _coerce_max_trials(cls, value: Any) -> Optional[int]:
+        if value in (None, ""):
+            return None
+        if isinstance(value, int):
+            return value
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
 
 class KA086HyperparameterTuning(KnowledgeAlgorithm):
     """

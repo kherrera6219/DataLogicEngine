@@ -17,15 +17,17 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
+TEST_DB_PATH = ROOT_DIR / "test_suite.sqlite3"
+
 import pytest
 from app import app as flask_app, db
-from extensions import limiter
+from extensions import limiter, login_manager
 
 @pytest.fixture
 def app():
     """Provide app fixture for tests that need app context."""
     flask_app.config['TESTING'] = True
-    flask_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    flask_app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{TEST_DB_PATH.as_posix()}"
     flask_app.config['WTF_CSRF_ENABLED'] = False
     flask_app.config['CACHE_TYPE'] = 'NullCache'
     flask_app.config['RATELIMIT_ENABLED'] = False
@@ -43,10 +45,29 @@ def app():
     limiter._storage = MemoryStorage() 
     limiter.enabled = False
 
+    from models import User
+
+    # Rebind user loader on each test app setup because the suite imports
+    # multiple app factories that can overwrite global LoginManager callbacks.
+    @login_manager.user_loader
+    def _load_user(user_id):
+        try:
+            return db.session.get(User, int(user_id))
+        except (TypeError, ValueError):
+            return None
+
     with flask_app.app_context():
+        if TEST_DB_PATH.exists():
+            TEST_DB_PATH.unlink()
+        # Ensure test runs start from a clean schema even if the module-level
+        # app initialization previously populated the default sqlite database.
+        db.drop_all()
         db.create_all()
         yield flask_app
+        db.session.remove()
         db.drop_all()
+        if TEST_DB_PATH.exists():
+            TEST_DB_PATH.unlink()
 
 @pytest.fixture
 def client(app):

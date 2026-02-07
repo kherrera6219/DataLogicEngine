@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.1] - 2026-02-07
+
+### Fixed
+- Stabilized full-suite authentication behavior by removing global `sys.modules["models"]` pollution in `tests/unit/test_llm_gateway_internal_units.py`.
+- Hardened audit logging transaction handling to rollback failed DB writes and prevent session poisoning (`PendingRollbackError`) during malformed-input fuzz scenarios.
+- Updated gateway integration tests to match enforced API contract requiring `model` for `/api/v1/gateway/chat` and `/api/v1/gateway/chat/stream`.
+- Improved KA resilience under full-suite execution conditions:
+  - `KA-005` now handles event-loop lifecycle safely in sync contexts.
+  - `KA-114` tolerates contract-test runs outside Flask app context.
+  - Config/default hardening applied across infrastructure KAs (`KA-62`, `KA-71`, `KA-74`, `KA-86`).
+
+### Testing
+- Functional suite now passes end-to-end with:
+  - `pytest tests --no-cov`
+  - Result: `1419 passed, 21 skipped`.
+- Default coverage-gated run still fails coverage threshold:
+  - `pytest tests`
+  - Total coverage: `64.20%` (required: `70%`).
+
 ## [4.1.0] - 2026-02-02
 
 ### Added

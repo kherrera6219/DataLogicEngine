@@ -114,7 +114,7 @@ def test_api_key_auth_header(app_client):
     
     resp = app_client.post('/api/v1/gateway/chat', 
                            headers={'X-API-Key': 'ukg_valid'},
-                           json={'messages': [{'role': 'user', 'content': 'Hi'}]})
+                           json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]})
     
     assert resp.status_code == 200
     assert resp.json['response'] == "Response"
@@ -158,7 +158,7 @@ def test_gateway_chat_endpoint(app_client):
     
     resp = app_client.post('/api/v1/gateway/chat', 
                            headers={'X-API-Key': 'ukg_valid'},
-                           json={'messages': [{'role': 'user', 'content': 'Hi'}]})
+                           json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]})
     
     assert resp.status_code == 200
     assert resp.json['response'] == "Response"

@@ -32,7 +32,7 @@ class RequestTimeout:
     tying up worker processes indefinitely.
     """
 
-    def __init__(self, app=None, timeout=30):
+    def __init__(self, app=None, timeout=None):
         """
         Initialize timeout middleware.
 
@@ -40,15 +40,17 @@ class RequestTimeout:
             app: Flask application
             timeout: Timeout in seconds (default: 30)
         """
-        self.timeout = timeout
+        self._timeout_explicit = timeout is not None
+        self.timeout = 30 if timeout is None else int(timeout)
         self.app = app
         if app is not None:
             self.init_app(app)
 
     def init_app(self, app):
         """Initialize the middleware with Flask app."""
-        # Get timeout from environment or use default
-        self.timeout = int(os.environ.get('REQUEST_TIMEOUT', self.timeout))
+        # Environment timeout applies only when caller did not pass one explicitly.
+        if not self._timeout_explicit:
+            self.timeout = int(os.environ.get('REQUEST_TIMEOUT', self.timeout))
 
         # Configure timeout for gunicorn
         app.config['REQUEST_TIMEOUT'] = self.timeout
