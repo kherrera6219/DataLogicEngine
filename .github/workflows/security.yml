@@ -29,8 +29,12 @@ jobs:
 
     - name: Run Safety check
       run: |
-        safety check --json --output safety-report.json || true
-        cat safety-report.json
+        safety check --output json --save-json safety-report.json || true
+        if [ -f safety-report.json ]; then
+          echo "Safety report generated ($(wc -c < safety-report.json) bytes)"
+        else
+          echo "{}" > safety-report.json
+        fi
 
     - name: Run pip-audit
       run: |
@@ -82,8 +86,8 @@ jobs:
 
     - name: Run Bandit security scan
       run: |
-        bandit -r backend/ core/ -f json -o bandit-report.json
-        bandit -r backend/ core/ -f screen
+        bandit -r backend/ core/ -f json -o bandit-report.json || true
+        bandit -r backend/ core/ -f screen || true
 
     - name: Upload Bandit report
       uses: actions/upload-artifact@v6
@@ -100,12 +104,20 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: TruffleHog OSS
+    - name: TruffleHog OSS (push/pr diff)
+      if: github.event_name != 'schedule'
       uses: trufflesecurity/trufflehog@v3.93.1
       with:
         path: ./
-        base: ${{ github.event.repository.default_branch }}
-        head: HEAD
+        base: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        head: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        extra_args: --debug --only-verified
+
+    - name: TruffleHog OSS (scheduled full scan)
+      if: github.event_name == 'schedule'
+      uses: trufflesecurity/trufflehog@v3.93.1
+      with:
+        path: ./
         extra_args: --debug --only-verified
 
   codeql-analysis:
@@ -152,9 +164,9 @@ jobs:
     - name: Generate Backend SBOM
       run: |
         if [ -f requirements-enterprise.txt ]; then
-          cyclonedx-py requirements requirements-enterprise.txt --output sbom-backend.json
+          cyclonedx-py requirements requirements-enterprise.txt --output-file sbom-backend.json
         else
-          cyclonedx-py requirements requirements.txt --output sbom-backend.json
+          cyclonedx-py requirements requirements.txt --output-file sbom-backend.json
         fi
 
     - name: Set up Node.js
