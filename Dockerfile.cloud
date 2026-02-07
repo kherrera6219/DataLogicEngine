@@ -7,7 +7,7 @@ WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm ci
 COPY frontend/ ./
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # --- Stage 2: Final Runtime ---
@@ -46,13 +46,12 @@ COPY --from=frontend-builder /app/frontend/public ./frontend/.next/standalone/pu
 # Create non-root user
 RUN adduser --disabled-password --gecos '' appuser
 RUN chown -R appuser:appuser /app
-USER appuser
 
 # Expose ports
 EXPOSE 5000 3000
 
 # Entrypoint script to run both (for single-container cloud deployment like Cloud Run or simple VPS)
-COPY <<EOF /app/entrypoint.sh
+COPY <<'EOF' /app/entrypoint.sh
 #!/bin/bash
 # Start backend
 gunicorn --bind 0.0.0.0:5000 --workers 2 --threads 4 app:app &
@@ -67,5 +66,6 @@ wait $BACKEND_PID $FRONTEND_PID
 EOF
 
 RUN chmod +x /app/entrypoint.sh
+USER appuser
 
 CMD ["/app/entrypoint.sh"]
