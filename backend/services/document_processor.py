@@ -1,7 +1,7 @@
 """
 Document Processor - PRODUCTION VERSION
 ---------------------------------------
-Real document processing using PyPDF2, pytesseract, and python-docx.
+Real document processing using pypdf, pytesseract, and python-docx.
 """
 import logging
 import io
@@ -62,12 +62,18 @@ class DocumentProcessor:
             raise ValueError(f"Failed to process document: {e}")
     
     def _process_pdf(self, file_bytes: bytes, filename: str) -> Dict[str, Any]:
-        """Extract text from PDF using PyPDF2."""
+        """Extract text from PDF using pypdf (or PyPDF2 compatibility fallback)."""
         try:
-            import PyPDF2
-            
+            # Prefer pypdf (actively maintained), but keep PyPDF2 fallback
+            # for compatibility with legacy runtimes.
+            try:
+                from pypdf import PdfReader
+            except ImportError:
+                import PyPDF2  # type: ignore
+                PdfReader = PyPDF2.PdfReader
+
             pdf_file = io.BytesIO(file_bytes)
-            pdf_reader = PyPDF2.PdfReader(pdf_file)
+            pdf_reader = PdfReader(pdf_file)
             
             text_parts = []
             for page_num, page in enumerate(pdf_reader.pages):
@@ -87,10 +93,10 @@ class DocumentProcessor:
                 }
             }
         except ImportError:
-            logger.warning("PyPDF2 not installed, using fallback")
+            logger.warning("pypdf not installed, using fallback")
             return {
-                "text": "[PDF processing requires PyPDF2 library]",
-                "metadata": {"type": "pdf", "error": "PyPDF2 not installed"}
+                "text": "[PDF processing requires pypdf library]",
+                "metadata": {"type": "pdf", "error": "pypdf not installed"}
             }
         except Exception as e:
             logger.error(f"PDF processing error: {e}")

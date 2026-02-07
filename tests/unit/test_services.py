@@ -64,14 +64,15 @@ def test_document_processor_empty():
     with pytest.raises(ValueError, match="empty"):
         dp.process_file(b"", "test.txt", "text/plain")
 
-@patch('backend.services.document_processor.io.BytesIO')
-def test_document_processor_pdf_mock(mock_bytes_io):
+def test_document_processor_pdf_mock():
     mock_pdf = MagicMock()
     mock_page = MagicMock()
     mock_page.extract_text.return_value = "PDF Content"
     mock_pdf.PdfReader.return_value.pages = [mock_page]
-    
-    with patch.dict(sys.modules, {'PyPDF2': mock_pdf}):
+    mock_pdf.PdfReader.return_value.is_encrypted = False
+    mock_pdf.PdfReader.return_value.metadata = {}
+
+    with patch.dict(sys.modules, {'pypdf': mock_pdf}):
         dp = DocumentProcessor()
         result = dp.process_file(b"fake_pdf", "test.pdf", "application/pdf")
         assert result['text'] == "PDF Content"

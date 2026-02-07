@@ -78,7 +78,7 @@ sentry-sdk==2.51.0
 # Multimodal/document processing used by backend services
 opencv-python==4.13.0.90
 pillow==12.1.0
-PyPDF2==3.0.1
+pypdf==6.6.2
 pytesseract==0.3.13
 python-docx==1.2.0
 
