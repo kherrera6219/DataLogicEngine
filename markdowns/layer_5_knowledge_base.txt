@@ -1,0 +1,87 @@
+# Layer 5: Multi-Agent Collaboration - Knowledge Base Files
+
+## agent_profiles.yaml
+agent_profiles:
+  knowledge_expert:
+    id: "KE_001"
+    expertise_domains: ["research", "analysis", "data_interpretation"]
+    trust_level: 0.95
+    decision_weight: 0.25
+    communication_style: "analytical"
+    conflict_resolution_preference: "evidence_based"
+    
+  industry_expert:
+    id: "IE_001"
+    expertise_domains: ["sector_specific", "market_dynamics", "industry_standards"]
+    trust_level: 0.90
+    decision_weight: 0.25
+    communication_style: "practical"
+    conflict_resolution_preference: "consensus_building"
+    
+  regulatory_expert:
+    id: "RE_001"
+    expertise_domains: ["compliance", "regulatory_framework", "legal_requirements"]
+    trust_level: 0.98
+    decision_weight: 0.25
+    communication_style: "structured"
+    conflict_resolution_preference: "rule_based"
+    
+  compliance_expert:
+    id: "CE_001"
+    expertise_domains: ["cross_regulation", "policy_alignment", "risk_assessment"]
+    trust_level: 0.92
+    decision_weight: 0.25
+    communication_style: "comprehensive"
+    conflict_resolution_preference: "systematic"
+
+## consensus_algorithms.yaml
+consensus_mechanisms:
+  weighted_voting:
+    algorithm: "KA-17"
+    parameters:
+      weight_factors: ["expertise", "confidence", "evidence_quality"]
+      threshold: 0.75
+      minimum_agreement: 0.60
+      
+  debate_protocol:
+    rounds: 3
+    time_limit_per_round: "10ms"
+    argument_structure: ["claim", "evidence", "reasoning"]
+    rebuttal_allowed: true
+    
+  conflict_resolution:
+    escalation_threshold: 0.40
+    resolution_methods: ["evidence_review", "expert_arbitration", "weighted_compromise"]
+    timeout_handling: "default_to_highest_confidence"
+
+## emergent_patterns.yaml
+known_emergent_patterns:
+  cross_domain_synthesis:
+    description: "Solution emerges from combining insights across domains"
+    indicators: ["novel_connections", "unexpected_synergies"]
+    validation_required: true
+    
+  collective_intelligence:
+    description: "Group solution exceeds sum of individual contributions"
+    indicators: ["enhanced_creativity", "breakthrough_insights"]
+    monitoring_level: "high"
+    
+  consensus_breakthrough:
+    description: "Sudden agreement after prolonged disagreement"
+    indicators: ["rapid_convergence", "paradigm_shift"]
+    post_analysis_required: true
+
+## debate_templates.yaml
+debate_structures:
+  structured_argumentation:
+    phases: ["position_statement", "evidence_presentation", "cross_examination", "synthesis"]
+    time_allocation: [2, 3, 3, 2]  # milliseconds
+    
+  evidence_ranking:
+    criteria: ["reliability", "relevance", "recency", "source_authority"]
+    scoring_method: "weighted_sum"
+    
+  resolution_protocols:
+    tie_breaking: "defer_to_regulatory_expert"
+    insufficient_evidence: "request_additional_data"
+    irreconcilable_differences: "escalate_to_layer_9"

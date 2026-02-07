@@ -1,0 +1,40 @@
+{
+  "ukg_complete_master_workflow": {
+    "version": "2.1",
+    "description": "Complete UKG Simulation Stack Master Workflow (Layers 1-10)",
+    "last_updated": "2025-09-10",
+    
+    "system_overview": {
+      "total_layers": 10,
+      "total_kas": 65,
+      "total_knowledge_bases": 54,
+      "total_sub_workflows": 50,
+      "performance_target": "≤315ms",
+      "optimal_target": "≤265ms"
+    },
+    
+    "group_a_master_workflow": {
+      "group_id": "GROUP_A",
+      "layers": "1-4",
+      "purpose": "Foundation setup, knowledge retrieval, and multi-perspective preparation",
+      "performance_target": "≤115ms",
+      
+      "layer_1_primary_simulation": {
+        "workflow_id": "L1_PSI_WORKFLOW",
+        "purpose": "Input parsing, validation, and simulation setup",
+        "performance_target": "≤15ms",
+        "ka_algorithms": ["KA-01", "KA-02", "KA-03", "KA-04", "KA-05", "KA-06"],
+        "knowledge_bases": [
+          "query_pattern_templates.yaml",
+          "domain_classification_database.yaml", 
+          "validation_rule_engine.yaml",
+          "algorithm_selection_matrix.yaml",
+          "reasoning_strategy_library.yaml",
+          "context_initialization_templates.yaml"
+        ],
+        "sub_workflows": {
+          "1.1": {
+            "name": "Input Reception & Initial Validation",
+            "steps": ["raw_input_reception", "basic_format_validation", "data_provenance_establishment", "security_screening", "input_quality_assessment"],
+            "ka_algorithms": ["KA-04"],
+            "performance_target": "≤3ms"
