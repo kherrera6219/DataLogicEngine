@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.2] - 2026-02-07
+
+### Fixed
+- Corrected timezone handling in token revocation by using `datetime.fromtimestamp(..., UTC)` in `backend/security/token_manager.py`, preventing naive/aware datetime subtraction errors during logout and blacklist flows.
+
+### Added
+- High-coverage test suites for previously under-tested modules:
+  - Security: token manager, vulnerability scanner, compliance manager, sanitizer, context-aware drift detection.
+  - APIs: methods API, security API, security scan API, regulatory API, pillar API.
+  - Infrastructure/logic: MCP registry/router/tools, trace logger, node repository, REST API, TruthGate budget and compliance modules.
+
+### Testing
+- Full coverage-gated run now passes:
+  - Command: `pytest tests`
+  - Result: `1461 passed, 21 skipped`
+  - Coverage: `70.20%` (required: `70%`).
+
 ## [4.1.1] - 2026-02-07
 
 ### Fixed

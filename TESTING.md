@@ -102,7 +102,7 @@ npm run test:coverage
 
 - Full functional backend/system test pass:
   - Command: `pytest tests --no-cov`
-  - Result: `1419 passed, 21 skipped`
+  - Result: `1461 passed, 21 skipped`
 - Coverage gate status:
   - Command: `pytest tests`
-  - Result: tests pass, but coverage is `64.20%` and does not meet `fail-under=70`.
+  - Result: coverage gate passes at `70.20%` (required: `70%`).

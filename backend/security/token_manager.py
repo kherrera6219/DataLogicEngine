@@ -186,7 +186,7 @@ class TokenManager:
 
             if token_id and exp_timestamp:
                 # Calculate time until expiry
-                exp_datetime = datetime.fromtimestamp(exp_timestamp)
+                exp_datetime = datetime.fromtimestamp(exp_timestamp, UTC)
                 expires_in = exp_datetime - datetime.now(UTC)
 
                 if expires_in.total_seconds() > 0:
