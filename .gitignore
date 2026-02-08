@@ -31,6 +31,9 @@ frontend/build/
 frontend/dist/
 frontend/dist-smoke/
 frontend/dist-electron/
+frontend/storybook-static/
+frontend/lint-results.json
+frontend/test-results/
 deploy/windows/build/
 deploy/windows/*.exe
 deploy/windows/*.msi
@@ -53,6 +56,10 @@ deploy/windows/*.msi
 # Logs
 *.log
 logs/
+frontend/build_log*.txt
+frontend/build_output.txt
+frontend/lint_output*.txt
+frontend/storybook_build_log*.txt
 
 # OS
 .DS_Store
