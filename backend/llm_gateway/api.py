@@ -362,6 +362,7 @@ def list_active_providers():
                 'type': p.provider_type,
                 'model': p.model_id,
                 'is_default': p.is_default,
+                'has_api_key': bool(getattr(p, 'api_key_encrypted', None)),
             }
             for p in providers
         ]

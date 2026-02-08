@@ -350,6 +350,53 @@ def start_databases():
         }), 500
 
 
+@storage_api.route('/databases/autostart', methods=['GET'])
+@login_required
+def get_database_autostart():
+    """Get persisted desktop auto-start preference for local databases."""
+    try:
+        from backend.storage.runtime_settings import get_auto_start_databases
+
+        return jsonify({
+            'success': True,
+            'enabled': bool(get_auto_start_databases()),
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@storage_api.route('/databases/autostart', methods=['POST'])
+@login_required
+def set_database_autostart():
+    """Persist desktop auto-start preference for local databases."""
+    try:
+        from backend.storage.runtime_settings import set_auto_start_databases
+
+        data = request.get_json() or {}
+        if 'enabled' not in data:
+            return jsonify({
+                'success': False,
+                'error': 'enabled flag is required'
+            }), 400
+
+        enabled = bool(data.get('enabled'))
+        saved = set_auto_start_databases(enabled)
+
+        return jsonify({
+            'success': True,
+            'enabled': saved,
+            'message': 'Auto-start preference saved',
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @storage_api.route('/databases/stop', methods=['POST'])
 @login_required
 def stop_databases():

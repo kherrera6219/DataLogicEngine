@@ -4,8 +4,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import DatabaseSettings from './DatabaseSettings';
 import { request } from '@/lib/api';
 
+const toastMock = vi.fn();
+
 vi.mock('@/lib/api', () => ({
   request: vi.fn(),
+}));
+
+vi.mock('@/components/ui/use-toast', () => ({
+  useToast: () => ({ toast: toastMock }),
 }));
 
 vi.mock('@/components/ui/card', () => ({
@@ -30,6 +36,7 @@ vi.mock('@/components/ui/tabs', () => ({
 describe('DatabaseSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    toastMock.mockReset();
   });
 
   it('should render loading state initially', () => {
@@ -43,6 +50,9 @@ describe('DatabaseSettings', () => {
       services: {
         postgres: { healthy: true, is_cloud: false },
         redis: { healthy: false, is_cloud: false },
+        neo4j: { healthy: true, is_cloud: false },
+        vector: { healthy: true, is_cloud: false },
+        object: { healthy: true, is_cloud: false },
       },
     });
 
@@ -52,15 +62,21 @@ describe('DatabaseSettings', () => {
       expect(screen.getByText('Database Connections')).toBeInTheDocument();
       expect(screen.getByText('PostgreSQL')).toBeInTheDocument();
       expect(screen.getByText('Redis')).toBeInTheDocument();
-      expect(screen.getByText('Online')).toBeInTheDocument();
-      expect(screen.getByText('Offline')).toBeInTheDocument();
+      expect(screen.getAllByText('Online').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Offline').length).toBeGreaterThan(0);
     });
   });
 
   it('should handle start all databases', async () => {
     vi.mocked(request).mockResolvedValue({
       mode: 'local',
-      services: {},
+      services: {
+        postgres: { healthy: true, is_cloud: false },
+        redis: { healthy: false, is_cloud: false },
+        neo4j: { healthy: true, is_cloud: false },
+        vector: { healthy: true, is_cloud: false },
+        object: { healthy: true, is_cloud: false },
+      },
     });
 
     render(<DatabaseSettings />);
@@ -68,5 +84,24 @@ describe('DatabaseSettings', () => {
 
     fireEvent.click(screen.getByText('Start All'));
     expect(request).toHaveBeenCalledWith('/storage/databases/start', { method: 'POST' });
+  });
+
+  it('should persist auto-start toggle', async () => {
+    vi.mocked(request).mockResolvedValue({
+      mode: 'local',
+      services: {
+        postgres: { healthy: true, is_cloud: false },
+        redis: { healthy: false, is_cloud: false },
+        neo4j: { healthy: true, is_cloud: false },
+        vector: { healthy: true, is_cloud: false },
+        object: { healthy: true, is_cloud: false },
+      },
+    });
+
+    render(<DatabaseSettings />);
+    await waitFor(() => screen.getByRole('switch'));
+
+    fireEvent.click(screen.getByRole('switch'));
+    expect(request).toHaveBeenCalledWith('/storage/databases/autostart', expect.objectContaining({ method: 'POST' }));
   });
 });

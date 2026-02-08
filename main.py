@@ -29,6 +29,7 @@ except ImportError:
 
 from app import app, DEFAULT_PORT
 from backend.storage.database_manager import get_db_manager
+from backend.storage.runtime_settings import get_auto_start_databases
 
 def signal_handler(sig, frame):
     """Ensure databases are stopped on exit."""
@@ -42,11 +43,14 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    # Start databases if in desktop mode
+    # Start databases in desktop mode only if preference is enabled.
     if os.environ.get('IS_DESKTOP_APP', 'False').lower() == 'true':
-        print("Desktop Mode Detected: Initializing local databases...")
-        db_manager = get_db_manager()
-        db_manager.start_all()
+        if get_auto_start_databases():
+            print("Desktop Mode Detected: Initializing local databases...")
+            db_manager = get_db_manager()
+            db_manager.start_all()
+        else:
+            print("Desktop Mode Detected: Database auto-start disabled by settings.")
     
     port = int(os.environ.get('PORT', DEFAULT_PORT))
     debug_mode = os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'

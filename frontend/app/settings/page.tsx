@@ -22,6 +22,10 @@ const DatabaseSettings = dynamic(
   () => import("@/components/settings/DatabaseSettings"),
   { loading: () => <div className="p-6 text-sm text-muted-foreground">Loading storage configuration...</div> }
 );
+const AiModelSettings = dynamic(
+  () => import("@/components/settings/AiModelSettings"),
+  { loading: () => <div className="p-6 text-sm text-muted-foreground">Loading AI model controls...</div> }
+);
 
 interface UserDataSummary {
   account_created?: string;
@@ -215,12 +219,7 @@ export default function SettingsPage() {
 
                    {/* AI MODELS */}
                    <TabsContent value="ai" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
-                      <Card className="fluent-card">
-                         <CardContent className="min-h-[300px] flex flex-col items-center justify-center text-slate-500 dark:text-gray-500">
-                             <Brain className="h-12 w-12 mb-4 opacity-20" />
-                             <p>AI Model Controls Pending</p>
-                         </CardContent>
-                      </Card>
+                      <AiModelSettings />
                    </TabsContent>
 
                </div>

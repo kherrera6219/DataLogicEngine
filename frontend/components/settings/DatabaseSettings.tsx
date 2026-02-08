@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Database, Server, HardDrive, Network, Zap, 
   CheckCircle, XCircle, RefreshCw, Play, Square,
@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { request } from '@/lib/api';
+import { useToast } from '@/components/ui/use-toast';
 
 interface ServiceStatus {
   healthy: boolean;
@@ -34,6 +35,16 @@ interface StorageHealth {
   };
 }
 
+interface AutoStartResponse {
+  enabled?: boolean;
+  message?: string;
+}
+
+interface LifecycleResponse {
+  success?: boolean;
+  message?: string;
+}
+
 const SERVICE_ICONS: Record<string, React.ElementType> = {
   postgres: Database,
   redis: Zap,
@@ -50,30 +61,63 @@ const SERVICE_LABELS: Record<string, string> = {
   object: 'Object Storage',
 };
 
+function formatErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+}
+
+function isStorageHealth(value: unknown): value is StorageHealth {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Partial<StorageHealth>;
+  if (!candidate.services || typeof candidate.services !== 'object') return false;
+  const requiredKeys: Array<keyof StorageHealth['services']> = ['postgres', 'redis', 'neo4j', 'vector', 'object'];
+  return requiredKeys.every((key) => Boolean(candidate.services && key in candidate.services));
+}
+
 export function DatabaseSettings() {
+  const { toast } = useToast();
   const [health, setHealth] = useState<StorageHealth | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [testing, setTesting] = useState<string | null>(null);
+  const [lifecycleAction, setLifecycleAction] = useState<'start' | 'stop' | null>(null);
   const [mode, setMode] = useState<'local' | 'cloud' | 'hybrid'>('local');
+  const [autoStartEnabled, setAutoStartEnabled] = useState(true);
+  const [savingAutoStart, setSavingAutoStart] = useState(false);
   const [activeTab, setActiveTab] = useState('status');
 
-  const fetchHealth = async () => {
+  const fetchHealth = useCallback(async () => {
     try {
-      const data = await request<StorageHealth>('/storage/health');
-      setHealth(data);
-      setMode(data.mode as 'local' | 'cloud' | 'hybrid');
+      const [healthData, autoStartData] = await Promise.all([
+        request<StorageHealth>('/storage/health'),
+        request<AutoStartResponse>('/storage/databases/autostart').catch(() => ({ enabled: true })),
+      ]);
+
+      if (isStorageHealth(healthData)) {
+        setHealth(healthData);
+        setMode((healthData.mode || 'local') as 'local' | 'cloud' | 'hybrid');
+      } else {
+        setHealth(null);
+        toast('Storage health response format was invalid.', 'warning');
+      }
+
+      if (typeof autoStartData.enabled === 'boolean') {
+        setAutoStartEnabled(autoStartData.enabled);
+      }
     } catch (error) {
       console.error('Failed to fetch storage health:', error);
+      toast(`Failed to fetch storage health: ${formatErrorMessage(error)}`, 'error');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
-    fetchHealth();
-  }, []);
+    void fetchHealth();
+  }, [fetchHealth]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -85,28 +129,63 @@ export function DatabaseSettings() {
     try {
       await request(`/storage/health/${service}`);
       await fetchHealth();
+      toast(`${SERVICE_LABELS[service] || service} health check complete.`, 'success', 2000);
     } catch (error) {
       console.error(`Failed to test ${service}:`, error);
+      toast(`Failed to test ${SERVICE_LABELS[service] || service}: ${formatErrorMessage(error)}`, 'error');
     } finally {
       setTesting(null);
     }
   };
 
   const handleStartDatabases = async () => {
+    if (lifecycleAction) return;
+    setLifecycleAction('start');
     try {
-      await request('/storage/databases/start', { method: 'POST' });
-      setTimeout(fetchHealth, 2000);
+      const result = await request<LifecycleResponse>('/storage/databases/start', { method: 'POST' });
+      toast(result.message || 'Database startup initiated.', 'success');
+      setTimeout(fetchHealth, 1200);
     } catch (error) {
       console.error('Failed to start databases:', error);
+      toast(`Failed to start databases: ${formatErrorMessage(error)}`, 'error');
+    } finally {
+      setLifecycleAction(null);
     }
   };
 
   const handleStopDatabases = async () => {
+    if (lifecycleAction) return;
+    setLifecycleAction('stop');
     try {
-      await request('/storage/databases/stop', { method: 'POST' });
+      const result = await request<LifecycleResponse>('/storage/databases/stop', { method: 'POST' });
+      toast(result.message || 'Database shutdown initiated.', 'success');
       setTimeout(fetchHealth, 1000);
     } catch (error) {
       console.error('Failed to stop databases:', error);
+      toast(`Failed to stop databases: ${formatErrorMessage(error)}`, 'error');
+    } finally {
+      setLifecycleAction(null);
+    }
+  };
+
+  const handleAutoStartChange = async (enabled: boolean) => {
+    const previous = autoStartEnabled;
+    setAutoStartEnabled(enabled);
+    setSavingAutoStart(true);
+    try {
+      const result = await request<AutoStartResponse>('/storage/databases/autostart', {
+        method: 'POST',
+        body: JSON.stringify({ enabled }),
+      });
+      if (typeof result.enabled === 'boolean') {
+        setAutoStartEnabled(result.enabled);
+      }
+      toast(result.message || 'Auto-start preference saved.', 'success', 2000);
+    } catch (error) {
+      setAutoStartEnabled(previous);
+      toast(`Failed to save auto-start preference: ${formatErrorMessage(error)}`, 'error');
+    } finally {
+      setSavingAutoStart(false);
     }
   };
 
@@ -203,7 +282,7 @@ export function DatabaseSettings() {
       {/* Status Overview */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-4">
               <div className={`p-3 rounded-full ${healthyCount === totalCount ? 'bg-green-100 dark:bg-green-900' : 'bg-yellow-100 dark:bg-yellow-900'}`}>
                 {healthyCount === totalCount ? (
@@ -216,19 +295,27 @@ export function DatabaseSettings() {
                 <p className="font-medium">
                   {healthyCount}/{totalCount} Services Online
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <div className="text-sm text-muted-foreground">
                   Mode: <Badge variant="secondary">{mode.toUpperCase()}</Badge>
-                </p>
+                </div>
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleStartDatabases}>
-                <Play className="h-4 w-4 mr-2" />
-                Start All
+              <Button variant="outline" onClick={handleStartDatabases} disabled={lifecycleAction !== null}>
+                {lifecycleAction === 'start' ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Play className="h-4 w-4 mr-2" />
+                )}
+                {lifecycleAction === 'start' ? 'Starting...' : 'Start All'}
               </Button>
-              <Button variant="outline" onClick={handleStopDatabases}>
-                <Square className="h-4 w-4 mr-2" />
-                Stop All
+              <Button variant="outline" onClick={handleStopDatabases} disabled={lifecycleAction !== null}>
+                {lifecycleAction === 'stop' ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Square className="h-4 w-4 mr-2" />
+                )}
+                {lifecycleAction === 'stop' ? 'Stopping...' : 'Stop All'}
               </Button>
             </div>
           </div>
@@ -266,11 +353,11 @@ export function DatabaseSettings() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>PostgreSQL Port</Label>
-                  <Input type="number" defaultValue="54320" />
+                  <Input type="number" defaultValue="5432" />
                 </div>
                 <div className="space-y-2">
                   <Label>Redis Port</Label>
-                  <Input type="number" defaultValue="63790" />
+                  <Input type="number" defaultValue="6379" />
                 </div>
                 <div className="space-y-2">
                   <Label>Neo4j Bolt Port</Label>
@@ -282,8 +369,17 @@ export function DatabaseSettings() {
                 </div>
               </div>
               <div className="flex items-center space-x-2 pt-4">
-                <Switch id="auto-start" />
-                <Label htmlFor="auto-start">Auto-start databases on application launch</Label>
+                <Switch
+                  id="auto-start"
+                  checked={autoStartEnabled}
+                  onCheckedChange={handleAutoStartChange}
+                  disabled={savingAutoStart}
+                />
+                <Label htmlFor="auto-start">
+                  {savingAutoStart
+                    ? 'Saving auto-start preference...'
+                    : 'Auto-start databases on application launch'}
+                </Label>
               </div>
             </CardContent>
           </Card>
