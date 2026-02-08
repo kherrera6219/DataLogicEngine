@@ -119,7 +119,8 @@ Status update after post-phase remediation pass:
    - `backend/simulation/simulation_engine.py`: **89.92%**
    - `backend/storage/database_manager.py`: **79.51%**
    - `backend/storage/vector_store.py`: **93.96%**
-4. Deploy repository variables (`DEPLOY_COMMAND`, optional `PRODUCTION_HEALTHCHECK_URL`): **Open**
+4. Deploy repository variables (`DEPLOY_COMMAND`, optional `PRODUCTION_HEALTHCHECK_URL`): **In Progress**
+   Deploy workflow now has a hard config gate; operator must set repository variables in GitHub settings.
 5. CSP nonce rollout to remove remaining production inline compatibility: **Open**
 
 ## 8. Outstanding Item Progress (Round 2)
@@ -139,3 +140,7 @@ Additional remediation completed for Item 2 (Bandit baseline retirement):
    - `bandit -r backend core -ll -ii` reports **0 medium / 0 high** findings.
    - `bandit -r backend core -b .bandit-baseline.json -ll -ii` reports **no new medium/high** findings.
    - Targeted regressions pass (`password_security` and `ka_98` test paths).
+3. Deployment workflow hardening:
+   - Added explicit `Deployment Config Gate` job in `.github/workflows/deploy.yml`.
+   - Manual `workflow_dispatch` now supports deployment verification via `deploy_production` input.
+   - Deploy now fails fast when `DEPLOY_COMMAND` is not configured, instead of silent skip.

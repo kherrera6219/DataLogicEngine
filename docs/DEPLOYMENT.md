@@ -89,6 +89,34 @@ The workflow publishes multiple tags through `docker/metadata-action`:
 - Confirm `Build Docker Images` completes.
 - Confirm package appears under `ghcr.io/<owner>/datalogicengine` if `GHCR_PAT` is set.
 
+### 2.2 Production Deploy Variables (Required)
+
+`deploy-production` now uses a hard gate and will fail if the required repository variable is missing.
+
+Required:
+- `DEPLOY_COMMAND`
+  - Shell command executed in the deploy job.
+  - Example: `./deploy/deploy_production.sh`
+
+Recommended:
+- `PRODUCTION_HEALTHCHECK_URL`
+  - URL checked after deployment for readiness.
+  - Example: `https://datalogicengine.com/health`
+
+#### Configure repository variables
+
+1. Open repository `Settings` -> `Secrets and variables` -> `Actions` -> `Variables`.
+2. Create `DEPLOY_COMMAND` with your production deploy command.
+3. Create `PRODUCTION_HEALTHCHECK_URL` (recommended).
+
+#### Verify deployment workflow config
+
+1. Open `Actions` -> `Deploy` -> `Run workflow`.
+2. Run once with `deploy_production=false` to verify build/test/image stages.
+3. Run again with `deploy_production=true`:
+   - If `DEPLOY_COMMAND` is missing, `Deployment Config Gate` fails with actionable errors.
+   - If configured, deployment runs and health check executes when `PRODUCTION_HEALTHCHECK_URL` is set.
+
 ## 3. Performance Optimization (Phase 38)
 
 ### Frontend Bundle Analysis
