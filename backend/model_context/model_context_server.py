@@ -402,5 +402,6 @@ async def optimize_context_window(
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("MODEL_CONTEXT_PORT", 5002))
+    host = os.environ.get("MODEL_CONTEXT_HOST", os.environ.get("SERVICE_BIND_HOST", "127.0.0.1"))
     logger.info(f"Starting Model Context Protocol Server on port {port}")
-    uvicorn.run("model_context_server:app", host="0.0.0.0", port=port, reload=True)
+    uvicorn.run("model_context_server:app", host=host, port=port, reload=True)

@@ -90,8 +90,8 @@ class PasswordSecurity:
             Returns (False, None) if API is unavailable
         """
         try:
-            # Hash the password with SHA-1
-            sha1_hash = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
+            # HIBP range API requires SHA-1 prefix lookup (k-anonymity), not security hashing.
+            sha1_hash = hashlib.sha1(password.encode("utf-8"), usedforsecurity=False).hexdigest().upper()
 
             # Split into prefix (first 5 chars) and suffix
             prefix, suffix = sha1_hash[:5], sha1_hash[5:]

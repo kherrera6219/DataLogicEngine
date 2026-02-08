@@ -228,5 +228,6 @@ async def custom_404_handler(request: Request, exc):
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("API_GATEWAY_PORT", 5000))
+    host = os.environ.get("API_GATEWAY_HOST", os.environ.get("SERVICE_BIND_HOST", "127.0.0.1"))
     logger.info(f"Starting API Gateway on port {port}")
-    uvicorn.run("api_gateway:app", host="0.0.0.0", port=port, reload=True)
+    uvicorn.run("api_gateway:app", host=host, port=port, reload=True)

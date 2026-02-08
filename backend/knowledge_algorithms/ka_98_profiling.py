@@ -5,13 +5,13 @@ Purpose: Profile system performance down to function calls and memory allocation
 import logging
 import json
 import os
+import tempfile
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA098ProfilingInput(BaseModel):
     target: str = Field("main_pipeline", description="The function or component to profile")
@@ -47,12 +47,18 @@ class KA098Profiling(KnowledgeAlgorithm):
             "calls_intercepted": 1500,
             "hot_spots": ["ka_66_causal_inference", "ukg_sdk_query"]
         }
+        profile_output_dir = self.config.get("output_dir") or os.path.join(
+            tempfile.gettempdir(), "datalogic_profiles"
+        )
         
         return {
             "success": True,
             "target": target_fn,
             "metrics": metrics,
-            "profile_dump": os.path.join(self.config.get('output_dir', "/tmp/profiles"), f"prof_{os.urandom(2).hex()}.json")
+            "profile_dump": os.path.join(
+                profile_output_dir,
+                f"prof_{os.urandom(2).hex()}.json"
+            )
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

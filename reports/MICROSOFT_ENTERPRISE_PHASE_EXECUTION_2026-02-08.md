@@ -121,3 +121,21 @@ Status update after post-phase remediation pass:
    - `backend/storage/vector_store.py`: **93.96%**
 4. Deploy repository variables (`DEPLOY_COMMAND`, optional `PRODUCTION_HEALTHCHECK_URL`): **Open**
 5. CSP nonce rollout to remove remaining production inline compatibility: **Open**
+
+## 8. Outstanding Item Progress (Round 2)
+
+Additional remediation completed for Item 2 (Bandit baseline retirement):
+
+1. Removed remaining medium/high findings from priority modules by:
+   - parameterizing bind hosts in startup entrypoints:
+     `backend/api_gateway/api_gateway.py`,
+     `backend/model_context/model_context_server.py`,
+     `backend/webhook_server/webhook_server.py`
+   - replacing hardcoded temp directory fallback in:
+     `backend/knowledge_algorithms/ka_98_profiling.py`
+   - preserving required HIBP SHA-1 behavior with explicit non-security intent in:
+     `backend/security/password_security.py`
+2. Validation:
+   - `bandit -r backend core -ll -ii` reports **0 medium / 0 high** findings.
+   - `bandit -r backend core -b .bandit-baseline.json -ll -ii` reports **no new medium/high** findings.
+   - Targeted regressions pass (`password_security` and `ka_98` test paths).

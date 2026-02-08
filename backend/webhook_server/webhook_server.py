@@ -276,5 +276,6 @@ async def process_jira_webhook(data: Dict[str, Any], headers: Dict[str, str]):
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("WEBHOOK_SERVER_PORT", 5001))
+    host = os.environ.get("WEBHOOK_SERVER_HOST", os.environ.get("SERVICE_BIND_HOST", "127.0.0.1"))
     logger.info(f"Starting Webhook Server on port {port}")
-    uvicorn.run("webhook_server:app", host="0.0.0.0", port=port, reload=True)
+    uvicorn.run("webhook_server:app", host=host, port=port, reload=True)
