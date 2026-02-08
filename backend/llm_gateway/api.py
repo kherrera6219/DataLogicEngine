@@ -6,7 +6,7 @@ Also includes admin endpoints for provider and API key management.
 """
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, UTC
 from functools import wraps
 from flask import Blueprint, request, jsonify, Response, stream_with_context, g
 from flask_login import login_required, current_user
@@ -39,6 +39,103 @@ def _parse_uuid_or_404(value: str, field_name: str):
         return jsonify({'error': f'Invalid {field_name}'}), 404
 
 
+def _normalize_allowlist(values) -> set[str]:
+    """Normalize provider/model allowlists from API key records."""
+    if isinstance(values, str):
+        values = [values]
+    if not isinstance(values, (list, tuple, set)):
+        return set()
+
+    normalized: set[str] = set()
+    for value in values:
+        if value is None:
+            continue
+        text = str(value).strip().lower()
+        if text:
+            normalized.add(text)
+    return normalized
+
+
+def _cache_counter_value(raw_value) -> int:
+    """Coerce cache counter values to int safely."""
+    if raw_value is None:
+        return 0
+    if isinstance(raw_value, bytes):
+        raw_value = raw_value.decode('utf-8', errors='ignore')
+    try:
+        return int(raw_value)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _positive_int(value):
+    """Parse positive integer values from model fields/config."""
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return None
+    return parsed if parsed > 0 else None
+
+
+def _apply_api_key_request_policy(payload: dict):
+    """
+    Enforce API key policy controls on gateway requests.
+
+    Returns a Flask response tuple on policy violation, otherwise None.
+    """
+    api_key = getattr(g, 'api_key', None)
+    if not api_key:
+        return None
+
+    permissions = api_key.permissions if isinstance(api_key.permissions, dict) else {}
+    if permissions:
+        can_chat = bool(
+            permissions.get('write')
+            or permissions.get('chat')
+            or permissions.get('read')
+        )
+        if not can_chat:
+            return jsonify({'error': 'API key permission denied'}), 403
+
+    requested_provider = str(payload.get('provider') or '').strip().lower()
+    requested_model = str(payload.get('model') or '').strip().lower()
+
+    allowed_providers = _normalize_allowlist(api_key.allowed_providers)
+    if allowed_providers and requested_provider and requested_provider not in allowed_providers:
+        return jsonify({'error': 'Requested provider is not allowed for this API key'}), 403
+
+    allowed_models = _normalize_allowlist(api_key.allowed_models)
+    if allowed_models and requested_model and requested_model not in allowed_models:
+        return jsonify({'error': 'Requested model is not allowed for this API key'}), 403
+
+    max_tokens_allowed = _positive_int(api_key.max_tokens_per_request)
+    max_tokens_requested = payload.get('max_tokens')
+    if max_tokens_allowed and max_tokens_requested is not None:
+        try:
+            parsed_max_tokens = int(max_tokens_requested)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'max_tokens must be an integer'}), 400
+        if parsed_max_tokens > max_tokens_allowed:
+            return jsonify({
+                'error': 'Requested max_tokens exceeds API key policy',
+                'max_tokens_per_request': max_tokens_allowed,
+            }), 400
+
+    meta = payload.get('meta')
+    if not isinstance(meta, dict):
+        meta = {}
+        payload['meta'] = meta
+
+    if permissions:
+        meta['api_key_permissions'] = permissions
+    if allowed_providers:
+        meta['allowed_provider_types'] = sorted(allowed_providers)
+    if allowed_models:
+        meta['allowed_models'] = sorted(allowed_models)
+
+    return None
+
+
 # ============== API Key Authentication ==============
 
 def api_key_required(f):
@@ -47,26 +144,40 @@ def api_key_required(f):
     @wraps(f)
     async def decorated(*args, **kwargs):
         # Check for API key in header
-        api_key = request.headers.get('X-API-Key') or request.headers.get('Authorization', '').replace('Bearer ', '')
+        auth_header = request.headers.get('Authorization', '')
+        api_key = request.headers.get('X-API-Key')
+        if not api_key and auth_header.lower().startswith('bearer '):
+            api_key = auth_header.split(' ', 1)[1].strip()
         
         if api_key and api_key.startswith('ukg_'):
             # Validate API key
             key_record = ExternalAPIKey.verify_key(api_key)
             if not key_record:
                 return jsonify({'error': 'Invalid API key'}), 401
-            
+
+            rpm_limit = _positive_int(getattr(key_record, 'rate_limit_rpm', None))
+            daily_limit = _positive_int(getattr(key_record, 'rate_limit_daily', None))
+
             # Rate Limiting (Redis-backed)
-            if cache and key_record.rate_limit_rpm:
+            if cache and rpm_limit:
                 limit_key = f"rl:{key_record.id}:{int(datetime.now().timestamp() // 60)}"
                 # Use current minute bucket
-                current_usage = cache.get(limit_key) or 0
-                if current_usage >= key_record.rate_limit_rpm:
-                    return jsonify({'error': 'Rate limit exceeded', 'limit': f'{key_record.rate_limit_rpm}/min'}), 429
+                current_usage = _cache_counter_value(cache.get(limit_key))
+                if current_usage >= rpm_limit:
+                    return jsonify({'error': 'Rate limit exceeded', 'limit': f'{rpm_limit}/min'}), 429
                 
                 cache.set(limit_key, current_usage + 1, timeout=60)
+
+            if cache and daily_limit:
+                daily_key = f"rld:{key_record.id}:{datetime.now(UTC).strftime('%Y%m%d')}"
+                daily_usage = _cache_counter_value(cache.get(daily_key))
+                if daily_usage >= daily_limit:
+                    return jsonify({'error': 'Daily rate limit exceeded', 'limit': f'{daily_limit}/day'}), 429
+
+                cache.set(daily_key, daily_usage + 1, timeout=24 * 60 * 60)
             
             # Update usage stats
-            key_record.total_requests += 1
+            key_record.total_requests = (key_record.total_requests or 0) + 1
             key_record.last_used_at = db.func.now()
             db.session.commit()
             
@@ -109,6 +220,10 @@ async def gateway_chat():
         return jsonify({'error': 'messages required'}), 400
     if not data.get('model'):
         return jsonify({'error': 'model required'}), 400
+
+    policy_error = _apply_api_key_request_policy(data)
+    if policy_error:
+        return policy_error
         
     # Build GatewayRequest
     gateway_request = GatewayRequest(
@@ -170,6 +285,10 @@ def gateway_chat_stream():
         return jsonify({'error': 'messages required'}), 400
     if not data.get('model'):
         return jsonify({'error': 'model required'}), 400
+
+    policy_error = _apply_api_key_request_policy(data)
+    if policy_error:
+        return policy_error
     
     gateway_request = GatewayRequest(
         messages=messages,
@@ -183,6 +302,7 @@ def gateway_chat_stream():
         user_id=g.user_id,
         session_id=data.get('session_id'),
         api_key_id=str(g.api_key.id) if g.api_key else None,
+        meta=data.get('meta', {}),
     )
     
     def generate():
@@ -224,6 +344,15 @@ def gateway_chat_stream():
 def list_active_providers():
     """List active providers available to the user."""
     providers = LLMProvider.query.filter_by(is_active=True).order_by(LLMProvider.priority).all()
+    api_key = getattr(g, 'api_key', None)
+    if api_key:
+        allowed_providers = _normalize_allowlist(api_key.allowed_providers)
+        if allowed_providers:
+            providers = [
+                p for p in providers
+                if str(getattr(p, 'provider_type', '')).lower() in allowed_providers
+                or str(getattr(p, 'name', '')).lower() in allowed_providers
+            ]
     
     return jsonify({
         'providers': [

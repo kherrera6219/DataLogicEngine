@@ -1,7 +1,7 @@
 
 import pytest
 import sys
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, AsyncMock
 from datetime import datetime, timedelta, UTC
 
 # Mocking the UKG SDK components before importing gateway
@@ -19,7 +19,7 @@ sys.modules["models.ChatSession"] = MagicMock()
 sys.modules["models.ChatMessage"] = MagicMock()
 
 # Now import the module under test
-from backend.llm_gateway.gateway import CircuitBreaker, GatewayRequest, GatewayResponse
+from backend.llm_gateway.gateway import CircuitBreaker, GatewayRequest, GatewayResponse, LLMGateway
 
 # Restore global import state to avoid polluting unrelated tests.
 if _original_models_module is not None:
@@ -113,3 +113,42 @@ class TestGatewayResponse:
         assert resp.content == "response"
         assert resp.usage["total_tokens"] == 100
         assert resp.error is None
+
+
+class TestGatewayStreaming:
+    @pytest.mark.asyncio
+    async def test_process_stream_emits_chunks_and_done(self):
+        gateway = LLMGateway()
+        request = GatewayRequest(messages=[{"role": "user", "content": "hello"}], model="gpt-4")
+        gateway.process = AsyncMock(return_value=GatewayResponse(
+            content="abcdefghijklmnopqrstuvwxyz",
+            run_id="run_1",
+            provider_used="openai",
+            model_used="gpt-4",
+            usage={"tokens_in": 1, "tokens_out": 1},
+            ok=True,
+        ))
+
+        chunks = [chunk async for chunk in gateway.process_stream(request)]
+        assert chunks[0]["type"] == "chunk"
+        assert chunks[-1]["type"] == "done"
+        assert chunks[-1]["run_id"] == "run_1"
+
+    @pytest.mark.asyncio
+    async def test_process_stream_emits_error_event_on_failure(self):
+        gateway = LLMGateway()
+        request = GatewayRequest(messages=[{"role": "user", "content": "hello"}], model="gpt-4")
+        gateway.process = AsyncMock(return_value=GatewayResponse(
+            content="",
+            run_id="run_2",
+            provider_used="none",
+            model_used="gpt-4",
+            usage={},
+            ok=False,
+            error="provider timeout",
+        ))
+
+        chunks = [chunk async for chunk in gateway.process_stream(request)]
+        assert len(chunks) == 1
+        assert chunks[0]["type"] == "error"
+        assert chunks[0]["error"] == "provider timeout"

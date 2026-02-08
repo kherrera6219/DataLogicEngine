@@ -207,6 +207,137 @@ def test_gateway_chat_provider_failure_returns_503(app_client):
     assert resp.status_code == 503
     assert resp.json['error'] == "provider timeout"
 
+
+def test_gateway_chat_rejects_disallowed_provider_policy(app_client):
+    mocks = app_client.application.mocks
+    MockAPIKey = mocks['APIKey']
+
+    mock_key = MagicMock()
+    mock_key.id = "key1"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = 100
+    mock_key.allowed_providers = ["anthropic"]
+    mock_key.allowed_models = None
+    mock_key.permissions = {"read": True, "write": True}
+    mock_key.max_tokens_per_request = None
+    MockAPIKey.verify_key.return_value = mock_key
+
+    resp = app_client.post(
+        '/api/v1/gateway/chat',
+        headers={'X-API-Key': 'ukg_valid'},
+        json={
+            'provider': 'openai',
+            'model': 'gpt-4',
+            'messages': [{'role': 'user', 'content': 'Hi'}],
+        },
+    )
+
+    assert resp.status_code == 403
+    assert "not allowed" in resp.json['error']
+
+
+def test_gateway_chat_rejects_disallowed_model_policy(app_client):
+    mocks = app_client.application.mocks
+    MockAPIKey = mocks['APIKey']
+
+    mock_key = MagicMock()
+    mock_key.id = "key1"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = 100
+    mock_key.allowed_providers = None
+    mock_key.allowed_models = ["gpt-5.2"]
+    mock_key.permissions = {"read": True, "write": True}
+    mock_key.max_tokens_per_request = None
+    MockAPIKey.verify_key.return_value = mock_key
+
+    resp = app_client.post(
+        '/api/v1/gateway/chat',
+        headers={'X-API-Key': 'ukg_valid'},
+        json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]},
+    )
+
+    assert resp.status_code == 403
+    assert "not allowed" in resp.json['error']
+
+
+def test_gateway_chat_rejects_max_tokens_policy(app_client):
+    mocks = app_client.application.mocks
+    MockAPIKey = mocks['APIKey']
+
+    mock_key = MagicMock()
+    mock_key.id = "key1"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = 100
+    mock_key.allowed_providers = None
+    mock_key.allowed_models = None
+    mock_key.permissions = {"read": True, "write": True}
+    mock_key.max_tokens_per_request = 128
+    MockAPIKey.verify_key.return_value = mock_key
+
+    resp = app_client.post(
+        '/api/v1/gateway/chat',
+        headers={'X-API-Key': 'ukg_valid'},
+        json={
+            'model': 'gpt-4',
+            'max_tokens': 512,
+            'messages': [{'role': 'user', 'content': 'Hi'}],
+        },
+    )
+
+    assert resp.status_code == 400
+    assert "max_tokens" in resp.json['error']
+
+
+def test_gateway_chat_rejects_permission_denied_policy(app_client):
+    mocks = app_client.application.mocks
+    MockAPIKey = mocks['APIKey']
+
+    mock_key = MagicMock()
+    mock_key.id = "key1"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = 100
+    mock_key.allowed_providers = None
+    mock_key.allowed_models = None
+    mock_key.permissions = {"read": False, "write": False, "chat": False}
+    mock_key.max_tokens_per_request = None
+    MockAPIKey.verify_key.return_value = mock_key
+
+    resp = app_client.post(
+        '/api/v1/gateway/chat',
+        headers={'X-API-Key': 'ukg_valid'},
+        json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]},
+    )
+
+    assert resp.status_code == 403
+    assert resp.json['error'] == "API key permission denied"
+
+
+def test_gateway_chat_enforces_daily_rate_limit(app_client):
+    mocks = app_client.application.mocks
+    MockAPIKey = mocks['APIKey']
+    mock_cache = mocks['Cache']
+
+    mock_key = MagicMock()
+    mock_key.id = "key1"
+    mock_key.user_id = 99
+    mock_key.rate_limit_rpm = None
+    mock_key.rate_limit_daily = 1
+    mock_key.allowed_providers = None
+    mock_key.allowed_models = None
+    mock_key.permissions = {"read": True, "write": True}
+    mock_key.max_tokens_per_request = None
+    MockAPIKey.verify_key.return_value = mock_key
+
+    mock_cache.get.return_value = 1
+    resp = app_client.post(
+        '/api/v1/gateway/chat',
+        headers={'X-API-Key': 'ukg_valid'},
+        json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]},
+    )
+
+    assert resp.status_code == 429
+    assert "Daily rate limit" in resp.json['error']
+
 # --- Provider Admin Tests ---
 
 @patch('flask_login.utils._get_user')

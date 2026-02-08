@@ -66,7 +66,7 @@ def api_key_required(f):
     """
     Decorator that requires a valid API key for API endpoints.
     
-    Checks for API key in X-API-Key header or api_key query parameter.
+    Checks for API key in approved headers only.
     Returns 401 if no valid key is provided.
     
     Usage:
@@ -76,16 +76,23 @@ def api_key_required(f):
             ...
     """
     from flask import request, jsonify
-    from models import APIKey
+    from models import ExternalAPIKey
     
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        api_key = request.headers.get('X-API-Key') or request.args.get('api_key')
+        api_key = request.headers.get('X-API-Key')
+        if not api_key:
+            auth_header = request.headers.get('Authorization', '')
+            if auth_header.lower().startswith('bearer '):
+                api_key = auth_header.split(' ', 1)[1].strip()
         
         if not api_key:
             return jsonify({'error': 'API key required'}), 401
         
-        key_record = APIKey.query.filter_by(key=api_key, is_active=True).first()
+        if not str(api_key).startswith('ukg_'):
+            return jsonify({'error': 'Invalid or inactive API key'}), 401
+
+        key_record = ExternalAPIKey.verify_key(str(api_key))
         if not key_record:
             return jsonify({'error': 'Invalid or inactive API key'}), 401
         

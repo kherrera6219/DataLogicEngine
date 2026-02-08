@@ -15,13 +15,34 @@ def _fallback_identity():
         "is_fallback": True
     }
 
+
+def _allow_fallback_identity() -> bool:
+    """
+    Fallback identity is intentionally disabled for desktop production mode.
+    It is only allowed for explicit dev/testing scenarios.
+    """
+    explicit = os.environ.get("ALLOW_WINDOWS_IDENTITY_FALLBACK")
+    if explicit is not None:
+        return explicit.lower() == "true"
+
+    flask_env = os.environ.get("FLASK_ENV", "development").lower()
+    is_desktop_mode = os.environ.get("IS_DESKTOP_APP", "false").lower() == "true"
+    return flask_env in {"development", "testing"} and not is_desktop_mode
+
+
+def _fallback_or_raise(reason: str):
+    if _allow_fallback_identity():
+        return _fallback_identity()
+    raise RuntimeError(reason)
+
+
 def get_windows_user_identity():
     """
     Retrieves the current Windows user's name and SID (Security Identifier).
     Returns a dictionary with 'username', 'sid', and 'domain'.
     """
     if win32api is None or win32security is None:
-        return _fallback_identity()
+        return _fallback_or_raise("Windows identity APIs unavailable and fallback is disabled")
 
     try:
         username = win32api.GetUserName()
@@ -42,8 +63,8 @@ def get_windows_user_identity():
         # Log failure type but don't crash
         print(f"Windows Identity Retrieval Failed: {type(e).__name__}")
         # Fallback to environment variables if win32 calls fail
-        # This is strictly for local-first execution in restricted environments
-        return _fallback_identity()
+        # This is strictly for local-first dev/test execution in restricted environments.
+        return _fallback_or_raise("Windows identity lookup failed and fallback is disabled")
 
 if __name__ == "__main__":
     identity = get_windows_user_identity()

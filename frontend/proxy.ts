@@ -26,6 +26,47 @@ function isDesktopRequest(request: NextRequest): boolean {
   return false;
 }
 
+function buildCsp(nonce: string): string {
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  const allowInlineScripts =
+    process.env.NEXT_PUBLIC_CSP_ALLOW_UNSAFE_INLINE_SCRIPTS === 'true';
+  const allowInlineStyles =
+    process.env.NEXT_PUBLIC_CSP_ALLOW_UNSAFE_INLINE_STYLES !== 'false';
+
+  const scriptSrc = [`'self'`, `'nonce-${nonce}'`];
+  if (allowInlineScripts || isDevelopment) {
+    scriptSrc.push("'unsafe-inline'");
+  }
+  if (isDevelopment) {
+    // Keep eval support in local dev tooling only.
+    scriptSrc.push("'unsafe-eval'");
+  }
+
+  const styleSrc = [`'self'`, 'https://fonts.googleapis.com'];
+  if (allowInlineStyles) {
+    styleSrc.push("'unsafe-inline'");
+  }
+
+  const cspHeader = `
+      default-src 'self';
+      script-src ${scriptSrc.join(' ')};
+      style-src ${styleSrc.join(' ')};
+      img-src 'self' blob: data: https://images.unsplash.com;
+      font-src 'self' https://fonts.gstatic.com;
+      connect-src 'self' https: ws: wss:;
+      frame-src 'none';
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+      frame-ancestors 'none';
+      upgrade-insecure-requests;
+    `
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+
+  return cspHeader;
+}
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const requestId = crypto.randomUUID();
@@ -53,24 +94,12 @@ export function proxy(request: NextRequest) {
 
     // 2. Security Header Injection
     const response = NextResponse.next();
-    
-    // Strict Content Security Policy
-    const cspHeader = `
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' 'unsafe-eval';
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      img-src 'self' blob: data: https://images.unsplash.com;
-      font-src 'self' https://fonts.gstatic.com;
-      connect-src 'self' ws: wss:;
-      frame-src 'none';
-      object-src 'none';
-      base-uri 'self';
-      form-action 'self';
-      frame-ancestors 'none';
-      upgrade-insecure-requests;
-    `.replace(/\s{2,}/g, ' ').trim();
+
+    const nonce = crypto.randomUUID().replace(/-/g, '');
+    const cspHeader = buildCsp(nonce);
 
     response.headers.set('Content-Security-Policy', cspHeader);
+    response.headers.set('x-nonce', nonce);
     response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
     response.headers.set('X-Frame-Options', 'DENY');
     response.headers.set('X-Content-Type-Options', 'nosniff');

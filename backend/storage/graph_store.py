@@ -1,9 +1,14 @@
 import logging
+import os
+import re
 from typing import List, Dict, Any, Optional
 from neo4j import GraphDatabase, Driver
 from backend.config_manager import get_config
 
 logger = logging.getLogger(__name__)
+
+_CYPHER_IDENTIFIER_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_]{0,63}$")
+_DISALLOWED_DEFAULT_PASSWORDS = {"password", "neo4j", "changeme", "default"}
 
 class GraphStore:
     """
@@ -17,10 +22,43 @@ class GraphStore:
         self.user = getattr(config, 'NEO4J_USER', 'neo4j')
         self.password = getattr(config, 'NEO4J_PASSWORD', 'password')
         self.driver: Optional[Driver] = None
+        self.allowed_labels = self._parse_allowlist(os.getenv("NEO4J_ALLOWED_LABELS"))
+        self.allowed_relationship_types = self._parse_allowlist(os.getenv("NEO4J_ALLOWED_REL_TYPES"))
+
+    @staticmethod
+    def _parse_allowlist(value: Optional[str]) -> Optional[set[str]]:
+        if not value:
+            return None
+        entries = {entry.strip() for entry in value.split(",") if entry.strip()}
+        return entries or None
+
+    @staticmethod
+    def _is_production_env() -> bool:
+        env = (os.getenv("FLASK_ENV") or os.getenv("ENV") or "").strip().lower()
+        return env in {"production", "prod"}
+
+    def _validate_identifier(
+        self,
+        value: str,
+        *,
+        identifier_type: str,
+        allowlist: Optional[set[str]] = None,
+    ) -> str:
+        identifier = str(value or "").strip()
+        if not _CYPHER_IDENTIFIER_RE.fullmatch(identifier):
+            raise ValueError(f"Invalid {identifier_type} identifier: {value!r}")
+        if allowlist and identifier not in allowlist:
+            raise ValueError(f"{identifier_type} '{identifier}' is not allowed by policy")
+        return identifier
 
     def connect(self):
         """Establish connection to the Neo4j instance."""
         try:
+            if self._is_production_env() and str(self.password).strip().lower() in _DISALLOWED_DEFAULT_PASSWORDS:
+                logger.error("Refusing Neo4j connection with default password in production")
+                self.driver = None
+                return
+
             self.driver = GraphDatabase.driver(self.uri, auth=(self.user, self.password))
             self.driver.verify_connectivity()
             logger.info(f"Connected to Neo4j at {self.uri}")
@@ -51,16 +89,36 @@ class GraphStore:
 
     def create_node(self, label: str, properties: Dict[str, Any]) -> bool:
         """Create a single node in the graph."""
-        query = f"CREATE (n:{label} $props) RETURN n"
-        results = self.run_query(query, {"props": properties})
+        try:
+            safe_label = self._validate_identifier(
+                label,
+                identifier_type="label",
+                allowlist=self.allowed_labels,
+            )
+        except ValueError as exc:
+            logger.warning(f"Rejected create_node request: {exc}")
+            return False
+
+        query = f"CREATE (n:{safe_label} $props) RETURN n"
+        results = self.run_query(query, {"props": properties or {}})
         return len(results) > 0
 
     def create_relationship(self, from_id: str, to_id: str, rel_type: str, props: Optional[Dict[str, Any]] = None) -> bool:
         """Create a directed relationship between two nodes identified by their 'id' property."""
+        try:
+            safe_rel_type = self._validate_identifier(
+                rel_type,
+                identifier_type="relationship type",
+                allowlist=self.allowed_relationship_types,
+            )
+        except ValueError as exc:
+            logger.warning(f"Rejected create_relationship request: {exc}")
+            return False
+
         query = (
             f"MATCH (a), (b) "
             f"WHERE a.id = $from_id AND b.id = $to_id "
-            f"CREATE (a)-[r:{rel_type} $props]->(b) "
+            f"CREATE (a)-[r:{safe_rel_type} $props]->(b) "
             f"RETURN r"
         )
         results = self.run_query(query, {

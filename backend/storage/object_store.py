@@ -10,7 +10,8 @@ import os
 import mimetypes
 import hashlib
 import logging
-from pathlib import Path
+import re
+from pathlib import Path, PurePosixPath
 from typing import List, Dict, Any, Optional, BinaryIO, Union
 from dataclasses import dataclass
 from datetime import datetime
@@ -88,17 +89,50 @@ class ObjectBackend(ABC):
 
 class LocalFileBackend(ObjectBackend):
     """Local filesystem backend for object storage."""
+
+    _BUCKET_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
     
     def __init__(self, base_path: str = "./databases/objects"):
         self.base_path = Path(base_path).absolute()
         self.base_path.mkdir(parents=True, exist_ok=True)
         logger.info(f"LocalFileBackend initialized at {self.base_path}")
+
+    def _sanitize_bucket(self, bucket: str) -> str:
+        bucket_name = str(bucket or "").strip()
+        if not self._BUCKET_RE.fullmatch(bucket_name):
+            raise ValueError(f"Invalid bucket name: {bucket!r}")
+        return bucket_name
+
+    @staticmethod
+    def _sanitize_key(key: str) -> str:
+        normalized = str(key or "").replace("\\", "/").strip()
+        if not normalized:
+            raise ValueError("Object key cannot be empty")
+        if "\x00" in normalized:
+            raise ValueError("Object key contains invalid null byte")
+
+        path = PurePosixPath(normalized)
+        if path.is_absolute() or ".." in path.parts:
+            raise ValueError("Object key path traversal detected")
+
+        safe_key = str(path).lstrip("./")
+        if not safe_key:
+            raise ValueError("Object key cannot be empty")
+        return safe_key
     
     def _get_path(self, bucket: str, key: str) -> Path:
         """Get full filesystem path for an object."""
-        # Sanitize key to prevent path traversal
-        safe_key = key.replace("..", "").lstrip("/\\")
-        return self.base_path / bucket / safe_key
+        safe_bucket = self._sanitize_bucket(bucket)
+        safe_key = self._sanitize_key(key)
+
+        bucket_root = (self.base_path / safe_bucket).resolve()
+        resolved_path = (bucket_root / safe_key).resolve()
+        try:
+            resolved_path.relative_to(bucket_root)
+        except ValueError as exc:
+            raise ValueError("Object key resolved outside bucket root") from exc
+
+        return resolved_path
     
     def _ensure_parent(self, path: Path):
         """Ensure parent directory exists."""
@@ -106,8 +140,8 @@ class LocalFileBackend(ObjectBackend):
     
     @staticmethod
     def _compute_etag(data: bytes) -> str:
-        """Compute MD5 hash as ETag."""
-        return hashlib.md5(data).hexdigest()
+        """Compute deterministic object hash for ETag metadata."""
+        return hashlib.sha256(data).hexdigest()
     
     def put(
         self,
@@ -178,23 +212,21 @@ class LocalFileBackend(ObjectBackend):
     
     def exists(self, bucket: str, key: str) -> bool:
         """Check if an object exists."""
-        return self._get_path(bucket, key).exists()
+        try:
+            return self._get_path(bucket, key).exists()
+        except ValueError:
+            return False
     
     def list(self, bucket: str, prefix: str = "") -> List[ObjectInfo]:
         """List objects in a bucket."""
         try:
-            bucket_path = self.base_path / bucket
+            safe_bucket = self._sanitize_bucket(bucket)
+            bucket_path = (self.base_path / safe_bucket).resolve()
             if not bucket_path.exists():
                 return []
-            
+
             results = []
-            search_path = bucket_path / prefix if prefix else bucket_path
-            
-            if not search_path.parent.exists():
-                return []
-            
-            # Use glob to find all files
-            pattern = "**/*" if not prefix else f"{prefix}*"
+            safe_prefix = self._sanitize_key(prefix).rstrip('/') if prefix else ""
             
             for file_path in bucket_path.rglob("*"):
                 if file_path.is_file() and not file_path.suffix == '.meta':
@@ -202,7 +234,7 @@ class LocalFileBackend(ObjectBackend):
                     relative = file_path.relative_to(bucket_path)
                     key = str(relative).replace("\\", "/")
                     
-                    if not prefix or key.startswith(prefix):
+                    if not safe_prefix or key.startswith(safe_prefix):
                         info = self.get_info(bucket, key)
                         if info:
                             results.append(info)
@@ -256,7 +288,8 @@ class LocalFileBackend(ObjectBackend):
     def create_bucket(self, bucket: str) -> bool:
         """Create a bucket directory."""
         try:
-            (self.base_path / bucket).mkdir(parents=True, exist_ok=True)
+            safe_bucket = self._sanitize_bucket(bucket)
+            (self.base_path / safe_bucket).mkdir(parents=True, exist_ok=True)
             return True
         except Exception as e:
             logger.error(f"Failed to create bucket {bucket}: {e}")

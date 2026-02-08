@@ -88,6 +88,28 @@ describe('Proxy', () => {
          expect(mockResHeaderSet).toHaveBeenCalledWith('Content-Security-Policy', expect.stringContaining("default-src 'self'"));
     });
 
+    it('should remove unsafe-eval in production CSP', () => {
+        const req = createRequest('/dashboard', { session: 'valid-token' });
+        const originalNodeEnv = process.env.NODE_ENV;
+        process.env.NODE_ENV = 'production';
+
+        const mockResHeaderSet = vi.fn();
+        vi.mocked(NextResponse.next).mockReturnValue({
+            headers: {
+                set: mockResHeaderSet
+            }
+        } as any);
+
+        try {
+            proxy(req);
+            const cspCall = mockResHeaderSet.mock.calls.find((call) => call[0] === 'Content-Security-Policy');
+            expect(cspCall?.[1]).toContain("script-src");
+            expect(cspCall?.[1]).not.toContain("'unsafe-eval'");
+        } finally {
+            process.env.NODE_ENV = originalNodeEnv;
+        }
+    });
+
     it('should fail open (redirect to /) on internal error', () => {
         // Force an error
         const req = createRequest('/dashboard');

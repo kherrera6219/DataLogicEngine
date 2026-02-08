@@ -115,6 +115,43 @@ class LLMGateway:
         if provider_id not in self._circuit_breakers:
             self._circuit_breakers[provider_id] = CircuitBreaker(provider_id)
         return self._circuit_breakers[provider_id]
+
+    @staticmethod
+    def _normalize_allowlist(values: Any) -> set[str]:
+        """Normalize policy allowlists to lower-case sets."""
+        if isinstance(values, str):
+            values = [values]
+        if not isinstance(values, (list, tuple, set)):
+            return set()
+
+        normalized: set[str] = set()
+        for value in values:
+            if value is None:
+                continue
+            text = str(value).strip().lower()
+            if text:
+                normalized.add(text)
+        return normalized
+
+    def _provider_matches_policy(self, provider: Any, allowed_provider_types: set[str]) -> bool:
+        """Return True when provider matches the allowed provider policy."""
+        provider_type = str(getattr(provider, "provider_type", "") or "").strip().lower()
+        provider_name = str(getattr(provider, "name", "") or "").strip().lower()
+        provider_family = provider_name.split("-", 1)[0] if provider_name else ""
+
+        return (
+            provider_type in allowed_provider_types
+            or provider_name in allowed_provider_types
+            or provider_family in allowed_provider_types
+        )
+
+    @staticmethod
+    def _resolve_model(request: GatewayRequest, provider_record: Optional[LLMProvider]) -> str:
+        if request.model:
+            return str(request.model)
+        if provider_record and getattr(provider_record, "model_id", None):
+            return str(provider_record.model_id)
+        return "gpt-4"
     
     async def process(self, request: GatewayRequest) -> GatewayResponse:
         """
@@ -122,9 +159,28 @@ class LLMGateway:
         """
         run_id = str(uuid.uuid4())
         start_time = datetime.now(UTC)
+
+        allowed_provider_types = self._normalize_allowlist(
+            request.meta.get("allowed_provider_types") or request.meta.get("allowed_providers")
+        )
+        allowed_models = self._normalize_allowlist(request.meta.get("allowed_models"))
+
+        requested_model = str(request.model).strip().lower() if request.model else ""
+        if allowed_models and requested_model and requested_model not in allowed_models:
+            return self._error_response(
+                run_id,
+                f"Requested model '{request.model}' is not allowed by API key policy",
+                start_time,
+                request,
+            )
         
         # 1. Get eligible providers
-        providers = await self._get_eligible_providers(request.provider, request.meta)
+        providers = await self._get_eligible_providers(
+            request.provider,
+            request.meta,
+            allowed_provider_types=allowed_provider_types or None,
+            allowed_models=allowed_models or None,
+        )
         if not providers:
             return self._error_response(run_id, "No active providers found", start_time, request)
 
@@ -148,6 +204,14 @@ class LLMGateway:
             if not cb.can_execute():
                 logger.warning(f"Circuit OPEN for provider {provider_record.name}, skipping...")
                 continue
+
+            model = self._resolve_model(request, provider_record)
+            if allowed_models and model.strip().lower() not in allowed_models:
+                logger.warning(
+                    "Skipping provider %s due to API key model policy",
+                    getattr(provider_record, "name", "unknown"),
+                )
+                continue
             
             # Implementation of Retries with Exponential Backoff + Jitter
             max_retries = 3
@@ -155,7 +219,6 @@ class LLMGateway:
                 try:
                     # 4. Create SDK provider and run
                     sdk_provider = self._create_sdk_provider(provider_record)
-                    model = request.model or (provider_record.model_id if provider_record else "gpt-4")
                     
                     full_messages = history + request.messages
                     
@@ -272,6 +335,45 @@ class LLMGateway:
             request,
         )
 
+    async def process_stream(self, request: GatewayRequest) -> AsyncIterator[dict[str, Any]]:
+        """
+        Stream gateway responses as incremental chunks.
+
+        This currently wraps the stable non-streaming execution path and emits
+        chunked SSE-friendly payloads until native provider streaming is enabled.
+        """
+        response = await self.process(request)
+        if not response.ok:
+            yield {
+                "type": "error",
+                "error": response.error or "Gateway failed",
+                "run_id": response.run_id,
+                "provider_used": response.provider_used,
+                "model_used": response.model_used,
+            }
+            return
+
+        content = response.content or ""
+        chunk_size = 256
+        for index in range(0, len(content), chunk_size):
+            await asyncio.sleep(0)
+            yield {
+                "type": "chunk",
+                "index": index // chunk_size,
+                "content": content[index:index + chunk_size],
+                "run_id": response.run_id,
+                "provider_used": response.provider_used,
+                "model_used": response.model_used,
+            }
+
+        yield {
+            "type": "done",
+            "run_id": response.run_id,
+            "provider_used": response.provider_used,
+            "model_used": response.model_used,
+            "usage": response.usage,
+        }
+
     def _create_sdk_provider(self, provider_record: Optional[LLMProvider]) -> Any:
         """Create SDK provider instance from database config."""
         import os
@@ -345,12 +447,17 @@ class LLMGateway:
             # Default to OpenAI-compatible
             return OpenAIProvider(api_key=api_key, base_url=provider_record.endpoint)
 
-    async def _get_eligible_providers(self, preferred_name: Optional[str] = None, meta: dict = None) -> list[LLMProvider]:
+    async def _get_eligible_providers(
+        self,
+        preferred_name: Optional[str] = None,
+        meta: dict = None,
+        allowed_provider_types: Optional[set[str]] = None,
+        allowed_models: Optional[set[str]] = None,
+    ) -> list[LLMProvider]:
         """Get list of active providers ordered by priority and task complexity."""
         import os
         meta = meta or {}
         task_tier = meta.get("tier", "high_stakes").lower()
-        use_rag = meta.get("use_rag", False)
         
         providers = []
         
@@ -372,8 +479,7 @@ class LLMGateway:
         if not providers:
             logger.info("No DB providers found, checking environment variables")
             # Create synthetic provider entries based on available API keys
-            env_providers = []
-            
+
             # Helper class for synthetic providers
             class EnvProvider:
                 def __init__(self, name, provider_type, priority=10, model="gpt-4o"):
@@ -474,16 +580,36 @@ class LLMGateway:
             if providers_list:
                 # Sort by priority
                 providers_list.sort(key=lambda x: x.priority)
-                logger.info(f"Using {len(providers_list)} environment-based providers for tier '{task_tier}': {[p.name for p in providers_list]}")
-                return providers_list
+                logger.info(
+                    "Using %s environment-based providers for tier '%s': %s",
+                    len(providers_list),
+                    task_tier,
+                    [p.name for p in providers_list],
+                )
+                providers = providers_list
         
+        if allowed_provider_types:
+            providers = [
+                provider
+                for provider in providers
+                if self._provider_matches_policy(provider, allowed_provider_types)
+            ]
+
+        if allowed_models:
+            filtered_by_model: list[LLMProvider] = []
+            for provider in providers:
+                provider_model = str(getattr(provider, "model_id", "") or "").strip().lower()
+                if not provider_model or provider_model in allowed_models:
+                    filtered_by_model.append(provider)
+            providers = filtered_by_model
+
         # Routing Optimization: Prefer Local SLMs for L1/L2 (trivial/moderate) tasks
         if task_tier in ["trivial", "moderate", "t1", "t2"]:
             # Move local_slm/ollama/vllm to the front of the list
             locals = [p for p in providers if p.provider_type in ["local_slm", "ollama", "vllm"]]
             remotes = [p for p in providers if p not in locals]
             return locals + remotes
-            
+
         return providers
 
     def _build_response(self, result: dict, run_id: str, provider: LLMProvider, model: str, latency_ms: int) -> GatewayResponse:

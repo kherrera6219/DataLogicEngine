@@ -34,6 +34,7 @@ async function tryDesktopAutoLogin(): Promise<boolean> {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      'X-DataLogic-Desktop': 'true',
     },
   });
   return response.ok;
@@ -96,6 +97,9 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
   const url = buildApiUrl(endpoint);
   const desktopRuntime = isDesktopRuntime();
   const headers = buildHeaders(options);
+  if (desktopRuntime && !headers.has('X-DataLogic-Desktop')) {
+    headers.set('X-DataLogic-Desktop', 'true');
+  }
   
   try {
     const response = await fetch(url, {

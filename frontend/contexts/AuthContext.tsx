@@ -36,6 +36,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Notification event for cross-component communication
 const NOTIFICATION_EVENT = "auth-notification";
 
+function isDesktopRuntime(): boolean {
+  if (typeof window === "undefined") return false;
+  return Boolean(
+    (window as typeof window & { electronAPI?: unknown }).electronAPI ||
+      window.navigator.userAgent.includes("Electron"),
+  );
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,16 +72,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data?.user) {
         setUser(data.user);
       } else {
-        // If not authenticated, try desktop auto-login if on Windows
-        // This is a "Zero-Config" experience for desktop users
-        const autoLoginResponse = await api.auth
-          .desktopAutoLogin()
-          .catch(() => null);
-        if (autoLoginResponse && autoLoginResponse.user) {
-          setUser(autoLoginResponse.user);
-        } else {
-          setUser(null);
+        if (isDesktopRuntime()) {
+          // Desktop "Zero-Config" experience is desktop-runtime only.
+          const autoLoginResponse = await api.auth
+            .desktopAutoLogin()
+            .catch(() => null);
+          if (autoLoginResponse && autoLoginResponse.user) {
+            setUser(autoLoginResponse.user);
+            return;
+          }
         }
+        setUser(null);
       }
     } catch {
       setUser(null);

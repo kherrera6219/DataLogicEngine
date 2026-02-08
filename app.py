@@ -3,12 +3,13 @@ import re
 import uuid
 import logging
 from datetime import UTC, datetime, timedelta
+from urllib.parse import urlparse
 from dotenv import load_dotenv
 
 # Load environment variables from .env file BEFORE any other imports
 load_dotenv()
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_limiter.util import get_remote_address
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -41,7 +42,7 @@ logger = logging.getLogger(__name__)
 # Security: Warn about default credentials in production
 def validate_production_security():
     """Validate that no default/insecure credentials are in use in production."""
-    is_production = os.environ.get("FLASK_ENV") != "development"
+    is_production = os.environ.get("FLASK_ENV") == "production"
     
     # Check for default admin credentials
     admin_user = os.environ.get("ADMIN_USERNAME", "")
@@ -85,7 +86,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for
 # Session hardening
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 # In production, enforce Strict SameSite and Secure cookies
-is_production = os.environ.get("FLASK_ENV") != "development"
+is_production = os.environ.get("FLASK_ENV") == "production"
 app.config["SESSION_COOKIE_SAMESITE"] = os.environ.get("SESSION_COOKIE_SAMESITE", "Strict" if is_production else "Lax")
 app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SESSION_COOKIE_SECURE", "True" if is_production else "False").lower() == "true"
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(
@@ -169,11 +170,59 @@ compress.init_app(app)
 # Initialize WebSockets
 from backend.websocket import init_socketio, socketio
 init_socketio(app)
-# Configure CORS with strict origins from config (default to '*' if not set to prevent init errors)
-origins = app.config.get('CORS_ORIGINS')
-if not origins:
-    origins = "*"
-cors.init_app(app, resources={r"/api/*": {"origins": origins}}, supports_credentials=True)
+
+
+def _normalize_origin(raw_origin: str) -> str:
+    origin = (raw_origin or "").strip()
+    if not origin:
+        return ""
+    parsed = urlparse(origin)
+    if not parsed.scheme or not parsed.netloc:
+        return ""
+    return f"{parsed.scheme.lower()}://{parsed.netloc.lower()}"
+
+
+def _parse_cors_origins(raw_origins):
+    if raw_origins is None:
+        return []
+    if isinstance(raw_origins, str):
+        return [item.strip() for item in raw_origins.split(",") if item.strip()]
+    if isinstance(raw_origins, (list, tuple, set)):
+        return [str(item).strip() for item in raw_origins if str(item).strip()]
+    return []
+
+
+# Configure CORS with explicit allowlist defaults.
+cors_origins = _parse_cors_origins(app.config.get("CORS_ORIGINS") or os.environ.get("CORS_ORIGINS"))
+if is_production and not app.config.get("TESTING") and (not cors_origins or "*" in cors_origins):
+    raise RuntimeError("CORS_ORIGINS must be explicitly configured in production (wildcard is disallowed)")
+
+if not cors_origins:
+    cors_origins = ["http://localhost:3000", "http://127.0.0.1:3000", "app://-"]
+
+cors_allow_credentials = "*" not in cors_origins
+cors.init_app(
+    app,
+    resources={r"/api/*": {"origins": cors_origins}},
+    supports_credentials=cors_allow_credentials,
+)
+
+# Trusted origins used for same-origin CSRF checks on session-authenticated API requests.
+TRUSTED_CSRF_ORIGINS = {
+    normalized
+    for normalized in (_normalize_origin(origin) for origin in cors_origins)
+    if normalized
+}
+TRUSTED_CSRF_ORIGINS.update(
+    {
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5000",
+        "http://127.0.0.1:5000",
+        "app://-",
+        "app://dashboard",
+    }
+)
 
 # Initialize Celery
 from backend.celery_app import make_celery
@@ -183,21 +232,56 @@ celery = make_celery(app)
 # CSRF is still enforced on all HTML form submissions
 from flask_wtf.csrf import CSRFError
 
-# Keep CSRF protection for non-API forms while allowing JSON API clients.
-# This matches the documented local/API behavior and prevents CSRF blocks
-# on auth and gateway endpoints used by SDK/desktop flows.
+# Keep CSRF protection for forms and enforce strict same-origin checks on
+# session-authenticated API/GraphQL requests.
 app.config["WTF_CSRF_CHECK_DEFAULT"] = False
+
+
+def _request_uses_session_cookie() -> bool:
+    return any(
+        request.cookies.get(cookie_name)
+        for cookie_name in ("session", "session_id", "remember_token")
+    )
+
+
+def _request_uses_stateless_auth() -> bool:
+    auth_header = request.headers.get("Authorization", "")
+    return bool(request.headers.get("X-API-Key") or auth_header.lower().startswith("bearer "))
+
+
+def _is_trusted_origin_request() -> bool:
+    origin_header = request.headers.get("Origin", "")
+    if origin_header:
+        return _normalize_origin(origin_header) in TRUSTED_CSRF_ORIGINS
+
+    referer_header = request.headers.get("Referer", "")
+    if referer_header:
+        return _normalize_origin(referer_header) in TRUSTED_CSRF_ORIGINS
+
+    return False
 
 
 @app.before_request
 def csrf_for_forms_only():
     if request.method in ("GET", "HEAD", "OPTIONS", "TRACE"):
         return None
-    if request.path.startswith("/api/"):
+
+    if current_app.config.get("TESTING") or os.environ.get("FLASK_ENV") == "testing":
         return None
-    # GraphQL endpoint accepts JSON POST bodies and is consumed by API clients/tests.
-    if request.path.startswith("/graphql"):
+
+    is_api_like_request = request.path.startswith("/api/") or request.path.startswith("/graphql")
+    if is_api_like_request:
+        if _request_uses_session_cookie() and not _request_uses_stateless_auth():
+            if not _is_trusted_origin_request():
+                return jsonify(
+                    {
+                        "error": "Cross-site state-changing request blocked",
+                        "success": False,
+                        "code": "CSRF_ORIGIN_CHECK_FAILED",
+                    }
+                ), 403
         return None
+
     csrf.protect()
     return None
 
@@ -592,5 +676,7 @@ if __name__ == '__main__':
         debug_mode = False
     else:
         debug_mode = os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
-    
-    app.run(host='0.0.0.0', port=DEFAULT_PORT, debug=debug_mode)
+
+    # Local `python app.py` defaults to loopback-only; production should use a WSGI server.
+    run_host = os.environ.get('FLASK_RUN_HOST', '127.0.0.1')
+    app.run(host=run_host, port=DEFAULT_PORT, debug=debug_mode)
