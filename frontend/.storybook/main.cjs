@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 /** @type { import('@storybook/react-vite').StorybookConfig } */
 const config = {
   stories: [

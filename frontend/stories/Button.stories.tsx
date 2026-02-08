@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from '@/components/ui/button';
-import { Plus, Settings } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 const meta = {
   title: 'Fluent UI/Primitives/Button',

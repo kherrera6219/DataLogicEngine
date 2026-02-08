@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export function LiveTracePanel() {
   const [progress, setProgress] = useState(68);
-  const [currentStep, setCurrentStep] = useState('Neural Analysis');
+  const currentStep = 'Neural Analysis';
   
   // Simulate live progress
   useEffect(() => {
