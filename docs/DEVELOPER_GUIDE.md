@@ -1,7 +1,28 @@
 # DataLogicEngine Developer Guide
 
-**Last Updated:** 2026-01-28  
-**Version:** 2.5.0-GRADUATED
+## Purpose
+
+Provide the standard developer onboarding and day-to-day engineering workflow for DataLogicEngine.
+
+## Audience
+
+1. Backend and frontend engineers
+2. Platform engineers
+3. QA engineers contributing code
+
+## Document control
+
+1. Owner: Developer Experience
+2. Last updated: 2026-02-08
+3. Status: Active
+4. Review cadence: Every 30 days
+
+## Related documents
+
+1. `docs/CONTRIBUTING.md`
+2. `docs/TESTING.md`
+3. `docs/ARCHITECTURE.md`
+4. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
 
 ---
 

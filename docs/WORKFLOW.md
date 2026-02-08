@@ -1,6 +1,31 @@
 # UKG Unified System Workflow
 
-This diagram illustrates the flow of a query through the UKG Unified System, from interpretation to the final 17D-addressed artifact response.
+## Purpose
+
+Provide a high-level workflow reference for how a query traverses reasoning layers and validation gates.
+
+## Audience
+
+1. Architects
+2. Backend engineers
+3. QA and observability engineers
+
+## Document control
+
+1. Owner: Platform Architecture
+2. Last updated: 2026-02-08
+3. Status: Active
+4. Review cadence: Every 60 days
+
+## Related documents
+
+1. `docs/ARCHITECTURE.md`
+2. `docs/API.md`
+3. `docs/OPERATIONAL_RUNBOOKS.md`
+
+## Workflow diagram
+
+This diagram illustrates query flow through the UKG system, from interpretation to final 17D-addressed response artifact.
 
 ```mermaid
 graph TD
@@ -20,7 +45,7 @@ graph TD
     M --> N(Trace Log Storage);
 ```
 
-## 17D Coordinate Transformation
+## 17D coordinate transformation
 1. **Input Stage:** Query intent is mapped to primary Axes (1-5, 12-13).
 2. **Expansion Stage:** Octopus/Spiderweb (Axes 6-7) resolve cross-domain links.
 3. **Reasoning Stage:** Personas (Axes 8-11) inject authoritative perspective vectors.

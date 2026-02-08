@@ -1,11 +1,35 @@
-# Universal Knowledge Graph (UKG) System Architecture
-**Version 2.5.0 - January 28, 2026**
+# Universal Knowledge Graph (UKG) system architecture
+
+## Purpose
+
+Define the logical and runtime architecture of DataLogicEngine for engineering, security, and operations stakeholders.
+
+## Audience
+
+1. Platform engineers
+2. Security engineers
+3. SRE/operations
+4. Technical architects
+
+## Document control
+
+1. Owner: Platform Architecture
+2. Last updated: 2026-02-08
+3. Status: Active
+4. Review cadence: Every 60 days
+
+## Related documents
+
+1. `docs/API.md`
+2. `docs/SECURITY.md`
+3. `docs/DEPLOYMENT.md`
+4. `docs/PRODUCTION_READINESS.md`
 
 ## Overview
 
 The Universal Knowledge Graph (UKG) System employs a **hardened middleware architecture** designed for high-availability, consistent reasoning, and enterprise-grade security.
 
-- **Frontend**: Next.js 15.1 App Router (React 18.3)
+- **Frontend**: Next.js 16.1 App Router (React 18.3)
   - _Role_: User Interface, Visualization, State Management, Real-time Updates
 - **Backend**: Flask 3.1 (Python 3.11+)
   - _Role_: API Gateway, Knowledge Engine, MCP Server, LLM Gateway, Truth Engine
@@ -20,7 +44,7 @@ The Universal Knowledge Graph (UKG) System employs a **hardened middleware archi
 
 ---
 
-## 🏗️ High-Level Component Map
+## High-level component map
 
 ```mermaid
 graph TD
@@ -47,9 +71,9 @@ graph TD
 
 ---
 
-## 🛡️ Enterprise Hardening Features
+## Enterprise hardening features
 
-Built with a modern stack including **Next.js 16**, **React 19**, and **Flask 3.1**, the system implements multiple layers of enterprise security and resilience.
+Built with a modern stack including **Next.js 16.1**, **React 18.3**, and **Flask 3.1**, the system implements multiple layers of enterprise security and resilience.
 
 ### 1. Resilience: Circuit Breaker & Failover
 

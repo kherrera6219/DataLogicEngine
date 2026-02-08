@@ -1,5 +1,25 @@
 # DataLogicEngine Windows 11 Local Runbook
 
+## Document Control
+
+1. Owner: Platform Engineering
+2. Last updated: 2026-02-08
+3. Status: Active
+4. Review cadence: Every 30 days
+
+## Audience
+
+1. Developers running local Windows environments
+2. QA and support engineers validating desktop mode
+3. Platform engineers validating local data-service integration
+
+## Related Documents
+
+1. `docs/DEPLOYMENT.md`
+2. `docs/PRODUCTION_READINESS.md`
+3. `docs/TESTING.md`
+4. `docs/SECURITY.md`
+
 ## Goal
 
 Run DataLogicEngine locally on Windows 11 with only:

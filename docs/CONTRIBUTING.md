@@ -1,50 +1,36 @@
-# Contributing to DataLogicEngine
+# Contributing (Documentation View)
 
-Thank you for your interest in contributing to the Universal Knowledge Graph! We follow strict enterprise standards to ensure code quality, security, and maintainability.
+## Purpose
 
-## 1. Development Workflow
+Define contribution requirements for documentation and provide a pointer to the canonical repository contribution policy.
 
-### Branching Strategy
+## Canonical contribution policy
 
-- **main**: Production-ready code.
-- **dev**: Integration branch for new features.
-- **feature/<name>**: Feature branches (e.g., `feature/graph-viz`).
-- **bugfix/<name>**: Bug fix branches (e.g., `bugfix/auth-timeout`).
+Use the repository root policy as source-of-truth:
 
-### Commits
+1. `CONTRIBUTING.md`
 
-- Use Conventional Commits: `feat: add new axis`, `fix: resolve race condition`.
-- Sign all commits (GPG).
+## Documentation-specific requirements
 
----
+1. Follow `docs/DOCUMENTATION_STANDARDS.md`.
+2. Update `docs/README.md` and `docs/DOCUMENTATION_COVERAGE_MATRIX.md` when adding or replacing active docs.
+3. Use one source-of-truth document per domain area.
+4. Move obsolete docs to `docs/archive/` instead of deleting historical records.
+5. Include tested commands for operational runbooks.
+6. Update `README.md` when setup, runtime, or security prerequisites change.
 
-## 2. Code Standards
+## Pull request checklist (documentation)
 
-### Backend (Python/Flask)
+1. Links resolve to existing files.
+2. Commands are copy-ready and platform-appropriate.
+3. Document control block is present and current.
+4. Related documents section is updated.
+5. Changes do not contradict existing source-of-truth docs.
 
-- **Style**: PEP 8.
-- **Type Hints**: Required for all function signatures.
-- **Documentation**: Docstrings for every module, class, and function.
-- **Error Handling**: Use custom exceptions in `backend/exceptions.py`. No bare `except:` clauses.
+## Document control
 
-### Frontend (Next.js/TypeScript)
+1. Owner: Developer Experience
+2. Last updated: 2026-02-08
+3. Status: Active
+4. Review cadence: Every 30 days
 
-- **Style**: ESLint + Prettier (Standard Config).
-- **Components**: Use shadcn/ui components from `components/ui`.
-- **State**: Use React Server Components where possible; `useParams` / `useSearchParams` for route state.
-- **Types**: Strict TypeScript mode. No `any`.
-
----
-
-## 3. Pull Request Process
-
-1.  **Tests**: Ensure all unit tests pass (`pytest` / `npm run test`).
-2.  **Linting**: Run linters locally before pushing.
-3.  **Review**: At least one approval required from a code owner.
-4.  **CI**: All CI checks must pass.
-
-## 4. Documentation
-
-- Update `docs/API.md` if you modify endpoints.
-- Update `README.md` if you change environment setup.
-- Add architectural decisions to `docs/ARCHITECTURE.md`.

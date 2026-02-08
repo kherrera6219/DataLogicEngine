@@ -1,7 +1,29 @@
 # Deployment Guide
 
-**Phase**: 39
-**Last Updated**: 2026-02-07
+## Purpose
+
+Define supported deployment modes, release procedures, and required CI/CD configuration for DataLogicEngine.
+
+## Audience
+
+1. Release engineers
+2. Platform engineers
+3. SRE/operations
+4. Desktop packaging maintainers
+
+## Document control
+
+1. Owner: Platform Operations
+2. Last updated: 2026-02-08
+3. Status: Active
+4. Review cadence: Every 30 days
+
+## Related documents
+
+1. `docs/PRODUCTION_READINESS.md`
+2. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+3. `.github/workflows/deploy.yml`
+4. `docs/SECURITY.md`
 
 ## Overview
 DataLogicEngine supports two primary deployment targets:

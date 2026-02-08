@@ -1,55 +1,110 @@
-# Operational Runbooks: Incident Response
-## DataLogicEngine (UKG) Enterprise Operations
+# Operational Runbooks
 
-This document provides step-by-step procedures for responding to security and operational incidents within the UKG system.
+## Purpose
 
----
+Provide incident-response procedures for common DataLogicEngine security and runtime failures.
 
-### Incident 1: Detected Prompt Injection Attempt
+## Audience
+
+1. On-call engineers
+2. Security operations
+3. SRE/platform operations
+4. Compliance operations
+
+## Document control
+
+1. Owner: SRE + Security Operations
+2. Last updated: 2026-02-08
+3. Status: Active
+4. Review cadence: Every 30 days
+
+## Related documents
+
+1. `docs/SECURITY.md`
+2. `docs/PRODUCTION_READINESS.md`
+3. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+4. `docs/DEPLOYMENT.md`
+
+## Severity model
+
+1. `SEV-1`: Active data exposure, sustained outage, or auth compromise.
+2. `SEV-2`: Partial outage, degraded reasoning quality, or repeated security control failures.
+3. `SEV-3`: Localized issue with no broad customer impact.
+
+## Global incident workflow
+
+1. Acknowledge incident and set severity.
+2. Capture correlation IDs, tenant/user scope, and event timestamps.
+3. Contain impact before optimization.
+4. Execute incident-specific runbook.
+5. Validate recovery with health checks and user-path checks.
+6. Create post-incident report with remediation actions.
+
+## Incident 1: Prompt-injection attempt detected
+
 **Trigger:** `KA-61 Adversarial Input Shield` logs a high-severity injection attempt.
+**Default severity:** `SEV-2` (upgrade to `SEV-1` for active bypass/exfiltration)
 
-1.  **Isolate:** The system automatically blocks the request.
-2.  **Audit:** Retrieve the session logs via the Admin Dashboard.
-3.  **Identify:** Extract the `user_id`, `tenant_id`, and source IP.
-4.  **Action:** Temporarily suspend the user account if the attempt was repeated (>3 times).
-5.  **Refine:** Update the `KA-61` blocklist or regex patterns if the injection bypassed initial filters.
+1. Confirm request was blocked.
+2. Retrieve session trace and audit logs.
+3. Extract `user_id`, `tenant_id`, source IP, and request payload metadata.
+4. Suspend account or key when repeated attacks exceed policy threshold.
+5. Add detection signature updates and open a security follow-up task.
+6. Validate no sensitive output was returned to client.
 
----
+## Incident 2: Low-confidence/hallucination risk
 
-### Incident 2: High Entropy/Hallucination Detection
-**Trigger:** `TruthCore` reports a confidence score below 85% for a critical query.
+**Trigger:** Truth engine confidence below policy threshold for critical query class.
+**Default severity:** `SEV-2`
 
-1.  **Retry:** Execute the query with a higher reasoning tier (e.g., Tier 5).
-2.  **Verify:** Manually inspect the "Claims vs Evidence" mapping in the Trace Explorer.
-3.  **Mitigation:** If evidence is lacking, return a "No verified knowledge found" response instead of a generative guess.
-4.  **Root Cause:** Identify if the knowledge gap is in the vector database or if the coordinate mapping was too broad.
+1. Re-run using higher reasoning depth/tier with stricter evidence gating.
+2. Inspect trace "claims vs evidence" chain.
+3. If grounding is insufficient, return safe fallback response (no unverifiable answer).
+4. Identify root cause:
+   - retrieval gap
+   - coordinate mapping gap
+   - provider degradation
+5. File corrective action for retrieval/model/routing owner.
 
----
+## Incident 3: PII leakage risk in response
 
-### Incident 3: Data Leakage Detection (PII)
-**Trigger:** `KA-59 Privacy Filter` detects PII in an LLM outgoing response.
+**Trigger:** Privacy controls flag PII in outgoing response.
+**Default severity:** `SEV-1`
 
-1.  **Block:** Immediately stop the stream or block the JSON response.
-2.  **Scrub:** Sanitize the PII using `Presidio` or local replacement logic.
-3.  **Alert:** Notify the Tenant Privacy Officer (DPO) via the Compliance API.
-4.  **Log:** Record the event in the Hash-Chained Audit Log for regulatory reporting (GDPR/HIPAA).
+1. Block streaming/output response path immediately.
+2. Apply redaction/sanitization policy.
+3. Notify privacy/compliance contact.
+4. Record event in audit log with trace correlation.
+5. Verify downstream channels (logs/webhooks/notifications) did not persist raw PII.
+6. Run post-incident leakage scan over recent outputs.
 
----
+## Incident 4: LLM provider outage/failover
 
-### Incident 4: Infrastructure Failover (LLM Provider Down)
-**Trigger:** Circuit breaker opens for OpenAI/Azure.
+**Trigger:** Circuit breaker opens for a configured provider.
+**Default severity:** `SEV-2`
 
-1.  **Automatic:** System fails over to the secondary provider (e.g., Anthropic).
-2.  **Manual Check:** Verify the latency and token usage on the secondary provider.
-3.  **Communication:** Update the system status on the dashboard (/health).
-4.  **Recovery:** Once the primary provider status is "Healthy" for 5 consecutive pings, reset the circuit breaker.
+1. Confirm automatic failover is active.
+2. Validate latency, error rate, and cost on fallback provider.
+3. Post status update to internal operations channel.
+4. Monitor primary provider and re-enable only after sustained health.
+5. Capture incident metrics for reliability review.
 
----
+## Incident 5: Unauthorized access / RBAC violation
 
-### Incident 5: Unauthorized Access (RBAC Violation)
-**Trigger:** Middleware logs a 403 Forbidden for a sensitive endpoint.
+**Trigger:** Unauthorized access attempts on privileged endpoints.
+**Default severity:** `SEV-2` (upgrade to `SEV-1` for privilege escalation evidence)
 
-1.  **Verify:** Check if the user has the required permission (`security:read`, etc.).
-2.  **Re-Auth:** Require the user to re-verify via MFA.
-3.  **Log:** Record the attempt in the security audit logs for threat modeling.
-4.  **Protect:** If the request originated from a rotated API key, revoke the key immediately.
+1. Verify role/permission mapping for the principal.
+2. Force re-authentication and MFA challenge for affected account.
+3. Revoke suspicious tokens/keys.
+4. Confirm no unauthorized data read/write occurred.
+5. Capture logs for security investigation and policy refinement.
+
+## Validation checklist after any incident
+
+1. `GET /health` is healthy.
+2. Core auth flow works for expected roles.
+3. Gateway request path returns expected policy behavior.
+4. Error rates and latency return to baseline.
+5. Incident report and follow-up actions are recorded.
+

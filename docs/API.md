@@ -1,13 +1,38 @@
-# API Documentation v3.0.0
+# API documentation
 
-The DataLogicEngine exposes a robust, comprehensive RESTful API powered by Flask 3.1 blueprints, designed for high-concurrency enterprise integration. These endpoints support the Knowledge Graph, Truth Engine, Tracing, LLM Gateway, MCP, and Compliance operations.
+## Purpose
 
-## 📍 Base URL
+Provide the source-of-truth API contract guidance for DataLogicEngine REST endpoints and their enterprise integration patterns.
+
+## Audience
+
+1. API consumers and integrators
+2. Backend engineers
+3. Security and compliance reviewers
+4. QA and test engineers
+
+## Document control
+
+1. Owner: API Platform Team
+2. Last updated: 2026-02-08
+3. Status: Active
+4. Review cadence: Every 30 days
+
+## Related documents
+
+1. `docs/openapi.yaml`
+2. `docs/ARCHITECTURE.md`
+3. `docs/SECURITY.md`
+4. `docs/TESTING.md`
+
+The DataLogicEngine exposes a comprehensive REST API powered by Flask 3.1 blueprints. Endpoints support Knowledge Graph, Truth Engine, tracing, LLM gateway, MCP, and compliance operations.
+
+## Base URL
 
 **Local Development**: `http://localhost:5000/api/v1`
 **Production**: `https://your-domain.com/api/v1`
 
-## 🔐 Authentication & Context
+## Authentication and context
 
 All endpoints (except `/health`) require authentication via one of the following methods:
 
@@ -19,7 +44,7 @@ All endpoints (except `/health`) require authentication via one of the following
 - **Tenant Isolation**: The `tenant_id` is automatically extracted from your JWT/SSO session. All operations are strictly scoped to your tenant.
 - **Traceability**: All responses include a `X-Correlation-ID` header. Use this ID for debugging and audit reconstruction.
 
-## Standard Response Format
+## Standard response format
 
 All API responses follow this structure:
 

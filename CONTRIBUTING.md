@@ -2,6 +2,11 @@
 
 Thank you for your interest in contributing to DataLogicEngine! This document provides guidelines and instructions for contributing to the project.
 
+For documentation standards and source-of-truth mapping, see:
+
+1. `docs/DOCUMENTATION_STANDARDS.md`
+2. `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
+
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
