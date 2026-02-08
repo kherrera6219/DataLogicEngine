@@ -166,6 +166,21 @@ For each local setup attempt, validate:
    If a key is invalid, provider responses surface `401 invalid_api_key` details in gateway error payloads.
    Update `.env` with a valid provider key and retry.
 
+## Phase 3 Security/Runtime Notes (Verified on February 8, 2026)
+
+1. API key governance is now enforced at request time:
+   `allowed_providers`, `allowed_models`, `max_tokens_per_request`, `permissions`, and per-day rate limits are validated before gateway execution.
+2. Streaming endpoint reliability:
+   `POST /api/v1/gateway/chat/stream` now uses a supported gateway streaming path (`LLMGateway.process_stream`) and returns consistent SSE chunk/done/error events.
+3. Data-plane hardening:
+   Neo4j label/relationship identifiers are validated, and default Neo4j password usage is rejected in production mode.
+4. Object store hardening:
+   Local object keys and bucket names are canonicalized/validated to block traversal and invalid key patterns.
+5. Frontend security headers:
+   Middleware now emits nonce-based CSP and removes `unsafe-eval` in production builds.
+6. CI security posture:
+   Dependency scanning is requirements-file based, Bandit uses baseline delta gating for new high-confidence findings, and SBOM signing now uses real keyless cosign signing.
+
 ## Quick API Smoke Checks
 
 Run after starting `scripts/windows/start_local_stack.ps1`:
