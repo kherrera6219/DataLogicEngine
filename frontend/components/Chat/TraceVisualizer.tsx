@@ -5,21 +5,15 @@ import {
   CheckCircle2, Clock, PlayCircle, 
   ZoomIn
 } from "lucide-react";
-import { TraceStep } from './types';
+import { TracePipeline, TraceStep } from './types';
 
-export function TraceVisualizer() {
-  const steps: TraceStep[] = [
-    { id: '1', name: 'TruthGate Security', status: 'completed', durationMs: 100, percentage: 100, timestamp: '0.1s' },
-    { id: '2', name: 'Coordinate Resolution', status: 'completed', durationMs: 300, percentage: 100, timestamp: '0.4s' },
-    { id: '3', name: 'Knowledge Graph Query', status: 'completed', durationMs: 500, percentage: 100, timestamp: '0.9s' },
-    { id: '4', name: 'Quad Persona Sim', status: 'completed', durationMs: 1400, percentage: 100, timestamp: '2.3s' },
-    { id: '5', name: 'Deep Neural Analysis', status: 'processing', durationMs: 312, percentage: 68, timestamp: 'CURRENT' },
-    { id: '6', name: 'Data Validation', status: 'pending', percentage: 0, timestamp: '---' },
-    { id: '7', name: 'Compliance Check', status: 'pending', percentage: 0, timestamp: '---' },
-    { id: '8', name: 'Self-Critique', status: 'pending', percentage: 0, timestamp: '---' },
-    { id: '9', name: 'Iteration Loop', status: 'pending', percentage: 0, timestamp: '---' },
-    { id: '10', name: 'Final Synthesis', status: 'pending', percentage: 0, timestamp: '---' },
-  ];
+interface TraceVisualizerProps {
+  trace?: TracePipeline | null;
+  hasExecutedQuery?: boolean;
+}
+
+export function TraceVisualizer({ trace, hasExecutedQuery = false }: TraceVisualizerProps) {
+  const steps: TraceStep[] = trace?.steps || [];
 
   return (
     <Card className="bg-white/80 dark:bg-black/40 border-slate-200 dark:border-white/10 mt-6">
@@ -33,9 +27,16 @@ export function TraceVisualizer() {
          </div>
       </CardHeader>
       <CardContent className="p-4 space-y-4">
+         {steps.length === 0 && (
+            <div className="rounded-lg border border-dashed border-slate-300/80 dark:border-white/10 bg-slate-50/80 dark:bg-black/20 px-4 py-8 text-center text-xs text-slate-500 dark:text-gray-500">
+               {hasExecutedQuery
+                  ? 'No trace data returned for this query.'
+                  : 'Run a query to populate the trace timeline.'}
+            </div>
+         )}
          
          {/* Timeline Bar */}
-         <div className="relative pt-6 pb-2">
+         {steps.length > 0 && <div className="relative pt-6 pb-2">
             <div className="absolute top-0 left-0 w-full h-1 bg-slate-200 dark:bg-white/5 top-[18px]"></div>
             <div className="flex justify-between relative z-10">
                {steps.map((step) => (
@@ -52,10 +53,10 @@ export function TraceVisualizer() {
                   </div>
                ))}
             </div>
-         </div>
+         </div>}
 
          {/* Detailed Step List */}
-         <div className="space-y-1 bg-slate-100/70 dark:bg-black/20 rounded-lg p-2 max-h-48 overflow-y-auto custom-scrollbar">
+         {steps.length > 0 && <div className="space-y-1 bg-slate-100/70 dark:bg-black/20 rounded-lg p-2 max-h-48 overflow-y-auto custom-scrollbar">
             {steps.map((step) => (
                <div key={step.id} className="flex items-center justify-between p-2 rounded hover:bg-slate-200/70 dark:hover:bg-white/5 transition-colors group">
                   <div className="flex items-center gap-3">
@@ -77,13 +78,13 @@ export function TraceVisualizer() {
                   
                   <div className="text-right">
                      <span className={`text-[10px] font-mono block ${step.status === 'processing' ? 'text-blue-400' : 'text-slate-500 dark:text-gray-500'}`}>
-                        {step.durationMs ? `${step.durationMs}ms` : '---'}
+                        {step.durationMs !== undefined ? `${step.durationMs}ms` : '---'}
                      </span>
                      {step.details && <span className="text-[9px] text-slate-500 dark:text-gray-600">View Details</span>}
                   </div>
                </div>
             ))}
-         </div>
+         </div>}
 
       </CardContent>
     </Card>

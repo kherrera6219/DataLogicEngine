@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -251,6 +251,21 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     }
   };
 
+  const latestTrace = useMemo<TracePipeline | null>(() => {
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      const trace = messages[i].traces;
+      if (trace?.steps?.length) {
+        return trace;
+      }
+    }
+    return null;
+  }, [messages]);
+
+  const hasExecutedQuery = useMemo(
+    () => messages.some((message) => message.role === 'user'),
+    [messages]
+  );
+
   return (
     <div className="flex h-full text-gray-900 dark:text-white font-sans overflow-hidden">
       
@@ -419,9 +434,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                 </Button>
             </div>
             
-            <div className="max-w-4xl mx-auto mt-4">
-               <TraceVisualizer />
-            </div>
+             <div className="max-w-4xl mx-auto mt-4">
+               <TraceVisualizer trace={latestTrace} hasExecutedQuery={hasExecutedQuery} />
+             </div>
 
             <div className="text-center text-[10px] text-slate-500 dark:text-gray-600 mt-2 font-mono">UKG AI v2.1.0 • Enterprise Edition • Confidential</div>
          </div>
