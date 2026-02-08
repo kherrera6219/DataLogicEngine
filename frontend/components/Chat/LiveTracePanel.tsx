@@ -77,7 +77,7 @@ export function LiveTracePanel() {
 
       const stagePayload = await api.trace
         .getStages(selectedRun.run_id)
-        .catch(() => ({ stages: [] as TraceStageRecord[] }));
+        .catch(() => ({ stages: [] as TraceStageRecord[] })) as { stages?: TraceStageRecord[] };
       setStages(stagePayload.stages || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load trace telemetry');

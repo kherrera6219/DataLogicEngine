@@ -108,7 +108,7 @@ export function ApiOverlayConfig() {
           request<{ providers?: ProviderOption[] }>('/gateway/providers').catch(() => ({ providers: [] })),
           api.analytics.activity(100).catch(() => []),
           api.chat.getHealth().catch(() => ({ active_providers: 0, message: 'Unavailable' })),
-          api.analytics.overview().catch(() => null),
+          request<{ compliance_score?: string | number }>('/analytics/overview').catch(() => ({ compliance_score: undefined })),
         ]);
 
         if (cancelled) return;
@@ -129,8 +129,9 @@ export function ApiOverlayConfig() {
           }
         }
 
-        const timestamps = (activity || [])
-          .map((entry: { time?: string }) => entry.time)
+        const activityEntries = Array.isArray(activity) ? (activity as Array<{ time?: string }>) : [];
+        const timestamps = activityEntries
+          .map((entry) => entry.time)
           .filter((value): value is string => Boolean(value));
         setActivityData(buildLast7DaySeries(timestamps));
       } catch {

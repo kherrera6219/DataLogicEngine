@@ -58,13 +58,14 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   useSocket({
     onChatResponse: (data) => {
       if (data.session_id === currentSessionId) {
+        const socketRunId = (data as { run_id?: string }).run_id;
         const assistantMsg: ChatMessage = {
           id: uuidv4(),
           role: 'assistant',
           content: data.response,
           finalAnswer: data.response,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          runId: data.run_id,
+          runId: socketRunId,
           isEnhanced: true
         };
         setMessages(prev => [...prev, assistantMsg]);
