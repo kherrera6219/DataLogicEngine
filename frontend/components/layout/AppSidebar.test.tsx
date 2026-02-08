@@ -26,7 +26,9 @@ vi.mock('lucide-react', () => ({
   ShieldAlert: () => <svg data-testid="icon-shield" />,
   Settings: () => <svg data-testid="icon-settings" />,
   LogOut: () => <svg data-testid="icon-logout" />,
-  Hexagon: () => <svg data-testid="icon-hexagon" />
+  Hexagon: () => <svg data-testid="icon-hexagon" />,
+  PanelLeftClose: () => <svg data-testid="icon-panel-close" />,
+  PanelLeftOpen: () => <svg data-testid="icon-panel-open" />,
 }));
 
 describe('AppSidebar', () => {
@@ -34,6 +36,7 @@ describe('AppSidebar', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
     (useAuth as any).mockReturnValue({
       user: {
         username: 'Test User',
@@ -59,10 +62,11 @@ describe('AppSidebar', () => {
 
   it('should toggle collapse', () => {
     render(<AppSidebar />);
-    const toggle = screen.getByTestId('icon-hexagon').closest('.group');
-    if (toggle) fireEvent.click(toggle);
+    const toggle = screen.getByRole('button', { name: /collapse sidebar/i });
+    fireEvent.click(toggle);
 
     expect(screen.queryByText(/UKG/i)).not.toBeInTheDocument();
     expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /expand sidebar/i })).toBeInTheDocument();
   });
 });

@@ -86,37 +86,46 @@ electron_1.app.on('ready', () => {
     // Register protocol handler for 'app://'
     electron_1.protocol.handle('app', async (request) => {
         const url = new URL(request.url);
-        let pathname = url.pathname;
-        // Remove leading slash if present (Windows compatibility)
-        if (pathname.startsWith('/')) {
-            pathname = pathname.slice(1);
-        }
-        // Default to index.html if empty path
-        if (!pathname) {
-            pathname = 'index.html';
-        }
-        // Determine path to the 'out' directory
-        // When packaged, __dirname is inside resources/app.asar/dist-electron
-        // The 'out' folder is at resources/app.asar/out
         const appPath = path.join(__dirname, '../out');
-        const filePath = path.join(appPath, pathname);
-        // If file doesn't exist, try appending .html (for clean URLs) or serve index.html (SPA routing)
-        let finalPath = filePath;
-        try {
-            if (!fs.existsSync(filePath)) {
-                if (fs.existsSync(filePath + '.html')) {
-                    finalPath = filePath + '.html';
+        const cleanSegments = url.pathname.split('/').filter(Boolean);
+        if (cleanSegments.length === 2 &&
+            cleanSegments[0] === 'projects' &&
+            cleanSegments[1] !== 'view') {
+            const legacyId = decodeURIComponent(cleanSegments[1]);
+            const redirected = `app://-/projects/view?id=${encodeURIComponent(legacyId)}`;
+            return Response.redirect(redirected, 302);
+        }
+        const resolveFilePath = (rawPathname) => {
+            const decodedPath = decodeURIComponent(rawPathname || '/');
+            const stripped = decodedPath.replace(/^\/+/, '').replace(/\/+$/, '');
+            const normalized = path.normalize(stripped || 'index').replace(/^(\.\.(\/|\\|$))+/, '');
+            const hasExtension = path.extname(normalized).length > 0;
+            const candidatePaths = [path.join(appPath, normalized)];
+            if (!hasExtension) {
+                candidatePaths.push(path.join(appPath, `${normalized}.html`));
+                candidatePaths.push(path.join(appPath, normalized, 'index.html'));
+            }
+            candidatePaths.push(path.join(appPath, 'index.html'));
+            for (const candidate of candidatePaths) {
+                try {
+                    const stats = fs.statSync(candidate);
+                    if (stats.isFile()) {
+                        return candidate;
+                    }
+                    if (stats.isDirectory()) {
+                        const directoryIndex = path.join(candidate, 'index.html');
+                        if (fs.existsSync(directoryIndex) && fs.statSync(directoryIndex).isFile()) {
+                            return directoryIndex;
+                        }
+                    }
                 }
-                else {
-                    // Fallback to index.html for client-side routing
-                    finalPath = path.join(appPath, 'index.html');
+                catch {
+                    // Ignore and continue to next candidate.
                 }
             }
-        }
-        catch {
-            // Fallback for whatever reason (e.g. invalid path chars)
-            finalPath = path.join(appPath, 'index.html');
-        }
+            return path.join(appPath, 'index.html');
+        };
+        const finalPath = resolveFilePath(url.pathname);
         try {
             const data = await fs.promises.readFile(finalPath);
             const extension = path.extname(finalPath).toLowerCase();

@@ -6,9 +6,9 @@ import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { 
+import {
   Settings as SettingsIcon, Shield, Bell, Save, 
-  Brain, Network, Monitor, Sun, Lock, Database
+  Brain, Network, Monitor, Sun, Lock, Database, PanelLeftClose, PanelLeftOpen
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { request } from '@/lib/api';
@@ -33,6 +33,7 @@ interface UserDataSummary {
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
   const [summary, setSummary] = useState<UserDataSummary | null>(null);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
@@ -71,7 +72,19 @@ export default function SettingsPage() {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex gap-8 items-start">
                
                {/* Settings Sidebar */}
-               <div className="w-64 shrink-0 space-y-6 sticky top-24">
+               <div className={`${isSidebarCollapsed ? "w-16" : "w-64"} shrink-0 space-y-4 sticky top-24 transition-all duration-300`}>
+                  <Button
+                    data-testid="settings-sidebar-toggle"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsSidebarCollapsed((prev) => !prev)}
+                    className="w-full justify-center gap-2 border-slate-300/70 dark:border-white/10 bg-white/80 dark:bg-black/20"
+                    aria-label={isSidebarCollapsed ? "Expand settings sidebar" : "Collapse settings sidebar"}
+                    title={isSidebarCollapsed ? "Expand settings sidebar" : "Collapse settings sidebar"}
+                  >
+                    {isSidebarCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+                    {!isSidebarCollapsed && <span>Collapse</span>}
+                  </Button>
                   <TabsList className="flex flex-col h-auto bg-transparent space-y-1 p-0">
                      {[
                         { id: 'general', label: 'General', icon: Monitor },
@@ -84,22 +97,25 @@ export default function SettingsPage() {
                         <TabsTrigger 
                            key={tab.id} 
                            value={tab.id}
-                           className="w-full justify-start px-4 py-3 h-auto text-sm font-medium text-slate-700 dark:text-gray-300 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:bg-slate-200/70 dark:hover:bg-white/5 rounded-xl transition-all"
+                           className={`w-full ${isSidebarCollapsed ? "justify-center px-0" : "justify-start px-4"} py-3 h-auto text-sm font-medium text-slate-700 dark:text-gray-300 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:bg-slate-200/70 dark:hover:bg-white/5 rounded-xl transition-all`}
+                           title={tab.label}
                         >
-                           <tab.icon className="h-4 w-4 mr-3" />
-                           {tab.label}
+                           <tab.icon className={`h-4 w-4 ${isSidebarCollapsed ? "" : "mr-3"}`} />
+                           {!isSidebarCollapsed && tab.label}
                         </TabsTrigger>
                      ))}
                   </TabsList>
 
-                  <Card className="fluent-card bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-blue-500/20">
-                     <CardContent className="p-4 space-y-3">
-                        <div className="flex items-center gap-2 text-blue-400 font-semibold text-sm">
-                           <Shield className="h-4 w-4" /> Enterprise Protected
-                        </div>
-                        <p className="text-xs text-slate-600 dark:text-gray-400">Settings are enforced by global registry policies.</p>
-                     </CardContent>
-                  </Card>
+                  {!isSidebarCollapsed && (
+                    <Card className="fluent-card bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-blue-500/20">
+                       <CardContent className="p-4 space-y-3">
+                          <div className="flex items-center gap-2 text-blue-400 font-semibold text-sm">
+                             <Shield className="h-4 w-4" /> Enterprise Protected
+                          </div>
+                          <p className="text-xs text-slate-600 dark:text-gray-400">Settings are enforced by global registry policies.</p>
+                       </CardContent>
+                    </Card>
+                  )}
                </div>
 
                {/* Content Area */}

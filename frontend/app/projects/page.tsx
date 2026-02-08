@@ -161,7 +161,7 @@ export default function ProjectsPage() {
               const Icon = icon;
 
               return (
-                <Link href={`/projects/${session.id}`} key={session.id} className="block group">
+                <Link href={`/projects/view?id=${encodeURIComponent(session.id)}`} key={session.id} className="block group">
                   <Card className="fluent-acrylic border-slate-200 dark:border-white/10 h-full transition-all duration-500 hover:-translate-y-2 relative overflow-hidden group hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
                     <div className={`absolute -top-24 -right-24 h-48 w-48 ${accent} opacity-0 group-hover:opacity-10 transition-opacity blur-[60px] pointer-events-none`}></div>
                     <div className={`absolute top-0 left-0 right-0 h-1 ${accent} opacity-50`}></div>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, MessageSquare, Database, Folder, 
-  ShieldAlert, Settings, LogOut, Hexagon 
+  ShieldAlert, Settings, LogOut, Hexagon, PanelLeftClose, PanelLeftOpen 
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,24 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const stored = window.localStorage.getItem('ukg.sidebar.collapsed');
+    if (stored === 'true' || stored === 'false') {
+      setIsCollapsed(stored === 'true');
+    }
+  }, []);
+
+  const toggleSidebar = React.useCallback(() => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('ukg.sidebar.collapsed', String(next));
+      }
+      return next;
+    });
+  }, []);
   const isAdmin = Boolean(user?.is_admin || user?.role === 'admin' || user?.role === 'owner');
   const initials = user?.username
     ? user.username
@@ -71,14 +89,16 @@ export function AppSidebar() {
   if (pathname === '/login' || pathname === '/register') return null;
 
   return (
-    <div className={cn(
+    <div
+      data-testid="app-sidebar"
+      className={cn(
       "h-screen fluent-acrylic border-r border-white/5 flex flex-col transition-all duration-300 z-50 shadow-2xl shrink-0",
       isCollapsed ? "w-20" : "w-64"
     )}>
       
       {/* Brand Header */}
-      <div className="h-16 flex items-center px-6 border-b border-white/5">
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setIsCollapsed(!isCollapsed)}>
+      <div className="h-16 flex items-center justify-between px-4 border-b border-white/5">
+        <div className="flex items-center gap-3 group">
            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shrink-0 shadow-lg shadow-blue-900/20 group-hover:scale-105 transition-transform">
               <Hexagon className="h-5 w-5 text-white fill-white/20" />
            </div>
@@ -89,6 +109,17 @@ export function AppSidebar() {
               </div>
            )}
         </div>
+        <Button
+          data-testid="app-sidebar-toggle"
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/10"
+          onClick={toggleSidebar}
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {isCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+        </Button>
       </div>
 
       {/* Navigation */}

@@ -35,6 +35,12 @@ export default defineConfig({
     /* Screenshot on failure */
     screenshot: 'only-on-failure',
   },
+  webServer: {
+    command: 'npm run dev -- --hostname localhost --port 3000',
+    url: 'http://localhost:3000',
+    timeout: 180 * 1000,
+    reuseExistingServer: !process.env.CI,
+  },
 
   /* Configure projects for major browsers */
   projects: [
