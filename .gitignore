@@ -37,6 +37,9 @@ frontend/test-results/
 deploy/windows/build/
 deploy/windows/*.exe
 deploy/windows/*.msi
+tools/wix311_*/
+tools/wix311-binaries_*.zip
+docs/archive/legacy_assets/
 *.asar
 /DataLogicEngine Setup *.exe
 /DataLogicEngine Setup *.exe.blockmap
