@@ -8,7 +8,9 @@ Track source-of-truth documents across all core application areas and identify d
 
 | Area | Source-of-truth document | Status | Notes |
 |---|---|---|---|
-| Product overview | `README.md` | Active | Public project entry point |
+| Product overview | `README.md`, `docs/PRODUCT_OVERVIEW.md` | Active | Root entry point plus explicit product narrative |
+| Product design and UX | `docs/PRODUCT_DESIGN.md` | Active | Information architecture, interaction model, lazy-loading strategy |
+| End-user operations guide | `docs/USER_GUIDE.md` | Active | Task-oriented usage and workflow guidance |
 | Architecture and design | `docs/ARCHITECTURE.md` | Active | Logical and deployment architecture |
 | API contract and usage | `docs/API.md`, `docs/openapi.yaml` | Active | Human + machine-readable API references |
 | Security controls | `docs/SECURITY.md` | Active | IAM, encryption, audit, runtime controls |
@@ -37,4 +39,3 @@ Track source-of-truth documents across all core application areas and identify d
 2. Last updated: 2026-02-08
 3. Status: Active
 4. Review cadence: Every 30 days
-

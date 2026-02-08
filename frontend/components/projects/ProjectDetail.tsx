@@ -67,6 +67,14 @@ export function ProjectDetail({ id }: ProjectDetailProps) {
     );
   }, [messages, search]);
 
+  const assistantMessageCount = useMemo(
+    () => messages.filter((message) => message.role === 'assistant').length,
+    [messages]
+  );
+  const assistantRatio = messages.length
+    ? Math.round((assistantMessageCount / messages.length) * 100)
+    : 0;
+
   return (
     <div className="min-h-full bg-black text-white font-sans flex flex-col">
       <div className="h-16 border-b border-white/10 bg-gray-900/50 backdrop-blur-md flex items-center justify-between px-6">
@@ -171,7 +179,7 @@ export function ProjectDetail({ id }: ProjectDetailProps) {
               <div className="text-2xl font-bold font-mono text-white">{messages.length}</div>
               <div className="text-xs text-gray-400 mt-1">Total Messages</div>
               <div className="w-full bg-gray-700 h-1 mt-2 rounded-full overflow-hidden">
-                <div className="bg-green-500 h-full w-[84%]"></div>
+                <div className="bg-green-500 h-full transition-all duration-300" style={{ width: `${assistantRatio}%` }}></div>
               </div>
             </div>
 

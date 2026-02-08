@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta, UTC
 from sqlalchemy import func
 from extensions import db
-from models import Node, Edge, KAExecution, UkgSession
+from models import Node, Edge, KAExecution, UkgSession, MCPServer, MCPTool
 
 class AnalyticsService:
     @staticmethod
@@ -87,25 +87,67 @@ class AnalyticsService:
         """
         Get stats for MCP servers and tool usage.
         """
-        # Mocking the actual aggregation for now since tool logs aren't fully in DB yet
-        # But this would query a 'ToolExecution' table in v3.0
-        return {
-            "time_series": [
-                {"time": "6am", "requests": 12, "responses": 12, "errors": 0},
-                {"time": "9am", "requests": 45, "responses": 44, "errors": 1},
-                {"time": "12pm", "requests": 89, "responses": 88, "errors": 1},
-                {"time": "Now", "requests": 150, "responses": 149, "errors": 1},
-            ],
-            "top_tools": [
-                {"name": "salesforce_crm_lookup", "calls": 124, "percent": 45},
-                {"name": "jira_status_check", "calls": 88, "percent": 32},
-                {"name": "document_ocr", "calls": 45, "percent": 16},
-                {"name": "video_vision_analysis", "calls": 20, "percent": 7},
-            ],
-            "server_health": [
-                {"name": "UKG Gateway", "status": "Healthy", "latency": 15},
-                {"name": "Salesforce MCP", "status": "Healthy", "latency": 145},
-                {"name": "Jira MCP", "status": "Healthy", "latency": 89},
-                {"name": "Vision Service", "status": "Healthy", "latency": 450},
-            ]
-        }
+        try:
+            servers = db.session.query(MCPServer).all()
+            tools = db.session.query(MCPTool).all()
+
+            total_requests = sum(int(s.total_requests or 0) for s in servers)
+            total_success = sum(int(s.successful_requests or 0) for s in servers)
+            total_failed = sum(int(s.failed_requests or 0) for s in servers)
+            pending_requests = max(total_requests - total_success - total_failed, 0)
+
+            total_tool_calls = sum(int(t.execution_count or 0) for t in tools)
+            top_tools_raw = sorted(
+                tools,
+                key=lambda t: int(t.execution_count or 0),
+                reverse=True
+            )[:5]
+            top_tools = []
+            for tool in top_tools_raw:
+                calls = int(tool.execution_count or 0)
+                percent = (calls / total_tool_calls * 100.0) if total_tool_calls > 0 else 0.0
+                top_tools.append({
+                    "name": tool.name,
+                    "calls": calls,
+                    "percent": round(percent, 1)
+                })
+
+            server_health = []
+            for server in servers:
+                status = str(server.status or 'inactive').lower()
+                server_health.append({
+                    "name": server.name,
+                    "status": "Healthy" if status == 'active' else status.title(),
+                    # Latency telemetry is not currently persisted; expose 0 as unknown.
+                    "latency": 0
+                })
+
+            return {
+                "time_series": [
+                    {
+                        "time": "Now",
+                        "requests": total_requests,
+                        "responses": total_success,
+                        "errors": total_failed
+                    }
+                ],
+                "top_tools": top_tools,
+                "server_health": server_health,
+                "error_stats": [
+                    {"name": "Failed", "value": total_failed, "colorCode": "#ef4444"},
+                    {"name": "Successful", "value": total_success, "colorCode": "#10b981"},
+                    {"name": "Pending", "value": pending_requests, "colorCode": "#f59e0b"},
+                ]
+            }
+        except Exception as e:
+            logging.error(f"Analytics: Error getting MCP stats: {str(e)}")
+            return {
+                "time_series": [{"time": "Now", "requests": 0, "responses": 0, "errors": 0}],
+                "top_tools": [],
+                "server_health": [],
+                "error_stats": [
+                    {"name": "Failed", "value": 0, "colorCode": "#ef4444"},
+                    {"name": "Successful", "value": 0, "colorCode": "#10b981"},
+                    {"name": "Pending", "value": 0, "colorCode": "#f59e0b"},
+                ]
+            }

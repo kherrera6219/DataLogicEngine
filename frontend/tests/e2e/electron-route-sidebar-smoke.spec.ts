@@ -89,4 +89,17 @@ test.describe('Electron Route And Sidebar Smoke', () => {
       await app.close();
     }
   });
+
+  test('dashboard quick upload navigates to chat upload intent', async () => {
+    const { app, page } = await launchDesktopApp();
+    try {
+      await page.goto(`${BASE_URL}/dashboard`, { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle');
+      await page.getByRole('button', { name: /quick upload/i }).click();
+      await expect(page).toHaveURL(/\/chat\?intent=upload/);
+      await assertNoNotFound(page);
+    } finally {
+      await app.close();
+    }
+  });
 });

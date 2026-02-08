@@ -58,6 +58,18 @@ export default function DashboardPage() {
     }
   };
 
+  const trendingTopics = React.useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const item of activity) {
+      const key = (item.title || '').trim();
+      if (!key) continue;
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4);
+  }, [activity]);
+
   return (
     <div className="min-h-full bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed flex flex-col">
       
@@ -98,7 +110,7 @@ export default function DashboardPage() {
                        <MessageSquare className="h-4 w-4 mr-2" /> Start New Session
                     </Button>
                  </Link>
-                 <Link href="/projects">
+                 <Link href="/chat?intent=upload">
                     <Button variant="outline" className="h-11 px-6 rounded-xl border-white/10 hover:bg-white/5 bg-white/[0.02] backdrop-blur-md transition-all">
                        <Upload className="h-4 w-4 mr-2" /> Quick Upload
                     </Button>
@@ -202,17 +214,18 @@ export default function DashboardPage() {
                  </div>
                  
                  <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-1 shadow-lg">
-                    {['HIPAA Compliance 2026', 'SOC2 Audit Log Retention', 'Data Residency EU', 'Encryption Standards'].map((topic, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-[#252525] transition-colors group cursor-pointer">
-                           <div className="flex items-center gap-3">
-                              <div className="text-xs font-mono text-gray-600 bg-black/30 px-1.5 py-0.5 rounded">#{i + 1}</div>
-                              <div className="text-sm text-gray-300 group-hover:text-blue-400 transition-colors font-medium">{topic}</div>
-                           </div>
-                           <div className="text-xs text-gray-600 group-hover:text-gray-400">
-                              {100 - i * 12}
-                           </div>
+                    {trendingTopics.map(([topic, count], i) => (
+                      <div key={topic} className="flex items-center justify-between p-3 rounded-lg hover:bg-[#252525] transition-colors group cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <div className="text-xs font-mono text-gray-600 bg-black/30 px-1.5 py-0.5 rounded">#{i + 1}</div>
+                          <div className="text-sm text-gray-300 group-hover:text-blue-400 transition-colors font-medium">{topic}</div>
                         </div>
+                        <div className="text-xs text-gray-600 group-hover:text-gray-400">{count}</div>
+                      </div>
                     ))}
+                    {trendingTopics.length === 0 && !loading && (
+                      <div className="p-3 text-sm text-gray-500">No activity topics available yet.</div>
+                    )}
                  </div>
 
                  <Card className="bg-gradient-to-br from-blue-900/30 via-indigo-900/10 to-transparent border-blue-500/20 shadow-lg relative overflow-hidden group">
@@ -226,7 +239,9 @@ export default function DashboardPage() {
                           <div className="text-xs font-bold text-blue-300 uppercase tracking-widest">System Notice</div>
                        </div>
                        <p className="text-sm text-gray-300 leading-relaxed">
-                          Scheduled maintenance for the Knowledge Graph Indexer is planned for <strong className="text-white">Sunday at 2:00 AM EST</strong>.
+                          {overview
+                            ? `Last telemetry update: ${new Date(overview.timestamp).toLocaleString()}.`
+                            : 'No telemetry notice available yet.'}
                        </p>
                     </CardContent>
                  </Card>

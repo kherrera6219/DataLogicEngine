@@ -20,13 +20,8 @@ export function McpAnalytics() {
     async function fetchStats() {
       try {
         const stats = await api.analytics.mcp() as McpStats;
-        // Adding colors for error stats manually if not provided by API
-        const rawErrorStats = stats.error_stats || [
-          { name: 'Timeout', value: 23, color: 'bg-yellow-500' },
-          { name: 'Auth', value: 12, color: 'bg-red-500' },
-          { name: 'Invalid', value: 8, color: 'bg-blue-500' },
-          { name: 'Unavailable', value: 5, color: 'bg-gray-500' },
-        ];
+        // Use only API-provided telemetry; no synthetic fallback values.
+        const rawErrorStats = stats.error_stats || [];
         
         const coloredErrorStats = rawErrorStats.map((s, i: number) => ({
           ...s,
@@ -35,10 +30,19 @@ export function McpAnalytics() {
 
         setData({
           ...stats,
+          time_series: stats.time_series || [],
+          top_tools: stats.top_tools || [],
+          server_health: stats.server_health || [],
           error_stats: coloredErrorStats
         });
       } catch (err) {
         console.error("Failed to fetch MCP analytics:", err);
+        setData({
+          time_series: [],
+          top_tools: [],
+          server_health: [],
+          error_stats: []
+        });
       } finally {
         setLoading(false);
       }
@@ -135,7 +139,7 @@ export function McpAnalytics() {
                 </CardHeader>
                 <CardContent className="pt-6">
                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {data.server_health.map((server) => (
+                {data.server_health.map((server) => (
                          <div key={server.name} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
                             <div className="flex items-center gap-2">
                                {server.status === 'Healthy' ? <CheckCircle className="h-4 w-4 text-green-400" /> : <XCircle className="h-4 w-4 text-red-500" />}
@@ -160,22 +164,28 @@ export function McpAnalytics() {
                 </CardHeader>
                 <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
                    <div className="h-[200px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                         <PieChart>
-                            <Pie 
-                               data={data.error_stats} 
-                               innerRadius={60} 
-                               outerRadius={80} 
-                               paddingAngle={5} 
-                               dataKey="value"
-                            >
-                               {data.error_stats.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={entry.colorCode} />
-                               ))}
-                            </Pie>
-                            <Tooltip contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', fontSize: '12px' }} itemStyle={{ color: '#e5e7eb' }} />
-                         </PieChart>
-                      </ResponsiveContainer>
+                      {data.error_stats.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                           <PieChart>
+                              <Pie 
+                                 data={data.error_stats} 
+                                 innerRadius={60} 
+                                 outerRadius={80} 
+                                 paddingAngle={5} 
+                                 dataKey="value"
+                              >
+                                 {data.error_stats.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={entry.colorCode} />
+                                 ))}
+                              </Pie>
+                              <Tooltip contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', fontSize: '12px' }} itemStyle={{ color: '#e5e7eb' }} />
+                           </PieChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-xs text-gray-500">
+                          No error telemetry available.
+                        </div>
+                      )}
                    </div>
                    <div className="space-y-4">
                        {data.error_stats.map((stat) => (
@@ -187,6 +197,9 @@ export function McpAnalytics() {
                              <span className="font-mono text-sm text-white">{stat.value}</span>
                           </div>
                        ))}
+                       {data.error_stats.length === 0 && (
+                          <div className="text-sm text-gray-500">No error categories reported.</div>
+                       )}
                        <div className="pt-4 flex gap-2">
                           <Button variant="outline" size="sm" className="w-full"><Download className="mr-2 h-4 w-4" /> Report</Button>
                           <Button variant="outline" size="sm" className="w-full"><Mail className="mr-2 h-4 w-4" /> Email</Button>

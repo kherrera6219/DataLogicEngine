@@ -60,8 +60,11 @@ app.on('ready', () => {
   protocol.handle('app', async (request) => {
     const url = new URL(request.url);
     const appPath = path.join(__dirname, '../out');
+    const hostSegment =
+      url.hostname && url.hostname !== '-' ? `/${decodeURIComponent(url.hostname)}` : '';
+    const logicalPathname = `${hostSegment}${url.pathname || '/'}`.replace(/\/{2,}/g, '/');
 
-    const cleanSegments = url.pathname.split('/').filter(Boolean);
+    const cleanSegments = logicalPathname.split('/').filter(Boolean);
     if (
       cleanSegments.length === 2 &&
       cleanSegments[0] === 'projects' &&
@@ -105,7 +108,7 @@ app.on('ready', () => {
       return path.join(appPath, 'index.html');
     };
 
-    const finalPath = resolveFilePath(url.pathname);
+    const finalPath = resolveFilePath(logicalPathname);
 
     try {
         const data = await fs.promises.readFile(finalPath);

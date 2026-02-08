@@ -98,4 +98,13 @@ test.describe('Route And Sidebar Smoke', () => {
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-label', /collapse settings sidebar/i);
   });
+
+  test('dashboard quick upload navigates to chat upload intent', async ({ page }) => {
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
+
+    await page.getByRole('button', { name: /quick upload/i }).click();
+    await expect(page).toHaveURL(/\/chat\?intent=upload/);
+    await assertNoNotFound(page);
+  });
 });

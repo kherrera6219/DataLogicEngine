@@ -61,6 +61,10 @@ export default function SimulationsPage() {
       mutate();
   };
 
+  const totalSimulations = simulations?.length || 0;
+  const activeSimulations = simulations?.filter((sim) => sim.status === 'active').length || 0;
+  const completedSimulations = simulations?.filter((sim) => sim.status === 'completed').length || 0;
+
   return (
     <main className="min-h-screen bg-transparent p-8 text-gray-900 dark:text-white">
       <div className="container mx-auto max-w-7xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -103,9 +107,9 @@ export default function SimulationsPage() {
                   <CardDescription className="text-slate-600 dark:text-gray-500">Real-time view of running simulation instances.</CardDescription>
                </div>
                <div className="flex gap-2 text-[10px] font-mono text-gray-600">
-                  <span>SYSTEM_UPTIME: 99.9%</span>
+                  <span>ACTIVE: {activeSimulations}</span>
                   <span>•</span>
-                  <span>LOAD_AVG: 0.12</span>
+                  <span>TOTAL: {totalSimulations}</span>
                </div>
              </div>
           </CardHeader>
@@ -206,12 +210,12 @@ export default function SimulationsPage() {
         {/* System Diagnostics Footer */}
         <div className="flex justify-between items-center text-[10px] text-slate-500 dark:text-gray-600 font-mono pt-4 border-t border-white/5">
            <div className="flex gap-4">
-              <span>UKG_OS_v2.5</span>
-              <span>SIM_ENGINE_BRIDGE: CONNECTED</span>
+              <span>TOTAL_SIMULATIONS: {totalSimulations}</span>
+              <span>COMPLETED: {completedSimulations}</span>
            </div>
            <div className="flex gap-4">
-              <span>LATENCY: 12ms</span>
-              <span>LOAD: OPTIMAL</span>
+              <span>SOCKET: {isConnected ? 'CONNECTED' : 'OFFLINE'}</span>
+              <span>LAST_REFRESH: {new Date().toLocaleTimeString()}</span>
            </div>
         </div>
       </div>

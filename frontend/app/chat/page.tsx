@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useSearchParams } from 'next/navigation';
 
 const ChatInterface = dynamic(
   () => import('@/components/Chat/ChatInterface').then((mod) => mod.ChatInterface),
@@ -14,9 +15,12 @@ const ChatInterface = dynamic(
 );
 
 export default function ChatPage() {
+  const searchParams = useSearchParams();
+  const autoOpenUpload = searchParams.get('intent') === 'upload';
+
   return (
     <div className="h-full relative overflow-hidden">
-      <ChatInterface />
+      <ChatInterface autoOpenUpload={autoOpenUpload} />
     </div>
   );
 }

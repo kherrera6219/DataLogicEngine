@@ -100,7 +100,7 @@ describe('ApiOverlayConfig', () => {
     expect(screen.getByTestId('refresh-cw-icon')).toBeInTheDocument();
     
     await waitFor(() => {
-        expect(screen.getByText(/The proposed architecture/i)).toBeInTheDocument();
+        expect(screen.getByText(/No response body returned by gateway/i)).toBeInTheDocument();
     }, { timeout: 3000 });
   });
 });

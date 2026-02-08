@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { McpServerConfig } from './McpServerConfig';
 
 // Mock Lucide icons
@@ -11,6 +11,21 @@ vi.mock('lucide-react', async (importOriginal) => {
     Settings: () => <span data-testid="icon-settings" />,
     Terminal: () => <span data-testid="icon-terminal" />,
   };
+});
+
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn(async () => ({
+    ok: true,
+    json: async () => ({
+      servers: [
+        { id: 1, server_id: 'ukg-prod', name: 'UKG Production', version: '1.0.0', description: 'Primary', status: 'active' }
+      ]
+    })
+  })));
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 describe('McpServerConfig', () => {

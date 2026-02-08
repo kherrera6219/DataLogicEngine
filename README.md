@@ -83,8 +83,11 @@ DataLogicEngine is built for versatility, supporting two first-class deployment 
 For enterprise documentation standards and area-specific source-of-truth docs:
 
 1. `docs/README.md`
-2. `docs/DOCUMENTATION_STANDARDS.md`
-3. `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
+2. `docs/PRODUCT_OVERVIEW.md`
+3. `docs/USER_GUIDE.md`
+4. `docs/PRODUCT_DESIGN.md`
+5. `docs/DOCUMENTATION_STANDARDS.md`
+6. `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
 
 ---
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { McpHub } from './McpHub';
 import { useRouter } from 'next/navigation';
 
@@ -8,6 +8,17 @@ import { useRouter } from 'next/navigation';
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
 }));
+
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn(async () => ({
+    ok: true,
+    json: async () => ({ stats: { total_servers: 2, active_servers: 1, total_tools: 3, active_connections: 1 } })
+  })));
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe('McpHub', () => {
   it('should render correctly', () => {

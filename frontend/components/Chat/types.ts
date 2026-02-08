@@ -39,6 +39,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: string;
+  runId?: string;
   traces?: TracePipeline;
   personas?: PersonaOutput[];
   metrics?: ValidationMetric[];

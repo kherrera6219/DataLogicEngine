@@ -1,10 +1,16 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  CheckCircle2, Shield, 
-  Activity, Gavel, Building, Stethoscope,
-  Download, Share2, Users
+import {
+  CheckCircle2,
+  Shield,
+  Activity,
+  Gavel,
+  Building,
+  Stethoscope,
+  Download,
+  Share2,
+  Users
 } from "lucide-react";
 import { ChatMessage, PersonaOutput, ValidationMetric } from './types';
 
@@ -12,142 +18,125 @@ interface DetailedResponseViewProps {
   message: ChatMessage;
 }
 
-export function DetailedResponseView({ message }: DetailedResponseViewProps) {
-  // Use data from message if available, otherwise fallback to defaults for UI state
-  const personas: (PersonaOutput & { icon: React.ReactNode })[] = (message.personas || [
-    {
-      id: "p1",
-      name: "Knowledge Expert",
-      role: "Healthcare Systems & Law",
-      icon: <Stethoscope className="h-4 w-4 text-blue-400" />,
-      confidence: 99.7,
-      contribution: "Identified AES-256 & TLS 1.3 requirements. Noted 7-year audit log retention.",
-      avatar: "🩺",
-      weight: 0.25,
-      sources: []
-    },
-    {
-      id: "p2",
-      name: "Sector Specialist",
-      role: "IT Ops & Cloud Arch",
-      icon: <Building className="h-4 w-4 text-orange-400" />,
-      confidence: 99.4,
-      contribution: "Emphasized BAAs and data residency. Specified RTO < 4 hours.",
-      avatar: "🏢",
-      weight: 0.25,
-      sources: []
-    },
-    {
-      id: "p3",
-      name: "Regulatory Advisor",
-      role: "HIPAA Attorney",
-      icon: <Gavel className="h-4 w-4 text-purple-400" />,
-      confidence: 99.8,
-      contribution: "Mapped 45 CFR § 164.308/312. Flagged HITECH & State laws.",
-      avatar: "⚖️",
-      weight: 0.25,
-      sources: []
-    },
-    {
-      id: "p4",
-      name: "Compliance Officer",
-      role: "CISO & Auditor",
-      icon: <Shield className="h-4 w-4 text-green-400" />,
-      confidence: 99.5,
-      contribution: "Validated SOC2/ISO alignment. Created 14-point risk checklist.",
-      avatar: "🛡️",
-      weight: 0.25,
-      sources: []
-    }
-  ]).map(p => ({
-    ...p,
-    // Ensure icon exists for UI display
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    icon: (p as any).icon || <Users className="h-4 w-4 text-blue-400" />
-  }));
+function toPercent(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return value <= 1 ? value * 100 : value;
+}
 
-  const metrics: (ValidationMetric & { label: string, value: string })[] = (message.metrics || [
-    { name: "FACTUAL_ACCURACY", score: 0.998, status: "pass", details: "Verified vs 23 sources" },
-    { name: "LEGAL_VALIDITY", score: 0.996, status: "pass", details: "8 regulatory codes" },
-    { name: "COMPLETENESS", score: 0.984, status: "pass", details: "All aspects covered" },
-    { name: "CONSISTENCY", score: 0.999, status: "pass", details: "Zero contradictions" },
-    { name: "BIAS_SCORE", score: 0.02, status: "pass", details: "Threshold < 0.05" },
-    { name: "SAFETY_CHECK", score: 1, status: "pass", details: "No harmful content" },
-  ]).map(m => ({
-    ...m,
-    label: m.name.replace(/_/g, ' ').toLowerCase().split(' ').map(s => s.charAt(0).toUpperCase() + s.substring(1)).join(' '),
-    value: m.score > 1 ? m.score.toString() : `${(m.score * 100).toFixed(1)}%`,
-    detail: m.details // compatibility mapping
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any));
+function personaIcon(persona: PersonaOutput): React.ReactNode {
+  const descriptor = `${persona.name} ${persona.role}`.toLowerCase();
+  if (descriptor.includes('health') || descriptor.includes('medical')) {
+    return <Stethoscope className="h-4 w-4 text-blue-400" />;
+  }
+  if (descriptor.includes('regulatory') || descriptor.includes('legal')) {
+    return <Gavel className="h-4 w-4 text-purple-400" />;
+  }
+  if (descriptor.includes('sector') || descriptor.includes('operations') || descriptor.includes('cloud')) {
+    return <Building className="h-4 w-4 text-orange-400" />;
+  }
+  if (descriptor.includes('compliance') || descriptor.includes('security')) {
+    return <Shield className="h-4 w-4 text-green-400" />;
+  }
+  return <Users className="h-4 w-4 text-blue-400" />;
+}
+
+function metricLabel(metric: ValidationMetric): string {
+  return metric.name
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .split(' ')
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.substring(1))
+    .join(' ');
+}
+
+export function DetailedResponseView({ message }: DetailedResponseViewProps) {
+  const personas = message.personas || [];
+  const metrics = message.metrics || [];
+  const consensus = personas.length
+    ? personas.reduce((sum, persona) => sum + toPercent(persona.confidence), 0) / personas.length
+    : null;
+
+  if (!personas.length && !metrics.length) {
+    return (
+      <div className="mt-4 rounded-lg border border-slate-200/80 dark:border-white/10 bg-slate-50 dark:bg-black/20 p-3 text-xs text-slate-600 dark:text-gray-400">
+        No validation telemetry is available for this response yet.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 mt-4">
-       {/* 🔬 VALIDATION METRICS */}
-       <div className="bg-white/70 dark:bg-black/30 border border-slate-200 dark:border-white/10 rounded-lg p-4">
+      {metrics.length > 0 && (
+        <div className="bg-white/70 dark:bg-black/30 border border-slate-200 dark:border-white/10 rounded-lg p-4">
           <h3 className="text-xs font-bold text-slate-500 dark:text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-             <Activity className="h-3 w-3" /> Validation Metrics
+            <Activity className="h-3 w-3" /> Validation Metrics
           </h3>
           <div className="grid grid-cols-3 gap-3">
-             {metrics.map((m, i) => (
-                <div key={i} className="bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-white/5 p-2 rounded flex flex-col">
-                   <div className="flex justify-between items-start mb-1">
-                      <span className="text-[10px] text-slate-600 dark:text-gray-400 uppercase">{m.label}</span>
-                      {m.status === 'pass' && <CheckCircle2 className="h-3 w-3 text-green-500" />}
-                   </div>
-                   <div className="text-lg font-bold text-slate-900 dark:text-white leading-none mb-1">{m.value}</div>
-                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                   <div className="text-[10px] text-slate-500 dark:text-gray-500 truncate">{(m as any).detail}</div>
+            {metrics.map((metric) => (
+              <div key={metric.name} className="bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-white/5 p-2 rounded flex flex-col">
+                <div className="flex justify-between items-start mb-1">
+                  <span className="text-[10px] text-slate-600 dark:text-gray-400 uppercase">{metricLabel(metric)}</span>
+                  {metric.status === 'pass' && <CheckCircle2 className="h-3 w-3 text-green-500" />}
                 </div>
-             ))}
+                <div className="text-lg font-bold text-slate-900 dark:text-white leading-none mb-1">
+                  {toPercent(metric.score).toFixed(1)}%
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-gray-500 truncate">{metric.details}</div>
+              </div>
+            ))}
           </div>
-       </div>
+        </div>
+      )}
 
-       {/* 🎭 QUAD PERSONA ANALYSIS */}
-       <div className="border border-slate-200 dark:border-white/10 rounded-lg overflow-hidden">
+      {personas.length > 0 && (
+        <div className="border border-slate-200 dark:border-white/10 rounded-lg overflow-hidden">
           <div className="bg-white/70 dark:bg-white/5 p-3 border-b border-slate-200 dark:border-white/10 flex justify-between items-center">
-             <h3 className="text-xs font-bold text-slate-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-2">
-                <Users className="h-3 w-3 text-blue-400" /> Quad Persona Analysis
-             </h3>
-             <Badge variant="outline" className="text-[10px] h-5 border-blue-500/30 text-blue-400">Consensus: 98.7%</Badge>
+            <h3 className="text-xs font-bold text-slate-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-2">
+              <Users className="h-3 w-3 text-blue-400" /> Persona Analysis
+            </h3>
+            {consensus !== null && (
+              <Badge variant="outline" className="text-[10px] h-5 border-blue-500/30 text-blue-400">
+                Consensus: {consensus.toFixed(1)}%
+              </Badge>
+            )}
           </div>
-          
-          <div className="divide-y divide-slate-200 dark:divide-white/10">
-             {personas.map(persona => (
-                <div 
-                  key={persona.id} 
-                  className="p-3 bg-slate-50 dark:bg-black/20 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer group"
-                >
-                   <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                         <div className="p-1 rounded bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-white/10">{persona.icon}</div>
-                         <div>
-                            <div className="text-sm font-bold text-slate-900 dark:text-gray-200 group-hover:text-slate-950 dark:group-hover:text-white">{persona.name}</div>
-                            <div className="text-[10px] text-slate-500 dark:text-gray-500">{persona.role}</div>
-                         </div>
-                      </div>
-                      <div className="text-right">
-                         <div className="text-xs font-bold text-green-400">{persona.confidence}%</div>
-                         <div className="text-[9px] text-slate-500 dark:text-gray-600 uppercase">Confidence</div>
-                      </div>
-                   </div>
-                   <p className="text-xs text-slate-600 dark:text-gray-400 pl-9 border-l-2 border-slate-300 dark:border-white/10 ml-2">
-                      {persona.contribution}
-                   </p>
-                </div>
-             ))}
-          </div>
-       </div>
 
-       {/* Actions */}
-       <div className="flex justify-end gap-2 pt-2">
-          <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white gap-2">
-             <Download className="h-3 w-3" /> Report
-          </Button>
-          <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white gap-2">
-             <Share2 className="h-3 w-3" /> Share
-          </Button>
-       </div>
+          <div className="divide-y divide-slate-200 dark:divide-white/10">
+            {personas.map((persona) => (
+              <div
+                key={persona.id}
+                className="p-3 bg-slate-50 dark:bg-black/20 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1 rounded bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-white/10">{personaIcon(persona)}</div>
+                    <div>
+                      <div className="text-sm font-bold text-slate-900 dark:text-gray-200 group-hover:text-slate-950 dark:group-hover:text-white">{persona.name}</div>
+                      <div className="text-[10px] text-slate-500 dark:text-gray-500">{persona.role}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs font-bold text-green-400">{toPercent(persona.confidence).toFixed(1)}%</div>
+                    <div className="text-[9px] text-slate-500 dark:text-gray-600 uppercase">Confidence</div>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-600 dark:text-gray-400 pl-9 border-l-2 border-slate-300 dark:border-white/10 ml-2">
+                  {persona.contribution || 'No contribution details were captured for this persona.'}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="flex justify-end gap-2 pt-2">
+        <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white gap-2">
+          <Download className="h-3 w-3" /> Report
+        </Button>
+        <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white gap-2">
+          <Share2 className="h-3 w-3" /> Share
+        </Button>
+      </div>
     </div>
   );
 }

@@ -14,7 +14,7 @@ describe('DetailedResponseView', () => {
       { name: 'FACTUAL_ACCURACY', score: 0.99, status: 'pass', details: 'Accurate' }
     ],
     personas: [
-      { id: 'p1', name: 'Expert', role: 'Role', confidence: 95, contribution: 'Contrib', weight: 0.5 }
+      { id: 'p1', name: 'Expert', role: 'Role', confidence: 95, contribution: 'Contrib', avatar: 'E', weight: 0.5, sources: [] }
     ]
   };
 
@@ -27,8 +27,22 @@ describe('DetailedResponseView', () => {
 
   it('should render personas', () => {
     render(<DetailedResponseView message={mockMessage} />);
-    expect(screen.getByText('Quad Persona Analysis')).toBeInTheDocument();
+    expect(screen.getByText('Persona Analysis')).toBeInTheDocument();
     expect(screen.getByText('Expert')).toBeInTheDocument();
     expect(screen.getByText('Contrib')).toBeInTheDocument();
+  });
+
+  it('should render empty telemetry state', () => {
+    render(
+      <DetailedResponseView
+        message={{
+          id: '2',
+          role: 'assistant',
+          content: 'No telemetry',
+          timestamp: '10:01 AM',
+        }}
+      />
+    );
+    expect(screen.getByText('No validation telemetry is available for this response yet.')).toBeInTheDocument();
   });
 });

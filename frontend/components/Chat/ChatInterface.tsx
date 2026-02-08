@@ -11,7 +11,7 @@ import {
   Settings, Mic, Paperclip, Zap, ArrowRight 
 } from "lucide-react";
 import { ChatMessage, TracePipeline } from './types';
-import { ChatSession } from '@/lib/api/chat';
+import { ApiChatMessage, ChatSession } from '@/lib/api/chat';
 import { api, request } from '@/lib/api';
 import { socketClient, useSocket } from '@/lib/socket';
 import { LiveTracePanel } from './LiveTracePanel';
@@ -19,7 +19,34 @@ import { DetailedResponseView } from './DetailedResponseView';
 import { TraceVisualizer } from './TraceVisualizer';
 import { AdvancedControls } from './AdvancedControls';
 
-export function ChatInterface() {
+interface ChatInterfaceProps {
+  autoOpenUpload?: boolean;
+}
+
+function formatMessageTimestamp(value?: string): string {
+  if (!value) {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+  return parsed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function normalizeApiMessage(message: ApiChatMessage): ChatMessage {
+  return {
+    id: message.id,
+    role: message.role,
+    content: message.content,
+    finalAnswer: message.role === 'assistant' ? message.content : undefined,
+    timestamp: formatMessageTimestamp(message.timestamp),
+    isEnhanced: message.is_enhanced ?? message.role === 'assistant',
+    runId: message.run_id ?? undefined,
+  };
+}
+
+export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +62,9 @@ export function ChatInterface() {
           id: uuidv4(),
           role: 'assistant',
           content: data.response,
+          finalAnswer: data.response,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          runId: data.run_id,
           isEnhanced: true
         };
         setMessages(prev => [...prev, assistantMsg]);
@@ -77,11 +106,10 @@ export function ChatInterface() {
     socketClient.joinRoom(`chat_${currentSessionId}`);
 
     const fetchHistory = async () => {
-      // console.log("fetchHistory starting for:", currentSessionId);
       try {
         const data = await api.chat.getSessionMessages(currentSessionId);
-        if (data.messages && data.messages.length > 0) {
-          setMessages(data.messages);
+        if (data.messages?.length) {
+          setMessages(data.messages.map(normalizeApiMessage));
         } else {
           setMessages([]);
         }
@@ -112,7 +140,6 @@ export function ChatInterface() {
     setIsLoading(true);
 
     try {
-      console.log('ChatInterface: handleSend starting');
       // Use the centralized API
       const data = await api.chat.sendMessage({
         messages: [{ role: 'user', content: userMsg.content }],
@@ -120,20 +147,21 @@ export function ChatInterface() {
         session_id: currentSessionId ?? undefined,
         run_ukg_pipeline: true
       });
-      console.log('ChatInterface: handleSend success', data);
       
       // If the API returns a direct response (not just via WS)
       if (data && data.response) {
+        const runId = (data as { run_id?: string }).run_id || data.trace_id;
         const assistantMsg: ChatMessage = {
           id: uuidv4(),
           role: 'assistant',
-          content: '',
+          content: data.response,
           finalAnswer: data.response,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          runId: runId || undefined,
           isEnhanced: true,
           traces: data.trace_summary as TracePipeline | undefined
         };
-        setMessages(prev => [...prev.filter(m => m.id !== assistantMsg.id), assistantMsg]);
+        setMessages(prev => [...prev, assistantMsg]);
         setIsLoading(false);
       }
       
@@ -142,14 +170,13 @@ export function ChatInterface() {
       setSessions(sessionData.sessions || []);
 
     } catch (error) {
-      console.log('ChatInterface: handleSend caught error', error);
       console.error(error);
       const errorMsg: ChatMessage = {
         id: uuidv4(),
         role: 'assistant',
-        content: '',
+        content: 'I encountered an error processing your request. Please try again.',
         finalAnswer: 'I encountered an error processing your request. Please try again.',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, errorMsg]);
       setIsLoading(false);
@@ -162,6 +189,17 @@ export function ChatInterface() {
   };
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!autoOpenUpload) return;
+    const timer = window.setTimeout(() => {
+      fileInputRef.current?.click();
+    }, 150);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [autoOpenUpload]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -192,7 +230,7 @@ export function ChatInterface() {
       const assistantMsg: ChatMessage = {
         id: uuidv4(),
         role: 'assistant',
-        content: '',
+        content: `File processed successfully. Analysis: ${data.message || JSON.stringify(data.result || data.analysis)}`,
         finalAnswer: `File processed successfully. Analysis: ${data.message || JSON.stringify(data.result || data.analysis)}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         isEnhanced: true
@@ -276,7 +314,9 @@ export function ChatInterface() {
                🎯 UKG Enterprise AI Assistant
             </h1>
             <div className="flex items-center gap-3">
-               <span className="text-xs text-slate-600 dark:text-gray-400">@username</span>
+               <span className="text-xs text-slate-600 dark:text-gray-400">
+                 {currentSessionId ? `Session ${currentSessionId.slice(0, 8)}` : 'No active session'}
+               </span>
                <Button variant="ghost" size="sm" className="h-8 gap-2 border border-slate-300/70 dark:border-white/10 hover:bg-slate-200/70 dark:hover:bg-white/5 text-slate-700 dark:text-gray-300">
                   <Settings className="h-3.5 w-3.5" /> Settings
                </Button>
@@ -308,17 +348,7 @@ export function ChatInterface() {
                       <div className="text-sm leading-relaxed text-slate-700 dark:text-gray-300">
                          {msg.role === 'assistant' ? (
                             <div className="space-y-4">
-                               <p className="italic text-slate-600 dark:text-gray-400">Let me analyze this through the UKG validation framework...</p>
-                               <div className="bg-slate-100/70 dark:bg-black/20 rounded-lg p-3 text-xs space-y-1 font-mono text-slate-600 dark:text-gray-400 border border-slate-200 dark:border-white/5 shadow-inner">
-                                  <div className="flex items-center gap-2 text-green-400"><span className="text-green-500">✓</span> TruthGate Security Screening</div>
-                                  <div className="flex items-center gap-2"><span className="animate-pulse text-yellow-500">⏳</span> 17-Axis Coordinate Resolution</div>
-                                  <div className="flex items-center gap-2"><span className="animate-pulse text-yellow-500">⏳</span> Quad Persona Analysis</div>
-                                  <div className="flex items-center gap-2"><span className="animate-pulse text-yellow-500">⏳</span> 12-Step Refinement</div>
-                               </div>
-                               
-                               <div className="mt-4 pt-4 border-t border-white/5">
-                                  {msg.finalAnswer}
-                                </div>
+                               <div>{msg.finalAnswer || msg.content}</div>
 
                                {/* Detailed Response Analysis */}
                                <DetailedResponseView message={msg} />
