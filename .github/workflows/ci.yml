@@ -2,18 +2,18 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "main", "dev", "develop" ]
   pull_request:
-    branches: [ "main", "dev" ]
+    branches: [ "main", "dev", "develop" ]
 
 jobs:
   # Coding Standards
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
     - name: Install Ruff
@@ -25,10 +25,10 @@ jobs:
   backend-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         
@@ -41,8 +41,7 @@ jobs:
 
     - name: Security Audit
       run: |
-        pip-audit
-      continue-on-error: true  # Don't fail build immediately on first run, but report security issues
+        pip-audit -r requirements.txt --desc
 
     - name: Run Tests
       run: |
@@ -59,10 +58,10 @@ jobs:
   frontend-build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
     
     - name: Set up Node.js
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
@@ -85,7 +84,7 @@ jobs:
     needs: [backend-test, frontend-build]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
     
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3

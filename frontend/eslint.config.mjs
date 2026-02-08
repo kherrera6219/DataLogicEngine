@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "dist-electron/**",
+    "dist/**",
+    "dist-smoke/**",
     // Generated artifacts and debug outputs
     "storybook-static/**",
     "test-results/**",

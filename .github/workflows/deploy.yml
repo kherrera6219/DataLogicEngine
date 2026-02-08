@@ -17,15 +17,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
 
     - name: Set up Node.js
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v4
       with:
         node-version: '20'
 
@@ -65,7 +65,7 @@ jobs:
       GHCR_PUSH_ENABLED: ${{ secrets.GHCR_PAT != '' }}
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -110,16 +110,26 @@ jobs:
       url: https://datalogicengine.com
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
 
     - name: Deploy to production
+      if: vars.DEPLOY_COMMAND != ''
+      env:
+        DEPLOY_COMMAND: ${{ vars.DEPLOY_COMMAND }}
       run: |
-        echo "Deployment steps would go here"
-        echo "This could include:"
-        echo "- Deploying to cloud provider (Azure, AWS, GCP)"
-        echo "- Updating Kubernetes manifests"
-        echo "- Running database migrations"
-        echo "- Health checks"
+        bash -lc "$DEPLOY_COMMAND"
+
+    - name: Deployment command not configured
+      if: vars.DEPLOY_COMMAND == ''
+      run: |
+        echo "::warning::Skipping deploy: set repository variable DEPLOY_COMMAND to enable production deployment."
+
+    - name: Production health check
+      if: vars.DEPLOY_COMMAND != '' && vars.PRODUCTION_HEALTHCHECK_URL != ''
+      env:
+        HEALTHCHECK_URL: ${{ vars.PRODUCTION_HEALTHCHECK_URL }}
+      run: |
+        curl -fsSL "$HEALTHCHECK_URL"
 
     - name: Notify deployment status
       if: always()

@@ -22,10 +22,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
-    curl \
-    gnupg \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
+    ca-certificates \
+    nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -52,7 +50,7 @@ EXPOSE 5000 3000
 
 # Entrypoint script to run both (for single-container cloud deployment like Cloud Run or simple VPS)
 COPY <<'EOF' /app/entrypoint.sh
-#!/bin/bash
+#!/bin/sh
 # Start backend
 gunicorn --bind 0.0.0.0:5000 --workers 2 --threads 4 app:app &
 BACKEND_PID=$!
