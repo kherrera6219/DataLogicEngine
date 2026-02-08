@@ -46,7 +46,14 @@ jobs:
 
     - name: Run tests
       run: |
-        pytest tests/ -v || true
+        pytest tests/ -v
+      env:
+        DATABASE_URL: "sqlite:///:memory:"
+        OPENAI_API_KEY: "mock-key-for-ci"
+        FLASK_ENV: "testing"
+        SESSION_SECRET: "ci-session-secret"
+        SECRET_KEY: "ci-test-secret-key"
+        JWT_SECRET_KEY: "ci-test-jwt-secret"
 
   docker-build:
     name: Build Docker Images

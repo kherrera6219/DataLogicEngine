@@ -4,7 +4,7 @@
 
 [![Version](https://img.shields.io/badge/Version-4.1.0-blue)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-Polyform--Noncommercial-red)](LICENSE)
-[![Next.js](https://img.shields.io/badge/Next.js-15.1-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.1-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-18.3-blue)](https://react.dev/)
 [![Hardened](https://img.shields.io/badge/Security-Enterprise--Hardened-success)](docs/SECURITY.md)
 [![Compliance](https://img.shields.io/badge/Compliance-SOC2%20/%20ISO--27001%20Ready-success)](docs/PRODUCTION_READINESS.md)
@@ -45,7 +45,7 @@ The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchest
 
 ### Frontend (v0.1.0)
 
-- **Next.js 15.1** (App Router) with React 18.3
+- **Next.js 16.1** (App Router) with React 18.3
 - **TypeScript 5.x** for type safety
 - **Tailwind CSS 4.x** + Shadcn UI (Radix primitives)
 - **SWR** for real-time data fetching
@@ -176,6 +176,19 @@ For a single-command local startup path (API keys + internet only), use:
 
 Do not commit generated desktop/build outputs (`.next`, `frontend/dist`, `frontend/dist-smoke`, `deploy/windows/build`).
 These can exceed GitHub file-size limits and are intentionally ignored in `.gitignore`.
+
+### GHCR Docker Publish (Optional)
+
+`Deploy` workflow behavior on pushes to `main`:
+
+- Docker image build always runs.
+- Docker image push to GHCR runs only if repository secret `GHCR_PAT` is set.
+
+Set `GHCR_PAT` in GitHub repository secrets with at least:
+- `write:packages`
+- `read:packages`
+
+Reference: `docs/DEPLOYMENT.md` (`GitHub Actions Docker Publish (GHCR)` section).
 
 ---
 

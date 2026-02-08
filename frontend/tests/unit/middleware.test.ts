@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { middleware } from '../../middleware';
+import { proxy } from '../../proxy';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Mock NextResponse
@@ -24,7 +24,7 @@ vi.mock('next/server', () => {
     };
 });
 
-describe('Middleware', () => {
+describe('Proxy', () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
@@ -46,7 +46,7 @@ describe('Middleware', () => {
 
     it('should redirect to login if session is missing on protected route', () => {
         const req = createRequest('/dashboard');
-        middleware(req);
+        proxy(req);
         expect(NextResponse.redirect).toHaveBeenCalled();
         const redirectUrl = vi.mocked(NextResponse.redirect).mock.calls[0][0] as URL;
         expect(redirectUrl.pathname).toBe('/login');
@@ -54,14 +54,14 @@ describe('Middleware', () => {
 
     it('should allow access if session cookie is present', () => {
         const req = createRequest('/dashboard', { session: 'valid-token' });
-        middleware(req);
+        proxy(req);
         // Should call next()
         expect(NextResponse.next).toHaveBeenCalled();
     });
     
     it('should allow access if session_id cookie is present', () => {
         const req = createRequest('/dashboard', { session_id: 'valid-token' });
-        middleware(req);
+        proxy(req);
         expect(NextResponse.next).toHaveBeenCalled();
     });
 
@@ -81,7 +81,7 @@ describe('Middleware', () => {
          
          vi.mocked(NextResponse.next).mockReturnValue(mockResponse as any);
 
-         middleware(req);
+         proxy(req);
 
          expect(mockResHeaderSet).toHaveBeenCalledWith('X-Frame-Options', 'DENY');
          expect(mockResHeaderSet).toHaveBeenCalledWith('X-Content-Type-Options', 'nosniff');
@@ -94,7 +94,7 @@ describe('Middleware', () => {
 
         req.cookies.get = () => { throw new Error('Simulation Error'); };
         
-        middleware(req);
+        proxy(req);
         expect(NextResponse.redirect).toHaveBeenCalled();
         const redirectCall = vi.mocked(NextResponse.redirect).mock.calls[0];
         // It might be the first or second call depending on logic flow, 

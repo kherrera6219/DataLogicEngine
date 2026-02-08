@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 # Add project root to path
 sys.path.append(os.getcwd())
 
+@unittest.skipUnless(sys.platform == "win32", "DPAPI tests require Windows")
 class TestDPAPICrypto(unittest.TestCase):
     def test_encryption_decryption_flow(self):
         """Verify that data can be encrypted and decrypted correctly."""

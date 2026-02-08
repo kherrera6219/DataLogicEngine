@@ -26,7 +26,7 @@ function isDesktopRequest(request: NextRequest): boolean {
   return false;
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const requestId = crypto.randomUUID();
   const publicPrefixes = ['/', '/login', '/register', '/about', '/legal/privacy'];
@@ -44,7 +44,7 @@ export function middleware(request: NextRequest) {
     const desktopRequest = isDesktopRequest(request);
     
     if (!sessionToken && !isPublicPath && !desktopRequest) {
-      console.warn(`[Middleware] [${requestId}] Unauthorized access attempt to ${pathname}`);
+      console.warn(`[Proxy] [${requestId}] Unauthorized access attempt to ${pathname}`);
       const url = request.nextUrl.clone();
       url.pathname = '/login';
       url.searchParams.set('callbackUrl', encodeURI(pathname));
@@ -82,7 +82,7 @@ export function middleware(request: NextRequest) {
     return response;
 
   } catch (error) {
-    console.error(`[Middleware Error] [${requestId}]`, error);
+    console.error(`[Proxy Error] [${requestId}]`, error);
     // On catastrophic middleware failure, fail open to landing page or error page
     return NextResponse.redirect(new URL('/', request.url));
   }

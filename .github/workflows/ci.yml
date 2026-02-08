@@ -46,7 +46,7 @@ jobs:
 
     - name: Run Tests
       run: |
-        pytest tests/ --no-cov --ignore=tests/windows --ignore=tests/security/test_dpapi_crypto.py --ignore=tests/integration/test_rag_service_coverage.py
+        pytest tests/
       env:
         DATABASE_URL: "sqlite:///:memory:"
         OPENAI_API_KEY: "mock-key-for-ci"

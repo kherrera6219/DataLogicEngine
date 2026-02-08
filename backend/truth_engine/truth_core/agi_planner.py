@@ -1,7 +1,8 @@
 import logging
 import uuid
-from typing import List, Dict, Any, Optional
-from datetime import datetime, UTC
+import math
+import re
+from typing import List, Dict, Any
 from backend.truth_engine.truth_core.l7_schemas import (
     AGIGoal, AGIBelief, AGIConflict, AGIPlan, AGIContext
 )
@@ -28,6 +29,9 @@ class AGIPlannerService:
         self.max_depth = 3
         self.max_iterations = 5
         self.max_total_goals = 50 # Resource Limit (DoS Protection)
+        self.semantic_conflict_threshold = 0.52
+        self._negation_terms = {"not", "never", "no", "without", "avoid", "against", "cannot", "can't"}
+        self._explicit_conflict_terms = {"impossible", "violate", "contradict", "override"}
         logger.info("AGIPlannerService (Layer 7) initialized with Security Hardening + KA Integration")
 
     def plan(self, initial_goal: str, beliefs: List[Dict[str, Any]]) -> AGIPlan:
@@ -206,21 +210,32 @@ class AGIPlannerService:
         Checks if a goal contradicts any held belief.
         """
         conflicts = []
-        # TODO: Semantic Similarity Check via Vector DB
-        
-        # Simple Keyword heuristic for MVP
         normalized_goal = goal.content.lower()
-        
+        goal_tokens = self._tokenize(goal.content)
+        explicit_violation = any(term in normalized_goal for term in self._explicit_conflict_terms)
+
         for belief in beliefs:
-            # If belief is "The sky is blue" and goal is "Make sky green"
-            # We simulate detection
-            if "impossible" in normalized_goal or "violate" in normalized_goal:
+            # Semantic check with safe fallback for environments without vector integrations.
+            semantic_similarity = self._semantic_similarity(goal.content, belief.content)
+            belief_tokens = self._tokenize(belief.content)
+            shared_tokens = goal_tokens.intersection(belief_tokens)
+            negates_belief = bool(goal_tokens.intersection(self._negation_terms))
+            semantic_conflict = (
+                semantic_similarity >= self.semantic_conflict_threshold
+                and negates_belief
+                and bool(shared_tokens)
+            )
+
+            if explicit_violation or semantic_conflict:
+                severity = min(1.0, 0.5 + (semantic_similarity * 0.4))
+                if explicit_violation:
+                    severity = max(0.9, severity)
                 conflicts.append(AGIConflict(
                     id=str(uuid.uuid4()),
                     goal_id=goal.id,
                     belief_id=belief.id,
                     description=f"Goal '{goal.content}' violates Belief '{belief.content}'",
-                    severity=0.9
+                    severity=severity
                 ))
                 
         return conflicts
@@ -229,9 +244,67 @@ class AGIPlannerService:
         """
         Resolves a conflict by modifying the goal or marking as failed.
         """
-        # TODO: LLM Arbitration Persona
-        conflict.resolution = "Goal modified to align with belief constraints."
+        llm_resolution = self._llm_arbitration_resolution(conflict)
+        conflict.resolution = llm_resolution or "Goal modified to align with belief constraints."
         conflict.resolved = True
+
+    def _tokenize(self, text: str) -> set[str]:
+        return {tok for tok in re.findall(r"[a-zA-Z0-9']+", text.lower()) if len(tok) > 1}
+
+    def _semantic_similarity(self, text_a: str, text_b: str) -> float:
+        """Compute similarity with optional external provider fallback."""
+        for provider in (self.ka_controller, self.llm_gateway):
+            if not provider:
+                continue
+            fn = getattr(provider, "semantic_similarity", None)
+            if callable(fn):
+                try:
+                    score = float(fn(text_a, text_b))
+                    return max(0.0, min(1.0, score))
+                except Exception as e:
+                    logger.debug(f"External semantic similarity skipped: {e}")
+
+        tokens_a = self._tokenize(text_a)
+        tokens_b = self._tokenize(text_b)
+        if not tokens_a or not tokens_b:
+            return 0.0
+
+        vocab = sorted(tokens_a.union(tokens_b))
+        vec_a = [1.0 if token in tokens_a else 0.0 for token in vocab]
+        vec_b = [1.0 if token in tokens_b else 0.0 for token in vocab]
+        dot = sum(a * b for a, b in zip(vec_a, vec_b))
+        norm_a = math.sqrt(sum(a * a for a in vec_a))
+        norm_b = math.sqrt(sum(b * b for b in vec_b))
+        if norm_a == 0 or norm_b == 0:
+            return 0.0
+        return dot / (norm_a * norm_b)
+
+    def _llm_arbitration_resolution(self, conflict: AGIConflict) -> str | None:
+        if not self.llm_gateway:
+            return None
+
+        arbitration_payload = {
+            "goal_id": conflict.goal_id,
+            "belief_id": conflict.belief_id,
+            "description": conflict.description,
+            "severity": conflict.severity,
+        }
+        for method_name in ("arbitrate_conflict", "arbitrate", "resolve_conflict"):
+            method = getattr(self.llm_gateway, method_name, None)
+            if not callable(method):
+                continue
+            try:
+                result = method(arbitration_payload)
+                if isinstance(result, str) and result.strip():
+                    return result.strip()
+                if isinstance(result, dict):
+                    for key in ("resolution", "content", "answer", "text"):
+                        value = result.get(key)
+                        if isinstance(value, str) and value.strip():
+                            return value.strip()
+            except Exception as e:
+                logger.debug(f"LLM arbitration skipped ({method_name}): {e}")
+        return None
         
     def _calculate_convergence(self, conflicts: List[AGIConflict]) -> float:
         if not conflicts:

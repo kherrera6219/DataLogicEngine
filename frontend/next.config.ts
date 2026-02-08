@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 // Next.js 16 Configuration
-// Note: Middleware is handled via root middleware.ts
+// Note: Request proxying/auth guard is handled via root proxy.ts
 // Rewrites are used for API proxying to Flask backend
 
 const cdnUrl = process.env.NEXT_PUBLIC_CDN_URL ?? process.env.CDN_URL ?? "";
@@ -34,7 +34,6 @@ if (normalizedCdnUrl) {
 }
 
 const nextConfig: NextConfig = {
-  ...cdnConfig,
   ...cdnConfig,
   output: process.env.BUILD_MODE === 'electron' ? 'export' : 'standalone',
   // Rewrites are supported in standalone mode, but not export.

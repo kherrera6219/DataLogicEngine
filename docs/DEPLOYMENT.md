@@ -1,7 +1,7 @@
 # Deployment Guide
 
 **Phase**: 39
-**Last Updated**: 2026-01-29
+**Last Updated**: 2026-02-07
 
 ## Overview
 DataLogicEngine supports two primary deployment targets:
@@ -55,6 +55,39 @@ docker build -t datalogic-backend .
 ```
 *   **Port**: 5000
 *   **Env Vars**: Ensure `.env` is mounted or secrets injected.
+
+### 2.1 GitHub Actions Docker Publish (GHCR)
+
+The deployment workflow at `.github/workflows/deploy.yml` always builds `Dockerfile.cloud` on pushes to `main`.
+
+- Image build: always runs
+- Image push to `ghcr.io/<owner>/datalogicengine`: runs only when `GHCR_PAT` is configured
+- If `GHCR_PAT` is missing: build still succeeds, push is skipped by design
+
+#### Configure `GHCR_PAT`
+
+1. Create a GitHub Personal Access Token (classic) for the account/org that owns the package.
+2. Grant scopes:
+   - `write:packages`
+   - `read:packages`
+   - `delete:packages` (optional, only if cleanup is needed)
+3. Add repository secret:
+   - Repository `Settings` -> `Secrets and variables` -> `Actions` -> `New repository secret`
+   - Name: `GHCR_PAT`
+   - Value: `<your_token>`
+
+#### Expected image tags
+
+The workflow publishes multiple tags through `docker/metadata-action`:
+- branch ref tags
+- semver tags (when pushing version tags)
+- commit SHA tags
+
+#### Quick verification
+
+- Push to `main` and inspect the `Deploy` workflow.
+- Confirm `Build Docker Images` completes.
+- Confirm package appears under `ghcr.io/<owner>/datalogicengine` if `GHCR_PAT` is set.
 
 ## 3. Performance Optimization (Phase 38)
 
