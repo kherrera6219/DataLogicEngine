@@ -39,6 +39,8 @@ class ConfigManager:
             default_data_dir = os.path.join(program_data, "DataLogicEngine")
         
         base_data_dir = os.environ.get("UKG_DATA_DIR", default_data_dir)
+        default_bind_host = os.environ.get("SERVICE_BIND_HOST", "127.0.0.1")
+        api_host = os.environ.get("API_HOST", default_bind_host)
         
         self._config = {
             "ports": {
@@ -51,30 +53,30 @@ class ConfigManager:
             },
             "services": {
                 "api_gateway": {
-                    "host": os.environ.get("API_HOST", "0.0.0.0"),
+                    "host": api_host,
                     "health_check_path": "/health",
                     "workers": 2,
                     "enable_cors": True
                 },
                 "webhook_server": {
-                    "host": "0.0.0.0", 
+                    "host": default_bind_host,
                     "health_check_path": "/health"
                 },
                 "model_context": {
-                    "host": "0.0.0.0",
+                    "host": default_bind_host,
                     "health_check_path": "/health"
                 },
                 "core_ukg": {
-                    "host": "0.0.0.0",
+                    "host": default_bind_host,
                     "health_check_path": "/health"
                 },
                 "dotnet_service": {
-                    "host": "0.0.0.0",
+                    "host": default_bind_host,
                     "health_check_path": "/health"
                 },
                 "frontend": {
-                    "host": "0.0.0.0",
-                    "api_url": f"http://{os.environ.get('API_HOST', '0.0.0.0')}:5000"
+                    "host": default_bind_host,
+                    "api_url": f"http://{api_host}:5000"
                 }
             },
             "system": {
@@ -86,7 +88,7 @@ class ConfigManager:
             },
             "auth": {
                 "jwt_secret": os.environ.get("JWT_SECRET", "ukg-development-secret"),
-                "token_expiry_minutes": 60
+                "token_expiry_minutes": int(os.environ.get("JWT_TOKEN_EXPIRY_MINUTES", "60"))
             },
             "database": {
                 "url": self._get_db_url(),
@@ -175,7 +177,7 @@ class ConfigManager:
     def get_service_url(self, service_name: str) -> str:
         """Get full URL for a service"""
         port = self.get_port(service_name)
-        host = self.get(f"services.{service_name}.host", "0.0.0.0")
+        host = self.get(f"services.{service_name}.host", "127.0.0.1")
         return f"http://{host}:{port}"
     
     def get_health_check_url(self, service_name: str) -> str:

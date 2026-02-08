@@ -59,7 +59,7 @@ def test_etag_generation(app):
     with app.test_client() as client:
         resp = client.get("/test")
         assert "ETag" in resp.headers
-        expected_etag = '"' + hashlib.md5(b"content").hexdigest() + '"'
+        expected_etag = '"' + hashlib.sha256(b"content").hexdigest() + '"'
         assert resp.headers["ETag"] == expected_etag
 
 def test_etag_304(app):
@@ -69,7 +69,7 @@ def test_etag_304(app):
     def index():
         return "content"
         
-    etag = '"' + hashlib.md5(b"content").hexdigest() + '"'
+    etag = '"' + hashlib.sha256(b"content").hexdigest() + '"'
     
     with app.test_client() as client:
         resp = client.get("/test", headers={"If-None-Match": etag})

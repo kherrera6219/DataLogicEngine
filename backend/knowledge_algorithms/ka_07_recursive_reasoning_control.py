@@ -12,7 +12,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA007Input(BaseModel):
     current_depth: int = Field(0, ge=0)
@@ -89,7 +88,7 @@ class KA007RecursiveReasoningControl(KnowledgeAlgorithm):
     def _is_looping(self, current_state: Dict[str, Any], history: List[str]) -> bool:
         if not current_state: return False
         state_str = json.dumps(current_state, sort_keys=True)
-        state_hash = hashlib.md5(state_str.encode()).hexdigest()
+        state_hash = hashlib.sha256(state_str.encode()).hexdigest()
         return state_hash in history
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

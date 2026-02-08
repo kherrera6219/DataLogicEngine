@@ -12,7 +12,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA101EnvInput(BaseModel):
     env: str = Field("dev", description="The target environment (e.g., dev, staging, prod)")
@@ -49,7 +48,7 @@ class KA101EnvironmentManagement(KnowledgeAlgorithm):
             "success": True,
             "resolved_env": target_env,
             "provider_active": "Kubernetes",
-            "config_checksum": hashlib.md5(json.dumps(env_vars).encode()).hexdigest()[:8],
+            "config_checksum": hashlib.sha256(json.dumps(env_vars, sort_keys=True).encode()).hexdigest()[:8],
             "injected_vars_count": len(env_vars)
         }
 

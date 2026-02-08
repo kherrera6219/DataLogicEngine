@@ -1,7 +1,7 @@
 """
 ETag Middleware for UKG.
 
-Provides conditional request support using MD5 hashes of response data.
+Provides conditional request support using response data hashes.
 """
 import hashlib
 import logging
@@ -22,7 +22,7 @@ def etag_middleware():
             if request.method in ('GET', 'HEAD') and response.status_code == 200:
                 # Generate ETag from response data
                 if response.data:
-                    etag = hashlib.md5(response.data).hexdigest()
+                    etag = hashlib.sha256(response.data).hexdigest()
                     response.headers['ETag'] = f'"{etag}"'
                     
                     # Check If-None-Match header

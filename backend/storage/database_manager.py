@@ -1,5 +1,5 @@
 import os
-import subprocess
+import subprocess  # nosec B404
 import time
 import socket
 import logging
@@ -51,6 +51,17 @@ class DatabaseLifecycleManager:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             return s.connect_ex(('127.0.0.1', port)) == 0
 
+    def _resolve_executable(self, executable_path: str) -> str:
+        """
+        Resolve and validate executable paths under the managed database directory.
+        Prevents path traversal when building process command lists.
+        """
+        resolved_path = os.path.abspath(executable_path)
+        base_root = os.path.abspath(self.base_dir)
+        if not resolved_path.startswith(base_root):
+            raise ValueError(f"Executable path outside managed database root: {resolved_path}")
+        return resolved_path
+
     def start_postgres(self):
         """Start portable PostgreSQL instance."""
         if self.is_port_in_use(self.pg_port):
@@ -62,7 +73,8 @@ class DatabaseLifecycleManager:
             logger.info("Initializing PostgreSQL data directory...")
             try:
                 initdb_path = os.path.join(self.pg_bin, 'initdb.exe' if os.name == 'nt' else 'initdb')
-                subprocess.run([initdb_path, '-D', self.pg_data, '--auth=trust'], check=True)
+                safe_initdb = self._resolve_executable(initdb_path)
+                subprocess.run([safe_initdb, '-D', self.pg_data, '--auth=trust'], check=True, shell=False)  # nosec B603
             except Exception as e:
                 logger.error(f"Failed to initialize PostgreSQL: {e}")
                 return
@@ -70,12 +82,13 @@ class DatabaseLifecycleManager:
         logger.info(f"Starting PostgreSQL on port {self.pg_port}...")
         try:
             postgres_path = os.path.join(self.pg_bin, 'postgres.exe' if os.name == 'nt' else 'postgres')
+            safe_postgres = self._resolve_executable(postgres_path)
             self.pg_process = subprocess.Popen([
-                postgres_path, 
+                safe_postgres,
                 '-D', self.pg_data, 
                 '-p', str(self.pg_port),
                 '-h', '127.0.0.1'
-            ])
+            ], shell=False)  # nosec B603
             logger.info("PostgreSQL started successfully.")
         except Exception as e:
             logger.error(f"Failed to start PostgreSQL: {e}")
@@ -93,16 +106,17 @@ class DatabaseLifecycleManager:
         try:
             redis_exe = 'redis-server.exe' if os.name == 'nt' else 'redis-server'
             redis_path = os.path.join(self.redis_bin, redis_exe)
+            safe_redis = self._resolve_executable(redis_path)
             
             # Create a minimal config if needed or use command line args
             self.redis_process = subprocess.Popen([
-                redis_path,
+                safe_redis,
                 '--port', str(self.redis_port),
                 '--bind', '127.0.0.1',
                 '--dir', self.redis_data,
                 '--save', '60 1', # Save every 60s if 1 key changed
                 '--loglevel', 'warning'
-            ])
+            ], shell=False)  # nosec B603
             logger.info("Redis started successfully.")
         except Exception as e:
             logger.error(f"Failed to start Redis: {e}")
@@ -116,10 +130,11 @@ class DatabaseLifecycleManager:
         logger.info(f"Starting Neo4j on port {self.neo4j_port}...")
         try:
             neo4j_bin = os.path.join(self.neo4j_bin, 'neo4j.bat' if os.name == 'nt' else 'neo4j')
+            safe_neo4j = self._resolve_executable(neo4j_bin)
             # Use 'console' mode to run as a child process we can monitor
             self.neo4j_process = subprocess.Popen([
-                neo4j_bin, 'console'
-            ], env={**os.environ, 'NEO4J_HOME': os.path.dirname(self.neo4j_bin)})
+                safe_neo4j, 'console'
+            ], env={**os.environ, 'NEO4J_HOME': os.path.dirname(self.neo4j_bin)}, shell=False)  # nosec B603
             logger.info("Neo4j started successfully.")
         except Exception as e:
             logger.error(f"Failed to start Neo4j: {e}")

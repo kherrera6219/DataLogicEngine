@@ -40,7 +40,7 @@ class TestKA07RecursionControl:
         # pre-calculate history hash for loop detection
         import json, hashlib
         state_str = json.dumps(state, sort_keys=True)
-        state_hash = hashlib.md5(state_str.encode()).hexdigest()
+        state_hash = hashlib.sha256(state_str.encode()).hexdigest()
         
         result = ka.run(KA007Input(current_depth=0, current_state=state, state_history=[state_hash]))
         assert result["success"]
