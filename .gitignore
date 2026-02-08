@@ -35,6 +35,8 @@ deploy/windows/build/
 deploy/windows/*.exe
 deploy/windows/*.msi
 *.asar
+/DataLogicEngine Setup *.exe
+/DataLogicEngine Setup *.exe.blockmap
 
 # Environment
 .env

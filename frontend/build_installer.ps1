@@ -37,7 +37,16 @@ try {
     Write-Host "Running electron-builder for NSIS distribution..." -ForegroundColor Green
     npx electron-builder --win --config electron-builder.yml | Tee-Object -FilePath "nsis_build.log"
 
-    Write-Host "`nBuild process finished. Check 'frontend/dist' for the installer." -ForegroundColor Green
+    # 5. Copy installer to repository root for easier manual discovery
+    $CopyScript = Join-Path $PSScriptRoot "scripts\copy-installer-to-root.ps1"
+    if (Test-Path $CopyScript) {
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $CopyScript
+    }
+    else {
+        Write-Host "Warning: copy-installer-to-root script not found at $CopyScript" -ForegroundColor Yellow
+    }
+
+    Write-Host "`nBuild process finished. Installer is available in repo root and frontend/dist." -ForegroundColor Green
 }
 catch {
     Write-Host "`nFATAL ERROR: $($_.Exception.Message)" -ForegroundColor Red

@@ -185,6 +185,13 @@ For a single-command local startup path (API keys + internet only), use:
 - `scripts/windows/start_local_stack.ps1`
 - `scripts/windows/stop_local_stack.ps1`
 
+### Desktop Installer Location (Windows)
+
+After running `npm run electron:dist` in `frontend/`, the installer is copied to the repository root:
+
+- `DataLogicEngine Setup Latest.exe` (stable alias)
+- `DataLogicEngine Setup <version>.exe` (versioned artifact)
+
 ### GitHub Push Safety
 
 Do not commit generated desktop/build outputs (`.next`, `frontend/dist`, `frontend/dist-smoke`, `deploy/windows/build`).

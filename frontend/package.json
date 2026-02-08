@@ -12,7 +12,7 @@
     "lint": "eslint",
     "electron:build": "tsc -p electron",
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://127.0.0.1:3000 && npm run electron:build && electron .\"",
-    "electron:dist": "cross-env BUILD_MODE=electron npm run build && npm run electron:build && electron-builder",
+    "electron:dist": "cross-env BUILD_MODE=electron npm run build && npm run electron:build && electron-builder && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/copy-installer-to-root.ps1",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",

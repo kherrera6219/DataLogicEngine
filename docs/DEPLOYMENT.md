@@ -42,8 +42,14 @@ npm run electron:dist
 *   **Under the hood**: Runs `cross-env BUILD_MODE=electron npm run build` (generates `out/`) -> Compiles Main Process -> Packages with `electron-builder`.
 
 ### Output
-*   Artifacts location: `frontend/dist/`
-*   Includes: `DataLogicEngine Setup 0.1.0.exe` (Windows)
+*   Build artifacts: `frontend/dist/`
+*   Manual-run installer copy (repo root): `DataLogicEngine Setup <version>.exe`
+*   Stable alias (repo root): `DataLogicEngine Setup Latest.exe`
+
+To run the installer manually from the repo root:
+```powershell
+.\DataLogicEngine Setup Latest.exe
+```
 
 ### Optional WiX/WinSW Path (Windows Service Packaging)
 
