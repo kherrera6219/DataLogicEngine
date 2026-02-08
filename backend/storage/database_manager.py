@@ -132,9 +132,7 @@ class DatabaseLifecycleManager:
             neo4j_bin = os.path.join(self.neo4j_bin, 'neo4j.bat' if os.name == 'nt' else 'neo4j')
             safe_neo4j = self._resolve_executable(neo4j_bin)
             # Use 'console' mode to run as a child process we can monitor
-            self.neo4j_process = subprocess.Popen([
-                safe_neo4j, 'console'
-            ], env={**os.environ, 'NEO4J_HOME': os.path.dirname(self.neo4j_bin)}, shell=False)  # nosec B603
+            self.neo4j_process = subprocess.Popen([safe_neo4j, 'console'], env={**os.environ, 'NEO4J_HOME': os.path.dirname(self.neo4j_bin)}, shell=False)  # nosec B603
             logger.info("Neo4j started successfully.")
         except Exception as e:
             logger.error(f"Failed to start Neo4j: {e}")
