@@ -102,3 +102,22 @@ Release posture has improved materially versus the initial February 8, 2026 revi
 Critical Phase 0 findings and Phase 1 runtime/security gaps are remediated in code with tests.  
 Phase 2 pipeline and operability controls are implemented and validated locally.  
 Final enterprise sign-off still requires closing the listed outstanding items and passing remote GitHub workflow runs on protected branches.
+
+## 7. Outstanding Item Progress (Round 1)
+
+Status update after post-phase remediation pass:
+
+1. Frontend lint warning debt: **Completed**  
+   `frontend` lint now runs clean with no warnings.
+2. Bandit baseline retirement: **In Progress**  
+   Targeted retirement complete for:
+   `backend/config_manager.py`, `backend/middleware/etag.py`,
+   `backend/storage/database_manager.py`,
+   `backend/knowledge_algorithms/ka_07_recursive_reasoning_control.py`,
+   `backend/knowledge_algorithms/ka_101_environment_management.py`.
+3. Coverage in critical low-coverage modules: **Completed**
+   - `backend/simulation/simulation_engine.py`: **89.92%**
+   - `backend/storage/database_manager.py`: **79.51%**
+   - `backend/storage/vector_store.py`: **93.96%**
+4. Deploy repository variables (`DEPLOY_COMMAND`, optional `PRODUCTION_HEALTHCHECK_URL`): **Open**
+5. CSP nonce rollout to remove remaining production inline compatibility: **Open**
