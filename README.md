@@ -1,254 +1,158 @@
-# Universal Knowledge Graph (UKG) Engine
+# DataLogicEngine
 
-## Enterprise-Grade AI Knowledge Synthesis & Orchestration Platform
+DataLogicEngine is a local-first AI orchestration application for chat, traceable runs, knowledge graph exploration, simulations, and operations visibility.
 
-[![Version](https://img.shields.io/badge/Version-4.1.0-blue)](CHANGELOG.md)
-[![License](https://img.shields.io/badge/license-Polyform--Noncommercial-red)](LICENSE)
-[![Next.js](https://img.shields.io/badge/Next.js-16.1-black)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-18.3-blue)](https://react.dev/)
-[![Hardened](https://img.shields.io/badge/Security-Enterprise--Hardened-success)](docs/SECURITY.md)
-[![Compliance](https://img.shields.io/badge/Compliance-SOC2%20/%20ISO--27001%20Ready-success)](docs/PRODUCTION_READINESS.md)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-blue)](https://www.postgresql.org/)
-[![Redis](https://img.shields.io/badge/Redis-Session--Hardened-red)](https://redis.io/)
+It runs in two modes:
 
----
+1. Desktop mode (Windows Electron): no login required, boots directly to the internal dashboard.
+2. Web mode (browser): session-based authentication for protected routes.
 
-> **NOTICE**: Effective 2026-01-15, this project transitioned from the MIT License to the PolyForm Noncommercial License 1.0.0. See [`LICENSE`](LICENSE) for details.
+## Current Status (February 8, 2026)
 
-> **DEPLOYMENT MODES**: This application supports **two separate deployment modes**:
->
-> - **Cloud Mode**: Traditional SaaS deployment with OAuth/SSO authentication.
-> - **Desktop Mode**: Windows-native installation with zero-login identity system.
->
-> These are **mutually exclusive** modes.
+The application is functional for local Windows use with API keys and internet access.
 
-## 🏗️ Executive Summary
+### Live
 
-The **Universal Knowledge Graph (UKG) Engine** is a graduated, enterprise-hardened AI orchestration platform. It provides a mission-critical **"Reasoning-as-a-Service"** layer that ensures every interaction is **grounded, traceable, and secure**.
+1. Core routing for dashboard, chat, projects, admin, settings, runs, simulations, graph.
+2. Desktop no-login startup path.
+3. Sidebar collapse/expand controls in app and settings navigation.
+4. API key save/test workflow in settings.
+5. AI model configuration and provider model testing in settings.
+6. Storage health checks and local service lifecycle actions (`Start All`/`Stop All`/autostart toggle).
+7. Installer build pipeline (`electron-builder`) with installer copied to repo root.
 
-By utilizing a unique **17-Axis Coordinate Framework**, the engine contextualizes unstructured data into a high-fidelity graph. With the recently graduated **SimulationEngine** and **QuadPersonaEngine**, it offers deep counterfactual reasoning and multi-expert validation with zero hallucination risk.
+### Partial / In Progress
 
----
+1. `Settings > Notifications` is still placeholder UI.
+2. `Settings > Storage > Cloud Config` form fields are not fully wired to persistence.
+3. MCP admin actions are partially available (`Add Server` and console actions are still disabled in UI).
+4. Register page UI exists but registration submit flow is not yet wired.
 
-## 🌟 Enterprise Value Proposition
+## Quick Start (Windows 11)
 
-| **Reliability** | **Security** | **Performance** | **Observability** |
-| :--- | :--- | :--- | :--- |
-| **Circuit Breakers**: Automatic failover & recovery for LLM providers. | **Hardened IAM**: MFA (TOTP), RBAC, and Account Lockout protection. | **Global Caching**: Redis-backed read-through caching for graph ops. | **Unified Tracing**: End-to-end correlation ID across SDK & API. |
-| **Failover Logic**: Multi-provider resilience (OpenAI, Azure, Anthropic). | **Encryption**: Fernet (AES-128) field-level encryption for PII at rest. | **Optimized IO**: Gunicorn/Celery workers for high-concurrency tasks. | **Audit Chain**: Hash-linked audit trails for compliance (SOC2/HIPAA). |
+### 1. Clone and install dependencies
 
-The **Universal Knowledge Graph (UKG) System** is an enterprise-grade AI orchestration platform that acts as an intelligent middleware layer between applications and Large Language Models (LLMs).
+```powershell
+git clone https://github.com/kherrera6219/DataLogicEngine.git
+cd DataLogicEngine
 
----
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install --upgrade pip
+.venv\Scripts\python.exe -m pip install -r requirements.txt
 
-## 🛠️ Technology Stack
+Copy-Item .env.template .env
+cd frontend
+npm install
+cd ..
+```
 
-### Frontend (v0.1.0)
+### 2. Configure `.env`
 
-- **Next.js 16.1** (App Router) with React 18.3
-- **TypeScript 5.x** for type safety
-- **Tailwind CSS 4.x** + Shadcn UI (Radix primitives)
-- **SWR** for real-time data fetching
+Set at minimum:
 
-### Backend (v0.1.0)
+1. `SESSION_SECRET` (long random value)
+2. At least one provider key:
+   `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` or `GEMINI_API_KEY`/`GOOGLE_API_KEY`
 
-- **Flask 3.1** with Gunicorn (4 workers)
-- **Python 3.11+**
-- **PostgreSQL 15+** (40+ tables with multi-tenancy)
-- **Redis 5+** for caching and queues
-- **Celery** for async tasks
-- **SQLAlchemy 2.0** ORM
+### 3. Start local stack
 
-### Core Technologies
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
+```
 
-- **Model Context Protocol (MCP)**: For LLM agent integration.
-- **17-Axis Knowledge Framework**: Implemented via `ukg_api`.
-- **Encryption**: Fernet (AES-128-CBC) Key Wrapping.
-- **Audit**: Hash-chain audit trails (EU AI Act Compliant).
-- **MFA**: Native TOTP (Time-based One-Time Password).
+Default endpoints:
 
----
+1. Frontend: `http://127.0.0.1:3000`
+2. Backend health: `http://127.0.0.1:5000/health`
 
-## 🌟 Dual-Mode Architecture
+Stop:
 
-DataLogicEngine is built for versatility, supporting two first-class deployment paths:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\stop_local_stack.ps1
+```
 
-1. **Enterprise Cloud Logic Layer**: Standard SaaS deployment (Flask + Gunicorn + PostgreSQL) with OAuth/SSO.
-2. **Local-First Desktop Engine**: Windows-native executable where the Flask backend is **wrapped in Electron**, using a local SQLite/PostgreSQL instance and Windows-native services for zero-config deployment.
+## Optional Local Data Services
 
----
+Run with PostgreSQL, Redis, Neo4j, and MinIO using Docker-backed local services:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1 -WithDataServices
+```
+
+Validate:
+
+```powershell
+.venv\Scripts\python.exe .\scripts\verify_api_keys.py
+.venv\Scripts\python.exe .\scripts\verify_local_data_stack.py
+```
+
+## Desktop Installer
+
+Build installer:
+
+```powershell
+npm --prefix frontend run electron:dist
+```
+
+Artifacts:
+
+1. `DataLogicEngine Setup Latest.exe`
+2. `DataLogicEngine Setup <version>.exe`
+3. `frontend/dist/` (packaging output)
+
+Run installer manually:
+
+```powershell
+.\DataLogicEngine Setup Latest.exe
+```
+
+## Architecture Summary
+
+1. Frontend: Next.js App Router (`frontend/app`), Electron shell (`frontend/electron`).
+2. Backend: Flask API + orchestration services (`app.py`, `backend/`, `routes/`).
+3. Data plane: SQLite fallback by default, optional PostgreSQL/Redis/Neo4j/object/vector integrations.
+4. AI providers: OpenAI, Anthropic, Google Gemini (plus configured provider adapters).
 
 ## Documentation
 
-For enterprise documentation standards and area-specific source-of-truth docs:
+Primary docs:
 
 1. `docs/README.md`
 2. `docs/PRODUCT_OVERVIEW.md`
 3. `docs/USER_GUIDE.md`
-4. `docs/PRODUCT_DESIGN.md`
-5. `docs/DOCUMENTATION_STANDARDS.md`
-6. `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
+4. `docs/DEVELOPER_GUIDE.md`
+5. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+6. `docs/DEPLOYMENT.md`
+7. `docs/ARCHITECTURE.md`
+8. `docs/SECURITY.md`
+9. `docs/TESTING.md`
 
----
+## Testing
 
-## 🧪 System Architecture
+Backend:
 
-### Component Breakdown
-
-**Frontend** (`/frontend`)
-
-- Trace run explorer (stage-by-stage)
-- Knowledge graph visualization
-- Admin compliance dashboard
-- MCP server management
-
-**Backend** (`/backend`)
-
-- `llm_gateway/`: Universal LLM adapter
-- `truth_engine/`: 5-tier reasoning framework
-- `mcp_server/`: Model Context Protocol server (Tools, Resources, Prompts)
-- `simulation/`: Scenario simulation engine
-- `knowledge_algorithms/`: 116 enterprise-hardened algorithm implementations
-- `tracing/`: Execution traceability
-- `auth/`: SSO/OIDC, API keys, 2FA
-- `security/`: Headers, audit logging, SIEM
-
-### Data Flow
-
-1. **Request**: `POST /api/v1/gateway/chat`
-2. **Gateway**: Authenticates & Validates (Rate Limit, permissions)
-3. **Logic**:
-    - Resolves **17-Axis Coordinates**
-    - Retrieves **Knowledge Graph** slice
-    - Executes **Truth Engine** (Reasoning Tiers)
-    - Runs **Simulations** (if required)
-4. **LLM**: Calls Provider (OpenAI/Anthropic) via Circuit Breaker
-5. **Audit**: Logs Trace ID, Cost, and Hash Chain
-6. **Response**: Returns Answer + Trace Metadata
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- **Python 3.11+**
-- **Node.js 20.x+**
-- **PostgreSQL 15+** (optional for local SQLite fallback)
-- **Redis 5+** (optional for local development mode)
-
-### 1. Clone Repository
-
-```bash
-git clone https://github.com/kherrera6219/DataLogicEngine.git
-cd DataLogicEngine
-```
-
-### 2. Backend Setup
-
-```bash
-# Create venv
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-
-# Install
-pip install -r requirements.txt
-
-# Config
-cp .env.template .env
-# Set SESSION_SECRET and at least one provider key (OPENAI_API_KEY, etc.)
-# Optional: set DATABASE_URL=postgresql://user:pass@localhost:5432/ukg_db
-
-# Init DB
-flask db upgrade
-python backend/seed_data.py
-
-# Run
-python app.py
-```
-
-### 3. Frontend Setup
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Visit `http://localhost:3000` to access the application.
-
-### Windows 11 Fast Path
-
-For a single-command local startup path (API keys + internet only), use:
-
-- `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
-- `scripts/windows/start_local_stack.ps1`
-- `scripts/windows/stop_local_stack.ps1`
-
-### Desktop Installer Location (Windows)
-
-After running `npm run electron:dist` in `frontend/`, the installer is copied to the repository root:
-
-- `DataLogicEngine Setup Latest.exe` (stable alias)
-- `DataLogicEngine Setup <version>.exe` (versioned artifact)
-
-### GitHub Push Safety
-
-Do not commit generated desktop/build outputs (`.next`, `frontend/dist`, `frontend/dist-smoke`, `deploy/windows/build`).
-These can exceed GitHub file-size limits and are intentionally ignored in `.gitignore`.
-
-### GHCR Docker Publish (Optional)
-
-`Deploy` workflow behavior on pushes to `main`:
-
-- Docker image build always runs.
-- Docker image push to GHCR runs only if repository secret `GHCR_PAT` is set.
-
-Set `GHCR_PAT` in GitHub repository secrets with at least:
-- `write:packages`
-- `read:packages`
-
-Reference: `docs/DEPLOYMENT.md` (`GitHub Actions Docker Publish (GHCR)` section).
-
----
-
-## 🧪 Testing
-
-### Backend (pytest)
-
-Consolidated test suite runs unit, integration, and e2e tests.
-
-```bash
-# Run all tests
+```powershell
 python run_test_suite.py
-
-# Or via pytest directly
-pytest tests/
 ```
 
-**Coverage Goal**: >70% (Enforced by `pyproject.toml`)
+Frontend:
 
-### Frontend (Vitest)
-
-```bash
+```powershell
 cd frontend
 npm test
 ```
 
----
+E2E visual checks:
 
-## 🤝 Contributing
+```powershell
+cd frontend
+npm run test:e2e:visual
+```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+## Contributing
 
-1. **Fork & Branch** (`feature/amazing-feature`)
-2. **Commit** (Conventional Commits: `feat: add new KA`)
-3. **Test** (Ensure passing test suite)
-4. **Pull Request**
+See `CONTRIBUTING.md`.
 
----
+## License
 
-## 📄 License
-
-PolyForm Noncommercial License 1.0.0.
-See [LICENSE](LICENSE) for details.
+PolyForm Noncommercial License 1.0.0 (`LICENSE`).

@@ -2,46 +2,47 @@
 
 ## Purpose
 
-Provide a single entry point to active documentation and define source-of-truth documents by area.
+Single entry point for active documentation and source-of-truth documents.
 
-## Audience
+## Current Documentation Scope
 
-1. Platform engineers
-2. Security/compliance stakeholders
-3. SRE/operations teams
-4. Product and release managers
-5. End users and operators
+1. Product and user documentation
+2. Engineering and architecture documentation
+3. Security, compliance, deployment, and operational runbooks
+4. Windows local runtime and desktop packaging workflows
 
-## Start here
+## Current App Status Snapshot (February 8, 2026)
+
+1. Core app routes are operational in web and desktop modes.
+2. Desktop mode supports no-login startup to internal dashboard.
+3. API key save/test, AI model controls, and storage lifecycle controls are wired.
+4. Some settings/admin/MCP areas remain partial (see `docs/PRODUCT_OVERVIEW.md`).
+
+## Start Here
 
 1. Product overview: `docs/PRODUCT_OVERVIEW.md`
 2. User guide: `docs/USER_GUIDE.md`
-3. Product design: `docs/PRODUCT_DESIGN.md`
-4. System architecture: `docs/ARCHITECTURE.md`
-5. API reference: `docs/API.md`
-6. Security and compliance: `docs/SECURITY.md`
-7. Production readiness: `docs/PRODUCTION_READINESS.md`
-8. Deployment: `docs/DEPLOYMENT.md`
-9. Windows local runbook: `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
-10. Operational incidents: `docs/OPERATIONAL_RUNBOOKS.md`
-11. Testing standards: `docs/TESTING.md`
-12. Developer onboarding: `docs/DEVELOPER_GUIDE.md`
-13. Contribution policy: `docs/CONTRIBUTING.md`
+3. Developer guide: `docs/DEVELOPER_GUIDE.md`
+4. Windows local runbook: `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+5. Architecture: `docs/ARCHITECTURE.md`
+6. API reference: `docs/API.md`
+7. Security controls: `docs/SECURITY.md`
+8. Deployment guide: `docs/DEPLOYMENT.md`
+9. Testing standards: `docs/TESTING.md`
+10. Operational runbooks: `docs/OPERATIONAL_RUNBOOKS.md`
 
-## Documentation standards
-
-All active docs follow:
+## Documentation Standards
 
 1. `docs/DOCUMENTATION_STANDARDS.md`
 2. `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
 
-## Active vs historical content
+## Active vs Historical
 
-1. Active docs: files referenced in this portal and in the coverage matrix.
-2. Historical docs: `docs/archive/` (retained for traceability; not source-of-truth).
-3. Research/whitepapers: `docs/whitepapers/` (informational; not operational runbooks).
+1. Active: documents referenced in this portal and coverage matrix.
+2. Historical: `docs/archive/` (retained for traceability, not source-of-truth).
+3. Reference research: `docs/whitepapers/` (informational, not operational runbooks).
 
-## Document control
+## Document Control
 
 1. Owner: Platform Engineering
 2. Last updated: 2026-02-08

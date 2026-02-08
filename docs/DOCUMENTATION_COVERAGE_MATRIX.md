@@ -29,9 +29,9 @@ Track source-of-truth documents across all core application areas and identify d
 
 ## Gaps and follow-up items
 
-1. Add named owners per source document (team/role) in each file.
-2. Add explicit review cadence to all active docs.
-3. Consolidate any duplicate guidance that conflicts between root docs and `docs/`.
+1. Keep generated inventory docs (`docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`) refreshed after repository cleanup/refactors.
+2. Continue consolidating any conflicting instructions between legacy `docs/archive/` files and active source-of-truth docs.
+3. Add lightweight link-check automation for active markdown docs in CI.
 
 ## Document control
 

@@ -2,236 +2,151 @@
 
 ## Purpose
 
-Provide the standard developer onboarding and day-to-day engineering workflow for DataLogicEngine.
+Developer onboarding and daily engineering workflow.
 
-## Audience
+## Prerequisites
 
-1. Backend and frontend engineers
-2. Platform engineers
-3. QA engineers contributing code
+1. Python 3.11+
+2. Node.js 20+
+3. Windows PowerShell (for local run scripts on Windows)
+4. At least one provider API key for end-to-end feature testing
 
-## Document control
+Optional local services:
 
-1. Owner: Developer Experience
-2. Last updated: 2026-02-08
-3. Status: Active
-4. Review cadence: Every 30 days
+1. Docker Desktop (for PostgreSQL, Redis, Neo4j, MinIO local stack)
 
-## Related documents
+## Initial Setup
 
-1. `docs/CONTRIBUTING.md`
-2. `docs/TESTING.md`
-3. `docs/ARCHITECTURE.md`
-4. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
-
----
-
-## Quick Start
-
-### Prerequisites
-
-- Python 3.11+
-- PostgreSQL 16+ (optional for local SQLite fallback)
-- Redis 7+ (optional for local development mode)
-- Node.js 20+ (for frontend)
-- **OpenAI API Key** (Vision support required for VideoService)
-
-### Initial Setup
-
-```bash
-# Clone repository
-git clone <repository-url>
+```powershell
+git clone https://github.com/kherrera6219/DataLogicEngine.git
 cd DataLogicEngine
 
-# Create virtual environment
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+.venv\Scripts\python.exe -m pip install --upgrade pip
+.venv\Scripts\python.exe -m pip install -r requirements.txt
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Copy environment template
-cp .env.template .env
-# Edit .env with your configuration (SESSION_SECRET + provider API keys minimum)
-
-# Initialize database
-flask db upgrade
-
-# Run development server
-python app.py
+Copy-Item .env.template .env
+cd frontend
+npm install
+cd ..
 ```
 
-For Windows 11 local bring-up with API keys only (SQLite/in-memory fallback), see:
+Set in `.env`:
 
-- `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
-- `scripts/windows/start_local_stack.ps1`
+1. `SESSION_SECRET`
+2. At least one provider key (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`/`GOOGLE_API_KEY`)
 
-For full local data services (PostgreSQL + Redis + Neo4j + MinIO), run:
+## Local Run Modes
+
+### Fast local mode (API keys + internet)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
+```
+
+### Full local data stack
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1 -WithDataServices
 ```
 
----
+Stop:
 
-## Project Structure
-
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\stop_local_stack.ps1
 ```
+
+## Build and Packaging
+
+Frontend build:
+
+```powershell
+npm --prefix frontend run build
+```
+
+Electron compile:
+
+```powershell
+npm --prefix frontend run electron:build
+```
+
+Desktop installer:
+
+```powershell
+npm --prefix frontend run electron:dist
+```
+
+## Testing
+
+Backend suite:
+
+```powershell
+python run_test_suite.py
+```
+
+Frontend unit tests:
+
+```powershell
+npm --prefix frontend test
+```
+
+Route policy smoke:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\test_frontend_route_policy.ps1 -FrontendPort 3000
+```
+
+Provider/model validation:
+
+```powershell
+.venv\Scripts\python.exe .\scripts\verify_api_keys.py
+```
+
+Local data plane validation:
+
+```powershell
+.venv\Scripts\python.exe .\scripts\verify_local_data_stack.py
+```
+
+## Repository Structure (High Level)
+
+```text
 DataLogicEngine/
-├── backend/
-│   ├── mcp_server/        # MCP Router & Registry
-│   ├── services/          # Multimodal (Audio, Video, Doc)
-│   ├── security/          # PII & Injection Shiels
-│   ├── quad_persona/      # Multi-expert engine
-│   ├── simulation/        # 10-layer scenario stack
-│   └── truth_engine/      # Compliance & Blockchain
-├── frontend/
-│   ├── app/               # Next.js Routes
-│   ├── components/        # React UI
-│   └── electron/          # Desktop process
-├── sdk/                   # UKG Python SDK
-├── tests/                 # Security & Quality suites
-└── docs/                  # Graduation documentation
+├── backend/          # Backend services and orchestration
+├── core/             # Core logic and frameworks
+├── frontend/         # Next.js UI + Electron runtime
+├── routes/           # API route modules
+├── scripts/          # Local ops and validation scripts
+├── tests/            # Automated tests
+└── docs/             # Active and historical documentation
 ```
 
----
+## Documentation Maintenance
 
-## Key Concepts
+Regenerate inventory and generated structure docs after major repository changes:
 
-### 17-Axis Knowledge Framework
-
-The system uses a 17-dimensional coordinate system:
-- **Axes 1-7**: Knowledge organization (Pillar, Sector, Honeycomb, Branch, Node, Octopus, Spiderweb)
-- **Axes 8-11**: Personas (Knowledge, Sector, Regulatory, Compliance experts)
-- **Axes 12-13**: Context (Location, Time)
-- **Axes 14-17**: Meta (Risk, Performance, Ethics, Learning)
-
-### Quad Persona Engine
-
-Four AI personas debate each query:
-1. **Knowledge Expert** - Domain accuracy
-2. **Sector Expert** - Industry applicability
-3. **Regulatory Expert** - Compliance requirements
-4. **Compliance Expert** - Internal policy alignment
-
-### 10-Layer Simulation Stack
-
-Queries flow through 10 processing layers with recursive refinement until confidence threshold (≥99.5%) is met.
-
----
-
-## Development Workflow
-
-### Running Tests
-
-```bash
-# All tests
-pytest
-
-# With coverage
-pytest --cov=. --cov-report=html
-
-# Specific test file
-pytest tests/integration/test_api_endpoints.py -v
-
-# Load testing (requires locust)
-locust -f tests/performance/locustfile.py
+```powershell
+.venv\Scripts\python.exe .\scripts\generate_docs.py
 ```
 
-### Code Quality
+## Common Gaps to Keep in Mind
 
-```bash
-# Linting
-pylint backend/ core/
+1. Notifications settings tab is still placeholder UI.
+2. Storage cloud configuration form is not fully persisted.
+3. Register form is visual only; no submit wiring yet.
+4. Some MCP admin actions are intentionally disabled pending backend workflows.
 
-# Security scan
-bandit -r . -ll --exclude .venv,tests
+## Related Documents
 
-# Type checking (if using mypy)
-mypy backend/
-```
+1. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+2. `docs/TESTING.md`
+3. `docs/ARCHITECTURE.md`
+4. `docs/DEPLOYMENT.md`
+5. `docs/CONTRIBUTING.md`
 
-### Database Migrations
+## Document Control
 
-```bash
-# Create migration
-flask db migrate -m "Description"
-
-# Apply migrations
-flask db upgrade
-
-# Rollback
-flask db downgrade
-```
-
----
-
-## API Development
-
-### Adding a New Endpoint
-
-1. Create route in `routes/` or add to existing blueprint
-2. Add schema validation in `backend/schemas/`
-3. Write integration test in `tests/integration/`
-4. Update Postman collection in `docs/api/`
-
-### Authentication
-
-All API endpoints (except `/health`, `/api/v1/auth/*`) require authentication:
-- Session-based for web UI
-- API key for programmatic access (header: `X-API-Key`)
-
-### Rate Limiting
-
-Default limits configured in `.env`:
-- Global: 200 requests/hour
-- Auth endpoints: 5 requests/minute
-
----
-
-## Environment Variables
-
-See `.env.template` for full list. Key variables:
-
-| Variable | Description |
-|----------|-------------|
-| `SESSION_SECRET` | Session signing key (required for local runtime) |
-| `DATABASE_URL` | PostgreSQL connection string |
-| `REDIS_URL` | Redis for caching/rate limiting |
-| `OPENAI_API_KEY` | OpenAI provider key |
-| `ANTHROPIC_API_KEY` | Anthropic provider key |
-| `GOOGLE_API_KEY` / `GEMINI_API_KEY` | Google Gemini provider key |
-| `AZURE_OPENAI_*` | LLM provider credentials |
-
----
-
-## Troubleshooting
-
-### Common Issues
-
-**Database connection failed:**
-```bash
-# Check PostgreSQL is running
-pg_isready -h localhost -p 5432
-```
-
-**Redis connection failed:**
-```bash
-# Check Redis is running
-redis-cli ping
-```
-
-**Import errors:**
-```bash
-# Ensure virtual environment is activated
-which python  # Should show .venv path
-```
-
----
-
-## Resources
-
-- [API Documentation](/api/docs) - Swagger UI
-- [Production Readiness](PRODUCTION_READINESS.md)
-- [Deployment Checklist](../deploy/DEPLOYMENT_CHECKLIST.md)
-- [Architecture Whitepapers](whitepapers/)
+1. Owner: Developer Experience
+2. Last updated: 2026-02-08
+3. Status: Active
+4. Review cadence: Every 30 days

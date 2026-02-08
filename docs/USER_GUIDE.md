@@ -1,171 +1,124 @@
-# DataLogicEngine user guide
+# DataLogicEngine User Guide
 
 ## Purpose
 
-Provide practical, task-focused instructions for using DataLogicEngine in day-to-day operations.
+Task-focused usage instructions for day-to-day operation.
 
 ## Audience
 
 1. Analysts and operators
-2. Team leads reviewing traces and simulations
-3. Admin users managing access and MCP endpoints
-4. Pilot users evaluating product capabilities
+2. Admin users
+3. Pilot users validating workflows
 
 ## Prerequisites
 
-1. Running local stack or deployed environment
-2. Internet access for model inference
-3. At least one provider API key (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, or equivalent)
-4. User account and session for web mode, or desktop runtime for no-login mode
+1. Running local or deployed instance
+2. Internet access for provider inference
+3. At least one provider API key
 
-## Document control
+## Mode Behavior
+
+1. Web mode: use `/login` for authenticated access.
+2. Desktop mode: app boots directly into internal dashboard (no login screen).
+
+## Primary Navigation
+
+| Route | Use |
+|---|---|
+| `/dashboard` | Operational overview and quick actions |
+| `/chat` | AI conversation and uploads |
+| `/projects` | Session list/workspace |
+| `/projects/view?id=<session_id>` | Session detail timeline |
+| `/simulations` | Simulation runs |
+| `/runs` | Trace/run history |
+| `/runs/view?id=<run_id>` | Trace detail |
+| `/graph` | Knowledge graph exploration |
+| `/settings` | API, storage, AI model, and preferences |
+| `/settings/privacy` | Export/delete local profile data |
+| `/admin` | Admin telemetry/user views (role gated) |
+| `/admin/mcp/servers` | MCP server registry management |
+
+## Core Workflows
+
+### 1. Configure provider access
+
+1. Open `/settings` and select `API Gateway`.
+2. Choose provider and model.
+3. Enter API key.
+4. Select `Save Key`.
+5. Select `Test Connection`.
+
+### 2. Configure AI model defaults
+
+1. Open `/settings` and select `AI Models`.
+2. Select provider and model.
+3. Enter API key and select `Save Model`.
+4. Select `Test Model` to validate model-level access.
+
+### 3. Start chat and upload workflow
+
+1. Open `/chat`.
+2. Enter prompt and send.
+3. Use upload actions to attach supported files.
+4. Review trace details from run/session links.
+
+### 4. Review and manage sessions
+
+1. Open `/projects`.
+2. Search by title or ID.
+3. Open `/projects/view?id=<session_id>` for message-level review.
+
+### 5. Run storage checks and lifecycle actions
+
+1. Open `/settings` and select `Storage`.
+2. Use `Refresh` for current health.
+3. Use `Test Connection` per service.
+4. Use `Start All` / `Stop All` for local data services.
+5. Use auto-start toggle for local launch behavior.
+
+### 6. Use privacy tools
+
+1. Open `/settings/privacy`.
+2. Use `Export My Data` for JSON export.
+3. Use delete action with confirmation for local data removal.
+
+## Known Limitations
+
+1. `Settings > Notifications` remains placeholder UI.
+2. `Settings > Storage > Cloud Config` save path is not fully wired.
+3. MCP add-server actions are not enabled from admin UI.
+4. `/register` form does not currently submit registration requests.
+
+## Validation Checklist
+
+1. Dashboard loads without route errors.
+2. Chat returns provider response after key setup.
+3. Projects list and detail pages show session data.
+4. Runs and trace detail pages render successfully.
+5. Storage status panel returns service state.
+6. Admin route loads for admin/owner users.
+
+## Troubleshooting
+
+1. API test fails:
+   Re-save key and re-run provider test in settings.
+2. Desktop shows login unexpectedly:
+   Verify desktop runtime and loopback desktop header path.
+3. Storage offline:
+   Start local services and refresh storage panel.
+4. Route redirects incorrectly in web mode:
+   Re-authenticate and verify session cookie state.
+
+## Related Documents
+
+1. `docs/PRODUCT_OVERVIEW.md`
+2. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+3. `docs/PRIVACY_POLICY.md`
+4. `docs/API.md`
+
+## Document Control
 
 1. Owner: Product Operations
 2. Last updated: 2026-02-08
 3. Status: Active
 4. Review cadence: Every 30 days
-
-## Related documents
-
-1. `docs/PRODUCT_OVERVIEW.md`
-2. `docs/PRODUCT_DESIGN.md`
-3. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
-4. `docs/PRIVACY_POLICY.md`
-
-## Getting started
-
-For Windows 11 local bring-up, follow:
-
-1. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
-2. `scripts/windows/start_local_stack.ps1`
-
-After startup:
-
-1. Frontend: `http://127.0.0.1:3000`
-2. Backend health: `http://127.0.0.1:5000/health`
-
-## Sign-in behavior by mode
-
-1. Web mode:
-   Open `/login` and authenticate with username/password.
-2. Desktop mode:
-   App can auto-login using Windows identity and open directly to operational routes.
-
-## Navigation map
-
-| Route | What you use it for | Key actions |
-|---|---|---|
-| `/dashboard` | Daily operations view | Check activity, status cards, quick links |
-| `/chat` | Main AI workspace | Ask questions, upload files, toggle quad mode |
-| `/projects` | Session workspace list | Search sessions, open detail views |
-| `/projects/view?id=<session_id>` | Session detail | Review message timeline and session stats |
-| `/simulations` | Simulation operations | Create runs, monitor progress, step active runs |
-| `/runs` | Trace history | Open execution traces for audits or analysis |
-| `/runs/view?id=<run_id>` | Trace detail | Inspect stages, personas, and axis data |
-| `/graph` | Knowledge graph explorer | Filter nodes, inspect metadata, adjust view |
-| `/settings` | Personal and system settings | Theme, API gateway, storage configuration |
-| `/settings/privacy` | Privacy controls | Export data or delete local profile/data |
-| `/mcp` | MCP integration workspace | Review hub views and integration examples |
-| `/admin` | Admin-only controls | Manage users and system-level views |
-| `/admin/mcp/servers` | Admin MCP registry | View and remove registered MCP servers |
-
-## Core workflows
-
-### 1. Configure AI provider access
-
-1. Open `/settings`.
-2. Select `API Gateway`.
-3. Choose a provider.
-4. Enter the API key and select `Test`.
-5. Confirm status changes to connected.
-
-### 2. Start an AI session
-
-1. Open `/chat`.
-2. Select `New Chat`.
-3. Enter a prompt and select `Send`.
-4. Optional:
-   Toggle quad mode with the bolt icon for enhanced reasoning.
-5. Optional:
-   Attach document or video files for processing.
-
-### 3. Review and organize session history
-
-1. Open `/projects`.
-2. Search for a session by title or ID.
-3. Open the session from the card grid.
-4. Use `/projects/view?id=<session_id>` for message-level review.
-
-### 4. Run simulations
-
-1. Open `/simulations`.
-2. Select `New Simulation`.
-3. Monitor live status and progress.
-4. Use row action buttons to step active simulations when needed.
-
-### 5. Inspect traces for auditability
-
-1. Open `/runs`.
-2. Select `View Trace` on a run.
-3. Review run details, stage output, and persona/axis context.
-
-### 6. Explore the knowledge graph
-
-1. Open `/graph`.
-2. Select axis and filter settings from the left panel.
-3. Select a node to open detailed inspector data in the right panel.
-4. Use camera controls to reset or adjust visualization context.
-
-### 7. Validate local data services
-
-1. Open `/settings`.
-2. Select `Storage`.
-3. Use `Refresh` to read current service health.
-4. Use `Test Connection` per service as needed.
-5. Use `Start All` or `Stop All` for local service lifecycle controls.
-
-### 8. Use privacy controls
-
-1. Open `/settings/privacy`.
-2. Select `Export My Data` for a JSON export.
-3. For destructive cleanup, select `Delete My Account and Data` and confirm.
-
-### 9. Admin-only tasks
-
-1. Open `/admin` (requires `owner` or `admin` role).
-2. Review system and user management panels.
-3. Open `/admin/mcp` and `/admin/mcp/servers` for MCP registry operations.
-
-## Theme and navigation behavior
-
-1. Dark mode is the default theme.
-2. Theme can be changed in `Settings > General`.
-3. Main left sidebar can be collapsed and expanded with the sidebar toggle button.
-4. Settings sidebar has its own independent collapse control.
-
-## Known limitations
-
-1. `Settings > Notifications` and `Settings > AI Models` are not fully implemented.
-2. Register page UI is present but does not currently submit registration requests.
-3. Some MCP and admin metrics are demo values while integration work continues.
-4. Some action buttons are visible placeholders without backend execution.
-
-## Validation checklist
-
-1. Dashboard loads without errors.
-2. Chat returns responses after provider key configuration.
-3. Projects list and session detail views render session history.
-4. Simulations page creates and updates runs.
-5. Runs and run detail pages display trace data.
-6. Storage tab returns health status for configured services.
-
-## Troubleshooting
-
-1. Login redirects repeatedly:
-   Verify session cookies and backend auth status (`/api/v1/auth/check`).
-2. Desktop does not bypass login:
-   Verify desktop runtime conditions and loopback desktop header behavior.
-3. Chat fails with provider errors:
-   Re-test provider key in settings and validate key status with `scripts/verify_api_keys.py`.
-4. Storage services show offline:
-   Check local ports and optional Docker service state before re-testing.

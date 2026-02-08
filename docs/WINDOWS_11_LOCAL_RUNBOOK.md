@@ -1,85 +1,45 @@
 # DataLogicEngine Windows 11 Local Runbook
 
-## Document Control
-
-1. Owner: Platform Engineering
-2. Last updated: 2026-02-08
-3. Status: Active
-4. Review cadence: Every 30 days
-
-## Audience
-
-1. Developers running local Windows environments
-2. QA and support engineers validating desktop mode
-3. Platform engineers validating local data-service integration
-
-## Related Documents
-
-1. `docs/DEPLOYMENT.md`
-2. `docs/PRODUCTION_READINESS.md`
-3. `docs/TESTING.md`
-4. `docs/SECURITY.md`
-
 ## Goal
 
-Run DataLogicEngine locally on Windows 11 with only:
+Run DataLogicEngine locally on Windows 11 with:
 
 1. Internet access
 2. At least one LLM provider API key
-3. A local `.env` file
+3. Local `.env` configuration
 
-PostgreSQL and Redis are optional for this local workflow. The default local path uses SQLite and in-memory cache fallbacks.
+Default path uses SQLite/in-memory fallbacks. PostgreSQL/Redis/Neo4j/object services are optional.
 
-## Current Status (Deep-Dive Summary)
+## Current State (February 8, 2026)
 
-The repository is close to local-runtime ready. Core backend/frontend startup now works with targeted fixes already applied, and remaining work is concentrated in packaging consistency and regression cleanup.
+1. Local startup scripts are functional.
+2. Core frontend routes are reachable.
+3. Desktop mode supports no-login startup.
+4. Settings API key save/test, AI model controls, and local storage lifecycle controls are wired.
+5. Desktop installer builds successfully and is copied to repo root.
 
-### Completed Stabilization Phases
+## Prerequisites
 
-1. Bootstrap and dependency parity
-2. Backend startup/import crash fixes
-3. Frontend TypeScript/test/lint blockers
-4. Windows local startup automation (scripts in `scripts/windows`)
+1. Python 3.11+
+2. Node.js 20+
+3. npm
+4. Optional: Docker Desktop for local data service stack
 
-### Remaining Phases
-
-1. Packaging alignment (WinSW/WiX assets and service definitions)
-2. Broader regression pass (selected backend/frontend suites on Windows)
-3. Optional installer hardening for production desktop distribution
-
-Phase 5 update:
-
-1. Added `scripts/windows/prepare_wix_assets.ps1` to fetch `deploy/windows/winsw.exe` and validate WiX inputs.
-   It also prepares service-specific wrappers (`DataLogic_Backend.exe`, `DataLogic_Frontend.exe`).
-2. Updated WinSW XML defaults to avoid hardcoded PostgreSQL/Redis assumptions.
-3. Aligned installer diagnostics to warn clearly when WiX assets are missing.
-
-Phase 6 update:
-
-1. Frontend API transport is unified through `frontend/lib/api/index.ts` so desktop-export mode does not rely on Next rewrites.
-2. Privacy deletion flow now sends explicit confirmation payload (`confirm: "DELETE"`) required by backend policy.
-3. Admin access is role-gated in UI (`owner`/`admin`) and hidden from non-admin side navigation.
-4. Profile and project views now load live session/user data instead of static placeholders.
-5. Theme default is dark mode. Light mode now has stronger text contrast for readability.
-6. Build artifacts and tracked `.next` output were removed from git index to avoid GitHub size/push failures.
-
-## Quick Local Bring-Up (Windows 11)
-
-Run from repository root:
+## Initial Setup
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\python.exe -m pip install --upgrade pip
 .venv\Scripts\python.exe -m pip install -r requirements.txt
+
 Copy-Item .env.template .env
 ```
 
-Edit `.env` and set:
+Set in `.env`:
 
-1. `SESSION_SECRET=<64+ char secret>`
-2. At least one provider key:
-   `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` or `anthropic_API_KEY` or `GOOGLE_API_KEY` or `GEMINI_API_KEY` or `AZURE_OPENAI_API_KEY` or `MISTRAL_API_KEY`
-3. `FLASK_ENV=development` (recommended for local HTTP workflow)
+1. `SESSION_SECRET=<long_random_value>`
+2. At least one key:
+   `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` or `GEMINI_API_KEY`/`GOOGLE_API_KEY`
 
 Install frontend dependencies:
 
@@ -89,133 +49,95 @@ npm install
 cd ..
 ```
 
-Start the local stack:
+## Start / Stop
+
+### Fast local mode
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
 ```
 
-`start_local_stack.ps1` now runs frontend route-policy smoke checks automatically after frontend boot:
-
-1. Public routes must return `200`.
-2. Protected routes must redirect to login for unauthenticated web requests.
-3. Protected routes must return `200` with desktop header bypass (`X-DataLogic-Desktop: 1`).
-
-Skip these checks only when needed:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1 -SkipRouteSmoke
-```
-
-Start with full local data services (PostgreSQL + Redis + Neo4j + MinIO) using Docker:
+### Full local data services
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1 -WithDataServices
 ```
 
-If default ports are occupied, choose alternate app ports:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1 -WithDataServices -BackendPort 5100 -FrontendPort 3100
-```
-
-Stop the local stack:
+### Stop app stack
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\stop_local_stack.ps1
 ```
 
-Stop stack and local data services:
+### Stop app + data services
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\stop_local_stack.ps1 -WithDataServices
 ```
 
-Validate provider keys and model access:
+## Validation Checklist
+
+1. Frontend responds: `http://127.0.0.1:3000`
+2. Backend health responds: `http://127.0.0.1:5000/health`
+3. Provider key validates:
+   `.venv\Scripts\python.exe .\scripts\verify_api_keys.py`
+4. Route policy smoke passes:
+   `powershell -ExecutionPolicy Bypass -File .\scripts\windows\test_frontend_route_policy.ps1 -FrontendPort 3000`
+5. Optional local data stack validates:
+   `.venv\Scripts\python.exe .\scripts\verify_local_data_stack.py`
+
+## Desktop Installer Workflow
+
+Build installer:
 
 ```powershell
-.venv\Scripts\python.exe .\scripts\verify_api_keys.py
+npm --prefix frontend run electron:dist
 ```
 
-Validate storage/memory data-plane wiring:
+Resulting files:
+
+1. `DataLogicEngine Setup Latest.exe` (repo root alias)
+2. `DataLogicEngine Setup <version>.exe` (repo root versioned copy)
+3. `frontend/dist/` artifacts
+
+Run manually:
 
 ```powershell
-.venv\Scripts\python.exe .\scripts\verify_local_data_stack.py
+.\DataLogicEngine Setup Latest.exe
 ```
 
-Run route-policy smoke checks directly:
+## Optional WiX/WinSW Packaging Path
+
+If you use `deploy/windows/` manifests:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\test_frontend_route_policy.ps1 -FrontendPort 3000
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\prepare_wix_assets.ps1
 ```
 
-Run frontend visual smoke checks in both dark and light themes (Playwright):
+This ensures:
 
-```powershell
-cd frontend
-npm run test:e2e:visual
-```
+1. `deploy/windows/winsw.exe` is present.
+2. Service wrappers are refreshed:
+   `deploy/windows/DataLogic_Backend.exe`, `deploy/windows/DataLogic_Frontend.exe`.
 
-## Validation Gates
+## Known Limitations
 
-For each local setup attempt, validate:
+1. `Settings > Notifications` remains placeholder.
+2. Storage cloud config form persistence is incomplete.
+3. Register submit flow is not wired.
+4. Some MCP admin actions remain disabled pending backend workflow completion.
 
-1. Backend health: `http://127.0.0.1:5000/health`
-2. Frontend availability: `http://127.0.0.1:3000`
-3. Chat/gateway call succeeds with configured provider key
-4. No startup import errors in backend logs
-5. Desktop-mode route smoke: protected routes should return `200` when `X-DataLogic-Desktop: true` header is present.
-6. If using `-WithDataServices`, confirm ports are listening: `5432`, `6379`, `7687`, `9000`.
+## Related Documents
 
-`-WithDataServices` runtime behavior:
+1. `docs/PRODUCT_OVERVIEW.md`
+2. `docs/USER_GUIDE.md`
+3. `docs/DEVELOPER_GUIDE.md`
+4. `docs/DEPLOYMENT.md`
+5. `docs/TESTING.md`
 
-1. If `.env` still points to SQLite, runtime switches to PostgreSQL for that process.
-2. When Docker services already occupy the data ports, startup attempts to detect container credentials and apply them to runtime env.
-3. Default Redis bindings in this mode should use isolated DB indexes (`10-13`) to avoid collisions with existing local Redis data.
-4. Object storage validation requires `boto3` (included in `requirements.txt`).
+## Document Control
 
-## Phase 2 Runtime Notes (Verified)
-
-1. CSRF policy:
-   `POST /api/*` and `POST /graphql` are allowed for JSON clients in local mode.
-   HTML form routes still enforce CSRF tokens.
-2. Gateway failure semantics:
-   `POST /api/v1/gateway/chat` now returns `503` when no provider can satisfy the request.
-   `POST /api/v1/gateway/providers/<provider_id>/test` returns provider-aware `502`/`503` failures instead of false-success `200`.
-3. Provider key diagnostics:
-   If a key is invalid, provider responses surface `401 invalid_api_key` details in gateway error payloads.
-   Update `.env` with a valid provider key and retry.
-
-## Phase 3 Security/Runtime Notes (Verified on February 8, 2026)
-
-1. API key governance is now enforced at request time:
-   `allowed_providers`, `allowed_models`, `max_tokens_per_request`, `permissions`, and per-day rate limits are validated before gateway execution.
-2. Streaming endpoint reliability:
-   `POST /api/v1/gateway/chat/stream` now uses a supported gateway streaming path (`LLMGateway.process_stream`) and returns consistent SSE chunk/done/error events.
-3. Data-plane hardening:
-   Neo4j label/relationship identifiers are validated, and default Neo4j password usage is rejected in production mode.
-4. Object store hardening:
-   Local object keys and bucket names are canonicalized/validated to block traversal and invalid key patterns.
-5. Frontend security headers:
-   Middleware now emits nonce-based CSP and removes `unsafe-eval` in production builds.
-6. CI security posture:
-   Dependency scanning is requirements-file based, Bandit uses baseline delta gating for new high-confidence findings, and SBOM signing now uses real keyless cosign signing.
-
-## Quick API Smoke Checks
-
-Run after starting `scripts/windows/start_local_stack.ps1`:
-
-```powershell
-curl.exe -s http://127.0.0.1:5000/health
-curl.exe -s -X POST http://127.0.0.1:5000/api/v1/auth/register -H "Content-Type: application/json" -d "{\"username\":\"localuser\",\"email\":\"local@example.com\",\"password\":\"StrongPass123!\"}"
-curl.exe -s -X POST http://127.0.0.1:5000/graphql -H "Content-Type: application/json" -d "{\"query\":\"{ nodeCount edgeCount }\"}"
-```
-
-## Focused Backlog to Reach "Fully Working"
-
-1. Consolidate duplicated/legacy launcher paths that still assume port `8080`.
-2. Unify session key naming (`SESSION_SECRET`) across all legacy docs/utilities.
-3. Normalize desktop packaging artifacts:
-   ensure WinSW/WiX assets are either fully maintained or explicitly marked legacy.
-4. Expand CI coverage for Windows startup smoke tests using the local scripts.
-5. Continue reducing lint warning debt in test files (currently warnings, not build blockers).
+1. Owner: Platform Engineering
+2. Last updated: 2026-02-08
+3. Status: Active
+4. Review cadence: Every 30 days
