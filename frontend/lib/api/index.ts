@@ -74,9 +74,17 @@ async function parseResponse<T>(response: Response): Promise<T> {
 
 async function parseErrorMessage(response: Response): Promise<string> {
   if (typeof response.json === 'function') {
-    const errorData = await response.json().catch(() => null) as { message?: string } | null;
-    if (errorData?.message) {
-      return errorData.message;
+    const errorData = await response.json().catch(() => null) as {
+      message?: string;
+      error?: string;
+      detail?: string;
+      details?: unknown;
+    } | null;
+    if (errorData) {
+      if (errorData.message) return errorData.message;
+      if (errorData.error) return errorData.error;
+      if (errorData.detail) return errorData.detail;
+      if (typeof errorData.details === 'string') return errorData.details;
     }
   }
 
@@ -140,6 +148,14 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
     return parseResponse<T>(response);
   } catch (error) {
     console.error(`API Error [${endpoint}]:`, error);
+    if (
+      error instanceof TypeError &&
+      /failed to fetch/i.test(error.message)
+    ) {
+      throw new Error(
+        `Failed to fetch from API (${API_BASE}). Verify backend service is running and reachable.`
+      );
+    }
     throw error;
   }
 }

@@ -16,7 +16,7 @@ import {
 import {
   BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell
 } from 'recharts';
-import { api, request } from '@/lib/api';
+import { api, buildApiUrl, request } from '@/lib/api';
 
 interface TestResult {
   confidence: number;
@@ -29,6 +29,7 @@ interface TestResult {
 }
 
 interface ProviderOption {
+  id?: string;
   name: string;
   type: string;
   model?: string;
@@ -38,6 +39,16 @@ interface ProviderOption {
 interface ActivityPoint {
   name: string;
   queries: number;
+}
+
+interface SaveKeyResponse {
+  success?: boolean;
+  provider?: {
+    id?: string;
+    name?: string;
+    provider_type?: string;
+    type?: string;
+  };
 }
 
 const PROVIDER_MODELS: Record<string, string[]> = {
@@ -79,13 +90,21 @@ function buildLast7DaySeries(timestamps: string[]): ActivityPoint[] {
   });
 }
 
+function formatRequestError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+}
+
 export function ApiOverlayConfig() {
   const { toast } = useToast();
   const [provider, setProvider] = useState("openai");
   const [model, setModel] = useState("gpt-5.2");
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
-  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
 
   const [tier, setTier] = useState("moderate");
   const [confidence, setConfidence] = useState(99.5);
@@ -96,6 +115,7 @@ export function ApiOverlayConfig() {
   const [activeTab, setActiveTab] = useState("python");
 
   const [providers, setProviders] = useState<ProviderOption[]>([]);
+  const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
   const [activityData, setActivityData] = useState<ActivityPoint[]>([]);
   const [activeProvidersCount, setActiveProvidersCount] = useState(0);
   const [complianceScore, setComplianceScore] = useState('N/A');
@@ -124,6 +144,7 @@ export function ApiOverlayConfig() {
           const preferred = availableProviders.find((entry) => entry.is_default) || availableProviders[0];
           const nextProvider = preferred.type || preferred.name || 'openai';
           setProvider(nextProvider.toLowerCase());
+          setSelectedProviderId(preferred.id || null);
           if (preferred.model) {
             setModel(preferred.model);
           }
@@ -164,23 +185,105 @@ export function ApiOverlayConfig() {
     }
   }, [model, modelOptions]);
 
-  const totalQueries = activityData.reduce((sum, point) => sum + point.queries, 0);
+  useEffect(() => {
+    const normalized = provider.toLowerCase();
+    const matchingProvider = providers.find(
+      (entry) => (entry.type || entry.name || '').toLowerCase() === normalized
+    );
+    setSelectedProviderId(matchingProvider?.id || null);
+  }, [provider, providers]);
 
-  const handleTestConnection = async () => {
-    setTestStatus('testing');
+  useEffect(() => {
+    setSaveStatus('idle');
+    setConnectionStatus('idle');
+  }, [apiKey, model, provider]);
+
+  const totalQueries = activityData.reduce((sum, point) => sum + point.queries, 0);
+  const gatewayChatEndpoint = useMemo(() => buildApiUrl('/gateway/chat'), []);
+
+  const handleSaveKey = async (): Promise<string | null> => {
+    if (!apiKey.trim()) {
+      toast("Enter an API key before saving.", "warning");
+      return null;
+    }
+
+    setSaveStatus('saving');
     try {
-      await request('/gateway/keys', {
+      const result = await request<SaveKeyResponse>('/gateway/keys', {
         method: 'POST',
         body: JSON.stringify({
           provider,
-          key: apiKey,
+          key: apiKey.trim(),
+          model,
         }),
       });
-      setTestStatus('success');
+
+      const savedProvider = result?.provider;
+      const savedId = savedProvider?.id || null;
+      const savedProviderType = String(
+        savedProvider?.provider_type || savedProvider?.type || provider
+      ).toLowerCase();
+
+      setProviders((previous) => {
+        const next = [...previous];
+        const existingIndex = next.findIndex(
+          (entry) => (entry.type || entry.name || '').toLowerCase() === savedProviderType
+        );
+
+        const nextEntry: ProviderOption = {
+          id: savedId || undefined,
+          name: savedProvider?.name || savedProviderType,
+          type: savedProviderType,
+          model,
+        };
+
+        if (existingIndex >= 0) {
+          next[existingIndex] = {
+            ...next[existingIndex],
+            ...nextEntry,
+          };
+        } else {
+          next.push(nextEntry);
+        }
+        return next;
+      });
+
+      if (savedId) {
+        setSelectedProviderId(savedId);
+      }
+
+      setSaveStatus('saved');
       toast("API key saved.", "success");
+      return savedId;
     } catch (error) {
-      setTestStatus('error');
-      toast(`Failed to save provider key: ${String(error)}`, "error");
+      setSaveStatus('error');
+      toast(`Failed to save provider key: ${formatRequestError(error)}`, "error");
+      return null;
+    }
+  };
+
+  const handleTestConnection = async () => {
+    setConnectionStatus('testing');
+    const providerId = selectedProviderId || await handleSaveKey();
+    if (!providerId) {
+      setConnectionStatus('error');
+      return;
+    }
+
+    try {
+      const result = await request<{ success?: boolean; message?: string; error?: string }>(
+        `/gateway/providers/${providerId}/test`,
+        { method: 'POST' }
+      );
+      if (!result?.success) {
+        throw new Error(result?.error || result?.message || 'Provider connection test failed.');
+      }
+      setConnectionStatus('success');
+      setSaveStatus('saved');
+      toast(result.message || "Provider connection successful.", "success");
+    } catch (error) {
+      setConnectionStatus('error');
+      toast(`Provider test failed: ${formatRequestError(error)}`, "error");
     }
   };
 
@@ -217,7 +320,7 @@ export function ApiOverlayConfig() {
       });
       toast("Gateway query executed.", "success", 2000);
     } catch (error) {
-      toast(`Gateway query failed: ${String(error)}`, "error");
+      toast(`Gateway query failed: ${formatRequestError(error)}`, "error");
     } finally {
       setIsProcessing(false);
     }
@@ -261,7 +364,8 @@ export function ApiOverlayConfig() {
                   <span className="bg-blue-600 w-6 h-6 rounded-full text-xs flex items-center justify-center text-white">1</span>
                   Configure LLM Provider
                 </CardTitle>
-                {testStatus === 'success' && <Badge variant="success" className="bg-green-500/20 text-green-400 border-green-500/50">Verified</Badge>}
+                {connectionStatus === 'success' && <Badge variant="success" className="bg-green-500/20 text-green-400 border-green-500/50">Verified</Badge>}
+                {connectionStatus !== 'success' && saveStatus === 'saved' && <Badge variant="outline" className="border-blue-500/50 text-blue-300">Saved</Badge>}
               </div>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
@@ -293,7 +397,7 @@ export function ApiOverlayConfig() {
 
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase text-gray-500">API Key</label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <div className="relative flex-1">
                     <Input
                       type={showKey ? "text" : "password"}
@@ -312,12 +416,20 @@ export function ApiOverlayConfig() {
                     </button>
                   </div>
                   <Button
-                    variant={testStatus === 'success' ? 'secondary' : 'default'}
-                    onClick={handleTestConnection}
-                    disabled={testStatus === 'testing' || !apiKey}
+                    variant={saveStatus === 'saved' ? 'secondary' : 'default'}
+                    onClick={handleSaveKey}
+                    disabled={saveStatus === 'saving' || !apiKey.trim()}
                     className="w-32"
                   >
-                    {testStatus === 'testing' ? 'Testing...' : testStatus === 'success' ? 'Connected' : 'Test'}
+                    {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save Key'}
+                  </Button>
+                  <Button
+                    variant={connectionStatus === 'success' ? 'secondary' : 'outline'}
+                    onClick={handleTestConnection}
+                    disabled={connectionStatus === 'testing' || !apiKey.trim()}
+                    className="w-40"
+                  >
+                    {connectionStatus === 'testing' ? 'Testing...' : connectionStatus === 'success' ? 'Connected' : 'Test Connection'}
                   </Button>
                 </div>
               </div>
@@ -385,7 +497,7 @@ export function ApiOverlayConfig() {
                 <label className="text-xs font-bold uppercase text-gray-500 mb-2 block">Gateway Endpoint</label>
                 <div className="flex gap-2">
                   <code className="flex-1 bg-black/40 border border-white/10 p-3 rounded-lg font-mono text-xs text-green-400">
-                    http://localhost:5000/api/v1/gateway/chat
+                    {gatewayChatEndpoint}
                   </code>
                   <Button size="icon" variant="outline" title="Copy Endpoint"><Copy className="h-4 w-4" /></Button>
                 </div>
@@ -402,7 +514,7 @@ export function ApiOverlayConfig() {
 {`import requests
 
 response = requests.post(
-  "http://localhost:5000/api/v1/gateway/chat",
+  "${gatewayChatEndpoint}",
   json={
     "provider": "${provider}",
     "model": "${model}",

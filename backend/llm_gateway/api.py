@@ -357,6 +357,7 @@ def list_active_providers():
     return jsonify({
         'providers': [
             {
+                'id': str(p.id),
                 'name': p.name,
                 'type': p.provider_type,
                 'model': p.model_id,
@@ -374,6 +375,7 @@ def save_provider_key():
     data = request.get_json() or {}
     provider_type = data.get('provider')
     api_key = data.get('key')
+    model_id = data.get('model')
     
     if not provider_type or not api_key:
         return jsonify({'error': 'provider and key required'}), 400
@@ -390,6 +392,9 @@ def save_provider_key():
             created_by=current_user.id,
         )
         db.session.add(provider)
+
+    if model_id:
+        provider.model_id = str(model_id)
     
     provider.set_api_key(api_key)
     db.session.commit()

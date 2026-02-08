@@ -3,9 +3,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ApiOverlayConfig } from './ApiOverlayConfig';
 
+const toastMock = vi.fn();
+
 // Mock UI components
 vi.mock('@/components/ui/use-toast', () => ({
-  useToast: () => ({ toast: vi.fn() })
+  useToast: () => ({ toast: toastMock })
 }));
 
 vi.mock('@/components/ui/card', () => ({
@@ -47,11 +49,61 @@ vi.mock('lucide-react', () => ({
   Lock: () => <div data-testid="lock-icon" />,
 }));
 
+function jsonResponse(body: unknown, status = 200) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    statusText: status === 200 ? 'OK' : 'Error',
+    headers: { get: () => 'application/json' },
+    json: async () => body,
+    text: async () => JSON.stringify(body),
+  };
+}
+
 beforeEach(() => {
-  vi.stubGlobal('fetch', vi.fn(async () => ({
-    ok: true,
-    json: async () => ({ success: true })
-  })));
+  toastMock.mockReset();
+  vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+    const url = String(input);
+
+    if (url.includes('/gateway/providers/provider-openai-id/test')) {
+      return jsonResponse({ success: true, message: 'Provider connection successful' });
+    }
+    if (url.includes('/gateway/keys')) {
+      return jsonResponse({
+        success: true,
+        provider: {
+          id: 'provider-openai-id',
+          provider_type: 'openai',
+          name: 'Openai',
+        },
+      });
+    }
+    if (url.includes('/gateway/providers')) {
+      return jsonResponse({
+        providers: [{
+          id: 'provider-openai-id',
+          name: 'OpenAI',
+          type: 'openai',
+          model: 'gpt-5.2',
+          is_default: true,
+        }]
+      });
+    }
+    if (url.includes('/analytics/activity')) {
+      return jsonResponse([]);
+    }
+    if (url.includes('/gateway/health')) {
+      return jsonResponse({ active_providers: 1, message: 'Gateway operational' });
+    }
+    if (url.includes('/analytics/overview')) {
+      return jsonResponse({ compliance_score: 99.5 });
+    }
+    if (url.includes('/gateway/chat')) {
+      return jsonResponse({ response: 'Gateway response body', run_id: 'run-1' });
+    }
+
+    return jsonResponse({ success: true });
+  }));
 });
 
 afterEach(() => {
@@ -72,35 +124,42 @@ describe('ApiOverlayConfig', () => {
     expect(inputs[0]).toHaveValue('sk-test-123');
   });
 
-  it('should handle connection test', async () => {
+  it('should save provider key explicitly', async () => {
     render(<ApiOverlayConfig />);
-    const inputs = screen.getAllByPlaceholderText('sk-...');
-    fireEvent.change(inputs[0], { target: { value: 'sk-test-123' } });
-    
-    // Find button that says 'Test' (or 'Connected' if state changes)
-    const testBtn = screen.getByText('Test');
-    fireEvent.click(testBtn);
-    
-    expect(screen.getByText('Testing...')).toBeInTheDocument();
-    
+    const input = screen.getAllByPlaceholderText('sk-...')[0];
+    fireEvent.change(input, { target: { value: 'sk-test-123' } });
+
+    const saveBtn = screen.getByText('Save Key');
+    fireEvent.click(saveBtn);
+
     await waitFor(() => {
-        expect(screen.getByText('Connected')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Saved' })).toBeInTheDocument();
     }, { timeout: 2000 });
+  });
+
+  it('should test provider connection', async () => {
+    render(<ApiOverlayConfig />);
+    const input = screen.getAllByPlaceholderText('sk-...')[0];
+    fireEvent.change(input, { target: { value: 'sk-test-123' } });
+
+    const testBtn = screen.getByText('Test Connection');
+    fireEvent.click(testBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('Connected')).toBeInTheDocument();
+    }, { timeout: 3000 });
   });
 
   it('should run playground test', async () => {
     render(<ApiOverlayConfig />);
     const promptInput = screen.getByLabelText('Test Prompt');
     fireEvent.change(promptInput, { target: { value: 'Test query' } });
-    
+
     const runBtn = screen.getByText('Test Enhancement');
     fireEvent.click(runBtn);
-    
-    // Check loading state
-    expect(screen.getByTestId('refresh-cw-icon')).toBeInTheDocument();
-    
+
     await waitFor(() => {
-        expect(screen.getByText(/No response body returned by gateway/i)).toBeInTheDocument();
+      expect(screen.getByText(/Gateway response body/i)).toBeInTheDocument();
     }, { timeout: 3000 });
   });
 });
