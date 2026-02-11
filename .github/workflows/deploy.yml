@@ -50,6 +50,14 @@ jobs:
         cd frontend
         npm run build
 
+    - name: Run smoke bootstrap check
+      run: |
+        python scripts/test_smoke.py
+
+    - name: Validate docs references
+      run: |
+        python scripts/verify_docs_references.py
+
     - name: Run tests
       run: |
         pytest tests/ -v

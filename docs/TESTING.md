@@ -65,6 +65,12 @@ frontend/
 
 ## Standard execution commands
 
+### Bootstrap smoke check
+
+```powershell
+.\.venv\Scripts\python .\scripts\test_smoke.py
+```
+
 ### Backend
 
 ```powershell
@@ -83,6 +89,12 @@ frontend/
 cd frontend
 npm run lint
 npm test
+```
+
+### Documentation reference validation
+
+```powershell
+.\.venv\Scripts\python .\scripts\verify_docs_references.py
 ```
 
 ## Required release gates

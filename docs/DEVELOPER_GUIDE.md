@@ -78,6 +78,12 @@ npm --prefix frontend run electron:dist
 
 ## Testing
 
+Bootstrap smoke check:
+
+```powershell
+.\.venv\Scripts\python.exe .\scripts\test_smoke.py
+```
+
 Backend suite:
 
 ```powershell
@@ -106,6 +112,12 @@ Local data plane validation:
 
 ```powershell
 .venv\Scripts\python.exe .\scripts\verify_local_data_stack.py
+```
+
+Docs reference validation:
+
+```powershell
+.venv\Scripts\python.exe .\scripts\verify_docs_references.py
 ```
 
 ## Repository Structure (High Level)

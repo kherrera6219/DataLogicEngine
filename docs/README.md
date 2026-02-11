@@ -31,6 +31,11 @@ Single entry point for active documentation and source-of-truth documents.
 9. Testing standards: `docs/TESTING.md`
 10. Operational runbooks: `docs/OPERATIONAL_RUNBOOKS.md`
 
+
+## Current assessments
+
+1. `docs/APPLICATION_REVIEW_RECOMMENDED_IMPROVEMENTS_2026-02-10.md`
+
 ## Documentation Standards
 
 1. `docs/DOCUMENTATION_STANDARDS.md`
