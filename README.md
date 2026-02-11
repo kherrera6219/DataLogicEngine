@@ -129,6 +129,12 @@ Primary docs:
 
 ## Testing
 
+Backend smoke check:
+
+```powershell
+python .\scripts\test_smoke.py
+```
+
 Backend:
 
 ```powershell
