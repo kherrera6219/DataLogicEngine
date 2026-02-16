@@ -8,8 +8,14 @@ runtime components while the project transitions to backend/config packages.
 import os
 
 from dotenv import load_dotenv
+from backend.security.secret_resolver import resolve_secret_with_source
 
 load_dotenv()
+
+
+def _resolve_secret(name: str, default: str | None = None) -> str | None:
+    value, _ = resolve_secret_with_source(name, default=default)
+    return value
 
 
 class Config:
@@ -19,8 +25,8 @@ class Config:
     APP_VERSION = "1.0.0"
 
     # Secrets default to env-provided values in base config.
-    SECRET_KEY = os.environ.get("SECRET_KEY")
-    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
+    SECRET_KEY = _resolve_secret("SECRET_KEY")
+    JWT_SECRET_KEY = _resolve_secret("JWT_SECRET_KEY")
     JWT_ACCESS_TOKEN_EXPIRES = 60 * 60
 
     SESSION_COOKIE_SECURE = True

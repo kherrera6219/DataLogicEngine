@@ -178,6 +178,53 @@ Bundle content includes:
 4. If signature missing/invalid, re-run signing workflow after correcting certificate secret material.
 5. Block release distribution until signature status is `Valid` for all installer artifacts.
 
+## Incident 11: Vault-backed secret source enforcement failure
+
+**Trigger:** Production startup fails due to non-vault secret source policy.
+**Default severity:** `SEV-1` for production boot blockers, `SEV-2` for staging/preprod
+
+1. Confirm runtime error details include failing secret name and source.
+2. Validate one of approved secure sources is configured:
+   - `*_FILE`
+   - `*_DPAPI_B64`
+   - `DLE_SECRET_STORE_JSON`
+   - OS keyring (if enabled)
+3. For emergency rollback only, use temporary override:
+   `ALLOW_PLAINTEXT_PROD_SECRETS=true` (must be removed after remediation).
+4. Re-run readiness checks and capture startup logs after secure source fix.
+
+## Incident 12: Tenant RLS context or policy failure
+
+**Trigger:** Requests fail with tenant context/RLS errors on Postgres-backed deployments.
+**Default severity:** `SEV-1` for sustained API outage, `SEV-2` for partial tenant impact
+
+1. Confirm RLS status in `/metrics` (`datalogicengine_tenant_rls_enabled`, `datalogicengine_tenant_rls_bootstrap_ok`).
+2. Verify tenant context propagation (`X-Tenant-ID`, session tenant, or authenticated user tenant mapping).
+3. Re-apply RLS policies if needed and validate Postgres policy state.
+4. Re-run regression coverage:
+   `python -m pytest -q --no-cov tests/unit/test_tenant_rls_controls.py`
+
+## Incident 13: Export authenticity or immutable audit replica verification failure
+
+**Trigger:** Trace export signing/encryption errors or immutable audit replica integrity check failure.
+**Default severity:** `SEV-1` for integrity evidence impact, `SEV-2` for isolated export failure
+
+1. Capture failing export/audit identifiers and corresponding manifest/replica metadata.
+2. Verify HMAC secret and encryption key material are present and sourced securely.
+3. Re-run integrity regression tests:
+   `python -m pytest -q --no-cov tests/unit/test_export_authenticity_controls.py tests/security/test_audit_logger_immutable_replica.py`
+4. Regenerate affected export bundle(s) and verify immutable replica chain continuity.
+
+## Incident 14: AI or connector latency SLO violation surge
+
+**Trigger:** `/metrics` reports sustained p95/p99 SLO violations for AI or connector paths.
+**Default severity:** `SEV-2` (upgrade to `SEV-1` for broad service degradation)
+
+1. Inspect `datalogicengine_ai_latency_slo_violation{...}` and `datalogicengine_connector_latency_slo_violation{...}`.
+2. Correlate with provider/connector error-rate and fallback activity.
+3. Apply mitigations: traffic shaping, provider failover, connector backoff, or temporary routing policy constraints.
+4. Re-baseline thresholds only after incident postmortem and governance approval.
+
 ## Validation checklist after any incident
 
 1. `GET /health` is healthy.

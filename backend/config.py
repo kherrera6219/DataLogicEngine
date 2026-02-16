@@ -1,12 +1,13 @@
 import os
 import secrets
+from backend.security.secret_resolver import resolve_secret_with_source
 
 class APIConfig:
     """Configuration for external APIs"""
     
     def __init__(self):
         # OpenAI Configuration
-        self.openai_api_key = os.environ.get('OPENAI_API_KEY', '')
+        self.openai_api_key, _ = resolve_secret_with_source('OPENAI_API_KEY', default='')
         self.openai_model = os.environ.get('OPENAI_MODEL', 'gpt-4')
         self.app_version = '2.4.0'
         
@@ -17,7 +18,7 @@ class APIConfig:
         # JWT Configuration
         # Generate a random secret if one isn't provided (transient)
         # Production should use a persistent secret stored via DPAPI or KeyVault
-        self.jwt_secret = os.environ.get('JWT_SECRET_KEY')
+        self.jwt_secret, self.jwt_secret_source = resolve_secret_with_source('JWT_SECRET_KEY')
         if not self.jwt_secret:
             # Fallback for dev, but warn in logs (should be handled by ConfigManager)
             self.jwt_secret = secrets.token_hex(32)

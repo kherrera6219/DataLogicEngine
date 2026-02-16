@@ -26,6 +26,15 @@ from backend.observability.crash_reporting import (
     crash_reporting_prometheus_lines,
     initialize_crash_reporting,
 )
+from backend.observability.latency_slo import latency_slo_prometheus_lines
+from backend.security.secret_resolver import (
+    is_secure_secret_source,
+    resolve_runtime_secret,
+)
+from backend.security.tenant_rls import (
+    configure_tenant_rls,
+    tenant_rls_prometheus_lines,
+)
 
 # Initialize crash reporting provider (Sentry if configured) with fallback mode.
 initialize_crash_reporting(
@@ -39,11 +48,14 @@ initialize_crash_reporting(
 # Configure logging - use INFO in production, DEBUG in development
 log_level = logging.DEBUG if os.environ.get("FLASK_ENV") == "development" else logging.INFO
 logger = logging.getLogger(__name__)
+IS_PRODUCTION_MODE = os.environ.get("FLASK_ENV") == "production"
+RESOLVED_SESSION_SECRET = None
+SESSION_SECRET_SOURCE = "missing"
 
 # Security: Warn about default credentials in production
 def validate_production_security():
     """Validate that no default/insecure credentials are in use in production."""
-    is_production = os.environ.get("FLASK_ENV") == "production"
+    is_production = IS_PRODUCTION_MODE
     
     # Check for default admin credentials
     admin_user = os.environ.get("ADMIN_USERNAME", "")
@@ -58,8 +70,10 @@ def validate_production_security():
             issues.append("Default admin username detected")
         if admin_pass and (admin_pass in insecure_passwords or len(admin_pass) < 12):
             issues.append("Insecure admin password (use min 12 chars)")
-        if not os.environ.get("SESSION_SECRET"):
+        if not RESOLVED_SESSION_SECRET:
             issues.append("SESSION_SECRET not set")
+        elif not is_secure_secret_source(SESSION_SECRET_SOURCE):
+            issues.append(f"SESSION_SECRET is not vault-backed (source={SESSION_SECRET_SOURCE})")
         
         if issues:
             logger.error(f"SECURITY: Production security issues: {', '.join(issues)}")
@@ -77,6 +91,13 @@ DEFAULT_PORT = int(os.environ.get("PORT", 5000))
 # Create Flask app
 app = Flask(__name__)
 
+# Resolve SESSION_SECRET through vault-aware resolution pipeline.
+RESOLVED_SESSION_SECRET, SESSION_SECRET_SOURCE = resolve_runtime_secret(
+    "SESSION_SECRET",
+    required=False,
+    production_mode=IS_PRODUCTION_MODE and not app.config.get("TESTING", False),
+)
+
 try:
     configure_structured_logging(app)
 except Exception as exc:
@@ -87,8 +108,8 @@ except Exception as exc:
 if __name__ != "__main__":  # Only run when starting as server
     validate_production_security()
 
-# Security: Get secret key from environment (SESSION_SECRET as mandated)
-app.secret_key = os.environ.get("SESSION_SECRET")
+# Security: Session secret from vault-aware resolver.
+app.secret_key = RESOLVED_SESSION_SECRET
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
 
 # Process-level observability counters for /metrics endpoint.
@@ -449,6 +470,21 @@ with app.app_context():
     db.create_all()
     logger.info("Database tables created")
 
+# Configure optional Postgres tenant RLS policy bootstrap + request context binding.
+TENANT_RLS_STATUS = configure_tenant_rls(app, db)
+if TENANT_RLS_STATUS.get("enabled"):
+    logger.info(
+        "Tenant RLS enabled (policy=%s, bootstrap=%s)",
+        TENANT_RLS_STATUS.get("policy_name"),
+        TENANT_RLS_STATUS.get("bootstrap", {}).get("status"),
+    )
+else:
+    logger.info(
+        "Tenant RLS disabled or skipped (dialect=%s, reason=%s)",
+        TENANT_RLS_STATUS.get("dialect"),
+        TENANT_RLS_STATUS.get("bootstrap", {}).get("reason"),
+    )
+
 # MCP Routes moved to routes/mcp_routes.py (registered via routes package)
 
 # AI Chat legacy blueprint removed (Superseded by LLM Gateway)
@@ -607,6 +643,7 @@ def _config_health() -> dict:
     return {
         "environment": environment,
         "secret_key": secret_key_status,
+        "secret_source": SESSION_SECRET_SOURCE,
     }
 
 
@@ -679,7 +716,9 @@ def _prometheus_metrics_payload() -> str:
     ]
     lines.extend(connector_metrics_prometheus_lines(prefix="datalogicengine"))
     lines.extend(ai_latency_metrics_prometheus_lines(prefix="datalogicengine"))
+    lines.extend(latency_slo_prometheus_lines(prefix="datalogicengine"))
     lines.extend(crash_reporting_prometheus_lines(prefix="datalogicengine"))
+    lines.extend(tenant_rls_prometheus_lines(TENANT_RLS_STATUS, prefix="datalogicengine"))
     return "\n".join(lines) + "\n"
 
 

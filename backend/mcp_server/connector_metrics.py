@@ -98,6 +98,7 @@ def connector_metrics_snapshot() -> Dict[str, Dict[str, float]]:
                 "errors": float(errors),
                 "avg_latency_ms": avg_latency,
                 "p95_latency_ms": _percentile(latencies, 0.95),
+                "p99_latency_ms": _percentile(latencies, 0.99),
                 "max_latency_ms": float(state["max_latency_ms"]),
             }
         return snapshot
@@ -124,6 +125,8 @@ def connector_metrics_prometheus_lines(prefix: str = "datalogicengine") -> list[
         f"# TYPE {prefix}_connector_latency_ms_avg gauge",
         f"# HELP {prefix}_connector_latency_ms_p95 P95 connector latency in milliseconds.",
         f"# TYPE {prefix}_connector_latency_ms_p95 gauge",
+        f"# HELP {prefix}_connector_latency_ms_p99 P99 connector latency in milliseconds.",
+        f"# TYPE {prefix}_connector_latency_ms_p99 gauge",
         f"# HELP {prefix}_connector_latency_ms_max Maximum connector latency in milliseconds.",
         f"# TYPE {prefix}_connector_latency_ms_max gauge",
     ]
@@ -135,5 +138,6 @@ def connector_metrics_prometheus_lines(prefix: str = "datalogicengine") -> list[
         lines.append(f"{prefix}_connector_errors_total{labels} {int(data['errors'])}")
         lines.append(f"{prefix}_connector_latency_ms_avg{labels} {data['avg_latency_ms']:.3f}")
         lines.append(f"{prefix}_connector_latency_ms_p95{labels} {data['p95_latency_ms']:.3f}")
+        lines.append(f"{prefix}_connector_latency_ms_p99{labels} {data['p99_latency_ms']:.3f}")
         lines.append(f"{prefix}_connector_latency_ms_max{labels} {data['max_latency_ms']:.3f}")
     return lines

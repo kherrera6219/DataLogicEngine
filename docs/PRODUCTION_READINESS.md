@@ -46,7 +46,7 @@ DataLogicEngine is an enterprise-grade AI/ML knowledge management platform desig
 
 **Current status**: Production hardened baseline
 
-## 2026-02-16 Hardening Update (Sections 5-8 Phase 1 + Phase 2 + Phase 3)
+## 2026-02-16 Hardening Update (Sections 5-8 + Post-Baseline Controls)
 
 The following controls are now implemented and validated:
 
@@ -63,6 +63,12 @@ The following controls are now implemented and validated:
 11. Snapshot and trace bundle hash/HMAC integrity verification controls.
 12. Crash reporting fallback IDs + telemetry and workflow probe checks.
 13. Dedicated Windows installer code-signing workflow with signature verification.
+14. Postgres tenant RLS bootstrap with request-scoped tenant DB context binding.
+15. Production vault-backed secret source enforcement for runtime session bootstrap.
+16. Trace export authenticity layer (manifest signing + optional payload encryption).
+17. Immutable audit replica hash-chain append + integrity verification controls.
+18. Code-signing governance drills (certificate rotation threshold + revocation checks).
+19. AI and connector p95/p99 latency SLO baseline/violation gauges in `/metrics`.
 
 Reference implementation report:
 - `docs/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
@@ -72,7 +78,8 @@ Validation commands:
 ```powershell
 python .\scripts\validate_schema_parity.py
 python .\scripts\verify_installer_integrity.py --require-artifacts
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation
+python -m pytest -q --no-cov tests/unit/test_tenant_rls_controls.py tests/unit/test_secret_resolver_controls.py tests/unit/test_export_authenticity_controls.py tests/security/test_audit_logger_immutable_replica.py tests/unit/test_latency_slo_alerts.py
 python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process
 python .\scripts\generate_support_bundle.py --skip-http
 python -m pytest -q --no-cov tests/unit/test_phase1_scope_ssrf_controls.py

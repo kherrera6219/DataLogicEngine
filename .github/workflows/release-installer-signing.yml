@@ -79,6 +79,16 @@ jobs:
         [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($env:WINDOWS_CODESIGN_CERT_BASE64))
         "path=$certPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
+    - name: Validate certificate rotation + revocation health
+      env:
+        WINDOWS_CODESIGN_CERT_PASSWORD: ${{ secrets.WINDOWS_CODESIGN_CERT_PASSWORD }}
+      run: |
+        powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/verify_signing_certificate_health.ps1 `
+          -CertificatePath "${{ steps.cert.outputs.path }}" `
+          -CertificatePassword "$env:WINDOWS_CODESIGN_CERT_PASSWORD" `
+          -MinDaysRemaining 45 `
+          -CheckRevocation
+
     - name: Sign and verify installers
       env:
         WINDOWS_CODESIGN_CERT_PASSWORD: ${{ secrets.WINDOWS_CODESIGN_CERT_PASSWORD }}
@@ -86,7 +96,10 @@ jobs:
         powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/sign_release_installers.ps1 `
           -RepoRoot (Get-Location).Path `
           -CertificatePath "${{ steps.cert.outputs.path }}" `
-          -CertificatePassword "$env:WINDOWS_CODESIGN_CERT_PASSWORD"
+          -CertificatePassword "$env:WINDOWS_CODESIGN_CERT_PASSWORD" `
+          -MinimumCertificateDaysRemaining 45 `
+          -CheckCertificateRevocation `
+          -CheckSignatureRevocation
 
     - name: Upload signed installer artifacts
       uses: actions/upload-artifact@v4
@@ -96,5 +109,6 @@ jobs:
           DataLogicEngine Setup *.exe
           DataLogicEngine Setup *.exe.sha256
           DataLogicEngine Setup *.exe.blockmap
+          reports/codesigning_certificate_health.json
           reports/installer_signature_report.json
         if-no-files-found: error

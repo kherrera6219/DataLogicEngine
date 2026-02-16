@@ -12,6 +12,7 @@ import logging.handlers
 import json
 import time
 import hashlib
+import hmac
 from datetime import datetime, UTC, timedelta
 from typing import Dict, List, Any, Optional, Union
 import threading
@@ -47,7 +48,25 @@ class AuditLogger:
         # Initialize the current log file
         self.current_date = datetime.now().strftime("%Y%m%d")
         self.current_log_file = f"logs/audit/audit_{self.current_date}.jsonl"
-        
+        self.immutable_replica_enabled = (
+            bool(self.config.get("immutable_replica_enabled"))
+            if "immutable_replica_enabled" in self.config
+            else str(os.environ.get("AUDIT_IMMUTABLE_REPLICA_ENABLED", "false")).strip().lower() in {"1", "true", "yes", "on"}
+        )
+        self.immutable_replica_dir = self.config.get(
+            "immutable_replica_dir",
+            os.environ.get("AUDIT_IMMUTABLE_REPLICA_DIR", "logs/audit_immutable"),
+        )
+        self.immutable_hmac_secret = str(
+            self.config.get("immutable_hmac_secret")
+            or os.environ.get("AUDIT_IMMUTABLE_HMAC_SECRET")
+            or os.environ.get("SESSION_SECRET")
+            or ""
+        ).strip()
+        self._immutable_last_hash = ""
+        if self.immutable_replica_enabled:
+            os.makedirs(self.immutable_replica_dir, exist_ok=True)
+
         # Initialize log rotation thread
         self.log_rotation_active = False
         self.log_rotation_thread = None
@@ -119,7 +138,49 @@ class AuditLogger:
                 logger.error(f"Error in log rotation: {str(e)}")
                 if self._rotation_stop_event.wait(timeout=300):
                     break  # Retry after 5 minutes
-    
+
+    @staticmethod
+    def _hash_json(payload: Dict[str, Any]) -> str:
+        return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
+
+    def _immutable_log_file_path(self) -> str:
+        return os.path.join(self.immutable_replica_dir, f"audit_immutable_{self.current_date}.jsonl")
+
+    def _compute_immutable_replica_hash(self, event_hash: str, previous_replica_hash: str, replica_timestamp: str) -> str:
+        seed = f"{event_hash}|{previous_replica_hash}|{replica_timestamp}"
+        if self.immutable_hmac_secret:
+            return hmac.new(
+                self.immutable_hmac_secret.encode("utf-8"),
+                seed.encode("utf-8"),
+                hashlib.sha256,
+            ).hexdigest()
+        return hashlib.sha256(seed.encode()).hexdigest()
+
+    def _append_immutable_replica(self, audit_event: Dict[str, Any]) -> None:
+        if not self.immutable_replica_enabled:
+            return
+
+        event_hash = str(audit_event.get("hash") or self._hash_json(audit_event))
+        replica_timestamp = datetime.now(UTC).isoformat()
+        previous_replica_hash = self._immutable_last_hash
+        replica_hash = self._compute_immutable_replica_hash(
+            event_hash=event_hash,
+            previous_replica_hash=previous_replica_hash,
+            replica_timestamp=replica_timestamp,
+        )
+        replica_event: Dict[str, Any] = {
+            "replica_timestamp": replica_timestamp,
+            "event_id": audit_event.get("id"),
+            "event_hash": event_hash,
+            "previous_replica_hash": previous_replica_hash,
+            "replica_hash": replica_hash,
+            "event": audit_event,
+        }
+
+        with open(self._immutable_log_file_path(), 'a') as replica_file:
+            replica_file.write(json.dumps(replica_event) + "\n")
+        self._immutable_last_hash = replica_hash
+
     def log_audit_event(self, 
                          event_type: str,
                          user_id: Optional[str] = None,
@@ -177,13 +238,16 @@ class AuditLogger:
                 audit_event["ip_address"] = ip_address
             
             # Generate event hash for integrity
-            event_data = json.dumps(audit_event, sort_keys=True)
-            audit_event["hash"] = hashlib.sha256(event_data.encode()).hexdigest()
+            audit_event["hash"] = self._hash_json(audit_event)
             
             # Write to the audit log file
             with self._write_lock:
                 with open(self.current_log_file, 'a') as f:
                     f.write(json.dumps(audit_event) + "\n")
+                try:
+                    self._append_immutable_replica(audit_event)
+                except Exception as immutable_err:
+                    logger.warning(f"Failed to append immutable audit replica: {immutable_err}")
             
             # --- Windows Desktop: Database Persistence ---
             try:
@@ -516,6 +580,71 @@ class AuditLogger:
             
         except Exception as e:
             logger.error(f"Error verifying audit log: {str(e)}")
+            results["verified"] = False
+            results["error"] = str(e)
+            return results
+
+    def verify_immutable_replica_integrity(self, replica_file: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Verify immutable replica hash-chain integrity.
+        """
+        if not replica_file:
+            replica_file = self._immutable_log_file_path()
+
+        results = {
+            "replica_file": replica_file,
+            "verified": True,
+            "total_entries": 0,
+            "valid_entries": 0,
+            "invalid_entries": 0,
+            "invalid_event_ids": [],
+        }
+
+        try:
+            if not os.path.exists(replica_file):
+                results["verified"] = False
+                results["error"] = "Replica file does not exist"
+                return results
+
+            previous_replica_hash = ""
+            with open(replica_file, 'r') as file_obj:
+                for line in file_obj:
+                    if not line.strip():
+                        continue
+                    results["total_entries"] += 1
+                    entry: Dict[str, Any] = {}
+                    try:
+                        entry = json.loads(line)
+                        event = entry.get("event") or {}
+                        stored_event_hash = str(entry.get("event_hash") or "")
+                        event_for_hash = dict(event)
+                        event_for_hash.pop("hash", None)
+                        expected_event_hash = self._hash_json(event_for_hash)
+                        if stored_event_hash != expected_event_hash:
+                            raise ValueError("event_hash_mismatch")
+
+                        if str(entry.get("previous_replica_hash") or "") != previous_replica_hash:
+                            raise ValueError("replica_chain_previous_hash_mismatch")
+
+                        expected_replica_hash = self._compute_immutable_replica_hash(
+                            event_hash=stored_event_hash,
+                            previous_replica_hash=previous_replica_hash,
+                            replica_timestamp=str(entry.get("replica_timestamp") or ""),
+                        )
+                        if str(entry.get("replica_hash") or "") != expected_replica_hash:
+                            raise ValueError("replica_hash_mismatch")
+
+                        previous_replica_hash = expected_replica_hash
+                        results["valid_entries"] += 1
+                    except Exception:
+                        results["invalid_entries"] += 1
+                        if entry_id := (entry or {}).get("event_id"):
+                            results["invalid_event_ids"].append(str(entry_id))
+
+            results["verified"] = results["invalid_entries"] == 0
+            return results
+        except Exception as e:
+            logger.error(f"Error verifying immutable replica log: {str(e)}")
             results["verified"] = False
             results["error"] = str(e)
             return results

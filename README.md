@@ -31,6 +31,11 @@ The application is functional for local Windows use with API keys and internet a
 16. Snapshot and trace bundle HMAC integrity verification controls.
 17. Crash reporting fallback IDs with pipeline probe checks.
 18. Dedicated Windows installer code-signing workflow.
+19. Database-level tenant isolation support for Postgres (RLS bootstrap + request-scoped tenant DB context).
+20. Vault-aware secret resolution and production secure-source enforcement for runtime session secrets.
+21. Signed/encrypted trace export envelopes for evidence packaging.
+22. Immutable audit replica hash-chain append and verification controls.
+23. AI and connector latency SLO baseline/violation gauges (`p95`/`p99`) exported in `/metrics`.
 
 ### Partial / In Progress
 
@@ -64,6 +69,13 @@ Set at minimum:
 1. `SESSION_SECRET` (long random value)
 2. At least one provider key:
    `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` or `GEMINI_API_KEY`/`GOOGLE_API_KEY`
+
+Production supports vault-backed secret resolution alternatives:
+
+1. `SESSION_SECRET_FILE=<path-to-secret-file>`
+2. `SESSION_SECRET_DPAPI_B64=<dpapi-encrypted-secret>`
+3. `DLE_SECRET_STORE_JSON=<path-to-json-secret-store>`
+4. Optional strict controls: `PRODUCTION_VAULT_SECRETS_REQUIRED=true` and `ALLOW_PLAINTEXT_PROD_SECRETS=false`
 
 ### 3. Start local stack
 
@@ -123,7 +135,8 @@ Verify installer integrity:
 
 ```powershell
 python .\scripts\verify_installer_integrity.py --require-artifacts
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_signing_certificate_health.ps1 -CertificatePath .\codesign.pfx -CertificatePassword "<password>" -CheckRevocation
 ```
 
 ## Architecture Summary

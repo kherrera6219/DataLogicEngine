@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.6] - 2026-02-16
+
+### Added
+- Implemented post-baseline hardening controls for Sections 5-8:
+  - Postgres tenant RLS bootstrap + request-scoped tenant DB context (`backend/security/tenant_rls.py`, `app.py`).
+  - Vault-aware runtime secret resolver with production secure-source enforcement (`backend/security/secret_resolver.py`, `app.py`, `config.py`, `backend/config.py`).
+  - Export authenticity controls: signed manifests + optional encrypted trace export envelopes (`backend/security/export_integrity.py`, `backend/tracing/api.py`).
+  - Immutable audit replica hash-chain append and verification controls (`backend/security/audit_logger.py`).
+  - AI/connector latency SLO baseline and violation gauges (`backend/observability/latency_slo.py`, `backend/mcp_server/connector_metrics.py`, `app.py`).
+  - Code-signing governance drill workflow + certificate health/revocation checks (`.github/workflows/code-signing-governance.yml`, `scripts/windows/verify_signing_certificate_health.ps1`).
+- Added focused regression coverage:
+  - `tests/unit/test_tenant_rls_controls.py`
+  - `tests/unit/test_secret_resolver_controls.py`
+  - `tests/unit/test_export_authenticity_controls.py`
+  - `tests/security/test_audit_logger_immutable_replica.py`
+  - `tests/unit/test_latency_slo_alerts.py`
+
+### Changed
+- Release signing workflow now validates certificate health/revocation before signing and verifies signature revocation during artifact checks (`.github/workflows/release-installer-signing.yml`, `scripts/windows/sign_release_installers.ps1`, `scripts/windows/verify_installer_signature.ps1`).
+- Updated active docs and subsystem review to reflect post-baseline control completion:
+  - `README.md`
+  - `docs/README.md`
+  - `docs/PRODUCT_OVERVIEW.md`
+  - `docs/PRODUCTION_READINESS.md`
+  - `docs/OPERATIONAL_RUNBOOKS.md`
+  - `docs/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
+
+### Testing
+- Debug/error sweep completed:
+  - `python -m pytest -q --no-cov tests/unit/test_tenant_rls_controls.py tests/unit/test_secret_resolver_controls.py tests/unit/test_export_authenticity_controls.py tests/unit/test_latency_slo_alerts.py tests/security/test_audit_logger_immutable_replica.py`
+  - `python -m pytest -q --no-cov tests/unit/test_phase3_integrity_crash_controls.py tests/unit/test_phase2_oauth_contract_metrics.py tests/unit/test_phase1_scope_ssrf_controls.py tests/unit/test_mcp_tracing_repo_rest_coverage.py tests/unit/test_llm_gateway_internal_units.py tests/test_health_endpoint.py tests/test_unified_services.py`
+  - `python scripts/runtime_precheck.py --skip-ports --allow-env-from-process`
+  - `python scripts/verify_docs_references.py`
+
 ## [4.1.5] - 2026-02-16
 
 ### Added

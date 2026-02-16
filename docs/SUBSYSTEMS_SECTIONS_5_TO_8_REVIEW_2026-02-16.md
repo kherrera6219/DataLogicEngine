@@ -15,8 +15,12 @@
 - `Partial`: `0`
 - `Missing`: `0`
 
-Highest-priority gaps:
-1. Continue expanding compliance depth beyond baseline controls (tenant DB-level isolation, immutable storage replication, and retention drill automation).
+Post-baseline hardening updates completed:
+1. Database-level tenant isolation controls (Postgres RLS bootstrap + request-scoped tenant context).
+2. Vault-backed secret resolution enforcement in production runtime paths.
+3. Code-signing governance drills (certificate rotation threshold + revocation checks).
+4. Signed/encrypted evidence export envelopes and immutable audit replication hash-chain verification.
+5. AI + connector latency SLO baseline gauges and p95/p99 violation metrics.
 
 ## Phase 1 Implementation Update (2026-02-16)
 Phase 1 controls from this report are now implemented in code with CI/release gating updates.
@@ -122,6 +126,30 @@ The final three partial controls in Sections 5-8 are now implemented.
 - Remaining partial controls from Sections 5-8: `3/3` completed.
 - Sections 5-8 control matrix now reports full implementation coverage for reviewed controls (`33/33`).
 
+## Post-Baseline Hardening Update (2026-02-16)
+Additional hardening actions requested after baseline closure are now implemented.
+
+### Completed in this update
+1. Database-level tenant isolation controls:
+   - Added Postgres RLS bootstrap/policy management and per-request tenant session binding (`backend/security/tenant_rls.py`, `app.py`).
+   - Added regression coverage for RLS policy generation and tenant context binding (`tests/unit/test_tenant_rls_controls.py`).
+2. Vault-backed secret resolution in production paths:
+   - Added runtime secret resolver with file/JSON store/DPAPI/keyring precedence and production secure-source enforcement (`backend/security/secret_resolver.py`).
+   - Wired app/session secret bootstrap through vault-aware resolver (`app.py`) and resolver-aware config paths (`config.py`, `backend/config.py`).
+   - Added regression coverage (`tests/unit/test_secret_resolver_controls.py`).
+3. Code-signing rotation/revocation drills:
+   - Added certificate health verification script with expiry threshold and online revocation-chain checks (`scripts/windows/verify_signing_certificate_health.ps1`).
+   - Extended installer signing/verification scripts to run certificate and signature revocation checks (`scripts/windows/sign_release_installers.ps1`, `scripts/windows/verify_installer_signature.ps1`).
+   - Added scheduled governance workflow (`.github/workflows/code-signing-governance.yml`) and strengthened release signing workflow (`.github/workflows/release-installer-signing.yml`).
+4. Export authenticity + immutable audit replication:
+   - Added signed/encrypted trace export envelope support (`backend/security/export_integrity.py`, `backend/tracing/api.py`).
+   - Added immutable audit replication hash-chain append + verification controls (`backend/security/audit_logger.py`).
+   - Added regression coverage (`tests/unit/test_export_authenticity_controls.py`, `tests/security/test_audit_logger_immutable_replica.py`).
+5. AI/connector latency SLO baselines:
+   - Added connector p99 latency telemetry (`backend/mcp_server/connector_metrics.py`).
+   - Added SLO threshold/violation evaluator with Prometheus exposition (`backend/observability/latency_slo.py`, `app.py`).
+   - Added regression coverage (`tests/unit/test_latency_slo_alerts.py`).
+
 ## 5) Data Layer Subsystems
 | Subsystem | Current Status | Evidence | Remaining Gap | Suggested Action |
 |---|---|---|---|---|
@@ -132,7 +160,7 @@ The final three partial controls in Sections 5-8 are now implemented.
 | Encryption-at-Rest Enforcement | Implemented | `backend/security/encryption_manager.py` | Operational telemetry can improve. | Surface encryption key-rotation telemetry in central dashboards. |
 | Backup & Recovery Strategy (local + cloud) | Implemented | `scripts/backup_database.sh`, `scripts/restore_database.sh` | Alerting/run scheduling consistency can improve. | Enforce scheduled backups with failure alerts. |
 | Retention & Deletion Engine | Implemented | `backend/retention_service.py`, `backend/routes/retention_routes.py` | Cleanup coverage is currently concentrated on selected domains. | Extend retention cleanup to additional data categories as volume grows. |
-| Data Export & Evidence Packaging Module | Implemented | `backend/tracing/api.py`, `models.py` (`TraceExport`) | Evidence packaging uses hashes but can add stronger authenticity controls. | Add optional signing/encryption for exported evidence bundles. |
+| Data Export & Evidence Packaging Module | Implemented | `backend/tracing/api.py`, `backend/security/export_integrity.py`, `models.py` (`TraceExport`) | Envelope signing/encryption is now available; key lifecycle governance should continue to mature. | Add export-key rotation cadence and operational decryption validation drills. |
 
 ## 6) Connector & Integration Subsystems
 | Subsystem | Current Status | Evidence | Remaining Gap | Suggested Action |
@@ -141,31 +169,31 @@ The final three partial controls in Sections 5-8 are now implemented.
 | Connector Scope Enforcement Layer | Implemented | `backend/mcp_server/scope_enforcement.py`, `backend/mcp_server/registry.py`, `routes/mcp_routes.py` | Coverage should remain mandatory for every new connector tool surface. | Keep scope checks as a non-bypassable requirement for new connector registrations. |
 | External API Contract Validation | Implemented | `backend/mcp_server/contract_validation.py`, `backend/mcp_server/registry.py`, `core/mcp/mcp_server.py` | Contract depth can increase for richer schema variants. | Expand schema coverage (e.g., nested `oneOf`/`allOf` patterns) as connector payload complexity grows. |
 | Connector Rate Limiting | Implemented | `backend/llm_gateway/api.py` (API key RPM/daily limits) | Coverage should expand uniformly to additional connector endpoints as they are added. | Apply standard rate limiting decorators/policies to all connector-facing APIs. |
-| Immutable Evidence Capture System | Implemented | `backend/security/audit_logger.py` | Storage hardening depth can improve. | Replicate to immutable storage target for stronger forensic assurance. |
+| Immutable Evidence Capture System | Implemented | `backend/security/audit_logger.py` (immutable replica hash-chain + verification) | External WORM/object-lock target replication can further increase assurance. | Add optional object-lock/cloud immutable sink adapter for replica streams. |
 | File Sanitization & Path Validation Layer | Implemented | `backend/utils/safe_path.py`, `backend/routes/storage_routes.py` | Expansion to all future file-import surfaces should be enforced. | Require safe-path helpers for every new file-based connector path. |
 | SSRF Protection Layer (for web import) | Implemented | `backend/security/ssrf.py`, `backend/api_gateway/api_gateway.py`, `backend/enterprise_architecture.py` | Allowlist governance should remain tight as connectors expand. | Add explicit change-control logging for allowlist updates. |
 
 ## 7) Security & Compliance Subsystems
 | Subsystem | Current Status | Evidence | Remaining Gap | Suggested Action |
 |---|---|---|---|---|
-| Secrets Management System (OS vault integration) | Implemented | `backend/security/dpapi_store.py`, `backend/config.py`, `docs/archive/SECRETS.md` | Cross-platform vault-provider automation is limited. | Add native cloud vault client integration paths in settings/bootstrap. |
+| Secrets Management System (OS vault integration) | Implemented | `backend/security/secret_resolver.py`, `backend/security/dpapi_store.py`, `app.py`, `backend/config.py`, `config.py` | Runtime now enforces vault-backed sources in production; provider-specific adapters can still expand. | Add managed cloud vault adapters (AWS/Azure/GCP) for first-class bootstrap automation. |
 | Session Management Framework | Implemented | `backend/security/session_manager.py`, `app.py` | Non-Redis fallback path loses advanced controls. | Enforce managed session store in enterprise mode or add equivalent fallback controls. |
 | RBAC Enforcement Engine | Implemented | `backend/security/rbac.py`, `routes/admin_routes.py` | Dynamic policy lifecycle management can mature. | Persist/manage role policy state with auditable change workflow. |
-| Tenant Isolation Guard | Implemented | `backend/ukg_db.py`, `docs/API.md`, `docs/ARCHITECTURE.md` | Primarily app-layer enforcement; DB-layer hard isolation can be stronger. | Add database-level tenant isolation (e.g., Postgres RLS) plus regression tests. |
-| Audit Log Engine (tamper-evident) | Implemented | `backend/security/audit_logger.py` | Integrity verification is strong but storage immutability can improve. | Ship audit stream to append-only/immutable storage. |
+| Tenant Isolation Guard | Implemented | `backend/ukg_db.py`, `backend/security/tenant_rls.py`, `app.py`, `tests/unit/test_tenant_rls_controls.py` | Postgres RLS now enforced when enabled; tenant domain onboarding governance should remain rigorous. | Keep tenant-context propagation and RLS policy drift checks in release validation. |
+| Audit Log Engine (tamper-evident) | Implemented | `backend/security/audit_logger.py` | Tamper-evident and immutable replica chain implemented; external retention controls can be expanded. | Add external immutable retention replication policy and periodic restore drills. |
 | Redaction Framework (logs + exports) | Implemented | `backend/security/pii_redaction.py`, `backend/logging_config.py`, `backend/middleware/__init__.py` | Export redaction consistency can be expanded in all audit/export channels. | Enforce redaction in every export pipeline before serialization. |
 | Dependency Vulnerability Monitoring | Implemented | `backend/security/vulnerability_scanner.py`, `.github/workflows/security.yml` | Auto-remediation/escalation policy can strengthen. | Add critical-vuln CI fail gates and alert routing. |
-| Secure Configuration Management | Implemented | `backend/config/settings.py`, `config/config.env` | Production secret source hardening can improve. | Shift sensitive values to vault-backed runtime resolution in production. |
+| Secure Configuration Management | Implemented | `backend/config/settings.py`, `config/config.env`, `backend/security/secret_resolver.py`, `app.py` | Production vault-source enforcement added for runtime secrets; broader provider integrations remain open. | Expand secret-source policy checks to all service bootstrap entrypoints. |
 | Installer Integrity Verification | Implemented | `frontend/scripts/copy-installer-to-root.ps1`, `scripts/verify_installer_integrity.py`, `.github/workflows/deploy.yml` | Signature verification for signed binaries still depends on code-signing completion. | Keep checksum verification mandatory and pair with code-signing rollout. |
-| Code Signing Pipeline | Implemented | `.github/workflows/release-installer-signing.yml`, `scripts/windows/sign_release_installers.ps1`, `scripts/windows/verify_installer_signature.ps1`, `frontend/build_installer.ps1` | Certificate lifecycle governance and rotation runbook should remain active. | Add signer-certificate rotation drills and revocation-response playbooks. |
+| Code Signing Pipeline | Implemented | `.github/workflows/release-installer-signing.yml`, `.github/workflows/code-signing-governance.yml`, `scripts/windows/sign_release_installers.ps1`, `scripts/windows/verify_installer_signature.ps1`, `scripts/windows/verify_signing_certificate_health.ps1`, `frontend/build_installer.ps1` | Rotation/revocation drills now wired in pipeline; operational playbook depth can continue to improve. | Keep scheduled governance drill as required release/compliance signal. |
 
 ## 8) Observability & Operations Subsystems
 | Subsystem | Current Status | Evidence | Remaining Gap | Suggested Action |
 |---|---|---|---|---|
 | Structured Log Aggregation Strategy | Implemented | `backend/logging_config.py`, `app.py` | Deployment-time aggregation config consistency can improve. | Enforce `LOG_AGGREGATION_*` env policy and schema checks in CI. |
 | Application Metrics Collection | Implemented | `app.py` (`/metrics`, readiness/uptime/request metrics), `docs/PRODUCTION_READINESS.md` | Metric breadth and dimensionality can increase. | Add DB/cache/simulation metrics and latency histograms. |
-| AI Latency Monitoring | Implemented | `backend/llm_gateway/latency_metrics.py`, `backend/llm_gateway/gateway.py`, `app.py` (`/metrics`) | Alert policy tuning and SLO thresholds can mature. | Add Grafana/alert rule baselines for p95/p99 latency and error-rate burn alerts. |
-| Connector Latency Monitoring | Implemented | `backend/mcp_server/connector_metrics.py`, `backend/mcp_server/registry.py`, `app.py` (`/metrics`) | Coverage must stay mandatory for all new connector tools. | Gate connector PRs on telemetry coverage checks. |
+| AI Latency Monitoring | Implemented | `backend/llm_gateway/latency_metrics.py`, `backend/llm_gateway/gateway.py`, `backend/observability/latency_slo.py`, `app.py` (`/metrics`) | p95/p99 SLO baseline and violation gauges now live; dashboard/on-call tuning should continue in operations. | Maintain calibrated threshold reviews and incident postmortem tuning. |
+| Connector Latency Monitoring | Implemented | `backend/mcp_server/connector_metrics.py`, `backend/mcp_server/registry.py`, `backend/observability/latency_slo.py`, `app.py` (`/metrics`) | Connector p95/p99 SLO baseline and violation gauges now live; coverage should remain mandatory for all connector surfaces. | Keep connector telemetry coverage as merge gate for new tools. |
 | Diagnostic Tooling (support bundle generator) | Implemented | `scripts/generate_support_bundle.py`, `docs/OPERATIONAL_RUNBOOKS.md` | Bundle schema can expand with targeted service diagnostics. | Add optional deep-collection mode for incident triage windows. |
 | Crash Reporting System | Implemented | `backend/observability/crash_reporting.py`, `app.py`, `scripts/send_sentry_test_event.py`, `.github/workflows/deploy.yml`, `.github/workflows/security.yml` | Alert routing coverage should continue to be reviewed in production runbooks. | Keep periodic probe checks and on-call alert verification in release cadence. |
 | Deterministic Startup Validation | Implemented | `scripts/runtime_precheck.py`, `.github/workflows/ci.yml`, `.github/workflows/deploy.yml` | Release policies should retain deterministic flags as default path. | Keep strict precheck gate mandatory and store JSON reports as workflow artifacts. |
@@ -192,6 +220,13 @@ The final three partial controls in Sections 5-8 are now implemented.
 3. Implement database-level tenant isolation controls (Postgres RLS).
 4. Complete binary/installer code signing pipeline for distributables.
 5. Expand retention cleanups and backup restore drill automation.
+
+### Post-Baseline Hardening (`Completed 2026-02-16`)
+1. Enforced production vault-backed secret resolution for runtime session/bootstrap secrets.
+2. Added signed/encrypted export envelopes for trace/evidence bundles.
+3. Added immutable audit replica hash-chain verification controls.
+4. Added code-signing certificate rotation + revocation governance workflows.
+5. Added AI/connector p95-p99 latency SLO baseline and violation gauges.
 
 ## Verification Note
 - Report updated with code implementation and validation evidence from executed debug/test sweeps.

@@ -1,0 +1,45 @@
+name: Code Signing Governance
+
+on:
+  schedule:
+    - cron: '0 7 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  certificate-governance-drill:
+    name: Certificate Rotation and Revocation Drill
+    runs-on: windows-latest
+    if: ${{ secrets.WINDOWS_CODESIGN_CERT_BASE64 != '' && secrets.WINDOWS_CODESIGN_CERT_PASSWORD != '' }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Decode code-signing certificate
+      id: cert
+      env:
+        WINDOWS_CODESIGN_CERT_BASE64: ${{ secrets.WINDOWS_CODESIGN_CERT_BASE64 }}
+      run: |
+        $certPath = Join-Path $env:RUNNER_TEMP "codesign.pfx"
+        [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($env:WINDOWS_CODESIGN_CERT_BASE64))
+        "path=$certPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+    - name: Run certificate health + revocation drill
+      env:
+        WINDOWS_CODESIGN_CERT_PASSWORD: ${{ secrets.WINDOWS_CODESIGN_CERT_PASSWORD }}
+      run: |
+        powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/verify_signing_certificate_health.ps1 `
+          -CertificatePath "${{ steps.cert.outputs.path }}" `
+          -CertificatePassword "$env:WINDOWS_CODESIGN_CERT_PASSWORD" `
+          -MinDaysRemaining 60 `
+          -CheckRevocation `
+          -ReportPath "reports/codesigning_certificate_health_governance.json"
+
+    - name: Upload governance report
+      uses: actions/upload-artifact@v4
+      with:
+        name: codesigning-governance-report
+        path: reports/codesigning_certificate_health_governance.json
+        if-no-files-found: error

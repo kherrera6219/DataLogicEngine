@@ -6,12 +6,12 @@ REST API for accessing trace data with RBAC-aware filtering.
 
 import uuid
 import json
-import hashlib
 from datetime import datetime, UTC
 from flask import Blueprint, jsonify, request, Response
 from flask_login import login_required, current_user
 
 from extensions import db
+from backend.security.export_integrity import build_trace_export_document
 from models import (
     TraceRun, TraceStage, TraceEvidence, TraceClaim,
     TraceAxisVector, TracePersona, TraceKAInvocation,
@@ -285,6 +285,10 @@ def export_run(run_id):
     if run.user_id != current_user.id and not (hasattr(current_user, 'is_admin') and current_user.is_admin):
         return jsonify({'error': 'Access denied'}), 403
     
+    export_options = request.get_json(silent=True) or {}
+    sign_bundle = bool(export_options.get("sign_bundle", True))
+    encrypt_bundle = bool(export_options.get("encrypt_bundle", False))
+
     # Build export bundle
     bundle = {
         'run': run.to_dict(),
@@ -300,24 +304,22 @@ def export_run(run_id):
     # Add axis vector
     axis_vector = TraceAxisVector.query.filter_by(run_id=run_id).first()
     bundle['axes'] = axis_vector.to_dict() if axis_vector else None
-    
-    # Compute hashes
-    hashes = {}
-    for key, value in bundle.items():
-        if value:
-            hashes[key] = hashlib.sha256(json.dumps(value, sort_keys=True, default=str).encode()).hexdigest()
-    
-    bundle['hashes'] = hashes
-    bundle['manifest'] = {
-        'exported_at': datetime.now(UTC).isoformat(),
-        'exported_by': current_user.id,
-        'version': '1.0'
-    }
-    
+
+    try:
+        export_document = build_trace_export_document(
+            bundle,
+            exported_by=str(current_user.id),
+            sign_bundle=sign_bundle,
+            encrypt_bundle=encrypt_bundle,
+        )
+    except ValueError as exc:
+        return jsonify({'error': str(exc)}), 400
+
+    export_suffix = "encrypted" if encrypt_bundle else "signed"
     return Response(
-        json.dumps(bundle, indent=2, default=str),
+        json.dumps(export_document, indent=2, default=str),
         mimetype='application/json',
-        headers={'Content-Disposition': f'attachment; filename=run_{run_id}.json'}
+        headers={'Content-Disposition': f'attachment; filename=run_{run_id}_{export_suffix}.json'}
     )
 
 

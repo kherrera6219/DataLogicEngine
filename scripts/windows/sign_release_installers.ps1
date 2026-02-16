@@ -2,13 +2,31 @@ Param(
     [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path,
     [Parameter(Mandatory = $true)][string]$CertificatePath,
     [Parameter(Mandatory = $true)][string]$CertificatePassword,
-    [string]$TimestampUrl = "http://timestamp.digicert.com"
+    [string]$TimestampUrl = "http://timestamp.digicert.com",
+    [int]$MinimumCertificateDaysRemaining = 45,
+    [switch]$CheckCertificateRevocation,
+    [switch]$CheckSignatureRevocation
 )
 
 $ErrorActionPreference = "Stop"
 
 if (-not (Test-Path $CertificatePath)) {
     throw "Certificate file not found: $CertificatePath"
+}
+
+$certificateHealthScript = Join-Path $PSScriptRoot "verify_signing_certificate_health.ps1"
+if (-not (Test-Path $certificateHealthScript)) {
+    throw "Certificate health verification script not found: $certificateHealthScript"
+}
+
+& powershell -NoProfile -ExecutionPolicy Bypass -File $certificateHealthScript `
+    -CertificatePath $CertificatePath `
+    -CertificatePassword $CertificatePassword `
+    -MinDaysRemaining $MinimumCertificateDaysRemaining `
+    -CheckRevocation:$CheckCertificateRevocation
+
+if ($LASTEXITCODE -ne 0) {
+    throw "Certificate health verification failed."
 }
 
 $installers = Get-ChildItem -Path $RepoRoot -File -Filter "DataLogicEngine Setup *.exe" |
@@ -52,7 +70,10 @@ foreach ($installer in $installers) {
 }
 
 $verifyScript = Join-Path $PSScriptRoot "verify_installer_signature.ps1"
-& powershell -NoProfile -ExecutionPolicy Bypass -File $verifyScript -RepoRoot $RepoRoot -RequireArtifacts
+& powershell -NoProfile -ExecutionPolicy Bypass -File $verifyScript `
+    -RepoRoot $RepoRoot `
+    -RequireArtifacts `
+    -CheckRevocation:$CheckSignatureRevocation
 
 if ($LASTEXITCODE -ne 0) {
     throw "Post-signature verification failed."

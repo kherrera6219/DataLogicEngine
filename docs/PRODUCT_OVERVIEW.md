@@ -42,11 +42,15 @@ DataLogicEngine is a local-first AI orchestration application that combines:
 | Connector scope enforcement | MCP tool execution paths | Live | Runtime scope checks added with user/tenant context propagation |
 | Connector safety controls | API gateway/service discovery | Live | SSRF outbound validation + allowlist guardrails enforced |
 | Connector OAuth + contracts | Jira/Salesforce MCP tools | Live | Managed OAuth token lifecycle + runtime request/response contract validation |
-| Connector observability | `/metrics`, analytics MCP stats | Live | Connector latency/error telemetry exported |
-| AI latency observability | `/metrics` | Live | Gateway latency percentiles (`p50`/`p95`/`p99`) exported for alerting |
+| Connector observability | `/metrics`, analytics MCP stats | Live | Connector latency/error telemetry exported with p95/p99 SLO violation gauges |
+| AI latency observability | `/metrics` | Live | Gateway latency percentiles (`p50`/`p95`/`p99`) plus p95/p99 SLO violation gauges |
 | Data/integrity release gates | CI + deploy workflows | Live | Schema parity, installer checksum, deterministic startup precheck, and crash-reporting probe checks required in pipeline |
 | Snapshot + trace integrity | FROST + tracing services | Live | Snapshot and audit bundle hash/HMAC verification enforced |
-| Installer code signing | Release workflow | Live | Dedicated Windows release-signing workflow with signature verification |
+| Trace export authenticity | Trace export API | Live | Signed export manifests and optional encrypted payload envelopes |
+| Tenant DB isolation | Postgres-backed APIs | Live | Request-scoped tenant context + RLS policy bootstrap controls available |
+| Vault-backed secret enforcement | Runtime bootstrap | Live | Production runtime enforces secure secret sources (file/DPAPI/JSON/keyring) |
+| Immutable audit replication | Audit logger | Live | Hash-chain immutable replica stream + verification controls active |
+| Installer code signing | Release + governance workflows | Live | Signature verification plus certificate rotation/revocation drill workflows |
 | Crash reporting hardening | Global Flask error handlers + `/metrics` | Live | Fallback crash IDs and provider telemetry/probe hooks active |
 | Diagnostic tooling | Support bundle generator | Live | Sanitized support bundle script available for incident triage |
 | Public info/legal pages | `/about`, `/about/*`, `/legal/privacy` | Live | Informational pages available |
