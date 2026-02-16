@@ -6,32 +6,25 @@ Tests the PersonaSufficiencyTool, PodOrchestrator, and related components.
 
 import pytest
 import uuid
-from datetime import datetime, UTC
-from typing import Dict, Any
 
 # Import the modules to test
 from quad_persona.pod_models import (
     PodType,
     ExpandedPersona,
-    SubsystemProfile,
     SufficiencySignals,
     ExpansionPlan,
     ScalingDecision,
     PodState,
-    CrossPodConflict,
-    ScalingOrchestrationState
+    CrossPodConflict
 )
 from quad_persona.persona_scaling import (
     PersonaSufficiencyTool,
     HighAssuranceDetector,
-    SubsystemDetector,
-    DEFENSE_SUBSYSTEM_PROFILES,
-    SECTOR_SUBSYSTEM_PROFILES
+    SubsystemDetector
 )
 from quad_persona.pod_orchestrator import (
     PodOrchestrator,
     PersonaBuilder,
-    PodSynthesizer,
     CrossPodDeconfliction
 )
 

@@ -14,10 +14,9 @@ Tests for email functionality covering:
 """
 
 import pytest
-from unittest.mock import Mock, patch, MagicMock, call
+from unittest.mock import patch
 from flask import Flask
 from flask_mail import Message
-import threading
 
 from backend.email_service import (
     init_mail,

@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.11] - 2026-02-16
+
+### Changed
+- Lint phase cleanup for automated test suites (74 files under `tests/`) focused on safe correctness-preserving fixes:
+  - removed unused imports/variables and duplicate unused captures
+  - normalized dead temporary bindings in fixtures and mocks
+  - restored explicit simulation-engine factory import in `tests/end_to_end/test_full_simulation.py` to eliminate undefined-name lint debt
+- Test lint safety subset is now clean for `F401`, `F541`, `F811`, and `F841`.
+
+### Testing
+- Debug/error sweep completed for the tests phase:
+  - `.venv\Scripts\python.exe -m ruff check tests --select F401,F541,F841,F811` (pass)
+  - `.venv\Scripts\python.exe -m ruff check tests --select E9,F63,F7,F821` (pass)
+  - `.venv\Scripts\python.exe -m py_compile` across all modified `tests/` files (pass)
+  - `.venv\Scripts\python.exe -m pytest -q -o addopts='' tests/unit/test_unified_middleware.py tests/unit/test_middleware_units.py tests/integration/test_api_endpoints.py tests/security/test_audit_logger_comprehensive.py` (`96 passed`)
+  - `npm --prefix frontend run lint` (pass)
+  - `npm --prefix frontend run typecheck` (pass)
+- Known non-blocking remaining style debt in `tests/` after this phase:
+  - `E402`: 15
+  - `E712`: 10
+  - `E721`: 6
+  - `E401`: 1
+
 ## [4.1.10] - 2026-02-16
 
 ### Changed

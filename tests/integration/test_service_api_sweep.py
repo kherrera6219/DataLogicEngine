@@ -1,16 +1,13 @@
 
 import pytest
-from unittest.mock import MagicMock, patch, ANY
-from flask import Flask, jsonify
-from datetime import datetime, UTC
-import uuid
-import json
+from unittest.mock import MagicMock, patch
+from flask import Flask
 
 # Target modules
 from backend.regulatory_api import regulatory_api
 from backend.time_api import time_api
-from backend.services.file_upload_service import FileUploadService, UploadedFile
-from backend.graphql_schema import schema, graphql_view, register_graphql
+from backend.services.file_upload_service import FileUploadService
+from backend.graphql_schema import register_graphql
 
 @pytest.fixture
 def app():
@@ -206,7 +203,6 @@ class TestGraphQLAPI:
         mock_user.role = "admin"
         mock_user.is_admin = True
         
-        query = "{ me { id username role is_admin } }"
         response = client.post('/graphql', json={'query': '{ me { username email role isAdmin } }'})
         assert response.status_code == 200
         data = response.get_json()

@@ -1,7 +1,6 @@
 import unittest
 import os
 import sys
-from unittest.mock import MagicMock, patch
 
 # Add project root to path
 sys.path.append(os.getcwd())

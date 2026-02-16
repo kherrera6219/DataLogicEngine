@@ -1,15 +1,12 @@
 
 import pytest
 from unittest.mock import MagicMock, patch, mock_open
-from datetime import datetime, timedelta, UTC
-import json
 
 from backend.security.zero_trust import (
     ZeroTrustManager, 
     TrustScoreCalculator, 
     AccessContext, 
     DeviceFingerprint,
-    TrustLevel,
     RiskLevel
 )
 

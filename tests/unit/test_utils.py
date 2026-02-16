@@ -1,6 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 from backend.utils.validation import Validator, ValidationError, validate_json_body, validate_query_params
 from backend.utils.pagination import PaginationParams, paginate_list
 from backend.utils.responses import success_response, error_response
@@ -181,7 +180,6 @@ def test_validate_query_params(mock_flask_app):
 
 from backend.utils.safe_path import get_safe_path
 import os
-import pytest
 
 def test_get_safe_path():
     base = os.getcwd()

@@ -3,7 +3,6 @@ End-to-end simulation pipeline tests.
 Tests complete simulation flow from query to final synthesis.
 """
 import pytest
-from unittest.mock import Mock, patch, MagicMock
 from simulation.simulation_engine import SimulationEngine
 
 

@@ -1,8 +1,7 @@
 
 import pytest
 from flask import Flask, request, jsonify
-from unittest.mock import MagicMock, patch
-import io
+from unittest.mock import patch
 import hashlib
 
 from backend.middleware.correlation_id import CorrelationIdMiddleware
@@ -111,7 +110,7 @@ def test_request_limits_length(app):
 # Signal based timeout is hard to test in simple unit test on Windows/Threaded,
 # mock signal if possible or test the logic
 def test_timeout_config(app):
-    rt = RequestTimeout(app, timeout=50)
+    RequestTimeout(app, timeout=50)
     assert app.config['REQUEST_TIMEOUT'] == 50
 
 @patch("backend.middleware.timeout.signal")

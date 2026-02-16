@@ -10,13 +10,10 @@ Tests for Multi-Factor Authentication including:
 - MFA decorators
 """
 
-import pytest
 import pyotp
-import time
 from datetime import datetime, timedelta, UTC
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock
 from backend.security.mfa import MFAManager, require_mfa, step_up_required
-from models import User
 
 
 class TestMFASecretGeneration:
@@ -649,8 +646,8 @@ class TestRequireMFADecorator:
 
     def test_require_mfa_decorator_allows_mfa_verified_user(self):
         """Test decorator allows MFA-verified users"""
-        from flask import Flask, session
-        from flask_login import LoginManager, login_user
+        from flask import Flask
+        from flask_login import LoginManager
 
         app = Flask(__name__)
         app.config['SECRET_KEY'] = 'test-secret-key'
@@ -866,10 +863,6 @@ class TestMFAIntegration:
 
         # User sets up new MFA
         new_secret, _, new_backup_codes = MFAManager.setup_mfa(username)
-
-        # Old secret shouldn't work
-        old_totp = pyotp.TOTP(secret)
-        old_code = old_totp.now()
 
         # New secret should work
         new_totp = pyotp.TOTP(new_secret)

@@ -1,7 +1,7 @@
 
 import pytest
 from unittest.mock import MagicMock, patch
-from flask import Flask, jsonify
+from flask import Flask
 from flask_login import LoginManager
 
 # Import blueprint - assuming existing environment

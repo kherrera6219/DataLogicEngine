@@ -1,11 +1,9 @@
 
 import pytest
-from unittest.mock import MagicMock, patch, AsyncMock
-from flask import Flask, jsonify, g
+from unittest.mock import MagicMock, patch
+from flask import Flask, jsonify
 from flask_login import LoginManager, UserMixin
 import sys
-import json
-import asyncio
 
 # --- Mocks & Fixtures ---
 

@@ -1,14 +1,12 @@
 
 import pytest
-import unittest.mock
 from unittest.mock import MagicMock, patch, mock_open
-from flask import Flask, request
+from flask import Flask
 from backend.utils.validation import Validator, ValidationError, validate_json_body, validate_query_params
 from backend.utils.safe_path import get_safe_path
 from backend.utils.pagination import PaginationParams, paginate_list, pagination_meta, paginate_query, settings
 from backend.data_loader import UkgDataLoader
 import os
-import json
 
 # --- Fixtures ---
 

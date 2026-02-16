@@ -5,8 +5,6 @@ Hardening verification for Truth Engine v7.4.
 """
 
 import pytest
-import uuid
-from datetime import datetime
 from core.system.unified_identity_service import UnifiedIdentityService
 from core.system.unified_numbering_service import UnifiedNumberingService
 from core.system.frost_service import FROSTService

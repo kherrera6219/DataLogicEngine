@@ -3,10 +3,8 @@ Integration tests for API endpoints.
 Tests authentication, UKG operations, and simulation endpoints.
 """
 import pytest
-from flask import Flask
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 from app import app, db
-from models import User, SimulationSession
 
 
 from extensions import limiter
@@ -60,7 +58,7 @@ def authenticated_client(client):
         'confirm_password': test_pass
     })
 
-    response = client.post('/api/v1/auth/login', json={
+    client.post('/api/v1/auth/login', json={
         'username': 'testuser',
         'password': test_pass
     })

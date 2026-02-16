@@ -60,7 +60,7 @@ def test_ka_instantiation_and_run(ka_id, impl_path):
     }
 
     # Execute with patching to prevent side effects (network, IO)
-    with patch('builtins.open', new_callable=MagicMock) as mock_open:
+    with patch('builtins.open', new_callable=MagicMock):
         # Mock generic IO just in case
         try:
             result = run_func(context)

@@ -2,16 +2,14 @@
 import pytest
 import os
 import json
-import socket
 from datetime import datetime, UTC, timedelta
-from unittest.mock import MagicMock, patch, mock_open, ANY
-from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 # Import targets
-from backend.security.security_monitoring import SecurityMonitor, SecurityEventType, ThreatLevel, SecurityAlert
+from backend.security.security_monitoring import SecurityMonitor, SecurityEventType, ThreatLevel
 from backend.security.session_manager import SessionManager
-from backend.storage.connection_manager import ConnectionManager, ConnectionMode, StorageConfig
-from backend.storage.object_store import ObjectStore, LocalFileBackend, S3Backend, ObjectInfo
+from backend.storage.connection_manager import ConnectionManager, ConnectionMode
+from backend.storage.object_store import ObjectStore, LocalFileBackend
 
 @pytest.fixture
 def mock_audit_logger():
@@ -192,5 +190,5 @@ class TestObjectStore:
             mock_cm.return_value.config.object_storage.access_key = "key"
             
             with patch("backend.storage.object_store.S3Backend") as mock_s3:
-                store = ObjectStore()
+                ObjectStore()
                 assert mock_s3.called

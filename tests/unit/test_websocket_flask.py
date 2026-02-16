@@ -1,8 +1,8 @@
 
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from backend.websocket import init_socketio, handle_connect, handle_disconnect, handle_join, handle_leave, handle_chat_message
-from flask import Flask, request
+from flask import Flask
 
 @pytest.fixture
 def app():

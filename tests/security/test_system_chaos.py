@@ -1,9 +1,8 @@
 import pytest
-import json
 import logging
 from backend.security.pii_redaction import pii_redactor
 from backend.security.prompt_injection_shield import validate_user_input
-from backend.utils.exceptions import UKGException, SecurityBreachError
+from backend.utils.exceptions import SecurityBreachError
 
 # Configure test logger to verify redaction
 test_log_capture = []

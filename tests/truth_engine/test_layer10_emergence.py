@@ -1,9 +1,8 @@
 import pytest
-from datetime import datetime, UTC
 from typing import Dict, Any
 
 from backend.truth_engine.truth_core.l10_schemas import (
-    L10Input, L10Result, L10Decision, EmergenceLevel, TrustGateResult
+    L10Input, L10Decision, EmergenceLevel
 )
 from backend.truth_engine.truth_core.emergence_controller import EmergenceDetectionController
 

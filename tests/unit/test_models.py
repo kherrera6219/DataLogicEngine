@@ -1,25 +1,15 @@
 
 import pytest
-from unittest.mock import MagicMock, patch, ANY
-from datetime import datetime, timedelta, UTC
-import sys
+from unittest.mock import MagicMock, patch
+from datetime import datetime
 import uuid
 from flask import Flask
 from sqlalchemy.exc import SQLAlchemyError
 import base64
 
-# Ensure root is in path (it usually is with pytest)
-# We import extensions directly since it is in root
-try:
-    import extensions
-except ImportError:
-    # Fallback/Debug if path is wrong
-    pass
-
 from models import (
     User, SimulationSession, LLMProvider, ExternalAPIKey, 
-    TraceRun, TraceStage, KnowledgeGraphNode, KnowledgeGraphEdge,
-    AuditLog, PasswordHistory, ChatSession, ChatMessage
+    TraceRun, TraceStage, KnowledgeGraphNode
 )
 
 from backend import create_legacy_app
@@ -99,7 +89,7 @@ def test_user_login_atomic(app):
     
     # Patch db.session on the models module where it is used
     with patch('models.db.session') as mock_session:
-        with patch('models.db.update') as mock_update:
+        with patch('models.db.update'):
              # record_failed_login
              user.record_failed_login()
              mock_session.execute.assert_called()

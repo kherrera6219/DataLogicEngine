@@ -1,8 +1,6 @@
 
 import pytest
 import uuid
-from datetime import datetime
-from unittest.mock import MagicMock
 from models import (
     KnowledgeGraphEdge, OAuthAccount, PasswordHistory, AuditLog,
     LLMProviderUsage, ExternalAPIKey, ChatSession, ChatMessage,

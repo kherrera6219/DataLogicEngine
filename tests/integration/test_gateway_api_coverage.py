@@ -1,7 +1,7 @@
 
 import pytest
 from unittest.mock import MagicMock, patch, AsyncMock
-from flask import Flask, jsonify, g
+from flask import Flask, jsonify
 from flask_login import LoginManager, UserMixin
 
 # Mock models

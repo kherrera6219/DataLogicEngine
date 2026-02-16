@@ -17,7 +17,7 @@ import os
 import tempfile
 import shutil
 from datetime import datetime, timedelta, UTC
-from unittest.mock import Mock, patch, MagicMock, mock_open
+from unittest.mock import patch
 import hashlib
 import csv
 
@@ -28,7 +28,6 @@ from backend.security.audit_logger import AuditLogger
 def temp_audit_dir():
     """Create temporary directory for audit logs"""
     temp_dir = tempfile.mkdtemp()
-    original_logs_dir = "logs/audit"
 
     # Create logs/audit in temp directory
     os.makedirs(os.path.join(temp_dir, "logs", "audit"), exist_ok=True)
@@ -383,7 +382,6 @@ class TestLogRotation:
 
     def test_log_rotation_changes_date(self, audit_logger, monkeypatch):
         """Test log rotation on date change"""
-        original_date = audit_logger.current_date
         original_file = audit_logger.current_log_file
 
         # Simulate date change
@@ -578,8 +576,6 @@ class TestErrorHandling:
                 raise IOError("Cannot write to audit log")
             return open(filename, *args, **kwargs)
 
-        import builtins
-        original_open = builtins.open
         monkeypatch.setattr("builtins.open", mock_open_wrapper)
 
         audit_logger.log_audit_event(event_type="test")
@@ -691,7 +687,7 @@ class TestCompliance:
 
     def test_audit_completeness(self, audit_logger):
         """Test all critical fields are logged"""
-        event_id = audit_logger.log_audit_event(
+        audit_logger.log_audit_event(
             event_type="compliance_test",
             user_id="user123",
             resource_id="res456",
@@ -712,7 +708,7 @@ class TestCompliance:
 
     def test_audit_traceability(self, audit_logger):
         """Test audit events can be traced back to source"""
-        event_id = audit_logger.log_api_request(
+        audit_logger.log_api_request(
             request_id="req123",
             user_id="user456",
             endpoint="/api/v1/data",
@@ -722,7 +718,6 @@ class TestCompliance:
 
         # Should be able to find event by various criteria
         events_by_user = audit_logger.get_audit_events(user_id="user456")
-        events_by_request = audit_logger.get_audit_events()  # Would filter by request_id in real implementation
 
         assert len(events_by_user) > 0
 

@@ -1,8 +1,5 @@
 import pytest
-import asyncio
-from typing import Dict, Any
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
-from backend.truth_engine.truth_core.personas import PersonaEnhancer, PersonaPod
 from backend.truth_engine.truth_core.persona_sufficiency import PersonaSufficiencyTool, SufficiencyMode
 from backend.api_gateway.unified_middleware import UnifiedMiddleWare
 
@@ -75,7 +72,6 @@ async def test_parallel_pod_execution(engine):
     persona_results = result_session.get('context', {}).get('persona_results', {})
     print(f"Persona Results Keys: {persona_results.keys()}")
 
-    result = result_session['result']
     assert result_session['status'] == 'completed'
     
     pod_keys = [k for k in persona_results.keys() if "_pod" in k]

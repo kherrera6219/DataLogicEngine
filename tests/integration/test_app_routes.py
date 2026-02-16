@@ -1,5 +1,4 @@
 import importlib
-import pytest
 
 
 def test_index_route_renders(monkeypatch):

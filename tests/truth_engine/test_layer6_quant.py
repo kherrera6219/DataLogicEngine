@@ -1,6 +1,4 @@
-import pytest
 from backend.truth_engine.truth_gate.quant import QuantValidationService
-from backend.truth_engine.truth_gate.schemas import QuantBundle
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
 
 class TestLayer6QuantValidation:

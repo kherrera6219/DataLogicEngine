@@ -3,8 +3,7 @@ Comprehensive tests for KA Master Controller.
 Tests validate Phase 2 KA integration completeness.
 """
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-from datetime import datetime, timedelta
+from unittest.mock import patch, MagicMock
 from backend.knowledge_algorithms.ka_master_controller import KAMasterController
 
 

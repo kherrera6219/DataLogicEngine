@@ -3,7 +3,7 @@ Comprehensive tests for Persona Axes (Axes 8-11).
 Tests validate Phase 2 persona system implementation.
 """
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock
 from core.axes.axis8_knowledge_expert import KnowledgeExpertAxis
 from core.axes.axis9_sector_expert import SectorExpertAxis
 from core.axes.axis10_regulatory_expert import RegulatoryExpertAxis

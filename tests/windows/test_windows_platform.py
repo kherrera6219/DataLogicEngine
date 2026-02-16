@@ -1,5 +1,4 @@
 import pytest
-import os
 import sys
 from backend.security.dpapi_store import encrypt_data, decrypt_data
 from backend.auth.windows_identity import get_windows_user_identity

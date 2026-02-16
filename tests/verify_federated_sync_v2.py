@@ -5,7 +5,6 @@ Tests the end-to-end sync between two mock tenants.
 import sys
 import os
 import asyncio
-import uuid
 import logging
 from unittest.mock import MagicMock
 
@@ -80,7 +79,7 @@ async def test_federated_sync():
     
     assert result_in["success"] is True
     assert result_in["ingested_count"] == 1
-    logger.info(f"PASSED: Tenant B successfully ingested federated claim.")
+    logger.info("PASSED: Tenant B successfully ingested federated claim.")
 
     # 3. Verify Sync Engine logic directly
     logger.info("Verifying ZKP validation in Sync Engine...")

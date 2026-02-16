@@ -1,9 +1,8 @@
 import pytest
 import asyncio
 import uuid
-from datetime import datetime, UTC
 from unittest.mock import AsyncMock, MagicMock, patch
-from backend.llm_gateway.gateway import LLMGateway, GatewayRequest, GatewayResponse, CircuitBreaker
+from backend.llm_gateway.gateway import LLMGateway, GatewayRequest, CircuitBreaker
 
 @pytest.fixture
 def mock_db():

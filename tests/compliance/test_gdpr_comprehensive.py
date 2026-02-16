@@ -12,11 +12,8 @@ Tests for GDPR compliance endpoints covering:
 
 import pytest
 import json
-import io
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch
 from datetime import datetime, timedelta, UTC
-from flask import Flask
-from flask_login import login_user, logout_user
 
 
 class TestGDPRDataExport:

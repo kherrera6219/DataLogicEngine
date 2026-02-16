@@ -12,12 +12,10 @@ Tests cover:
 """
 
 import pytest
-from flask import Flask
 from werkzeug.security import generate_password_hash
 
 from app import app, db
-from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge
-from extensions import limiter
+from models import User
 
 
 @pytest.fixture

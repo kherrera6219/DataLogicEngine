@@ -3,7 +3,7 @@ Comprehensive tests for simulation engine layers (Layers 1-10).
 Tests validate Phase 2 implementation completeness.
 """
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock
 from core.simulation.layer4_reasoning import Layer4ReasoningEngine
 from core.simulation.layer5_integration import Layer5IntegrationEngine
 from core.simulation.layer6_enhancement import Layer6EnhancementEngine

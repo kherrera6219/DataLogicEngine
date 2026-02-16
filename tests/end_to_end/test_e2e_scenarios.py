@@ -1,7 +1,6 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator, RefinementStep
-from backend.llm_gateway.gateway import LLMGateway
 
 @pytest.fixture
 def orchestrator():

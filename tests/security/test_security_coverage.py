@@ -1,10 +1,7 @@
 
 import pytest
 import os
-import time
-import json
 from unittest.mock import MagicMock, patch, mock_open
-from datetime import datetime, UTC
 
 # Import the modules under test
 # We use patch.dict in the fixture to ensure clean imports if needed, 
@@ -26,8 +23,8 @@ class TestSecurityManager:
     def security_manager(self, mock_fs):
         """Initialize SecurityManager with mocked threads and FS."""
         with patch("threading.Thread"), \
-             patch.object(SecurityManager, "_initialize_encryption") as mock_init_enc:
-            
+             patch.object(SecurityManager, "_initialize_encryption"):
+             
             # Mock the cipher directly since we mocked _initialize_encryption
             sm = SecurityManager()
             sm.cipher = MagicMock()

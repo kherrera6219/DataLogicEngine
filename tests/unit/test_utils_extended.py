@@ -1,9 +1,8 @@
 
 import pytest
-from flask import Flask, jsonify
+from flask import Flask
 from backend.utils.exceptions import UKGException, ValidationError, AuthenticationError, ResourceNotFoundError, SecurityBreachError
 from backend.utils.responses import api_response, error_response
-from unittest.mock import MagicMock
 
 # --- Tests for exceptions.py ---
 

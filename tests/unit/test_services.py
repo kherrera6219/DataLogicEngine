@@ -1,16 +1,15 @@
 
 import pytest
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import MagicMock, patch
 import sys
 import os
-import io
 import logging
 
 from backend.services.analytics_service import AnalyticsService
 from backend.services.document_processor import DocumentProcessor
 from backend.services.rag_service import RAGService
 from backend.services.video_service import VideoService
-from backend.services.file_upload_service import FileUploadService, UploadedFile
+from backend.services.file_upload_service import FileUploadService
 
 # --- Analytics Service Tests ---
 

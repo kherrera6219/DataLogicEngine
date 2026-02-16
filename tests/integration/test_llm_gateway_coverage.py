@@ -1,5 +1,3 @@
-import pytest
-import json
 
 def test_gateway_health(client):
     """Test health check endpoint."""

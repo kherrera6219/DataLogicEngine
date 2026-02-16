@@ -5,7 +5,7 @@ Tests PASS/WARN/FAIL gate decisions, KA integration, and fail-closed behavior.
 """
 
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from backend.truth_engine.truth_gate.trust_validation_gateway import TrustValidationGateway
 from backend.truth_engine.truth_gate.l8_schemas import L8Input, GateDecision
 

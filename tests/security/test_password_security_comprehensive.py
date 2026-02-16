@@ -10,8 +10,7 @@ Tests for:
 - Edge cases and error handling
 """
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from datetime import datetime, timedelta, UTC
 from backend.security.password_security import PasswordSecurity
 import requests

@@ -13,8 +13,7 @@ Tests for User model methods and properties including:
 
 import pytest
 from datetime import datetime, timedelta, timezone
-from unittest.mock import Mock, patch, MagicMock
-from sqlalchemy.exc import SQLAlchemyError
+from unittest.mock import patch
 
 from models import User, db
 

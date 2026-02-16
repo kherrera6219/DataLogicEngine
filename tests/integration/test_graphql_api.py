@@ -7,7 +7,6 @@ Tests the following:
 - Error handling
 """
 
-import pytest
 import json
 
 

@@ -1,5 +1,4 @@
 import pytest
-import uuid
 from unittest.mock import MagicMock, patch
 from backend.ukg_db import UkgDatabaseManager
 
@@ -19,8 +18,8 @@ def db_manager(mock_db, mock_cache):
     with patch('backend.ukg_db.db', mock_db), \
          patch('backend.ukg_db.cache', mock_cache), \
          patch('backend.ukg_db.Node') as MockNode, \
-         patch('backend.ukg_db.Edge') as MockEdge, \
-         patch('backend.ukg_db.KAExecution') as MockKA:
+         patch('backend.ukg_db.Edge'), \
+         patch('backend.ukg_db.KAExecution'):
         manager = UkgDatabaseManager(tenant_id="tenant-1")
         # Store mocks on the manager for easy access in tests if needed
         manager._mock_db = mock_db

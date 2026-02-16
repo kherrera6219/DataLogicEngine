@@ -7,7 +7,6 @@ Tests the following actual endpoints:
 - GET /api/v1/analytics/mcp
 """
 
-import pytest
 
 
 class TestAnalyticsEndpoints:

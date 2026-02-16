@@ -1,16 +1,12 @@
 
 import pytest
-import asyncio
-import uuid
-from datetime import datetime, UTC
 from unittest.mock import MagicMock, patch, AsyncMock, ANY
-from flask import Flask
 
 # Import targets
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
 from backend.truth_engine.truth_core.meta_reasoning_controller import MetaReasoningController, L9Decision, RefinementSeverity
-from backend.truth_engine.truth_core.l9_schemas import L9Input, L9Result
-from backend.llm_gateway.gateway import GatewayRequest, GatewayResponse, CircuitBreaker
+from backend.truth_engine.truth_core.l9_schemas import L9Input
+from backend.llm_gateway.gateway import GatewayRequest, CircuitBreaker
 
 @pytest.fixture
 def mock_ka_controller():

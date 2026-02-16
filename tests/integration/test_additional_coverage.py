@@ -1,17 +1,10 @@
 
 import pytest
-import json
-import uuid
-from datetime import datetime, UTC
 from unittest.mock import Mock, patch, MagicMock
-from flask import Flask, url_for
-import backend.storage
-import backend.routes.location_routes
 
 # Import models/extensions for mocking
 try:
     from app import app, db
-    from models import Location, User, ChatSession, ChatMessage, KnowledgeGraphNode
 except ImportError:
     # Handle environment where app isn't fully set up for direct model imports
     pass
@@ -140,7 +133,7 @@ def test_location_features_extended(authenticated_client):
     """Test specialized location features like filtering and hierarchy root"""
     # 1. Setup multiple locations
     p1 = authenticated_client.post('/api/locations', json={'name': 'Region A', 'location_type': 'region'}).get_json()['location']
-    p2 = authenticated_client.post('/api/locations', json={'name': 'Region B', 'location_type': 'region'}).get_json()['location']
+    authenticated_client.post('/api/locations', json={'name': 'Region B', 'location_type': 'region'}).get_json()['location']
     
     c1 = authenticated_client.post('/api/locations', json={
         'name': 'Office 1', 

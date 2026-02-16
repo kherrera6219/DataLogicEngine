@@ -11,7 +11,6 @@ Tests cover:
 """
 
 import pytest
-from unittest.mock import Mock, patch
 
 
 class TestL9Schemas:
@@ -216,8 +215,6 @@ class TestL9KAs:
     def test_trace_analyzer_ka(self):
         """Test L9-KA-001 Trace Analyzer."""
         from backend.knowledge_algorithms.l9.l9_ka_001_trace_analyzer import TraceAnalyzerKA
-        from backend.knowledge_algorithms.l9.l9_ka_002_belief_drift import BeliefDriftDetectorKA
-        from backend.knowledge_algorithms.l9.l9_ka_005_recursion_trigger import RecursionTriggerKA
         
         ka = TraceAnalyzerKA()
         

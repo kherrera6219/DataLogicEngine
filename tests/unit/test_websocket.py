@@ -7,8 +7,7 @@ Tests the following:
 - Room subscription
 """
 
-import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 
 class TestWebSocketClient:

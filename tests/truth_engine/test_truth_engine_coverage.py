@@ -1,7 +1,6 @@
 
 import pytest
-import asyncio
-from unittest.mock import MagicMock, patch, AsyncMock
+from unittest.mock import MagicMock, patch
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
 from backend.truth_engine.truth_core.router import LLMRouter
 

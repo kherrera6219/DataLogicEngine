@@ -1,5 +1,4 @@
 import pytest
-import uuid
 from typing import Dict, Any
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
 

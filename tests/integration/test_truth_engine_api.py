@@ -1,6 +1,4 @@
-import pytest
 import json
-import uuid
 
 def test_truth_engine_health(client):
     """Test Truth Engine health check."""

@@ -1,15 +1,14 @@
 
 import pytest
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import MagicMock, patch
 import sys
-import io
 from flask import Flask
-from datetime import datetime, timedelta, UTC
+from datetime import datetime
 
 # Explicitly import services
-from backend.email_service import send_email, send_password_reset_email, init_mail
+from backend.email_service import send_email, init_mail
 from backend.export_service import (
-    export_simulation_to_csv, export_simulation_to_json, export_nodes_to_csv, 
+    export_simulation_to_csv, export_nodes_to_csv, 
     generate_pdf_report, export_to_excel
 )
 from backend.search_service import search_knowledge_nodes, global_search
@@ -38,7 +37,7 @@ def test_email_init(app):
 def test_send_email_mock(app, caplog):
     # Patch Message to avoid real Flask-Mail Message creation issues
     with patch('backend.email_service.mail') as mock_mail_obj, \
-         patch('backend.email_service.Message') as mock_msg_cls:
+         patch('backend.email_service.Message'):
         
         with patch('backend.email_service.Thread') as mock_thread:
             # Sync

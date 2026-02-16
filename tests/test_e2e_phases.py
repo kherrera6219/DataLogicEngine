@@ -77,7 +77,6 @@ async def run_functional_tests():
     print("\n[4/10] Testing MCP Enterprise Tools...")
     try:
         # Import triggers registration
-        import backend.mcp_server.tools
         tools_list = registry.list_tools()
         tool_names = [t['name'] for t in tools_list]
         assert "salesforce_crm_lookup" in tool_names

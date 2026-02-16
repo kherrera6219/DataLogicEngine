@@ -2,12 +2,8 @@
 import os
 import unittest
 from unittest import mock
-from datetime import timedelta
-from flask import Flask, session
-from flask_login import LoginManager, UserMixin
 from app import app, db, User
 import pyotp
-from models import TraceRun
 
 class TestCriticalFixes(unittest.TestCase):
     def setUp(self):
@@ -89,7 +85,6 @@ class TestCriticalFixes(unittest.TestCase):
         # Extract secret from context or HTML (mocking the secret for test)
         # We'll just set it directly on the user for the test
         user = User.query.filter_by(username='testuser').first()
-        import pyotp
         secret = pyotp.random_base32()
         user.mfa_secret = secret
         db.session.commit()

@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from backend.knowledge_algorithms.ka_master_controller import KAMasterController
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
 

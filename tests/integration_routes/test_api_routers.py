@@ -1,9 +1,8 @@
 
 import pytest
-from unittest.mock import MagicMock, patch, AsyncMock
-from flask import Flask, jsonify, g
+from unittest.mock import MagicMock, patch
+from flask import Flask, jsonify
 import sys
-import json
 
 # --- Mocks ---
 

@@ -15,7 +15,7 @@ import pytest
 import threading
 import time
 from datetime import datetime, timedelta
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch
 from models import User, db
 from sqlalchemy.exc import SQLAlchemyError
 

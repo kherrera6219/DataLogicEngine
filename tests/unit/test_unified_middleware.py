@@ -1,4 +1,3 @@
-import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 from backend.api_gateway.unified_middleware import UnifiedMiddleWare
@@ -40,29 +39,7 @@ def test_middleware_blocks_sql_injection():
         assert response.json()["code"] == "SECURITY_VIOLATION"
 
 def test_middleware_blocks_xss_injection():
-    # Test XSS patterns
-    malicious_inputs = [
-        "<script>alert(1)</script>",
-        "javascript:alert(1)",
-        "onload=alert(1)"
-    ]
-    
-    # Simple check - our sanitized regex might catch some of these via CMD/SQL patterns
-    # or general suspicious chars. The UnifiedMiddleware implements specific regexes.
-    # Let's ensure at least obviously bad stuff like script tags triggering 'suspicious' logic if covered
-    # Actually UnifiedMiddleware checks CMD_PATTERNS which includes < > sometimes?
-    # Let's check the implementation: it has SQL, CMD, PATH patterns.
-    # CMD_PATTERNS has [;&|`$]. <script> might not be caught by current CMD/SQL regexes unless expanded.
-    # Re-reading implementation:
-    # CMD_PATTERNS = [re.compile(r"[;&|`$]"), ...]
-    # So '&' or ';' in a typical XSS payload like "foo&bar" might trigger it.
-    
-    response = client.get("/test?q=<script>alert('xss')</script>")
-    # The ; in the script might filter it, or the < > if we were strict. 
-    # Current implementation in unified_middleware.py checks [;&|`$]
-    # So <script>... will pass UNLESS it has those chars. 
-    # Let's test a payload known to trigger the CMD filter
-    
+    # Middleware currently blocks command/meta characters first; assert that path.
     response = client.get("/test?q=cat /etc/passwd | grep root")
     assert response.status_code == 400
 

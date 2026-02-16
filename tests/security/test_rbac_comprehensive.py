@@ -12,7 +12,7 @@ Tests for:
 """
 
 import pytest
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, patch
 from backend.security.rbac import (
     Permission,
     Role,
@@ -22,7 +22,7 @@ from backend.security.rbac import (
     require_any_permission,
     require_all_permissions
 )
-from datetime import datetime, UTC
+from datetime import datetime
 
 
 class TestPermissionEnum:
@@ -924,7 +924,7 @@ class TestRBACIntegration:
 
         # Create role
         permissions = {Permission.UKG_READ, Permission.SIMULATION_READ}
-        role = rbac.create_role("temp_role", permissions, "Temporary role")
+        rbac.create_role("temp_role", permissions, "Temporary role")
 
         # Assign to user
         user = Mock()

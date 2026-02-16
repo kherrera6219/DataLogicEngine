@@ -1,6 +1,5 @@
 import importlib
 
-import pytest
 
 
 def test_password_policy_accepts_strong_password(monkeypatch):
