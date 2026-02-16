@@ -15,6 +15,7 @@ __all__ = [
     'ExternalAPIKey',
     # Gateway
     'LLMGateway',
+    'gateway_bp',
     'BaseProvider',
     'OpenAIProvider',
     'AzureOpenAIProvider',

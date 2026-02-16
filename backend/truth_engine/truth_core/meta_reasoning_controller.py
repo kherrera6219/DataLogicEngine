@@ -25,7 +25,6 @@ Required KAs (L9 Suite):
 
 import logging
 import time
-from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional, Tuple
 
 from .l9_schemas import (
@@ -433,7 +432,7 @@ class MetaReasoningController:
         # KA integration (L9-KA-003)
         if self.ka_controller:
             try:
-                result = self.ka_controller.execute_algorithm("L9-KA-003", {
+                self.ka_controller.execute_algorithm("L9-KA-003", {
                     "domain_confidences": domain_confs
                 })
                 kas_invoked.append("L9-KA-003")

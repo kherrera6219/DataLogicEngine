@@ -5,7 +5,6 @@ Purpose: Apply confidence decay to stale beliefs and knowledge entries based on 
 import logging
 import json
 import os
-import math
 from datetime import datetime
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
@@ -13,7 +12,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA023Input(BaseModel):
     knowledge_items: List[Dict[str, Any]] = Field(default_factory=list, description="Knowledge entries with timestamps and confidence")

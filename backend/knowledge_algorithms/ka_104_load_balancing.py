@@ -5,13 +5,12 @@ Purpose: Distribute incoming data and query load across multiple processing node
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA104LBInput(BaseModel):
     batch_size: int = Field(100, ge=1, description="The size of the incoming batch to balance")

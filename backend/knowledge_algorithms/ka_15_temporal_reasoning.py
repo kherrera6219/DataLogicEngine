@@ -12,7 +12,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA015Input(BaseModel):
     facts: List[Dict[str, Any]] = Field(default_factory=list, description="List of facts with timestamps to evaluate")

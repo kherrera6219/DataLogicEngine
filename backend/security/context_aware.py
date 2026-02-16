@@ -1,5 +1,4 @@
-from typing import List, Dict, Any, Deque
-from collections import deque
+from typing import List, Dict, Any
 import logging
 
 class ContextDriftDetector:

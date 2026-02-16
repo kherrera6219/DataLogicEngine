@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.14] - 2026-02-16
+
+### Changed
+- Lint phase cleanup for backend runtime/services/security modules (215 changed files under `backend/`) with safe removal of unused imports/variables and duplicate dead definitions.
+- Backend lint safety subset is now clean for `F401`, `F541`, `F811`, and `F841`.
+- Backend critical lint subset is now clean for `E9`, `F63`, `F7`, and `F821`.
+
+### Testing
+- Debug/error sweep completed for the backend phase:
+  - `.venv\Scripts\python.exe -m ruff check backend --select F401,F541,F841,F811` (pass)
+  - `.venv\Scripts\python.exe -m ruff check backend --select E9,F63,F7,F821` (pass)
+  - `.venv\Scripts\python.exe -m py_compile` across all modified `backend/` files (pass)
+  - `.venv\Scripts\python.exe -m pytest -q -o addopts='' tests/test_health_endpoint.py tests/integration_routes/test_app_route_wiring.py tests/security/test_request_limits.py tests/unit/test_llm_gateway_internal_units.py tests/unit/test_secret_resolver_controls.py tests/unit/test_export_authenticity_controls.py` (`25 passed`)
+  - `npm --prefix frontend run lint` (pass)
+  - `npm --prefix frontend run typecheck` (pass)
+- Known non-blocking remaining style debt in `backend/` after this phase:
+  - `E402`: 103
+  - `E701`: 43
+  - `E722`: 6
+  - `E712`: 4
+  - `E711`: 1
+  - `E741`: 1
+
 ## [4.1.13] - 2026-02-16
 
 ### Changed

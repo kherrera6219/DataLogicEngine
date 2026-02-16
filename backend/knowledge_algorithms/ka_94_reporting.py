@@ -5,13 +5,12 @@ Purpose: Generate periodic status and analytical reports for system health, accu
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA094ReportingInput(BaseModel):
     report_name: str = Field("daily_health", description="The name of the report to generate")

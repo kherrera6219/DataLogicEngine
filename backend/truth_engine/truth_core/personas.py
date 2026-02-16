@@ -6,8 +6,10 @@ Extends QuadPersonaEngine with multi-persona reasoning.
 
 import logging
 import asyncio
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from datetime import datetime, UTC
+
+from backend.knowledge_algorithms.ka_master_controller import get_controller
 
 logger = logging.getLogger(__name__)
 

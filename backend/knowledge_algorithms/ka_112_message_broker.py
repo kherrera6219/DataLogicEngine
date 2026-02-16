@@ -1,7 +1,7 @@
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 from pydantic import BaseModel, Field
 

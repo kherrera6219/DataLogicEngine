@@ -5,7 +5,7 @@ Universal Knowledge Graph (UKG) Security Scan API
 This module provides REST API endpoints for security scanning and compliance verification.
 """
 
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify
 import logging
 from datetime import datetime, timedelta
 import json

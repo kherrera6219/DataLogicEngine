@@ -3,8 +3,8 @@ KA-039: Anomaly Detection
 Purpose: Detect anomalies in data streams or logic.
 """
 import logging
-from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field
+from typing import Dict, Any
+from pydantic import BaseModel
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)

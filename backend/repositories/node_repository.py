@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Optional, List
+from typing import Dict, Optional
 from sqlalchemy.exc import SQLAlchemyError
 from models import Node
 from extensions import db, cache

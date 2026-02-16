@@ -5,7 +5,6 @@ Run this script to populate the database with initial reference data.
 
 import uuid
 import logging
-from datetime import datetime
 from app import app, db
 from models import Node, Edge, PillarLevel, Sector, Domain
 

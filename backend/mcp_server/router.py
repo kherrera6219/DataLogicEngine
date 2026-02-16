@@ -5,7 +5,7 @@ Handles incoming MCP requests and routes them to the Tool Registry.
 """
 
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any
 from backend.mcp_server.registry import registry
 
 logger = logging.getLogger(__name__)

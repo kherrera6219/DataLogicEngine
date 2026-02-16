@@ -5,7 +5,7 @@ Real document processing using pypdf, pytesseract, and python-docx.
 """
 import logging
 import io
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from datetime import datetime
 
 logger = logging.getLogger(__name__)

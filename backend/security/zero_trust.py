@@ -21,7 +21,6 @@ Compliance: NIST 800-207 (Zero Trust Architecture)
 import os
 import json
 import hashlib
-import time
 from datetime import datetime, timedelta, UTC
 from typing import Dict, Any, List, Optional, Tuple
 from enum import Enum
@@ -580,9 +579,6 @@ class ZeroTrustManager:
 
         # Base risk on resource sensitivity
         resource_risk = self._get_resource_risk(resource)
-
-        # Adjust for action
-        action_multiplier = self._get_action_risk_multiplier(action)
 
         # Adjust for context
         if not context.mfa_verified and trust_score < 60:

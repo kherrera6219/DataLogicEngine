@@ -4,7 +4,7 @@ Purpose: Reserved for future algorithmic expansions. Currently acts as a pass-th
 """
 import logging
 from typing import Dict, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)

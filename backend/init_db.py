@@ -8,7 +8,6 @@ These should NEVER be used in production. Always use strong, unique passwords
 and consider using environment variables or a secrets management system.
 """
 
-import os
 import logging
 from datetime import datetime, UTC
 import uuid
@@ -223,7 +222,7 @@ def create_sample_graph_nodes():
         
         # Add some edges between axis nodes
         edge1 = KnowledgeGraphEdge()
-        edge1.edge_id = f"edge-axis1-axis2"
+        edge1.edge_id = "edge-axis1-axis2"
         edge1.source_id = nodes[0].id
         edge1.target_id = nodes[1].id
         edge1.edge_type = "association"
@@ -235,7 +234,7 @@ def create_sample_graph_nodes():
         edges.append(edge1)
         
         edge2 = KnowledgeGraphEdge()
-        edge2.edge_id = f"edge-axis2-axis8"
+        edge2.edge_id = "edge-axis2-axis8"
         edge2.source_id = nodes[1].id
         edge2.target_id = nodes[2].id
         edge2.edge_type = "association"

@@ -5,8 +5,8 @@ Manages per-tenant budget tracking with kill-switch.
 """
 
 import logging
-from datetime import datetime, timedelta, UTC
-from typing import Dict, Any, Optional
+from datetime import datetime, UTC
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 

@@ -8,7 +8,7 @@ Provides unified interface for vector/embedding storage with support for:
 
 import os
 import logging
-from typing import List, Dict, Any, Optional, Protocol
+from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 

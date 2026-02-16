@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta, UTC
-from sqlalchemy import func
 from extensions import db
 from models import Node, Edge, KAExecution, UkgSession, MCPServer, MCPTool
 from backend.mcp_server.connector_metrics import connector_metrics_snapshot, infer_connector_id

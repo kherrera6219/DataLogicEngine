@@ -14,9 +14,7 @@ Compliance: OWASP API Security Top 10
 import hmac
 import hashlib
 import base64
-import json
 import time
-from datetime import datetime, timedelta, UTC
 from typing import Dict, Any, Optional, Tuple
 from functools import wraps
 from flask import request, jsonify
@@ -367,7 +365,7 @@ def require_signed_request(get_api_secret_func):
                 api_secret = get_api_secret_func(api_key_id)
                 if not api_secret:
                     return jsonify({"error": "Invalid API key"}), 401
-            except Exception as e:
+            except Exception:
                 return jsonify({"error": "API key verification failed"}), 500
 
             # Get request body

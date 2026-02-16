@@ -8,7 +8,7 @@ import logging
 import hashlib
 import re
 from datetime import datetime, UTC
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Tuple
 
 logger = logging.getLogger(__name__)
 

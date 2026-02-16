@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from extensions import db, audit_logger
 from backend.security.rbac import require_permission, Permission

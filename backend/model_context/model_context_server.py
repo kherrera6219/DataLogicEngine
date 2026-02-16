@@ -7,16 +7,15 @@ context window optimization, and provides a unified interface for
 model inference across the UKG system.
 """
 
-from fastapi import FastAPI, Request, Response, Depends, HTTPException, status
+from fastapi import FastAPI, Request, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import httpx
 import os
 import sys
 import time
 import json
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, Any, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 from threading import Lock
@@ -58,13 +57,10 @@ REQUEST_METRICS = {"total": 0, "inflight": 0}
 REQUEST_METRICS_LOCK = Lock()
 
 # Security & Auth
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
-from datetime import datetime, timezone
 
 # Load config to get JWT Secret
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import Config
 
 security = HTTPBearer()
 

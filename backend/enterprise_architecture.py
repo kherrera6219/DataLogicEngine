@@ -9,7 +9,7 @@ integrating Python and .NET components through an API Gateway pattern.
 import os
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, Any, Optional
 from datetime import datetime
 from urllib.parse import urlparse
 

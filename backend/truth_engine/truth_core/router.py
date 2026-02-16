@@ -5,7 +5,7 @@ Provides task-based LLM routing for optimal model selection.
 """
 
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List
 
 logger = logging.getLogger(__name__)
 

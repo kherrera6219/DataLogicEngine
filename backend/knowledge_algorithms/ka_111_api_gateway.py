@@ -1,13 +1,12 @@
 import logging
 import json
 import os
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
-from core.knowledge_algorithm.exceptions import KAError, KAConfigError
 
 class KA111Input(BaseModel):
     headers: Dict[str, str] = Field(default_factory=dict)

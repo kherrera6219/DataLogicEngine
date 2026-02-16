@@ -5,13 +5,12 @@ Purpose: Compute operational, financial, legal, and reputational risk of propose
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA022Input(BaseModel):
     recommendation: str = Field(..., description="The recommendation to assess for risk")

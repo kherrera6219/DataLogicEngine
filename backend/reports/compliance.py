@@ -4,13 +4,11 @@ Compliance Reporting Service - PRODUCTION VERSION
 Generates real compliance reports with PDF export capabilities.
 """
 import logging
-import io
 import os
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from datetime import datetime
 from enum import Enum
 from reportlab.lib.pagesizes import LETTER
-from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
@@ -33,7 +31,7 @@ class ComplianceReportGenerator:
         self.output_dir = output_dir
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        logger.info(f"ComplianceReportGenerator v2.0 initialized (PRODUCTION MODE)")
+        logger.info("ComplianceReportGenerator v2.0 initialized (PRODUCTION MODE)")
 
     def generate_report(self, framework: ComplianceFramework, start_date: datetime, end_date: datetime, data_points: List[Dict[str, Any]]) -> Dict[str, Any]:
         """

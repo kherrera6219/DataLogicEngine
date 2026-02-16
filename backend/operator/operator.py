@@ -2,7 +2,6 @@ import kopf
 import kubernetes.client as k8s_client
 import kubernetes.config as k8s_config
 import logging
-import os
 
 # --- Constants ---
 GROUP = 'ukg.datalogic.io'
@@ -80,7 +79,6 @@ def update_ukg_node(spec, status, name, namespace, **kwargs):
     Handle updates to UKGNode (e.g. scaling or persona changes).
     """
     replicas = spec.get('replicas', 1)
-    role = spec.get('role', 'worker')
     
     logger.info(f"Updating UKGNode {name}: scaling to {replicas}")
 

@@ -3,7 +3,7 @@ KA-114: Federated Claim Outbox
 Purpose: Select and package validated claims for cross-tenant sharing.
 """
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 from backend.truth_engine.federated_sync import FederatedSyncEngine
 from backend.ukg_db import UkgDatabaseManager
@@ -37,7 +37,7 @@ class KA114FederatedOutbox(KnowledgeAlgorithm):
                     
         # 2. Broadcast
         if shared_count > 0:
-            broadcasted = self.sync_engine.broadcast_outbox()
+            self.sync_engine.broadcast_outbox()
             return {
                 "success": True,
                 "claims_shared": shared_count,

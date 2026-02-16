@@ -7,7 +7,6 @@ Falls back to basic implementation if LlamaIndex is not installed.
 
 import logging
 import hashlib
-import uuid
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 
@@ -16,9 +15,8 @@ logger = logging.getLogger(__name__)
 # Check for LlamaIndex availability
 LLAMAINDEX_AVAILABLE = False
 try:
-    from llama_index.core import Document, VectorStoreIndex, Settings
+    from llama_index.core import Document
     from llama_index.core.node_parser import SentenceSplitter
-    from llama_index.core.schema import TextNode
     LLAMAINDEX_AVAILABLE = True
     logger.info("LlamaIndex available - using enhanced RAG")
 except ImportError:

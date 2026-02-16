@@ -6,7 +6,7 @@ import logging
 import json
 import os
 import hashlib
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
@@ -42,7 +42,6 @@ class KA101EnvironmentManagement(KnowledgeAlgorithm):
         self.log_execution_step("Resolving Env Config", {"target": target_env})
         
         env_vars = self.config.get("env_variables", {"LOG_LEVEL": "INFO"})
-        provider = self.config.get("provider_configs", {}).get("k8s", {"cluster": "main"})
         
         return {
             "success": True,

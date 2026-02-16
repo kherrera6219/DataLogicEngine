@@ -3,8 +3,8 @@ KA-049: Relation Extraction
 Purpose: Extract relationships between entities.
 """
 import logging
-from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field
+from typing import Dict, Any
+from pydantic import BaseModel
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
@@ -24,7 +24,6 @@ class KA049RelationExtraction(KnowledgeAlgorithm):
         Extract relations.
         """
         entities = input_dict.get("entities", [])
-        text = input_dict.get("text", "")
         
         self.log_execution_step("Extracting Relations", {"entity_count": len(entities)})
         

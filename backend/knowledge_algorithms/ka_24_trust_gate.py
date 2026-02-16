@@ -5,13 +5,12 @@ Purpose: Act as a final hard-gate to approve or veto system outputs based on tru
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA024Input(BaseModel):
     confidence: float = Field(0.0, ge=0.0, le=1.0)

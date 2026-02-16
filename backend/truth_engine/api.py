@@ -5,9 +5,15 @@ Provides REST API endpoints for Truth Engine v7.3 modules.
 """
 
 import logging
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from flask import Blueprint, request, jsonify, Response, stream_with_context
 from functools import wraps
+
+if TYPE_CHECKING:
+    from backend.truth_engine.truth_core.engine import TruthCoreEngine
+    from backend.truth_engine.truth_gate.gateway import TruthGateGateway
+    from backend.truth_engine.truth_memory.manager import TruthMemoryManager
+    from backend.truth_engine.truth_link.bus import TruthLinkBus
 
 logger = logging.getLogger(__name__)
 

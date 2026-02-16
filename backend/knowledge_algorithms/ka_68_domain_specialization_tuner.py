@@ -5,13 +5,12 @@ Purpose: Adjust the sensitivity, weights, and priorities of the KA pipeline base
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA068TunerInput(BaseModel):
     domain: str = Field("general", description="The detected domain to tune the pipeline for")

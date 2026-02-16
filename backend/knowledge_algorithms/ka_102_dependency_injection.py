@@ -5,13 +5,12 @@ Purpose: Orchestrate component instantiation and wire dependencies across the sy
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA102InjectionInput(BaseModel):
     requesting_module: str = Field("main", description="The module name requesting dependency injection")

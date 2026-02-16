@@ -9,7 +9,7 @@ import hashlib
 import uuid
 import json
 from datetime import datetime, timedelta, UTC
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 
 logger = logging.getLogger(__name__)
 

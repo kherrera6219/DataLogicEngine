@@ -4,9 +4,7 @@ Tracing API Endpoints
 REST API for accessing trace data with RBAC-aware filtering.
 """
 
-import uuid
 import json
-from datetime import datetime, UTC
 from flask import Blueprint, jsonify, request, Response
 from flask_login import login_required, current_user
 
@@ -624,7 +622,7 @@ def add_compliance_mapping(run_id):
     if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
         return jsonify({'error': 'Admin access required'}), 403
     
-    run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
+    TraceRun.query.filter_by(run_id=run_id).first_or_404()
     
     data = request.get_json() or {}
     if not data.get('framework') or not data.get('control_id'):

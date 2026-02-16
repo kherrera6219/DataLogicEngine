@@ -7,9 +7,9 @@ Provides API endpoints for managing and running simulations.
 import uuid
 import logging
 from datetime import datetime, UTC
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request
 from backend.middleware import api_response
-from models import SimulationSession, User
+from models import SimulationSession
 from extensions import db
 
 # Set up logging

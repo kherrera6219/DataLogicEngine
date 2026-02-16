@@ -8,7 +8,7 @@ enabling access to the context expert personas and their expertise models.
 
 import logging
 from datetime import datetime
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request
 from core.axes.axis_system import AxisSystem
 
 logger = logging.getLogger(__name__)

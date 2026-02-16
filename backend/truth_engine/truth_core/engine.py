@@ -142,19 +142,6 @@ class TruthCoreEngine:
         self.active_sessions = {}
         logger.info("TruthCore Engine initialized with Final Assembly stack")
 
-    def determine_tier(self, query: str, context: Dict[str, Any] = None) -> str:
-        """
-        Determine appropriate processing tier based on query complexity.
-        
-        Uses entropy detection, query analysis, and context to select tier.
-        """
-        context = context or {}
-        
-        query_length = len(query)
-        complexity_keywords = ['analyze', 'compare', 'explain', 'synthesize', 'evaluate', 'predict']
-        high_stakes_keywords = ['legal', 'medical', 'financial', 'regulatory', 'compliance', 'critical']
-        autonomous_keywords = ['plan', 'build', 'create', 'develop', 'implement', 'design']
-        
     async def determine_tier(self, query: str, context: Optional[Dict[str, Any]] = None) -> str:
         """Determines workflow tier using rule-based fallback and AI-driven KA-005."""
         context = context or {}
@@ -393,7 +380,7 @@ class TruthCoreEngine:
                 elif step == 'trust_validation':
                     working_context['l8_gate_result'] = output
                     if step_result.get('gate_decision') == 'FAIL':
-                        logger.warning(f"Layer 8 BLOCK: Workflow halted.")
+                        logger.warning("Layer 8 BLOCK: Workflow halted.")
                         break
 
                 elif step == 'meta_reasoning':

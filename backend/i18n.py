@@ -5,7 +5,7 @@ Uses Flask-Babel for multi-language support.
 """
 
 import os
-from flask import Flask, request, g
+from flask import Flask, request
 from flask_babel import Babel, gettext, lazy_gettext
 
 babel = Babel()

@@ -5,13 +5,12 @@ Purpose: Convert model weights from high-precision (FP32) to lower-precision (IN
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA090QuantizationInput(BaseModel):
     model_id: str = Field("latest", description="The ID of the model artifact to quantize")

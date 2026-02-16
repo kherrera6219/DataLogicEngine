@@ -5,13 +5,12 @@ Purpose: Evaluate state and decide whether to initiate a recursive reasoning loo
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA020Input(BaseModel):
     pass_count: int = Field(1, ge=1)

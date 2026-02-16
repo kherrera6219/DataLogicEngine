@@ -5,8 +5,8 @@ This module provides reusable decorators for access control and other cross-cutt
 """
 
 from functools import wraps
-from flask import flash, redirect, url_for, abort
-from flask_login import current_user, login_required
+from flask import flash, redirect, url_for
+from flask_login import current_user
 
 
 def admin_required(f):

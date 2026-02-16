@@ -10,7 +10,7 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
-from core.knowledge_algorithm.exceptions import KAError, KAConfigError, KAIntegrationError
+from core.knowledge_algorithm.exceptions import KAIntegrationError
 from pydantic import BaseModel, Field
 
 class KA071IngestionInput(BaseModel):

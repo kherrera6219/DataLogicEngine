@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional, List, Dict, Any
-import os
+from typing import Optional, Dict, Any
 
 class StorageTestRequest(BaseModel):
     service: str = Field(..., pattern="^(postgres|redis|neo4j|vector|object)$")

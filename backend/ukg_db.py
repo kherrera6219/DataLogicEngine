@@ -1,10 +1,8 @@
 import logging
-import os
 import uuid
 from datetime import datetime, UTC
 from typing import Dict, List, Optional
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 # Import models and extensions

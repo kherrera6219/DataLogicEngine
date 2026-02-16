@@ -6,7 +6,7 @@ import time
 import logging
 import os
 import redis
-from kubernetes import client, config, watch
+from kubernetes import client, config
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +72,7 @@ class KAOperator:
         
         # 1. Check if deployment exists
         try:
-            deploy = self.apps_api.read_namespaced_deployment(deployment_name, namespace)
+            self.apps_api.read_namespaced_deployment(deployment_name, namespace)
             logger.info(f"Deployment {deployment_name} already exists. Checking for updates...")
             # Update logic could go here (image changes, resource limits, etc.)
         except client.exceptions.ApiException as e:

@@ -12,7 +12,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA034Input(BaseModel):
     scenario: str = Field(..., description="The scenario to test adversarial hits against")
@@ -40,7 +39,6 @@ class KA034AdversarialReasoning(KnowledgeAlgorithm):
             return {}
 
     def _run_logic(self, input_data: KA034Input) -> Dict[str, Any]:
-        scenario = input_data.scenario
         assumptions = input_data.assumptions
         self.log_execution_step("Simulating Adversarial Attacks", {"assumption_count": len(assumptions)})
         

@@ -11,7 +11,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA013Input(BaseModel):
     persona_results: List[Dict[str, Any]] = Field(default_factory=list, description="The results from persona simulations")

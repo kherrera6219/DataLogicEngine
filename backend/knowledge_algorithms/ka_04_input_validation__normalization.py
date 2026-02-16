@@ -6,14 +6,13 @@ import logging
 import json
 import os
 import re
-from typing import Dict, Any, List
+from typing import Dict, Any
 import importlib
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA004Input(BaseModel):
     query: str = Field(..., description="The input query to validate and normalize")

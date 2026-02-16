@@ -9,7 +9,7 @@ import json
 import queue
 import threading
 from datetime import datetime, UTC
-from typing import Dict, Any, Generator, Optional
+from typing import Dict, Any, Generator
 
 logger = logging.getLogger(__name__)
 

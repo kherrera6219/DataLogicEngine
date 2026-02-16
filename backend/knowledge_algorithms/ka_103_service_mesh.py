@@ -5,13 +5,12 @@ Purpose: Manage service-to-service communication, including mutual TLS, retries,
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA103MeshInput(BaseModel):
     target_service: str = Field("ka_registry_svc", description="The service to apply mesh policies to")

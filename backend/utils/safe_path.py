@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 def get_safe_path(base_dir: str, user_path: str) -> str:

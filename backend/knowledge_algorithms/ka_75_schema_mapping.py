@@ -11,7 +11,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA075MappingInput(BaseModel):
     records: List[Any] = Field(default_factory=list, description="The list of records to map")

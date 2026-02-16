@@ -5,13 +5,12 @@ Purpose: Skip unneeded layers or KAs for simple or low-complexity queries to opt
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA059Input(BaseModel):
     complexity_tier: str = Field("medium", description="The detected complexity tier of the query")

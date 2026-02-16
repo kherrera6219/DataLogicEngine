@@ -10,7 +10,6 @@ import logging
 import socket
 import re
 from datetime import datetime, UTC
-from typing import Optional
 from flask import Flask
 from pythonjsonlogger.json import JsonFormatter
 

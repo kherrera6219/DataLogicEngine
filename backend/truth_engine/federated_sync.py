@@ -69,7 +69,7 @@ class FederatedSyncEngine:
             'uid': f"fed_{claim.claim_id}",
             'node_type': 'federated_claim',
             'label': f"Federated Claim from {claim.source_tenant}",
-            'description': f"Cross-tenant knowledge validated by source tenant.",
+            'description': "Cross-tenant knowledge validated by source tenant.",
             'attributes': {
                 **claim.attributes,
                 'source_hash': claim.content_hash,

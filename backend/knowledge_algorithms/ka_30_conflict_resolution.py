@@ -5,10 +5,9 @@ Purpose: Arbitrate and resolve detected contradictions and conflicts to produce 
 import logging
 import json
 import os
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from pydantic import BaseModel, Field
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-from core.knowledge_algorithm.exceptions import KAConfigError, KAError
 
 logger = logging.getLogger(__name__)
 

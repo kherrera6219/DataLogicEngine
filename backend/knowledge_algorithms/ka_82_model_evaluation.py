@@ -5,13 +5,12 @@ Purpose: Compute comprehensive performance metrics for trained models on test/va
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA082EvaluationInput(BaseModel):
     model_id: str = Field("latest", description="The ID of the model to evaluate")

@@ -6,13 +6,12 @@ import logging
 import json
 import os
 import hashlib
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA097AuditInput(BaseModel):
     event_data: Dict[str, Any] = Field(..., description="The event payload to audit and sign")

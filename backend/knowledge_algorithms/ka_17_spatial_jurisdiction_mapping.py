@@ -5,13 +5,12 @@ Purpose: Resolve and map geographies/jurisdictions to applicable regulations and
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA017Input(BaseModel):
     location: str = Field("GLOBAL", description="The geographical location to map")

@@ -6,7 +6,7 @@ import logging
 import json
 import os
 import random
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)

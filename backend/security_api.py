@@ -5,12 +5,9 @@ Universal Knowledge Graph (UKG) Security API
 This module provides REST API endpoints for security and compliance management.
 """
 
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request
 import logging
 from datetime import datetime
-from typing import List
-import json
-import uuid
 
 # Import security components
 from backend.security import get_security_manager, get_audit_logger, get_compliance_manager

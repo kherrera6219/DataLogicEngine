@@ -6,7 +6,6 @@ Prevents injection attacks, data corruption, and invalid inputs.
 """
 
 from marshmallow import Schema, fields, validate, validates, ValidationError, validates_schema
-import re
 
 
 class UserRegistrationSchema(Schema):

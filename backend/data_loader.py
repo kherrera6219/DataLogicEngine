@@ -3,7 +3,6 @@ import yaml
 import json
 import logging
 from datetime import datetime
-from typing import Any
 import uuid
 
 class UkgDataLoader:

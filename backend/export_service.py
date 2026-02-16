@@ -12,7 +12,7 @@ import csv
 import json
 import logging
 from datetime import datetime, UTC
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 
 logger = logging.getLogger(__name__)
 
@@ -213,7 +213,6 @@ def export_to_excel(data: List[Dict], sheet_name: str = "Data") -> io.BytesIO:
         BytesIO object containing Excel data
     """
     try:
-        import openpyxl
         from openpyxl import Workbook
         
         wb = Workbook()

@@ -12,7 +12,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA052Input(BaseModel):
     kb_nodes: List[Dict[str, Any]] = Field(default_factory=list, description="Knowledge nodes to evaluate for temporal evolution")

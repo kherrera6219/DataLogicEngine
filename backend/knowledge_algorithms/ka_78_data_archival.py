@@ -5,14 +5,12 @@ Purpose: Manage long-term data retention by migrating old data to cold storage a
 import logging
 import json
 import os
-from datetime import datetime, timedelta
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA078ArchivalInput(BaseModel):
     record_ids: List[str] = Field(default_factory=list, description="The list of record IDs to archive")

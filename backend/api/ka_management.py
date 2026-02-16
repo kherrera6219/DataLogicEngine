@@ -6,7 +6,7 @@ This module provides REST API endpoints for managing Knowledge Algorithms.
 
 import logging
 from flask import Blueprint, request, jsonify
-from flask_login import login_required, current_user
+from flask_login import login_required
 from datetime import datetime, UTC
 
 # Import KA Master Controller

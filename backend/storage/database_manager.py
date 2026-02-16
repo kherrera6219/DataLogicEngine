@@ -1,9 +1,7 @@
 import os
 import subprocess  # nosec B404
-import time
 import socket
 import logging
-import signal
 import sys
 from typing import Optional
 

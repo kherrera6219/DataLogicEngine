@@ -4,11 +4,10 @@ Video Service - PRODUCTION VERSION
 Handles video analysis and frame extraction using OpenCV and Vision LLMs.
 """
 import logging
-import io
 import os
 import cv2
 import tempfile
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 import base64
 
 logger = logging.getLogger(__name__)

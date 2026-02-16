@@ -6,7 +6,6 @@ Quad Persona Simulation Engine.
 """
 
 import logging
-from typing import Optional
 from datetime import datetime, UTC
 
 from flask import Blueprint, request, jsonify

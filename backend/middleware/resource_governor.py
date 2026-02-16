@@ -7,7 +7,6 @@ from __future__ import annotations
 import os
 import threading
 from collections import defaultdict
-from typing import Callable
 
 from flask import g, jsonify, request
 from flask_login import current_user

@@ -5,13 +5,12 @@ Purpose: Adapt the tone, structure, and complexity of outputs to match specific 
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA057Input(BaseModel):
     output_object: Dict[str, Any] = Field(default_factory=dict, description="The output object to adapt")

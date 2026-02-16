@@ -4,7 +4,7 @@ Pagination Utilities.
 Provides consistent pagination handling across all list endpoints.
 """
 
-from typing import Any, Dict, Optional, TypeVar, Generic
+from typing import Any, Dict, Optional, TypeVar
 from flask import request
 from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.orm import Query

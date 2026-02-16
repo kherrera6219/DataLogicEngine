@@ -11,7 +11,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA063LearningInput(BaseModel):
     outcome_metrics: Dict[str, Any] = Field(default_factory=dict, description="Performance and outcome metrics to learn from")

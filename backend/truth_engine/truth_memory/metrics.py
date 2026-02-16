@@ -7,7 +7,7 @@ MLflow-style metrics tracking for performance monitoring.
 import logging
 import uuid
 from datetime import datetime, timedelta, UTC
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)

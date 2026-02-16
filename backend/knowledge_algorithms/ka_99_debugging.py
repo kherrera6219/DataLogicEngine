@@ -5,14 +5,12 @@ Purpose: Provide interactive and remote debugging capabilities, including stack 
 import logging
 import json
 import os
-import traceback
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA099DebugInput(BaseModel):
     error_context: str = Field("runtime_exception", description="The context or error identifier for debugging")

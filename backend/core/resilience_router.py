@@ -9,9 +9,8 @@ It implements the 'Graceful Degradation' pattern:
 4. Annotate result with 'degraded' status.
 """
 
-from typing import Dict, Any, Callable, Optional
+from typing import Dict, Any, Callable
 import logging
-import traceback
 
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
 import re
 import base64
-from typing import Dict, List, Optional, Tuple
+from typing import Optional, Tuple
 
 class AIGuardrailService:
     """
@@ -76,7 +76,7 @@ class AIGuardrailService:
             if len(token) > 20 and re.match(r'^[A-Za-z0-9+/]+={0,2}$', token):
                 try:
                     # Try detection - if it decodes to something readable-ish or just valid bytes
-                    decoded = base64.b64decode(token, validate=True)
+                    base64.b64decode(token, validate=True)
                     # If it decodes successfully, we treat it as suspicious in a chat context 
                     # unless explicitly allowed.
                     return True

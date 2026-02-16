@@ -6,7 +6,7 @@ Runs concurrent analysis using 4 expert personas with REAL LLM calls.
 
 import logging
 import asyncio
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -275,7 +275,7 @@ Provide a synthesized conclusion that:
         try:
             # Check if event loop is already running
             try:
-                loop = asyncio.get_running_loop()
+                asyncio.get_running_loop()
                 # If we're already in an async context, create a task
                 import concurrent.futures
                 with concurrent.futures.ThreadPoolExecutor() as executor:

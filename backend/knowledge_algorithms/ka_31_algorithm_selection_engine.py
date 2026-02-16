@@ -11,7 +11,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA031Input(BaseModel):
     query_class: str = Field("GENERAL", description="The classification of the query")

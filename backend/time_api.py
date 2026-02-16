@@ -8,7 +8,6 @@ from models import TimeContext, db
 import logging
 import uuid
 from datetime import datetime, UTC
-import json
 
 # Create blueprint
 time_api = Blueprint('time_api', __name__)

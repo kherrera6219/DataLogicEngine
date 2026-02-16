@@ -1159,13 +1159,13 @@ class LLMGateway:
         try:
             from models import TraceRun, TraceStage
             try:
-                from extensions import db, cache
+                from extensions import db
             except ImportError:
                 # Final fallback
                 import sys
                 import os
                 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-                from extensions import db, cache
+                from extensions import db
             import uuid
             
             # Create TraceRun

@@ -17,11 +17,11 @@ import base64
 import hashlib
 import logging
 from datetime import datetime, timedelta, UTC
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any
 from enum import Enum
 import secrets
 
-from cryptography.fernet import Fernet, MultiFernet
+from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend

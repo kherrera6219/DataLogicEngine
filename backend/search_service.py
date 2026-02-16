@@ -5,8 +5,8 @@ Provides full-text search functionality using PostgreSQL FTS.
 """
 
 import logging
-from typing import List, Dict, Any, Optional
-from sqlalchemy import text, func, cast, String
+from typing import Dict, Any, Optional
+from sqlalchemy import text
 from extensions import db
 
 logger = logging.getLogger(__name__)

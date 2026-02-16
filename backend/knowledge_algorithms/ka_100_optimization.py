@@ -5,13 +5,12 @@ Purpose: Apply runtime optimizations, including JIT triggers, memory management,
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA100OptimizationInput(BaseModel):
     load_profile: float = Field(0.5, ge=0.0, le=1.0, description="The current system load profile (0.0 to 1.0)")

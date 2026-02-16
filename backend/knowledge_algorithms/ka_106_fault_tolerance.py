@@ -6,12 +6,11 @@ import logging
 import json
 import os
 import random
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
-from core.knowledge_algorithm.exceptions import KAError, KAConfigError
 from pydantic import BaseModel, Field
 
 class KA106FaultInput(BaseModel):

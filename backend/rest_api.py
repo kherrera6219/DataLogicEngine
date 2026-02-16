@@ -8,9 +8,7 @@ All endpoints follow RESTful conventions and return consistent JSON responses.
 
 from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime, UTC
-import uuid
 import logging
-from backend.middleware import api_response
 
 # Set up logging
 logger = logging.getLogger(__name__)

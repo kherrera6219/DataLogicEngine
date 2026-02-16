@@ -8,7 +8,7 @@ using real LLM calls through the existing gateway.
 import logging
 import uuid
 import asyncio
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -279,7 +279,7 @@ Provide a synthesized conclusion that integrates all perspectives."""
         
         # Check if event loop is already running
         try:
-            loop = asyncio.get_running_loop()
+            asyncio.get_running_loop()
             # If we're already in an async context, create a task
             import concurrent.futures
             with concurrent.futures.ThreadPoolExecutor() as executor:

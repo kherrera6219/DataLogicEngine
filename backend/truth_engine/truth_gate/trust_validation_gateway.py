@@ -38,8 +38,7 @@ from .l8_schemas import (
     FixDirective,
     DomainConfidence,
     L8Input,
-    L8GateResult,
-    L8AuditArtifact
+    L8GateResult
 )
 
 logger = logging.getLogger(__name__)

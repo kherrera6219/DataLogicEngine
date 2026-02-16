@@ -5,13 +5,12 @@ Purpose: Identify patterns and structures in one domain and apply them to solve 
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA067AnalogicalInput(BaseModel):
     source_domain: Dict[str, Any] = Field(default_factory=dict, description="Source domain data for analogy mapping")

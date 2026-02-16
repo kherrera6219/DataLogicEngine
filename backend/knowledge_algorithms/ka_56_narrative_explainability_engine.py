@@ -11,7 +11,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA056Input(BaseModel):
     trace_dag: Dict[str, Any] = Field(default_factory=dict, description="The execution trace DAG to explain")

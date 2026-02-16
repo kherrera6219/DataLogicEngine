@@ -6,7 +6,6 @@ import logging
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field, field_validator
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-from core.knowledge_algorithm.exceptions import KAConfigError, KAError
 
 # Attempt to import mathematical framework for dynamic weights
 try:

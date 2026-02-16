@@ -11,7 +11,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA053Input(BaseModel):
     graph_segments: List[Dict[str, Any]] = Field(default_factory=list, description="Segments of the knowledge graph to compress")

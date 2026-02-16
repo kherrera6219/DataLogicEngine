@@ -6,7 +6,7 @@ Tier-aware priority queues for request processing.
 
 import logging
 from datetime import datetime, UTC
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from collections import defaultdict
 import heapq
 

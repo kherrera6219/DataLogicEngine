@@ -5,7 +5,7 @@ Handles Speech-to-Text (STT) and Text-to-Speech (TTS) operations using OpenAI.
 """
 import logging
 import os
-from typing import Dict, Any, Optional
+from typing import Optional
 from openai import OpenAI
 
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ class AudioService:
                     model="whisper-1", 
                     file=audio_file
                 )
-                logger.info(f"AudioService: OpenAI Transcription successful.")
+                logger.info("AudioService: OpenAI Transcription successful.")
                 return transcript.text
             else:
                 errors.append("OpenAI client not initialized")

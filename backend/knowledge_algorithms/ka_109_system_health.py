@@ -5,13 +5,12 @@ Purpose: Continuously monitor system liveness and readiness, aggregating health 
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA109HealthInput(BaseModel):
     check_mode: str = Field("standard", description="The health check mode (e.g., standard, deep, liveness)")

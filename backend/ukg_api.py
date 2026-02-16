@@ -8,13 +8,12 @@ and the 13-axis system interactions.
 
 import uuid
 import logging
-from datetime import datetime, UTC
 from flask import Blueprint, request
 from backend.middleware import api_response
 from backend.auth.api_decorators import api_login_required, api_admin_required
 from extensions import db, cache
 from models import (
-    SimulationSession, Node, Edge, PillarLevel,
+    Node, Edge, PillarLevel,
     Sector, Domain, KnowledgeNode
 )
 

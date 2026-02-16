@@ -3,7 +3,7 @@ KA-041: Abductive Reasoning
 Purpose: Infer most likely explanation for observation.
 """
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from pydantic import BaseModel, Field
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 

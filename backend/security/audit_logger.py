@@ -10,11 +10,10 @@ import os
 import logging
 import logging.handlers
 import json
-import time
 import hashlib
 import hmac
 from datetime import datetime, UTC, timedelta
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 import threading
 import uuid
 

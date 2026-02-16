@@ -7,7 +7,7 @@ Inter-module messaging system.
 import logging
 import uuid
 from datetime import datetime, UTC
-from typing import Dict, Any, List, Callable, Optional
+from typing import Dict, Any, List, Callable
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)

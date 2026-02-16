@@ -11,7 +11,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA058Input(BaseModel):
     ambiguity_metrics: Dict[str, Any] = Field(default_factory=dict, description="Ambiguity and entropy metrics for the current query")

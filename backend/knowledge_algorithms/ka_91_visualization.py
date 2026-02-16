@@ -5,13 +5,12 @@ Purpose: Generate visual representations of knowledge graphs, metrics, and trend
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA091VisualizationInput(BaseModel):
     data: Dict[str, Any] = Field(default_factory=dict, description="The knowledge or metric data to visualize")

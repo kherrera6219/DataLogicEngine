@@ -11,7 +11,6 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA070ScenarioInput(BaseModel):
     hypotheticals: List[Dict[str, Any]] = Field(default_factory=list, description="Hypothetical changes to knowledge nodes for simulation")

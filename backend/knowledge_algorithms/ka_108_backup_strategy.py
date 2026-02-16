@@ -5,13 +5,12 @@ Purpose: Manage scheduled system backups, verify data integrity, and handle rest
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA108BackupInput(BaseModel):
     target: str = Field("all", description="The backup target (e.g., all, database, filesystem)")

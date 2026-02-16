@@ -9,7 +9,7 @@ import logging
 import uuid
 import hashlib
 from datetime import datetime, UTC
-from typing import Dict, Any, Optional, List, BinaryIO
+from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)

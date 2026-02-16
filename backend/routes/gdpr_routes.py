@@ -112,7 +112,6 @@ def request_data_deletion():
     This schedules data for deletion after a grace period.
     """
     try:
-        from extensions import db
         
         # Record deletion request
         deletion_request = {

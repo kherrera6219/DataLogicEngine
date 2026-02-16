@@ -7,7 +7,7 @@ EU AI Act Article 53/13 compliance enforcement.
 import logging
 import re
 from datetime import datetime, timedelta, UTC
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 
 logger = logging.getLogger(__name__)
 

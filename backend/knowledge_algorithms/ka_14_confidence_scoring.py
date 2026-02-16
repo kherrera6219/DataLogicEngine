@@ -5,13 +5,12 @@ Purpose: Aggregate multi-factor confidence metrics to certify system outputs.
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA014Input(BaseModel):
     evidence_score: float = Field(1.0, ge=0.0, le=1.0)

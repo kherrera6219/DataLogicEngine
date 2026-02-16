@@ -6,17 +6,15 @@ Provides unified interface for object/blob storage with support for:
 - Cloud: S3-compatible (AWS S3, MinIO, etc.)
 """
 
-import os
 import mimetypes
 import hashlib
 import logging
 import re
 from pathlib import Path, PurePosixPath
-from typing import List, Dict, Any, Optional, BinaryIO, Union
+from typing import List, Dict, Optional, BinaryIO, Union
 from dataclasses import dataclass
 from datetime import datetime
 from abc import ABC, abstractmethod
-import shutil
 
 logger = logging.getLogger(__name__)
 

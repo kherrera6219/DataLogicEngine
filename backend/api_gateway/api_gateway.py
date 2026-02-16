@@ -6,15 +6,14 @@ This gateway serves as the entry point for all API requests to the UKG system,
 handling routing, authentication, and request/response transformations.
 """
 
-from fastapi import FastAPI, Request, Response, Depends, HTTPException, status
+from fastapi import FastAPI, Request, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
 import httpx
 import os
 import sys
 import time
-import json
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
 from threading import Lock
 from urllib.parse import urlparse
@@ -76,7 +75,6 @@ async def verify_token(request: Request):
             detail="Invalid authorization header format",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    token = auth_parts[1]
     
     # In a real implementation, validate the JWT token
     # For now, we'll accept any token for demonstration

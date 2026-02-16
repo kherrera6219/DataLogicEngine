@@ -5,7 +5,6 @@ This package provides middleware components for request handling,
 rate limiting, and other cross-cutting concerns.
 """
 
-from functools import wraps
 from flask import jsonify, current_app, Response, request, g
 import logging
 import os

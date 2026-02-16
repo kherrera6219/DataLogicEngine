@@ -5,13 +5,12 @@ Purpose: Manage horizontal and vertical scaling of system resources based on rea
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA105ScalabilityInput(BaseModel):
     metrics: Dict[str, float] = Field(default_factory=dict, description="Real-time system metrics for scaling evaluation")

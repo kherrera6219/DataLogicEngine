@@ -2,9 +2,8 @@ import time
 import logging
 import uuid
 import re
-import json
 from urllib.parse import parse_qsl
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse

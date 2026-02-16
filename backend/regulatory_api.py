@@ -22,7 +22,6 @@ def get_frameworks():
         except (ValueError, TypeError):
             limit = 50
         
-        axis_system = current_app.config.get('AXIS_SYSTEM')
         db_manager = current_app.config.get('DB_MANAGER')
         
         if not db_manager:

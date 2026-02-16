@@ -6,7 +6,6 @@ for real AI responses with knowledge graph context.
 """
 import asyncio
 import logging
-import uuid
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import ChatSession, ChatMessage
@@ -199,7 +198,7 @@ def _call_llm_gateway(
         else:
             logger.error(f"LLM Gateway error: {response.error}")
             return {
-                'content': f"I apologize, but I encountered an error processing your request. Please try again.",
+                'content': "I apologize, but I encountered an error processing your request. Please try again.",
                 'provider': None,
                 'model': None,
                 'run_id': response.run_id,

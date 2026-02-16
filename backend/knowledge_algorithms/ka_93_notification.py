@@ -5,13 +5,12 @@ Purpose: Route messages and system status updates to various stakeholder channel
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA093NotificationInput(BaseModel):
     message: str = Field(..., description="The content of the notification message")
@@ -39,7 +38,6 @@ class KA093Notification(KnowledgeAlgorithm):
             return {}
 
     def _run_logic(self, input_data: KA093NotificationInput) -> Dict[str, Any]:
-        message_body = input_data.message
         severity = input_data.severity
         self.log_execution_step("Routing Notification", {"severity": severity})
         

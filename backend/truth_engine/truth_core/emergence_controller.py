@@ -8,7 +8,6 @@ and makes the final binary RELEASE vs CONTAIN decision.
 
 import logging
 import time
-from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Tuple
 
 from .l10_schemas import (
@@ -106,9 +105,8 @@ class EmergenceDetectionController:
             )
             
             # --- LANE B: Knowledge Commit (Async/Deferred Logic) ---
-            commit_result = {}
             if decision in [L10Decision.RELEASE, L10Decision.MODIFY]:
-                commit_result = self._process_knowledge_commit_lane_b(input_data, kas_invoked)
+                self._process_knowledge_commit_lane_b(input_data, kas_invoked)
             
             # 5. DSQP Trace Finalization (Axis 15)
             dsqp_seal = self._generate_dsqp_seal(input_data, emergence_report, safety_report)

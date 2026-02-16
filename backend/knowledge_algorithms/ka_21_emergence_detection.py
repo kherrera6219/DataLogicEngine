@@ -5,14 +5,12 @@ Purpose: Detect novel patterns, unexpected insights, or emergent behaviors in re
 import logging
 import json
 import os
-import random
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA021Input(BaseModel):
     findings: List[Dict[str, Any]] = Field(default_factory=list, description="Reasoning findings to scan for emergence")

@@ -11,7 +11,6 @@ import os
 import logging
 from flask import Flask, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
-from flask_login import current_user
 
 logger = logging.getLogger(__name__)
 

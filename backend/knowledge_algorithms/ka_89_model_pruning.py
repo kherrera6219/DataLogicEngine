@@ -5,13 +5,12 @@ Purpose: Reduce model size and inference latency by removing less significant we
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 class KA089PruningInput(BaseModel):
     model_id: str = Field("latest", description="The identifier for the model to prune")
