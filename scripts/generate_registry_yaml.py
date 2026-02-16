@@ -1,7 +1,6 @@
 
 import os
 import glob
-import re
 
 KA_DIR = r"c:\software\DataLogicEngine\backend\knowledge_algorithms"
 OUT_PATH = os.path.join(KA_DIR, "ka_registry.yaml")

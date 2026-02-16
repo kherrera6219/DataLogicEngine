@@ -6,11 +6,7 @@ port conflicts with other services.
 """
 
 import os
-import sys
 import logging
-import json
-from flask import Flask, request, jsonify, render_template
-from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)

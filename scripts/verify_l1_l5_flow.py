@@ -1,7 +1,6 @@
 
 import logging
 import sys
-from datetime import datetime
 from simulation.layer_controller import LayerController
 
 # Configure logging
@@ -71,7 +70,7 @@ def test_pipeline_full():
         conf = consensus.get("confidence_sys")
         personas = l5_result.get("layer5_personas", [])
         
-        logger.info(f"✅ L5 Passed.")
+        logger.info("✅ L5 Passed.")
         logger.info(f"   Status: {status}")
         logger.info(f"   Confidence: {conf}")
         logger.info(f"   Personas: {personas}")

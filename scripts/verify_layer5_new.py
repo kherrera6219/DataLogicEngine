@@ -1,7 +1,6 @@
 
 import logging
 import sys
-import json
 from simulation.layer5_integration import Layer5IntegrationEngine
 
 # Configure logging

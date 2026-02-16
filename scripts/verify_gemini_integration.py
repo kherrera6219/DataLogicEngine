@@ -1,6 +1,5 @@
 
 import os
-import sys
 import asyncio
 from flask import Flask
 

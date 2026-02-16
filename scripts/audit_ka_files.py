@@ -23,10 +23,6 @@ def audit_kas():
         # Try extract ID
         match = re.search(r"ka_(\d+)", fname)
         if match:
-            kid = f"KA-{int(match.group(1)):03d}" # KA-001
-            # Handle 2-digit naming in file vs 3-digit in registry
-            kid_alt = f"KA-{int(match.group(1)):02d}"
-            
             # Use 3-digit standard
             kid_std = f"KA-{int(match.group(1)):03d}"
             

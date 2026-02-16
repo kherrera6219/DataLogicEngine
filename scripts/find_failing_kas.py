@@ -1,6 +1,5 @@
 import os
 import subprocess
-import json
 
 def get_ka_files():
     ka_dir = os.path.join("backend", "knowledge_algorithms")

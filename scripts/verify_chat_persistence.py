@@ -2,7 +2,6 @@ import asyncio
 import uuid
 import sys
 import os
-from datetime import datetime
 
 # Handle Windows console encoding for emojis
 if sys.platform == "win32":

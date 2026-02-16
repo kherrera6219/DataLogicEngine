@@ -1,10 +1,10 @@
 
 import asyncio
+import importlib.util
 import os
 import sys
 import logging
 import traceback
-from datetime import datetime
 import unittest.mock
 
 # Setup path
@@ -41,12 +41,6 @@ async def verify_rag_embedding_failover():
 async def verify_active_defense_live():
     print("\n=== Verifying Active Defense (Live Gateway) ===")
     from backend.security.active_defense import ActiveDefenseService
-    
-    # Ensure module is loaded for patching
-    try:
-        import backend.llm_gateway.gateway
-    except ImportError:
-        pass 
 
     with unittest.mock.patch('backend.llm_gateway.gateway.LLMGateway') as MockGateway:
         mock_instance = MockGateway.return_value
@@ -74,25 +68,12 @@ async def verify_audio_failover():
     from backend.services.audio_service import AudioService
     
     # Force OpenAI fail, Google success (mocked)
-    os.environ["OPENAI_API_KEY"] = "" # Force None
-    os.environ["GOOGLE_API_KEY"] = "AIza-mock"
-    
-    service = AudioService()
-    
-async def verify_audio_failover():
-    print("\n=== Verifying Audio Service Failover ===")
-    from backend.services.audio_service import AudioService
-    
-    # Force OpenAI fail, Google success (mocked)
     os.environ["OPENAI_API_KEY"] = "" 
     os.environ["GOOGLE_API_KEY"] = "AIza-mock"
     
     service = AudioService()
     
-    # Ensure module is loaded for patching
-    try:
-        import google.genai
-    except ImportError:
+    if importlib.util.find_spec("google.genai") is None:
         print("[SKIP] google-genai not installed, cannot test failover logic deeply")
         return
 

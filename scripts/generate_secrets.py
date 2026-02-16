@@ -11,7 +11,6 @@ Output:
 """
 
 import secrets
-import sys
 
 def generate_secret(length=32):
     """Generate a cryptographically secure secret key."""

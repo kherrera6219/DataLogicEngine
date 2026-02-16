@@ -16,7 +16,6 @@ Security:
     - Creates audit log entry
 """
 
-import os
 import sys
 import getpass
 import secrets
@@ -227,8 +226,8 @@ def create_admin_user():
             print("User Details:")
             print(f"  Username: {username}")
             print(f"  Email: {email}")
-            print(f"  Role: admin")
-            print(f"  Status: active")
+            print("  Role: admin")
+            print("  Status: active")
             print()
             print("You can now log in with these credentials.")
 

@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.10] - 2026-02-16
+
+### Changed
+- Lint phase cleanup for script utilities (29 files under `scripts/`) to remove unused imports/variables and duplicate helper definitions while preserving behavior.
+- Hardened script compatibility and startup readability updates in enterprise runners and verification scripts:
+  - `scripts/run_enterprise_services.py`
+  - `scripts/run_enterprise_ukg.py`
+  - `scripts/verify_services.py`
+- Script lint safety subset is now clean for `F401`, `F541`, `F811`, and `F841`.
+
+### Testing
+- Debug/error sweep completed for the scripts phase:
+  - `.venv\Scripts\python.exe -m ruff check scripts --exclude scripts/archive --select F401,F541,F841,F811` (pass)
+  - `.venv\Scripts\python.exe -m ruff check scripts --exclude scripts/archive --select E9,F63,F7,F821` (pass)
+  - `.venv\Scripts\python.exe -m py_compile` across all modified `scripts/` files (pass)
+  - `.venv\Scripts\python.exe -m pytest tests/test_health_endpoint.py -q -o addopts=''` (`5 passed`)
+  - `npm --prefix frontend run lint` (pass)
+  - `npm --prefix frontend run typecheck` (pass)
+- Known non-blocking remaining style debt in `scripts/` after this phase:
+  - `E402`: 16
+  - `E701`: 9
+
 ## [4.1.9] - 2026-02-16
 
 ### Added

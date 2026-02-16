@@ -17,7 +17,6 @@ import os
 import sys
 import uuid
 from dataclasses import dataclass
-from typing import Optional
 
 from dotenv import load_dotenv
 

@@ -17,7 +17,6 @@ import signal
 import atexit
 import requests
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
 import json
 
 # Create logs directory if it doesn't exist
@@ -234,9 +233,9 @@ def main():
             sys.path.append(os.path.dirname(os.path.abspath(__file__)))
             from backend.security import get_security_manager, get_audit_logger, get_compliance_manager
             
-            security_manager = get_security_manager(config)
-            audit_logger = get_audit_logger(config)
-            compliance_manager = get_compliance_manager(config)
+            get_security_manager(config)
+            get_audit_logger(config)
+            get_compliance_manager(config)
             
             logger.info("Security and compliance components initialized")
         except Exception as e:
@@ -256,15 +255,15 @@ def main():
         sys.exit(1)
 
     # Start other services
-    webhook_server = start_webhook_server()
+    start_webhook_server()
     time.sleep(2)  # Give webhook server time to start
     check_health("webhook_server", max_retries=5)
 
-    model_context = start_model_context_server()
+    start_model_context_server()
     time.sleep(2)  # Give model context server time to start
     check_health("model_context", max_retries=5)
 
-    core_ukg = start_core_ukg_service()
+    start_core_ukg_service()
     time.sleep(2)  # Give core UKG service time to start
     check_health("core_ukg", max_retries=5)
 
@@ -277,7 +276,7 @@ def main():
 
     # Start frontend unless --no-frontend flag is provided
     if not args.no_frontend:
-        frontend = start_frontend()
+        start_frontend()
 
     # Keep the script running and monitor processes
     try:

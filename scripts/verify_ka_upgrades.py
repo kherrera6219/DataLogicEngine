@@ -13,7 +13,6 @@ async def verify_ka117_threat_model():
     from backend.knowledge_algorithms.ka_117_threat_model_agent import KA117ThreatModelAgent
     
     # Explicit import to ensure module is loaded for patching
-    import backend.llm_gateway.gateway
     
     # Mock Gateway
     with unittest.mock.patch('backend.llm_gateway.gateway.get_gateway') as MockGetGateway:
@@ -50,10 +49,9 @@ async def verify_ka117_threat_model():
 
 async def verify_ka005_classification():
     print("\n=== Verifying KA-005 (Classification) Upgrade ===")
-    from backend.knowledge_algorithms.ka_05_query_classification import KA005QueryClassification, KA005Input
+    from backend.knowledge_algorithms.ka_05_query_classification import KA005QueryClassification
     
     # Explicit import to ensure module is loaded for patching
-    import backend.llm_gateway.gateway
 
     # Mock Gateway
     with unittest.mock.patch('backend.llm_gateway.gateway.get_gateway') as MockGetGateway:

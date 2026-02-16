@@ -92,11 +92,11 @@ class ProductionValidator:
             self.critical_issues.append("Admin username is a common default")
             print_fail(f"ADMIN_USERNAME: Using default username '{admin_user}'")
         else:
-            print_pass(f"ADMIN_USERNAME: Not a default value")
+            print_pass("ADMIN_USERNAME: Not a default value")
 
         if admin_pass in insecure_passwords or len(admin_pass) < 12:
             self.critical_issues.append("Admin password is weak or default")
-            print_fail(f"ADMIN_PASSWORD: Weak password (min 12 chars required)")
+            print_fail("ADMIN_PASSWORD: Weak password (min 12 chars required)")
         else:
             print_pass(f"ADMIN_PASSWORD: Strong password ({len(admin_pass)} characters)")
 
@@ -109,7 +109,7 @@ class ProductionValidator:
             self.warnings.append(f"FLASK_ENV is '{flask_env}', should be 'production'")
             print_warn(f"FLASK_ENV: Set to '{flask_env}' (should be 'production' for production)")
         else:
-            print_pass(f"FLASK_ENV: production")
+            print_pass("FLASK_ENV: production")
 
         debug = os.getenv('FLASK_DEBUG', 'False').lower()
         if debug == 'true':
@@ -127,7 +127,7 @@ class ProductionValidator:
             self.critical_issues.append("CORS origins allow wildcard or not configured")
             print_fail("CORS_ORIGINS: Wildcard (*) or empty (specify exact domains)")
         else:
-            print_pass(f"CORS_ORIGINS: Configured with specific domains")
+            print_pass("CORS_ORIGINS: Configured with specific domains")
             print_info(f"  Domains: {cors_origins}")
 
     def check_session_security(self):

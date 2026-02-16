@@ -1,7 +1,6 @@
 
 import logging
 import sys
-from datetime import datetime
 from simulation.layer_controller import LayerController
 
 # Configure logging
@@ -51,7 +50,7 @@ def test_pipeline():
         logger.error(f"L3 Failed: {l3_result['error']}")
         sys.exit(1)
 
-    logger.info(f"✅ L3 Passed. Augmented Evidence Pack.")
+    logger.info("✅ L3 Passed. Augmented Evidence Pack.")
     context.update(l3_result) # Pass L3 output to context
 
     # 6. Run Layer 4 (POV Engine)

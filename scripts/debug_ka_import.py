@@ -1,6 +1,5 @@
 
 import sys
-import os
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -23,9 +22,8 @@ try:
     sys.modules["models"] = MagicMock()
 
     print("Attempting import...")
-    from backend.knowledge_algorithms.ka_50_knowledge_integrity_validator import KA050KnowledgeIntegrityValidator
     print("Import successful!")
-except Exception as e:
+except Exception:
     print("IMPORT FAILED:")
     import traceback
     traceback.print_exc()

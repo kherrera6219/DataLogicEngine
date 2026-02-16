@@ -7,7 +7,6 @@ Tests the full "v17" Dynamic Flow:
 """
 
 import sys
-import os
 import json
 import logging
 
@@ -68,7 +67,6 @@ def test_pipeline():
          raise Exception(f"L2 Failed: {l2_res}")
          
     pack = l2_res["evidence_pack"]
-    bindings = l2_res["bindings"]
     
     logger.info(f"L2 Retrieved {len(pack['items'])} items")
     

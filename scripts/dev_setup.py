@@ -6,7 +6,6 @@ DataLogicEngine v2.0.0
 This script automates the setup of the local development environment.
 """
 
-import os
 import sys
 import subprocess
 import shutil

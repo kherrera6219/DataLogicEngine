@@ -15,9 +15,6 @@ map_file = os.path.join(ROOT_DIR, "FILE_STRUCTURE_MAP.txt")
 
 def generate_inventory_and_map():
     print(f"Scanning {ROOT_DIR}...")
-    
-    # Data collection for map
-    file_structure = {}
 
     with open(inventory_file, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['Path', 'Size_Bytes', 'Extension', 'Last_Modified']
@@ -49,7 +46,7 @@ def generate_inventory_and_map():
 
     # Generate Tree Map
     with open(map_file, 'w', encoding='utf-8') as f:
-        f.write(f"Project: DataLogicEngine (File Structure Map)\n")
+        f.write("Project: DataLogicEngine (File Structure Map)\n")
         f.write(f"Generated: {time.ctime()}\n")
         f.write(f"Root: {ROOT_DIR}\n")
         f.write("="*50 + "\n\n")

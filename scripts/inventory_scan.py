@@ -3,7 +3,6 @@ import os
 import hashlib
 import json
 from collections import defaultdict
-from pathlib import Path
 
 ROOT_DIR = r"c:\software\DataLogicEngine"
 IGNORE_DIRS = {
@@ -20,7 +19,7 @@ def calculate_checksum(file_path):
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
-    except Exception as e:
+    except Exception:
         return None
 
 def scan_directory(root_path):

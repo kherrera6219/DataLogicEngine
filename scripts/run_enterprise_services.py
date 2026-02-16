@@ -13,7 +13,7 @@ import time
 import signal
 import logging
 import argparse
-from typing import List, Dict, Any
+from typing import List, Dict
 
 # Configure logging
 logging.basicConfig(
@@ -112,16 +112,16 @@ def start_all_services() -> None:
     signal.signal(signal.SIGTERM, cleanup)
     
     # Start API Gateway
-    api_gateway = run_api_gateway()
+    run_api_gateway()
     
     # Start Webhook Server
-    webhook_server = run_webhook_server()
+    run_webhook_server()
     
     # Start Model Context Protocol Server
-    model_context_server = run_model_context_server()
+    run_model_context_server()
     
     # Start .NET Core Service
-    dotnet_service = run_dotnet_service()
+    run_dotnet_service()
     
     # Wait for all processes to complete
     try:

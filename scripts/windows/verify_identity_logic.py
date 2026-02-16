@@ -12,9 +12,8 @@ import shutil
 TEST_KEY_DIR = tempfile.mkdtemp()
 os.environ["UKG_KEY_DIR"] = TEST_KEY_DIR
 
-from datetime import datetime
 from flask import Flask
-from extensions import db, login_manager, audit_logger, rbac_manager
+from extensions import db, login_manager
 from models import User, AuditLog
 from routes.auth_routes import auth_bp
 
@@ -27,7 +26,6 @@ class TestIdentityIsolation(unittest.TestCase):
         
         # Isolate encryption keys for testing
         import tempfile
-        import shutil
         self.test_key_dir = tempfile.mkdtemp()
         
         from extensions import encryption_manager as em
@@ -113,7 +111,6 @@ class TestIdentityIsolation(unittest.TestCase):
                     self.assertEqual(user2.username, "kevin_1")
 
     def tearDown(self):
-        import shutil
         if hasattr(self, 'test_key_dir'):
             shutil.rmtree(self.test_key_dir, ignore_errors=True)
 

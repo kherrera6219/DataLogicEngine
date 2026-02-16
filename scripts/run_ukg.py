@@ -9,7 +9,6 @@ import os
 import sys
 import subprocess
 import signal
-import time
 import logging
 
 # Configure logging
@@ -77,7 +76,6 @@ def initialize_database():
     
     # Create database tables
     from app import app, db
-    import db_models  # Make sure db_models is imported
     
     with app.app_context():
         db.create_all()

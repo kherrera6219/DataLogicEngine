@@ -1,6 +1,5 @@
 import sys
 import os
-from modulefinder import ModuleFinder
 
 def find_circular():
     root = os.getcwd()

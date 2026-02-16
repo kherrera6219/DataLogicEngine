@@ -2,7 +2,6 @@ import os
 import sys
 import unittest
 import json
-from datetime import datetime
 
 # Add current directory to path
 sys.path.append(os.getcwd())
@@ -15,7 +14,7 @@ TEST_KEY_DIR = tempfile.mkdtemp()
 os.environ["UKG_KEY_DIR"] = TEST_KEY_DIR
 
 from flask import Flask
-from extensions import db, login_manager, cache, audit_logger, rbac_manager
+from extensions import db, login_manager, cache
 from models import User, AuditLog
 from routes.admin_routes import admin_bp
 from routes.user_data_routes import user_data_bp
@@ -41,7 +40,6 @@ class TestAuditSecurity(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        import shutil
         if os.path.exists(TEST_KEY_DIR):
             shutil.rmtree(TEST_KEY_DIR, ignore_errors=True)
 
