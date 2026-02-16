@@ -47,6 +47,25 @@ jobs:
       run: |
         python scripts/test_smoke.py
 
+    - name: Set up Node.js for deterministic startup precheck
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install frontend dependencies for startup precheck
+      run: |
+        cd frontend
+        npm ci
+
+    - name: Run deterministic startup precheck gate
+      run: |
+        python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process --json-report reports/runtime_precheck_report_ci.json
+      env:
+        FLASK_ENV: "testing"
+        SESSION_SECRET: "ci-session-secret"
+        DATABASE_URL: "sqlite:///:memory:"
+        OPENAI_API_KEY: "mock-key-for-ci"
+
     - name: Validate docs references
       run: |
         python scripts/verify_docs_references.py

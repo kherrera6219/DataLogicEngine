@@ -14,6 +14,11 @@ from datetime import datetime
 import logging
 
 from backend.mcp_server.connector_metrics import infer_connector_id, record_connector_execution
+from backend.mcp_server.contract_validation import (
+    ContractValidationError,
+    validate_tool_arguments,
+    validate_tool_result,
+)
 from backend.mcp_server.scope_enforcement import enforce_scopes, parse_execution_context
 from .mcp_protocol import (
     MCPMessage, MCPResource, MCPTool, MCPPrompt,
@@ -215,6 +220,10 @@ class MCPServer(MCPRequestHandler):
             context=execution_context,
             permissive_on_missing_context=True,
         )
+        try:
+            validate_tool_arguments(tool_name, tool_definition.input_schema, arguments)
+        except ContractValidationError as exc:
+            raise MCPError(MCPErrorCode.INVALID_PARAMS, str(exc)) from exc
 
         started = time.perf_counter()
         success = False
@@ -233,6 +242,10 @@ class MCPServer(MCPRequestHandler):
                 result = await handler_result
             else:
                 result = handler_result
+            try:
+                validate_tool_result(tool_name, tool_definition.metadata.get("output_schema"), result)
+            except ContractValidationError as exc:
+                raise MCPError(MCPErrorCode.TOOL_EXECUTION_ERROR, str(exc)) from exc
             success = True
 
             # Audit Log (Enterprise)

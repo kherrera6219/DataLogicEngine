@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.4] - 2026-02-16
+
+### Added
+- Completed Sections 5-8 Phase 2 hardening controls:
+  - Shared connector OAuth lifecycle manager with refresh + persisted token updates.
+  - Runtime MCP connector contract validation for input/output schemas.
+  - AI latency percentile telemetry (`p50`/`p95`/`p99`) exported via `/metrics`.
+  - Support-bundle diagnostics generator (`scripts/generate_support_bundle.py`).
+  - Deterministic startup precheck strict mode + CI/deploy release gates.
+- Added focused Phase 2 regression coverage:
+  - `tests/unit/test_phase2_oauth_contract_metrics.py`
+
+### Changed
+- Updated Jira/Salesforce MCP connectors to prefer managed OAuth tokens with controlled fallback.
+- Updated docs and subsystem report to reflect Phase 2 completion:
+  - `README.md`
+  - `docs/README.md`
+  - `docs/PRODUCT_OVERVIEW.md`
+  - `docs/PRODUCTION_READINESS.md`
+  - `docs/OPERATIONAL_RUNBOOKS.md`
+  - `docs/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
+
+### Testing
+- Targeted phase hardening/debug sweep completed:
+  - `python -m pytest -q --no-cov tests/unit/test_phase2_oauth_contract_metrics.py tests/unit/test_phase1_scope_ssrf_controls.py tests/unit/test_mcp_tracing_repo_rest_coverage.py tests/test_health_endpoint.py tests/unit/test_llm_gateway_internal_units.py`
+  - `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process --json-report reports/runtime_precheck_report_local_phase2.json`
+  - `python scripts/generate_support_bundle.py --skip-http --output-dir reports/support_bundles --max-files-per-group 3`
+
 ## [4.1.3] - 2026-02-16
 
 ### Added

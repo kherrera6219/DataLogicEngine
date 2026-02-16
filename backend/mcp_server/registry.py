@@ -12,6 +12,7 @@ from typing import Any, Callable, Dict, List, Optional
 from pydantic import BaseModel
 
 from backend.mcp_server.connector_metrics import record_connector_execution
+from backend.mcp_server.contract_validation import validate_tool_arguments, validate_tool_result
 from backend.mcp_server.scope_enforcement import (
     ExecutionContext,
     enforce_scopes,
@@ -25,6 +26,7 @@ class ToolDefinition(BaseModel):
     name: str
     description: str
     input_schema: Dict[str, Any]
+    output_schema: Optional[Dict[str, Any]] = None
     required_scopes: List[str] = []
     connector: Optional[str] = None
 
@@ -39,6 +41,7 @@ class ToolRegistry:
         name: str,
         description: str,
         input_schema: Dict[str, Any],
+        output_schema: Optional[Dict[str, Any]] = None,
         required_scopes: Optional[List[str]] = None,
         connector: Optional[str] = None,
     ):
@@ -50,6 +53,7 @@ class ToolRegistry:
                 name=name,
                 description=description,
                 input_schema=input_schema,
+                output_schema=output_schema,
                 required_scopes=required_scopes or [],
                 connector=connector,
             )
@@ -65,6 +69,7 @@ class ToolRegistry:
                 "name": definition.name,
                 "description": definition.description,
                 "inputSchema": definition.input_schema,
+                "outputSchema": definition.output_schema,
                 "requiredScopes": definition.required_scopes,
                 "connector": definition.connector,
             }
@@ -111,7 +116,9 @@ class ToolRegistry:
             context=execution_context,
             permissive_on_missing_context=True,
         )
-        call_arguments = self._build_call_arguments(tool_func, arguments, execution_context)
+        raw_arguments = arguments if isinstance(arguments, dict) else {}
+        validate_tool_arguments(name, tool_definition.input_schema, raw_arguments)
+        call_arguments = self._build_call_arguments(tool_func, raw_arguments, execution_context)
 
         started = time.perf_counter()
         success = False
@@ -121,6 +128,7 @@ class ToolRegistry:
                 result = await tool_func(**call_arguments)
             else:
                 result = tool_func(**call_arguments)
+            validate_tool_result(name, tool_definition.output_schema, result)
             success = True
             return result
         except Exception as e:

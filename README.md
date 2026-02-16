@@ -24,6 +24,10 @@ The application is functional for local Windows use with API keys and internet a
 9. Connector latency/error telemetry exported to metrics and analytics surfaces.
 10. SSRF protection on API gateway upstream forwarding and enterprise health probes.
 11. CI/release gates for schema parity validation (`SQLite` vs `Postgres`) and installer checksum integrity.
+12. Connector OAuth lifecycle handling and runtime input/output contract validation for Jira/Salesforce MCP tools.
+13. AI latency percentile metrics (`p50`/`p95`/`p99`) exported in `/metrics` for alerting integration.
+14. Deterministic startup precheck now enforced as CI/deploy release gate.
+15. Diagnostic support-bundle generator for sanitized incident collection.
 
 ### Partial / In Progress
 
@@ -31,7 +35,7 @@ The application is functional for local Windows use with API keys and internet a
 2. `Settings > Storage > Cloud Config` form fields are not fully wired to persistence.
 3. MCP admin actions are partially available (`Add Server` and console actions are still disabled in UI).
 4. Register page UI exists but registration submit flow is not yet wired.
-5. Phase 2 hardening work is in progress for connector OAuth lifecycle, contract validation, AI latency percentile metrics, support bundle generation, and startup-gate enforcement.
+5. Phase 3 integrity depth remains for snapshot signing/HMAC and release code-signing pipeline completion.
 
 ## Quick Start (Windows 11)
 
@@ -173,6 +177,8 @@ Operational hardening checks:
 ```powershell
 python .\scripts\validate_schema_parity.py
 python .\scripts\verify_installer_integrity.py --require-artifacts
+python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process
+python .\scripts\generate_support_bundle.py --skip-http
 ```
 
 ## Contributing

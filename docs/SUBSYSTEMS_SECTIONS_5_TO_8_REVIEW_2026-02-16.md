@@ -11,15 +11,14 @@
 
 ## Executive Summary
 - Controls reviewed: `33`
-- `Implemented`: `21`
-- `Partial`: `8`
-- `Missing`: `4`
+- `Implemented`: `30`
+- `Partial`: `3`
+- `Missing`: `0`
 
 Highest-priority gaps:
-1. Missing connector scope enforcement and SSRF protection in integration paths.
-2. Missing connector latency monitoring and support-bundle diagnostic tooling.
-3. Partial installer integrity/code-signing coverage for distributable binaries.
-4. Data schema parity and snapshot integrity lack stronger automated verification controls.
+1. Snapshot integrity still needs signed/HMAC verification depth for exported evidence bundles.
+2. Release binary code-signing pipeline remains partial for end-user installers.
+3. Crash reporting still depends on environment setup and lacks explicit end-to-end alert validation coverage.
 
 ## Phase 1 Implementation Update (2026-02-16)
 Phase 1 controls from this report are now implemented in code with CI/release gating updates.
@@ -59,12 +58,47 @@ Phase 1 controls from this report are now implemented in code with CI/release ga
 
 ### Phase 1 Status
 - Phase 1 items from this report: `5/5` completed.
-- Remaining open items continue in Phase 2/Phase 3 scopes (OAuth framework expansion, connector contract validation, support bundle tooling, binary code-signing completion, snapshot HMAC/signature hardening).
+- Remaining open items after Phase 1 were moved to Phase 2/Phase 3 scopes; Phase 2 completion is documented below.
+
+## Phase 2 Implementation Update (2026-02-16)
+Phase 2 controls from this report are now implemented with validation coverage and release gating.
+
+### Completed in this phase
+1. OAuth connector lifecycle framework:
+   - Added shared connector OAuth token manager with expiry detection, refresh callback support, and persisted token updates (`backend/mcp_server/oauth_manager.py`).
+   - Integrated Jira/Salesforce connector clients to prefer managed OAuth tokens with controlled fallback to static credentials (`backend/mcp_server/tools/jira.py`, `backend/mcp_server/tools/salesforce.py`).
+
+2. Runtime connector contract validation:
+   - Added contract validator for MCP tool input/output schemas (`backend/mcp_server/contract_validation.py`).
+   - Enforced input/output contract checks in MCP registry and core MCP server execution paths (`backend/mcp_server/registry.py`, `core/mcp/mcp_server.py`).
+   - Added output schema contracts for Jira/Salesforce MCP tools (`backend/mcp_server/tools/jira.py`, `backend/mcp_server/tools/salesforce.py`).
+
+3. AI latency percentile telemetry in `/metrics`:
+   - Added gateway-level AI latency/error telemetry with p50/p95/p99 summaries (`backend/llm_gateway/latency_metrics.py`).
+   - Recorded latency results from provider attempts in success/failure/timeout paths (`backend/llm_gateway/gateway.py`).
+   - Exposed AI latency metrics in app-level Prometheus payload (`app.py`).
+
+4. Support-bundle diagnostics tooling:
+   - Added operational support-bundle generator for sanitized env, git snapshot, runtime precheck output, health probes, and recent logs/reports (`scripts/generate_support_bundle.py`).
+
+5. Deterministic startup checks as release gates:
+   - Extended runtime precheck with strict/deterministic flags and JSON report output (`scripts/runtime_precheck.py`).
+   - Added deterministic startup validation gates to CI and deploy workflows (`.github/workflows/ci.yml`, `.github/workflows/deploy.yml`).
+
+### Verification / Debug Sweep Executed
+- `python -m py_compile ...` on all modified Phase 2 modules: pass.
+- `python -m pytest -q --no-cov tests/unit/test_phase2_oauth_contract_metrics.py tests/unit/test_phase1_scope_ssrf_controls.py tests/unit/test_mcp_tracing_repo_rest_coverage.py tests/test_health_endpoint.py tests/unit/test_llm_gateway_internal_units.py`: pass (`28` tests).
+- `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process --json-report reports/runtime_precheck_report_local_phase2.json`: pass.
+- `python scripts/generate_support_bundle.py --skip-http --output-dir reports/support_bundles --max-files-per-group 3`: pass.
+
+### Phase 2 Status
+- Phase 2 items from this report: `5/5` completed.
+- Remaining open items align to Phase 3 integrity/compliance depth (snapshot signing/HMAC, code-signing pipeline completion, crash-report alert verification hardening).
 
 ## 5) Data Layer Subsystems
 | Subsystem | Current Status | Evidence | Remaining Gap | Suggested Action |
 |---|---|---|---|---|
-| Schema Parity Validation (SQLite vs Postgres) | Partial | `scripts/setup_database.sh`, `scripts/windows/start_local_stack.ps1`, `scripts/verify_sqlite.py` | No automated cross-engine schema diff/alerting pipeline. | Add CI job to compare generated/actual schemas across SQLite and Postgres and fail on drift. |
+| Schema Parity Validation (SQLite vs Postgres) | Implemented | `scripts/validate_schema_parity.py`, `.github/workflows/ci.yml`, `.github/workflows/deploy.yml` | Portability checks can further expand to runtime DDL drift monitoring. | Keep schema parity gate required in CI/deploy and add scheduled drift reports. |
 | Migration Governance System | Implemented | `migrations/env.py`, `scripts/setup_database.sh`, `scripts/windows/start_local_stack.ps1` | Process approval traceability can improve. | Add migration approval checklist in release workflow. |
 | Snapshot Integrity System (hash/HMAC verification) | Partial | `core/system/frost_service.py`, `simulation/trace_system.py` | SHA-256 content hashing exists but no HMAC/signature verification layer. | Add HMAC signing + verification for snapshots and trace bundles. |
 | Data Classification & Tagging Layer | Implemented | `backend/security/data_classification.py` | Wiring audit depth can improve. | Add integration coverage checks across all ingestion paths. |
@@ -76,13 +110,13 @@ Phase 1 controls from this report are now implemented in code with CI/release ga
 ## 6) Connector & Integration Subsystems
 | Subsystem | Current Status | Evidence | Remaining Gap | Suggested Action |
 |---|---|---|---|---|
-| OAuth Connector Framework | Partial | `backend/auth/sso.py`, `backend/mcp_server/tools/salesforce.py`, `backend/mcp_server/tools/jira.py` | OAuth is present for SSO but not generalized for connectors (token refresh/storage lifecycle). | Build shared connector OAuth framework and migrate connector credentials to it. |
-| Connector Scope Enforcement Layer | Missing | `backend/mcp_server/router.py`, `backend/mcp_server/registry.py`, `backend/security/rbac.py` | Connector execution path lacks per-tool RBAC/scope enforcement at runtime. | Thread user/tenant context into MCP router/registry and enforce connector scopes before execution. |
-| External API Contract Validation | Partial | `backend/mcp_server/registry.py` | Input schema metadata is registered but not enforced on runtime arguments/outputs. | Enforce request/response schema validation for connector tool calls. |
+| OAuth Connector Framework | Implemented | `backend/mcp_server/oauth_manager.py`, `backend/mcp_server/tools/salesforce.py`, `backend/mcp_server/tools/jira.py` | Connector onboarding and admin token-management UX can expand. | Add connector OAuth account-management UI/API to simplify onboarding and rotation. |
+| Connector Scope Enforcement Layer | Implemented | `backend/mcp_server/scope_enforcement.py`, `backend/mcp_server/registry.py`, `routes/mcp_routes.py` | Coverage should remain mandatory for every new connector tool surface. | Keep scope checks as a non-bypassable requirement for new connector registrations. |
+| External API Contract Validation | Implemented | `backend/mcp_server/contract_validation.py`, `backend/mcp_server/registry.py`, `core/mcp/mcp_server.py` | Contract depth can increase for richer schema variants. | Expand schema coverage (e.g., nested `oneOf`/`allOf` patterns) as connector payload complexity grows. |
 | Connector Rate Limiting | Implemented | `backend/llm_gateway/api.py` (API key RPM/daily limits) | Coverage should expand uniformly to additional connector endpoints as they are added. | Apply standard rate limiting decorators/policies to all connector-facing APIs. |
 | Immutable Evidence Capture System | Implemented | `backend/security/audit_logger.py` | Storage hardening depth can improve. | Replicate to immutable storage target for stronger forensic assurance. |
 | File Sanitization & Path Validation Layer | Implemented | `backend/utils/safe_path.py`, `backend/routes/storage_routes.py` | Expansion to all future file-import surfaces should be enforced. | Require safe-path helpers for every new file-based connector path. |
-| SSRF Protection Layer (for web import) | Missing | `backend/api_gateway/api_gateway.py` | Outbound host validation/allowlisting is not consistently enforced. | Add outbound URL allowlist/denylist and DNS/IP SSRF guards before HTTP calls. |
+| SSRF Protection Layer (for web import) | Implemented | `backend/security/ssrf.py`, `backend/api_gateway/api_gateway.py`, `backend/enterprise_architecture.py` | Allowlist governance should remain tight as connectors expand. | Add explicit change-control logging for allowlist updates. |
 
 ## 7) Security & Compliance Subsystems
 | Subsystem | Current Status | Evidence | Remaining Gap | Suggested Action |
@@ -95,7 +129,7 @@ Phase 1 controls from this report are now implemented in code with CI/release ga
 | Redaction Framework (logs + exports) | Implemented | `backend/security/pii_redaction.py`, `backend/logging_config.py`, `backend/middleware/__init__.py` | Export redaction consistency can be expanded in all audit/export channels. | Enforce redaction in every export pipeline before serialization. |
 | Dependency Vulnerability Monitoring | Implemented | `backend/security/vulnerability_scanner.py`, `.github/workflows/security.yml` | Auto-remediation/escalation policy can strengthen. | Add critical-vuln CI fail gates and alert routing. |
 | Secure Configuration Management | Implemented | `backend/config/settings.py`, `config/config.env` | Production secret source hardening can improve. | Shift sensitive values to vault-backed runtime resolution in production. |
-| Installer Integrity Verification | Partial | `frontend/build_installer.ps1`, `frontend/scripts/copy-installer-to-root.ps1`, `scripts/windows/test_installer.ps1` | No mandatory distributed checksum/signature verification for installers. | Generate and publish installer checksums/signatures with verification steps. |
+| Installer Integrity Verification | Implemented | `frontend/scripts/copy-installer-to-root.ps1`, `scripts/verify_installer_integrity.py`, `.github/workflows/deploy.yml` | Signature verification for signed binaries still depends on code-signing completion. | Keep checksum verification mandatory and pair with code-signing rollout. |
 | Code Signing Pipeline | Partial | `.github/workflows/security.yml`, `frontend/build_installer.ps1` | SBOM signing exists; installer/binary signing remains incomplete. | Add signing pipeline for release executables/installers. |
 
 ## 8) Observability & Operations Subsystems
@@ -103,11 +137,11 @@ Phase 1 controls from this report are now implemented in code with CI/release ga
 |---|---|---|---|---|
 | Structured Log Aggregation Strategy | Implemented | `backend/logging_config.py`, `app.py` | Deployment-time aggregation config consistency can improve. | Enforce `LOG_AGGREGATION_*` env policy and schema checks in CI. |
 | Application Metrics Collection | Implemented | `app.py` (`/metrics`, readiness/uptime/request metrics), `docs/PRODUCTION_READINESS.md` | Metric breadth and dimensionality can increase. | Add DB/cache/simulation metrics and latency histograms. |
-| AI Latency Monitoring | Partial | `backend/llm_gateway/gateway.py`, `backend/llm_gateway/api.py` (`/admin/usage`) | Latency not fully exported to metrics/alerts path. | Export AI latency percentiles to `/metrics` and alerting stack. |
-| Connector Latency Monitoring | Missing | `backend/mcp_server/tools/salesforce.py`, `backend/mcp_server/tools/jira.py`, `backend/storage/connection_manager.py` | No consistent connector call timing metrics. | Add connector latency instrumentation and emit Prometheus metrics. |
-| Diagnostic Tooling (support bundle generator) | Missing | `docs/OPERATIONAL_RUNBOOKS.md` | No automated support bundle collector found. | Build support-bundle generator for logs/config/health/metrics snapshots. |
+| AI Latency Monitoring | Implemented | `backend/llm_gateway/latency_metrics.py`, `backend/llm_gateway/gateway.py`, `app.py` (`/metrics`) | Alert policy tuning and SLO thresholds can mature. | Add Grafana/alert rule baselines for p95/p99 latency and error-rate burn alerts. |
+| Connector Latency Monitoring | Implemented | `backend/mcp_server/connector_metrics.py`, `backend/mcp_server/registry.py`, `app.py` (`/metrics`) | Coverage must stay mandatory for all new connector tools. | Gate connector PRs on telemetry coverage checks. |
+| Diagnostic Tooling (support bundle generator) | Implemented | `scripts/generate_support_bundle.py`, `docs/OPERATIONAL_RUNBOOKS.md` | Bundle schema can expand with targeted service diagnostics. | Add optional deep-collection mode for incident triage windows. |
 | Crash Reporting System | Partial | `app.py` (Sentry init path) | Crash reporting depends on env setup and lacks explicit pipeline verification tests. | Add crash-reporting verification checks and fallback crash IDs. |
-| Deterministic Startup Validation | Implemented | `scripts/runtime_precheck.py`, `scripts/test_smoke.py`, `docs/APPLICATION_REVIEW_RECOMMENDED_IMPROVEMENTS_2026-02-10.md` | Checks are not yet mandatory in all release gates. | Make startup prechecks required CI/release steps. |
+| Deterministic Startup Validation | Implemented | `scripts/runtime_precheck.py`, `.github/workflows/ci.yml`, `.github/workflows/deploy.yml` | Release policies should retain deterministic flags as default path. | Keep strict precheck gate mandatory and store JSON reports as workflow artifacts. |
 | Orphan Process Cleanup Handler | Implemented | `scripts/run_enterprise_services.py`, `scripts/run_ukg.py` | Shared reuse across all future runners should be standardized. | Consolidate cleanup handling into shared utility for new orchestrators. |
 
 ## Recommended Phased Plan
@@ -118,7 +152,7 @@ Phase 1 controls from this report are now implemented in code with CI/release ga
 4. Introduce installer checksums/signatures and verification in release workflow.
 5. Add global schema parity diff checks for SQLite/Postgres in CI.
 
-### Phase 2 (31-60 days): Governance and Observability Hardening
+### Phase 2 (31-60 days): Governance and Observability Hardening (`Completed 2026-02-16`)
 1. Expand OAuth connector framework with token lifecycle management.
 2. Enforce runtime contract validation for connector request/response payloads.
 3. Export AI latency percentiles into `/metrics` and alerting.
@@ -133,4 +167,4 @@ Phase 1 controls from this report are now implemented in code with CI/release ga
 5. Expand retention cleanups and backup restore drill automation.
 
 ## Verification Note
-- This report is codebase audit-based. No new runtime tests were executed specifically for this review request.
+- Report updated with code implementation and validation evidence from executed debug/test sweeps.

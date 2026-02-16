@@ -39,6 +39,28 @@ Provide incident-response procedures for common DataLogicEngine security and run
 4. Execute incident-specific runbook.
 5. Validate recovery with health checks and user-path checks.
 6. Create post-incident report with remediation actions.
+7. Generate and attach a sanitized support bundle for incident evidence.
+
+## Support bundle capture
+
+Use the support-bundle generator to collect bounded diagnostics for handoff/escalation:
+
+```powershell
+python .\scripts\generate_support_bundle.py
+```
+
+Options for offline collection:
+
+```powershell
+python .\scripts\generate_support_bundle.py --skip-http --max-files-per-group 5
+```
+
+Bundle content includes:
+
+1. Sanitized environment snapshot.
+2. Git and runtime precheck snapshots.
+3. Recent logs and reports (bounded size).
+4. Optional health/ready/metrics probe output.
 
 ## Incident 1: Prompt-injection attempt detected
 
@@ -121,6 +143,28 @@ Provide incident-response procedures for common DataLogicEngine security and run
 3. If valid destination, update approved upstream allowlist through change control.
 4. If destination is unexpected, treat as potential security event and contain source.
 5. Re-run health and integration checks after policy update.
+
+## Incident 8: Connector contract validation failures
+
+**Trigger:** MCP tool calls fail with contract validation errors.
+**Default severity:** `SEV-2`
+
+1. Capture tool name, payload, and contract violation message.
+2. Confirm request payload matches declared `inputSchema` for the tool.
+3. Confirm connector response shape still matches declared `outputSchema`.
+4. Roll back connector/tool contract change if regression was introduced.
+5. Add/update tests for contract boundary before re-release.
+
+## Incident 9: Deterministic startup gate failure in CI/deploy
+
+**Trigger:** `runtime_precheck.py --strict ...` gate fails in CI/deploy.
+**Default severity:** `SEV-2`
+
+1. Review generated runtime precheck JSON report artifact from workflow.
+2. Address failing blocker/action findings (config, dependencies, or startup prerequisites).
+3. Re-run precheck locally with matching flags:
+   `python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process`
+4. Re-run pipeline after remediation and attach updated report evidence.
 
 ## Validation checklist after any incident
 

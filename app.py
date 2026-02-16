@@ -17,6 +17,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from flask_limiter.util import get_remote_address
 from werkzeug.middleware.proxy_fix import ProxyFix
 from extensions import limiter
+from backend.llm_gateway.latency_metrics import ai_latency_metrics_prometheus_lines
 from backend.logging_config import configure_structured_logging
 from backend.mcp_server.connector_metrics import connector_metrics_prometheus_lines
 
@@ -681,6 +682,7 @@ def _prometheus_metrics_payload() -> str:
         f"datalogicengine_database_ready {database_ok}",
     ]
     lines.extend(connector_metrics_prometheus_lines(prefix="datalogicengine"))
+    lines.extend(ai_latency_metrics_prometheus_lines(prefix="datalogicengine"))
     return "\n".join(lines) + "\n"
 
 

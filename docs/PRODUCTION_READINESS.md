@@ -46,15 +46,20 @@ DataLogicEngine is an enterprise-grade AI/ML knowledge management platform desig
 
 **Current status**: Production hardened baseline
 
-## 2026-02-16 Hardening Update (Sections 5-8 Phase 1)
+## 2026-02-16 Hardening Update (Sections 5-8 Phase 1 + Phase 2)
 
 The following controls are now implemented and validated:
 
 1. MCP connector scope enforcement with user/tenant execution context.
 2. SSRF outbound URL validation for API gateway forwarding and architecture health probes.
 3. Connector latency/error telemetry surfaced to metrics and analytics.
-4. Schema parity validator for SQLite/PostgreSQL wired into CI + deploy workflows.
-5. Installer checksum generation and integrity verification wired into deploy workflow.
+4. Connector OAuth lifecycle manager with runtime refresh/persistence support for Jira/Salesforce.
+5. Runtime connector request/response contract validation in MCP registry + core MCP server.
+6. AI latency percentile telemetry (`p50`/`p95`/`p99`) exported via `/metrics`.
+7. Support-bundle diagnostics generator for incident triage.
+8. Deterministic startup precheck gate required in CI + deploy workflows.
+9. Schema parity validator for SQLite/PostgreSQL wired into CI + deploy workflows.
+10. Installer checksum generation and integrity verification wired into deploy workflow.
 
 Reference implementation report:
 - `docs/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
@@ -64,7 +69,10 @@ Validation commands:
 ```powershell
 python .\scripts\validate_schema_parity.py
 python .\scripts\verify_installer_integrity.py --require-artifacts
+python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process
+python .\scripts\generate_support_bundle.py --skip-http
 python -m pytest -q --no-cov tests/unit/test_phase1_scope_ssrf_controls.py
+python -m pytest -q --no-cov tests/unit/test_phase2_oauth_contract_metrics.py
 ```
 
 ## Universal Knowledge Graph (UKG) system architecture

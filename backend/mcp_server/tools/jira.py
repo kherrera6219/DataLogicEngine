@@ -5,21 +5,70 @@ Exposes Jira Project Management capabilities as MCP tools using the jira library
 """
 import os
 import logging
+import requests
 from jira import JIRA
 from backend.mcp_server.registry import registry
+from backend.mcp_server.oauth_manager import OAuthTokenError, get_connector_oauth_token
 
 logger = logging.getLogger(__name__)
 
-def get_jira_client():
-    """Initialize Jira client using environment variables."""
+
+def _refresh_jira_oauth_token(refresh_token: str, _account) -> dict:
+    """Refresh Jira OAuth token using Atlassian OAuth token endpoint."""
+    token_url = os.getenv("JIRA_OAUTH_TOKEN_URL", "https://auth.atlassian.com/oauth/token")
+    client_id = os.getenv("JIRA_OAUTH_CLIENT_ID")
+    client_secret = os.getenv("JIRA_OAUTH_CLIENT_SECRET")
+    if not all([client_id, client_secret]):
+        raise OAuthTokenError("Jira OAuth refresh requires JIRA_OAUTH_CLIENT_ID and JIRA_OAUTH_CLIENT_SECRET.")
+
+    response = requests.post(
+        token_url,
+        json={
+            "grant_type": "refresh_token",
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "refresh_token": refresh_token,
+        },
+        timeout=10,
+    )
+    if response.status_code >= 400:
+        raise OAuthTokenError(f"Jira OAuth refresh failed ({response.status_code}).")
+
+    payload = response.json() if response.content else {}
+    if not payload.get("access_token"):
+        raise OAuthTokenError("Jira OAuth refresh response missing access_token.")
+    return payload
+
+
+def get_jira_client(_execution_context: dict | None = None):
+    """Initialize Jira client via managed OAuth token or fallback basic auth."""
     server = os.getenv("JIRA_SERVER_URL")
     email = os.getenv("JIRA_USER_EMAIL")
-    api_token = os.getenv("JIRA_API_TOKEN") # Use API tokens for cloud, password for on-prem
-    
-    if not all([server, email, api_token]):
+    api_token = os.getenv("JIRA_API_TOKEN")  # Use API tokens for cloud, password for on-prem
+
+    if not server:
+        logger.warning("Jira server URL missing. Tools will operate in failover mode.")
+        return None
+
+    try:
+        oauth_payload = get_connector_oauth_token(
+            "jira",
+            execution_context=_execution_context,
+            refresh_callback=_refresh_jira_oauth_token,
+        )
+        if oauth_payload and oauth_payload.get("access_token"):
+            options = {"server": server}
+            return JIRA(options=options, token_auth=str(oauth_payload["access_token"]))
+    except OAuthTokenError as exc:
+        logger.warning("Managed Jira OAuth token unavailable: %s", exc)
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Managed Jira OAuth client initialization failed: %s", exc)
+        return None
+
+    if not all([email, api_token]):
         logger.warning("Jira credentials missing. Tools will operate in failover mode.")
         return None
-        
+
     try:
         # Authentication via email and API token
         options = {'server': server}
@@ -43,13 +92,30 @@ def get_jira_client():
             "issue_type": {"type": "string", "enum": ["Bug", "Task", "Story", "Incident"], "default": "Task"}
         },
         "required": ["project_key", "summary"]
-    }
+    },
+    output_schema={
+        "type": "object",
+        "properties": {
+            "status": {"type": "string", "enum": ["created", "error", "fail"]},
+            "key": {"type": "string"},
+            "link": {"type": "string"},
+            "summary": {"type": "string"},
+            "error": {"type": "string"},
+        },
+        "required": ["status"],
+    },
 )
-def ticket_create(project_key: str, summary: str, description: str = "", issue_type: str = "Task"):
+def ticket_create(
+    project_key: str,
+    summary: str,
+    description: str = "",
+    issue_type: str = "Task",
+    _execution_context: dict | None = None,
+):
     """
     Create an Issue in Jira.
     """
-    jira = get_jira_client()
+    jira = get_jira_client(_execution_context)
     if not jira:
         return {"error": "Jira API unavailable. Check credentials.", "status": "fail"}
 
@@ -83,13 +149,26 @@ def ticket_create(project_key: str, summary: str, description: str = "", issue_t
             "ticket_key": {"type": "string", "description": "The Ticket ID (e.g., UKG-123)"}
         },
         "required": ["ticket_key"]
-    }
+    },
+    output_schema={
+        "type": "object",
+        "properties": {
+            "status": {"type": "string"},
+            "key": {"type": "string"},
+            "summary": {"type": "string"},
+            "assignee": {"type": "string"},
+            "priority": {"type": "string"},
+            "updated": {"type": "string"},
+            "error": {"type": "string"},
+        },
+        "required": ["status"],
+    },
 )
-def status_check(ticket_key: str):
+def status_check(ticket_key: str, _execution_context: dict | None = None):
     """
     Retrieve status and metadata for a specific Jira issue.
     """
-    jira = get_jira_client()
+    jira = get_jira_client(_execution_context)
     if not jira:
         return {"error": "Jira API unavailable.", "status": "fail"}
 

@@ -5,11 +5,14 @@ This script surfaces blocking issues that prevent the backend (Flask) and fronte
 from starting and communicating locally. It focuses on developer default ports (backend 5000,
 frontend 3000), required configuration files, and bootstrap dependency manifests.
 """
+import argparse
+import json
 import os
 import sys
 import socket
 import shutil
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 
 from dotenv import dotenv_values
@@ -81,31 +84,49 @@ def check_node() -> list[CheckResult]:
     return results
 
 
-def check_env_files() -> list[CheckResult]:
+def check_env_files(*, allow_env_from_process: bool = False) -> list[CheckResult]:
     header("Configuration files")
     results: list[CheckResult] = []
     env_files = [ROOT / ".env", ROOT / "config.env"]
     existing = [path for path in env_files if path.exists()]
     if not existing:
-        results.append(CheckResult("BLOCKER", "Missing .env or config.env. Copy .env.template to .env and adjust secrets."))
+        if allow_env_from_process:
+            results.append(
+                CheckResult(
+                    "INFO",
+                    "Missing .env/config.env in workspace. Process environment overrides are being used instead.",
+                )
+            )
+        else:
+            results.append(CheckResult("BLOCKER", "Missing .env or config.env. Copy .env.template to .env and adjust secrets."))
     else:
         for path in existing:
             results.append(CheckResult("OK", f"Found {path.name} at {path}"))
 
+    env_values: dict[str, str | None] = {}
+    for path in existing:
+        env_values.update(dotenv_values(path))
+    env_values.update({key: value for key, value in os.environ.items()})
+
+    database_url = str(env_values.get("DATABASE_URL") or "").strip()
     sqlite_path = ROOT / "ukg_database.db"
     if sqlite_path.exists():
         results.append(CheckResult("OK", f"SQLite database file present at {sqlite_path}"))
     else:
-        results.append(
-            CheckResult(
-                "ACTION",
-                "Initialize local schema via `scripts/windows/start_local_stack.ps1` (it handles migration stamping for local SQLite).",
+        if database_url and not database_url.startswith("sqlite:///ukg_database.db"):
+            results.append(
+                CheckResult(
+                    "INFO",
+                    f"SQLite file not required because DATABASE_URL is configured as '{database_url}'.",
+                )
             )
-        )
-
-    env_values: dict[str, str | None] = {}
-    for path in existing:
-        env_values.update(dotenv_values(path))
+        else:
+            results.append(
+                CheckResult(
+                    "ACTION",
+                    "Initialize local schema via `scripts/windows/start_local_stack.ps1` (it handles migration stamping for local SQLite).",
+                )
+            )
 
     required_keys = ("SESSION_SECRET",)
     missing_keys = [key for key in required_keys if not env_values.get(key)]
@@ -229,7 +250,64 @@ def check_backend_dependencies() -> list[CheckResult]:
     return results
 
 
-def main() -> int:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Runtime environment precheck for DataLogicEngine.")
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Treat ACTION-level findings as failures.",
+    )
+    parser.add_argument(
+        "--fail-on-warn",
+        action="store_true",
+        help="Treat WARN-level findings as failures (in addition to strict levels).",
+    )
+    parser.add_argument(
+        "--skip-ports",
+        action="store_true",
+        help="Skip port availability checks (recommended for CI runners).",
+    )
+    parser.add_argument(
+        "--allow-env-from-process",
+        action="store_true",
+        help="Do not fail solely because .env/config.env is missing when env vars are injected by the process.",
+    )
+    parser.add_argument(
+        "--json-report",
+        type=Path,
+        help="Optional path to write structured precheck results as JSON.",
+    )
+    return parser.parse_args(argv)
+
+
+def _failure_levels(strict: bool, fail_on_warn: bool) -> set[str]:
+    levels = {"BLOCKER"}
+    if strict:
+        levels.add("ACTION")
+    if fail_on_warn:
+        levels.add("WARN")
+    return levels
+
+
+def _write_json_report(path: Path, results: list[CheckResult], *, strict: bool, fail_on_warn: bool) -> None:
+    payload = {
+        "generated_at": datetime.now(UTC).isoformat(),
+        "strict": strict,
+        "fail_on_warn": fail_on_warn,
+        "results": [{"level": item.level, "message": item.message} for item in results],
+        "summary": {
+            "checks_run": len(results),
+            "blockers": sum(1 for item in results if item.level == "BLOCKER"),
+            "actions": sum(1 for item in results if item.level == "ACTION"),
+            "warnings": sum(1 for item in results if item.level == "WARN"),
+        },
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
     print("DataLogicEngine runtime precheck")
     print("===============================")
 
@@ -237,27 +315,42 @@ def main() -> int:
     for check in (
         check_python,
         check_node,
-        check_env_files,
         check_backend_dependencies,
         check_templates_and_static,
-        check_ports,
     ):
         results.extend(check())
+    results.extend(check_env_files(allow_env_from_process=args.allow_env_from_process))
+    if args.skip_ports:
+        print("\nPort availability")
+        print("-----------------")
+        print("[INFO] Port checks skipped via --skip-ports.")
+        results.append(CheckResult("INFO", "Port checks skipped"))
+    else:
+        results.extend(check_ports())
 
     blockers = [r for r in results if r.level == "BLOCKER"]
     actions = [r for r in results if r.level == "ACTION"]
+    warns = [r for r in results if r.level == "WARN"]
+    failing_levels = _failure_levels(args.strict, args.fail_on_warn)
+    failing_items = [r for r in results if r.level in failing_levels]
 
     print("\nSummary")
     print("-------")
     print(f"Checks run: {len(results)}")
     print(f"Blockers: {len(blockers)}")
     print(f"Action items: {len(actions)}")
+    print(f"Warnings: {len(warns)}")
+    print(f"Fail levels: {', '.join(sorted(failing_levels))}")
 
-    if blockers:
-        print("\nPrecheck failed: resolve blockers above before starting the stack.")
+    if args.json_report:
+        _write_json_report(args.json_report, results, strict=args.strict, fail_on_warn=args.fail_on_warn)
+        print(f"JSON report written: {args.json_report}")
+
+    if failing_items:
+        print("\nPrecheck failed: resolve required findings above before starting the stack.")
         return 1
 
-    print("\nPrecheck passed: no blockers detected.")
+    print("\nPrecheck passed: required findings clear.")
     return 0
 
 

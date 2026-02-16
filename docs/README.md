@@ -16,7 +16,7 @@ Single entry point for active documentation and source-of-truth documents.
 1. Core app routes are operational in web and desktop modes.
 2. Desktop mode supports no-login startup to internal dashboard.
 3. API key save/test, AI model controls, and storage lifecycle controls are wired.
-4. Phase 1 controls for Sections 5-8 are implemented: MCP connector scope enforcement, SSRF outbound guardrails, connector latency metrics, schema parity CI checks, and installer integrity verification.
+4. Phase 1 and Phase 2 controls for Sections 5-8 are implemented, including connector scope/SSRF guardrails, connector OAuth lifecycle + contract validation, AI latency percentile metrics, support-bundle diagnostics, schema parity gates, installer integrity checks, and deterministic startup release gates.
 5. Some settings/admin/MCP UX areas remain partial (see `docs/PRODUCT_OVERVIEW.md`).
 
 ## Start Here

@@ -29,6 +29,7 @@ if str(SDK_PATH) not in sys.path:
 from models import LLMProvider, LLMProviderUsage, ChatSession, ChatMessage
 from backend.utils.error_normalization import normalize_public_error_message
 from backend.llm_gateway.governance import AIGovernanceEngine
+from backend.llm_gateway.latency_metrics import record_ai_request
 
 logger = logging.getLogger(__name__)
 
@@ -473,6 +474,11 @@ class LLMGateway:
                     if result.get("ok", True):
                         cb.record_success()
                         latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
+                        record_ai_request(
+                            provider=getattr(provider_record, "provider_type", "unknown"),
+                            duration_ms=latency_ms,
+                            success=True,
+                        )
 
                         usage_payload = result.get("usage", {}) if isinstance(result.get("usage"), dict) else {}
                         tokens_in = int(usage_payload.get("prompt_tokens", 0) or 0)
@@ -555,6 +561,11 @@ class LLMGateway:
 
                     cb.record_failure()
                     latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
+                    record_ai_request(
+                        provider=getattr(provider_record, "provider_type", "unknown"),
+                        duration_ms=latency_ms,
+                        success=False,
+                    )
                     await self._record_usage(
                         provider_record.id,
                         request.user_id,
@@ -603,6 +614,11 @@ class LLMGateway:
 
                     cb.record_failure()
                     latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
+                    record_ai_request(
+                        provider=getattr(provider_record, "provider_type", "unknown"),
+                        duration_ms=latency_ms,
+                        success=False,
+                    )
                     await self._record_usage(
                         provider_record.id,
                         request.user_id,
@@ -654,6 +670,11 @@ class LLMGateway:
 
                     cb.record_failure()
                     latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
+                    record_ai_request(
+                        provider=getattr(provider_record, "provider_type", "unknown"),
+                        duration_ms=latency_ms,
+                        success=False,
+                    )
                     await self._record_usage(
                         provider_record.id,
                         request.user_id,
