@@ -7,7 +7,7 @@ It runs in two modes:
 1. Desktop mode (Windows Electron): no login required, boots directly to the internal dashboard.
 2. Web mode (browser): session-based authentication for protected routes.
 
-## Current Status (February 8, 2026)
+## Current Status (February 16, 2026)
 
 The application is functional for local Windows use with API keys and internet access.
 
@@ -20,6 +20,10 @@ The application is functional for local Windows use with API keys and internet a
 5. AI model configuration and provider model testing in settings.
 6. Storage health checks and local service lifecycle actions (`Start All`/`Stop All`/autostart toggle).
 7. Installer build pipeline (`electron-builder`) with installer copied to repo root.
+8. MCP connector scope enforcement with user/tenant execution context propagation.
+9. Connector latency/error telemetry exported to metrics and analytics surfaces.
+10. SSRF protection on API gateway upstream forwarding and enterprise health probes.
+11. CI/release gates for schema parity validation (`SQLite` vs `Postgres`) and installer checksum integrity.
 
 ### Partial / In Progress
 
@@ -27,6 +31,7 @@ The application is functional for local Windows use with API keys and internet a
 2. `Settings > Storage > Cloud Config` form fields are not fully wired to persistence.
 3. MCP admin actions are partially available (`Add Server` and console actions are still disabled in UI).
 4. Register page UI exists but registration submit flow is not yet wired.
+5. Phase 2 hardening work is in progress for connector OAuth lifecycle, contract validation, AI latency percentile metrics, support bundle generation, and startup-gate enforcement.
 
 ## Quick Start (Windows 11)
 
@@ -98,12 +103,20 @@ Artifacts:
 
 1. `DataLogicEngine Setup Latest.exe`
 2. `DataLogicEngine Setup <version>.exe`
-3. `frontend/dist/` (packaging output)
+3. `DataLogicEngine Setup Latest.exe.sha256`
+4. `DataLogicEngine Setup <version>.exe.sha256`
+5. `frontend/dist/` (packaging output)
 
 Run installer manually:
 
 ```powershell
 .\DataLogicEngine Setup Latest.exe
+```
+
+Verify installer integrity:
+
+```powershell
+python .\scripts\verify_installer_integrity.py --require-artifacts
 ```
 
 ## Architecture Summary
@@ -153,6 +166,13 @@ E2E visual checks:
 ```powershell
 cd frontend
 npm run test:e2e:visual
+```
+
+Operational hardening checks:
+
+```powershell
+python .\scripts\validate_schema_parity.py
+python .\scripts\verify_installer_integrity.py --require-artifacts
 ```
 
 ## Contributing

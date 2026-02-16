@@ -14,7 +14,7 @@ Provide incident-response procedures for common DataLogicEngine security and run
 ## Document control
 
 1. Owner: SRE + Security Operations
-2. Last updated: 2026-02-08
+2. Last updated: 2026-02-16
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -100,6 +100,28 @@ Provide incident-response procedures for common DataLogicEngine security and run
 4. Confirm no unauthorized data read/write occurred.
 5. Capture logs for security investigation and policy refinement.
 
+## Incident 6: MCP connector scope denial surge
+
+**Trigger:** Repeated `MCP_SCOPE_DENIED` errors from MCP tool calls.
+**Default severity:** `SEV-2`
+
+1. Confirm scope denials are expected policy outcomes (not auth regression).
+2. Validate role-to-scope mapping and API key permission payloads.
+3. Check whether tenant/user context propagation is missing from calling surface.
+4. Review denied tool list and required scopes for noisy patterns.
+5. If legitimate business flow is blocked, open controlled RBAC/scope change request.
+
+## Incident 7: SSRF protection blocks upstream integration
+
+**Trigger:** API gateway returns blocked-upstream error due to SSRF policy.
+**Default severity:** `SEV-2`
+
+1. Capture blocked URL, requested host, and calling endpoint.
+2. Validate target host is expected and mapped in service registry.
+3. If valid destination, update approved upstream allowlist through change control.
+4. If destination is unexpected, treat as potential security event and contain source.
+5. Re-run health and integration checks after policy update.
+
 ## Validation checklist after any incident
 
 1. `GET /health` is healthy.
@@ -107,4 +129,3 @@ Provide incident-response procedures for common DataLogicEngine security and run
 3. Gateway request path returns expected policy behavior.
 4. Error rates and latency return to baseline.
 5. Incident report and follow-up actions are recorded.
-

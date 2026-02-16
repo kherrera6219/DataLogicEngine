@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.3] - 2026-02-16
+
+### Added
+- Completed Sections 5-8 Phase 1 hardening controls:
+  - MCP connector scope enforcement with user/tenant execution context.
+  - SSRF outbound URL guardrails for API gateway forwarding and service health probes.
+  - Connector latency/error telemetry surfaced to metrics and analytics reporting.
+  - SQLite/PostgreSQL schema parity validation script and CI/deploy gates.
+  - Installer checksum generation and deploy-time installer integrity verification.
+
+### Changed
+- Updated active documentation set (`README.md`, `docs/README.md`, `docs/PRODUCT_OVERVIEW.md`, `docs/PRODUCTION_READINESS.md`, `docs/OPERATIONAL_RUNBOOKS.md`) to reflect the current implementation state as of 2026-02-16.
+
+### Testing
+- Targeted hardening validation completed:
+  - `python -m pytest -q --no-cov tests/unit/test_phase1_scope_ssrf_controls.py tests/unit/test_mcp_tracing_repo_rest_coverage.py`
+  - `python scripts/validate_schema_parity.py --report reports/schema_parity_report_local.json`
+  - `python scripts/verify_installer_integrity.py --require-artifacts --report reports/installer_integrity_report_local.json`
+
 ## [4.1.2] - 2026-02-07
 
 ### Fixed

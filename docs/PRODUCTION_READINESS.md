@@ -16,7 +16,7 @@ Provide production acceptance criteria, operational controls, and validation che
 ## Document control
 
 1. Owner: Platform Operations
-2. Last updated: 2026-02-08
+2. Last updated: 2026-02-16
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -45,6 +45,27 @@ Provide production acceptance criteria, operational controls, and validation che
 DataLogicEngine is an enterprise-grade AI/ML knowledge management platform designed for production deployment. This guide outlines the critical steps, configurations, and best practices for deploying the system in a production environment.
 
 **Current status**: Production hardened baseline
+
+## 2026-02-16 Hardening Update (Sections 5-8 Phase 1)
+
+The following controls are now implemented and validated:
+
+1. MCP connector scope enforcement with user/tenant execution context.
+2. SSRF outbound URL validation for API gateway forwarding and architecture health probes.
+3. Connector latency/error telemetry surfaced to metrics and analytics.
+4. Schema parity validator for SQLite/PostgreSQL wired into CI + deploy workflows.
+5. Installer checksum generation and integrity verification wired into deploy workflow.
+
+Reference implementation report:
+- `docs/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
+
+Validation commands:
+
+```powershell
+python .\scripts\validate_schema_parity.py
+python .\scripts\verify_installer_integrity.py --require-artifacts
+python -m pytest -q --no-cov tests/unit/test_phase1_scope_ssrf_controls.py
+```
 
 ## Universal Knowledge Graph (UKG) system architecture
 
@@ -975,5 +996,5 @@ Following this production readiness guide will ensure your DataLogicEngine deplo
 ---
 
 **Document version:** 1.1.0
-**Last updated:** February 8, 2026
+**Last updated:** February 16, 2026
 **Next review:** March 10, 2026

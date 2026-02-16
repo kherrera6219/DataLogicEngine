@@ -11,12 +11,13 @@ Single entry point for active documentation and source-of-truth documents.
 3. Security, compliance, deployment, and operational runbooks
 4. Windows local runtime and desktop packaging workflows
 
-## Current App Status Snapshot (February 8, 2026)
+## Current App Status Snapshot (February 16, 2026)
 
 1. Core app routes are operational in web and desktop modes.
 2. Desktop mode supports no-login startup to internal dashboard.
 3. API key save/test, AI model controls, and storage lifecycle controls are wired.
-4. Some settings/admin/MCP areas remain partial (see `docs/PRODUCT_OVERVIEW.md`).
+4. Phase 1 controls for Sections 5-8 are implemented: MCP connector scope enforcement, SSRF outbound guardrails, connector latency metrics, schema parity CI checks, and installer integrity verification.
+5. Some settings/admin/MCP UX areas remain partial (see `docs/PRODUCT_OVERVIEW.md`).
 
 ## Start Here
 
@@ -35,6 +36,8 @@ Single entry point for active documentation and source-of-truth documents.
 ## Current assessments
 
 1. `docs/APPLICATION_REVIEW_RECOMMENDED_IMPROVEMENTS_2026-02-10.md`
+2. `docs/SUBSYSTEMS_SECTIONS_1_TO_4_UPDATED_REPORT_2026-02-16.md`
+3. `docs/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
 
 ## Documentation Standards
 
@@ -50,6 +53,6 @@ Single entry point for active documentation and source-of-truth documents.
 ## Document Control
 
 1. Owner: Platform Engineering
-2. Last updated: 2026-02-08
+2. Last updated: 2026-02-16
 3. Status: Active
 4. Review cadence: Every 30 days

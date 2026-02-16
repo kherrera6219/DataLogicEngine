@@ -25,7 +25,7 @@ DataLogicEngine is a local-first AI orchestration application that combines:
 1. Web mode: browser UX with login/session authentication.
 2. Desktop mode: Windows Electron runtime with no-login boot to the internal dashboard.
 
-## Current Capability Status (February 8, 2026)
+## Current Capability Status (February 16, 2026)
 
 | Area | Routes | Status | Notes |
 |---|---|---|---|
@@ -39,6 +39,10 @@ DataLogicEngine is a local-first AI orchestration application that combines:
 | Settings: notifications | `/settings` (`Notifications`) | Partial | Placeholder UI only |
 | Admin dashboard | `/admin` | Live | Role-gated, backend-backed stats/user data |
 | MCP admin registry | `/admin/mcp`, `/admin/mcp/servers` | Mixed | Stats/list/delete live; add server flow pending |
+| Connector scope enforcement | MCP tool execution paths | Live | Runtime scope checks added with user/tenant context propagation |
+| Connector safety controls | API gateway/service discovery | Live | SSRF outbound validation + allowlist guardrails enforced |
+| Connector observability | `/metrics`, analytics MCP stats | Live | Connector latency/error telemetry exported |
+| Data/integrity release gates | CI + deploy workflows | Live | Schema parity and installer checksum verification required in pipeline |
 | Public info/legal pages | `/about`, `/about/*`, `/legal/privacy` | Live | Informational pages available |
 | Registration flow | `/register` | Partial | UI present, submit flow not wired |
 
@@ -54,6 +58,8 @@ DataLogicEngine is a local-first AI orchestration application that combines:
 2. `Settings > Storage > Cloud Config` form is not fully persisted.
 3. MCP admin add-server actions are not yet enabled.
 4. Register form does not submit to backend registration API.
+5. Connector OAuth lifecycle framework and API contract validation are not fully generalized yet (Phase 2 workstream).
+6. Support-bundle diagnostic generator is not yet complete (Phase 2 workstream).
 
 ## Validation Commands
 
@@ -75,6 +81,6 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows\test_frontend_route_p
 ## Document Control
 
 1. Owner: Product and Platform Engineering
-2. Last updated: 2026-02-08
+2. Last updated: 2026-02-16
 3. Status: Active
 4. Review cadence: Every 30 days
