@@ -34,7 +34,7 @@ export function CloudDisclosureBanner() {
               Cloud-Hybrid Architecture Active
               <ShieldCheck className="h-3 w-3" />
             </p>
-            <p className="text-xs text-blue-100 font-medium leading-tight">
+            <p className="text-xs text-white/95 font-medium leading-tight">
               DataLogicEngine stores data locally but processes intelligence via cloud providers (OpenAI, Anthropic, Google).
             </p>
           </div>

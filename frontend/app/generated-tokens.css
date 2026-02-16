@@ -1,0 +1,42 @@
+/* Generated file: do not edit directly. Run `npm run tokens:build`. */
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --surface: #ffffff;
+  --surface-muted: #f1f5f9;
+  --accent: #2563eb;
+  --accent-foreground: #ffffff;
+  --border: #dbe3ef;
+  --radius: 0.75rem;
+}
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --surface: #171717;
+  --surface-muted: #202020;
+  --accent: #3b82f6;
+  --accent-foreground: #f8fafc;
+  --border: #2a2a2a;
+  --radius: 0.75rem;
+}
+:root[data-enterprise-theme='azure'] {
+  --accent: #0078d4;
+  --accent-foreground: #ffffff;
+  --border: #aaccef;
+}
+:root[data-enterprise-theme='government'] {
+  --accent: #0f766e;
+  --accent-foreground: #ffffff;
+  --surface: #f0fdfa;
+  --surface-muted: #ccfbf1;
+  --border: #5eead4;
+}
+:root[data-enterprise-theme='high-contrast'] {
+  --background: #000000;
+  --foreground: #ffffff;
+  --surface: #000000;
+  --surface-muted: #111111;
+  --accent: #ffff00;
+  --accent-foreground: #000000;
+  --border: #ffffff;
+}

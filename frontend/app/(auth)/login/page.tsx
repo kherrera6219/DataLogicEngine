@@ -46,7 +46,7 @@ export default function LoginPage() {
                <Shield className="h-6 w-6 text-blue-500" aria-hidden="true" />
             </div>
             <CardTitle className="text-2xl font-bold tracking-tight">Enterprise Login</CardTitle>
-            <CardDescription className="text-muted-foreground font-medium">Verify credentials for DataLogicEngine access</CardDescription>
+            <CardDescription className="text-gray-300 font-medium">Verify credentials for DataLogicEngine access</CardDescription>
         </CardHeader>
         <CardContent className="pt-8">
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -56,7 +56,7 @@ export default function LoginPage() {
                     </Alert>
                 )}
                 <div className="space-y-3">
-                    <Label htmlFor="username" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Identity Identifier</Label>
+                    <Label htmlFor="username" className="text-xs font-bold uppercase tracking-widest text-gray-300">Identity Identifier</Label>
                     <div className="relative">
                        <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" aria-hidden="true" />
                        <Input 
@@ -72,7 +72,7 @@ export default function LoginPage() {
                     </div>
                 </div>
                 <div className="space-y-3">
-                    <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Security Token</Label>
+                    <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-gray-300">Security Token</Label>
                     <div className="relative">
                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" aria-hidden="true" />
                        <Input 
@@ -93,13 +93,13 @@ export default function LoginPage() {
             </form>
         </CardContent>
         <CardFooter className="justify-center border-t border-white/5 mt-4 pt-6">
-            <p className="text-sm text-muted-foreground font-medium">
+            <p className="text-sm text-gray-300 font-medium">
                 Protected system. <Link href="/register" className="text-blue-500 hover:underline">Request access token</Link>
             </p>
         </CardFooter>
       </Card>
       
-      <div className="fixed bottom-8 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-gray-700 pointer-events-none">
+      <div className="fixed bottom-8 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 pointer-events-none">
          DataLogicEngine Hardened Node • UKG v2.1.1
       </div>
     </div>

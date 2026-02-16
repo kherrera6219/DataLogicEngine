@@ -4,6 +4,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from './button';
 import { Card, CardContent } from './card';
+import { reportClientError } from '@/lib/telemetry/client-errors';
 
 interface Props {
   children: ReactNode;
@@ -27,7 +28,13 @@ export class ApiErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error(`ApiErrorBoundary [${this.props.moduleName || 'Global'}]:`, error, errorInfo);
+    reportClientError(error, {
+      module: this.props.moduleName || 'Global',
+      action: 'ApiErrorBoundary.componentDidCatch',
+      metadata: {
+        componentStack: errorInfo.componentStack,
+      },
+    });
   }
 
   public render() {

@@ -11,12 +11,13 @@ interface ElectronLogHandler {
 
 interface MockElectronAPI {
   getBackendStatus: () => Promise<string>;
-  onBackendLog: (callback: ElectronLogHandler) => void;
+  getDbStatus: () => Promise<string>;
+  onBackendLog: (callback: ElectronLogHandler) => () => void;
 }
 
 declare global {
   interface Window {
-    electronAPI: MockElectronAPI;
+    electronAPI?: MockElectronAPI;
   }
 }
 
@@ -26,7 +27,8 @@ describe('DesktopStatus', () => {
     // Default mock implementation
     window.electronAPI = {
       getBackendStatus: vi.fn().mockResolvedValue('checking'),
-      onBackendLog: vi.fn(),
+      getDbStatus: vi.fn().mockResolvedValue('managed'),
+      onBackendLog: vi.fn(() => () => undefined),
     };
   });
 
@@ -58,7 +60,7 @@ describe('DesktopStatus', () => {
   });
 
   it('shows running status correctly', async () => {
-    window.electronAPI.getBackendStatus = vi.fn().mockResolvedValue('running');
+    window.electronAPI!.getBackendStatus = vi.fn().mockResolvedValue('running');
 
     render(<DesktopStatus />);
     
@@ -78,7 +80,7 @@ describe('DesktopStatus', () => {
   });
 
   it('handles offline/error status', async () => {
-    window.electronAPI.getBackendStatus = vi.fn().mockRejectedValue(new Error('Failed'));
+    window.electronAPI!.getBackendStatus = vi.fn().mockRejectedValue(new Error('Failed'));
 
     render(<DesktopStatus />);
     
@@ -94,8 +96,9 @@ describe('DesktopStatus', () => {
   it('displays logs from electronAPI', async () => {
     let capturedCallback: ElectronLogHandler | undefined;
     
-    window.electronAPI.onBackendLog = (cb) => {
+    window.electronAPI!.onBackendLog = (cb) => {
       capturedCallback = cb;
+      return () => undefined;
     };
 
     render(<DesktopStatus />);

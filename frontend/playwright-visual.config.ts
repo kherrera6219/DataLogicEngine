@@ -6,6 +6,7 @@ const BASE_URL = `http://127.0.0.1:${VISUAL_PORT}`;
 export default defineConfig({
   testDir: './tests/e2e',
   testMatch: ['**/*.spec.ts'],
+  testIgnore: ['**/electron-route-sidebar-smoke.spec.ts'],
   timeout: 90 * 1000,
   expect: {
     timeout: 15 * 1000,

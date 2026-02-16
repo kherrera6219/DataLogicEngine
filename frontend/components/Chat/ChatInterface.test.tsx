@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ChatInterface } from './ChatInterface';
+import { FeatureFlagProvider } from '@/contexts/FeatureFlagContext';
 import { api, request } from '@/lib/api';
 import { socketClient } from '@/lib/socket';
 
@@ -61,6 +62,13 @@ vi.mock('./AdvancedControls', () => ({
 }));
 
 describe('ChatInterface', () => {
+  const renderChatInterface = () =>
+    render(
+      <FeatureFlagProvider>
+        <ChatInterface />
+      </FeatureFlagProvider>,
+    );
+
   const mockSessions = [
     { id: 'session-1', title: 'Session 1' },
     { id: 'session-2', title: 'Session 2' }
@@ -82,12 +90,12 @@ describe('ChatInterface', () => {
   });
 
   it('should load sessions and initial messages on mount', async () => {
-    render(<ChatInterface />);
+    renderChatInterface();
     await waitFor(() => expect(screen.getByText('Session 1')).toBeInTheDocument());
   });
 
   it('should handle switching sessions', async () => {
-    render(<ChatInterface />);
+    renderChatInterface();
     await waitFor(() => screen.getByText('Session 2'));
     fireEvent.click(screen.getByText('Session 2'));
     expect(socketClient.joinRoom).toHaveBeenCalled();
@@ -99,7 +107,7 @@ describe('ChatInterface', () => {
       trace_summary: { steps: [] }
     });
 
-    render(<ChatInterface />);
+    renderChatInterface();
     
     const textarea = screen.getByPlaceholderText(/ask a compliance question/i);
     fireEvent.change(textarea, { target: { value: 'Test query' } });
@@ -113,7 +121,7 @@ describe('ChatInterface', () => {
   it('should handle API errors gracefully', async () => {
     (api.chat.sendMessage as any).mockRejectedValue(new Error('Network Failure'));
 
-    render(<ChatInterface />);
+    renderChatInterface();
     
     // Wait for the main chat area to be ready
     await screen.findByTestId('main-chat-area', {}, { timeout: 8000 });
@@ -143,7 +151,7 @@ describe('ChatInterface', () => {
   }, 30000);
 
   it('should handle file upload successfully', async () => {
-    render(<ChatInterface />);
+    renderChatInterface();
     const file = new File(['test'], 'test.txt', { type: 'text/plain' });
     const input = screen.getByLabelText(/upload file/i);
     
@@ -155,7 +163,7 @@ describe('ChatInterface', () => {
   });
 
   it('should clear messages on new chat', async () => {
-    render(<ChatInterface />);
+    renderChatInterface();
     const newChatBtn = screen.getByText(/new chat/i);
     fireEvent.click(newChatBtn);
     expect(screen.queryByTestId('message-bubble')).not.toBeInTheDocument();

@@ -5,6 +5,8 @@ import { trace } from './trace';
 import { chat } from './chat';
 import { mcp } from './mcp';
 import { compliance } from './compliance';
+import { sanitizeJsonPayload, sanitizeTextInput } from '@/lib/security/input-sanitization';
+import { reportClientError } from '@/lib/telemetry/client-errors';
 
 export * from './types';
 
@@ -49,6 +51,57 @@ function buildHeaders(options: RequestInit): Headers {
   }
 
   return headers;
+}
+
+function isStrictInputSanitizationEnabled(): boolean {
+  const rawFlagPayload = process.env.NEXT_PUBLIC_FEATURE_FLAGS;
+  if (!rawFlagPayload) {
+    return true;
+  }
+
+  try {
+    const parsed = JSON.parse(rawFlagPayload) as { strictInputSanitization?: unknown };
+    const rawValue = parsed.strictInputSanitization;
+    if (typeof rawValue === 'boolean') {
+      return rawValue;
+    }
+    if (typeof rawValue === 'string') {
+      const normalized = rawValue.trim().toLowerCase();
+      if (normalized === 'false' || normalized === '0') {
+        return false;
+      }
+      if (normalized === 'true' || normalized === '1') {
+        return true;
+      }
+    }
+    return true;
+  } catch {
+    return true;
+  }
+}
+
+function normalizeRequestBody(body: RequestInit['body']): RequestInit['body'] {
+  if (typeof body !== 'string') {
+    return body;
+  }
+
+  const strictSanitizationEnabled = isStrictInputSanitizationEnabled();
+  if (!strictSanitizationEnabled) {
+    return body;
+  }
+
+  const trimmedBody = body.trim();
+  const maybeJsonPayload = trimmedBody.startsWith('{') || trimmedBody.startsWith('[');
+  if (maybeJsonPayload) {
+    try {
+      const parsed = JSON.parse(body) as unknown;
+      return JSON.stringify(sanitizeJsonPayload(parsed));
+    } catch {
+      return sanitizeTextInput(body, { trim: false });
+    }
+  }
+
+  return sanitizeTextInput(body, { trim: false });
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {
@@ -105,6 +158,7 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
   const url = buildApiUrl(endpoint);
   const desktopRuntime = isDesktopRuntime();
   const headers = buildHeaders(options);
+  const normalizedBody = normalizeRequestBody(options.body);
   if (desktopRuntime && !headers.has('X-DataLogic-Desktop')) {
     headers.set('X-DataLogic-Desktop', 'true');
   }
@@ -113,6 +167,7 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
     const response = await fetch(url, {
       ...options,
       credentials: options.credentials ?? 'include',
+      body: normalizedBody,
       headers,
     });
 
@@ -123,6 +178,7 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
           const retryResponse = await fetch(url, {
             ...options,
             credentials: options.credentials ?? 'include',
+            body: normalizedBody,
             headers,
           });
           if (retryResponse.ok) {
@@ -147,7 +203,11 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
 
     return parseResponse<T>(response);
   } catch (error) {
-    console.error(`API Error [${endpoint}]:`, error);
+    reportClientError(error, {
+      module: 'api.request',
+      action: 'fetch',
+      endpoint,
+    });
     if (
       error instanceof TypeError &&
       /failed to fetch/i.test(error.message)

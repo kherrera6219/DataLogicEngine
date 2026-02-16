@@ -31,7 +31,7 @@ function buildCsp(nonce: string): string {
   const allowInlineScripts =
     process.env.NEXT_PUBLIC_CSP_ALLOW_UNSAFE_INLINE_SCRIPTS === 'true';
   const allowInlineStyles =
-    process.env.NEXT_PUBLIC_CSP_ALLOW_UNSAFE_INLINE_STYLES !== 'false';
+    process.env.NEXT_PUBLIC_CSP_ALLOW_UNSAFE_INLINE_STYLES === 'true';
 
   const scriptSrc = [`'self'`, `'nonce-${nonce}'`];
   if (allowInlineScripts || isDevelopment) {
@@ -43,7 +43,7 @@ function buildCsp(nonce: string): string {
   }
 
   const styleSrc = [`'self'`, 'https://fonts.googleapis.com'];
-  if (allowInlineStyles) {
+  if (allowInlineStyles || isDevelopment) {
     styleSrc.push("'unsafe-inline'");
   }
 

@@ -1,16 +1,13 @@
 'use client';
 
 import { useEffect } from 'react';
+import { reportClientError } from '@/lib/telemetry/client-errors';
 
-// Sentry stub for enterprise error tracking
-// In a real build, this would import from @sentry/nextjs
 const captureError = (error: Error) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (typeof window !== 'undefined' && (window as any).Sentry) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (window as any).Sentry.captureException(error);
-    }
-    console.error("Critical Application Error:", error);
+    reportClientError(error, {
+      module: 'global-error',
+      action: 'render',
+    });
 };
 
 export default function GlobalError({

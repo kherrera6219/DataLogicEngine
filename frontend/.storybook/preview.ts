@@ -10,7 +10,13 @@ const preview: Preview = {
       },
     },
     a11y: {
-      test: 'todo'
+      test: 'error',
+      options: {
+        runOnly: {
+          type: 'tag',
+          values: ['wcag2a', 'wcag2aa'],
+        },
+      },
     }
   },
 };

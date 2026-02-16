@@ -1,20 +1,6 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-.light {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-}
-
-.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
+@import "./generated-tokens.css";
 
 @layer components {
   /* Materials */
@@ -115,6 +101,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

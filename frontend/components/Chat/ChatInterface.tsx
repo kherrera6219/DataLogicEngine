@@ -14,6 +14,13 @@ import { ChatMessage, TracePipeline } from './types';
 import { ApiChatMessage, ChatSession } from '@/lib/api/chat';
 import { api, request } from '@/lib/api';
 import { socketClient, useSocket } from '@/lib/socket';
+import {
+  sanitizeFileName,
+  sanitizeTextInput,
+  validateUploadFile,
+} from '@/lib/security/input-sanitization';
+import { useFeatureFlags } from '@/contexts/FeatureFlagContext';
+import { reportClientError } from '@/lib/telemetry/client-errors';
 import { LiveTracePanel } from './LiveTracePanel';
 import { DetailedResponseView } from './DetailedResponseView';
 import { TraceVisualizer } from './TraceVisualizer';
@@ -22,6 +29,8 @@ import { AdvancedControls } from './AdvancedControls';
 interface ChatInterfaceProps {
   autoOpenUpload?: boolean;
 }
+
+const MAX_CHAT_INPUT_LENGTH = 8_000;
 
 function formatMessageTimestamp(value?: string): string {
   if (!value) {
@@ -47,12 +56,15 @@ function normalizeApiMessage(message: ApiChatMessage): ChatMessage {
 }
 
 export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
+  const { isEnabled } = useFeatureFlags();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<'chat' | 'quad'>('chat');
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
+
+  const strictInputSanitization = isEnabled('strictInputSanitization');
 
   // WebSocket Integration
   useSocket({
@@ -86,7 +98,10 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         const data = await api.chat.listSessions();
         setSessions(data.sessions || []);
       } catch (err) {
-        console.error("Failed to load sessions:", err);
+        reportClientError(err, {
+          module: 'ChatInterface',
+          action: 'listSessions',
+        });
       }
     };
     fetchSessions();
@@ -127,12 +142,16 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   }, [currentSessionId]);
 
   const handleSend = async () => {
-    if (!inputValue.trim() || isLoading) return;
+    const normalizedInput = strictInputSanitization
+      ? sanitizeTextInput(inputValue, { maxLength: MAX_CHAT_INPUT_LENGTH })
+      : inputValue.trim();
+
+    if (!normalizedInput || isLoading) return;
 
     const userMsg: ChatMessage = {
       id: uuidv4(),
       role: 'user',
-      content: inputValue,
+      content: normalizedInput,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -171,7 +190,10 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       setSessions(sessionData.sessions || []);
 
     } catch (error) {
-      console.error(error);
+      reportClientError(error, {
+        module: 'ChatInterface',
+        action: 'sendMessage',
+      });
       const errorMsg: ChatMessage = {
         id: uuidv4(),
         role: 'assistant',
@@ -206,11 +228,28 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    const validation = validateUploadFile(file);
+    if (!validation.valid) {
+      const validationErrorMessage = validation.reason || 'Unsupported file upload.';
+      setMessages(prev => [
+        ...prev,
+        {
+          id: uuidv4(),
+          role: 'assistant',
+          content: validationErrorMessage,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ]);
+      event.target.value = '';
+      return;
+    }
+
+    const safeFileName = sanitizeFileName(file.name);
     setIsLoading(true);
     const userMsg: ChatMessage = {
       id: uuidv4(),
       role: 'user',
-      content: `Uploaded file: ${file.name}`,
+      content: `Uploaded file: ${safeFileName}`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     setMessages(prev => [...prev, userMsg]);
@@ -238,7 +277,10 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       };
       setMessages(prev => [...prev, assistantMsg]);
     } catch (error) {
-      console.error(error);
+      reportClientError(error, {
+        module: 'ChatInterface',
+        action: 'fileUpload',
+      });
       const errorMsg: ChatMessage = {
         id: uuidv4(),
         role: 'assistant',
@@ -248,6 +290,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       setMessages(prev => [...prev, errorMsg]);
     } finally {
       setIsLoading(false);
+      event.target.value = '';
     }
   };
 
@@ -385,7 +428,15 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                   className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-gray-200 text-sm p-3 min-h-[60px] resize-none pr-32 placeholder:text-slate-400 dark:placeholder:text-gray-600"
                   placeholder="Ask a compliance question..."
                   value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  onChange={(e) => {
+                    const nextValue = strictInputSanitization
+                      ? sanitizeTextInput(e.target.value, {
+                          maxLength: MAX_CHAT_INPUT_LENGTH,
+                          trim: false,
+                        })
+                      : e.target.value;
+                    setInputValue(nextValue);
+                  }}
                />
                 <div className="absolute bottom-2 left-3 flex gap-1">
                   <input 

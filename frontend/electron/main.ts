@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, protocol, session } from 'electron';
+import type { IpcMainInvokeEvent } from 'electron';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
 import * as os from 'os';
@@ -6,6 +7,22 @@ import * as fs from 'fs';
 
 let mainWindow: BrowserWindow | null = null;
 let backendProcess: ChildProcess | null = null;
+
+const ALLOWED_IPC_ORIGINS = ['app://', 'http://localhost:3000', 'http://127.0.0.1:3000'];
+
+function isTrustedIpcSender(event: IpcMainInvokeEvent): boolean {
+  const senderUrl = event.senderFrame?.url || event.sender.getURL();
+  return ALLOWED_IPC_ORIGINS.some((origin) => senderUrl.startsWith(origin));
+}
+
+function assertTrustedIpcInvoke(event: IpcMainInvokeEvent, channel: string, args: unknown[]) {
+  if (!isTrustedIpcSender(event)) {
+    throw new Error(`Blocked untrusted IPC sender for channel "${channel}"`);
+  }
+  if (args.length > 0) {
+    throw new Error(`Blocked unexpected IPC payload for channel "${channel}"`);
+  }
+}
 
 // Register the custom scheme 'app' as privileged
 protocol.registerSchemesAsPrivileged([
@@ -56,6 +73,8 @@ function createWindow() {
 }
 
 app.on('ready', () => {
+  const isDev = !app.isPackaged;
+
   // Register protocol handler for 'app://'
   protocol.handle('app', async (request) => {
     const url = new URL(request.url);
@@ -148,13 +167,16 @@ app.on('ready', () => {
   // Security: Set CSP headers
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session.defaultSession.webRequest.onHeadersReceived((details: any, callback: any) => {
+    const scriptSrc = isDev ? "'self' 'unsafe-inline' app:" : "'self' app:";
+    const styleSrc = isDev ? "'self' 'unsafe-inline' app:" : "'self' app:";
+
     callback({
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
           "default-src 'self' app:; " +
-          "script-src 'self' 'unsafe-inline' app:; " +
-          "style-src 'self' 'unsafe-inline' app:; " +
+          `script-src ${scriptSrc}; ` +
+          `style-src ${styleSrc}; ` +
           "img-src 'self' data: https: app:; " +
           "connect-src 'self' http://localhost:5000 https://api.openai.com https://api.anthropic.com app:; " +
           "font-src 'self' data: app:;"
@@ -237,13 +259,18 @@ app.on('activate', () => {
 });
 
 // IPC Handlers
-ipcMain.handle('ping', () => 'pong');
+ipcMain.handle('ping', (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'ping', args);
+  return 'pong';
+});
 
-ipcMain.handle('get-backend-status', () => {
+ipcMain.handle('get-backend-status', (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'get-backend-status', args);
   return backendProcess ? (backendProcess.exitCode === null ? 'running' : 'stopped') : 'not_started';
 });
 
-ipcMain.handle('get-db-status', () => {
+ipcMain.handle('get-db-status', (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'get-db-status', args);
   // This is a simplification; a real check would query the ports
   return backendProcess ? 'managed' : 'offline';
 });

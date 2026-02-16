@@ -39,7 +39,7 @@ test.describe('Theme Visual Smoke', () => {
 
   for (const theme of THEMES) {
     for (const route of ROUTES) {
-      test(`renders ${route} in ${theme} mode`, async ({ page }, testInfo) => {
+      test(`renders ${route} in ${theme} mode`, async ({ page }) => {
         await page.addInitScript((selectedTheme: ThemeMode) => {
           window.localStorage.setItem('theme', selectedTheme);
         }, theme);
@@ -57,9 +57,10 @@ test.describe('Theme Visual Smoke', () => {
         expect(page.url()).not.toContain('/login');
 
         const fileName = `${sanitizeRoute(route)}-${theme}.png`;
-        const imagePath = testInfo.outputPath(fileName);
-        await page.screenshot({ path: imagePath, fullPage: true });
-        await testInfo.attach(fileName, { path: imagePath, contentType: 'image/png' });
+        await expect(page).toHaveScreenshot(fileName, {
+          fullPage: true,
+          maxDiffPixelRatio: 0.01,
+        });
       });
     }
   }

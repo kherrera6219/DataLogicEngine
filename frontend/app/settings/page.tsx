@@ -34,11 +34,18 @@ interface UserDataSummary {
   };
 }
 
+const enterpriseThemeOptions = [
+  { id: 'default', label: 'Default' },
+  { id: 'azure', label: 'Azure' },
+  { id: 'government', label: 'Government' },
+  { id: 'high-contrast', label: 'High Contrast' },
+] as const;
+
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
   const [summary, setSummary] = useState<UserDataSummary | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme, enterpriseTheme, setEnterpriseTheme } = useTheme();
 
   useEffect(() => {
     let cancelled = false;
@@ -160,6 +167,37 @@ export default function SettingsPage() {
                                  >
                                    Light
                                  </Button>
+                              </div>
+                           </div>
+                           <div className="space-y-3 p-4 rounded-xl bg-white/70 dark:bg-black/20 border border-slate-200 dark:border-white/5">
+                              <div className="flex items-center justify-between gap-3">
+                                <div>
+                                <div className="font-medium text-slate-900 dark:text-gray-200">Enterprise Theme Preset</div>
+                                <div className="text-xs text-slate-500 dark:text-gray-500">Apply organization-level token overrides.</div>
+                                </div>
+                                <div
+                                  className="h-8 w-8 rounded-full border border-white/20 shadow-inner"
+                                  style={{ backgroundColor: 'var(--accent)' }}
+                                  aria-label="Current accent preview"
+                                  title="Current accent preview"
+                                />
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                {enterpriseThemeOptions.map((option) => (
+                                  <Button
+                                    key={option.id}
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setEnterpriseTheme(option.id)}
+                                    className={
+                                      enterpriseTheme === option.id
+                                        ? 'bg-blue-600/20 border-blue-500/50 text-blue-400'
+                                        : 'text-slate-700 dark:text-gray-400'
+                                    }
+                                  >
+                                    {option.label}
+                                  </Button>
+                                ))}
                               </div>
                            </div>
                         </CardContent>

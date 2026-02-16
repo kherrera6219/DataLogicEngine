@@ -9,14 +9,15 @@ const DesktopStatus = () => {
   const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
-    const isElectron = typeof window !== 'undefined' && !!window.electronAPI;
+    const electronApi = typeof window !== 'undefined' ? window.electronAPI : undefined;
+    const isElectron = !!electronApi;
     
     if (isElectron) {
       setTimeout(() => setIsDesktop(true), 0);
       
       const checkStatus = async () => {
         try {
-          const s = await window.electronAPI.getBackendStatus();
+          const s = await electronApi.getBackendStatus();
           setStatus(s);
         } catch {
           setStatus('error');
@@ -30,10 +31,11 @@ const DesktopStatus = () => {
         setLogs((prev) => [...prev.slice(-4), log]);
       };
 
-      window.electronAPI.onBackendLog(logHandler);
+      const detachLogListener = electronApi.onBackendLog(logHandler);
 
       return () => {
         clearInterval(interval);
+        detachLogListener?.();
       };
     }
   }, []);

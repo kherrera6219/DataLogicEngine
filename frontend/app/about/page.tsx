@@ -18,7 +18,7 @@ export default function AboutPage() {
       <div className="container mx-auto max-w-5xl">
         <header className="mb-12 text-center">
            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">About DataLogicEngine</h1>
-           <p className="text-xl text-gray-500 max-w-2xl mx-auto">
+           <p className="text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
              An advanced Universal Knowledge Graph (UKG) system powered by 17-axis reasoning and 114 specialized Knowledge Algorithms.
            </p>
         </header>
@@ -73,7 +73,7 @@ export default function AboutPage() {
                     <div className="flex flex-col md:flex-row gap-6 items-start">
                         <div className="flex-1 space-y-4">
                             <h3 className="font-bold text-lg text-blue-900 dark:text-blue-300">Certified Secure & Transparent</h3>
-                            <p className="text-blue-800/80 dark:text-blue-200/80 text-sm leading-relaxed">
+                            <p className="text-blue-900 dark:text-blue-200 text-sm leading-relaxed">
                                 DataLogicEngine is built to strict enterprise standards. We provide full transparency on AI usage, cloud dependencies, and data handling.
                             </p>
                             <div className="flex flex-wrap gap-2 text-xs font-semibold text-blue-700 dark:text-blue-400">
