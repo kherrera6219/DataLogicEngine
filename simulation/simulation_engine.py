@@ -8,10 +8,8 @@ using the Unified Artifact Envelope (UAE) and FROST state management.
 
 import logging
 import uuid
-import json
 from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional
-import numpy as np
 
 from core.system.uae_models import UnifiedArtifactEnvelope, ConfidenceVector
 from core.coordinate_system import UnifiedCoordinate

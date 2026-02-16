@@ -12,7 +12,7 @@ import sys
 import logging
 import time
 import json
-from typing import Dict, Any, List
+from typing import Dict
 
 # Configure logging
 logging.basicConfig(
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 # Ensure we can import from parent directory
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from simulation.layer2_knowledge import NestedLayerDatabase, ThirteenAxisSystem
+from simulation.layer2_knowledge import NestedLayerDatabase
 
 def create_initial_data(db: NestedLayerDatabase) -> Dict[str, int]:
     """

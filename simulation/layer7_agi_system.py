@@ -19,8 +19,8 @@ Key components:
 """
 
 import logging
-from datetime import datetime, UTC
-from typing import Dict, List, Optional, Any, Tuple, Set, Union
+from datetime import datetime
+from typing import Dict, List
 
 
 class AGISimulationEngine:
@@ -94,7 +94,6 @@ class AGISimulationEngine:
                 context = self.pov_expansion_module._simulate_pov_expansion(context)
                 
             # 2. Recursively expand goals from the query and context
-            query = context.get('query', '')
             goals = self._expand_goals(context)
             logging.info(f"[{datetime.now()}] Expanded {len(goals)} goals from query")
             
@@ -476,8 +475,8 @@ class AGISimulationEngine:
         templates = [
             f"The goal '{conflict['goal_content']}' can be reconciled with the belief '{conflict['belief_content']}' by considering a broader context.",
             f"While '{conflict['belief_content']}' appears to contradict '{conflict['goal_content']}', they can be integrated by focusing on their complementary aspects.",
-            f"The apparent conflict between the goal and belief can be resolved by reinterpreting the goal's scope.",
-            f"This conflict can be addressed by qualifying the belief with additional context."
+            "The apparent conflict between the goal and belief can be resolved by reinterpreting the goal's scope.",
+            "This conflict can be addressed by qualifying the belief with additional context."
         ]
         
         import random

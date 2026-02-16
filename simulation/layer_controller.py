@@ -7,8 +7,8 @@ determining which layers should be activated and in what sequence.
 """
 
 import logging
-from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Union
+from datetime import datetime
+from typing import Dict, List, Optional
 
 from simulation.layer1_planning import Layer1PlanningEngine
 from simulation.layer2_retrieval import Layer2RetrievalEngine

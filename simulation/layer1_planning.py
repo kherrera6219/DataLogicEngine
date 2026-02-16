@@ -5,12 +5,11 @@ Replaces the legacy 'Layer 1 Entry' router.
 """
 
 import logging
-from typing import Dict, Any, List, Optional
-import re
+from typing import Dict, Any, List
 from datetime import datetime
 
 from quad_persona.quad_models import Coord17Intent, ProblemSpec, TierPlan
-from simulation.query_analysis_system import QueryAnalysisSystem, ExecutionTier
+from simulation.query_analysis_system import QueryAnalysisSystem
 
 logger = logging.getLogger(__name__)
 

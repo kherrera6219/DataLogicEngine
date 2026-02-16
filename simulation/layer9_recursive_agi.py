@@ -17,14 +17,11 @@ Layer 10 (Self-Awareness Engine) to ensure consistency and prevent runaway proce
 """
 
 import logging
-import math
 import time
 import random
-import numpy as np
-from typing import Dict, List, Tuple, Any, Optional, Union
-from datetime import datetime, UTC
+from typing import Dict, List
+from datetime import datetime
 
-from core.system.united_system_manager import UnitedSystemManager
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -419,8 +416,8 @@ class RecursiveAGICore:
         # Get beliefs for this role, or generate generic ones
         beliefs = belief_templates.get(role_name, [
             {"content": f"{role_name.replace('_', ' ')} perspective requires specialized knowledge", "confidence": 0.85, "type": role_name},
-            {"content": f"Domain-specific factors significantly impact outcomes", "confidence": 0.82, "type": role_name},
-            {"content": f"Best practices in this domain continue to evolve", "confidence": 0.78, "type": role_name}
+            {"content": "Domain-specific factors significantly impact outcomes", "confidence": 0.82, "type": role_name},
+            {"content": "Best practices in this domain continue to evolve", "confidence": 0.78, "type": role_name}
         ])
         
         # Ensure each belief has an ID

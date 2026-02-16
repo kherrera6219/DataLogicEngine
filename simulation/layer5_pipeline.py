@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, TypedDict, Literal, Tuple
-import math
+from typing import Any, Dict, List, Optional, TypedDict, Tuple
 import uuid
 import logging
 
@@ -9,13 +8,6 @@ import logging
 from langgraph.graph import StateGraph, END
 
 # DataLogicEngine imports
-from simulation.layer5_schemas import (
-    Layer5RunRequest, 
-    PersonaEnvelope, 
-    PersonaType, 
-    Consensus, 
-    VetoLog
-)
 
 logger = logging.getLogger("Layer5-Pipeline")
 
@@ -171,7 +163,6 @@ def persona_runner_node(state: Layer5State) -> Layer5State:
     personas = state.get("personas_to_spawn", [])
     logger.info(f"Running Personas: {personas}")
     
-    current_outputs = state.get("persona_outputs", [])
     new_outputs: List[Dict[str, Any]] = []
 
     # Import KA-20 on demand to avoid circular deps at top level if any

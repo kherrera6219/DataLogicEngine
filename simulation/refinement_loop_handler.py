@@ -8,8 +8,8 @@ It manages the iterative refinement process across simulation passes and layers.
 import logging
 import uuid
 import time
-from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Tuple, Callable
+from datetime import datetime
+from typing import Dict, Optional
 
 from simulation.gatekeeper_agent import GatekeeperAgent
 
@@ -482,8 +482,6 @@ class RefinementLoopHandler:
         # Detect conflicts between personas
         conflicts = []
         # Example conflict detection logic
-        knowledge_fragments = pass_context['persona_results']['knowledge'].get('knowledge_fragments', [])
-        regulatory_factors = pass_context['persona_results']['regulatory'].get('regulatory_factors', [])
         
         # For demo purposes, just add a sample conflict
         if pass_context['pass_num'] == 1:
@@ -578,7 +576,6 @@ class RefinementLoopHandler:
         """Determine if additional refinement passes are needed."""
         # In a real implementation, this would use convergence analysis
         confidence = pass_context['confidence']['overall']
-        entropy = pass_context['entropy']
         pass_num = pass_context['pass_num']
         
         # Check convergence threshold

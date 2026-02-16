@@ -11,7 +11,7 @@ import logging
 import os
 import uuid
 from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 from collections import deque
 
 logger = logging.getLogger(__name__)

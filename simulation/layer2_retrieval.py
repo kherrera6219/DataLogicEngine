@@ -7,7 +7,6 @@ Replaces the legacy 'Layer 2 Knowledge Simulator' (static graph).
 
 import logging
 from typing import Dict, Any, List
-import uuid
 
 from quad_persona.quad_models import (
     EvidencePack, EvidenceItem, Coord17Intent, RetrievalPlan, Coord17Bindings
@@ -53,7 +52,7 @@ class Layer2RetrievalEngine:
         logger.info(f"Layer 2 Retrieval started for Intent: {intent}")
         
         # 2. Plan Retrieval
-        retrieval_plan = self._generate_plan(intent)
+        self._generate_plan(intent)
         
         # 3. Execute Retrieval (Internal DB)
         evidence_pack = EvidencePack(research_tier="internal_retrieval")

@@ -1,6 +1,5 @@
 import logging
-import uuid
-from typing import Dict, Any, List
+from typing import Dict, Any
 from langgraph.graph import StateGraph, END
 from .graph_state import UKGState
 from backend.storage.graph_store import get_graph_store
@@ -12,7 +11,7 @@ def initialize_node(state: UKGState) -> Dict[str, Any]:
     logger.info(f"[Init] Query: {state['query']}")
     
     # Simulate DB retrieval for now
-    gs = get_graph_store()
+    get_graph_store()
     # In a real implementation, we would query Neo4j here
     # gs.run_query("MATCH (n) ...")
     

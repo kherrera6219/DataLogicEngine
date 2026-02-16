@@ -453,7 +453,6 @@ class TaskDelegator:
         # This is a simplified implementation. In a real system, this would use
         # sophisticated task decomposition and agent matching algorithms.
         
-        query = task.get("query", "")
         query_id = task.get("query_id", "")
         
         logger.info(f"Delegating task {query_id}")

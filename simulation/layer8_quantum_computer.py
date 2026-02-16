@@ -21,10 +21,9 @@ import math
 import time
 import numpy as np
 import random
-from typing import Dict, List, Tuple, Any, Optional, Union
-from datetime import datetime, UTC
+from typing import Dict, List
+from datetime import datetime
 
-from core.system.united_system_manager import UnitedSystemManager
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -95,7 +94,7 @@ class SimulatedQuantumComputer:
         self._initialize_belief_states(belief_vectors, confidence_scores)
         
         # Identify and create entanglements between related belief vectors
-        entanglements = self._create_entanglements(belief_vectors)
+        self._create_entanglements(belief_vectors)
         
         # Apply superposition to ambiguous states
         superposition_states = self._apply_superposition(context)
@@ -401,7 +400,6 @@ class SimulatedQuantumComputer:
         # Extract parameters for QTF calculation
         confidence_score = context.get('confidence_score', 0.7)
         entropy_score = context.get('entropy', 0.3)
-        confidence_decay = context.get('confidence_decay', 0.0)
         
         # Extract role weights
         role_weights = {
@@ -1347,7 +1345,7 @@ class SimQOSKernel:
             "threshold": decoherence_threshold
         }
         
-        log_entry = f"> Decoherence check\n"
+        log_entry = "> Decoherence check\n"
         log_entry += f"> Confidence drift: {confidence_drift:.4f}\n"
         log_entry += f"> Entropy drift: {entropy_drift:.4f}\n"
         log_entry += f"> Result: {'Decoherent' if is_decoherent else 'Coherent'}\n"
@@ -1377,7 +1375,7 @@ class SimQOSKernel:
             "dispatched_results": quantum_results
         }
         
-        log_entry = f"> Dispatching to Layer 9\n"
+        log_entry = "> Dispatching to Layer 9\n"
         log_entry += f"> QTF: {quantum_results.get('quantum_trust_fidelity', 0.7):.4f}\n"
         log_entry += f"> Collapsed beliefs: {len(quantum_results.get('collapsed_beliefs', {}))}\n"
         

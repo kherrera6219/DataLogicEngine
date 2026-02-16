@@ -20,11 +20,9 @@ simulation, providing self-monitoring capabilities for the entire system.
 import logging
 import math
 import time
-import numpy as np
-from typing import Dict, List, Tuple, Any, Optional, Union, Set
-from datetime import datetime, UTC
+from typing import Dict, List, Set
+from datetime import datetime
 
-from core.system.united_system_manager import UnitedSystemManager
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -79,9 +77,6 @@ class SelfAwarenessEngine:
         """
         start_time = time.time()
         logger.info(f"Starting Layer 10 Self-Awareness processing for {context.get('simulation_id', 'unknown')}")
-        
-        # Extract key metrics from context
-        rcs = context.get('recursive_confidence_score', 0.0)
         
         # Apply belief decay
         context = self._apply_belief_decay(context)

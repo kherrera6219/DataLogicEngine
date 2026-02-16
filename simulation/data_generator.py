@@ -7,9 +7,8 @@ It populates the Layer 1 database with nodes and relationships across the 13 axe
 """
 
 import random
-from typing import Dict, List, Any, Optional
 import logging
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +58,7 @@ def generate_all_axis_data(db, total_nodes=50):
 
     # Add pillar levels with fixed structure
     for pillar in pillar_levels:
-        node_id = db.add_node(
+        db.add_node(
             axis=1,
             label=pillar["label"],
             level=pillar["level"],
@@ -71,7 +70,7 @@ def generate_all_axis_data(db, total_nodes=50):
     remaining_axis1 = nodes_per_axis[1] - len(pillar_levels)
     for i in range(remaining_axis1):
         level = random.randint(1, 5)
-        node_id = db.add_node(
+        db.add_node(
             axis=1,
             label=f"Pillar Level {level}.{i+1}",
             level=level,
@@ -85,7 +84,7 @@ def generate_all_axis_data(db, total_nodes=50):
 
     for i, sector in enumerate(sectors[:nodes_per_axis[2]]):
         level = random.randint(1, 3)  # Different sector categories
-        node_id = db.add_node(
+        db.add_node(
             axis=2,
             label=sector,
             level=level,
@@ -100,7 +99,7 @@ def generate_all_axis_data(db, total_nodes=50):
 
     for i, topic in enumerate(topics[:nodes_per_axis[3]]):
         level = random.randint(1, 4)  # Topic depth level
-        node_id = db.add_node(
+        db.add_node(
             axis=3,
             label=topic,
             level=level,
@@ -115,7 +114,7 @@ def generate_all_axis_data(db, total_nodes=50):
 
     for i, method in enumerate(methods[:nodes_per_axis[4]]):
         level = random.randint(1, 3)  # Method complexity level
-        node_id = db.add_node(
+        db.add_node(
             axis=4,
             label=method,
             level=level,
@@ -129,7 +128,7 @@ def generate_all_axis_data(db, total_nodes=50):
 
     for i, tool in enumerate(tools[:nodes_per_axis[5]]):
         level = random.randint(1, 3)  # Tool sophistication level
-        node_id = db.add_node(
+        db.add_node(
             axis=5,
             label=tool,
             level=level,
@@ -143,7 +142,7 @@ def generate_all_axis_data(db, total_nodes=50):
 
     for i, reg in enumerate(regulations[:nodes_per_axis[6]]):
         level = random.randint(1, 3)  # Regulatory scope level
-        node_id = db.add_node(
+        db.add_node(
             axis=6,
             label=reg,
             level=level,
@@ -157,7 +156,7 @@ def generate_all_axis_data(db, total_nodes=50):
 
     for i, standard in enumerate(standards[:nodes_per_axis[7]]):
         level = random.randint(1, 3)  # Standard rigor level
-        node_id = db.add_node(
+        db.add_node(
             axis=7,
             label=standard,
             level=level,
@@ -179,7 +178,7 @@ def generate_all_axis_data(db, total_nodes=50):
         expert_type = expert_types[axis]
         for i in range(nodes_per_axis[axis]):
             domain = random.choice(domains)
-            node_id = db.add_node(
+            db.add_node(
                 axis=axis,
                 label=f"{domain} {expert_type}",
                 level=random.randint(1, 3),  # Expertise level
@@ -192,7 +191,7 @@ def generate_all_axis_data(db, total_nodes=50):
                 "Brazil", "Australia", "Canada", "United Kingdom", "Germany"]
 
     for i, location in enumerate(locations[:nodes_per_axis[12]]):
-        node_id = db.add_node(
+        db.add_node(
             axis=12,
             label=location,
             level=1,  # Geographic level (1=country, 2=region, 3=city)
@@ -211,7 +210,7 @@ def generate_all_axis_data(db, total_nodes=50):
     ]
 
     for i, period in enumerate(periods[:nodes_per_axis[13]]):
-        node_id = db.add_node(
+        db.add_node(
             axis=13,
             label=period["label"],
             level=1,

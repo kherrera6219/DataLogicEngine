@@ -9,10 +9,9 @@ Truth = convergence, not opinion.
 """
 
 import logging
-import hashlib
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Set
+from typing import Dict, List, Any
 from enum import Enum
 
 logger = logging.getLogger(__name__)

@@ -17,7 +17,7 @@ import time
 import uuid
 from datetime import datetime, UTC
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 
 # Base POV Engine
 from simulation.pov_engine import POVEngine
@@ -27,8 +27,7 @@ from simulation.pov_policy import (
     POVPolicyService,
     POVPlan,
     POVMode,
-    POVBudget,
-    ScoringSignals
+    POVBudget
 )
 from simulation.viewpoint_registry import (
     ViewpointRegistry,

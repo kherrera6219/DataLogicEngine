@@ -9,9 +9,9 @@ Pillar Levels, 17-axis coordination system, and Quad Persona Simulation Engine.
 import logging
 import json
 import os
-from typing import Dict, Any, List, Optional, Union, Tuple
+from typing import Dict, Any, List, Optional
 import uuid
-from datetime import datetime, UTC
+from datetime import datetime
 import networkx as nx
 
 from quad_persona.quad_engine import QuadPersonaEngine, QueryState
@@ -721,7 +721,7 @@ class NestedLayerDatabase:
             if 'Axes' in data:
                 for axis_def in data['Axes']:
                     if 'number' in axis_def and axis_def['number'] == axis_number:
-                        node_id = self.add_node(
+                        self.add_node(
                             axis_number=axis_number,
                             level=1,
                             label=axis_def.get('label', f"Axis {axis_number}"),
@@ -736,7 +736,7 @@ class NestedLayerDatabase:
             elif 'Locations' in data and axis_number == 12:
                 level = 1
                 for location in data['Locations']:
-                    node_id = self.add_node(
+                    self.add_node(
                         axis_number=12,
                         level=level,
                         label=location.get('name', ''),
@@ -754,7 +754,7 @@ class NestedLayerDatabase:
             elif 'TimePeriods' in data and axis_number == 13:
                 level = 1
                 for period in data['TimePeriods']:
-                    node_id = self.add_node(
+                    self.add_node(
                         axis_number=13,
                         level=level,
                         label=period.get('name', ''),
@@ -772,7 +772,7 @@ class NestedLayerDatabase:
             elif 'PillarLevels' in data and axis_number == 1:
                 for pillar in data['PillarLevels']:
                     level = pillar.get('level', 1)
-                    node_id = self.add_node(
+                    self.add_node(
                         axis_number=1,
                         level=level,
                         label=pillar.get('name', ''),
@@ -793,7 +793,7 @@ class NestedLayerDatabase:
                         if isinstance(item, dict):
                             label = item.get('name', item.get('label', f"Item {level}"))
                             description = item.get('description', '')
-                            node_id = self.add_node(
+                            self.add_node(
                                 axis_number=axis_number,
                                 level=level,
                                 label=label,
@@ -1136,12 +1136,8 @@ the 13-axis knowledge graph into a simulated in-memory database.
 """
 
 import logging
-import json
-import os
-import networkx as nx
 import yaml
-from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Tuple, Set
+from typing import Dict, List, Any, Optional
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -1227,7 +1223,6 @@ class Layer2KnowledgeGraph:
         for rel_id, rel_data in self.layer1_db.relationships.items():
             source = rel_data.get('source')
             target = rel_data.get('target')
-            rel_type = rel_data.get('type')
             weight = rel_data.get('weight', 0.5)
             
             # Add more metadata to relationships

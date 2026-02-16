@@ -18,11 +18,9 @@ This results in multi-perspective reasoning that improves accuracy and context.
 
 import logging
 import uuid
-import json
-import math
 import random
-from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Tuple, Set, Union
+from datetime import datetime
+from typing import Dict, List
 
 class POVEngine:
     """
@@ -307,7 +305,6 @@ class POVEngine:
         
         # Extract initial context data
         initial_data = context.get('initial_data', [])
-        query = context.get('query', '')
         
         # Identify primary domains from the context
         primary_pl_levels = self._extract_pl_levels(context)
@@ -552,10 +549,6 @@ class POVEngine:
         
         # Track metrics
         personas_count = 0
-        
-        # Extract relevant data from context
-        query = context.get('query', '')
-        expanded_data = context.get('expanded_data', [])
         
         # Get PL levels and sectors for context
         primary_pl_levels = self._extract_pl_levels(context)
@@ -856,26 +849,26 @@ class POVEngine:
         if persona_type == 'knowledge':
             key_points = [
                 f"From a {', '.join(areas) if areas else 'knowledge'} perspective, this requires detailed domain expertise.",
-                f"The technical aspects require consideration of underlying principles and methodologies.",
-                f"Current research and established frameworks should be integrated for comprehensive analysis."
+                "The technical aspects require consideration of underlying principles and methodologies.",
+                "Current research and established frameworks should be integrated for comprehensive analysis."
             ]
         elif persona_type == 'sector':
             key_points = [
                 f"Industry standards and best practices in {', '.join(areas) if areas else 'the sector'} should be applied.",
-                f"Market trends and competitive dynamics significantly impact this context.",
-                f"Sector-specific operational constraints and opportunities must be considered."
+                "Market trends and competitive dynamics significantly impact this context.",
+                "Sector-specific operational constraints and opportunities must be considered."
             ]
         elif persona_type == 'regulatory':
             key_points = [
                 f"Several regulatory frameworks including {', '.join(self._extract_regulatory_mentions(context) or ['relevant regulations'])} apply.",
-                f"Legal considerations and statutory requirements create specific constraints.",
-                f"Oversight mechanisms and reporting obligations must be factored into analysis."
+                "Legal considerations and statutory requirements create specific constraints.",
+                "Oversight mechanisms and reporting obligations must be factored into analysis."
             ]
         elif persona_type == 'compliance':
             key_points = [
                 f"Compliance with {', '.join(self._extract_compliance_frameworks(context) or ['applicable standards'])} is essential.",
-                f"Internal controls and audit requirements create verification needs.",
-                f"Documentation and evidence collection processes should be established."
+                "Internal controls and audit requirements create verification needs.",
+                "Documentation and evidence collection processes should be established."
             ]
         else:
             key_points = [
@@ -1195,8 +1188,6 @@ class POVEngine:
         
         # Extract personas, query, and relevant context
         personas = context.get('simulated_personas', [])
-        query = context.get('query', '')
-        expanded_data = context.get('expanded_data', [])
         
         if not personas:
             # No personas to entangle

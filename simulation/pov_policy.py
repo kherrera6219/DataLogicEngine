@@ -10,7 +10,7 @@ This service answers: "How much POV should we apply to this query?"
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Set
+from typing import Dict, List, Any, Optional
 from enum import Enum
 
 logger = logging.getLogger(__name__)

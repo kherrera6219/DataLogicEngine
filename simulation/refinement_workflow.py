@@ -7,11 +7,10 @@ incorporating accurate steps like Algorithm of Thought (AoT) and Tree of Thought
 
 import logging
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from backend.knowledge_algorithm.registry import KARegistry
 from backend.knowledge_algorithm.base import KAResult
-from backend.knowledge_algorithm.context import create_default_context, EngineContext
-import backend.knowledge_algorithm
+from backend.knowledge_algorithm.context import create_default_context
 
 logger = logging.getLogger(__name__)
 

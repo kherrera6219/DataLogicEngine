@@ -7,9 +7,7 @@ Orchestrates the 3-Tier Deep Research process:
 """
 
 import logging
-from typing import Dict, Any, List
-from datetime import datetime
-import uuid
+from typing import Dict, Any
 
 from quad_persona.quad_models import EvidencePack, EvidenceItem
 # Import KA implementations directly or via Registry

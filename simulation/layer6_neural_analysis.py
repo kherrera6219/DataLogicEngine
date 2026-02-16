@@ -8,7 +8,7 @@ multi-agent consensus into high-level insights.
 
 import logging
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 
 logger = logging.getLogger(__name__)
 
