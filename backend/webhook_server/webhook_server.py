@@ -11,7 +11,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
 import os
 import sys
-import logging
 import time
 import hmac
 import hashlib
@@ -23,6 +22,8 @@ from threading import Lock
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from enterprise_architecture import get_enterprise_architecture
 from middleware.asgi_security import apply_standard_fastapi_middleware
+from backend.logging_config import configure_service_logging
+from backend.utils.cors_policy import resolve_service_cors_policy
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -32,21 +33,19 @@ app = FastAPI(
 )
 apply_standard_fastapi_middleware(app, service_name="webhook_server")
 
+cors_origins, cors_allow_credentials = resolve_service_cors_policy()
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=cors_origins,
+    allow_credentials=cors_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger("Webhook-Server")
+logger = configure_service_logging("webhook_server")
 
 # Get enterprise architecture
 enterprise_arch = get_enterprise_architecture()

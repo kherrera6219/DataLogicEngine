@@ -17,6 +17,8 @@ from extensions import db
 from models import SimulationSession
 from models import Node, Edge, PillarLevel, Sector, Domain
 from backend.utils.responses import internal_error
+from backend.schemas.api_request_schemas import QueryRequest, SimulationRunRequest
+from backend.utils.flask_request_validation import get_validated_payload, validate_json_payload
 
 logger = logging.getLogger(__name__)
 
@@ -119,17 +121,17 @@ def api_graph():
 
 @api_bp.route('/query', methods=['POST'])
 @login_required
+@validate_json_payload(QueryRequest)
 def api_query():
     """API endpoint to process a knowledge query."""
     try:
-        data = request.get_json()
-        
-        if not data or 'query' not in data:
-            return jsonify({"error": "Missing query parameter"}), 400
-        
-        query = data['query']
-        confidence_threshold = data.get('confidenceThreshold', 0.85)
-        max_layer = data.get('maxLayer', 5)
+        payload = get_validated_payload(QueryRequest)
+        if payload is None:
+            return internal_error()
+
+        query = payload.query
+        confidence_threshold = payload.confidenceThreshold
+        max_layer = payload.maxLayer
         
         simulation = SimulationSession()
         simulation.session_id = str(uuid.uuid4())
@@ -186,22 +188,22 @@ def api_query():
 
 @api_bp.route('/simulation/run', methods=['POST'])
 @login_required
+@validate_json_payload(SimulationRunRequest)
 def api_run_simulation():
     """API endpoint to run a simulation."""
     try:
-        data = request.get_json()
-        
-        if not data or 'query' not in data:
-            return jsonify({"error": "Missing query parameter"}), 400
-        
-        query = data['query']
-        confidence_threshold = data.get('confidenceThreshold', 0.85)
-        max_layer = data.get('maxLayer', 5)
-        refinement_steps = data.get('refinementSteps', 8)
+        payload = get_validated_payload(SimulationRunRequest)
+        if payload is None:
+            return internal_error()
+
+        query = payload.query
+        confidence_threshold = payload.confidenceThreshold
+        max_layer = payload.maxLayer
+        refinement_steps = payload.refinementSteps
         
         simulation = SimulationSession()
         simulation.session_id = str(uuid.uuid4())
-        simulation.name = data.get('name', f"Simulation {datetime.datetime.now(UTC).strftime('%Y-%m-%d %H:%M')}")
+        simulation.name = payload.name or f"Simulation {datetime.datetime.now(UTC).strftime('%Y-%m-%d %H:%M')}"
         simulation.user_id = current_user.id
         simulation.parameters = {
             "query": query,

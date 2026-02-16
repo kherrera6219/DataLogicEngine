@@ -4,19 +4,20 @@ import React, { useState } from 'react';
 import { Cloud, X, ExternalLink, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { getLocalStorageItem, setLocalStorageItem } from '@/lib/state/storage';
 
 export function CloudDisclosureBanner() {
   const [isVisible, setIsVisible] = useState(() => {
     // Check during initial render (client-side only)
     if (typeof window !== 'undefined') {
-      return !localStorage.getItem('ukg_cloud_disclosure_dismissed');
+      return !getLocalStorageItem('ukg_cloud_disclosure_dismissed');
     }
     return false;
   });
 
 
   const handleDismiss = () => {
-    localStorage.setItem('ukg_cloud_disclosure_dismissed', 'true');
+    setLocalStorageItem('ukg_cloud_disclosure_dismissed', 'true');
     setIsVisible(false);
   };
 

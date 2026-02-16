@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { reportClientError } from '@/lib/telemetry/client-errors';
+import { removeLocalStorageItem } from '@/lib/state/storage';
 
 const captureError = (error: Error) => {
     reportClientError(error, {
@@ -23,9 +24,7 @@ export default function GlobalError({
 
   const handleRecovery = () => {
       // Clear potentially corrupt local state
-      try {
-          localStorage.removeItem('user-session'); // Example cleanup
-      } catch { /* ignore */ }
+      removeLocalStorageItem('user-session');
       
       // Attempt generic reset provided by Next.js
       reset();

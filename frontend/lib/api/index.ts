@@ -8,6 +8,7 @@ import { compliance } from './compliance';
 import { sanitizeJsonPayload, sanitizeTextInput } from '@/lib/security/input-sanitization';
 import { reportClientError } from '@/lib/telemetry/client-errors';
 import { shouldUseDesktopSessionFlow } from '@/lib/runtime/policy';
+import { removeLocalStorageItem } from '@/lib/state/storage';
 
 export * from './types';
 
@@ -330,7 +331,7 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
       }
 
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('user-session');
+        removeLocalStorageItem('user-session');
         if (!desktopRuntime) {
           window.location.href = '/login?error=session_expired';
         }

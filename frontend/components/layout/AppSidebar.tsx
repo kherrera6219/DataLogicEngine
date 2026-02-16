@@ -10,6 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { getLocalStorageItem, setLocalStorageItem } from '@/lib/state/storage';
 
 interface SidebarItemProps {
   icon: React.ElementType;
@@ -51,8 +52,7 @@ export function AppSidebar() {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   React.useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const stored = window.localStorage.getItem('ukg.sidebar.collapsed');
+    const stored = getLocalStorageItem('ukg.sidebar.collapsed');
     if (stored === 'true' || stored === 'false') {
       setIsCollapsed(stored === 'true');
     }
@@ -61,9 +61,7 @@ export function AppSidebar() {
   const toggleSidebar = React.useCallback(() => {
     setIsCollapsed((prev) => {
       const next = !prev;
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem('ukg.sidebar.collapsed', String(next));
-      }
+      setLocalStorageItem('ukg.sidebar.collapsed', String(next));
       return next;
     });
   }, []);

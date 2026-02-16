@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
+import { getLocalStorageItem, setLocalStorageItem } from '@/lib/state/storage';
 
 type Theme = 'light' | 'dark' | 'system';
 type EnterpriseTheme = 'default' | 'azure' | 'government' | 'high-contrast';
@@ -28,16 +29,16 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Initialize from localStorage if available
   const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('theme') as Theme | null;
-      return saved || 'dark';
+    const saved = getLocalStorageItem('theme') as Theme | null;
+    if (saved) {
+      return saved;
     }
     return 'dark';
   });
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [enterpriseTheme, setEnterpriseThemeState] = useState<EnterpriseTheme>(() => {
-    if (typeof window !== 'undefined') {
-      const localTheme = localStorage.getItem(ENTERPRISE_THEME_STORAGE_KEY);
+    const localTheme = getLocalStorageItem(ENTERPRISE_THEME_STORAGE_KEY);
+    if (localTheme) {
       return normalizeEnterpriseTheme(localTheme);
     }
     return normalizeEnterpriseTheme(process.env.NEXT_PUBLIC_ENTERPRISE_THEME_PRESET);
@@ -81,13 +82,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('theme', newTheme);
+    setLocalStorageItem('theme', newTheme);
   };
 
   const setEnterpriseTheme = (newTheme: EnterpriseTheme) => {
     const normalizedTheme = normalizeEnterpriseTheme(newTheme);
     setEnterpriseThemeState(normalizedTheme);
-    localStorage.setItem(ENTERPRISE_THEME_STORAGE_KEY, normalizedTheme);
+    setLocalStorageItem(ENTERPRISE_THEME_STORAGE_KEY, normalizedTheme);
   };
 
   return (

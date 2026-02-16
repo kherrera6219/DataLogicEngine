@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "domains": [
+    {
+      "name": "auth",
+      "ownerPath": "frontend/contexts/AuthContext.tsx",
+      "scope": "session and identity state"
+    },
+    {
+      "name": "theme",
+      "ownerPath": "frontend/contexts/ThemeContext.tsx",
+      "scope": "theme and enterprise visual state"
+    },
+    {
+      "name": "feature_flags",
+      "ownerPath": "frontend/contexts/FeatureFlagContext.tsx",
+      "scope": "local/cloud/enterprise feature gating state"
+    }
+  ],
+  "persistence": {
+    "allowedAdapterPath": "frontend/lib/state/storage.ts",
+    "forbiddenDirectGlobals": [
+      "localStorage",
+      "sessionStorage",
+      "window.localStorage",
+      "window.sessionStorage"
+    ]
+  },
+  "layeringRules": {
+    "libLayerMustNotImport": [
+      "frontend/app/**",
+      "frontend/components/**",
+      "frontend/contexts/**"
+    ],
+    "contextsMustNotImport": [
+      "frontend/app/**"
+    ]
+  }
+}

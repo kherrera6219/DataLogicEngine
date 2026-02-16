@@ -6,10 +6,17 @@ This module provides API endpoints for managing and accessing compliance standar
 in the Universal Knowledge Graph (UKG) system.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify, current_app
 
 from backend.auth.api_decorators import api_login_required, api_admin_required
+from backend.schemas.api_request_schemas import (
+    ComplianceReportRequest,
+    ComplianceStandardCreateRequest,
+    RegulatoryComplianceMapRequest,
+)
+from backend.utils.error_normalization import normalize_public_error_message
+from backend.utils.flask_request_validation import get_validated_payload, validate_json_payload
 
 compliance_bp = Blueprint('compliance_api', __name__, url_prefix='/api/v1/compliance')
 
@@ -44,17 +51,19 @@ def get_compliance_standards():
 
 @compliance_bp.route('/standards', methods=['POST'])
 @api_admin_required
+@validate_json_payload(ComplianceStandardCreateRequest)
 def create_compliance_standard():
     """Create a new compliance standard."""
     try:
-        data = request.json
-        if not data:
+        payload = get_validated_payload(ComplianceStandardCreateRequest)
+        if payload is None:
             return jsonify({
-                'status': 'error',
-                'message': 'Missing request body',
-                'timestamp': datetime.now().isoformat()
-            }), 400
-        
+                "status": "error",
+                "message": "Invalid request payload",
+                "timestamp": datetime.now().isoformat(),
+            }), 422
+
+        data = payload.model_dump()
         parent_id = data.pop('parent_id', None)
         
         axis_system = current_app.config.get('AXIS_SYSTEM')
@@ -78,7 +87,7 @@ def create_compliance_standard():
         current_app.logger.error(f"Error creating compliance standard: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error creating compliance standard: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error creating compliance standard"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -183,21 +192,22 @@ def get_sector_compliance(sector_id):
 
 @compliance_bp.route('/map-regulatory', methods=['POST'])
 @api_admin_required
+@validate_json_payload(RegulatoryComplianceMapRequest)
 def map_regulatory_to_compliance():
     """Map a regulatory framework to a compliance standard."""
     try:
-        data = request.json
-        if not data or 'regulatory_uid' not in data or 'compliance_uid' not in data:
+        payload = get_validated_payload(RegulatoryComplianceMapRequest)
+        if payload is None:
             return jsonify({
-                'status': 'error',
-                'message': 'Missing required fields: regulatory_uid, compliance_uid',
-                'timestamp': datetime.now().isoformat()
-            }), 400
-        
-        regulatory_uid = data['regulatory_uid']
-        compliance_uid = data['compliance_uid']
-        relationship_type = data.get('relationship_type', 'implements')
-        confidence = data.get('confidence', 0.9)
+                "status": "error",
+                "message": "Invalid request payload",
+                "timestamp": datetime.now().isoformat(),
+            }), 422
+
+        regulatory_uid = payload.regulatory_uid
+        compliance_uid = payload.compliance_uid
+        relationship_type = payload.relationship_type
+        confidence = payload.confidence
         
         axis_system = current_app.config.get('AXIS_SYSTEM')
         compliance_manager = axis_system.axis_managers.get(7)
@@ -222,7 +232,7 @@ def map_regulatory_to_compliance():
         current_app.logger.error(f"Error mapping regulatory to compliance: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error mapping regulatory to compliance: {str(e)}",
+            'message': normalize_public_error_message(str(e), "Error mapping regulatory to compliance"),
             'timestamp': datetime.now().isoformat()
         }), 500
 
@@ -244,7 +254,7 @@ def export_audit_logs_route():
         
         logger_instance = AuditLogger()
         end_time = datetime.now()
-        start_time = end_time - datetime.timedelta(days=days)
+        start_time = end_time - timedelta(days=days)
         
         count = logger_instance.export_to_csv(filepath, start_time=start_time, end_time=end_time)
         
@@ -261,27 +271,28 @@ def export_audit_logs_route():
         current_app.logger.error(f"Error exporting audit logs: {str(e)}")
         return jsonify({
             'status': 'error',
-            'message': f"Error exporting logs: {str(e)}"
+            'message': normalize_public_error_message(str(e), "Error exporting logs")
         }), 500
 
 @compliance_bp.route('/report/pdf', methods=['POST'])
 @api_login_required
+@validate_json_payload(ComplianceReportRequest)
 def export_compliance_report():
     """Generate and export a real compliance report PDF."""
     from backend.reports.compliance import compliance_reporter, ComplianceFramework
     from flask import send_file
     import os
-    
-    data = request.json
-    if not data:
-        return jsonify({"error": "No data provided"}), 400
         
     try:
-        framework_val = data.get('framework', 'SOC2')
+        payload = get_validated_payload(ComplianceReportRequest)
+        if payload is None:
+            return jsonify({"error": "Invalid request payload"}), 422
+
+        framework_val = payload.framework
         framework = ComplianceFramework(framework_val)
         
         # In a real scenario, we'd fetch data_points from DB
-        data_points = data.get('data_points', [])
+        data_points = payload.data_points
         
         report = compliance_reporter.generate_report(
             framework=framework,
@@ -298,5 +309,5 @@ def export_compliance_report():
             
     except Exception as e:
         current_app.logger.error(f"Compliance report generation failed: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": normalize_public_error_message(str(e), "Compliance report generation failed")}), 500
 

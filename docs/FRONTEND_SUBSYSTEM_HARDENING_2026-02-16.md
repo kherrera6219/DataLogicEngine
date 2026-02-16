@@ -245,3 +245,54 @@ Commands executed and outcomes:
 
 2. `npm --prefix frontend run electron:build`  
    - Result: pass
+
+## Phase P5 - Completed
+
+### Implemented
+
+1. Frontend state management governance codification + enforcement
+   - Added centralized browser persistence adapter:
+     - `frontend/lib/state/storage.ts`
+   - Migrated direct browser storage access to governed adapter in core state/UI paths:
+     - `frontend/contexts/ThemeContext.tsx`
+     - `frontend/contexts/FeatureFlagContext.tsx`
+     - `frontend/components/layout/AppSidebar.tsx`
+     - `frontend/components/CloudDisclosureBanner.tsx`
+     - `frontend/app/global-error.tsx`
+     - `frontend/lib/api/index.ts`
+   - Added explicit governance contract:
+     - `frontend/state-governance.config.json`
+   - Added governance policy documentation:
+     - `docs/FRONTEND_STATE_GOVERNANCE_2026-02-16.md`
+   - Added lint-enforced state-layer boundaries and storage restrictions:
+     - `frontend/eslint.config.mjs`
+
+2. Accessibility CI coverage expansion (WCAG automation route breadth)
+   - Replaced single-route axe run with multi-route a11y sweep runner:
+     - `frontend/scripts/run-a11y-ci.mjs`
+   - Updated CI a11y script binding:
+     - `frontend/package.json` (`test:a11y:ci`)
+   - Default automated route sweep now includes:
+     - `/`
+     - `/about`
+     - `/about/ai-limitations`
+     - `/about/cloud-services`
+     - `/legal/privacy`
+     - `/login`
+     - `/register`
+
+### Debugging/Error Sweep (P5)
+
+Commands executed and outcomes:
+
+1. `npm --prefix frontend run lint`  
+   - Result: pass
+
+2. `npm --prefix frontend run test -- components/CloudDisclosureBanner.test.tsx components/layout/AppSidebar.test.tsx components/ThemeToggle.test.tsx tests/unit/lib/api/index.test.ts tests/unit/middleware.test.ts tests/unit/lib/runtime/policy.test.ts`  
+   - Result: pass (`37 passed`)
+
+3. `npm --prefix frontend run test:a11y:ci`  
+   - Result: pass (all configured public routes: `0 violations found`)
+
+4. `npm --prefix frontend run electron:build`  
+   - Result: pass

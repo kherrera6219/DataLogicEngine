@@ -10,10 +10,18 @@ Handles CRUD operations for Core Knowledge Entities:
 
 import uuid
 import logging
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, jsonify
 from extensions import db
 from models import PillarLevel, Sector, Domain, KnowledgeNode
 from backend.auth.api_decorators import api_login_required, api_admin_required
+from backend.schemas.api_request_schemas import (
+    DomainCreateRequest,
+    KnowledgeNodeCreateRequest,
+    PillarLevelCreateRequest,
+    SectorCreateRequest,
+)
+from backend.utils.error_normalization import normalize_public_error_message
+from backend.utils.flask_request_validation import get_validated_payload, validate_json_payload
 
 knowledge_bp = Blueprint('knowledge_api', __name__, url_prefix='/api/v1')
 logger = logging.getLogger(__name__)
@@ -51,24 +59,22 @@ def get_pillar_level(pillar_id):
 
 @knowledge_bp.route('/pillar-levels', methods=['POST'])
 @api_admin_required
+@validate_json_payload(PillarLevelCreateRequest)
 def create_pillar_level():
     """Create a new pillar level."""
-    data = request.json
-    if not data: return error_response("No data provided")
-    
-    required_fields = ['pillar_id', 'name']
-    for field in required_fields:
-        if field not in data: return error_response(f"Missing required field: {field}")
-    
-    existing = PillarLevel.query.filter_by(pillar_id=data['pillar_id']).first()
-    if existing: return error_response(f"Pillar level with ID {data['pillar_id']} already exists", 409)
+    payload = get_validated_payload(PillarLevelCreateRequest)
+    if payload is None:
+        return error_response("Invalid request payload", 422)
+
+    existing = PillarLevel.query.filter_by(pillar_id=payload.pillar_id).first()
+    if existing: return error_response(f"Pillar level with ID {payload.pillar_id} already exists", 409)
     
     new_pillar = PillarLevel(
         uid=str(uuid.uuid4()),
-        pillar_id=data['pillar_id'],
-        name=data['name'],
-        description=data.get('description'),
-        sublevels=data.get('sublevels')
+        pillar_id=payload.pillar_id,
+        name=payload.name,
+        description=payload.description,
+        sublevels=payload.sublevels
     )
     
     db.session.add(new_pillar)
@@ -77,7 +83,7 @@ def create_pillar_level():
         return success_response(new_pillar.to_dict(), "Pillar level created successfully", 201)
     except Exception as e:
         db.session.rollback()
-        return error_response(str(e), 500)
+        return error_response(normalize_public_error_message(str(e), "Failed to create pillar level"), 500)
 
 # --- SECTORS ---
 
@@ -96,23 +102,21 @@ def get_sector(sector_code):
 
 @knowledge_bp.route('/sectors', methods=['POST'])
 @api_admin_required
+@validate_json_payload(SectorCreateRequest)
 def create_sector():
-    data = request.json
-    if not data: return error_response("No data provided")
-    
-    required_fields = ['sector_code', 'name']
-    for field in required_fields:
-        if field not in data: return error_response(f"Missing required field: {field}")
-    
-    existing = Sector.query.filter_by(sector_code=data['sector_code']).first()
-    if existing: return error_response(f"Sector with code {data['sector_code']} already exists", 409)
+    payload = get_validated_payload(SectorCreateRequest)
+    if payload is None:
+        return error_response("Invalid request payload", 422)
+
+    existing = Sector.query.filter_by(sector_code=payload.sector_code).first()
+    if existing: return error_response(f"Sector with code {payload.sector_code} already exists", 409)
     
     new_sector = Sector(
         uid=str(uuid.uuid4()),
-        sector_code=data['sector_code'],
-        name=data['name'],
-        description=data.get('description'),
-        parent_sector_id=data.get('parent_sector_id')
+        sector_code=payload.sector_code,
+        name=payload.name,
+        description=payload.description,
+        parent_sector_id=payload.parent_sector_id
     )
     
     db.session.add(new_sector)
@@ -121,7 +125,7 @@ def create_sector():
         return success_response(new_sector.to_dict(), "Sector created successfully", 201)
     except Exception as e:
         db.session.rollback()
-        return error_response(str(e), 500)
+        return error_response(normalize_public_error_message(str(e), "Failed to create sector"), 500)
 
 # --- DOMAINS ---
 
@@ -140,24 +144,22 @@ def get_domain(domain_code):
 
 @knowledge_bp.route('/domains', methods=['POST'])
 @api_admin_required
+@validate_json_payload(DomainCreateRequest)
 def create_domain():
-    data = request.json
-    if not data: return error_response("No data provided")
-    
-    required_fields = ['domain_code', 'name']
-    for field in required_fields:
-        if field not in data: return error_response(f"Missing required field: {field}")
-    
-    existing = Domain.query.filter_by(domain_code=data['domain_code']).first()
-    if existing: return error_response(f"Domain with code {data['domain_code']} already exists", 409)
+    payload = get_validated_payload(DomainCreateRequest)
+    if payload is None:
+        return error_response("Invalid request payload", 422)
+
+    existing = Domain.query.filter_by(domain_code=payload.domain_code).first()
+    if existing: return error_response(f"Domain with code {payload.domain_code} already exists", 409)
     
     new_domain = Domain(
         uid=str(uuid.uuid4()),
-        domain_code=data['domain_code'],
-        name=data['name'],
-        description=data.get('description'),
-        sector_id=data.get('sector_id'),
-        parent_domain_id=data.get('parent_domain_id')
+        domain_code=payload.domain_code,
+        name=payload.name,
+        description=payload.description,
+        sector_id=payload.sector_id,
+        parent_domain_id=payload.parent_domain_id
     )
     
     db.session.add(new_domain)
@@ -166,7 +168,7 @@ def create_domain():
         return success_response(new_domain.to_dict(), "Domain created successfully", 201)
     except Exception as e:
         db.session.rollback()
-        return error_response(str(e), 500)
+        return error_response(normalize_public_error_message(str(e), "Failed to create domain"), 500)
 
 # --- KNOWLEDGE NODES ---
 
@@ -185,23 +187,21 @@ def get_knowledge_node(uid):
 
 @knowledge_bp.route('/knowledge-nodes', methods=['POST'])
 @api_admin_required
+@validate_json_payload(KnowledgeNodeCreateRequest)
 def create_knowledge_node():
-    data = request.json
-    if not data: return error_response("No data provided")
-    
-    required_fields = ['title', 'content', 'content_type']
-    for field in required_fields:
-        if field not in data: return error_response(f"Missing required field: {field}")
+    payload = get_validated_payload(KnowledgeNodeCreateRequest)
+    if payload is None:
+        return error_response("Invalid request payload", 422)
     
     new_node = KnowledgeNode(
         uid=str(uuid.uuid4()),
-        title=data['title'],
-        content=data['content'],
-        content_type=data['content_type'],
-        pillar_level_id=data.get('pillar_level_id'),
-        domain_id=data.get('domain_id'),
-        location_id=data.get('location_id'),
-        metadata=data.get('metadata')
+        title=payload.title,
+        content=payload.content,
+        content_type=payload.content_type,
+        pillar_level_id=payload.pillar_level_id,
+        domain_id=payload.domain_id,
+        location_id=payload.location_id,
+        metadata=payload.metadata
     )
     
     db.session.add(new_node)
@@ -210,4 +210,4 @@ def create_knowledge_node():
         return success_response(new_node.to_dict(), "Node created successfully", 201)
     except Exception as e:
         db.session.rollback()
-        return error_response(str(e), 500)
+        return error_response(normalize_public_error_message(str(e), "Failed to create node"), 500)

@@ -15,6 +15,7 @@ import uuid
 from backend.utils.exceptions import UKGException
 from backend.security.pii_redaction import pii_redactor
 from .request_limits import configure_request_limits
+from .resource_governor import configure_resource_governor
 
 logger = logging.getLogger(__name__)
 
@@ -174,6 +175,9 @@ def setup_middleware(app):
     
     # Initialize Request Timeout
     RequestTimeout(app)
+
+    # Configure in-process resource governor (tenant/user concurrency caps)
+    configure_resource_governor(app)
     
     # Register global after_request handlers
     app.after_request(etag_middleware())
@@ -182,5 +186,5 @@ def setup_middleware(app):
     logger.info("UKG Unified Middleware stack hardened and initialized")
 
 
-__all__ = ['configure_request_limits', 'api_response', 'setup_middleware']
+__all__ = ['configure_request_limits', 'configure_resource_governor', 'api_response', 'setup_middleware']
 

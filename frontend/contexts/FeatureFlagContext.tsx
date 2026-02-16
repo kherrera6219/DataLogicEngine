@@ -10,6 +10,7 @@ import {
   FeatureFlagSources,
   FeatureFlagState,
 } from '@/lib/feature-flags/definitions';
+import { getLocalStorageItem, setLocalStorageItem } from '@/lib/state/storage';
 
 const LOCAL_FEATURE_FLAGS_KEY = 'dle_feature_flags';
 
@@ -61,10 +62,7 @@ function parseFlagPayload(raw: string | undefined): Partial<FeatureFlagState> {
 }
 
 function readLocalOverrides(): Partial<FeatureFlagState> {
-  if (typeof window === 'undefined') {
-    return {};
-  }
-  return parseFlagPayload(window.localStorage.getItem(LOCAL_FEATURE_FLAGS_KEY) ?? undefined);
+  return parseFlagPayload(getLocalStorageItem(LOCAL_FEATURE_FLAGS_KEY) ?? undefined);
 }
 
 function buildResolvedFlags(localOverrides: Partial<FeatureFlagState>) {
@@ -105,10 +103,7 @@ function buildResolvedFlags(localOverrides: Partial<FeatureFlagState>) {
 }
 
 function persistLocalOverrides(localOverrides: Partial<FeatureFlagState>) {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  window.localStorage.setItem(LOCAL_FEATURE_FLAGS_KEY, JSON.stringify(localOverrides));
+  setLocalStorageItem(LOCAL_FEATURE_FLAGS_KEY, JSON.stringify(localOverrides));
 }
 
 export function FeatureFlagProvider({ children }: { children: React.ReactNode }) {

@@ -7,13 +7,12 @@ Provides centralized logging with JSON format for log aggregation.
 import os
 import sys
 import logging
-import json
 import socket
 import re
 from datetime import datetime, UTC
 from typing import Optional
 from flask import Flask
-from pythonjsonlogger import jsonlogger
+from pythonjsonlogger.json import JsonFormatter
 
 
 from backend.security.pii_redaction import pii_redactor
@@ -50,7 +49,7 @@ def _redact_value_for_logging(value):
     return value
 
 
-class CustomJsonFormatter(jsonlogger.JsonFormatter):
+class CustomJsonFormatter(JsonFormatter):
     """Custom JSON formatter with additional fields and PII redaction."""
     
     def add_fields(self, log_record, record, message_dict):
@@ -108,6 +107,56 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
             log_record[key] = _redact_value_for_logging(value)
 
 
+def _resolve_log_level() -> int:
+    return logging.DEBUG if os.environ.get("FLASK_ENV") == "development" else logging.INFO
+
+
+def _build_formatter(log_format: str):
+    if str(log_format).lower() == "json":
+        return CustomJsonFormatter("%(timestamp)s %(level)s %(name)s %(message)s")
+    return logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+
+def _configure_root_handlers(*, log_level: int, log_format: str, log_file: str) -> None:
+    # Create logs directory
+    os.makedirs("logs", exist_ok=True)
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+    root_logger.handlers = []
+
+    formatter = _build_formatter(log_format)
+
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(log_level)
+    console_handler.setFormatter(formatter)
+    root_logger.addHandler(console_handler)
+
+    if os.environ.get("FLASK_ENV") != "development":
+        file_handler = logging.handlers.RotatingFileHandler(
+            log_file,
+            maxBytes=10 * 1024 * 1024,
+            backupCount=5,
+        )
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+        root_logger.addHandler(file_handler)
+
+    log_aggregation_host = os.environ.get("LOG_AGGREGATION_HOST")
+    if log_aggregation_host:
+        log_aggregation_port = int(os.environ.get("LOG_AGGREGATION_PORT", 514))
+        log_aggregation_protocol = os.environ.get("LOG_AGGREGATION_PROTOCOL", "udp").lower()
+        sock_type = socket.SOCK_DGRAM if log_aggregation_protocol == "udp" else socket.SOCK_STREAM
+
+        syslog_handler = logging.handlers.SysLogHandler(
+            address=(log_aggregation_host, log_aggregation_port),
+            socktype=sock_type,
+        )
+        syslog_handler.setLevel(log_level)
+        syslog_handler.setFormatter(formatter)
+        root_logger.addHandler(syslog_handler)
+
+
 def configure_structured_logging(app: Flask) -> None:
     """
     Configure structured JSON logging for the application.
@@ -117,62 +166,11 @@ def configure_structured_logging(app: Flask) -> None:
     - File output (production)
     - JSON format for log aggregation
     """
-    log_level = logging.DEBUG if os.environ.get('FLASK_ENV') == 'development' else logging.INFO
-    log_format = os.environ.get('LOG_FORMAT', 'json')
-    log_file = os.environ.get('LOG_FILE', 'logs/app.log')
-    
-    # Create logs directory
-    os.makedirs('logs', exist_ok=True)
-    
-    # Root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
-    
-    # Clear existing handlers
-    root_logger.handlers = []
-    
-    if log_format == 'json':
-        # JSON formatter for log aggregation
-        formatter = CustomJsonFormatter(
-            '%(timestamp)s %(level)s %(name)s %(message)s'
-        )
-    else:
-        # Standard formatter for development
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-    
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(log_level)
-    console_handler.setFormatter(formatter)
-    root_logger.addHandler(console_handler)
-    
-    # File handler (production)
-    if os.environ.get('FLASK_ENV') != 'development':
-        file_handler = logging.handlers.RotatingFileHandler(
-            log_file,
-            maxBytes=10 * 1024 * 1024,  # 10MB
-            backupCount=5
-        )
-        file_handler.setLevel(log_level)
-        file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
-
-    # Optional centralized log aggregation (Syslog-compatible)
-    log_aggregation_host = os.environ.get('LOG_AGGREGATION_HOST')
-    if log_aggregation_host:
-        log_aggregation_port = int(os.environ.get('LOG_AGGREGATION_PORT', 514))
-        log_aggregation_protocol = os.environ.get('LOG_AGGREGATION_PROTOCOL', 'udp').lower()
-        sock_type = socket.SOCK_DGRAM if log_aggregation_protocol == 'udp' else socket.SOCK_STREAM
-
-        syslog_handler = logging.handlers.SysLogHandler(
-            address=(log_aggregation_host, log_aggregation_port),
-            socktype=sock_type
-        )
-        syslog_handler.setLevel(log_level)
-        syslog_handler.setFormatter(formatter)
-        root_logger.addHandler(syslog_handler)
+    log_level = _resolve_log_level()
+    log_format = os.environ.get("LOG_FORMAT", "json")
+    log_file = os.environ.get("LOG_FILE", "logs/app.log")
+    _configure_root_handlers(log_level=log_level, log_format=log_format, log_file=log_file)
+    formatter = _build_formatter(log_format)
     
     # Security log (separate file)
     security_logger = logging.getLogger('security')
@@ -198,6 +196,27 @@ def configure_structured_logging(app: Flask) -> None:
         'log_level': logging.getLevelName(log_level),
         'log_format': log_format
     })
+
+
+def configure_service_logging(service_name: str) -> logging.Logger:
+    """
+    Configure structured logging for non-Flask service entrypoints.
+    """
+    log_level = _resolve_log_level()
+    log_format = os.environ.get("LOG_FORMAT", "json")
+    log_file = os.environ.get("LOG_FILE", f"logs/{service_name}.log")
+    _configure_root_handlers(log_level=log_level, log_format=log_format, log_file=log_file)
+
+    logger = logging.getLogger(service_name)
+    logger.info(
+        "Structured service logging configured",
+        extra={
+            "service_name": service_name,
+            "log_level": logging.getLevelName(log_level),
+            "log_format": log_format,
+        },
+    )
+    return logger
 
 
 # Import for rotating file handler

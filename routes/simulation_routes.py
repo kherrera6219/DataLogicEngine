@@ -8,11 +8,14 @@ import uuid
 import datetime
 from datetime import UTC
 import logging
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, jsonify
 from extensions import db
 from models import SimulationSession
-from backend.auth.api_decorators import api_login_required, api_admin_required
+from backend.auth.api_decorators import api_login_required
 from flask_login import current_user
+from backend.schemas.api_request_schemas import SimulationCreateRequest
+from backend.utils.flask_request_validation import get_validated_payload, validate_json_payload
+from backend.utils.error_normalization import normalize_public_error_message
 
 simulation_bp = Blueprint('simulation_api', __name__, url_prefix='/api/v1')
 logger = logging.getLogger(__name__)
@@ -46,17 +49,19 @@ def get_simulation(uid):
 
 @simulation_bp.route('/simulations', methods=['POST'])
 @api_login_required
+@validate_json_payload(SimulationCreateRequest)
 def create_simulation():
-    data = request.json
-    if not data: return error_response("No data provided")
-    
-    if 'parameters' not in data: return error_response("Missing parameters")
+    payload = get_validated_payload(SimulationCreateRequest)
+    if payload is None:
+        return error_response("Invalid request payload", 422)
+    if not payload.parameters:
+        return error_response("Missing parameters")
     
     new_simulation = SimulationSession(
         uid=str(uuid.uuid4()),
-        name=data.get('name'),
+        name=payload.name,
         user_id=current_user.id,
-        parameters=data['parameters'],
+        parameters=payload.parameters,
         status="active",
         current_step=0,
         results={}
@@ -68,7 +73,10 @@ def create_simulation():
         return success_response(new_simulation.to_dict(), "Simulation created", 201)
     except Exception as e:
         db.session.rollback()
-        return error_response(str(e), 500)
+        return error_response(
+            normalize_public_error_message(str(e), "Failed to create simulation"),
+            500,
+        )
 
 @simulation_bp.route('/simulations/<uid>/step', methods=['POST'])
 @api_login_required
@@ -100,7 +108,10 @@ def run_simulation_step(uid):
         return success_response(simulation.to_dict(), "Step executed with production engine")
     except Exception as e:
         logger.error(f"Engine execution failed: {e}")
-        return error_response(f"Engine failure: {str(e)}", 500)
+        return error_response(
+            normalize_public_error_message(str(e), "Engine failure"),
+            500,
+        )
 
 @simulation_bp.route('/simulations/<uid>/stop', methods=['POST'])
 @api_login_required

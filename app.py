@@ -1,6 +1,7 @@
 import os
 import re
 import uuid
+import json
 import logging
 import time
 from threading import Lock
@@ -152,6 +153,55 @@ def track_request_metrics_end(response):
     return response
 
 
+def _sanitize_server_error_payload(payload: dict) -> tuple[dict, bool]:
+    fallback = "An internal error occurred. Please try again later."
+    changed = False
+
+    if isinstance(payload.get("error"), str):
+        original = payload["error"]
+        sanitized = normalize_public_error_message(original, fallback)
+        if sanitized != original:
+            payload["error"] = sanitized
+            changed = True
+
+    error_obj = payload.get("error")
+    if isinstance(error_obj, dict):
+        message = error_obj.get("message")
+        if isinstance(message, str):
+            sanitized = normalize_public_error_message(message, fallback)
+            if sanitized != message:
+                error_obj["message"] = sanitized
+                changed = True
+
+    if isinstance(payload.get("message"), str):
+        original = payload["message"]
+        sanitized = normalize_public_error_message(original, fallback)
+        if sanitized != original:
+            payload["message"] = sanitized
+            changed = True
+
+    return payload, changed
+
+
+@app.after_request
+def normalize_server_error_payload(response):
+    """Sanitize 5xx JSON payloads to block raw exception/provider leaks."""
+    if response.status_code < 500 or not response.is_json:
+        return response
+
+    payload = response.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return response
+
+    sanitized_payload, changed = _sanitize_server_error_payload(payload)
+    if not changed:
+        return response
+
+    response.set_data(json.dumps(sanitized_payload))
+    response.headers["Content-Type"] = "application/json"
+    return response
+
+
 # Strict TLS Redirection in Production
 @app.before_request
 def force_https():
@@ -263,6 +313,7 @@ celery = make_celery(app)
 # CSRF is still enforced on all HTML form submissions
 from flask_wtf.csrf import CSRFError
 from backend.security.api_csrf import is_api_csrf_enforced, validate_api_csrf_request
+from backend.utils.error_normalization import normalize_public_error_message
 
 # Keep CSRF protection for forms and enforce strict same-origin checks on
 # session-authenticated API/GraphQL requests.
