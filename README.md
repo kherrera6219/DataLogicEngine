@@ -28,6 +28,9 @@ The application is functional for local Windows use with API keys and internet a
 13. AI latency percentile metrics (`p50`/`p95`/`p99`) exported in `/metrics` for alerting integration.
 14. Deterministic startup precheck now enforced as CI/deploy release gate.
 15. Diagnostic support-bundle generator for sanitized incident collection.
+16. Snapshot and trace bundle HMAC integrity verification controls.
+17. Crash reporting fallback IDs with pipeline probe checks.
+18. Dedicated Windows installer code-signing workflow.
 
 ### Partial / In Progress
 
@@ -35,7 +38,6 @@ The application is functional for local Windows use with API keys and internet a
 2. `Settings > Storage > Cloud Config` form fields are not fully wired to persistence.
 3. MCP admin actions are partially available (`Add Server` and console actions are still disabled in UI).
 4. Register page UI exists but registration submit flow is not yet wired.
-5. Phase 3 integrity depth remains for snapshot signing/HMAC and release code-signing pipeline completion.
 
 ## Quick Start (Windows 11)
 
@@ -121,6 +123,7 @@ Verify installer integrity:
 
 ```powershell
 python .\scripts\verify_installer_integrity.py --require-artifacts
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts
 ```
 
 ## Architecture Summary

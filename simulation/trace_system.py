@@ -14,6 +14,13 @@ from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional
 from enum import Enum
 
+from backend.security.integrity import (
+    hmac_sha256_hex,
+    resolve_hmac_secret,
+    sha256_hex,
+    verify_hmac_sha256,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -231,6 +238,24 @@ class AuditBundle:
     sealed: bool = False
     sealed_at: str = ""
     bundle_hash: str = ""
+    bundle_signature: str = ""
+    signature_algorithm: str = "sha256"
+    _hmac_secret: Optional[str] = field(default=None, repr=False, compare=False)
+
+    def _integrity_payload(self) -> Dict[str, Any]:
+        """Canonical payload used for bundle integrity hashing/signing."""
+        return {
+            "query_id": self.query_id,
+            "tier": self.tier,
+            "coordinate_id": self.coordinate_id,
+            "entries": [entry.to_dict() for entry in self.entries],
+            "persona_traces": {key: value.to_dict() for key, value in self.persona_traces.items()},
+            "layer_traces": {str(key): value.to_dict() for key, value in self.layer_traces.items()},
+            "refinement_traces": [trace.to_dict() for trace in self.refinement_traces],
+            "truth_result": self.truth_result,
+            "release_authorized": self.release_authorized,
+            "final_answer_hash": self.final_answer_hash,
+        }
     
     def seal(self) -> str:
         """Seal the bundle and return hash."""
@@ -240,19 +265,35 @@ class AuditBundle:
         self.sealed = True
         self.sealed_at = datetime.now(UTC).isoformat()
         
-        # Compute bundle hash from all entries
-        content = json.dumps({
-            "query_id": self.query_id,
-            "tier": self.tier,
-            "entry_count": len(self.entries),
-            "persona_count": len(self.persona_traces),
-            "layer_count": len(self.layer_traces),
-            "truth": self.truth_result.get("status", ""),
-            "release": self.release_authorized
-        }, sort_keys=True)
-        
-        self.bundle_hash = hashlib.sha256(content.encode()).hexdigest()[:32]
+        integrity_payload = self._integrity_payload()
+        self.bundle_hash = sha256_hex(integrity_payload)[:32]
+        if self._hmac_secret:
+            self.bundle_signature = hmac_sha256_hex(integrity_payload, self._hmac_secret)
+            self.signature_algorithm = "sha256+hmac-sha256"
+        else:
+            self.bundle_signature = ""
+            self.signature_algorithm = "sha256"
         return self.bundle_hash
+
+    def verify_integrity(self) -> bool:
+        """Verify entry hash-chain and bundle hash/HMAC signature integrity."""
+        expected_prev = ""
+        for entry in self.entries:
+            if entry.previous_hash != expected_prev:
+                return False
+            if entry.content_hash != entry._compute_hash():
+                return False
+            expected_prev = entry.content_hash
+
+        payload = self._integrity_payload()
+        if self.bundle_hash != sha256_hex(payload)[:32]:
+            return False
+
+        if self.bundle_signature:
+            if not self._hmac_secret:
+                return False
+            return verify_hmac_sha256(payload, self._hmac_secret, self.bundle_signature)
+        return True
     
     def to_dict(self, include_full_traces: bool = False) -> Dict[str, Any]:
         """Serialize bundle."""
@@ -268,7 +309,9 @@ class AuditBundle:
             "release_authorized": self.release_authorized,
             "sealed": self.sealed,
             "sealed_at": self.sealed_at,
-            "bundle_hash": self.bundle_hash
+            "bundle_hash": self.bundle_hash,
+            "bundle_signature": self.bundle_signature,
+            "signature_algorithm": self.signature_algorithm,
         }
         
         if include_full_traces:
@@ -298,12 +341,16 @@ class TracingSystem:
         self.config = config or {}
         self._bundles: Dict[str, AuditBundle] = {}
         self._current_bundle: Optional[AuditBundle] = None
+        self._bundle_hmac_secret = resolve_hmac_secret(
+            "TRACE_BUNDLE_HMAC_SECRET",
+            fallback_envs=("SESSION_SECRET",),
+        )
         
         logger.info("TracingSystem initialized")
     
     def start_trace(self, query_id: str, tier: int) -> AuditBundle:
         """Start a new trace bundle for a query."""
-        bundle = AuditBundle(query_id=query_id, tier=tier)
+        bundle = AuditBundle(query_id=query_id, tier=tier, _hmac_secret=self._bundle_hmac_secret)
         self._bundles[query_id] = bundle
         self._current_bundle = bundle
         
@@ -432,6 +479,8 @@ class TracingSystem:
         
         bundle.final_answer_hash = final_answer_hash
         bundle.seal()
+        if not bundle.verify_integrity():
+            raise ValueError(f"Audit bundle integrity verification failed for query {query_id}")
         
         logger.info(f"Sealed bundle {query_id}: {bundle.bundle_hash}")
         
@@ -440,6 +489,15 @@ class TracingSystem:
     def get_bundle(self, query_id: str) -> Optional[AuditBundle]:
         """Get bundle by query ID."""
         return self._bundles.get(query_id)
+
+    def verify_bundle(self, query_id: str) -> bool:
+        """Verify integrity of a sealed bundle by query ID."""
+        bundle = self._bundles.get(query_id)
+        if not bundle:
+            return False
+        if not bundle.sealed:
+            return False
+        return bundle.verify_integrity()
     
     def _add_entry(self, trace_type: TraceType, data: Dict[str, Any]) -> TraceEntry:
         """Add entry to current bundle."""

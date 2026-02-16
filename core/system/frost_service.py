@@ -13,6 +13,14 @@ import copy
 from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Tuple
 
+from backend.security.integrity import (
+    hmac_sha256_hex,
+    resolve_hmac_secret,
+    sha256_hex,
+    verify_hmac_sha256,
+)
+
+
 class DateTimeEncoder(json.JSONEncoder):
     """Custom JSON encoder for datetime objects."""
     def default(self, obj):
@@ -36,12 +44,19 @@ class FROSTService:
         
         # In-memory store of snapshots: snapshot_id -> state_dict
         self.snapshots: Dict[str, Dict[str, Any]] = {}
+        self.snapshot_metadata: Dict[str, Dict[str, Any]] = {}
         
         # Delta store: target_id -> {base_id, delta}
         self.deltas: Dict[str, Dict[str, Any]] = {}
         
         # Branching info
         self.branches: Dict[str, str] = {} # branch_name -> last_snapshot_id
+
+        # HMAC secret used to seal snapshots.
+        self._hmac_secret = resolve_hmac_secret(
+            "FROST_SNAPSHOT_HMAC_SECRET",
+            fallback_envs=("SESSION_SECRET",),
+        )
 
     def _generate_id(self, state: Dict[str, Any]) -> str:
         """Generate a deterministic snapshot ID based on state content."""
@@ -53,17 +68,67 @@ class FROSTService:
         Capture a snapshot of the current state.
         """
         snapshot_id = self._generate_id(state)
+        state_copy = copy.deepcopy(state)
         
         if snapshot_id not in self.snapshots:
             # Deep copy to ensure immutability
-            self.snapshots[snapshot_id] = copy.deepcopy(state)
+            self.snapshots[snapshot_id] = state_copy
             self.logger.debug(f"Created snapshot: {snapshot_id}")
-            
+        else:
+            state_copy = self.snapshots[snapshot_id]
+
+        integrity_payload = {
+            "snapshot_id": snapshot_id,
+            "state": state_copy,
+            "metadata": metadata or {},
+        }
+        content_sha256 = sha256_hex(integrity_payload)
+        signature = hmac_sha256_hex(integrity_payload, self._hmac_secret) if self._hmac_secret else None
+        self.snapshot_metadata[snapshot_id] = {
+            "algorithm": "sha256+hmac-sha256" if signature else "sha256",
+            "content_sha256": content_sha256,
+            "hmac_signature": signature,
+            "signed_at": datetime.now(UTC).isoformat(),
+            "metadata": copy.deepcopy(metadata) if metadata else {},
+        }
         return snapshot_id
 
-    def get_snapshot(self, snapshot_id: str) -> Optional[Dict[str, Any]]:
+    def verify_snapshot(self, snapshot_id: str) -> bool:
+        """Verify snapshot hash/HMAC integrity."""
+        state = self.snapshots.get(snapshot_id)
+        integrity = self.snapshot_metadata.get(snapshot_id)
+        if state is None or integrity is None:
+            return False
+
+        integrity_payload = {
+            "snapshot_id": snapshot_id,
+            "state": state,
+            "metadata": integrity.get("metadata") or {},
+        }
+        expected_sha = integrity.get("content_sha256")
+        actual_sha = sha256_hex(integrity_payload)
+        if expected_sha != actual_sha:
+            self.logger.error("Snapshot SHA integrity check failed: %s", snapshot_id)
+            return False
+
+        signature = integrity.get("hmac_signature")
+        if signature:
+            if not self._hmac_secret:
+                self.logger.error("Snapshot %s includes signature but no HMAC secret is configured", snapshot_id)
+                return False
+            if not verify_hmac_sha256(integrity_payload, self._hmac_secret, signature):
+                self.logger.error("Snapshot HMAC integrity check failed: %s", snapshot_id)
+                return False
+        return True
+
+    def get_snapshot(self, snapshot_id: str, verify_integrity: bool = True) -> Optional[Dict[str, Any]]:
         """Retrieve a snapshot by ID."""
-        return self.snapshots.get(snapshot_id)
+        snapshot = self.snapshots.get(snapshot_id)
+        if snapshot is None:
+            return None
+        if verify_integrity and not self.verify_snapshot(snapshot_id):
+            raise ValueError(f"Snapshot integrity verification failed for {snapshot_id}")
+        return copy.deepcopy(snapshot)
 
     def diff(self, base_id: str, target_id: str) -> Dict[str, Any]:
         """
@@ -145,8 +210,12 @@ class FROSTService:
 
     def check_health(self) -> Dict[str, Any]:
         """System health check."""
+        signed = sum(1 for data in self.snapshot_metadata.values() if data.get("hmac_signature"))
+        verified = sum(1 for snapshot_id in self.snapshots if self.verify_snapshot(snapshot_id))
         return {
             "healthy": True,
             "snapshot_count": len(self.snapshots),
-            "branch_count": len(self.branches)
+            "branch_count": len(self.branches),
+            "signed_snapshots": signed,
+            "verified_snapshots": verified,
         }

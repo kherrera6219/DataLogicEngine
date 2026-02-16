@@ -262,3 +262,28 @@ jobs:
           sbom-frontend.json.sig
           sbom-frontend.json.pem
         if-no-files-found: error
+
+  crash-reporting-probe:
+    name: Crash Reporting Probe
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'schedule' || github.ref == 'refs/heads/main') && secrets.SENTRY_DSN != ''
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Send Sentry probe event
+      env:
+        SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        FLASK_ENV: "production"
+        APP_VERSION: "security-workflow-probe"
+      run: |
+        python scripts/send_sentry_test_event.py --message "DataLogicEngine security workflow crash probe" --tag source=security --tag workflow=security

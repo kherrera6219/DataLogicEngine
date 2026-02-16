@@ -166,6 +166,18 @@ Bundle content includes:
    `python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process`
 4. Re-run pipeline after remediation and attach updated report evidence.
 
+## Incident 10: Installer signature verification failure
+
+**Trigger:** Windows release signing workflow reports invalid/missing Authenticode signatures.
+**Default severity:** `SEV-1` for release blockers, `SEV-2` for pre-release smoke failures
+
+1. Review `reports/installer_signature_report.json` from signing workflow artifacts.
+2. Confirm certificate validity window and thumbprint against release policy.
+3. Re-run signature verification locally:
+   `powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts`
+4. If signature missing/invalid, re-run signing workflow after correcting certificate secret material.
+5. Block release distribution until signature status is `Valid` for all installer artifacts.
+
 ## Validation checklist after any incident
 
 1. `GET /health` is healthy.

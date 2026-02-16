@@ -16,29 +16,25 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_limiter.util import get_remote_address
 from werkzeug.middleware.proxy_fix import ProxyFix
+from werkzeug.exceptions import HTTPException
 from extensions import limiter
 from backend.llm_gateway.latency_metrics import ai_latency_metrics_prometheus_lines
 from backend.logging_config import configure_structured_logging
 from backend.mcp_server.connector_metrics import connector_metrics_prometheus_lines
+from backend.observability.crash_reporting import (
+    capture_exception_with_fallback,
+    crash_reporting_prometheus_lines,
+    initialize_crash_reporting,
+)
 
-# Initialize Sentry for error tracking (production only)
-sentry_dsn = os.environ.get("SENTRY_DSN")
-if sentry_dsn:
-    import sentry_sdk
-    from sentry_sdk.integrations.flask import FlaskIntegration
-    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
-    
-    sentry_sdk.init(
-        dsn=sentry_dsn,
-        integrations=[
-            FlaskIntegration(),
-            SqlalchemyIntegration(),
-        ],
-        traces_sample_rate=float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
-        profiles_sample_rate=float(os.environ.get("SENTRY_PROFILES_SAMPLE_RATE", "0.1")),
-        environment=os.environ.get("FLASK_ENV", "production"),
-        release=os.environ.get("APP_VERSION", "1.2.0"),
-    )
+# Initialize crash reporting provider (Sentry if configured) with fallback mode.
+initialize_crash_reporting(
+    dsn=os.environ.get("SENTRY_DSN"),
+    environment=os.environ.get("FLASK_ENV", "production"),
+    release=os.environ.get("APP_VERSION", "1.2.0"),
+    traces_sample_rate=float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
+    profiles_sample_rate=float(os.environ.get("SENTRY_PROFILES_SAMPLE_RATE", "0.1")),
+)
 
 # Configure logging - use INFO in production, DEBUG in development
 log_level = logging.DEBUG if os.environ.get("FLASK_ENV") == "development" else logging.INFO
@@ -683,6 +679,7 @@ def _prometheus_metrics_payload() -> str:
     ]
     lines.extend(connector_metrics_prometheus_lines(prefix="datalogicengine"))
     lines.extend(ai_latency_metrics_prometheus_lines(prefix="datalogicengine"))
+    lines.extend(crash_reporting_prometheus_lines(prefix="datalogicengine"))
     return "\n".join(lines) + "\n"
 
 
@@ -804,17 +801,36 @@ def not_found(e):
 @app.errorhandler(500)
 def server_error(e):
     """Handle 500 Internal Server errors without exposing stack traces."""
+    crash_id = capture_exception_with_fallback(
+        e,
+        context={
+            "handler": "500",
+            "path": request.path,
+            "method": request.method,
+        },
+    )
     # Log the full error internally (with stack trace)
-    logger.error(f"500 Internal Server Error: {str(e)}", exc_info=True)
+    logger.error("500 Internal Server Error (crash_id=%s): %s", crash_id, str(e), exc_info=True)
 
     # NEVER expose stack traces to users in production
-    return jsonify({
+    response = jsonify({
         'success': False,
         'error': {
             'code': 'INTERNAL_SERVER_ERROR',
-            'message': 'An internal error occurred. Please try again later.'
+            'message': 'An internal error occurred. Please try again later.',
+            'crash_id': crash_id,
         }
-    }), 500
+    })
+    response.headers["X-Crash-ID"] = crash_id
+    return response, 500
+
+
+@app.errorhandler(Exception)
+def unhandled_exception(e):
+    """Fallback handler for non-HTTP uncaught exceptions."""
+    if isinstance(e, HTTPException):
+        return e
+    return server_error(e)
 
 @app.errorhandler(403)
 def forbidden(e):

@@ -44,7 +44,10 @@ DataLogicEngine is a local-first AI orchestration application that combines:
 | Connector OAuth + contracts | Jira/Salesforce MCP tools | Live | Managed OAuth token lifecycle + runtime request/response contract validation |
 | Connector observability | `/metrics`, analytics MCP stats | Live | Connector latency/error telemetry exported |
 | AI latency observability | `/metrics` | Live | Gateway latency percentiles (`p50`/`p95`/`p99`) exported for alerting |
-| Data/integrity release gates | CI + deploy workflows | Live | Schema parity, installer checksum, and deterministic startup precheck gates required in pipeline |
+| Data/integrity release gates | CI + deploy workflows | Live | Schema parity, installer checksum, deterministic startup precheck, and crash-reporting probe checks required in pipeline |
+| Snapshot + trace integrity | FROST + tracing services | Live | Snapshot and audit bundle hash/HMAC verification enforced |
+| Installer code signing | Release workflow | Live | Dedicated Windows release-signing workflow with signature verification |
+| Crash reporting hardening | Global Flask error handlers + `/metrics` | Live | Fallback crash IDs and provider telemetry/probe hooks active |
 | Diagnostic tooling | Support bundle generator | Live | Sanitized support bundle script available for incident triage |
 | Public info/legal pages | `/about`, `/about/*`, `/legal/privacy` | Live | Informational pages available |
 | Registration flow | `/register` | Partial | UI present, submit flow not wired |
@@ -61,8 +64,6 @@ DataLogicEngine is a local-first AI orchestration application that combines:
 2. `Settings > Storage > Cloud Config` form is not fully persisted.
 3. MCP admin add-server actions are not yet enabled.
 4. Register form does not submit to backend registration API.
-5. Snapshot/evidence signing (HMAC/signature) depth remains a Phase 3 item.
-6. Installer/binary code-signing pipeline is still partial and remains a Phase 3 compliance item.
 
 ## Validation Commands
 

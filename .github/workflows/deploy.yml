@@ -82,9 +82,28 @@ jobs:
         SECRET_KEY: "ci-test-secret-key"
         JWT_SECRET_KEY: "ci-test-jwt-secret"
 
+    - name: Run phase 3 integrity + crash controls regression
+      run: |
+        python -m pytest -q --no-cov tests/unit/test_phase3_integrity_crash_controls.py
+      env:
+        DATABASE_URL: "sqlite:///:memory:"
+        OPENAI_API_KEY: "mock-key-for-ci"
+        FLASK_ENV: "testing"
+        SESSION_SECRET: "ci-session-secret"
+        SECRET_KEY: "ci-test-secret-key"
+
     - name: Verify installer artifact integrity
       run: |
         python scripts/verify_installer_integrity.py --require-artifacts --report reports/installer_integrity_report_deploy.json
+
+    - name: Verify crash reporting provider pipeline (optional)
+      if: ${{ secrets.SENTRY_DSN != '' }}
+      env:
+        SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        FLASK_ENV: "production"
+        APP_VERSION: "deploy-pipeline"
+      run: |
+        python scripts/send_sentry_test_event.py --message "DataLogicEngine deploy crash-reporting probe" --tag source=deploy --tag workflow=deploy
 
   docker-build:
     name: Build Docker Images

@@ -46,7 +46,7 @@ DataLogicEngine is an enterprise-grade AI/ML knowledge management platform desig
 
 **Current status**: Production hardened baseline
 
-## 2026-02-16 Hardening Update (Sections 5-8 Phase 1 + Phase 2)
+## 2026-02-16 Hardening Update (Sections 5-8 Phase 1 + Phase 2 + Phase 3)
 
 The following controls are now implemented and validated:
 
@@ -60,6 +60,9 @@ The following controls are now implemented and validated:
 8. Deterministic startup precheck gate required in CI + deploy workflows.
 9. Schema parity validator for SQLite/PostgreSQL wired into CI + deploy workflows.
 10. Installer checksum generation and integrity verification wired into deploy workflow.
+11. Snapshot and trace bundle hash/HMAC integrity verification controls.
+12. Crash reporting fallback IDs + telemetry and workflow probe checks.
+13. Dedicated Windows installer code-signing workflow with signature verification.
 
 Reference implementation report:
 - `docs/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
@@ -69,10 +72,12 @@ Validation commands:
 ```powershell
 python .\scripts\validate_schema_parity.py
 python .\scripts\verify_installer_integrity.py --require-artifacts
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts
 python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process
 python .\scripts\generate_support_bundle.py --skip-http
 python -m pytest -q --no-cov tests/unit/test_phase1_scope_ssrf_controls.py
 python -m pytest -q --no-cov tests/unit/test_phase2_oauth_contract_metrics.py
+python -m pytest -q --no-cov tests/unit/test_phase3_integrity_crash_controls.py
 ```
 
 ## Universal Knowledge Graph (UKG) system architecture

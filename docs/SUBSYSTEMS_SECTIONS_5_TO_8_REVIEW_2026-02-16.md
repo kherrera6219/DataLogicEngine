@@ -11,14 +11,12 @@
 
 ## Executive Summary
 - Controls reviewed: `33`
-- `Implemented`: `30`
-- `Partial`: `3`
+- `Implemented`: `33`
+- `Partial`: `0`
 - `Missing`: `0`
 
 Highest-priority gaps:
-1. Snapshot integrity still needs signed/HMAC verification depth for exported evidence bundles.
-2. Release binary code-signing pipeline remains partial for end-user installers.
-3. Crash reporting still depends on environment setup and lacks explicit end-to-end alert validation coverage.
+1. Continue expanding compliance depth beyond baseline controls (tenant DB-level isolation, immutable storage replication, and retention drill automation).
 
 ## Phase 1 Implementation Update (2026-02-16)
 Phase 1 controls from this report are now implemented in code with CI/release gating updates.
@@ -93,14 +91,43 @@ Phase 2 controls from this report are now implemented with validation coverage a
 
 ### Phase 2 Status
 - Phase 2 items from this report: `5/5` completed.
-- Remaining open items align to Phase 3 integrity/compliance depth (snapshot signing/HMAC, code-signing pipeline completion, crash-report alert verification hardening).
+- Remaining open items after Phase 2 are now closed in the Phase 3 completion update below for the final three partial controls.
+
+## Phase 3 Completion Update (2026-02-16)
+The final three partial controls in Sections 5-8 are now implemented.
+
+### Completed in this phase
+1. Snapshot integrity (hash/HMAC verification):
+   - Added deterministic integrity helpers (`backend/security/integrity.py`).
+   - Added snapshot hash+HMAC sealing and verification to FROST snapshots (`core/system/frost_service.py`).
+   - Added hash-chain + bundle hash/HMAC verification for audit bundles (`simulation/trace_system.py`).
+
+2. Code-signing pipeline for installers:
+   - Added dedicated Windows release signing workflow (`.github/workflows/release-installer-signing.yml`).
+   - Added installer signing and signature verification scripts (`scripts/windows/sign_release_installers.ps1`, `scripts/windows/verify_installer_signature.ps1`).
+   - Updated installer build orchestrator to support signed mode when signing material is present (`frontend/build_installer.ps1`).
+
+3. Crash reporting framework completion:
+   - Added centralized crash reporting module with provider fallback IDs and metrics (`backend/observability/crash_reporting.py`).
+   - Integrated crash fallback IDs into global 500/unhandled exception responses (`app.py`) with `X-Crash-ID` propagation.
+   - Added pipeline verification hooks for crash reporting probes in deploy/security workflows (`.github/workflows/deploy.yml`, `.github/workflows/security.yml`).
+
+### Verification / Debug Sweep Executed
+- `python -m py_compile ...` on all modified Phase 3 modules: pass.
+- `python -m pytest -q --no-cov tests/unit/test_phase3_integrity_crash_controls.py tests/test_unified_services.py tests/test_health_endpoint.py tests/unit/test_phase2_oauth_contract_metrics.py`: pass (`20` tests).
+- `python -m pytest -q --no-cov tests/unit/test_phase1_scope_ssrf_controls.py tests/unit/test_mcp_tracing_repo_rest_coverage.py tests/unit/test_llm_gateway_internal_units.py`: pass.
+- `python scripts/verify_docs_references.py`: pass.
+
+### Phase 3 Targeted Status
+- Remaining partial controls from Sections 5-8: `3/3` completed.
+- Sections 5-8 control matrix now reports full implementation coverage for reviewed controls (`33/33`).
 
 ## 5) Data Layer Subsystems
 | Subsystem | Current Status | Evidence | Remaining Gap | Suggested Action |
 |---|---|---|---|---|
 | Schema Parity Validation (SQLite vs Postgres) | Implemented | `scripts/validate_schema_parity.py`, `.github/workflows/ci.yml`, `.github/workflows/deploy.yml` | Portability checks can further expand to runtime DDL drift monitoring. | Keep schema parity gate required in CI/deploy and add scheduled drift reports. |
 | Migration Governance System | Implemented | `migrations/env.py`, `scripts/setup_database.sh`, `scripts/windows/start_local_stack.ps1` | Process approval traceability can improve. | Add migration approval checklist in release workflow. |
-| Snapshot Integrity System (hash/HMAC verification) | Partial | `core/system/frost_service.py`, `simulation/trace_system.py` | SHA-256 content hashing exists but no HMAC/signature verification layer. | Add HMAC signing + verification for snapshots and trace bundles. |
+| Snapshot Integrity System (hash/HMAC verification) | Implemented | `backend/security/integrity.py`, `core/system/frost_service.py`, `simulation/trace_system.py` | Continue extending signature governance to externalized export channels. | Enforce signature verification on all external evidence import/verification paths. |
 | Data Classification & Tagging Layer | Implemented | `backend/security/data_classification.py` | Wiring audit depth can improve. | Add integration coverage checks across all ingestion paths. |
 | Encryption-at-Rest Enforcement | Implemented | `backend/security/encryption_manager.py` | Operational telemetry can improve. | Surface encryption key-rotation telemetry in central dashboards. |
 | Backup & Recovery Strategy (local + cloud) | Implemented | `scripts/backup_database.sh`, `scripts/restore_database.sh` | Alerting/run scheduling consistency can improve. | Enforce scheduled backups with failure alerts. |
@@ -130,7 +157,7 @@ Phase 2 controls from this report are now implemented with validation coverage a
 | Dependency Vulnerability Monitoring | Implemented | `backend/security/vulnerability_scanner.py`, `.github/workflows/security.yml` | Auto-remediation/escalation policy can strengthen. | Add critical-vuln CI fail gates and alert routing. |
 | Secure Configuration Management | Implemented | `backend/config/settings.py`, `config/config.env` | Production secret source hardening can improve. | Shift sensitive values to vault-backed runtime resolution in production. |
 | Installer Integrity Verification | Implemented | `frontend/scripts/copy-installer-to-root.ps1`, `scripts/verify_installer_integrity.py`, `.github/workflows/deploy.yml` | Signature verification for signed binaries still depends on code-signing completion. | Keep checksum verification mandatory and pair with code-signing rollout. |
-| Code Signing Pipeline | Partial | `.github/workflows/security.yml`, `frontend/build_installer.ps1` | SBOM signing exists; installer/binary signing remains incomplete. | Add signing pipeline for release executables/installers. |
+| Code Signing Pipeline | Implemented | `.github/workflows/release-installer-signing.yml`, `scripts/windows/sign_release_installers.ps1`, `scripts/windows/verify_installer_signature.ps1`, `frontend/build_installer.ps1` | Certificate lifecycle governance and rotation runbook should remain active. | Add signer-certificate rotation drills and revocation-response playbooks. |
 
 ## 8) Observability & Operations Subsystems
 | Subsystem | Current Status | Evidence | Remaining Gap | Suggested Action |
@@ -140,7 +167,7 @@ Phase 2 controls from this report are now implemented with validation coverage a
 | AI Latency Monitoring | Implemented | `backend/llm_gateway/latency_metrics.py`, `backend/llm_gateway/gateway.py`, `app.py` (`/metrics`) | Alert policy tuning and SLO thresholds can mature. | Add Grafana/alert rule baselines for p95/p99 latency and error-rate burn alerts. |
 | Connector Latency Monitoring | Implemented | `backend/mcp_server/connector_metrics.py`, `backend/mcp_server/registry.py`, `app.py` (`/metrics`) | Coverage must stay mandatory for all new connector tools. | Gate connector PRs on telemetry coverage checks. |
 | Diagnostic Tooling (support bundle generator) | Implemented | `scripts/generate_support_bundle.py`, `docs/OPERATIONAL_RUNBOOKS.md` | Bundle schema can expand with targeted service diagnostics. | Add optional deep-collection mode for incident triage windows. |
-| Crash Reporting System | Partial | `app.py` (Sentry init path) | Crash reporting depends on env setup and lacks explicit pipeline verification tests. | Add crash-reporting verification checks and fallback crash IDs. |
+| Crash Reporting System | Implemented | `backend/observability/crash_reporting.py`, `app.py`, `scripts/send_sentry_test_event.py`, `.github/workflows/deploy.yml`, `.github/workflows/security.yml` | Alert routing coverage should continue to be reviewed in production runbooks. | Keep periodic probe checks and on-call alert verification in release cadence. |
 | Deterministic Startup Validation | Implemented | `scripts/runtime_precheck.py`, `.github/workflows/ci.yml`, `.github/workflows/deploy.yml` | Release policies should retain deterministic flags as default path. | Keep strict precheck gate mandatory and store JSON reports as workflow artifacts. |
 | Orphan Process Cleanup Handler | Implemented | `scripts/run_enterprise_services.py`, `scripts/run_ukg.py` | Shared reuse across all future runners should be standardized. | Consolidate cleanup handling into shared utility for new orchestrators. |
 
@@ -159,7 +186,7 @@ Phase 2 controls from this report are now implemented with validation coverage a
 4. Build diagnostic support-bundle generator integrated with operations runbooks.
 5. Add deterministic startup checks as required release gates.
 
-### Phase 3 (61-90 days): Integrity and Compliance Depth
+### Phase 3 (61-90 days): Integrity and Compliance Depth (`Targeted control closure completed 2026-02-16`)
 1. Add HMAC/signature layer for snapshot/evidence integrity verification.
 2. Strengthen export redaction coverage and immutable audit storage replication.
 3. Implement database-level tenant isolation controls (Postgres RLS).

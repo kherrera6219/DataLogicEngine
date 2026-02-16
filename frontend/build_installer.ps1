@@ -22,8 +22,15 @@ try {
     }
 
     # 1. Environment Preparation
-    Write-Host "Setting up environment (Bypassing Code Signing)..." -ForegroundColor Yellow
-    $env:CSC_SKIP = "true"
+    $hasCodeSigningMaterial = [bool]($env:CSC_LINK) -or [bool]($env:WIN_CSC_LINK)
+    if ($hasCodeSigningMaterial) {
+        Write-Host "Code signing material detected. Enabling signed build mode..." -ForegroundColor Yellow
+        Remove-Item Env:CSC_SKIP -ErrorAction SilentlyContinue
+    }
+    else {
+        Write-Host "No code signing material detected. Building unsigned installer..." -ForegroundColor Yellow
+        $env:CSC_SKIP = "true"
+    }
 
     # 2. Re-trigger Next.js Build (Ensure up to date)
     Write-Host "Running Next.js production build..." -ForegroundColor Cyan
