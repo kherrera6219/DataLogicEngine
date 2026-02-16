@@ -68,7 +68,12 @@ This project adheres to a Code of Conduct that all contributors are expected to 
    git checkout -b feature/your-feature-name
    ```
 
-4. **Start the development servers**
+4. **Enable repository pre-commit hooks**
+   ```bash
+   git config core.hooksPath .githooks
+   ```
+
+5. **Start the development servers**
    ```bash
    # Terminal 1 - Backend
    gunicorn --bind 0.0.0.0:5000 main:app --reload
@@ -240,6 +245,9 @@ chore(deps): update dependencies
    # Run linting
    flake8 backend/ core/
    eslint components/ pages/
+   npm --prefix frontend run typecheck
+   python scripts/verify_environment_parity.py
+   python scripts/verify_lockfiles.py
    ```
 
 2. **Update documentation**

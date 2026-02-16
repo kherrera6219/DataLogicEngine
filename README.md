@@ -41,6 +41,9 @@ The application is functional for local Windows use with API keys and internet a
 26. Desktop runtime logs are persisted under user data with best-effort restricted local permissions.
 27. Controlled auto-update policy is runtime gated (disabled by default unless explicitly enabled with feed URL).
 28. NSIS governance checks and packaging smoke validations are automated for Windows CI.
+29. Developer governance controls now include repository pre-commit hooks (`lint + typecheck`) and a CI governance gate.
+30. Environment parity and lockfile integrity checks are enforced via `scripts/verify_environment_parity.py` and `scripts/verify_lockfiles.py`.
+31. ADR baseline, release checklist workflow, and branch/code-owner governance policies are documented and versioned.
 
 ### Partial / In Progress
 

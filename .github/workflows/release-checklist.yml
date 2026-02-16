@@ -1,0 +1,56 @@
+name: Release Checklist Governance
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release-checklist:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Validate release checklist docs exist
+      run: |
+        test -f docs/RELEASE_CHECKLIST.md
+        test -f docs/BRANCH_PROTECTION_POLICY.md
+        test -f docs/DOCS_VERSION.json
+
+    - name: Validate changelog entry for tag
+      if: startsWith(github.ref, 'refs/tags/v')
+      env:
+        TAG_NAME: ${{ github.ref_name }}
+      run: |
+        VERSION="${TAG_NAME#v}"
+        if ! grep -q "## \[$VERSION\]" CHANGELOG.md; then
+          echo "::error::Missing changelog section for version $VERSION"
+          exit 1
+        fi
+
+    - name: Governance parity checks
+      run: |
+        python scripts/verify_environment_parity.py --strict --json-report reports/environment_parity_report_release.json
+        python scripts/verify_lockfiles.py --json-report reports/lockfile_governance_report_release.json
+
+    - name: Upload governance reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: release-governance-reports
+        path: |
+          reports/environment_parity_report_release.json
+          reports/lockfile_governance_report_release.json
+        if-no-files-found: error

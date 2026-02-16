@@ -24,6 +24,8 @@ Define enterprise testing standards, required quality gates, and execution workf
 2. `docs/PRODUCTION_READINESS.md`
 3. `docs/DEPLOYMENT.md`
 4. `README.md`
+5. `docs/RELEASE_CHECKLIST.md`
+6. `docs/BRANCH_PROTECTION_POLICY.md`
 
 ## Current quality baseline (verified 2026-02-08)
 
@@ -131,6 +133,14 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.p
 
 ```powershell
 .\.venv\Scripts\python .\scripts\verify_docs_references.py
+```
+
+### Governance and parity checks
+
+```powershell
+python .\scripts\verify_environment_parity.py
+python .\scripts\verify_lockfiles.py
+python .\scripts\dev\run_precommit_checks.py
 ```
 
 ## Required release gates

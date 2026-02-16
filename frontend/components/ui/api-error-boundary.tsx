@@ -18,7 +18,7 @@ interface State {
 }
 
 export class ApiErrorBoundary extends Component<Props, State> {
-  public state: State = {
+  public override state: State = {
     hasError: false,
     error: null
   };
@@ -27,7 +27,7 @@ export class ApiErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     reportClientError(error, {
       module: this.props.moduleName || 'Global',
       action: 'ApiErrorBoundary.componentDidCatch',
@@ -37,7 +37,7 @@ export class ApiErrorBoundary extends Component<Props, State> {
     });
   }
 
-  public render() {
+  public override render() {
     if (this.state.hasError) {
       if (this.props.fallback) return this.props.fallback;
 

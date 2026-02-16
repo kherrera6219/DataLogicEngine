@@ -201,7 +201,7 @@ jobs:
       run: |
         npm --prefix frontend run electron:dist
 
-    - name: Run packaging smoke (silent install/uninstall)
+    - name: Run packaging smoke (portable launch)
       run: |
         powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
 
@@ -215,9 +215,54 @@ jobs:
           reports/nsis_governance_report.json
         if-no-files-found: warn
 
+  governance:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install governance dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ruff
+        npm --prefix frontend ci
+
+    - name: Run pre-commit governance checks
+      run: |
+        python scripts/dev/run_precommit_checks.py
+
+    - name: Verify environment parity
+      run: |
+        python scripts/verify_environment_parity.py --strict --json-report reports/environment_parity_report_ci.json
+
+    - name: Verify lockfile governance
+      run: |
+        python scripts/verify_lockfiles.py --json-report reports/lockfile_governance_report_ci.json
+
+    - name: Upload governance reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: governance-reports
+        path: |
+          reports/environment_parity_report_ci.json
+          reports/lockfile_governance_report_ci.json
+        if-no-files-found: warn
+
   # Docker Build (Verification)
   docker-build:
-    needs: [backend-test, frontend-build]
+    needs: [backend-test, frontend-build, windows-packaging-smoke, governance]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4

@@ -20,6 +20,10 @@ Track source-of-truth documents across all core application areas and identify d
 | Windows local operations | `docs/WINDOWS_11_LOCAL_RUNBOOK.md` | Active | Local bring-up and validation |
 | Incident response runbooks | `docs/OPERATIONAL_RUNBOOKS.md` | Active | Security and operational incidents |
 | Testing standards | `docs/TESTING.md` | Active | Quality gate execution standards |
+| Documentation versioning | `docs/DOCUMENTATION_VERSIONING.md`, `docs/DOCS_VERSION.json` | Active | Documentation lifecycle and semantic version metadata |
+| Release governance | `docs/RELEASE_CHECKLIST.md` | Active | Release gate checklist and approval controls |
+| Branch governance | `docs/BRANCH_PROTECTION_POLICY.md` | Active | Required checks, review gates, and code-owner policy |
+| Architecture decisions | `docs/adr/*` | Active | Immutable architecture decision records |
 | Developer onboarding | `docs/DEVELOPER_GUIDE.md` | Active | Local setup and development workflows |
 | Contribution workflow | `docs/CONTRIBUTING.md` | Active | Branching, review, and doc update policy |
 | Workflow reasoning model | `docs/WORKFLOW.md` | Active | High-level query pipeline workflow |
@@ -36,6 +40,6 @@ Track source-of-truth documents across all core application areas and identify d
 ## Document control
 
 1. Owner: Platform Engineering
-2. Last updated: 2026-02-08
+2. Last updated: 2026-02-16
 3. Status: Active
 4. Review cadence: Every 30 days

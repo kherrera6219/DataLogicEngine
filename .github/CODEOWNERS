@@ -1,0 +1,8 @@
+# Default code owner
+* @kherrera6219
+
+# Security and governance critical surfaces
+/backend/security/ @kherrera6219
+/.github/workflows/ @kherrera6219
+/scripts/windows/ @kherrera6219
+/docs/ @kherrera6219

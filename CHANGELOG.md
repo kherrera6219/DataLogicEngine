@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.9] - 2026-02-16
+
+### Added
+- Completed Section 11 developer governance subsystem controls:
+  - Repository-managed pre-commit hook flow (`.githooks/pre-commit`, `.githooks/README.md`, `scripts/dev/run_precommit_checks.py`).
+  - Environment parity and lockfile governance verification scripts (`scripts/verify_environment_parity.py`, `scripts/verify_lockfiles.py`).
+  - Governance CI gate (`governance` job) enforcing parity/lockfile checks and pre-commit lint/typecheck policy (`.github/workflows/ci.yml`).
+  - ADR baseline structure (`docs/adr/README.md`, `docs/adr/ADR-0001-engineering-governance-baseline.md`).
+  - Release checklist governance workflow (`.github/workflows/release-checklist.yml`) and PR template (`.github/pull_request_template.md`).
+  - Branch/code-owner policy artifacts (`docs/BRANCH_PROTECTION_POLICY.md`, `.github/CODEOWNERS`).
+
+### Changed
+- TypeScript governance profile now enforces additional strictness in typecheck gates (`frontend/tsconfig.typecheck.json`) and corresponding override conformance fix (`frontend/components/ui/api-error-boundary.tsx`).
+- Documentation versioning and release governance docs added and linked:
+  - `docs/DOCUMENTATION_VERSIONING.md`
+  - `docs/DOCS_VERSION.json`
+  - `docs/RELEASE_CHECKLIST.md`
+  - `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
+- Updated active docs and subsystem report to reflect sections 9-11 full completion:
+  - `README.md`
+  - `docs/README.md`
+  - `docs/TESTING.md`
+  - `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+  - `docs/SUBSYSTEMS_SECTIONS_9_TO_11_REVIEW_2026-02-16.md`
+  - `CONTRIBUTING.md`
+  - `docs/CONTRIBUTING.md`
+
+### Testing
+- Section 11 debug/error sweep completed:
+  - `python -m py_compile scripts/verify_environment_parity.py scripts/verify_lockfiles.py scripts/dev/run_precommit_checks.py`
+  - `python scripts/verify_environment_parity.py --json-report reports/environment_parity_report_local_section11.json` (pass)
+  - `python scripts/verify_environment_parity.py --strict --json-report reports/environment_parity_report_local_section11_strict.json` (expected local mismatch on Python/Node vs CI pins)
+  - `python scripts/verify_lockfiles.py --json-report reports/lockfile_governance_report_local_section11.json` (pass)
+  - `python scripts/dev/run_precommit_checks.py --skip-python-lint` (pass)
+  - `powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-Pester -Script tests/windows/installer_tests.Tests.ps1"` (`9 passed`)
+  - `python scripts/verify_docs_references.py` (pass)
+
 ## [4.1.8] - 2026-02-16
 
 ### Added

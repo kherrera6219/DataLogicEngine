@@ -63,6 +63,10 @@ frontend/build_log*.txt
 frontend/build_output.txt
 frontend/lint_output*.txt
 frontend/storybook_build_log*.txt
+reports/environment_parity_report*.json
+reports/lockfile_governance_report*.json
+reports/packaging_smoke_report.json
+reports/nsis_governance_report.json
 
 # OS
 .DS_Store
