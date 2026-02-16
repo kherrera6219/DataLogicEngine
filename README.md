@@ -178,6 +178,7 @@ Frontend:
 
 ```powershell
 cd frontend
+npm run typecheck
 npm test
 ```
 
@@ -188,6 +189,13 @@ cd frontend
 npm run test:e2e:visual
 ```
 
+Route E2E smoke:
+
+```powershell
+cd frontend
+npm run test:e2e -- tests/e2e/route-sidebar-smoke.spec.ts
+```
+
 Operational hardening checks:
 
 ```powershell
@@ -195,6 +203,7 @@ python .\scripts\validate_schema_parity.py
 python .\scripts\verify_installer_integrity.py --require-artifacts
 python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process
 python .\scripts\generate_support_bundle.py --skip-http
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1
 ```
 
 ## Contributing

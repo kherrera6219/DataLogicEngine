@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.7] - 2026-02-16
+
+### Added
+- Completed Section 9 testing subsystem enforcement controls:
+  - Local-mode parity regression suite (`tests/parity/test_local_mode_parity.py`).
+  - Windows packaging smoke automation with portable launch checks and optional installer-mode validation (`scripts/windows/run_packaging_smoke.ps1`).
+  - Frontend strict typecheck gate via dedicated production typecheck config (`frontend/tsconfig.typecheck.json`, `frontend/package.json`).
+  - Section 9-11 review document initialized with completed Section 9 control matrix (`docs/SUBSYSTEMS_SECTIONS_9_TO_11_REVIEW_2026-02-16.md`).
+
+### Changed
+- CI enforcement pipeline now includes:
+  - Explicit API contract, local-mode parity, and security regression sweeps.
+  - Frontend typecheck and route E2E smoke gates.
+  - Windows packaging smoke job and artifact report upload.
+  - File: `.github/workflows/ci.yml`.
+- API contract test module is now always enforceable without optional tooling; Schemathesis fuzzing remains opt-in (`RUN_SCHEMATHESIS=1`) (`tests/contract/test_api_contract.py`).
+- Updated testing/docs entrypoints to reflect new required gates:
+  - `README.md`
+  - `docs/README.md`
+  - `docs/TESTING.md`
+  - `run_test_suite.py`
+
+### Testing
+- Debug/error sweep completed:
+  - `python -m py_compile run_test_suite.py tests/contract/test_api_contract.py tests/parity/test_local_mode_parity.py`
+  - `python -m pytest -q --no-cov tests/contract/test_api_contract.py tests/parity/test_local_mode_parity.py tests/security/test_security_headers.py tests/security/test_request_limits.py` (`18 passed, 1 skipped`)
+  - `npm --prefix frontend run lint`
+  - `npm --prefix frontend run typecheck`
+  - `npm --prefix frontend run test -- tests/unit/lib/runtime/policy.test.ts` (`5 passed`)
+  - `npm --prefix frontend run test:e2e -- tests/e2e/route-sidebar-smoke.spec.ts` (`5 passed`)
+  - `npm --prefix frontend run test:e2e:visual` (`21 passed`)
+  - `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process --json-report reports/runtime_precheck_report_local_section9.json` (fails on existing ACTION-level local setup finding, expected in strict mode)
+  - `python scripts/runtime_precheck.py --skip-ports --allow-env-from-process --json-report reports/runtime_precheck_report_local_section9_non_strict.json` (pass)
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/run_packaging_smoke.ps1 -Mode portable -LaunchTimeoutSeconds 10` (pass)
+  - `python scripts/verify_docs_references.py` (pass)
+
 ## [4.1.6] - 2026-02-16
 
 ### Added

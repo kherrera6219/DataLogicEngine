@@ -14,7 +14,7 @@ Define enterprise testing standards, required quality gates, and execution workf
 ## Document control
 
 1. Owner: Quality Engineering
-2. Last updated: 2026-02-08
+2. Last updated: 2026-02-16
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -30,6 +30,18 @@ Define enterprise testing standards, required quality gates, and execution workf
 1. Backend test suite: `1518 passed, 21 skipped`
 2. Coverage gate: `71.47%` (required: `>=70%`)
 3. Frontend lint gate: passing
+
+## Section 9 subsystem coverage (updated 2026-02-16)
+
+1. Unit test framework: `pytest` (backend) and `vitest` (frontend) enforced in CI.
+2. Integration test framework: `tests/integration` and `tests/integration_routes` enforced in CI.
+3. API contract tests: `tests/contract/test_api_contract.py` now enforces static OpenAPI contract assertions and runtime contract smoke checks.
+4. End-to-end automation: Playwright route smoke and visual regression suites are both CI-enforced.
+5. Visual snapshot testing: baseline snapshots in `frontend/tests/e2e/theme-visual-smoke.spec.ts-snapshots`.
+6. Security regression tests: targeted CI security regression sweep (`security headers` + `request limits`) plus broader security suites.
+7. Local mode parity tests: dedicated parity suite at `tests/parity/test_local_mode_parity.py`.
+8. Packaging smoke tests (clean VM): Windows CI job runs `scripts/windows/run_packaging_smoke.ps1` (silent install/uninstall verification on clean runner).
+9. CI enforcement pipeline: lint, typecheck, unit/integration/contract/parity/security tests, build, accessibility, E2E, visual regression, and dependency audit gates.
 
 ## Test taxonomy
 
@@ -83,12 +95,36 @@ frontend/
 .\.venv\Scripts\python -m pytest tests\unit\test_simulation_engine_unit.py -q --no-cov
 ```
 
+### Backend contract + parity + security sweeps
+
+```powershell
+.\.venv\Scripts\python -m pytest -q --no-cov tests\contract\test_api_contract.py
+.\.venv\Scripts\python -m pytest -q --no-cov tests\parity\test_local_mode_parity.py
+.\.venv\Scripts\python -m pytest -q --no-cov tests\security\test_security_headers.py tests\security\test_request_limits.py
+```
+
 ### Frontend lint and tests
 
 ```powershell
 cd frontend
 npm run lint
+npm run typecheck
 npm test
+```
+
+### Frontend E2E + visual regression
+
+```powershell
+cd frontend
+npm run test:e2e -- tests/e2e/route-sidebar-smoke.spec.ts
+npm run test:e2e:visual
+```
+
+### Windows packaging smoke (installer clean-runner check)
+
+```powershell
+npm --prefix frontend run electron:dist
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1
 ```
 
 ### Documentation reference validation
@@ -103,6 +139,9 @@ npm test
 2. Backend coverage remains at or above configured threshold.
 3. No medium/high security regression in enforced security scans.
 4. No failing migration or startup checks in deployment workflows.
+5. Frontend typecheck must pass.
+6. Contract/parity/security regression sweeps must pass.
+7. Windows packaging smoke job must pass.
 
 ## Test authoring standards
 

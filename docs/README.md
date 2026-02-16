@@ -17,7 +17,8 @@ Single entry point for active documentation and source-of-truth documents.
 2. Desktop mode supports no-login startup to internal dashboard.
 3. API key save/test, AI model controls, and storage lifecycle controls are wired.
 4. Sections 5-8 controls are fully implemented (Phase 1-3), and post-baseline hardening is also implemented: Postgres tenant RLS controls, production vault-backed secret enforcement paths, export signing/encryption + immutable audit replication, code-signing rotation/revocation governance drills, and AI/connector p95-p99 latency SLO gauges.
-5. Some settings/admin/MCP UX areas remain partial (see `docs/PRODUCT_OVERVIEW.md`).
+5. Section 9 testing controls now include enforced contract tests, local-mode parity tests, frontend typecheck gates, route E2E smoke, and Windows packaging smoke validation in CI.
+6. Some settings/admin/MCP UX areas remain partial (see `docs/PRODUCT_OVERVIEW.md`).
 
 ## Start Here
 
@@ -38,6 +39,7 @@ Single entry point for active documentation and source-of-truth documents.
 1. `docs/APPLICATION_REVIEW_RECOMMENDED_IMPROVEMENTS_2026-02-10.md`
 2. `docs/SUBSYSTEMS_SECTIONS_1_TO_4_UPDATED_REPORT_2026-02-16.md`
 3. `docs/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
+4. `docs/SUBSYSTEMS_SECTIONS_9_TO_11_REVIEW_2026-02-16.md`
 
 ## Documentation Standards
 

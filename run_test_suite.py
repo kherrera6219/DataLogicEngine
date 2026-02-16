@@ -9,7 +9,7 @@ PHASES = [
     },
     {
         "name": "Phase 2: Integration & Routes",
-        "targets": ["tests/integration", "tests/integration_routes", "tests/contract"]
+        "targets": ["tests/integration", "tests/integration_routes", "tests/contract", "tests/parity"]
     },
     {
         "name": "Phase 3: Security & Compliance",
