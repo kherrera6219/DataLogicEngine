@@ -7,14 +7,21 @@ Handles user login, logout, and registration via REST API.
 import datetime
 from datetime import UTC
 import logging
-from functools import wraps
 import os
 
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, current_app
 from flask_login import current_user, login_user, logout_user, login_required
 
 from extensions import db
 from models import User
+from backend.schemas.auth_schemas import LoginRequest, RegisterRequest, TokenRequest
+from backend.utils.request_validation import validate_pydantic_payload
+from backend.security.api_csrf import get_or_create_api_csrf_token
+from backend.security.desktop_local_auth import (
+    get_or_create_install_secret,
+    issue_desktop_auth_challenge,
+    verify_desktop_auth_challenge,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +34,24 @@ def _is_loopback_request() -> bool:
     if remote_addr in {"127.0.0.1", "::1", "localhost", ""}:
         return True
     return False
+
+
+def _validate_desktop_preconditions():
+    if os.name != 'nt':
+        return error_response("Desktop auto-login only supported on Windows", 400)
+
+    is_desktop_mode = os.environ.get("IS_DESKTOP_APP", "false").lower() == "true"
+    if not is_desktop_mode:
+        return error_response("Desktop auto-login is disabled outside desktop mode", 403)
+
+    if not _is_loopback_request():
+        return error_response("Desktop auto-login only allowed from local loopback", 403)
+
+    desktop_header = (request.headers.get("X-DataLogic-Desktop") or "").lower()
+    if desktop_header not in {"true", "1"}:
+        return error_response("Desktop identity header required", 403)
+
+    return None
 
 def error_response(message, status_code=400, code=None):
     return jsonify({"error": message, "success": False, "code": code}), status_code
@@ -50,16 +75,17 @@ def login():
     """Handle user login via JSON."""
     if current_user.is_authenticated:
         return success_response(message="Already logged in", data={"user": current_user.to_dict()})
-    
-    data = request.json
-    if not data: return error_response("No data provided")
-    
-    username = data.get('username')
-    password = data.get('password')
-    remember = data.get('remember', False)
-    
-    if not username or not password:
-        return error_response("Username and password are required")
+
+    validated, validation_error_response = validate_pydantic_payload(
+        LoginRequest,
+        request.get_json(silent=True),
+    )
+    if validation_error_response:
+        return validation_error_response
+
+    username = validated.username if validated else ""
+    password = validated.password if validated else ""
+    remember = bool(validated.remember) if validated else False
         
     user = User.query.filter_by(username=username).first()
     
@@ -110,9 +136,13 @@ def mfa_verify():
     if 'mfa_user_id' not in session:
         return error_response("MFA session expired or invalid", 401)
         
-    data = request.json
-    token = data.get('token')
-    if not token: return error_response("Token required")
+    validated, validation_error_response = validate_pydantic_payload(
+        TokenRequest,
+        request.get_json(silent=True),
+    )
+    if validation_error_response:
+        return validation_error_response
+    token = validated.token if validated else ""
     
     user = User.query.get(session['mfa_user_id'])
     
@@ -151,8 +181,13 @@ def mfa_setup():
 @login_required
 def mfa_confirm():
     """Confirm and enable MFA."""
-    data = request.json
-    token = data.get('token')
+    validated, validation_error_response = validate_pydantic_payload(
+        TokenRequest,
+        request.get_json(silent=True),
+    )
+    if validation_error_response:
+        return validation_error_response
+    token = validated.token if validated else ""
     secret = session.get('mfa_setup_secret')
     
     if not secret or not token:
@@ -188,10 +223,13 @@ def step_up_verify():
     if not current_user.mfa_enabled:
         return error_response("MFA must be enabled for this action", 403, code="MFA_REQUIRED")
 
-    data = request.json
-    token = data.get('token')
-    if not token:
-        return error_response("Token required")
+    validated, validation_error_response = validate_pydantic_payload(
+        TokenRequest,
+        request.get_json(silent=True),
+    )
+    if validation_error_response:
+        return validation_error_response
+    token = validated.token if validated else ""
 
     from backend.security.mfa import MFAManager
     # Just verify the token against the user's secret
@@ -210,15 +248,16 @@ def register():
     if current_user.is_authenticated:
          return success_response(message="Already logged in")
          
-    data = request.json
-    if not data: return error_response("No data provided")
-    
-    username = data.get('username')
-    email = data.get('email')
-    password = data.get('password')
-    
-    if not all([username, email, password]):
-        return error_response("All fields are required")
+    validated, validation_error_response = validate_pydantic_payload(
+        RegisterRequest,
+        request.get_json(silent=True),
+    )
+    if validation_error_response:
+        return validation_error_response
+
+    username = validated.username if validated else ""
+    email = str(validated.email) if validated else ""
+    password = validated.password if validated else ""
         
     if User.query.filter_by(username=username).first():
         return error_response("Username taken", 409)
@@ -297,25 +336,67 @@ def sso_callback_route():
         logger.error(f"SSO Error: {e}")
         return error_response("SSO Authentication failed", 500)
 
+@auth_bp.route('/csrf-token', methods=['GET'])
+def csrf_token():
+    """Issue CSRF token for session-authenticated API mutations."""
+    token = get_or_create_api_csrf_token()
+    response, status_code = success_response(
+        data={"csrf_token": token},
+        message="CSRF token issued",
+    )
+
+    response.set_cookie(
+        "csrf_token",
+        token,
+        httponly=False,
+        secure=bool(current_app.config.get("SESSION_COOKIE_SECURE", False)),
+        samesite=current_app.config.get("SESSION_COOKIE_SAMESITE", "Lax"),
+    )
+    return response, status_code
+
+
+@auth_bp.route('/desktop/challenge', methods=['POST'])
+def desktop_auth_challenge():
+    """Issue one-time desktop auth challenge nonce."""
+    precondition_error = _validate_desktop_preconditions()
+    if precondition_error:
+        return precondition_error
+
+    nonce, ttl_seconds = issue_desktop_auth_challenge(session)
+    return success_response(
+        data={
+            "nonce": nonce,
+            "expires_in_seconds": ttl_seconds,
+        },
+        message="Desktop challenge issued",
+    )
+
+
 @auth_bp.route('/desktop/auto-login', methods=['POST'])
 def desktop_auto_login():
     """
     Auto-login based on Windows System Identity.
     Used for 'Zero-Config' desktop experience.
     """
-    if os.name != 'nt':
-        return error_response("Desktop auto-login only supported on Windows", 400)
+    precondition_error = _validate_desktop_preconditions()
+    if precondition_error:
+        return precondition_error
 
-    is_desktop_mode = os.environ.get("IS_DESKTOP_APP", "false").lower() == "true"
-    if not is_desktop_mode:
-        return error_response("Desktop auto-login is disabled outside desktop mode", 403)
-
-    if not _is_loopback_request():
-        return error_response("Desktop auto-login only allowed from local loopback", 403)
-
-    desktop_header = (request.headers.get("X-DataLogic-Desktop") or "").lower()
-    if desktop_header not in {"true", "1"}:
-        return error_response("Desktop identity header required", 403)
+    nonce = (request.headers.get("X-Desktop-Auth-Nonce") or "").strip()
+    signature = (request.headers.get("X-Desktop-Auth-Signature") or "").strip()
+    install_secret = get_or_create_install_secret()
+    challenge_ok, challenge_error = verify_desktop_auth_challenge(
+        session,
+        nonce=nonce,
+        signature=signature,
+        install_secret=install_secret,
+    )
+    if not challenge_ok:
+        return error_response(
+            challenge_error or "Desktop auth challenge verification failed",
+            403,
+            code="DESKTOP_AUTH_CHALLENGE_FAILED",
+        )
     
     from backend.auth.windows_identity import get_windows_user_identity
     try:

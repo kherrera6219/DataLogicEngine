@@ -1,49 +1,32 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getRuntimeMode, isDesktopRequestAuthorized } from '@/lib/runtime/policy';
 
 function isDesktopRequest(request: NextRequest): boolean {
-  if (process.env.NEXT_PUBLIC_DESKTOP_AUTH_BYPASS === 'true') {
-    return true;
-  }
+  const forceBypass =
+    process.env.NODE_ENV !== 'production' &&
+    process.env.NEXT_PUBLIC_DESKTOP_AUTH_BYPASS === 'true';
 
-  const hostHeader = request.headers.get('host') || request.nextUrl.host;
-  const hostname = hostHeader.split(':')[0].replace(/^\[|\]$/g, '').toLowerCase();
-  const isLoopbackHost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
-  if (!isLoopbackHost) {
-    return false;
-  }
-
-  const desktopHeader = request.headers.get('x-datalogic-desktop');
-  if (desktopHeader === 'true' || desktopHeader === '1') {
-    return true;
-  }
-
-  const userAgent = request.headers.get('user-agent') || '';
-  if (userAgent.includes('Electron')) {
-    return true;
-  }
-
-  return false;
+  return isDesktopRequestAuthorized({
+    host: request.headers.get('host') || request.nextUrl.host,
+    desktopHeader: request.headers.get('x-datalogic-desktop'),
+    userAgent: request.headers.get('user-agent') || '',
+    mode: getRuntimeMode(),
+    forceBypass,
+  });
 }
 
 function buildCsp(nonce: string): string {
   const isDevelopment = process.env.NODE_ENV !== 'production';
-  const allowInlineScripts =
-    process.env.NEXT_PUBLIC_CSP_ALLOW_UNSAFE_INLINE_SCRIPTS === 'true';
-  const allowInlineStyles =
-    process.env.NEXT_PUBLIC_CSP_ALLOW_UNSAFE_INLINE_STYLES === 'true';
 
   const scriptSrc = [`'self'`, `'nonce-${nonce}'`];
-  if (allowInlineScripts || isDevelopment) {
-    scriptSrc.push("'unsafe-inline'");
-  }
   if (isDevelopment) {
-    // Keep eval support in local dev tooling only.
+    scriptSrc.push("'unsafe-inline'");
     scriptSrc.push("'unsafe-eval'");
   }
 
-  const styleSrc = [`'self'`, 'https://fonts.googleapis.com'];
-  if (allowInlineStyles || isDevelopment) {
+  const styleSrc = [`'self'`, `'nonce-${nonce}'`, 'https://fonts.googleapis.com'];
+  if (isDevelopment) {
     styleSrc.push("'unsafe-inline'");
   }
 

@@ -11,6 +11,7 @@ import {
 import { useRouter, usePathname } from "next/navigation";
 import { api, User } from "@/lib/api";
 import { LoginCredentials } from "@/lib/api/auth";
+import { shouldUseDesktopSessionFlow } from "@/lib/runtime/policy";
 
 interface MFAState {
   required: boolean;
@@ -35,14 +36,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Notification event for cross-component communication
 const NOTIFICATION_EVENT = "auth-notification";
-
-function isDesktopRuntime(): boolean {
-  if (typeof window === "undefined") return false;
-  return Boolean(
-    (window as typeof window & { electronAPI?: unknown }).electronAPI ||
-      window.navigator.userAgent.includes("Electron"),
-  );
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -72,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data?.user) {
         setUser(data.user);
       } else {
-        if (isDesktopRuntime()) {
+        if (shouldUseDesktopSessionFlow()) {
           // Desktop "Zero-Config" experience is desktop-runtime only.
           const autoLoginResponse = await api.auth
             .desktopAutoLogin()

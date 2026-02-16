@@ -27,6 +27,8 @@ if str(SDK_PATH) not in sys.path:
     sys.path.insert(0, str(SDK_PATH))
 
 from models import LLMProvider, LLMProviderUsage, ChatSession, ChatMessage
+from backend.utils.error_normalization import normalize_public_error_message
+from backend.llm_gateway.governance import AIGovernanceEngine
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +57,7 @@ class GatewayResponse:
     run_id: str
     provider_used: str
     model_used: str
-    usage: dict[str, int]
+    usage: dict[str, Any]
     ok: bool = True
     # UKG enhancements
     coordinate: Optional[str] = None
@@ -110,6 +112,7 @@ class LLMGateway:
     def __init__(self, db_session=None):
         self.db = db_session
         self._overlays: dict[str, Any] = {}
+        self._governance = AIGovernanceEngine(db_session)
     
     def _get_circuit_breaker(self, provider_id: str) -> CircuitBreaker:
         if provider_id not in self._circuit_breakers:
@@ -228,20 +231,16 @@ class LLMGateway:
     @staticmethod
     def _public_error_message(error: Optional[str]) -> str:
         """Return a safe, normalized API error message."""
-        if not error:
-            return "Gateway failed to generate a response"
-
-        lowered = str(error).strip().lower()
-        safe_messages = (
-            "requested model",
-            "not allowed",
-            "no active providers found",
-            "no provider configured",
+        return normalize_public_error_message(
+            raw_error=error,
+            fallback="LLM provider request failed",
+            safe_fragments=(
+                "requested model",
+                "not allowed",
+                "no active providers found",
+                "no provider configured",
+            ),
         )
-        if any(marker in lowered for marker in safe_messages):
-            return str(error)
-
-        return "LLM provider request failed"
     
     async def process(self, request: GatewayRequest) -> GatewayResponse:
         """
@@ -250,13 +249,83 @@ class LLMGateway:
         run_id = str(uuid.uuid4())
         start_time = datetime.now(UTC)
 
+        query = self._extract_query(request.messages)
+        governance = self._governance.prepare_request(request, query)
+        if not governance.ok:
+            self._governance.record_audit_event(
+                run_id=run_id,
+                user_id=request.user_id,
+                api_key_id=request.api_key_id,
+                provider=request.provider,
+                model=request.model or "unknown",
+                model_version="unknown",
+                governance_flags=governance.governance_flags,
+                request_tokens_estimate=governance.estimated_request_tokens,
+                success=False,
+                error_code="GOVERNANCE_BLOCK",
+                error_message=governance.error,
+                metadata={"timestamp": datetime.now(UTC).isoformat()},
+            )
+            return self._error_response(
+                run_id,
+                governance.error or "Request blocked by governance policy",
+                start_time,
+                request,
+            )
+
+        query = governance.query
+        request.meta["governance_flags"] = governance.governance_flags
+        if governance.prompt_template_key:
+            request.meta["prompt_template_key"] = governance.prompt_template_key
+            request.meta["prompt_template_version"] = governance.prompt_template_version
+        if governance.routing_policy_name:
+            request.meta["routing_policy_name"] = governance.routing_policy_name
+            request.meta["routing_policy_version"] = governance.routing_policy_version
+        request.meta["estimated_request_tokens"] = governance.estimated_request_tokens
+
         allowed_provider_types = self._normalize_allowlist(
             request.meta.get("allowed_provider_types") or request.meta.get("allowed_providers")
         )
         allowed_models = self._normalize_allowlist(request.meta.get("allowed_models"))
 
+        if governance.allowed_provider_types:
+            allowed_provider_types = (
+                allowed_provider_types & governance.allowed_provider_types
+                if allowed_provider_types
+                else set(governance.allowed_provider_types)
+            )
+        if governance.allowed_models:
+            allowed_models = (
+                allowed_models & governance.allowed_models
+                if allowed_models
+                else set(governance.allowed_models)
+            )
+
+        if allowed_provider_types:
+            request.meta["allowed_provider_types"] = sorted(allowed_provider_types)
+        if allowed_models:
+            request.meta["allowed_models"] = sorted(allowed_models)
+
         requested_model = str(request.model).strip().lower() if request.model else ""
         if allowed_models and requested_model and requested_model not in allowed_models:
+            self._governance.record_audit_event(
+                run_id=run_id,
+                user_id=request.user_id,
+                api_key_id=request.api_key_id,
+                provider=request.provider,
+                model=request.model or "unknown",
+                model_version="unknown",
+                prompt_template_key=request.meta.get("prompt_template_key"),
+                prompt_template_version=request.meta.get("prompt_template_version"),
+                routing_policy_name=request.meta.get("routing_policy_name"),
+                routing_policy_version=request.meta.get("routing_policy_version"),
+                governance_flags=request.meta.get("governance_flags"),
+                request_tokens_estimate=request.meta.get("estimated_request_tokens"),
+                success=False,
+                error_code="MODEL_ALLOWLIST_BLOCK",
+                error_message=f"Requested model '{request.model}' is not allowed by policy",
+                metadata={"timestamp": datetime.now(UTC).isoformat()},
+            )
             return self._error_response(
                 run_id,
                 f"Requested model '{request.model}' is not allowed by API key policy",
@@ -272,12 +341,29 @@ class LLMGateway:
             allowed_models=allowed_models or None,
         )
         if not providers:
+            self._governance.record_audit_event(
+                run_id=run_id,
+                user_id=request.user_id,
+                api_key_id=request.api_key_id,
+                provider=request.provider,
+                model=request.model or "unknown",
+                model_version="unknown",
+                prompt_template_key=request.meta.get("prompt_template_key"),
+                prompt_template_version=request.meta.get("prompt_template_version"),
+                routing_policy_name=request.meta.get("routing_policy_name"),
+                routing_policy_version=request.meta.get("routing_policy_version"),
+                governance_flags=request.meta.get("governance_flags"),
+                request_tokens_estimate=request.meta.get("estimated_request_tokens"),
+                success=False,
+                error_code="NO_PROVIDER",
+                error_message="No active providers found",
+                metadata={"timestamp": datetime.now(UTC).isoformat()},
+            )
             return self._error_response(run_id, "No active providers found", start_time, request)
 
         last_error = None
-        
-        # 2. Extract Query and Load History
-        query = self._extract_query(request.messages)
+
+        messages_for_request = self._replace_latest_user_message(request.messages, query)
         user_id_str = str(request.user_id) if request.user_id else "anonymous"
         
         history = []
@@ -310,7 +396,7 @@ class LLMGateway:
                     # 4. Create SDK provider and run
                     sdk_provider = self._create_sdk_provider(provider_record)
                     
-                    full_messages = history + request.messages
+                    full_messages = history + messages_for_request
                     
                     if request.run_ukg_pipeline:
                         # Retrieve relevant context from RAG (VectorStore)
@@ -387,10 +473,64 @@ class LLMGateway:
                     if result.get("ok", True):
                         cb.record_success()
                         latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
-                        await self._record_usage(provider_record.id, request.user_id, request.api_key_id, run_id, model, 
-                                              result.get("usage", {}).get("prompt_tokens", 0), 
-                                              result.get("usage", {}).get("completion_tokens", 0), 
-                                              latency_ms, True)
+
+                        usage_payload = result.get("usage", {}) if isinstance(result.get("usage"), dict) else {}
+                        tokens_in = int(usage_payload.get("prompt_tokens", 0) or 0)
+                        tokens_out = int(usage_payload.get("completion_tokens", 0) or 0)
+                        estimated_cost_usd = self._governance.estimate_cost_usd(model, tokens_in, tokens_out)
+                        usage_payload["estimated_cost_usd"] = estimated_cost_usd
+                        result["usage"] = usage_payload
+
+                        moderated_answer, output_classification, governance_warnings = (
+                            self._governance.apply_output_controls(result.get("answer", ""))
+                        )
+                        result["answer"] = moderated_answer
+                        explainability = result.get("explainability")
+                        if not isinstance(explainability, dict):
+                            explainability = {}
+                        explainability["output_classification"] = output_classification
+                        result["explainability"] = explainability
+                        result["warnings"] = list(result.get("warnings", [])) + governance_warnings
+
+                        await self._record_usage(
+                            provider_record.id,
+                            request.user_id,
+                            request.api_key_id,
+                            run_id,
+                            model,
+                            tokens_in,
+                            tokens_out,
+                            latency_ms,
+                            True,
+                            estimated_cost_usd=estimated_cost_usd,
+                        )
+
+                        model_version = (
+                            result.get("model_version")
+                            or (result.get("metadata", {}) or {}).get("model_version")
+                            or getattr(provider_record, "api_version", None)
+                            or "unknown"
+                        )
+                        self._governance.record_audit_event(
+                            run_id=run_id,
+                            user_id=request.user_id,
+                            api_key_id=request.api_key_id,
+                            provider=getattr(provider_record, "provider_type", "unknown"),
+                            model=model,
+                            model_version=model_version,
+                            prompt_template_key=request.meta.get("prompt_template_key"),
+                            prompt_template_version=request.meta.get("prompt_template_version"),
+                            routing_policy_name=request.meta.get("routing_policy_name"),
+                            routing_policy_version=request.meta.get("routing_policy_version"),
+                            classification=output_classification,
+                            governance_flags=request.meta.get("governance_flags"),
+                            request_tokens_estimate=request.meta.get("estimated_request_tokens"),
+                            tokens_in=tokens_in,
+                            tokens_out=tokens_out,
+                            estimated_cost_usd=estimated_cost_usd,
+                            success=True,
+                            metadata={"timestamp": datetime.now(UTC).isoformat()},
+                        )
                         
                         if request.session_id:
                             await self._save_chat_message(request.session_id, request.user_id, "assistant", result.get("answer", ""), run_id)
@@ -428,6 +568,24 @@ class LLMGateway:
                         error_code="PROVIDER_ERROR",
                         error_message=last_error,
                     )
+                    self._governance.record_audit_event(
+                        run_id=run_id,
+                        user_id=request.user_id,
+                        api_key_id=request.api_key_id,
+                        provider=getattr(provider_record, "provider_type", "unknown"),
+                        model=model,
+                        model_version=getattr(provider_record, "api_version", None) or "unknown",
+                        prompt_template_key=request.meta.get("prompt_template_key"),
+                        prompt_template_version=request.meta.get("prompt_template_version"),
+                        routing_policy_name=request.meta.get("routing_policy_name"),
+                        routing_policy_version=request.meta.get("routing_policy_version"),
+                        governance_flags=request.meta.get("governance_flags"),
+                        request_tokens_estimate=request.meta.get("estimated_request_tokens"),
+                        success=False,
+                        error_code="PROVIDER_ERROR",
+                        error_message=last_error,
+                        metadata={"timestamp": datetime.now(UTC).isoformat()},
+                    )
                     break  # Try next provider
 
                 except asyncio.TimeoutError:
@@ -457,6 +615,24 @@ class LLMGateway:
                         False,
                         error_code="TIMEOUT",
                         error_message=last_error,
+                    )
+                    self._governance.record_audit_event(
+                        run_id=run_id,
+                        user_id=request.user_id,
+                        api_key_id=request.api_key_id,
+                        provider=getattr(provider_record, "provider_type", "unknown"),
+                        model=model,
+                        model_version=getattr(provider_record, "api_version", None) or "unknown",
+                        prompt_template_key=request.meta.get("prompt_template_key"),
+                        prompt_template_version=request.meta.get("prompt_template_version"),
+                        routing_policy_name=request.meta.get("routing_policy_name"),
+                        routing_policy_version=request.meta.get("routing_policy_version"),
+                        governance_flags=request.meta.get("governance_flags"),
+                        request_tokens_estimate=request.meta.get("estimated_request_tokens"),
+                        success=False,
+                        error_code="TIMEOUT",
+                        error_message=last_error,
+                        metadata={"timestamp": datetime.now(UTC).isoformat()},
                     )
                     break  # Try next provider
 
@@ -490,6 +666,24 @@ class LLMGateway:
                         False,
                         error_code="EXCEPTION",
                         error_message=last_error,
+                    )
+                    self._governance.record_audit_event(
+                        run_id=run_id,
+                        user_id=request.user_id,
+                        api_key_id=request.api_key_id,
+                        provider=getattr(provider_record, "provider_type", "unknown"),
+                        model=model,
+                        model_version=getattr(provider_record, "api_version", None) or "unknown",
+                        prompt_template_key=request.meta.get("prompt_template_key"),
+                        prompt_template_version=request.meta.get("prompt_template_version"),
+                        routing_policy_name=request.meta.get("routing_policy_name"),
+                        routing_policy_version=request.meta.get("routing_policy_version"),
+                        governance_flags=request.meta.get("governance_flags"),
+                        request_tokens_estimate=request.meta.get("estimated_request_tokens"),
+                        success=False,
+                        error_code="EXCEPTION",
+                        error_message=last_error,
+                        metadata={"timestamp": datetime.now(UTC).isoformat()},
                     )
                     break  # Try next provider
 
@@ -795,22 +989,26 @@ class LLMGateway:
 
     def _build_response(self, result: dict, run_id: str, provider: LLMProvider, model: str, latency_ms: int) -> GatewayResponse:
         usage_data = result.get("usage", {})
+        usage_payload = {
+            "tokens_in": usage_data.get("prompt_tokens", 0),
+            "tokens_out": usage_data.get("completion_tokens", 0),
+            "latency_ms": latency_ms,
+        }
+        if isinstance(usage_data, dict) and "estimated_cost_usd" in usage_data:
+            usage_payload["estimated_cost_usd"] = usage_data.get("estimated_cost_usd")
         return GatewayResponse(
             content=result.get("answer", ""),
             run_id=run_id,
             provider_used=provider.provider_type,
             model_used=model,
-            usage={
-                "tokens_in": usage_data.get("prompt_tokens", 0),
-                "tokens_out": usage_data.get("completion_tokens", 0),
-                "latency_ms": latency_ms,
-            },
+            usage=usage_payload,
             ok=result.get("ok", True),
             coordinate=result.get("coordinate"),
             tier=result.get("tier"),
             layers=result.get("layers"),
             trace=result.get("trace"),
             explainability=result.get("explainability"),
+            warnings=list(result.get("warnings", [])),
             error=result.get("error"),
         )
 
@@ -838,6 +1036,17 @@ class LLMGateway:
                     return " ".join(text_parts)
                 return content
         return ""
+
+    def _replace_latest_user_message(self, messages: list[dict[str, Any]], query: str) -> list[dict[str, Any]]:
+        """Override the latest user message content (used after prompt-template rendering)."""
+        cloned_messages = [dict(message) for message in messages]
+        for index in range(len(cloned_messages) - 1, -1, -1):
+            if cloned_messages[index].get("role") == "user":
+                cloned_messages[index]["content"] = query
+                return cloned_messages
+
+        cloned_messages.append({"role": "user", "content": query})
+        return cloned_messages
     
     async def _run_quad_analysis(
         self,
@@ -941,11 +1150,17 @@ class LLMGateway:
             # Create TraceRun
             from flask import g
             correlation_id = getattr(g, 'correlation_id', None)
+            model_version = (
+                sdk_result.get("model_version")
+                or (sdk_result.get("metadata", {}) or {}).get("model_version")
+                or "unknown"
+            )
             
             run = TraceRun(
                 session_id=uuid.UUID(session_id) if session_id else None,
                 status="pass" if sdk_result.get("ok") else "fail",
                 model_name=model,
+                model_version=model_version,
                 input_message=query,
                 final_answer=sdk_result.get("answer", ""),
                 correlation_id=correlation_id,
@@ -1024,6 +1239,7 @@ class LLMGateway:
         tokens_out: int,
         latency_ms: int,
         success: bool,
+        estimated_cost_usd: Optional[float] = None,
         error_code: Optional[str] = None,
         error_message: Optional[str] = None,
     ) -> None:
@@ -1063,6 +1279,9 @@ class LLMGateway:
                 "latency_ms": latency_ms,
                 "success": success,
             }
+
+            if hasattr(LLMProviderUsage, "estimated_cost_usd") and estimated_cost_usd is not None:
+                usage_payload["estimated_cost_usd"] = float(estimated_cost_usd)
 
             if hasattr(LLMProviderUsage, "error_code") and error_code:
                 usage_payload["error_code"] = error_code

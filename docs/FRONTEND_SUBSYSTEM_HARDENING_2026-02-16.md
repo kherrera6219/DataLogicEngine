@@ -188,3 +188,60 @@ Commands executed and outcomes:
 
 8. `npm --prefix frontend run test:e2e:visual`  
    - Result: pass (21 tests)
+
+## Phase P3 - Completed
+
+### Implemented
+
+1. Runtime mode gating centralization (local vs cloud)
+   - Added single authoritative runtime policy module:
+     - `frontend/lib/runtime/policy.ts`
+   - Replaced duplicated desktop-runtime checks in API client and auth context:
+     - `frontend/lib/api/index.ts`
+     - `frontend/contexts/AuthContext.tsx`
+   - Enforced runtime-aware desktop request authorization in middleware:
+     - `frontend/proxy.ts`
+
+2. CSP production hardening
+   - Removed production unsafe-inline override path from web middleware CSP.
+   - Added nonce-based `style-src` policy to align script/style CSP treatment:
+     - `frontend/proxy.ts`
+
+3. Runtime policy test coverage
+   - Added dedicated unit tests for runtime mode normalization, loopback detection, and desktop-request authorization:
+     - `frontend/tests/unit/lib/runtime/policy.test.ts`
+   - Expanded middleware tests to verify cloud mode blocks desktop bypass and production CSP excludes unsafe-inline:
+     - `frontend/tests/unit/middleware.test.ts`
+
+### Debugging/Error Sweep (P3)
+
+Commands executed and outcomes:
+
+1. `npm --prefix frontend run test -- tests/unit/middleware.test.ts tests/unit/lib/api/index.test.ts tests/unit/lib/runtime/policy.test.ts`  
+   - Result: pass (24 tests)
+
+## Phase P4 - Completed
+
+### Implemented
+
+1. Desktop localhost auth handshake support (renderer/client path)
+   - API client now requests desktop auth challenge nonce before auto-login:
+     - `frontend/lib/api/index.ts`
+   - Electron main process now signs challenge nonce with per-install secret and injects signature header on backend loopback requests:
+     - `frontend/electron/main.ts`
+
+2. Session JSON CSRF token support (frontend client path)
+   - Added CSRF token retrieval/cache and mutation-request header injection:
+     - `frontend/lib/api/index.ts`
+   - Added CSRF token refresh retry path on mutation `403` responses:
+     - `frontend/lib/api/index.ts`
+
+### Debugging/Error Sweep (P4)
+
+Commands executed and outcomes:
+
+1. `npm --prefix frontend run test -- tests/unit/middleware.test.ts tests/unit/lib/api/index.test.ts tests/unit/lib/runtime/policy.test.ts tests/unit/lib/api/auth.test.ts`  
+   - Result: pass (27 tests)
+
+2. `npm --prefix frontend run electron:build`  
+   - Result: pass

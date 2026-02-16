@@ -1,9 +1,22 @@
-from pydantic import BaseModel, Field, constr, validator, ConfigDict
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import List, Optional, Dict, Any, Union, Literal
 
 class Message(BaseModel):
     role: Literal["user", "system", "assistant"]
-    content: str = Field(..., min_length=1)
+    content: Union[str, List[Dict[str, Any]]] = Field(...)
+
+    @field_validator("content")
+    @classmethod
+    def validate_content(cls, value):
+        if isinstance(value, str):
+            if not value.strip():
+                raise ValueError("content must not be empty")
+            return value
+        if isinstance(value, list):
+            if len(value) == 0:
+                raise ValueError("content must not be empty")
+            return value
+        raise ValueError("content must be a string or multimodal content array")
 
 class TraceSettings(BaseModel):
     enabled: bool = True
@@ -15,7 +28,7 @@ class GatewayChatRequest(BaseModel):
     messages: List[Message] = Field(..., min_length=1)
     provider: Optional[str] = None
     model: str = Field(..., min_length=1)
-    mode: Literal["chat", "trace", "explain"] = "chat"
+    mode: Literal["chat", "trace", "explain", "quad"] = "chat"
     constraints: Dict[str, Any] = Field(default_factory=dict)
     run_ukg_pipeline: bool = True
     temperature: float = Field(0.7, ge=0.0, le=2.0)

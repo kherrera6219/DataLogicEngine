@@ -7,19 +7,24 @@ import { mcp } from './mcp';
 import { compliance } from './compliance';
 import { sanitizeJsonPayload, sanitizeTextInput } from '@/lib/security/input-sanitization';
 import { reportClientError } from '@/lib/telemetry/client-errors';
+import { shouldUseDesktopSessionFlow } from '@/lib/runtime/policy';
 
 export * from './types';
 
 const DEFAULT_API_BASE = 'http://localhost:5000/api/v1';
 export const API_BASE = (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_BASE).replace(/\/$/, '');
+const CSRF_TOKEN_ENDPOINT = '/auth/csrf-token';
+const DESKTOP_CHALLENGE_ENDPOINT = '/auth/desktop/challenge';
+const CSRF_EXEMPT_ENDPOINT_PREFIXES = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/mfa/verify',
+  '/auth/desktop/challenge',
+  '/auth/desktop/auto-login',
+];
 
-function isDesktopRuntime(): boolean {
-  if (typeof window === 'undefined') return false;
-  return Boolean(
-    (window as typeof window & { electronAPI?: unknown }).electronAPI ||
-    window.navigator.userAgent.includes('Electron')
-  );
-}
+let csrfTokenCache: string | null = null;
+let csrfTokenInFlight: Promise<string | null> | null = null;
 
 export function buildApiUrl(endpoint: string): string {
   if (/^https?:\/\//i.test(endpoint)) {
@@ -30,8 +35,23 @@ export function buildApiUrl(endpoint: string): string {
   return `${API_BASE}${normalizedEndpoint}`;
 }
 
-async function tryDesktopAutoLogin(): Promise<boolean> {
-  const response = await fetch(buildApiUrl('/auth/desktop/auto-login'), {
+function isMutationMethod(method: string): boolean {
+  return !['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method.toUpperCase());
+}
+
+function isCsrfExemptEndpoint(endpoint: string): boolean {
+  return CSRF_EXEMPT_ENDPOINT_PREFIXES.some((prefix) => endpoint.startsWith(prefix));
+}
+
+function extractResponseDataNode(payload: unknown): unknown {
+  if (payload && typeof payload === 'object' && 'data' in payload) {
+    return (payload as { data: unknown }).data;
+  }
+  return payload;
+}
+
+async function fetchDesktopChallengeNonce(): Promise<string | null> {
+  const response = await fetch(buildApiUrl(DESKTOP_CHALLENGE_ENDPOINT), {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -39,7 +59,83 @@ async function tryDesktopAutoLogin(): Promise<boolean> {
       'X-DataLogic-Desktop': 'true',
     },
   });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const payload = await response.json().catch(() => null);
+  if (!payload) {
+    return null;
+  }
+
+  const dataNode = extractResponseDataNode(payload) as { nonce?: unknown } | null;
+  if (!dataNode || typeof dataNode.nonce !== 'string') {
+    return null;
+  }
+
+  return dataNode.nonce;
+}
+
+async function tryDesktopAutoLogin(): Promise<boolean> {
+  const nonce = await fetchDesktopChallengeNonce().catch(() => null);
+  if (!nonce) {
+    return false;
+  }
+
+  const response = await fetch(buildApiUrl('/auth/desktop/auto-login'), {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-DataLogic-Desktop': 'true',
+      'X-Desktop-Auth-Nonce': nonce,
+    },
+  });
   return response.ok;
+}
+
+async function fetchCsrfToken(): Promise<string | null> {
+  if (csrfTokenCache) {
+    return csrfTokenCache;
+  }
+
+  if (csrfTokenInFlight) {
+    return csrfTokenInFlight;
+  }
+
+  csrfTokenInFlight = (async () => {
+    const response = await fetch(buildApiUrl(CSRF_TOKEN_ENDPOINT), {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload = await response.json().catch(() => null);
+    if (!payload) {
+      return null;
+    }
+
+    const dataNode = extractResponseDataNode(payload) as { csrf_token?: unknown } | null;
+    if (!dataNode || typeof dataNode.csrf_token !== 'string') {
+      return null;
+    }
+
+    csrfTokenCache = dataNode.csrf_token;
+    return csrfTokenCache;
+  })()
+    .catch(() => null)
+    .finally(() => {
+      csrfTokenInFlight = null;
+    });
+
+  return csrfTokenInFlight;
 }
 
 function buildHeaders(options: RequestInit): Headers {
@@ -156,22 +252,68 @@ async function parseErrorMessage(response: Response): Promise<string> {
  */
 export async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = buildApiUrl(endpoint);
-  const desktopRuntime = isDesktopRuntime();
+  const desktopRuntime = shouldUseDesktopSessionFlow();
+  const requestMethod = (options.method || 'GET').toUpperCase();
   const headers = buildHeaders(options);
   const normalizedBody = normalizeRequestBody(options.body);
   if (desktopRuntime && !headers.has('X-DataLogic-Desktop')) {
     headers.set('X-DataLogic-Desktop', 'true');
   }
+
+  if (
+    desktopRuntime &&
+    endpoint.includes('/auth/desktop/auto-login') &&
+    !headers.has('X-Desktop-Auth-Nonce')
+  ) {
+    const nonce = await fetchDesktopChallengeNonce().catch(() => null);
+    if (nonce) {
+      headers.set('X-Desktop-Auth-Nonce', nonce);
+    }
+  }
+
+  if (
+    !desktopRuntime &&
+    isMutationMethod(requestMethod) &&
+    !isCsrfExemptEndpoint(endpoint) &&
+    !headers.has('X-CSRF-Token')
+  ) {
+    const csrfToken = await fetchCsrfToken().catch(() => null);
+    if (csrfToken) {
+      headers.set('X-CSRF-Token', csrfToken);
+    }
+  }
   
   try {
-    const response = await fetch(url, {
+    let response = await fetch(url, {
       ...options,
       credentials: options.credentials ?? 'include',
       body: normalizedBody,
       headers,
     });
 
-    if (response.status === 401 || response.status === 403) {
+    if (
+      response.status === 403 &&
+      !desktopRuntime &&
+      isMutationMethod(requestMethod) &&
+      !isCsrfExemptEndpoint(endpoint)
+    ) {
+      csrfTokenCache = null;
+      const refreshedToken = await fetchCsrfToken().catch(() => null);
+      if (refreshedToken) {
+        headers.set('X-CSRF-Token', refreshedToken);
+        response = await fetch(url, {
+          ...options,
+          credentials: options.credentials ?? 'include',
+          body: normalizedBody,
+          headers,
+        });
+      }
+    }
+
+    const sessionAuthFailure =
+      response.status === 401 ||
+      (response.status === 403 && endpoint.includes('/auth/check'));
+    if (sessionAuthFailure) {
       if (desktopRuntime && !endpoint.includes('/auth/desktop/auto-login')) {
         const recovered = await tryDesktopAutoLogin().catch(() => false);
         if (recovered) {

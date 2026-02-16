@@ -4,11 +4,80 @@ import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
 import * as os from 'os';
 import * as fs from 'fs';
+import * as crypto from 'crypto';
 
 let mainWindow: BrowserWindow | null = null;
 let backendProcess: ChildProcess | null = null;
+let desktopInstallSecret = '';
 
 const ALLOWED_IPC_ORIGINS = ['app://', 'http://localhost:3000', 'http://127.0.0.1:3000'];
+
+function desktopSecretFilePath(): string {
+  return path.join(app.getPath('userData'), 'desktop-install-secret');
+}
+
+function loadOrCreateDesktopInstallSecret(): string {
+  const envSecret = (process.env.DESKTOP_INSTALL_SECRET || '').trim();
+  if (envSecret) {
+    return envSecret;
+  }
+
+  const secretPath = desktopSecretFilePath();
+  try {
+    if (fs.existsSync(secretPath)) {
+      const existing = fs.readFileSync(secretPath, 'utf8').trim();
+      if (existing) {
+        return existing;
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to read desktop install secret file, generating new secret', error);
+  }
+
+  const generated = crypto.randomBytes(32).toString('hex');
+  try {
+    fs.mkdirSync(path.dirname(secretPath), { recursive: true });
+    fs.writeFileSync(secretPath, generated, { encoding: 'utf8' });
+  } catch (error) {
+    console.warn('Failed to persist desktop install secret to disk', error);
+  }
+  return generated;
+}
+
+function readHeaderValue(
+  headers: Record<string, string | string[] | undefined>,
+  canonicalName: string,
+): string | null {
+  const exactValue = headers[canonicalName];
+  if (typeof exactValue === 'string') {
+    return exactValue;
+  }
+  if (Array.isArray(exactValue) && exactValue.length > 0) {
+    return String(exactValue[0]);
+  }
+
+  const lowered = canonicalName.toLowerCase();
+  const matchKey = Object.keys(headers).find((key) => key.toLowerCase() === lowered);
+  if (!matchKey) {
+    return null;
+  }
+
+  const matchedValue = headers[matchKey];
+  if (typeof matchedValue === 'string') {
+    return matchedValue;
+  }
+  if (Array.isArray(matchedValue) && matchedValue.length > 0) {
+    return String(matchedValue[0]);
+  }
+  return null;
+}
+
+function signDesktopAuthNonce(nonce: string): string {
+  return crypto
+    .createHmac('sha256', desktopInstallSecret)
+    .update(nonce, 'utf8')
+    .digest('hex');
+}
 
 function isTrustedIpcSender(event: IpcMainInvokeEvent): boolean {
   const senderUrl = event.senderFrame?.url || event.sender.getURL();
@@ -74,6 +143,7 @@ function createWindow() {
 
 app.on('ready', () => {
   const isDev = !app.isPackaged;
+  desktopInstallSecret = loadOrCreateDesktopInstallSecret();
 
   // Register protocol handler for 'app://'
   protocol.handle('app', async (request) => {
@@ -161,6 +231,18 @@ app.on('ready', () => {
       requestHeaders['X-DataLogic-Desktop'] = 'true';
     }
 
+    if (
+      details.url.startsWith('http://localhost:5000') ||
+      details.url.startsWith('http://127.0.0.1:5000')
+    ) {
+      requestHeaders['X-DataLogic-Desktop'] = 'true';
+
+      const nonce = (readHeaderValue(requestHeaders, 'X-Desktop-Auth-Nonce') || '').trim();
+      if (nonce && desktopInstallSecret) {
+        requestHeaders['X-Desktop-Auth-Signature'] = signDesktopAuthNonce(nonce);
+      }
+    }
+
     callback({ requestHeaders });
   });
 
@@ -213,7 +295,8 @@ function startBackend() {
     IS_DESKTOP_APP: 'true',
     SESSION_COOKIE_SECURE: 'false',
     SESSION_COOKIE_SAMESITE: 'Lax',
-    CORS_ORIGINS: 'http://localhost:3000,http://127.0.0.1:3000,app://dashboard,app://-'
+    CORS_ORIGINS: 'http://localhost:3000,http://127.0.0.1:3000,app://dashboard,app://-',
+    DESKTOP_INSTALL_SECRET: desktopInstallSecret,
   };
 
   backendProcess = spawn(pythonPath, args, { env, cwd: rootDir });

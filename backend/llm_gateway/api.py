@@ -16,8 +16,20 @@ import os
 import uuid
 from typing import Optional
 
-from models import LLMProvider, LLMProviderUsage, ExternalAPIKey, ChatSession, ChatMessage
+from models import (
+    LLMProvider,
+    LLMProviderUsage,
+    ExternalAPIKey,
+    ChatSession,
+    ChatMessage,
+    PromptTemplate,
+    ModelRoutingPolicy,
+    AIAuditEvent,
+)
 from backend.llm_gateway.gateway import LLMGateway, GatewayRequest
+from backend.llm_gateway.schemas import GatewayChatRequest
+from backend.utils.request_validation import validate_pydantic_payload
+from backend.utils.error_normalization import normalize_public_error_message
 try:
     from extensions import db, cache
 except ImportError:
@@ -80,22 +92,7 @@ def _positive_int(value):
 
 def _public_gateway_error(raw_error: Optional[str], fallback: str = "Gateway request failed") -> str:
     """Sanitize provider/internal failures before returning API responses."""
-    if not raw_error:
-        return fallback
-
-    lowered = str(raw_error).strip().lower()
-    safe_fragments = (
-        "not allowed",
-        "messages required",
-        "model required",
-        "no active providers found",
-        "no provider configured",
-        "permission denied",
-    )
-    if any(fragment in lowered for fragment in safe_fragments):
-        return str(raw_error)
-
-    return fallback
+    return normalize_public_error_message(raw_error=raw_error, fallback=fallback)
 
 
 def _apply_api_key_request_policy(payload: dict):
@@ -233,14 +230,21 @@ async def gateway_chat():
     """
     Main gateway endpoint for chat completions.
     """
-    data = request.get_json() or {}
-    
-    # Parse request data
-    messages = data.get('messages', [])
-    if not messages:
+    raw_data = request.get_json(silent=True) or {}
+    if not raw_data.get('messages'):
         return jsonify({'error': 'messages required'}), 400
-    if not data.get('model'):
+    if not raw_data.get('model'):
         return jsonify({'error': 'model required'}), 400
+
+    validated_payload, validation_error_response = validate_pydantic_payload(
+        GatewayChatRequest,
+        raw_data,
+    )
+    if validation_error_response:
+        return validation_error_response
+
+    data = validated_payload.model_dump() if validated_payload else {}
+    messages = data.get('messages', [])
 
     policy_error = _apply_api_key_request_policy(data)
     if policy_error:
@@ -280,6 +284,10 @@ async def gateway_chat():
             'model_used': response.model_used,
         }), 503
 
+    output_classification = None
+    if isinstance(response.explainability, dict):
+        output_classification = response.explainability.get('output_classification')
+
     return api_response({
         'response': response.content,
         'run_id': response.run_id,
@@ -291,6 +299,7 @@ async def gateway_chat():
         'confidence_score': 0.85, # Default or from response logic
         'claims': [], 
         'evidence_count': 0,
+        'output_classification': output_classification,
         'warnings': response.warnings,
     })
 
@@ -303,13 +312,21 @@ def gateway_chat_stream():
     
     Returns Server-Sent Events (SSE) stream.
     """
-    data = request.get_json() or {}
-    
-    messages = data.get('messages', [])
-    if not messages:
+    raw_data = request.get_json(silent=True) or {}
+    if not raw_data.get('messages'):
         return jsonify({'error': 'messages required'}), 400
-    if not data.get('model'):
+    if not raw_data.get('model'):
         return jsonify({'error': 'model required'}), 400
+
+    validated_payload, validation_error_response = validate_pydantic_payload(
+        GatewayChatRequest,
+        raw_data,
+    )
+    if validation_error_response:
+        return validation_error_response
+
+    data = validated_payload.model_dump() if validated_payload else {}
+    messages = data.get('messages', [])
 
     policy_error = _apply_api_key_request_policy(data)
     if policy_error:
@@ -693,6 +710,104 @@ def test_provider(provider_id):
         }), 502
 
 
+# ============== AI Governance Registry ==============
+
+@admin_bp.route('/prompt-templates', methods=['GET'])
+@login_required
+def list_prompt_templates():
+    """List registered prompt templates."""
+    query = PromptTemplate.query.order_by(PromptTemplate.template_key.asc(), PromptTemplate.created_at.desc())
+    if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+        query = query.filter(PromptTemplate.is_active == True)
+    templates = query.all()
+    return jsonify({'prompt_templates': [template.to_dict() for template in templates]})
+
+
+@admin_bp.route('/prompt-templates', methods=['POST'])
+@admin_required
+def create_prompt_template():
+    """Create a versioned prompt template."""
+    data = request.get_json() or {}
+    template_key = str(data.get('template_key') or '').strip()
+    version = str(data.get('version') or '1.0.0').strip()
+    template_body = str(data.get('template_body') or '').strip()
+
+    if not template_key or not template_body:
+        return jsonify({'error': 'template_key and template_body required'}), 400
+
+    existing = PromptTemplate.query.filter_by(template_key=template_key, version=version).first()
+    if existing:
+        return jsonify({'error': 'Prompt template version already exists'}), 409
+
+    template = PromptTemplate(
+        template_key=template_key,
+        version=version,
+        template_body=template_body,
+        description=data.get('description'),
+        template_metadata=data.get('metadata') if isinstance(data.get('metadata'), dict) else {},
+        is_active=bool(data.get('is_active', True)),
+        created_by=current_user.id,
+    )
+    db.session.add(template)
+    db.session.commit()
+    return jsonify(template.to_dict()), 201
+
+
+@admin_bp.route('/routing-policies', methods=['GET'])
+@login_required
+def list_routing_policies():
+    """List registered model routing policies."""
+    query = ModelRoutingPolicy.query.order_by(
+        ModelRoutingPolicy.policy_name.asc(),
+        ModelRoutingPolicy.created_at.desc(),
+    )
+    if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+        query = query.filter(ModelRoutingPolicy.is_active == True)
+    policies = query.all()
+    return jsonify({'routing_policies': [policy.to_dict() for policy in policies]})
+
+
+@admin_bp.route('/routing-policies', methods=['POST'])
+@admin_required
+def create_routing_policy():
+    """Create a versioned model routing policy."""
+    data = request.get_json() or {}
+    policy_name = str(data.get('policy_name') or '').strip()
+    version = str(data.get('version') or '1.0.0').strip()
+    rules = data.get('rules')
+
+    if not policy_name or not isinstance(rules, dict):
+        return jsonify({'error': 'policy_name and rules object required'}), 400
+
+    existing = ModelRoutingPolicy.query.filter_by(policy_name=policy_name, version=version).first()
+    if existing:
+        return jsonify({'error': 'Routing policy version already exists'}), 409
+
+    policy = ModelRoutingPolicy(
+        policy_name=policy_name,
+        version=version,
+        rules=rules,
+        is_active=bool(data.get('is_active', True)),
+        created_by=current_user.id,
+    )
+    db.session.add(policy)
+    db.session.commit()
+    return jsonify(policy.to_dict()), 201
+
+
+@admin_bp.route('/ai-audit', methods=['GET'])
+@login_required
+def list_ai_audit_events():
+    """List AI audit trail events with model/version/policy metadata."""
+    limit = request.args.get('limit', 100, type=int)
+    limit = max(1, min(limit, 500))
+    query = AIAuditEvent.query.order_by(AIAuditEvent.created_at.desc())
+    if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+        query = query.filter_by(user_id=current_user.id)
+    events = query.limit(limit).all()
+    return jsonify({'events': [event.to_dict() for event in events]})
+
+
 # ============== API Key Management ==============
 
 @admin_bp.route('/api-keys', methods=['GET'])
@@ -803,6 +918,12 @@ def get_usage():
     avg_latency = db.session.query(func.avg(LLMProviderUsage.latency_ms)).filter(
         LLMProviderUsage.created_at >= since, LLMProviderUsage.success == True
     ).scalar() or 0
+    try:
+        total_estimated_cost = db.session.query(func.sum(LLMProviderUsage.estimated_cost_usd)).filter(
+            LLMProviderUsage.created_at >= since
+        ).scalar() or 0
+    except Exception:
+        total_estimated_cost = 0
     
     # Usage by provider
     by_provider = db.session.query(
@@ -810,6 +931,7 @@ def get_usage():
         func.count(LLMProviderUsage.id),
         func.sum(LLMProviderUsage.tokens_in),
         func.sum(LLMProviderUsage.tokens_out),
+        func.sum(LLMProviderUsage.estimated_cost_usd),
     ).join(LLMProvider).filter(
         LLMProviderUsage.created_at >= since
     ).group_by(LLMProvider.name).all()
@@ -821,15 +943,17 @@ def get_usage():
         'success_rate': successful / total_requests if total_requests > 0 else 0,
         'total_tokens_in': total_tokens_in,
         'total_tokens_out': total_tokens_out,
+        'total_estimated_cost_usd': float(total_estimated_cost),
         'avg_latency_ms': round(avg_latency, 2),
         'by_provider': [
             {
-                'provider': name,
-                'requests': count,
-                'tokens_in': tokens_in or 0,
-                'tokens_out': tokens_out or 0,
+                'provider': row[0],
+                'requests': row[1],
+                'tokens_in': row[2] or 0,
+                'tokens_out': row[3] or 0,
+                'estimated_cost_usd': float(row[4] or 0) if len(row) > 4 else 0.0,
             }
-            for name, count, tokens_in, tokens_out in by_provider
+            for row in by_provider
         ]
     })
 

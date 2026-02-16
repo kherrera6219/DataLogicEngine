@@ -25,6 +25,7 @@ from threading import Lock
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from enterprise_architecture import get_enterprise_architecture
+from middleware.asgi_security import apply_standard_fastapi_middleware
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -32,6 +33,7 @@ app = FastAPI(
     description="Model Context Protocol Server for the Universal Knowledge Graph Enterprise Architecture",
     version="1.0.0"
 )
+apply_standard_fastapi_middleware(app, service_name="model_context")
 
 # Configure CORS
 app.add_middleware(

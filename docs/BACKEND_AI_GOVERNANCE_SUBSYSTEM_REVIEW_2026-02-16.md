@@ -10,19 +10,30 @@
   - Code inspection across `app.py`, `backend/`, `routes/`, and `models.py`
   - Runtime sweep via targeted backend/security tests
 
-## Executive Summary
+## Executive Summary (Final Status After Phases 1-3)
 - Total controls reviewed: 19
-- `Implemented`: 0
-- `Partial`: 15
-- `Missing`: 4
-- Highest-risk issues:
+- `Implemented`: 15
+- `Partial`: 4
+- `Missing`: 0
+- Remaining high-priority gaps:
+  - Structured logging is in place but multi-process/service bootstrap consistency is still maturing.
+  - Centralized schema validation is deployed for critical paths but not yet universal across all write routes.
+  - Rate limiting is strong at baseline but tenant-level concurrency governance is still limited.
+  - Error normalization is enforced in gateway paths but not yet uniformly rolled out to every route family.
+
+## Initial Baseline Snapshot (Pre-Implementation)
+- Baseline controls before implementation pass:
+  - `Implemented`: 0
+  - `Partial`: 15
+  - `Missing`: 4
+- Highest-risk findings at baseline:
   - No standardized `/live` and `/ready` endpoints
   - No canonical `/metrics` endpoint for infrastructure scraping
-  - Prompt governance is not versioned/registry-driven
-  - Error normalization is inconsistent; multiple routes return raw internal/provider error strings
-  - LLM usage telemetry has a model mismatch risk (`_record_usage` writes fields not present in `LLMProviderUsage`)
+  - Prompt governance was not versioned/registry-driven
+  - Error normalization allowed raw internal/provider leak paths
+  - LLM usage telemetry had a model mismatch risk (`_record_usage` wrote fields not present in `LLMProviderUsage`)
 
-## 3. Backend / API Subsystems
+## 3. Backend / API Subsystems (Baseline Assessment)
 | Subsystem | Status | Evidence | 2025 Gap | Suggested Actions |
 |---|---|---|---|---|
 | Structured Logging System (JSON + redaction) | Partial | JSON + redaction exists in `backend/logging_config.py:20` and `backend/logging_config.py:82`; only call site found is definition (`rg configure_structured_logging`) while runtime uses `logging.basicConfig` in `app.py:39`. | Structured logger exists but is not wired into app startup. | Initialize `configure_structured_logging(app)` in boot path, keep correlation IDs in JSON fields, and add regression tests that assert PII redaction and JSON schema. |
@@ -38,7 +49,7 @@
 | Security Headers Middleware | Partial | Flask security header middleware is wired (`backend/middleware/__init__.py:163`, `backend/security/security_headers.py:15`); FastAPI services do not apply equivalent hardening and use wildcard CORS (`backend/api_gateway/api_gateway.py:35`, `backend/webhook_server/webhook_server.py:35`, `backend/model_context/model_context_server.py:38`). | Header hardening is not consistent across service types; CORS wildcard remains on FastAPI services. | Add shared ASGI security-headers middleware, replace wildcard CORS with explicit allowlists, and unify CSP policy per environment. |
 | Error Normalization Layer (no raw provider leaks) | Partial | Global normalized handlers exist (`app.py:604` onward), but raw `str(e)` responses remain (examples: `routes/api_routes.py:116`, `routes/api_routes.py:183`, `backend/webhook_server/webhook_server.py:181`, `backend/llm_gateway/api.py:328`, `backend/llm_gateway/api.py:655`). | Internal/provider errors can leak in API responses. | Enforce one error envelope and error-code mapping layer; block raw exception strings in responses via tests/lint rule. |
 
-## 4. AI Governance Subsystems
+## 4. AI Governance Subsystems (Baseline Assessment)
 | Subsystem | Status | Evidence | 2025 Gap | Suggested Actions |
 |---|---|---|---|---|
 | Prompt Template Registry (versioned prompts) | Missing | Prompts are mostly code-embedded (`backend/truth_engine/truth_core/personas.py:30`, `backend/quad_persona/quad_engine.py:23`) or single-file loaded (`backend/security/active_defense.py:32`); `MCPPrompt` exists but has no first-class version field (`models.py:1499`). | No canonical versioned prompt registry with lifecycle controls. | Build centralized prompt registry (`prompt_id`, `version`, `owner`, `approval_state`, changelog), immutable history, and runtime pinning. |
@@ -49,7 +60,7 @@
 | Token Budget Enforcement System | Partial | API-key token cap per request (`backend/llm_gateway/api.py:111`), tenant budget manager (`backend/truth_engine/truth_gate/budget.py:14`) and budget APIs (`backend/truth_engine/api.py:284`). | Budget controls are split across systems; no single token budget authority across all AI paths. | Introduce centralized token-budget service with hard/soft thresholds, downgrade policy, and enforcement hooks in every model call path. |
 | AI Metadata Audit Trail (model, version, timestamp) | Partial | Trace model supports model/version metadata (`models.py:664`, `models.py:690`), but gateway trace creation currently sets `model_name` only (`backend/llm_gateway/gateway.py` run creation around `:764`) and omits `model_version`. | Metadata capture is incomplete and not mandatory at write time. | Make model/provider/version/timestamp mandatory in trace writes; reject incomplete trace events and add audit integrity checks. |
 
-## Recommended Phased Actions
+## Recommended Phased Actions (Baseline Plan)
 ### Phase 1 (0-30 days): Critical Hardening
 1. Implement `/live`, `/ready`, and standardized `/metrics` endpoints across Flask and FastAPI services.
 2. Fix error normalization leaks by banning raw `str(e)` in API responses.
@@ -147,3 +158,152 @@ Additional hardening included:
 
 - Note:
   - Initial run without `--no-cov` failed only due global coverage gate (`fail-under=70`), not test assertion failures.
+
+## Phase 2 Implementation Update (2026-02-16)
+Implemented in this pass:
+1. Localhost authentication hardening with per-install secret + one-time challenge/nonce.
+   - Added desktop local auth security module:
+     - `backend/security/desktop_local_auth.py`
+   - Added desktop challenge endpoint and challenge verification enforcement:
+     - `routes/auth_routes.py` (`/api/v1/auth/desktop/challenge`, `/api/v1/auth/desktop/auto-login`)
+   - Updated desktop integration tests for signed challenge flow:
+     - `tests/integration_routes/test_desktop_auto_login_security.py`
+   - Wired Electron desktop runtime to:
+     - persist install secret locally
+     - pass secret to backend process
+     - sign `X-Desktop-Auth-Nonce` as `X-Desktop-Auth-Signature` for loopback auth calls
+     - `frontend/electron/main.ts`
+   - Updated frontend API auto-login flow to request challenge nonce before desktop auto-login:
+     - `frontend/lib/api/index.ts`
+
+2. Session JSON CSRF token layer (double-submit style enforcement path).
+   - Added API CSRF helper module:
+     - `backend/security/api_csrf.py`
+   - Added CSRF token issuance endpoint:
+     - `routes/auth_routes.py` (`/api/v1/auth/csrf-token`)
+   - Enforced token checks for session-authenticated state-changing API requests (production-default, env-controlled):
+     - `app.py` (`ENFORCE_API_CSRF_TOKENS`)
+   - Added frontend automatic CSRF token fetch/injection + retry refresh for state-changing non-desktop requests:
+     - `frontend/lib/api/index.ts`
+
+3. FastAPI security/correlation parity with Flask.
+   - Added shared ASGI middleware:
+     - `backend/middleware/asgi_security.py`
+   - Applied middleware to FastAPI services:
+     - `backend/api_gateway/api_gateway.py`
+     - `backend/model_context/model_context_server.py`
+     - `backend/webhook_server/webhook_server.py`
+
+4. Centralized input validation + error normalization strengthening.
+   - Added shared request validation utility:
+     - `backend/utils/request_validation.py`
+   - Added auth request schemas:
+     - `backend/schemas/auth_schemas.py`
+   - Migrated auth write endpoints to pydantic validation:
+     - `routes/auth_routes.py`
+   - Enforced gateway chat request schema validation:
+     - `backend/llm_gateway/api.py`
+   - Added shared public-error normalization utility and wired gateway/api:
+     - `backend/utils/error_normalization.py`
+     - `backend/llm_gateway/gateway.py`
+     - `backend/llm_gateway/api.py`
+   - Extended gateway message schema for multimodal compatibility and moved to pydantic v2 validator style:
+     - `backend/llm_gateway/schemas.py`
+
+### Debugging / Error Sweep (Phase 2)
+- Commands:
+  - `npm --prefix frontend run test -- tests/unit/lib/api/index.test.ts tests/unit/lib/api/auth.test.ts tests/unit/middleware.test.ts`
+  - `npm --prefix frontend run electron:build`
+  - `C:/software/DataLogicEngine/.venv/Scripts/python -m pytest tests/integration_routes/test_desktop_auto_login_security.py -q --no-cov`
+  - `C:/software/DataLogicEngine/.venv/Scripts/python -m pytest tests/integration_routes -q --no-cov`
+  - `C:/software/DataLogicEngine/.venv/Scripts/python -m pytest tests/unit/test_llm_gateway_internal_units.py -q --no-cov`
+  - `C:/software/DataLogicEngine/.venv/Scripts/python -m pytest tests/security/test_security_headers.py -q --no-cov`
+  - `C:/software/DataLogicEngine/.venv/Scripts/python -m py_compile app.py routes/auth_routes.py backend/middleware/asgi_security.py backend/security/api_csrf.py backend/security/desktop_local_auth.py backend/utils/error_normalization.py backend/utils/request_validation.py backend/llm_gateway/api.py backend/llm_gateway/gateway.py backend/llm_gateway/schemas.py backend/api_gateway/api_gateway.py backend/model_context/model_context_server.py backend/webhook_server/webhook_server.py`
+- Results:
+  - Frontend targeted tests: `22 passed`
+  - Electron TS build: pass
+  - Desktop auth integration tests: `5 passed`
+  - Integration routes suite: `69 passed`
+  - Gateway internal unit tests: `7 passed`
+  - Security headers tests: `2 passed`
+  - Python compile sweep: pass
+
+## Phase 3 Implementation Update (2026-02-16)
+Implemented in this pass:
+1. Prompt template registry (versioned prompts) and routing policy registry.
+   - Added registry models:
+     - `models.py` (`PromptTemplate`, `ModelRoutingPolicy`)
+   - Added admin APIs for list/create operations:
+     - `backend/llm_gateway/api.py`
+       - `GET/POST /api/admin/prompt-templates`
+       - `GET/POST /api/admin/routing-policies`
+
+2. Model routing policy engine + prompt-template application in gateway runtime.
+   - Added governance runtime module:
+     - `backend/llm_gateway/governance.py`
+   - Gateway request pipeline now enforces:
+     - prompt injection checks
+     - optional prompt-template rendering (`prompt_template_key`, `prompt_template_version`)
+     - policy allowlists (`routing_policy_name`, `routing_policy_version`)
+     - token budget controls (per-request + daily envelope)
+   - Integrated in:
+     - `backend/llm_gateway/gateway.py`
+
+3. Guardrail layer + AI output classification.
+   - Added pre-input and post-output guardrail checks in governance engine.
+   - Added output classification (`risk_level`, flags) and API response exposure:
+     - `backend/llm_gateway/gateway.py`
+     - `backend/llm_gateway/api.py` (`output_classification` in chat response)
+
+4. AI usage tracking + cost monitor + token budget enforcement.
+   - Added estimated cost field to usage model:
+     - `models.py` (`LLMProviderUsage.estimated_cost_usd`)
+   - Added model-based cost estimation and persisted usage cost:
+     - `backend/llm_gateway/governance.py`
+     - `backend/llm_gateway/gateway.py`
+   - Extended usage analytics endpoint with cost summaries:
+     - `backend/llm_gateway/api.py` (`total_estimated_cost_usd`, provider cost rollups)
+
+5. AI metadata audit trail (model/version/timestamp + policy context).
+   - Added audit model:
+     - `models.py` (`AIAuditEvent`)
+   - Added audit event writer in governance runtime:
+     - `backend/llm_gateway/governance.py`
+   - Added audit event recording in gateway success/failure/governance-block paths:
+     - `backend/llm_gateway/gateway.py`
+   - Added audit retrieval endpoint:
+     - `GET /api/admin/ai-audit` in `backend/llm_gateway/api.py`
+   - Trace enrichment:
+     - `TraceRun.model_version` is now populated in `backend/llm_gateway/gateway.py`
+
+6. Validation compatibility improvements for governance-enabled requests.
+   - Gateway request schema now accepts multimodal message content while validating non-empty input:
+     - `backend/llm_gateway/schemas.py`
+   - Request-level validation remains enforced while preserving prior `400` behavior for missing model/messages:
+     - `backend/llm_gateway/api.py`
+
+### Debugging / Error Sweep (Phase 3)
+- Commands:
+  - `C:/software/DataLogicEngine/.venv/Scripts/python -m pytest tests/unit/test_llm_governance_engine.py -q --no-cov`
+  - `C:/software/DataLogicEngine/.venv/Scripts/python -m pytest tests/unit/test_llm_gateway_internal_units.py tests/unit/test_llm_governance_engine.py tests/integration/test_gateway_api_coverage.py tests/integration/test_gateway_extended.py -q --no-cov`
+  - `C:/software/DataLogicEngine/.venv/Scripts/python -m pytest tests/integration_routes -q --no-cov`
+  - `C:/software/DataLogicEngine/.venv/Scripts/python -m py_compile models.py backend/llm_gateway/governance.py backend/llm_gateway/gateway.py backend/llm_gateway/api.py`
+  - `npm --prefix frontend run test -- tests/unit/middleware.test.ts tests/unit/lib/api/index.test.ts tests/unit/lib/runtime/policy.test.ts tests/unit/lib/api/auth.test.ts`
+  - `npm --prefix frontend run electron:build`
+- Results:
+  - Governance engine unit tests: `4 passed`
+  - Gateway/API focused tests: `28 passed`
+  - Integration routes suite: `69 passed`
+  - Python compile sweep: pass
+  - Frontend targeted tests: `27 passed`
+  - Electron TS build: pass
+
+## Final Commit-Gate Sweep (2026-02-16)
+- Commands:
+  - `C:/software/DataLogicEngine/.venv/Scripts/python -m pytest C:/software/DataLogicEngine/tests/integration_routes -q --no-cov`
+  - `C:/software/DataLogicEngine/.venv/Scripts/python -m pytest C:/software/DataLogicEngine/tests/unit/test_llm_gateway_internal_units.py C:/software/DataLogicEngine/tests/unit/test_llm_governance_engine.py C:/software/DataLogicEngine/tests/integration/test_gateway_api_coverage.py C:/software/DataLogicEngine/tests/integration/test_gateway_extended.py -q --no-cov`
+  - `C:/software/DataLogicEngine/.venv/Scripts/python -m py_compile C:/software/DataLogicEngine/app.py C:/software/DataLogicEngine/backend/api_gateway/api_gateway.py C:/software/DataLogicEngine/backend/llm_gateway/api.py C:/software/DataLogicEngine/backend/llm_gateway/gateway.py C:/software/DataLogicEngine/backend/llm_gateway/schemas.py C:/software/DataLogicEngine/backend/llm_gateway/governance.py C:/software/DataLogicEngine/backend/middleware/asgi_security.py C:/software/DataLogicEngine/backend/model_context/model_context_server.py C:/software/DataLogicEngine/backend/security/api_csrf.py C:/software/DataLogicEngine/backend/security/desktop_local_auth.py C:/software/DataLogicEngine/backend/utils/error_normalization.py C:/software/DataLogicEngine/backend/utils/request_validation.py C:/software/DataLogicEngine/backend/webhook_server/webhook_server.py C:/software/DataLogicEngine/routes/auth_routes.py C:/software/DataLogicEngine/models.py`
+- Results:
+  - Integration routes suite: `69 passed`
+  - Gateway/API focused tests: `28 passed`
+  - Python compile sweep: pass

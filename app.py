@@ -262,10 +262,20 @@ celery = make_celery(app)
 # Exempt JSON API endpoints from CSRF (they use session auth or API keys)
 # CSRF is still enforced on all HTML form submissions
 from flask_wtf.csrf import CSRFError
+from backend.security.api_csrf import is_api_csrf_enforced, validate_api_csrf_request
 
 # Keep CSRF protection for forms and enforce strict same-origin checks on
 # session-authenticated API/GraphQL requests.
 app.config["WTF_CSRF_CHECK_DEFAULT"] = False
+
+CSRF_API_EXEMPT_PATH_PREFIXES = (
+    "/api/v1/auth/login",
+    "/api/v1/auth/register",
+    "/api/v1/auth/mfa/verify",
+    "/api/v1/auth/desktop/challenge",
+    "/api/v1/auth/desktop/auto-login",
+    "/api/v1/auth/callback/sso",
+)
 
 
 def _request_uses_session_cookie() -> bool:
@@ -311,6 +321,17 @@ def csrf_for_forms_only():
                         "code": "CSRF_ORIGIN_CHECK_FAILED",
                     }
                 ), 403
+            is_exempt = any(request.path.startswith(prefix) for prefix in CSRF_API_EXEMPT_PATH_PREFIXES)
+            if is_api_csrf_enforced() and not is_exempt:
+                csrf_ok, csrf_error = validate_api_csrf_request()
+                if not csrf_ok:
+                    return jsonify(
+                        {
+                            "error": csrf_error or "CSRF request token invalid",
+                            "success": False,
+                            "code": "CSRF_TOKEN_CHECK_FAILED",
+                        }
+                    ), 403
         return None
 
     csrf.protect()

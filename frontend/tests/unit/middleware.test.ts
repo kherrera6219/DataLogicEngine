@@ -29,7 +29,11 @@ describe('Proxy', () => {
         vi.clearAllMocks();
     });
 
-    const createRequest = (pathname: string, cookies: Record<string, string> = {}) => {
+    const createRequest = (
+        pathname: string,
+        cookies: Record<string, string> = {},
+        headers: Record<string, string> = {},
+    ) => {
         const url = new URL(`http://localhost${pathname}`);
         // Add clone to the URL object to mimic NextURL
         (url as any).clone = () => new URL(url.toString());
@@ -40,7 +44,7 @@ describe('Proxy', () => {
             cookies: {
                 get: (name: string) => cookies[name] ? { value: cookies[name] } : undefined
             },
-            headers: new Headers(),
+            headers: new Headers(headers),
         } as unknown as NextRequest;
     };
 
@@ -105,8 +109,28 @@ describe('Proxy', () => {
             const cspCall = mockResHeaderSet.mock.calls.find((call) => call[0] === 'Content-Security-Policy');
             expect(cspCall?.[1]).toContain("script-src");
             expect(cspCall?.[1]).not.toContain("'unsafe-eval'");
+            expect(cspCall?.[1]).not.toContain("'unsafe-inline'");
         } finally {
             process.env.NODE_ENV = originalNodeEnv;
+        }
+    });
+
+    it('should not permit desktop bypass when runtime mode is cloud', () => {
+        const req = createRequest('/dashboard', {}, { 'x-datalogic-desktop': 'true' });
+        const originalRuntimeMode = process.env.NEXT_PUBLIC_APP_RUNTIME_MODE;
+        const originalBypass = process.env.NEXT_PUBLIC_DESKTOP_AUTH_BYPASS;
+
+        process.env.NEXT_PUBLIC_APP_RUNTIME_MODE = 'cloud';
+        process.env.NEXT_PUBLIC_DESKTOP_AUTH_BYPASS = 'true';
+
+        try {
+            proxy(req);
+            expect(NextResponse.redirect).toHaveBeenCalled();
+            const redirectUrl = vi.mocked(NextResponse.redirect).mock.calls[0][0] as URL;
+            expect(redirectUrl.pathname).toBe('/login');
+        } finally {
+            process.env.NEXT_PUBLIC_APP_RUNTIME_MODE = originalRuntimeMode;
+            process.env.NEXT_PUBLIC_DESKTOP_AUTH_BYPASS = originalBypass;
         }
     });
 

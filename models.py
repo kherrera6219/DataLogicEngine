@@ -565,10 +565,137 @@ class LLMProviderUsage(db.Model):
     tokens_in = db.Column(db.Integer, default=0)
     tokens_out = db.Column(db.Integer, default=0)
     latency_ms = db.Column(db.Integer, nullable=True)
+    estimated_cost_usd = db.Column(db.Float, nullable=True)
     success = db.Column(db.Boolean, default=True)
     error_code = db.Column(db.String(100), nullable=True)
     error_message = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+
+
+class PromptTemplate(db.Model):
+    """Versioned prompt template registry."""
+    __tablename__ = 'prompt_templates'
+    __table_args__ = (
+        Index('ix_prompt_templates_key', 'template_key'),
+        Index('ix_prompt_templates_active', 'is_active'),
+        Index('ix_prompt_templates_key_version', 'template_key', 'version', unique=True),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    template_key = db.Column(db.String(120), nullable=False)
+    version = db.Column(db.String(40), nullable=False, default='1.0.0')
+    template_body = db.Column(db.Text, nullable=False)
+    description = db.Column(db.String(255), nullable=True)
+    template_metadata = db.Column('metadata', JSON, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'id': str(self.id),
+            'template_key': self.template_key,
+            'version': self.version,
+            'template_body': self.template_body,
+            'description': self.description,
+            'metadata': self.template_metadata or {},
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+
+class ModelRoutingPolicy(db.Model):
+    """Versioned model routing policy registry."""
+    __tablename__ = 'model_routing_policies'
+    __table_args__ = (
+        Index('ix_model_routing_policy_name', 'policy_name'),
+        Index('ix_model_routing_policy_active', 'is_active'),
+        Index('ix_model_routing_policy_name_version', 'policy_name', 'version', unique=True),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    policy_name = db.Column(db.String(120), nullable=False)
+    version = db.Column(db.String(40), nullable=False, default='1.0.0')
+    rules = db.Column(JSON, nullable=False, default=dict)
+    is_active = db.Column(db.Boolean, default=True)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'id': str(self.id),
+            'policy_name': self.policy_name,
+            'version': self.version,
+            'rules': self.rules or {},
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+
+class AIAuditEvent(db.Model):
+    """AI governance audit trail with model/policy metadata."""
+    __tablename__ = 'ai_audit_events'
+    __table_args__ = (
+        Index('ix_ai_audit_run_id', 'run_id'),
+        Index('ix_ai_audit_created_at', 'created_at'),
+        Index('ix_ai_audit_model', 'model'),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = db.Column(UUID(as_uuid=True), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    api_key_id = db.Column(UUID(as_uuid=True), db.ForeignKey('external_api_keys.id'), nullable=True)
+    provider = db.Column(db.String(100), nullable=True)
+    model = db.Column(db.String(120), nullable=False)
+    model_version = db.Column(db.String(60), nullable=False, default='unknown')
+    prompt_template_key = db.Column(db.String(120), nullable=True)
+    prompt_template_version = db.Column(db.String(40), nullable=True)
+    routing_policy_name = db.Column(db.String(120), nullable=True)
+    routing_policy_version = db.Column(db.String(40), nullable=True)
+    classification = db.Column(JSON, nullable=True)
+    governance_flags = db.Column(JSON, nullable=True)
+    request_tokens_estimate = db.Column(db.Integer, nullable=True)
+    tokens_in = db.Column(db.Integer, nullable=True)
+    tokens_out = db.Column(db.Integer, nullable=True)
+    estimated_cost_usd = db.Column(db.Float, nullable=True)
+    success = db.Column(db.Boolean, default=True)
+    error_code = db.Column(db.String(100), nullable=True)
+    error_message = db.Column(db.Text, nullable=True)
+    event_metadata = db.Column('metadata', JSON, nullable=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'id': str(self.id),
+            'run_id': str(self.run_id) if self.run_id else None,
+            'user_id': self.user_id,
+            'api_key_id': str(self.api_key_id) if self.api_key_id else None,
+            'provider': self.provider,
+            'model': self.model,
+            'model_version': self.model_version,
+            'prompt_template_key': self.prompt_template_key,
+            'prompt_template_version': self.prompt_template_version,
+            'routing_policy_name': self.routing_policy_name,
+            'routing_policy_version': self.routing_policy_version,
+            'classification': self.classification,
+            'governance_flags': self.governance_flags,
+            'request_tokens_estimate': self.request_tokens_estimate,
+            'tokens_in': self.tokens_in,
+            'tokens_out': self.tokens_out,
+            'estimated_cost_usd': self.estimated_cost_usd,
+            'success': self.success,
+            'error_code': self.error_code,
+            'error_message': self.error_message,
+            'metadata': self.event_metadata,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
 
 
 class ExternalAPIKey(db.Model):
