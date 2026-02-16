@@ -51,6 +51,10 @@ jobs:
       run: |
         python scripts/verify_docs_references.py
 
+    - name: Validate SQLite/Postgres schema parity
+      run: |
+        python scripts/validate_schema_parity.py --report reports/schema_parity_report_ci.json
+
     - name: Run Tests
       run: |
         pytest tests/

@@ -6,16 +6,25 @@ resources, tools, and prompts.
 """
 
 from functools import wraps
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 from flask_login import login_required, current_user
 from datetime import datetime, UTC
 import asyncio
 import logging
 import threading
+import time
 
 from extensions import db
 from models import MCPServer as MCPServerModel, MCPResource, MCPTool, MCPPrompt
 from core.mcp import MCPManager
+from backend.mcp_server.connector_metrics import infer_connector_id, record_connector_execution
+from backend.mcp_server.scope_enforcement import (
+    ScopeEnforcementError,
+    enforce_scopes,
+    normalize_scopes,
+    parse_execution_context,
+)
+from backend.security.rbac import Permission, get_rbac_manager
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +79,65 @@ def get_mcp_manager():
     if mcp_manager is None:
         mcp_manager = MCPManager()
     return mcp_manager
+
+
+def _tool_uses_write_scope(tool_name: str) -> bool:
+    lowered = (tool_name or "").strip().lower()
+    write_markers = ("create", "update", "delete", "write", "import", "sync", "patch")
+    return any(marker in lowered for marker in write_markers)
+
+
+def _required_tool_scopes(tool: MCPTool) -> list[str]:
+    metadata = tool.tool_metadata if isinstance(tool.tool_metadata, dict) else {}
+    explicit_scopes = normalize_scopes(metadata.get("required_scopes"))
+    if explicit_scopes:
+        return sorted(explicit_scopes)
+
+    connector = infer_connector_id(tool.name)
+    if connector is None:
+        return []
+    action = "write" if _tool_uses_write_scope(tool.name) else "read"
+    return ["mcp:execute", f"connector:{connector}:{action}"]
+
+
+def _build_tool_execution_context() -> dict:
+    tenant_id = getattr(current_user, "tenant_id", None) or request.headers.get("X-Tenant-ID")
+    role = str(getattr(current_user, "role", "user") or "user").strip().lower()
+    is_admin = bool(getattr(current_user, "is_admin", False) or role in {"admin", "super_admin", "owner"})
+
+    scopes: set[str] = set()
+    roles = {role}
+
+    try:
+        rbac = get_rbac_manager()
+        if rbac.user_has_permission(current_user, Permission.MCP_READ):
+            scopes.add("connector:*:read")
+        if rbac.user_has_permission(current_user, Permission.MCP_EXECUTE):
+            scopes.add("mcp:execute")
+            scopes.add("connector:*:read")
+        if rbac.user_has_permission(current_user, Permission.MCP_WRITE):
+            scopes.add("connector:*:write")
+        if rbac.user_has_permission(current_user, Permission.MCP_ADMIN):
+            scopes.update({"mcp:execute", "connector:*:read", "connector:*:write", "*"})
+            is_admin = True
+    except Exception as exc:
+        logger.warning("Unable to derive RBAC scopes for MCP execution context: %s", exc)
+
+    api_key = getattr(g, "external_api_key", None)
+    if api_key is not None:
+        permissions = api_key.permissions if isinstance(api_key.permissions, dict) else {}
+        scopes.update(normalize_scopes(permissions.get("connector_scopes")))
+
+    if is_admin:
+        scopes.add("*")
+
+    return {
+        "user_id": str(getattr(current_user, "id", "")),
+        "tenant_id": str(tenant_id) if tenant_id else None,
+        "roles": sorted(roles),
+        "scopes": sorted(scopes),
+        "is_admin": is_admin,
+    }
 
 
 # Server Management Endpoints
@@ -357,8 +425,28 @@ def call_tool(server_id, tool_id):
                 'error': 'Tool not found'
             }), 404
 
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         arguments = data.get('arguments', {})
+        connector_id = infer_connector_id(tool.name)
+
+        execution_context_raw = _build_tool_execution_context()
+        execution_context = parse_execution_context(execution_context_raw)
+        required_scopes = _required_tool_scopes(tool)
+        try:
+            enforce_scopes(
+                tool_name=tool.name,
+                required_scopes=required_scopes,
+                context=execution_context,
+                permissive_on_missing_context=False,
+            )
+        except ScopeEnforcementError as scope_error:
+            logger.warning("MCP scope enforcement denied tool call for %s: %s", tool.name, scope_error)
+            return jsonify({
+                'success': False,
+                'error': str(scope_error),
+                'code': 'MCP_SCOPE_DENIED',
+                'required_scopes': sorted(required_scopes),
+            }), 403
 
         # Get runtime server and call tool
         manager = get_mcp_manager()
@@ -370,29 +458,49 @@ def call_tool(server_id, tool_id):
                 'error': 'Server not running'
             }), 500
 
+        started = time.perf_counter()
         try:
             result = run_async(server._handle_tools_call({
                 'name': tool.name,
-                'arguments': arguments
+                'arguments': arguments,
+                'context': execution_context_raw,
             }))
+            duration_ms = (time.perf_counter() - started) * 1000.0
 
             # Update tool stats
             tool.execution_count += 1
             tool.success_count += 1
             tool.last_executed = datetime.now(UTC)
             db.session.commit()
+            record_connector_execution(
+                tool_name=tool.name,
+                connector_id=connector_id,
+                duration_ms=duration_ms,
+                success=True,
+            )
 
             return jsonify({
                 'success': True,
-                'result': result
+                'result': result,
+                'metrics': {
+                    'connector_id': connector_id,
+                    'latency_ms': round(duration_ms, 2),
+                },
             }), 200
 
         except Exception as e:
+            duration_ms = (time.perf_counter() - started) * 1000.0
             # Update failure stats
             tool.execution_count += 1
             tool.failure_count += 1
             tool.last_executed = datetime.now(UTC)
             db.session.commit()
+            record_connector_execution(
+                tool_name=tool.name,
+                connector_id=connector_id,
+                duration_ms=duration_ms,
+                success=False,
+            )
 
             logger.error(f"Error calling tool: {e}")
             return jsonify({

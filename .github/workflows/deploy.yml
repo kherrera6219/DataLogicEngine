@@ -58,6 +58,10 @@ jobs:
       run: |
         python scripts/verify_docs_references.py
 
+    - name: Validate SQLite/Postgres schema parity
+      run: |
+        python scripts/validate_schema_parity.py --report reports/schema_parity_report_deploy.json
+
     - name: Run tests
       run: |
         pytest tests/ -v
@@ -68,6 +72,10 @@ jobs:
         SESSION_SECRET: "ci-session-secret"
         SECRET_KEY: "ci-test-secret-key"
         JWT_SECRET_KEY: "ci-test-jwt-secret"
+
+    - name: Verify installer artifact integrity
+      run: |
+        python scripts/verify_installer_integrity.py --require-artifacts --report reports/installer_integrity_report_deploy.json
 
   docker-build:
     name: Build Docker Images

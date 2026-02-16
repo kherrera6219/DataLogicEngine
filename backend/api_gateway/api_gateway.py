@@ -17,12 +17,14 @@ import json
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 from threading import Lock
+from urllib.parse import urlparse
 
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from enterprise_architecture import get_enterprise_architecture
 from middleware.asgi_security import apply_standard_fastapi_middleware
 from backend.logging_config import configure_service_logging
+from backend.security.ssrf import SSRFProtectionError, assert_safe_outbound_url, normalize_host_tokens
 from backend.utils.cors_policy import resolve_service_cors_policy
 
 # Initialize FastAPI app
@@ -53,6 +55,7 @@ enterprise_arch = get_enterprise_architecture()
 SERVICE_START_TIME = time.time()
 REQUEST_METRICS = {"total": 0, "inflight": 0}
 REQUEST_METRICS_LOCK = Lock()
+UPSTREAM_REQUEST_TIMEOUT = httpx.Timeout(20.0, connect=5.0)
 
 # Authentication middleware
 async def verify_token(request: Request):
@@ -155,6 +158,60 @@ def _metrics_payload() -> str:
     return "\n".join(lines) + "\n"
 
 
+def _upstream_allowlist_hosts() -> set[str]:
+    hosts = set()
+    for service in getattr(enterprise_arch, "services", {}).values():
+        parsed = urlparse(service.endpoint)
+        if parsed.hostname:
+            hosts.add(parsed.hostname.lower().rstrip("."))
+    hosts.update(normalize_host_tokens(os.environ.get("API_GATEWAY_UPSTREAM_ALLOWLIST")))
+    return hosts
+
+
+def _resolve_upstream_url(service_name: str, path: str) -> str:
+    service = enterprise_arch.get_service(service_name)
+    if not service:
+        raise HTTPException(status_code=503, detail=f"{service_name} service not available")
+
+    target_url = f"{service.endpoint.rstrip('/')}/{path.lstrip('/')}"
+    try:
+        assert_safe_outbound_url(
+            target_url,
+            allowed_hosts=_upstream_allowlist_hosts(),
+            allow_private_hosts=True,
+        )
+    except SSRFProtectionError as exc:
+        logger.error("Blocked upstream request for %s (%s): %s", service_name, target_url, exc)
+        raise HTTPException(status_code=502, detail="Blocked upstream endpoint by SSRF policy") from exc
+    return target_url
+
+
+async def _forward_json_request(
+    *,
+    method: str,
+    service_name: str,
+    path: str,
+    payload: Optional[Dict[str, Any]] = None,
+) -> Any:
+    url = _resolve_upstream_url(service_name, path)
+    async with httpx.AsyncClient(timeout=UPSTREAM_REQUEST_TIMEOUT, follow_redirects=False) as client:
+        try:
+            response = await client.request(method.upper(), url, json=payload)
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as exc:
+            logger.warning(
+                "Upstream HTTP error from %s: status=%s path=%s",
+                service_name,
+                exc.response.status_code,
+                path,
+            )
+            raise HTTPException(status_code=exc.response.status_code, detail="Upstream service error") from exc
+        except httpx.HTTPError as exc:
+            logger.error("Upstream request failure for %s (%s): %s", service_name, path, exc)
+            raise HTTPException(status_code=503, detail="Upstream service unavailable") from exc
+
+
 @app.get("/live")
 async def live_check():
     """Liveness probe endpoint."""
@@ -214,90 +271,56 @@ async def architecture_health():
 @app.get("/api/v1/graph/stats")
 async def get_graph_stats(user = Depends(verify_token)):
     """Get statistics about the knowledge graph"""
-    service = enterprise_arch.get_service('api_gateway')
-    if not service:
-        raise HTTPException(status_code=503, detail="API Gateway service not available")
-    async with httpx.AsyncClient() as client:
-        # Forward request to the Core UKG API
-        response = await client.get(f"{service.endpoint}/api/v1/graph/stats")
-        return response.json()
+    return await _forward_json_request(
+        method="GET",
+        service_name="core_ukg",
+        path="/api/v1/graph/stats",
+    )
 
 @app.post("/api/v1/query")
 async def process_query(request: Request, user = Depends(verify_token)):
     """Process a query through the UKG system"""
-    service = enterprise_arch.get_service('api_gateway')
-    if not service:
-        raise HTTPException(status_code=503, detail="API Gateway service not available")
-    # Get request body
     body = await request.json()
-    
-    # Forward to appropriate UKG service
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            f"{service.endpoint}/api/v1/query",
-            json=body
-        )
-        return response.json()
+    return await _forward_json_request(
+        method="POST",
+        service_name="core_ukg",
+        path="/api/v1/query",
+        payload=body,
+    )
 
 # Model context API routes
 @app.post("/api/model/context")
 async def create_model_context(request: Request, user = Depends(verify_token)):
     """Create a new model context"""
-    service = enterprise_arch.get_service('model_context_server')
-    if not service:
-        raise HTTPException(status_code=503, detail="Model Context service not available")
     body = await request.json()
-    
-    # Forward to Model Context Protocol Server
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            f"{service.endpoint}/context",
-            json=body
-        )
-        return response.json()
+    return await _forward_json_request(
+        method="POST",
+        service_name="model_context_server",
+        path="/context",
+        payload=body,
+    )
 
 # Webhook API routes
 @app.post("/api/webhooks/{integration_name}")
 async def process_webhook(integration_name: str, request: Request):
     """Process incoming webhooks"""
-    service = enterprise_arch.get_service('webhook_server')
-    if not service:
-        raise HTTPException(status_code=503, detail="Webhook service not available")
     body = await request.json()
-    
-    # Forward to Webhook Server
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            f"{service.endpoint}/webhooks/{integration_name}",
-            json=body
-        )
-        return response.json()
+    return await _forward_json_request(
+        method="POST",
+        service_name="webhook_server",
+        path=f"/webhooks/{integration_name}",
+        payload=body,
+    )
 
 # .NET service integration example
 @app.get("/api/dotnet/resources")
 async def get_dotnet_resources(user = Depends(verify_token)):
     """Get resources from the .NET service"""
-    service = enterprise_arch.get_service('dotnet_core_service')
-    if not service:
-        raise HTTPException(status_code=503, detail=".NET Core service not available")
-    # Forward to .NET Core Service
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.get(
-                f"{service.endpoint}/api/resources"
-            )
-            return response.json()
-        except Exception as e:
-            logger.error(f"Error communicating with .NET service: {str(e)}")
-            return JSONResponse(
-                status_code=503,
-                content={
-                    "success": False, 
-                    "message": "Service unavailable",
-                    "error": "Upstream service request failed",
-                    "code": "UPSTREAM_SERVICE_ERROR",
-                }
-            )
+    return await _forward_json_request(
+        method="GET",
+        service_name="dotnet_service",
+        path="/api/resources",
+    )
 
 # Default 404 handler
 @app.exception_handler(404)

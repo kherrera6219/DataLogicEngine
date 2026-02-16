@@ -32,6 +32,8 @@ def get_jira_client():
 @registry.register(
     name="jira_ticket_create",
     description="Create a new ticket/issue in Jira.",
+    connector="jira",
+    required_scopes=["mcp:execute", "connector:jira:write"],
     input_schema={
         "type": "object",
         "properties": {
@@ -73,6 +75,8 @@ def ticket_create(project_key: str, summary: str, description: str = "", issue_t
 @registry.register(
     name="jira_status_check",
     description="Get the status of a specific Jira ticket.",
+    connector="jira",
+    required_scopes=["mcp:execute", "connector:jira:read"],
     input_schema={
         "type": "object",
         "properties": {

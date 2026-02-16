@@ -31,6 +31,8 @@ def get_salesforce_client():
 @registry.register(
     name="salesforce_crm_lookup",
     description="Look up a customer or account in Salesforce CRM by name or email.",
+    connector="salesforce",
+    required_scopes=["mcp:execute", "connector:salesforce:read"],
     input_schema={
         "type": "object",
         "properties": {
@@ -67,6 +69,8 @@ def crm_lookup(query: str):
 @registry.register(
     name="salesforce_lead_create",
     description="Create a new lead in Salesforce.",
+    connector="salesforce",
+    required_scopes=["mcp:execute", "connector:salesforce:write"],
     input_schema={
         "type": "object",
         "properties": {

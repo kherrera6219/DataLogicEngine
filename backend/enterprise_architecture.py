@@ -11,6 +11,9 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional, Union
 from datetime import datetime
+from urllib.parse import urlparse
+
+from backend.security.ssrf import SSRFProtectionError, assert_safe_outbound_url
 
 # Configure logging
 logging.basicConfig(
@@ -44,6 +47,10 @@ class EnterpriseArchitecture:
         self.gateway_port = int(os.environ.get("API_GATEWAY_PORT", 5000))
         self.webhook_port = int(os.environ.get("WEBHOOK_SERVER_PORT", 5001))
         self.model_context_port = int(os.environ.get("MODEL_CONTEXT_PORT", 5002))
+        self.service_connect_host = os.environ.get(
+            "SERVICE_CONNECT_HOST",
+            os.environ.get("SERVICE_BIND_HOST", "127.0.0.1"),
+        )
         logger.info(f"Enterprise Architecture initialized with gateway on port {self.gateway_port}")
     
     def _load_config(self, config_path: Optional[str] = None) -> Dict[str, Any]:
@@ -91,10 +98,20 @@ class EnterpriseArchitecture:
         import aiohttp
         
         results = {}
+        allowed_hosts = {
+            parsed.hostname.lower().rstrip(".")
+            for parsed in (urlparse(service.endpoint) for service in self.services.values())
+            if parsed.hostname
+        }
         async with aiohttp.ClientSession() as session:
             for name, service in self.services.items():
                 health_url = f"{service.endpoint}{service.health_check_path}"
                 try:
+                    assert_safe_outbound_url(
+                        health_url,
+                        allowed_hosts=allowed_hosts,
+                        allow_private_hosts=True,
+                    )
                     async with session.get(health_url, timeout=5) as response:
                         if response.status == 200:
                             service.status = "healthy"
@@ -102,6 +119,9 @@ class EnterpriseArchitecture:
                         else:
                             service.status = f"unhealthy: {response.status}"
                             results[name] = f"unhealthy: {response.status}"
+                except SSRFProtectionError as e:
+                    service.status = f"blocked: {str(e)}"
+                    results[name] = f"blocked: {str(e)}"
                 except Exception as e:
                     service.status = f"error: {str(e)}"
                     results[name] = f"error: {str(e)}"
@@ -152,42 +172,42 @@ class EnterpriseArchitecture:
         # Register core services
         self.register_service(ServiceRegistry(
             name="api_gateway",
-            endpoint=f"http://0.0.0.0:{api_port}",
+            endpoint=f"http://{self.service_connect_host}:{api_port}",
             health_check_path="/health",
             service_type="python"
         ))
         
         self.register_service(ServiceRegistry(
             name="webhook_server",
-            endpoint=f"http://0.0.0.0:{webhook_port}",
+            endpoint=f"http://{self.service_connect_host}:{webhook_port}",
             health_check_path="/health",
             service_type="python"
         ))
         
         self.register_service(ServiceRegistry(
             name="model_context_server",
-            endpoint=f"http://0.0.0.0:{model_context_port}",
+            endpoint=f"http://{self.service_connect_host}:{model_context_port}",
             health_check_path="/health",
             service_type="python"
         ))
         
         self.register_service(ServiceRegistry(
             name="core_ukg",
-            endpoint=f"http://0.0.0.0:{core_ukg_port}",
+            endpoint=f"http://{self.service_connect_host}:{core_ukg_port}",
             health_check_path="/health",
             service_type="python"
         ))
         
         self.register_service(ServiceRegistry(
             name="dotnet_service",
-            endpoint=f"http://0.0.0.0:{dotnet_port}",
+            endpoint=f"http://{self.service_connect_host}:{dotnet_port}",
             health_check_path="/health",
             service_type="dotnet"
         ))
         
         self.register_service(ServiceRegistry(
             name="frontend",
-            endpoint=f"http://0.0.0.0:{frontend_port}",
+            endpoint=f"http://{self.service_connect_host}:{frontend_port}",
             health_check_path="/api/health",  # Next.js exposes this via proxy
             service_type="nodejs"
         ))

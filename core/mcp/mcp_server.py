@@ -7,10 +7,14 @@ tools, and prompts to LLM applications.
 
 import asyncio
 import uuid
+import inspect
+import time
 from typing import Dict, List, Optional, Any, Callable
 from datetime import datetime
 import logging
 
+from backend.mcp_server.connector_metrics import infer_connector_id, record_connector_execution
+from backend.mcp_server.scope_enforcement import enforce_scopes, parse_execution_context
 from .mcp_protocol import (
     MCPMessage, MCPResource, MCPTool, MCPPrompt,
     MCPServerInfo, MCPCapabilities, MCPMethod,
@@ -194,6 +198,7 @@ class MCPServer(MCPRequestHandler):
         """Handle tool call request"""
         tool_name = params.get("name")
         arguments = params.get("arguments", {})
+        context_payload = params.get("context", {})
 
         if not tool_name:
             raise MCPError(MCPErrorCode.INVALID_PARAMS, "Missing 'name' parameter")
@@ -201,9 +206,34 @@ class MCPServer(MCPRequestHandler):
         if tool_name not in self.tool_handlers:
             raise MCPError(MCPErrorCode.TOOL_NOT_FOUND, f"Tool not found: {tool_name}")
 
+        tool_definition = self.tools[tool_name]
+        required_scopes = tool_definition.metadata.get("required_scopes", [])
+        execution_context = parse_execution_context(context_payload)
+        enforce_scopes(
+            tool_name=tool_name,
+            required_scopes=required_scopes,
+            context=execution_context,
+            permissive_on_missing_context=True,
+        )
+
+        started = time.perf_counter()
+        success = False
         try:
             handler = self.tool_handlers[tool_name]
-            result = await handler(arguments)
+            call_arguments = dict(arguments or {})
+            try:
+                signature = inspect.signature(handler)
+                if "_execution_context" in signature.parameters and "_execution_context" not in call_arguments:
+                    call_arguments["_execution_context"] = execution_context.to_dict()
+            except (ValueError, TypeError):
+                pass
+
+            handler_result = handler(call_arguments)
+            if inspect.isawaitable(handler_result):
+                result = await handler_result
+            else:
+                result = handler_result
+            success = True
 
             # Audit Log (Enterprise)
             try:
@@ -254,6 +284,16 @@ class MCPServer(MCPRequestHandler):
 
             logger.error(f"Tool execution error ({tool_name}): {e}")
             raise MCPError(MCPErrorCode.TOOL_EXECUTION_ERROR, f"Tool execution failed: {str(e)}")
+        finally:
+            record_connector_execution(
+                tool_name=tool_name,
+                connector_id=infer_connector_id(
+                    tool_name,
+                    declared_connector=tool_definition.metadata.get("connector"),
+                ),
+                duration_ms=(time.perf_counter() - started) * 1000.0,
+                success=success,
+            )
 
     async def _handle_prompts_list(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Handle prompts list request"""

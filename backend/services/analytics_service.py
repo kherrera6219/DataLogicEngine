@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, UTC
 from sqlalchemy import func
 from extensions import db
 from models import Node, Edge, KAExecution, UkgSession, MCPServer, MCPTool
+from backend.mcp_server.connector_metrics import connector_metrics_snapshot, infer_connector_id
 
 class AnalyticsService:
     @staticmethod
@@ -97,6 +98,7 @@ class AnalyticsService:
             pending_requests = max(total_requests - total_success - total_failed, 0)
 
             total_tool_calls = sum(int(t.execution_count or 0) for t in tools)
+            connector_metrics = connector_metrics_snapshot()
             top_tools_raw = sorted(
                 tools,
                 key=lambda t: int(t.execution_count or 0),
@@ -115,11 +117,12 @@ class AnalyticsService:
             server_health = []
             for server in servers:
                 status = str(server.status or 'inactive').lower()
+                connector_id = infer_connector_id(server.name)
+                connector_latency = connector_metrics.get(connector_id or "", {}).get("avg_latency_ms", 0.0)
                 server_health.append({
                     "name": server.name,
                     "status": "Healthy" if status == 'active' else status.title(),
-                    # Latency telemetry is not currently persisted; expose 0 as unknown.
-                    "latency": 0
+                    "latency": round(float(connector_latency), 2),
                 })
 
             return {

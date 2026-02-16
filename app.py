@@ -18,6 +18,7 @@ from flask_limiter.util import get_remote_address
 from werkzeug.middleware.proxy_fix import ProxyFix
 from extensions import limiter
 from backend.logging_config import configure_structured_logging
+from backend.mcp_server.connector_metrics import connector_metrics_prometheus_lines
 
 # Initialize Sentry for error tracking (production only)
 sentry_dsn = os.environ.get("SENTRY_DSN")
@@ -679,6 +680,7 @@ def _prometheus_metrics_payload() -> str:
         "# TYPE datalogicengine_database_ready gauge",
         f"datalogicengine_database_ready {database_ok}",
     ]
+    lines.extend(connector_metrics_prometheus_lines(prefix="datalogicengine"))
     return "\n".join(lines) + "\n"
 
 

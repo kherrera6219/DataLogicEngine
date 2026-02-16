@@ -55,8 +55,9 @@ class MCPRouter:
         if method == "tools/call":
             name = params.get("name")
             args = params.get("arguments", {})
+            context = params.get("context", {})
             try:
-                result = await self.registry.execute_tool(name, args)
+                result = await self.registry.execute_tool(name, args, context=context)
                 return self._response(request_id, {
                     "content": [
                         {

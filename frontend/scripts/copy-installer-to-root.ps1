@@ -29,11 +29,26 @@ Copy-Item -Path $Installer.FullName -Destination $RepoInstaller -Force
 $LatestInstallerAlias = Join-Path $RepoRoot "DataLogicEngine Setup Latest.exe"
 Copy-Item -Path $Installer.FullName -Destination $LatestInstallerAlias -Force
 
+function Write-InstallerHash {
+    Param(
+        [Parameter(Mandatory = $true)][string]$FilePath
+    )
+
+    $LeafName = Split-Path -Path $FilePath -Leaf
+    $HashFile = "${FilePath}.sha256"
+    $HashValue = (Get-FileHash -LiteralPath $FilePath -Algorithm SHA256).Hash.ToLowerInvariant()
+    "$HashValue  $LeafName" | Set-Content -Path $HashFile -Encoding ascii
+    return $HashFile
+}
+
 $BlockMap = "$($Installer.FullName).blockmap"
 if (Test-Path $BlockMap) {
     Copy-Item -Path $BlockMap -Destination "${RepoInstaller}.blockmap" -Force
     Copy-Item -Path $BlockMap -Destination (Join-Path $RepoRoot "DataLogicEngine Setup Latest.exe.blockmap") -Force
 }
+
+$RepoInstallerHash = Write-InstallerHash -FilePath $RepoInstaller
+$LatestInstallerHash = Write-InstallerHash -FilePath $LatestInstallerAlias
 
 # Keep repo root focused on the latest installer and alias only.
 Get-ChildItem -Path $RepoRoot -File -Filter "DataLogicEngine Setup *.exe" |
@@ -47,5 +62,14 @@ Get-ChildItem -Path $RepoRoot -File -Filter "DataLogicEngine Setup *.exe.blockma
     } |
     Remove-Item -Force -ErrorAction SilentlyContinue
 
+Get-ChildItem -Path $RepoRoot -File -Filter "DataLogicEngine Setup *.exe.sha256" |
+    Where-Object {
+        $_.FullName -ne "${RepoInstaller}.sha256" -and
+        $_.FullName -ne (Join-Path $RepoRoot "DataLogicEngine Setup Latest.exe.sha256")
+    } |
+    Remove-Item -Force -ErrorAction SilentlyContinue
+
 Write-Host "Installer copied to repo root: $RepoInstaller" -ForegroundColor Green
 Write-Host "Installer alias updated: $LatestInstallerAlias" -ForegroundColor Green
+Write-Host "Installer checksum written: $RepoInstallerHash" -ForegroundColor Green
+Write-Host "Installer alias checksum written: $LatestInstallerHash" -ForegroundColor Green
