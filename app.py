@@ -531,19 +531,6 @@ from backend.ukg_api import ukg_api
 app.register_blueprint(ukg_api, url_prefix='/api/v1')
 # Add legacy alias for tests
 app.register_blueprint(ukg_api, name='ukg_legacy', url_prefix='/api/ukg')
-# Legacy '/api' is covered by original BP definition if imported/registered
-# Check how it was imported before. It was via 'routes' maybe? 
-# Wait, ukg_api was not explicitly registered in the previous file content I saw?
-# Checking lines 258-260: 'from routes import register_routes; register_routes(app)'
-# Need to check `routes/__init__.py` to see what it registers.
-# But I see I missed `backend/ukg_api.py` registration in previous view of app.py?
-# Ah, I see `app.register_blueprint(ukg_api)` was NOT in the previous `app.py`...
-# Wait, let me check `app.py` again.
-# I see `app.register_blueprint(mcp_bp)` etc.
-# I DON'T see `app.register_blueprint(ukg_api)` in the original `app.py` provided.
-# It seems `ukg_api` might be registered via `routes` package or I missed it.
-# Let's check `routes/__init__.py` first to be safe.
-
 
 # Register Replit Auth blueprint (optional - only if REPL_ID is set)
 try:

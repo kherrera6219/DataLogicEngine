@@ -71,7 +71,7 @@ The following controls are now implemented and validated:
 19. AI and connector p95/p99 latency SLO baseline/violation gauges in `/metrics`.
 
 Reference implementation report:
-- `docs/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
+- `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
 
 Validation commands:
 

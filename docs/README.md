@@ -49,12 +49,13 @@ Single entry point for active documentation and source-of-truth documents.
 3. File structure and naming policy: `docs/FILE_STRUCTURE.md`
 4. Documentation coverage matrix: `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
 
-## Current assessments
+## Archived assessments (February 2026)
 
-1. `docs/APPLICATION_REVIEW_RECOMMENDED_IMPROVEMENTS_2026-02-10.md`
-2. `docs/SUBSYSTEMS_SECTIONS_1_TO_4_UPDATED_REPORT_2026-02-16.md`
-3. `docs/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
-4. `docs/SUBSYSTEMS_SECTIONS_9_TO_11_REVIEW_2026-02-16.md`
+1. `docs/archive/assessments/2026-02/APPLICATION_REVIEW_RECOMMENDED_IMPROVEMENTS_2026-02-10.md`
+2. `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_1_TO_4_UPDATED_REPORT_2026-02-16.md`
+3. `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
+4. `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_9_TO_11_REVIEW_2026-02-16.md`
+5. `docs/archive/assessments/2026-02/REPO_CLEANUP_AND_WIRING_AUDIT_2026-02-16.md`
 
 ## Documentation Standards
 
@@ -67,6 +68,7 @@ Single entry point for active documentation and source-of-truth documents.
 1. Active: documents referenced in this portal and coverage matrix.
 2. Historical: `docs/archive/` (retained for traceability, not source-of-truth).
 3. Reference research: `docs/whitepapers/` (informational, not operational runbooks).
+4. Assessment snapshots: `docs/archive/assessments/` (periodic reviews retained for audit history).
 
 ## Document Control
 

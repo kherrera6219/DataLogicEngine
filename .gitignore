@@ -43,6 +43,8 @@ docs/archive/legacy_assets/
 *.asar
 /DataLogicEngine Setup *.exe
 /DataLogicEngine Setup *.exe.blockmap
+/DataLogicEngine Setup *.exe.sha256
+/archive/
 
 # Environment
 .env
@@ -63,6 +65,8 @@ frontend/build_log*.txt
 frontend/build_output.txt
 frontend/lint_output*.txt
 frontend/storybook_build_log*.txt
+frontend/storybook_debug*.txt
+frontend/build_report.txt
 reports/environment_parity_report*.json
 reports/lockfile_governance_report*.json
 reports/packaging_smoke_report.json
