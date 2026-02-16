@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.15] - 2026-02-16
+
+### Changed
+- Fixed residual global critical lint blocker in SDK truth link stub by restoring missing typing import (`sdk/UKG_Python_SDK/ukg_sdk/truth_engine/truthlink.py`).
+
+### Testing
+- `.venv\Scripts\python.exe -m py_compile sdk/UKG_Python_SDK/ukg_sdk/truth_engine/truthlink.py` (pass)
+- `.venv\Scripts\python.exe -m ruff check . --select E9,F63,F7,F821` (pass)
+
 ## [4.1.14] - 2026-02-16
 
 ### Changed

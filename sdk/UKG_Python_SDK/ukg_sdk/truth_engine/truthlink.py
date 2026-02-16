@@ -7,7 +7,7 @@ implementation it simply provides a no‑op ``emit`` method that can be extended
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 
 class TruthLink:
