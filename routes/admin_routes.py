@@ -14,13 +14,13 @@ from datetime import datetime, UTC
 from typing import Optional, Dict, Any, Tuple
 import logging
 
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, request
 from flask_login import login_required, current_user
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from extensions import db, limiter, cache
 from models import User, SimulationSession, KnowledgeGraphNode, KnowledgeGraphEdge
-from backend.security.rbac import require_permission, Permission, get_rbac_manager
+from backend.security.rbac import require_permission, Permission
 from backend.config.settings import settings
 from backend.utils.responses import (
     success_response,
@@ -31,8 +31,8 @@ from backend.utils.responses import (
     validation_error,
     internal_error
 )
-from backend.utils.pagination import PaginationParams, paginate_query, pagination_meta
-from backend.utils.validation import Validator, ValidationError, validate_json_body
+from backend.utils.pagination import PaginationParams, paginate_query
+from backend.utils.validation import validate_json_body
 
 logger = logging.getLogger(__name__)
 

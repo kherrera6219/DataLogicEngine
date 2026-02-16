@@ -148,15 +148,15 @@ def api_query():
         simulation.completed_at = datetime.datetime.now(UTC)
         
         if "knowledge" in query.lower():
-            response = f"The Universal Knowledge Graph organizes information across 13 axes, including knowledge domains, sectors, methods, and more. This allows for multi-perspective analysis of complex topics."
+            response = "The Universal Knowledge Graph organizes information across 13 axes, including knowledge domains, sectors, methods, and more. This allows for multi-perspective analysis of complex topics."
             confidence = 0.92
             active_layer = 2
         elif "simulation" in query.lower():
-            response = f"Simulations in the UKG system use a 10-layer architecture with recursive processing to generate insights based on integrated knowledge across multiple domains."
+            response = "Simulations in the UKG system use a 10-layer architecture with recursive processing to generate insights based on integrated knowledge across multiple domains."
             confidence = 0.89
             active_layer = 3
         elif "persona" in query.lower() or "expert" in query.lower():
-            response = f"The Quad Persona Engine creates synthetic experts through 7 component structures (job role, education, certifications, skills, training, career path, related jobs). This allows the system to provide multi-perspective expertise on complex topics."
+            response = "The Quad Persona Engine creates synthetic experts through 7 component structures (job role, education, certifications, skills, training, career path, related jobs). This allows the system to provide multi-perspective expertise on complex topics."
             confidence = 0.94
             active_layer = 4
         else:

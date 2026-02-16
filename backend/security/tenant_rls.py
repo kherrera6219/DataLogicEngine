@@ -45,7 +45,11 @@ def _quote_ident(identifier: str) -> str:
     Quote SQL identifiers defensively (including optional schema-qualified names).
     """
     parts = [part for part in str(identifier).split(".") if part]
-    return ".".join(f"\"{part.replace('\"', '\"\"')}\"" for part in parts)
+    quoted_parts: list[str] = []
+    for part in parts:
+        escaped = part.replace('"', '""')
+        quoted_parts.append(f'"{escaped}"')
+    return ".".join(quoted_parts)
 
 
 def discover_tenant_tables(metadata) -> list[str]:

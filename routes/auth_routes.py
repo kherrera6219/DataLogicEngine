@@ -215,7 +215,7 @@ def step_up_verify():
     Verify MFA token for Step-Up Authentication (Sudo Mode).
     Sets 'last_sudo_time' in session on success.
     """
-    from datetime import datetime, UTC
+    from datetime import datetime
     
     # If user doesn't have MFA enabled, step-up is just password re-verify
     # But for "Exceeding Standards", we enforce MFA/OTP even for step-up
@@ -231,7 +231,6 @@ def step_up_verify():
         return validation_error_response
     token = validated.token if validated else ""
 
-    from backend.security.mfa import MFAManager
     # Just verify the token against the user's secret
     if not current_user.verify_totp(token):
         return error_response("Invalid authentication code", 401)

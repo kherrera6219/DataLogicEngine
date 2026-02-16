@@ -9,7 +9,7 @@ import json
 from datetime import datetime, UTC
 from typing import Tuple, Dict, Any
 
-from flask import Blueprint, jsonify, Response, request
+from flask import Blueprint, Response, request
 from flask_login import login_required, current_user
 from sqlalchemy.exc import SQLAlchemyError
 import logging

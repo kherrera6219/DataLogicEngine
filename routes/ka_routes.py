@@ -6,11 +6,9 @@ Provides REST API endpoints for managing and executing Knowledge Algorithms (KA-
 
 from flask import Blueprint, request, jsonify
 from flask_login import current_user, login_required
-from backend.auth.api_decorators import api_login_required, api_admin_required
+from backend.auth.api_decorators import api_login_required
 from datetime import datetime, UTC
 import logging
-import json
-import os
 
 from backend.knowledge_algorithms.ka_master_controller import get_controller
 
@@ -195,7 +193,6 @@ def execute_algorithm(ka_id):
         
         data = request.get_json() or {}
         input_data = data.get('input', {})
-        params = data.get('params', {})
         
         # Execute via Master Controller
         ka_result = controller.execute_algorithm(ka_id_norm, input_data)
@@ -369,7 +366,6 @@ def batch_execute():
     try:
         data = request.get_json()
         algorithms = data.get('algorithms', [])
-        shared_input = data.get('input', {})
         
         if not algorithms:
             return jsonify({
@@ -390,7 +386,7 @@ def batch_execute():
                 results.append({
                     'ka_id': ka_id,
                     'status': 'error',
-                    'error': f'Algorithm not found'
+                    'error': 'Algorithm not found'
                 })
                 continue
             
@@ -427,6 +423,8 @@ def search_algorithms():
                 'success': False,
                 'error': 'Query must be at least 2 characters'
             }), 400
+
+        results = []
         
         for ka_id, ka_info in controller.get_available_algorithms().items():
             ka = ka_info.get("metadata", {})
@@ -472,8 +470,10 @@ def get_dependencies(ka_id):
                 'success': False,
                 'error': f'Algorithm {ka_id} not found'
             }), 404
-        
+
+        ka_id_norm = controller._normalize_ka_id(f"KA-{num:03d}")
         ka_data = controller.algorithms[ka_id_norm].get("metadata", {})
+        ka = ka_data
         dependencies = parse_list_field(ka_data.get('Dependencies'))
         
         dep_details = []

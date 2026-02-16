@@ -5,7 +5,6 @@ Provides REST API endpoints for managing MCP servers, clients,
 resources, tools, and prompts.
 """
 
-from functools import wraps
 from flask import Blueprint, request, jsonify, g
 from flask_login import login_required, current_user
 from datetime import datetime, UTC
