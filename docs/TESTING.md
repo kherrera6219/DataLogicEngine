@@ -40,7 +40,7 @@ Define enterprise testing standards, required quality gates, and execution workf
 5. Visual snapshot testing: baseline snapshots in `frontend/tests/e2e/theme-visual-smoke.spec.ts-snapshots`.
 6. Security regression tests: targeted CI security regression sweep (`security headers` + `request limits`) plus broader security suites.
 7. Local mode parity tests: dedicated parity suite at `tests/parity/test_local_mode_parity.py`.
-8. Packaging smoke tests (clean VM): Windows CI job runs `scripts/windows/run_packaging_smoke.ps1` (silent install/uninstall verification on clean runner).
+8. Packaging smoke tests (clean VM): Windows CI job runs `scripts/windows/run_packaging_smoke.ps1` and NSIS policy governance checks via `scripts/windows/verify_nsis_governance.ps1`.
 9. CI enforcement pipeline: lint, typecheck, unit/integration/contract/parity/security tests, build, accessibility, E2E, visual regression, and dependency audit gates.
 
 ## Test taxonomy

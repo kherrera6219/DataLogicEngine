@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.8] - 2026-02-16
+
+### Added
+- Completed Section 10 Windows desktop subsystem controls:
+  - Controlled auto-update policy/runtime gating with secure IPC accessors (`frontend/electron/main.ts`, `frontend/electron/preload.ts`, `frontend/types/electron.d.ts`).
+  - NSIS governance validation script with CI integration (`scripts/windows/verify_nsis_governance.ps1`, `.github/workflows/ci.yml`).
+  - Silent installer wrapper for enterprise automation (`scripts/windows/install_silent.ps1`).
+  - Startup port conflict auto-resolution controls (`scripts/windows/start_local_stack.ps1`).
+- Expanded Windows installer governance tests (`tests/windows/installer_tests.Tests.ps1`).
+
+### Changed
+- Desktop secret persistence now uses OS-protected encryption (`safeStorage`) when available, with migration from legacy plaintext storage (`frontend/electron/main.ts`).
+- Desktop runtime log persistence now writes to user data with best-effort restricted permissions (`frontend/electron/main.ts`).
+- Installer script applies restricted ACL hardening to local logs/audit/vault paths and supports non-admin dry-run diagnostics (`scripts/windows/install.ps1`).
+- Uninstaller now has explicit retention controls (`-KeepData`, `-DeleteData`, `-Silent`) with safe defaults for non-interactive runs (`scripts/windows/uninstall.ps1`).
+- Windows/local runbooks and subsystem report updated for Section 10 status:
+  - `README.md`
+  - `docs/README.md`
+  - `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+  - `docs/SUBSYSTEMS_SECTIONS_9_TO_11_REVIEW_2026-02-16.md`
+
+### Testing
+- Section 10 debug/error sweep completed:
+  - `npm --prefix frontend run electron:build`
+  - `npm --prefix frontend run lint`
+  - `npm --prefix frontend run typecheck`
+  - `python -m pytest -q --no-cov tests/windows/test_windows_platform.py` (`4 passed`)
+  - `powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-Pester -Script tests/windows/installer_tests.Tests.ps1"` (`9 passed`)
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path` (pass)
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path -Mode portable -LaunchTimeoutSeconds 10` (pass)
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/install.ps1 -DryRun -Silent` (pass)
+  - `python scripts/verify_docs_references.py` (pass)
+
 ## [4.1.7] - 2026-02-16
 
 ### Added

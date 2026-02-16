@@ -18,7 +18,8 @@ Single entry point for active documentation and source-of-truth documents.
 3. API key save/test, AI model controls, and storage lifecycle controls are wired.
 4. Sections 5-8 controls are fully implemented (Phase 1-3), and post-baseline hardening is also implemented: Postgres tenant RLS controls, production vault-backed secret enforcement paths, export signing/encryption + immutable audit replication, code-signing rotation/revocation governance drills, and AI/connector p95-p99 latency SLO gauges.
 5. Section 9 testing controls now include enforced contract tests, local-mode parity tests, frontend typecheck gates, route E2E smoke, and Windows packaging smoke validation in CI.
-6. Some settings/admin/MCP UX areas remain partial (see `docs/PRODUCT_OVERVIEW.md`).
+6. Section 10 Windows desktop controls now include governed NSIS policy checks, controlled auto-update runtime gating, silent install/uninstall controls, secure desktop secret/log storage paths, and startup port conflict auto-resolution.
+7. Some settings/admin/MCP UX areas remain partial (see `docs/PRODUCT_OVERVIEW.md`).
 
 ## Start Here
 

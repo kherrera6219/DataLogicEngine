@@ -6,7 +6,8 @@ Param(
     [switch]$SkipRouteSmoke,
     [switch]$WithDataServices,
     [int]$BackendPort = 5000,
-    [int]$FrontendPort = 3000
+    [int]$FrontendPort = 3000,
+    [bool]$AutoResolvePortConflicts = $true
 )
 
 Set-StrictMode -Version Latest
@@ -149,6 +150,30 @@ function Wait-PortOpen([int]$Port, [int]$MaxAttempts = 40) {
     return $false
 }
 
+function Resolve-RequestedPort(
+    [int]$RequestedPort,
+    [string]$ServiceName,
+    [bool]$AllowAutoResolve,
+    [int]$MaxOffset = 40
+) {
+    if (-not (Test-PortOpen -Port $RequestedPort)) {
+        return $RequestedPort
+    }
+
+    if (-not $AllowAutoResolve) {
+        throw "$ServiceName port $RequestedPort is already in use. Re-run with a different port or -AutoResolvePortConflicts `$true."
+    }
+
+    for ($candidate = $RequestedPort + 1; $candidate -le ($RequestedPort + $MaxOffset); $candidate++) {
+        if (-not (Test-PortOpen -Port $candidate)) {
+            Write-Step "$ServiceName port $RequestedPort is busy. Auto-resolved to port $candidate." "Yellow"
+            return $candidate
+        }
+    }
+
+    throw "Unable to auto-resolve a free port for $ServiceName in range $RequestedPort-$($RequestedPort + $MaxOffset)."
+}
+
 Assert-Path $PythonPath "Python virtual environment not found at $PythonPath. Run scripts/dev_setup.py first."
 Assert-Path $EnvFile ".env not found at $EnvFile. Copy .env.template to .env and configure it."
 
@@ -175,6 +200,16 @@ foreach ($key in $providerKeys) {
 }
 if (-not $providerConfigured) {
     throw "No provider API key configured in .env. Set at least one LLM provider key."
+}
+
+$BackendPort = Resolve-RequestedPort -RequestedPort $BackendPort -ServiceName "Backend" -AllowAutoResolve $AutoResolvePortConflicts
+$FrontendPort = Resolve-RequestedPort -RequestedPort $FrontendPort -ServiceName "Frontend" -AllowAutoResolve $AutoResolvePortConflicts
+
+if ($FrontendPort -eq $BackendPort) {
+    if (-not $AutoResolvePortConflicts) {
+        throw "Backend and frontend ports cannot be the same ($BackendPort)."
+    }
+    $FrontendPort = Resolve-RequestedPort -RequestedPort ($FrontendPort + 1) -ServiceName "Frontend" -AllowAutoResolve $true
 }
 
 if ($WithDataServices) {
@@ -287,6 +322,8 @@ if ($WithDataServices) {
 }
 
 if (-not $SkipPrecheck) {
+    $env:BACKEND_PORT = "$BackendPort"
+    $env:FRONTEND_PORT = "$FrontendPort"
     Write-Step "Running runtime precheck..."
     & $PythonPath (Join-Path $RepoRoot "scripts\runtime_precheck.py")
     if ($LASTEXITCODE -ne 0) {

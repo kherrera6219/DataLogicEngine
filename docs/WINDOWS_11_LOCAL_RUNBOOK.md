@@ -10,13 +10,16 @@ Run DataLogicEngine locally on Windows 11 with:
 
 Default path uses SQLite/in-memory fallbacks. PostgreSQL/Redis/Neo4j/object services are optional.
 
-## Current State (February 8, 2026)
+## Current State (February 16, 2026)
 
 1. Local startup scripts are functional.
 2. Core frontend routes are reachable.
 3. Desktop mode supports no-login startup.
 4. Settings API key save/test, AI model controls, and local storage lifecycle controls are wired.
 5. Desktop installer builds successfully and is copied to repo root.
+6. Startup script now auto-resolves backend/frontend port conflicts by default.
+7. Desktop runtime now stores install secret using OS-protected encryption when available and writes local runtime logs under user data.
+8. Silent install and retention-aware silent uninstall controls are available for enterprise deployments.
 
 ## Prerequisites
 
@@ -55,6 +58,15 @@ cd ..
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
+```
+
+Port conflict behavior:
+
+1. `BackendPort` and `FrontendPort` are auto-resolved to the next available port by default.
+2. Disable auto-resolution when needed:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1 -AutoResolvePortConflicts $false
 ```
 
 ### Full local data services
@@ -106,6 +118,46 @@ Run manually:
 .\DataLogicEngine Setup Latest.exe
 ```
 
+Silent install:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\install_silent.ps1
+```
+
+Silent uninstall (preserve data by default):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\uninstall.ps1 -Silent -KeepData
+```
+
+Silent uninstall (delete data):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\uninstall.ps1 -Silent -DeleteData
+```
+
+NSIS governance + packaging smoke checks:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -Mode portable
+```
+
+Controlled auto-update policy (desktop packaged runtime):
+
+1. Auto-update is disabled by default.
+2. Enable only with explicit feed policy:
+   - `DLE_AUTO_UPDATE_ENABLED=true`
+   - `DLE_AUTO_UPDATE_FEED_URL=<https://...>`
+3. Optional controls:
+   - `DLE_AUTO_UPDATE_AUTO_DOWNLOAD=true|false`
+   - `DLE_AUTO_UPDATE_AUTO_INSTALL_ON_QUIT=true|false`
+
+Secure local log storage:
+
+1. Desktop runtime log file: `%APPDATA%\DataLogicEngine\logs\desktop-runtime.log` (best-effort restricted permissions).
+2. Installer-managed local data logs: `C:\ProgramData\DataLogicEngine\logs` (restricted ACL applied by installer script).
+
 ## Optional WiX/WinSW Packaging Path
 
 If you use `deploy/windows/` manifests:
@@ -138,6 +190,6 @@ This ensures:
 ## Document Control
 
 1. Owner: Platform Engineering
-2. Last updated: 2026-02-08
+2. Last updated: 2026-02-16
 3. Status: Active
 4. Review cadence: Every 30 days

@@ -27,6 +27,23 @@
 | Packaging Smoke Tests (clean VM) | Implemented | `scripts/windows/run_packaging_smoke.ps1`, Windows CI job in `.github/workflows/ci.yml` | Expand to signed-artifact and upgrade-path permutations. | Add signed-installer + update-path smoke matrix in release workflow. |
 | CI Enforcement Pipeline (lint/typecheck/test/build/audit) | Implemented | `.github/workflows/ci.yml`, `frontend/package.json` (`typecheck`) | Policy-as-code for required checks remains repository-settings dependent. | Enforce required status checks in branch protection settings (Section 11). |
 
+## Phase 2 Status (Section 10 complete)
+- Section 10 controls reviewed: `8`
+- `Implemented`: `8`
+- `Partial`: `0`
+- `Missing`: `0`
+
+## 10) Windows Desktop Subsystems
+| Subsystem | Current Status | Evidence | Remaining Gap | Suggested Action |
+|---|---|---|---|---|
+| Secure Electron Configuration (contextIsolation, no remote module) | Implemented | `frontend/electron/main.ts`, `frontend/electron/preload.ts` | Continue tightening navigation allowlists as new desktop routes are added. | Keep `nodeIntegration=false`, `contextIsolation=true`, `sandbox=true`, and strict IPC allowlists as merge requirements. |
+| Controlled Auto-Update System | Implemented | `frontend/electron/main.ts`, `frontend/electron/preload.ts`, `frontend/types/electron.d.ts` | Update feed is intentionally disabled unless explicit runtime policy/env is set. | Enable only in signed release environments with managed feed URL + rollout governance. |
+| NSIS Installer Governance | Implemented | `frontend/electron-builder.yml`, `frontend/electron/installer.nsh`, `scripts/windows/verify_nsis_governance.ps1`, `.github/workflows/ci.yml` | Governance policy checks are static; signed-release assertions still rely on release workflows. | Add installer-signing + governance report attestation artifact linkage in release jobs. |
+| Silent Install Support | Implemented | `scripts/windows/install_silent.ps1`, `scripts/windows/run_packaging_smoke.ps1` (`installer` mode support), `frontend/electron-builder.yml` (NSIS) | Silent install behavior should continue validation on enterprise images. | Add scheduled installer-mode smoke jobs in controlled Windows runners. |
+| Uninstall Data Retention Controls | Implemented | `scripts/windows/uninstall.ps1` (`-KeepData`, `-DeleteData`, `-Silent`) | Enterprise uninstall orchestration may need centralized policy templates. | Add enterprise uninstall profile scripts (retain/delete policy presets). |
+| Port Conflict Resolution System | Implemented | `scripts/windows/start_local_stack.ps1` (`-AutoResolvePortConflicts`) | Resolution currently applies to local backend/frontend ports only. | Extend auto-resolution metadata into support bundles and startup telemetry. |
+| Secure Local Log Storage | Implemented | `frontend/electron/main.ts` (desktop runtime log path + controlled writes), `scripts/windows/install.ps1` (restricted ACL application for logs/audit/vault) | Log retention policy tuning remains operational. | Add log rotation/retention configuration in desktop settings policy. |
+| OS Credential Storage Integration | Implemented | `frontend/electron/main.ts` (`safeStorage` encrypted secret persistence), `backend/security/dpapi_store.py`, `backend/security/secret_resolver.py` | Broader keyring/credential vault adapters can continue expanding by platform. | Add explicit credential-health diagnostics to support bundle workflow. |
+
 ## Pending Sections
-1. Section 10 (Windows Desktop Subsystems): in progress for next phase.
-2. Section 11 (Developer Governance Subsystems): in progress for subsequent phase.
+1. Section 11 (Developer Governance Subsystems): in progress for subsequent phase.

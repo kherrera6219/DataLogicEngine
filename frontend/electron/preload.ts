@@ -1,7 +1,14 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 const IPC_TIMEOUT = 5000; // 5 second timeout for most IPC calls
-const ALLOWED_INVOKE_CHANNELS = new Set(['ping', 'get-backend-status', 'get-db-status']);
+const ALLOWED_INVOKE_CHANNELS = new Set([
+  'ping',
+  'get-backend-status',
+  'get-db-status',
+  'get-update-state',
+  'check-for-updates',
+  'download-update',
+]);
 
 type ListenerCallback = (payload: string) => void;
 
@@ -47,6 +54,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   ping: () => invokeWithTimeout('ping'),
   getBackendStatus: () => invokeWithTimeout('get-backend-status'),
   getDbStatus: () => invokeWithTimeout('get-db-status'),
+  getUpdateState: () => invokeWithTimeout('get-update-state'),
+  checkForUpdates: () => invokeWithTimeout('check-for-updates'),
+  downloadUpdate: () => invokeWithTimeout('download-update'),
   onBackendLog: (callback: (log: string) => void) => attachChannelListener('backend-log', callback),
   onBackendError: (callback: (error: string) => void) => attachChannelListener('backend-error', callback)
 });

@@ -193,6 +193,10 @@ jobs:
         cd frontend
         npm ci
 
+    - name: Verify NSIS governance policy
+      run: |
+        powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+
     - name: Build Windows installer
       run: |
         npm --prefix frontend run electron:dist
@@ -206,7 +210,9 @@ jobs:
       if: always()
       with:
         name: packaging-smoke-report
-        path: reports/packaging_smoke_report.json
+        path: |
+          reports/packaging_smoke_report.json
+          reports/nsis_governance_report.json
         if-no-files-found: warn
 
   # Docker Build (Verification)

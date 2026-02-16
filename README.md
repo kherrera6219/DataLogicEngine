@@ -36,6 +36,11 @@ The application is functional for local Windows use with API keys and internet a
 21. Signed/encrypted trace export envelopes for evidence packaging.
 22. Immutable audit replica hash-chain append and verification controls.
 23. AI and connector latency SLO baseline/violation gauges (`p95`/`p99`) exported in `/metrics`.
+24. Desktop startup script now auto-resolves backend/frontend port conflicts by default.
+25. Desktop install secret persistence now uses OS-protected encryption when available (`safeStorage`) with plaintext migration support.
+26. Desktop runtime logs are persisted under user data with best-effort restricted local permissions.
+27. Controlled auto-update policy is runtime gated (disabled by default unless explicitly enabled with feed URL).
+28. NSIS governance checks and packaging smoke validations are automated for Windows CI.
 
 ### Partial / In Progress
 
@@ -131,12 +136,32 @@ Run installer manually:
 .\DataLogicEngine Setup Latest.exe
 ```
 
+Silent install:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\install_silent.ps1
+```
+
+Silent uninstall (preserve data):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\uninstall.ps1 -Silent -KeepData
+```
+
+Silent uninstall (delete data):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\uninstall.ps1 -Silent -DeleteData
+```
+
 Verify installer integrity:
 
 ```powershell
 python .\scripts\verify_installer_integrity.py --require-artifacts
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_signing_certificate_health.ps1 -CertificatePath .\codesign.pfx -CertificatePassword "<password>" -CheckRevocation
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -Mode portable
 ```
 
 ## Architecture Summary

@@ -1,5 +1,6 @@
-import { app, BrowserWindow, ipcMain, protocol, session } from 'electron';
+import { app, BrowserWindow, ipcMain, protocol, safeStorage, session } from 'electron';
 import type { IpcMainInvokeEvent } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
 import * as os from 'os';
@@ -9,11 +10,116 @@ import * as crypto from 'crypto';
 let mainWindow: BrowserWindow | null = null;
 let backendProcess: ChildProcess | null = null;
 let desktopInstallSecret = '';
+let updateCheckTimer: NodeJS.Timeout | null = null;
+
+type UpdateStatus =
+  | 'disabled'
+  | 'idle'
+  | 'checking'
+  | 'available'
+  | 'not_available'
+  | 'downloaded'
+  | 'error';
+
+type UpdateState = {
+  enabled: boolean;
+  status: UpdateStatus;
+  lastCheckAt: string | null;
+  currentVersion: string;
+  availableVersion: string | null;
+  message: string;
+};
 
 const ALLOWED_IPC_ORIGINS = ['app://', 'http://localhost:3000', 'http://127.0.0.1:3000'];
+const DESKTOP_SECRET_PREFIX = 'enc:v1:';
+const MAX_DESKTOP_LOG_FILE_BYTES = 5 * 1024 * 1024;
+const AUTO_UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
+
+const updateState: UpdateState = {
+  enabled: false,
+  status: 'disabled',
+  lastCheckAt: null,
+  currentVersion: app.getVersion(),
+  availableVersion: null,
+  message: 'Auto-update is disabled.',
+};
 
 function desktopSecretFilePath(): string {
   return path.join(app.getPath('userData'), 'desktop-install-secret');
+}
+
+function desktopLogFilePath(): string {
+  return path.join(app.getPath('userData'), 'logs', 'desktop-runtime.log');
+}
+
+function normalizeLogLine(raw: string): string {
+  return raw.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').trim();
+}
+
+function secureDirectoryBestEffort(targetPath: string): void {
+  try {
+    fs.mkdirSync(targetPath, { recursive: true });
+    fs.chmodSync(targetPath, 0o700);
+  } catch {
+    // Best-effort hardening. Some platforms do not apply chmod semantics.
+  }
+}
+
+function appendDesktopLog(level: 'INFO' | 'WARN' | 'ERROR', rawMessage: string): void {
+  const message = normalizeLogLine(rawMessage);
+  if (!message) {
+    return;
+  }
+
+  const logPath = desktopLogFilePath();
+  const logDir = path.dirname(logPath);
+  secureDirectoryBestEffort(logDir);
+
+  try {
+    if (fs.existsSync(logPath)) {
+      const size = fs.statSync(logPath).size;
+      if (size > MAX_DESKTOP_LOG_FILE_BYTES) {
+        fs.truncateSync(logPath, 0);
+      }
+    }
+    const line = `${new Date().toISOString()} [${level}] ${message}\n`;
+    fs.appendFileSync(logPath, line, { encoding: 'utf8', mode: 0o600 });
+  } catch {
+    // Logging must never block app startup/runtime.
+  }
+}
+
+function readStoredDesktopSecret(secretPath: string): string | null {
+  if (!fs.existsSync(secretPath)) {
+    return null;
+  }
+
+  const storedValue = fs.readFileSync(secretPath, 'utf8').trim();
+  if (!storedValue) {
+    return null;
+  }
+
+  if (!storedValue.startsWith(DESKTOP_SECRET_PREFIX)) {
+    return storedValue;
+  }
+
+  if (!safeStorage.isEncryptionAvailable()) {
+    return null;
+  }
+
+  const encryptedPayload = storedValue.slice(DESKTOP_SECRET_PREFIX.length);
+  const decrypted = safeStorage.decryptString(Buffer.from(encryptedPayload, 'base64')).trim();
+  return decrypted || null;
+}
+
+function persistDesktopSecret(secretPath: string, secret: string): void {
+  const useSafeStorage = safeStorage.isEncryptionAvailable();
+  const payload = useSafeStorage
+    ? `${DESKTOP_SECRET_PREFIX}${safeStorage.encryptString(secret).toString('base64')}`
+    : secret;
+
+  secureDirectoryBestEffort(path.dirname(secretPath));
+  fs.writeFileSync(secretPath, payload, { encoding: 'utf8', mode: 0o600 });
 }
 
 function loadOrCreateDesktopInstallSecret(): string {
@@ -24,24 +130,121 @@ function loadOrCreateDesktopInstallSecret(): string {
 
   const secretPath = desktopSecretFilePath();
   try {
-    if (fs.existsSync(secretPath)) {
-      const existing = fs.readFileSync(secretPath, 'utf8').trim();
-      if (existing) {
-        return existing;
+    const existing = readStoredDesktopSecret(secretPath);
+    if (existing) {
+      // Migrate plaintext to safeStorage-protected payload when available.
+      const existingRaw = fs.readFileSync(secretPath, 'utf8').trim();
+      if (
+        safeStorage.isEncryptionAvailable() &&
+        existingRaw &&
+        !existingRaw.startsWith(DESKTOP_SECRET_PREFIX)
+      ) {
+        persistDesktopSecret(secretPath, existing);
       }
+      return existing;
     }
   } catch (error) {
     console.warn('Failed to read desktop install secret file, generating new secret', error);
+    appendDesktopLog('WARN', 'Failed to read desktop install secret file; generating a new secret.');
   }
 
   const generated = crypto.randomBytes(32).toString('hex');
   try {
-    fs.mkdirSync(path.dirname(secretPath), { recursive: true });
-    fs.writeFileSync(secretPath, generated, { encoding: 'utf8' });
+    persistDesktopSecret(secretPath, generated);
   } catch (error) {
     console.warn('Failed to persist desktop install secret to disk', error);
+    appendDesktopLog('WARN', 'Failed to persist desktop install secret to disk.');
   }
   return generated;
+}
+
+function envFlag(name: string, defaultValue: boolean): boolean {
+  const raw = (process.env[name] || '').trim().toLowerCase();
+  if (!raw) {
+    return defaultValue;
+  }
+  return raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on';
+}
+
+function setUpdateState(
+  status: UpdateStatus,
+  message: string,
+  availableVersion: string | null = updateState.availableVersion,
+) {
+  updateState.status = status;
+  updateState.message = message;
+  updateState.availableVersion = availableVersion;
+}
+
+function configureAutoUpdater(isDev: boolean): void {
+  const updatesAllowed = !isDev && envFlag('DLE_AUTO_UPDATE_ENABLED', false);
+  updateState.enabled = updatesAllowed;
+  updateState.currentVersion = app.getVersion();
+
+  if (!updatesAllowed) {
+    setUpdateState('disabled', 'Auto-update disabled by runtime policy.', null);
+    return;
+  }
+
+  const feedUrl = (process.env.DLE_AUTO_UPDATE_FEED_URL || '').trim();
+  if (!feedUrl) {
+    updateState.enabled = false;
+    setUpdateState('disabled', 'Auto-update disabled (no feed URL configured).', null);
+    return;
+  }
+
+  autoUpdater.setFeedURL({
+    provider: 'generic',
+    url: feedUrl,
+  });
+
+  autoUpdater.autoDownload = envFlag('DLE_AUTO_UPDATE_AUTO_DOWNLOAD', false);
+  autoUpdater.autoInstallOnAppQuit = envFlag('DLE_AUTO_UPDATE_AUTO_INSTALL_ON_QUIT', true);
+  setUpdateState('idle', 'Auto-update ready.', null);
+
+  autoUpdater.on('checking-for-update', () => {
+    setUpdateState('checking', 'Checking for updates...', null);
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    const version = info?.version || null;
+    setUpdateState('available', 'Update available.', version);
+    appendDesktopLog('INFO', `Update available: ${version || 'unknown version'}`);
+  });
+
+  autoUpdater.on('update-not-available', () => {
+    setUpdateState('not_available', 'No updates available.', null);
+  });
+
+  autoUpdater.on('update-downloaded', (info) => {
+    const version = info?.version || updateState.availableVersion;
+    setUpdateState('downloaded', 'Update downloaded and ready to install.', version || null);
+    appendDesktopLog('INFO', `Update downloaded: ${version || 'unknown version'}`);
+  });
+
+  autoUpdater.on('error', (error) => {
+    const message = error instanceof Error ? error.message : String(error);
+    setUpdateState('error', `Update check failed: ${message}`);
+    appendDesktopLog('ERROR', `Auto-update error: ${message}`);
+  });
+
+  const checkForUpdates = async () => {
+    if (!updateState.enabled) {
+      return;
+    }
+    updateState.lastCheckAt = new Date().toISOString();
+    try {
+      await autoUpdater.checkForUpdates();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setUpdateState('error', `Update check failed: ${message}`);
+    }
+  };
+
+  void checkForUpdates();
+  updateCheckTimer = setInterval(() => {
+    void checkForUpdates();
+  }, AUTO_UPDATE_CHECK_INTERVAL_MS);
 }
 
 function readHeaderValue(
@@ -99,6 +302,8 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 function createWindow() {
+  const isDev = !app.isPackaged;
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -108,6 +313,9 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,
+      webviewTag: false,
+      devTools: isDev,
+      spellcheck: false,
     },
   });
 
@@ -126,8 +334,6 @@ function createWindow() {
     return { action: 'deny' };
   });
 
-  const isDev = !app.isPackaged;
-  
   if (isDev) {
     mainWindow.loadURL('http://localhost:3000/dashboard');
     mainWindow.webContents.openDevTools();
@@ -143,7 +349,9 @@ function createWindow() {
 
 app.on('ready', () => {
   const isDev = !app.isPackaged;
+  appendDesktopLog('INFO', `Desktop runtime booting (packaged=${app.isPackaged})`);
   desktopInstallSecret = loadOrCreateDesktopInstallSecret();
+  configureAutoUpdater(isDev);
 
   // Register protocol handler for 'app://'
   protocol.handle('app', async (request) => {
@@ -273,6 +481,7 @@ app.on('ready', () => {
 
 function startBackend() {
   console.log('Starting Python backend... v0.1.1');
+  appendDesktopLog('INFO', 'Starting backend process.');
   
   const isDev = !app.isPackaged;
   const rootDir = path.join(__dirname, '../../');
@@ -305,16 +514,19 @@ function startBackend() {
     const log = data.toString();
     console.log(`[Backend] ${log}`);
     mainWindow?.webContents.send('backend-log', log);
+    appendDesktopLog('INFO', `[Backend] ${log}`);
   });
 
   backendProcess.stderr?.on('data', (data) => {
     const log = data.toString();
     console.error(`[Backend Error] ${log}`);
     mainWindow?.webContents.send('backend-error', log);
+    appendDesktopLog('ERROR', `[Backend Error] ${log}`);
   });
 
   backendProcess.on('close', (code) => {
     console.log(`Backend process exited with code ${code}`);
+    appendDesktopLog('WARN', `Backend process exited with code ${String(code)}`);
   });
 }
 
@@ -329,9 +541,15 @@ app.on('window-all-closed', () => {
 });
 
 app.on('quit', () => {
+  if (updateCheckTimer) {
+    clearInterval(updateCheckTimer);
+    updateCheckTimer = null;
+  }
+
   if (backendProcess) {
     console.log('Terminating Python backend...');
     backendProcess.kill();
+    appendDesktopLog('INFO', 'Backend process termination requested.');
   }
 });
 
@@ -356,4 +574,44 @@ ipcMain.handle('get-db-status', (event, ...args: unknown[]) => {
   assertTrustedIpcInvoke(event, 'get-db-status', args);
   // This is a simplification; a real check would query the ports
   return backendProcess ? 'managed' : 'offline';
+});
+
+ipcMain.handle('get-update-state', (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'get-update-state', args);
+  return { ...updateState };
+});
+
+ipcMain.handle('check-for-updates', async (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'check-for-updates', args);
+  if (!updateState.enabled) {
+    return { ...updateState };
+  }
+
+  try {
+    updateState.lastCheckAt = new Date().toISOString();
+    await autoUpdater.checkForUpdates();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    setUpdateState('error', `Update check failed: ${message}`);
+  }
+  return { ...updateState };
+});
+
+ipcMain.handle('download-update', async (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'download-update', args);
+  if (!updateState.enabled) {
+    return { ...updateState };
+  }
+
+  if (updateState.status !== 'available') {
+    return { ...updateState };
+  }
+
+  try {
+    await autoUpdater.downloadUpdate();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    setUpdateState('error', `Update download failed: ${message}`);
+  }
+  return { ...updateState };
 });

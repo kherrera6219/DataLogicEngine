@@ -3,12 +3,17 @@ Param(
     [switch]$DryRun,
     [bool]$SkipDeps = $true,
     [switch]$Quiet,
+    [switch]$Silent,
     [string]$InstallPath = (Join-Path $env:ProgramFiles "DataLogicEngine"),
     [string]$DataPath = (Join-Path $env:ProgramData "DataLogicEngine")
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+if ($Silent) {
+    $Quiet = $true
+}
 
 # Logging setup
 $LocalLogDir = Join-Path $PSScriptRoot "logs"
@@ -44,6 +49,25 @@ function Write-Log([string]$Message, [string]$Color = "White") {
         catch {
             # Logging should never block installer control flow.
         }
+    }
+}
+
+function Protect-DirectoryAcl([string]$TargetPath) {
+    if ($DryRun) {
+        Write-Log "DRY RUN: Would apply restricted ACLs to $TargetPath" "Gray"
+        return
+    }
+
+    if (-not (Test-Path -LiteralPath $TargetPath)) {
+        return
+    }
+
+    try {
+        & icacls $TargetPath /inheritance:r /grant:r "SYSTEM:(OI)(CI)(F)" "Administrators:(OI)(CI)(F)" | Out-Null
+        Write-Log "[PASS] Restricted ACLs applied to $TargetPath" "Green"
+    }
+    catch {
+        Write-Log "[WARN] Failed to apply restricted ACLs on ${TargetPath}: $($_.Exception.Message)" "Yellow"
     }
 }
 
@@ -153,8 +177,14 @@ Get-SystemSnapshot
 try {
     # 1. Pre-flight Checks
     Write-Log "Performing pre-flight checks..."
-    if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-        throw "Installer must be run as Administrator."
+    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if (-not $isAdmin) {
+        if ($DryRun) {
+            Write-Log "[WARN] Dry run is not elevated. Privileged operations are simulated only." "Yellow"
+        }
+        else {
+            throw "Installer must be run as Administrator."
+        }
     }
     
     Test-SystemRequirements
@@ -182,6 +212,11 @@ try {
             $CreatedDirs += $InstallPath
         }
     }
+
+    # 2b. Harden local log and vault storage directories with restricted ACLs.
+    Protect-DirectoryAcl -TargetPath (Join-Path $DataPath "logs")
+    Protect-DirectoryAcl -TargetPath (Join-Path $DataPath "audit")
+    Protect-DirectoryAcl -TargetPath (Join-Path $DataPath "vault")
 
     # 3. Registry Registration
     Write-Log "Registering application in Windows Registry..."

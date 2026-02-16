@@ -1,11 +1,23 @@
 [CmdletBinding()]
 Param(
     [switch]$Quiet,
-    [switch]$Force
+    [switch]$Force,
+    [switch]$KeepData,
+    [switch]$DeleteData,
+    [switch]$Silent
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Continue" # Allow uninstaller to proceed even if some steps fail
+
+if ($Silent) {
+    $Quiet = $true
+}
+
+if ($KeepData -and $DeleteData) {
+    Write-Host "Invalid arguments: -KeepData and -DeleteData are mutually exclusive." -ForegroundColor Red
+    exit 1
+}
 
 # Function to kill any running instances
 function Stop-ActiveAppProcesses {
@@ -79,22 +91,25 @@ try {
     }
 
     # 3. Handle Data Removal
-    $decision = 1 # Default to Keep Data for automated runs
-    if ($Force) {
-        $decision = 1 # Delete everything
+    $shouldDeleteData = $false
+    if ($DeleteData -or $Force) {
+        $shouldDeleteData = $true
+    }
+    elseif ($KeepData) {
+        $shouldDeleteData = $false
     }
     elseif (-not $Quiet -and $Host.Name -eq "ConsoleHost") {
         $title = "Keep Your Data?"
         $message = "Do you want to permanently delete local chat history and settings at $DataPath?"
         $choices = [System.Management.Automation.Host.ChoiceDescription[]] @(
-            New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Keep my data."
-            New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Delete everything."
+            New-Object System.Management.Automation.Host.ChoiceDescription "&Keep", "Preserve local user data."
+            New-Object System.Management.Automation.Host.ChoiceDescription "&Delete", "Delete all local data."
         )
-        # Note: PromptForChoice returns index. 0 = Keep, 1 = Delete
         $decision = $Host.UI.PromptForChoice($title, $message, $choices, 0)
+        $shouldDeleteData = ($decision -eq 1)
     }
 
-    if ($decision -eq 1) {
+    if ($shouldDeleteData) {
         Write-Host "Deleting user data residency..." -ForegroundColor Red
         if (Test-Path $DataPath) {
             Remove-Item -Path $DataPath -Recurse -Force -ErrorAction SilentlyContinue
