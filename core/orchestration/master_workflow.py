@@ -831,7 +831,7 @@ class MasterWorkflowOrchestrator:
                         if research_needs:
                             result['research_needs'] = research_needs
                     else:
-                        logger.warning(f"RefinementOrchestrator returned error, falling back to placeholder")
+                        logger.warning("RefinementOrchestrator returned error, falling back to placeholder")
                         ro_available = False
                 except Exception as ro_error:
                     logger.warning(f"RefinementOrchestrator execution error: {ro_error}, using fallback")

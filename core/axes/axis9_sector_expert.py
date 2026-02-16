@@ -5,11 +5,10 @@ This module implements the Sector Expert Persona axis for the UKG system,
 providing industry/sector expert simulation capabilities.
 """
 
-import os
 import logging
 import uuid
 from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 

@@ -6,10 +6,9 @@ for the UKG system.
 """
 
 import logging
-import json
 import uuid
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Union, Tuple, Callable
+from typing import Dict, List
 
 class SekreEngine:
     """
@@ -461,8 +460,6 @@ class SekreEngine:
             # Extract feedback data
             simulation_id = feedback.get('simulation_id')
             rating = feedback.get('rating')
-            comments = feedback.get('comments')
-            source = feedback.get('source', 'user')
             
             # Check if feedback has required fields
             if not simulation_id or rating is None:

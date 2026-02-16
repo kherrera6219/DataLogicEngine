@@ -5,11 +5,10 @@ This module implements the Regulatory Expert Persona axis for the UKG system,
 providing regulatory compliance expert simulation capabilities.
 """
 
-import os
 import logging
 import uuid
 from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 

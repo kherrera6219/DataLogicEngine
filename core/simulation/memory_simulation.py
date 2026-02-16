@@ -8,9 +8,8 @@ Universal Knowledge Graph (UKG) system, focusing on layers 1-3.
 import logging
 import uuid
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any
 import networkx as nx
-import json
 
 class MemorySimulationEngine:
     """

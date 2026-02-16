@@ -8,7 +8,6 @@ MCP servers and access their resources, tools, and prompts.
 import asyncio
 import uuid
 from typing import Dict, List, Optional, Any
-from datetime import datetime
 import logging
 
 from .mcp_protocol import (
@@ -299,7 +298,7 @@ class MCPClient:
         self.connected = False
         self.server_info = None
         self.server_capabilities = None
-        logger.info(f"Disconnected from MCP server")
+        logger.info("Disconnected from MCP server")
 
     def get_client_info(self) -> Dict[str, Any]:
         """Get client information"""

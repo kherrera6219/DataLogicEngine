@@ -7,7 +7,6 @@ and viewpoints, supporting Axis 6 (Perspective) of the UKG system.
 
 from core.algorithms.base_algorithm import BaseKnowledgeAlgorithm
 import re
-import json
 
 class PerspectiveAnalyzerAlgorithm(BaseKnowledgeAlgorithm):
     """

@@ -5,12 +5,9 @@ This module implements the Quad Persona System for the UKG,
 providing multiple perspectives for knowledge interpretation and processing.
 """
 
-import os
 import logging
-import uuid
 from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Tuple
-from app import db
+from typing import Dict, List, Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -114,8 +111,6 @@ class PersonaSystem:
         - Dict containing the persona's perspective
         """
         persona = self.personas[persona_id]
-        node_content = knowledge_node.get('content', '')
-        node_title = knowledge_node.get('title', '')
         
         # Simple implementation - in reality this would be more sophisticated
         # and would actually analyze the content based on the persona's traits

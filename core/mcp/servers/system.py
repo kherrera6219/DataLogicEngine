@@ -8,10 +8,7 @@ Provides essential system capabilities to the MCP ecosystem:
 """
 
 import os
-import glob
 import logging
-import requests
-from typing import List, Dict, Any, Optional
 
 from core.mcp.mcp_server import MCPServer
 from core.mcp.mcp_protocol import MCPError, MCPErrorCode
@@ -117,7 +114,6 @@ class SystemServer(MCPServer):
         
         async def web_search(arguments):
             query = arguments.get("query")
-            limit = arguments.get("limit", 5)
             
             if not query:
                 raise MCPError(MCPErrorCode.INVALID_PARAMS, "Missing 'query'")

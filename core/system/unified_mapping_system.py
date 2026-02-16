@@ -7,12 +7,10 @@ spatial mapping to create a precise 17-dimensional coordinate system for data lo
 """
 
 import logging
-import uuid
-import json
 from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional
 import numpy as np
-from core.coordinate_system import UnifiedCoordinate, AxisCoordinate
+from core.coordinate_system import UnifiedCoordinate
 
 class UnifiedMappingSystem:
     """
@@ -54,7 +52,7 @@ class UnifiedMappingSystem:
         # 17D coordinate system basis vectors
         self.coordinate_basis = np.eye(17)
         
-        self.logger.info(f"Initialized Unified Mapping System with 17D coordinate space")
+        self.logger.info("Initialized Unified Mapping System with 17D coordinate space")
     
     def get_unified_identifier(self, node_data: Dict[str, Any]) -> UnifiedCoordinate:
         """

@@ -19,7 +19,7 @@ import logging
 import re
 import hashlib
 from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Tuple, Union
+from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
@@ -985,7 +985,7 @@ class UnifiedCoordinateSystem:
             Dictionary with axis information
         """
         if not 1 <= axis_number <= 17:
-            raise ValueError(f"Axis number must be between 1 and 17")
+            raise ValueError("Axis number must be between 1 and 17")
         
         return {
             'axis_number': axis_number,

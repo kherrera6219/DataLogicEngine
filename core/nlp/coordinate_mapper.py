@@ -12,7 +12,7 @@ import logging
 import json
 import os
 from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 

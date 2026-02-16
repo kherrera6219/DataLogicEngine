@@ -5,11 +5,10 @@ This module implements a memory management system for the quad persona engine
 to store, retrieve, and utilize contextual information across sessions.
 """
 
-import json
 import logging
 import uuid
 from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 from collections import deque
 
 logger = logging.getLogger(__name__)

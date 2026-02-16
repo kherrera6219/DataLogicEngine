@@ -6,10 +6,8 @@ within the UKG system.
 """
 
 import logging
-import json
-import uuid
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Optional
 try:
     from models import Node as UkgNode, Edge as UkgEdge
     from extensions import db as ukg_db

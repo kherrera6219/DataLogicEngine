@@ -9,7 +9,7 @@ across disparate labeling systems (SAM.gov, NAICS, ISO, etc.).
 import logging
 import uuid
 from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 
 class UnifiedIdentityService:
     """

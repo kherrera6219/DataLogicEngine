@@ -6,8 +6,7 @@ lineage, and chain-of-custody for knowledge elements.
 """
 
 import logging
-from typing import Dict, Any, List, Optional
-from datetime import datetime, UTC
+from typing import Dict, Any
 from simulation.coordinate_system import SourceProvenance
 
 logger = logging.getLogger(__name__)

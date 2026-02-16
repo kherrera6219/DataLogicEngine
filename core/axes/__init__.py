@@ -1,4 +1,4 @@
-from .axis14_provenance import SourceProvenanceAxis
-from .axis15_object_type import ObjectTypeAxis
-from .axis16_validation_state import ValidationStateAxis
-from .axis17_security import SecurityAxis
+from .axis14_provenance import SourceProvenanceAxis as SourceProvenanceAxis
+from .axis15_object_type import ObjectTypeAxis as ObjectTypeAxis
+from .axis16_validation_state import ValidationStateAxis as ValidationStateAxis
+from .axis17_security import SecurityAxis as SecurityAxis

@@ -7,11 +7,10 @@ linking them through the Unified Artifact Envelope (UAE) and FROST snapshots.
 """
 
 import logging
-import json
 import uuid
 from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional
-from core.system.uae_models import UnifiedArtifactEnvelope, ProvenanceEntry
+from core.system.uae_models import UnifiedArtifactEnvelope
 
 class TraceProvenanceService:
     """

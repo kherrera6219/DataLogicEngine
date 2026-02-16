@@ -5,12 +5,9 @@ This module implements the Location axis for the UKG system,
 providing spatial and geographical context for knowledge.
 """
 
-import os
 import logging
 import uuid
-from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Tuple
-from sqlalchemy import and_, or_, func
+from typing import Dict, Any, Optional
 from app import db
 from models import Location, KnowledgeNode
 
@@ -46,7 +43,6 @@ class LocationAxis:
         name = kwargs.get('name')
         location_type = kwargs.get('location_type')
         coordinates = kwargs.get('coordinates')
-        radius = kwargs.get('radius', 10.0)  # Default 10km radius
         parent_id = kwargs.get('parent_id')
         include_nodes = kwargs.get('include_nodes', False)
         

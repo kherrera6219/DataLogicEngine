@@ -6,7 +6,7 @@ from datetime import datetime, UTC
 from pydantic import BaseModel, Field, ValidationError
 
 from core.knowledge_algorithm.exceptions import (
-    KAError, KAValidationError, KAExecutionError, KAConfigError, KATimeoutError
+    KAError
 )
 
 # Configure structured logging

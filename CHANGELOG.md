@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.12] - 2026-02-16
+
+### Changed
+- Lint phase cleanup for runtime orchestration and core intelligence modules (`app.py` + 56 files under `core/`) focused on safe, behavior-preserving reductions of unused imports/variables and duplicate dead definitions.
+- Core lint safety subset is now clean for `F401`, `F541`, `F811`, and `F841`.
+- Fixed undefined logger usage fallback path in QPE execution handling (`core/simulation/query_persona_engine.py`).
+
+### Testing
+- Debug/error sweep completed for the app/core phase:
+  - `.venv\Scripts\python.exe -m ruff check app.py --select F401,F541,F841,F811` (pass)
+  - `.venv\Scripts\python.exe -m ruff check core --select F401,F541,F841,F811` (pass)
+  - `.venv\Scripts\python.exe -m ruff check app.py core --select E9,F63,F7,F821` (pass)
+  - `.venv\Scripts\python.exe -m py_compile` across all modified `app.py` + `core/` files (pass)
+  - `.venv\Scripts\python.exe -m pytest -q -o addopts='' tests/test_health_endpoint.py tests/integration_routes/test_app_route_wiring.py tests/unit/test_core_integration.py tests/simulation/test_simulation_layers.py` (`36 passed`)
+  - `npm --prefix frontend run lint` (pass)
+  - `npm --prefix frontend run typecheck` (pass)
+- Known non-blocking remaining style debt in `app.py` + `core/` after this phase:
+  - `E402`: 29
+  - `E701`: 8
+  - `E741`: 5
+  - `E722`: 4
+  - `E711`: 1
+
 ## [4.1.11] - 2026-02-16
 
 ### Changed

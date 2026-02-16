@@ -7,11 +7,10 @@ memory management for improved contextual awareness.
 """
 
 import logging
-import json
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 
-from core.persona.quad_persona_engine import QuadPersonaEngine, create_quad_persona_engine
-from core.persona.memory_system import get_memory_manager, MemoryManager
+from core.persona.quad_persona_engine import create_quad_persona_engine
+from core.persona.memory_system import get_memory_manager
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +58,7 @@ class PersonaManager:
                 logger.info(f"Retrieved {sum(len(mems) for mems in memories.values())} memories across {len(memories)} contexts")
             
             # Prepare query context with memories
-            query_context = self.prepare_query_context(query, context, memories)
+            self.prepare_query_context(query, context, memories)
             
             # Process the query through the quad persona engine
             result = self.quad_persona_engine.process_query(query)

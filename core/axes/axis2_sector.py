@@ -8,8 +8,8 @@ organization within the knowledge graph.
 
 import logging
 import uuid
-from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Union
+from datetime import datetime
+from typing import Dict, List, Any, Optional
 
 class SectorManager:
     """

@@ -7,7 +7,6 @@ entities, and intents for further processing in the UKG system.
 
 from core.algorithms.base_algorithm import BaseKnowledgeAlgorithm
 import re
-import json
 
 class QueryAnalyzerAlgorithm(BaseKnowledgeAlgorithm):
     """

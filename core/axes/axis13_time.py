@@ -7,12 +7,10 @@ providing temporal context for knowledge and enabling historical,
 present, and future time mapping.
 """
 
-import os
 import logging
 import uuid
-from datetime import datetime, timedelta, UTC
-from typing import Dict, List, Any, Optional, Tuple
-from sqlalchemy import and_, or_, func
+from datetime import datetime, UTC
+from typing import Dict, List, Any, Optional
 from app import db
 from models import TimeContext, KnowledgeNode
 

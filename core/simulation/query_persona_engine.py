@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Dict, Any, List, Optional
-import uuid
+from typing import Dict, Any, List
 
 class QueryPersonaEngine:
     """
@@ -172,9 +171,6 @@ class QueryPersonaEngine:
                     'confidence': 0.0
                 }
             
-            # Get the axis number for this persona
-            axis_number = persona_axis_map[persona_type]
-            
             # Retrieve persona templates from UKG
             # In a full implementation, this would query the UKG to find the most relevant personas
             # For simplicity, we'll use a default persona model for each type
@@ -226,7 +222,7 @@ class QueryPersonaEngine:
                     )
             except Exception as e:
                 # Fallback to KA01 if the specific KA doesn't exist
-                logger.warning(f"Failed to execute KA, falling back to KA01: {str(e)}")
+                logging.warning(f"Failed to execute KA, falling back to KA01: {str(e)}")
                 ka_result = self.ka_loader.execute_ka(
                     ka_id=1,
                     input_data={'query_text': query_text},

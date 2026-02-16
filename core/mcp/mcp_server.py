@@ -5,12 +5,10 @@ Implements a Model Context Protocol server that can expose resources,
 tools, and prompts to LLM applications.
 """
 
-import asyncio
 import uuid
 import inspect
 import time
 from typing import Dict, List, Optional, Any, Callable
-from datetime import datetime
 import logging
 
 from backend.mcp_server.connector_metrics import infer_connector_id, record_connector_execution
@@ -21,7 +19,7 @@ from backend.mcp_server.contract_validation import (
 )
 from backend.mcp_server.scope_enforcement import enforce_scopes, parse_execution_context
 from .mcp_protocol import (
-    MCPMessage, MCPResource, MCPTool, MCPPrompt,
+    MCPResource, MCPTool, MCPPrompt,
     MCPServerInfo, MCPCapabilities, MCPMethod,
     MCPRequestHandler, MCPError, MCPErrorCode
 )

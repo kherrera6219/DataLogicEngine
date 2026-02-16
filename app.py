@@ -1,6 +1,5 @@
 import os
 import re
-import uuid
 import json
 import logging
 import time
@@ -12,9 +11,8 @@ from dotenv import load_dotenv
 # Load environment variables from .env file BEFORE any other imports
 load_dotenv()
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, current_app, Response
-from flask_login import login_user, logout_user, login_required, current_user
-from flask_limiter.util import get_remote_address
+from flask import Flask, render_template, request, redirect, flash, jsonify, current_app, Response
+from flask_login import login_required, current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.exceptions import HTTPException
 from extensions import limiter
@@ -254,7 +252,7 @@ else:
 
 # Initialize extensions with app
 from extensions import db, login_manager, csrf, migrate, cache, compress, cors, limiter
-from models import User, APIKey, SimulationSession
+from models import User
 db.init_app(app)
 login_manager.init_app(app)
 csrf.init_app(app)
@@ -268,7 +266,7 @@ cache.init_app(app)
 compress.init_app(app)
 
 # Initialize WebSockets
-from backend.websocket import init_socketio, socketio
+from backend.websocket import init_socketio
 init_socketio(app)
 
 
@@ -433,22 +431,6 @@ else:
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-from models import (
-    Location,
-    User,
-    SimulationSession,
-    KnowledgeGraphNode,
-    KnowledgeGraphEdge,
-    MCPServer,
-    MCPResource,
-    MCPTool,
-    MCPPrompt,
-    PasswordHistory,
-    ChatSession,
-    ChatMessage,
-    LLMProvider,
-    LLMProviderUsage,
-)
 
 @login_manager.user_loader
 def load_user(user_id):

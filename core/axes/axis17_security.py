@@ -6,7 +6,7 @@ and access control policies for knowledge elements.
 """
 
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any
 from simulation.coordinate_system import SecurityClassification
 
 logger = logging.getLogger(__name__)

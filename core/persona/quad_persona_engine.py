@@ -6,11 +6,10 @@ four different personas, each with seven components, and uses deep recursive
 learning to simulate expert advice.
 """
 
-import json
 import logging
 import uuid
 from datetime import datetime, UTC
-from typing import Dict, List, Any, Tuple, Optional
+from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 

@@ -5,12 +5,10 @@ This module implements the Knowledge Expert Persona axis for the UKG system,
 providing domain knowledge expert simulation capabilities.
 """
 
-import os
 import logging
 import uuid
 from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Tuple
-from sqlalchemy import and_, or_, func
+from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 

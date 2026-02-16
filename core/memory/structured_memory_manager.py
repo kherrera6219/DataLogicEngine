@@ -6,10 +6,9 @@ It manages persistent memory storage, retrieval, and organization.
 """
 
 import logging
-import json
 import uuid
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Union
+from datetime import datetime
+from typing import Dict, List, Optional
 
 class StructuredMemoryManager:
     """

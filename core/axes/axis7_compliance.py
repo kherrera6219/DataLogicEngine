@@ -8,10 +8,10 @@ certification processes within the knowledge graph.
 
 import logging
 import uuid
-from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Union, Set
+from datetime import datetime
+from typing import Dict, Any, Optional
 
-class ComplianceManager:
+class LegacyComplianceManager:
     """
     Compliance Manager for the UKG System
     
@@ -1013,10 +1013,7 @@ The Spiderweb Node System represents how compliance standards branch out with:
 - Granular compliance points (edge nodes)
 """
 
-import logging
-import uuid
-from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Union, Set
+from typing import Dict, Any, Optional
 
 class ComplianceManager:
     """

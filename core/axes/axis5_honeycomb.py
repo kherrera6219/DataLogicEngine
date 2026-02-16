@@ -9,8 +9,8 @@ pillar levels, and other axes within the knowledge graph.
 
 import logging
 import uuid
-from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Union, Set
+from datetime import datetime
+from typing import Dict, List, Any, Optional
 
 class HoneycombSystem:
     """
@@ -514,8 +514,6 @@ class HoneycombSystem:
         if start_uid == end_uid:
             return [[start_uid]]
         
-        # Track visited nodes to avoid cycles
-        visited = set()
         queue = [(start_uid, [start_uid])]
         all_paths = []
         

@@ -8,7 +8,7 @@ to produce the final simulation output.
 
 import logging
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Optional
 
 
 class Layer10SynthesisEngine:

@@ -8,8 +8,7 @@ requirements into functional personas with canonical UKGIDs.
 
 import logging
 import uuid
-from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 from quad_persona.quad_engine import PersonaProfile
 
 class PersonaConstructionService:

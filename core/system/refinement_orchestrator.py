@@ -7,9 +7,8 @@ to converge on high-confidence answers (target ≥ 0.995).
 """
 
 import logging
-from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional
-from core.system.uae_models import UnifiedArtifactEnvelope, ConfidenceVector
+from typing import Dict, Any
+from core.system.uae_models import UnifiedArtifactEnvelope
 
 class RefinementOrchestrator:
     """
@@ -59,7 +58,7 @@ class RefinementOrchestrator:
             self.logger.info(f"Starting refinement iteration {iteration} for {current_artifact.artifact_id}")
             
             # Record base state in FROST
-            base_snap = self.frost.snapshot(current_artifact.model_dump()) if self.frost else None
+            self.frost.snapshot(current_artifact.model_dump()) if self.frost else None
             
             # Execute steps (simplified for now: calling KAs or logic)
             for step in self.STEPS:
