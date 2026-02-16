@@ -20,8 +20,9 @@ Define versioning and lifecycle rules for active documentation.
 ## Governance Checks
 
 1. `python scripts/verify_docs_references.py`
-2. `python scripts/verify_environment_parity.py`
-3. `python scripts/verify_lockfiles.py`
+2. `python scripts/generate_docs.py`
+3. `python scripts/verify_environment_parity.py`
+4. `python scripts/verify_lockfiles.py`
 
 ## Document Control
 

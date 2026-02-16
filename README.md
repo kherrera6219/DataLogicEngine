@@ -185,8 +185,11 @@ Primary docs:
 5. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
 6. `docs/DEPLOYMENT.md`
 7. `docs/ARCHITECTURE.md`
-8. `docs/SECURITY.md`
-9. `docs/TESTING.md`
+8. `docs/ARCHITECTURE_MAP.md`
+9. `docs/SECURITY.md`
+10. `docs/TESTING.md`
+11. `docs/FILE_STRUCTURE.md`
+12. `docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`
 
 ## Testing
 

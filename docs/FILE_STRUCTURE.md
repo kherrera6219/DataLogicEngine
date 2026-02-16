@@ -2,9 +2,31 @@
 
 ## Purpose
 
-Describe the primary repository layout and naming conventions used by DataLogicEngine.
+Define repository layout, naming conventions, and inventory generation standards for DataLogicEngine.
 
-## Naming Conventions
+## Audience
+
+1. Developers and reviewers
+2. Architecture and platform teams
+3. Release engineers
+4. Security and compliance auditors
+
+## Repository layout (top level)
+
+```text
+DataLogicEngine/
+├── backend/          # Backend services, middleware, security, AI orchestration
+├── core/             # Core engine and domain abstractions
+├── frontend/         # Next.js app, component system, Electron desktop runtime
+├── routes/           # API route handlers and endpoint wiring
+├── scripts/          # Verification, generation, packaging, and runbook automation
+├── tests/            # Unit, integration, security, and end-to-end tests
+├── docs/             # Source-of-truth docs, standards, runbooks, ADRs
+├── deploy/           # Deployment and platform assets
+└── sdk/              # SDK and external integration helpers
+```
+
+## Naming conventions
 
 ### Backend (Python/Flask)
 
@@ -15,61 +37,83 @@ Describe the primary repository layout and naming conventions used by DataLogicE
 
 ### Frontend (Next.js/React/TypeScript)
 
-1. Routes/directories: app-router folders (`app/<route>/page.tsx`)
+1. Routes/directories: App Router folders (`app/<route>/page.tsx`)
 2. Components: `PascalCase.tsx`
 3. Hooks/utilities: `camelCase` (`useX.ts`, `utils.ts`)
 4. API clients: `frontend/lib/api/*`
 
-## Repository Layout (Top Level)
+### Scripts and automation
 
-```text
-DataLogicEngine/
-├── backend/          # Backend modules and integrations
-├── core/             # Core logic and frameworks
-├── frontend/         # Next.js UI and Electron runtime
-├── routes/           # API route modules
-├── scripts/          # Local automation and validation scripts
-├── tests/            # Test suites
-├── docs/             # Active and historical documentation
-├── deploy/           # Deployment and operations assets
-└── sdk/              # Python SDK
-```
+1. Python verification scripts: `verify_<area>.py`
+2. Windows operations scripts: verb-first PowerShell names (`start_*.ps1`, `verify_*.ps1`)
+3. Generated artifacts: explicitly named in `docs/` and not hand-edited
 
-## High-Value Subtrees
+## High-value subtrees
 
 ### `frontend/`
 
-1. `app/` route pages
-2. `components/` UI and feature components
-3. `electron/` desktop process sources
-4. `lib/api/` shared API client layer
+1. `app/` route pages and app-router segments
+2. `components/` UI components and feature composition
+3. `electron/` desktop process and IPC bridge code
+4. `lib/` API and shared utilities
+5. `tests/` unit and E2E coverage
 
 ### `backend/` and `routes/`
 
-1. Gateway/auth/storage/simulation/tracing services
-2. Route blueprints and API handlers
-3. Supporting integrations and policy enforcement
+1. API gateway/auth/storage/simulation/tracing services
+2. Middleware for security headers, limits, request correlation, and runtime policy
+3. AI governance and model routing layers
+4. Connector and MCP service paths
 
 ### `scripts/windows/`
 
 1. `start_local_stack.ps1`
 2. `stop_local_stack.ps1`
-3. `test_frontend_route_policy.ps1`
-4. `prepare_wix_assets.ps1`
+3. `run_packaging_smoke.ps1`
+4. `verify_nsis_governance.ps1`
+5. `verify_installer_signature.ps1`
 
-## Generated Inventory
+## Generated inventory and structure artifacts
 
-1. Full inventory CSV: `docs/FILE_INVENTORY.csv`
-2. Generated structure summary: `docs/GENERATED_STRUCTURE.md`
-3. Generation command:
+1. Full file inventory:
+   `docs/FILE_INVENTORY.csv`
+2. Generated structure summary:
+   `docs/GENERATED_STRUCTURE.md`
+3. Architecture implementation map:
+   `docs/ARCHITECTURE_MAP.md`
+
+## Generation procedure
+
+Run from repository root:
 
 ```powershell
 .venv\Scripts\python.exe .\scripts\generate_docs.py
 ```
 
-## Document Control
+This updates:
+
+1. `docs/FILE_INVENTORY.csv`
+2. `docs/GENERATED_STRUCTURE.md`
+
+## Validation
+
+1. Verify cross-document references:
+   `python scripts/verify_docs_references.py`
+2. Verify environment parity:
+   `python scripts/verify_environment_parity.py`
+3. Verify lockfile governance:
+   `python scripts/verify_lockfiles.py`
+
+## Related documents
+
+1. `docs/ARCHITECTURE_MAP.md`
+2. `docs/DOCUMENTATION_STANDARDS.md`
+3. `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
+4. `docs/README.md`
+
+## Document control
 
 1. Owner: Platform Engineering
-2. Last updated: 2026-02-08
+2. Last updated: 2026-02-16
 3. Status: Active
 4. Review cadence: Every 30 days

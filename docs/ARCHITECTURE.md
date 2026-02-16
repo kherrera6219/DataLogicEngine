@@ -14,7 +14,7 @@ Define the logical and runtime architecture of DataLogicEngine for engineering, 
 ## Document control
 
 1. Owner: Platform Architecture
-2. Last updated: 2026-02-08
+2. Last updated: 2026-02-16
 3. Status: Active
 4. Review cadence: Every 60 days
 
@@ -24,6 +24,7 @@ Define the logical and runtime architecture of DataLogicEngine for engineering, 
 2. `docs/SECURITY.md`
 3. `docs/DEPLOYMENT.md`
 4. `docs/PRODUCTION_READINESS.md`
+5. `docs/ARCHITECTURE_MAP.md`
 
 ## Overview
 

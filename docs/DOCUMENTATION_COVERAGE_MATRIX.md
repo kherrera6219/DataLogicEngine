@@ -12,6 +12,7 @@ Track source-of-truth documents across all core application areas and identify d
 | Product design and UX | `docs/PRODUCT_DESIGN.md` | Active | Information architecture, interaction model, lazy-loading strategy |
 | End-user operations guide | `docs/USER_GUIDE.md` | Active | Task-oriented usage and workflow guidance |
 | Architecture and design | `docs/ARCHITECTURE.md` | Active | Logical and deployment architecture |
+| Architecture implementation map | `docs/ARCHITECTURE_MAP.md` | Active | Runtime mode map, trust boundaries, code-path mapping |
 | API contract and usage | `docs/API.md`, `docs/openapi.yaml` | Active | Human + machine-readable API references |
 | Security controls | `docs/SECURITY.md` | Active | IAM, encryption, audit, runtime controls |
 | Compliance mapping | `docs/SDLC_SSDF_MAPPING.md`, `docs/AI_MANAGEMENT_SYSTEM_42001.md` | Active | SSDF and AI management alignment |
@@ -26,6 +27,8 @@ Track source-of-truth documents across all core application areas and identify d
 | Architecture decisions | `docs/adr/*` | Active | Immutable architecture decision records |
 | Developer onboarding | `docs/DEVELOPER_GUIDE.md` | Active | Local setup and development workflows |
 | Contribution workflow | `docs/CONTRIBUTING.md` | Active | Branching, review, and doc update policy |
+| Documentation standard baseline | `docs/DOCUMENTATION_STANDARDS.md`, `docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md` | Active | Production documentation requirements with vendor alignment |
+| File inventory and repository map | `docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`, `docs/FILE_STRUCTURE.md` | Active | Generated inventory, structure map, and naming policy |
 | Workflow reasoning model | `docs/WORKFLOW.md` | Active | High-level query pipeline workflow |
 | Privacy/legal policy | `docs/PRIVACY_POLICY.md` | Active | User data handling and policy disclosure |
 | Historical records | `docs/archive/*` | Archived | Not source-of-truth |
@@ -35,7 +38,8 @@ Track source-of-truth documents across all core application areas and identify d
 
 1. Keep generated inventory docs (`docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`) refreshed after repository cleanup/refactors.
 2. Continue consolidating any conflicting instructions between legacy `docs/archive/` files and active source-of-truth docs.
-3. Add lightweight link-check automation for active markdown docs in CI.
+3. Expand CI docs enforcement to include markdown linting for active files.
+4. Keep vendor guidance baseline (`docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`) reviewed at least monthly.
 
 ## Document control
 

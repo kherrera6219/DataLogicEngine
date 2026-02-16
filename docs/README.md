@@ -21,6 +21,7 @@ Single entry point for active documentation and source-of-truth documents.
 6. Section 10 Windows desktop controls now include governed NSIS policy checks, controlled auto-update runtime gating, silent install/uninstall controls, secure desktop secret/log storage paths, and startup port conflict auto-resolution.
 7. Section 11 governance controls now include repository pre-commit hooks, ADR baseline, environment parity and lockfile verification gates, release checklist workflow, and branch/code-owner policy docs.
 8. Some settings/admin/MCP UX areas remain partial (see `docs/PRODUCT_OVERVIEW.md`).
+9. Documentation governance now includes vendor-aligned AI production standards, architecture mapping, and deterministic repository inventory generation.
 
 ## Start Here
 
@@ -29,16 +30,24 @@ Single entry point for active documentation and source-of-truth documents.
 3. Developer guide: `docs/DEVELOPER_GUIDE.md`
 4. Windows local runbook: `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
 5. Architecture: `docs/ARCHITECTURE.md`
-6. API reference: `docs/API.md`
-7. Security controls: `docs/SECURITY.md`
-8. Deployment guide: `docs/DEPLOYMENT.md`
-9. Testing standards: `docs/TESTING.md`
-10. Operational runbooks: `docs/OPERATIONAL_RUNBOOKS.md`
-11. Release checklist: `docs/RELEASE_CHECKLIST.md`
-12. Branch protection policy: `docs/BRANCH_PROTECTION_POLICY.md`
-13. Documentation versioning: `docs/DOCUMENTATION_VERSIONING.md`
-14. Architecture decision records: `docs/adr/README.md`
+6. Architecture map: `docs/ARCHITECTURE_MAP.md`
+7. API reference: `docs/API.md`
+8. Security controls: `docs/SECURITY.md`
+9. Deployment guide: `docs/DEPLOYMENT.md`
+10. Testing standards: `docs/TESTING.md`
+11. Operational runbooks: `docs/OPERATIONAL_RUNBOOKS.md`
+12. Release checklist: `docs/RELEASE_CHECKLIST.md`
+13. Branch protection policy: `docs/BRANCH_PROTECTION_POLICY.md`
+14. Documentation versioning: `docs/DOCUMENTATION_VERSIONING.md`
+15. AI documentation baseline: `docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`
+16. Architecture decision records: `docs/adr/README.md`
 
+## Repository inventory and map artifacts
+
+1. File inventory (generated): `docs/FILE_INVENTORY.csv`
+2. Structure summary (generated): `docs/GENERATED_STRUCTURE.md`
+3. File structure and naming policy: `docs/FILE_STRUCTURE.md`
+4. Documentation coverage matrix: `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
 
 ## Current assessments
 
@@ -51,6 +60,7 @@ Single entry point for active documentation and source-of-truth documents.
 
 1. `docs/DOCUMENTATION_STANDARDS.md`
 2. `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
+3. `docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`
 
 ## Active vs Historical
 

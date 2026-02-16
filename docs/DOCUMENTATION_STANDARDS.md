@@ -1,95 +1,141 @@
 # DataLogicEngine Documentation Standards
 
-## Document purpose
+## Purpose
 
-Define enterprise documentation standards for DataLogicEngine and establish a single, auditable style baseline for all active documentation.
+Define production-grade documentation requirements for DataLogicEngine and establish consistent quality gates for AI system documentation.
 
-## Sources reviewed (Microsoft)
+## Audience
 
-The standards below are aligned to Microsoft primary guidance:
-
-1. Microsoft Writing Style Guide:
-   https://learn.microsoft.com/style-guide/welcome/
-2. Microsoft Learn documentation overview:
-   https://learn.microsoft.com/en-us/contribute/content/
-3. Microsoft style guidance for procedures/instructions:
-   https://learn.microsoft.com/style-guide/procedures-instructions/
-4. Microsoft style guidance for titles and headings:
-   https://learn.microsoft.com/style-guide/scannable-content/headings
+1. Platform engineering
+2. Frontend/backend developers
+3. Security and compliance reviewers
+4. Operations and support engineers
+5. Release managers
 
 ## Scope
 
-Applies to:
+This standard applies to:
 
 1. `README.md`
-2. All active files under `docs/`
-3. Runbooks and operational procedures referenced by CI/CD and production support
+2. Active documents under `docs/`
+3. Operational runbooks referenced by CI/CD and production support
 
-Does not apply to:
+This standard does not apply to:
 
-1. `docs/archive/` historical artifacts
-2. `docs/whitepapers/` long-form research narratives
-3. Auto-generated inventories (`FILE_INVENTORY.csv`, generated structure maps)
+1. `docs/archive/` historical records
+2. `docs/whitepapers/` research narratives
+3. Auto-generated outputs (`docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`)
 
-## Required structure for active docs
+## External baseline references
 
-Every active document must include these top-level sections (or equivalent):
+The requirements below are aligned to official production guidance:
+
+1. OpenAI Platform docs:
+   https://platform.openai.com/docs/guides/production-best-practices
+2. OpenAI safety best practices:
+   https://platform.openai.com/docs/guides/safety-best-practices
+3. Microsoft Responsible AI resources:
+   https://learn.microsoft.com/azure/ai-foundry/responsible-ai/
+4. Microsoft Well-Architected Framework:
+   https://learn.microsoft.com/azure/well-architected/
+5. AWS Well-Architected Machine Learning Lens:
+   https://docs.aws.amazon.com/wellarchitected/latest/machine-learning-lens/
+6. AWS Generative AI Lens:
+   https://docs.aws.amazon.com/wellarchitected/latest/generative-ai-lens/
+7. NVIDIA AI Enterprise docs:
+   https://docs.nvidia.com/ai-enterprise/
+8. NVIDIA NeMo Guardrails documentation:
+   https://docs.nvidia.com/nemo/guardrails/latest/
+
+## Production repository baseline
+
+Production repositories should maintain, at minimum, these source-of-truth artifacts:
+
+1. Product and setup entry points:
+   `README.md`, `docs/PRODUCT_OVERVIEW.md`, `docs/USER_GUIDE.md`
+2. Secure contribution and support:
+   `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`
+3. Architecture and API contracts:
+   `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_MAP.md`, `docs/API.md`, `docs/openapi.yaml`
+4. Operations and incident handling:
+   `docs/DEPLOYMENT.md`, `docs/OPERATIONAL_RUNBOOKS.md`, `docs/PRODUCTION_READINESS.md`
+5. Engineering quality and release controls:
+   `docs/TESTING.md`, `docs/RELEASE_CHECKLIST.md`, `CHANGELOG.md`
+6. Governance and traceability:
+   `docs/SDLC_SSDF_MAPPING.md`, `docs/AI_MANAGEMENT_SYSTEM_42001.md`, `docs/adr/*`
+
+## Required section model for active documents
+
+Each active document must include these sections or direct equivalents:
 
 1. `Purpose`
 2. `Audience`
-3. `Prerequisites` (if operational)
-4. `Procedure` or `Reference` content
-5. `Validation` (commands/checks where applicable)
-6. `Troubleshooting` or `Known limitations` (if operational)
+3. `Prerequisites` (for operational docs)
+4. `Procedure` or `Reference`
+5. `Validation` (commands/checks)
+6. `Troubleshooting` or `Known limitations`
 7. `Related documents`
-8. `Document control` block
+8. `Document control`
 
-## Document control block
+## AI application-specific requirements
 
-Active docs should include a control block near the top:
+Every production AI application area must document:
 
-1. `Owner`: team or role
-2. `Last updated`: ISO date
-3. `Status`: Draft, Active, Deprecated, Archived
-4. `Review cadence`: for example, 30/60/90 days
+1. Model and provider policy:
+   allowlist, routing policy, fallback behavior, timeout/retry policy
+2. Prompt and guardrail governance:
+   prompt versioning, moderation/injection protections, blocked behaviors
+3. Output safety and classification:
+   output categories, confidence/risk handling, escalation criteria
+4. Data handling controls:
+   classification, retention/deletion, export rules, redaction requirements
+5. Observability:
+   metrics, logs, correlation IDs, latency/cost dashboards, alert thresholds
+6. Recovery and incident response:
+   failure modes, rollback steps, support-bundle workflow, evidence capture path
 
-## Content model
+## Writing and structure rules
 
-Use these content types intentionally:
+1. Use clear and direct language with active voice.
+2. Keep headings task-oriented and scannable.
+3. Use numbered procedures for operational steps.
+4. Place prerequisites before commands.
+5. Use copy-ready command blocks with expected outputs where practical.
+6. Use precise file paths, route names, env var names, and API endpoints.
+7. Use explicit dates (`YYYY-MM-DD`) for releases, reviews, and policy changes.
+8. Avoid duplicate or contradictory instructions across documents.
 
-1. `Concept`: architecture and design intent (`docs/ARCHITECTURE.md`)
-2. `How-to`: step-by-step operations (`docs/WINDOWS_11_LOCAL_RUNBOOK.md`, `docs/DEPLOYMENT.md`)
-3. `Reference`: APIs, configuration, schema (`docs/API.md`, `docs/openapi.yaml`)
-4. `Policy/Standard`: security/compliance and governance (`docs/SECURITY.md`, `docs/SDLC_SSDF_MAPPING.md`)
+## Diagram and architecture map rules
 
-## Writing rules
+1. Architecture maps must separate trust boundaries and data boundaries.
+2. Diagrams must identify mode-specific paths (`local`, `cloud`, `desktop`).
+3. Every diagram must map to real code paths or services.
+4. Add a validation section that points to test/health checks for each critical flow.
 
-1. Use clear, direct, active voice.
-2. Prefer sentence-case headings for readability.
-3. Keep procedures task-oriented and numbered.
-4. Put prerequisites before commands.
-5. Use explicit command blocks with copy-ready syntax.
-6. Use exact file paths and environment variable names.
-7. Avoid ambiguous terms such as "soon", "later", "some".
-8. Avoid contradictory statements across duplicated docs.
+## Documentation quality gates
 
-## Operational quality gates
+Before merge:
 
-Before merging documentation updates:
-
-1. Validate command examples on target platform (Windows for desktop runbooks).
-2. Ensure cross-links resolve to existing files.
-3. Ensure one source-of-truth document per area.
-4. Update `docs/README.md` index and coverage matrix when adding a new active doc.
+1. Validate document references:
+   `python scripts/verify_docs_references.py`
+2. Regenerate inventory and structure outputs when file layout changes:
+   `python scripts/generate_docs.py`
+3. Confirm environment and lockfile governance checks:
+   `python scripts/verify_environment_parity.py`
+   `python scripts/verify_lockfiles.py`
+4. Ensure `docs/README.md` and `docs/DOCUMENTATION_COVERAGE_MATRIX.md` include new active docs.
 
 ## Lifecycle management
 
-1. Active docs must be reviewed at the cadence declared in document control.
-2. Obsolete docs should be moved to `docs/archive/` with replacement link.
-3. Major release changes must update:
-   - `README.md`
-   - `docs/DEPLOYMENT.md`
-   - `docs/SECURITY.md`
-   - `docs/PRODUCTION_READINESS.md`
-   - `docs/WINDOWS_11_LOCAL_RUNBOOK.md` (for desktop release paths)
+1. Active docs must be reviewed at the cadence declared in the document control block.
+2. Deprecated docs must be moved to `docs/archive/` with replacement links.
+3. Release-impacting changes must update:
+   `README.md`, `docs/DEPLOYMENT.md`, `docs/SECURITY.md`, `docs/PRODUCTION_READINESS.md`
+4. Documentation version metadata must be updated in `docs/DOCS_VERSION.json`.
 
+## Document control
+
+1. Owner: Platform Engineering
+2. Last updated: 2026-02-16
+3. Status: Active
+4. Review cadence: Every 30 days
