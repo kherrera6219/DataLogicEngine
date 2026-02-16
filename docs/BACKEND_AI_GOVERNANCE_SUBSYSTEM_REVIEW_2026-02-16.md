@@ -69,6 +69,70 @@
 3. Make metadata audit trail mandatory and integrity-verified.
 4. Align Flask and FastAPI security-header/CORS posture under one policy baseline.
 
+## Phase 1 Implementation Update (2026-02-16)
+Implemented in this pass:
+1. Standardized service health + readiness + metrics endpoints.
+   - Flask app: added `/live`, `/ready`, `/metrics` in `app.py`.
+   - FastAPI services: added `/live`, `/ready`, `/metrics` in:
+     - `backend/api_gateway/api_gateway.py`
+     - `backend/webhook_server/webhook_server.py`
+     - `backend/model_context/model_context_server.py`
+   - Kept `/health` for backward compatibility while exposing readiness state.
+2. Error normalization hardening for raw provider/internal leak prevention.
+   - Removed raw exception payloads from:
+     - `routes/api_routes.py`
+     - `backend/webhook_server/webhook_server.py`
+     - `backend/llm_gateway/api.py` (chat failure path, SSE stream errors, provider test endpoint)
+   - Added gateway-facing error sanitization helper in `backend/llm_gateway/api.py`.
+3. Structured JSON logging wired into Flask bootstrap.
+   - App bootstrap now initializes `configure_structured_logging(app)` in `app.py`.
+   - Middleware logging formatter override is skipped in JSON mode in `backend/middleware/__init__.py`.
+   - Fixed formatter recursion risk by switching formatter redaction to non-logging redaction path in `backend/logging_config.py`.
+4. LLM usage telemetry schema mismatch fixed.
+   - Added `error_code` and `error_message` columns to `LLMProviderUsage` in `models.py`.
+   - Hardened usage persistence path in `backend/llm_gateway/gateway.py`:
+     - UUID parsing safety
+     - backward-compatible fallback if DB schema lags
+     - skip usage insert for synthetic non-DB providers
+5. Provider timeout + per-provider retry controls enforced in gateway execution path.
+   - `backend/llm_gateway/gateway.py` now enforces:
+     - provider-specific `timeout_seconds` using `asyncio.wait_for`
+     - provider-specific `max_retries`
+     - retryability classification with bounded exponential backoff
+     - failure usage recording with error classification (`PROVIDER_ERROR`, `TIMEOUT`, `EXCEPTION`)
+
+Additional hardening included:
+- Fixed duplicate `verify_token` override bug in `backend/model_context/model_context_server.py` (JWT validation dependency remains authoritative).
+- Added regression tests for new health/metrics behavior and gateway retry/timeout behavior:
+  - `tests/test_health_endpoint.py`
+  - `tests/integration/test_llm_gateway_integration.py`
+  - `tests/integration/test_gateway_api_coverage.py`
+
+## Debugging / Error Sweep (Post-Implementation)
+- Command:
+  - `python -m compileall app.py backend/middleware/__init__.py backend/api_gateway/api_gateway.py backend/webhook_server/webhook_server.py backend/model_context/model_context_server.py routes/api_routes.py backend/llm_gateway/api.py backend/llm_gateway/gateway.py models.py tests/integration/test_gateway_api_coverage.py`
+- Result:
+  - compile succeeded for all targeted files.
+
+- Command:
+  - `python -m pytest -q tests/test_health_endpoint.py tests/integration/test_llm_gateway_coverage.py tests/integration/test_gateway_api_coverage.py tests/unit/test_llm_gateway_internal_units.py tests/integration/test_llm_gateway_integration.py --no-cov`
+- Result:
+  - `38 passed, 1 warning`.
+
+- Command:
+  - `python -m pytest -q tests/security/test_security_headers.py tests/security/test_request_limits.py tests/test_health_endpoint.py tests/integration/test_llm_gateway_coverage.py --no-cov`
+- Result:
+  - `17 passed, 1 warning`.
+
+- Command:
+  - `python -m pytest -q tests/security/test_active_defense.py tests/test_security_hardening.py tests/integration/test_truth_engine_api.py --no-cov`
+- Result:
+  - `20 passed, 2 warnings`.
+
+- Notes:
+  - Warning remained from `pythonjsonlogger` deprecation path (`pythonjsonlogger.jsonlogger` import path warning).
+  - Existing SQLAlchemy warning persists in `tests/integration/test_truth_engine_api.py` (`backend/security/audit_logger.py` transaction state warning).
+
 ## Debugging / Error Sweep (This Review)
 - Command:
   - `python -m pytest -q tests/security/test_security_headers.py tests/security/test_request_limits.py tests/test_health_endpoint.py tests/integration/test_llm_gateway_coverage.py --no-cov`
@@ -83,4 +147,3 @@
 
 - Note:
   - Initial run without `--no-cov` failed only due global coverage gate (`fail-under=70`), not test assertion failures.
-

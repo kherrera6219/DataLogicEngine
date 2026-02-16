@@ -146,3 +146,69 @@ async def test_gateway_usage_tracking(gateway, mock_db):
         assert args[5] == 50 # tokens_in
         assert args[6] == 100 # tokens_out
         assert args[8] is True # success
+
+
+@pytest.mark.asyncio
+async def test_gateway_respects_provider_retry_configuration(gateway, mock_db):
+    """Provider-specific max_retries should control retry attempts."""
+    provider = MagicMock()
+    provider.id = uuid.uuid4()
+    provider.name = "Primary"
+    provider.provider_type = "openai"
+    provider.model_id = "gpt-4"
+    provider.max_retries = 2
+    provider.timeout_seconds = 30
+
+    with patch.object(gateway, '_get_eligible_providers', AsyncMock(return_value=[provider])), \
+         patch.object(gateway, '_create_sdk_provider') as mock_create_sdk, \
+         patch.object(gateway, '_record_usage', AsyncMock()), \
+         patch.object(gateway, '_save_chat_message', AsyncMock()):
+
+        failing_sdk = AsyncMock()
+        failing_sdk.complete.side_effect = Exception("API Down")
+        mock_create_sdk.return_value = failing_sdk
+
+        request = GatewayRequest(
+            messages=[{"role": "user", "content": "retry test"}],
+            run_ukg_pipeline=False,
+        )
+        response = await gateway.process(request)
+
+        assert response.ok is False
+        assert mock_create_sdk.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_gateway_enforces_provider_timeout(gateway, mock_db):
+    """Provider timeout_seconds should bound execution time."""
+    provider = MagicMock()
+    provider.id = uuid.uuid4()
+    provider.name = "TimeoutProvider"
+    provider.provider_type = "openai"
+    provider.model_id = "gpt-4"
+    provider.max_retries = 1
+    provider.timeout_seconds = 1
+
+    async def slow_complete(*args, **kwargs):
+        await asyncio.sleep(2)
+        return MagicMock(text="slow", usage={"prompt_tokens": 1, "completion_tokens": 1})
+
+    with patch.object(gateway, '_get_eligible_providers', AsyncMock(return_value=[provider])), \
+         patch.object(gateway, '_create_sdk_provider') as mock_create_sdk, \
+         patch.object(gateway, '_record_usage', AsyncMock()) as mock_usage, \
+         patch.object(gateway, '_save_chat_message', AsyncMock()):
+
+        slow_sdk = AsyncMock()
+        slow_sdk.complete.side_effect = slow_complete
+        mock_create_sdk.return_value = slow_sdk
+
+        request = GatewayRequest(
+            messages=[{"role": "user", "content": "timeout test"}],
+            run_ukg_pipeline=False,
+        )
+        response = await gateway.process(request)
+
+        assert response.ok is False
+        assert "request failed" in (response.error or "").lower()
+        assert mock_usage.call_count >= 1
+        assert mock_usage.call_args[0][8] is False

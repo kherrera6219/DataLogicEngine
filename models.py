@@ -566,6 +566,8 @@ class LLMProviderUsage(db.Model):
     tokens_out = db.Column(db.Integer, default=0)
     latency_ms = db.Column(db.Integer, nullable=True)
     success = db.Column(db.Boolean, default=True)
+    error_code = db.Column(db.String(100), nullable=True)
+    error_message = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
 

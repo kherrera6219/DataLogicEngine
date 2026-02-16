@@ -8,6 +8,7 @@ rate limiting, and other cross-cutting concerns.
 from functools import wraps
 from flask import jsonify, current_app, Response, request, g
 import logging
+import os
 from datetime import datetime, UTC
 import uuid
 
@@ -157,7 +158,11 @@ def setup_middleware(app):
     
     # Configure Correlation ID
     configure_correlation_id(app)
-    setup_correlation_logging()
+    log_format = str(app.config.get("LOG_FORMAT") or os.environ.get("LOG_FORMAT", "json")).lower()
+    if log_format != "json":
+        setup_correlation_logging()
+    else:
+        logger.info("Correlation logging formatter override skipped for JSON log format")
     
     # Configure Security Headers
     configure_security_headers(app, {'ENV': app.config.get('ENV', 'production')})

@@ -152,6 +152,96 @@ class LLMGateway:
         if provider_record and getattr(provider_record, "model_id", None):
             return str(provider_record.model_id)
         return "gpt-4"
+
+    @staticmethod
+    def _positive_int(value: Any, default: int, minimum: int = 1, maximum: int = 60) -> int:
+        """Parse bounded positive integer with sane defaults."""
+        if isinstance(value, bool):
+            return default
+        if not isinstance(value, (int, str)):
+            return default
+        try:
+            parsed = int(str(value).strip())
+        except (TypeError, ValueError):
+            return default
+        if parsed < minimum:
+            return default
+        return min(parsed, maximum)
+
+    def _provider_timeout_seconds(self, provider_record: Any) -> int:
+        env_default = self._positive_int(os.environ.get("LLM_PROVIDER_TIMEOUT_SECONDS"), 30, minimum=1, maximum=300)
+        return self._positive_int(getattr(provider_record, "timeout_seconds", None), env_default, minimum=1, maximum=300)
+
+    def _provider_max_retries(self, provider_record: Any) -> int:
+        env_default = self._positive_int(os.environ.get("LLM_PROVIDER_MAX_RETRIES"), 3, minimum=1, maximum=10)
+        return self._positive_int(getattr(provider_record, "max_retries", None), env_default, minimum=1, maximum=10)
+
+    @staticmethod
+    def _is_retryable_error(error: Optional[str]) -> bool:
+        """Classify retryable failures for provider failover attempts."""
+        if not error:
+            return False
+
+        lowered = str(error).lower()
+        non_retryable_markers = (
+            "401",
+            "403",
+            "invalid api key",
+            "authentication",
+            "unauthorized",
+            "forbidden",
+            "not allowed",
+            "unsupported model",
+            "invalid request",
+        )
+        if any(marker in lowered for marker in non_retryable_markers):
+            return False
+
+        retryable_markers = (
+            "timeout",
+            "timed out",
+            "429",
+            "500",
+            "502",
+            "503",
+            "504",
+            "rate limit",
+            "temporar",
+            "connection reset",
+            "connection aborted",
+            "network",
+            "service unavailable",
+        )
+        if any(marker in lowered for marker in retryable_markers):
+            return True
+
+        # Unknown provider errors are treated as transient unless explicitly classified otherwise.
+        return True
+
+    @staticmethod
+    async def _retry_backoff_sleep(attempt: int) -> None:
+        import random
+
+        sleep_time = (2 ** attempt) + random.uniform(0, 1)
+        await asyncio.sleep(sleep_time)
+
+    @staticmethod
+    def _public_error_message(error: Optional[str]) -> str:
+        """Return a safe, normalized API error message."""
+        if not error:
+            return "Gateway failed to generate a response"
+
+        lowered = str(error).strip().lower()
+        safe_messages = (
+            "requested model",
+            "not allowed",
+            "no active providers found",
+            "no provider configured",
+        )
+        if any(marker in lowered for marker in safe_messages):
+            return str(error)
+
+        return "LLM provider request failed"
     
     async def process(self, request: GatewayRequest) -> GatewayResponse:
         """
@@ -213,8 +303,8 @@ class LLMGateway:
                 )
                 continue
             
-            # Implementation of Retries with Exponential Backoff + Jitter
-            max_retries = 3
+            provider_timeout_seconds = self._provider_timeout_seconds(provider_record)
+            max_retries = self._provider_max_retries(provider_record)
             for attempt in range(max_retries):
                 try:
                     # 4. Create SDK provider and run
@@ -268,12 +358,12 @@ class LLMGateway:
                         
                         # Decide between standard overlay and quad persona analysis
                         if request.mode == "quad" or request.meta.get("quad_persona", False):
-                            result = await self._run_quad_analysis(
+                            result_coro = self._run_quad_analysis(
                                 query=query,
                                 context=augmented_meta,
                             )
                         else:
-                            result = await self._run_ukg_overlay(
+                            result_coro = self._run_ukg_overlay(
                                 sdk_provider=sdk_provider,
                                 model=model,
                                 query=query,
@@ -284,13 +374,15 @@ class LLMGateway:
                                 max_tokens=request.max_tokens or 1024,
                             )
                     else:
-                        result = await self._direct_llm_call(
+                        result_coro = self._direct_llm_call(
                             sdk_provider=sdk_provider,
                             model=model,
                             messages=full_messages,
                             temperature=request.temperature,
                             max_tokens=request.max_tokens or 1024,
                         )
+
+                    result = await asyncio.wait_for(result_coro, timeout=provider_timeout_seconds)
                     
                     if result.get("ok", True):
                         cb.record_success()
@@ -307,30 +399,104 @@ class LLMGateway:
                     
                     # If provider returned !ok but might be retryable (e.g., 429, 503)
                     last_error = result.get("error", "Unknown provider error")
-                    logger.warning(f"Provider {provider_record.name} attempt {attempt+1} failed: {last_error}")
-                    
+                    retryable = bool(result.get("retryable")) or self._is_retryable_error(last_error)
+                    logger.warning(
+                        "Provider %s attempt %s/%s failed: %s (retryable=%s)",
+                        provider_record.name,
+                        attempt + 1,
+                        max_retries,
+                        last_error,
+                        retryable,
+                    )
+
+                    if attempt < max_retries - 1 and retryable:
+                        await self._retry_backoff_sleep(attempt)
+                        continue
+
+                    cb.record_failure()
+                    latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
+                    await self._record_usage(
+                        provider_record.id,
+                        request.user_id,
+                        request.api_key_id,
+                        run_id,
+                        model,
+                        result.get("usage", {}).get("prompt_tokens", 0),
+                        result.get("usage", {}).get("completion_tokens", 0),
+                        latency_ms,
+                        False,
+                        error_code="PROVIDER_ERROR",
+                        error_message=last_error,
+                    )
+                    break  # Try next provider
+
+                except asyncio.TimeoutError:
+                    last_error = f"Provider request timed out after {provider_timeout_seconds}s"
+                    logger.warning(
+                        "Provider %s attempt %s/%s timed out after %ss",
+                        provider_record.name,
+                        attempt + 1,
+                        max_retries,
+                        provider_timeout_seconds,
+                    )
                     if attempt < max_retries - 1:
-                        import random
-                        sleep_time = (2 ** attempt) + random.uniform(0, 1)
-                        await asyncio.sleep(sleep_time)
-                    else:
-                        cb.record_failure()
-                        
+                        await self._retry_backoff_sleep(attempt)
+                        continue
+
+                    cb.record_failure()
+                    latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
+                    await self._record_usage(
+                        provider_record.id,
+                        request.user_id,
+                        request.api_key_id,
+                        run_id,
+                        model,
+                        0,
+                        0,
+                        latency_ms,
+                        False,
+                        error_code="TIMEOUT",
+                        error_message=last_error,
+                    )
+                    break  # Try next provider
+
                 except Exception as e:
                     last_error = str(e)
-                    logger.error(f"Provider {provider_record.name} attempt {attempt+1} exception: {e}")
-                    if attempt < max_retries - 1:
-                        import random
-                        sleep_time = (2 ** attempt) + random.uniform(0, 1)
-                        await asyncio.sleep(sleep_time)
-                    else:
-                        cb.record_failure()
-                        break # Try next provider
+                    retryable = self._is_retryable_error(last_error)
+                    logger.error(
+                        "Provider %s attempt %s/%s exception: %s (retryable=%s)",
+                        provider_record.name,
+                        attempt + 1,
+                        max_retries,
+                        e,
+                        retryable,
+                        exc_info=True,
+                    )
+                    if attempt < max_retries - 1 and retryable:
+                        await self._retry_backoff_sleep(attempt)
+                        continue
+
+                    cb.record_failure()
+                    latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
+                    await self._record_usage(
+                        provider_record.id,
+                        request.user_id,
+                        request.api_key_id,
+                        run_id,
+                        model,
+                        0,
+                        0,
+                        latency_ms,
+                        False,
+                        error_code="EXCEPTION",
+                        error_message=last_error,
+                    )
+                    break  # Try next provider
 
         # All eligible providers failed or were unavailable.
         return self._error_response(
             run_id,
-            last_error or "All providers failed",
+            last_error or "All providers failed to generate a response",
             start_time,
             request,
         )
@@ -491,8 +657,23 @@ class LLMGateway:
                     self.api_version = None
                     self.model_id = model
                     self.priority = priority
+                    self.timeout_seconds = self._env_timeout_default
+                    self.max_retries = self._env_retry_default
                 def get_api_key(self):
                     return None # _create_sdk_provider will fetch from env
+
+                _env_timeout_default = LLMGateway._positive_int(
+                    os.environ.get("LLM_PROVIDER_TIMEOUT_SECONDS"),
+                    30,
+                    minimum=1,
+                    maximum=300,
+                )
+                _env_retry_default = LLMGateway._positive_int(
+                    os.environ.get("LLM_PROVIDER_MAX_RETRIES"),
+                    3,
+                    minimum=1,
+                    maximum=10,
+                )
             
             # Logic (2026 Generation) - 3 Layer Redundancy
             # We need 3 slots: [Primary, Failover 1 (Cross-Provider), Failover 2 (Safety/Speed)]
@@ -642,7 +823,7 @@ class LLMGateway:
             model_used=request.model or "unknown",
             usage={"latency_ms": latency_ms},
             ok=False,
-            error=error
+            error=self._public_error_message(error),
         )
     
     
@@ -855,25 +1036,54 @@ class LLMGateway:
                 import sys
                 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
                 from extensions import db
-            
-            usage = LLMProviderUsage(
-                provider_id=provider_id,
-                user_id=user_id,
-                api_key_id=uuid.UUID(api_key_id) if api_key_id else None,
-                run_id=uuid.UUID(run_id),
-                model=model,
-                tokens_in=tokens_in,
-                tokens_out=tokens_out,
-                latency_ms=latency_ms,
-                success=success,
-                error_code=error_code,
-                error_message=error_message,
-            )
-            db.session.add(usage)
-            db.session.commit()
-            
-            if provider_id:
-                provider = LLMProvider.query.get(provider_id)
+
+            def _parse_uuid(value: Any) -> Optional[uuid.UUID]:
+                if value is None:
+                    return None
+                if isinstance(value, uuid.UUID):
+                    return value
+                try:
+                    return uuid.UUID(str(value))
+                except (TypeError, ValueError, AttributeError):
+                    return None
+
+            provider_uuid = _parse_uuid(provider_id)
+            if provider_uuid is None:
+                logger.debug("Skipping usage persistence for non-DB provider id: %s", provider_id)
+                return
+
+            usage_payload = {
+                "provider_id": provider_uuid,
+                "user_id": user_id,
+                "api_key_id": _parse_uuid(api_key_id),
+                "run_id": _parse_uuid(run_id),
+                "model": model,
+                "tokens_in": tokens_in,
+                "tokens_out": tokens_out,
+                "latency_ms": latency_ms,
+                "success": success,
+            }
+
+            if hasattr(LLMProviderUsage, "error_code") and error_code:
+                usage_payload["error_code"] = error_code
+            if hasattr(LLMProviderUsage, "error_message") and error_message:
+                usage_payload["error_message"] = error_message
+
+            db.session.add(LLMProviderUsage(**usage_payload))
+            try:
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                if "error_code" in usage_payload or "error_message" in usage_payload:
+                    usage_payload.pop("error_code", None)
+                    usage_payload.pop("error_message", None)
+                    db.session.add(LLMProviderUsage(**usage_payload))
+                    db.session.commit()
+                else:
+                    raise
+
+            if provider_uuid:
+                provider = LLMProvider.query.get(provider_uuid)
                 if provider:
                     provider.last_used_at = datetime.now(UTC)
                     db.session.commit()

@@ -14,6 +14,7 @@ import json
 import logging
 import os
 import uuid
+from typing import Optional
 
 from models import LLMProvider, LLMProviderUsage, ExternalAPIKey, ChatSession, ChatMessage
 from backend.llm_gateway.gateway import LLMGateway, GatewayRequest
@@ -75,6 +76,26 @@ def _positive_int(value):
     except (TypeError, ValueError):
         return None
     return parsed if parsed > 0 else None
+
+
+def _public_gateway_error(raw_error: Optional[str], fallback: str = "Gateway request failed") -> str:
+    """Sanitize provider/internal failures before returning API responses."""
+    if not raw_error:
+        return fallback
+
+    lowered = str(raw_error).strip().lower()
+    safe_fragments = (
+        "not allowed",
+        "messages required",
+        "model required",
+        "no active providers found",
+        "no provider configured",
+        "permission denied",
+    )
+    if any(fragment in lowered for fragment in safe_fragments):
+        return str(raw_error)
+
+    return fallback
 
 
 def _apply_api_key_request_policy(payload: dict):
@@ -249,7 +270,11 @@ async def gateway_chat():
         return jsonify({'error': 'No response generated from any provider'}), 503
     if not getattr(response, "ok", True):
         return jsonify({
-            'error': response.error or 'Gateway failed to generate a response',
+            'error': _public_gateway_error(
+                response.error,
+                fallback='Gateway failed to generate a response',
+            ),
+            'code': 'GATEWAY_REQUEST_FAILED',
             'run_id': response.run_id,
             'provider_used': response.provider_used,
             'model_used': response.model_used,
@@ -313,6 +338,15 @@ def gateway_chat_stream():
         try:
             async def stream():
                 async for chunk in gateway.process_stream(gateway_request):
+                    if isinstance(chunk, dict) and chunk.get('type') == 'error':
+                        chunk = {
+                            **chunk,
+                            'error': _public_gateway_error(
+                                chunk.get('error'),
+                                fallback='Gateway stream failed',
+                            ),
+                            'code': 'GATEWAY_STREAM_FAILED',
+                        }
                     yield f"data: {json.dumps(chunk)}\n\n"
             
             # Run async generator
@@ -324,8 +358,9 @@ def gateway_chat_stream():
                 except StopAsyncIteration:
                     break
                     
-        except Exception as e:
-            yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+        except Exception:
+            logger.error("Streaming gateway execution failed", exc_info=True)
+            yield f"data: {json.dumps({'type': 'error', 'error': 'Gateway stream failed', 'code': 'GATEWAY_STREAM_FAILED'})}\n\n"
         finally:
             loop.close()
     
@@ -648,11 +683,13 @@ def test_provider(provider_id):
             loop.close()
             raise exc
 
-    except Exception as e:
+    except Exception:
+        logger.error("Provider test failed for %s", provider_id, exc_info=True)
         return jsonify({
             'success': False,
             'status': 'error',
-            'error': str(e),
+            'error': 'Provider connectivity check failed',
+            'code': 'PROVIDER_TEST_FAILED',
         }), 502
 
 

@@ -2,6 +2,8 @@ import os
 import re
 import uuid
 import logging
+import time
+from threading import Lock
 from datetime import UTC, datetime, timedelta
 from urllib.parse import urlparse
 from dotenv import load_dotenv
@@ -9,11 +11,12 @@ from dotenv import load_dotenv
 # Load environment variables from .env file BEFORE any other imports
 load_dotenv()
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, current_app
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, current_app, Response
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_limiter.util import get_remote_address
 from werkzeug.middleware.proxy_fix import ProxyFix
 from extensions import limiter
+from backend.logging_config import configure_structured_logging
 
 # Initialize Sentry for error tracking (production only)
 sentry_dsn = os.environ.get("SENTRY_DSN")
@@ -36,7 +39,6 @@ if sentry_dsn:
 
 # Configure logging - use INFO in production, DEBUG in development
 log_level = logging.DEBUG if os.environ.get("FLASK_ENV") == "development" else logging.INFO
-logging.basicConfig(level=log_level)
 logger = logging.getLogger(__name__)
 
 # Security: Warn about default credentials in production
@@ -70,18 +72,30 @@ def validate_production_security():
         if admin_pass and admin_pass in insecure_passwords:
             logger.warning("SECURITY WARNING: Using default admin password. Change before deployment!")
 
-# Run security validation (non-blocking)
-if __name__ != "__main__": # Only run when starting as server
-    validate_production_security()
-
 # Server configuration - bind to 5000 for Replit
 DEFAULT_PORT = int(os.environ.get("PORT", 5000))
 
 # Create Flask app
 app = Flask(__name__)
+
+try:
+    configure_structured_logging(app)
+except Exception as exc:
+    logging.basicConfig(level=log_level)
+    logger.warning("Structured logging setup failed, using basic logging fallback", exc_info=exc)
+
+# Run security validation (non-blocking)
+if __name__ != "__main__":  # Only run when starting as server
+    validate_production_security()
+
 # Security: Get secret key from environment (SESSION_SECRET as mandated)
 app.secret_key = os.environ.get("SESSION_SECRET")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
+
+# Process-level observability counters for /metrics endpoint.
+APP_START_TIME = time.time()
+REQUEST_METRICS = {"total": 0, "inflight": 0}
+REQUEST_METRICS_LOCK = Lock()
 
 # Session hardening
 app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -120,6 +134,23 @@ else:
 app.config["RATELIMIT_DEFAULT"] = os.environ.get("GLOBAL_RATE_LIMIT", "200 per hour")
 app.config["RATELIMIT_STORAGE_URI"] = os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
 limiter.init_app(app)
+
+
+@app.before_request
+def track_request_metrics_start():
+    """Track aggregate request counts for lightweight operational metrics."""
+    with REQUEST_METRICS_LOCK:
+        REQUEST_METRICS["total"] += 1
+        REQUEST_METRICS["inflight"] += 1
+
+
+@app.after_request
+def track_request_metrics_end(response):
+    """Ensure in-flight counter is decremented for all completed responses."""
+    with REQUEST_METRICS_LOCK:
+        REQUEST_METRICS["inflight"] = max(0, REQUEST_METRICS["inflight"] - 1)
+    return response
+
 
 # Strict TLS Redirection in Production
 @app.before_request
@@ -518,9 +549,84 @@ def _database_health() -> dict:
     except SQLAlchemyError as exc:
         db.session.rollback()
         logger.error("Database connectivity check failed", exc_info=exc)
-        return {"status": "error", "detail": str(exc)}
+        return {"status": "error", "detail": "unavailable"}
 
     return {"status": "ok"}
+
+
+def _readiness_payload() -> tuple[dict, int]:
+    """Build canonical readiness payload and HTTP status."""
+    config_state = _config_health()
+    database_state = _database_health()
+
+    blockers = []
+    if database_state.get("status") != "ok":
+        blockers.append("database")
+    if config_state.get("secret_key") == "missing":
+        blockers.append("secret_key")
+
+    is_ready = not blockers
+    status_code = 200 if is_ready else 503
+    payload = {
+        "status": "ready" if is_ready else "not_ready",
+        "checks": {
+            "database": database_state.get("status", "error"),
+            "secret_key": config_state.get("secret_key", "missing"),
+        },
+        "blockers": blockers,
+        "timestamp": datetime.now(UTC).isoformat(),
+    }
+    return payload, status_code
+
+
+def _prometheus_metrics_payload() -> str:
+    """Render low-cardinality Prometheus metrics in text exposition format."""
+    uptime_seconds = max(0.0, time.time() - APP_START_TIME)
+    with REQUEST_METRICS_LOCK:
+        total_requests = REQUEST_METRICS["total"]
+        inflight_requests = REQUEST_METRICS["inflight"]
+
+    readiness_payload, readiness_code = _readiness_payload()
+    readiness_ok = 1 if readiness_code == 200 else 0
+    database_ok = 1 if readiness_payload["checks"].get("database") == "ok" else 0
+
+    lines = [
+        "# HELP datalogicengine_process_uptime_seconds Process uptime in seconds.",
+        "# TYPE datalogicengine_process_uptime_seconds gauge",
+        f"datalogicengine_process_uptime_seconds {uptime_seconds:.3f}",
+        "# HELP datalogicengine_http_requests_total Total HTTP requests handled by Flask app.",
+        "# TYPE datalogicengine_http_requests_total counter",
+        f"datalogicengine_http_requests_total {total_requests}",
+        "# HELP datalogicengine_http_requests_inflight Current in-flight requests.",
+        "# TYPE datalogicengine_http_requests_inflight gauge",
+        f"datalogicengine_http_requests_inflight {inflight_requests}",
+        "# HELP datalogicengine_ready Ready status (1=ready, 0=not ready).",
+        "# TYPE datalogicengine_ready gauge",
+        f"datalogicengine_ready {readiness_ok}",
+        "# HELP datalogicengine_database_ready Database readiness (1=ok, 0=error).",
+        "# TYPE datalogicengine_database_ready gauge",
+        f"datalogicengine_database_ready {database_ok}",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+@app.route("/live", methods=["GET"])
+def live() -> tuple:
+    """Liveness endpoint: process is running."""
+    return jsonify(
+        {
+            "status": "live",
+            "service": "datalogicengine",
+            "timestamp": datetime.now(UTC).isoformat(),
+        }
+    ), 200
+
+
+@app.route("/ready", methods=["GET"])
+def ready() -> tuple:
+    """Readiness endpoint: app dependencies are operational."""
+    payload, status_code = _readiness_payload()
+    return jsonify(payload), status_code
 
 
 @app.route("/health", methods=["GET"])
@@ -547,6 +653,15 @@ def health() -> tuple:
     }
 
     return jsonify(payload), http_status
+
+
+@app.route("/metrics", methods=["GET"])
+def metrics() -> Response:
+    """Canonical metrics endpoint for infrastructure scraping."""
+    return Response(
+        _prometheus_metrics_payload(),
+        mimetype="text/plain; version=0.0.4; charset=utf-8",
+    )
 
 # Note: /login, /register, /logout, /dashboard are defined in routes.py with more complete implementations
 

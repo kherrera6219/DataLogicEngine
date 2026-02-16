@@ -16,6 +16,7 @@ from sqlalchemy import text, select
 from extensions import db
 from models import SimulationSession
 from models import Node, Edge, PillarLevel, Sector, Domain
+from backend.utils.responses import internal_error
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +114,7 @@ def api_graph():
     
     except Exception as e:
         logger.error(f"Error getting graph data: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        return internal_error()
 
 
 @api_bp.route('/query', methods=['POST'])
@@ -180,7 +181,7 @@ def api_query():
     
     except Exception as e:
         logger.error(f"Error processing query: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        return internal_error()
 
 
 @api_bp.route('/simulation/run', methods=['POST'])
@@ -224,4 +225,4 @@ def api_run_simulation():
     
     except Exception as e:
         logger.error(f"Error starting simulation: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        return internal_error()

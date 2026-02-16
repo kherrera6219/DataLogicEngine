@@ -205,7 +205,8 @@ def test_gateway_chat_provider_failure_returns_503(app_client):
         json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]},
     )
     assert resp.status_code == 503
-    assert resp.json['error'] == "provider timeout"
+    assert resp.json['error'] == "Gateway failed to generate a response"
+    assert resp.json['code'] == "GATEWAY_REQUEST_FAILED"
 
 
 def test_gateway_chat_rejects_disallowed_provider_policy(app_client):

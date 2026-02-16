@@ -9,7 +9,7 @@ model inference across the UKG system.
 
 from fastapi import FastAPI, Request, Response, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import httpx
 import os
@@ -20,6 +20,7 @@ import json
 from typing import Dict, List, Any, Optional, Union
 from datetime import datetime
 from pydantic import BaseModel, Field
+from threading import Lock
 
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -50,6 +51,10 @@ logger = logging.getLogger("Model-Context-Server")
 
 # Get enterprise architecture
 enterprise_arch = get_enterprise_architecture()
+
+SERVICE_START_TIME = time.time()
+REQUEST_METRICS = {"total": 0, "inflight": 0}
+REQUEST_METRICS_LOCK = Lock()
 
 # Security & Auth
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -153,38 +158,113 @@ contexts = {}
 async def log_requests(request: Request, call_next):
     """Log all requests through the model context server"""
     start_time = time.time()
-    
-    # Process the request
-    response = await call_next(request)
-    
-    # Calculate processing time
-    process_time = time.time() - start_time
-    
-    # Log the request
-    logger.info(
-        f"Method: {request.method} Path: {request.url.path} "
-        f"Status: {response.status_code} Time: {process_time:.4f}s"
-    )
-    
-    return response
+    with REQUEST_METRICS_LOCK:
+        REQUEST_METRICS["total"] += 1
+        REQUEST_METRICS["inflight"] += 1
 
-# Authentication middleware
-async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Verify API token"""
-    # In a real implementation, validate the token
-    # For demonstration, we'll accept any token
-    return {"token": credentials.credentials}
+    response = None
+    status_code = 500
+    try:
+        response = await call_next(request)
+        status_code = response.status_code
+        return response
+    finally:
+        process_time = time.time() - start_time
+        with REQUEST_METRICS_LOCK:
+            REQUEST_METRICS["inflight"] = max(0, REQUEST_METRICS["inflight"] - 1)
+        logger.info(
+            "Method: %s Path: %s Status: %s Time: %.4fs",
+            request.method,
+            request.url.path,
+            status_code,
+            process_time,
+        )
+
+
+def _readiness_status() -> tuple[dict, int]:
+    """Compute model-context service readiness."""
+    jwt_secret_configured = bool(os.environ.get("JWT_SECRET_KEY"))
+    ready = True
+    status_code = 200 if ready else 503
+    return (
+        {
+            "status": "ready" if ready else "not_ready",
+            "checks": {
+                "context_store": "ok",
+                "jwt_secret": "set" if jwt_secret_configured else "missing",
+            },
+            "timestamp": datetime.now().isoformat(),
+        },
+        status_code,
+    )
+
+
+def _metrics_payload() -> str:
+    uptime_seconds = max(0.0, time.time() - SERVICE_START_TIME)
+    with REQUEST_METRICS_LOCK:
+        total_requests = REQUEST_METRICS["total"]
+        inflight_requests = REQUEST_METRICS["inflight"]
+    readiness, readiness_code = _readiness_status()
+    ready = 1 if readiness_code == 200 else 0
+    jwt_ready = 1 if readiness["checks"].get("jwt_secret") == "set" else 0
+
+    lines = [
+        "# HELP ukg_model_context_uptime_seconds Process uptime in seconds.",
+        "# TYPE ukg_model_context_uptime_seconds gauge",
+        f"ukg_model_context_uptime_seconds {uptime_seconds:.3f}",
+        "# HELP ukg_model_context_http_requests_total Total HTTP requests handled.",
+        "# TYPE ukg_model_context_http_requests_total counter",
+        f"ukg_model_context_http_requests_total {total_requests}",
+        "# HELP ukg_model_context_http_requests_inflight Current in-flight requests.",
+        "# TYPE ukg_model_context_http_requests_inflight gauge",
+        f"ukg_model_context_http_requests_inflight {inflight_requests}",
+        "# HELP ukg_model_context_ready Ready status (1=ready, 0=not ready).",
+        "# TYPE ukg_model_context_ready gauge",
+        f"ukg_model_context_ready {ready}",
+        "# HELP ukg_model_context_jwt_secret_configured JWT secret configured (1=yes, 0=no).",
+        "# TYPE ukg_model_context_jwt_secret_configured gauge",
+        f"ukg_model_context_jwt_secret_configured {jwt_ready}",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+@app.get("/live")
+async def live_check():
+    """Liveness probe endpoint."""
+    return {
+        "status": "live",
+        "service": "UKG Model Context Protocol Server",
+        "timestamp": datetime.now().isoformat(),
+    }
+
+
+@app.get("/ready")
+async def ready_check():
+    """Readiness probe endpoint."""
+    payload, status_code = _readiness_status()
+    return JSONResponse(status_code=status_code, content=payload)
 
 # Health check endpoint
 @app.get("/health")
 async def health_check():
     """Health check endpoint for the Model Context Protocol Server"""
+    readiness, readiness_code = _readiness_status()
     return {
-        "status": "healthy",
+        "status": "healthy" if readiness_code == 200 else "degraded",
         "service": "UKG Model Context Protocol Server",
         "timestamp": datetime.now().isoformat(),
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "ready": readiness["status"],
     }
+
+
+@app.get("/metrics")
+async def metrics():
+    """Canonical metrics endpoint for scraping."""
+    return PlainTextResponse(
+        _metrics_payload(),
+        media_type="text/plain; version=0.0.4; charset=utf-8",
+    )
 
 # Context management endpoints
 @app.post("/context", response_model=ContextData)

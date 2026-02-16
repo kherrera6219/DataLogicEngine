@@ -8,7 +8,7 @@ processing events and triggering appropriate actions in the UKG system.
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 import os
 import sys
 import logging
@@ -17,6 +17,7 @@ import hmac
 import hashlib
 from typing import Dict, Any
 from datetime import datetime
+from threading import Lock
 
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -48,6 +49,10 @@ logger = logging.getLogger("Webhook-Server")
 # Get enterprise architecture
 enterprise_arch = get_enterprise_architecture()
 
+SERVICE_START_TIME = time.time()
+REQUEST_METRICS = {"total": 0, "inflight": 0}
+REQUEST_METRICS_LOCK = Lock()
+
 # Webhook secret keys for verification
 # In production, these would be stored securely (e.g., environment variables)
 WEBHOOK_SECRETS = {
@@ -73,31 +78,111 @@ def register_webhook_processor(integration_name):
 async def log_requests(request: Request, call_next):
     """Log all requests through the webhook server"""
     start_time = time.time()
-    
-    # Process the request
-    response = await call_next(request)
-    
-    # Calculate processing time
-    process_time = time.time() - start_time
-    
-    # Log the request
-    logger.info(
-        f"Method: {request.method} Path: {request.url.path} "
-        f"Status: {response.status_code} Time: {process_time:.4f}s"
+    with REQUEST_METRICS_LOCK:
+        REQUEST_METRICS["total"] += 1
+        REQUEST_METRICS["inflight"] += 1
+
+    response = None
+    status_code = 500
+    try:
+        response = await call_next(request)
+        status_code = response.status_code
+        return response
+    finally:
+        process_time = time.time() - start_time
+        with REQUEST_METRICS_LOCK:
+            REQUEST_METRICS["inflight"] = max(0, REQUEST_METRICS["inflight"] - 1)
+        logger.info(
+            "Method: %s Path: %s Status: %s Time: %.4fs",
+            request.method,
+            request.url.path,
+            status_code,
+            process_time,
+        )
+
+
+def _readiness_status() -> tuple[dict, int]:
+    """Compute webhook server readiness state."""
+    ready = bool(webhook_processors)
+    status_code = 200 if ready else 503
+    return (
+        {
+            "status": "ready" if ready else "not_ready",
+            "checks": {
+                "processor_registry": "ok" if ready else "empty",
+            },
+            "registered_processors": len(webhook_processors),
+            "timestamp": datetime.now().isoformat(),
+        },
+        status_code,
     )
-    
-    return response
+
+
+def _metrics_payload() -> str:
+    uptime_seconds = max(0.0, time.time() - SERVICE_START_TIME)
+    with REQUEST_METRICS_LOCK:
+        total_requests = REQUEST_METRICS["total"]
+        inflight_requests = REQUEST_METRICS["inflight"]
+    readiness, readiness_code = _readiness_status()
+    ready = 1 if readiness_code == 200 else 0
+
+    lines = [
+        "# HELP ukg_webhook_server_uptime_seconds Process uptime in seconds.",
+        "# TYPE ukg_webhook_server_uptime_seconds gauge",
+        f"ukg_webhook_server_uptime_seconds {uptime_seconds:.3f}",
+        "# HELP ukg_webhook_server_http_requests_total Total HTTP requests handled.",
+        "# TYPE ukg_webhook_server_http_requests_total counter",
+        f"ukg_webhook_server_http_requests_total {total_requests}",
+        "# HELP ukg_webhook_server_http_requests_inflight Current in-flight requests.",
+        "# TYPE ukg_webhook_server_http_requests_inflight gauge",
+        f"ukg_webhook_server_http_requests_inflight {inflight_requests}",
+        "# HELP ukg_webhook_server_ready Ready status (1=ready, 0=not ready).",
+        "# TYPE ukg_webhook_server_ready gauge",
+        f"ukg_webhook_server_ready {ready}",
+        "# HELP ukg_webhook_processors_registered Number of registered processors.",
+        "# TYPE ukg_webhook_processors_registered gauge",
+        f"ukg_webhook_processors_registered {readiness['registered_processors']}",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+@app.get("/live")
+async def live_check():
+    """Liveness probe endpoint."""
+    return {
+        "status": "live",
+        "service": "UKG Webhook Server",
+        "timestamp": datetime.now().isoformat(),
+    }
+
+
+@app.get("/ready")
+async def ready_check():
+    """Readiness probe endpoint."""
+    payload, status_code = _readiness_status()
+    return JSONResponse(status_code=status_code, content=payload)
 
 # Health check endpoint
 @app.get("/health")
 async def health_check():
     """Health check endpoint for the Webhook Server"""
+    readiness, readiness_code = _readiness_status()
     return {
-        "status": "healthy",
+        "status": "healthy" if readiness_code == 200 else "degraded",
         "service": "UKG Webhook Server",
         "timestamp": datetime.now().isoformat(),
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "ready": readiness["status"],
     }
+
+
+@app.get("/metrics")
+async def metrics():
+    """Canonical metrics endpoint for scraping."""
+    return PlainTextResponse(
+        _metrics_payload(),
+        media_type="text/plain; version=0.0.4; charset=utf-8",
+    )
 
 # Webhook integrations information
 @app.get("/webhooks")
@@ -178,7 +263,8 @@ async def process_webhook(integration_name: str, request: Request):
             content={
                 "success": False,
                 "message": "Invalid JSON in request body",
-                "error": str(e),
+                "error": "Request body is not valid JSON",
+                "code": "WEBHOOK_INVALID_JSON",
                 "timestamp": datetime.now().isoformat()
             }
         )
@@ -205,7 +291,8 @@ async def process_webhook(integration_name: str, request: Request):
             content={
                 "success": False,
                 "message": "Error processing webhook",
-                "error": str(e),
+                "error": "Webhook processor failed",
+                "code": "WEBHOOK_PROCESSING_ERROR",
                 "timestamp": datetime.now().isoformat()
             }
         )

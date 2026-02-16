@@ -9,6 +9,7 @@ import sys
 import logging
 import json
 import socket
+import re
 from datetime import datetime, UTC
 from typing import Optional
 from flask import Flask
@@ -16,6 +17,38 @@ from pythonjsonlogger import jsonlogger
 
 
 from backend.security.pii_redaction import pii_redactor
+
+
+def _redact_text_for_logging(text: str) -> str:
+    """
+    Redact PII without emitting additional logs.
+
+    This avoids formatter recursion where redaction logs would re-enter logging.
+    """
+    if not isinstance(text, str):
+        return text
+
+    redacted = text
+    patterns = getattr(pii_redactor, "patterns", {})
+    for pii_type, pattern in patterns.items():
+        replacement = f"[REDACTED_{str(pii_type).upper()}]"
+        try:
+            redacted = re.sub(pattern, replacement, redacted)
+        except re.error:
+            # Ignore malformed patterns in logging path; preserve availability.
+            continue
+    return redacted
+
+
+def _redact_value_for_logging(value):
+    if isinstance(value, str):
+        return _redact_text_for_logging(value)
+    if isinstance(value, dict):
+        return {key: _redact_value_for_logging(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_redact_value_for_logging(item) for item in value]
+    return value
+
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
     """Custom JSON formatter with additional fields and PII redaction."""
@@ -32,7 +65,7 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
                 message = fallback_msg
                 log_record['message'] = fallback_msg
         if isinstance(message, str):
-            log_record['message'], _ = pii_redactor.redact_text(message)
+            log_record['message'] = _redact_text_for_logging(message)
         
         # Add timestamp
         log_record['timestamp'] = datetime.now(UTC).isoformat()
@@ -62,7 +95,7 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
                 
                 # Redact PII from request path if present
                 if log_record.get('path'):
-                    log_record['path'], _ = pii_redactor.redact_text(log_record['path'])
+                    log_record['path'] = _redact_text_for_logging(log_record['path'])
         except Exception:
             pass
         
@@ -72,11 +105,7 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
             if key in ('timestamp', 'level', 'environment', 'service', 'request_id'):
                 continue
                 
-            if isinstance(value, str):
-                redacted_val, _ = pii_redactor.redact_text(value)
-                log_record[key] = redacted_val
-            elif isinstance(value, dict):
-                log_record[key] = pii_redactor.redact_dict(value)
+            log_record[key] = _redact_value_for_logging(value)
 
 
 def configure_structured_logging(app: Flask) -> None:
