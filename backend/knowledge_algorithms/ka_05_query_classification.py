@@ -6,10 +6,11 @@ import logging
 import json
 import os
 from typing import Dict, Any, Tuple
-logger = logging.getLogger(__name__)
-
 from pydantic import BaseModel, Field
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+logger = logging.getLogger(__name__)
+
 
 class KA005Input(BaseModel):
     query: str = Field(..., description="The query to classify")

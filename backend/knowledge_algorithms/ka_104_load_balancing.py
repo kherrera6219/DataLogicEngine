@@ -8,9 +8,10 @@ import os
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA104LBInput(BaseModel):
     batch_size: int = Field(100, ge=1, description="The size of the incoming batch to balance")

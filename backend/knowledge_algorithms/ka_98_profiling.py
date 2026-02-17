@@ -9,9 +9,10 @@ import tempfile
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA098ProfilingInput(BaseModel):
     target: str = Field("main_pipeline", description="The function or component to profile")

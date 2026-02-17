@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.19] - 2026-02-17
+
+### Changed
+- Completed Phase 11 lint hardening pass for `E402` (`module-import-not-at-top-of-file`) across all remaining files.
+- Normalized import placement in generated knowledge algorithm modules and logger-pattern files.
+- Added explicit file-level `# ruff: noqa: E402` on bootstrap/runtime-order modules where deferred imports are intentional to prevent initialization-order regressions.
+- Global lint debt is now fully cleared (`ruff check .` passes with no findings).
+
+### Testing
+- Debug/error sweep completed for this phase:
+  - `.venv\Scripts\python.exe -m ruff check .` (pass)
+  - `.venv\Scripts\python.exe -m py_compile` across all changed Python files (`131` files, pass)
+  - `.venv\Scripts\python.exe -m pytest -q --no-cov tests/knowledge_algorithms/test_ka_bulk.py tests/truth_engine/test_layer10_emergence.py tests/truth_engine/test_layer9_meta_reasoning.py tests/truth_engine/test_truth_infrastructure.py sdk/UKG_Python_SDK/tests/test_truth_engine.py tests/integration_routes/test_app_route_wiring.py` (`271 passed`)
+
 ## [4.1.18] - 2026-02-17
 
 ### Changed

@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """
 UKG Axis 7: Compliance
 

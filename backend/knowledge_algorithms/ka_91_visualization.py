@@ -8,9 +8,10 @@ import os
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA091VisualizationInput(BaseModel):
     data: Dict[str, Any] = Field(default_factory=dict, description="The knowledge or metric data to visualize")

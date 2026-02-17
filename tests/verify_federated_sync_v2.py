@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """
 Verification Script: Federated Knowledge Sharing (Track 4)
 Tests the end-to-end sync between two mock tenants.

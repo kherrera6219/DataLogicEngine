@@ -8,9 +8,10 @@ import os
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA109HealthInput(BaseModel):
     check_mode: str = Field("standard", description="The health check mode (e.g., standard, deep, liveness)")

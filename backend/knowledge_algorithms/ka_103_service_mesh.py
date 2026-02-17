@@ -8,9 +8,10 @@ import os
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA103MeshInput(BaseModel):
     target_service: str = Field("ka_registry_svc", description="The service to apply mesh policies to")

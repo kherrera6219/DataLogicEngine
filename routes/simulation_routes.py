@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """
 Simulation Routes Blueprint
 

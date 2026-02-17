@@ -9,9 +9,10 @@ import random
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA002Input(BaseModel):
     initial_state: str = Field("start", description="Initial state node for tree search")

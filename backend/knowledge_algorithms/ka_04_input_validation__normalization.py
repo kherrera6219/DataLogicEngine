@@ -10,9 +10,10 @@ from typing import Dict, Any
 import importlib
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA004Input(BaseModel):
     query: str = Field(..., description="The input query to validate and normalize")

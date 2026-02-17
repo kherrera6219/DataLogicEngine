@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """
 UKG API Client - Sync and Async implementations.
 """

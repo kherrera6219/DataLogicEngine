@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """
 Flask extensions initialization module.
 

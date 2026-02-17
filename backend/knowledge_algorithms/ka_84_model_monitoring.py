@@ -8,9 +8,10 @@ import os
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA084MonitoringInput(BaseModel):
     live_metrics: Dict[str, Any] = Field(default_factory=dict, description="Live performance metrics from the running model")

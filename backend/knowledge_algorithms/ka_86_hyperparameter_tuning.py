@@ -9,9 +9,10 @@ import random
 from typing import Dict, Any, Optional
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field, field_validator
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field, field_validator
 
 class KA086TuningInput(BaseModel):
     model_type: str = Field("transformer", description="The architecture type to optimize")

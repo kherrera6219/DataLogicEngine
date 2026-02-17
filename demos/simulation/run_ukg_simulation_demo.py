@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """
 UKG Simulation Demo
 

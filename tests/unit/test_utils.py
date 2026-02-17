@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 import pytest
 from flask import Flask, jsonify
 from backend.utils.validation import Validator, ValidationError, validate_json_body, validate_query_params

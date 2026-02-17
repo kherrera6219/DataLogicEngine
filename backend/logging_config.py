@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """
 Structured Logging Configuration for DataLogicEngine
 

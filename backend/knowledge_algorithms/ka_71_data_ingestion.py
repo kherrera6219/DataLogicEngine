@@ -8,10 +8,11 @@ import os
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-logger = logging.getLogger(__name__)
-
 from core.knowledge_algorithm.exceptions import KAIntegrationError
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
+
 
 class KA071IngestionInput(BaseModel):
     source_type: str = Field("local_file", description="The type of data source (e.g., local_file, stream, api)")

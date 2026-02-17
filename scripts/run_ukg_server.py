@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """
 Universal Knowledge Graph (UKG) System - Standalone Server
 

@@ -9,9 +9,10 @@ import re
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA061Input(BaseModel):
     query: str = Field(..., description="The user query or content to scan for adversarial patterns")

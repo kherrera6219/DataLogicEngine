@@ -9,9 +9,10 @@ import hashlib
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA018Input(BaseModel):
     source_metadata: Dict[str, Any] = Field(default_factory=dict, description="Metadata about the knowledge source")

@@ -9,9 +9,10 @@ from typing import Dict, Any, List
 import importlib
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA009Input(BaseModel):
     evidence: List[Dict[str, Any]] = Field(default_factory=list, description="A list of evidence snippets to validate")

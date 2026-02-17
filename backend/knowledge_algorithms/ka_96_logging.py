@@ -8,9 +8,10 @@ import os
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA096LoggingInput(BaseModel):
     logs: List[Any] = Field(default_factory=list, description="A list of log entries to process and store")

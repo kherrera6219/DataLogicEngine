@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """
 Verification Script: LLM Gateway v2.0 Routing (Decoupled)
 Tests tier-based routing without requiring a full Flask/DB environment.

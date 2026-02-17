@@ -8,9 +8,10 @@ import os
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA067AnalogicalInput(BaseModel):
     source_domain: Dict[str, Any] = Field(default_factory=dict, description="Source domain data for analogy mapping")

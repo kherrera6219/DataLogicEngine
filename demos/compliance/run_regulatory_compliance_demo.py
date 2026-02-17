@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# ruff: noqa: E402
 """
 Regulatory and Compliance Demo for Knowledge Algorithms KA-06 to KA-10
 

@@ -8,9 +8,10 @@ import os
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA100OptimizationInput(BaseModel):
     load_profile: float = Field(0.5, ge=0.0, le=1.0, description="The current system load profile (0.0 to 1.0)")

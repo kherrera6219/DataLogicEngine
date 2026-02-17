@@ -8,9 +8,10 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 from backend.truth_engine.federated_sync import FederatedSyncEngine, FederatedClaim
 from backend.ukg_db import UkgDatabaseManager
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA115Input(BaseModel):
     incoming_claims: List[Dict[str, Any]] = Field(default_factory=list)

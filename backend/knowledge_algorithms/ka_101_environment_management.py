@@ -9,9 +9,10 @@ import hashlib
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA101EnvInput(BaseModel):
     env: str = Field("dev", description="The target environment (e.g., dev, staging, prod)")

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E402
 """
 Universal Knowledge Graph (UKG) System - Layer 1 Database Demo
 

@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """
 LLM Gateway API Endpoints
 

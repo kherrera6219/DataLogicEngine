@@ -9,9 +9,10 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA015Input(BaseModel):
     facts: List[Dict[str, Any]] = Field(default_factory=list, description="List of facts with timestamps to evaluate")

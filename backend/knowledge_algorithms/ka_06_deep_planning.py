@@ -9,9 +9,10 @@ import uuid
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA006Input(BaseModel):
     problem: str = Field(..., description="The complex problem to decompose into a plan")

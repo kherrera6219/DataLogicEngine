@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E402
 """
 Universal Knowledge Graph (UKG) System - 13-Axis and Quad Persona Integration Demo
 

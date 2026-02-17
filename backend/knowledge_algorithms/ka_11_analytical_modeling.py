@@ -9,9 +9,10 @@ import statistics
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
 
-from pydantic import BaseModel, Field
 
 class KA011Input(BaseModel):
     data: List[Any] = Field(default_factory=list, description="The data points to model")
