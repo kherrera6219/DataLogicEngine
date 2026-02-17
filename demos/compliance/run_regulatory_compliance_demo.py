@@ -273,7 +273,7 @@ def run_healthcare_compliance_demo() -> None:
     conflict_result = analyze_conflicts(reg_result, comp_result)
     
     # Step 5: Store results in memory
-    memory_result = store_in_memory(session_id, query, {
+    store_in_memory(session_id, query, {
         "coordinate_result": coord_result,
         "regulatory_result": reg_result,
         "compliance_result": comp_result,
@@ -294,7 +294,7 @@ def run_healthcare_compliance_demo() -> None:
     
     # Step 7: Demonstrate memory retrieval with a follow-up query
     followup_query = "What about GDPR requirements for patient data in Europe?"
-    context_result = retrieve_from_memory(session_id, followup_query)
+    retrieve_from_memory(session_id, followup_query)
     
     # Log final summary
     logger.info("\n=== HEALTHCARE COMPLIANCE DEMO COMPLETE ===\n")
@@ -324,7 +324,7 @@ def run_financial_compliance_demo() -> None:
     conflict_result = analyze_conflicts(reg_result, comp_result)
     
     # Step 5: Store results in memory
-    memory_result = store_in_memory(session_id, query, {
+    store_in_memory(session_id, query, {
         "coordinate_result": coord_result,
         "regulatory_result": reg_result,
         "compliance_result": comp_result,
@@ -345,7 +345,7 @@ def run_financial_compliance_demo() -> None:
     
     # Step 7: Demonstrate memory retrieval with a follow-up query
     followup_query = "What are the implications of Basel III for international wire transfers?"
-    context_result = retrieve_from_memory(session_id, followup_query)
+    retrieve_from_memory(session_id, followup_query)
     
     # Log final summary
     logger.info("\n=== FINANCIAL COMPLIANCE DEMO COMPLETE ===\n")

@@ -102,7 +102,7 @@ def run_quad_persona_demo():
     
     # Process with direct Quad Engine for comparison
     print("\nDirect Quad Engine processing...")
-    quad_result = quad_engine.process_query(query, context)
+    quad_engine.process_query(query, context)
     
     # Process with Simulation Engine (includes refinement and memory)
     print("Simulation Engine processing...")

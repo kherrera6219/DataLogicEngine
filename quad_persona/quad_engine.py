@@ -28,9 +28,7 @@ try:
         DeepRecursiveLearning,
         IntegrationFunction,
         RefinementWorkflow12Step,
-        QuadPersonaMathematicalSystem,
-        KnowledgePoint,
-        MemoryVertex
+        QuadPersonaMathematicalSystem
     )
     MATH_FRAMEWORK_AVAILABLE = True
 except ImportError:
@@ -832,7 +830,6 @@ class QuadPersonaEngine:
         """
         # Extract query information
         query_text = query_state.query_text
-        context = query_state.context
         current_pass = query_state.current_pass
         
         # Gather information from previous personas if not the first pass
@@ -919,7 +916,7 @@ class QuadPersonaEngine:
         """Generate a response from the Sector Expert perspective (Axis 9)."""
         job_role = persona.get_component("job_role").get("title", "Sector Expert")
         skills = ", ".join(persona.get_component("skills").get("items", ["Market Analysis"]))
-        certifications = persona.get_component("certifications").get("items", ["Industry Certification"])
+        persona.get_component("certifications").get("items", ["Industry Certification"])
         experience = persona.get_component("career_path").get("years", "15")
         
         # Check if query contains specific topics to personalize response
@@ -1465,7 +1462,6 @@ class RegulatoryExpert(QuadPersona):
     def process_query(self, query_state: QueryState) -> Dict:
         """Process a query from the Regulatory Expert perspective."""
         query_text = query_state.query_text.lower()
-        context = query_state.context
         
         # Analyze query for regulatory relevance
         regulatory_relevance = 0.0

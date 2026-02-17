@@ -85,6 +85,6 @@ class BeliefDriftDetectorKA:
         for m in matches:
             try:
                 numbers.append(float(m))
-            except:
+            except (TypeError, ValueError):
                 pass
         return numbers

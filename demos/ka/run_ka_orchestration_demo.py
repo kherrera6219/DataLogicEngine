@@ -23,9 +23,6 @@ logger = logging.getLogger("UKG-Demo")
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 try:
-    # Core Knowledge Mapping
-    from backend.knowledge_algorithms.ka_32_simulation_orchestration import run as run_orchestration
-    
     # Neural and Identity Algorithms
     from backend.knowledge_algorithms.ka_39_quantum_trust_propagation import run as run_trust_propagation
     from backend.knowledge_algorithms.ka_40_simulated_neural_activation_mapper import run as run_neural_activation

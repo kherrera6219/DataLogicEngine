@@ -65,7 +65,7 @@ def verify_phase4_workflow():
 
         # D. Check Truth Validation (Step 11)
         truth_score = last_pass.get('truth_vector', {}).get('overall_truth_score', 0)
-        validation = last_pass.get('validation', {}).get('is_valid')
+        last_pass.get('validation', {}).get('is_valid')
         
         if truth_score > 0:
             logging.info(f"SUCCESS: Step 11 TruthEngine calculated overall score: {truth_score:.2f}")

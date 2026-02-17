@@ -49,7 +49,7 @@ class UnifiedNumberingService:
         Example: format_path(1, ["13", "2", "1"]) -> "A01.13.2.1"
         """
         axis_str = f"A{axis_num:02d}"
-        path_suffix = ".".join(str(l) for l in levels)
+        path_suffix = ".".join(str(level) for level in levels)
         return f"{axis_str}.{path_suffix}"
 
     def parse_path(self, path: str) -> Dict[str, Any]:

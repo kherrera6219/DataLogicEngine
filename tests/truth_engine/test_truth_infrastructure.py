@@ -139,19 +139,19 @@ class TestMetaReasoningController:
 class TestLLMGateway:
     def test_circuit_breaker(self):
         cb = CircuitBreaker("TestProvider", failure_threshold=2, recovery_timeout=0.1)
-        assert cb.can_execute() == True
+        assert cb.can_execute()
         
         cb.record_failure()
-        assert cb.can_execute() == True
+        assert cb.can_execute()
         
         cb.record_failure()
-        assert cb.can_execute() == False
+        assert not cb.can_execute()
         assert cb.state == "OPEN"
         
         # Test recovery
         import time
         time.sleep(0.15)
-        assert cb.can_execute() == True
+        assert cb.can_execute()
         assert cb.state == "HALF_OPEN"
         
         cb.record_success()
@@ -188,4 +188,4 @@ class TestLLMGateway:
                 with patch.object(gateway, '_record_usage', new_callable=AsyncMock):
                     response = await gateway.process(req)
                     assert response.content == "UKG Response"
-                    assert response.ok == True
+                    assert response.ok

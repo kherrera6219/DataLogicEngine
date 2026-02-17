@@ -263,7 +263,7 @@ class LocalFileBackend(ObjectBackend):
                     metadata = json.loads(meta_path.read_text())
                     if '_content_type' in metadata:
                         content_type = metadata.pop('_content_type')
-                except:
+                except (OSError, TypeError, ValueError):
                     pass
             
             return ObjectInfo(
@@ -389,7 +389,7 @@ class S3Backend(ObjectBackend):
         try:
             self.client.head_object(Bucket=bucket, Key=key)
             return True
-        except:
+        except Exception:
             return False
     
     def list(self, bucket: str, prefix: str = "") -> List[ObjectInfo]:

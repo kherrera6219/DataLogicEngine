@@ -34,7 +34,7 @@ def test_imports():
     try:
         from simulation.layer6_neural_analysis import Layer6NeuralAnalysis
         print("PASS: Layer6NeuralAnalysis imported")
-        l6 = Layer6NeuralAnalysis()
+        Layer6NeuralAnalysis()
         print("PASS: Layer6NeuralAnalysis initialized")
     except Exception as e:
         print(f"FAIL: Layer6NeuralAnalysis error: {e}")

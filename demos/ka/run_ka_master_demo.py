@@ -232,7 +232,7 @@ def run_interactive_demo():
             domain = "artificial_intelligence"
         
         # Run analysis pipeline
-        analysis = run_analysis_pipeline(query, domain)
+        run_analysis_pipeline(query, domain)
         
         # Option to view execution history
         view_history = input("\nView execution history? (y/n): ").lower().startswith('y')

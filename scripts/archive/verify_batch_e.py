@@ -1,5 +1,4 @@
 from backend.knowledge_algorithm.registry import KARegistry
-from backend.knowledge_algorithm import *
 import logging
 
 logging.basicConfig(level=logging.INFO)

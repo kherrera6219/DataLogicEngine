@@ -434,7 +434,7 @@ class RunsClient:
             "stage_id": stage_id,
             "level": level,
         })
-        return [StageLog(**l) for l in data.get("logs", [])]
+        return [StageLog(**log_entry) for log_entry in data.get("logs", [])]
     
     def export(self, run_id: str) -> dict[str, Any]:
         """Export a run."""
@@ -595,7 +595,7 @@ class AsyncRunsClient:
     
     async def logs(self, run_id: str, stage_id: Optional[str] = None, level: Optional[str] = None) -> list[StageLog]:
         data = await self._client.get(f"/trace/runs/{run_id}/logs", params={"stage_id": stage_id, "level": level})
-        return [StageLog(**l) for l in data.get("logs", [])]
+        return [StageLog(**log_entry) for log_entry in data.get("logs", [])]
     
     async def export(self, run_id: str) -> dict[str, Any]:
         return await self._client.post(f"/trace/runs/{run_id}/export")

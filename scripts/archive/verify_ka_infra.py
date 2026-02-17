@@ -36,7 +36,7 @@ def verify_phase1_infrastructure():
     # 3. Initialize Lineage Store
     logging.info("\n3. Testing Lineage Store...")
     lineage = LineageStore()
-    entry = lineage.record_derivation(
+    lineage.record_derivation(
         target_id="FACT-001",
         source_ids=["SRC-999"],
         ka_id="KA-001",

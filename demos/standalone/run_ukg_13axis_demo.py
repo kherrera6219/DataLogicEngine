@@ -300,7 +300,7 @@ def run_12step_refinement(persona_data: Dict[str, Any]) -> Dict[str, Any]:
     print_section("Executing 12-Step Refinement Workflow")
     
     # Controller to orchestrate the refinement process
-    controller = get_controller()
+    get_controller()
     
     # Create execution sequence for refinement
     refinement_sequence = [
@@ -540,7 +540,7 @@ def run_demo(query: str, domain: str = "artificial_intelligence") -> None:
     refined_data = run_12step_refinement(persona_data)
     
     # Step 4: Clone data to internal database
-    storage_data = clone_to_database(refined_data)
+    clone_to_database(refined_data)
     
     # Show final summary
     print_header("DEMO SUMMARY")

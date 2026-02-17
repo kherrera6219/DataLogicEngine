@@ -495,7 +495,7 @@ def get_run_logs(run_id):
     logs = query.order_by(StageLog.timestamp).all()
     
     return jsonify({
-        'logs': [l.to_dict() for l in logs]
+        'logs': [log_entry.to_dict() for log_entry in logs]
     })
 
 

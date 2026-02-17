@@ -372,7 +372,7 @@ class MetaReasoningController:
                                 drift_score = 0.3
                                 details = f"Query: {qn}, Solution: {sn}"
                                 break
-                except:
+                except (TypeError, ValueError):
                     pass
         
         # KA integration (L9-KA-002)

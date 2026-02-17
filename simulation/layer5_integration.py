@@ -172,7 +172,7 @@ class Layer5IntegrationEngine:
                     try:
                         num = k.split('_')[1]
                         coords[f"a{num}"] = str(v)
-                    except:
+                    except (IndexError, TypeError):
                         pass
 
         return coords

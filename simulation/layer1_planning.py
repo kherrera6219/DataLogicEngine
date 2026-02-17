@@ -136,7 +136,7 @@ class Layer1PlanningEngine:
                     # Map T1 -> 1
                     try:
                         tier_value = int(tier_str.replace("T", ""))
-                    except:
+                    except ValueError:
                         tier_value = 1
                     tier_name = tier_str
                     # Update layers if KA-113 provides them, though SDK handler snippet usually just returns tier

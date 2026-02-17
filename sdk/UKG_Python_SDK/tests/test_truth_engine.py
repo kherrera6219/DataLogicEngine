@@ -6,7 +6,7 @@ class TestTruthEngine:
         import inspect
         print(f"TruthEngine: {TruthEngine}")
         print(f"Sig: {inspect.signature(TruthEngine)}")
-        engine = TruthEngine()
+        TruthEngine()
 
     def test_evaluate_basic(self):
         engine = TruthEngine()

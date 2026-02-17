@@ -221,7 +221,7 @@ class LayerController:
                     from simulation.gatekeeper_agent import GatekeeperAgent
                     gatekeeper = GatekeeperAgent()
                     result = gatekeeper.process_gate(context)
-                except:
+                except Exception:
                     result = {'status': 'Release Authorized', 'safety_check': 'PASSED', 'success': True}
                 self.layer_results[layer_num] = result
                 return result

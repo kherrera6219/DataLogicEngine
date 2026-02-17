@@ -269,7 +269,7 @@ class SimulationEngine:
         # Metadata for metrics tracking tests
         result['execution_time'] = (datetime.now(UTC) - start_time).total_seconds()
         result['layers_activated'] = self._get_layers_for_escalation(escalation)
-        result['layer_metrics'] = {f"L{l}": {"status": "success"} for l in result['layers_activated']}
+        result['layer_metrics'] = {f"L{layer_id}": {"status": "success"} for layer_id in result['layers_activated']}
         result['confidence_history'] = [0.5, 0.6, 0.7, 0.8, uae.confidence_vector.overall] # Simulated progression
         
         return result

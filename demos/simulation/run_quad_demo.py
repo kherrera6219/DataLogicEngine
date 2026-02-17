@@ -49,7 +49,7 @@ def run_demo_with_preset():
         
         # Process with Quad Engine
         print("\nProcessing with Quad Persona Engine...")
-        quad_result = quad_engine.process_query(query, context)
+        quad_engine.process_query(query, context)
         
         # Process with Simulation Engine
         print("Processing with Simulation Engine (includes refinement and memory)...")

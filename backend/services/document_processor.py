@@ -182,7 +182,7 @@ class DocumentProcessor:
                             "lines": len(text.split('\n'))
                         }
                     }
-                except:
+                except UnicodeDecodeError:
                     continue
             raise ValueError("Unable to decode text file with any common encoding")
 

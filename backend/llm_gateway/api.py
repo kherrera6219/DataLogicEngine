@@ -718,7 +718,7 @@ def list_prompt_templates():
     """List registered prompt templates."""
     query = PromptTemplate.query.order_by(PromptTemplate.template_key.asc(), PromptTemplate.created_at.desc())
     if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
-        query = query.filter(PromptTemplate.is_active == True)
+        query = query.filter(PromptTemplate.is_active)
     templates = query.all()
     return jsonify({'prompt_templates': [template.to_dict() for template in templates]})
 
@@ -762,7 +762,7 @@ def list_routing_policies():
         ModelRoutingPolicy.created_at.desc(),
     )
     if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
-        query = query.filter(ModelRoutingPolicy.is_active == True)
+        query = query.filter(ModelRoutingPolicy.is_active)
     policies = query.all()
     return jsonify({'routing_policies': [policy.to_dict() for policy in policies]})
 
@@ -916,7 +916,7 @@ def get_usage():
         LLMProviderUsage.created_at >= since
     ).scalar() or 0
     avg_latency = db.session.query(func.avg(LLMProviderUsage.latency_ms)).filter(
-        LLMProviderUsage.created_at >= since, LLMProviderUsage.success == True
+        LLMProviderUsage.created_at >= since, LLMProviderUsage.success
     ).scalar() or 0
     try:
         total_estimated_cost = db.session.query(func.sum(LLMProviderUsage.estimated_cost_usd)).filter(

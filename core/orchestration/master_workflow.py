@@ -748,7 +748,7 @@ class MasterWorkflowOrchestrator:
                     }
                     result['layers_executed'].append(layer_result)
             
-            layer_confidences = [l.get('confidence', 0) for l in result['layers_executed']]
+            layer_confidences = [layer_entry.get('confidence', 0) for layer_entry in result['layers_executed']]
             if layer_confidences:
                 avg_layer1_5 = sum(layer_confidences[:5]) / 5 if len(layer_confidences) >= 5 else sum(layer_confidences) / len(layer_confidences)
                 self.shared_state.update_consensus_strength(avg_layer1_5)

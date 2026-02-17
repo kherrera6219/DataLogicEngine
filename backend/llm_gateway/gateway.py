@@ -847,7 +847,7 @@ class LLMGateway:
             if preferred_name:
                 query = LLMProvider.query.filter(
                     (LLMProvider.name == preferred_name) | (LLMProvider.provider_type == preferred_name),
-                    LLMProvider.is_active == True
+                    LLMProvider.is_active
                 )
                 providers = query.all()
             else:

@@ -261,7 +261,7 @@ class LocationAxis:
             else:
                 # Get all top-level locations (those without parent)
                 top_level_locations = db.session.query(Location).filter(
-                    Location.parent_location_id == None
+                    Location.parent_location_id is None
                 ).all()
                 
                 # Build hierarchical structure for each top-level location

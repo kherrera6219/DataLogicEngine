@@ -201,7 +201,7 @@ def demonstrate_path_finding(db: NestedLayerDatabase):
     for i, path in enumerate(paths[:3], 1):  # Show first 3 paths
         print(f"\nPath {i} ({len(path)} steps):")
         
-        source_id = source_node["node_id"]
+        source_node["node_id"]
         
         for j, rel in enumerate(path, 1):
             # Get the next node in the path
@@ -215,7 +215,6 @@ def demonstrate_path_finding(db: NestedLayerDatabase):
                 print(f"  Step {j}: --[{rel['rel_type']}]--> {target['label']} ({axis_name})")
             
             # Update source for next iteration
-            source_id = target_id
 
 def demonstrate_axis_system(db: NestedLayerDatabase):
     """Demonstrate the 13-axis system."""
@@ -237,7 +236,7 @@ def demonstrate_axis_system(db: NestedLayerDatabase):
         target_info = db.axis_system.get_axis_info(target)
         
         rel_type = data.get("rel_type", "related")
-        weight = data.get("weight", 1.0)
+        data.get("weight", 1.0)
         
         print(f"  Axis {source} ({source_info['name']}) --[{rel_type}]--> "
               f"Axis {target} ({target_info['name']})")
@@ -352,13 +351,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def print_header(text, width=80):
+def print_header_demo(text, width=80):
     """Print a formatted header."""
     print("\n" + "=" * width)
     print(text.center(width))
     print("=" * width)
 
-def print_section(text, width=80):
+def print_section_demo(text, width=80):
     """Print a formatted section header."""
     print("\n" + "-" * width)
     print(text.center(width))
@@ -367,6 +366,8 @@ def print_section(text, width=80):
 def run_demo():
     """Run the UKG Layered Database Demo."""
     start_time = time.time()
+    print_header = print_header_demo
+    print_section = print_section_demo
     
     print_header("UKG LAYERED DATABASE SYSTEM DEMO")
     print("This demo showcases the multi-layered database capabilities of the UKG system.")

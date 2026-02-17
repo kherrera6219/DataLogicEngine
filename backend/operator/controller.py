@@ -50,7 +50,7 @@ class KAOperator:
     def __init__(self):
         try:
             config.load_incluster_config()
-        except:
+        except Exception:
             config.load_kube_config()
             
         self.custom_api = client.CustomObjectsApi()

@@ -220,7 +220,7 @@ class UKGOverlay:
             # 3. Heuristic & Logical Checks
             if verdict == "OK": 
                  # Impossible Premise (Time based)
-                 current_year = datetime.now().year
+                 datetime.now().year
                  if re.search(r"\b(202[6-9]|20[3-9][0-9])\b", query): 
                      if any(k in query.lower() for k in ["when did", "happened", "history", "recorded"]):
                           reasons.append("possible_future_premise")

@@ -121,7 +121,7 @@ def run_simulation_demo():
         'regulatory_flags': ['compliance', 'medical_regulations']
     }
     
-    gatekeeper_decision = gatekeeper.evaluate(gatekeeper_input)
+    gatekeeper.evaluate(gatekeeper_input)
     print("Gatekeeper decision:")
     print(f"  - Active layers: {gatekeeper.get_active_layers()}")
     print(f"  - Halt due to entropy: {gatekeeper.should_halt()}")

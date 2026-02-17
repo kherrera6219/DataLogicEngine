@@ -57,8 +57,8 @@ class TestLayer10Controller:
         
         assert result.decision == L10Decision.RELEASE
         assert result.final_answer == "The solution is safe and effective."
-        assert result.requires_human_signoff == False
-        assert result.emergence_report.emergence_detected == False
+        assert not result.requires_human_signoff
+        assert not result.emergence_report.emergence_detected
         assert "KA-109" in result.kas_invoked  # Lane B triggered
 
     def test_authorize_pii_modification(self, l10_controller, base_l10_input):
@@ -77,7 +77,7 @@ class TestLayer10Controller:
         
         result = l10_controller.authorize(base_l10_input)
         
-        assert result.emergence_report.emergence_detected == True
+        assert result.emergence_report.emergence_detected
         assert result.emergence_report.overall_level == EmergenceLevel.MODERATE
 
     def test_trust_gate_belief_decay_pass(self, l10_controller, base_l10_input):
@@ -99,7 +99,7 @@ class TestLayer10Controller:
         
         assert result.trust_report.status == "fail"
         assert result.decision == L10Decision.ESCALATE
-        assert result.requires_human_signoff == True
+        assert result.requires_human_signoff
         assert "KA-095" in result.kas_invoked
 
     def test_fail_closed_on_exception(self, l10_controller, base_l10_input):

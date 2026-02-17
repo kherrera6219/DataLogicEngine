@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.17] - 2026-02-17
+
+### Changed
+- Completed an additional lint hardening pass across backend, core, simulation, demos, scripts, SDK, and tests for the active style-debt ruleset.
+- Cleared all remaining violations for `E712`, `E722`, `E721`, `E711`, `E741`, `F811`, `F403`, `F401`, and `F841`.
+- Reduced global lint backlog from `359` to `281`; remaining global debt is now limited to:
+  - `E402`: 201
+  - `E701`: 80
+
+### Testing
+- Debug/error sweep completed for this phase:
+  - `.venv\Scripts\python.exe -m ruff check . --select E712,E722,E721,E711,E741,F811,F403,F401,F841` (pass)
+  - `.venv\Scripts\python.exe -m ruff check . --select E9,F63,F7,F821` (pass)
+  - `.venv\Scripts\python.exe -m py_compile` across all changed Python files (pass)
+  - `.venv\Scripts\python.exe -m pytest -q --no-cov tests/knowledge_algorithms/test_ka_bulk.py tests/truth_engine/test_layer10_emergence.py tests/truth_engine/test_layer9_meta_reasoning.py tests/truth_engine/test_truth_infrastructure.py sdk/UKG_Python_SDK/tests/test_truth_engine.py` (`270 passed`)
+- Note:
+  - Running the same pytest selection with coverage enabled fails project coverage gate (`38.94%` vs required `70%`) because it is a targeted subset run, not the full coverage suite.
+
 ## [4.1.16] - 2026-02-16
 
 ### Changed

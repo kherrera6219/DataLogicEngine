@@ -538,7 +538,8 @@ class LLMProvider(db.Model):
                 key = base64.urlsafe_b64encode(hashlib.sha256(secret.encode()).digest())
             f = Fernet(key)
             return f.decrypt(self.api_key_encrypted).decode()
-        except: return None
+        except Exception:
+            return None
 
     def to_dict(self, include_key: bool = False) -> dict:
         result = {

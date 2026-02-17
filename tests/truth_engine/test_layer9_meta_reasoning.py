@@ -257,7 +257,7 @@ class TestL9KAs:
             "issues": []
         })
         
-        assert result["trigger_refinement"] == True
+        assert result["trigger_refinement"]
         assert "target_layer" in result
 
 

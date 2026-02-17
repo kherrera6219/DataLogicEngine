@@ -56,7 +56,7 @@ def _get_cached_stats() -> Dict[str, int]:
             # Single query with subqueries is more efficient than multiple queries
             stats = {
                 'user_count': db.session.query(User).count(),
-                'active_users': db.session.query(User).filter(User.active == True).count(),
+                'active_users': db.session.query(User).filter(User.active).count(),
                 'node_count': db.session.query(KnowledgeGraphNode).count(),
                 'edge_count': db.session.query(KnowledgeGraphEdge).count(),
                 'simulation_count': db.session.query(SimulationSession).count()
@@ -180,7 +180,7 @@ def get_users() -> Tuple[Response, int]:
         if role_counts is None:
             role_counts = {
                 'owner': User.query.filter_by(role='owner').count(),
-                'admin': User.query.filter(User.is_admin == True, User.role == 'admin').count(),
+                'admin': User.query.filter(User.is_admin, User.role == 'admin').count(),
                 'analyst': User.query.filter_by(role='analyst').count(),
                 'user': User.query.filter_by(role='user').count()
             }

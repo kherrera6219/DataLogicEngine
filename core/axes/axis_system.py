@@ -145,22 +145,26 @@ class AxisSystem:
             try:
                 self.knowledge_expert = KnowledgeExpert()
                 self.register_axis_manager(8, self.knowledge_expert)
-            except: pass
+            except Exception:
+                pass
             
             try:
                 self.sector_expert = SectorExpert()
                 self.register_axis_manager(9, self.sector_expert)
-            except: pass
+            except Exception:
+                pass
 
             try:
                 self.regulatory_expert = RegulatoryExpert()
                 self.register_axis_manager(10, self.regulatory_expert)
-            except: pass
+            except Exception:
+                pass
 
             try:
                 self.compliance_expert = ComplianceExpert()
                 self.register_axis_manager(11, self.compliance_expert)
-            except: pass
+            except Exception:
+                pass
 
 
             # Axis 12: Location

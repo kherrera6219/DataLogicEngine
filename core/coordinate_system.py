@@ -62,7 +62,7 @@ class AxisCoordinate:
     def parent_coordinate(self) -> Optional[str]:
         """Return the parent coordinate (one level up)."""
         if self.depth > 1:
-            return '.'.join(str(l) for l in self.levels[:-1])
+            return '.'.join(str(level) for level in self.levels[:-1])
         return None
     
     def is_descendant_of(self, other: 'AxisCoordinate') -> bool:
@@ -507,7 +507,7 @@ class CoordinateResolver:
         return {
             'pillar_id': levels[0] if levels else None,
             'hierarchy_depth': len(levels),
-            'full_path': '.'.join(str(l) for l in levels),
+            'full_path': '.'.join(str(level) for level in levels),
             'type': 'pillar_level'
         }
     
@@ -672,7 +672,7 @@ class CrosswalkTraversal:
                         new_coord = UnifiedCoordinate()
                         for axis_num, axis_coord in coord.coordinates.items():
                             if axis_num == 3:
-                                new_coord.set_axis(3, '.'.join(str(l) for l in new_levels))
+                                new_coord.set_axis(3, '.'.join(str(level) for level in new_levels))
                             else:
                                 new_coord.set_axis(
                                     axis_num, axis_coord.value, 

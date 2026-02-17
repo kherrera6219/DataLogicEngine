@@ -48,17 +48,17 @@ def generate_mock_input(schema: Type[BaseModel]) -> Dict[str, Any]:
         field_type = field.annotation
         
         # Simple heuristic for common types
-        if field_type == str:
+        if field_type is str:
             mock_data[field_name] = "test_string"
-        elif field_type == int:
+        elif field_type is int:
             mock_data[field_name] = 1
-        elif field_type == float:
+        elif field_type is float:
             mock_data[field_name] = 1.0
-        elif field_type == bool:
+        elif field_type is bool:
             mock_data[field_name] = True
-        elif hasattr(field_type, '__origin__') and field_type.__origin__ == list:
+        elif hasattr(field_type, '__origin__') and field_type.__origin__ is list:
             mock_data[field_name] = []
-        elif hasattr(field_type, '__origin__') and field_type.__origin__ == dict:
+        elif hasattr(field_type, '__origin__') and field_type.__origin__ is dict:
             mock_data[field_name] = {}
         else:
             mock_data[field_name] = "mock_value"
