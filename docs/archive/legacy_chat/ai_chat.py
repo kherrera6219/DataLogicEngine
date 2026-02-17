@@ -7,9 +7,9 @@ service for OpenAI-compatible API access.
 
 import os
 import logging
-from typing import List, Dict, Any
+from typing import List
 from flask import Blueprint, request, jsonify, Response, stream_with_context
-from flask_login import login_required, current_user
+from flask_login import login_required
 
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam

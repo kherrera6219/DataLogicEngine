@@ -1,5 +1,4 @@
 import sys
-import os
 sys.path.append('c:\\software\\DataLogicEngine')
 
 def test_imports():

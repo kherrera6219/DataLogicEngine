@@ -8,14 +8,12 @@ generates Unified Artifact Envelopes (UAE), and registers them in the Trace serv
 import os
 import sys
 import logging
-from datetime import datetime, UTC
 
 # Add project root to path
 sys.path.append(os.getcwd())
 
 from core.system.united_system_manager import UnitedSystemManager
 from simulation.simulation_engine import SimulationEngine
-from core.coordinate_system import UnifiedCoordinate
 
 def verify_integration():
     logging.basicConfig(level=logging.INFO)

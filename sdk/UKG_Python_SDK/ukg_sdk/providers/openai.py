@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import os
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 
 from .base import LLMProvider, LLMResponse
 
 import logging
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 logger = logging.getLogger(__name__)
 

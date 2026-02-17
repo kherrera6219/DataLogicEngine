@@ -30,7 +30,6 @@ def test_controller():
         
     # Test loading a modern KA from KARegistry (KA-113)
     # We might need to register it first if it's not automatically discovered
-    from backend.knowledge_algorithm.modules.ka113_complexity_router import KA113ComplexityRouter
     success = controller.load_algorithm("KA-113")
     print(f"Loading KA-113: {success}")
     if success:

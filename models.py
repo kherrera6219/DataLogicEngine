@@ -13,7 +13,7 @@ from typing import Optional, Dict, Any, List
 import logging
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import Index, event, JSON, UUID, LargeBinary
+from sqlalchemy import Index, JSON, UUID, LargeBinary
 from sqlalchemy import JSON as JSONB
 from sqlalchemy.exc import SQLAlchemyError
 from cryptography.fernet import Fernet
@@ -520,7 +520,8 @@ class LLMProvider(db.Model):
     def set_api_key(self, api_key: str) -> None:
         key = current_app.config.get('ENCRYPTION_KEY')
         if not key:
-            import hashlib, base64
+            import hashlib
+            import base64
             secret = current_app.config.get('SECRET_KEY', 'default-secret')
             key = base64.urlsafe_b64encode(hashlib.sha256(secret.encode()).digest())
         f = Fernet(key)
@@ -531,7 +532,8 @@ class LLMProvider(db.Model):
         try:
             key = current_app.config.get('ENCRYPTION_KEY')
             if not key:
-                import hashlib, base64
+                import hashlib
+                import base64
                 secret = current_app.config.get('SECRET_KEY', 'default-secret')
                 key = base64.urlsafe_b64encode(hashlib.sha256(secret.encode()).digest())
             f = Fernet(key)

@@ -1,7 +1,5 @@
 import logging
 import sys
-import os
-from datetime import datetime
 from backend.knowledge_algorithm.axis_mapper import AxisMapper
 
 # Configure logging

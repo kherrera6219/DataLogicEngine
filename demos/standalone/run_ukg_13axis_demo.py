@@ -6,14 +6,10 @@ This script demonstrates the Dynamic Knowledge Mapping and Database Cloning capa
 of the UKG system using the 13-axis framework and Quad Persona simulation.
 """
 
-import os
 import sys
 import logging
 import time
-import json
-import yaml
-from typing import Dict, List, Any, Optional
-from pprint import pprint
+from typing import Dict, Any
 
 # Configure logging
 logging.basicConfig(
@@ -508,8 +504,8 @@ def clone_to_database(refined_data: Dict[str, Any]) -> Dict[str, Any]:
     storage_data["memory_addresses"] = [
         f"PL.{pillar_id}.CORE.001",
         f"SEC.{sector_code}.MAIN.002",
-        f"UKG.AXIS3.HC.003",
-        f"UKG.MEMORY.LAYER2.004"
+        "UKG.AXIS3.HC.003",
+        "UKG.MEMORY.LAYER2.004"
     ]
     
     # Print storage information
@@ -530,7 +526,7 @@ def clone_to_database(refined_data: Dict[str, Any]) -> Dict[str, Any]:
 
 def run_demo(query: str, domain: str = "artificial_intelligence") -> None:
     """Run the complete 13-axis & quad persona demo pipeline."""
-    print_header(f"UKG 13-AXIS & QUAD PERSONA DEMO")
+    print_header("UKG 13-AXIS & QUAD PERSONA DEMO")
     print(f"Query: '{query}'")
     print(f"Domain: {domain}")
     
@@ -548,10 +544,10 @@ def run_demo(query: str, domain: str = "artificial_intelligence") -> None:
     
     # Show final summary
     print_header("DEMO SUMMARY")
-    print(f"✓ 13-Axis Mapping: Complete across all relevant dimensions")
-    print(f"✓ Quad Persona Simulation: 4 experts with 7-part profiles")
+    print("✓ 13-Axis Mapping: Complete across all relevant dimensions")
+    print("✓ Quad Persona Simulation: 4 experts with 7-part profiles")
     print(f"✓ 12-Step Refinement: Achieved {refined_data['confidence']:.3f} confidence")
-    print(f"✓ Database Cloning: Data stored with full axis tagging")
+    print("✓ Database Cloning: Data stored with full axis tagging")
     print("\nTime taken: {:.2f} seconds".format(time.time() - start_time))
 
 def interactive_demo() -> None:

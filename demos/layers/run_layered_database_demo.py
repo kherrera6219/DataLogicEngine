@@ -10,10 +10,7 @@ showing the 13-axis system and various ways to query and traverse the knowledge 
 import os
 import sys
 import logging
-import json
 import time
-from typing import Dict, Any, List
-from pprint import pprint
 
 # Configure logging
 logging.basicConfig(
@@ -26,7 +23,7 @@ logger = logging.getLogger(__name__)
 # Ensure we can import from current directory
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from simulation.layer2_knowledge import NestedLayerDatabase, ThirteenAxisSystem, create_layer2_simulator
+from simulation.layer2_knowledge import NestedLayerDatabase, create_layer2_simulator
 
 def print_header(title):
     """Print a formatted header."""
@@ -186,7 +183,7 @@ def demonstrate_path_finding(db: NestedLayerDatabase):
         return
     
     # Show nodes
-    print(f"Finding paths between:")
+    print("Finding paths between:")
     
     axis_info1 = db.axis_system.get_axis_info(source_node["axis_number"])
     axis_name1 = axis_info1.get("name", f"Axis {source_node['axis_number']}")
@@ -343,10 +340,7 @@ showing how data flows from Layer 1 to Layer 2.
 """
 
 import os
-import time
 import logging
-import json
-from datetime import datetime
 from simulation.layer1_database import Layer1Database
 from simulation.layer2_knowledge import Layer2KnowledgeGraph
 from simulation.data_generator import generate_sample_data
@@ -392,7 +386,7 @@ def run_demo():
     
     # Show Layer 1 statistics
     stats = layer1_db.get_statistics()
-    print(f"\nLayer 1 Database Statistics:")
+    print("\nLayer 1 Database Statistics:")
     print(f"  Total nodes: {stats['total_nodes']}")
     print(f"  Total relationships: {stats['total_relationships']}")
     print("\nNodes per axis:")
@@ -417,7 +411,7 @@ def run_demo():
     
     # Show Layer 2 statistics
     kg_stats = layer2_kg.get_statistics()
-    print(f"\nLayer 2 Knowledge Graph Statistics:")
+    print("\nLayer 2 Knowledge Graph Statistics:")
     print(f"  Total nodes: {kg_stats['node_count']}")
     print(f"  Total edges: {kg_stats['edge_count']}")
     print(f"  Graph density: {kg_stats['density']:.6f}")

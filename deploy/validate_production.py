@@ -8,7 +8,6 @@ Usage: python validate_production.py
 
 import os
 import sys
-import re
 from pathlib import Path
 
 # Colors
@@ -38,7 +37,7 @@ def main():
     # Check environment
     flask_env = os.environ.get('FLASK_ENV', '')
     if flask_env == 'production':
-        ok(f"FLASK_ENV is set to production")
+        ok("FLASK_ENV is set to production")
     elif flask_env == 'development':
         warn("FLASK_ENV is development (change for production)")
         warnings.append("FLASK_ENV should be 'production'")
@@ -62,7 +61,7 @@ def main():
     if len(session_secret) >= 32:
         ok(f"SESSION_SECRET is set ({len(session_secret)} chars)")
     elif session_secret:
-        fail(f"SESSION_SECRET too short")
+        fail("SESSION_SECRET too short")
         errors.append("SESSION_SECRET must be at least 32 characters")
     else:
         fail("SESSION_SECRET is not set")
@@ -95,7 +94,7 @@ def main():
         fail(f"ADMIN_USERNAME is insecure: '{admin_user}'")
         errors.append("Change ADMIN_USERNAME to something unique")
     elif admin_user:
-        ok(f"ADMIN_USERNAME is custom")
+        ok("ADMIN_USERNAME is custom")
     
     if admin_pass in insecure_passes:
         fail("ADMIN_PASSWORD is insecure")

@@ -1,7 +1,5 @@
 import logging
 import sys
-import os
-from datetime import datetime
 
 # Configure logging
 logging.basicConfig(
@@ -49,7 +47,7 @@ def verify_phase4_workflow():
         if "KA-006" in pipeline:
             logging.info("SUCCESS: KA-031 correctly injected Deep Planning (KA-006) into high-complexity pipeline.")
         else:
-            logging.error(f"FAILURE: KA-031 did not inject KA-006 for high complexity.")
+            logging.error("FAILURE: KA-031 did not inject KA-006 for high complexity.")
 
         # B. Check Axis Resolution (Step 2)
         axis_vector = sim_result['context'].get('axis_vector', {})

@@ -1,7 +1,5 @@
 import logging
 import sys
-import os
-from datetime import datetime
 
 # Configure logging
 logging.basicConfig(
@@ -17,7 +15,6 @@ def verify_final_integration():
         from app import app
         from core.engine.ka_engine import KAEngine
         from core.simulation.simulation_engine import SimulationEngine
-        from backend.knowledge_algorithm.axis_mapper import AxisMapper
         
         with app.app_context():
             ka_engine = KAEngine()

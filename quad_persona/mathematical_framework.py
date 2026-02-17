@@ -11,7 +11,7 @@ Implements formulas from the Mathematical Formulas PDF:
 import math
 import logging
 import numpy as np
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, UTC
 from typing import Dict, List, Any, Tuple, Optional, Set
 from dataclasses import dataclass, field
 

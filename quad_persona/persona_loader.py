@@ -8,7 +8,7 @@ handling loading from storage, contextual selection, and persona customization.
 import json
 import logging
 import os
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 import uuid
 
 from quad_persona.quad_engine import PersonaProfile

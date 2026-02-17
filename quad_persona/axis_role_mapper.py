@@ -6,7 +6,7 @@ focusing on axes 8-11 which represent different expert roles.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, Any, Optional
 
 from quad_persona.quad_engine import PersonaProfile
 

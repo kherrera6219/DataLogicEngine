@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, Optional
 import time
 
-from ukg_sdk.exceptions import UKGError
 
 @dataclass
 class KAExecutionContext:

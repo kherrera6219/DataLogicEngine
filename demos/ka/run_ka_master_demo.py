@@ -6,12 +6,9 @@ This script demonstrates the UKG Master Controller orchestrating multiple
 Knowledge Algorithms to process complex queries.
 """
 
-import os
 import sys
-import json
 import logging
 import time
-from typing import Dict, List, Any
 
 # Configure logging
 logging.basicConfig(

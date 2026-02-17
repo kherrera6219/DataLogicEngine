@@ -5,10 +5,8 @@ This standalone script demonstrates the Quad Persona Simulation Engine
 by directly using the quad_persona and simulation components.
 """
 
-import json
 import logging
 from datetime import datetime
-from typing import Dict, Any
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)

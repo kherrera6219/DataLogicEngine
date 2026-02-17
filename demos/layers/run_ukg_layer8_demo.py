@@ -13,10 +13,8 @@ Usage:
 import argparse
 import logging
 import sys
-import json
 import time
 from datetime import datetime
-from typing import Dict, List, Optional
 
 # Import core UKG components
 from core.system.united_system_manager import UnitedSystemManager
@@ -223,19 +221,19 @@ def print_layer7_results(layer7_context, verbose=False):
     print("="*80)
     
     # Print basic metrics
-    print(f"\n📊 METRICS:")
+    print("\n📊 METRICS:")
     print(f"  Confidence Score: {layer7_context.get('confidence_score', 0.0):.4f}")
     print(f"  Entropy Score: {layer7_context.get('entropy', 0.0):.4f}")
     print(f"  Emergence Score: {layer7_context.get('emergence_score', 0.0):.4f}")
     print(f"  Processing Time: {layer7_context.get('processing_time_ms', 0.0):.2f}ms")
     
     # Print goal convergence
-    print(f"\n🎯 GOAL CONVERGENCE:")
+    print("\n🎯 GOAL CONVERGENCE:")
     convergence = layer7_context.get('convergence', {})
     print(f"  Status: {'✅ Converged' if convergence.get('converged', False) else '❌ Not converged'}")
     print(f"  Score: {convergence.get('score', 0.0):.4f}")
     if 'reasons' in convergence:
-        print(f"  Reasons:")
+        print("  Reasons:")
         for reason in convergence.get('reasons', [])[:3]:  # Show top 3 reasons
             print(f"    - {reason}")
     
@@ -283,7 +281,7 @@ def print_layer8_results(layer8_context, verbose=False):
     print("="*80)
     
     # Print basic metrics
-    print(f"\n📊 QUANTUM METRICS:")
+    print("\n📊 QUANTUM METRICS:")
     print(f"  Quantum Trust Fidelity: {layer8_context.get('quantum_trust_fidelity', 0.0):.4f}")
     print(f"  Final Confidence Score: {layer8_context.get('confidence_score', 0.0):.4f}")
     print(f"  Processing Time: {layer8_context.get('quantum_processing_time_ms', 0.0):.2f}ms")
@@ -341,7 +339,7 @@ def print_combined_conclusion(layer7_context, layer8_context):
     layer8_confidence = layer8_context.get('confidence_score', 0.0)
     confidence_improvement = layer8_confidence - layer7_confidence
     
-    print(f"\n📈 CONFIDENCE IMPROVEMENT:")
+    print("\n📈 CONFIDENCE IMPROVEMENT:")
     print(f"  Layer 7 Confidence: {layer7_confidence:.4f}")
     print(f"  Layer 8 Confidence: {layer8_confidence:.4f}")
     print(f"  Improvement: {confidence_improvement:.4f} ({confidence_improvement*100:.1f}%)")
@@ -350,7 +348,7 @@ def print_combined_conclusion(layer7_context, layer8_context):
     layer7_conflicts = len([c for c in layer7_context.get('conflicts', []) if not c.get('resolved', False)])
     layer8_conflicts = len([c for c in layer8_context.get('conflicts', []) if not c.get('resolved', False)])
     
-    print(f"\n🔄 CONFLICT RESOLUTION:")
+    print("\n🔄 CONFLICT RESOLUTION:")
     print(f"  Layer 7 Unresolved Conflicts: {layer7_conflicts}")
     print(f"  After Layer 8 Processing: {layer8_conflicts}")
     
@@ -358,13 +356,13 @@ def print_combined_conclusion(layer7_context, layer8_context):
     print("\n🧩 KEY CONCLUSIONS:")
     print("  Before quantum processing (Layer 7):")
     print(f"   - Confidence: {layer7_confidence:.4f} (insufficient)")
-    print(f"   - Ambiguity remaining in multiple belief states")
-    print(f"   - Goal-belief conflicts unresolved")
+    print("   - Ambiguity remaining in multiple belief states")
+    print("   - Goal-belief conflicts unresolved")
     
     print("\n  After quantum processing (Layer 8):")
     print(f"   - Quantum Trust Fidelity: {layer8_context.get('quantum_trust_fidelity', 0.0):.4f}")
-    print(f"   - Probabilistic superposition resolved ambiguities")
-    print(f"   - Entanglement simulation captured interdependencies")
+    print("   - Probabilistic superposition resolved ambiguities")
+    print("   - Entanglement simulation captured interdependencies")
     
     # Final conclusion
     print("\n🎯 FINAL SYNTHESIS:")

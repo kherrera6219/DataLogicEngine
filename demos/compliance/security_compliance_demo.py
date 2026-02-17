@@ -10,12 +10,7 @@ of the UKG enterprise architecture.
 import os
 import sys
 import logging
-import time
-import json
 import argparse
-from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional
-import requests
 
 # Configure logging
 logging.basicConfig(

@@ -8,10 +8,7 @@ This script demonstrates the Layer 1 database capabilities of the UKG system.
 import os
 import sys
 import logging
-import json
 import time
-from typing import Dict, Any, List
-from pprint import pprint
 
 # Configure logging
 logging.basicConfig(

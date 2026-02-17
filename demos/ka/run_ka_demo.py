@@ -46,7 +46,7 @@ def test_ka_integration(query: str, domain: str = None) -> Dict[str, Any]:
     # Print summary
     summary = result.get("ka_system_summary", {})
     
-    logger.info(f"\n----- KA Integration Result -----")
+    logger.info("\n----- KA Integration Result -----")
     logger.info(f"Query: \"{query}\"")
     
     if "domain" in summary:

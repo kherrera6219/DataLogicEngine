@@ -5,7 +5,6 @@ This script runs the Quad Persona demo with pre-selected inputs.
 """
 
 import logging
-from typing import Dict, Any
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -46,7 +45,7 @@ def run_demo_with_preset():
         
         print(f"Running demo with query: '{query}'")
         print(f"Domain: {domain}")
-        print(f"Using equal weights for all personas (25% each)")
+        print("Using equal weights for all personas (25% each)")
         
         # Process with Quad Engine
         print("\nProcessing with Quad Persona Engine...")

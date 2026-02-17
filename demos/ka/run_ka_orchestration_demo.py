@@ -8,8 +8,7 @@ working together to process a query through the UKG system.
 
 import time
 import logging
-import json
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any
 import os
 import sys
 
@@ -196,7 +195,7 @@ def run_demo(query: str, domain: str = "artificial_intelligence") -> Dict[str, A
             "Generated comprehensive response"
         ]
     })
-    logger.info(f"Explanation trace constructed")
+    logger.info("Explanation trace constructed")
     
     # Phase 6: Final Orchestration and Response
     logger.info("Phase 6: Final Orchestration and Response")
@@ -220,7 +219,7 @@ def run_demo(query: str, domain: str = "artificial_intelligence") -> Dict[str, A
 def display_result(result: Dict[str, Any]) -> None:
     """Format and display the orchestration result."""
     print("\n" + "="*80)
-    print(f"UKG ORCHESTRATION DEMO RESULTS")
+    print("UKG ORCHESTRATION DEMO RESULTS")
     print("="*80)
     
     print(f"\nQuery: {result['query']}")

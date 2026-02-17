@@ -1,8 +1,5 @@
 
-import pytest
-from ukg_sdk.truth_engine.core import TruthEngine, TruthEngineConfig
-from ukg_sdk.truth_engine.truthgate import TruthGate
-from ukg_sdk.truth_engine.truthcore import TruthCore
+from ukg_sdk.truth_engine.core import TruthEngine
 
 class TestTruthEngine:
     def test_initialization(self):

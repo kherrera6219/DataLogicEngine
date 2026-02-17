@@ -4,7 +4,7 @@ Defines the structured outputs for the Deep Research Agent Layer.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Any
 from datetime import datetime, UTC
 import uuid
 

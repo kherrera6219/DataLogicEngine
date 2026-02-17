@@ -5,8 +5,7 @@ UKG API Client - Sync and Async implementations.
 from __future__ import annotations
 
 import time
-from typing import Any, Optional, TypeVar, Generic
-from urllib.parse import urljoin
+from typing import Any, Optional, TypeVar
 
 import httpx
 import logging
@@ -26,30 +25,19 @@ from ukg_sdk.api_models import (
     AxisVector,
     ChatSession,
     Claim,
-    ClaimsResponse,
     ComplianceMapping,
     ComplianceResponse,
     Evidence,
-    EvidenceResponse,
     Export,
-    ExportsResponse,
     KAInvocation,
-    KAsResponse,
-    LogsResponse,
     MemoryEvent,
-    MemoryResponse,
-    MetricsResponse,
     Persona,
-    PersonasResponse,
     PolicyDecision,
-    PolicyResponse,
     Run,
     RunsResponse,
     SessionsResponse,
-    SpansResponse,
     Stage,
     StageLog,
-    StagesResponse,
     TraceSpan,
 )
 

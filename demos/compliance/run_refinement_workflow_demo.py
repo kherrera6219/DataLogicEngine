@@ -10,7 +10,6 @@ import json
 from datetime import datetime
 from simulation.refinement_workflow import RefinementWorkflow
 from simulation.layer2_knowledge import NestedLayerDatabase
-from simulation.data_generator import DataGenerator
 from quad_persona import QuadEngine
 
 # Configure logging

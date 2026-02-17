@@ -9,14 +9,10 @@ The tool computes sufficiency signals (complexity, stakes, conflict, coverage) a
 applies threshold-based decision logic to determine expansion requirements.
 """
 
-import re
-import uuid
 import logging
-from datetime import datetime, UTC
-from typing import Dict, List, Any, Optional, Tuple, Set
+from typing import Dict, List, Any
 
 from quad_persona.pod_models import (
-    PodType,
     SufficiencySignals,
     ExpansionPlan,
     ScalingDecision,

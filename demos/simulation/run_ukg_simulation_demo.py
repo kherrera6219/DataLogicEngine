@@ -8,8 +8,7 @@ through the multi-layer simulation system, showing how the various components wo
 import logging
 import json
 import time
-from datetime import datetime
-from typing import Dict, Any
+from typing import Dict
 
 # Configure logging
 logging.basicConfig(
@@ -70,7 +69,7 @@ def run_simulation_demo():
     )
     united_system_manager.register_component('sekre_engine', sekre_engine)
     
-    print(f"UKG System initialized with components:")
+    print("UKG System initialized with components:")
     for component_name in united_system_manager.components.keys():
         print(f"  - {component_name}")
     
@@ -147,7 +146,7 @@ def run_simulation_demo():
         
         expanded_context = pov_engine.expand_context(query, initial_context)
         
-        print(f"Context expanded with:")
+        print("Context expanded with:")
         print(f"  - Expanded data nodes: {len(expanded_context.get('expanded_data', []))}")
         print(f"  - Simulated personas: {len(expanded_context.get('simulated_personas', []))}")
         print(f"  - POV confidence: {expanded_context.get('pov_confidence', 0.0):.4f}")
@@ -204,7 +203,7 @@ def run_simulation_demo():
     
     if passes:
         print(f"Number of passes: {len(passes)}")
-        print(f"Confidence progression:")
+        print("Confidence progression:")
         
         for i, p in enumerate(passes):
             print(f"  Pass {i+1}: {p.get('confidence', {}).get('overall', 0.0):.4f}")

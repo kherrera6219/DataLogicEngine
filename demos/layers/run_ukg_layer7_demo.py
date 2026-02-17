@@ -13,9 +13,7 @@ Usage:
 import argparse
 import logging
 import sys
-import json
 from datetime import datetime
-from typing import Dict, List, Optional
 
 # Import core UKG components
 from core.system.united_system_manager import UnitedSystemManager
@@ -180,19 +178,19 @@ def print_rich_results(processed_context, verbose=False):
     print("="*80)
     
     # Print basic metrics
-    print(f"\n📊 METRICS:")
+    print("\n📊 METRICS:")
     print(f"  Confidence Score: {processed_context.get('confidence_score', 0.0):.4f}")
     print(f"  Entropy Score: {processed_context.get('entropy', 0.0):.4f}")
     print(f"  Emergence Score: {processed_context.get('emergence_score', 0.0):.4f}")
     print(f"  Processing Time: {processed_context.get('processing_time_ms', 0.0):.2f}ms")
     
     # Print goal convergence
-    print(f"\n🎯 GOAL CONVERGENCE:")
+    print("\n🎯 GOAL CONVERGENCE:")
     convergence = processed_context.get('convergence', {})
     print(f"  Status: {'✅ Converged' if convergence.get('converged', False) else '❌ Not converged'}")
     print(f"  Score: {convergence.get('score', 0.0):.4f}")
     if 'reasons' in convergence:
-        print(f"  Reasons:")
+        print("  Reasons:")
         for reason in convergence.get('reasons', [])[:3]:  # Show top 3 reasons
             print(f"    - {reason}")
     
@@ -274,7 +272,7 @@ def main():
     
     # Automatically select the first scenario for simplicity
     choice = 1
-    print(f"\nAutomatically selecting scenario 1")
+    print("\nAutomatically selecting scenario 1")
     
     selected_scenario = test_scenarios[choice-1]
     print(f"\nSelected scenario: {selected_scenario['name']}")

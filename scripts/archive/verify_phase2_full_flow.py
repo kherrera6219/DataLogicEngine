@@ -1,8 +1,4 @@
 import logging
-import os
-import sys
-import json
-from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -12,7 +8,6 @@ def verify_phase2_full_flow():
     
     try:
         from core.system.system_initializer import SystemInitializer
-        from core.simulation.simulation_engine import SimulationEngine
         
         # 1. Initialize System
         logging.info("\n1. Initializing UKG System...")
@@ -47,7 +42,7 @@ def verify_phase2_full_flow():
         # 4. Verify Axis Mapping
         context = updated_sim.get('context', {})
         axis_vector = context.get('axis_vector', {})
-        logging.info(f"\n4. Verifying Axis Mapping...")
+        logging.info("\n4. Verifying Axis Mapping...")
         logging.info(f"Resolved Axis Vector: {axis_vector}")
         
         if axis_vector.get(1) == '1.49.0.0' and axis_vector.get(2) == '2.10.4.1':

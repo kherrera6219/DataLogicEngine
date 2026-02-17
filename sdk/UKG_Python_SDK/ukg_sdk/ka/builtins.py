@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import re
-import uuid
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from .executor import KAExecutionContext, KAExecutionResult, KAExecutor
-from .registry import load_default_registry
 
 
 def register_builtin_handlers(executor: KAExecutor) -> None:

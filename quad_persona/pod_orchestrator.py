@@ -17,7 +17,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from quad_persona.pod_models import (
     PodType,
     ExpandedPersona,
-    SubsystemProfile,
     PodState,
     CrossPodConflict,
     ScalingDecision,

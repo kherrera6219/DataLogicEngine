@@ -1,6 +1,4 @@
 import logging
-import os
-import sys
 from backend.knowledge_algorithm.axis_mapper import AxisMapper
 
 # Configure logging

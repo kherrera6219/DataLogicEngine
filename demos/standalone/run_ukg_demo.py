@@ -13,7 +13,7 @@ import time
 import json
 import argparse
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 
 # Configure logging
 logging.basicConfig(

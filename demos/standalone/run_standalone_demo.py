@@ -11,8 +11,6 @@ import sys
 import logging
 import time
 import json
-from datetime import datetime
-from typing import Dict, Any
 
 # Import the standalone simulator
 from run_ukg_standalone import StandaloneSimulator, display_result

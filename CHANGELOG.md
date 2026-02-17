@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.16] - 2026-02-16
+
+### Changed
+- Executed an additional cross-repo style cleanup pass on non-critical lint rules across demos, SDK, quad persona modules, deployment validator, archive scripts, and selected tests.
+- Reduced global lint backlog from `553` to `359` by auto-fixing safe rule classes (unused imports/variables, selected simplifications, and redundant bindings).
+
+### Testing
+- Debug/error sweep completed for this cleanup phase:
+  - `.venv\Scripts\python.exe -m py_compile` across all changed Python files (`51` files, pass)
+  - `.venv\Scripts\python.exe -m ruff check . --select E9,F63,F7,F821` (pass)
+  - `.venv\Scripts\python.exe -m pytest -q -o addopts='' tests/knowledge_algorithms/test_ka_logic.py sdk/UKG_Python_SDK/tests/test_truth_engine.py sdk/UKG_Python_SDK/tests/test_workflow.py` (`14 passed`)
+  - `npm --prefix frontend run lint` (pass)
+  - `npm --prefix frontend run typecheck` (pass)
+- Remaining non-critical lint debt after this phase:
+  - `E402`: 201
+  - `E701`: 85
+  - `F841`: 20
+  - `E712`: 16
+  - `E722`: 14
+  - `E741`: 9
+  - `E721`: 6
+  - `F401`: 3
+  - `E711`: 2
+  - `F811`: 2
+  - `F403`: 1
+
 ## [4.1.15] - 2026-02-16
 
 ### Changed

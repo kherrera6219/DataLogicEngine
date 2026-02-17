@@ -13,10 +13,8 @@ Usage:
 import argparse
 import logging
 import sys
-import json
 import time
 from datetime import datetime
-from typing import Dict, List, Optional
 
 # Import core UKG components
 from core.system.united_system_manager import UnitedSystemManager
@@ -249,7 +247,7 @@ def print_layer9_results(layer9_context, verbose=False):
     print("="*80)
     
     # Print basic metrics
-    print(f"\n📊 RECURSIVE METRICS:")
+    print("\n📊 RECURSIVE METRICS:")
     print(f"  Recursive Confidence Score: {layer9_context.get('recursive_confidence_score', 0.0):.4f}")
     print(f"  Recursive Passes: {layer9_context.get('recursive_passes', 0)}")
     print(f"  Memory Alignment Score: {layer9_context.get('memory_alignment_score', 0.0):.4f}")
@@ -258,7 +256,7 @@ def print_layer9_results(layer9_context, verbose=False):
     # Print injected roles
     injected_roles = layer9_context.get('injected_roles', [])
     if injected_roles:
-        print(f"\n👥 INJECTED EXPERT ROLES:")
+        print("\n👥 INJECTED EXPERT ROLES:")
         for role in injected_roles:
             print(f"  - {role.get('role', 'unknown')} (from {role.get('axis', 'unknown')})")
     
@@ -296,7 +294,7 @@ def print_layer10_results(layer10_context, verbose=False):
     print("="*80)
     
     # Print basic metrics
-    print(f"\n📊 SELF-AWARENESS METRICS:")
+    print("\n📊 SELF-AWARENESS METRICS:")
     print(f"  Identity Consistency Score: {layer10_context.get('identity_consistency_score', 0.0):.4f}")
     print(f"  Belief Decay Average: {layer10_context.get('belief_decay_avg', 0.0):.4f}")
     print(f"  Emergence Score: {layer10_context.get('emergence_score', 0.0):.4f}")
@@ -316,7 +314,7 @@ def print_layer10_results(layer10_context, verbose=False):
             if active:
                 print(f"    - {trigger}: TRIGGERED")
     else:
-        print(f"\n✅ CONTAINMENT STATUS: INACTIVE")
+        print("\n✅ CONTAINMENT STATUS: INACTIVE")
     
     # Print self-awareness summary
     print("\n📝 SELF-AWARENESS SUMMARY:")
@@ -352,7 +350,7 @@ def print_final_conclusion(layer9_context, layer10_context):
     emergence_score = layer10_context.get('emergence_score', 0.0)
     containment_needed = layer10_context.get('containment_needed', False)
     
-    print(f"\n🔍 SYSTEM INTEGRITY ASSESSMENT:")
+    print("\n🔍 SYSTEM INTEGRITY ASSESSMENT:")
     print(f"  Recursive processing completed with {recursive_passes} passes")
     print(f"  Final recursive confidence: {rcs:.4f}")
     print(f"  Identity consistency: {ics:.4f}")
@@ -363,12 +361,12 @@ def print_final_conclusion(layer9_context, layer10_context):
     print("  From Layer 9 (Recursive AGI Core):")
     print(f"   - Multiple expert perspectives integrated across {recursive_passes} recursive passes")
     print(f"   - Cross-domain knowledge alignment achieved with MAS: {layer9_context.get('memory_alignment_score', 0.0):.4f}")
-    print(f"   - Temporal reasoning expanded to account for dynamic factors")
+    print("   - Temporal reasoning expanded to account for dynamic factors")
     
     print("\n  From Layer 10 (Self-Awareness Engine):")
     print(f"   - System identity maintained with ICS: {ics:.4f}")
-    print(f"   - Belief decay monitored to ensure relevance of knowledge")
-    print(f"   - Metacognitive bounds enforced to prevent instability")
+    print("   - Belief decay monitored to ensure relevance of knowledge")
+    print("   - Metacognitive bounds enforced to prevent instability")
     
     # Final conclusion
     print("\n🎯 FINAL SYNTHESIS:")

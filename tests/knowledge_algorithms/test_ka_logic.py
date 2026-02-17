@@ -38,7 +38,8 @@ class TestKA07RecursionControl:
         ka = KA007RecursiveReasoningControl(empty_context)
         state = {"val": 100}
         # pre-calculate history hash for loop detection
-        import json, hashlib
+        import json
+        import hashlib
         state_str = json.dumps(state, sort_keys=True)
         state_hash = hashlib.sha256(state_str.encode()).hexdigest()
         

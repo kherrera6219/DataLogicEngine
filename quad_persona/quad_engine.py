@@ -17,7 +17,7 @@ import json
 import logging
 import uuid
 from datetime import datetime, UTC
-from typing import Dict, List, Any, Tuple, Optional
+from typing import Dict, Any, Tuple, Optional
 import os
 
 try:
@@ -1247,7 +1247,7 @@ This module implements the Quad Persona Engine for simulating expert perspective
 """
 
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
