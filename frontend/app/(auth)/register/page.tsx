@@ -1,16 +1,46 @@
+'use client';
+
+import { useState, FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Mail, Lock, User as UserIcon } from "lucide-react";
+import { Shield, Mail, Lock, User as UserIcon, AlertCircle } from "lucide-react";
+import { request } from '@/lib/api';
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      await request('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ username, email, password }),
+      });
+      router.push('/login?registered=1');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Registration failed. Please try again.';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-black p-4 relative overflow-hidden">
       {/* Dynamic Background */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(37,99,235,0.1),transparent_50%)]" />
-      
+
       <Card className="w-full max-w-md glass-card border-white/10 shadow-2xl relative z-10 animate-in fade-in zoom-in duration-500">
         <CardHeader className="text-center pb-8 border-b border-white/5 mx-6">
             <div className="mx-auto w-12 h-12 bg-blue-600/20 rounded-2xl flex items-center justify-center mb-4 border border-blue-500/30">
@@ -20,16 +50,24 @@ export default function RegisterPage() {
             <CardDescription className="text-muted-foreground font-medium">Request a new DataLogicEngine access token</CardDescription>
         </CardHeader>
         <CardContent className="pt-8">
-            <form className="space-y-6">
+            {error && (
+              <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 text-sm text-red-400">
+                <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+                {error}
+              </div>
+            )}
+            <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="space-y-3">
                     <Label htmlFor="username" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Unique Identifier</Label>
                     <div className="relative">
                        <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" aria-hidden="true" />
-                       <Input 
-                          id="username" 
-                          type="text" 
-                          placeholder="Select a username" 
-                          className="bg-white/5 border-white/10 h-11 pl-10 rounded-xl focus-visible:ring-blue-500" 
+                       <Input
+                          id="username"
+                          type="text"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          placeholder="Select a username"
+                          className="bg-white/5 border-white/10 h-11 pl-10 rounded-xl focus-visible:ring-blue-500"
                           required
                           aria-required="true"
                        />
@@ -39,11 +77,13 @@ export default function RegisterPage() {
                     <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Contact Vector</Label>
                     <div className="relative">
                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" aria-hidden="true" />
-                       <Input 
-                          id="email" 
-                          type="email" 
-                          placeholder="professional@email.com" 
-                          className="bg-white/5 border-white/10 h-11 pl-10 rounded-xl focus-visible:ring-blue-500" 
+                       <Input
+                          id="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="professional@email.com"
+                          className="bg-white/5 border-white/10 h-11 pl-10 rounded-xl focus-visible:ring-blue-500"
                           required
                           aria-required="true"
                        />
@@ -53,18 +93,24 @@ export default function RegisterPage() {
                     <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Security Token</Label>
                     <div className="relative">
                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" aria-hidden="true" />
-                       <Input 
-                          id="password" 
-                          type="password" 
-                          placeholder="••••••••" 
-                          className="bg-white/5 border-white/10 h-11 pl-10 rounded-xl focus-visible:ring-blue-500" 
+                       <Input
+                          id="password"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="bg-white/5 border-white/10 h-11 pl-10 rounded-xl focus-visible:ring-blue-500"
                           required
                           aria-required="true"
                        />
                     </div>
                 </div>
-                <Button type="submit" className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 font-bold">
-                    Provision Account
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 font-bold disabled:opacity-60"
+                >
+                    {loading ? 'Provisioning...' : 'Provision Account'}
                 </Button>
             </form>
         </CardContent>
@@ -74,7 +120,7 @@ export default function RegisterPage() {
             </p>
         </CardFooter>
       </Card>
-      
+
       <div className="fixed bottom-8 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-gray-700 pointer-events-none">
          DataLogicEngine Hardened Node • UKG v2.1.1
       </div>

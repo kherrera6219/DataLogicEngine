@@ -259,9 +259,15 @@ login_manager.init_app(app)
 csrf.init_app(app)
 migrate.init_app(app, db)
 
-# Configure limiter storage
-if not use_redis:
-    limiter.storage_uri = "memory://"
+# Configure limiter storage — auto-wire to Redis when available so rate limit
+# counters are shared across all Gunicorn workers (prevents bypass via multi-process).
+_explicit_rate_storage = os.environ.get("RATELIMIT_STORAGE_URI")
+if _explicit_rate_storage:
+    app.config["RATELIMIT_STORAGE_URI"] = _explicit_rate_storage
+elif use_redis:
+    app.config["RATELIMIT_STORAGE_URI"] = redis_url
+else:
+    app.config["RATELIMIT_STORAGE_URI"] = "memory://"
 limiter.init_app(app)
 cache.init_app(app)
 compress.init_app(app)
@@ -604,6 +610,22 @@ except ImportError as e:
 # Register core routes from routes package
 from routes import register_routes
 register_routes(app)
+
+
+@app.route('/api/v1/csp-report', methods=['POST'])
+def csp_report():
+    """Receive and log Content-Security-Policy violation reports."""
+    try:
+        payload = request.get_json(force=True, silent=True) or {}
+        report = payload.get('csp-report', payload)
+        logger.warning("CSP violation: blocked-uri=%s violated-directive=%s document-uri=%s",
+                       report.get('blocked-uri', ''),
+                       report.get('violated-directive', ''),
+                       report.get('document-uri', ''))
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.debug("Failed to parse CSP report: %s", exc)
+    return '', 204
+
 
 def _config_health() -> dict:
     """Summarize configuration readiness for lightweight health checks."""

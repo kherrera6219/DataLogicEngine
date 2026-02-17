@@ -754,6 +754,74 @@ def create_prompt_template():
     return jsonify(template.to_dict()), 201
 
 
+@admin_bp.route('/prompt-templates/<string:template_id>', methods=['PATCH'])
+@admin_required
+def update_prompt_template(template_id: str):
+    """Update fields on an existing prompt template."""
+    template = PromptTemplate.query.get(template_id)
+    if not template:
+        return jsonify({'error': 'Not found'}), 404
+
+    data = request.get_json() or {}
+    editable = ('template_body', 'description', 'is_active')
+    for field in editable:
+        if field in data:
+            setattr(template, field, data[field])
+
+    # Allow submitting for review via PATCH.
+    if data.get('submit_for_review') and template.approval_state == 'draft':
+        template.approval_state = 'pending_review'
+        template.submitted_for_review_at = datetime.now(UTC)
+
+    db.session.commit()
+    return jsonify(template.to_dict())
+
+
+@admin_bp.route('/prompt-templates/<string:template_id>/approve', methods=['POST'])
+@admin_required
+def approve_prompt_template(template_id: str):
+    """Approve a prompt template so it can be used by the governance engine."""
+    template = PromptTemplate.query.get(template_id)
+    if not template:
+        return jsonify({'error': 'Not found'}), 404
+
+    template.approval_state = 'approved'
+    template.approved_by = current_user.id
+    template.approved_at = datetime.now(UTC)
+    template.rejected_reason = None
+    db.session.commit()
+    return jsonify(template.to_dict())
+
+
+@admin_bp.route('/prompt-templates/<string:template_id>/reject', methods=['POST'])
+@admin_required
+def reject_prompt_template(template_id: str):
+    """Reject a prompt template with an optional reason."""
+    template = PromptTemplate.query.get(template_id)
+    if not template:
+        return jsonify({'error': 'Not found'}), 404
+
+    data = request.get_json() or {}
+    template.approval_state = 'rejected'
+    template.rejected_reason = str(data.get('reason', '')).strip() or None
+    template.is_active = False
+    db.session.commit()
+    return jsonify(template.to_dict())
+
+
+@admin_bp.route('/prompt-templates/<string:template_id>', methods=['DELETE'])
+@admin_required
+def delete_prompt_template(template_id: str):
+    """Permanently delete a prompt template."""
+    template = PromptTemplate.query.get(template_id)
+    if not template:
+        return jsonify({'error': 'Not found'}), 404
+
+    db.session.delete(template)
+    db.session.commit()
+    return jsonify({'success': True, 'deleted_id': template_id})
+
+
 @admin_bp.route('/routing-policies', methods=['GET'])
 @login_required
 def list_routing_policies():

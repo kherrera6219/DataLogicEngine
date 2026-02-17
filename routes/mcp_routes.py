@@ -749,3 +749,36 @@ def setup_default_servers():
             'success': False,
             'error': str(e)
         }), 500
+
+
+@mcp_bp.route('/console', methods=['POST'])
+@login_required
+@api_admin_required
+def mcp_console():
+    """Execute a raw MCP console command (admin only)."""
+    try:
+        data = request.get_json() or {}
+        command = str(data.get('command', '')).strip()
+        if not command:
+            return jsonify({'success': False, 'error': 'command is required'}), 400
+
+        manager = get_mcp_manager()
+        # Interpret simple commands: list-servers, stats, help
+        if command in ('list-servers', 'servers'):
+            servers = MCPServerModel.query.all()
+            result = [s.to_dict() for s in servers]
+        elif command in ('stats', 'status'):
+            stats = manager.get_stats()
+            result = stats
+        elif command == 'help':
+            result = {
+                'commands': ['list-servers', 'servers', 'stats', 'status', 'help'],
+                'description': 'MCP Console — type a command to inspect the MCP system.'
+            }
+        else:
+            result = {'error': f'Unknown command: {command!r}. Type "help" for available commands.'}
+
+        return jsonify({'success': True, 'result': result})
+    except Exception as e:
+        logger.error(f"MCP console error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500

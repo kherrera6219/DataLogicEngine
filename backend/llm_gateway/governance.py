@@ -92,7 +92,7 @@ class AIGovernanceEngine:
         except Exception:
             return None
 
-        query = PromptTemplate.query.filter_by(template_key=template_key, is_active=True)
+        query = PromptTemplate.query.filter_by(template_key=template_key, is_active=True, approval_state='approved')
         if version:
             template = query.filter_by(version=version).first()
             if template:
