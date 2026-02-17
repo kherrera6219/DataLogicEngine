@@ -57,7 +57,8 @@ class StatisticalBackend:
     def _calculate_median(self, values: List[float]) -> float:
         sorted_v = sorted(values)
         n = len(sorted_v)
-        if n == 0: return 0
+        if n == 0:
+            return 0
         if n % 2 == 1:
             return sorted_v[n // 2]
         else:

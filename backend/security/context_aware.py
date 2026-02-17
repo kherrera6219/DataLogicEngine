@@ -91,7 +91,8 @@ class ContextDriftDetector:
         """
         Simple linear regression slope or delta average to forward velocity.
         """
-        if len(scores) < 2: return 0.0
+        if len(scores) < 2:
+            return 0.0
         
         deltas = []
         for i in range(1, len(scores)):

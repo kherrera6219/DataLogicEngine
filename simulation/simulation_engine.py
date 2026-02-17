@@ -113,9 +113,12 @@ class SimulationEngine:
 
     def _get_layers_for_escalation(self, level: int) -> List[int]:
         """Map escalation levels to functional layer subsets."""
-        if level <= 1: return [1, 2] # Minimal path (Sync with test expectations)
-        if level <= 2: return [1, 2, 5, 10] # Debate path
-        if level <= 3: return [1, 2, 3, 4, 5, 6, 10] # Full reasoning
+        if level <= 1:
+            return [1, 2] # Minimal path (Sync with test expectations)
+        if level <= 2:
+            return [1, 2, 5, 10] # Debate path
+        if level <= 3:
+            return [1, 2, 3, 4, 5, 6, 10] # Full reasoning
         return list(range(1, 11)) # High-stakes recursion
 
     def run_agentic_simulation(self, query: str, escalation_level: int = 3) -> UnifiedArtifactEnvelope:
@@ -246,9 +249,12 @@ class SimulationEngine:
         if context:
             if 'max_layers' in context:
                 ml = context['max_layers']
-                if ml <= 2: escalation = 1
-                elif ml <= 5: escalation = 2
-                else: escalation = 3
+                if ml <= 2:
+                    escalation = 1
+                elif ml <= 5:
+                    escalation = 2
+                else:
+                    escalation = 3
             if 'escalation_level' in context:
                 escalation = context['escalation_level']
             if 'use_agentic' in context:

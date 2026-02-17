@@ -73,7 +73,8 @@ class VideoService:
         try:
             cap = cv2.VideoCapture(temp_path)
             fps = cap.get(cv2.CAP_PROP_FPS)
-            if fps == 0: fps = 30 # Fallback
+            if fps == 0:
+                fps = 30 # Fallback
             
             frame_interval = int(fps * interval_sec)
             count = 0

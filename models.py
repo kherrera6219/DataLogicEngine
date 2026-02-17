@@ -528,7 +528,8 @@ class LLMProvider(db.Model):
         self.api_key_encrypted = f.encrypt(api_key.encode())
     
     def get_api_key(self) -> Optional[str]:
-        if not self.api_key_encrypted: return None
+        if not self.api_key_encrypted:
+            return None
         try:
             key = current_app.config.get('ENCRYPTION_KEY')
             if not key:

@@ -67,7 +67,8 @@ def create_pillar_level():
         return error_response("Invalid request payload", 422)
 
     existing = PillarLevel.query.filter_by(pillar_id=payload.pillar_id).first()
-    if existing: return error_response(f"Pillar level with ID {payload.pillar_id} already exists", 409)
+    if existing:
+        return error_response(f"Pillar level with ID {payload.pillar_id} already exists", 409)
     
     new_pillar = PillarLevel(
         uid=str(uuid.uuid4()),
@@ -97,7 +98,8 @@ def get_sectors():
 @api_login_required
 def get_sector(sector_code):
     sector = Sector.query.filter_by(sector_code=sector_code).first()
-    if not sector: return error_response(f"Sector with code {sector_code} not found", 404)
+    if not sector:
+        return error_response(f"Sector with code {sector_code} not found", 404)
     return success_response(sector.to_dict())
 
 @knowledge_bp.route('/sectors', methods=['POST'])
@@ -109,7 +111,8 @@ def create_sector():
         return error_response("Invalid request payload", 422)
 
     existing = Sector.query.filter_by(sector_code=payload.sector_code).first()
-    if existing: return error_response(f"Sector with code {payload.sector_code} already exists", 409)
+    if existing:
+        return error_response(f"Sector with code {payload.sector_code} already exists", 409)
     
     new_sector = Sector(
         uid=str(uuid.uuid4()),
@@ -139,7 +142,8 @@ def get_domains():
 @api_login_required
 def get_domain(domain_code):
     domain = Domain.query.filter_by(domain_code=domain_code).first()
-    if not domain: return error_response(f"Domain with code {domain_code} not found", 404)
+    if not domain:
+        return error_response(f"Domain with code {domain_code} not found", 404)
     return success_response(domain.to_dict())
 
 @knowledge_bp.route('/domains', methods=['POST'])
@@ -151,7 +155,8 @@ def create_domain():
         return error_response("Invalid request payload", 422)
 
     existing = Domain.query.filter_by(domain_code=payload.domain_code).first()
-    if existing: return error_response(f"Domain with code {payload.domain_code} already exists", 409)
+    if existing:
+        return error_response(f"Domain with code {payload.domain_code} already exists", 409)
     
     new_domain = Domain(
         uid=str(uuid.uuid4()),
@@ -182,7 +187,8 @@ def get_knowledge_nodes():
 @api_login_required
 def get_knowledge_node(uid):
     node = KnowledgeNode.query.filter_by(uid=uid).first()
-    if not node: return error_response(f"Node {uid} not found", 404)
+    if not node:
+        return error_response(f"Node {uid} not found", 404)
     return success_response(node.to_dict())
 
 @knowledge_bp.route('/knowledge-nodes', methods=['POST'])

@@ -419,7 +419,8 @@ class MCPManager:
                             # Standardized KA import path
                             # kid is e.g. "KA-001" -> convert to filename part ka_01
                             ka_num = kid.split('-')[1].lstrip('0')
-                            if not ka_num: ka_num = '0'
+                            if not ka_num:
+                                ka_num = '0'
                             # Pad with zero if needed for filenames (e.g. ka_01)
                             ka_num_pad = ka_num.zfill(2)
                             

@@ -17,7 +17,8 @@ def find_duplicates(root_dir):
     for root, dirs, files in os.walk(root_dir):
         dirs[:] = [d for d in dirs if d not in exclude_dirs]
         for name in files:
-            if name == "__init__.py": continue
+            if name == "__init__.py":
+                continue
             path = os.path.join(root, name)
             if name not in files_by_name:
                 files_by_name[name] = []

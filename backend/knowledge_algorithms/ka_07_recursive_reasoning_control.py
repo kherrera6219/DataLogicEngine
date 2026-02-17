@@ -86,7 +86,8 @@ class KA007RecursiveReasoningControl(KnowledgeAlgorithm):
         }
 
     def _is_looping(self, current_state: Dict[str, Any], history: List[str]) -> bool:
-        if not current_state: return False
+        if not current_state:
+            return False
         state_str = json.dumps(current_state, sort_keys=True)
         state_hash = hashlib.sha256(state_str.encode()).hexdigest()
         return state_hash in history

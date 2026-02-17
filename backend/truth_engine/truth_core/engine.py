@@ -166,7 +166,8 @@ class TruthCoreEngine:
 
         # Heuristic Fallback
         query_len = len(query.split())
-        if query_len < 5: return 'trivial'
+        if query_len < 5:
+            return 'trivial'
         if any(kw in query.lower() for kw in ['risk', 'safety', 'legal', 'compliance']):
             return 'high_stakes'
         return 'moderate'
@@ -193,8 +194,10 @@ class TruthCoreEngine:
             pass # Revert to heuristics
 
         query_lower = query.lower()
-        if any(kw in query_lower for kw in ['code', 'function', 'program', 'script']): return 'code'
-        if len(query) > 5000: return 'long_context'
+        if any(kw in query_lower for kw in ['code', 'function', 'program', 'script']):
+            return 'code'
+        if len(query) > 5000:
+            return 'long_context'
         return 'default'
 
     async def create_session(self, query: str, user_id: int = None, tenant_id: str = None, 

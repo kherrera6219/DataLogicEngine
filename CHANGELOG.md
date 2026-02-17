@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.18] - 2026-02-17
+
+### Changed
+- Completed Phase 10 lint hardening pass focused on `E701` cleanup (multiple statements on one line).
+- Converted all remaining single-line compound statements (`if/elif/except`) into block form across backend/core/routes/scripts/simulation/models.
+- Global lint backlog reduced from `281` to `201`.
+- Remaining global lint debt is now isolated to `E402` only (`module-import-not-at-top-of-file`).
+
+### Testing
+- Debug/error sweep completed for this phase:
+  - `.venv\Scripts\python.exe -m ruff check . --select E701` (pass)
+  - `.venv\Scripts\python.exe -m ruff check . --select E9,F63,F7,F821` (pass)
+  - `.venv\Scripts\python.exe -m py_compile` across all changed Python files (`26` files, pass)
+  - `.venv\Scripts\python.exe -m pytest -q --no-cov tests/knowledge_algorithms/test_ka_bulk.py tests/truth_engine/test_layer10_emergence.py tests/truth_engine/test_layer9_meta_reasoning.py tests/truth_engine/test_truth_infrastructure.py sdk/UKG_Python_SDK/tests/test_truth_engine.py` (`270 passed`)
+
 ## [4.1.17] - 2026-02-17
 
 ### Changed

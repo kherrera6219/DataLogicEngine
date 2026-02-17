@@ -12,16 +12,20 @@ def gen_registry():
     
     for f in files:
         fname = os.path.basename(f)
-        if fname == "ka_master_controller.py": continue
-        if fname.startswith("ka_legacy"): continue # just in case
+        if fname == "ka_master_controller.py":
+            continue
+        if fname.startswith("ka_legacy"):
+            continue # just in case
         
         # ka_01_... -> KA-001
         # ka_113_... -> KA-113
         parts = fname.split("_")
-        if len(parts) < 2: continue
+        if len(parts) < 2:
+            continue
         
         num_str = parts[1]
-        if not num_str.isdigit(): continue
+        if not num_str.isdigit():
+            continue
         
         ka_id = f"KA-{int(num_str):03d}"
         mod_name = fname.replace(".py", "")

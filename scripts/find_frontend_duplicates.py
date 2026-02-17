@@ -24,8 +24,10 @@ def find_duplicates(root_dir):
     for root, dirs, files in os.walk(root_dir):
         dirs[:] = [d for d in dirs if d not in exclude_dirs]
         for name in files:
-            if name.startswith('.'): continue
-            if name.endswith('.d.ts'): continue
+            if name.startswith('.'):
+                continue
+            if name.endswith('.d.ts'):
+                continue
             
             path = os.path.join(root, name)
             

@@ -70,7 +70,8 @@ class KA010BiasDetection(KnowledgeAlgorithm):
         return findings
 
     def _calculate_bias_score(self, findings: List[Dict[str, Any]], content: str) -> float:
-        if not content: return 0.0
+        if not content:
+            return 0.0
         word_count = max(len(content.split()), 1)
         return min(1.0, len(findings) / (word_count / 10))
 

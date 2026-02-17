@@ -160,7 +160,8 @@ class Layer5IntegrationEngine:
         sources = [context, context.get("intent", {}), context.get("analysis", {})]
         
         for source in sources:
-            if not isinstance(source, dict): continue
+            if not isinstance(source, dict):
+                continue
             for k, v in source.items():
                 # Direct match (e.g. 'a1', 'axis_1')
                 if k in mapping.values(): 

@@ -193,15 +193,21 @@ class Layer1PlanningEngine:
 
     def _determine_task_type(self, query: str) -> str:
         q = query.lower()
-        if "compare" in q or "vs" in q: return "compare"
-        if "how to" in q or "design" in q: return "design"
-        if "explain" in q or "what is" in q: return "explain"
-        if "verify" in q or "check" in q: return "verification"
+        if "compare" in q or "vs" in q:
+            return "compare"
+        if "how to" in q or "design" in q:
+            return "design"
+        if "explain" in q or "what is" in q:
+            return "explain"
+        if "verify" in q or "check" in q:
+            return "verification"
         return "general_inquiry"
 
     def _extract_constraints(self, query: str) -> List[str]:
         constraints = []
         q = query.lower()
-        if "only" in q: constraints.append("scope_limited")
-        if "cite" in q or "source" in q: constraints.append("must_cite_sources")
+        if "only" in q:
+            constraints.append("scope_limited")
+        if "cite" in q or "source" in q:
+            constraints.append("must_cite_sources")
         return constraints

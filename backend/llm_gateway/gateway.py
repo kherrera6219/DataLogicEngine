@@ -912,62 +912,83 @@ class LLMGateway:
             def add_provider(p_list, name, p_type, model, prio):
                 # Simple check to avoid exact duplicates if logic overlaps
                 for p in p_list:
-                    if p.name == name: return
+                    if p.name == name:
+                        return
                 p_list.append(EnvProvider(name, p_type, priority=prio, model=model))
 
             # --- Construct 3-Layer List based on Tier ---
             
             if task_tier == "complex_reasoning":
                 # Layer 1: Peak Intelligence (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-primary", "openai", openai_primary_model, 1)
+                if openai_key:
+                    add_provider(providers_list, "openai-primary", "openai", openai_primary_model, 1)
                 # Layer 2: Cross-Provider Strong (Google)
-                if google_key: add_provider(providers_list, "google-fallback", "google", google_primary_model, 2)
+                if google_key:
+                    add_provider(providers_list, "google-fallback", "google", google_primary_model, 2)
                 # Layer 3: Same-Provider Standard (OpenAI) or Other
-                if openai_key: add_provider(providers_list, "openai-safety", "openai", openai_standard_model, 3)
-                elif google_key: add_provider(providers_list, "google-safety", "google", google_fast_model, 3)
+                if openai_key:
+                    add_provider(providers_list, "openai-safety", "openai", openai_standard_model, 3)
+                elif google_key:
+                    add_provider(providers_list, "google-safety", "google", google_fast_model, 3)
 
             elif task_tier == "security_defense":
                 # High-Stakes Security Analysis routing
                 # Layer 1: Best Reasoning Available (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-defense", "openai", openai_primary_model, 1)
+                if openai_key:
+                    add_provider(providers_list, "openai-defense", "openai", openai_primary_model, 1)
                 # Layer 2: Strongest Alternate (Google)
-                if google_key: add_provider(providers_list, "google-defense", "google", google_primary_model, 2)
+                if google_key:
+                    add_provider(providers_list, "google-defense", "google", google_primary_model, 2)
                 # Layer 3: Fallback (OpenAI Standard)
-                if openai_key: add_provider(providers_list, "openai-defense-fallback", "openai", openai_standard_model, 3)
+                if openai_key:
+                    add_provider(providers_list, "openai-defense-fallback", "openai", openai_standard_model, 3)
 
             elif task_tier == "deep_research":
                 # Layer 1: Autonomous Research (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-research", "openai", openai_research_model, 1)
+                if openai_key:
+                    add_provider(providers_list, "openai-research", "openai", openai_research_model, 1)
                 # Layer 2: Strong Reasoning (Google)
-                if google_key: add_provider(providers_list, "google-fallback", "google", google_primary_model, 2)
+                if google_key:
+                    add_provider(providers_list, "google-fallback", "google", google_primary_model, 2)
                 # Layer 3: High Logic (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-fallback", "openai", openai_primary_model, 3)
+                if openai_key:
+                    add_provider(providers_list, "openai-fallback", "openai", openai_primary_model, 3)
 
             elif task_tier in ["rag_heavy", "context_heavy"]:
                 # Layer 1: Massive Context (Google)
-                if google_key: add_provider(providers_list, "google-context", "google", google_primary_model, 1)
+                if google_key:
+                    add_provider(providers_list, "google-context", "google", google_primary_model, 1)
                 # Layer 2: Large Context Reliability (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-fallback", "openai", openai_long_context_model, 2)
+                if openai_key:
+                    add_provider(providers_list, "openai-fallback", "openai", openai_long_context_model, 2)
                 # Layer 3: Speed/Capacity (Google)
-                if google_key: add_provider(providers_list, "google-flash", "google", google_fast_model, 3)
+                if google_key:
+                    add_provider(providers_list, "google-flash", "google", google_fast_model, 3)
 
             elif task_tier in ["fast_chat", "structured_workflow"]:
                 # Layer 1: Speed King (Google)
-                if google_key: add_provider(providers_list, "google-flash", "google", google_fast_model, 1)
+                if google_key:
+                    add_provider(providers_list, "google-flash", "google", google_fast_model, 1)
                 # Layer 2: Structured Efficient (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-mini", "openai", openai_fast_model, 2)
+                if openai_key:
+                    add_provider(providers_list, "openai-mini", "openai", openai_fast_model, 2)
                 # Layer 3: Robust Fallback (Google)
-                if google_key: add_provider(providers_list, "google-std", "google", google_primary_model, 3)
-                elif openai_key: add_provider(providers_list, "openai-nano", "openai", openai_nano_model, 3)
+                if google_key:
+                    add_provider(providers_list, "google-std", "google", google_primary_model, 3)
+                elif openai_key:
+                    add_provider(providers_list, "openai-nano", "openai", openai_nano_model, 3)
 
             else:
                 # Default / General Chat
                 # Layer 1: Balanced (OpenAI)
-                if openai_key: add_provider(providers_list, "openai-default", "openai", openai_standard_model, 1)
+                if openai_key:
+                    add_provider(providers_list, "openai-default", "openai", openai_standard_model, 1)
                 # Layer 2: Balanced (Google)
-                if google_key: add_provider(providers_list, "google-default", "google", google_primary_model, 2)
+                if google_key:
+                    add_provider(providers_list, "google-default", "google", google_primary_model, 2)
                 # Layer 3: Speed (Google)
-                if google_key: add_provider(providers_list, "google-speed", "google", google_fast_model, 3)
+                if google_key:
+                    add_provider(providers_list, "google-speed", "google", google_fast_model, 3)
             
             # If we still have space and Anthropic key exists, inject it as ultimate backup
             if anthropic_key and len(providers_list) < 3:
@@ -1346,7 +1367,8 @@ class LLMGateway:
             if not session:
                 # Fallback: if we don't have a user_id, we can't create a session properly 
                 # but we'll try to find the current user if possible or just skip
-                if not user_id: return
+                if not user_id:
+                    return
                 
                 session = ChatSession(
                     id=uuid.UUID(session_id),

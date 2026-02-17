@@ -28,7 +28,8 @@ class KA036ComplexityEstimator(KnowledgeAlgorithm):
         self.log_execution_step("Estimating Complexity", {})
         
         score = 1
-        if len(problem) > 100: score = 5
+        if len(problem) > 100:
+            score = 5
         
         return {
             "ka_id": "KA-036",

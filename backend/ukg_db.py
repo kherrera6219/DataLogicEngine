@@ -1023,7 +1023,8 @@ class UkgDatabaseManager:
                 
                 node_ids.update(next_node_ids)
                 current_node_ids = next_node_ids
-                if not current_node_ids: break
+                if not current_node_ids:
+                    break
             
             # Batch fetch all discovered nodes and edges
             nodes = self.db.session.query(self.Node).filter(self.Node.id.in_(node_ids)).all()

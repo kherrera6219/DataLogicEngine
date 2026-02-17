@@ -50,7 +50,8 @@ class KAMasterController(KnowledgeAlgorithm):
             ka_id = str(ka_id)
         clean_id = ka_id.upper().strip()
         if clean_id.startswith("KA-"):
-            if len(clean_id) == 6: return clean_id
+            if len(clean_id) == 6:
+                return clean_id
             num_part = clean_id.replace("KA-", "").lstrip("0") or "0"
         else:
             num_part = clean_id.lstrip("0") or "0"

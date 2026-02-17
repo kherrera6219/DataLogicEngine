@@ -28,7 +28,8 @@ class KA037ResourceAllocator(KnowledgeAlgorithm):
         self.log_execution_step("Allocating", {"priority": priority})
         
         tokens = 1000
-        if priority == "high": tokens = 5000
+        if priority == "high":
+            tokens = 5000
         
         return {
             "ka_id": "KA-037",

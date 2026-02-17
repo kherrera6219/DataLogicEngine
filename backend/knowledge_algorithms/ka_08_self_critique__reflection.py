@@ -73,7 +73,8 @@ class KA008SelfCritique(KnowledgeAlgorithm):
     def _calculate_overall_score(self, results: Dict[str, float]) -> float:
         rubrics = self.config.get("rubrics", {})
         total_weight = sum(r.get("weight", 0) for r in rubrics.values())
-        if total_weight == 0: return 0.0
+        if total_weight == 0:
+            return 0.0
         weighted_sum = sum(results[name] * rubrics[name].get("weight", 0) for name in results)
         return weighted_sum / total_weight
 

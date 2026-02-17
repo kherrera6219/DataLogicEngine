@@ -146,7 +146,8 @@ class EmergenceDetectionController:
             if ka_res.get("emergence_detected"):
                 assessment.emergence_detected = True
                 assessment.overall_level = EmergenceLevel.MODERATE
-        except Exception as e: logger.debug(f"KA-021 failed: {e}")
+        except Exception as e:
+            logger.debug(f"KA-021 failed: {e}")
 
         # KA-108: Capability Escalation (Unsafe drift)
         try:
@@ -160,7 +161,8 @@ class EmergenceDetectionController:
                     risk_level=EmergenceLevel.HIGH,
                     score=0.9
                 ))
-        except Exception as e: logger.debug(f"KA-108 failed: {e}")
+        except Exception as e:
+            logger.debug(f"KA-108 failed: {e}")
 
         # L10-KA-001/002: Entropy and Self-Awareness
         try:
@@ -178,7 +180,8 @@ class EmergenceDetectionController:
                     risk_level=EmergenceLevel.LOW,
                     score=0.3
                 ))
-        except Exception as e: logger.debug(f"L10-KA-001/2 failed: {e}")
+        except Exception as e:
+            logger.debug(f"L10-KA-001/2 failed: {e}")
 
         return assessment
 
@@ -205,7 +208,8 @@ class EmergenceDetectionController:
                         description=f"{ka_id} flag: {ka_res.get('flag', 'Unknown')}",
                         recommended_action="redact" if ka_id == "KA-059" else "withhold"
                     ))
-            except Exception as e: logger.debug(f"{ka_id} failed: {e}")
+            except Exception as e:
+                logger.debug(f"{ka_id} failed: {e}")
 
         # Ethics Validator (L10-KA-004 + KA-027)
         try:
@@ -221,7 +225,8 @@ class EmergenceDetectionController:
                         description=v["message"],
                         recommended_action="modify"
                     ))
-        except Exception as e: logger.debug(f"L10-KA-004 failed: {e}")
+        except Exception as e:
+            logger.debug(f"L10-KA-004 failed: {e}")
 
         result.release_approved = len([v for v in result.violations if v.severity == "critical"]) == 0
         return result
@@ -244,7 +249,8 @@ class EmergenceDetectionController:
                 try:
                     self.ka_controller.execute_algorithm("KA-095", {"problem": input_data.problem_spec, "reason": "high_risk_low_confidence"})
                     kas_invoked.append("KA-095")
-                except Exception: pass
+                except Exception:
+                    pass
             
         kas_invoked.append("L10-KA-006")
         
@@ -270,14 +276,16 @@ class EmergenceDetectionController:
             ka_res = self.ka_controller.execute_algorithm("KA-109", {"content": input_data.reasoning_trace})
             kas_invoked.append("KA-109")
             commit_report["containment_class"] = ka_res.get("class", "RESTRICTED")
-        except Exception: pass
+        except Exception:
+            pass
 
         # KA-079: Knowledge Promotion Gate
         try:
             ka_res = self.ka_controller.execute_algorithm("KA-079", {"trace": input_data.reasoning_trace})
             kas_invoked.append("KA-079")
             commit_report["promotion_authorized"] = ka_res.get("authorized", False)
-        except Exception: pass
+        except Exception:
+            pass
 
         return commit_report
 

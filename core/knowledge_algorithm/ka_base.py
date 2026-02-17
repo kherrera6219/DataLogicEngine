@@ -144,10 +144,12 @@ class KnowledgeAlgorithm(ABC):
 
     def calculate_confidence(self, factors: Dict[str, float], weights: Optional[Dict[str, float]] = None) -> float:
         """Weighted confidence calculation logic."""
-        if not factors: return 0.5
+        if not factors:
+            return 0.5
         w = weights or {k: 1.0 / len(factors) for k in factors}
         total_w = sum(w.get(k, 0) for k in factors)
-        if total_w == 0: return 0.5
+        if total_w == 0:
+            return 0.5
         
         weighted_sum = sum(factors[k] * w.get(k, 0) for k in factors if k in w)
         return max(0.0, min(1.0, weighted_sum / total_w))

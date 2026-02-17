@@ -26,7 +26,8 @@ def generate_inventory_and_map():
             dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
             
             for f in files:
-                if f == "update_docs.py": continue 
+                if f == "update_docs.py":
+                    continue 
                 
                 full_path = os.path.join(root, f)
                 rel_path = os.path.relpath(full_path, ROOT_DIR)
@@ -57,7 +58,8 @@ def generate_inventory_and_map():
             level = root.replace(ROOT_DIR, '').count(os.sep)
             indent = '    ' * level
             folder_name = os.path.basename(root)
-            if folder_name == '': folder_name = '.'
+            if folder_name == '':
+                folder_name = '.'
             
             f.write(f"{indent}[{folder_name}/]\n")
             

@@ -123,7 +123,8 @@ class UnifiedMappingSystem:
                 # Try to resolve first
                 for a_type, a_val in aliases.items():
                     ukgid = self.uids.resolve_ukgid(a_type, a_val)
-                    if ukgid: break
+                    if ukgid:
+                        break
                 
                 if not ukgid:
                     ukgid = self.uids.register_entity(

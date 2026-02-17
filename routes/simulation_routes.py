@@ -42,7 +42,8 @@ def get_simulations():
 @api_login_required
 def get_simulation(uid):
     simulation = SimulationSession.query.filter_by(uid=uid).first()
-    if not simulation: return error_response(f"Simulation {uid} not found", 404)
+    if not simulation:
+        return error_response(f"Simulation {uid} not found", 404)
     # Optional: Check ownership
     # if simulation.user_id != current_user.id: return error_response("Unauthorized", 403)
     return success_response(simulation.to_dict())
@@ -82,8 +83,10 @@ def create_simulation():
 @api_login_required
 def run_simulation_step(uid):
     simulation = SimulationSession.query.filter_by(uid=uid).first()
-    if not simulation: return error_response(f"Simulation {uid} not found", 404)
-    if simulation.status != "active": return error_response(f"Simulation not active: {simulation.status}")
+    if not simulation:
+        return error_response(f"Simulation {uid} not found", 404)
+    if simulation.status != "active":
+        return error_response(f"Simulation not active: {simulation.status}")
     
     # Real Production Execution
     try:
@@ -117,7 +120,8 @@ def run_simulation_step(uid):
 @api_login_required
 def stop_simulation(uid):
     simulation = SimulationSession.query.filter_by(uid=uid).first()
-    if not simulation: return error_response(f"Simulation {uid} not found", 404)
+    if not simulation:
+        return error_response(f"Simulation {uid} not found", 404)
     
     simulation.status = "completed"
     simulation.completed_at = datetime.datetime.now(UTC)
