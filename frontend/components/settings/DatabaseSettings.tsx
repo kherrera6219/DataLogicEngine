@@ -76,6 +76,22 @@ function isStorageHealth(value: unknown): value is StorageHealth {
   return requiredKeys.every((key) => Boolean(candidate.services && key in candidate.services));
 }
 
+interface CloudConfig {
+  postgres_url: string;
+  redis_url: string;
+  neo4j_uri: string;
+  pinecone_api_key: string;
+  s3_endpoint: string;
+  s3_bucket: string;
+  s3_access_key: string;
+  s3_secret_key: string;
+}
+
+const EMPTY_CLOUD: CloudConfig = {
+  postgres_url: '', redis_url: '', neo4j_uri: '', pinecone_api_key: '',
+  s3_endpoint: '', s3_bucket: '', s3_access_key: '', s3_secret_key: '',
+};
+
 export function DatabaseSettings() {
   const { toast } = useToast();
   const [health, setHealth] = useState<StorageHealth | null>(null);
@@ -87,6 +103,43 @@ export function DatabaseSettings() {
   const [autoStartEnabled, setAutoStartEnabled] = useState(true);
   const [savingAutoStart, setSavingAutoStart] = useState(false);
   const [activeTab, setActiveTab] = useState('status');
+  // Cloud config state
+  const [cloudConfig, setCloudConfig] = useState<CloudConfig>(EMPTY_CLOUD);
+  const [savedCloudKeys, setSavedCloudKeys] = useState<Record<string, boolean>>({});
+  const [savingCloud, setSavingCloud] = useState(false);
+
+  const fetchCloudConfig = useCallback(async () => {
+    try {
+      const result = await request<{ cloud_config: Record<string, string> }>('/storage/cloud-config');
+      // Mask response just tells us which keys are set ('***' = set, '' = not set).
+      const setKeys: Record<string, boolean> = {};
+      for (const [k, v] of Object.entries(result.cloud_config || {})) {
+        setKeys[k] = v === '***';
+      }
+      setSavedCloudKeys(setKeys);
+    } catch {
+      // non-fatal
+    }
+  }, []);
+
+  const handleSaveCloudConfig = async () => {
+    setSavingCloud(true);
+    try {
+      // Only send non-empty fields so we don't clobber saved secrets with blanks.
+      const payload: Partial<CloudConfig> = {};
+      for (const [k, v] of Object.entries(cloudConfig)) {
+        if (v.trim()) (payload as Record<string, string>)[k] = v.trim();
+      }
+      await request('/storage/cloud-config', { method: 'POST', body: JSON.stringify(payload) });
+      toast('Cloud configuration saved.', 'success', 2000);
+      setCloudConfig(EMPTY_CLOUD);
+      void fetchCloudConfig();
+    } catch (error) {
+      toast(`Failed to save: ${formatErrorMessage(error)}`, 'error');
+    } finally {
+      setSavingCloud(false);
+    }
+  };
 
   const fetchHealth = useCallback(async () => {
     try {
@@ -118,6 +171,12 @@ export function DatabaseSettings() {
   useEffect(() => {
     void fetchHealth();
   }, [fetchHealth]);
+
+  useEffect(() => {
+    if (activeTab === 'cloud') {
+      void fetchCloudConfig();
+    }
+  }, [activeTab, fetchCloudConfig]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -393,43 +452,63 @@ export function DatabaseSettings() {
                 Cloud Database Configuration
               </CardTitle>
               <CardDescription>
-                Configure cloud-hosted database connections
+                Configure cloud-hosted database connections. Leave a field blank to keep the existing saved value.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* PostgreSQL Cloud */}
               <div className="space-y-2">
-                <Label>PostgreSQL Cloud URL</Label>
-                <Input 
-                  type="password" 
-                  placeholder="postgresql://user:pass@host:5432/db" 
+                <Label>
+                  PostgreSQL Cloud URL
+                  {savedCloudKeys.postgres_url && <span className="ml-2 text-xs text-green-500">(saved)</span>}
+                </Label>
+                <Input
+                  type="password"
+                  placeholder={savedCloudKeys.postgres_url ? '••••••••  (update to change)' : 'postgresql://user:pass@host:5432/db'}
+                  value={cloudConfig.postgres_url}
+                  onChange={(e) => setCloudConfig((p) => ({ ...p, postgres_url: e.target.value }))}
                 />
               </div>
 
               {/* Redis Cloud */}
               <div className="space-y-2">
-                <Label>Redis Cloud URL</Label>
-                <Input 
-                  type="password" 
-                  placeholder="redis://user:pass@host:6379" 
+                <Label>
+                  Redis Cloud URL
+                  {savedCloudKeys.redis_url && <span className="ml-2 text-xs text-green-500">(saved)</span>}
+                </Label>
+                <Input
+                  type="password"
+                  placeholder={savedCloudKeys.redis_url ? '••••••••  (update to change)' : 'redis://user:pass@host:6379'}
+                  value={cloudConfig.redis_url}
+                  onChange={(e) => setCloudConfig((p) => ({ ...p, redis_url: e.target.value }))}
                 />
               </div>
 
               {/* Neo4j Aura */}
               <div className="space-y-2">
-                <Label>Neo4j Aura Connection URI</Label>
-                <Input 
-                  type="password" 
-                  placeholder="neo4j+s://xxxx.databases.neo4j.io" 
+                <Label>
+                  Neo4j Aura Connection URI
+                  {savedCloudKeys.neo4j_uri && <span className="ml-2 text-xs text-green-500">(saved)</span>}
+                </Label>
+                <Input
+                  type="password"
+                  placeholder={savedCloudKeys.neo4j_uri ? '••••••••  (update to change)' : 'neo4j+s://xxxx.databases.neo4j.io'}
+                  value={cloudConfig.neo4j_uri}
+                  onChange={(e) => setCloudConfig((p) => ({ ...p, neo4j_uri: e.target.value }))}
                 />
               </div>
 
               {/* Pinecone */}
               <div className="space-y-2">
-                <Label>Pinecone API Key</Label>
-                <Input 
-                  type="password" 
-                  placeholder="Enter Pinecone API key" 
+                <Label>
+                  Pinecone API Key
+                  {savedCloudKeys.pinecone_api_key && <span className="ml-2 text-xs text-green-500">(saved)</span>}
+                </Label>
+                <Input
+                  type="password"
+                  placeholder={savedCloudKeys.pinecone_api_key ? '••••••••  (update to change)' : 'Enter Pinecone API key'}
+                  value={cloudConfig.pinecone_api_key}
+                  onChange={(e) => setCloudConfig((p) => ({ ...p, pinecone_api_key: e.target.value }))}
                 />
               </div>
 
@@ -437,23 +516,57 @@ export function DatabaseSettings() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>S3 Endpoint URL</Label>
-                  <Input placeholder="https://s3.amazonaws.com" />
+                  <Input
+                    placeholder="https://s3.amazonaws.com"
+                    value={cloudConfig.s3_endpoint}
+                    onChange={(e) => setCloudConfig((p) => ({ ...p, s3_endpoint: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>S3 Bucket</Label>
-                  <Input placeholder="datalogic" />
+                  <Input
+                    placeholder="datalogic"
+                    value={cloudConfig.s3_bucket}
+                    onChange={(e) => setCloudConfig((p) => ({ ...p, s3_bucket: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>S3 Access Key</Label>
-                  <Input type="password" placeholder="Access Key ID" />
+                  <Label>
+                    S3 Access Key
+                    {savedCloudKeys.s3_access_key && <span className="ml-2 text-xs text-green-500">(saved)</span>}
+                  </Label>
+                  <Input
+                    type="password"
+                    placeholder={savedCloudKeys.s3_access_key ? '••••••••  (update to change)' : 'Access Key ID'}
+                    value={cloudConfig.s3_access_key}
+                    onChange={(e) => setCloudConfig((p) => ({ ...p, s3_access_key: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>S3 Secret Key</Label>
-                  <Input type="password" placeholder="Secret Access Key" />
+                  <Label>
+                    S3 Secret Key
+                    {savedCloudKeys.s3_secret_key && <span className="ml-2 text-xs text-green-500">(saved)</span>}
+                  </Label>
+                  <Input
+                    type="password"
+                    placeholder={savedCloudKeys.s3_secret_key ? '••••••••  (update to change)' : 'Secret Access Key'}
+                    value={cloudConfig.s3_secret_key}
+                    onChange={(e) => setCloudConfig((p) => ({ ...p, s3_secret_key: e.target.value }))}
+                  />
                 </div>
               </div>
 
-              <Button className="w-full">Save Cloud Configuration</Button>
+              <Button
+                className="w-full"
+                onClick={handleSaveCloudConfig}
+                disabled={savingCloud}
+              >
+                {savingCloud ? (
+                  <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Saving...</>
+                ) : (
+                  'Save Cloud Configuration'
+                )}
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>

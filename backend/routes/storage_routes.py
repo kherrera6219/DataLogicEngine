@@ -397,16 +397,58 @@ def set_database_autostart():
         }), 500
 
 
+@storage_api.route('/cloud-config', methods=['GET'])
+@login_required
+def get_cloud_config():
+    """Return saved cloud connection strings (secrets masked)."""
+    try:
+        from backend.storage.runtime_settings import load_storage_settings
+        settings = load_storage_settings()
+        cloud = settings.get('cloud_config', {})
+        # Return only whether each key is set — never expose raw secrets via GET.
+        masked = {k: ('***' if v else '') for k, v in cloud.items()}
+        return jsonify({'success': True, 'cloud_config': masked})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@storage_api.route('/cloud-config', methods=['POST'])
+@login_required
+def save_cloud_config():
+    """Persist cloud connection strings to runtime settings."""
+    try:
+        from backend.storage.runtime_settings import load_storage_settings, save_storage_settings
+        data = request.get_json() or {}
+
+        allowed_keys = {
+            'postgres_url', 'redis_url', 'neo4j_uri',
+            'pinecone_api_key', 's3_endpoint', 's3_bucket',
+            's3_access_key', 's3_secret_key',
+        }
+        cloud_patch = {k: str(v) for k, v in data.items() if k in allowed_keys}
+
+        settings = load_storage_settings()
+        existing = settings.get('cloud_config', {})
+        existing.update(cloud_patch)
+        settings['cloud_config'] = existing
+        save_storage_settings(settings)
+
+        return jsonify({'success': True, 'message': 'Cloud configuration saved'})
+    except Exception as e:
+        logger.error(f"Failed to save cloud config: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @storage_api.route('/databases/stop', methods=['POST'])
 @login_required
 def stop_databases():
     """Stop local database services."""
     try:
         from backend.storage import get_db_manager
-        
+
         manager = get_db_manager()
         manager.stop_all()
-        
+
         return jsonify({
             'success': True,
             'message': 'Database shutdown initiated'

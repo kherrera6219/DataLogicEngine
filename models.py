@@ -582,6 +582,7 @@ class PromptTemplate(db.Model):
     __table_args__ = (
         Index('ix_prompt_templates_key', 'template_key'),
         Index('ix_prompt_templates_active', 'is_active'),
+        Index('ix_prompt_templates_approval', 'approval_state'),
         Index('ix_prompt_templates_key_version', 'template_key', 'version', unique=True),
         {'extend_existing': True},
     )
@@ -593,6 +594,12 @@ class PromptTemplate(db.Model):
     description = db.Column(db.String(255), nullable=True)
     template_metadata = db.Column('metadata', JSON, nullable=True)
     is_active = db.Column(db.Boolean, default=True)
+    # Approval workflow
+    approval_state = db.Column(db.String(30), nullable=False, default='draft')  # draft | pending_review | approved | rejected
+    approved_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    approved_at = db.Column(db.DateTime, nullable=True)
+    rejected_reason = db.Column(db.Text, nullable=True)
+    submitted_for_review_at = db.Column(db.DateTime, nullable=True)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
@@ -606,8 +613,81 @@ class PromptTemplate(db.Model):
             'description': self.description,
             'metadata': self.template_metadata or {},
             'is_active': self.is_active,
+            'approval_state': self.approval_state,
+            'approved_by': self.approved_by,
+            'approved_at': self.approved_at.isoformat() if self.approved_at else None,
+            'rejected_reason': self.rejected_reason,
+            'submitted_for_review_at': self.submitted_for_review_at.isoformat() if self.submitted_for_review_at else None,
+            'created_by': self.created_by,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+
+class FeatureFlag(db.Model):
+    """Runtime feature flag registry with per-tenant targeting."""
+    __tablename__ = 'feature_flags'
+    __table_args__ = (
+        Index('ix_feature_flags_key', 'flag_key', unique=True),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    flag_key = db.Column(db.String(120), nullable=False)
+    value = db.Column(db.Boolean, nullable=False, default=False)
+    description = db.Column(db.String(255), nullable=True)
+    rollout_percentage = db.Column(db.Integer, nullable=False, default=100)  # 0-100
+    target_roles = db.Column(JSON, nullable=True)  # list of role strings, null = all roles
+    is_locked = db.Column(db.Boolean, nullable=False, default=False)  # prevents local overrides
+    updated_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'id': str(self.id),
+            'flag_key': self.flag_key,
+            'value': self.value,
+            'description': self.description,
+            'rollout_percentage': self.rollout_percentage,
+            'target_roles': self.target_roles,
+            'is_locked': self.is_locked,
+            'updated_by': self.updated_by,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+
+class FeatureFlagAuditEvent(db.Model):
+    """Immutable audit log for feature flag changes."""
+    __tablename__ = 'feature_flag_audit_events'
+    __table_args__ = (
+        Index('ix_feature_flag_audit_key', 'flag_key'),
+        Index('ix_feature_flag_audit_actor', 'actor_id'),
+        {'extend_existing': True},
+    )
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    flag_key = db.Column(db.String(120), nullable=False)
+    old_value = db.Column(db.Boolean, nullable=True)
+    new_value = db.Column(db.Boolean, nullable=True)
+    actor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    actor_username = db.Column(db.String(120), nullable=True)
+    change_reason = db.Column(db.Text, nullable=True)
+    source = db.Column(db.String(30), nullable=False, default='api')  # api | migration | seed
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'id': str(self.id),
+            'flag_key': self.flag_key,
+            'old_value': self.old_value,
+            'new_value': self.new_value,
+            'actor_id': self.actor_id,
+            'actor_username': self.actor_username,
+            'change_reason': self.change_reason,
+            'source': self.source,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
         }
 
 

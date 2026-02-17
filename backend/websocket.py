@@ -20,11 +20,20 @@ socketio = SocketIO()
 
 def init_socketio(app: Flask) -> None:
     """Initialize WebSocket support with Flask app."""
-    # Configure SocketIO
-    cors_origins = os.environ.get('CORS_ORIGINS', '*')
-    if cors_origins != '*':
-        cors_origins = cors_origins.split(',')
-    
+    # Configure SocketIO CORS — no wildcard allowed in production.
+    raw_origins = os.environ.get('CORS_ORIGINS', '')
+    is_production = os.environ.get('FLASK_ENV') == 'production'
+
+    if raw_origins and raw_origins.strip() != '*':
+        cors_origins = [o.strip() for o in raw_origins.split(',') if o.strip()]
+    elif is_production:
+        raise RuntimeError(
+            "CORS_ORIGINS must be explicitly configured in production (wildcard is disallowed for WebSockets)"
+        )
+    else:
+        # Development / test fallback — never reaches production due to guard above.
+        cors_origins = ['http://localhost:3000', 'http://127.0.0.1:3000', 'app://-']
+
     socketio.init_app(
         app,
         cors_allowed_origins=cors_origins,

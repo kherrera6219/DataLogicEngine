@@ -102,7 +102,9 @@ class SecurityHeadersMiddleware:
             "connect-src 'self' https://api.openai.com https://*.openai.azure.com",
             "frame-ancestors 'none'",
             "base-uri 'self'",
-            "form-action 'self'"
+            "form-action 'self'",
+            "report-uri /api/v1/csp-report",
+            "report-to csp-endpoint",
         ]
 
         # Relax CSP in development for better DX
@@ -120,6 +122,14 @@ class SecurityHeadersMiddleware:
             ]
 
         response.headers['Content-Security-Policy'] = '; '.join(csp_directives)
+
+        if not is_development:
+            import json as _json
+            response.headers['Report-To'] = _json.dumps({
+                'group': 'csp-endpoint',
+                'max_age': 86400,
+                'endpoints': [{'url': '/api/v1/csp-report'}],
+            })
 
         # Referrer-Policy
         # Controls how much referrer information is sent

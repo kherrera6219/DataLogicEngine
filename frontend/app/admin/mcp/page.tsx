@@ -1,18 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { mcp, MCPStats } from '@/lib/api/mcp';
+import { request } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Server, Activity, Database, Terminal, Settings } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Server, Activity, Database, Terminal, Settings, Send, X } from 'lucide-react';
 import Link from 'next/link';
-// import { useAuth } from '@/contexts/AuthContext'; // Not actually used in this component
 
 export default function MCPDashboard() {
-  // const { user } = useAuth(); // Unused
   const [stats, setStats] = useState<MCPStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // MCP Console state
+  const [consoleOpen, setConsoleOpen] = useState(false);
+  const [consoleInput, setConsoleInput] = useState('');
+  const [consoleLog, setConsoleLog] = useState<Array<{ type: 'cmd' | 'res' | 'err'; text: string }>>([]);
+  const [consoleSending, setConsoleSending] = useState(false);
+  const consoleEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchStats();
@@ -28,6 +34,28 @@ export default function MCPDashboard() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleConsoleSend = async () => {
+    const cmd = consoleInput.trim();
+    if (!cmd) return;
+    setConsoleLog((prev) => [...prev, { type: 'cmd', text: `> ${cmd}` }]);
+    setConsoleInput('');
+    setConsoleSending(true);
+    try {
+      // Send to MCP JSON-RPC endpoint
+      const result = await request<unknown>('/mcp/console', {
+        method: 'POST',
+        body: JSON.stringify({ command: cmd }),
+      });
+      setConsoleLog((prev) => [...prev, { type: 'res', text: JSON.stringify(result, null, 2) }]);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setConsoleLog((prev) => [...prev, { type: 'err', text: `Error: ${msg}` }]);
+    } finally {
+      setConsoleSending(false);
+      setTimeout(() => consoleEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
     }
   };
 
@@ -149,13 +177,57 @@ export default function MCPDashboard() {
                         View Server Registry
                     </Button>
                 </Link>
-                <Button variant="outline" className="w-full justify-start" disabled>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => setConsoleOpen((o) => !o)}
+                >
                     <Terminal className="mr-2 h-4 w-4" />
-                    Open MCP Console (Coming Soon)
+                    {consoleOpen ? 'Close MCP Console' : 'Open MCP Console'}
                 </Button>
             </CardContent>
         </Card>
       </div>
+
+      {/* MCP Console Panel */}
+      {consoleOpen && (
+        <Card className="border-green-500/30 bg-black text-green-400">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-sm font-mono text-green-400 flex items-center gap-2">
+              <Terminal className="h-4 w-4" /> MCP Console
+            </CardTitle>
+            <Button size="icon" variant="ghost" onClick={() => setConsoleOpen(false)} className="text-green-400 hover:text-white">
+              <X className="h-4 w-4" />
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="h-48 overflow-y-auto font-mono text-xs space-y-1 bg-black/50 rounded p-3 border border-green-900/40">
+              {consoleLog.length === 0 && (
+                <p className="text-green-700">MCP Console ready. Type a command and press Enter.</p>
+              )}
+              {consoleLog.map((entry, i) => (
+                <p key={i} className={entry.type === 'cmd' ? 'text-green-300' : entry.type === 'err' ? 'text-red-400' : 'text-green-500 whitespace-pre-wrap'}>
+                  {entry.text}
+                </p>
+              ))}
+              <div ref={consoleEndRef} />
+            </div>
+            <div className="flex gap-2">
+              <Input
+                className="font-mono text-sm bg-black border-green-700 text-green-300 focus-visible:ring-green-500"
+                placeholder="Enter command..."
+                value={consoleInput}
+                onChange={(e) => setConsoleInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') void handleConsoleSend(); }}
+                disabled={consoleSending}
+              />
+              <Button onClick={handleConsoleSend} disabled={consoleSending || !consoleInput.trim()} className="bg-green-700 hover:bg-green-600">
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

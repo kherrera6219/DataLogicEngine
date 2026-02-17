@@ -73,6 +73,14 @@ def register_routes(app):
     # Honeycomb routes (`/api/honeycomb/*`)
     app.register_blueprint(honeycomb_api)
 
+    # Notification preference routes (`/api/v1/user/notifications`)
+    from .notification_routes import notification_bp
+    app.register_blueprint(notification_bp)
+
+    # Feature flag runtime + admin routes
+    from .feature_flag_routes import feature_flag_bp
+    app.register_blueprint(feature_flag_bp)
+
     # Optional location routes
     try:
         from backend.routes.location_routes import location_api

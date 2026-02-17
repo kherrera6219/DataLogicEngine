@@ -1,18 +1,44 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
-  Settings as SettingsIcon, Shield, Bell, Save, 
-  Brain, Network, Monitor, Sun, Lock, Database, PanelLeftClose, PanelLeftOpen
+  Settings as SettingsIcon, Shield, Bell, Save,
+  Brain, Network, Monitor, Sun, Lock, Database, PanelLeftClose, PanelLeftOpen,
+  RefreshCw
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { request } from '@/lib/api';
 import { useTheme } from '@/contexts/ThemeContext';
+
+interface NotificationPrefs {
+  email_on_run_complete: boolean;
+  email_on_run_failed: boolean;
+  email_on_simulation_complete: boolean;
+  inapp_run_complete: boolean;
+  inapp_run_failed: boolean;
+  inapp_simulation_complete: boolean;
+  inapp_system_alerts: boolean;
+  digest_frequency: string;
+}
+
+const DEFAULT_NOTIF_PREFS: NotificationPrefs = {
+  email_on_run_complete: true,
+  email_on_run_failed: true,
+  email_on_simulation_complete: false,
+  inapp_run_complete: true,
+  inapp_run_failed: true,
+  inapp_simulation_complete: true,
+  inapp_system_alerts: true,
+  digest_frequency: 'none',
+};
 
 const ApiOverlayConfig = dynamic(
   () => import("@/components/settings/ApiOverlayConfig").then((module) => ({ default: module.ApiOverlayConfig })),
@@ -47,6 +73,40 @@ export default function SettingsPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const { theme, setTheme, resolvedTheme, enterpriseTheme, setEnterpriseTheme } = useTheme();
 
+  // Notification preferences state
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>(DEFAULT_NOTIF_PREFS);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [notifSaving, setNotifSaving] = useState(false);
+
+  const fetchNotifPrefs = useCallback(async () => {
+    setNotifLoading(true);
+    try {
+      const result = await request<{ preferences: NotificationPrefs }>('/user/notifications');
+      setNotifPrefs(result.preferences ?? DEFAULT_NOTIF_PREFS);
+    } catch {
+      // keep defaults on error
+    } finally {
+      setNotifLoading(false);
+    }
+  }, []);
+
+  const saveNotifPrefs = async (patch: Partial<NotificationPrefs>) => {
+    const updated = { ...notifPrefs, ...patch };
+    setNotifPrefs(updated);
+    setNotifSaving(true);
+    try {
+      const result = await request<{ preferences: NotificationPrefs }>('/user/notifications', {
+        method: 'POST',
+        body: JSON.stringify(patch),
+      });
+      setNotifPrefs(result.preferences ?? updated);
+    } catch {
+      setNotifPrefs(notifPrefs); // revert on error
+    } finally {
+      setNotifSaving(false);
+    }
+  };
+
   useEffect(() => {
     let cancelled = false;
     void request<UserDataSummary>('/user/data/summary')
@@ -61,6 +121,12 @@ export default function SettingsPage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'notifications') {
+      void fetchNotifPrefs();
+    }
+  }, [activeTab, fetchNotifPrefs]);
 
   return (
     <div className="min-h-full bg-background text-foreground font-sans">
@@ -207,13 +273,89 @@ export default function SettingsPage() {
                   {/* NOTIFICATIONS */}
                   <TabsContent value="notifications" className="space-y-6 m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
                      <Card className="fluent-card">
-                        <CardHeader>
-                           <CardTitle>Notification Preferences</CardTitle>
-                           <CardDescription>Manage how and when you receive system alerts.</CardDescription>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                           <div>
+                             <CardTitle>Notification Preferences</CardTitle>
+                             <CardDescription>Manage how and when you receive system alerts.</CardDescription>
+                           </div>
+                           <Button variant="ghost" size="sm" onClick={fetchNotifPrefs} disabled={notifLoading}>
+                             <RefreshCw className={`h-4 w-4 ${notifLoading ? 'animate-spin' : ''}`} />
+                           </Button>
                         </CardHeader>
-                        <CardContent className="min-h-[300px] flex flex-col items-center justify-center text-slate-500 dark:text-gray-500">
-                           <Bell className="h-12 w-12 mb-4 opacity-20" />
-                           <p>Notification settings coming soon</p>
+                        <CardContent className="space-y-6">
+                          {notifLoading ? (
+                            <div className="flex items-center justify-center py-8">
+                              <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+                            </div>
+                          ) : (
+                            <>
+                              {/* Email Notifications */}
+                              <div className="space-y-3">
+                                <h3 className="text-sm font-semibold text-slate-700 dark:text-gray-300 uppercase tracking-wide">Email Alerts</h3>
+                                {([
+                                  { key: 'email_on_run_complete', label: 'Run completed', desc: 'Notify when an analysis run finishes successfully.' },
+                                  { key: 'email_on_run_failed', label: 'Run failed', desc: 'Notify when a run errors or times out.' },
+                                  { key: 'email_on_simulation_complete', label: 'Simulation complete', desc: 'Notify when a simulation finishes.' },
+                                ] as const).map(({ key, label, desc }) => (
+                                  <div key={key} className="flex items-center justify-between p-3 rounded-xl bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/5">
+                                    <div>
+                                      <Label htmlFor={key} className="font-medium text-slate-800 dark:text-gray-200">{label}</Label>
+                                      <p className="text-xs text-slate-500 dark:text-gray-500">{desc}</p>
+                                    </div>
+                                    <Switch
+                                      id={key}
+                                      checked={notifPrefs[key]}
+                                      onCheckedChange={(v) => void saveNotifPrefs({ [key]: v })}
+                                      disabled={notifSaving}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+
+                              {/* In-App Notifications */}
+                              <div className="space-y-3">
+                                <h3 className="text-sm font-semibold text-slate-700 dark:text-gray-300 uppercase tracking-wide">In-App Alerts</h3>
+                                {([
+                                  { key: 'inapp_run_complete', label: 'Run completed', desc: 'Show banner when a run finishes.' },
+                                  { key: 'inapp_run_failed', label: 'Run failed', desc: 'Show banner when a run errors.' },
+                                  { key: 'inapp_simulation_complete', label: 'Simulation complete', desc: 'Show banner when simulation finishes.' },
+                                  { key: 'inapp_system_alerts', label: 'System alerts', desc: 'Show important system-level notices.' },
+                                ] as const).map(({ key, label, desc }) => (
+                                  <div key={key} className="flex items-center justify-between p-3 rounded-xl bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/5">
+                                    <div>
+                                      <Label htmlFor={`ia-${key}`} className="font-medium text-slate-800 dark:text-gray-200">{label}</Label>
+                                      <p className="text-xs text-slate-500 dark:text-gray-500">{desc}</p>
+                                    </div>
+                                    <Switch
+                                      id={`ia-${key}`}
+                                      checked={notifPrefs[key]}
+                                      onCheckedChange={(v) => void saveNotifPrefs({ [key]: v })}
+                                      disabled={notifSaving}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+
+                              {/* Digest */}
+                              <div className="space-y-2">
+                                <h3 className="text-sm font-semibold text-slate-700 dark:text-gray-300 uppercase tracking-wide">Digest Frequency</h3>
+                                <Select
+                                  value={notifPrefs.digest_frequency}
+                                  onValueChange={(v) => void saveNotifPrefs({ digest_frequency: v })}
+                                  disabled={notifSaving}
+                                >
+                                  <SelectTrigger className="w-48">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="none">No digest</SelectItem>
+                                    <SelectItem value="daily">Daily summary</SelectItem>
+                                    <SelectItem value="weekly">Weekly summary</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </>
+                          )}
                         </CardContent>
                      </Card>
                   </TabsContent>

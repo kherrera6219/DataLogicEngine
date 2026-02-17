@@ -4,8 +4,13 @@ import { useState, useEffect } from 'react';
 import { mcp, MCPServer } from '@/lib/api/mcp';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
+} from '@/components/ui/dialog';
 import { Trash2, Plus, RefreshCw, Box } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/use-toast';
@@ -15,6 +20,12 @@ export default function MCPServersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { toast } = useToast();
+  // Add Server dialog state
+  const [addOpen, setAddOpen] = useState(false);
+  const [addName, setAddName] = useState('');
+  const [addVersion, setAddVersion] = useState('1.0.0');
+  const [addDescription, setAddDescription] = useState('');
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     fetchServers();
@@ -45,6 +56,28 @@ export default function MCPServersPage() {
     }
   };
 
+  const handleAddServer = async () => {
+    if (!addName.trim()) {
+      toast('Server name is required.', 'error');
+      return;
+    }
+    setAdding(true);
+    try {
+      await mcp.createServer({ name: addName.trim(), version: addVersion.trim() || '1.0.0', description: addDescription.trim() });
+      toast('Server registered successfully.', 'success');
+      setAddOpen(false);
+      setAddName('');
+      setAddVersion('1.0.0');
+      setAddDescription('');
+      fetchServers();
+    } catch (err) {
+      console.error(err);
+      toast('Failed to register server. Please try again.', 'error');
+    } finally {
+      setAdding(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -64,7 +97,7 @@ export default function MCPServersPage() {
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
             </Button>
-            <Button disabled>
+            <Button onClick={() => setAddOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add Server
             </Button>
@@ -135,6 +168,51 @@ export default function MCPServersPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Add Server Dialog */}
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Register MCP Server</DialogTitle>
+            <DialogDescription>Add a new Model Context Protocol server to the registry.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="add-name">Server Name <span className="text-red-500">*</span></Label>
+              <Input
+                id="add-name"
+                value={addName}
+                onChange={(e) => setAddName(e.target.value)}
+                placeholder="my-knowledge-server"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="add-version">Version</Label>
+              <Input
+                id="add-version"
+                value={addVersion}
+                onChange={(e) => setAddVersion(e.target.value)}
+                placeholder="1.0.0"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="add-desc">Description</Label>
+              <Input
+                id="add-desc"
+                value={addDescription}
+                onChange={(e) => setAddDescription(e.target.value)}
+                placeholder="Optional description"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)} disabled={adding}>Cancel</Button>
+            <Button onClick={handleAddServer} disabled={adding}>
+              {adding ? <><RefreshCw className="w-4 h-4 mr-2 animate-spin" />Registering...</> : 'Register Server'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

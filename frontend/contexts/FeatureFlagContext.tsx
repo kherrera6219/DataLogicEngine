@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
 import {
   createDefaultFeatureFlagState,
   FEATURE_FLAG_DEFINITIONS,
@@ -108,7 +108,48 @@ function persistLocalOverrides(localOverrides: Partial<FeatureFlagState>) {
 
 export function FeatureFlagProvider({ children }: { children: React.ReactNode }) {
   const [localOverrides, setLocalOverrides] = useState<Partial<FeatureFlagState>>(() => readLocalOverrides());
-  const resolved = useMemo(() => buildResolvedFlags(localOverrides), [localOverrides]);
+  // Remote flags fetched from the backend API at runtime.
+  const [remoteOverrides, setRemoteOverrides] = useState<Partial<FeatureFlagState>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/v1/feature-flags', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { flags?: Record<string, { value: boolean; is_locked: boolean }> } | null) => {
+        if (cancelled || !data?.flags) return;
+        const remote: Partial<FeatureFlagState> = {};
+        for (const key of FEATURE_FLAG_KEYS) {
+          if (data.flags[key] !== undefined) {
+            remote[key] = data.flags[key].value;
+          }
+        }
+        setRemoteOverrides(remote);
+      })
+      .catch(() => { /* non-fatal — fall back to env / defaults */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  const resolved = useMemo(() => {
+    const base = buildResolvedFlags(localOverrides);
+    // Inject remote overrides between enterprise env and local user overrides.
+    const flags = { ...base.flags };
+    const sources = { ...base.sources };
+    for (const key of FEATURE_FLAG_KEYS) {
+      if (remoteOverrides[key] !== undefined) {
+        flags[key] = remoteOverrides[key] as boolean;
+        sources[key] = 'cloud' as const;
+      }
+    }
+    // Re-apply local overrides on top (only for flags that allow it).
+    for (const key of FEATURE_FLAG_KEYS) {
+      if (!FEATURE_FLAG_DEFINITIONS[key].localOverrideAllowed) continue;
+      if (localOverrides[key] !== undefined) {
+        flags[key] = localOverrides[key] as boolean;
+        sources[key] = 'local' as const;
+      }
+    }
+    return { flags, sources };
+  }, [localOverrides, remoteOverrides]);
 
   const value = useMemo<FeatureFlagContextValue>(() => {
     const setLocalOverride = (flag: FeatureFlagKey, nextValue: boolean) => {
