@@ -11,7 +11,7 @@ Single entry point for active documentation and source-of-truth documents.
 3. Security, compliance, deployment, and operational runbooks
 4. Windows local runtime and desktop packaging workflows
 
-## Current App Status Snapshot (February 16, 2026)
+## Current App Status Snapshot (February 17, 2026)
 
 1. Core app routes are operational in web and desktop modes.
 2. Desktop mode supports no-login startup to internal dashboard.
@@ -22,6 +22,7 @@ Single entry point for active documentation and source-of-truth documents.
 7. Section 11 governance controls now include repository pre-commit hooks, ADR baseline, environment parity and lockfile verification gates, release checklist workflow, and branch/code-owner policy docs.
 8. Some settings/admin/MCP UX areas remain partial (see `docs/PRODUCT_OVERVIEW.md`).
 9. Documentation governance now includes vendor-aligned AI production standards, architecture mapping, and deterministic repository inventory generation.
+10. Python lint/style baseline is fully clean after phase 9-11 sweeps (`ruff check .` passes), with archived execution reports in `docs/archive/assessments/2026-02/`.
 
 ## Start Here
 
@@ -56,6 +57,9 @@ Single entry point for active documentation and source-of-truth documents.
 3. `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
 4. `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_9_TO_11_REVIEW_2026-02-16.md`
 5. `docs/archive/assessments/2026-02/REPO_CLEANUP_AND_WIRING_AUDIT_2026-02-16.md`
+6. `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE9_2026-02-17.md`
+7. `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE10_2026-02-17.md`
+8. `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE11_2026-02-17.md`
 
 ## Documentation Standards
 
@@ -73,6 +77,6 @@ Single entry point for active documentation and source-of-truth documents.
 ## Document Control
 
 1. Owner: Platform Engineering
-2. Last updated: 2026-02-16
+2. Last updated: 2026-02-17
 3. Status: Active
 4. Review cadence: Every 30 days

@@ -7,7 +7,7 @@ It runs in two modes:
 1. Desktop mode (Windows Electron): no login required, boots directly to the internal dashboard.
 2. Web mode (browser): session-based authentication for protected routes.
 
-## Current Status (February 16, 2026)
+## Current Status (February 17, 2026)
 
 The application is functional for local Windows use with API keys and internet access.
 
@@ -44,6 +44,7 @@ The application is functional for local Windows use with API keys and internet a
 29. Developer governance controls now include repository pre-commit hooks (`lint + typecheck`) and a CI governance gate.
 30. Environment parity and lockfile integrity checks are enforced via `scripts/verify_environment_parity.py` and `scripts/verify_lockfiles.py`.
 31. ADR baseline, release checklist workflow, and branch/code-owner governance policies are documented and versioned.
+32. Python lint baseline is fully clean (`.venv\Scripts\python.exe -m ruff check .` passes).
 
 ### Partial / In Progress
 
