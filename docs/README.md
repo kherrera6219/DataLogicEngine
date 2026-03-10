@@ -1,82 +1,253 @@
-# DataLogicEngine Documentation Portal
+# DataLogicEngine — Documentation Portal
 
-## Purpose
+**Document Control**
 
-Single entry point for active documentation and source-of-truth documents.
+| Field | Value |
+|-------|-------|
+| Owner | Platform Engineering |
+| Last Updated | March 2026 |
+| Status | Active |
+| Review Cadence | Every 30 days |
+| Version | 4.1.19 |
 
-## Current Documentation Scope
+---
 
-1. Product and user documentation
-2. Engineering and architecture documentation
-3. Security, compliance, deployment, and operational runbooks
-4. Windows local runtime and desktop packaging workflows
+## Overview
 
-## Current App Status Snapshot (February 17, 2026)
+This portal is the authoritative entry point for all DataLogicEngine documentation. It is organized by audience and use case to allow rapid navigation to relevant reference material.
 
-1. Core app routes are operational in web and desktop modes.
-2. Desktop mode supports no-login startup to internal dashboard.
-3. API key save/test, AI model controls, and storage lifecycle controls are wired.
-4. Sections 5-8 controls are fully implemented (Phase 1-3), and post-baseline hardening is also implemented: Postgres tenant RLS controls, production vault-backed secret enforcement paths, export signing/encryption + immutable audit replication, code-signing rotation/revocation governance drills, and AI/connector p95-p99 latency SLO gauges.
-5. Section 9 testing controls now include enforced contract tests, local-mode parity tests, frontend typecheck gates, route E2E smoke, and Windows packaging smoke validation in CI.
-6. Section 10 Windows desktop controls now include governed NSIS policy checks, controlled auto-update runtime gating, silent install/uninstall controls, secure desktop secret/log storage paths, and startup port conflict auto-resolution.
-7. Section 11 governance controls now include repository pre-commit hooks, ADR baseline, environment parity and lockfile verification gates, release checklist workflow, and branch/code-owner policy docs.
-8. Some settings/admin/MCP UX areas remain partial (see `docs/PRODUCT_OVERVIEW.md`).
-9. Documentation governance now includes vendor-aligned AI production standards, architecture mapping, and deterministic repository inventory generation.
-10. Python lint/style baseline is fully clean after phase 9-11 sweeps (`ruff check .` passes), with archived execution reports in `docs/archive/assessments/2026-02/`.
+All documents listed here are **active and maintained**. Archived documents (historical assessments, prior reviews) are stored in `docs/archive/` and retained for audit traceability but are not operational references.
 
-## Start Here
+---
 
-1. Product overview: `docs/PRODUCT_OVERVIEW.md`
-2. User guide: `docs/USER_GUIDE.md`
-3. Developer guide: `docs/DEVELOPER_GUIDE.md`
-4. Windows local runbook: `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
-5. Architecture: `docs/ARCHITECTURE.md`
-6. Architecture map: `docs/ARCHITECTURE_MAP.md`
-7. API reference: `docs/API.md`
-8. Security controls: `docs/SECURITY.md`
-9. Deployment guide: `docs/DEPLOYMENT.md`
-10. Testing standards: `docs/TESTING.md`
-11. Operational runbooks: `docs/OPERATIONAL_RUNBOOKS.md`
-12. Release checklist: `docs/RELEASE_CHECKLIST.md`
-13. Branch protection policy: `docs/BRANCH_PROTECTION_POLICY.md`
-14. Documentation versioning: `docs/DOCUMENTATION_VERSIONING.md`
-15. AI documentation baseline: `docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`
-16. Architecture decision records: `docs/adr/README.md`
+## Table of Contents
 
-## Repository inventory and map artifacts
+1. [Platform Status](#platform-status)
+2. [Getting Started — By Role](#getting-started--by-role)
+3. [Product Documentation](#product-documentation)
+4. [Engineering and Architecture](#engineering-and-architecture)
+5. [Security and Compliance](#security-and-compliance)
+6. [Operations and Deployment](#operations-and-deployment)
+7. [Testing Standards](#testing-standards)
+8. [Governance and Process](#governance-and-process)
+9. [Repository Inventory and Maps](#repository-inventory-and-maps)
+10. [Documentation Standards](#documentation-standards-1)
+11. [Archived Assessments](#archived-assessments)
+12. [Document Classification](#document-classification)
 
-1. File inventory (generated): `docs/FILE_INVENTORY.csv`
-2. Structure summary (generated): `docs/GENERATED_STRUCTURE.md`
-3. File structure and naming policy: `docs/FILE_STRUCTURE.md`
-4. Documentation coverage matrix: `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
+---
 
-## Archived assessments (February 2026)
+## Platform Status
 
-1. `docs/archive/assessments/2026-02/APPLICATION_REVIEW_RECOMMENDED_IMPROVEMENTS_2026-02-10.md`
-2. `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_1_TO_4_UPDATED_REPORT_2026-02-16.md`
-3. `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
-4. `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_9_TO_11_REVIEW_2026-02-16.md`
-5. `docs/archive/assessments/2026-02/REPO_CLEANUP_AND_WIRING_AUDIT_2026-02-16.md`
-6. `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE9_2026-02-17.md`
-7. `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE10_2026-02-17.md`
-8. `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE11_2026-02-17.md`
+**Current Version:** 4.1.19 | **As of:** March 2026
+
+### Production-Ready
+
+| Capability | Status |
+|------------|--------|
+| Core routing (dashboard, chat, projects, admin, runs, simulations, graph) | Operational |
+| Desktop no-login startup (Electron, Windows 11) | Operational |
+| API key save/test and AI model configuration | Operational |
+| Storage health checks and local service lifecycle (`Start All` / `Stop All`) | Operational |
+| MCP connector scope enforcement and OAuth lifecycle | Operational |
+| Connector and AI latency telemetry (p50/p95/p99) | Operational |
+| SSRF protection on API gateway | Operational |
+| CI/release gates (schema parity, installer integrity, startup determinism) | Operational |
+| Postgres tenant Row-Level Security (RLS) bootstrap | Operational |
+| Vault-backed secret resolution in production | Operational |
+| Signed/encrypted trace export envelopes | Operational |
+| Immutable audit hash-chain replication and verification | Operational |
+| AI and connector p95/p99 latency SLO gauges | Operational |
+| Windows installer code-signing governance | Operational |
+| Crash reporting with fallback IDs and pipeline probe | Operational |
+| Diagnostic support-bundle generator (sanitized) | Operational |
+| Desktop safe secret storage (`safeStorage`) and log path governance | Operational |
+| Repository pre-commit hooks (lint + typecheck) | Operational |
+| Environment parity and lockfile integrity CI gate | Operational |
+| Python lint baseline (Ruff) — zero findings | Operational |
+| ADR baseline, branch protection, and code-owner policy | Operational |
+
+### In Progress
+
+| Item | Status |
+|------|--------|
+| Settings > Notifications | Placeholder UI — not wired |
+| Settings > Storage > Cloud Config | Form fields not fully persisted |
+| MCP > Add Server (admin UI actions) | Disabled in UI |
+| Registration submit flow | UI exists; submit not wired |
+
+---
+
+## Getting Started — By Role
+
+### End Users
+
+| Document | Purpose |
+|----------|---------|
+| [`docs/USER_GUIDE.md`](USER_GUIDE.md) | Application features, workflows, and UI reference |
+| [`docs/PRODUCT_OVERVIEW.md`](PRODUCT_OVERVIEW.md) | Capability status matrix |
+| [`docs/WINDOWS_11_LOCAL_RUNBOOK.md`](WINDOWS_11_LOCAL_RUNBOOK.md) | Windows 11 local installation and startup |
+
+### Developers and Contributors
+
+| Document | Purpose |
+|----------|---------|
+| [`docs/DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md) | Development environment setup and contribution workflow |
+| [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Coding standards, commit guidelines, PR process |
+| [`docs/API.md`](API.md) | REST API reference and versioning |
+| [`docs/TESTING.md`](TESTING.md) | Test framework, coverage requirements, and test types |
+| [`docs/FILE_STRUCTURE.md`](FILE_STRUCTURE.md) | Repository structure and file naming conventions |
+
+### Security Engineers
+
+| Document | Purpose |
+|----------|---------|
+| [`SECURITY.md`](../SECURITY.md) | Vulnerability reporting policy and response SLAs |
+| [`docs/SECURITY.md`](SECURITY.md) | Security architecture, controls, and hardening reference |
+| [`docs/PRODUCTION_READINESS.md`](PRODUCTION_READINESS.md) | Production hardening checklist |
+
+### Platform Architects
+
+| Document | Purpose |
+|----------|---------|
+| [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) | System architecture — components, data flow, middleware |
+| [`docs/ARCHITECTURE_MAP.md`](ARCHITECTURE_MAP.md) | Implementation-mapped component diagram |
+| [`docs/adr/README.md`](adr/README.md) | Architecture Decision Record index |
+| [`docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`](AI_PRODUCTION_DOCUMENTATION_BASELINE.md) | AI vendor-aligned production standards |
+
+### SRE and Operations
+
+| Document | Purpose |
+|----------|---------|
+| [`docs/OPERATIONAL_RUNBOOKS.md`](OPERATIONAL_RUNBOOKS.md) | Incident response, escalation, and operational procedures |
+| [`docs/DEPLOYMENT.md`](DEPLOYMENT.md) | Deployment patterns (local, Docker, Kubernetes, cloud) |
+| [`deploy/DEPLOYMENT_CHECKLIST.md`](../deploy/DEPLOYMENT_CHECKLIST.md) | Pre-deployment validation checklist |
+| [`deploy/DISASTER_RECOVERY.md`](../deploy/DISASTER_RECOVERY.md) | Disaster recovery procedures |
+
+---
+
+## Product Documentation
+
+| Document | Description | Audience |
+|----------|-------------|----------|
+| [`docs/PRODUCT_OVERVIEW.md`](PRODUCT_OVERVIEW.md) | Feature capability status matrix; authoritative capability inventory | All |
+| [`docs/USER_GUIDE.md`](USER_GUIDE.md) | End-user documentation for all application features and workflows | End users |
+| [`docs/WINDOWS_11_LOCAL_RUNBOOK.md`](WINDOWS_11_LOCAL_RUNBOOK.md) | Windows 11 local stack setup, startup, and daily operation | End users, developers |
+
+---
+
+## Engineering and Architecture
+
+| Document | Description | Audience |
+|----------|-------------|----------|
+| [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) | System architecture: components, data flows, middleware stack, hardening layers | Architects, engineers |
+| [`docs/ARCHITECTURE_MAP.md`](ARCHITECTURE_MAP.md) | Implementation-mapped component diagram — maps architecture to source files | Architects, engineers |
+| [`docs/DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md) | Developer setup, code structure, contribution workflow | Developers |
+| [`docs/API.md`](API.md) | REST API reference: endpoints, authentication, versioning, rate limits | Developers, integrators |
+| [`docs/FILE_STRUCTURE.md`](FILE_STRUCTURE.md) | Repository file naming conventions and module organization policy | Developers |
+| [`docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`](AI_PRODUCTION_DOCUMENTATION_BASELINE.md) | Vendor-aligned AI production documentation standards | Architects, engineers |
+| [`docs/adr/README.md`](adr/README.md) | Index of Architecture Decision Records (ADRs) | Architects |
+
+---
+
+## Security and Compliance
+
+| Document | Description | Audience |
+|----------|-------------|----------|
+| [`SECURITY.md`](../SECURITY.md) | Vulnerability reporting policy, response SLAs, disclosure process | All |
+| [`docs/SECURITY.md`](SECURITY.md) | Full security architecture: controls, hardening, compliance alignment | Security engineers, architects |
+| [`docs/PRODUCTION_READINESS.md`](PRODUCTION_READINESS.md) | Production hardening checklist — security controls, infra requirements | SRE, security |
+
+---
+
+## Operations and Deployment
+
+| Document | Description | Audience |
+|----------|-------------|----------|
+| [`docs/DEPLOYMENT.md`](DEPLOYMENT.md) | Deployment patterns: local, Docker Compose, Kubernetes, AWS, GCP, Azure | SRE, operations |
+| [`docs/OPERATIONAL_RUNBOOKS.md`](OPERATIONAL_RUNBOOKS.md) | Incident response procedures, escalation paths, operational playbooks | SRE, operations |
+| [`deploy/DEPLOYMENT_CHECKLIST.md`](../deploy/DEPLOYMENT_CHECKLIST.md) | Pre-production deployment validation gate | SRE, operations |
+| [`deploy/DISASTER_RECOVERY.md`](../deploy/DISASTER_RECOVERY.md) | Disaster recovery and business continuity procedures | SRE, operations |
+
+---
+
+## Testing Standards
+
+| Document | Description | Audience |
+|----------|-------------|----------|
+| [`docs/TESTING.md`](TESTING.md) | Test framework, coverage requirements, test types, and CI gates | Developers, QA |
+
+---
+
+## Governance and Process
+
+| Document | Description | Audience |
+|----------|-------------|----------|
+| [`docs/RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) | Release validation gates and sign-off process | Developers, SRE |
+| [`docs/BRANCH_PROTECTION_POLICY.md`](BRANCH_PROTECTION_POLICY.md) | Branch protection rules and code-owner policy | Developers, leads |
+| [`docs/DOCUMENTATION_VERSIONING.md`](DOCUMENTATION_VERSIONING.md) | Documentation version control and change management policy | All |
+| [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Contribution guidelines, coding standards, PR process | Contributors |
+| [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md) | Community standards and enforcement policy | All |
+
+---
+
+## Repository Inventory and Maps
+
+These artifacts are **generated automatically** by repository tooling. Do not edit manually.
+
+| Artifact | Description | Generation Script |
+|----------|-------------|------------------|
+| [`docs/FILE_INVENTORY.csv`](FILE_INVENTORY.csv) | Complete file inventory with metadata | `scripts/generate_file_inventory.py` |
+| [`docs/GENERATED_STRUCTURE.md`](GENERATED_STRUCTURE.md) | Repository structure summary | `scripts/generate_repo_structure.py` |
+| [`docs/DOCUMENTATION_COVERAGE_MATRIX.md`](DOCUMENTATION_COVERAGE_MATRIX.md) | Documentation coverage by module | `scripts/generate_coverage_matrix.py` |
+
+---
 
 ## Documentation Standards
 
-1. `docs/DOCUMENTATION_STANDARDS.md`
-2. `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
-3. `docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`
+| Document | Description |
+|----------|-------------|
+| [`docs/DOCUMENTATION_STANDARDS.md`](DOCUMENTATION_STANDARDS.md) | Authoring standards, formatting rules, and review requirements |
+| [`docs/DOCUMENTATION_COVERAGE_MATRIX.md`](DOCUMENTATION_COVERAGE_MATRIX.md) | Coverage mapping — which modules have documentation |
 
-## Active vs Historical
+### Document Lifecycle
 
-1. Active: documents referenced in this portal and coverage matrix.
-2. Historical: `docs/archive/` (retained for traceability, not source-of-truth).
-3. Reference research: `docs/whitepapers/` (informational, not operational runbooks).
-4. Assessment snapshots: `docs/archive/assessments/` (periodic reviews retained for audit history).
+| Status | Meaning |
+|--------|---------|
+| **Active** | Current, maintained, and authoritative — listed in this portal |
+| **Historical** | Retained for audit traceability — stored in `docs/archive/` — not operational |
+| **Reference** | Informational only — stored in `docs/whitepapers/` — not operational runbooks |
+| **Assessment** | Periodic review snapshots — stored in `docs/archive/assessments/` |
 
-## Document Control
+---
 
-1. Owner: Platform Engineering
-2. Last updated: 2026-02-17
-3. Status: Active
-4. Review cadence: Every 30 days
+## Archived Assessments
+
+The following assessment documents are retained for audit traceability. They are **not** active references. See `docs/archive/assessments/2026-02/` for the full set.
+
+| Document | Date | Description |
+|----------|------|-------------|
+| `APPLICATION_REVIEW_RECOMMENDED_IMPROVEMENTS_2026-02-10.md` | 2026-02-10 | Full application review with recommended improvements |
+| `SUBSYSTEMS_SECTIONS_1_TO_4_UPDATED_REPORT_2026-02-16.md` | 2026-02-16 | Subsystem review: sections 1–4 |
+| `SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md` | 2026-02-16 | Subsystem review: sections 5–8 |
+| `SUBSYSTEMS_SECTIONS_9_TO_11_REVIEW_2026-02-16.md` | 2026-02-16 | Subsystem review: sections 9–11 |
+| `REPO_CLEANUP_AND_WIRING_AUDIT_2026-02-16.md` | 2026-02-16 | Repository cleanup and wiring audit |
+| `LINT_STYLE_SWEEP_PHASE9_2026-02-17.md` | 2026-02-17 | Python lint sweep Phase 9 execution report |
+| `LINT_STYLE_SWEEP_PHASE10_2026-02-17.md` | 2026-02-17 | Python lint sweep Phase 10 execution report |
+| `LINT_STYLE_SWEEP_PHASE11_2026-02-17.md` | 2026-02-17 | Python lint sweep Phase 11 execution report |
+
+---
+
+## Document Classification
+
+All documentation in this repository is classified as follows unless otherwise noted:
+
+| Class | Definition |
+|-------|-----------|
+| **Public** | Suitable for external publication (README, CODE_OF_CONDUCT, CONTRIBUTING) |
+| **Internal** | Suitable for contributors and community members (architecture, developer guides) |
+| **Restricted** | Sensitive operational material (security architecture details, incident runbooks) |
+
+---
+
+*This portal is the authoritative documentation index for DataLogicEngine. All other documentation entry points should link here. Reviewed: March 2026.*
