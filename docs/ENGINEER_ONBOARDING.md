@@ -264,16 +264,18 @@ The Truth Engine has four sub-components:
 
 ### Day 5 (continued): The QuadPersona System
 
-Every reasoning step is filtered through four epistemic personas:
+Every reasoning step is filtered through four concurrent expert personas (each makes a real LLM call simultaneously via `asyncio.gather()`):
 
-| Persona | Role |
-|---------|------|
-| **Pillar Expert** | Deep domain expertise and technical precision |
-| **Sector Analyst** | Industry context, sector-specific regulation |
-| **Cross-Domain Linker** | Identifies connections across different domains |
-| **Compliance Guardian** | Regulatory accuracy and risk assessment |
+| Persona | Axis | Role |
+|---------|------|------|
+| **Knowledge Expert** | Axis 8 | Deep domain expertise, factual analysis, best practices |
+| **Sector Specialist** | Axis 9 | Real-world applications, market dynamics, sector-specific considerations |
+| **Regulatory Advisor** | Axis 10 | Regulatory perspective, applicable laws and standards |
+| **Compliance Officer** | Axis 11 | Compliance implications, risk management, potential violations |
 
-**Read:** `backend/truth_engine/truth_core/personas.py`
+Each persona returns a `response`, `confidence` (0–1), and `tokens_used`. Max 50 concurrent queries; 120-second timeout per persona.
+
+**Read:** `backend/truth_engine/truth_core/personas.py` and `backend/quad_persona/quad_engine.py`
 
 ---
 

@@ -104,7 +104,7 @@ INPUT: Query + user context + constraints
 | 2 | `hybrid_retrieval` | RAG retrieval + knowledge graph lookup |
 | 3 | `deep_research` | Extended multi-source research |
 | 4 | `pov_expansion` | Generate alternative viewpoints |
-| 5 | `multi_persona_reasoning` | Apply all 4 QuadPersona perspectives |
+| 5 | `multi_persona_reasoning` | Apply all 4 QuadPersona perspectives (Knowledge Expert · Sector Specialist · Regulatory Advisor · Compliance Officer) |
 | 6 | `quant_validation` | Quantitative/statistical validation |
 | 7 | `agi_planning` | Multi-step autonomous goal planning |
 | 8 | `trust_validation` | TruthGate trust and compliance check |

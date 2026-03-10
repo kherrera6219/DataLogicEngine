@@ -476,13 +476,16 @@ flowchart TD
     end
 
     subgraph "Simulation Layer Execution"
-        L1[Layer 1\nKnowledge Retrieval\ncoordinate resolution]
-        L2[Layer 2\nVector Similarity\nRAG retrieval]
-        L3[Layer 3\nGraph Traversal\nNeo4j exploration]
-        L4[Layer 4\nCross-Domain Linking\nHoneycomb/Octopus]
-        L5[Layer 5\nQuantitative Modeling\nGNN / NN computation]
-        L6[Layer 6\nScenario Projection\nfuture state simulation]
-        L7[Layer 7\nRisk Assessment\nconfidence scoring]
+        L1[Layer 1\nScenario Contextualization\naxis mapping · scope definition]
+        L2[Layer 2\nPersona Selection\nQuadPersona role assignment]
+        L3[Layer 3\nInitial Stance Generation\nper-persona position synthesis]
+        L4[Layer 4\nAdversarial Debate\nturn-based cross-persona challenge]
+        L5[Layer 5\nFact-Checking\nTruthLink integration · claim verification]
+        L6[Layer 6\nBias Detection\nKA-010 · systematic bias identification]
+        L7[Layer 7\nConvergence / Synthesis\nconsensus position · conflict resolution]
+        L8[Layer 8\nOutcome Projection\nfuture state modeling · scenario branches]
+        L9[Layer 9\nFinal Drafting\nstructured narrative generation]
+        L10[Layer 10\nMeta-Review\nself-critique · confidence scoring]
     end
 
     subgraph "Result Processing"
@@ -507,8 +510,8 @@ flowchart TD
     VALIDATE_BUDGET -->|"Over budget"| BUDGET_FAIL
     VALIDATE_BUDGET -->|"Within budget"| L1
 
-    L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7
-    L7 --> COLLECT_RESULTS --> GEN_REPORT --> SIGN_OUTPUT --> WRITE_AUDIT
+    L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7 --> L8 --> L9 --> L10
+    L10 --> COLLECT_RESULTS --> GEN_REPORT --> SIGN_OUTPUT --> WRITE_AUDIT
 
     WRITE_AUDIT --> VIEW_RESULTS --> EXPORT
     EXPORT -->|"Yes"| SANITIZE --> DOWNLOAD
