@@ -26,8 +26,9 @@ All documents listed here are **active and maintained**. Archived documents (his
 2. [Getting Started — By Role](#getting-started--by-role)
 3. [Product Documentation](#product-documentation)
 4. [Engineering and Architecture](#engineering-and-architecture)
-5. [Security and Compliance](#security-and-compliance)
-6. [Operations and Deployment](#operations-and-deployment)
+5. [Engineer Onboarding and Diagrams](#engineer-onboarding-and-diagrams)
+6. [Security and Compliance](#security-and-compliance)
+7. [Operations and Deployment](#operations-and-deployment)
 7. [Testing Standards](#testing-standards)
 8. [Governance and Process](#governance-and-process)
 9. [Repository Inventory and Maps](#repository-inventory-and-maps)
@@ -92,6 +93,13 @@ All documents listed here are **active and maintained**. Archived documents (his
 
 | Document | Purpose |
 |----------|---------|
+| [`docs/ENGINEER_ONBOARDING.md`](ENGINEER_ONBOARDING.md) | Day 1–4 week structured onboarding guide for new engineers |
+| [`docs/COMPONENT_MAP.md`](COMPONENT_MAP.md) | Module-level component diagrams across all subsystems |
+| [`docs/DATA_FLOW_DIAGRAMS.md`](DATA_FLOW_DIAGRAMS.md) | End-to-end data flow diagrams (9 DFDs, multiple levels) |
+| [`docs/SEQUENCE_DIAGRAMS.md`](SEQUENCE_DIAGRAMS.md) | UML sequence diagrams for key operations (10 diagrams) |
+| [`docs/PROCESS_MAP.md`](PROCESS_MAP.md) | Business process maps for all major workflows (10 maps) |
+| [`docs/DECISION_LOGIC.md`](DECISION_LOGIC.md) | Decision trees for Truth Engine, LLM routing, security (12 trees) |
+| [`docs/DATABASE_SCHEMA.md`](DATABASE_SCHEMA.md) | ER diagrams and complete database schema reference |
 | [`docs/DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md) | Development environment setup and contribution workflow |
 | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Coding standards, commit guidelines, PR process |
 | [`docs/API.md`](API.md) | REST API reference and versioning |
@@ -147,6 +155,22 @@ All documents listed here are **active and maintained**. Archived documents (his
 | [`docs/FILE_STRUCTURE.md`](FILE_STRUCTURE.md) | Repository file naming conventions and module organization policy | Developers |
 | [`docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`](AI_PRODUCTION_DOCUMENTATION_BASELINE.md) | Vendor-aligned AI production documentation standards | Architects, engineers |
 | [`docs/adr/README.md`](adr/README.md) | Index of Architecture Decision Records (ADRs) | Architects |
+
+---
+
+## Engineer Onboarding and Diagrams
+
+These documents are produced to the Microsoft enterprise standard for engineering onboarding. They provide the diagrams, decision trees, and reference materials a new engineer needs to understand how the application works without reading all the source code first.
+
+| Document | Description | Audience |
+|----------|-------------|----------|
+| [`docs/ENGINEER_ONBOARDING.md`](ENGINEER_ONBOARDING.md) | Structured Day 1 through Week 4 onboarding guide with layered mental model, read order, and contribution checklist | New engineers |
+| [`docs/COMPONENT_MAP.md`](COMPONENT_MAP.md) | Module-level component diagrams for all subsystems: backend, frontend, core engine, security, Truth Engine, observability | All engineers |
+| [`docs/DATA_FLOW_DIAGRAMS.md`](DATA_FLOW_DIAGRAMS.md) | 9 data flow diagrams across 3 levels: system context (L0), top-level flows (L1), and detailed chat/security/MCP/audit/secret flows (L2) | Engineers, architects |
+| [`docs/SEQUENCE_DIAGRAMS.md`](SEQUENCE_DIAGRAMS.md) | 10 UML sequence diagrams: web login with MFA, desktop auto-login, chat round-trip, LLM failover, MCP tool call, knowledge node write, RBAC check, active defense, signed trace export, OIDC auth | Engineers, QA |
+| [`docs/PROCESS_MAP.md`](PROCESS_MAP.md) | 10 BPMN-style process maps: user onboarding, chat workflow, knowledge node creation, MCP connector registration, run lifecycle, LLM provider config, simulation execution, incident response, release/deployment, vulnerability response | Engineers, ops |
+| [`docs/DECISION_LOGIC.md`](DECISION_LOGIC.md) | 12 annotated decision trees: Truth Engine tier selection, LLM routing and failover, active defense threat classification, RBAC resolution, secret priority chain, auth path selection, account lockout/MFA gate, coordinate validation, MCP scope enforcement, simulation layer selection, TruthGate budget/compliance, circuit breaker state machine | Engineers, architects, security |
+| [`docs/DATABASE_SCHEMA.md`](DATABASE_SCHEMA.md) | 4 ER diagrams (core, trace/audit, knowledge graph, MCP/AI config domains), complete table reference (50+ models), tenant isolation pattern, field-level encryption pattern, key indexes | Engineers, DBAs |
 
 ---
 
