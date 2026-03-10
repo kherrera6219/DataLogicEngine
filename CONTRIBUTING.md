@@ -1,132 +1,191 @@
 # Contributing to DataLogicEngine
 
-Thank you for your interest in contributing to DataLogicEngine! This document provides guidelines and instructions for contributing to the project.
+**Document Control**
 
-For documentation standards and source-of-truth mapping, see:
+| Field | Value |
+|-------|-------|
+| Owner | Platform Engineering |
+| Last Updated | March 2026 |
+| Status | Active |
+| Review Cadence | Every 30 days |
 
-1. `docs/DOCUMENTATION_STANDARDS.md`
-2. `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
+---
 
 ## Table of Contents
 
-- [Code of Conduct](#code-of-conduct)
-- [Getting Started](#getting-started)
-- [Development Setup](#development-setup)
-- [How to Contribute](#how-to-contribute)
-- [Coding Standards](#coding-standards)
-- [Commit Guidelines](#commit-guidelines)
-- [Pull Request Process](#pull-request-process)
-- [Testing Guidelines](#testing-guidelines)
-- [Documentation](#documentation)
+1. [Code of Conduct](#code-of-conduct)
+2. [Prerequisites](#prerequisites)
+3. [Getting Started](#getting-started)
+4. [Development Setup](#development-setup)
+5. [Contribution Workflow](#contribution-workflow)
+6. [Coding Standards](#coding-standards)
+7. [Security Requirements](#security-requirements)
+8. [Commit Guidelines](#commit-guidelines)
+9. [Pull Request Process](#pull-request-process)
+10. [Testing Requirements](#testing-requirements)
+11. [Documentation Standards](#documentation-standards)
+12. [Branch Naming Conventions](#branch-naming-conventions)
+13. [Getting Help](#getting-help)
+14. [License Agreement](#license-agreement)
+
+---
 
 ## Code of Conduct
 
-This project adheres to a Code of Conduct that all contributors are expected to follow. Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before contributing.
+All contributors are expected to uphold our community standards. Please read [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) before contributing. Violations may be reported to [conduct@datalogicengine.com](mailto:conduct@datalogicengine.com).
+
+---
+
+## Prerequisites
+
+Before contributing, ensure you have the following installed and configured:
+
+| Requirement | Minimum Version | Notes |
+|-------------|----------------|-------|
+| Python | 3.11 | 3.12+ supported |
+| Node.js | 20.x LTS | Required for frontend and tooling |
+| PostgreSQL | 16+ | Required for integration tests |
+| Git | 2.40+ | |
+
+For documentation standards, see:
+
+- [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)
+- [`docs/DOCUMENTATION_COVERAGE_MATRIX.md`](docs/DOCUMENTATION_COVERAGE_MATRIX.md)
+
+---
 
 ## Getting Started
 
-### Prerequisites
+### Finding Work to Contribute
 
-- Python 3.11 or higher
-- Node.js 20.x or higher
-- PostgreSQL 16
-- Git
-- Basic understanding of Flask and Next.js
+1. Browse the [Issues](https://github.com/kherrera6219/DataLogicEngine/issues) page for open items.
+2. Filter by `good first issue` for onboarding-friendly tasks, or `help wanted` for higher-priority items.
+3. Comment on the issue to indicate your intent before starting work.
+4. For major changes (new features, architectural refactors), open an issue for discussion **before** writing code.
 
-### Finding Issues to Work On
+### Contribution Size Guidelines
 
-1. Check the [Issues](https://github.com/kherrera6219/DataLogicEngine/issues) page
-2. Look for issues labeled `good first issue` or `help wanted`
-3. Comment on the issue to let others know you're working on it
-4. Wait for maintainer approval before starting major changes
+| Change Type | Process |
+|-------------|---------|
+| Typos, documentation fixes | Submit a PR directly |
+| Bug fixes, minor features | Create an issue first, then submit PR |
+| New features, refactoring, API changes | Open a discussion issue; wait for maintainer acknowledgment before starting |
+
+---
 
 ## Development Setup
 
-1. **Fork and clone the repository**
-   ```bash
-   git clone https://github.com/your-username/DataLogicEngine.git
-   cd DataLogicEngine
-   ```
+### 1. Fork and Clone
 
-2. **Set up your development environment**
-   ```bash
-   # Copy environment template
-   cp .env.template .env
+```bash
+# Fork the repository on GitHub, then:
+git clone https://github.com/<your-username>/DataLogicEngine.git
+cd DataLogicEngine
+```
 
-   # Install Python dependencies
-   pip install -r requirements-enterprise.txt
+### 2. Configure Environment
 
-   # Install Node.js dependencies
-   npm install
+```bash
+# Copy environment template
+cp .env.template .env
+# Edit .env and set SESSION_SECRET and at least one AI provider key
+```
 
-   # Initialize the database
-   python init_db.py
-   ```
+### 3. Install Dependencies
 
-3. **Create a feature branch**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+```bash
+# Python dependencies
+python -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -r requirements.txt
 
-4. **Enable repository pre-commit hooks**
-   ```bash
-   git config core.hooksPath .githooks
-   ```
+# Node.js dependencies (frontend + Electron)
+cd frontend
+npm install
+cd ..
+```
 
-5. **Start the development servers**
-   ```bash
-   # Terminal 1 - Backend
-   gunicorn --bind 0.0.0.0:5000 main:app --reload
+### 4. Enable Pre-commit Hooks
 
-   # Terminal 2 - Frontend
-   npm run dev
-   ```
+```bash
+git config core.hooksPath .githooks
+```
 
-## How to Contribute
+This enforces lint and type checking before each commit, consistent with the CI gate.
 
-### Reporting Bugs
+### 5. Start Development Servers
 
-1. Check if the bug has already been reported in [Issues](https://github.com/kherrera6219/DataLogicEngine/issues)
-2. If not, create a new issue with:
-   - Clear, descriptive title
-   - Steps to reproduce
-   - Expected behavior
-   - Actual behavior
-   - Environment details (OS, Python version, Node version)
-   - Screenshots if applicable
+```bash
+# Terminal 1 — Backend
+.venv/bin/python -m flask --app app run --debug --port 5000
 
-### Suggesting Enhancements
+# Terminal 2 — Frontend
+cd frontend && npm run dev
+```
 
-1. Check existing issues and discussions
-2. Create a new issue with:
-   - Clear description of the enhancement
-   - Use cases and benefits
-   - Potential implementation approach
-   - Any relevant examples or mockups
+> **Windows:** Use the managed startup script instead:
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
+> ```
 
-### Code Contributions
+---
 
-1. **Small Changes** (typos, documentation): Submit a PR directly
-2. **Medium Changes** (bug fixes, minor features): Create an issue first
-3. **Large Changes** (new features, refactoring): Discuss in an issue before starting
+## Contribution Workflow
+
+```
+1. Sync fork with upstream main
+2. Create a feature branch (see Branch Naming Conventions)
+3. Implement changes following Coding Standards
+4. Write or update tests to cover changes
+5. Run the full test suite and verify all checks pass
+6. Update relevant documentation
+7. Add an entry to CHANGELOG.md under "Unreleased"
+8. Push branch and open a Pull Request
+9. Respond to reviewer feedback
+10. Maintainer merges after approval
+```
+
+### Sync with Upstream
+
+```bash
+git checkout main
+git fetch upstream
+git merge upstream/main
+```
+
+---
 
 ## Coding Standards
 
-### Python Code
+### Python
 
-Follow PEP 8 style guidelines:
+This project follows [PEP 8](https://peps.python.org/pep-0008/) with the following project-specific rules:
+
+| Rule | Value |
+|------|-------|
+| Maximum line length | 100 characters |
+| Class naming | `PascalCase` |
+| Function/variable naming | `snake_case` |
+| Constant naming | `UPPER_SNAKE_CASE` |
+| Type hints | Required on all public functions |
+| Docstrings | Google-style on all public functions and classes |
+| Linting | `ruff check .` — must pass with zero findings |
+
+**Example — Compliant Python function:**
 
 ```python
-# Good
 def calculate_knowledge_score(node_id: str, context: dict) -> float:
     """Calculate the knowledge score for a given node.
 
     Args:
-        node_id: Unique identifier for the node
-        context: Context dictionary with relevant metadata
+        node_id: Unique identifier for the knowledge graph node.
+        context: Context dictionary containing relevant metadata.
 
     Returns:
-        Float representing the knowledge score
+        Float representing the computed knowledge score (0.0–1.0).
+
+    Raises:
+        ValueError: If node_id is empty or None.
     """
     if not node_id:
         raise ValueError("node_id cannot be empty")
@@ -136,23 +195,31 @@ def calculate_knowledge_score(node_id: str, context: dict) -> float:
     return score
 ```
 
-**Guidelines:**
-- Use type hints for function parameters and return values
-- Write docstrings for all public functions and classes
-- Maximum line length: 100 characters
-- Use meaningful variable names
-- Follow naming conventions:
-  - Classes: `PascalCase`
-  - Functions/variables: `snake_case`
-  - Constants: `UPPER_SNAKE_CASE`
+### TypeScript / React
 
-### JavaScript/React Code
+This project follows the [Airbnb JavaScript Style Guide](https://airbnb.io/javascript/) with TypeScript strict mode enabled.
 
-Follow Airbnb JavaScript Style Guide:
+| Rule | Value |
+|------|-------|
+| Language | TypeScript (strict mode) |
+| Component naming | `PascalCase` |
+| Hook naming | `useFeatureName` |
+| Component style | Functional components with hooks |
+| Data fetching | SWR with explicit loading and error states |
+| Styling | Tailwind CSS utility classes |
+| Linting | ESLint — must pass with zero errors |
+| Type checking | `npm run typecheck` — must pass |
 
-```javascript
-// Good
-const KnowledgeNode = ({ nodeId, data, onSelect }) => {
+**Example — Compliant React component:**
+
+```tsx
+interface KnowledgeNodeProps {
+  nodeId: string;
+  data: { label: string };
+  onSelect: (id: string) => void;
+}
+
+const KnowledgeNode: React.FC<KnowledgeNodeProps> = ({ nodeId, data, onSelect }) => {
   const [isSelected, setIsSelected] = useState(false);
 
   const handleClick = useCallback(() => {
@@ -161,158 +228,227 @@ const KnowledgeNode = ({ nodeId, data, onSelect }) => {
   }, [nodeId, onSelect]);
 
   return (
-    <div className={isSelected ? 'node-selected' : 'node'}>
+    <div
+      className={isSelected ? 'node-selected' : 'node'}
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+    >
       {data.label}
     </div>
   );
 };
+
+export default KnowledgeNode;
 ```
 
-**Guidelines:**
-### Security Requirements (Enterprise Hardening)
+### File Structure Conventions
 
-All code contributions must adhere to our enterprise-hardened security architecture:
-
-1. **PII Protection**: Any new model field containing PII must use the `EncryptionManager` property-based encryption.
-2. **Access Control**: API routes must use granular permissions (e.g., `require_permission(Permission.USER_READ)`) instead of blanket admin flags.
-3. **Data Isolation**: Ensure all database queries include `tenant_id` filtering.
-4. **Input Validation**: Strictly type all inputs using Pydantic models or Marshmallow schemas.
-5. **No Placeholders**: Do not use hardcoded secrets or "TODO" security stubs.
-6. **MFA Support**: New authentication flows must respect MFA verification status.
-
-### File Structure
+**Python backend services:**
 
 ```
-# Python files
 backend/
   service_name/
     __init__.py
-    routes.py
-    models.py
-    services.py
-    utils.py
+    routes.py       # API endpoint handlers
+    models.py       # SQLAlchemy models
+    services.py     # Business logic
+    utils.py        # Helper utilities
+```
 
-# React files
+**React frontend components:**
+
+```
 components/
   FeatureName/
-    index.js
+    index.tsx
     FeatureName.module.css
-    FeatureName.test.js
+    FeatureName.test.tsx
 ```
+
+---
+
+## Security Requirements
+
+All contributions must comply with the enterprise hardening architecture. Non-compliant submissions will be rejected in code review.
+
+| Requirement | Detail |
+|-------------|--------|
+| **PII Protection** | Any model field containing PII must use `EncryptionManager` property-based encryption (AES-256) |
+| **Access Control** | API routes must use granular permissions (e.g., `require_permission(Permission.USER_READ)`) — not blanket admin flags |
+| **Tenant Isolation** | All database queries must include `tenant_id` filtering |
+| **Input Validation** | All inputs must be validated using Pydantic models or Marshmallow schemas |
+| **No Hardcoded Secrets** | No hardcoded credentials, tokens, or "TODO security" stubs |
+| **MFA Compatibility** | New authentication flows must respect MFA verification status |
+
+**Secure coding examples:**
+
+```python
+# Input validation — use schema validation
+from marshmallow import Schema, fields, validate
+
+class NodeSchema(Schema):
+    label = fields.Str(required=True, validate=validate.Length(min=1, max=100))
+    node_type = fields.Str(validate=validate.OneOf(['knowledge', 'sector', 'regulatory']))
+
+# Database queries — always parameterized
+from sqlalchemy import text
+
+query = text("SELECT * FROM nodes WHERE id = :node_id AND tenant_id = :tenant_id")
+result = db.session.execute(query, {"node_id": node_id, "tenant_id": tenant_id})
+
+# Route protection — use granular permissions
+from backend.security import require_permission, Permission
+
+@app.route('/api/nodes')
+@require_permission(Permission.KNOWLEDGE_READ)
+def list_nodes():
+    ...
+```
+
+---
 
 ## Commit Guidelines
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
+This project follows the [Conventional Commits](https://www.conventionalcommits.org/) specification.
 
-```bash
-# Format
+### Format
+
+```
 <type>(<scope>): <subject>
 
-# Examples
-feat(knowledge-graph): add node filtering capability
-fix(auth): resolve JWT token expiration issue
-docs(readme): update installation instructions
-refactor(simulation): optimize layer 7 processing
-test(api): add tests for compliance endpoints
-chore(deps): update dependencies
+[optional body]
+
+[optional footer(s)]
 ```
 
-**Types:**
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting, semicolons, etc.)
-- `refactor`: Code refactoring
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks
-- `perf`: Performance improvements
+### Commit Types
 
-**Guidelines:**
-- Use present tense ("add feature" not "added feature")
-- Use imperative mood ("move cursor to..." not "moves cursor to...")
+| Type | Usage |
+|------|-------|
+| `feat` | New feature or capability |
+| `fix` | Bug fix |
+| `docs` | Documentation changes only |
+| `style` | Formatting changes (no logic change) |
+| `refactor` | Code restructuring without behavior change |
+| `test` | Adding or updating tests |
+| `chore` | Maintenance, dependency updates |
+| `perf` | Performance improvements |
+
+### Rules
+
+- Use present tense: "add feature" not "added feature"
+- Use imperative mood: "fix bug" not "fixes bug"
 - Keep subject line under 72 characters
-- Reference issues and pull requests when relevant
+- Reference issues in the footer: `Closes #123`
+
+### Examples
+
+```bash
+feat(knowledge-graph): add multi-hop node filtering
+fix(auth): resolve JWT expiration race condition on token refresh
+docs(api): document rate limit headers in API reference
+test(mcp): add OAuth scope enforcement contract tests
+chore(deps): upgrade Flask to 3.1.2 and SQLAlchemy to 2.0.46
+```
+
+---
 
 ## Pull Request Process
 
-### Before Submitting
+### Pre-submission Checklist
 
-1. **Test your changes**
-   ```bash
-   # Run tests
-   python -m pytest tests/
+Before opening a PR, verify all of the following pass locally:
 
-   # Run linting
-   flake8 backend/ core/
-   eslint components/ pages/
-   npm --prefix frontend run typecheck
-   python scripts/verify_environment_parity.py
-   python scripts/verify_lockfiles.py
-   ```
+```bash
+# Python linting (must have zero findings)
+.venv/bin/python -m ruff check .
 
-2. **Update documentation**
-   - Update relevant README sections
-   - Add/update docstrings
-   - Update API documentation if applicable
+# Python tests with coverage
+python -m pytest tests/ --cov=core --cov=backend -v
 
-3. **Update CHANGELOG.md**
-   - Add your changes under "Unreleased" section
+# Frontend type checking (must pass with zero errors)
+npm --prefix frontend run typecheck
 
-### Submitting the PR
+# Frontend lint
+npm --prefix frontend run lint
 
-1. **Push your changes**
-   ```bash
-   git push origin feature/your-feature-name
-   ```
+# Environment parity check
+python scripts/verify_environment_parity.py
 
-2. **Create Pull Request**
-   - Use a clear, descriptive title
-   - Fill out the PR template completely
-   - Link related issues (e.g., "Closes #123")
-   - Add screenshots for UI changes
-   - Mark as draft if work in progress
+# Lockfile integrity check
+python scripts/verify_lockfiles.py
+```
 
-3. **PR Description Template**
-   ```markdown
-   ## Description
-   Brief description of changes
+Additionally:
 
-   ## Type of Change
-   - [ ] Bug fix
-   - [ ] New feature
-   - [ ] Breaking change
-   - [ ] Documentation update
+- [ ] All existing tests pass
+- [ ] New tests added for new functionality or bug fixes
+- [ ] Relevant documentation updated (README, API docs, docstrings)
+- [ ] `CHANGELOG.md` updated under the `Unreleased` section
+- [ ] No hardcoded secrets, credentials, or debug flags committed
 
-   ## Testing
-   - [ ] Tests pass locally
-   - [ ] Added new tests
-   - [ ] Manual testing completed
+### Pull Request Template
 
-   ## Checklist
-   - [ ] Code follows style guidelines
-   - [ ] Self-review completed
-   - [ ] Comments added for complex code
-   - [ ] Documentation updated
-   - [ ] No new warnings generated
+When opening a PR, complete the full template:
 
-   ## Related Issues
-   Closes #123
-   ```
+```markdown
+## Summary
+Brief description of what this PR changes and why.
 
-### Review Process
+## Type of Change
+- [ ] Bug fix (non-breaking change resolving an issue)
+- [ ] New feature (non-breaking change adding functionality)
+- [ ] Breaking change (fix or feature that changes existing behavior)
+- [ ] Documentation update
 
-1. **Automated Checks**: CI/CD pipeline runs automatically
-2. **Code Review**: Maintainers review your code
-3. **Revisions**: Address feedback and push updates
-4. **Approval**: At least one maintainer approval required
-5. **Merge**: Maintainers will merge your PR
+## Testing
+- [ ] Unit tests added or updated
+- [ ] Integration tests added or updated
+- [ ] Manual testing completed — describe steps taken
+- [ ] All CI checks pass
 
-## Testing Guidelines
+## Security Checklist
+- [ ] No hardcoded secrets or credentials
+- [ ] Input validation applied to all user-facing inputs
+- [ ] Proper authentication and authorization enforced
+- [ ] Tenant isolation maintained in all database queries
+- [ ] No new SQL injection, XSS, or SSRF vectors introduced
+
+## Documentation
+- [ ] Docstrings updated for modified functions and classes
+- [ ] API documentation updated (if applicable)
+- [ ] Architecture documentation updated (if applicable)
+- [ ] README updated (if applicable)
+
+## Related Issues
+Closes #<issue-number>
+```
+
+### Review and Merge Process
+
+1. **Automated CI gate:** All workflows in `.github/workflows/` must pass (lint, tests, security scan, schema parity).
+2. **Code review:** At least one maintainer approval is required.
+3. **Revision:** Address all requested changes before re-requesting review.
+4. **Merge:** Maintainers merge approved PRs via squash merge to maintain a clean commit history.
+
+---
+
+## Testing Requirements
+
+### Test Coverage Minimums
+
+| Module | Minimum Coverage |
+|--------|-----------------|
+| `core/` | 80% |
+| `backend/security/` | 80% |
+| `backend/` (all other) | 70% |
 
 ### Writing Tests
 
+**Python test example (pytest):**
+
 ```python
-# Python test example
 import pytest
 from core.knowledge_graph import KnowledgeGraph
 
@@ -321,125 +457,118 @@ class TestKnowledgeGraph:
     def graph(self):
         return KnowledgeGraph()
 
-    def test_add_node(self, graph):
-        node_id = graph.add_node("test", {"label": "Test Node"})
+    def test_add_node_returns_valid_id(self, graph):
+        node_id = graph.add_node("knowledge", {"label": "Test Node"})
         assert node_id is not None
+
+    def test_add_node_persists_label(self, graph):
+        node_id = graph.add_node("knowledge", {"label": "Test Node"})
         assert graph.get_node(node_id)["label"] == "Test Node"
+
+    def test_add_node_raises_on_empty_type(self, graph):
+        with pytest.raises(ValueError):
+            graph.add_node("", {"label": "Test"})
 ```
 
-```javascript
-// JavaScript test example
+**TypeScript test example (Vitest):**
+
+```tsx
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import KnowledgeNode from '../components/KnowledgeNode';
 
 describe('KnowledgeNode', () => {
-  it('renders node label', () => {
-    render(<KnowledgeNode data={{ label: 'Test' }} />);
-    expect(screen.getByText('Test')).toBeInTheDocument();
+  it('renders the node label', () => {
+    render(<KnowledgeNode nodeId="1" data={{ label: 'Test Node' }} onSelect={vi.fn()} />);
+    expect(screen.getByText('Test Node')).toBeInTheDocument();
+  });
+
+  it('calls onSelect with nodeId when clicked', async () => {
+    const onSelect = vi.fn();
+    render(<KnowledgeNode nodeId="42" data={{ label: 'Node' }} onSelect={onSelect} />);
+    await screen.getByRole('button').click();
+    expect(onSelect).toHaveBeenCalledWith('42');
   });
 });
 ```
 
-### Test Coverage
-
-- Aim for 80% code coverage
-- Write tests for:
-  - New features
-  - Bug fixes
-  - Edge cases
-  - Critical business logic
-
 ### Running Tests
 
 ```bash
-# Python tests
+# Python unit tests
 python -m pytest tests/ -v
 
-# With coverage
-python -m pytest --cov=core --cov=backend tests/
+# Python with coverage report
+python -m pytest --cov=core --cov=backend --cov-report=html tests/
 
-# JavaScript tests
-npm test
+# JavaScript unit tests
+cd frontend && npm test
 
-# With coverage
-npm test -- --coverage
+# JavaScript with coverage
+cd frontend && npm test -- --coverage
+
+# E2E tests (Playwright)
+cd frontend && npm run test:e2e
 ```
-
-## Documentation
-
-### Code Documentation
-
-- **Python**: Use docstrings (Google or NumPy style)
-- **JavaScript**: Use JSDoc comments
-- **Complex Logic**: Add inline comments explaining "why" not "what"
-
-### Documentation Updates
-
-When adding features, update:
-- README.md (if it affects setup or usage)
-- docs/API.md (for API changes)
-- docs/ARCHITECTURE.md (for architectural changes)
-- Inline code documentation
-
-## Development Workflow
-
-### Recommended Workflow
-
-1. **Sync with upstream**
-   ```bash
-   git checkout main
-   git pull upstream main
-   ```
-
-2. **Create feature branch**
-   ```bash
-   git checkout -b feature/your-feature
-   ```
-
-3. **Make changes and commit**
-   ```bash
-   git add .
-   git commit -m "feat(scope): description"
-   ```
-
-4. **Push and create PR**
-   ```bash
-   git push origin feature/your-feature
-   ```
-
-5. **Respond to feedback**
-   ```bash
-   # Make changes based on review
-   git add .
-   git commit -m "fix(scope): address review feedback"
-   git push origin feature/your-feature
-   ```
-
-### Branch Naming
-
-- `feature/` - New features
-- `fix/` - Bug fixes
-- `docs/` - Documentation updates
-- `refactor/` - Code refactoring
-- `test/` - Test additions/updates
-
-## Getting Help
-
-- **Questions**: Open a [Discussion](https://github.com/kherrera6219/DataLogicEngine/discussions)
-- **Bug Reports**: Create an [Issue](https://github.com/kherrera6219/DataLogicEngine/issues)
-- **Chat**: Join our community chat (if available)
-
-## Recognition
-
-Contributors will be recognized in:
-- CHANGELOG.md
-- Repository contributors list
-- Annual contributor acknowledgments
-
-## License
-
-By contributing, you agree that your contributions will be licensed under the same license as the project (PolyForm Noncommercial License 1.0.0).
 
 ---
 
-Thank you for contributing to DataLogicEngine!
+## Documentation Standards
+
+| Code Type | Standard |
+|-----------|----------|
+| Python | Google-style docstrings on all public classes and functions |
+| TypeScript | JSDoc comments on exported interfaces and functions |
+| Complex logic | Inline comments explaining *why*, not *what* |
+
+When adding features, update the following as applicable:
+
+- `README.md` — if the change affects setup, usage, or capabilities
+- `docs/API.md` — for any new or modified API endpoints
+- `docs/ARCHITECTURE.md` — for architectural or structural changes
+- `CHANGELOG.md` — always, under the `Unreleased` section
+- Inline docstrings — always
+
+Full documentation governance is defined in [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md).
+
+---
+
+## Branch Naming Conventions
+
+| Prefix | Use |
+|--------|-----|
+| `feature/` | New features or capabilities |
+| `fix/` | Bug fixes |
+| `docs/` | Documentation-only updates |
+| `refactor/` | Code restructuring without behavior change |
+| `test/` | New or updated tests only |
+| `chore/` | Dependency updates, tooling, CI changes |
+
+**Examples:**
+
+```
+feature/knowledge-graph-node-filtering
+fix/jwt-expiration-race-condition
+docs/api-rate-limit-headers
+test/mcp-oauth-scope-enforcement
+```
+
+---
+
+## Getting Help
+
+| Channel | Purpose |
+|---------|---------|
+| [GitHub Issues](https://github.com/kherrera6219/DataLogicEngine/issues) | Bug reports |
+| [GitHub Discussions](https://github.com/kherrera6219/DataLogicEngine/discussions) | Questions, ideas, design discussions |
+| [Security Reports](mailto:security@datalogicengine.com) | Responsible vulnerability disclosure |
+
+---
+
+## License Agreement
+
+By submitting a contribution to this repository, you agree that your work will be licensed under the same terms as the project: the **PolyForm Noncommercial License 1.0.0**. See [`LICENSE`](LICENSE) for full terms.
+
+---
+
+*Thank you for contributing to DataLogicEngine.*
