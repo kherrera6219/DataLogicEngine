@@ -203,61 +203,66 @@ graph TD
     subgraph "frontend/app/ — Page Routes (Next.js App Router)"
         ROOT[page.tsx\nRoot redirect → /dashboard]
         LAYOUT[layout.tsx\nRoot layout + providers]
-        AUTH_GROUP["(auth)/\nLogin · Register · MFA challenge"]
-        DASHBOARD[dashboard/\nMain dashboard\nRun history summary]
-        CHAT[chat/\nAI chat interface\nStreaming support]
-        PROJECTS[projects/\nProject management\nCRUD]
-        RUNS[runs/\nRun trace viewer\nTimeline + evidence]
+        AUTH_GROUP["(auth)/\nLogin · Register"]
+        DASHBOARD[dashboard/\nMain dashboard\nCompliance trend · Command bar]
+        CHAT[chat/\nAI chat interface\nStreaming · Trace linking]
+        PROJECTS["projects/ · projects/[id]/\nProject management CRUD"]
+        RUNS[runs/ · runs/view/\nRun trace viewer\nTimeline + evidence]
         GRAPH[graph/\nKnowledge graph\nThree.js 3D visualization]
         SIMULATIONS[simulations/\nSimulation management]
         ALGORITHMS[algorithms/\nKA browser and executor]
         MCP_PAGE[mcp/\nConnector registry\nOAuth management]
         TRUTH_PAGE[truth-engine/\nTruth Engine monitoring]
-        ADMIN[admin/\nUser management\nSystem stats · Audit logs]
-        SETTINGS[settings/\nUser settings\nAI model config · Storage]
+        ADMIN["admin/ · admin/compliance/\nadmin/mcp/ · admin/mcp/servers/\nUser management · Audit logs"]
+        SETTINGS["settings/ · settings/privacy/\nUser settings · AI model config"]
         ANALYTICS[analytics/\nUsage analytics\nLatency dashboards]
         KNOWLEDGE[knowledge/\nKnowledge browser\nNode/edge explorer]
+        ABOUT["about/ · about/ai-limitations/\nabout/cloud-services/\nlegal/privacy/"]
     end
 
     subgraph "frontend/components/ — Shared UI Components"
-        LAYOUT_COMP[layout/\nSidebar · Header · Navigation]
-        UI_COMP[ui/\nShadcn primitives\nButton · Dialog · Table · Form]
-        CHAT_COMP[chat/\nMessage list · Input · Response renderer]
-        GRAPH_COMP[graph/\nKnowledge graph viewer\nNode inspector · Edge list]
-        RUNS_COMP[runs/\nTimeline · Stage viewer · Evidence panel]
-        ADMIN_COMP[admin/\nUser table · System stats · Audit viewer]
-        SETTINGS_COMP[settings/\nProvider config · MFA setup · Storage]
-        SIMULATION_COMP[simulation/\nSimulation config form · Results viewer]
-        COMMON[common/\nLoading · Error · Empty state · Toasts]
+        LAYOUT_COMP[layout/AppSidebar\nCollapsible sidebar · Nav items\nlocalStorage-persisted state]
+        UI_COMP[ui/\nShadcn primitives\nButton · Dialog · Table · Badge\nApiErrorBoundary · PageLayout]
+        CHAT_COMP[Chat/\nChatInterface · MessageBubble\nTraceVisualizer · LiveTracePanel\nAdvancedControls · DetailedResponseView]
+        GRAPH_COMP[Graph/AxisSelector\n17-axis navigation]
+        DASH_COMP[Dashboard/\nCommandBar · ComplianceTrendChart]
+        MCP_COMP[mcp/\nMcpHub · McpAnalytics · McpClientConfig\nMcpServerConfig · McpIntegrationExamples]
+        SETTINGS_COMP[settings/\nAiModelSettings · DatabaseSettings\nApiOverlayConfig]
+        PROJECTS_COMP[projects/ProjectDetail]
+        TOP_LEVEL[NavBar · ThemeToggle · DesktopStatus\nCloudDisclosureBanner · AppInitializer\nClientErrorBootstrap · PlaceholderPage]
+        FF_COMP[feature-flags/FeatureFlagGate\nRuntime flag evaluation]
     end
 
     subgraph "frontend/lib/ — API Client Layer"
-        AUTH_API[auth.ts\nLogin · Logout · MFA · Session]
-        KNOWLEDGE_API[knowledge.ts\nNode CRUD · Graph queries]
-        CHAT_API[chat.ts\nSession management · Message send · Streaming]
-        RUNS_API[runs.ts\nRun fetch · Stage fetch · Export]
-        PROVIDERS_API[providers.ts\nLLM provider CRUD · Test · Usage]
-        MCP_API[mcp.ts\nConnector CRUD · Tool list · OAuth flow]
-        ADMIN_API[admin.ts\nUser management · System stats]
-        WS_CLIENT[websocket.ts\nReal-time updates · SSE connection]
+        AUTH_API[api/auth.ts\nLogin · Logout · Session\nDesktop auto-login]
+        KNOWLEDGE_API[api/knowledge.ts\nNode CRUD · Graph queries]
+        CHAT_API[api/chat.ts\nSession management · Message send]
+        RUNS_API[api/trace.ts\nRun fetch · Stage fetch · Export]
+        SIM_API[api/simulation.ts\nSimulation CRUD]
+        MCP_API[api/mcp.ts\nConnector CRUD · Tool list · OAuth flow]
+        SYSCHAT_API[api/system_chat.ts\nSystem-level chat]
+        COMPLIANCE_API[api/compliance.ts\nCompliance status]
+        BASE_CLIENT[api/index.ts\nBase request handler\nCSRF token management]
+        WS_CLIENT[socket.ts\nSocket.io client\nReal-time updates]
+        FF_DEFS[feature-flags/definitions.ts\n5 runtime flags]
     end
 
     subgraph "frontend/electron/ — Desktop Shell"
-        ELECTRON_MAIN[main.ts\nElectron main process\nBrowserWindow + IPC]
+        ELECTRON_MAIN[main.ts\nElectron main process\nBrowserWindow · IPC · autoUpdater\nelectron-store · safeStorage]
         PRELOAD[preload.ts\nContext bridge\nSafe IPC exposure]
-        SAFE_STORAGE[safeStorage wrapper\nOS-protected key persistence]
-        AUTO_UPDATE[autoUpdater\nUpdate check + install]
     end
 
     ROOT --> LAYOUT
     LAYOUT --> AUTH_GROUP & DASHBOARD & CHAT & PROJECTS & RUNS & GRAPH
-    LAYOUT --> SIMULATIONS & ALGORITHMS & MCP_PAGE & TRUTH_PAGE & ADMIN & SETTINGS
+    LAYOUT --> SIMULATIONS & ALGORITHMS & MCP_PAGE & TRUTH_PAGE & ADMIN & SETTINGS & ABOUT
     CHAT --> CHAT_COMP & CHAT_API
     GRAPH --> GRAPH_COMP & KNOWLEDGE_API
-    RUNS --> RUNS_COMP & RUNS_API
-    ADMIN --> ADMIN_COMP & ADMIN_API
-    SETTINGS --> SETTINGS_COMP & PROVIDERS_API
-    ELECTRON_MAIN --> PRELOAD --> SAFE_STORAGE
+    RUNS --> RUNS_API
+    DASHBOARD --> DASH_COMP
+    MCP_PAGE --> MCP_COMP & MCP_API
+    SETTINGS --> SETTINGS_COMP
+    PROJECTS --> PROJECTS_COMP
+    ELECTRON_MAIN --> PRELOAD
 ```
 
 ---

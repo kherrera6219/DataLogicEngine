@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Server } from 'lucide-react';
 import Link from 'next/link';
 
 const McpHub = dynamic(
@@ -36,45 +36,59 @@ function McpPageContent() {
   const activeTab = searchParams.get('tab') || 'hub';
 
   return (
-    <div className="flex flex-col h-full rounded-xl border border-slate-200/70 dark:border-white/10 bg-white/70 dark:bg-black/40 text-gray-900 dark:text-white p-6 space-y-6 overflow-y-auto">
-       <div className="flex items-center gap-4">
+    <div className="min-h-full bg-background text-foreground font-sans">
+      <div className="min-h-full bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
+
+        {/* Acrylic Header */}
+        <div className="h-16 border-b border-white/5 fluent-acrylic sticky top-0 z-10 flex items-center gap-4 px-8 backdrop-blur-3xl">
           <Link href="/dashboard">
-             <Button variant="ghost" size="icon" className="hover:bg-slate-200/70 dark:hover:bg-white/10 text-slate-600 dark:text-gray-400">
-                <ChevronLeft className="h-4 w-4" />
-             </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-200/70 dark:hover:bg-white/10 text-slate-600 dark:text-gray-400 shrink-0">
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
           </Link>
-          <Tabs value={activeTab} onValueChange={(value) => router.push(`/mcp?tab=${value}`)} className="w-full">
-             <div className="flex items-center justify-between mb-6">
-                <TabsList className="bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-white/10">
-                   <TabsTrigger value="hub">Hub Overview</TabsTrigger>
-                   <TabsTrigger value="server">Server Config</TabsTrigger>
-                   <TabsTrigger value="client">Client & Tools</TabsTrigger>
-                   <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                   <TabsTrigger value="integration">Integration</TabsTrigger>
-                </TabsList>
-             </div>
+          <div className="flex items-center gap-3">
+            <div className="bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
+              <Server className="h-5 w-5 text-emerald-400" />
+            </div>
+            <div>
+              <h1 className="text-title font-bold text-slate-900 dark:text-gray-100">MCP Hub</h1>
+              <div className="text-[10px] text-slate-500 dark:text-gray-500 font-mono uppercase tracking-widest">Model Context Protocol</div>
+            </div>
+          </div>
+        </div>
 
-             <TabsContent value="hub" className="mt-0">
-                <McpHub />
-             </TabsContent>
-             
-             <TabsContent value="server" className="mt-0">
-                <McpServerConfig />
-             </TabsContent>
+        <div className="max-w-[1600px] w-full mx-auto p-8 animate-connected-enter">
+          <Tabs value={activeTab} onValueChange={(value) => router.push(`/mcp?tab=${value}`)}>
+            <TabsList className="bg-white/70 dark:bg-white/5 border border-slate-200 dark:border-white/10 mb-6">
+              <TabsTrigger value="hub">Hub Overview</TabsTrigger>
+              <TabsTrigger value="server">Server Config</TabsTrigger>
+              <TabsTrigger value="client">Client &amp; Tools</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="integration">Integration</TabsTrigger>
+            </TabsList>
 
-             <TabsContent value="client" className="mt-0">
-                <McpClientConfig />
-             </TabsContent>
+            <TabsContent value="hub" className="mt-0">
+              <McpHub />
+            </TabsContent>
 
-             <TabsContent value="analytics" className="mt-0">
-                <McpAnalytics />
-             </TabsContent>
+            <TabsContent value="server" className="mt-0">
+              <McpServerConfig />
+            </TabsContent>
 
-             <TabsContent value="integration" className="mt-0">
-                <McpIntegrationExamples />
-             </TabsContent>
+            <TabsContent value="client" className="mt-0">
+              <McpClientConfig />
+            </TabsContent>
+
+            <TabsContent value="analytics" className="mt-0">
+              <McpAnalytics />
+            </TabsContent>
+
+            <TabsContent value="integration" className="mt-0">
+              <McpIntegrationExamples />
+            </TabsContent>
           </Tabs>
-       </div>
+        </div>
+      </div>
     </div>
   );
 }

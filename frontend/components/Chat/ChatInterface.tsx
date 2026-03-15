@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +20,7 @@ import {
 } from '@/lib/security/input-sanitization';
 import { useFeatureFlags } from '@/contexts/FeatureFlagContext';
 import { reportClientError } from '@/lib/telemetry/client-errors';
+import { useToast } from '@/components/ui/use-toast';
 import { LiveTracePanel } from './LiveTracePanel';
 import { DetailedResponseView } from './DetailedResponseView';
 import { TraceVisualizer } from './TraceVisualizer';
@@ -57,6 +57,7 @@ function normalizeApiMessage(message: ApiChatMessage): ChatMessage {
 
 export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const { isEnabled } = useFeatureFlags();
+  const { toast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -72,7 +73,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       if (data.session_id === currentSessionId) {
         const socketRunId = (data as { run_id?: string }).run_id;
         const assistantMsg: ChatMessage = {
-          id: uuidv4(),
+          id: crypto.randomUUID(),
           role: 'assistant',
           content: data.response,
           finalAnswer: data.response,
@@ -149,7 +150,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     if (!normalizedInput || isLoading) return;
 
     const userMsg: ChatMessage = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       role: 'user',
       content: normalizedInput,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -172,7 +173,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       if (data && data.response) {
         const runId = (data as { run_id?: string }).run_id || data.trace_id;
         const assistantMsg: ChatMessage = {
-          id: uuidv4(),
+          id: crypto.randomUUID(),
           role: 'assistant',
           content: data.response,
           finalAnswer: data.response,
@@ -195,7 +196,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         action: 'sendMessage',
       });
       const errorMsg: ChatMessage = {
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         role: 'assistant',
         content: 'I encountered an error processing your request. Please try again.',
         finalAnswer: 'I encountered an error processing your request. Please try again.',
@@ -207,11 +208,11 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   };
 
   const handleNewChat = () => {
-    setCurrentSessionId(uuidv4());
+    setCurrentSessionId(crypto.randomUUID());
     setMessages([]);
   };
 
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!autoOpenUpload) return;
@@ -234,7 +235,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       setMessages(prev => [
         ...prev,
         {
-          id: uuidv4(),
+          id: crypto.randomUUID(),
           role: 'assistant',
           content: validationErrorMessage,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -247,7 +248,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     const safeFileName = sanitizeFileName(file.name);
     setIsLoading(true);
     const userMsg: ChatMessage = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       role: 'user',
       content: `Uploaded file: ${safeFileName}`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -268,7 +269,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       });
       
       const assistantMsg: ChatMessage = {
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         role: 'assistant',
         content: `File processed successfully. Analysis: ${data.message || JSON.stringify(data.result || data.analysis)}`,
         finalAnswer: `File processed successfully. Analysis: ${data.message || JSON.stringify(data.result || data.analysis)}`,
@@ -282,7 +283,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         action: 'fileUpload',
       });
       const errorMsg: ChatMessage = {
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         role: 'assistant',
         content: 'Failed to process the uploaded file.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -460,7 +461,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                     variant="ghost" 
                     size="icon" 
                     className="h-8 w-8 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/5 rounded-lg"
-                    onClick={() => alert("Audio capture initializing... Production bridge active.")}
+                    onClick={() => toast("Voice input is not available in this deployment.", "info", 3000)}
                     aria-label="Start voice input"
                   >
                     <Mic className="h-4 w-4" />

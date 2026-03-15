@@ -4,8 +4,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { request } from '@/lib/api';
+import { Cpu, Search } from 'lucide-react';
 
 interface AlgorithmRecord {
   id: string;
@@ -62,69 +62,80 @@ export default function AlgorithmsPage() {
   }, [algorithms, query]);
 
   return (
-    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8">
-      <div className="container mx-auto max-w-7xl">
-        <header className="mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Algorithm Registry</h1>
-            <p className="text-gray-500">Live catalog loaded from `/api/v1/ka/algorithms`.</p>
+    <div className="min-h-full bg-background text-foreground font-sans">
+      <div className="min-h-full bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
+
+        {/* Acrylic Header */}
+        <div className="h-16 border-b border-white/5 fluent-acrylic sticky top-0 z-10 flex items-center justify-between px-8 backdrop-blur-3xl">
+          <div className="flex items-center gap-3">
+            <div className="bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
+              <Cpu className="h-5 w-5 text-amber-400" />
+            </div>
+            <div>
+              <h1 className="text-title font-bold text-slate-900 dark:text-gray-100">Algorithm Registry</h1>
+              <div className="text-[10px] text-slate-500 dark:text-gray-500 font-mono uppercase tracking-widest">Live catalog from /api/v1/ka/algorithms</div>
+            </div>
           </div>
-          <div className="flex w-full md:w-auto gap-2">
+          <div className="relative w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 dark:text-gray-500" aria-hidden="true" />
             <Input
+              aria-label="Search algorithms"
               placeholder="Search algorithms..."
-              className="w-full md:w-64"
+              className="pl-9 h-9 bg-white/70 dark:bg-black/20 border-slate-200 dark:border-white/10 text-sm"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
-            <Button type="button">Search</Button>
           </div>
-        </header>
+        </div>
 
-        {error && (
-          <Card className="mb-6 border-red-500/30 bg-red-500/10">
-            <CardContent className="p-4 text-sm text-red-600 dark:text-red-300">
-              {error}
-            </CardContent>
-          </Card>
-        )}
+        <div className="max-w-[1600px] w-full mx-auto p-8 space-y-8 animate-connected-enter">
 
-        {loading && (
-          <Card>
-            <CardContent className="p-6 text-sm text-muted-foreground">
-              Loading algorithm registry...
-            </CardContent>
-          </Card>
-        )}
+          {error && (
+            <Card className="border-red-500/30 bg-red-500/10">
+              <CardContent className="p-4 text-sm text-red-600 dark:text-red-300">
+                {error}
+              </CardContent>
+            </Card>
+          )}
 
-        {!loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAlgorithms.map((entry) => (
-              <Card key={entry.id} className="hover:border-blue-500 transition-colors cursor-pointer group">
-                <CardHeader>
-                  <div className="flex justify-between items-start mb-2">
-                    <Badge variant="outline" className="font-mono text-xs">{entry.id}</Badge>
-                    <Badge variant="secondary">{entry.risk_class || entry.status || 'Unknown'}</Badge>
-                  </div>
-                  <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">{entry.name}</CardTitle>
-                  <CardDescription>{entry.category || 'Uncategorized'}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    {entry.purpose || 'No algorithm description is available.'}
+          {loading && (
+            <Card className="fluent-card">
+              <CardContent className="p-6 text-sm text-muted-foreground">
+                Loading algorithm registry...
+              </CardContent>
+            </Card>
+          )}
+
+          {!loading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredAlgorithms.map((entry) => (
+                <Card key={entry.id} className="fluent-card hover:-translate-y-1 cursor-pointer group">
+                  <CardHeader>
+                    <div className="flex justify-between items-start mb-2">
+                      <Badge variant="outline" className="font-mono text-xs bg-white/70 dark:bg-white/5 border-slate-200 dark:border-white/10">{entry.id}</Badge>
+                      <Badge variant="secondary" className="bg-amber-500/10 text-amber-400 border-amber-500/20 text-[10px] font-bold uppercase">{entry.risk_class || entry.status || 'Unknown'}</Badge>
+                    </div>
+                    <CardTitle className="text-lg text-slate-900 dark:text-gray-100 group-hover:text-blue-400 transition-colors">{entry.name}</CardTitle>
+                    <CardDescription className="text-slate-500 dark:text-gray-500">{entry.category || 'Uncategorized'}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-slate-600 dark:text-gray-400">
+                      {entry.purpose || 'No algorithm description is available.'}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+              {!error && filteredAlgorithms.length === 0 && (
+                <Card className="col-span-full fluent-card flex items-center justify-center p-8 border-dashed">
+                  <p className="text-slate-500 dark:text-gray-400 text-sm text-center">
+                    No algorithms matched your filters.
                   </p>
-                </CardContent>
-              </Card>
-            ))}
-            {!error && filteredAlgorithms.length === 0 && (
-              <Card className="flex items-center justify-center p-6 border-dashed bg-gray-50/50 dark:bg-gray-900/50">
-                <p className="text-gray-400 text-sm max-w-[240px] text-center">
-                  No algorithms matched your filters.
-                </p>
-              </Card>
-            )}
-          </div>
-        )}
+                </Card>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </main>
+    </div>
   );
 }

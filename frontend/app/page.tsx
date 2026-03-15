@@ -70,9 +70,9 @@ export default function Home() {
     },
     {
        title: "Knowledge Base",
-       desc: "Explore the 17-dimensional graph visualization engine.",
+       desc: "Browse nodes, edges, and relationships in the knowledge graph.",
        icon: Share2,
-       href: "/graph",
+       href: "/knowledge",
        color: "text-violet-400",
        bg: "bg-violet-500/10",
        border: "border-violet-500/20"
