@@ -35,14 +35,14 @@ export default function SimulationsPage() {
     }
   });
 
-  // Subscribe to active simulations
+  // Subscribe to active simulations whenever the list or connection state changes
   useEffect(() => {
-    if (simulations && socket.isConnected) {
+    if (simulations && isConnected) {
       simulations
         .filter(sim => sim.status === 'active')
         .forEach(sim => socket.subscribeToSimulation(sim.uid));
     }
-  }, [simulations, socket, socket.isConnected]);
+  }, [simulations, isConnected, socket]);
 
   const handleCreate = async () => {
     setIsCreating(true);
@@ -66,38 +66,43 @@ export default function SimulationsPage() {
   const completedSimulations = simulations?.filter((sim) => sim.status === 'completed').length || 0;
 
   return (
-    <main className="min-h-screen bg-transparent p-8 text-gray-900 dark:text-white">
-      <div className="container mx-auto max-w-7xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <header className="flex justify-between items-center mb-12">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-500 dark:from-white dark:to-white/60 bg-clip-text text-transparent">
-                Simulation Monitor
-              </h1>
-              {isConnected ? (
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-medium shadow-[0_0_15px_rgba(34,197,94,0.1)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]"></span>
-                  Live Connection
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-600 dark:text-gray-400 text-xs font-medium">
-                  <WifiOff className="h-3 w-3" /> Offline
-                </div>
-              )}
+    <div className="min-h-full bg-background text-foreground font-sans">
+      <div className="min-h-full bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
+
+        {/* Acrylic Header */}
+        <div className="h-16 border-b border-white/5 fluent-acrylic sticky top-0 z-10 flex items-center justify-between px-8 backdrop-blur-3xl">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-500/10 p-2 rounded-lg border border-blue-500/20">
+              <PlayCircle className="h-5 w-5 text-blue-400" />
             </div>
-            <p className="text-slate-600 dark:text-gray-400 max-w-2xl text-sm leading-relaxed">
-              Track and control active reasoning simulations and agent swarms through the UKG Enterprise validation framework.
-            </p>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-title font-bold text-slate-900 dark:text-gray-100">Simulation Monitor</h1>
+                {isConnected ? (
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-medium">
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]"></span>
+                    Live
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-600 dark:text-gray-400 text-xs font-medium">
+                    <WifiOff className="h-3 w-3" /> Offline
+                  </div>
+                )}
+              </div>
+              <div className="text-[10px] text-slate-500 dark:text-gray-500 font-mono uppercase tracking-widest">UKG Enterprise Validation Framework</div>
+            </div>
           </div>
-          <Button 
-            onClick={handleCreate} 
-            disabled={isCreating} 
+          <Button
+            onClick={handleCreate}
+            disabled={isCreating}
             className="gap-2 bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20 transition-all hover:scale-105 active:scale-95"
           >
-             {isCreating ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-             New Simulation
+            {isCreating ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            New Simulation
           </Button>
-        </header>
+        </div>
+
+      <div className="max-w-[1600px] w-full mx-auto p-8 space-y-8 animate-connected-enter">
 
         <Card className="fluent-acrylic border-white/10 overflow-hidden shadow-2xl">
           <CardHeader className="border-b border-white/5 bg-white/5">
@@ -219,6 +224,7 @@ export default function SimulationsPage() {
            </div>
         </div>
       </div>
-    </main>
+      </div>
+    </div>
   );
 }

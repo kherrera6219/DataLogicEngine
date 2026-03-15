@@ -24,11 +24,10 @@ export function PageLayout({
   containerClassName,
 }: PageLayoutProps) {
   return (
-    <main className={cn("min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8 relative overflow-x-hidden", className)}>
-      {/* Universal Background Gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_rgba(37,99,235,0.03),transparent_50%)] pointer-events-none" />
-      
-      <div className={cn("container mx-auto max-w-7xl relative z-10 space-y-8", containerClassName)}>
+    <main className={cn("min-h-full bg-background text-foreground font-sans", className)}>
+      <div className="min-h-full bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed p-6 md:p-8">
+
+      <div className={cn("container mx-auto max-w-7xl space-y-8", containerClassName)}>
         {(breadcrumbs || title || actions) && (
           <header className="space-y-4">
             {breadcrumbs && <Breadcrumbs items={breadcrumbs} className="mb-2" />}
@@ -61,6 +60,7 @@ export function PageLayout({
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           {children}
         </div>
+      </div>
       </div>
     </main>
   );

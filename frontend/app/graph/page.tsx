@@ -39,9 +39,24 @@ const PILLAR_COLORS: Record<string, string> = {
 
 import { api, GraphNode, GraphEdge } from '@/lib/api';
 
+/** Minimal ForceGraph3D instance interface — library doesn't export this type. */
+interface ForceGraph3DInstance {
+  cameraPosition(
+    position: { x: number; y: number; z: number },
+    lookAt?: { x: number; y: number; z: number },
+    durationMs?: number
+  ): void;
+}
+
+/** Graph node as understood by react-force-graph-3d callbacks.
+ *  The library adds x/y/z at runtime during layout. */
+type ForceGraphNodeObject = GraphNode & { val?: number; x?: number; y?: number; z?: number };
+
+/** Typed CSS property helper for CSS custom properties. */
+type CSSWithCustomProps = React.CSSProperties & Record<string, string>;
+
 export default function GraphPage() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const graphRef = useRef<any>(null);
+  const graphRef = useRef<ForceGraph3DInstance | null>(null);
   const { toast } = useToast();
   const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphEdge[] }>({ nodes: [], links: [] });
   const [activeAxis, setActiveAxis] = useState(1);
@@ -80,12 +95,13 @@ export default function GraphPage() {
     fetchGraphData();
   }, [toast]);
 
-  const handleNodeClick = useCallback((node: GraphNode) => {
+  const handleNodeClick = useCallback((node: ForceGraphNodeObject) => {
     setSelectedNode(node);
     setRightSidebarOpen(true);
     toast(`Inspecting Node: ${node.name}`, "info", 2000);
     if (graphRef.current) {
-      graphRef.current.cameraPosition({ x: node.id.length * 20, y: 20, z: 200 }, node, 1000);
+      const lookAt = { x: node.x ?? 0, y: node.y ?? 0, z: node.z ?? 0 };
+      graphRef.current.cameraPosition({ x: node.id.length * 20, y: 20, z: 200 }, lookAt, 1000);
     }
   }, [toast]);
 
@@ -136,14 +152,13 @@ export default function GraphPage() {
                         key={name}
                         className="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 cursor-pointer group"
                         role="button"
-                        aria-pressed="false"
+                        aria-pressed={false}
                         aria-label={`Filter by ${name} pillar`}
                       >
                          <div className="flex items-center gap-3">
                            <div
                              className="w-2.5 h-2.5 rounded-full ring-1 ring-white/20 shadow-[0_0_8px_var(--pillar-color)]"
-                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                             style={{ backgroundColor: color, '--pillar-color': color } as any}
+                             style={{ backgroundColor: color, '--pillar-color': color } as CSSWithCustomProps}
                              aria-hidden="true"
                            />
                            <span className="text-sm font-medium">{name}</span>
@@ -184,7 +199,7 @@ export default function GraphPage() {
             leftSidebarOpen ? "translate-x-[288px]" : "translate-x-0"
           )}
           aria-label={leftSidebarOpen ? "Collapse filters" : "Expand filters"}
-          aria-expanded={leftSidebarOpen ? "true" : "false"}
+          aria-expanded={leftSidebarOpen}
         >
           {leftSidebarOpen ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
         </button>
@@ -199,15 +214,12 @@ export default function GraphPage() {
              ref={graphRef}
              graphData={graphData}
              nodeLabel={showLabels ? 'name' : undefined}
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-             nodeColor={(node: any) => PILLAR_COLORS[node.pillar || 'Technology'] || '#666'}
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-             nodeVal={(node: any) => node.val || 1}
+             nodeColor={(node: ForceGraphNodeObject) => PILLAR_COLORS[(node as ForceGraphNodeObject).pillar || 'Technology'] || '#666'}
+             nodeVal={(node: ForceGraphNodeObject) => (node as ForceGraphNodeObject).val || 1}
              linkColor={() => 'rgba(255,255,255,0.1)'}
              linkWidth={0.5}
              backgroundColor="rgba(0,0,0,0)"
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-             onNodeClick={handleNodeClick as any}
+             onNodeClick={(node) => handleNodeClick(node as ForceGraphNodeObject)}
              enableNodeDrag={enablePhysics}
              nodeOpacity={0.9}
            />
@@ -258,11 +270,10 @@ export default function GraphPage() {
                 <div className="space-y-6">
                    <div>
                       <h3 className="text-xl font-bold text-white mb-2 leading-tight">{selectedNode.name}</h3>
-                       <Badge 
+                       <Badge
                         variant="secondary"
                         className="text-white border-none shadow-sm"
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        style={{ backgroundColor: PILLAR_COLORS[selectedNode.pillar || 'Technology'] } as any}
+                        style={{ backgroundColor: PILLAR_COLORS[selectedNode.pillar || 'Technology'] }}
                         aria-label={`Pillar classification: ${selectedNode.pillar}`}
                       >
                         {selectedNode.pillar}

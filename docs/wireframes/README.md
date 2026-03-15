@@ -1,5 +1,8 @@
 # DataLogicEngine UI/UX Wireframes - 2025 Design Standards
 
+> **Design Documents — Not Implementation Specs.**
+> These wireframes describe design intent and visual language. Version numbers in these documents (e.g. "Next.js 15, React 19") reflect the design-phase target; the production implementation runs **Next.js 16.1 + React 18.3**. See `frontend/README.md` for authoritative stack information.
+
 ## Overview
 
 This directory contains comprehensive wireframes and design specifications for the DataLogicEngine (Universal Knowledge Graph) frontend redesign to meet 2025 web application design standards with explicit alignment to Microsoft enterprise (Fluent 2) patterns.

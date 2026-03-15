@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BarChart3 } from "lucide-react";
 
 interface Pillar {
   uid: string;
@@ -38,72 +39,84 @@ export default function AnalyticsPage() {
   const { data: pillars, isLoading, error } = useSWR<Pillar[]>('knowledge-pillars', () => api.knowledge.pillars());
 
   return (
-    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-8">
-      <div className="container mx-auto max-w-7xl">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Analytics</h1>
-          <p className="text-gray-500">Live axis and pillar distribution from indexed data.</p>
-        </header>
+    <div className="min-h-full bg-background text-foreground font-sans">
+      <div className="min-h-full bg-[url('/grid-pattern.svg')] bg-[size:40px_40px] bg-fixed">
 
-        {error && (
-          <Card className="mb-6 border-red-500/30 bg-red-500/10">
-            <CardContent className="p-4 text-sm text-red-600 dark:text-red-300">
-              Failed to load analytics data: {error instanceof Error ? error.message : 'Unknown error'}
+        {/* Acrylic Header */}
+        <div className="h-16 border-b border-white/5 fluent-acrylic sticky top-0 z-10 flex items-center justify-between px-8 backdrop-blur-3xl">
+          <div className="flex items-center gap-3">
+            <div className="bg-purple-500/10 p-2 rounded-lg border border-purple-500/20">
+              <BarChart3 className="h-5 w-5 text-purple-400" />
+            </div>
+            <div>
+              <h1 className="text-title font-bold text-slate-900 dark:text-gray-100">Analytics</h1>
+              <div className="text-[10px] text-slate-500 dark:text-gray-500 font-mono uppercase tracking-widest">17-Axis Framework Coverage</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-[1600px] w-full mx-auto p-8 space-y-8 animate-connected-enter">
+
+          {error && (
+            <Card className="border-red-500/30 bg-red-500/10">
+              <CardContent className="p-4 text-sm text-red-600 dark:text-red-300">
+                Failed to load analytics data: {error instanceof Error ? error.message : 'Unknown error'}
+              </CardContent>
+            </Card>
+          )}
+
+          <Card className="fluent-card">
+            <CardHeader>
+              <CardTitle>17-Axis Framework Coverage</CardTitle>
+              <CardDescription>Data shown only from indexed pillars returned by live queries.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="space-y-4">
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                  {AXIS_GROUPS.map((group) => {
+                    const groupPillars = (pillars || []).filter((entry) => {
+                      const axis = parseAxisNumber(entry.pillar_id);
+                      return axis !== null && axis >= group.min && axis <= group.max;
+                    });
+
+                    return (
+                      <div key={group.title} className="space-y-4">
+                        <h4 className="text-xs font-bold text-slate-500 dark:text-gray-500 uppercase tracking-wider">
+                          {group.title} ({group.rangeLabel})
+                        </h4>
+                        <div className="space-y-2">
+                          {groupPillars.map((entry) => (
+                            <div key={entry.uid} className="flex items-center justify-between p-2 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-lg">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="min-w-10 h-6 rounded-full flex items-center justify-center p-0 text-[10px] font-mono">
+                                  {entry.pillar_id}
+                                </Badge>
+                                <span className="text-sm font-medium text-slate-700 dark:text-gray-300">{entry.name}</span>
+                              </div>
+                              <div className="text-[10px] text-slate-400 dark:text-gray-600 font-mono uppercase">Indexed</div>
+                            </div>
+                          ))}
+                          {groupPillars.length === 0 && (
+                            <p className="text-xs text-slate-500 dark:text-muted-foreground italic">
+                              No indexed nodes in this range.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
-        )}
-
-        <Card>
-          <CardHeader>
-            <CardTitle>17-Axis Framework Coverage</CardTitle>
-            <CardDescription>Data shown only from indexed pillars returned by live queries.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="space-y-4">
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                {AXIS_GROUPS.map((group) => {
-                  const groupPillars = (pillars || []).filter((entry) => {
-                    const axis = parseAxisNumber(entry.pillar_id);
-                    return axis !== null && axis >= group.min && axis <= group.max;
-                  });
-
-                  return (
-                    <div key={group.title} className="space-y-4">
-                      <h4 className="text-sm font-semibold text-gray-500 uppercase">
-                        {group.title} ({group.rangeLabel})
-                      </h4>
-                      <div className="space-y-2">
-                        {groupPillars.map((entry) => (
-                          <div key={entry.uid} className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded">
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="min-w-10 h-6 rounded-full flex items-center justify-center p-0">
-                                {entry.pillar_id}
-                              </Badge>
-                              <span className="text-sm font-medium">{entry.name}</span>
-                            </div>
-                            <div className="text-xs text-gray-500">Indexed</div>
-                          </div>
-                        ))}
-                        {groupPillars.length === 0 && (
-                          <p className="text-xs text-muted-foreground">
-                            No indexed nodes returned for this axis range.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
