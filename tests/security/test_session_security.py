@@ -7,6 +7,7 @@ def test_session_cookie_security_defaults(monkeypatch):
     monkeypatch.setenv("SESSION_SECRET", "test-session-secret")
     monkeypatch.setenv("SESSION_COOKIE_SECURE", "true")
     monkeypatch.setenv("CORS_ORIGINS", "https://localhost:3000")
+    monkeypatch.setenv("ALLOW_PLAINTEXT_PROD_SECRETS", "true")
 
     app_module = importlib.import_module("app")
     importlib.reload(app_module)

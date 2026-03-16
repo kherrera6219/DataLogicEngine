@@ -341,7 +341,7 @@ export default function SettingsPage() {
                                 <h3 className="text-sm font-semibold text-slate-700 dark:text-gray-300 uppercase tracking-wide">Digest Frequency</h3>
                                 <Select
                                   value={notifPrefs.digest_frequency}
-                                  onValueChange={(v) => void saveNotifPrefs({ digest_frequency: v })}
+                                  onChange={(e) => void saveNotifPrefs({ digest_frequency: e.target.value })}
                                   disabled={notifSaving}
                                 >
                                   <SelectTrigger className="w-48">
