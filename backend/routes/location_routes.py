@@ -242,7 +242,7 @@ def get_location_hierarchy():
         else:
             # Get all top-level locations (no parent)
             top_level_locations = db.session.query(Location).filter(
-                Location.parent_location_id is None
+                Location.parent_location_id.is_(None)
             ).all()
             
             hierarchies = [_build_location_hierarchy(loc) for loc in top_level_locations]

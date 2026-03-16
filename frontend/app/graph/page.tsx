@@ -211,11 +211,11 @@ export default function GraphPage() {
           aria-label="3D Knowledge Graph Visualization"
         >
            <ForceGraph3D
-             ref={graphRef}
+             ref={graphRef as any}
              graphData={graphData}
              nodeLabel={showLabels ? 'name' : undefined}
-             nodeColor={(node: ForceGraphNodeObject) => PILLAR_COLORS[(node as ForceGraphNodeObject).pillar || 'Technology'] || '#666'}
-             nodeVal={(node: ForceGraphNodeObject) => (node as ForceGraphNodeObject).val || 1}
+             nodeColor={(node) => PILLAR_COLORS[(node as ForceGraphNodeObject).pillar || 'Technology'] || '#666'}
+             nodeVal={(node) => (node as ForceGraphNodeObject).val || 1}
              linkColor={() => 'rgba(255,255,255,0.1)'}
              linkWidth={0.5}
              backgroundColor="rgba(0,0,0,0)"
