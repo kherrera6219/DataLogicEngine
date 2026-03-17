@@ -11,12 +11,15 @@ This module implements:
 Compliance: SOC 2 Type 2, ISO 27001, least privilege principle
 """
 
+import logging
 from enum import Enum
 from typing import List, Set, Optional, Dict, Any
 from datetime import datetime, UTC
 from functools import wraps
 from flask import jsonify, has_request_context, has_app_context, request as flask_request
 from flask_login import current_user as flask_current_user
+
+logger = logging.getLogger(__name__)
 
 # Test-friendly patch points: tests may monkeypatch these names directly.
 current_user = None
@@ -386,13 +389,26 @@ class RBACManager:
         if hasattr(user, 'is_admin') and user.is_admin:
             return True
 
-        # Check user role
-        user_role_name = getattr(user, 'role', 'user')
+        # Check user role — deny on ambiguity; never silently default to a permissive role.
+        user_role_name = getattr(user, 'role', None)
+        if not user_role_name or not isinstance(user_role_name, str) or not user_role_name.strip():
+            logger.warning(
+                "RBAC: User object missing valid 'role' attribute (user_id=%s). Denying permission '%s'.",
+                getattr(user, 'id', 'unknown'),
+                permission.value,
+            )
+            return False
+        user_role_name = user_role_name.strip().lower()
         role = self.get_role(user_role_name)
 
         if not role:
-            # Fallback to basic user role
-            role = self.get_role('user')
+            logger.warning(
+                "RBAC: Unknown role '%s' for user_id=%s. Denying permission '%s'.",
+                user_role_name,
+                getattr(user, 'id', 'unknown'),
+                permission.value,
+            )
+            return False
 
         has_perm = role.has_permission(permission)
 
@@ -490,6 +506,9 @@ class RBACManager:
                 event_type=event_type,
                 details=details
             )
+        else:
+            # In production the audit_logger should always be wired; log at debug so tests stay quiet.
+            logger.debug("RBAC audit event (no audit_logger configured): %s %s", event_type, details)
 
 
 # Singleton instance

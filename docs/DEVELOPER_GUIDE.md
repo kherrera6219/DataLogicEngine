@@ -33,7 +33,10 @@ cd ..
 
 Set in `.env`:
 
-1. `SESSION_SECRET`
+1. `SESSION_SECRET` — required for persistent sessions. If omitted in development the app generates an ephemeral secret and logs a warning (sessions reset on every restart). **Required and enforced at startup in production** — the app will refuse to start without it. Generate a value with:
+   ```powershell
+   python scripts/generate_secrets.py
+   ```
 2. At least one provider key (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`/`GOOGLE_API_KEY`)
 
 ## Local Run Modes

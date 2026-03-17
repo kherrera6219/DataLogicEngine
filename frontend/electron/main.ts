@@ -378,6 +378,7 @@ app.on('ready', () => {
       const normalized = path.normalize(stripped || 'index').replace(/^(\.\.(\/|\\|$))+/, '');
       const hasExtension = path.extname(normalized).length > 0;
 
+      const resolvedAppPath = path.resolve(appPath);
       const candidatePaths: string[] = [path.join(appPath, normalized)];
       if (!hasExtension) {
         candidatePaths.push(path.join(appPath, `${normalized}.html`));
@@ -386,13 +387,21 @@ app.on('ready', () => {
       candidatePaths.push(path.join(appPath, 'index.html'));
 
       for (const candidate of candidatePaths) {
+        // Security: reject any resolved path that escapes the app output directory.
+        const resolvedCandidate = path.resolve(candidate);
+        if (
+          resolvedCandidate !== resolvedAppPath &&
+          !resolvedCandidate.startsWith(resolvedAppPath + path.sep)
+        ) {
+          continue;
+        }
         try {
-          const stats = fs.statSync(candidate);
+          const stats = fs.statSync(resolvedCandidate);
           if (stats.isFile()) {
-            return candidate;
+            return resolvedCandidate;
           }
           if (stats.isDirectory()) {
-            const directoryIndex = path.join(candidate, 'index.html');
+            const directoryIndex = path.join(resolvedCandidate, 'index.html');
             if (fs.existsSync(directoryIndex) && fs.statSync(directoryIndex).isFile()) {
               return directoryIndex;
             }
@@ -454,9 +463,8 @@ app.on('ready', () => {
     callback({ requestHeaders });
   });
 
-  // Security: Set CSP headers
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  session.defaultSession.webRequest.onHeadersReceived((details: any, callback: any) => {
+  // Security: Set CSP headers on all responses.
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     const scriptSrc = isDev ? "'self' 'unsafe-inline' app:" : "'self' app:";
     const styleSrc = isDev ? "'self' 'unsafe-inline' app:" : "'self' app:";
 

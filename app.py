@@ -108,6 +108,20 @@ if __name__ != "__main__":  # Only run when starting as server
     validate_production_security()
 
 # Security: Session secret from vault-aware resolver.
+# Fail fast if no secret is available in production; generate an ephemeral one for development.
+if not RESOLVED_SESSION_SECRET:
+    if IS_PRODUCTION_MODE:
+        raise RuntimeError(
+            "SESSION_SECRET must be configured before starting in production. "
+            "Run: python scripts/generate_secrets.py"
+        )
+    import secrets as _secrets  # noqa: PLC0415
+    RESOLVED_SESSION_SECRET = _secrets.token_hex(32)
+    SESSION_SECRET_SOURCE = "ephemeral"
+    logger.warning(
+        "SESSION_SECRET not set — using an ephemeral secret for this process. "
+        "Sessions will be invalidated on restart. Set SESSION_SECRET in .env for persistent sessions."
+    )
 app.secret_key = RESOLVED_SESSION_SECRET
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
 
@@ -318,16 +332,18 @@ TRUSTED_CSRF_ORIGINS = {
     for normalized in (_normalize_origin(origin) for origin in cors_origins)
     if normalized
 }
-TRUSTED_CSRF_ORIGINS.update(
-    {
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:5000",
-        "http://127.0.0.1:5000",
-        "app://-",
-        "app://dashboard",
-    }
-)
+# Electron app:// origins are always allowed — the scheme is not reachable from web browsers.
+TRUSTED_CSRF_ORIGINS.update({"app://-", "app://dashboard"})
+# Loopback origins are only trusted in non-production to avoid CSRF bypass in deployed environments.
+if not IS_PRODUCTION_MODE:
+    TRUSTED_CSRF_ORIGINS.update(
+        {
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "http://localhost:5000",
+            "http://127.0.0.1:5000",
+        }
+    )
 
 # Initialize Celery
 from backend.celery_app import make_celery
@@ -571,16 +587,13 @@ except ImportError as e:
 
 # Register GraphQL API endpoint
 try:
-    print("DEBUG: Registering GraphQL...")
+    logger.debug("Registering GraphQL...")
     from backend.graphql_schema import register_graphql
     register_graphql(app)
-    print("DEBUG: GraphQL registered successfully")
     logger.info("GraphQL API registered at /graphql (GraphiQL enabled)")
 except ImportError as e:
-    print(f"DEBUG: GraphQL registration failed: {e}")
     logger.warning(f"Could not register GraphQL API: {e}")
 except Exception as e:
-    print(f"DEBUG: GraphQL registration error: {e}")
     logger.error(f"GraphQL registration error: {e}")
 
 # Register GDPR compliance API

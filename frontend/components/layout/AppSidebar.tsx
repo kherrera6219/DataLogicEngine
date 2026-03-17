@@ -65,6 +65,12 @@ export function AppSidebar() {
       return next;
     });
   }, []);
+
+  const handleLogout = React.useCallback(() => {
+    logout().catch((error: unknown) => {
+      console.error('[AppSidebar] Logout failed:', error);
+    });
+  }, [logout]);
   const isAdmin = Boolean(user?.is_admin || user?.role === 'admin' || user?.role === 'owner');
   const initials = user?.username
     ? user.username
@@ -162,7 +168,7 @@ export function AppSidebar() {
                variant="ghost"
                size="icon"
                className="h-8 w-8 text-gray-500 hover:text-white hover:bg-white/5 shrink-0"
-               onClick={() => { void logout(); }}
+               onClick={handleLogout}
                aria-label="Log out"
                title="Log out"
              >

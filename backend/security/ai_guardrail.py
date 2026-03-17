@@ -48,6 +48,15 @@ class AIGuardrailService:
                 
         return True, None
 
+    # PII patterns used by validate_output to block sensitive data leakage.
+    # Ordered from most specific (SSN) to most general (email) to reduce false positives.
+    _PII_PATTERNS = [
+        r"\b\d{3}-\d{2}-\d{4}\b",                        # SSN (US)
+        r"\b(?:\d{4}[-\s]?){3}\d{4}\b",                  # Credit card (16-digit)
+        r"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b",            # Phone number (US)
+        r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",  # Email
+    ]
+
     def validate_output(self, llm_output: str) -> Tuple[bool, Optional[str]]:
         """
         Scans LLM output for leakage.
@@ -56,30 +65,30 @@ class AIGuardrailService:
         # 1. Check for System Prompt Leakage
         # If the model starts repeating its own instructions
         if "you are a helpful ai assistant" in llm_output.lower() and len(llm_output) < 200:
-             return False, "[BLOCKED: Potential System Output Leakage]"
+            return False, "[BLOCKED: Potential System Output Leakage]"
 
-        # 2. Check for PII Leakage (Simple Regex as a failsafe)
-        # Reusing patterns from KA-118 concept
-        email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
-        if re.search(email_pattern, llm_output):
-             return False, "[BLOCKED: PII Detected in Output]"
-             
+        # 2. Check for PII Leakage — SSN, credit card, phone, and email patterns.
+        for pattern in self._PII_PATTERNS:
+            if re.search(pattern, llm_output):
+                return False, "[BLOCKED: PII Detected in Output]"
+
         return True, None
-        
+
     def _detect_base64_payload(self, text: str) -> bool:
         """
-        Detects if the text contains large chunks of Base64 encoded data which might hide instructions.
+        Detects Base64-encoded payloads that embed prohibited phrases.
+        Only flags tokens whose decoded content actually matches the prohibited phrase list —
+        this avoids blocking legitimate base64-encoded images or file attachments.
         """
-        # Look for tokens that look like base64
         tokens = text.split()
         for token in tokens:
             if len(token) > 20 and re.match(r'^[A-Za-z0-9+/]+={0,2}$', token):
                 try:
-                    # Try detection - if it decodes to something readable-ish or just valid bytes
-                    base64.b64decode(token, validate=True)
-                    # If it decodes successfully, we treat it as suspicious in a chat context 
-                    # unless explicitly allowed.
-                    return True
+                    decoded_bytes = base64.b64decode(token, validate=True)
+                    decoded_text = decoded_bytes.decode('utf-8', errors='ignore').lower()
+                    for phrase in self.PROHIBITED_PHRASES:
+                        if phrase in decoded_text:
+                            return True
                 except Exception:
                     continue
         return False

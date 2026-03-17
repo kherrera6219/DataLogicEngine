@@ -14,7 +14,7 @@ Define security controls, identity/access patterns, data protection measures, an
 ## Document control
 
 1. Owner: Security Engineering
-2. Last updated: 2026-02-08
+2. Last updated: 2026-03-17
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -39,7 +39,7 @@ DataLogicEngine implements an "Identity-First" security model:
 
 - **Single Sign-On (SSO)**: Native OIDC (OpenID Connect) for **Azure AD / Microsoft Entra ID**, Okta, and Auth0.
 - **Multi-Factor Authentication (MFA)**: Native TOTP support (Google Authenticator, Authy) with cryptographically secure setup and backup codes.
-- **Granular RBAC**: Role-Based Access Control with specific permissions (e.g., `user:read`, `user:manage_roles`, `security:read`, `system:config`).
+- **Granular RBAC**: Role-Based Access Control with specific permissions (e.g., `user:read`, `user:manage_roles`, `security:read`, `system:config`). The RBAC engine enforces **deny-on-ambiguity**: if a user object lacks a valid `role` attribute or carries an unrecognized role name, the permission check returns `False` and logs a warning — it never silently defaults to a permissive role.
 - **Account Protection**:
   - **Lockout Policy**: 5 failed attempts trigger a 30-minute account lockout.
   - **Password Hygiene**: Minimum 12 characters, complexity requirements, and automatic password expiry tracking.
@@ -86,6 +86,19 @@ The `API Gateway` implements multi-tiered rate limiting using **Redis**:
     - **Desktop**: LLM API keys are encrypted via **Windows DPAPI**, tying secrets to the local user profile and machine hardware.
 - **Database Volumes**: Recommended deployment on cloud-native encrypted volumes (AWS KMS / Azure Key Vault).
 
+### 3. Session Secret & CSRF Origin Policy
+
+**Session secret (`SESSION_SECRET`)**
+
+- In production (`FLASK_ENV=production`) the app will **refuse to start** (`RuntimeError`) if `SESSION_SECRET` is not set or is not resolvable from the configured vault/env source. This prevents Flask operating with a `None` secret key, which would allow session forgery.
+- In development the app generates an ephemeral random secret and logs a warning. Sessions are invalidated on restart. Always set `SESSION_SECRET` in `.env` for persistent developer sessions.
+- Generate a production-grade secret with: `python scripts/generate_secrets.py`
+
+**CSRF trusted origins**
+
+- Electron `app://` origins are always trusted (the scheme is not reachable from web browsers).
+- Loopback origins (`http://localhost:*`, `http://127.0.0.1:*`) are only included in the trusted set in **non-production** environments. This prevents CSRF bypass via locally-running attacker pages in deployed environments.
+
 ---
 
 ## Compliance & auditability
@@ -102,9 +115,9 @@ The UKG SDK implements a compliance-grade audit store. Every reasoning step (KA 
 We implement a 3-Layer Defense Strategy to protect against generative attacks:
 
 - **Layer 1: The Gatekeeper (Input/Output Middleware)**
-  - Blocks structural attacks (Base64, Leetspeak).
+  - Blocks structural attacks (Base64, Leetspeak). Base64 detection decodes the token and checks the decoded text against the prohibited phrase list — it does not block all base64-encoded content, only payloads containing injected instructions.
   - Rejects prohibited intent phrases ("Ignore instructions", "DAN mode").
-  - Filters output for System Prompt Leakage.
+  - Filters output for System Prompt Leakage and PII (email, phone, SSN, credit card patterns).
 - **Layer 2: The Watchtower (Context Drift Detection)**
   - Analyzes the trajectory of the last 5 conversation turns.
   - Detects "Crescendo" attacks (Incremental Context Poisoning) by tracking Risk Velocity.
