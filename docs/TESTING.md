@@ -14,7 +14,7 @@ Define enterprise testing standards, required quality gates, and execution workf
 ## Document control
 
 1. Owner: Quality Engineering
-2. Last updated: 2026-02-17
+2. Last updated: 2026-03-17
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -70,17 +70,26 @@ Define enterprise testing standards, required quality gates, and execution workf
 
 ```text
 tests/
-  unit/
-  integration/
-  integration_routes/
-  end_to_end/
-  security/
-  simulation/
-  windows/
+  unit/                   # Isolated module tests
+  integration/            # Service interaction and API route tests
+  integration_routes/     # App-level route wiring tests
+  end_to_end/             # Cross-service workflow tests
+  security/               # Auth, RBAC, sanitization, attack-surface tests
+  simulation/             # Simulation engine layer tests
+  knowledge_algorithms/   # KA execution and contract tests
+  truth_engine/           # Truth Engine layer tests
+  compliance/             # GDPR, SOC 2, regulatory tests
+  parity/                 # Local-mode parity tests
+  contract/               # OpenAPI contract assertion tests
+  performance/            # Load and latency tests (Locust)
+  axes/                   # 17-axis system tests
+  quad_persona/           # Quad-persona engine tests
+  windows/                # Windows-specific and desktop-mode tests
+  utils/                  # Test utilities and helpers
 frontend/
   tests/
-    unit/
-    e2e/
+    unit/                 # React component unit tests (Vitest)
+    e2e/                  # Playwright end-to-end and visual regression tests
 ```
 
 ## Prerequisites

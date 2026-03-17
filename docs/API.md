@@ -14,7 +14,7 @@ Provide the source-of-truth API contract guidance for DataLogicEngine REST endpo
 ## Document control
 
 1. Owner: API Platform Team
-2. Last updated: 2026-02-08
+2. Last updated: 2026-03-17
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -82,10 +82,11 @@ All API responses follow this structure:
 4. [Knowledge Algorithm Routes](#4-knowledge-algorithm-routes-ka)
 5. [Trace Routes](#5-trace-routes-trace)
 6. [Knowledge Graph Routes](#6-knowledge-graph-routes-knowledge)
-7. [MCP Routes](#7-mcp-routes-mcp)
-8. [Compliance & Regulatory Routes](#8-compliance--regulatory-routes-compliance)
-9. [Simulation Routes](#9-simulation-routes-simulation)
-10. [Admin & System Routes](#10-admin--system-routes-system)
+7. [Location Routes](#7-location-routes-locations)
+8. [MCP Routes](#8-mcp-routes-mcp)
+9. [Compliance & Regulatory Routes](#9-compliance--regulatory-routes-compliance)
+10. [Simulation Routes](#10-simulation-routes-simulation)
+11. [Admin & System Routes](#11-admin--system-routes-system)
 
 ---
 
@@ -192,7 +193,7 @@ Control the 5-tier reasoning engine. Prefix: `/api/v1/truth` or `/api/truth`.
 
 ## 4. Knowledge Algorithm Routes (`/ka`)
 
-Execute and manage Knowledge Algorithms (KA-001 to KA-114). Prefix: `/api/ka`.
+Execute and manage Knowledge Algorithms (KA-001 to KA-116). Primary prefix: `/api/v1/ka`; legacy alias: `/api/ka`.
 
 ### List Algorithms
 
@@ -253,7 +254,7 @@ Manage Sectors, Domains, and Knowledge Nodes. Prefix: `/api/v1` or `/api`.
 
 ---
 
-## 11. Location API Routes (`/locations`)
+## 7. Location Routes (`/locations`)
 
 Manage geospatial context and hierarchy. Prefix: `/api` or `/api/v1`.
 
@@ -284,7 +285,7 @@ Manage geospatial context and hierarchy. Prefix: `/api` or `/api/v1`.
 
 ---
 
-## 7. MCP Routes (`/mcp`)
+## 8. MCP Routes (`/mcp`)
 
 Model Context Protocol management. Prefix: `/api/mcp`.
 
@@ -295,7 +296,7 @@ Model Context Protocol management. Prefix: `/api/mcp`.
 
 ---
 
-## 8. Compliance & Regulatory Routes (`/compliance`)
+## 9. Compliance & Regulatory Routes (`/compliance`)
 
 Enterprise compliance and auditing. Prefix: `/api/v1/compliance`.
 
@@ -306,9 +307,9 @@ Enterprise compliance and auditing. Prefix: `/api/v1/compliance`.
 
 ---
 
-## 9. Simulation Routes (`/simulation`)
+## 10. Simulation Routes (`/simulations`)
 
-Scenario simulation and reasoning control. Prefix: `/api/v1/simulation`.
+Scenario simulation and reasoning control. Prefix: `/api/v1/simulations`.
 
 ### Start Simulation
 
@@ -317,12 +318,15 @@ Scenario simulation and reasoning control. Prefix: `/api/v1/simulation`.
 
 ---
 
-## 10. Admin & System Routes
+## 11. Admin & System Routes
 
 ### Health Check
 
 - **GET** `/health`
-  - System status across API, Database, and Redis.
+  - System status: database connectivity and session secret configuration. Also see `/live` (liveness) and `/ready` (readiness).
+- **GET** `/live` — Liveness probe: confirms the process is running.
+- **GET** `/ready` — Readiness probe: confirms database is reachable and `SESSION_SECRET` is set.
+- **GET** `/metrics` — Prometheus-format metrics (uptime, request counts, database state, LLM latency, tenant RLS).
 
 ### Provider Management
 

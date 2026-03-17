@@ -1,4 +1,5 @@
 import os
+import secrets  # noqa: PLC0415 — used for local PG password generation
 import subprocess  # nosec B404
 import socket
 import logging
@@ -49,6 +50,27 @@ class DatabaseLifecycleManager:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             return s.connect_ex(('127.0.0.1', port)) == 0
 
+    def _get_or_create_pg_password(self) -> str:
+        """
+        Return the local PostgreSQL password for this desktop installation.
+        Creates and persists a random password on first call.
+        The file is chmod 0o600 (owner-read-only) on POSIX systems.
+        """
+        pw_file = os.path.join(self.base_dir, 'postgresql', '.pg_local_pw')
+        if os.path.exists(pw_file):
+            pw = open(pw_file).read().strip()  # noqa: WPS515
+            if pw:
+                return pw
+        pw = secrets.token_urlsafe(24)
+        os.makedirs(os.path.dirname(pw_file), exist_ok=True)
+        with open(pw_file, 'w') as fh:
+            fh.write(pw)
+        try:
+            os.chmod(pw_file, 0o600)
+        except OSError:
+            logger.warning("Could not restrict permissions on %s (non-POSIX platform)", pw_file)
+        return pw
+
     def _resolve_executable(self, executable_path: str) -> str:
         """
         Resolve and validate executable paths under the managed database directory.
@@ -68,11 +90,21 @@ class DatabaseLifecycleManager:
 
         # Ensure data directory is initialized
         if not os.path.exists(os.path.join(self.pg_data, 'PG_VERSION')):
-            logger.info("Initializing PostgreSQL data directory...")
+            logger.info("Initializing PostgreSQL data directory with scram-sha-256 auth...")
             try:
                 initdb_path = os.path.join(self.pg_bin, 'initdb.exe' if os.name == 'nt' else 'initdb')
                 safe_initdb = self._resolve_executable(initdb_path)
-                subprocess.run([safe_initdb, '-D', self.pg_data, '--auth=trust'], check=True, shell=False)  # nosec B603
+                pg_pw = self._get_or_create_pg_password()
+                pw_file = os.path.join(self.base_dir, 'postgresql', '.pg_local_pw')
+                # Write password to a temp file consumed by --pwfile; use scram-sha-256 for all
+                # connections (loopback-only, but trust auth is disallowed by policy).
+                with open(pw_file, 'w') as _pwf:
+                    _pwf.write(pg_pw)
+                subprocess.run(  # nosec B603
+                    [safe_initdb, '-D', self.pg_data, '--auth=scram-sha-256', f'--pwfile={pw_file}'],
+                    check=True,
+                    shell=False,
+                )
             except Exception as e:
                 logger.error(f"Failed to initialize PostgreSQL: {e}")
                 return

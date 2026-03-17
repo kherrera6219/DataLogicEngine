@@ -14,7 +14,7 @@ Define the logical and runtime architecture of DataLogicEngine for engineering, 
 ## Document control
 
 1. Owner: Platform Architecture
-2. Last updated: 2026-02-16
+2. Last updated: 2026-03-17
 3. Status: Active
 4. Review cadence: Every 60 days
 
@@ -95,7 +95,7 @@ Data isolation is enforced at the core database manager level. Every request car
 Using a unified **Correlation ID**, the system links the initial HTTP request to the deep Knowledge Algorithm execution steps in the UKG SDK.
 
 - **Audit Chain**: Every execution culminates in a hash-chained audit record.
-- # **Trace Explorer**: Admins can view the full reasoning path, including which evidence was used for which claim.
+- **Trace Explorer**: Admins can view the full reasoning path, including which evidence was used for which claim.
 
 ```typescript
 rewrites: async () => [
@@ -575,7 +575,7 @@ All API routes return standardized JSON responses:
 
 **Connection Pooling**:
 
-- PostgreSQL: pool_size=20, max_overflow=40
+- PostgreSQL: pool_size=20, max_overflow=30
 - Redis: Connection pooling enabled
 
 **Circuit Breakers**:
@@ -657,24 +657,40 @@ services:
     build: .
     ports: ["5000:5000"]
     environment:
-      - DATABASE_URL=postgresql://user:pass@db:5432/ukg
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/ukg_db
       - REDIS_URL=redis://redis:6379/0
-    depends_on: [db, redis]
+      - NEO4J_URI=bolt://neo4j:7687
+      - OBJECT_ENDPOINT_URL=http://minio:9000
+    depends_on: [db, redis, neo4j, minio]
     command: gunicorn -w 4 -b 0.0.0.0:5000 app:app
 
   frontend:
     build: ./frontend
     ports: ["3000:3000"]
     environment:
-      - NEXT_PUBLIC_API_URL=http://backend:5000
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
     depends_on: [backend]
 
   db:
-    image: postgres:15
+    image: postgres:15-alpine
     volumes: ["postgres_data:/var/lib/postgresql/data"]
 
   redis:
     image: redis:7-alpine
+
+  neo4j:
+    image: neo4j:5
+    ports: ["7687:7687", "7474:7474"]
+    environment:
+      - NEO4J_AUTH=neo4j/neo4jpassword
+
+  minio:
+    image: minio/minio
+    ports: ["9000:9000", "9001:9001"]
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin123
+    command: server /data --console-address ":9001"
 ```
 
 ### Kubernetes (Production)
@@ -802,7 +818,7 @@ services:
 ### Database Optimization
 
 - Indexes on tenant_id, user_id, status, created_at
-- Connection pooling (20 connections, 40 max)
+- Connection pooling (pool_size=20, max_overflow=30)
 - Query optimization with SQLAlchemy eager loading
 - JSON columns for flexible attributes
 
@@ -831,24 +847,44 @@ services:
 
 ## 9. Technology Summary
 
-|├── ukg_api.py                          # Main UKG API (17 KB)
-├── ukg_db.py                           # UKG Database Manager (39 KB)
-├── mcp_server/                         # MCP Server Implementation
-│   ├── router.py                       # JSON-RPC Router
-│   ├── registry.py                     # Tool Registry
-│   └── tools/                          # Salesforce/Jira tools
-├── services/                           # Multimodal Services
-│   ├── document_processor.py           # PDF/OCR/Docx
-│   ├── audio_service.py                # STT/TTS
-│   └── video_service.py                # Video/Vision
-├── security/                           # Security Hardening
-│   ├── pii_redaction.py                # PII Masking
-│   └── prompt_injection_shield.py      # Adversarial Defense
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| Frontend Framework | Next.js | 16.1 |
+| UI Library | React | 18.3 |
+| Frontend Language | TypeScript | 5 |
+| Styling | Tailwind CSS | 4 |
+| Desktop Shell | Electron | 40 |
+| Backend Framework | Flask | 3.1.2 |
+| Backend Language | Python | 3.11+ |
+| ORM | SQLAlchemy | 2.0 |
+| Database | PostgreSQL | 15+ |
+| Cache / Queue | Redis | 7 |
+| Graph DB | Neo4j | 5 |
+| Object Storage | MinIO | latest |
+| Task Queue | Celery | 5.6 |
+| Frontend Tests | Vitest | 4 |
+| E2E Tests | Playwright | 1.58 |
+| Backend Tests | pytest | 9 |
 
-- **Consensus Intelligence**: Multi-persona arbitration and conflict resolution.
-- **Local ML Efficiency**: Local SLM routing for L1/L2 tasks.
-- **Autonomous Ops**: K8s Operator with auto-scaling and DR.
-- **Collaborative Knowledge**: Federated sync between tenants with ZKP.
+**Key backend modules**:
+
+```
+backend/
+  ukg_api.py              # Main UKG API
+  mcp_server/             # MCP JSON-RPC server
+    router.py             # Request router
+    registry.py           # Tool registry
+    tools/                # Salesforce/Jira connectors
+  services/               # Multimodal services
+    document_processor.py
+    audio_service.py
+    video_service.py
+  security/               # Hardening modules
+    pii_redaction.py
+    prompt_injection_shield.py
+    rbac.py
+    ai_guardrail.py
+```
 
 ---
 
@@ -856,17 +892,22 @@ services:
 
 - **Bug Tracking**: Sentry.io integration
 - **Documentation**: README.md, docs/ directory
-- **Support**: support@datalocic.ai
+- **Support**: support@datalogicengine.com
 
 ---
 
-## 12. Future Enhancements
+## 12. Shipped & In Progress
 
-- WebSocket support for real-time updates
-- GraphQL API endpoint
-- Advanced graph visualization (3D)
-- Mobile applications (React Native)
-- Kubernetes operator for automated ops
-- Advanced analytics dashboard
-- Machine learning model serving
+Already implemented in the current codebase:
+
+- WebSocket support (`backend/websocket.py`, initialized via `init_socketio(app)`)
+- GraphQL API endpoint (`/graphql`, registered via `backend/graphql_schema.py`)
+- Advanced graph visualization — 3D (`react-force-graph-3d` in `frontend/`)
+- Kubernetes operator (`k8s/` manifests and operator definitions)
+- Advanced analytics dashboard (`backend/routes/analytics_routes.py`)
+
+Active backlog:
+
+- Mobile applications (React Native — research tracked in `docs/REACT_NATIVE_RESEARCH.md`)
+- Machine learning model serving (local SLM routing for L1/L2 tasks)
 - Multi-language support (i18n)

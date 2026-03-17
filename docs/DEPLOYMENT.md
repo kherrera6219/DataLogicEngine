@@ -51,6 +51,18 @@ To run the installer manually from the repo root:
 .\DataLogicEngine Setup Latest.exe
 ```
 
+### Desktop PostgreSQL Authentication
+
+The bundled portable PostgreSQL is initialized with `--auth=scram-sha-256`. A random superuser password is generated on first launch and stored at:
+
+```
+<install-root>/databases/postgresql/.pg_local_pw
+```
+
+This file is `chmod 0o600` (owner-read-only) on POSIX systems. **Do not delete this file** — it is required to connect to the local database. On Windows, restrict access via file ACLs if needed.
+
+The password is consumed by `DatabaseLifecycleManager._get_or_create_pg_password()` and passed to `initdb --pwfile`. The application's `DATABASE_URL` must include credentials if connecting to this instance directly.
+
 ### Optional WiX/WinSW Path (Windows Service Packaging)
 
 If you are using the WiX manifests under `deploy/windows/`, prepare assets first:
