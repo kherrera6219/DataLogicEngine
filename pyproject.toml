@@ -1,7 +1,7 @@
 [project]
 name = "repl-nix-workspace"
 version = "0.1.0"
-description = "Add your description here"
+description = "DataLogicEngine backend and repository tooling workspace"
 requires-python = ">=3.11"
 dependencies = [
     "email-validator>=2.2.0",
