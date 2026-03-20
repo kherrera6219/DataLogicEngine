@@ -5,17 +5,26 @@ Structured Logging Configuration for DataLogicEngine
 Provides centralized logging with JSON format for log aggregation.
 """
 
+import importlib
+import importlib.util
 import os
 import sys
 import logging
 import socket
 import re
+import json
 from datetime import datetime, UTC
 from flask import Flask
-from pythonjsonlogger.json import JsonFormatter
 
 
 from backend.security.pii_redaction import pii_redactor
+
+
+_PYTHON_JSON_LOGGER_SPEC = importlib.util.find_spec("pythonjsonlogger")
+_HAS_PYTHON_JSON_LOGGER = _PYTHON_JSON_LOGGER_SPEC is not None
+JsonFormatter = None
+if _HAS_PYTHON_JSON_LOGGER:
+    JsonFormatter = importlib.import_module("pythonjsonlogger.json").JsonFormatter
 
 
 def _redact_text_for_logging(text: str) -> str:
@@ -49,12 +58,20 @@ def _redact_value_for_logging(value):
     return value
 
 
-class CustomJsonFormatter(JsonFormatter):
+class CustomJsonFormatter(logging.Formatter):
     """Custom JSON formatter with additional fields and PII redaction."""
-    
-    def add_fields(self, log_record, record, message_dict):
-        super().add_fields(log_record, record, message_dict)
-        
+
+    def __init__(self, fmt: str | None = None):
+        super().__init__(fmt)
+        self._json_formatter = None
+        if JsonFormatter is not None:
+            self._json_formatter = JsonFormatter(fmt)
+
+    def _build_log_record(self, record: logging.LogRecord, message_dict: dict | None = None) -> dict:
+        log_record = {}
+        if self._json_formatter is not None:
+            self._json_formatter.add_fields(log_record, record, message_dict or {})
+
         # Redact message if it's a string
         message = log_record.get('message')
         if not isinstance(message, str):
@@ -65,19 +82,19 @@ class CustomJsonFormatter(JsonFormatter):
                 log_record['message'] = fallback_msg
         if isinstance(message, str):
             log_record['message'] = _redact_text_for_logging(message)
-        
+
         # Add timestamp
         log_record['timestamp'] = datetime.now(UTC).isoformat()
-        
+
         # Add level
         log_record['level'] = getattr(record, 'levelname', 'INFO')
-        
+
         # Add service name
         log_record['service'] = 'datalogicengine'
-        
+
         # Add environment
         log_record['environment'] = os.environ.get('FLASK_ENV', 'production')
-        
+
         # Add request context if available (ultra-defensive)
         try:
             from flask import has_request_context
@@ -86,25 +103,36 @@ class CustomJsonFormatter(JsonFormatter):
                 log_record['request_id'] = getattr(g, 'correlation_id', '')
                 log_record['path'] = getattr(request, 'path', '')
                 log_record['method'] = getattr(request, 'method', '')
-                
+
                 # Safe header access
                 headers = getattr(request, 'headers', {})
                 log_record['user_agent'] = str(headers.get('User-Agent', ''))[:100]
                 log_record['ip'] = getattr(request, 'remote_addr', '')
-                
+
                 # Redact PII from request path if present
                 if log_record.get('path'):
                     log_record['path'] = _redact_text_for_logging(log_record['path'])
         except Exception:
             pass
-        
+
         # Deep redaction for all fields (excluding structural ones)
         for key in list(log_record.keys()):
             value = log_record[key]
             if key in ('timestamp', 'level', 'environment', 'service', 'request_id'):
                 continue
-                
+
             log_record[key] = _redact_value_for_logging(value)
+        return log_record
+
+    def add_fields(self, log_record, record, message_dict):
+        built_record = self._build_log_record(record, message_dict)
+        log_record.update(built_record)
+
+    def format(self, record: logging.LogRecord) -> str:
+        if self._json_formatter is None:
+            fallback_record = self._build_log_record(record)
+            return json.dumps(fallback_record, default=str)
+        return self._json_formatter.format(record)
 
 
 def _resolve_log_level() -> int:

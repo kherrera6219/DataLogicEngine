@@ -46,6 +46,7 @@ cryptography==46.0.4
 pyotp==2.9.0
 qrcode==8.2
 email-validator==2.3.0
+python-json-logger==3.3.0
 
 # API and provider clients
 openai==2.16.0

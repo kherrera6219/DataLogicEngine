@@ -3,14 +3,26 @@ Video Service - PRODUCTION VERSION
 ----------------------------------
 Handles video analysis and frame extraction using OpenCV and Vision LLMs.
 """
+import importlib
 import logging
 import os
-import cv2
 import tempfile
 from typing import Dict, Any, List
 import base64
 
 logger = logging.getLogger(__name__)
+
+
+def _load_cv2():
+    """Load OpenCV lazily so optional native dependencies do not break app startup."""
+    try:
+        return importlib.import_module("cv2")
+    except ImportError as exc:
+        logger.warning("OpenCV is unavailable; video analysis features will be disabled", exc_info=exc)
+        return None
+
+
+CV2 = _load_cv2()
 
 class VideoService:
     """
@@ -63,6 +75,10 @@ class VideoService:
         """
         Extract keyframes from video bytes using OpenCV.
         """
+        if CV2 is None:
+            logger.warning("Video frame extraction requested but OpenCV is not available")
+            return []
+
         frames_bytes = []
         
         # CV2 needs a file path, so we use a temp file
@@ -71,8 +87,8 @@ class VideoService:
             temp_path = tfile.name
 
         try:
-            cap = cv2.VideoCapture(temp_path)
-            fps = cap.get(cv2.CAP_PROP_FPS)
+            cap = CV2.VideoCapture(temp_path)
+            fps = cap.get(CV2.CAP_PROP_FPS)
             if fps == 0:
                 fps = 30 # Fallback
             
@@ -83,9 +99,9 @@ class VideoService:
             while success and len(frames_bytes) < max_frames:
                 if count % frame_interval == 0:
                     # Resize to stay within tool/LLM limits
-                    image = cv2.resize(image, (640, 480))
+                    image = CV2.resize(image, (640, 480))
                     # Encode to jpg
-                    is_success, buffer = cv2.imencode(".jpg", image)
+                    is_success, buffer = CV2.imencode(".jpg", image)
                     if is_success:
                         frames_bytes.append(buffer.tobytes())
                 

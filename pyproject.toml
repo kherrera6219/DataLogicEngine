@@ -22,6 +22,7 @@ dependencies = [
     "flask-login>=0.6.3",
     "oauthlib>=3.3.1",
     "pyjwt>=2.10.1",
+    "python-json-logger>=3.3.0",
     "flask-dance>=7.1.0",
     "openai>=1.79.0",
     "numpy>=2.2.6",
