@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ChatInterface } from './ChatInterface';
 import { FeatureFlagProvider } from '@/contexts/FeatureFlagContext';
+import { ToastProvider } from '@/components/ui/use-toast';
 import { api, request } from '@/lib/api';
 import { socketClient } from '@/lib/socket';
 
@@ -45,14 +46,16 @@ vi.mock('@/lib/socket', () => {
 
 // Mock child components
 vi.mock('@/components/ui/scroll-area', () => ({
-  ScrollArea: ({ children, className }: any) => <div className={className} data-testid="scroll-area">{children}</div>
+  ScrollArea: ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <div className={className} data-testid="scroll-area">{children}</div>
+  )
 }));
 
 vi.mock('./LiveTracePanel', () => ({
   LiveTracePanel: () => <div data-testid="trace-panel">Trace</div>
 }));
 vi.mock('./DetailedResponseView', () => ({
-  DetailedResponseView: ({ message }: any) => <div data-testid="detailed-view">{message.id}</div>
+  DetailedResponseView: ({ message }: { message: { id: string } }) => <div data-testid="detailed-view">{message.id}</div>
 }));
 vi.mock('./TraceVisualizer', () => ({
   TraceVisualizer: () => <div data-testid="trace-visualizer">Visualizer</div>
@@ -65,7 +68,9 @@ describe('ChatInterface', () => {
   const renderChatInterface = () =>
     render(
       <FeatureFlagProvider>
-        <ChatInterface />
+        <ToastProvider>
+          <ChatInterface />
+        </ToastProvider>
       </FeatureFlagProvider>,
     );
 
@@ -76,16 +81,15 @@ describe('ChatInterface', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (api.chat.listSessions as any).mockResolvedValue({ sessions: mockSessions });
-    (api.chat.getSessionMessages as any).mockResolvedValue({ 
+    (api.chat.listSessions as ReturnType<typeof vi.fn>).mockResolvedValue({ sessions: mockSessions });
+    (api.chat.getSessionMessages as ReturnType<typeof vi.fn>).mockResolvedValue({ 
       messages: [{ id: 'hist-1', role: 'assistant', content: '', finalAnswer: 'Session History' }] 
     });
-    (api.chat.sendMessage as any).mockResolvedValue({ 
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValue({ 
       response: 'Core Response',
       trace_summary: { steps: [] }
     });
-    (request as any).mockResolvedValue({ message: 'Success' });
-    // Silence console.error for expected failures
+    (request as ReturnType<typeof vi.fn>).mockResolvedValue({ message: 'Success' });
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
@@ -102,14 +106,14 @@ describe('ChatInterface', () => {
   });
 
   it('should handle sending a message and displaying direct response', async () => {
-    (api.chat.sendMessage as any).mockResolvedValue({ 
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValue({ 
       response: 'Core Response',
       trace_summary: { steps: [] }
     });
 
     renderChatInterface();
     
-    const textarea = screen.getByPlaceholderText(/ask a compliance question/i);
+    const textarea = await screen.findByPlaceholderText(/ask a compliance question/i);
     fireEvent.change(textarea, { target: { value: 'Test query' } });
     
     const sendBtn = screen.getByText('Send');
@@ -119,14 +123,12 @@ describe('ChatInterface', () => {
   });
 
   it('should handle API errors gracefully', async () => {
-    (api.chat.sendMessage as any).mockRejectedValue(new Error('Network Failure'));
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network Failure'));
 
     renderChatInterface();
     
-    // Wait for the main chat area to be ready
     await screen.findByTestId('main-chat-area', {}, { timeout: 8000 });
     
-    // Wait for messages to hydrate
     await waitFor(() => {
       const msgs = screen.queryAllByTestId('message-item');
       expect(msgs.length).toBeGreaterThan(0);
@@ -139,14 +141,12 @@ describe('ChatInterface', () => {
       fireEvent.change(textarea, { target: { value: 'Failure test' } });
     });
     
-    // Wait for button to be enabled (it might be disabled during hydration)
     await waitFor(() => expect(sendButton).not.toBeDisabled());
     
     await act(async () => {
       fireEvent.click(sendButton);
     });
 
-    // Check for error message with a very generous timeout
     expect(await screen.findByText(/I encountered an error/i, {}, { timeout: 10000 })).toBeInTheDocument();
   }, 30000);
 

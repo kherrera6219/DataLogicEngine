@@ -3,6 +3,9 @@ contact_links:
   - name: Documentation
     url: https://github.com/kherrera6219/DataLogicEngine/tree/main/docs
     about: Check our documentation for help
+  - name: Support Guide
+    url: https://github.com/kherrera6219/DataLogicEngine/blob/main/SUPPORT.md
+    about: Find the correct help and reporting channel
   - name: Discussions
     url: https://github.com/kherrera6219/DataLogicEngine/discussions
     about: Ask questions and discuss with the community

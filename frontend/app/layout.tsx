@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "DataLogicEngine UKG",
-  description: "Universal Knowledge Graph Enterprise System",
+  description: "Local-first AI orchestration and traceable knowledge-graph workspace for enterprise teams.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

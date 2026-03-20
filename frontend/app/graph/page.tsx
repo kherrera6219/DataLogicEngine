@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ForceGraphMethods } from 'react-force-graph-3d';
 import dynamic from 'next/dynamic';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,15 +40,6 @@ const PILLAR_COLORS: Record<string, string> = {
 
 import { api, GraphNode, GraphEdge } from '@/lib/api';
 
-/** Minimal ForceGraph3D instance interface — library doesn't export this type. */
-interface ForceGraph3DInstance {
-  cameraPosition(
-    position: { x: number; y: number; z: number },
-    lookAt?: { x: number; y: number; z: number },
-    durationMs?: number
-  ): void;
-}
-
 /** Graph node as understood by react-force-graph-3d callbacks.
  *  The library adds x/y/z at runtime during layout. */
 type ForceGraphNodeObject = GraphNode & { val?: number; x?: number; y?: number; z?: number };
@@ -56,7 +48,7 @@ type ForceGraphNodeObject = GraphNode & { val?: number; x?: number; y?: number; 
 type CSSWithCustomProps = React.CSSProperties & Record<string, string>;
 
 export default function GraphPage() {
-  const graphRef = useRef<ForceGraph3DInstance | null>(null);
+  const graphRef = useRef<ForceGraphMethods>();
   const { toast } = useToast();
   const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphEdge[] }>({ nodes: [], links: [] });
   const [activeAxis, setActiveAxis] = useState(1);
@@ -211,7 +203,7 @@ export default function GraphPage() {
           aria-label="3D Knowledge Graph Visualization"
         >
            <ForceGraph3D
-             ref={graphRef as any}
+             ref={graphRef}
              graphData={graphData}
              nodeLabel={showLabels ? 'name' : undefined}
              nodeColor={(node) => PILLAR_COLORS[(node as ForceGraphNodeObject).pillar || 'Technology'] || '#666'}
