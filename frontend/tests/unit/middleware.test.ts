@@ -14,11 +14,17 @@ vi.mock('next/server', () => {
         headers: new Headers({ Location: url.toString() }),
         status: 307
     }));
+    const jsonFn = vi.fn((body, init) => ({
+      body,
+      headers: new Headers(init?.headers),
+      status: init?.status ?? 200,
+    }));
 
     return {
         NextResponse: {
             next: nextFn,
             redirect: redirectFn,
+            json: jsonFn,
         },
         NextRequest: vi.fn()
     };
@@ -134,18 +140,14 @@ describe('Proxy', () => {
         }
     });
 
-    it('should fail open (redirect to /) on internal error', () => {
+    it('should fail closed with 503 on internal error', () => {
         // Force an error
         const req = createRequest('/dashboard');
 
         req.cookies.get = () => { throw new Error('Simulation Error'); };
         
-        proxy(req);
-        expect(NextResponse.redirect).toHaveBeenCalled();
-        const redirectCall = vi.mocked(NextResponse.redirect).mock.calls[0];
-        // It might be the first or second call depending on logic flow, 
-        // but here it crashes immediately, so first call is the error handler redirect
-        const redirectUrl = redirectCall[0] as URL;
-        expect(redirectUrl.pathname).toBe('/'); 
+        const res = proxy(req) as unknown as { status: number };
+        expect(NextResponse.json).toHaveBeenCalled();
+        expect(res.status).toBe(503);
     });
 });

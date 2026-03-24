@@ -56,6 +56,15 @@ class FileUploadService:
         "audio/mpeg": 100 * 1024 * 1024,               # 100MB
         "video/mp4": 500 * 1024 * 1024,                # 500MB
     }
+
+    MAGIC_SIGNATURES = {
+        "application/pdf": [b"%PDF-"],
+        "image/png": [b"\x89PNG\r\n\x1a\n"],
+        "image/jpeg": [b"\xff\xd8\xff"],
+        "video/mp4": [b"ftyp"],  # checked in first bytes window
+        "audio/mpeg": [b"ID3", b"\xff\xfb", b"\xff\xf3", b"\xff\xf2"],
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [b"PK\x03\x04"],
+    }
     
     def __init__(self, object_store=None, document_processor=None, rag_service=None):
         """
@@ -114,6 +123,22 @@ class FileUploadService:
         elif mime_type in ["application/pdf", "text/plain"] or "document" in mime_type:
             return self.BUCKET_DOCUMENTS
         return self.BUCKET_UPLOADS
+
+    def _matches_magic_signature(self, file_bytes: bytes, mime_type: str) -> bool:
+        """Validate file signatures to reduce MIME spoofing risk."""
+        if mime_type == "text/plain":
+            # Text should not contain NUL bytes in initial window.
+            return b"\x00" not in file_bytes[:1024]
+
+        signatures = self.MAGIC_SIGNATURES.get(mime_type)
+        if not signatures:
+            return False
+
+        window = file_bytes[:64]
+        if mime_type == "video/mp4":
+            return b"ftyp" in file_bytes[:32]
+
+        return any(window.startswith(sig) for sig in signatures)
     
     def validate_file(self, file_bytes: bytes, filename: str, mime_type: str) -> tuple[bool, str]:
         """
@@ -134,6 +159,10 @@ class FileUploadService:
         # Check filename
         if not filename or len(filename) > 255:
             return False, "Invalid filename"
+
+        # Check binary signature to prevent MIME spoofing.
+        if not self._matches_magic_signature(file_bytes, mime_type):
+            return False, "File signature does not match declared MIME type"
         
         return True, ""
     

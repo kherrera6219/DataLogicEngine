@@ -7,6 +7,7 @@ Falls back to basic implementation if LlamaIndex is not installed.
 
 import logging
 import hashlib
+import os
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 
@@ -45,6 +46,14 @@ class RAGService:
     COLLECTION_DOCUMENTS = "documents"
     COLLECTION_KNOWLEDGE = "knowledge_graph"
     COLLECTION_CHAT_HISTORY = "chat_history"
+    SUSPICIOUS_RETRIEVAL_MARKERS = (
+        "ignore previous instructions",
+        "system prompt",
+        "developer message",
+        "tool call",
+        "BEGIN PROMPT",
+        "END PROMPT",
+    )
     
     def __init__(self, vector_store=None, embedding_provider=None):
         """
@@ -146,8 +155,12 @@ class RAGService:
             
         # --- Failed All Layers ---
         logger.error(f"All Embedding Layers Failed: {errors}")
-        # Return mock embedding as absolute last resort to prevent crash
-        return self._mock_embedding(text)
+        env = os.environ.get("FLASK_ENV", "").lower()
+        allow_mock_embeddings = os.environ.get("ALLOW_MOCK_EMBEDDINGS", "false").lower() == "true"
+        if allow_mock_embeddings or env in {"development", "testing"}:
+            # Development/testing fallback only.
+            return self._mock_embedding(text)
+        raise RuntimeError("All embedding providers failed in production mode")
     
     def _mock_embedding(self, text: str) -> List[float]:
         """Generate mock embedding for testing (384 dimensions like MiniLM)."""
@@ -237,24 +250,24 @@ class RAGService:
             logger.warning(f"No chunks generated for document {doc_id}")
             return 0
         
-        ids = []
-        texts = []
-        embeddings = []
-        chunk_metadata = []
-        
-        for i, chunk_text in enumerate(chunks):
-            chunk_id = f"{doc_id}_chunk_{i}"
-            ids.append(chunk_id)
-            texts.append(chunk_text)
-            embeddings.append(self._embedding_provider(chunk_text))
-            chunk_metadata.append({
-                **(metadata or {}),
-                "doc_id": doc_id,
-                "chunk_index": i,
-                "chunk_count": len(chunks)
-            })
-        
         try:
+            ids = []
+            texts = []
+            embeddings = []
+            chunk_metadata = []
+
+            for i, chunk_text in enumerate(chunks):
+                chunk_id = f"{doc_id}_chunk_{i}"
+                ids.append(chunk_id)
+                texts.append(chunk_text)
+                embeddings.append(self._embedding_provider(chunk_text))
+                chunk_metadata.append({
+                    **(metadata or {}),
+                    "doc_id": doc_id,
+                    "chunk_index": i,
+                    "chunk_count": len(chunks)
+                })
+
             store.add_embeddings(
                 collection=self.COLLECTION_DOCUMENTS,
                 ids=ids,
@@ -291,8 +304,12 @@ class RAGService:
         if store is None:
             logger.warning("VectorStore not available")
             return []
-        
-        query_embedding = self._embedding_provider(query)
+
+        try:
+            query_embedding = self._embedding_provider(query)
+        except Exception as e:
+            logger.error(f"Embedding generation failed for retrieval query: {e}")
+            return []
         target_collection = collection or self.COLLECTION_DOCUMENTS
         
         try:
@@ -342,9 +359,17 @@ class RAGService:
         context_parts = []
         char_count = 0
         max_chars = max_tokens * 4  # Approximate chars per token
+        min_score = float(os.environ.get("RAG_MIN_SCORE", "0.15"))
         
         for r in results:
             text = r.get("text", "")
+            score = float(r.get("score", 0.0) or 0.0)
+            lowered = text.lower()
+            if score < min_score:
+                continue
+            if any(marker.lower() in lowered for marker in self.SUSPICIOUS_RETRIEVAL_MARKERS):
+                logger.warning("Skipping suspicious retrieval chunk id=%s", r.get("id", "unknown"))
+                continue
             if char_count + len(text) > max_chars:
                 break
             
