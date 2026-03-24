@@ -9,6 +9,8 @@ and consider using environment variables or a secrets management system.
 """
 
 import logging
+import os
+import secrets
 from datetime import datetime, UTC
 import uuid
 
@@ -22,18 +24,26 @@ logger = logging.getLogger(__name__)
 
 def create_admin_user():
     """Create an admin user if one doesn't exist"""
-    admin = User.query.filter_by(username='admin').first()
+    admin_username = os.environ.get("INIT_ADMIN_USERNAME", "admin")
+    admin_email = os.environ.get("INIT_ADMIN_EMAIL", "admin@ukg-system.com")
+    admin_password = os.environ.get("INIT_ADMIN_PASSWORD")
+    if not admin_password:
+        if os.environ.get("FLASK_ENV", "").lower() == "production":
+            raise RuntimeError("INIT_ADMIN_PASSWORD must be set for production database initialization")
+        admin_password = secrets.token_urlsafe(24)
+        logger.warning("INIT_ADMIN_PASSWORD not set; generated ephemeral admin password for local initialization only")
+
+    admin = User.query.filter_by(username=admin_username).first()
     
     if admin is None:
         logger.info("Creating admin user")
         admin = User()
-        admin.username = 'admin'
-        admin.email = 'admin@ukg-system.com'
+        admin.username = admin_username
+        admin.email = admin_email
         admin.active = True
         admin.is_admin = True
         admin.created_at = datetime.now(UTC)
-        # SECURITY WARNING: Change this default password immediately in production!
-        admin.set_password('admin123')  # DEVELOPMENT ONLY - Use strong passwords in production
+        admin.set_password(admin_password)
         
         db.session.add(admin)
         db.session.commit()
@@ -43,18 +53,24 @@ def create_admin_user():
 
 def create_demo_user():
     """Create a demo user if one doesn't exist"""
-    demo = User.query.filter_by(username='demo').first()
+    demo_username = os.environ.get("INIT_DEMO_USERNAME", "demo")
+    demo_email = os.environ.get("INIT_DEMO_EMAIL", "demo@ukg-system.com")
+    demo_password = os.environ.get("INIT_DEMO_PASSWORD")
+    if not demo_password:
+        demo_password = secrets.token_urlsafe(20)
+        logger.warning("INIT_DEMO_PASSWORD not set; generated random demo password for this initialization run")
+
+    demo = User.query.filter_by(username=demo_username).first()
     
     if demo is None:
         logger.info("Creating demo user")
         demo = User()
-        demo.username = 'demo'
-        demo.email = 'demo@ukg-system.com'
+        demo.username = demo_username
+        demo.email = demo_email
         demo.active = True
         demo.is_admin = False
         demo.created_at = datetime.now(UTC)
-        # SECURITY WARNING: Change this default password immediately in production!
-        demo.set_password('demo123')  # DEVELOPMENT ONLY - Use strong passwords in production
+        demo.set_password(demo_password)
         
         db.session.add(demo)
         db.session.commit()
