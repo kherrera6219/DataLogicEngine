@@ -95,8 +95,14 @@ export function proxy(request: NextRequest) {
 
   } catch (error) {
     console.error(`[Proxy Error] [${requestId}]`, error);
-    // On catastrophic middleware failure, fail open to landing page or error page
-    return NextResponse.redirect(new URL('/', request.url));
+    // Fail closed for protected routes when middleware cannot validate request state.
+    return NextResponse.json(
+      {
+        error: 'Request validation failed',
+        request_id: requestId,
+      },
+      { status: 503 },
+    );
   }
 }
 

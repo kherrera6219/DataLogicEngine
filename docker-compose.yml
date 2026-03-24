@@ -9,15 +9,15 @@ services:
       - "5000:5000"
     environment:
       - FLASK_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/ukg_db
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/ukg_db
       - REDIS_URL=redis://redis:6379/0
       - USE_REDIS=true
       - NEO4J_URI=bolt://neo4j:7687
       - NEO4J_USER=neo4j
-      - NEO4J_PASSWORD=neo4jpassword
-      - OBJECT_ENDPOINT_URL=http://minio:9000
-      - OBJECT_ACCESS_KEY=minioadmin
-      - OBJECT_SECRET_KEY=minioadmin123
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - OBJECT_ENDPOINT_URL=${OBJECT_ENDPOINT_URL}
+      - OBJECT_ACCESS_KEY=${OBJECT_ACCESS_KEY}
+      - OBJECT_SECRET_KEY=${OBJECT_SECRET_KEY}
       - OBJECT_BUCKET=datalogic
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
@@ -51,7 +51,7 @@ services:
     container_name: ukg-db
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=ukg_db
     ports:
       - "5432:5432"
@@ -76,7 +76,7 @@ services:
     image: neo4j:5-community
     container_name: ukg-neo4j
     environment:
-      - NEO4J_AUTH=neo4j/neo4jpassword
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
     ports:
       - "7474:7474"
       - "7687:7687"
@@ -92,8 +92,8 @@ services:
     container_name: ukg-minio
     command: server /data --console-address ":9001"
     environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin123
+      - MINIO_ROOT_USER=${OBJECT_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${OBJECT_SECRET_KEY}
     ports:
       - "9000:9000"
       - "9001:9001"

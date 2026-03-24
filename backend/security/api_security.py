@@ -15,9 +15,13 @@ import hmac
 import hashlib
 import base64
 import time
+import os
+import logging
 from typing import Dict, Any, Optional, Tuple
 from functools import wraps
 from flask import request, jsonify
+
+logger = logging.getLogger(__name__)
 
 
 class RequestSigner:
@@ -34,8 +38,38 @@ class RequestSigner:
     def __init__(self, audit_logger=None):
         self.audit_logger = audit_logger
         self.max_timestamp_skew = 300  # 5 minutes
-        self.nonce_store = {}  # In production, use Redis
+        self.nonce_store = {}
         self.nonce_ttl = 600  # 10 minutes
+        self._redis = self._build_redis_client()
+
+    def _build_redis_client(self):
+        redis_url = os.environ.get("REDIS_URL")
+        if not redis_url:
+            return None
+        try:
+            import redis
+            return redis.Redis.from_url(redis_url, decode_responses=True)
+        except Exception as exc:
+            logger.warning("Redis nonce store unavailable, falling back to in-memory store: %s", exc)
+            return None
+
+    def _nonce_exists(self, nonce_key: str) -> bool:
+        if self._redis:
+            try:
+                return bool(self._redis.exists(nonce_key))
+            except Exception as exc:
+                logger.warning("Redis nonce lookup failed, falling back to memory: %s", exc)
+        return nonce_key in self.nonce_store
+
+    def _store_nonce(self, nonce_key: str) -> None:
+        if self._redis:
+            try:
+                self._redis.setex(nonce_key, self.nonce_ttl, "1")
+                return
+            except Exception as exc:
+                logger.warning("Redis nonce write failed, falling back to memory: %s", exc)
+        self.nonce_store[nonce_key] = time.time()
+        self._cleanup_old_nonces()
 
     def sign_request(
         self,
@@ -122,7 +156,7 @@ class RequestSigner:
         # Check nonce for replay prevention
         if nonce:
             nonce_key = f"{api_key_id}:{nonce}"
-            if nonce_key in self.nonce_store:
+            if self._nonce_exists(nonce_key):
                 self._log_audit("request_replay_detected", {
                     "api_key_id": api_key_id,
                     "nonce": nonce
@@ -130,8 +164,7 @@ class RequestSigner:
                 return False, "Nonce already used (replay attack detected)"
 
             # Store nonce
-            self.nonce_store[nonce_key] = time.time()
-            self._cleanup_old_nonces()
+            self._store_nonce(nonce_key)
 
         # Recreate canonical string
         canonical = self._create_canonical_string(method, path, body, timestamp_int)

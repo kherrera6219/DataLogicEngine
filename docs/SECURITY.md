@@ -29,6 +29,21 @@ Define security controls, identity/access patterns, data protection measures, an
 
 DataLogicEngine is designed with a **Security-First** philosophy, incorporating multiple layers of defense to protect sensitive enterprise data and ensure the integrity of AI reasoning.
 
+## 2026-03-24 Security Remediation Update
+
+The following controls were implemented as part of the production-readiness remediation sweep:
+
+1. **Gateway session object authorization hardening**
+   - `/api/v1/gateway/sessions/<session_id>/messages` now enforces session ownership by authenticated user/API-key identity.
+2. **Replay protection hardening**
+   - Request signing nonces now support Redis-backed persistence when `REDIS_URL` is configured, reducing cross-worker replay risk.
+3. **Frontend edge hardening**
+   - Frontend proxy middleware now fails closed on catastrophic errors (HTTP 503), rather than redirecting to a public page.
+4. **Secret hygiene baseline**
+   - Compose and sample config were updated to remove tracked static secrets and require environment-based secret injection.
+5. **Upload validation hardening**
+   - File upload service now validates magic signatures against declared MIME type to reduce spoofing.
+
 ---
 
 ## Identity & Access Management (IAM)

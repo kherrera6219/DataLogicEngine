@@ -477,7 +477,16 @@ def gateway_health():
 def get_session_messages(session_id):
     """Retrieve message history for a session."""
     import uuid
-    messages = ChatMessage.query.filter_by(session_id=uuid.UUID(session_id))\
+    try:
+        session_uuid = uuid.UUID(session_id)
+    except (ValueError, TypeError):
+        return jsonify({'error': 'Invalid session_id'}), 400
+
+    session = ChatSession.query.filter_by(id=session_uuid, user_id=g.user_id).first()
+    if session is None:
+        return jsonify({'error': 'Session not found'}), 404
+
+    messages = ChatMessage.query.filter_by(session_id=session.id)\
         .order_by(ChatMessage.created_at.asc()).all()
     
     return jsonify({

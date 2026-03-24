@@ -30,6 +30,22 @@ Define the logical and runtime architecture of DataLogicEngine for engineering, 
 
 The Universal Knowledge Graph (UKG) System employs a **hardened middleware architecture** designed for high-availability, consistent reasoning, and enterprise-grade security.
 
+### 2026-03-24 Architecture Hardening Delta
+
+This architecture baseline includes the following newly enforced controls:
+
+1. **Gateway object-level authorization**
+   - Session message retrieval now enforces ownership against authenticated identity.
+2. **Fail-closed frontend edge**
+   - Next.js proxy middleware now fails with service-unavailable on middleware exceptions.
+3. **RAG safety/reliability controls**
+   - Production no longer silently accepts synthetic/mock embeddings during provider outages.
+   - Retrieval context filtering now excludes suspicious prompt-injection style chunks and low-score chunks.
+4. **Replay defense resilience**
+   - Request signing nonce state supports Redis-backed persistence for multi-worker deployments.
+5. **Upload trust boundary hardening**
+   - Upload pipeline validates binary signatures against declared MIME type.
+
 - **Frontend**: Next.js 16.1 App Router (React 18.3)
   - _Role_: User Interface, Visualization, State Management, Real-time Updates
 - **Backend**: Flask 3.1 (Python 3.11+)

@@ -46,6 +46,24 @@ DataLogicEngine is an enterprise-grade AI/ML knowledge management platform desig
 
 **Current status**: Production hardened baseline
 
+## 2026-03-24 Remediation Sweep (Debugging + Error Hardening)
+
+Completed in this pass:
+
+1. **Critical authorization fix**
+   - Enforced per-user ownership checks for gateway session message retrieval.
+2. **Middleware failure safety**
+   - Frontend proxy middleware now returns `503` on internal validation failures (fail-closed behavior).
+3. **Replay defense upgrade**
+   - Request signing nonce checks now use Redis-backed persistence when available.
+4. **RAG reliability controls**
+   - Production mode no longer silently falls back to mock embeddings when all providers fail.
+   - Added retrieval chunk safeguards for suspicious prompt-injection markers and minimum score threshold.
+5. **File ingestion hardening**
+   - Added binary signature checks to reject MIME-spoofed uploads.
+6. **Secret management baseline**
+   - Removed hardcoded credentials from default compose/sample configuration surfaces.
+
 ## 2026-02-16 Hardening Update (Sections 5-8 + Post-Baseline Controls)
 
 The following controls are now implemented and validated:
