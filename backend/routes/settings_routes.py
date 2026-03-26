@@ -1,8 +1,11 @@
 
+import logging
+
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 
 settings_bp = Blueprint('settings', __name__, url_prefix='/api/settings')
+logger = logging.getLogger(__name__)
 
 @settings_bp.route('/ai', methods=['GET'])
 @login_required
@@ -22,7 +25,7 @@ def get_ai_settings():
 @login_required
 def update_ai_settings():
     """Update user AI preferences"""
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     
     # Validation
     allowed_providers = ['auto', 'openai', 'azure', 'anthropic', 'google']
@@ -34,8 +37,16 @@ def update_ai_settings():
     # current_user.preferences = { ...current_user.preferences, ...data }
     # db.session.commit()
     
-    # We'll log it to confirm receipt
-    print(f"User {current_user.username} updated AI settings: {data}")
+    # Log update receipt without leaking full preference payloads.
+    logger.info(
+        "AI settings updated",
+        extra={
+            "username": getattr(current_user, "username", ""),
+            "provider": data.get("provider", "auto"),
+            "ai_enabled": bool(data.get("ai_enabled", True)),
+            "store_history": bool(data.get("store_history", True)),
+        },
+    )
     
     return jsonify({
         "success": True,

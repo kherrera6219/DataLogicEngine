@@ -3,6 +3,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 import os
+from backend.utils.cors_policy import resolve_service_cors_policy
 
 def create_legacy_app():
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
@@ -26,7 +27,15 @@ def create_legacy_app():
         return db.session.get(User, int(user_id))
 
     JWTManager(app)  # Initialize JWT extension
-    CORS(app)
+    allowed_origins, allow_credentials = resolve_service_cors_policy(
+        preferred_env_var="CORS_ORIGINS",
+        fallback_env_var="CORS_ORIGINS",
+    )
+    CORS(
+        app,
+        resources={r"/api/*": {"origins": allowed_origins}},
+        supports_credentials=allow_credentials,
+    )
     
     # Register blueprints
     from routes.auth_routes import auth_bp

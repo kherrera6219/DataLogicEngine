@@ -10,6 +10,26 @@ from backend.mcp_server.registry import registry
 
 logger = logging.getLogger(__name__)
 
+
+def _safe_error_message(exc: Exception) -> str:
+    """Return a public-safe message for MCP tool execution failures."""
+    text = str(exc).strip()
+    if not text:
+        return "Tool execution failed"
+    lowered = text.lower()
+    sensitive_markers = (
+        "traceback",
+        "password",
+        "secret",
+        "token",
+        "api key",
+        "database",
+        "connection refused",
+    )
+    if any(marker in lowered for marker in sensitive_markers):
+        return "Tool execution failed"
+    return text[:240]
+
 class MCPRouter:
     """
     Handles JSON-RPC 2.0 messages for the Model Context Protocol.
@@ -67,7 +87,8 @@ class MCPRouter:
                     ]
                 })
             except Exception as e:
-                return self._error(request_id, -32603, str(e))
+                logger.exception("MCP tools/call failed for tool=%s", name)
+                return self._error(request_id, -32603, _safe_error_message(e))
 
         return self._error(request_id, -32601, f"Method not found: {method}")
 

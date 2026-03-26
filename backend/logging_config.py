@@ -113,7 +113,9 @@ class CustomJsonFormatter(logging.Formatter):
                 if log_record.get('path'):
                     log_record['path'] = _redact_text_for_logging(log_record['path'])
         except Exception:
-            pass
+            # Formatter errors should never break request handling, but capture
+            # a minimal signal for operator visibility.
+            log_record.setdefault('logging_context_error', 'request-context-enrichment-failed')
 
         # Deep redaction for all fields (excluding structural ones)
         for key in list(log_record.keys()):
