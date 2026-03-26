@@ -92,6 +92,15 @@ def test_mcp_router_paths(monkeypatch):
         router.handle_message({"id": 4, "method": "tools/call", "params": {"name": "tool", "arguments": {}}})
     )
     assert call_error["error"]["code"] == -32603
+    assert call_error["error"]["message"] == "execution failed"
+
+    # Sensitive/internal errors should be sanitized before returning to clients.
+    mock_registry.execute_tool.side_effect = RuntimeError("database password leaked in traceback")
+    sanitized_error = asyncio.run(
+        router.handle_message({"id": 6, "method": "tools/call", "params": {"name": "tool", "arguments": {}}})
+    )
+    assert sanitized_error["error"]["code"] == -32603
+    assert sanitized_error["error"]["message"] == "Tool execution failed"
 
     unknown = asyncio.run(router.handle_message({"id": 5, "method": "unknown/method"}))
     assert unknown["error"]["code"] == -32601
