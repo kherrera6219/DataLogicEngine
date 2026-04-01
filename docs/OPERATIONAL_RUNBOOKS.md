@@ -221,9 +221,14 @@ Bundle content includes:
 **Default severity:** `SEV-2` (upgrade to `SEV-1` for broad service degradation)
 
 1. Inspect `datalogicengine_ai_latency_slo_violation{...}` and `datalogicengine_connector_latency_slo_violation{...}`.
-2. Correlate with provider/connector error-rate and fallback activity.
-3. Apply mitigations: traffic shaping, provider failover, connector backoff, or temporary routing policy constraints.
-4. Re-baseline thresholds only after incident postmortem and governance approval.
+2. Inspect route-level request telemetry:
+   - `datalogicengine_http_requests_by_route_total{route="...",status="5xx"}`
+   - `datalogicengine_http_request_latency_ms_avg{route="..."}`
+   - `datalogicengine_http_request_latency_ms_max{route="..."}`
+   - `datalogicengine_http_requests_by_route_total{route="unmatched",status="4xx"}` for noisy probe traffic
+3. Correlate with provider/connector error-rate and fallback activity.
+4. Apply mitigations: traffic shaping, provider failover, connector backoff, or temporary routing policy constraints.
+5. Re-baseline thresholds only after incident postmortem and governance approval.
 
 ## Validation checklist after any incident
 

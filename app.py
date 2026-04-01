@@ -15,7 +15,7 @@ from backend.bootstrap_compat import apply_runtime_compatibility_patches
 load_dotenv()
 apply_runtime_compatibility_patches()
 
-from flask import Flask, render_template, request, redirect, flash, jsonify, current_app, Response
+from flask import Flask, render_template, request, redirect, flash, jsonify, current_app, Response, g
 from flask_login import login_required, current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.exceptions import HTTPException
@@ -130,7 +130,12 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for
 
 # Process-level observability counters for /metrics endpoint.
 APP_START_TIME = time.time()
-REQUEST_METRICS = {"total": 0, "inflight": 0}
+REQUEST_METRICS = {
+    "total": 0,
+    "inflight": 0,
+    "route_status_totals": {},
+    "route_latency_ms": {},
+}
 REQUEST_METRICS_LOCK = Lock()
 LEGACY_API_PREFIXES = {
     "/api/compliance": "/api/v1/compliance",
@@ -182,9 +187,22 @@ app.config["RATELIMIT_DEFAULT"] = os.environ.get("GLOBAL_RATE_LIMIT", "200 per h
 app.config["RATELIMIT_STORAGE_URI"] = os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
 
 
+def _metric_route_label() -> str:
+    """Return a low-cardinality route label for request metrics."""
+    if request.url_rule and request.url_rule.rule:
+        return request.url_rule.rule
+    return "unmatched"
+
+
+def _prometheus_label_value(value: str) -> str:
+    """Escape Prometheus label values safely."""
+    return str(value).replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+
+
 @app.before_request
 def track_request_metrics_start():
     """Track aggregate request counts for lightweight operational metrics."""
+    g.request_started_at = time.perf_counter()
     with REQUEST_METRICS_LOCK:
         REQUEST_METRICS["total"] += 1
         REQUEST_METRICS["inflight"] += 1
@@ -193,8 +211,29 @@ def track_request_metrics_start():
 @app.after_request
 def track_request_metrics_end(response):
     """Ensure in-flight counter is decremented for all completed responses."""
+    route_label = _metric_route_label()
+    status_family = f"{response.status_code // 100}xx"
+    method = request.method.upper()
+    duration_ms = max(
+        0.0,
+        (time.perf_counter() - getattr(g, "request_started_at", time.perf_counter())) * 1000.0,
+    )
+
     with REQUEST_METRICS_LOCK:
         REQUEST_METRICS["inflight"] = max(0, REQUEST_METRICS["inflight"] - 1)
+        route_status_key = (method, route_label, status_family)
+        route_status_totals = REQUEST_METRICS["route_status_totals"]
+        route_status_totals[route_status_key] = route_status_totals.get(route_status_key, 0) + 1
+
+        latency_key = (method, route_label)
+        route_latency = REQUEST_METRICS["route_latency_ms"]
+        latency_stats = route_latency.setdefault(
+            latency_key,
+            {"count": 0, "sum_ms": 0.0, "max_ms": 0.0},
+        )
+        latency_stats["count"] += 1
+        latency_stats["sum_ms"] += duration_ms
+        latency_stats["max_ms"] = max(latency_stats["max_ms"], duration_ms)
     return response
 
 
@@ -742,6 +781,11 @@ def _prometheus_metrics_payload() -> str:
     with REQUEST_METRICS_LOCK:
         total_requests = REQUEST_METRICS["total"]
         inflight_requests = REQUEST_METRICS["inflight"]
+        route_status_totals = dict(REQUEST_METRICS["route_status_totals"])
+        route_latency_ms = {
+            key: value.copy()
+            for key, value in REQUEST_METRICS["route_latency_ms"].items()
+        }
 
     readiness_payload, readiness_code = _readiness_payload()
     readiness_ok = 1 if readiness_code == 200 else 0
@@ -757,6 +801,12 @@ def _prometheus_metrics_payload() -> str:
         "# HELP datalogicengine_http_requests_inflight Current in-flight requests.",
         "# TYPE datalogicengine_http_requests_inflight gauge",
         f"datalogicengine_http_requests_inflight {inflight_requests}",
+        "# HELP datalogicengine_http_requests_by_route_total Total HTTP requests by route, method, and status family.",
+        "# TYPE datalogicengine_http_requests_by_route_total counter",
+        "# HELP datalogicengine_http_request_latency_ms_avg Average request latency in milliseconds by route and method.",
+        "# TYPE datalogicengine_http_request_latency_ms_avg gauge",
+        "# HELP datalogicengine_http_request_latency_ms_max Maximum request latency in milliseconds by route and method.",
+        "# TYPE datalogicengine_http_request_latency_ms_max gauge",
         "# HELP datalogicengine_ready Ready status (1=ready, 0=not ready).",
         "# TYPE datalogicengine_ready gauge",
         f"datalogicengine_ready {readiness_ok}",
@@ -764,6 +814,23 @@ def _prometheus_metrics_payload() -> str:
         "# TYPE datalogicengine_database_ready gauge",
         f"datalogicengine_database_ready {database_ok}",
     ]
+    for (method, route_label, status_family), count in sorted(route_status_totals.items()):
+        lines.append(
+            'datalogicengine_http_requests_by_route_total'
+            f'{{method="{_prometheus_label_value(method)}",route="{_prometheus_label_value(route_label)}",status="{_prometheus_label_value(status_family)}"}} {count}'
+        )
+
+    for (method, route_label), stats in sorted(route_latency_ms.items()):
+        count = max(1, int(stats.get("count", 0)))
+        avg_ms = float(stats.get("sum_ms", 0.0)) / count
+        max_ms = float(stats.get("max_ms", 0.0))
+        label_fragment = (
+            f'method="{_prometheus_label_value(method)}",'
+            f'route="{_prometheus_label_value(route_label)}"'
+        )
+        lines.append(f"datalogicengine_http_request_latency_ms_avg{{{label_fragment}}} {avg_ms:.3f}")
+        lines.append(f"datalogicengine_http_request_latency_ms_max{{{label_fragment}}} {max_ms:.3f}")
+
     lines.extend(connector_metrics_prometheus_lines(prefix="datalogicengine"))
     lines.extend(ai_latency_metrics_prometheus_lines(prefix="datalogicengine"))
     lines.extend(latency_slo_prometheus_lines(prefix="datalogicengine"))

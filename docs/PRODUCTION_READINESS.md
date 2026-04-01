@@ -173,6 +173,26 @@ python -m ruff check backend/auth/api_decorators.py routes/auth_routes.py docs/T
 python -m ruff check backend/routes/analytics_routes.py backend/routes/gdpr_routes.py backend/routes/privacy_routes.py backend/routes/retention_routes.py backend/routes/storage_routes.py backend/persona_api.py backend/tracing/api.py tests/integration/test_analytics_api.py tests/integration_routes/test_api_ext_coverage.py tests/compliance/test_gdpr_comprehensive.py tests/integration/test_additional_coverage.py
 ```
 
+## 2026-03-31 Phase 5 Observability Update
+
+Completed in this slice:
+
+1. **Route-level HTTP telemetry added to `/metrics`**
+   - The Flask app now exports low-cardinality counters by route template, method, and status family via `datalogicengine_http_requests_by_route_total{...}`.
+   - It also exports per-route average and max latency gauges via `datalogicengine_http_request_latency_ms_avg{...}` and `datalogicengine_http_request_latency_ms_max{...}`.
+2. **Operational debugging is more actionable**
+   - Metrics now distinguish canonical route regressions from generic traffic spikes and can surface unmatched `4xx` noise separately from healthy routes.
+3. **Runbook and regression coverage updated**
+   - `tests/test_health_endpoint.py` now locks the new route/status and unmatched-route metrics.
+   - `docs/OPERATIONAL_RUNBOOKS.md` now points incident responders at the new route-level metrics during latency and outage triage.
+
+Validation commands:
+
+```powershell
+python -m pytest -q --no-cov tests/test_health_endpoint.py
+python -m ruff check app.py tests/test_health_endpoint.py docs/OPERATIONAL_RUNBOOKS.md docs/PRODUCTION_READINESS.md docs/TESTING.md
+```
+
 ## 2026-03-24 Remediation Sweep (Debugging + Error Hardening)
 
 Completed in this pass:

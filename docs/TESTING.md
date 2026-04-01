@@ -61,6 +61,15 @@ Define enterprise testing standards, required quality gates, and execution workf
 8. The canonical contract suite now also covers JSON `401` behavior for `/api/v1/analytics/*`, `/api/v1/gdpr/*`, `/api/v1/privacy/*`, `/api/v1/storage/*`, `/api/v1/persona/*`, `/api/v1/trace/*`, and `/api/v1/retention/*`.
 9. Focused regression sweeps in `tests/integration/test_additional_coverage.py` and targeted GDPR nodeids now validate the hardened GDPR/storage route behavior without relying on permissive legacy expectations.
 
+## 2026-03-31 Phase 5 observability regression update
+
+1. `tests/test_health_endpoint.py` now verifies route-level request counters and latency gauges exposed from `/metrics`.
+2. The same suite now locks unmatched-route `4xx` telemetry so noisy probe traffic is distinguishable from canonical route failures.
+3. Route metrics intentionally use low-cardinality labels:
+   - `method`
+   - `route` from Flask route templates or `unmatched`
+   - `status` as status family (`2xx`, `4xx`, `5xx`)
+
 ## Section 9 subsystem coverage (updated 2026-02-16)
 
 1. Unit test framework: `pytest` (backend) and `vitest` (frontend) enforced in CI.

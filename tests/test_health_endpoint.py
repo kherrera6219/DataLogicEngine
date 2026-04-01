@@ -56,3 +56,23 @@ def test_metrics_endpoint_exposes_prometheus_text(client):
     assert "datalogicengine_http_requests_total" in body
     assert "datalogicengine_latency_slo_ai_p95_ms_target" in body
     assert "datalogicengine_tenant_rls_enabled" in body
+
+
+def test_metrics_endpoint_exposes_route_status_and_latency_labels(client):
+    client.get("/health")
+
+    response = client.get("/metrics")
+    body = response.get_data(as_text=True)
+
+    assert 'datalogicengine_http_requests_by_route_total{method="GET",route="/health",status="2xx"}' in body
+    assert 'datalogicengine_http_request_latency_ms_avg{method="GET",route="/health"}' in body
+    assert 'datalogicengine_http_request_latency_ms_max{method="GET",route="/health"}' in body
+
+
+def test_metrics_endpoint_tracks_unmatched_routes(client):
+    client.get("/does-not-exist")
+
+    response = client.get("/metrics")
+    body = response.get_data(as_text=True)
+
+    assert 'datalogicengine_http_requests_by_route_total{method="GET",route="unmatched",status="4xx"}' in body
