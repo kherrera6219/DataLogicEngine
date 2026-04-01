@@ -1,24 +1,45 @@
 # API Versioning Strategy
 
-**Last Updated:** 2026-01-12  
+**Last Updated:** 2026-03-31
 **Status:** Active
 
 ---
 
 ## Overview
 
-DataLogicEngine uses **URL path versioning** for its REST API to ensure backward compatibility and clear version management.
+DataLogicEngine uses **URL path versioning** for primary application APIs and explicit namespace governance for operational and compatibility routes.
 
 ---
 
 ## Current Version
 
-**v1** - All endpoints are prefixed with `/api/v1/`
+**v1** - Primary application endpoints are prefixed with `/api/v1/`
 
 Examples:
 - `/api/v1/auth/login`
 - `/api/v1/simulations`
-- `/api/ukg/pillars` (core UKG endpoints)
+- `/api/v1/truth/health`
+
+Canonical unversioned namespaces that are still supported in the current contract:
+
+1. `/api/admin/*`
+2. `/api/contextual/*`
+3. `/api/honeycomb/*`
+4. `/api/locations*`
+5. `/api/methods*`
+6. `/api/search/*`
+7. `/api/docs`
+
+Compatibility aliases that remain active with deprecation headers:
+
+1. `/api/compliance/*` -> `/api/v1/compliance/*`
+2. `/api/ka/*` -> `/api/v1/ka/*`
+3. `/api/mcp/*` -> `/api/v1/mcp/*`
+4. `/api/persona/*` -> `/api/v1/persona/*`
+5. `/api/pillar/*` -> `/api/v1/pillar/*`
+6. `/api/simulations/*` -> `/api/v1/simulations/*`
+7. `/api/truth/*` -> `/api/v1/truth/*`
+8. `/api/ukg/*` -> `/api/v1/*`
 
 ---
 
@@ -43,8 +64,9 @@ Examples:
 
 1. Announce deprecation at least **3 months** before removal
 2. Add `Deprecation` header to affected endpoints
-3. Document migration path in changelog
-4. Remove in next major version
+3. Add `Sunset` and `Link: rel="successor-version"` headers
+4. Document migration path in changelog
+5. Remove in next major version
 
 ---
 
@@ -65,10 +87,11 @@ The `X-API-Version` header is optional and can be used for minor behavioral vari
 
 ### Best Practices
 
-1. **Always use versioned URLs** (`/api/v1/` not `/api/`)
+1. **Prefer versioned application URLs** (`/api/v1/` not legacy `/api/` aliases)
 2. **Handle unknown fields gracefully** - APIs may add new fields
 3. **Check for deprecation headers** in responses
-4. **Subscribe to changelog** for updates
+4. **Treat unversioned `/api/admin`, `/api/search`, `/api/contextual`, `/api/methods`, `/api/honeycomb`, and `/api/locations` as explicit namespace exceptions, not as versionless replacements for `/api/v1/*`**
+5. **Subscribe to changelog** for updates
 
 ### SDK Versioning
 

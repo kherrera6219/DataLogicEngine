@@ -124,15 +124,17 @@ Completed in this slice:
 1. **Canonical REST surface is explicit**
    - `docs/API.md` now defines `/api/v1/*` as the supported REST contract for new integrations and tests.
 2. **Legacy route aliases self-identify**
-   - `/api/ka/*`, `/api/mcp/*`, and `/api/simulations/*` now emit `Deprecation`, `Sunset`, and `Link: rel="successor-version"` headers that point clients at the canonical `/api/v1/*` route.
+   - `/api/compliance/*`, `/api/ka/*`, `/api/mcp/*`, `/api/persona/*`, `/api/pillar/*`, `/api/simulations/*`, `/api/truth/*`, and `/api/ukg/*` now emit `Deprecation`, `Sunset`, and `Link: rel="successor-version"` headers that point clients at the canonical `/api/v1/*` route.
 3. **Route-governance regressions added**
-   - Focused tests now verify that legacy simulation aliases emit transition headers while canonical `/api/v1/simulations` responses do not.
+   - Focused tests now verify transition headers on representative legacy simulation, truth, and UKG aliases while canonical `/api/v1/*` responses remain undecorated.
+4. **Versioning docs aligned with live route map**
+   - `docs/API.md` and `docs/API_VERSIONING.md` now distinguish canonical `/api/v1/*` application routes, canonical unversioned operational namespaces, and compatibility aliases.
 
 Validation commands:
 
 ```powershell
-python -m pytest -q --no-cov tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py
-python -m ruff check app.py tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py
+python -m pytest -q --no-cov tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py tests/test_health_endpoint.py tests/contract/test_api_contract.py
+python -m ruff check app.py docs/API.md docs/API_VERSIONING.md docs/ARCHITECTURE_MAP.md docs/PRODUCTION_READINESS.md tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py
 ```
 
 ## 2026-03-24 Remediation Sweep (Debugging + Error Hardening)

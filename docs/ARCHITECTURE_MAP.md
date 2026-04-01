@@ -132,14 +132,14 @@ sequenceDiagram
 3. Startup schema creation is opt-in via `AUTO_CREATE_SCHEMA=true`; the default path is migration-first.
 4. `main.py` and `wsgi.py` share runtime compatibility patches through `backend/bootstrap_compat.py`.
 5. Production startup rejects `AUTO_CREATE_SCHEMA=true`; deployment prechecks should catch this before boot.
-6. Canonical REST integrations should use `/api/v1/*`; legacy `/api/ka/*`, `/api/mcp/*`, and `/api/simulations/*` aliases emit deprecation headers with successor routes.
+6. Canonical application integrations should use `/api/v1/*`; compatibility aliases under `/api/compliance/*`, `/api/ka/*`, `/api/mcp/*`, `/api/persona/*`, `/api/pillar/*`, `/api/simulations/*`, `/api/truth/*`, and `/api/ukg/*` emit deprecation headers with successor routes.
 
 ## Known limitations
 
 1. Some `Settings` and `MCP admin` UI actions remain partially wired; see `docs/PRODUCT_OVERVIEW.md`.
 2. External connector coverage depends on configured credentials and environment readiness.
 3. Architecture details in `docs/whitepapers/` may include exploratory content that is not operational source-of-truth.
-4. Some legacy aliases remain active for compatibility, but they are now explicitly marked as transitional in response headers and API docs.
+4. Some compatibility aliases remain active for migration coverage, but they are explicitly marked as transitional in response headers and API/versioning docs.
 
 ## Related documents
 

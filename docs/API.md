@@ -29,18 +29,51 @@ The DataLogicEngine exposes a comprehensive REST API powered by Flask 3.1 bluepr
 
 ## Base URL
 
-**Local Development**: `http://localhost:5000/api/v1`
-**Production**: `https://your-domain.com/api/v1`
+**Primary application API base URL**
+
+- Local development: `http://localhost:5000/api/v1`
+- Production: `https://your-domain.com/api/v1`
+
+Some operational namespaces remain intentionally unversioned and are documented below.
 
 ## Canonical and legacy route policy
 
-`/api/v1/*` is the canonical REST surface for new integrations, tests, and documentation.
+`/api/v1/*` is the canonical application REST surface for new integrations, tests, and documentation.
+
+Representative canonical versioned namespaces:
+
+1. `/api/v1/auth/*`
+2. `/api/v1/gateway/*`
+3. `/api/v1/truth/*`
+4. `/api/v1/persona/*`
+5. `/api/v1/pillar/*`
+6. `/api/v1/compliance/*`
+7. `/api/v1/ka/*`
+8. `/api/v1/mcp/*`
+9. `/api/v1/simulations/*`
+10. `/api/v1/{pillars,sectors,domains,knowledge,nodes,edges}`
+11. `/api/v1/trace/*`
+
+Canonical unversioned operational namespaces currently remain supported for internal/admin workflows:
+
+1. `/api/admin/*`
+2. `/api/contextual/*`
+3. `/api/honeycomb/*`
+4. `/api/locations*`
+5. `/api/methods*`
+6. `/api/search/*`
+7. `/api/docs`
 
 The following legacy aliases remain active only for transition coverage:
 
-1. `/api/ka/*` -> `/api/v1/ka/*`
-2. `/api/mcp/*` -> `/api/v1/mcp/*`
-3. `/api/simulations/*` -> `/api/v1/simulations/*`
+1. `/api/compliance/*` -> `/api/v1/compliance/*`
+2. `/api/ka/*` -> `/api/v1/ka/*`
+3. `/api/mcp/*` -> `/api/v1/mcp/*`
+4. `/api/persona/*` -> `/api/v1/persona/*`
+5. `/api/pillar/*` -> `/api/v1/pillar/*`
+6. `/api/simulations/*` -> `/api/v1/simulations/*`
+7. `/api/truth/*` -> `/api/v1/truth/*`
+8. `/api/ukg/*` -> `/api/v1/*`
 
 Legacy alias responses emit transition headers so clients can migrate deterministically:
 
@@ -50,12 +83,14 @@ Legacy alias responses emit transition headers so clients can migrate determinis
 
 ## Authentication and context
 
-All endpoints (except `/health`) require authentication via one of the following methods:
+Most application endpoints require authentication via one of the following methods:
 
 1. **Session Authentication**: Cookie-based (for frontend proxy)
 2. **Bearer Token**: `Authorization: Bearer <jwt-token>` (for external clients)
 3. **API Key**: `X-API-Key: <api-key>` (for programmatic access)
 4. **SSO/OIDC**: Azure AD/Entra ID integration
+
+Unauthenticated operational probes are explicitly limited to `/health`, `/live`, `/ready`, and `/metrics`. Unversioned operational namespaces may still have module-specific auth requirements; use the canonical route family and verify the endpoint contract before integrating.
 
 - **Tenant Isolation**: The `tenant_id` is automatically extracted from your JWT/SSO session. All operations are strictly scoped to your tenant.
 - **Traceability**: All responses include a `X-Correlation-ID` header. Use this ID for debugging and audit reconstruction.
@@ -108,7 +143,7 @@ All API responses follow this structure:
 
 ## 1. Authentication Routes (`/auth`)
 
-Manage user authentication, sessions, and identity. Valid for both `/api/v1/auth` and `/api/auth`.
+Manage user authentication, sessions, and identity. Primary prefix: `/api/v1/auth`.
 
 ### Login
 
@@ -181,7 +216,7 @@ Unified interface for Large Language Models with UKG context injection. Prefix: 
 
 ## 3. Truth Engine Routes (`/truth`)
 
-Control the 5-tier reasoning engine. Prefix: `/api/v1/truth` or `/api/truth`.
+Control the 5-tier reasoning engine. Primary prefix: `/api/v1/truth`; legacy alias: `/api/truth` with deprecation headers.
 
 ### Create Session
 
@@ -259,20 +294,34 @@ Comprehensive execution traceability. Prefix: `/api/v1/trace`.
 
 ## 6. Knowledge Graph Routes (`/knowledge`)
 
-Manage Sectors, Domains, and Knowledge Nodes. Prefix: `/api/v1` or `/api`.
+Manage Sectors, Domains, and Knowledge Nodes. Canonical routes live under `/api/v1/*`; the legacy alias family remains under `/api/ukg/*` with deprecation headers.
 
 ### Knowledge Nodes
 
-- **GET** `/knowledge-nodes`
-  - List all nodes.
-- **POST** `/knowledge-nodes`
-  - Create a new node with axis coordinates.
+- **GET** `/knowledge`
+  - List knowledge-node content records.
+- **POST** `/knowledge`
+  - Create a knowledge-node content record.
+- **GET** `/nodes`
+  - List graph nodes.
+- **POST** `/nodes`
+  - Create a graph node.
+- **GET** `/edges`
+  - List graph edges.
+- **POST** `/edges`
+  - Create a graph edge.
+- **GET** `/pillars`
+  - List pillar levels.
+- **GET** `/sectors`
+  - List sectors.
+- **GET** `/domains`
+  - List domains.
 
 ---
 
 ## 7. Location Routes (`/locations`)
 
-Manage geospatial context and hierarchy. Prefix: `/api` or `/api/v1`.
+Manage geospatial context and hierarchy. Current supported prefix: `/api/locations*`.
 
 ### List & Filter Locations
 - **GET** `/locations`
@@ -314,7 +363,7 @@ Model Context Protocol management. Primary prefix: `/api/v1/mcp`; legacy alias: 
 
 ## 9. Compliance & Regulatory Routes (`/compliance`)
 
-Enterprise compliance and auditing. Prefix: `/api/v1/compliance`.
+Enterprise compliance and auditing. Primary prefix: `/api/v1/compliance`; legacy alias: `/api/compliance` with deprecation headers.
 
 ### Audit Export
 
@@ -335,6 +384,15 @@ Scenario simulation and reasoning control. Primary prefix: `/api/v1/simulations`
 ---
 
 ## 11. Admin & System Routes
+
+Operational/admin namespaces that intentionally remain unversioned in the current contract:
+
+1. `/api/admin/*`
+2. `/api/search/*`
+3. `/api/contextual/*`
+4. `/api/methods*`
+5. `/api/honeycomb/*`
+6. `/api/locations*`
 
 ### Health Check
 

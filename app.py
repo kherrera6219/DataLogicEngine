@@ -133,9 +133,14 @@ APP_START_TIME = time.time()
 REQUEST_METRICS = {"total": 0, "inflight": 0}
 REQUEST_METRICS_LOCK = Lock()
 LEGACY_API_PREFIXES = {
+    "/api/compliance": "/api/v1/compliance",
     "/api/ka": "/api/v1/ka",
     "/api/mcp": "/api/v1/mcp",
+    "/api/persona": "/api/v1/persona",
+    "/api/pillar": "/api/v1/pillar",
     "/api/simulations": "/api/v1/simulations",
+    "/api/truth": "/api/v1/truth",
+    "/api/ukg": "/api/v1",
 }
 LEGACY_API_SUNSET = "Wed, 30 Sep 2026 00:00:00 GMT"
 
