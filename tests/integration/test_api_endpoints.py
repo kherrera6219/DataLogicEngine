@@ -1,10 +1,11 @@
 """
 Integration tests for API endpoints.
-Tests authentication, UKG operations, and simulation endpoints.
+Tests authentication, canonical API behavior, and legacy compatibility endpoints.
 """
 import pytest
 from unittest.mock import patch
 from app import app, db
+import routes.simulation_routes as simulation_routes_module
 
 
 from extensions import limiter
@@ -79,7 +80,10 @@ class TestAuthenticationEndpoints:
             'confirm_password': 'SecureNew789$#@'
         })
 
-        assert response.status_code in [200, 201, 302]
+        assert response.status_code == 201
+        body = response.get_json()
+        assert body["success"] is True
+        assert body["message"] == "Registration successful"
 
     def test_register_duplicate_username(self, client):
         """Test registration with duplicate username fails."""
@@ -101,11 +105,10 @@ class TestAuthenticationEndpoints:
             'confirm_password': test_pass2
         })
 
-        # Auth route returns 200 with flash message for duplicate username
-        assert response.status_code in [200, 400, 409, 422]
-        if response.status_code == 200:
-            # Check that the response contains error indicator
-            assert b'already taken' in response.data or b'Username' in response.data
+        assert response.status_code == 409
+        body = response.get_json()
+        assert body["success"] is False
+        assert body["error"] == "Username taken"
 
     def test_login_valid_credentials(self, client):
         """Test login with valid credentials."""
@@ -124,7 +127,11 @@ class TestAuthenticationEndpoints:
             'password': test_pass
         })
 
-        assert response.status_code in [200, 302]
+        assert response.status_code == 200
+        body = response.get_json()
+        assert body["success"] is True
+        assert body["message"] == "Login successful"
+        assert body["data"]["user"]["username"] == "loginuser"
 
     def test_login_invalid_credentials(self, client):
         """Test login with invalid credentials fails."""
@@ -133,24 +140,24 @@ class TestAuthenticationEndpoints:
             'password': 'wrongpassword'
         })
 
-        # Auth route returns 200 with flash message for invalid credentials
-        assert response.status_code in [200, 400, 401, 403]
-        if response.status_code == 200:
-            # Check that it returns the login page (not redirected to dashboard)
-            assert b'login' in response.data.lower() or b'Login' in response.data
+        assert response.status_code == 401
+        body = response.get_json()
+        assert body["success"] is False
+        assert body["error"] == "Invalid username or password"
 
     def test_logout(self, authenticated_client):
         """Test logout."""
         # Logout route uses POST method in API
         response = authenticated_client.post('/api/v1/auth/logout')
-        assert response.status_code in [200, 302]
+        assert response.status_code == 200
+        body = response.get_json()
+        assert body["success"] is True
+        assert body["message"] == "Logged out"
 
     def test_password_policy_enforcement(self, client):
         """Test weak passwords are handled.
         
-        Note: The current auth route doesn't enforce password policy server-side.
-        The password_meets_policy function exists in app.py but isn't used in auth_routes.
-        This test verifies the route handles the request (returns form or processes it).
+        The API route now enforces password policy through `User.set_password`.
         """
         response = client.post('/api/v1/auth/register', json={
             'username': 'weakpassuser',
@@ -159,9 +166,10 @@ class TestAuthenticationEndpoints:
             'confirm_password': 'weak'
         })
 
-        # Route accepts the registration (password policy not enforced in this route)
-        # Accept 200 (form rendered or redirect) or 400/422 if policy is enforced
-        assert response.status_code in [200, 302, 400, 422]
+        assert response.status_code == 400
+        body = response.get_json()
+        assert body["success"] is False
+        assert "Password too weak" in body["error"]
 
 
 class TestUKGEndpoints:
@@ -206,7 +214,7 @@ class TestUKGEndpoints:
 
 
 class TestSimulationEndpoints:
-    """Test simulation endpoints."""
+    """Test legacy simulation compatibility endpoints."""
 
     def test_create_simulation(self, authenticated_client):
         """Test creating a new simulation."""
@@ -218,19 +226,31 @@ class TestSimulationEndpoints:
             'confidence_threshold': 0.85
         })
 
-        assert response.status_code in [200, 201, 400, 404]
+        assert response.status_code == 201
+        body = response.get_json()
+        assert body["success"] is True
+        assert body["data"]["parameters"]["query"] == 'What are the compliance requirements?'
+        assert response.headers["Deprecation"] == "true"
+        assert "/api/v1/simulations" in response.headers.get("Link", "")
 
     def test_list_simulations(self, authenticated_client):
         """Test listing user simulations."""
         response = authenticated_client.get('/api/simulations')
 
-        assert response.status_code in [200, 404]
-        if response.status_code == 200:
-            data = response.get_json()
-            assert isinstance(data, (list, dict))
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["success"] is True
+        assert isinstance(data["data"], list)
+        assert response.headers["Deprecation"] == "true"
 
-    def test_run_simulation(self, authenticated_client):
+    def test_run_simulation(self, authenticated_client, monkeypatch):
         """Test running a simulation."""
+        monkeypatch.setattr(
+            simulation_routes_module.engine,
+            'process_query',
+            lambda query, context: {'status': 'completed', 'final_conclusion': 'ok'},
+        )
+
         # Create simulation first
         create_response = authenticated_client.post('/api/simulations', json={
             'name': 'Run Test',
@@ -238,31 +258,48 @@ class TestSimulationEndpoints:
             'sim_type': 'standard'
         })
 
-        if create_response.status_code in [200, 201]:
-            sim_data = create_response.get_json()
-            sim_id = sim_data.get('id', 1)
+        assert create_response.status_code == 201
+        sim_data = create_response.get_json()
+        session_id = sim_data["data"]["session_id"]
 
-            # Run simulation
-            response = authenticated_client.post(f'/api/simulations/{sim_id}/run')
+        # Run simulation
+        response = authenticated_client.post(f'/api/simulations/{session_id}/run')
 
-            assert response.status_code in [200, 202, 400, 404]
+        assert response.status_code == 200
+        body = response.get_json()
+        assert body["success"] is True
+        assert body["data"]["status"] == "completed"
+        assert response.headers["Deprecation"] == "true"
 
-    def test_get_simulation_results(self, authenticated_client):
+    def test_get_simulation_results(self, authenticated_client, monkeypatch):
         """Test retrieving simulation results."""
+        monkeypatch.setattr(
+            simulation_routes_module.engine,
+            'process_query',
+            lambda query, context: {'status': 'completed', 'final_conclusion': 'ok'},
+        )
+
         # Create and run simulation
         create_response = authenticated_client.post('/api/simulations', json={
             'name': 'Results Test',
             'query': 'Test query'
         })
 
-        if create_response.status_code in [200, 201]:
-            sim_data = create_response.get_json()
-            sim_id = sim_data.get('id', 1)
+        assert create_response.status_code == 201
+        sim_data = create_response.get_json()
+        session_id = sim_data["data"]["session_id"]
 
-            # Get results
-            response = authenticated_client.get(f'/api/simulations/{sim_id}')
+        run_response = authenticated_client.post(f'/api/simulations/{session_id}/run')
+        assert run_response.status_code == 200
 
-            assert response.status_code in [200, 404]
+        # Get results
+        response = authenticated_client.get(f'/api/simulations/{session_id}')
+
+        assert response.status_code == 200
+        body = response.get_json()
+        assert body["success"] is True
+        assert body["data"]["session_id"] == session_id
+        assert response.headers["Deprecation"] == "true"
 
 
 class TestGraphEndpoints:
@@ -411,7 +448,7 @@ class TestErrorHandling:
     def test_405_for_wrong_method(self, client):
         """Test 405 returned for wrong HTTP method."""
         response = client.delete('/api/v1/auth/login')  # Login doesn't support DELETE
-        assert response.status_code in [405, 404]
+        assert response.status_code == 405
 
     def test_400_for_invalid_json(self, client):
         """Test error response returned for invalid JSON."""
@@ -419,14 +456,19 @@ class TestErrorHandling:
                                data='invalid json',
                                content_type='application/json')
 
-        # May return 400 for bad JSON, 401/302 for unauthenticated, 404 if endpoint not found, or 500 for internal error
-        assert response.status_code in [400, 401, 302, 403, 404, 500]
+        # Authentication is enforced before payload parsing on this compatibility route.
+        assert response.status_code == 401
+        body = response.get_json()
+        assert body["code"] == "UNAUTHORIZED"
+        assert response.headers["Deprecation"] == "true"
 
     def test_401_for_unauthorized_access(self, client):
-        """Test 401 or redirect returned for unauthorized access."""
+        """Test unauthorized access returns canonical JSON 401."""
         response = client.get('/api/simulations')
-        # Flask-Login redirects unauthenticated users (302) or returns 401/403
-        assert response.status_code in [401, 302, 403, 404]
+        assert response.status_code == 401
+        body = response.get_json()
+        assert body["code"] == "UNAUTHORIZED"
+        assert response.headers["Deprecation"] == "true"
 
 
 class TestCORSHeaders:

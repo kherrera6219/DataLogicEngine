@@ -55,6 +55,7 @@ Define enterprise testing standards, required quality gates, and execution workf
    - `/api/v1/simulation/run` -> `422 VALIDATION_ERROR`
    - `/api/v1/simulations` with no parameters -> `400 Missing parameters`
 4. Canonical simulation happy-path behavior is now covered with strict `201/200/200/200` expectations for create, list, run, and fetch operations.
+5. `tests/integration/test_api_endpoints.py` now enforces exact status semantics for canonical `/api/v1/auth/*` flows and the supported legacy `/api/simulations` compatibility path instead of accepting redirect-style or server-error buckets.
 
 ## Section 9 subsystem coverage (updated 2026-02-16)
 

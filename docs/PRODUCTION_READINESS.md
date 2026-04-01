@@ -149,12 +149,15 @@ Completed in this slice:
    - Authenticated malformed calls now have locked regression expectations for `422 VALIDATION_ERROR` and `400 Missing parameters` on the canonical simulation/query paths.
 4. **Canonical simulation happy path is pinned**
    - Create, list, run, and fetch for `/api/v1/simulations` now have strict success-path assertions instead of broad acceptable-status buckets.
+5. **Legacy compatibility checks are no longer vague**
+   - `tests/integration/test_api_endpoints.py` now asserts exact `/api/v1/auth/*` outcomes and exact legacy `/api/simulations` compatibility behavior, including deprecation headers, instead of tolerating `302/404/500` buckets.
 
 Validation commands:
 
 ```powershell
 python -m pytest -q --no-cov tests/contract/test_canonical_v1_route_contracts.py tests/contract/test_api_contract.py tests/unit/test_phase1_api_hardening.py tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py tests/test_health_endpoint.py
-python -m ruff check docs/TESTING.md docs/PRODUCTION_READINESS.md tests/contract/test_canonical_v1_route_contracts.py
+python -m pytest -q --no-cov tests/integration/test_api_endpoints.py
+python -m ruff check docs/TESTING.md docs/PRODUCTION_READINESS.md tests/contract/test_canonical_v1_route_contracts.py tests/integration/test_api_endpoints.py
 ```
 
 ## 2026-03-24 Remediation Sweep (Debugging + Error Hardening)
