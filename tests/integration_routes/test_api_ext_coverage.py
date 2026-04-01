@@ -19,6 +19,7 @@ def app():
     sys.modules.pop('backend.tracing.api', None)
 
     with patch('backend.auth.api_decorators.api_login_required', dummy_decorator), \
+         patch('backend.auth.api_decorators.api_session_login_required', dummy_decorator), \
          patch('backend.auth.api_decorators.api_admin_required', dummy_decorator), \
          patch('flask_login.login_required', dummy_decorator), \
          patch('extensions.cache.cached', return_value=dummy_decorator):

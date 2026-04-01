@@ -31,7 +31,9 @@ class TestGDPRDataExport:
         """Test data export requires authentication"""
         response = client.post('/api/v1/gdpr/export')
 
-        assert response.status_code in [401, 302]  # Unauthorized or redirect to login
+        assert response.status_code == 401
+        assert response.is_json
+        assert response.get_json()['code'] == 'UNAUTHORIZED'
 
     def test_export_contains_user_profile(self, authenticated_client, app):
         """Test export includes user profile data"""
@@ -205,7 +207,9 @@ class TestGDPRDataDeletion:
         """Test deletion request requires authentication"""
         response = client.post('/api/v1/gdpr/delete')
 
-        assert response.status_code in [401, 302]
+        assert response.status_code == 401
+        assert response.is_json
+        assert response.get_json()['code'] == 'UNAUTHORIZED'
 
     def test_deletion_request_includes_grace_period(self, authenticated_client, app):
         """Test deletion request includes grace period"""
@@ -291,7 +295,9 @@ class TestGDPRConsentManagement:
         """Test getting consent status requires authentication"""
         response = client.get('/api/v1/gdpr/consent')
 
-        assert response.status_code in [401, 302]
+        assert response.status_code == 401
+        assert response.is_json
+        assert response.get_json()['code'] == 'UNAUTHORIZED'
 
     def test_consent_status_includes_all_categories(self, authenticated_client, app):
         """Test consent status includes all processing categories"""
@@ -338,7 +344,9 @@ class TestGDPRConsentManagement:
             'analytics': False
         })
 
-        assert response.status_code in [401, 302]
+        assert response.status_code == 401
+        assert response.is_json
+        assert response.get_json()['code'] == 'UNAUTHORIZED'
 
     def test_update_consent_filters_allowed_fields(self, authenticated_client, app):
         """Test consent update only accepts allowed fields"""
@@ -432,7 +440,9 @@ class TestGDPRAccessRequests:
         """Test access request requires authentication"""
         response = client.post('/api/v1/gdpr/access-request')
 
-        assert response.status_code in [401, 302]
+        assert response.status_code == 401
+        assert response.is_json
+        assert response.get_json()['code'] == 'UNAUTHORIZED'
 
     def test_access_request_returns_request_id(self, authenticated_client, app):
         """Test access request returns unique request ID"""

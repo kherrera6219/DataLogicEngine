@@ -13,7 +13,8 @@ import json
 import io
 from datetime import datetime, UTC
 from flask import Blueprint, jsonify, request, send_file
-from flask_login import login_required, current_user
+from flask_login import current_user
+from backend.auth.api_decorators import api_session_login_required
 from extensions import db
 from models import ChatSession as Chat, ChatMessage as Message, KnowledgeGraphNode
 
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 gdpr_bp = Blueprint('gdpr', __name__, url_prefix='/api/v1/gdpr')
 
 @gdpr_bp.route('/export', methods=['POST'])
-@login_required
+@api_session_login_required
 def export_user_data():
     """
     Export all user data (GDPR Article 20 - Data Portability).
@@ -104,7 +105,7 @@ def export_user_data():
 
 
 @gdpr_bp.route('/delete', methods=['POST'])
-@login_required
+@api_session_login_required
 def request_data_deletion():
     """
     Request deletion of all user data (GDPR Article 17 - Right to Erasure).
@@ -151,7 +152,7 @@ def request_data_deletion():
 
 
 @gdpr_bp.route('/consent', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_consent_status():
     """
     Get user's consent status for various data processing activities.
@@ -181,7 +182,7 @@ def get_consent_status():
 
 
 @gdpr_bp.route('/consent', methods=['POST'])
-@login_required
+@api_session_login_required
 def update_consent():
     """
     Update user's consent preferences.
@@ -212,7 +213,7 @@ def update_consent():
 
 
 @gdpr_bp.route('/access-request', methods=['POST'])
-@login_required
+@api_session_login_required
 def submit_access_request():
     """
     Submit a data access request (GDPR Article 15).

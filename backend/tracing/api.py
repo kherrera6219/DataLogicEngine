@@ -6,7 +6,8 @@ REST API for accessing trace data with RBAC-aware filtering.
 
 import json
 from flask import Blueprint, jsonify, request, Response
-from flask_login import login_required, current_user
+from flask_login import current_user
+from backend.auth.api_decorators import api_session_login_required
 
 from extensions import db
 from backend.security.export_integrity import build_trace_export_document
@@ -62,7 +63,7 @@ def filter_by_permissions(data: dict) -> dict:
 # ============== Run Endpoints ==============
 
 @trace_bp.route('/runs', methods=['GET'])
-@login_required
+@api_session_login_required
 def list_runs():
     """List trace runs with filtering."""
     page = request.args.get('page', 1, type=int)
@@ -88,7 +89,7 @@ def list_runs():
 
 
 @trace_bp.route('/runs/<run_id>', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_run(run_id):
     """Get a specific trace run."""
     run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
@@ -101,7 +102,7 @@ def get_run(run_id):
 
 
 @trace_bp.route('/runs/<run_id>/stages', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_run_stages(run_id):
     """Get stages for a run."""
     run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
@@ -119,7 +120,7 @@ def get_run_stages(run_id):
 
 
 @trace_bp.route('/runs/<run_id>/evidence', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_run_evidence(run_id):
     """Get evidence items for a run."""
     if not user_has_permission('TRACE_VIEW_EVIDENCE'):
@@ -138,7 +139,7 @@ def get_run_evidence(run_id):
 
 
 @trace_bp.route('/runs/<run_id>/claims', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_run_claims(run_id):
     """Get claims for a run."""
     run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
@@ -154,7 +155,7 @@ def get_run_claims(run_id):
 
 
 @trace_bp.route('/runs/<run_id>/axes', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_run_axes(run_id):
     """Get axis vector for a run."""
     run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
@@ -170,7 +171,7 @@ def get_run_axes(run_id):
 
 
 @trace_bp.route('/runs/<run_id>/personas', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_run_personas(run_id):
     """Get persona traces for a run."""
     run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
@@ -186,7 +187,7 @@ def get_run_personas(run_id):
 
 
 @trace_bp.route('/runs/<run_id>/kas', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_run_kas(run_id):
     """Get KA invocation traces for a run."""
     run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
@@ -202,7 +203,7 @@ def get_run_kas(run_id):
 
 
 @trace_bp.route('/runs/<run_id>/policy', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_run_policy(run_id):
     """Get policy decisions for a run."""
     if not user_has_permission('TRACE_VIEW_POLICIES'):
@@ -221,7 +222,7 @@ def get_run_policy(run_id):
 
 
 @trace_bp.route('/runs/<run_id>/memory', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_run_memory(run_id):
     """Get memory events for a run."""
     if not user_has_permission('TRACE_VIEW_MEMORY'):
@@ -240,7 +241,7 @@ def get_run_memory(run_id):
 
 
 @trace_bp.route('/runs/<run_id>/metrics', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_run_metrics(run_id):
     """Get observability metrics for a run."""
     run = TraceRun.query.filter_by(run_id=run_id).first_or_404()
@@ -272,7 +273,7 @@ def get_run_metrics(run_id):
 # ============== Export Endpoint ==============
 
 @trace_bp.route('/runs/<run_id>/export', methods=['POST'])
-@login_required
+@api_session_login_required
 def export_run(run_id):
     """Export full run bundle."""
     if not user_has_permission('TRACE_EXPORT_BUNDLE'):
@@ -324,7 +325,7 @@ def export_run(run_id):
 # ============== Replay Endpoint ==============
 
 @trace_bp.route('/runs/<run_id>/replay', methods=['POST'])
-@login_required
+@api_session_login_required
 def replay_run(run_id):
     """Replay a run (placeholder for implementation)."""
     if not user_has_permission('TRACE_REPLAY'):
@@ -354,7 +355,7 @@ def replay_run(run_id):
 # ============== Artifacts Endpoint ==============
 
 @trace_bp.route('/runs/<run_id>/artifacts/<artifact_id>', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_artifact(run_id, artifact_id):
     """Get a specific artifact."""
     if not user_has_permission('TRACE_VIEW_ARTIFACTS'):
@@ -375,7 +376,7 @@ def get_artifact(run_id, artifact_id):
 # ============== Phase 4: Sessions ==============
 
 @trace_bp.route('/sessions', methods=['GET'])
-@login_required
+@api_session_login_required
 def list_sessions():
     """List chat sessions for the current user."""
     
@@ -395,7 +396,7 @@ def list_sessions():
 
 
 @trace_bp.route('/sessions', methods=['POST'])
-@login_required
+@api_session_login_required
 def create_session():
     """Create a new chat session."""
     
@@ -415,7 +416,7 @@ def create_session():
 
 
 @trace_bp.route('/sessions/<session_id>', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_session(session_id):
     """Get a specific session."""
     
@@ -428,7 +429,7 @@ def get_session(session_id):
 
 
 @trace_bp.route('/sessions/<session_id>', methods=['PATCH'])
-@login_required
+@api_session_login_required
 def update_session(session_id):
     """Update a session (title, mode, constraints)."""
     
@@ -454,7 +455,7 @@ def update_session(session_id):
 # ============== Phase 4: Spans (OpenTelemetry) ==============
 
 @trace_bp.route('/runs/<run_id>/spans', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_run_spans(run_id):
     """Get OpenTelemetry spans for a run."""
     
@@ -473,7 +474,7 @@ def get_run_spans(run_id):
 # ============== Phase 4: Logs ==============
 
 @trace_bp.route('/runs/<run_id>/logs', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_run_logs(run_id):
     """Get logs for a run."""
     
@@ -502,7 +503,7 @@ def get_run_logs(run_id):
 # ============== Phase 4: Exports ==============
 
 @trace_bp.route('/exports', methods=['GET'])
-@login_required
+@api_session_login_required
 def list_exports():
     """List exports for the current user."""
     
@@ -516,7 +517,7 @@ def list_exports():
 
 
 @trace_bp.route('/exports/<export_id>', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_export(export_id):
     """Get a specific export."""
     
@@ -529,7 +530,7 @@ def get_export(export_id):
 
 
 @trace_bp.route('/exports/<export_id>/download', methods=['GET'])
-@login_required
+@api_session_login_required
 def download_export(export_id):
     """Download an export bundle."""
     
@@ -553,7 +554,7 @@ def download_export(export_id):
 # ============== Claim-Evidence Links ==============
 
 @trace_bp.route('/runs/<run_id>/claims/<claim_id>/evidence', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_claim_evidence(run_id, claim_id):
     """Get evidence linked to a specific claim."""
     
@@ -582,7 +583,7 @@ def get_claim_evidence(run_id, claim_id):
 # ============== Compliance Mapping ==============
 
 @trace_bp.route('/runs/<run_id>/compliance', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_run_compliance(run_id):
     """Get compliance framework mappings for a run."""
     
@@ -614,7 +615,7 @@ def get_run_compliance(run_id):
 
 
 @trace_bp.route('/runs/<run_id>/compliance', methods=['POST'])
-@login_required
+@api_session_login_required
 def add_compliance_mapping(run_id):
     """Add a compliance mapping for a run (admin only)."""
     

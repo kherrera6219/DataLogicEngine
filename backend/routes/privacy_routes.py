@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
-from flask_login import login_required, current_user
+from flask_login import current_user
+from backend.auth.api_decorators import api_session_login_required
 from extensions import db, audit_logger
 from backend.security.rbac import require_permission, Permission
 from datetime import datetime, UTC
@@ -9,7 +10,7 @@ logger = logging.getLogger(__name__)
 privacy_bp = Blueprint('privacy', __name__, url_prefix='/api/v1/privacy')
 
 @privacy_bp.route('/purge-request', methods=['POST'])
-@login_required
+@api_session_login_required
 def purge_user_data():
     """
     Explicitly purge all data for the current user.
@@ -56,7 +57,7 @@ def purge_user_data():
         return jsonify({"success": False, "error": "Internal server error during data purge"}), 500
 
 @privacy_bp.route('/tenant-cleanup', methods=['POST'])
-@login_required
+@api_session_login_required
 @require_permission(Permission.SYSTEM_CONFIG_READ)
 def cleanup_tenant_data():
     """

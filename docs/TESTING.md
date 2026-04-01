@@ -57,6 +57,9 @@ Define enterprise testing standards, required quality gates, and execution workf
 4. Canonical simulation happy-path behavior is now covered with strict `201/200/200/200` expectations for create, list, run, and fetch operations.
 5. `tests/integration/test_api_endpoints.py` now enforces exact status semantics for canonical `/api/v1/auth/*` flows and the supported legacy `/api/simulations` compatibility path instead of accepting redirect-style or server-error buckets.
 6. Session-only canonical auth routes now have explicit regression coverage for JSON `401` failures on `/api/v1/auth/logout`, `/api/v1/auth/mfa/setup`, `/api/v1/auth/mfa/confirm`, and `/api/v1/auth/step-up`.
+7. Canonical analytics coverage now uses exact status/value assertions and local auth fixtures in `tests/integration/test_analytics_api.py` so route-contract regressions are isolated from the repo’s broader SQLite teardown noise.
+8. The canonical contract suite now also covers JSON `401` behavior for `/api/v1/analytics/*`, `/api/v1/gdpr/*`, `/api/v1/privacy/*`, `/api/v1/storage/*`, `/api/v1/persona/*`, `/api/v1/trace/*`, and `/api/v1/retention/*`.
+9. Focused regression sweeps in `tests/integration/test_additional_coverage.py` and targeted GDPR nodeids now validate the hardened GDPR/storage route behavior without relying on permissive legacy expectations.
 
 ## Section 9 subsystem coverage (updated 2026-02-16)
 

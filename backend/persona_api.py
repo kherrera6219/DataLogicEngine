@@ -9,7 +9,8 @@ import logging
 from datetime import datetime, UTC
 
 from flask import Blueprint, request, jsonify
-from flask_login import login_required, current_user
+from flask_login import current_user
+from backend.auth.api_decorators import api_session_login_required
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ def _get_simulation_engine():
     return _simulation_engine
 
 @persona_api.route('/query', methods=['POST'])
-@login_required
+@api_session_login_required
 def process_query():
     """
     Process a query through the Quad Persona Simulation Engine.
@@ -75,7 +76,7 @@ def process_query():
         }), 500
 
 @persona_api.route('/direct-query', methods=['POST'])
-@login_required
+@api_session_login_required
 def direct_query():
     """
     Process a query directly through the Quad Persona Engine without additional simulation components.
@@ -118,7 +119,7 @@ def direct_query():
         }), 500
 
 @persona_api.route('/personas', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_personas():
     """
     Get information about available personas in the system.
@@ -162,7 +163,7 @@ def get_personas():
         }), 500
 
 @persona_api.route('/axis-map', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_axis_map():
     """
     Get information about the 13-axis coordinate system.

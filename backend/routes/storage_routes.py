@@ -11,14 +11,14 @@ import logging
 import os
 
 from flask import Blueprint, jsonify, request
-from flask_login import login_required
+from backend.auth.api_decorators import api_session_login_required
 
 storage_api = Blueprint('storage_api', __name__, url_prefix='/api/v1/storage')
 logger = logging.getLogger(__name__)
 
 
 @storage_api.route('/health', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_storage_health():
     """Get health status of all storage services."""
     try:
@@ -39,7 +39,7 @@ def get_storage_health():
 
 
 @storage_api.route('/health/<service>', methods=['GET'])
-@login_required
+@api_session_login_required
 def check_service_health(service: str):
     """Check health of a specific storage service."""
     try:
@@ -71,7 +71,7 @@ def check_service_health(service: str):
 
 
 @storage_api.route('/test-connection', methods=['POST'])
-@login_required
+@api_session_login_required
 def test_connection():
     """Test a storage connection with provided credentials."""
     try:
@@ -330,7 +330,7 @@ def _test_object(data: dict) -> dict:
 
 
 @storage_api.route('/databases/start', methods=['POST'])
-@login_required
+@api_session_login_required
 def start_databases():
     """Start local database services (desktop mode only)."""
     try:
@@ -351,7 +351,7 @@ def start_databases():
 
 
 @storage_api.route('/databases/autostart', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_database_autostart():
     """Get persisted desktop auto-start preference for local databases."""
     try:
@@ -369,7 +369,7 @@ def get_database_autostart():
 
 
 @storage_api.route('/databases/autostart', methods=['POST'])
-@login_required
+@api_session_login_required
 def set_database_autostart():
     """Persist desktop auto-start preference for local databases."""
     try:
@@ -398,7 +398,7 @@ def set_database_autostart():
 
 
 @storage_api.route('/cloud-config', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_cloud_config():
     """Return saved cloud connection strings (secrets masked)."""
     try:
@@ -413,7 +413,7 @@ def get_cloud_config():
 
 
 @storage_api.route('/cloud-config', methods=['POST'])
-@login_required
+@api_session_login_required
 def save_cloud_config():
     """Persist cloud connection strings to runtime settings."""
     try:
@@ -440,7 +440,7 @@ def save_cloud_config():
 
 
 @storage_api.route('/databases/stop', methods=['POST'])
-@login_required
+@api_session_login_required
 def stop_databases():
     """Stop local database services."""
     try:

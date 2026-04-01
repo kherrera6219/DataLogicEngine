@@ -137,7 +137,7 @@ python -m pytest -q --no-cov tests/unit/test_phase3_api_surface_governance.py te
 python -m ruff check app.py docs/API.md docs/API_VERSIONING.md docs/ARCHITECTURE_MAP.md docs/PRODUCTION_READINESS.md tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py
 ```
 
-## 2026-03-31 Phase 4 Testing Hardening Start
+## 2026-03-31 Phase 4 Testing Hardening Update
 
 Completed in this slice:
 
@@ -153,13 +153,24 @@ Completed in this slice:
    - `tests/integration/test_api_endpoints.py` now asserts exact `/api/v1/auth/*` outcomes and exact legacy `/api/simulations` compatibility behavior, including deprecation headers, instead of tolerating `302/404/500` buckets.
 6. **Session-only auth routes now fail like APIs**
    - `/api/v1/auth/logout`, `/api/v1/auth/mfa/setup`, `/api/v1/auth/mfa/confirm`, and `/api/v1/auth/step-up` now use a JSON-native session auth decorator instead of Flask-Login’s default non-JSON unauthorized handling.
+7. **Canonical application routes no longer rely on browser-style auth redirects**
+   - `/api/v1/analytics/*`, `/api/v1/gdpr/*`, `/api/v1/privacy/*`, `/api/v1/storage/*`, `/api/v1/persona/*`, and `/api/v1/trace/*` now enforce JSON-native session auth.
+   - `/api/v1/retention/*` now enforces JSON-native admin auth instead of redirecting through the legacy admin decorator.
+8. **Expanded contract and integration coverage on the supported v1 surface**
+   - `tests/contract/test_canonical_v1_route_contracts.py` now covers canonical unauthenticated `401` behavior for analytics, GDPR export, privacy purge, storage health, persona query, trace runs, and retention policies.
+   - `tests/integration/test_analytics_api.py` now asserts exact success and auth-failure semantics instead of broad acceptable-status buckets.
+   - The focused GDPR regression sweep now verifies exact unauthenticated JSON `401` behavior for export, deletion, consent, and access-request endpoints.
 
 Validation commands:
 
 ```powershell
 python -m pytest -q --no-cov tests/contract/test_canonical_v1_route_contracts.py tests/contract/test_api_contract.py tests/unit/test_phase1_api_hardening.py tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py tests/test_health_endpoint.py
 python -m pytest -q --no-cov tests/integration/test_api_endpoints.py
+python -m pytest -q --no-cov tests/integration/test_analytics_api.py tests/integration_routes/test_api_ext_coverage.py
+python -m pytest -q --no-cov tests/integration/test_additional_coverage.py::test_gdpr_export tests/integration/test_additional_coverage.py::test_gdpr_delete tests/integration/test_additional_coverage.py::test_gdpr_consent tests/integration/test_additional_coverage.py::test_storage_health tests/integration/test_additional_coverage.py::test_storage_service_health tests/integration/test_additional_coverage.py::test_storage_test_connection
+python -m pytest -q --no-cov tests/compliance/test_gdpr_comprehensive.py::TestGDPRDataExport::test_export_requires_authentication tests/compliance/test_gdpr_comprehensive.py::TestGDPRDataDeletion::test_deletion_requires_authentication tests/compliance/test_gdpr_comprehensive.py::TestGDPRConsentManagement::test_get_consent_requires_authentication tests/compliance/test_gdpr_comprehensive.py::TestGDPRConsentManagement::test_update_consent_requires_authentication tests/compliance/test_gdpr_comprehensive.py::TestGDPRAccessRequests::test_access_request_requires_authentication
 python -m ruff check backend/auth/api_decorators.py routes/auth_routes.py docs/TESTING.md docs/PRODUCTION_READINESS.md tests/contract/test_canonical_v1_route_contracts.py tests/integration/test_api_endpoints.py
+python -m ruff check backend/routes/analytics_routes.py backend/routes/gdpr_routes.py backend/routes/privacy_routes.py backend/routes/retention_routes.py backend/routes/storage_routes.py backend/persona_api.py backend/tracing/api.py tests/integration/test_analytics_api.py tests/integration_routes/test_api_ext_coverage.py tests/compliance/test_gdpr_comprehensive.py tests/integration/test_additional_coverage.py
 ```
 
 ## 2026-03-24 Remediation Sweep (Debugging + Error Hardening)

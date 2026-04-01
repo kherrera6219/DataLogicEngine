@@ -6,9 +6,8 @@ Provides admin endpoints for managing data retention policies.
 
 import logging
 from flask import Blueprint, jsonify, request
-from flask_login import login_required
 
-from backend.decorators import admin_required
+from backend.auth.api_decorators import api_admin_required
 from backend.retention_service import DataRetentionService, RetentionCategory
 
 logger = logging.getLogger(__name__)
@@ -17,8 +16,7 @@ retention_bp = Blueprint('retention', __name__, url_prefix='/api/v1/retention')
 
 
 @retention_bp.route('/policies', methods=['GET'])
-@login_required
-@admin_required
+@api_admin_required
 def list_policies():
     """
     List all data retention policies.
@@ -46,8 +44,7 @@ def list_policies():
 
 
 @retention_bp.route('/policies/<category>', methods=['GET'])
-@login_required
-@admin_required
+@api_admin_required
 def get_policy(category: str):
     """
     Get a specific retention policy.
@@ -94,8 +91,7 @@ def get_policy(category: str):
 
 
 @retention_bp.route('/policies/<category>', methods=['PUT'])
-@login_required
-@admin_required
+@api_admin_required
 def update_policy(category: str):
     """
     Update a retention policy.
@@ -162,8 +158,7 @@ def update_policy(category: str):
 
 
 @retention_bp.route('/cleanup', methods=['POST'])
-@login_required
-@admin_required
+@api_admin_required
 def run_cleanup():
     """
     Run data retention cleanup.

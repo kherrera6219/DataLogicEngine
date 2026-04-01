@@ -1,11 +1,11 @@
 from flask import Blueprint, jsonify, request
-from flask_login import login_required
+from backend.auth.api_decorators import api_session_login_required
 from backend.services.analytics_service import AnalyticsService
 
 analytics_bp = Blueprint('analytics', __name__, url_prefix='/api/v1/analytics')
 
 @analytics_bp.route('/overview', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_overview():
     """
     Get high-level dashboard metrics from real data.
@@ -22,7 +22,7 @@ def get_overview():
     }), 500
 
 @analytics_bp.route('/activity', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_activity():
     """
     Get recent system activity.
@@ -35,7 +35,7 @@ def get_activity():
     })
 
 @analytics_bp.route('/mcp', methods=['GET'])
-@login_required
+@api_session_login_required
 def get_mcp_stats():
     """
     Get MCP-specific statistics.
