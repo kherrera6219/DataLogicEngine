@@ -127,10 +127,13 @@ Copy-Item .env.template .env
 # 5. Enable pre-commit hooks
 git config core.hooksPath .githooks
 
-# 6. Start the development stack
+# 6. Verify local readiness before boot
+.venv\Scripts\python.exe .\scripts\dev_doctor.py --skip-ports
+
+# 7. Start the development stack
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
 
-# 7. Verify startup
+# 8. Verify startup
 .venv\Scripts\python.exe .\scripts\test_smoke.py
 ```
 
@@ -138,6 +141,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
 
 | Check | Command | Expected |
 |-------|---------|----------|
+| Local readiness | `.venv\Scripts\python.exe .\scripts\dev_doctor.py --skip-ports` | No blocker/error findings |
 | Backend health | `curl http://127.0.0.1:5000/health` | `{"status": "healthy"}` |
 | Frontend loads | Open `http://127.0.0.1:3000` | Dashboard renders |
 | Python lint | `.venv\Scripts\python.exe -m ruff check .` | Zero findings |

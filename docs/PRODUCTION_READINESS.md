@@ -193,6 +193,26 @@ python -m pytest -q --no-cov tests/test_health_endpoint.py
 python -m ruff check app.py tests/test_health_endpoint.py docs/OPERATIONAL_RUNBOOKS.md docs/PRODUCTION_READINESS.md docs/TESTING.md
 ```
 
+## 2026-03-31 Phase 6 Developer Experience Update
+
+Completed in this slice:
+
+1. **Single developer preflight command**
+   - `scripts/dev_doctor.py` now aggregates runtime readiness, CI parity, lockfile governance, and git-hook bootstrap checks into one local onboarding command.
+2. **Onboarding docs aligned to one workflow**
+   - `README.md`, `DEVELOPMENT.md`, `docs/DEVELOPER_GUIDE.md`, and `docs/ENGINEER_ONBOARDING.md` now all direct contributors through the same local readiness command before booting services.
+3. **Regression coverage added for the DX path**
+   - `tests/unit/test_dev_doctor.py` locks strict-mode behavior and git-hook bootstrap guidance so the onboarding path remains deterministic.
+
+Validation commands:
+
+```powershell
+python -m pytest -q --no-cov tests/unit/test_dev_doctor.py
+python scripts/dev_doctor.py --skip-ports
+python -m ruff check scripts/dev_doctor.py tests/unit/test_dev_doctor.py
+python scripts/verify_docs_references.py
+```
+
 ## 2026-03-24 Remediation Sweep (Debugging + Error Hardening)
 
 Completed in this pass:

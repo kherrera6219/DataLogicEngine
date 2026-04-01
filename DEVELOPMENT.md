@@ -20,10 +20,19 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 cp .env.template .env
+git config core.hooksPath .githooks
 
 cd frontend
 npm install
 cd ..
+```
+
+## Recommended preflight
+
+Run the local environment doctor before first boot or when onboarding a new machine:
+
+```bash
+python scripts/dev_doctor.py --skip-ports
 ```
 
 ## Running the application
@@ -70,6 +79,7 @@ pytest tests --maxfail=20
 ### Documentation and governance
 
 ```bash
+python scripts/dev_doctor.py --skip-ports
 python scripts/verify_environment_parity.py
 python scripts/verify_lockfiles.py
 python scripts/verify_docs_references.py

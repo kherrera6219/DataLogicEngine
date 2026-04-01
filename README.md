@@ -50,6 +50,7 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 cp .env.template .env
+git config core.hooksPath .githooks
 ```
 
 Set at minimum:
@@ -69,7 +70,13 @@ npm install
 cd ..
 ```
 
-### 3. Run locally
+### 3. Verify local readiness
+
+```bash
+python scripts/dev_doctor.py --skip-ports
+```
+
+### 4. Run locally
 
 **Backend**
 
@@ -113,6 +120,7 @@ pytest tests --maxfail=20
 ### Repo governance checks
 
 ```bash
+python scripts/dev_doctor.py --skip-ports
 python scripts/verify_environment_parity.py
 python scripts/verify_lockfiles.py
 python scripts/verify_docs_references.py

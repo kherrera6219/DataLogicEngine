@@ -26,9 +26,16 @@ python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 
 Copy-Item .env.template .env
+git config core.hooksPath .githooks
 cd frontend
 npm install
 cd ..
+```
+
+Verify local readiness before booting services:
+
+```powershell
+.\.venv\Scripts\python.exe .\scripts\dev_doctor.py --skip-ports
 ```
 
 Set in `.env`:
@@ -85,6 +92,12 @@ Bootstrap smoke check:
 
 ```powershell
 .\.venv\Scripts\python.exe .\scripts\test_smoke.py
+```
+
+Developer environment doctor:
+
+```powershell
+.\.venv\Scripts\python.exe .\scripts\dev_doctor.py --skip-ports
 ```
 
 Backend suite:
@@ -144,12 +157,11 @@ Regenerate inventory and generated structure docs after major repository changes
 .venv\Scripts\python.exe .\scripts\generate_docs.py
 ```
 
-## Common Gaps to Keep in Mind
+## Local workflow notes
 
-1. Notifications settings tab is still placeholder UI.
-2. Storage cloud configuration form is not fully persisted.
-3. Register form is visual only; no submit wiring yet.
-4. Some MCP admin actions are intentionally disabled pending backend workflows.
+1. `/api/v1/*` is the supported REST surface for application integrations; older `/api/*` aliases are compatibility-only.
+2. `AUTO_CREATE_SCHEMA=true` is a disposable local-only escape hatch and must not be carried into shared or production environments.
+3. Run `.\.venv\Scripts\python.exe .\scripts\dev_doctor.py --skip-ports` before escalating local setup issues or handoff problems.
 
 ## Related Documents
 
@@ -162,6 +174,6 @@ Regenerate inventory and generated structure docs after major repository changes
 ## Document Control
 
 1. Owner: Developer Experience
-2. Last updated: 2026-02-08
+2. Last updated: 2026-03-31
 3. Status: Active
 4. Review cadence: Every 30 days
