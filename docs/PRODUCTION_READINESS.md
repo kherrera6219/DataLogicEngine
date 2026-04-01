@@ -16,7 +16,7 @@ Provide production acceptance criteria, operational controls, and validation che
 ## Document control
 
 1. Owner: Platform Operations
-2. Last updated: 2026-02-17
+2. Last updated: 2026-03-31
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -44,7 +44,29 @@ Provide production acceptance criteria, operational controls, and validation che
 
 DataLogicEngine is an enterprise-grade AI/ML knowledge management platform designed for production deployment. This guide outlines the critical steps, configurations, and best practices for deploying the system in a production environment.
 
-**Current status**: Production hardened baseline
+**Current status**: Remediation in progress. Production-readiness claims must be backed by passing validation evidence on the real execution paths, not by stubbed fallbacks or documentation alone.
+
+## 2026-03-31 Phase 1 API Truthfulness + Authorization Update
+
+Completed in this pass:
+
+1. **Simulation session authorization hardening**
+   - `GET`, `run/step`, and `stop` on `/api/v1/simulations/<session_id>` now scope access to the authenticated principal and the persisted `session_id`.
+2. **Primary query path now uses a real gateway**
+   - `/api/v1/query` now calls the LLM gateway instead of returning canned keyword-based text.
+3. **Fail-closed simulation behavior**
+   - The backend simulation engine no longer returns synthetic success text when no gateway/provider path is available.
+4. **Legacy request compatibility**
+   - Simulation creation now normalizes legacy request bodies with `query` into `parameters` so older callers do not silently fail validation.
+5. **Verification sweep**
+   - `python -m pytest -q --no-cov tests/unit/test_simulation_engine_unit.py tests/unit/test_phase1_api_hardening.py`
+   - `python -m ruff check backend/simulation/simulation_engine.py routes/simulation_routes.py backend/routes/simulation_routes.py routes/api_routes.py tests/unit/test_simulation_engine_unit.py tests/unit/test_phase1_api_hardening.py`
+
+Remaining blockers before this area can be called production-ready:
+
+1. Run the gateway-backed query and simulation paths against a provider-configured staging environment.
+2. Expand strict integration coverage beyond the targeted unit/regression tests used in this pass.
+3. Remove or consolidate duplicate legacy route surfaces so the production path is unambiguous.
 
 ## 2026-03-24 Remediation Sweep (Debugging + Error Hardening)
 
@@ -154,7 +176,8 @@ Reference implementation reports:
 ### High Priority (Complete Within First Week)
 
 - [x] **Maintain comprehensive test suite** (coverage gate: >=70%, current: 71.47%)
-- [x] **Simulation engine is production implementation** (not stubs)
+- [x] **Primary query/simulation API paths fail closed when the gateway is unavailable**
+- [ ] **Validate simulation engine in provider-backed staging environment** (current pass removed synthetic fallback behavior, but end-to-end provider validation is still required)
 - [x] **Integrate all 123 Knowledge Algorithms** (Hardened with Pydantic & Fallbacks)
 - [x] **Implement 17-axis system** (Fully integrated into KA processing)
 - [x] **Set up automated database backups** - scripts/verify_backup_cron.sh

@@ -130,6 +130,7 @@ sequenceDiagram
 1. Some `Settings` and `MCP admin` UI actions remain partially wired; see `docs/PRODUCT_OVERVIEW.md`.
 2. External connector coverage depends on configured credentials and environment readiness.
 3. Architecture details in `docs/whitepapers/` may include exploratory content that is not operational source-of-truth.
+4. Legacy route duplication still exists across `routes/` and `backend/routes/`; production-readiness work should continue consolidating those surfaces.
 
 ## Related documents
 
@@ -144,6 +145,6 @@ sequenceDiagram
 ## Document control
 
 1. Owner: Platform Architecture
-2. Last updated: 2026-02-16
+2. Last updated: 2026-03-31
 3. Status: Active
 4. Review cadence: Every 30 days

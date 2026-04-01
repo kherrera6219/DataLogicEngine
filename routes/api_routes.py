@@ -8,21 +8,44 @@ import datetime
 from datetime import UTC
 import logging
 import uuid
+import asyncio
+import concurrent.futures
 
-from flask import Blueprint, request, jsonify
-from flask_login import current_user, login_required
+from flask import Blueprint, request, jsonify, g
+from flask_login import current_user
 from sqlalchemy import text, select
 
 from extensions import db
 from models import SimulationSession
 from models import Node, Edge, PillarLevel, Sector, Domain
-from backend.utils.responses import internal_error
+from backend.auth.api_decorators import api_login_required
+from backend.utils.error_normalization import normalize_public_error_message
+from backend.utils.responses import error_response, internal_error
 from backend.schemas.api_request_schemas import QueryRequest, SimulationRunRequest
 from backend.utils.flask_request_validation import get_validated_payload, validate_json_payload
 
 logger = logging.getLogger(__name__)
 
 api_bp = Blueprint('api', __name__, url_prefix='/api/v1')
+
+
+def _get_authenticated_user():
+    auth_user = getattr(g, "auth_user", None)
+    if auth_user is not None:
+        return auth_user
+    if getattr(current_user, "is_authenticated", False):
+        return current_user
+    return None
+
+
+def _run_async(coro):
+    try:
+        asyncio.get_running_loop()
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(asyncio.run, coro)
+            return future.result()
+    except RuntimeError:
+        return asyncio.run(coro)
 
 
 @api_bp.route('/health')
@@ -47,7 +70,7 @@ def api_health():
 
 
 @api_bp.route('/graph')
-@login_required
+@api_login_required
 def api_graph():
     """API endpoint to get graph data for visualization."""
     try:
@@ -120,7 +143,7 @@ def api_graph():
 
 
 @api_bp.route('/query', methods=['POST'])
-@login_required
+@api_login_required
 @validate_json_payload(QueryRequest)
 def api_query():
     """API endpoint to process a knowledge query."""
@@ -129,65 +152,94 @@ def api_query():
         if payload is None:
             return internal_error()
 
+        user = _get_authenticated_user()
+        if user is None:
+            return error_response("Authentication required", 401)
+
         query = payload.query
         confidence_threshold = payload.confidenceThreshold
         max_layer = payload.maxLayer
         
         simulation = SimulationSession()
         simulation.session_id = str(uuid.uuid4())
-        simulation.user_id = current_user.id
+        simulation.user_id = user.id
         simulation.parameters = {
             "query": query,
             "confidenceThreshold": confidence_threshold,
             "maxLayer": max_layer
         }
-        simulation.status = "completed"
-        simulation.current_step = 8
-        simulation.total_steps = 8
+        simulation.status = "running"
+        simulation.current_step = 0
+        simulation.total_steps = max_layer
         simulation.started_at = datetime.datetime.now(UTC)
-        simulation.completed_at = datetime.datetime.now(UTC)
-        
-        if "knowledge" in query.lower():
-            response = "The Universal Knowledge Graph organizes information across 13 axes, including knowledge domains, sectors, methods, and more. This allows for multi-perspective analysis of complex topics."
-            confidence = 0.92
-            active_layer = 2
-        elif "simulation" in query.lower():
-            response = "Simulations in the UKG system use a 10-layer architecture with recursive processing to generate insights based on integrated knowledge across multiple domains."
-            confidence = 0.89
-            active_layer = 3
-        elif "persona" in query.lower() or "expert" in query.lower():
-            response = "The Quad Persona Engine creates synthetic experts through 7 component structures (job role, education, certifications, skills, training, career path, related jobs). This allows the system to provide multi-perspective expertise on complex topics."
-            confidence = 0.94
-            active_layer = 4
-        else:
-            response = f"I understand your query about '{query}'. The Universal Knowledge Graph integrates multiple perspectives on this topic across knowledge domains, sectors, regulatory frameworks, and compliance requirements."
-            confidence = 0.85
-            active_layer = 1
-        
-        simulation.results = {
-            "response": response,
-            "confidenceScore": confidence,
-            "activeLayer": active_layer
-        }
-        
         db.session.add(simulation)
+        db.session.commit()
+
+        from backend.llm_gateway.gateway import GatewayRequest, get_gateway
+
+        gateway_request = GatewayRequest(
+            messages=[{"role": "user", "content": query}],
+            run_ukg_pipeline=True,
+            user_id=user.id,
+            session_id=simulation.session_id,
+            meta={
+                "source": "api_v1_query",
+                "confidence_threshold": confidence_threshold,
+                "max_layer": max_layer,
+            },
+        )
+        response = _run_async(get_gateway().process(gateway_request))
+        if not response or not getattr(response, "ok", True):
+            simulation.status = "failed"
+            simulation.completed_at = datetime.datetime.now(UTC)
+            simulation.results = {
+                "error": getattr(response, "error", "Gateway failed to generate a response") if response else "No gateway response",
+                "run_id": getattr(response, "run_id", None) if response else None,
+                "provider_used": getattr(response, "provider_used", None) if response else None,
+                "model_used": getattr(response, "model_used", None) if response else None,
+            }
+            db.session.commit()
+            return error_response(
+                normalize_public_error_message(
+                    getattr(response, "error", None) if response else None,
+                    "Query service unavailable",
+                ),
+                503,
+                error_code="QUERY_UNAVAILABLE",
+            )
+
+        explainability = response.explainability if isinstance(response.explainability, dict) else {}
+        confidence = explainability.get("confidence_score", 0.85)
+        active_layer = len(response.layers) if response.layers else 1
+        simulation.status = "completed"
+        simulation.current_step = active_layer
+        simulation.completed_at = datetime.datetime.now(UTC)
+        simulation.results = {
+            "response": response.content,
+            "confidenceScore": confidence,
+            "activeLayer": active_layer,
+            "providerUsed": response.provider_used,
+            "modelUsed": response.model_used,
+            "runId": response.run_id,
+            "warnings": response.warnings,
+        }
         db.session.commit()
         
         return jsonify({
             "query": query,
-            "response": response,
+            "response": response.content,
             "confidenceScore": confidence,
             "activeLayer": active_layer,
             "simulationId": simulation.session_id
         })
     
     except Exception as e:
-        logger.error(f"Error processing query: {str(e)}")
+        logger.error(f"Error processing query: {str(e)}", exc_info=True)
         return internal_error()
 
 
 @api_bp.route('/simulation/run', methods=['POST'])
-@login_required
+@api_login_required
 @validate_json_payload(SimulationRunRequest)
 def api_run_simulation():
     """API endpoint to run a simulation."""
@@ -195,6 +247,10 @@ def api_run_simulation():
         payload = get_validated_payload(SimulationRunRequest)
         if payload is None:
             return internal_error()
+
+        user = _get_authenticated_user()
+        if user is None:
+            return error_response("Authentication required", 401)
 
         query = payload.query
         confidence_threshold = payload.confidenceThreshold
@@ -204,7 +260,7 @@ def api_run_simulation():
         simulation = SimulationSession()
         simulation.session_id = str(uuid.uuid4())
         simulation.name = payload.name or f"Simulation {datetime.datetime.now(UTC).strftime('%Y-%m-%d %H:%M')}"
-        simulation.user_id = current_user.id
+        simulation.user_id = user.id
         simulation.parameters = {
             "query": query,
             "confidenceThreshold": confidence_threshold,
@@ -226,5 +282,5 @@ def api_run_simulation():
         })
     
     except Exception as e:
-        logger.error(f"Error starting simulation: {str(e)}")
+        logger.error(f"Error starting simulation: {str(e)}", exc_info=True)
         return internal_error()

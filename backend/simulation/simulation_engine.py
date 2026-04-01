@@ -147,28 +147,55 @@ class SimulationEngine:
         Returns:
             LLM response text
         """
-        if not self.llm_gateway:
-            # Fallback to simple response if no gateway
-            return f"[{persona}] Analysis: {prompt[:100]}..."
-        
         try:
-            # Use existing LLM gateway
-            from llm_gateway.gateway import get_llm_gateway
-            gateway = get_llm_gateway()
-            
-            response = await gateway.chat_completion(
-                messages=[
-                    {"role": "system", "content": f"You are {persona}, an expert analyst."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=500
+            gateway = self.llm_gateway
+            if gateway is None:
+                from backend.llm_gateway.gateway import get_gateway
+
+                gateway = get_gateway()
+
+            if not hasattr(gateway, "process"):
+                raise RuntimeError("Configured LLM gateway does not expose a process(request) method")
+
+            from backend.llm_gateway.gateway import GatewayRequest
+
+            response = await gateway.process(
+                GatewayRequest(
+                    messages=[
+                        {"role": "system", "content": f"You are {persona}, an expert analyst."},
+                        {"role": "user", "content": prompt},
+                    ],
+                    mode="chat",
+                    run_ukg_pipeline=True,
+                    temperature=0.7,
+                    max_tokens=500,
+                    meta={
+                        "source": "simulation_engine",
+                        "persona": persona,
+                    },
+                )
             )
-            
-            return response.get('content', '')
+            if response is None:
+                raise RuntimeError("LLM gateway returned no response")
+
+            if isinstance(response, dict):
+                ok = bool(response.get("ok", True))
+                content = response.get("content", "")
+                error = response.get("error")
+            else:
+                ok = bool(getattr(response, "ok", True))
+                content = getattr(response, "content", "")
+                error = getattr(response, "error", None)
+
+            if not ok:
+                raise RuntimeError(error or "LLM gateway request failed")
+            if not content:
+                raise RuntimeError("LLM gateway returned an empty response")
+
+            return content
         except Exception as e:
-            self.logger.error(f"LLM call failed: {e}")
-            return f"[{persona}] Error: Unable to generate response"
+            self.logger.error(f"LLM call failed: {e}", exc_info=True)
+            raise RuntimeError(f"LLM execution failed for persona '{persona}'") from e
 
     async def run_simulation(self, simulation_id: str, depth: str = "standard", timeout: int = 300) -> Dict[str, Any]:
         """

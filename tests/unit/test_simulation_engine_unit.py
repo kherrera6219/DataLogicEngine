@@ -1,4 +1,5 @@
 import asyncio
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -109,6 +110,32 @@ async def test_run_simulation_failure_returns_failed_status():
     assert result["metadata"]["error_type"] == "RuntimeError"
     assert "llm unavailable" in result["metadata"]["error"]
     assert sim_id not in engine.active_simulations
+
+
+@pytest.mark.asyncio
+async def test_call_llm_uses_gateway_process():
+    gateway = SimpleNamespace(
+        process=AsyncMock(return_value=SimpleNamespace(ok=True, content="gateway-output", error=None))
+    )
+    engine = SimulationEngine(llm_gateway=gateway)
+
+    result = await engine._call_llm("Prompt body", "Analyst")
+
+    assert result == "gateway-output"
+    gateway.process.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_call_llm_raises_when_gateway_returns_error():
+    gateway = SimpleNamespace(
+        process=AsyncMock(
+            return_value=SimpleNamespace(ok=False, content="", error="No active providers found")
+        )
+    )
+    engine = SimulationEngine(llm_gateway=gateway)
+
+    with pytest.raises(RuntimeError, match="LLM execution failed"):
+        await engine._call_llm("Prompt body", "Analyst")
 
 
 def test_process_query_without_running_loop():

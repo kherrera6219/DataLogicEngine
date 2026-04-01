@@ -96,3 +96,6 @@ htmlcov/
 # Replit
 .replit
 replit.nix
+
+# Local agent/worktree cache
+.claude/

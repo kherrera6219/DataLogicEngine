@@ -14,7 +14,7 @@ Define security controls, identity/access patterns, data protection measures, an
 ## Document control
 
 1. Owner: Security Engineering
-2. Last updated: 2026-03-17
+2. Last updated: 2026-03-31
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -24,6 +24,24 @@ Define security controls, identity/access patterns, data protection measures, an
 2. `docs/OPERATIONAL_RUNBOOKS.md`
 3. `docs/SDLC_SSDF_MAPPING.md`
 4. `docs/AI_MANAGEMENT_SYSTEM_42001.md`
+
+## 2026-03-31 API Authorization & Fail-Closed Update
+
+The following controls were implemented in this remediation pass:
+
+1. **Simulation object-level authorization**
+   - `/api/v1/simulations/<session_id>` read/run/stop operations now scope by authenticated principal and persisted `session_id`.
+2. **Principal consistency across session and API-key auth**
+   - Updated route handling now uses the authenticated API principal resolved by `api_login_required`, rather than assuming a session-backed `current_user`.
+3. **Fail-closed query behavior**
+   - `/api/v1/query` now returns `503` when the gateway/provider path cannot serve the request, instead of returning canned content that could be mistaken for a real answer.
+4. **Simulation engine fallback removal**
+   - The backend simulation engine now raises on gateway failures instead of generating synthetic analysis text.
+
+Verification evidence:
+
+- `python -m pytest -q --no-cov tests/unit/test_simulation_engine_unit.py tests/unit/test_phase1_api_hardening.py`
+- `python -m ruff check backend/simulation/simulation_engine.py routes/simulation_routes.py backend/routes/simulation_routes.py routes/api_routes.py tests/unit/test_simulation_engine_unit.py tests/unit/test_phase1_api_hardening.py`
 
 ## Overview
 
@@ -80,7 +98,7 @@ The `API Gateway` implements multi-tiered rate limiting using **Redis**:
 - **User/Tenant Quotas**: Ensures fair usage and cost predictability.
 - **Endpoint Specific**: Critical reasoning endpoints have tighter limits than static asset routes.
 
-**Current status**: Production hardened baseline
+**Current status**: Security remediation in progress. Controls described below should be treated as implemented only when backed by passing tests, deploy checks, and environment validation.
 **Version**: 4.1.0
 **Last security control review**: 2026-02-08
 
