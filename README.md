@@ -74,8 +74,11 @@ cd ..
 **Backend**
 
 ```bash
+flask db upgrade
 python main.py
 ```
+
+Use `AUTO_CREATE_SCHEMA=true` only for disposable local environments. Managed and shared environments should use migrations.
 
 **Frontend**
 

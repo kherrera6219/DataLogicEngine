@@ -657,6 +657,8 @@ python backend/seed_data.py
 python main.py  # Runs on :5000
 ```
 
+`AUTO_CREATE_SCHEMA=true` can be used for disposable local environments, but the canonical startup path now assumes migrations are applied before the app boots.
+
 **Terminal 2 - Frontend**:
 
 ```bash

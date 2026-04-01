@@ -68,6 +68,35 @@ Remaining blockers before this area can be called production-ready:
 2. Expand strict integration coverage beyond the targeted unit/regression tests used in this pass.
 3. Remove or consolidate duplicate legacy route surfaces so the production path is unambiguous.
 
+## 2026-03-31 Phase 2 Startup Normalization Update
+
+Completed in this pass:
+
+1. **Schema mutation is no longer implicit at startup**
+   - `app.py` now requires explicit `AUTO_CREATE_SCHEMA=true` before calling `db.create_all()`.
+   - Default startup guidance now expects `flask db upgrade` before `python main.py`.
+2. **Canonical blueprint registration path**
+   - App-level blueprint wiring was collapsed into a single registration function in `app.py` so the startup path is easier to audit.
+3. **Duplicate startup wiring removed**
+   - Removed the extra simulation-blueprint registration fallback from `app.py`.
+   - Removed duplicate `limiter.init_app(app)` startup initialization.
+   - `backend/routes/simulation_routes.py` now acts as a compatibility shim over the canonical `routes/simulation_routes.py` blueprint instead of defining a second route implementation.
+4. **Entrypoint consistency**
+   - `main.py`, `wsgi.py`, and direct `app` imports now share the same runtime compatibility patch path through `backend/bootstrap_compat.py`.
+
+Validation commands:
+
+```powershell
+python -m pytest -q --no-cov tests/test_health_endpoint.py tests/unit/test_simulation_engine_unit.py tests/unit/test_phase1_api_hardening.py
+python -m ruff check app.py main.py wsgi.py routes/api_routes.py routes/simulation_routes.py backend/routes/simulation_routes.py backend/simulation/simulation_engine.py tests/unit/test_simulation_engine_unit.py tests/unit/test_phase1_api_hardening.py
+```
+
+Remaining blockers in this area:
+
+1. Finish moving app bootstrap toward an app-factory structure.
+2. Reduce legacy route duplication across `routes/` and `backend/routes/`.
+3. Align deployment/run scripts around the canonical migration-first startup path.
+
 ## 2026-03-24 Remediation Sweep (Debugging + Error Hardening)
 
 Completed in this pass:

@@ -109,7 +109,8 @@ def main():
             print("  .venv\\Scripts\\activate")
         else:
             print("  source .venv/bin/activate")
-        print("  python app.py")
+        print("  flask db upgrade")
+        print("  python main.py")
         
     except Exception as e:
         print_error(f"Setup failed: {str(e)}")

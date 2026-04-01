@@ -9,8 +9,11 @@ from datetime import UTC, datetime, timedelta
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 
+from backend.bootstrap_compat import apply_runtime_compatibility_patches
+
 # Load environment variables from .env file BEFORE any other imports
 load_dotenv()
+apply_runtime_compatibility_patches()
 
 from flask import Flask, render_template, request, redirect, flash, jsonify, current_app, Response
 from flask_login import login_required, current_user
@@ -166,7 +169,6 @@ else:
 # Rate limiting configuration
 app.config["RATELIMIT_DEFAULT"] = os.environ.get("GLOBAL_RATE_LIMIT", "200 per hour")
 app.config["RATELIMIT_STORAGE_URI"] = os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
-limiter.init_app(app)
 
 
 @app.before_request
@@ -266,7 +268,7 @@ else:
     app.config["CELERY_TASK_ALWAYS_EAGER"] = True # Run synchronously
 
 # Initialize extensions with app
-from extensions import db, login_manager, csrf, migrate, cache, compress, cors, limiter
+from extensions import db, login_manager, csrf, migrate, cache, compress, cors
 from models import User
 db.init_app(app)
 login_manager.init_app(app)
@@ -470,10 +472,26 @@ def password_meets_policy(password: str) -> bool:
     has_symbol = re.search(r"[^A-Za-z0-9]", password)
     return all([has_upper, has_lower, has_digit, has_symbol])
 
-# Create tables
-with app.app_context():
-    db.create_all()
-    logger.info("Database tables created")
+def _should_auto_create_schema() -> bool:
+    """Require explicit opt-in before mutating schema at process startup."""
+    return os.environ.get("AUTO_CREATE_SCHEMA", "False").lower() == "true"
+
+
+def _initialize_database_schema() -> None:
+    """Initialize schema only when explicitly requested for disposable environments."""
+    if not _should_auto_create_schema():
+        logger.info("Startup schema auto-creation disabled; use 'flask db upgrade' or backend/init_db.py.")
+        return
+
+    with app.app_context():
+        db.create_all()
+        logger.warning(
+            "Database tables auto-created because AUTO_CREATE_SCHEMA=true. "
+            "Do not enable this in managed or production environments."
+        )
+
+
+_initialize_database_schema()
 
 # Configure optional Postgres tenant RLS policy bootstrap + request context binding.
 TENANT_RLS_STATUS = configure_tenant_rls(app, db)
@@ -496,133 +514,123 @@ else:
 
 # KA Routes moved to routes/ka_routes.py (registered via routes package)
 
-# Register Truth Engine API blueprint (lazy initialization - components load on first use)
-from backend.truth_engine.api import truth_api
-app.register_blueprint(truth_api, url_prefix='/api/v1/truth')
-app.register_blueprint(truth_api, name='truth_legacy', url_prefix='/api/truth')
-logger.info("Truth Engine API blueprint registered (v1 + legacy)")
+def _register_application_routes() -> None:
+    """Register canonical application blueprints in one startup location."""
+    from backend.truth_engine.api import truth_api
 
-# Register Persona API blueprint
-try:
-    from backend.persona_api import persona_api
-    app.register_blueprint(persona_api, url_prefix='/api/v1/persona')
-    app.register_blueprint(persona_api, name='persona_legacy', url_prefix='/api/persona')
-    logger.info("Persona API blueprint registered (v1 + legacy)")
-except ImportError as e:
-    logger.warning(f"Could not register Persona API blueprint: {e}")
+    app.register_blueprint(truth_api, url_prefix='/api/v1/truth')
+    app.register_blueprint(truth_api, name='truth_legacy', url_prefix='/api/truth')
+    logger.info("Truth Engine API blueprint registered (v1 + legacy)")
 
-# Register Pillar API blueprint
-try:
-    from backend.pillar_api import pillar_api
-    app.register_blueprint(pillar_api, url_prefix='/api/v1/pillar')
-    app.register_blueprint(pillar_api, name='pillar_legacy', url_prefix='/api/pillar')
-    logger.info("Pillar API blueprint registered (v1 + legacy)")
-except ImportError as e:
-    logger.warning(f"Could not register Pillar API blueprint: {e}")
+    try:
+        from backend.persona_api import persona_api
+        app.register_blueprint(persona_api, url_prefix='/api/v1/persona')
+        app.register_blueprint(persona_api, name='persona_legacy', url_prefix='/api/persona')
+        logger.info("Persona API blueprint registered (v1 + legacy)")
+    except ImportError as e:
+        logger.warning(f"Could not register Persona API blueprint: {e}")
 
-# Register Compliance / Regulatory API blueprint (Axis 6/7)
-try:
-    from backend.regulatory_api import regulatory_api
-    app.register_blueprint(regulatory_api, url_prefix='/api/v1/compliance')
-    app.register_blueprint(regulatory_api, name='compliance_legacy', url_prefix='/api/compliance')
-    # Also register under regulatory for clarity
-    app.register_blueprint(regulatory_api, name='regulatory_api_v1', url_prefix='/api/v1/regulatory')
-    logger.info("Regulatory/Compliance API blueprint registered (v1 + legacy)")
-except ImportError as e:
-    logger.warning(f"Could not register Regulatory/Compliance API blueprint: {e}")
+    try:
+        from backend.pillar_api import pillar_api
+        app.register_blueprint(pillar_api, url_prefix='/api/v1/pillar')
+        app.register_blueprint(pillar_api, name='pillar_legacy', url_prefix='/api/pillar')
+        logger.info("Pillar API blueprint registered (v1 + legacy)")
+    except ImportError as e:
+        logger.warning(f"Could not register Pillar API blueprint: {e}")
 
-# Register UKG API (defined in backend/ukg_api.py, prefix set in BP)
-from backend.ukg_api import ukg_api
-app.register_blueprint(ukg_api, url_prefix='/api/v1')
-# Add legacy alias for tests
-app.register_blueprint(ukg_api, name='ukg_legacy', url_prefix='/api/ukg')
+    try:
+        from backend.regulatory_api import regulatory_api
+        app.register_blueprint(regulatory_api, url_prefix='/api/v1/compliance')
+        app.register_blueprint(regulatory_api, name='compliance_legacy', url_prefix='/api/compliance')
+        app.register_blueprint(regulatory_api, name='regulatory_api_v1', url_prefix='/api/v1/regulatory')
+        logger.info("Regulatory/Compliance API blueprint registered (v1 + legacy)")
+    except ImportError as e:
+        logger.warning(f"Could not register Regulatory/Compliance API blueprint: {e}")
 
-# Register Replit Auth blueprint (optional - only if REPL_ID is set)
-try:
-    from replit_auth import make_replit_blueprint
-    replit_bp = make_replit_blueprint()
-    if replit_bp:
-        app.register_blueprint(replit_bp, url_prefix="/auth")
-        logger.info("Replit Auth blueprint registered")
-    else:
-        logger.info("Replit Auth disabled (REPL_ID not set)")
-except ImportError as e:
-    logger.warning(f"Could not register Replit Auth blueprint: {e}")
+    from backend.ukg_api import ukg_api
 
-# Register Swagger UI for API documentation
-from flask_swagger_ui import get_swaggerui_blueprint
-SWAGGER_URL = '/api/docs'
-API_URL = '/static/swagger.json'
-swaggerui_blueprint = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL,
-    config={'app_name': "Universal Knowledge Graph API"}
-)
-app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
-logger.info("Swagger UI registered at /api/docs")
+    app.register_blueprint(ukg_api, url_prefix='/api/v1')
+    app.register_blueprint(ukg_api, name='ukg_legacy', url_prefix='/api/ukg')
 
-# Register Trace API for enterprise traceability
-try:
-    from backend.tracing.api import trace_bp
-    app.register_blueprint(trace_bp)
-    logger.info("Trace API blueprint registered at /api/v1/trace")
-except ImportError as e:
-    logger.warning(f"Could not register Trace API blueprint: {e}")
+    try:
+        from replit_auth import make_replit_blueprint
+        replit_bp = make_replit_blueprint()
+        if replit_bp:
+            app.register_blueprint(replit_bp, url_prefix="/auth")
+            logger.info("Replit Auth blueprint registered")
+        else:
+            logger.info("Replit Auth disabled (REPL_ID not set)")
+    except ImportError as e:
+        logger.warning(f"Could not register Replit Auth blueprint: {e}")
 
-# Register LLM Gateway API for external client access via UKG SDK
-try:
-    from backend.llm_gateway.api import register_gateway_routes
-    register_gateway_routes(app)
-    logger.info("LLM Gateway API registered at /api/v1/gateway and /api/admin")
-except ImportError as e:
-    logger.warning(f"Could not register LLM Gateway API: {e}")
+    from flask_swagger_ui import get_swaggerui_blueprint
 
-# Register Analytics API for dashboard data
-try:
-    from backend.routes.analytics_routes import analytics_bp
-    app.register_blueprint(analytics_bp)
-    logger.info("Analytics API registered at /api/v1/analytics")
-except ImportError as e:
-    logger.warning(f"Could not register Analytics API: {e}")
+    swaggerui_blueprint = get_swaggerui_blueprint(
+        '/api/docs',
+        '/static/swagger.json',
+        config={'app_name': "Universal Knowledge Graph API"},
+    )
+    app.register_blueprint(swaggerui_blueprint, url_prefix='/api/docs')
+    logger.info("Swagger UI registered at /api/docs")
 
-# Register GraphQL API endpoint
-try:
-    logger.debug("Registering GraphQL...")
-    from backend.graphql_schema import register_graphql
-    register_graphql(app)
-    logger.info("GraphQL API registered at /graphql (GraphiQL enabled)")
-except ImportError as e:
-    logger.warning(f"Could not register GraphQL API: {e}")
-except Exception as e:
-    logger.error(f"GraphQL registration error: {e}")
+    try:
+        from backend.tracing.api import trace_bp
+        app.register_blueprint(trace_bp)
+        logger.info("Trace API blueprint registered at /api/v1/trace")
+    except ImportError as e:
+        logger.warning(f"Could not register Trace API blueprint: {e}")
 
-# Register GDPR compliance API
-try:
-    from backend.routes.gdpr_routes import gdpr_bp
-    app.register_blueprint(gdpr_bp)
-    logger.info("GDPR API registered at /api/v1/gdpr")
-except ImportError as e:
-    logger.warning(f"Could not register GDPR API: {e}")
+    try:
+        from backend.llm_gateway.api import register_gateway_routes
+        register_gateway_routes(app)
+        logger.info("LLM Gateway API registered at /api/v1/gateway and /api/admin")
+    except ImportError as e:
+        logger.warning(f"Could not register LLM Gateway API: {e}")
 
-# Register Data Retention API
-try:
-    from backend.routes.retention_routes import retention_bp
-    app.register_blueprint(retention_bp)
-    logger.info("Retention API registered at /api/v1/retention")
-except ImportError as e:
-    logger.warning(f"Could not register Retention API: {e}")
+    try:
+        from backend.routes.analytics_routes import analytics_bp
+        app.register_blueprint(analytics_bp)
+        logger.info("Analytics API registered at /api/v1/analytics")
+    except ImportError as e:
+        logger.warning(f"Could not register Analytics API: {e}")
 
-# Register Privacy & Data Deletion API
-try:
-    from backend.routes.privacy_routes import privacy_bp
-    app.register_blueprint(privacy_bp)
-    logger.info("Privacy API registered at /api/v1/privacy")
-except ImportError as e:
-    logger.warning(f"Could not register Privacy API: {e}")
+    try:
+        logger.debug("Registering GraphQL...")
+        from backend.graphql_schema import register_graphql
+        register_graphql(app)
+        logger.info("GraphQL API registered at /graphql (GraphiQL enabled)")
+    except ImportError as e:
+        logger.warning(f"Could not register GraphQL API: {e}")
+    except Exception as e:
+        logger.error(f"GraphQL registration error: {e}")
 
-# Register core routes from routes package
-from routes import register_routes
-register_routes(app)
+    try:
+        from backend.routes.gdpr_routes import gdpr_bp
+        app.register_blueprint(gdpr_bp)
+        logger.info("GDPR API registered at /api/v1/gdpr")
+    except ImportError as e:
+        logger.warning(f"Could not register GDPR API: {e}")
+
+    try:
+        from backend.routes.retention_routes import retention_bp
+        app.register_blueprint(retention_bp)
+        logger.info("Retention API registered at /api/v1/retention")
+    except ImportError as e:
+        logger.warning(f"Could not register Retention API: {e}")
+
+    try:
+        from backend.routes.privacy_routes import privacy_bp
+        app.register_blueprint(privacy_bp)
+        logger.info("Privacy API registered at /api/v1/privacy")
+    except ImportError as e:
+        logger.warning(f"Could not register Privacy API: {e}")
+
+    from routes import register_routes
+
+    register_routes(app)
+
+
+_register_application_routes()
 
 
 @app.route('/api/v1/csp-report', methods=['POST'])
@@ -783,16 +791,7 @@ def metrics() -> Response:
 # Note: /login, /register, /logout, /dashboard are defined in routes.py with more complete implementations
 
 
-# Register Simulation API routes
-if 'simulation_api' in app.blueprints:
-    logger.info("Simulation API routes already registered via routes package; skipping duplicate backend blueprint")
-else:
-    try:
-        from backend.routes.simulation_routes import simulation_bp
-        app.register_blueprint(simulation_bp, url_prefix='/api/v1/simulations')
-        logger.info("Simulation API routes registered")
-    except ImportError as e:
-        logger.warning(f"Could not register Simulation API routes: {e}")
+# Simulation API routes are registered via routes.register_routes()
 
 
 @app.route('/chat')

@@ -31,8 +31,11 @@ cd ..
 ### Backend
 
 ```bash
+flask db upgrade
 python main.py
 ```
+
+`AUTO_CREATE_SCHEMA=true` is available only as a local escape hatch for disposable databases. The default Phase 2 startup path expects migrations.
 
 ### Frontend
 

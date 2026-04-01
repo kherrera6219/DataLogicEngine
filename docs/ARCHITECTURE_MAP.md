@@ -125,6 +125,13 @@ sequenceDiagram
 | Environment parity | `python scripts/verify_environment_parity.py` |
 | Lockfile integrity | `python scripts/verify_lockfiles.py` |
 
+## Startup notes
+
+1. Canonical Flask bootstrap lives in `app.py`.
+2. App-level blueprint wiring is centralized in `app.py::_register_application_routes()`.
+3. Startup schema creation is opt-in via `AUTO_CREATE_SCHEMA=true`; the default path is migration-first.
+4. `main.py` and `wsgi.py` share runtime compatibility patches through `backend/bootstrap_compat.py`.
+
 ## Known limitations
 
 1. Some `Settings` and `MCP admin` UI actions remain partially wired; see `docs/PRODUCT_OVERVIEW.md`.

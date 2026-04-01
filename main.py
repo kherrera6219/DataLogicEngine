@@ -1,31 +1,11 @@
+# ruff: noqa: E402
 import signal
 import sys
-import collections
 import os
 
-# Polyfill for MutableMapping (moved to collections.abc in Python 3.10+)
-if not hasattr(collections, 'MutableMapping'):
-    import collections.abc
-    collections.MutableMapping = collections.abc.MutableMapping
-    collections.Mapping = collections.abc.Mapping
-    collections.Sequence = collections.abc.Sequence
-    collections.Iterable = collections.abc.Iterable
-    collections.Callable = collections.abc.Callable
+from backend.bootstrap_compat import apply_runtime_compatibility_patches
 
-# Polyfill for GraphQL-core 3.x vs flask-graphql 2.x incompatibility
-try:
-    import graphql
-    if not hasattr(graphql, 'get_default_backend'):
-        def get_default_backend():
-            return None
-        graphql.get_default_backend = get_default_backend
-    
-    import graphql.error
-    if not hasattr(graphql.error, 'format_error'):
-        # Mock format_error for flask-graphql compatibility
-        graphql.error.format_error = lambda e: str(e)
-except ImportError:
-    pass
+apply_runtime_compatibility_patches()
 
 from app import app, DEFAULT_PORT
 from backend.storage.database_manager import get_db_manager
