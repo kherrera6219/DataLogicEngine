@@ -76,6 +76,15 @@ Define enterprise testing standards, required quality gates, and execution workf
 2. The new unit regression suite in `tests/unit/test_dev_doctor.py` locks strict-mode failure semantics and git-hook guidance behavior.
 3. README, `DEVELOPMENT.md`, `docs/DEVELOPER_GUIDE.md`, and `docs/ENGINEER_ONBOARDING.md` now point new contributors at the same preflight command before stack startup.
 
+## 2026-03-31 Phase 7 release governance update
+
+1. `scripts/verify_release_governance.py` now checks that `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`, and `docs/RELEASE_CHECKLIST.md` agree on required release gates.
+2. `tests/unit/test_release_governance.py` locks the new verifier against both missing-gate and happy-path cases.
+3. The final targeted release sweep now includes:
+   - `tests/unit/test_phase3_integrity_crash_controls.py`
+   - `tests/integration_routes/test_desktop_auto_login_security.py`
+   - `tests/unit/test_release_governance.py`
+
 ## Section 9 subsystem coverage (updated 2026-02-16)
 
 1. Unit test framework: `pytest` (backend) and `vitest` (frontend) enforced in CI.

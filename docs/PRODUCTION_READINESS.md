@@ -213,6 +213,28 @@ python -m ruff check scripts/dev_doctor.py tests/unit/test_dev_doctor.py
 python scripts/verify_docs_references.py
 ```
 
+## 2026-03-31 Phase 7 Release Governance Update
+
+Completed in this slice:
+
+1. **Release governance is now machine-checkable**
+   - `scripts/verify_release_governance.py` verifies that the release checklist, CI workflow, and deploy workflow stay aligned on required promotion gates.
+2. **Release checklist now separates repo evidence from live-release evidence**
+   - `docs/RELEASE_CHECKLIST.md` now distinguishes repo-verifiable checks, artifact-only checks, and manual approval requirements so local validation does not overclaim production proof.
+3. **Targeted release-safety regressions are now part of the closing sweep**
+   - The final regression pass explicitly exercises desktop auto-login security and trace/export integrity paths alongside the release-governance verifier.
+
+Validation commands:
+
+```powershell
+python -m pytest -q --no-cov tests/unit/test_release_governance.py tests/unit/test_phase3_integrity_crash_controls.py tests/integration_routes/test_desktop_auto_login_security.py
+python -m ruff check scripts/verify_release_governance.py tests/unit/test_release_governance.py
+python scripts/verify_release_governance.py
+$env:DATABASE_URL='sqlite:///:memory:'; $env:OPENAI_API_KEY='phase7-mock-key'; python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process
+python scripts/verify_lockfiles.py
+python scripts/verify_docs_references.py
+```
+
 ## 2026-03-24 Remediation Sweep (Debugging + Error Hardening)
 
 Completed in this pass:
