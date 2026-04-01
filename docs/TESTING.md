@@ -14,7 +14,7 @@ Define enterprise testing standards, required quality gates, and execution workf
 ## Document control
 
 1. Owner: Quality Engineering
-2. Last updated: 2026-03-17
+2. Last updated: 2026-03-31
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -45,6 +45,16 @@ Define enterprise testing standards, required quality gates, and execution workf
    - `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE9_2026-02-17.md`
    - `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE10_2026-02-17.md`
    - `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE11_2026-02-17.md`
+
+## 2026-03-31 Phase 4 contract hardening update
+
+1. Added canonical `/api/v1/*` route contract tests in `tests/contract/test_canonical_v1_route_contracts.py`.
+2. The contract suite now asserts JSON `401` behavior for unauthenticated canonical endpoints instead of tolerating redirect semantics.
+3. The same suite now locks deterministic malformed-request behavior:
+   - `/api/v1/query` -> `422 VALIDATION_ERROR`
+   - `/api/v1/simulation/run` -> `422 VALIDATION_ERROR`
+   - `/api/v1/simulations` with no parameters -> `400 Missing parameters`
+4. Canonical simulation happy-path behavior is now covered with strict `201/200/200/200` expectations for create, list, run, and fetch operations.
 
 ## Section 9 subsystem coverage (updated 2026-02-16)
 

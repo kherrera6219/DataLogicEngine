@@ -137,6 +137,26 @@ python -m pytest -q --no-cov tests/unit/test_phase3_api_surface_governance.py te
 python -m ruff check app.py docs/API.md docs/API_VERSIONING.md docs/ARCHITECTURE_MAP.md docs/PRODUCTION_READINESS.md tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py
 ```
 
+## 2026-03-31 Phase 4 Testing Hardening Start
+
+Completed in this slice:
+
+1. **Canonical v1 route contracts added**
+   - `tests/contract/test_canonical_v1_route_contracts.py` now enforces strict status semantics on supported `/api/v1/*` routes.
+2. **Redirect-style auth regressions are blocked on canonical routes**
+   - Unauthenticated requests to `/api/v1/graph`, `/api/v1/query`, `/api/v1/simulation/run`, and `/api/v1/simulations` must return JSON `401` responses with no `Location` redirect.
+3. **Malformed request semantics are explicit**
+   - Authenticated malformed calls now have locked regression expectations for `422 VALIDATION_ERROR` and `400 Missing parameters` on the canonical simulation/query paths.
+4. **Canonical simulation happy path is pinned**
+   - Create, list, run, and fetch for `/api/v1/simulations` now have strict success-path assertions instead of broad acceptable-status buckets.
+
+Validation commands:
+
+```powershell
+python -m pytest -q --no-cov tests/contract/test_canonical_v1_route_contracts.py tests/contract/test_api_contract.py tests/unit/test_phase1_api_hardening.py tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py tests/test_health_endpoint.py
+python -m ruff check docs/TESTING.md docs/PRODUCTION_READINESS.md tests/contract/test_canonical_v1_route_contracts.py
+```
+
 ## 2026-03-24 Remediation Sweep (Debugging + Error Hardening)
 
 Completed in this pass:
