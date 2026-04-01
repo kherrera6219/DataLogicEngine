@@ -7,6 +7,10 @@ def test_canonical_v1_auth_failures_are_json_401s(client):
         ("POST", "/api/v1/query", {}),
         ("POST", "/api/v1/simulation/run", {}),
         ("POST", "/api/v1/simulations", {}),
+        ("POST", "/api/v1/auth/logout", {}),
+        ("POST", "/api/v1/auth/mfa/setup", {}),
+        ("POST", "/api/v1/auth/mfa/confirm", {"token": "123456"}),
+        ("POST", "/api/v1/auth/step-up", {"token": "123456"}),
     ]
 
     for method, path, payload in cases:

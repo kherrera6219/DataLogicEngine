@@ -11,9 +11,10 @@ import logging
 import os
 
 from flask import Blueprint, request, jsonify, session, current_app
-from flask_login import current_user, login_user, logout_user, login_required
+from flask_login import current_user, login_user, logout_user
 
 from extensions import db
+from backend.auth.api_decorators import api_session_login_required
 from models import User
 from backend.schemas.auth_schemas import LoginRequest, RegisterRequest, TokenRequest
 from backend.utils.request_validation import validate_pydantic_payload
@@ -163,7 +164,7 @@ def mfa_verify():
     return success_response(message="MFA verified", data={"user": user.to_dict()})
 
 @auth_bp.route('/mfa/setup', methods=['POST'])
-@login_required
+@api_session_login_required
 def mfa_setup():
     """Initiate MFA setup."""
     from backend.security.mfa import MFAManager
@@ -179,7 +180,7 @@ def mfa_setup():
     })
 
 @auth_bp.route('/mfa/confirm', methods=['POST'])
-@login_required
+@api_session_login_required
 def mfa_confirm():
     """Confirm and enable MFA."""
     validated, validation_error_response = validate_pydantic_payload(
@@ -210,7 +211,7 @@ def mfa_confirm():
     return success_response(message="MFA successfully enabled")
     
 @auth_bp.route('/step-up', methods=['POST'])
-@login_required
+@api_session_login_required
 def step_up_verify():
     """
     Verify MFA token for Step-Up Authentication (Sudo Mode).
@@ -285,7 +286,7 @@ def register():
         return error_response("Server error during registration", 500)
 
 @auth_bp.route('/logout', methods=['POST'])
-@login_required
+@api_session_login_required
 def logout():
     """Handle user logout."""
     logout_user()

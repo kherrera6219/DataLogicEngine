@@ -151,13 +151,15 @@ Completed in this slice:
    - Create, list, run, and fetch for `/api/v1/simulations` now have strict success-path assertions instead of broad acceptable-status buckets.
 5. **Legacy compatibility checks are no longer vague**
    - `tests/integration/test_api_endpoints.py` now asserts exact `/api/v1/auth/*` outcomes and exact legacy `/api/simulations` compatibility behavior, including deprecation headers, instead of tolerating `302/404/500` buckets.
+6. **Session-only auth routes now fail like APIs**
+   - `/api/v1/auth/logout`, `/api/v1/auth/mfa/setup`, `/api/v1/auth/mfa/confirm`, and `/api/v1/auth/step-up` now use a JSON-native session auth decorator instead of Flask-Login’s default non-JSON unauthorized handling.
 
 Validation commands:
 
 ```powershell
 python -m pytest -q --no-cov tests/contract/test_canonical_v1_route_contracts.py tests/contract/test_api_contract.py tests/unit/test_phase1_api_hardening.py tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py tests/test_health_endpoint.py
 python -m pytest -q --no-cov tests/integration/test_api_endpoints.py
-python -m ruff check docs/TESTING.md docs/PRODUCTION_READINESS.md tests/contract/test_canonical_v1_route_contracts.py tests/integration/test_api_endpoints.py
+python -m ruff check backend/auth/api_decorators.py routes/auth_routes.py docs/TESTING.md docs/PRODUCTION_READINESS.md tests/contract/test_canonical_v1_route_contracts.py tests/integration/test_api_endpoints.py
 ```
 
 ## 2026-03-24 Remediation Sweep (Debugging + Error Hardening)

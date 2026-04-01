@@ -72,6 +72,31 @@ def api_login_required(f):
         
     return api_login_required_wrapper
 
+
+def api_session_login_required(f):
+    """Decorator to require an authenticated Flask session and return JSON on failure."""
+    @wraps(f)
+    def api_session_login_required_wrapper(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return jsonify({
+                'status': 'error',
+                'success': False,
+                'message': 'Authentication required. Please log in with an active session.',
+                'code': 'UNAUTHORIZED'
+            }), 401
+        g.auth_user = current_user
+        g.auth_mode = "session"
+        return f(*args, **kwargs)
+
+    try:
+        api_session_login_required_wrapper.__name__ = f.__name__
+        api_session_login_required_wrapper.__doc__ = f.__doc__
+        api_session_login_required_wrapper.__module__ = f.__module__
+    except (AttributeError, TypeError):
+        pass
+
+    return api_session_login_required_wrapper
+
 def api_admin_required(f):
     """Decorator to require admin privileges via session or API key principal."""
     @wraps(f)
