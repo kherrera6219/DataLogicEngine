@@ -97,6 +97,44 @@ Remaining blockers in this area:
 2. Reduce legacy route duplication across `routes/` and `backend/routes/`.
 3. Align deployment/run scripts around the canonical migration-first startup path.
 
+## 2026-03-31 Phase 3 Runtime Guardrails Update
+
+Completed in this slice:
+
+1. **Production startup guardrail**
+   - `app.py` now refuses to start when `AUTO_CREATE_SCHEMA=true` is set in production.
+2. **Preflight environment hardening**
+   - `scripts/runtime_precheck.py` now blocks production startup profiles that combine `AUTO_CREATE_SCHEMA=true` with `FLASK_ENV=production`.
+   - The same precheck now escalates missing `SESSION_SECRET` / `DATABASE_URL` in production and warns on production SQLite usage.
+3. **Dependency metadata governance**
+   - `scripts/runtime_precheck.py` and `scripts/verify_lockfiles.py` now verify that `pyproject.toml` and `uv.lock` agree on the root package identity.
+
+Validation commands:
+
+```powershell
+python -m pytest -q --no-cov tests/test_health_endpoint.py tests/unit/test_bootstrap_normalization.py tests/unit/test_phase3_precheck_governance.py
+python -m ruff check app.py scripts/runtime_precheck.py scripts/verify_lockfiles.py tests/unit/test_bootstrap_normalization.py tests/unit/test_phase3_precheck_governance.py
+python scripts/verify_lockfiles.py
+```
+
+## 2026-03-31 Phase 3 API Surface Governance Update
+
+Completed in this slice:
+
+1. **Canonical REST surface is explicit**
+   - `docs/API.md` now defines `/api/v1/*` as the supported REST contract for new integrations and tests.
+2. **Legacy route aliases self-identify**
+   - `/api/ka/*`, `/api/mcp/*`, and `/api/simulations/*` now emit `Deprecation`, `Sunset`, and `Link: rel="successor-version"` headers that point clients at the canonical `/api/v1/*` route.
+3. **Route-governance regressions added**
+   - Focused tests now verify that legacy simulation aliases emit transition headers while canonical `/api/v1/simulations` responses do not.
+
+Validation commands:
+
+```powershell
+python -m pytest -q --no-cov tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py
+python -m ruff check app.py tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py
+```
+
 ## 2026-03-24 Remediation Sweep (Debugging + Error Hardening)
 
 Completed in this pass:

@@ -132,6 +132,12 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for
 APP_START_TIME = time.time()
 REQUEST_METRICS = {"total": 0, "inflight": 0}
 REQUEST_METRICS_LOCK = Lock()
+LEGACY_API_PREFIXES = {
+    "/api/ka": "/api/v1/ka",
+    "/api/mcp": "/api/v1/mcp",
+    "/api/simulations": "/api/v1/simulations",
+}
+LEGACY_API_SUNSET = "Wed, 30 Sep 2026 00:00:00 GMT"
 
 # Session hardening
 app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -217,6 +223,13 @@ def _sanitize_server_error_payload(payload: dict) -> tuple[dict, bool]:
     return payload, changed
 
 
+def _legacy_api_successor_path(path: str) -> str | None:
+    for legacy_prefix, canonical_prefix in LEGACY_API_PREFIXES.items():
+        if path == legacy_prefix or path.startswith(f"{legacy_prefix}/"):
+            return f"{canonical_prefix}{path[len(legacy_prefix):]}"
+    return None
+
+
 @app.after_request
 def normalize_server_error_payload(response):
     """Sanitize 5xx JSON payloads to block raw exception/provider leaks."""
@@ -233,6 +246,19 @@ def normalize_server_error_payload(response):
 
     response.set_data(json.dumps(sanitized_payload))
     response.headers["Content-Type"] = "application/json"
+    return response
+
+
+@app.after_request
+def add_legacy_api_deprecation_headers(response):
+    successor_path = _legacy_api_successor_path(request.path)
+    if successor_path is None:
+        return response
+
+    response.headers.setdefault("Deprecation", "true")
+    response.headers.setdefault("Sunset", LEGACY_API_SUNSET)
+    response.headers.setdefault("X-DataLogicEngine-Route-Status", "legacy")
+    response.headers.add("Link", f'<{successor_path}>; rel="successor-version"')
     return response
 
 
@@ -482,6 +508,12 @@ def _initialize_database_schema() -> None:
     if not _should_auto_create_schema():
         logger.info("Startup schema auto-creation disabled; use 'flask db upgrade' or backend/init_db.py.")
         return
+
+    if IS_PRODUCTION_MODE:
+        raise RuntimeError(
+            "AUTO_CREATE_SCHEMA=true is not allowed in production. "
+            "Apply migrations explicitly with 'flask db upgrade' before startup."
+        )
 
     with app.app_context():
         db.create_all()

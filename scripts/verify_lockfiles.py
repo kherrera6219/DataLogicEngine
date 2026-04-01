@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import tomllib
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -14,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 UV_LOCK = ROOT / "uv.lock"
 NPM_LOCK = ROOT / "frontend" / "package-lock.json"
+PYPROJECT = ROOT / "pyproject.toml"
 
 
 @dataclass
@@ -38,7 +40,48 @@ def _check_uv_lock() -> list[Finding]:
     else:
         findings.append(Finding("OK", "uv.lock contains no insecure http:// sources."))
 
+    pyproject_name = _read_pyproject_name()
+    uv_name = _read_uv_virtual_package_name(text)
+    if not pyproject_name:
+        findings.append(Finding("ERROR", "pyproject.toml missing or project.name not defined."))
+    elif not uv_name:
+        findings.append(Finding("ERROR", "uv.lock missing virtual root package metadata."))
+    elif pyproject_name != uv_name:
+        findings.append(
+            Finding(
+                "ERROR",
+                f"uv.lock root package '{uv_name}' does not match pyproject.toml project.name '{pyproject_name}'.",
+            )
+        )
+    else:
+        findings.append(Finding("OK", f"uv.lock root package matches pyproject.toml ({pyproject_name})."))
+
     return findings
+
+
+def _read_pyproject_name() -> str | None:
+    if not PYPROJECT.exists():
+        return None
+    try:
+        payload = tomllib.loads(PYPROJECT.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return None
+
+    project = payload.get("project")
+    if not isinstance(project, dict):
+        return None
+    name = project.get("name")
+    return str(name).strip() if name else None
+
+
+def _read_uv_virtual_package_name(text: str) -> str | None:
+    for block in text.split("[[package]]"):
+        if 'source = { virtual = "." }' not in block:
+            continue
+        match = re.search(r'name = "([^"]+)"', block)
+        if match:
+            return match.group(1).strip()
+    return None
 
 
 def _check_npm_lock() -> list[Finding]:

@@ -14,7 +14,7 @@ Define supported deployment modes, release procedures, and required CI/CD config
 ## Document control
 
 1. Owner: Platform Operations
-2. Last updated: 2026-02-08
+2. Last updated: 2026-03-31
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -29,6 +29,15 @@ Define supported deployment modes, release procedures, and required CI/CD config
 DataLogicEngine supports two primary deployment targets:
 1.  **Desktop (Electron)**: A self-contained `.exe`/`.dmg` with bundled backend.
 2.  **Cloud (Docker)**: Containerized Frontend (Next.js Standalone) and Backend (Flask/Gunicorn).
+
+## Deployment Guardrails
+
+1. Apply database migrations before backend startup:
+   - `flask db upgrade`
+2. `AUTO_CREATE_SCHEMA=true` is a disposable local-only escape hatch and must not be enabled in production.
+3. Run preflight validation before CI/deploy promotion:
+   - `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process`
+   - `python scripts/verify_lockfiles.py`
 
 ## 1. Desktop Deployment (Windows/Mac)
 

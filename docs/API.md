@@ -14,7 +14,7 @@ Provide the source-of-truth API contract guidance for DataLogicEngine REST endpo
 ## Document control
 
 1. Owner: API Platform Team
-2. Last updated: 2026-03-17
+2. Last updated: 2026-03-31
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -31,6 +31,22 @@ The DataLogicEngine exposes a comprehensive REST API powered by Flask 3.1 bluepr
 
 **Local Development**: `http://localhost:5000/api/v1`
 **Production**: `https://your-domain.com/api/v1`
+
+## Canonical and legacy route policy
+
+`/api/v1/*` is the canonical REST surface for new integrations, tests, and documentation.
+
+The following legacy aliases remain active only for transition coverage:
+
+1. `/api/ka/*` -> `/api/v1/ka/*`
+2. `/api/mcp/*` -> `/api/v1/mcp/*`
+3. `/api/simulations/*` -> `/api/v1/simulations/*`
+
+Legacy alias responses emit transition headers so clients can migrate deterministically:
+
+1. `Deprecation: true`
+2. `Sunset: Wed, 30 Sep 2026 00:00:00 GMT`
+3. `Link: </api/v1/...>; rel="successor-version"`
 
 ## Authentication and context
 
@@ -193,7 +209,7 @@ Control the 5-tier reasoning engine. Prefix: `/api/v1/truth` or `/api/truth`.
 
 ## 4. Knowledge Algorithm Routes (`/ka`)
 
-Execute and manage Knowledge Algorithms (KA-001 to KA-116). Primary prefix: `/api/v1/ka`; legacy alias: `/api/ka`.
+Execute and manage Knowledge Algorithms (KA-001 to KA-116). Primary prefix: `/api/v1/ka`; legacy alias: `/api/ka` with deprecation headers.
 
 ### List Algorithms
 
@@ -287,7 +303,7 @@ Manage geospatial context and hierarchy. Prefix: `/api` or `/api/v1`.
 
 ## 8. MCP Routes (`/mcp`)
 
-Model Context Protocol management. Prefix: `/api/mcp`.
+Model Context Protocol management. Primary prefix: `/api/v1/mcp`; legacy alias: `/api/mcp` with deprecation headers.
 
 ### List Tools
 
@@ -309,7 +325,7 @@ Enterprise compliance and auditing. Prefix: `/api/v1/compliance`.
 
 ## 10. Simulation Routes (`/simulations`)
 
-Scenario simulation and reasoning control. Prefix: `/api/v1/simulations`.
+Scenario simulation and reasoning control. Primary prefix: `/api/v1/simulations`; legacy alias: `/api/simulations` with deprecation headers.
 
 ### Start Simulation
 

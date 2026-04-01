@@ -11,6 +11,8 @@ import os
 import sys
 import socket
 import shutil
+import tomllib
+import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -132,17 +134,19 @@ def check_env_files(*, allow_env_from_process: bool = False) -> list[CheckResult
     missing_keys = [key for key in required_keys if not env_values.get(key)]
     if missing_keys:
         missing_display = ", ".join(missing_keys)
+        missing_level = "BLOCKER" if (env_values.get("FLASK_ENV") or "").strip().lower() == "production" else "ACTION"
         results.append(
             CheckResult(
-                "ACTION",
+                missing_level,
                 f"Missing recommended configuration values: {missing_display}. Populate them in .env for stable startup.",
             )
         )
 
     if not env_values.get("DATABASE_URL"):
+        level = "BLOCKER" if (env_values.get("FLASK_ENV") or "").strip().lower() == "production" else "ACTION"
         results.append(
             CheckResult(
-                "ACTION",
+                level,
                 "DATABASE_URL is not set. Local SQLite fallback is supported, but set DATABASE_URL explicitly for parity.",
             )
         )
@@ -165,11 +169,33 @@ def check_env_files(*, allow_env_from_process: bool = False) -> list[CheckResult
         )
 
     flask_env = (env_values.get("FLASK_ENV") or "").strip().lower()
+    auto_create_schema = str(env_values.get("AUTO_CREATE_SCHEMA") or "").strip().lower() == "true"
     if flask_env == "production":
         results.append(
             CheckResult(
                 "WARN",
                 "FLASK_ENV=production detected. For local HTTP development, use FLASK_ENV=development.",
+            )
+        )
+        if auto_create_schema:
+            results.append(
+                CheckResult(
+                    "BLOCKER",
+                    "AUTO_CREATE_SCHEMA=true is unsafe for production startup. Apply migrations explicitly before boot.",
+                )
+            )
+        if database_url.startswith("sqlite"):
+            results.append(
+                CheckResult(
+                    "WARN",
+                    f"Production environment is configured with SQLite ({database_url}). Use managed Postgres for shared deployments.",
+                )
+            )
+    elif auto_create_schema:
+        results.append(
+            CheckResult(
+                "WARN",
+                "AUTO_CREATE_SCHEMA=true enabled. Use this only for disposable local environments.",
             )
         )
 
@@ -239,6 +265,23 @@ def check_backend_dependencies() -> list[CheckResult]:
     else:
         results.append(CheckResult("BLOCKER", "No dependency manifest found (requirements.txt or pyproject.toml)."))
 
+    if pyproject_file.exists() and uv_lock.exists():
+        pyproject_name = _read_pyproject_name(pyproject_file)
+        uv_lock_name = _read_uv_virtual_package_name(uv_lock)
+        if not pyproject_name:
+            results.append(CheckResult("ERROR", "pyproject.toml is missing project.name metadata."))
+        elif not uv_lock_name:
+            results.append(CheckResult("ERROR", "uv.lock is missing the virtual root package entry."))
+        elif pyproject_name != uv_lock_name:
+            results.append(
+                CheckResult(
+                    "ERROR",
+                    f"Dependency metadata mismatch: pyproject.toml project.name='{pyproject_name}' but uv.lock root package='{uv_lock_name}'.",
+                )
+            )
+        else:
+            results.append(CheckResult("OK", f"Python workspace metadata aligned (project.name={pyproject_name})."))
+
     venv_dir = ROOT / ".venv"
     if venv_dir.exists():
         results.append(CheckResult("OK", "Virtual environment directory detected at .venv."))
@@ -248,6 +291,29 @@ def check_backend_dependencies() -> list[CheckResult]:
     for item in results:
         print(f"[{item.level}] {item.message}")
     return results
+
+
+def _read_pyproject_name(path: Path) -> str | None:
+    try:
+        payload = tomllib.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    project = payload.get("project")
+    if not isinstance(project, dict):
+        return None
+    name = project.get("name")
+    return str(name).strip() if name else None
+
+
+def _read_uv_virtual_package_name(path: Path) -> str | None:
+    text = path.read_text(encoding="utf-8")
+    for block in text.split("[[package]]"):
+        if 'source = { virtual = "." }' not in block:
+            continue
+        match = re.search(r'name = "([^"]+)"', block)
+        if match:
+            return match.group(1).strip()
+    return None
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

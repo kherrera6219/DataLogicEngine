@@ -131,13 +131,15 @@ sequenceDiagram
 2. App-level blueprint wiring is centralized in `app.py::_register_application_routes()`.
 3. Startup schema creation is opt-in via `AUTO_CREATE_SCHEMA=true`; the default path is migration-first.
 4. `main.py` and `wsgi.py` share runtime compatibility patches through `backend/bootstrap_compat.py`.
+5. Production startup rejects `AUTO_CREATE_SCHEMA=true`; deployment prechecks should catch this before boot.
+6. Canonical REST integrations should use `/api/v1/*`; legacy `/api/ka/*`, `/api/mcp/*`, and `/api/simulations/*` aliases emit deprecation headers with successor routes.
 
 ## Known limitations
 
 1. Some `Settings` and `MCP admin` UI actions remain partially wired; see `docs/PRODUCT_OVERVIEW.md`.
 2. External connector coverage depends on configured credentials and environment readiness.
 3. Architecture details in `docs/whitepapers/` may include exploratory content that is not operational source-of-truth.
-4. Legacy route duplication still exists across `routes/` and `backend/routes/`; production-readiness work should continue consolidating those surfaces.
+4. Some legacy aliases remain active for compatibility, but they are now explicitly marked as transitional in response headers and API docs.
 
 ## Related documents
 
