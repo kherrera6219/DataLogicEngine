@@ -16,7 +16,7 @@
 
 This portal is the authoritative entry point for all DataLogicEngine documentation. It is organized by audience and use case to allow rapid navigation to relevant reference material.
 
-All documents listed here are **active and maintained**. Archived documents (historical assessments, prior reviews) are stored in `docs/archive/` and retained for audit traceability but are not operational references.
+Documents listed here are intended to be **active references**. Archived documents (historical assessments, prior reviews) are stored in `docs/archive/` and retained for audit traceability but are not operational references.
 
 ---
 
@@ -42,31 +42,31 @@ All documents listed here are **active and maintained**. Archived documents (his
 
 **Current Version:** 4.1.19 | **As of:** March 2026
 
-### Production-Ready
+### Implemented in Codebase (Static Validation)
 
 | Capability | Status |
 |------------|--------|
-| Core routing (dashboard, chat, projects, admin, runs, simulations, graph) | Operational |
-| Desktop no-login startup (Electron, Windows 11) | Operational |
-| API key save/test and AI model configuration | Operational |
-| Storage health checks and local service lifecycle (`Start All` / `Stop All`) | Operational |
-| MCP connector scope enforcement and OAuth lifecycle | Operational |
-| Connector and AI latency telemetry (p50/p95/p99) | Operational |
-| SSRF protection on API gateway | Operational |
-| CI/release gates (schema parity, installer integrity, startup determinism) | Operational |
-| Postgres tenant Row-Level Security (RLS) bootstrap | Operational |
-| Vault-backed secret resolution in production | Operational |
-| Signed/encrypted trace export envelopes | Operational |
-| Immutable audit hash-chain replication and verification | Operational |
-| AI and connector p95/p99 latency SLO gauges | Operational |
-| Windows installer code-signing governance | Operational |
-| Crash reporting with fallback IDs and pipeline probe | Operational |
-| Diagnostic support-bundle generator (sanitized) | Operational |
-| Desktop safe secret storage (`safeStorage`) and log path governance | Operational |
-| Repository pre-commit hooks (lint + typecheck) | Operational |
-| Environment parity and lockfile integrity CI gate | Operational |
-| Python lint baseline (Ruff) — zero findings | Operational |
-| ADR baseline, branch protection, and code-owner policy | Operational |
+| Core routing (dashboard, chat, projects, admin, runs, simulations, graph) | Implemented (feature coverage varies by route) |
+| Desktop no-login startup (Electron, Windows 11) | Implemented |
+| API key save/test and AI model configuration | Implemented |
+| Storage health checks and local service lifecycle (`Start All` / `Stop All`) | Implemented |
+| MCP connector scope enforcement and OAuth lifecycle | Implemented (runtime validation depends on connector setup) |
+| Connector and AI latency telemetry (p50/p95/p99) | Implemented |
+| SSRF protection on API gateway | Implemented |
+| CI/release gates (schema parity, installer integrity, startup determinism) | Implemented in scripts/workflows |
+| Postgres tenant Row-Level Security (RLS) bootstrap | Implemented (Postgres-only path) |
+| Vault-backed secret resolution in production | Implemented secret-resolution chain (deployment-specific backing store) |
+| Signed/encrypted trace export envelopes | Implemented |
+| Immutable audit hash-chain replication and verification | Implemented |
+| AI and connector p95/p99 latency SLO gauges | Implemented |
+| Windows installer code-signing governance | Implemented in installer/build scripts |
+| Crash reporting with fallback IDs and pipeline probe | Implemented |
+| Diagnostic support-bundle generator (sanitized) | Implemented |
+| Desktop safe secret storage (`safeStorage`) and log path governance | Implemented |
+| Repository pre-commit hooks (lint + typecheck) | Implemented |
+| Environment parity and lockfile integrity CI gate | Implemented |
+| Python lint baseline (Ruff) — zero findings | Tracked via lint workflows/reports |
+| ADR baseline, branch protection, and code-owner policy | Implemented |
 
 ### In Progress
 
