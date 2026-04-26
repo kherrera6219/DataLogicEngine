@@ -8,7 +8,7 @@
 
 **Current version:** 4.1.19  
 **Primary stack:** Flask + Next.js + Electron + PostgreSQL/Redis/Neo4j  
-**Project status:** Active development with production-oriented security and governance controls
+**Project status:** Active development (core platform is functional; several enterprise controls are implemented but still being hardened/validated in end-to-end environments)
 
 ## What this repository contains
 
@@ -23,11 +23,11 @@ DataLogicEngine is a full-stack platform for:
 ## Core capabilities
 
 - **AI orchestration:** provider routing for OpenAI, Anthropic, and Gemini-backed flows.
-- **Traceability:** stored run history, stage/persona/axis inspection, and export-ready evidence packages.
+- **Traceability:** stored run history, stage/persona/axis inspection, and trace export endpoints with sign/encrypt options.
 - **Knowledge graph:** interactive graph exploration and structured node/edge APIs.
-- **Security and governance:** RBAC, MFA, secret resolution, audit logging, and deployment guardrails.
-- **Desktop operations:** Electron packaging and Windows-focused installer/signing workflows.
-- **Operational tooling:** testing, release checklists, data-service verification, and documentation coverage checks.
+- **Security and governance:** RBAC, MFA, secret-resolution paths, audit logging, and deployment guardrail scripts.
+- **Desktop operations:** Electron packaging, Windows-focused installer workflows, and `safeStorage`-backed local secret handling when available.
+- **Operational tooling:** tests, release checklists, data-service verification scripts, and documentation coverage checks.
 
 ## Repository map
 
