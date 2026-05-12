@@ -183,6 +183,14 @@ jobs:
           mkdir -p frontend/node_modules/chromedriver/lib/chromedriver
           ln -sf "$SYSTEM_CD" frontend/node_modules/chromedriver/lib/chromedriver/chromedriver
         fi
+        # Detect Chrome binary and export for the a11y sweep. CHROME_TEST_PATH causes
+        # @axe-core/cli to set the binary path explicitly and add --no-sandbox, which is
+        # required on Ubuntu 24.04+ CI runners.
+        CHROME_BIN=$(which google-chrome google-chrome-stable chromium-browser chromium 2>/dev/null | head -1)
+        if [ -n "$CHROME_BIN" ]; then
+          echo "Found Chrome at $CHROME_BIN"
+          echo "CHROME_TEST_PATH=$CHROME_BIN" >> $GITHUB_ENV
+        fi
 
     - name: Run Frontend Accessibility Sweep
       run: |
