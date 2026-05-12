@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 from extensions import db
 from models import UserAIPreferences
 
-settings_bp = Blueprint('settings', __name__, url_prefix='/api/settings')
+settings_bp = Blueprint('settings', __name__, url_prefix='/api/v1/settings')
 logger = logging.getLogger(__name__)
 
 

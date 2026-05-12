@@ -336,6 +336,7 @@ class LLMGateway:
             )
         
         # Apply user AI preferences (disable check + preferred provider)
+        _store_history = True
         if request.user_id:
             try:
                 user_prefs = UserAIPreferences.query.filter_by(user_id=request.user_id).first()
@@ -348,6 +349,7 @@ class LLMGateway:
                         request.provider = user_prefs.preferred_provider
                     if not request.model and user_prefs.preferred_model:
                         request.model = user_prefs.preferred_model
+                    _store_history = bool(user_prefs.store_chat_history)
             except Exception:
                 pass  # Preferences are optional — never block a request on DB failure
 
@@ -386,9 +388,8 @@ class LLMGateway:
         
         history = []
         if request.session_id:
-            # Save user message once before trying providers
-            await self._save_chat_message(request.session_id, request.user_id, "user", query)
-            # Load history for context injection
+            if _store_history:
+                await self._save_chat_message(request.session_id, request.user_id, "user", query)
             history = await self._get_recent_history(request.session_id)
         
         # 3. Try providers in order
@@ -555,7 +556,7 @@ class LLMGateway:
                             metadata={"timestamp": datetime.now(UTC).isoformat()},
                         )
                         
-                        if request.session_id:
+                        if request.session_id and _store_history:
                             await self._save_chat_message(request.session_id, request.user_id, "assistant", result.get("answer", ""), run_id)
                                               
                         return self._build_response(result, run_id, provider_record, model, latency_ms)
