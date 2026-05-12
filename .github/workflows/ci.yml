@@ -56,6 +56,8 @@ jobs:
       run: |
         cd frontend
         npm ci
+      env:
+        CHROMEDRIVER_SKIP_DOWNLOAD: true
 
     - name: Run deterministic startup precheck gate
       run: |
@@ -128,6 +130,11 @@ jobs:
       run: |
         cd frontend
         npm ci
+      env:
+        # Prevent chromedriver postinstall from downloading a binary during npm ci.
+        # googlechromelabs.github.io times out in CI causing the step to fail at ~2 min.
+        # ChromeDriver is set up in a dedicated step below using the pre-installed system binary.
+        CHROMEDRIVER_SKIP_DOWNLOAD: true
 
     - name: Generate Design Tokens
       run: |
@@ -160,6 +167,20 @@ jobs:
       run: |
         cd frontend
         npx playwright install --with-deps chromium
+
+    - name: Set up ChromeDriver for a11y sweep
+      run: |
+        # GitHub Actions ubuntu-latest has ChromeDriver pre-installed (matches pre-installed Chrome).
+        # Link it into the location the chromedriver npm package expects so that axe-cli can find it.
+        SYSTEM_CD=$(which chromedriver 2>/dev/null || echo "")
+        if [ -z "$SYSTEM_CD" ]; then
+          echo "System ChromeDriver not found; installing via npm postinstall"
+          cd frontend && node node_modules/chromedriver/install.js
+        else
+          echo "Using system ChromeDriver: $SYSTEM_CD ($(chromedriver --version))"
+          mkdir -p frontend/node_modules/chromedriver/lib/chromedriver
+          ln -sf "$SYSTEM_CD" frontend/node_modules/chromedriver/lib/chromedriver/chromedriver
+        fi
 
     - name: Run Frontend Accessibility Sweep
       run: |
@@ -237,6 +258,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install ruff
         npm --prefix frontend ci
+      env:
+        CHROMEDRIVER_SKIP_DOWNLOAD: true
 
     - name: Run pre-commit governance checks
       run: |
