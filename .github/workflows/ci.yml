@@ -192,15 +192,19 @@ jobs:
         cd frontend
         npm run test:e2e -- tests/e2e/route-sidebar-smoke.spec.ts
 
-    - name: Run Frontend Visual Regression Smoke
+    - name: Run Frontend Visual Regression Smoke (create missing baselines)
+      # Playwright 1.58 with --update-snapshots=missing fails the run even when it
+      # successfully writes new snapshot files. Allow this step to fail so the job
+      # continues to the validation pass below.
+      continue-on-error: true
       run: |
-        # First pass: create any missing Linux baseline snapshots.
-        # Playwright 1.58 may report the run as failed even when --update-snapshots=missing
-        # successfully writes new snapshot files, so suppress the exit code here.
         cd frontend
-        npm run test:e2e:visual -- --update-snapshots=missing || true
-        # Second pass: compare all screenshots against the now-existing baselines.
-        npm run test:e2e:visual -- --reporter=list
+        npm run test:e2e:visual -- --update-snapshots=missing
+
+    - name: Run Frontend Visual Regression Smoke (validate)
+      run: |
+        cd frontend
+        npm run test:e2e:visual
 
   windows-packaging-smoke:
     runs-on: windows-latest
