@@ -36,9 +36,6 @@ if (normalizedCdnUrl) {
 const nextConfig: NextConfig = {
   ...cdnConfig,
   output: process.env.BUILD_MODE === 'electron' ? 'export' : 'standalone',
-  experimental: {
-    turbopackUseSystemTlsCerts: true,
-  },
   // Rewrites are supported in standalone mode, but not export.
   async rewrites() {
      if (process.env.BUILD_MODE === 'electron') return [];
