@@ -194,8 +194,13 @@ jobs:
 
     - name: Run Frontend Visual Regression Smoke
       run: |
+        # First pass: create any missing Linux baseline snapshots.
+        # Playwright 1.58 may report the run as failed even when --update-snapshots=missing
+        # successfully writes new snapshot files, so suppress the exit code here.
         cd frontend
-        npm run test:e2e:visual -- --update-snapshots=missing
+        npm run test:e2e:visual -- --update-snapshots=missing || true
+        # Second pass: compare all screenshots against the now-existing baselines.
+        npm run test:e2e:visual -- --reporter=list
 
   windows-packaging-smoke:
     runs-on: windows-latest
