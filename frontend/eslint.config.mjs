@@ -31,6 +31,8 @@ const eslintConfig = defineConfig([
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": "warn",
+      // Project uses @storybook/react with Next.js — suppress advisory rule
+      "storybook/no-renderer-packages": "off",
     },
   },
   {

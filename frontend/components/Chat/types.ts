@@ -43,8 +43,10 @@ export interface ChatMessage {
   traces?: TracePipeline;
   personas?: PersonaOutput[];
   metrics?: ValidationMetric[];
-  finalAnswer?: string; // If content is just a summary
+  finalAnswer?: string;
   isEnhanced?: boolean;
+  providerUsed?: string;
+  modelUsed?: string;
 }
 
 export interface ChatSession {

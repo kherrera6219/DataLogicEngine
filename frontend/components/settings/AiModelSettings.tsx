@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Brain, CheckCircle2, Eye, FlaskConical, RefreshCw, Save } from 'lucide-react';
+import { Brain, CheckCircle2, Eye, FlaskConical, RefreshCw, Save, Power, History } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -54,6 +54,11 @@ export function AiModelSettings() {
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
 
+  // User AI preference controls
+  const [aiEnabled, setAiEnabled] = useState(true);
+  const [storeHistory, setStoreHistory] = useState(true);
+  const [savingPrefs, setSavingPrefs] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -93,6 +98,30 @@ export function AiModelSettings() {
       cancelled = true;
     };
   }, [toast]);
+
+  useEffect(() => {
+    request<{ ai_processing_enabled?: boolean; store_chat_history?: boolean }>('/settings/ai')
+      .then((data) => {
+        if (typeof data.ai_processing_enabled === 'boolean') setAiEnabled(data.ai_processing_enabled);
+        if (typeof data.store_chat_history === 'boolean') setStoreHistory(data.store_chat_history);
+      })
+      .catch(() => {}); // non-fatal
+  }, []);
+
+  const handleSavePreferences = async () => {
+    setSavingPrefs(true);
+    try {
+      await request('/settings/ai', {
+        method: 'POST',
+        body: JSON.stringify({ ai_processing_enabled: aiEnabled, store_chat_history: storeHistory }),
+      });
+      toast('AI preferences saved.', 'success');
+    } catch {
+      toast('Failed to save AI preferences.', 'error');
+    } finally {
+      setSavingPrefs(false);
+    }
+  };
 
   const providerChoices = useMemo(
     () =>
@@ -223,6 +252,59 @@ export function AiModelSettings() {
           Configure provider model selection and validate connectivity.
         </p>
       </div>
+
+      {/* AI Processing Controls */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Power className="h-4 w-4" />
+            Processing Controls
+          </CardTitle>
+          <CardDescription>Control how AI processes your requests and stores data.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+            <div className="space-y-0.5">
+              <p className="text-sm font-medium flex items-center gap-2">
+                <Power className="h-3.5 w-3.5 text-muted-foreground" />
+                Enable AI Processing
+              </p>
+              <p className="text-xs text-muted-foreground">When disabled, no queries will be sent to AI providers.</p>
+            </div>
+            <button
+              role="switch"
+              aria-checked={aiEnabled}
+              onClick={() => setAiEnabled((v) => !v)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 ${aiEnabled ? 'bg-blue-600' : 'bg-muted-foreground/40'}`}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${aiEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+            <div className="space-y-0.5">
+              <p className="text-sm font-medium flex items-center gap-2">
+                <History className="h-3.5 w-3.5 text-muted-foreground" />
+                Store Chat History
+              </p>
+              <p className="text-xs text-muted-foreground">When disabled, conversation turns will not be persisted to the database.</p>
+            </div>
+            <button
+              role="switch"
+              aria-checked={storeHistory}
+              onClick={() => setStoreHistory((v) => !v)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 ${storeHistory ? 'bg-blue-600' : 'bg-muted-foreground/40'}`}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${storeHistory ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+          </div>
+
+          <Button size="sm" onClick={() => void handleSavePreferences()} disabled={savingPrefs}>
+            {savingPrefs ? <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Save className="h-3.5 w-3.5 mr-1.5" />}
+            {savingPrefs ? 'Saving...' : 'Save Preferences'}
+          </Button>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 xl:grid-cols-3">
         <Card className="xl:col-span-1">

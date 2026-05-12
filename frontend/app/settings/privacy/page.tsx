@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Download, Trash2, AlertTriangle, CheckCircle, FileJson } from 'lucide-react';
+import { Download, Trash2, AlertTriangle, CheckCircle, FileJson, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -140,9 +140,44 @@ export default function PrivacySettingsPage() {
         </Card>
       </div>
 
+        {/* Background Activity Disclosure */}
+        <Card className="border-premium bg-background/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-muted-foreground" />
+              Background Activity
+            </CardTitle>
+            <CardDescription>What this application does when you are not actively using it.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground">
+            <ul className="space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-green-500 shrink-0 mt-2" />
+                <span><strong className="text-foreground">Health checks</strong> — The app periodically pings <code className="text-xs bg-muted px-1 rounded">/api/health</code> to display the gateway status indicator. No user data is sent.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-green-500 shrink-0 mt-2" />
+                <span><strong className="text-foreground">WebSocket keep-alives</strong> — An open WebSocket connection is maintained to receive real-time trace updates. The connection sends only a session token; no query content is transmitted in the background.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-yellow-500 shrink-0 mt-2" />
+                <span><strong className="text-foreground">Session refresh</strong> — Your authentication session is silently refreshed before it expires to avoid unexpected logouts. This contacts the backend server only.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-muted-foreground shrink-0 mt-2" />
+                <span><strong className="text-foreground">No telemetry or analytics</strong> — DataLogicEngine does not run any third-party analytics, crash reporters, or ad networks in the background.</span>
+              </li>
+            </ul>
+            <p className="pt-2 text-xs border-t border-border">
+              All background activity stops when the application is closed. For questions about cloud data handling, see the{' '}
+              <Link href="/about/cloud-services" className="text-blue-500 hover:underline">Cloud Services</Link> page.
+            </p>
+          </CardContent>
+        </Card>
+
       <footer className="text-center pt-8 border-t border-border">
         <p className="text-xs text-muted-foreground">
-          DataLogicEngine complies with MS-P1 Privacy Standards. 
+          DataLogicEngine complies with MS-P1 Privacy Standards.
           <br />
           For cloud-specific data queries, please refer to our <Link href="/about/cloud-services" className="text-blue-500 hover:underline">Cloud Disclosure</Link>.
         </p>

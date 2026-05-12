@@ -79,7 +79,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           finalAnswer: data.response,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           runId: socketRunId,
-          isEnhanced: true
+          isEnhanced: true,
+          providerUsed: (data as { provider_used?: string }).provider_used,
+          modelUsed: (data as { model_used?: string }).model_used,
         };
         setMessages(prev => [...prev, assistantMsg]);
         setIsLoading(false);
@@ -180,7 +182,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           runId: runId || undefined,
           isEnhanced: true,
-          traces: data.trace_summary as TracePipeline | undefined
+          traces: data.trace_summary as TracePipeline | undefined,
+          providerUsed: data.provider_used,
+          modelUsed: data.model_used,
         };
         setMessages(prev => [...prev, assistantMsg]);
         setIsLoading(false);
@@ -198,8 +202,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       const errorMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
-        content: 'I encountered an error processing your request. Please try again.',
-        finalAnswer: 'I encountered an error processing your request. Please try again.',
+        content: 'Your request could not be completed. This may be a temporary issue — please try again. If the problem continues, check that your API key is configured in Settings → AI Models.',
+        finalAnswer: 'Your request could not be completed. This may be a temporary issue — please try again. If the problem continues, check that your API key is configured in Settings → AI Models.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, errorMsg]);

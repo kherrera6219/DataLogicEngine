@@ -1,13 +1,13 @@
 import React from 'react';
-import { Message } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { CopyButton } from '@/components/ui/copy-button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Shield, User, Bot } from 'lucide-react';
+import { ChatMessage } from './types';
 
 interface Props {
-  message: Message;
+  message: ChatMessage;
   isThinking?: boolean;
 }
 
@@ -88,6 +88,11 @@ export function MessageBubble({ message, isThinking }: Props) {
                     <Badge variant="outline" className="text-[10px] font-bold border-yellow-500/50 text-yellow-500">
                       ⚠️ AI-GENERATED CONTENT
                     </Badge>
+                    {message.providerUsed && (
+                      <Badge variant="outline" className="text-[10px] border-blue-500/40 text-blue-400">
+                        {message.modelUsed ? `${message.providerUsed} · ${message.modelUsed}` : message.providerUsed}
+                      </Badge>
+                    )}
                   </div>
                   
                   {/* Human-in-the-Loop Controls (Req 2 & 9) */}

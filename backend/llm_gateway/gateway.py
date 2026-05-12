@@ -27,7 +27,7 @@ SDK_PATH = Path(__file__).resolve().parent.parent.parent / "sdk" / "UKG_Python_S
 if str(SDK_PATH) not in sys.path:
     sys.path.insert(0, str(SDK_PATH))
 
-from models import LLMProvider, LLMProviderUsage, ChatSession, ChatMessage
+from models import LLMProvider, LLMProviderUsage, ChatSession, ChatMessage, UserAIPreferences
 from backend.utils.error_normalization import normalize_public_error_message
 from backend.llm_gateway.governance import AIGovernanceEngine
 from backend.llm_gateway.latency_metrics import record_ai_request
@@ -335,6 +335,22 @@ class LLMGateway:
                 request,
             )
         
+        # Apply user AI preferences (disable check + preferred provider)
+        if request.user_id:
+            try:
+                user_prefs = UserAIPreferences.query.filter_by(user_id=request.user_id).first()
+                if user_prefs:
+                    if not user_prefs.ai_processing_enabled:
+                        return self._error_response(
+                            run_id, "AI processing is disabled in your account settings.", start_time, request
+                        )
+                    if not request.provider and user_prefs.preferred_provider:
+                        request.provider = user_prefs.preferred_provider
+                    if not request.model and user_prefs.preferred_model:
+                        request.model = user_prefs.preferred_model
+            except Exception:
+                pass  # Preferences are optional — never block a request on DB failure
+
         # 1. Get eligible providers
         providers = await self._get_eligible_providers(
             request.provider,
