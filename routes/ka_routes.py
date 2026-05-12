@@ -79,6 +79,63 @@ def format_algorithm(ka):
     }
 
 
+@ka_bp.route('/history', methods=['GET'])
+@api_login_required
+def get_execution_history():
+    """Return recent KA execution records for the audit log page."""
+    try:
+        from models import KAExecution
+        from extensions import db
+
+        limit = min(request.args.get('limit', 50, type=int), 200)
+        executions = (
+            KAExecution.query
+            .order_by(KAExecution.started_at.desc())
+            .limit(limit)
+            .all()
+        )
+
+        risk_tier_map = {
+            'low': 'read_only',
+            'medium': 'write',
+            'high': 'destructive',
+            'critical': 'destructive',
+        }
+
+        def _risk_tier(ka_id_norm):
+            info = controller.get_available_algorithms().get(ka_id_norm, {})
+            rc = (info.get('metadata') or {}).get('Risk_Class', '').lower()
+            return risk_tier_map.get(rc, 'read_only')
+
+        def _ka_name(ka_id_norm):
+            info = controller.get_available_algorithms().get(ka_id_norm, {})
+            return (info.get('metadata') or {}).get('KA_Name', ka_id_norm)
+
+        def _status(raw):
+            return 'success' if raw == 'completed' else ('failure' if raw == 'failed' else raw)
+
+        records = [
+            {
+                'id': str(e.id),
+                'ka_id': e.ka_id,
+                'ka_name': _ka_name(e.ka_id),
+                'risk_tier': _risk_tier(e.ka_id),
+                'status': _status(e.status),
+                'triggered_by': 'user',
+                'run_id': e.uid,
+                'duration_ms': e.execution_time_ms,
+                'created_at': e.started_at.isoformat() if e.started_at else None,
+                'error': e.error_message,
+            }
+            for e in executions
+        ]
+
+        return jsonify({'success': True, 'executions': records}), 200
+    except Exception as e:
+        logger.error(f"Error fetching execution history: {e}")
+        return jsonify({'success': False, 'executions': [], 'error': str(e)}), 500
+
+
 @ka_bp.route('/algorithms', methods=['GET'])
 @api_login_required
 def list_algorithms():
