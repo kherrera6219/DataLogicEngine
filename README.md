@@ -1136,7 +1136,7 @@ See [Releases](https://github.com/kherrera6219/DataLogicEngine/releases) for dow
 
 ## 21. Capability Status Matrix
 
-*Status as of 2026-02-16. See [docs/PRODUCT_OVERVIEW.md](docs/PRODUCT_OVERVIEW.md) for the authoritative current status.*
+*Status as of 2026-05-12. See [docs/PRODUCT_OVERVIEW.md](docs/PRODUCT_OVERVIEW.md) for the authoritative current status.*
 
 <details>
 <summary>View full capability status matrix</summary>
@@ -1149,20 +1149,30 @@ See [Releases](https://github.com/kherrera6219/DataLogicEngine/releases) for dow
 | Knowledge graph | `/graph` | ✅ Live |
 | Settings — API gateway | `/settings` (API Gateway tab) | ✅ Live |
 | Settings — AI model controls | `/settings` (AI Models tab) | ✅ Live |
+| Settings — AI processing toggle | `/settings` (AI Models tab) | ✅ Live |
+| Settings — chat history opt-out | `/settings` (AI Models tab) | ✅ Live |
 | Settings — storage (local) | `/settings` (Storage tab) | ✅ Live |
 | Settings — storage (cloud config) | `/settings` (Storage tab) | ⚠️ Partial |
 | Settings — notifications | `/settings` (Notifications tab) | ⚠️ Placeholder only |
+| Settings — privacy controls | `/settings/privacy` | ✅ Live |
 | Admin dashboard | `/admin` | ✅ Live |
 | MCP connector registry (view/delete) | `/admin/mcp` | ✅ Live |
 | MCP connector add-server | `/admin/mcp` | ⚠️ Pending |
 | MCP OAuth + contract validation | Tool execution paths | ✅ Live |
 | MCP connector observability | `/metrics` | ✅ Live |
 | AI latency observability | `/metrics` | ✅ Live |
+| Tool execution history (KA audit log) | `/tools/history` | ✅ Live |
+| KA risk-tier classification | Tool execution paths | ✅ Live |
+| KA confirmation dialog (write/destructive) | Tool execution paths | ✅ Live |
 | Tenant DB isolation (RLS) | All Postgres APIs | ✅ Live |
 | Vault-backed secret enforcement | Runtime bootstrap | ✅ Live |
 | Immutable audit replication | Audit logger | ✅ Live |
 | Installer code signing | Release workflows | ✅ Live |
 | GDPR export / erasure | `/api/v1/compliance/` | ✅ Live |
+| Privacy policy + legal pages | `/legal/privacy`, `/about/cloud-services`, `/about/ai-limitations` | ✅ Live |
+| AI output label + provider badge | Chat interface | ✅ Live |
+| Cloud disclosure banner (first run) | Global | ✅ Live |
+| Background activity disclosure | `/settings/privacy` | ✅ Live |
 | User registration | `/register` | ⚠️ UI present; submit not wired |
 
 </details>
@@ -1179,7 +1189,7 @@ DataLogicEngine/
 ├── backend/                  # 276 Python files — Flask APIs, security, storage, services
 │   ├── app.py                # Flask app bootstrap and middleware registration
 │   ├── config.py             # Configuration classes (Dev/Test/Prod/Desktop)
-│   ├── models.py             # 40+ SQLAlchemy ORM models (2,422 LOC)
+│   ├── models.py             # 41+ SQLAlchemy ORM models (incl. UserAIPreferences)
 │   ├── main.py               # Application entry point
 │   ├── llm_gateway/          # Multi-provider LLM routing with circuit breaker
 │   ├── truth_engine/         # Federated truth maintenance and TruthLink
