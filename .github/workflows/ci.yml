@@ -1,1 +1,322 @@
-bmFtZTogQ0kvQ0QgUGlwZWxpbmUKCm9uOgogIHB1c2g6CiAgICBicmFuY2hlczogWyAibWFpbiIsICJkZXYiLCAiZGV2ZWxvcCIgXQogIHB1bGxfcmVxdWVzdDoKICAgIGJyYW5jaGVzOiBbICJtYWluIiwgImRldiIsICJkZXZlbG9wIiBdCgpqb2JzOgogICMgQ29kaW5nIFN0YW5kYXJkcwogIGxpbnQ6CiAgICBydW5zLW9uOiB1YnVudHUtbGF0ZXN0CiAgICBzdGVwczoKICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEB2NAogICAgLSBuYW1lOiBTZXQgdXAgUHl0aG9uCiAgICAgIHVzZXM6IGFjdGlvbnMvc2V0dXAtcHl0aG9uQHY1CiAgICAgIHdpdGg6CiAgICAgICAgcHl0aG9uLXZlcnNpb246ICczLjExJwogICAgLSBuYW1lOiBJbnN0YWxsIFJ1ZmYKICAgICAgcnVuOiBwaXAgaW5zdGFsbCBydWZmCiAgICAtIG5hbWU6IFJ1biBSdWZmCiAgICAgIHJ1bjogcnVmZiBjaGVjayAuIC0tc2VsZWN0IEU5LEY2MyxGNwoKICAjIEJhY2tlbmQgVGVzdHMKICBiYWNrZW5kLXRlc3Q6CiAgICBydW5zLW9uOiB1YnVudHUtbGF0ZXN0CiAgICBzdGVwczoKICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEB2NAogICAgCiAgICAtIG5hbWU6IFNldCB1cCBQeXRob24KICAgICAgdXNlczogYWN0aW9ucy9zZXR1cC1weXRob25AdjUKICAgICAgd2l0aDoKICAgICAgICBweXRob24tdmVyc2lvbjogJzMuMTEnCiAgICAgICAgCiAgICAtIG5hbWU6IEluc3RhbGwgZGVwZW5kZW5jaWVzCiAgICAgIHJ1bjogfAogICAgICAgIHB5dGhvbiAtbSBwaXAgaW5zdGFsbCAtLXVwZ3JhZGUgcGlwCiAgICAgICAgcGlwIGluc3RhbGwgLXIgcmVxdWlyZW1lbnRzLnR4dAogICAgICAgIHBpcCBpbnN0YWxsIHBpcC1hdWRpdAogICAgICAgIHBpcCBpbnN0YWxsIG5lbzRqIGJsZWFjaCB1c2VyLWFnZW50cyB3ZWIzIGZhc3RhcGkgcmVwb3J0bGFiIGFzZ2lyZWYgcHl0aG9uLWpzb24tbG9nZ2VyIHNpbXBsZS1zYWxlc2ZvcmNlIGppcmEKCiAgICAtIG5hbWU6IFNlY3VyaXR5IEF1ZGl0CiAgICAgIHJ1bjogfAogICAgICAgIHBpcC1hdWRpdCAtciByZXF1aXJlbWVudHMudHh0IC0tZGVzYwoKICAgIC0gbmFtZTogUnVuIHNtb2tlIGJvb3RzdHJhcCBjaGVjawogICAgICBydW46IHwKICAgICAgICBweXRob24gc2NyaXB0cy90ZXN0X3Ntb2tlLnB5CgogICAgLSBuYW1lOiBTZXQgdXAgTm9kZS5qcyBmb3IgZGV0ZXJtaW5pc3RpYyBzdGFydHVwIHByZWNoZWNrCiAgICAgIHVzZXM6IGFjdGlvbnMvc2V0dXAtbm9kZUB2NAogICAgICB3aXRoOgogICAgICAgIG5vZGUtdmVyc2lvbjogJzIwJwoKICAgIC0gbmFtZTogSW5zdGFsbCBmcm9udGVuZCBkZXBlbmRlbmNpZXMgZm9yIHN0YXJ0dXAgcHJlY2hlY2sKICAgICAgcnVuOiB8CiAgICAgICAgY2QgZnJvbnRlbmQKICAgICAgICBucG0gY2kKICAgICAgZW52OgogICAgICAgIENIUk9NRURSSVZFUl9TS0lQX0RPV05MT0FEOiB0cnVlCiAgICAgICAgRUxFQ1RST05fU0tJUF9CSU5BUllfRE9XTkxPQUQ6IDEKCiAgICAtIG5hbWU6IFJ1biBkZXRlcm1pbmlzdGljIHN0YXJ0dXAgcHJlY2hlY2sgZ2F0ZQogICAgICBydW46IHwKICAgICAgICBweXRob24gc2NyaXB0cy9ydW50aW1lX3ByZWNoZWNrLnB5IC0tc3RyaWN0IC0tc2tpcC1wb3J0cyAtLWFsbG93LWVudi1mcm9tLXByb2Nlc3MgLS1qc29uLXJlcG9ydCByZXBvcnRzL3J1bnRpbWVfcHJlY2hlY2tfcmVwb3J0X2NpLmpzb24KICAgICAgZW52OgogICAgICAgIEZMQVNLX0VOVjogInRlc3RpbmciCiAgICAgICAgU0VTU0lPTl9TRUNSRVQ6ICJjaS1zZXNzaW9uLXNlY3JldCIKICAgICAgICBEQVRBQkFTRV9VUkw6ICJzcWxpdGU6Ly8vOm1lbW9yeToiCiAgICAgICAgT1BFTkFJX0FQSV9LRVk6ICJtb2NrLWtleS1mb3ItY2kiCgogICAgLSBuYW1lOiBWYWxpZGF0ZSBkb2NzIHJlZmVyZW5jZXMKICAgICAgcnVuOiB8CiAgICAgICAgcHl0aG9uIHNjcmlwdHMvdmVyaWZ5X2RvY3NfcmVmZXJlbmNlcy5weQoKICAgIC0gbmFtZTogVmFsaWRhdGUgU1FMaXRlL1Bvc3RncmVzIHNjaGVtYSBwYXJpdHkKICAgICAgcnVuOiB8CiAgICAgICAgcHl0aG9uIHNjcmlwdHMvdmFsaWRhdGVfc2NoZW1hX3Bhcml0eS5weSAtLXJlcG9ydCByZXBvcnRzL3NjaGVtYV9wYXJpdHlfcmVwb3J0X2NpLmpzb24KCiAgICAtIG5hbWU6IFJ1biBUZXN0cwogICAgICBydW46IHwKICAgICAgICBweXRlc3QgdGVzdHMvCiAgICAgIGVudjoKICAgICAgICBEQVRBQkFTRV9VUkw6ICJzcWxpdGU6Ly8vOm1lbW9yeToiCiAgICAgICAgT1BFTkFJX0FQSV9LRVk6ICJtb2NrLWtleS1mb3ItY2kiCiAgICAgICAgRkxBU0tfRU5WOiAidGVzdGluZyIKICAgICAgICBTRVNTSU9OX1NFQ1JFVDogImNpLXNlc3Npb24tc2VjcmV0IgogICAgICAgIFNFQ1JFVF9LRVk6ICJjaS10ZXN0LXNlY3JldC1rZXkiCiAgICAgICAgSldUX1NFQ1JFVF9LRVk6ICJjaS10ZXN0LWp3dC1zZWNyZXQiCgogICAgLSBuYW1lOiBSdW4gQVBJIGNvbnRyYWN0IHRlc3RzCiAgICAgIHJ1bjogfAogICAgICAgIHB5dGhvbiAtbSBweXRlc3QgLXEgLS1uby1jb3YgdGVzdHMvY29udHJhY3QvdGVzdF9hcGlfY29udHJhY3QucHkKICAgICAgZW52OgogICAgICAgIERBVEFCQVNFX1VSTDogInNxbGl0ZTovLy86bWVtb3J5OiIKICAgICAgICBPUEVOQUlfQVBJX0tFWTogIm1vY2sta2V5LWZvci1jaSIKICAgICAgICBGTEFTS19FTlY6ICJ0ZXN0aW5nIgogICAgICAgIFNFU1NJT05fU0VDUkVUOiAiY2ktc2Vzc2lvbi1zZWNyZXQiCgogICAgLSBuYW1lOiBSdW4gbG9jYWwgbW9kZSBwYXJpdHkgdGVzdHMKICAgICAgcnVuOiB8CiAgICAgICAgcHl0aG9uIC1tIHB5dGVzdCAtcSAtLW5vLWNvdiB0ZXN0cy9wYXJpdHkvdGVzdF9sb2NhbF9tb2RlX3Bhcml0eS5weQogICAgICBlbnY6CiAgICAgICAgREFUQUJBU0VfVVJMOiAic3FsaXRlOi8vLzptZW1vcnk6IgogICAgICAgIEZMQVNLX0VOVjogInRlc3RpbmciCiAgICAgICAgU0VTU0lPTl9TRUNSRVQ6ICJjaS1zZXNzaW9uLXNlY3JldCIKCiAgICAtIG5hbWU6IFJ1biBzZWN1cml0eSByZWdyZXNzaW9uIHNtb2tlIHN1aXRlCiAgICAgIHJ1bjogfAogICAgICAgIHB5dGhvbiAtbSBweXRlc3QgLXEgLS1uby1jb3YgdGVzdHMvc2VjdXJpdHkvdGVzdF9zZWN1cml0eV9oZWFkZXJzLnB5IHRlc3RzL3NlY3VyaXR5L3Rlc3RfcmVxdWVzdF9saW1pdHMucHkKICAgICAgZW52OgogICAgICAgIERBVEFCQVNFX1VSTDogInNxbGl0ZTovLy86bWVtb3J5OiIKICAgICAgICBPUEVOQUlfQVBJX0tFWTogIm1vY2sta2V5LWZvci1jaSIKICAgICAgICBGTEFTS19FTlY6ICJ0ZXN0aW5nIgogICAgICAgIFNFU1NJT05fU0VDUkVUOiAiY2ktc2Vzc2lvbi1zZWNyZXQiCgogICMgRnJvbnRlbmQgQnVpbGQKICBmcm9udGVuZC1idWlsZDoKICAgIHJ1bnMtb246IHVidW50dS1sYXRlc3QKICAgIHN0ZXBzOgogICAgLSB1c2VzOiBhY3Rpb25zL2NoZWNrb3V0QHY0CiAgICAKICAgIC0gbmFtZTogU2V0IHVwIE5vZGUuanMKICAgICAgdXNlczogYWN0aW9ucy9zZXR1cC1ub2RlQHY0CiAgICAgIHdpdGg6CiAgICAgICAgbm9kZS12ZXJzaW9uOiAnMjAnCiAgICAgICAgY2FjaGU6ICducG0nCiAgICAgICAgY2FjaGUtZGVwZW5kZW5jeS1wYXRoOiBmcm9udGVuZC9wYWNrYWdlLWxvY2suanNvbgogICAgICAgIAogICAgLSBuYW1lOiBJbnN0YWxsIERlcGVuZGVuY2llcwogICAgICBydW46IHwKICAgICAgICBjZCBmcm9udGVuZAogICAgICAgIG5wbSBjaQogICAgICBlbnY6CiAgICAgICAgIyBQcmV2ZW50IGNocm9tZWRyaXZlci9lbGVjdHJvbiBwb3N0aW5zdGFsbCBmcm9tIGRvd25sb2FkaW5nIGJpbmFyaWVzIGR1cmluZyBucG0gY2kuCiAgICAgICAgIyBUaGVzZSBkb3dubG9hZHMgdGltZSBvdXQgb3IgYXJlIHNsb3cgaW4gQ0k7IHRoZSBiaW5hcmllcyBhcmUgZWl0aGVyIG5vdCBuZWVkZWQgKGVsZWN0cm9uKQogICAgICAgICMgb3Igc2V0IHVwIHNlcGFyYXRlbHkgYmVsb3cgKGNocm9tZWRyaXZlcikuCiAgICAgICAgQ0hST01FRFJJVkVSX1NLSVBfRE9XTkxPQUQ6IHRydWUKICAgICAgICBFTEVDVFJPTl9TS0lQX0JJTkFSWV9ET1dOTE9BRDogMQoKICAgIC0gbmFtZTogR2VuZXJhdGUgRGVzaWduIFRva2VucwogICAgICBydW46IHwKICAgICAgICBjZCBmcm9udGVuZAogICAgICAgIG5wbSBydW4gdG9rZW5zOmJ1aWxkCgogICAgLSBuYW1lOiBMaW50IEZyb250ZW5kCiAgICAgIHJ1bjogfAogICAgICAgIGNkIGZyb250ZW5kCiAgICAgICAgbnBtIHJ1biBsaW50CgogICAgLSBuYW1lOiBUeXBlY2hlY2sgRnJvbnRlbmQKICAgICAgcnVuOiB8CiAgICAgICAgY2QgZnJvbnRlbmQKICAgICAgICBucG0gcnVuIHR5cGVjaGVjawoKICAgIC0gbmFtZTogUnVuIEZyb250ZW5kIFVuaXQgVGVzdHMKICAgICAgcnVuOiB8CiAgICAgICAgY2QgZnJvbnRlbmQKICAgICAgICBucG0gcnVuIHRlc3QKICAgICAgICAKICAgIC0gbmFtZTogQnVpbGQgTmV4dC5qcwogICAgICBydW46IHwKICAgICAgICBjZCBmcm9udGVuZAogICAgICAgIG5wbSBydW4gYnVpbGQKICAgICAgZW52OgogICAgICAgIE5FWFRfVEVMRU1FVFJZX0RJU0FCTEVEOiAxCgogICAgLSBuYW1lOiBJbnN0YWxsIFBsYXl3cmlnaHQgKENocm9taXVtKQogICAgICBydW46IHwKICAgICAgICBjZCBmcm9udGVuZAogICAgICAgIG5weCBwbGF5d3JpZ2h0IGluc3RhbGwgLS13aXRoLWRlcHMgY2hyb21pdW0KCiAgICAtIG5hbWU6IFNldCB1cCBDaHJvbWVEcml2ZXIgZm9yIGExMXkgc3dlZXAKICAgICAgcnVuOiB8CiAgICAgICAgIyBHaXRIdWIgQWN0aW9ucyB1YnVudHUtbGF0ZXN0IGhhcyBDaHJvbWVEcml2ZXIgcHJlLWluc3RhbGxlZCAobWF0Y2hlcyBwcmUtaW5zdGFsbGVkIENocm9tZSkuCiAgICAgICAgIyBMaW5rIGl0IGludG8gdGhlIGxvY2F0aW9uIHRoZSBjaHJvbWVkcml2ZXIgbnBtIHBhY2thZ2UgZXhwZWN0cyBzbyB0aGF0IGF4ZS1jbGkgY2FuIGZpbmQgaXQuCiAgICAgICAgU1lTVEVNX0NEPSQod2hpY2ggY2hyb21lZHJpdmVyIDI+L2Rldi9udWxsIHx8IGVjaG8gIiIpCiAgICAgICAgaWYgWyAteiAiJFNZU1RFTV9DRCIgXTsgdGhlbgogICAgICAgICAgZWNobyAiU3lzdGVtIENocm9tZURyaXZlciBub3QgZm91bmQ7IGluc3RhbGxpbmcgdmlhIG5wbSBwb3N0aW5zdGFsbCIKICAgICAgICAgIGNkIGZyb250ZW5kICYmIG5vZGUgbm9kZV9tb2R1bGVzL2Nocm9tZWRyaXZlci9pbnN0YWxsLmpzCiAgICAgICAgZWxzZQogICAgICAgICAgZWNobyAiVXNpbmcgc3lzdGVtIENocm9tZURyaXZlcjogJFNZU1RFTV9DRCAoJChjaHJvbWVkcml2ZXIgLS12ZXJzaW9uKSkiCiAgICAgICAgICBta2RpciAtcCBmcm9udGVuZC9ub2RlX21vZHVsZXMvY2hyb21lZHJpdmVyL2xpYi9jaHJvbWVkcml2ZXIKICAgICAgICAgIGxuIC1zZiAiJFNZU1RFTV9DRCIgZnJvbnRlbmQvbm9kZV9tb2R1bGVzL2Nocm9tZWRyaXZlci9saWIvY2hyb21lZHJpdmVyL2Nocm9tZWRyaXZlcgogICAgICAgIGZpCgogICAgLSBuYW1lOiBSdW4gRnJvbnRlbmQgQWNjZXNzaWJpbGl0eSBTd2VlcAogICAgICBydW46IHwKICAgICAgICBjZCBmcm9udGVuZAogICAgICAgIG5wbSBydW4gdGVzdDphMTF5OmNpCgogICAgLSBuYW1lOiBSdW4gRnJvbnRlbmQgUm91dGUgRTJFIFNtb2tlCiAgICAgIHJ1bjogfAogICAgICAgIGNkIGZyb250ZW5kCiAgICAgICAgbnBtIHJ1biB0ZXN0OmUyZSAtLSB0ZXN0cy9lMmUvcm91dGUtc2lkZWJhci1zbW9rZS5zcGVjLnRzCgogICAgLSBuYW1lOiBSdW4gRnJvbnRlbmQgVmlzdWFsIFJlZ3Jlc3Npb24gU21va2UgKGNyZWF0ZSBtaXNzaW5nIGJhc2VsaW5lcykKICAgICAgIyBQbGF5d3JpZ2h0IDEuNTggd2l0aCAtLXVwZGF0ZS1zbmFwc2hvdHM9bWlzc2luZyBmYWlscyB0aGUgcnVuIGV2ZW4gd2hlbiBpdAogICAgICAjIHN1Y2Nlc3NmdWxseSB3cml0ZXMgbmV3IHNuYXBzaG90IGZpbGVzLiBBbGxvdyB0aGlzIHN0ZXAgdG8gZmFpbCBzbyB0aGUgam9iCiAgICAgICMgY29udGludWVzIHRvIHRoZSB2YWxpZGF0aW9uIHBhc3MgYmVsb3cuCiAgICAgIGNvbnRpbnVlLW9uLWVycm9yOiB0cnVlCiAgICAgIHJ1bjogfAogICAgICAgIGNkIGZyb250ZW5kCiAgICAgICAgbnBtIHJ1biB0ZXN0OmUyZTp2aXN1YWwgLS0gLS11cGRhdGUtc25hcHNob3RzPW1pc3NpbmcKCiAgICAtIG5hbWU6IFJ1biBGcm9udGVuZCBWaXN1YWwgUmVncmVzc2lvbiBTbW9rZSAodmFsaWRhdGUpCiAgICAgIHJ1bjogfAogICAgICAgIGNkIGZyb250ZW5kCiAgICAgICAgbnBtIHJ1biB0ZXN0OmUyZTp2aXN1YWwKCiAgd2luZG93cy1wYWNrYWdpbmctc21va2U6CiAgICBydW5zLW9uOiB3aW5kb3dzLWxhdGVzdAogICAgc3RlcHM6CiAgICAtIHVzZXM6IGFjdGlvbnMvY2hlY2tvdXRAdjQKCiAgICAtIG5hbWU6IFNldCB1cCBOb2RlLmpzCiAgICAgIHVzZXM6IGFjdGlvbnMvc2V0dXAtbm9kZUB2NAogICAgICB3aXRoOgogICAgICAgIG5vZGUtdmVyc2lvbjogJzIwJwogICAgICAgIGNhY2hlOiAnbnBtJwogICAgICAgIGNhY2hlLWRlcGVuZGVuY3ktcGF0aDogZnJvbnRlbmQvcGFja2FnZS1sb2NrLmpzb24KCiAgICAtIG5hbWU6IEluc3RhbGwgZnJvbnRlbmQgZGVwZW5kZW5jaWVzCiAgICAgIHJ1bjogfAogICAgICAgIGNkIGZyb250ZW5kCiAgICAgICAgbnBtIGNpCgogICAgLSBuYW1lOiBWZXJpZnkgTlNJUyBnb3Zlcm5hbmNlIHBvbGljeQogICAgICBydW46IHwKICAgICAgICBwb3dlcnNoZWxsIC1Ob1Byb2ZpbGUgLUV4ZWN1dGlvblBvbGljeSBCeXBhc3MgLUZpbGUgc2NyaXB0cy93aW5kb3dzL3ZlcmlmeV9uc2lzX2dvdmVybmFuY2UucHMxIC1SZXBvUm9vdCAoR2V0LUxvY2F0aW9uKS5QYXRoCgogICAgLSBuYW1lOiBCdWlsZCBXaW5kb3dzIGluc3RhbGxlcgogICAgICBydW46IHwKICAgICAgICBucG0gLS1wcmVmaXggZnJvbnRlbmQgcnVuIGVsZWN0cm9uOmRpc3QKCiAgICAtIG5hbWU6IFJ1biBwYWNrYWdpbmcgc21va2UgKHBvcnRhYmxlIGxhdW5jaCkKICAgICAgcnVuOiB8CiAgICAgICAgcG93ZXJzaGVsbCAtTm9Qcm9maWxlIC1FeGVjdXRpb25Qb2xpY3kgQnlwYXNzIC1GaWxlIHNjcmlwdHMvd2luZG93cy9ydW5fcGFja2FnaW5nX3Ntb2tlLnBzMSAtUmVwb1Jvb3QgKEdldC1Mb2NhdGlvbikuUGF0aAoKICAgIC0gbmFtZTogVXBsb2FkIHBhY2thZ2luZyBzbW9rZSByZXBvcnQKICAgICAgdXNlczogYWN0aW9ucy91cGxvYWQtYXJ0aWZhY3RAdjQKICAgICAgaWY6IGFsd2F5cygpCiAgICAgIHdpdGg6CiAgICAgICAgbmFtZTogcGFja2FnaW5nLXNtb2tlLXJlcG9ydAogICAgICAgIHBhdGg6IHwKICAgICAgICAgIHJlcG9ydHMvcGFja2FnaW5nX3Ntb2tlX3JlcG9ydC5qc29uCiAgICAgICAgICByZXBvcnRzL25zaXNfZ292ZXJuYW5jZV9yZXBvcnQuanNvbgogICAgICAgIGlmLW5vLWZpbGVzLWZvdW5kOiB3YXJuCgogIGdvdmVybmFuY2U6CiAgICBydW5zLW9uOiB1YnVudHUtbGF0ZXN0CiAgICBzdGVwczoKICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEB2NAoKICAgIC0gbmFtZTogU2V0IHVwIFB5dGhvbgogICAgICB1c2VzOiBhY3Rpb25zL3NldHVwLXB5dGhvbkB2NQogICAgICB3aXRoOgogICAgICAgIHB5dGhvbi12ZXJzaW9uOiAnMy4xMScKCiAgICAtIG5hbWU6IFNldCB1cCBOb2RlLmpzCiAgICAgIHVzZXM6IGFjdGlvbnMvc2V0dXAtbm9kZUB2NAogICAgICB3aXRoOgogICAgICAgIG5vZGUtdmVyc2lvbjogJzIwJwogICAgICAgIGNhY2hlOiAnbnBtJwogICAgICAgIGNhY2hlLWRlcGVuZGVuY3ktcGF0aDogZnJvbnRlbmQvcGFja2FnZS1sb2NrLmpzb24KCiAgICAtIG5hbWU6IEluc3RhbGwgZ292ZXJuYW5jZSBkZXBlbmRlbmNpZXMKICAgICAgcnVuOiB8CiAgICAgICAgcHl0aG9uIC1tIHBpcCBpbnN0YWxsIC0tdXBncmFkZSBwaXAKICAgICAgICBwaXAgaW5zdGFsbCBydWZmCiAgICAgICAgbnBtIC0tcHJlZml4IGZyb250ZW5kIGNpCiAgICAgIGVudjoKICAgICAgICBDSFJPTUVEUklWRVJfU0tJUF9ET1dOTE9BRDogdHJ1ZQogICAgICAgIEVMRUNUUk9OX1NLSVBfQklOQVJZX0RPV05MT0FEOiAxCgogICAgLSBuYW1lOiBSdW4gcHJlLWNvbW1pdCBnb3Zlcm5hbmNlIGNoZWNrcwogICAgICBydW46IHwKICAgICAgICBweXRob24gc2NyaXB0cy9kZXYvcnVuX3ByZWNvbW1pdF9jaGVja3MucHkKCiAgICAtIG5hbWU6IFZlcmlmeSBlbnZpcm9ubWVudCBwYXJpdHkKICAgICAgcnVuOiB8CiAgICAgICAgcHl0aG9uIHNjcmlwdHMvdmVyaWZ5X2Vudmlyb25tZW50X3Bhcml0eS5weSAtLXN0cmljdCAtLWpzb24tcmVwb3J0IHJlcG9ydHMvZW52aXJvbm1lbnRfcGFyaXR5X3JlcG9ydF9jaS5qc29uCgogICAgLSBuYW1lOiBWZXJpZnkgbG9ja2ZpbGUgZ292ZXJuYW5jZQogICAgICBydW46IHwKICAgICAgICBweXRob24gc2NyaXB0cy92ZXJpZnlfbG9ja2ZpbGVzLnB5IC0tanNvbi1yZXBvcnQgcmVwb3J0cy9sb2NrZmlsZV9nb3Zlcm5hbmNlX3JlcG9ydF9jaS5qc29uCgogICAgLSBuYW1lOiBVcGxvYWQgZ292ZXJuYW5jZSByZXBvcnRzCiAgICAgIHVzZXM6IGFjdGlvbnMvdXBsb2FkLWFydGlmYWN0QHY0CiAgICAgIGlmOiBhbHdheXMoKQogICAgICB3aXRoOgogICAgICAgIG5hbWU6IGdvdmVybmFuY2UtcmVwb3J0cwogICAgICAgIHBhdGg6IHwKICAgICAgICAgIHJlcG9ydHMvZW52aXJvbm1lbnRfcGFyaXR5X3JlcG9ydF9jaS5qc29uCiAgICAgICAgICByZXBvcnRzL2xvY2tmaWxlX2dvdmVybmFuY2VfcmVwb3J0X2NpLmpzb24KICAgICAgICBpZi1uby1maWxlcy1mb3VuZDogd2FybgoKICAjIERvY2tlciBCdWlsZCAoVmVyaWZpY2F0aW9uKQogIGRvY2tlci1idWlsZDoKICAgIG5lZWRzOiBbYmFja2VuZC10ZXN0LCBmcm9udGVuZC1idWlsZCwgd2luZG93cy1wYWNrYWdpbmctc21va2UsIGdvdmVybmFuY2VdCiAgICBydW5zLW9uOiB1YnVudHUtbGF0ZXN0CiAgICBzdGVwczoKICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEB2NAogICAgCiAgICAtIG5hbWU6IFNldCB1cCBEb2NrZXIgQnVpbGR4CiAgICAgIHVzZXM6IGRvY2tlci9zZXR1cC1idWlsZHgtYWN0aW9uQHYzCiAgICAgIAogICAgLSBuYW1lOiBCdWlsZCBCYWNrZW5kIEltYWdlCiAgICAgIHVzZXM6IGRvY2tlci9idWlsZC1wdXNoLWFjdGlvbkB2NgogICAgICB3aXRoOgogICAgICAgIGNvbnRleHQ6IC4KICAgICAgICBmaWxlOiBiYWNrZW5kL0RvY2tlcmZpbGUKICAgICAgICBwdXNoOiBmYWxzZQogICAgICAgIHRhZ3M6IHVrZy1iYWNrZW5kOmxhdGVzdAogICAgICAgIAogICAgLSBuYW1lOiBCdWlsZCBGcm9udGVuZCBJbWFnZQogICAgICB1c2VzOiBkb2NrZXIvYnVpbGQtcHVzaC1hY3Rpb25AdjYKICAgICAgd2l0aDoKICAgICAgICBjb250ZXh0OiBmcm9udGVuZAogICAgICAgIGZpbGU6IGZyb250ZW5kL0RvY2tlcmZpbGUKICAgICAgICBwdXNoOiBmYWxzZQogICAgICAgIHRhZ3M6IHVrZy1mcm9udGVuZDpsYXRlc3QK
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "dev", "develop" ]
+  pull_request:
+    branches: [ "main", "dev", "develop" ]
+
+jobs:
+  # Coding Standards
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install Ruff
+      run: pip install ruff
+    - name: Run Ruff
+      run: ruff check . --select E9,F63,F7
+
+  # Backend Tests
+  backend-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pip-audit
+        pip install neo4j bleach user-agents web3 fastapi reportlab asgiref python-json-logger simple-salesforce jira
+
+    - name: Security Audit
+      run: |
+        pip-audit -r requirements.txt --desc
+
+    - name: Run smoke bootstrap check
+      run: |
+        python scripts/test_smoke.py
+
+    - name: Set up Node.js for deterministic startup precheck
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install frontend dependencies for startup precheck
+      run: |
+        cd frontend
+        npm ci
+      env:
+        CHROMEDRIVER_SKIP_DOWNLOAD: true
+        ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+
+    - name: Run deterministic startup precheck gate
+      run: |
+        python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process --json-report reports/runtime_precheck_report_ci.json
+      env:
+        FLASK_ENV: "testing"
+        SESSION_SECRET: "ci-session-secret"
+        DATABASE_URL: "sqlite:///:memory:"
+        OPENAI_API_KEY: "mock-key-for-ci"
+
+    - name: Validate docs references
+      run: |
+        python scripts/verify_docs_references.py
+
+    - name: Validate SQLite/Postgres schema parity
+      run: |
+        python scripts/validate_schema_parity.py --report reports/schema_parity_report_ci.json
+
+    - name: Run Tests
+      run: |
+        pytest tests/
+      env:
+        DATABASE_URL: "sqlite:///:memory:"
+        OPENAI_API_KEY: "mock-key-for-ci"
+        FLASK_ENV: "testing"
+        SESSION_SECRET: "ci-session-secret"
+        SECRET_KEY: "ci-test-secret-key"
+        JWT_SECRET_KEY: "ci-test-jwt-secret"
+
+    - name: Run API contract tests
+      run: |
+        python -m pytest -q --no-cov tests/contract/test_api_contract.py
+      env:
+        DATABASE_URL: "sqlite:///:memory:"
+        OPENAI_API_KEY: "mock-key-for-ci"
+        FLASK_ENV: "testing"
+        SESSION_SECRET: "ci-session-secret"
+
+    - name: Run local mode parity tests
+      run: |
+        python -m pytest -q --no-cov tests/parity/test_local_mode_parity.py
+      env:
+        DATABASE_URL: "sqlite:///:memory:"
+        FLASK_ENV: "testing"
+        SESSION_SECRET: "ci-session-secret"
+
+    - name: Run security regression smoke suite
+      run: |
+        python -m pytest -q --no-cov tests/security/test_security_headers.py tests/security/test_request_limits.py
+      env:
+        DATABASE_URL: "sqlite:///:memory:"
+        OPENAI_API_KEY: "mock-key-for-ci"
+        FLASK_ENV: "testing"
+        SESSION_SECRET: "ci-session-secret"
+
+  # Frontend Build
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: Install Dependencies
+      run: |
+        cd frontend
+        npm ci
+      env:
+        # Prevent chromedriver/electron postinstall from downloading binaries during npm ci.
+        # These downloads time out or are slow in CI; the binaries are either not needed (electron)
+        # or set up separately below (chromedriver).
+        CHROMEDRIVER_SKIP_DOWNLOAD: true
+        ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+
+    - name: Generate Design Tokens
+      run: |
+        cd frontend
+        npm run tokens:build
+
+    - name: Lint Frontend
+      run: |
+        cd frontend
+        npm run lint
+
+    - name: Typecheck Frontend
+      run: |
+        cd frontend
+        npm run typecheck
+
+    - name: Run Frontend Unit Tests
+      run: |
+        cd frontend
+        npm run test
+        
+    - name: Build Next.js
+      run: |
+        cd frontend
+        npm run build
+      env:
+        NEXT_TELEMETRY_DISABLED: 1
+
+    - name: Install Playwright (Chromium)
+      run: |
+        cd frontend
+        npx playwright install --with-deps chromium
+
+    - name: Set up ChromeDriver for a11y sweep
+      run: |
+        # GitHub Actions ubuntu-latest has ChromeDriver pre-installed (matches pre-installed Chrome).
+        # Link it into the location the chromedriver npm package expects so that axe-cli can find it.
+        SYSTEM_CD=$(which chromedriver 2>/dev/null || echo "")
+        if [ -z "$SYSTEM_CD" ]; then
+          echo "System ChromeDriver not found; installing via npm postinstall"
+          cd frontend && node node_modules/chromedriver/install.js
+        else
+          echo "Using system ChromeDriver: $SYSTEM_CD ($(chromedriver --version))"
+          mkdir -p frontend/node_modules/chromedriver/lib/chromedriver
+          ln -sf "$SYSTEM_CD" frontend/node_modules/chromedriver/lib/chromedriver/chromedriver
+        fi
+
+    - name: Run Frontend Accessibility Sweep
+      run: |
+        cd frontend
+        npm run test:a11y:ci
+
+    - name: Run Frontend Route E2E Smoke
+      run: |
+        cd frontend
+        npm run test:e2e -- tests/e2e/route-sidebar-smoke.spec.ts
+
+    - name: Run Frontend Visual Regression Smoke (create missing baselines)
+      # Playwright 1.58 with --update-snapshots=missing fails the run even when it
+      # successfully writes new snapshot files. Allow this step to fail so the job
+      # continues to the validation pass below.
+      continue-on-error: true
+      run: |
+        cd frontend
+        npm run test:e2e:visual -- --update-snapshots=missing
+
+    - name: Run Frontend Visual Regression Smoke (validate)
+      run: |
+        cd frontend
+        npm run test:e2e:visual
+
+  windows-packaging-smoke:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+
+    - name: Verify NSIS governance policy
+      run: |
+        powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+
+    - name: Build Windows installer
+      run: |
+        npm --prefix frontend run electron:dist
+
+    - name: Run packaging smoke (portable launch)
+      run: |
+        powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+
+    - name: Upload packaging smoke report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: packaging-smoke-report
+        path: |
+          reports/packaging_smoke_report.json
+          reports/nsis_governance_report.json
+        if-no-files-found: warn
+
+  governance:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install governance dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ruff
+        npm --prefix frontend ci
+      env:
+        CHROMEDRIVER_SKIP_DOWNLOAD: true
+        ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+
+    - name: Run pre-commit governance checks
+      run: |
+        python scripts/dev/run_precommit_checks.py
+
+    - name: Verify environment parity
+      run: |
+        python scripts/verify_environment_parity.py --strict --json-report reports/environment_parity_report_ci.json
+
+    - name: Verify lockfile governance
+      run: |
+        python scripts/verify_lockfiles.py --json-report reports/lockfile_governance_report_ci.json
+
+    - name: Upload governance reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: governance-reports
+        path: |
+          reports/environment_parity_report_ci.json
+          reports/lockfile_governance_report_ci.json
+        if-no-files-found: warn
+
+  # Docker Build (Verification)
+  docker-build:
+    needs: [backend-test, frontend-build, windows-packaging-smoke, governance]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build Backend Image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: backend/Dockerfile
+        push: false
+        tags: ukg-backend:latest
+        
+    - name: Build Frontend Image
+      uses: docker/build-push-action@v6
+      with:
+        context: frontend
+        file: frontend/Dockerfile
+        push: false
+        tags: ukg-frontend:latest
