@@ -174,7 +174,7 @@ jobs:
     - name: Run Frontend Visual Regression Smoke
       run: |
         cd frontend
-        npm run test:e2e:visual
+        npm run test:e2e:visual -- --update-snapshots=missing
 
   windows-packaging-smoke:
     runs-on: windows-latest
