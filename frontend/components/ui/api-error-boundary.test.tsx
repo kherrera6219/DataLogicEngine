@@ -36,8 +36,8 @@ describe('ApiErrorBoundary', () => {
         <ThrowError />
       </ApiErrorBoundary>
     );
-    expect(screen.getByText('Signal Disruption')).toBeInTheDocument();
-    expect(screen.getByText(/Failed to retrieve data for/i)).toBeInTheDocument();
+    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+    expect(screen.getByText(/module failed to load/i)).toBeInTheDocument();
   });
 
   it('should render custom fallback if provided', () => {
@@ -58,7 +58,7 @@ describe('ApiErrorBoundary', () => {
     expect(screen.getByText('Compliance Engine')).toBeInTheDocument();
   });
 
-  it('should allow retrying via Re-sync button', () => {
+  it('should allow retrying via Try again button', () => {
     const TestWrapper = () => {
       const [shouldThrow, setShouldThrow] = useState(true);
       return (
@@ -72,16 +72,16 @@ describe('ApiErrorBoundary', () => {
     };
 
     render(<TestWrapper />);
-    
-    expect(screen.getByText('Signal Disruption')).toBeInTheDocument();
-    
+
+    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+
     // Fix the error state first
     fireEvent.click(screen.getByTestId('fix-it'));
-    
-    // Now click Re-sync
-    const retryBtn = screen.getByText('Re-sync');
+
+    // Now click Try again
+    const retryBtn = screen.getByText('Try again');
     fireEvent.click(retryBtn);
-    
+
     expect(screen.getByTestId('recovered')).toBeInTheDocument();
   });
 });

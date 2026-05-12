@@ -147,7 +147,7 @@ describe('ChatInterface', () => {
       fireEvent.click(sendButton);
     });
 
-    expect(await screen.findByText(/I encountered an error/i, {}, { timeout: 10000 })).toBeInTheDocument();
+    expect(await screen.findByText(/could not be completed/i, {}, { timeout: 10000 })).toBeInTheDocument();
   }, 30000);
 
   it('should handle file upload successfully', async () => {
