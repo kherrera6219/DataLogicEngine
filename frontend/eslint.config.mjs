@@ -1,6 +1,3 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
-
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
@@ -19,6 +16,7 @@ const eslintConfig = defineConfig([
     "dist/**",
     "dist-smoke/**",
     // Generated artifacts and debug outputs
+    "stories/**",
     "storybook-static/**",
     "test-results/**",
     "playwright-report/**",
@@ -26,13 +24,10 @@ const eslintConfig = defineConfig([
     "*.txt",
     "lint-results.json",
   ]),
-  ...storybook.configs["flat/recommended"],
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": "warn",
-      // Project uses @storybook/react with Next.js — suppress advisory rule
-      "storybook/no-renderer-packages": "off",
     },
   },
   {
