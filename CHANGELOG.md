@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] - 2026-05-12
+
+### Added
+- **User AI Preferences**: per-user `UserAIPreferences` DB model with Alembic migration; persisted via `GET/POST /api/settings/ai`; gateway wires preferred provider, preferred model, and `ai_processing_enabled` flag before routing each request.
+- **AI processing toggle + chat history opt-out**: two toggle cards in Settings → AI Models backed by real DB state.
+- **KA risk-tier classifier**: `backend/knowledge_algorithms/risk_classifier.py` classifies each Knowledge Algorithm as `read_only`, `write`, or `destructive`.
+- **ConfirmationDialog**: reusable React dialog gated by risk tier with colour-coded badges and destructive styling (`frontend/components/ConfirmationDialog.tsx`).
+- **Tool Execution History**: `/tools/history` audit log page for every KA invocation with status, tier badge, duration, triggered-by, and trace links.
+- **AI provider/model badge**: each assistant chat message now shows the provider and model used.
+- **Global privacy footer**: links to Privacy Policy, Cloud Services, and AI Limitations on every page.
+- **Background activity disclosure**: card on `/settings/privacy` lists health checks, WebSocket keep-alives, and session refresh activity.
+
+### Fixed
+- **CI — pip-audit**: patched 12 CVEs across Flask, Authlib, PyJWT, cryptography, aiohttp, requests, langgraph, python-dotenv, markdown, Pillow, pypdf, and pytest.
+- **CI — governance/frontend-build**: removed `eslint-plugin-storybook@10.3.6` (required storybook v10 peer dep, project uses v8); added `stories/**` to eslint global ignores to prevent hooks-rule violations in story files.
+- **Unit tests**: updated `ApiErrorBoundary` and `ChatInterface` test assertions to match new user-facing copy.
+
+### Changed
+- `settings_routes.py` rewritten to persist AI preferences to DB (was stub/mock).
+- `api-error-boundary.tsx`: improved error title ("Something went wrong") and actionable copy; retry button renamed "Try again".
+- `ChatInterface.tsx`: improved API error message with actionable guidance including Settings link.
+
 ## [4.1.19] - 2026-02-17
 
 ### Changed
