@@ -140,38 +140,51 @@ jobs:
 
     - name: Generate Design Tokens
       run: |
+        echo "::notice::tokens-build starting at $(date +%s)"
         cd frontend
         npm run tokens:build
+        echo "::notice::tokens-build done at $(date +%s)"
 
     - name: Lint Frontend
       run: |
+        echo "::notice::lint starting at $(date +%s)"
         cd frontend
         npm run lint
+        echo "::notice::lint done at $(date +%s)"
 
     - name: Typecheck Frontend
       run: |
+        echo "::notice::typecheck starting at $(date +%s)"
         cd frontend
         npm run typecheck
+        echo "::notice::typecheck done at $(date +%s)"
 
     - name: Run Frontend Unit Tests
       run: |
+        echo "::notice::unit-tests starting at $(date +%s)"
         cd frontend
         npm run test
+        echo "::notice::unit-tests done at $(date +%s)"
         
     - name: Build Next.js
       run: |
+        echo "::notice::next-build starting at $(date +%s)"
         cd frontend
         npm run build
+        echo "::notice::next-build done at $(date +%s)"
       env:
         NEXT_TELEMETRY_DISABLED: 1
 
     - name: Install Playwright (Chromium)
       run: |
+        echo "::notice::playwright-install starting at $(date +%s)"
         cd frontend
         npx playwright install --with-deps chromium
+        echo "::notice::playwright-install done at $(date +%s)"
 
     - name: Set up ChromeDriver for a11y sweep
       run: |
+        echo "::notice::chromedriver-setup starting at $(date +%s)"
         # GitHub Actions ubuntu-latest has ChromeDriver pre-installed (matches pre-installed Chrome).
         # Link it into the location the chromedriver npm package expects so that axe-cli can find it.
         SYSTEM_CD=$(which chromedriver 2>/dev/null || echo "")
@@ -190,17 +203,24 @@ jobs:
         if [ -n "$CHROME_BIN" ]; then
           echo "Found Chrome at $CHROME_BIN"
           echo "CHROME_TEST_PATH=$CHROME_BIN" >> $GITHUB_ENV
+        else
+          echo "::warning::No Chrome binary found; a11y sweep may fail"
         fi
+        echo "::notice::chromedriver-setup done at $(date +%s)"
 
     - name: Run Frontend Accessibility Sweep
       run: |
+        echo "::notice::a11y-sweep starting at $(date +%s)"
         cd frontend
         npm run test:a11y:ci
+        echo "::notice::a11y-sweep done at $(date +%s)"
 
     - name: Run Frontend Route E2E Smoke
       run: |
+        echo "::notice::e2e-smoke starting at $(date +%s)"
         cd frontend
         npm run test:e2e -- tests/e2e/route-sidebar-smoke.spec.ts
+        echo "::notice::e2e-smoke done at $(date +%s)"
 
     - name: Run Frontend Visual Regression Smoke (create missing baselines)
       # Playwright 1.58 with --update-snapshots=missing fails the run even when it
@@ -208,13 +228,17 @@ jobs:
       # continues to the validation pass below.
       continue-on-error: true
       run: |
+        echo "::notice::visual-create starting at $(date +%s)"
         cd frontend
         npm run test:e2e:visual -- --update-snapshots=missing
+        echo "::notice::visual-create done at $(date +%s)"
 
     - name: Run Frontend Visual Regression Smoke (validate)
       run: |
+        echo "::notice::visual-validate starting at $(date +%s)"
         cd frontend
         npm run test:e2e:visual
+        echo "::notice::visual-validate done at $(date +%s)"
 
   windows-packaging-smoke:
     runs-on: windows-latest
