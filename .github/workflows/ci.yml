@@ -155,6 +155,7 @@ jobs:
         npm run build
       env:
         NEXT_TELEMETRY_DISABLED: 1
+        NEXT_TURBOPACK_EXPERIMENTAL_USE_SYSTEM_TLS_CERTS: 1
 
     - name: Install Playwright (Chromium)
       run: |
