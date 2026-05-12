@@ -78,6 +78,13 @@ export default function RootLayout({
                             <h1 className="sr-only">DataLogicEngine Workspace</h1>
                             {children}
                           </main>
+                          <footer className="shrink-0 border-t border-white/5 px-4 py-2 flex items-center justify-center gap-4 text-[11px] text-muted-foreground bg-background/60 backdrop-blur-xl">
+                            <a href="/legal/privacy" className="hover:text-foreground transition-colors underline underline-offset-2">Privacy Policy</a>
+                            <span aria-hidden="true">·</span>
+                            <a href="/about/cloud-services" className="hover:text-foreground transition-colors underline underline-offset-2">Cloud Services</a>
+                            <span aria-hidden="true">·</span>
+                            <a href="/about/ai-limitations" className="hover:text-foreground transition-colors underline underline-offset-2">AI Limitations</a>
+                          </footer>
                         </div>
                       </div>
                       <DesktopStatus />

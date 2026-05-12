@@ -22,6 +22,8 @@ export interface ChatResponse {
   trace_id?: string;
   trace_summary?: unknown;
   error?: string;
+  provider_used?: string;
+  model_used?: string;
 }
 
 export interface TraceRun {

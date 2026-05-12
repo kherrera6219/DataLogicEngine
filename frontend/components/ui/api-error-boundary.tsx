@@ -48,18 +48,18 @@ export class ApiErrorBoundary extends Component<Props, State> {
               <AlertCircle className="h-6 w-6 text-red-500" />
             </div>
             <div className="space-y-1">
-              <h3 className="font-bold text-white tracking-tight">Signal Disruption</h3>
-              <p className="text-xs text-muted-foreground max-w-[200px] mx-auto">
-                Failed to retrieve data for <span className="text-red-400 font-mono">{this.props.moduleName || 'this module'}</span>.
+              <h3 className="font-bold text-white tracking-tight">Something went wrong</h3>
+              <p className="text-xs text-muted-foreground max-w-[240px] mx-auto">
+                The <span className="text-red-400 font-mono">{this.props.moduleName || 'page'}</span> module failed to load. Try refreshing — if the problem persists, check your network connection or contact support.
               </p>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => this.setState({ hasError: false, error: null })}
               className="h-8 rounded-lg border-white/10 hover:bg-white/5 transition-all gap-2"
             >
-              <RefreshCw className="h-3 w-3" /> Re-sync
+              <RefreshCw className="h-3 w-3" /> Try again
             </Button>
           </CardContent>
         </Card>
