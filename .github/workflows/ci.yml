@@ -79,7 +79,7 @@ jobs:
 
     - name: Run Tests
       run: |
-        python -m pytest tests/
+        python -m pytest tests/ --cov-fail-under=69
       env:
         PYTHONPATH: "."
         DATABASE_URL: "sqlite:///:memory:"
