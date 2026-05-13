@@ -218,7 +218,8 @@ def test_create_legacy_app():
     
     with patch('extensions.db.init_app') as mock_db, \
          patch('backend.JWTManager') as mock_jwt, \
-         patch('backend.CORS') as mock_cors:
+         patch('backend.CORS') as mock_cors, \
+         patch.dict('os.environ', {"CORS_ORIGINS": "http://localhost:3000,http://127.0.0.1:3000,app://-"}):
          
          # Mock blueprints to avoid importing routes which might trigger more issues
          # We iterate over the list of blueprints in __init__.py
@@ -246,6 +247,6 @@ def test_create_legacy_app():
               mock_jwt.assert_called_with(app)
               mock_cors.assert_called_with(
                   app,
-                  resources={r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:8080"]}},
+                  resources={r"/api/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "app://-"]}},
                   supports_credentials=True,
               )
