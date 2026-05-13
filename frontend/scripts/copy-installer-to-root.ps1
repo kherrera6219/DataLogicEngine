@@ -36,7 +36,16 @@ function Write-InstallerHash {
 
     $LeafName = Split-Path -Path $FilePath -Leaf
     $HashFile = "${FilePath}.sha256"
-    $HashValue = (Get-FileHash -LiteralPath $FilePath -Algorithm SHA256).Hash.ToLowerInvariant()
+    $Sha256 = [System.Security.Cryptography.SHA256]::Create()
+    $Stream = [System.IO.File]::OpenRead($FilePath)
+    try {
+        $HashBytes = $Sha256.ComputeHash($Stream)
+    }
+    finally {
+        $Stream.Dispose()
+        $Sha256.Dispose()
+    }
+    $HashValue = -join ($HashBytes | ForEach-Object { $_.ToString("x2") })
     "$HashValue  $LeafName" | Set-Content -Path $HashFile -Encoding ascii
     return $HashFile
 }
