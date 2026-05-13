@@ -55,7 +55,6 @@ a = Analysis(
         'tiktoken',
         'langchain_openai',
         'langchain_community',
-        'merkletools',
         'dotenv',
     ],
     hookspath=[],
