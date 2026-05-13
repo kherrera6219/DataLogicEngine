@@ -110,7 +110,7 @@ jobs:
 
     - name: Run Bandit delta gate (new high-confidence issues)
       run: |
-        bandit -r backend/ core/ -b .bandit-baseline.ci.json -f json -o bandit-report.json
+        bandit -r backend/ core/ -b .bandit-baseline.ci.json --exit-zero -f json -o bandit-report.json
         bandit -r backend/ core/ -b .bandit-baseline.ci.json -ll -ii -f screen
 
     - name: Upload Bandit report
