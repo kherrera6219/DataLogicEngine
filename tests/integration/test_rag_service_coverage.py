@@ -1,5 +1,7 @@
 
 import pytest
+import sys
+import types
 from unittest.mock import MagicMock, patch
 from backend.services.rag_service import RAGService
 
@@ -54,7 +56,10 @@ class TestRAGService:
 
     def test_default_embedding_layer3_local(self, rag_service):
         # Force API keys missing
+        fake_sentence_transformers = types.ModuleType("sentence_transformers")
+        fake_sentence_transformers.SentenceTransformer = MagicMock()
         with patch.dict("os.environ", {"OPENAI_API_KEY": "", "GOOGLE_API_KEY": ""}), \
+             patch.dict(sys.modules, {"sentence_transformers": fake_sentence_transformers}), \
              patch("sentence_transformers.SentenceTransformer") as MockST:
              
             mock_model = MockST.return_value
@@ -68,8 +73,10 @@ class TestRAGService:
 
     def test_default_embedding_fallback_mock(self, rag_service):
         # Fail everything
+        fake_sentence_transformers = types.ModuleType("sentence_transformers")
+        fake_sentence_transformers.SentenceTransformer = MagicMock(side_effect=ImportError)
         with patch.dict("os.environ", {"OPENAI_API_KEY": "", "GOOGLE_API_KEY": ""}), \
-             patch("sentence_transformers.SentenceTransformer", side_effect=ImportError):
+             patch.dict(sys.modules, {"sentence_transformers": fake_sentence_transformers}):
             
             result = rag_service._default_embedding("test")
             assert len(result) == 384 # Mock embedding length
