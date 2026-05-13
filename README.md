@@ -1,6 +1,10 @@
+<div align="center">
+
 # DataLogicEngine
 
-> **Local-first AI orchestration, knowledge graph exploration, traceable reasoning runs, and enterprise governance in one platform.**
+### Enterprise AI Orchestration · Knowledge Graph Platform · Traceable Reasoning Engine
+
+**The only platform that combines multi-provider AI orchestration, a structured 17-axis knowledge graph, full run traceability, and enterprise-grade governance in a single deployable unit — browser, cloud, or air-gapped Windows desktop.**
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security Scan](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -12,6 +16,12 @@
 ![Node](https://img.shields.io/badge/node-20%2B-green)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%2011%20%7C%20Docker-lightgrey)
 
+[Quick Start](#8-quick-start) &nbsp;·&nbsp; [Architecture](#5-architecture-overview) &nbsp;·&nbsp; [API Reference](#10-api-reference) &nbsp;·&nbsp; [Documentation](docs/) &nbsp;·&nbsp; [Releases](https://github.com/kherrera6219/DataLogicEngine/releases) &nbsp;·&nbsp; [Security](SECURITY.md)
+
+</div>
+
+---
+
 > **OpenSSF Best Practices badge:** register the project at [bestpractices.dev](https://www.bestpractices.dev) to replace the placeholder badge ID `0000`.  
 > **OpenSSF Scorecard badge:** enable `.github/workflows/scorecard.yml` with `publish_results: true` to activate live scoring.
 
@@ -19,88 +29,253 @@
 
 **Version:** See [Releases](https://github.com/kherrera6219/DataLogicEngine/releases) &nbsp;|&nbsp; **Stack:** Flask 3.1 · Next.js 16.1 · Electron 40 · PostgreSQL 15 · Redis 5 · Neo4j 5  
 **Status:** Active — production-oriented security and governance controls in place since 2026-03-24  
-**Versioning:** [Semantic Versioning 2.0.0](https://semver.org/) · Changelog format: [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/)  
+**Versioning:** [Semantic Versioning 2.0.0](https://semver.org/) · Changelog: [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/)  
 **License:** [PolyForm Noncommercial 1.0.0](LICENSE) · [Commercial License available](COMMERCIAL_LICENSE.md)
 
 ---
 
 ## Table of Contents
 
-1. [What is DataLogicEngine?](#1-what-is-datalogicengine)
-2. [Scope](#2-scope)
-3. [Responsible AI & System Card](#3-responsible-ai--system-card)
-4. [Core Capabilities](#4-core-capabilities)
-5. [Architecture Overview](#5-architecture-overview)
-6. [Technology Stack](#6-technology-stack)
-7. [Deployment Modes](#7-deployment-modes)
-8. [Quick Start](#8-quick-start)
-9. [Configuration Reference](#9-configuration-reference)
-10. [API Reference](#10-api-reference)
-11. [Knowledge Graph & 17-Axis System](#11-knowledge-graph--17-axis-system)
-12. [Knowledge Algorithms (KA-001 – KA-116)](#12-knowledge-algorithms-ka-001--ka-116)
-13. [Simulation Engine (10-Layer Pipeline)](#13-simulation-engine-10-layer-pipeline)
-14. [MCP Connector Framework](#14-mcp-connector-framework)
-15. [Security & Compliance](#15-security--compliance)
-16. [Supply Chain Security](#16-supply-chain-security)
-17. [Observability & Monitoring](#17-observability--monitoring)
-18. [Testing & Quality Gates](#18-testing--quality-gates)
-19. [Desktop Distribution (Electron)](#19-desktop-distribution-electron)
-20. [Versioning & Changelog](#20-versioning--changelog)
-21. [Capability Status Matrix](#21-capability-status-matrix)
-22. [Repository Structure](#22-repository-structure)
-23. [Documentation Index](#23-documentation-index)
-24. [Community & Communications](#24-community--communications)
-25. [Contributing](#25-contributing)
-26. [Governance](#26-governance)
-27. [Support](#27-support)
-28. [License](#28-license)
+1. [The Problem](#1-the-problem)
+2. [What Is DataLogicEngine?](#2-what-is-datalogicengine)
+3. [Why DataLogicEngine?](#3-why-datalogicengine)
+4. [How It Works](#4-how-it-works)
+5. [Industry Use Cases](#5-industry-use-cases)
+6. [Responsible AI & System Card](#6-responsible-ai--system-card)
+7. [Core Capabilities](#7-core-capabilities)
+8. [Architecture Overview](#8-architecture-overview)
+9. [Technology Stack](#9-technology-stack)
+10. [Deployment Modes](#10-deployment-modes)
+11. [Quick Start](#11-quick-start)
+12. [Configuration Reference](#12-configuration-reference)
+13. [API Reference](#13-api-reference)
+14. [Knowledge Graph & 17-Axis System](#14-knowledge-graph--17-axis-system)
+15. [Knowledge Algorithms (KA-001 – KA-116)](#15-knowledge-algorithms-ka-001--ka-116)
+16. [Simulation Engine (10-Layer Pipeline)](#16-simulation-engine-10-layer-pipeline)
+17. [MCP Connector Framework](#17-mcp-connector-framework)
+18. [Security & Compliance](#18-security--compliance)
+19. [Supply Chain Security](#19-supply-chain-security)
+20. [Observability & Monitoring](#20-observability--monitoring)
+21. [Testing & Quality Gates](#21-testing--quality-gates)
+22. [Desktop Distribution (Electron)](#22-desktop-distribution-electron)
+23. [Versioning & Changelog](#23-versioning--changelog)
+24. [Capability Status Matrix](#24-capability-status-matrix)
+25. [Repository Structure](#25-repository-structure)
+26. [Documentation Index](#26-documentation-index)
+27. [Community & Communications](#27-community--communications)
+28. [Contributing](#28-contributing)
+29. [Governance](#29-governance)
+30. [Support](#30-support)
+31. [License](#31-license)
 
 ---
 
-## 1. What is DataLogicEngine?
+## 1. The Problem
 
-DataLogicEngine is a **production-grade, full-stack AI orchestration and knowledge graph platform** built for organisations that require explainability, traceability, and rigorous governance over every AI-driven decision.
+Modern organisations face a compounding challenge when deploying AI in knowledge-intensive or regulated environments. They need AI-assisted reasoning over complex, multi-domain knowledge — but the tools available force a choice between capability and control.
 
-It combines five capabilities that normally require separate tools:
+**Commercial AI APIs** offer powerful inference but zero governance: no audit trail, no policy enforcement, no traceability to specific knowledge sources.
 
-| Capability | What it provides |
+**Knowledge management platforms** store information but cannot reason over it, execute regulatory logic against it, or produce evidence packages that survive audit scrutiny.
+
+**Compliance tools** enforce rules but are disconnected from AI workflows — they cannot intercept, annotate, or verify AI-generated outputs in real time.
+
+**Observability and tracing platforms** capture what happened at the infrastructure level but cannot answer *why* an AI model produced a specific recommendation against a specific knowledge domain.
+
+The result: organisations bolt together five or six separate systems, accumulate bespoke integrations that break on every API update, and still cannot answer the question that regulators, auditors, and internal governance committees consistently ask:
+
+> *"Show me exactly how the AI reached that conclusion — what knowledge it used, what reasoning path it took, what policy authorised it to act, and prove none of that was tampered with after the fact."*
+
+DataLogicEngine was built to answer that question — for every query, every time, out of the box.
+
+---
+
+## 2. What Is DataLogicEngine?
+
+DataLogicEngine is a **production-grade, full-stack AI orchestration and knowledge graph platform** purpose-built for organisations that require explainability, traceability, and rigorous governance over every AI-driven decision.
+
+It ships as a single, cohesive platform that replaces the fragile five-system stack:
+
+| What you needed five tools for | What DataLogicEngine provides |
 |---|---|
-| **AI Orchestration** | Multi-provider LLM routing (OpenAI, Anthropic, Gemini) with circuit-breaker failover, cost tracking, and prompt governance |
-| **Knowledge Graph** | A 17-axis coordinate system backed by Neo4j, with interactive 3D visualisation and structured node/edge APIs |
-| **Traceable Reasoning** | Every run captures stages, personas, axis coordinates, latency, and evidence — exportable as signed compliance packages |
-| **Simulation & Reasoning** | A 10-layer pipeline (L1–L10) and QuadPersona engine for multi-perspective, recursive reasoning |
-| **Enterprise Governance** | RBAC, MFA, AES-256 field encryption, blockchain-backed audit (TruthLink), GDPR controls, and vault-aware secret management |
+| AI gateway / LLM routing | Multi-provider gateway (OpenAI, Anthropic, Gemini) with circuit-breaker failover, cost attribution, per-tenant policy enforcement, and streaming output |
+| Knowledge management | A 17-axis coordinate system backed by Neo4j with interactive 3D visualisation, structured CRUD APIs, and NLP-based coordinate translation |
+| Compliance and regulatory reasoning | 116+ Knowledge Algorithms that encode structured compliance, regulatory gap, risk, and domain reasoning logic |
+| AI reasoning traceability | Every run captures stages, personas, axis coordinates, latency, and evidence — cryptographically linked and exportable as signed compliance packages |
+| Audit and governance | Immutable, blockchain-backed TruthLink audit log, RBAC, MFA, AES-256 field encryption, GDPR controls, and vault-aware secret management |
 
 DataLogicEngine ships as both a **browser-based web application** and a **standalone Windows 11 desktop application** (Electron + NSIS installer), making it equally suited for cloud deployments and air-gapped or local-first enterprise environments.
 
 ---
 
-## 2. Scope
+## 3. Why DataLogicEngine?
 
-### In Scope
+There are AI orchestration frameworks, knowledge graph products, and compliance platforms available separately. DataLogicEngine exists because integrating them never works in regulated environments — and because none of them were designed with governance as a first-class concern from day one.
 
-- AI query orchestration and multi-provider LLM routing with governance controls
-- 17-axis knowledge graph construction, storage, querying, and 3D visualisation
-- Traceable, evidence-rich reasoning runs with signed export packages
-- Multi-layer simulation and multi-persona reasoning workflows
-- Enterprise security: RBAC, MFA, field encryption, audit trails, GDPR compliance
-- MCP connector integration (Salesforce, Jira, and custom tools)
-- Windows 11 desktop packaging (Electron) and local-first data stack operation
-- Cloud-native deployment on AWS, Azure, GCP, and Kubernetes
+### Key Differentiators
 
-### Out of Scope
+**End-to-end traceability by design, not by addition.**  
+Traceability is not a logging layer bolted on top of DataLogicEngine — it is the spine of the architecture. Every reasoning operation carries a correlation ID from the moment a query enters the system to the moment a signed evidence package is written to the audit log. You can reconstruct the complete reasoning chain for any run, at any time, including what knowledge was in the graph at that moment.
 
-- Training or fine-tuning AI/ML models (DataLogicEngine orchestrates inference; it does not train models)
-- Replacing a dedicated vector database for large-scale RAG workloads beyond what ChromaDB supports
-- General-purpose business intelligence or analytics dashboards unrelated to AI reasoning traces
-- Acting as a standalone data warehouse or ETL pipeline
-- Automated decision-making in high-risk domains without human oversight configuration (see [Responsible AI](#3-responsible-ai--system-card))
+**Structured knowledge, not unstructured retrieval.**  
+Most AI platforms treat knowledge as a blob of text for RAG retrieval. DataLogicEngine places knowledge in a 17-axis coordinate space — every node is located by sector, domain, regulatory framework, compliance programme, jurisdiction, temporal validity, confidence state, security classification, and eight other dimensions simultaneously. This makes cross-domain regulatory reasoning precise and filterable, not probabilistic.
+
+**116+ pre-built reasoning algorithms.**  
+Rather than prompting a general-purpose LLM to perform compliance gap analysis from scratch on every query, DataLogicEngine runs structured Knowledge Algorithms — discrete, testable, versioned reasoning modules that apply specific domain logic. Each KA produces a Pydantic-validated output with confidence scores and evidence references. They are auditable by design.
+
+**Multi-perspective reasoning as standard.**  
+The QuadPersona engine applies four simultaneous reasoning personas at each layer of the simulation pipeline, reconciling them into a single synthesis. Single-model bias is structurally mitigated — not via prompt engineering, but via architecture.
+
+**Local-first, air-gapped capable.**  
+Most AI platforms require constant cloud connectivity. DataLogicEngine runs fully offline on Windows 11 (Electron packaging with embedded PostgreSQL, Redis, and Neo4j) with Windows DPAPI secret storage and Windows SID-based auto-login. No internet connection required for any feature except the outbound LLM provider call itself — and even that can be pointed at a self-hosted model.
+
+**Production security baseline from day one.**  
+The security layer is not a checklist item — it is 8,600+ lines of code across 20+ modules: field-level AES-256 encryption, blockchain-backed audit, CSRF, replay-defence (Redis-backed nonces), prompt injection and jailbreak detection, PII redaction, SSRF allowlisting, Authenticode code signing, and ISO/IEC 42001 AI governance alignment. No additional hardening sprint required before production deployment.
 
 ---
 
-## 3. Responsible AI & System Card
+## 4. How It Works
 
-DataLogicEngine is an AI orchestration platform. The following summarises the responsible AI posture of the system. Full documentation lives in [`docs/AI_MANAGEMENT_SYSTEM_42001.md`](docs/AI_MANAGEMENT_SYSTEM_42001.md) and [`docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`](docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md).
+A query entering DataLogicEngine travels through seven distinct, observable stages. Every stage is logged, timed, and linked to the same correlation ID.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 1 — INTAKE & POLICY ENFORCEMENT                                      │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  Query arrives via REST or WebSocket. The middleware stack applies:         │
+│  · Session ownership validation and RBAC permission check                  │
+│  · Per-user AI processing policy (enabled / disabled)                      │
+│  · Prompt injection and jailbreak detection (AI guardrail layer)           │
+│  · PII redaction and data classification tagging                           │
+│  · Correlation ID assignment — propagated through every subsequent stage   │
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │
+┌──────────────────────────────────▼──────────────────────────────────────────┐
+│  STAGE 2 — KNOWLEDGE GRAPH CONTEXT INJECTION                                │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  NLP coordinate mapper translates the query into 17-axis coordinates.      │
+│  Relevant nodes and edges are retrieved from Neo4j and PostgreSQL,         │
+│  filtered by sector, domain, regulatory, compliance, temporal, and         │
+│  security classification axes. Synthetic/low-score chunks are rejected.   │
+│  The assembled context is attached to the LLM dispatch payload.            │
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │
+┌──────────────────────────────────▼──────────────────────────────────────────┐
+│  STAGE 3 — KNOWLEDGE ALGORITHM EXECUTION                                    │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  Relevant KAs (KA-001 through KA-116) are selected based on query          │
+│  classification. Each KA runs domain-specific structured reasoning:        │
+│  regulatory gap analysis, risk classification, compliance mapping,         │
+│  expert-role assignment. KA outputs (Pydantic-validated, confidence-       │
+│  scored) are staged for synthesis. Risk-tier classification gates           │
+│  write/destructive operations behind a confirmation step.                  │
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │
+┌──────────────────────────────────▼──────────────────────────────────────────┐
+│  STAGE 4 — 10-LAYER SIMULATION PIPELINE + QUADPERSONA ENGINE               │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  The assembled context, KA outputs, and query enter the simulation         │
+│  pipeline. Layers L1 (entry) through L10 (synthesis) each apply a         │
+│  specific reasoning operation. At each layer, the QuadPersona engine       │
+│  runs four simultaneous reasoning perspectives, reconciling them into      │
+│  a single layer output before advancing. The refinement orchestrator       │
+│  triggers additional passes when confidence thresholds are not met.        │
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │
+┌──────────────────────────────────▼──────────────────────────────────────────┐
+│  STAGE 5 — LLM GATEWAY DISPATCH                                             │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  The enriched prompt (with knowledge context and simulation pre-work)      │
+│  is dispatched to the governed LLM gateway. Provider routing is            │
+│  determined by per-user preference, per-tenant policy, and provider        │
+│  health (circuit-breaker state). Failover is automatic. Token cost         │
+│  and latency are attributed per query and per tenant. Streaming output     │
+│  is delivered to the frontend via Socket.IO in real time.                  │
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │
+┌──────────────────────────────────▼──────────────────────────────────────────┐
+│  STAGE 6 — TRUTH ENGINE EVALUATION                                          │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  The LLM response is submitted to the Truth Engine for consensus           │
+│  evaluation. Evidence is cross-referenced against the knowledge graph.     │
+│  Confidence scores are finalised. The TruthLink blockchain anchor writes   │
+│  an immutable record of the evidence state at the time of evaluation.      │
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │
+┌──────────────────────────────────▼──────────────────────────────────────────┐
+│  STAGE 7 — AUDIT, TRACE STORAGE & RESPONSE DELIVERY                        │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  The complete run — stages, steps, personas applied, axis coordinates,     │
+│  evidence references, latency, token counts, cost, and provider used —     │
+│  is written to the immutable audit log (hash-chain replica). A signed      │
+│  export manifest is available on demand. Chat history is persisted         │
+│  only if the user's privacy preference permits it. The response with       │
+│  AI-output labelling and provider badge is delivered to the frontend.      │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+The entire flow is observable at any granularity: per-stage timing is available on `/metrics`, the full trace is browsable at `/runs`, and a signed compliance export package can be generated for any individual run.
+
+---
+
+## 5. Industry Use Cases
+
+DataLogicEngine is domain-agnostic — the 17-axis system and Knowledge Algorithm registry can be configured for any regulated or knowledge-intensive domain. The following scenarios illustrate representative deployments.
+
+### 5.1 Financial Services — Regulatory Gap Analysis
+
+A compliance team at a global bank needs to continuously map their internal control framework against an evolving set of regulatory obligations (Basel III, MiFID II, DORA, local central bank requirements).
+
+**How DataLogicEngine is used:**
+- The regulatory obligation library is loaded into the knowledge graph, each regulation placed on the Regulatory (Axis 6) and Compliance (Axis 7) axes with temporal validity (Axis 13) for version tracking
+- Knowledge Algorithms (KA-007: Regulatory Mapping, KA-023: Compliance Gap Analysis) are executed against the organisation's control inventory
+- The simulation pipeline runs multi-perspective gap analysis across each regulatory domain, producing a structured gap register with confidence scores
+- Every gap finding is traceable to specific graph nodes and the KA that produced it — ready for regulator submission without additional documentation effort
+
+### 5.2 Legal & Professional Services — Multi-Jurisdiction Advisory
+
+A law firm's knowledge management team needs to surface relevant precedent, statute, and guidance across multiple jurisdictions simultaneously for complex cross-border matters.
+
+**How DataLogicEngine is used:**
+- Legal knowledge base is structured using the Location (Axis 12) and Regulatory (Axis 6) axes to distinguish jurisdiction-specific from universal principles
+- Natural-language queries from lawyers are automatically translated into 17-axis coordinates, pulling only jurisdiction-relevant nodes into context
+- The QuadPersona engine provides simultaneous perspectives from the applicable expert roles (Axis 8–11): subject-matter expert, regulatory expert, compliance specialist, and sector specialist
+- Output traces capture the exact set of knowledge nodes consulted — a defensible audit record if the advice is later challenged
+
+### 5.3 Healthcare & Life Sciences — Clinical Evidence Governance
+
+A medical device manufacturer needs to maintain a traceable link between their clinical evidence base, applicable standards (ISO 14971, IEC 62304, MDR/IVDR), and their risk management documentation.
+
+**How DataLogicEngine is used:**
+- Clinical evidence, standards, and risk artefacts are co-located in the knowledge graph, linked via the Compliance (Axis 7) and Validation State (Axis 16) axes
+- KAs for risk assessment and evidence synthesis run against the evidence base on a scheduled basis, flagging evidence gaps or validity expiry (Axis 13)
+- The immutable audit log and signed export manifests provide the technical documentation package required under EU MDR Annex II and Annex III without manual assembly
+
+### 5.4 Public Sector & Government — AI Governance & Accountability
+
+A government agency deploying AI-assisted decision support needs to comply with the EU AI Act's transparency, traceability, and human oversight requirements for high-risk AI systems (Annex III).
+
+**How DataLogicEngine is used:**
+- All AI queries are routed through the governed LLM gateway, with per-user policy enforcement and RBAC ensuring that only authorised personnel can invoke specific KAs
+- Every run produces a complete, cryptographically-linked audit trace satisfying the EU AI Act Annex IV technical documentation requirements
+- The TruthLink blockchain anchor provides tamper-evidence for the audit record — critical for high-risk system conformity assessments under Article 43
+- The right-to-erasure and data export APIs support GDPR Article 17/20 obligations alongside the EU AI Act requirements
+
+### 5.5 Energy & Critical Infrastructure — Operational Knowledge Management
+
+An energy company's operations centre needs to reason over a large body of engineering standards, safety procedures, and regulatory requirements — often in offline or bandwidth-constrained environments.
+
+**How DataLogicEngine is used:**
+- Full offline operation via the Windows 11 Electron packaging — the complete platform runs on a local workstation with embedded PostgreSQL, Redis, and Neo4j. No external connectivity required.
+- Engineering knowledge base (standards, procedures, P&IDs, incident records) loaded into the 17-axis knowledge graph, classified by Sector (Axis 2), Domain (Axis 3), and Security (Axis 17) for access control
+- Local LLM inference can be configured (point the gateway at a self-hosted model endpoint) for fully air-gapped operation
+- Windows DPAPI secret storage ensures no credentials are exposed in configuration files — critical for OT/IT boundary deployments
+
+---
+
+## 6. Responsible AI & System Card
+
+DataLogicEngine is an AI orchestration platform. The following summarises the responsible AI posture. Full documentation lives in [`docs/AI_MANAGEMENT_SYSTEM_42001.md`](docs/AI_MANAGEMENT_SYSTEM_42001.md) and [`docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`](docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md).
 
 ### System Description
 
@@ -129,43 +304,46 @@ DataLogicEngine is an AI orchestration platform. The following summarises the re
 
 ### Known Limitations
 
-- Output quality depends entirely on the quality of the underlying LLM provider and the knowledge graph content
+- Output quality depends on the quality of the underlying LLM provider and the knowledge graph content
 - The QuadPersona and Truth Engine do not guarantee factual accuracy — outputs require human review in high-stakes contexts
 - PII redaction is automated but not guaranteed to catch all forms of sensitive data in unstructured inputs
 - The 17-axis coordinate system requires domain expert configuration to be meaningful for a given knowledge domain
 
 ### Bias & Risk Statement
 
-The system inherits biases present in the underlying LLM providers (OpenAI, Anthropic, Gemini). The QuadPersona engine mitigates single-model bias by requiring multi-perspective synthesis, but does not eliminate it. Operators deploying DataLogicEngine in regulated or high-stakes contexts should conduct a domain-specific bias assessment and configure appropriate guardrails.
+The system inherits biases present in the underlying LLM providers. The QuadPersona engine mitigates single-model bias by requiring multi-perspective synthesis, but does not eliminate it. Operators deploying DataLogicEngine in regulated or high-stakes contexts should conduct a domain-specific bias assessment and configure appropriate guardrails.
 
 ### EU AI Act
 
-For deployments in EU jurisdictions where DataLogicEngine is used in high-risk application contexts (as defined in EU AI Act Annex III), operators are responsible for conducting a conformity assessment per Article 43 and maintaining Annex IV technical documentation. DataLogicEngine provides audit trails, traceability records, and documentation artefacts to support this process. Contact the maintainers for deployment-specific guidance.
+For deployments in EU jurisdictions where DataLogicEngine is used in high-risk application contexts (EU AI Act Annex III), operators are responsible for conducting a conformity assessment per Article 43 and maintaining Annex IV technical documentation. DataLogicEngine provides audit trails, traceability records, and documentation artefacts to support this process. Contact the maintainers for deployment-specific guidance.
 
 ---
 
-## 4. Core Capabilities
+## 7. Core Capabilities
 
-### 4.1 AI Orchestration & LLM Gateway
+### 7.1 AI Orchestration & LLM Gateway
 
 - Unified gateway for **OpenAI, Anthropic, and Google Gemini** models
 - **Circuit-breaker pattern** with automatic provider failover and latency-aware routing
 - Per-provider latency tracking with p50/p95/p99 percentiles exposed on `/metrics`
 - Cost-attribution metrics per query, per session, and per tenant
+- Per-user AI processing toggle and preferred-provider/model configuration
 - Knowledge-graph context injection before LLM dispatch
 - Streaming output (`/api/v1/gateway/stream`) with real-time frontend delivery via Socket.IO
 - AI guardrail layer: prompt-injection detection, jailbreak detection, synthetic embedding rejection
+- Chat history opt-out: when a user disables history, no user or assistant turns are persisted
 
-### 4.2 Knowledge Graph Exploration
+### 7.2 Knowledge Graph Exploration
 
-- **17-axis coordinate system** for precise, multi-dimensional knowledge placement (see [Section 11](#11-knowledge-graph--17-axis-system))
+- **17-axis coordinate system** for precise, multi-dimensional knowledge placement (see [Section 14](#14-knowledge-graph--17-axis-system))
 - Neo4j 5+ graph database with PostgreSQL metadata mirror
 - Interactive **3D force-directed visualisation** (Three.js + react-force-graph-3d) in the browser
 - Structured node/edge CRUD APIs under `/api/v1/knowledge/`
 - Axis-specific filtering: sector, domain, regulatory, compliance, location, time, provenance, and more
+- NLP-based query-to-coordinate translation (`core/nlp/coordinate_mapper.py`)
 - Full-text and semantic search across the graph (`/api/search/`)
 
-### 4.3 Traceable Run Execution
+### 7.3 Traceable Run Execution
 
 - Every LLM query and simulation run generates a **structured trace**: stages → steps → evidence
 - Correlation IDs propagate through every layer for end-to-end observability
@@ -174,14 +352,23 @@ For deployments in EU jurisdictions where DataLogicEngine is used in high-risk a
 - **Signed export manifests** and optional encrypted payload envelopes for compliance packaging
 - Hash-chain immutable audit replica stream for tamper-evidence
 
-### 4.4 Simulation & Multi-Layer Reasoning
+### 7.4 Simulation & Multi-Layer Reasoning
 
 - 10-layer simulation pipeline (`L1` entry → `L10` synthesis)
 - **QuadPersona engine**: simultaneous reasoning from four distinct personas for balanced, evidence-rich outputs
 - Entropy sampling, refinement orchestration, and recursive reasoning support
 - Simulation parameters and results persisted with full run linkage
 
-### 4.5 MCP (Model Context Protocol) Integration
+### 7.5 Knowledge Algorithms (KA-001 – KA-116)
+
+- 116+ discrete, versioned, Pydantic-validated reasoning modules
+- Cover regulatory mapping, compliance gap analysis, risk classification, expert-role assignment, knowledge synthesis, and domain-specific logic
+- Each KA produces structured output with confidence scores and evidence references
+- Risk-tier classification (read-only / write / destructive) with confirmation gating for write operations
+- Executable directly via API or through the guided UI at `/algorithms`
+- Full execution audit log at `/tools/history`
+
+### 7.6 MCP (Model Context Protocol) Integration
 
 - First-class support for **Salesforce**, **Jira**, and custom tool connectors
 - Managed OAuth token lifecycle per connector
@@ -190,7 +377,7 @@ For deployments in EU jurisdictions where DataLogicEngine is used in high-risk a
 - Connector-level latency and error telemetry (p95/p99 SLO gauges)
 - Scope enforcement with user/tenant context propagation
 
-### 4.6 Enterprise Security & Governance
+### 7.7 Enterprise Security & Governance
 
 - **Role-Based Access Control (RBAC)** with granular permission sets
 - **TOTP-based MFA** with backup codes and account lockout policies
@@ -198,9 +385,11 @@ For deployments in EU jurisdictions where DataLogicEngine is used in high-risk a
 - **Blockchain-backed TruthLink** for immutable audit evidence
 - GDPR: right-to-export, right-to-erasure, PII redaction, and data classification tagging
 - Vault-aware secret resolution (file, DPAPI, JSON keyring, HashiCorp Vault-compatible)
-- Zero-trust middleware: session ownership validation, fail-closed frontend edge, replay-defense nonce (Redis-backed)
+- Zero-trust middleware: session ownership validation, fail-closed frontend edge, replay-defence nonce (Redis-backed)
+- AI output labelling with provider badge on all AI-generated content
+- First-run cloud disclosure banner and background activity disclosure
 
-### 4.7 Desktop-First Windows Operation
+### 7.8 Desktop-First Windows Operation
 
 - Full **Windows 11 native packaging** via Electron 40 + NSIS installer
 - Embedded local orchestration of PostgreSQL, Redis, and Neo4j via PowerShell startup scripts
@@ -208,10 +397,11 @@ For deployments in EU jurisdictions where DataLogicEngine is used in high-risk a
 - Auto-login via Windows SID validation (no manual credential entry)
 - Auto-updater support (electron-updater)
 - Code-signed installer with Authenticode certificates
+- Full feature parity with cloud deployment — no features gated behind connectivity
 
 ---
 
-## 5. Architecture Overview
+## 8. Architecture Overview
 
 ### High-Level Component Map
 
@@ -233,6 +423,7 @@ graph TD
         SEC --> SIM[Simulation Engine L1–L10]
         SEC --> TRUTH[Truth Engine · TruthLink]
         SEC --> MCP[MCP Server<br/>Salesforce · Jira · Custom]
+        SEC --> KA[Knowledge Algorithms<br/>KA-001 – KA-116]
     end
 
     subgraph "Data Tier"
@@ -241,6 +432,7 @@ graph TD
         GW --> REDIS[(Redis 5+)]
         SIM --> PG
         TRUTH --> PG
+        KA --> PG
     end
 
     subgraph "Security Layer"
@@ -278,21 +470,21 @@ graph TD
        └─────────────┘
 ```
 
-### Architecture Hardening (2026-03-24)
-
-The following controls were enforced as part of the production hardening baseline:
+### Architecture Hardening Baseline (2026-03-24)
 
 | Control | Description |
 |---|---|
 | Gateway object-level authorisation | Session message retrieval validates ownership against authenticated identity |
 | Fail-closed frontend edge | Next.js proxy middleware returns `503` on any middleware exception — no silent pass-through |
 | RAG safety controls | Synthetic/mock embeddings rejected in production; low-score and injection-style chunks filtered from retrieval context |
-| Replay-defense resilience | Request-signing nonce state backed by Redis for correctness across multi-worker deployments |
+| Replay-defence resilience | Request-signing nonce state backed by Redis for correctness across multi-worker deployments |
 | Upload trust-boundary hardening | Binary signature validated against declared MIME type before pipeline entry |
+| Settings API versioning | All `/api/v1/settings/*` endpoints aligned with frontend API_BASE convention |
+| chat history privacy gate | `_save_chat_message` gated behind `store_chat_history` user preference — history never persisted when user has disabled it |
 
 ---
 
-## 6. Technology Stack
+## 9. Technology Stack
 
 ### Backend
 
@@ -351,9 +543,9 @@ The following controls were enforced as part of the production hardening baselin
 
 ---
 
-## 7. Deployment Modes
+## 10. Deployment Modes
 
-DataLogicEngine supports four deployment targets. Choose the one that fits your environment:
+DataLogicEngine supports four deployment targets:
 
 | Mode | Best for | Entry point |
 |---|---|---|
@@ -362,7 +554,7 @@ DataLogicEngine supports four deployment targets. Choose the one that fits your 
 | **Kubernetes** | Production cloud workloads | `kubectl apply -k k8s/` |
 | **Windows Desktop (Electron)** | Air-gapped / local-first enterprise | `DataLogicEngine Setup Latest.exe` |
 
-### 7.1 Docker Compose
+### 10.1 Docker Compose
 
 ```bash
 docker-compose up
@@ -371,12 +563,12 @@ docker-compose up
 Services started: `backend` (Flask), `frontend` (Next.js), `postgres`, `redis`, `neo4j`, `minio`.
 All services are connected on the `ukg-network` bridge network.
 
-### 7.2 Kubernetes
+### 10.2 Kubernetes
 
 Manifests are in `k8s/`. A custom Kubernetes Operator is provided for lifecycle management.
 See [docs/K8S_OPERATOR_DESIGN.md](docs/K8S_OPERATOR_DESIGN.md) for operator design details and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for full Helm/Kustomize runbooks.
 
-### 7.3 Cloud Deployments
+### 10.3 Cloud Deployments
 
 Pre-configured deployment workflows exist for all three major clouds:
 
@@ -384,11 +576,11 @@ Pre-configured deployment workflows exist for all three major clouds:
 - **Azure** — App Service configurations in `deploy/azure/`
 - **GCP** — Cloud Build + Cloud Run specs in `deploy/gcp/`
 
-### 7.4 Windows Desktop
+### 10.4 Windows Desktop
 
 ```powershell
-# Build the installer
-npm run electron:dist
+# Build the installer (from repository root)
+npm --prefix frontend run electron:dist
 
 # Or run the pre-built installer
 .\DataLogicEngine Setup Latest.exe
@@ -404,7 +596,7 @@ See [docs/WINDOWS_11_LOCAL_RUNBOOK.md](docs/WINDOWS_11_LOCAL_RUNBOOK.md) for the
 
 ---
 
-## 8. Quick Start
+## 11. Quick Start
 
 ### Prerequisites
 
@@ -417,7 +609,7 @@ See [docs/WINDOWS_11_LOCAL_RUNBOOK.md](docs/WINDOWS_11_LOCAL_RUNBOOK.md) for the
 | Redis | 5 | Optional for dev |
 | Neo4j | 5 | Optional for dev |
 
-### 8.1 Backend Setup
+### 11.1 Backend Setup
 
 ```bash
 # 1. Create and activate a virtual environment
@@ -444,7 +636,7 @@ ANTHROPIC_API_KEY=<optional>
 GEMINI_API_KEY=<optional>
 ```
 
-### 8.2 Frontend Setup
+### 11.2 Frontend Setup
 
 ```bash
 cd frontend
@@ -452,7 +644,7 @@ npm install
 cd ..
 ```
 
-### 8.3 Verify Local Readiness
+### 11.3 Verify Local Readiness
 
 ```bash
 python scripts/dev_doctor.py --skip-ports
@@ -460,7 +652,7 @@ python scripts/dev_doctor.py --skip-ports
 
 This script checks Python version, environment variables, dependency installation, and file integrity. Fix any reported issues before proceeding.
 
-### 8.4 Run Locally
+### 11.4 Run Locally
 
 **Backend** (terminal 1):
 
@@ -480,13 +672,13 @@ npm run dev            # Starts on http://localhost:3000
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### 8.5 Validate API Keys
+### 11.5 Validate API Keys
 
 ```bash
 python scripts/verify_api_keys.py
 ```
 
-### 8.6 Default Ports
+### 11.6 Default Ports
 
 | Service | Default port |
 |---|---|
@@ -500,11 +692,11 @@ python scripts/verify_api_keys.py
 
 ---
 
-## 9. Configuration Reference
+## 12. Configuration Reference
 
 All configuration is driven by environment variables. Copy `.env.template` to `.env` and populate the values below.
 
-### 9.1 Core Application
+### 12.1 Core Application
 
 | Variable | Required | Description |
 |---|---|---|
@@ -513,7 +705,7 @@ All configuration is driven by environment variables. Copy `.env.template` to `.
 | `AUTO_CREATE_SCHEMA` | No | `true` for local-only schema bootstrap — **never use in production** |
 | `LOG_LEVEL` | No | Python log level (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
 
-### 9.2 Database
+### 12.2 Database
 
 | Variable | Required | Description |
 |---|---|---|
@@ -522,14 +714,14 @@ All configuration is driven by environment variables. Copy `.env.template` to `.
 | `NEO4J_USER` | No | Neo4j username |
 | `NEO4J_PASSWORD` | No | Neo4j password |
 
-### 9.3 Cache & Queue
+### 12.3 Cache & Queue
 
 | Variable | Required | Description |
 |---|---|---|
 | `REDIS_URL` | No | Redis connection string (e.g. `redis://localhost:6379/0`) |
 | `CELERY_BROKER_URL` | No | Celery broker — defaults to `REDIS_URL` |
 
-### 9.4 AI Providers
+### 12.4 AI Providers
 
 | Variable | Required | Description |
 |---|---|---|
@@ -537,7 +729,7 @@ All configuration is driven by environment variables. Copy `.env.template` to `.
 | `ANTHROPIC_API_KEY` | No* | Anthropic API key |
 | `GEMINI_API_KEY` | No* | Google Gemini API key |
 
-### 9.5 Security & Observability
+### 12.5 Security & Observability
 
 | Variable | Required | Description |
 |---|---|---|
@@ -547,7 +739,7 @@ All configuration is driven by environment variables. Copy `.env.template` to `.
 | `CORS_ORIGINS` | Production | Comma-separated allowed CORS origins |
 | `SESSION_COOKIE_SECURE` | Production | Set `true` in HTTPS environments |
 
-### 9.6 Configuration Classes
+### 12.6 Configuration Classes
 
 The `FLASK_ENV` variable selects a configuration class from `backend/config.py`:
 
@@ -560,11 +752,11 @@ The `FLASK_ENV` variable selects a configuration class from `backend/config.py`:
 
 ---
 
-## 10. API Reference
+## 13. API Reference
 
 All endpoints are versioned under `/api/v1/`. The OpenAPI specification is available at `static/openapi.yaml`.
 
-### 10.1 Authentication
+### 13.1 Authentication
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -576,7 +768,7 @@ All endpoints are versioned under `/api/v1/`. The OpenAPI specification is avail
 | `POST` | `/api/v1/auth/step-up` | Re-authenticate for sensitive operations |
 | `POST` | `/api/v1/auth/refresh` | Refresh JWT access token |
 
-### 10.2 LLM Gateway
+### 13.2 LLM Gateway
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -586,7 +778,7 @@ All endpoints are versioned under `/api/v1/`. The OpenAPI specification is avail
 | `GET` | `/api/v1/gateway/metrics` | Provider latency / cost metrics |
 | `POST` | `/api/v1/gateway/context/inject` | Inject knowledge-graph context before dispatch |
 
-### 10.3 Knowledge Graph
+### 13.3 Knowledge Graph
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -601,17 +793,28 @@ All endpoints are versioned under `/api/v1/`. The OpenAPI specification is avail
 | `GET` | `/api/v1/knowledge/domains` | List domains (Axis 3) |
 | `GET` | `/api/v1/knowledge/pillars` | List knowledge pillars |
 
-### 10.4 Knowledge Algorithms
+### 13.4 Knowledge Algorithms
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/v1/ka/execute` | Execute a specific algorithm by ID |
-| `GET` | `/api/v1/ka/registry` | List all registered algorithms |
-| `GET` | `/api/v1/ka/registry/<id>` | Algorithm metadata and schema |
-| `POST` | `/api/v1/ka/test` | Test algorithm with sample input |
-| `GET` | `/api/v1/ka/metrics` | Algorithm performance metrics |
+| `GET` | `/api/v1/ka/algorithms` | List all algorithms (paginated, filterable) |
+| `GET` | `/api/v1/ka/algorithms/<id>` | Algorithm metadata and schema |
+| `POST` | `/api/v1/ka/algorithms/<id>/execute` | Execute a specific algorithm |
+| `POST` | `/api/v1/ka/batch` | Execute multiple algorithms in sequence |
+| `GET` | `/api/v1/ka/history` | KA execution audit log |
+| `GET` | `/api/v1/ka/search` | Search algorithms by name, purpose, or notes |
+| `GET` | `/api/v1/ka/categories` | List categories with algorithm counts |
+| `GET` | `/api/v1/ka/layers` | List simulation layers with algorithm assignments |
+| `GET` | `/api/v1/ka/stats` | KA system statistics |
 
-### 10.5 Simulation
+### 13.5 Settings
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/settings/ai` | Retrieve AI preferences (provider, model, processing toggle, history opt-out) |
+| `POST` | `/api/v1/settings/ai` | Update AI preferences |
+
+### 13.6 Simulation
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -622,7 +825,7 @@ All endpoints are versioned under `/api/v1/`. The OpenAPI specification is avail
 | `GET` | `/api/v1/simulations/<id>/results` | Fetch results |
 | `DELETE` | `/api/v1/simulations/<id>` | Delete simulation |
 
-### 10.6 Truth Engine
+### 13.7 Truth Engine
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -632,7 +835,7 @@ All endpoints are versioned under `/api/v1/`. The OpenAPI specification is avail
 | `GET` | `/api/v1/truth/evidence` | Retrieve evidence records |
 | `POST` | `/api/v1/truth/sync` | Trigger federated sync |
 
-### 10.7 MCP Connectors
+### 13.8 MCP Connectors
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -642,7 +845,7 @@ All endpoints are versioned under `/api/v1/`. The OpenAPI specification is avail
 | `POST` | `/api/v1/mcp/servers/<id>/oauth` | Initiate OAuth flow |
 | `POST` | `/api/v1/mcp/execute` | Execute MCP tool call |
 
-### 10.8 Trace & Audit
+### 13.9 Trace & Audit
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -651,7 +854,7 @@ All endpoints are versioned under `/api/v1/`. The OpenAPI specification is avail
 | `GET` | `/api/v1/trace/runs/<id>/export` | Export trace as signed evidence package |
 | `GET` | `/api/v1/trace/correlation/<id>` | Fetch all records for a correlation ID |
 
-### 10.9 Compliance & GDPR
+### 13.10 Compliance & GDPR
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -661,7 +864,7 @@ All endpoints are versioned under `/api/v1/`. The OpenAPI specification is avail
 | `GET` | `/api/v1/compliance/audit-log` | Retrieve immutable audit trail |
 | `GET` | `/api/v1/compliance/policies` | List active data policies |
 
-### 10.10 System Health
+### 13.11 System Health
 
 | Endpoint | Auth required | Description |
 |---|---|---|
@@ -670,7 +873,7 @@ All endpoints are versioned under `/api/v1/`. The OpenAPI specification is avail
 | `GET /ready` | No | Kubernetes readiness probe |
 | `GET /metrics` | No | Prometheus metrics scrape endpoint |
 
-### 10.11 Standard Response Envelope
+### 13.12 Standard Response Envelope
 
 **Success:**
 
@@ -679,7 +882,7 @@ All endpoints are versioned under `/api/v1/`. The OpenAPI specification is avail
   "success": true,
   "data": {},
   "error": null,
-  "timestamp": "2026-05-05T14:30:00Z"
+  "timestamp": "2026-05-12T14:30:00Z"
 }
 ```
 
@@ -694,11 +897,11 @@ All endpoints are versioned under `/api/v1/`. The OpenAPI specification is avail
     "message": "Invalid input parameters",
     "details": {}
   },
-  "timestamp": "2026-05-05T14:30:00Z"
+  "timestamp": "2026-05-12T14:30:00Z"
 }
 ```
 
-### 10.12 Authentication Methods
+### 13.13 Authentication Methods
 
 | Method | Header / mechanism | Use case |
 |---|---|---|
@@ -707,7 +910,7 @@ All endpoints are versioned under `/api/v1/`. The OpenAPI specification is avail
 | API key | `X-API-Key: <key>` | Programmatic / service integrations |
 | SSO / OIDC | Azure AD / Entra ID via Authlib | Enterprise single sign-on |
 
-### 10.13 Legacy URL Aliases
+### 13.14 Legacy URL Aliases
 
 The following aliases remain active with deprecation headers until **2026-09-30**:
 
@@ -722,9 +925,11 @@ The following aliases remain active with deprecation headers until **2026-09-30*
 
 ---
 
-## 11. Knowledge Graph & 17-Axis System
+## 14. Knowledge Graph & 17-Axis System
 
 DataLogicEngine organises every piece of knowledge using a **17-axis coordinate system**. Each node in the graph has a coordinate vector that precisely locates it across all relevant dimensions simultaneously — enabling multi-dimensional filtering, cross-domain reasoning, and regulatory traceability.
+
+Unlike a flat tagging system or a single-taxonomy hierarchy, the 17-axis model allows a single knowledge node to be simultaneously classified by its regulatory applicability (Axis 6), its geographic jurisdiction (Axis 12), its temporal validity window (Axis 13), the subject-matter expert role responsible for it (Axis 8), and its data security classification (Axis 17) — without any of those dimensions interfering with the others.
 
 <details>
 <summary>View full 17-axis reference table</summary>
@@ -751,27 +956,29 @@ DataLogicEngine organises every piece of knowledge using a **17-axis coordinate 
 
 </details>
 
-The 17-axis model is implemented in `core/axes/` and visualised interactively in the browser graph view at `/graph`. NLP-based query-to-coordinate translation (`core/nlp/coordinate_mapper.py`) allows natural-language queries to be automatically located within the coordinate space.
+The 17-axis model is implemented in `core/axes/` and visualised interactively in the browser graph view at `/graph`. NLP-based query-to-coordinate translation (`core/nlp/coordinate_mapper.py`) allows natural-language queries to be automatically located within the coordinate space without requiring the end user to understand the axis system directly.
 
 ---
 
-## 12. Knowledge Algorithms (KA-001 – KA-116)
+## 15. Knowledge Algorithms (KA-001 – KA-116)
 
-DataLogicEngine includes **116+ Knowledge Algorithms (KAs)** — specialised reasoning modules registered in `config/ka_registry.yaml`. Each KA:
+DataLogicEngine includes **116+ Knowledge Algorithms (KAs)** — specialised, versioned reasoning modules registered in `config/ka_registry.yaml`. Each KA:
 
 - Extends the base class in `core/knowledge_algorithm/ka_base.py`
 - Accepts a standardised Pydantic-validated input schema
 - Returns a structured output with confidence scores and evidence references
 - Is dynamically discovered and loaded by `core/knowledge_algorithm/ka_loader.py`
-- Can be executed directly via `POST /api/v1/ka/execute` with `{"algorithm_id": "KA-001", "input": {...}}`
+- Carries a **risk-tier classification** (`read_only`, `write`, or `destructive`): write and destructive operations require explicit user confirmation before execution
+- Can be executed directly via `POST /api/v1/ka/algorithms/<id>/execute`
+- Produces a persistent execution record retrievable from `GET /api/v1/ka/history`
 
 The registry spans `KA-001` through `KA-116`, including Layer 9 variants, and covers domains such as regulatory mapping, compliance gap analysis, risk assessment, knowledge synthesis, and domain-specific expert reasoning.
 
-Browse all available algorithms and their schemas at `/algorithms` in the UI, or query `GET /api/v1/ka/registry`.
+Browse all available algorithms and their schemas at `/algorithms` in the UI, or query `GET /api/v1/ka/algorithms`.
 
 ---
 
-## 13. Simulation Engine (10-Layer Pipeline)
+## 16. Simulation Engine (10-Layer Pipeline)
 
 The simulation engine (`core/simulation/`) runs queries through a sequential 10-layer reasoning pipeline, each layer building on the previous:
 
@@ -788,15 +995,15 @@ The simulation engine (`core/simulation/`) runs queries through a sequential 10-
 | L9 | Recursive Reasoning | Self-referential refinement and depth expansion |
 | L10 | Synthesis | Final answer composition and confidence scoring |
 
-The **QuadPersona engine** (`core/persona/quad_persona_engine.py`) applies four simultaneous reasoning personas at each layer, producing a multi-perspective output that is reconciled into a single response by the synthesis layer.
+The **QuadPersona engine** (`core/persona/quad_persona_engine.py`) applies four simultaneous reasoning personas at each layer, producing a multi-perspective output that is reconciled into a single response by the synthesis layer. Single-model bias is structurally mitigated — not via prompt engineering, but via the architecture of the layer-persona matrix.
 
-A refinement orchestrator (`core/simulation/refinement_orchestrator.py`) manages entropy sampling and iterative improvement passes when confidence thresholds are not met.
+A refinement orchestrator (`core/simulation/refinement_orchestrator.py`) manages entropy sampling and iterative improvement passes when confidence thresholds are not met at the synthesis layer.
 
 Run simulations via the UI at `/simulations` or via `POST /api/v1/simulations/<id>/run`.
 
 ---
 
-## 14. MCP Connector Framework
+## 17. MCP Connector Framework
 
 The Model Context Protocol (MCP) integration (`backend/mcp_server/`) allows DataLogicEngine to call external tools and services as first-class context sources during AI reasoning.
 
@@ -826,11 +1033,11 @@ See [docs/MCP_INTEGRATION.md](docs/MCP_INTEGRATION.md) for full integration docu
 
 ---
 
-## 15. Security & Compliance
+## 18. Security & Compliance
 
 DataLogicEngine's security layer (`backend/security/`) totals over **8,600 lines** across 20+ modules. Security is enforced at every tier — network edge, API gateway, application logic, database, and export.
 
-### 15.1 Access Control
+### 18.1 Access Control
 
 | Control | Implementation |
 |---|---|
@@ -841,7 +1048,7 @@ DataLogicEngine's security layer (`backend/security/`) totals over **8,600 lines
 | SSO / OIDC | Authlib — Azure AD / Entra ID token mapping |
 | Windows SID auto-login | `security/desktop_local_auth.py` — desktop deployments only |
 
-### 15.2 Data Protection
+### 18.2 Data Protection
 
 | Control | Implementation |
 |---|---|
@@ -850,8 +1057,9 @@ DataLogicEngine's security layer (`backend/security/`) totals over **8,600 lines
 | PII redaction | `security/pii_redaction.py` — automatic detection and masking |
 | Data classification | `security/data_classification.py` — sensitivity tagging per record |
 | Windows DPAPI | `security/dpapi_store.py` — OS-level secret protection on desktop |
+| Chat history privacy | Gateway honours `store_chat_history` preference — no persistence when disabled |
 
-### 15.3 API & Network
+### 18.3 API & Network
 
 | Control | Implementation |
 |---|---|
@@ -862,7 +1070,7 @@ DataLogicEngine's security layer (`backend/security/`) totals over **8,600 lines
 | Prompt injection guard | `security/ai_guardrail.py` — injection and jailbreak detection |
 | Upload trust boundary | Binary signature validated against declared MIME type |
 
-### 15.4 Audit & Integrity
+### 18.4 Audit & Integrity
 
 | Control | Implementation |
 |---|---|
@@ -872,30 +1080,30 @@ DataLogicEngine's security layer (`backend/security/`) totals over **8,600 lines
 | Replay defence | Redis-backed nonce state for multi-worker request signing |
 | Active defence | `security/active_defense.py` — honeypot triggers and attack detection |
 
-### 15.5 Vulnerability Reporting
+### 18.5 Vulnerability Reporting
 
-Report security vulnerabilities **privately** using one of these channels:
+Report security vulnerabilities **privately** via one of these channels:
 
 - **GitHub Private Security Advisory (preferred):** [Open a private advisory](https://github.com/kherrera6219/DataLogicEngine/security/advisories/new)
 - **Email:** See [SECURITY.md](SECURITY.md) for contact details
 
-We acknowledge all valid reports within 48 hours and aim to release patches within 90 days of confirmed disclosure. We follow coordinated disclosure principles and will not take legal action against researchers acting in good faith (safe harbour applies to good-faith security research).
+We acknowledge all valid reports within 48 hours and aim to release patches within 90 days of confirmed disclosure. We follow coordinated disclosure principles and will not take legal action against researchers acting in good faith.
 
 Full policy including supported versions, severity classification (CVSS-based), and disclosure timeline: [SECURITY.md](SECURITY.md).
 
-### 15.6 Compliance Frameworks
+### 18.6 Compliance Framework Coverage
 
 | Framework | Coverage |
 |---|---|
 | GDPR | Data export (Art. 20), right to erasure (Art. 17), PII tagging, retention policies |
-| EU AI Act | Traceability, audit trails, and technical documentation artefacts to support Annex IV compliance for operators deploying in high-risk contexts |
+| EU AI Act | Traceability, audit trails, and technical documentation artefacts to support Annex IV compliance for operators in high-risk contexts |
 | NIST SSDF | Mapped in [docs/SDLC_SSDF_MAPPING.md](docs/SDLC_SSDF_MAPPING.md) |
 | CIS Benchmarks | Baseline controls documented in [docs/CIS_BENCHMARKS.md](docs/CIS_BENCHMARKS.md) |
 | ISO/IEC 42001:2023 | AI management system framework — [docs/AI_MANAGEMENT_SYSTEM_42001.md](docs/AI_MANAGEMENT_SYSTEM_42001.md) |
 
 ---
 
-## 16. Supply Chain Security
+## 19. Supply Chain Security
 
 DataLogicEngine takes a proactive stance on software supply chain integrity aligned with CISA SBOM guidance, the EU Cyber Resilience Act (applicable from 2026), and US Executive Order 14028.
 
@@ -903,7 +1111,7 @@ DataLogicEngine takes a proactive stance on software supply chain integrity alig
 
 Software Bill of Materials files in **SPDX** and **CycloneDX** formats are generated for each release and attached as assets on the [GitHub Releases](https://github.com/kherrera6219/DataLogicEngine/releases) page.
 
-Generate an SBOM locally from the current source:
+Generate an SBOM locally:
 
 ```bash
 # Python dependencies (CycloneDX)
@@ -916,7 +1124,7 @@ syft . -o spdx-json=sbom.spdx.json -o cyclonedx-json=sbom.cdx.json
 
 ### Build Provenance (SLSA)
 
-Release builds generate SLSA-conformant provenance attestations via `actions/attest-build-provenance` (GitHub native, SLSA Level 2). Verify a release artefact:
+Release builds generate SLSA-conformant provenance attestations via `actions/attest-build-provenance` (SLSA Level 2). Verify a release artefact:
 
 ```bash
 gh attestation verify <artifact-file> --repo kherrera6219/DataLogicEngine
@@ -926,7 +1134,7 @@ gh attestation verify <artifact-file> --repo kherrera6219/DataLogicEngine
 
 ### Installer Code Signing
 
-Windows installers are signed with an Authenticode certificate. Signature verification is enforced in the CI release pipeline (`.github/workflows/code-signing-governance.yml`), including certificate rotation and revocation drills. The signing workflow validates the installer checksum before distribution.
+Windows installers are signed with an Authenticode certificate. Signature verification is enforced in the CI release pipeline (`.github/workflows/code-signing-governance.yml`), including certificate rotation and revocation drills.
 
 ### Dependency Auditing
 
@@ -942,13 +1150,11 @@ Both audits run in CI as required quality gates. No critical CVEs are permitted 
 
 ---
 
-## 17. Observability & Monitoring
+## 20. Observability & Monitoring
 
-### 17.1 Metrics
+### 20.1 Metrics
 
-Prometheus-compatible metrics are exposed at `GET /metrics` (no authentication required for scraping).
-
-Key metric families:
+Prometheus-compatible metrics are exposed at `GET /metrics`.
 
 | Metric prefix | Description |
 |---|---|
@@ -960,7 +1166,7 @@ Key metric families:
 | `simulation_layer_duration_*` | Per-layer simulation timing |
 | `audit_events_total` | Audit event counter by action type |
 
-### 17.2 Health Probes
+### 20.2 Health Probes
 
 | Endpoint | Purpose | Kubernetes probe type |
 |---|---|---|
@@ -968,24 +1174,19 @@ Key metric families:
 | `GET /live` | Process is alive | `livenessProbe` |
 | `GET /ready` | Ready to accept traffic | `readinessProbe` |
 
-### 17.3 Error Tracking
+### 20.3 Error Tracking
 
-Sentry integration (`sentry-sdk 2.51.0`) provides:
+Sentry integration (`sentry-sdk 2.51.0`) provides automatic exception capture with full stack traces, release tracking per deployment, fallback crash IDs when Sentry is unavailable, and sanitised support bundles for incident triage (`scripts/generate_support_bundle.py`).
 
-- Automatic exception capture with full stack traces
-- Release tracking per deployment
-- Fallback crash IDs when Sentry is unavailable
-- Sanitised support bundles for incident triage (`scripts/generate_support_bundle.py`)
-
-### 17.4 Structured Logging
+### 20.4 Structured Logging
 
 All backend services emit JSON-structured logs via `python-json-logger`. Log fields include `correlation_id`, `tenant_id`, `user_id`, `duration_ms`, and `event_type` for log-aggregation compatibility (ELK, Splunk, Cloud Logging).
 
 ---
 
-## 18. Testing & Quality Gates
+## 21. Testing & Quality Gates
 
-### 18.1 Backend Tests (137 files, 14 domains)
+### 21.1 Backend Tests (137 files, 14 domains)
 
 | Suite | Framework | Location | Focus |
 |---|---|---|---|
@@ -1003,7 +1204,7 @@ All backend services emit JSON-structured logs via `python-json-logger`. Log fie
 | Axes | pytest | `tests/axes/` | 17-axis system |
 | Performance | pytest | `tests/performance/` | Latency and throughput |
 
-### 18.2 Frontend Tests
+### 21.2 Frontend Tests
 
 | Suite | Framework | Location |
 |---|---|---|
@@ -1013,7 +1214,7 @@ All backend services emit JSON-structured logs via `python-json-logger`. Log fie
 | Accessibility | axe-core + Playwright | A11y test suite |
 | Component stories | Storybook | `frontend/**/*.stories.{ts,tsx}` |
 
-### 18.3 Running Tests
+### 21.3 Running Tests
 
 ```bash
 # Backend — full suite
@@ -1040,7 +1241,7 @@ cd frontend && npm run test:e2e
 cd frontend && npm run test:a11y:ci
 ```
 
-### 18.4 CI Quality Gates
+### 21.4 CI Quality Gates
 
 Every pull request must pass all of the following gates before merge:
 
@@ -1059,7 +1260,7 @@ Every pull request must pass all of the following gates before merge:
 | Schema parity | `verify_environment_parity.py` | SQLite ↔ Postgres match |
 | Deterministic startup | `runtime_precheck.py --strict` | Clean boot |
 
-### 18.5 Repo Governance Checks
+### 21.5 Repo Governance Checks
 
 ```bash
 python scripts/dev_doctor.py --skip-ports
@@ -1071,7 +1272,7 @@ python scripts/verify_release_governance.py
 
 ---
 
-## 19. Desktop Distribution (Electron)
+## 22. Desktop Distribution (Electron)
 
 The desktop build packages the full DataLogicEngine application as a self-contained Windows 11 executable.
 
@@ -1087,7 +1288,7 @@ npm run electron:dev
 npm run electron:dist
 ```
 
-Build artifacts appear in `frontend/dist/`. The installer is also copied to the repository root:
+Build artefacts appear in `frontend/dist/`:
 
 - `DataLogicEngine Setup <version>.exe` (versioned)
 - `DataLogicEngine Setup Latest.exe` (stable alias)
@@ -1109,7 +1310,7 @@ Release builds are signed via `.github/workflows/code-signing-governance.yml` an
 
 ---
 
-## 20. Versioning & Changelog
+## 23. Versioning & Changelog
 
 This project follows **[Semantic Versioning 2.0.0](https://semver.org/)**:
 
@@ -1134,7 +1335,7 @@ See [Releases](https://github.com/kherrera6219/DataLogicEngine/releases) for dow
 
 ---
 
-## 21. Capability Status Matrix
+## 24. Capability Status Matrix
 
 *Status as of 2026-05-12. See [docs/PRODUCT_OVERVIEW.md](docs/PRODUCT_OVERVIEW.md) for the authoritative current status.*
 
@@ -1179,7 +1380,7 @@ See [Releases](https://github.com/kherrera6219/DataLogicEngine/releases) for dow
 
 ---
 
-## 22. Repository Structure
+## 25. Repository Structure
 
 <details>
 <summary>View full repository tree</summary>
@@ -1195,7 +1396,7 @@ DataLogicEngine/
 │   ├── truth_engine/         # Federated truth maintenance and TruthLink
 │   ├── knowledge_algorithms/ # 116+ KA implementations
 │   ├── mcp_server/           # MCP connector framework
-│   ├── security/             # 20+ security modules (8,626 LOC)
+│   ├── security/             # 20+ security modules (8,600+ LOC)
 │   ├── simulation/           # Simulation engine interface
 │   ├── tracing/              # Correlation ID and observability
 │   ├── observability/        # Sentry, SLO tracking, latency metrics
@@ -1234,7 +1435,7 @@ DataLogicEngine/
 
 ---
 
-## 23. Documentation Index
+## 26. Documentation Index
 
 ### Project-Level Documents
 
@@ -1311,7 +1512,7 @@ DataLogicEngine/
 
 ---
 
-## 24. Community & Communications
+## 27. Community & Communications
 
 | Channel | Purpose |
 |---|---|
@@ -1336,7 +1537,7 @@ python scripts/generate_support_bundle.py
 
 ---
 
-## 25. Contributing
+## 28. Contributing
 
 We welcome contributions. Before opening a pull request:
 
@@ -1344,7 +1545,7 @@ We welcome contributions. Before opening a pull request:
 2. Read [DEVELOPMENT.md](DEVELOPMENT.md) for environment setup and workflow expectations
 3. Install the git hooks: `git config core.hooksPath .githooks`
 4. Run the full preflight check: `python scripts/dev_doctor.py --skip-ports`
-5. Ensure all CI quality gates pass locally before pushing (see [Section 18.4](#184-ci-quality-gates))
+5. Ensure all CI quality gates pass locally before pushing (see [Section 21.4](#214-ci-quality-gates))
 
 All commits must include a `Signed-off-by` trailer (DCO):
 
@@ -1365,19 +1566,9 @@ This certifies that you wrote the change and have the right to submit it under t
 
 Branch protection rules are documented in [docs/BRANCH_PROTECTION_POLICY.md](docs/BRANCH_PROTECTION_POLICY.md).
 
-### GitHub Collaboration
-
-This repository includes:
-
-- Issue forms in `.github/ISSUE_TEMPLATE/`
-- Pull request template in `.github/pull_request_template.md`
-- CI, security, deploy, and release workflows in `.github/workflows/`
-- Code ownership in `.github/CODEOWNERS`
-- GitHub process guide in `.github/README.md`
-
 ---
 
-## 26. Governance
+## 29. Governance
 
 Project governance — including the decision-making model, maintainer roles, contribution ladder, and RFC process — is documented in [GOVERNANCE.md](GOVERNANCE.md).
 
@@ -1385,7 +1576,7 @@ The project follows a maintainer-based governance model. Maintainers are respons
 
 ---
 
-## 27. Support
+## 30. Support
 
 | Channel | Use |
 |---|---|
@@ -1405,7 +1596,7 @@ This generates a sanitised support bundle (no secrets, no PII) suitable for shar
 
 ---
 
-## 28. License
+## 31. License
 
 DataLogicEngine is dual-licensed:
 
@@ -1414,6 +1605,12 @@ DataLogicEngine is dual-licensed:
 
 ---
 
-<p align="center">
-  <strong>DataLogicEngine</strong> &nbsp;·&nbsp; Local-first AI orchestration and traceable knowledge-graph platform with enterprise security, governance, and desktop/web delivery.
-</p>
+<div align="center">
+
+**DataLogicEngine**
+
+*Enterprise AI orchestration and traceable knowledge-graph reasoning — governed, explainable, and audit-ready out of the box.*
+
+[Quick Start](#11-quick-start) &nbsp;·&nbsp; [Architecture](#8-architecture-overview) &nbsp;·&nbsp; [Documentation](docs/) &nbsp;·&nbsp; [Releases](https://github.com/kherrera6219/DataLogicEngine/releases)
+
+</div>

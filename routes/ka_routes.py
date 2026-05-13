@@ -85,7 +85,6 @@ def get_execution_history():
     """Return recent KA execution records for the audit log page."""
     try:
         from models import KAExecution
-        from extensions import db
 
         limit = min(request.args.get('limit', 50, type=int), 200)
         executions = (
