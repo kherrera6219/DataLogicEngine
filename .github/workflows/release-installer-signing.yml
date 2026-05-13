@@ -35,7 +35,7 @@ jobs:
         npm --prefix frontend run electron:dist
 
     - name: Upload unsigned installer artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: unsigned-installers
         path: |
@@ -53,7 +53,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Download unsigned installers
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: unsigned-installers
         path: .
@@ -102,7 +102,7 @@ jobs:
           -CheckSignatureRevocation
 
     - name: Upload signed installer artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: signed-installers
         path: |

@@ -269,7 +269,7 @@ jobs:
         powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
 
     - name: Upload packaging smoke report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: always()
       with:
         name: packaging-smoke-report
@@ -317,7 +317,7 @@ jobs:
         python scripts/verify_lockfiles.py --json-report reports/lockfile_governance_report_ci.json
 
     - name: Upload governance reports
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: always()
       with:
         name: governance-reports

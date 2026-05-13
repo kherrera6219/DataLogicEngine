@@ -53,7 +53,7 @@ jobs:
 
     - name: Upload governance report
       if: steps.codesign-config.outputs.configured == 'true'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: codesigning-governance-report
         path: reports/codesigning_certificate_health_governance.json

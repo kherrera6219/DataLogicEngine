@@ -46,7 +46,7 @@ jobs:
         python scripts/verify_lockfiles.py --json-report reports/lockfile_governance_report_release.json
 
     - name: Upload governance reports
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: always()
       with:
         name: release-governance-reports

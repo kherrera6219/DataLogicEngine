@@ -32,7 +32,7 @@ jobs:
         pip-audit -r requirements.txt --desc --format json --output pip-audit-report.json
 
     - name: Upload dependency scan report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: pip-audit-report
         path: pip-audit-report.json
@@ -57,7 +57,7 @@ jobs:
         cat ../npm-audit.json
 
     - name: Upload npm audit report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: npm-audit-report
         path: npm-audit.json
@@ -114,7 +114,7 @@ jobs:
         bandit -r backend/ core/ -b .bandit-baseline.ci.json -ll -ii -f screen
 
     - name: Upload Bandit report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: bandit-report
         path: |
@@ -233,7 +233,7 @@ jobs:
         fi
 
     - name: Upload SBOMs
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: sbom-reports
         path: |
@@ -251,7 +251,7 @@ jobs:
       id-token: write
     steps:
     - name: Download SBOM artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: sbom-reports
         path: .
@@ -277,7 +277,7 @@ jobs:
         fi
 
     - name: Upload signing artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: sbom-signatures
         path: |
