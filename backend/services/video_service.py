@@ -6,6 +6,7 @@ Handles video analysis and frame extraction using OpenCV and Vision LLMs.
 import importlib
 import logging
 import os
+import sys
 import tempfile
 from typing import Dict, Any, List
 import base64
@@ -15,14 +16,20 @@ logger = logging.getLogger(__name__)
 
 def _load_cv2():
     """Load OpenCV lazily so optional native dependencies do not break app startup."""
+    preserved_modules = {name: sys.modules.get(name) for name in ("config", "utils")}
     try:
         return importlib.import_module("cv2")
-    except ImportError as exc:
+    except Exception as exc:
+        for module_name, preserved_module in preserved_modules.items():
+            if preserved_module is None:
+                sys.modules.pop(module_name, None)
+            else:
+                sys.modules[module_name] = preserved_module
         logger.warning("OpenCV is unavailable; video analysis features will be disabled", exc_info=exc)
         return None
 
 
-CV2 = _load_cv2()
+CV2 = None
 
 class VideoService:
     """
@@ -75,6 +82,10 @@ class VideoService:
         """
         Extract keyframes from video bytes using OpenCV.
         """
+        global CV2
+        if CV2 is None:
+            CV2 = _load_cv2()
+
         if CV2 is None:
             logger.warning("Video frame extraction requested but OpenCV is not available")
             return []

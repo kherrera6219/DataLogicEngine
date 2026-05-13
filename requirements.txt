@@ -77,7 +77,7 @@ gunicorn==24.1.1
 sentry-sdk==2.51.0
 
 # Multimodal/document processing used by backend services
-opencv-python==4.13.0.90
+opencv-python-headless==4.13.0.90
 Pillow==12.2.0
 pypdf==6.10.2
 pytesseract==0.3.13

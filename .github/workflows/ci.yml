@@ -79,8 +79,9 @@ jobs:
 
     - name: Run Tests
       run: |
-        pytest tests/
+        python -m pytest tests/
       env:
+        PYTHONPATH: "."
         DATABASE_URL: "sqlite:///:memory:"
         OPENAI_API_KEY: "mock-key-for-ci"
         FLASK_ENV: "testing"
@@ -92,6 +93,7 @@ jobs:
       run: |
         python -m pytest -q --no-cov tests/contract/test_api_contract.py
       env:
+        PYTHONPATH: "."
         DATABASE_URL: "sqlite:///:memory:"
         OPENAI_API_KEY: "mock-key-for-ci"
         FLASK_ENV: "testing"
@@ -101,6 +103,7 @@ jobs:
       run: |
         python -m pytest -q --no-cov tests/parity/test_local_mode_parity.py
       env:
+        PYTHONPATH: "."
         DATABASE_URL: "sqlite:///:memory:"
         FLASK_ENV: "testing"
         SESSION_SECRET: "ci-session-secret"
@@ -109,6 +112,7 @@ jobs:
       run: |
         python -m pytest -q --no-cov tests/security/test_security_headers.py tests/security/test_request_limits.py
       env:
+        PYTHONPATH: "."
         DATABASE_URL: "sqlite:///:memory:"
         OPENAI_API_KEY: "mock-key-for-ci"
         FLASK_ENV: "testing"
