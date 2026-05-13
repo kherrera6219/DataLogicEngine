@@ -254,7 +254,7 @@ async def test_video_service_analyze():
         return MagicMock(ok=True, content="Video Summary")
     mock_gateway.process.side_effect = async_process
     
-    with patch('backend.services.video_service.cv2', mock_cv2):
+    with patch('backend.services.video_service.CV2', mock_cv2):
         with patch('tempfile.NamedTemporaryFile') as mock_temp:
             mock_temp.return_value.__enter__.return_value.name = "temp.mp4"
             vs = VideoService(llm_gateway=mock_gateway)

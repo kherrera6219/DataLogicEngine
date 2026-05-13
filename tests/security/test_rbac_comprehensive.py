@@ -345,8 +345,8 @@ class TestRBACManagerPermissionChecking:
 
         assert result is False
 
-    def test_user_has_permission_fallback_to_default_role(self):
-        """Test fallback to user role when role not found"""
+    def test_user_has_permission_denies_unknown_role(self):
+        """Unknown roles are denied instead of silently falling back."""
         rbac = RBACManager()
         user = Mock()
         user.is_authenticated = True
@@ -355,10 +355,9 @@ class TestRBACManagerPermissionChecking:
         user.id = 1
         user.username = "test_user"
 
-        # Should fallback to 'user' role
         result = rbac.user_has_permission(user, Permission.UKG_READ)
 
-        assert result is True  # user role has UKG_READ
+        assert result is False
 
     def test_user_has_any_permission_one_granted(self):
         """Test has_any returns True when one permission granted"""

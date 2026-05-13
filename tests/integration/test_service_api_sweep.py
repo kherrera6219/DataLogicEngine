@@ -158,7 +158,7 @@ class TestFileUploadService:
         mock_processor.process_file.return_value = {'text': 'Extracted content'}
         mock_rag.ingest_document.return_value = 5
         
-        file_bytes = b"sample pdf content"
+        file_bytes = b"%PDF-1.7\nsample pdf content"
         result = service.upload_file(
             file_bytes=file_bytes,
             filename="test.pdf",

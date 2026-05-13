@@ -266,7 +266,7 @@ jobs:
   crash-reporting-probe:
     name: Crash Reporting Probe
     runs-on: ubuntu-latest
-    if: (github.event_name == 'schedule' || github.ref == 'refs/heads/main') && secrets.SENTRY_DSN != ''
+    if: github.event_name == 'schedule' || github.ref == 'refs/heads/main'
     steps:
     - uses: actions/checkout@v4
 
@@ -280,7 +280,20 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Check crash reporting configuration
+      id: crash-reporting-config
+      env:
+        SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      run: |
+        if [ -n "$SENTRY_DSN" ]; then
+          echo "configured=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "configured=false" >> "$GITHUB_OUTPUT"
+          echo "::notice::SENTRY_DSN is not configured; skipping crash-reporting probe."
+        fi
+
     - name: Send Sentry probe event
+      if: steps.crash-reporting-config.outputs.configured == 'true'
       env:
         SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         FLASK_ENV: "production"

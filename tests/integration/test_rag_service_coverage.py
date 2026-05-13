@@ -108,8 +108,8 @@ class TestRAGService:
     def test_get_context_for_query(self, rag_service):
         # Mock search_documents
         rag_service.search_documents = MagicMock(return_value=[
-            {"text": "Relevant info A", "metadata": {"filename": "a.txt"}},
-            {"text": "Relevant info B", "metadata": {"filename": "b.txt"}}
+            {"text": "Relevant info A", "score": 0.9, "metadata": {"filename": "a.txt"}},
+            {"text": "Relevant info B", "score": 0.8, "metadata": {"filename": "b.txt"}}
         ])
         
         context = rag_service.get_context_for_query("help", include_sources=True)

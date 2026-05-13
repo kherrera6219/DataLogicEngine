@@ -65,4 +65,4 @@ def test_database_health_failure_path(monkeypatch, app_module):
 
     status = app_module._database_health()
     assert status["status"] == "error"
-    assert "boom" in status["detail"]
+    assert status["detail"] == "unavailable"

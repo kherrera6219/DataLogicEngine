@@ -244,4 +244,8 @@ def test_create_legacy_app():
               # Verify extensions initialized
               mock_db.assert_called_with(app)
               mock_jwt.assert_called_with(app)
-              mock_cors.assert_called_with(app)
+              mock_cors.assert_called_with(
+                  app,
+                  resources={r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:8080"]}},
+                  supports_credentials=True,
+              )

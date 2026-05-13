@@ -12,12 +12,25 @@ jobs:
   certificate-governance-drill:
     name: Certificate Rotation and Revocation Drill
     runs-on: windows-latest
-    if: ${{ secrets.WINDOWS_CODESIGN_CERT_BASE64 != '' && secrets.WINDOWS_CODESIGN_CERT_PASSWORD != '' }}
 
     steps:
     - uses: actions/checkout@v4
 
+    - name: Check code-signing configuration
+      id: codesign-config
+      env:
+        WINDOWS_CODESIGN_CERT_BASE64: ${{ secrets.WINDOWS_CODESIGN_CERT_BASE64 }}
+        WINDOWS_CODESIGN_CERT_PASSWORD: ${{ secrets.WINDOWS_CODESIGN_CERT_PASSWORD }}
+      run: |
+        if ($env:WINDOWS_CODESIGN_CERT_BASE64 -and $env:WINDOWS_CODESIGN_CERT_PASSWORD) {
+          "configured=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+        } else {
+          "configured=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "::notice::Code-signing certificate secrets are not configured; skipping governance drill."
+        }
+
     - name: Decode code-signing certificate
+      if: steps.codesign-config.outputs.configured == 'true'
       id: cert
       env:
         WINDOWS_CODESIGN_CERT_BASE64: ${{ secrets.WINDOWS_CODESIGN_CERT_BASE64 }}
@@ -27,6 +40,7 @@ jobs:
         "path=$certPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
     - name: Run certificate health + revocation drill
+      if: steps.codesign-config.outputs.configured == 'true'
       env:
         WINDOWS_CODESIGN_CERT_PASSWORD: ${{ secrets.WINDOWS_CODESIGN_CERT_PASSWORD }}
       run: |
@@ -38,6 +52,7 @@ jobs:
           -ReportPath "reports/codesigning_certificate_health_governance.json"
 
     - name: Upload governance report
+      if: steps.codesign-config.outputs.configured == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: codesigning-governance-report
