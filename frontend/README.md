@@ -20,7 +20,7 @@ Modern Next.js 16 frontend application for the Universal Knowledge Graph (UKG) s
 
 ### Prerequisites
 
-- Node.js 18.17+
+- Node.js 22+
 - npm or yarn
 - Backend running on `http://localhost:5000`
 

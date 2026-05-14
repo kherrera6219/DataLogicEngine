@@ -1007,14 +1007,25 @@ def ratelimit_handler(e):
     }), 429
 
 # Wrap initialization in create_app factory for testing and proper context
-def create_app(config_name=None):
-    """Application factory for testing and production."""
-    # Use existing global app if already initialized (for backward compatibility)
-    global app
-    
-    # In a full factory pattern we'd create a new Flask app here
-    # For now, we return the global app which is already configured
-    # This enables `from app import create_app; app = create_app()` flow needed by tests
+def create_app(config_name=None, config_overrides=None):
+    """Return the configured application, with lightweight test overrides.
+
+    The application still uses the legacy global app for compatibility with
+    existing scripts and tests, but callers can request common runtime profiles
+    without mutating config piecemeal at every call site.
+    """
+    if isinstance(config_name, dict):
+        app.config.update(config_name)
+    elif config_name in {"test", "testing"}:
+        app.config.update(
+            TESTING=True,
+            WTF_CSRF_ENABLED=False,
+            RATELIMIT_ENABLED=False,
+        )
+
+    if config_overrides:
+        app.config.update(config_overrides)
+
     return app
 
 # Configure logging - use INFO in production, DEBUG in development

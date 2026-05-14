@@ -24,7 +24,7 @@ Default path uses SQLite/in-memory fallbacks. PostgreSQL/Redis/Neo4j/object serv
 ## Prerequisites
 
 1. Python 3.11+
-2. Node.js 20+
+2. Node.js 22+
 3. npm
 4. Optional: Docker Desktop for local data service stack
 

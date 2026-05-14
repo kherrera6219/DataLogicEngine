@@ -37,15 +37,6 @@ asyncio_mode = "auto"
 filterwarnings = [
     "ignore::DeprecationWarning:pytest_asyncio.*:",
 ]
-# Code coverage settings
-addopts = """
-    --cov=backend
-    --cov=models
-    --cov-report=html
-    --cov-report=term-missing
-    --cov-report=json
-    --cov-fail-under=70
-"""
 testpaths = ["tests"]
 
 [tool.coverage.run]

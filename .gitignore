@@ -80,6 +80,7 @@ Thumbs.db
 data/security/*.key
 data/security/*.salt
 data/security/keys/
+backend/data/security/keys/
 *.pem
 *.key
 

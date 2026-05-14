@@ -7,7 +7,7 @@ Developer onboarding and daily engineering workflow.
 ## Prerequisites
 
 1. Python 3.11+
-2. Node.js 20+
+2. Node.js 22+
 3. Windows PowerShell (for local run scripts on Windows)
 4. At least one provider API key for end-to-end feature testing
 

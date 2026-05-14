@@ -42,8 +42,6 @@ backend\config_manager.py,8321,.py,2026-02-08 03:15:15 UTC
 backend\contextual_api.py,3657,.py,2026-02-16 22:44:40 UTC
 backend\core\rag_sanitizer.py,1746,.py,2026-01-15 19:07:32 UTC
 backend\core\resilience_router.py,3474,.py,2026-02-16 22:44:40 UTC
-backend\data\security\keys\dek_registry.json,503,.json,2026-02-03 07:31:40 UTC
-backend\data\security\keys\kek.salt,32,.salt,2026-02-03 07:20:03 UTC
 backend\data_loader.py,11106,.py,2026-02-16 22:44:40 UTC
 backend\decorators.py,3208,.py,2026-02-16 22:44:40 UTC
 backend\Dockerfile,1014,,2026-01-09 00:00:57 UTC

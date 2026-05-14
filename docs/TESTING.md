@@ -149,6 +149,12 @@ frontend/
 .\.venv\Scripts\python -m pytest tests --maxfail=20
 ```
 
+### Backend coverage gate
+
+```powershell
+.\.venv\Scripts\python -m pytest tests --cov=backend --cov=models --cov-report=html --cov-report=term-missing --cov-report=json --cov-fail-under=70
+```
+
 ### Backend (targeted)
 
 ```powershell
