@@ -28,8 +28,8 @@ Define the current UX architecture, route model, interaction patterns, and desig
 
 1. `docs/PRODUCT_OVERVIEW.md`
 2. `docs/USER_GUIDE.md`
-3. `docs/archive/assessments/2026-02/ROUTING_UI_UX_USER_STORY_REVIEW_2026-02-07.md`
-4. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+3. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+4. `TODO.md`
 
 ## Design principles
 

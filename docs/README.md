@@ -16,7 +16,7 @@
 
 This portal is the authoritative entry point for all DataLogicEngine documentation. It is organized by audience and use case to allow rapid navigation to relevant reference material.
 
-All documents listed here are **active and maintained**. Archived documents (historical assessments, prior reviews) are stored in `docs/archive/` and retained for audit traceability but are not operational references.
+All documents listed here are **active and maintained**. Current planning belongs in the root [`TODO.md`](../TODO.md); do not create separate roadmap, project-plan, or assessment TODO documents.
 
 ---
 
@@ -31,9 +31,9 @@ All documents listed here are **active and maintained**. Archived documents (his
 7. [Operations and Deployment](#operations-and-deployment)
 7. [Testing Standards](#testing-standards)
 8. [Governance and Process](#governance-and-process)
-9. [Repository Inventory and Maps](#repository-inventory-and-maps)
-10. [Documentation Standards](#documentation-standards-1)
-11. [Archived Assessments](#archived-assessments)
+9. [Current Planning](#current-planning)
+10. [Repository Inventory and Maps](#repository-inventory-and-maps)
+11. [Documentation Standards](#documentation-standards-1)
 12. [Document Classification](#document-classification)
 
 ---
@@ -207,11 +207,18 @@ These documents are produced to the Microsoft enterprise standard for engineerin
 
 | Document | Description | Audience |
 |----------|-------------|----------|
+| [`TODO.md`](../TODO.md) | Canonical open work list and Microsoft Store readiness tracker | Developers, release owners |
 | [`docs/RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) | Release validation gates and sign-off process | Developers, SRE |
 | [`docs/BRANCH_PROTECTION_POLICY.md`](BRANCH_PROTECTION_POLICY.md) | Branch protection rules and code-owner policy | Developers, leads |
 | [`docs/DOCUMENTATION_VERSIONING.md`](DOCUMENTATION_VERSIONING.md) | Documentation version control and change management policy | All |
 | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Contribution guidelines, coding standards, PR process | Contributors |
 | [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md) | Community standards and enforcement policy | All |
+
+---
+
+## Current Planning
+
+[`TODO.md`](../TODO.md) is the only active planning and outstanding-work list. Historical assessment documents, project plans, and roadmap drafts were removed from the active documentation set to avoid conflicting guidance for contributors and AI agents.
 
 ---
 
@@ -221,9 +228,9 @@ These artifacts are **generated automatically** by repository tooling. Do not ed
 
 | Artifact | Description | Generation Script |
 |----------|-------------|------------------|
-| [`docs/FILE_INVENTORY.csv`](FILE_INVENTORY.csv) | Complete file inventory with metadata | `scripts/generate_file_inventory.py` |
-| [`docs/GENERATED_STRUCTURE.md`](GENERATED_STRUCTURE.md) | Repository structure summary | `scripts/generate_repo_structure.py` |
-| [`docs/DOCUMENTATION_COVERAGE_MATRIX.md`](DOCUMENTATION_COVERAGE_MATRIX.md) | Documentation coverage by module | `scripts/generate_coverage_matrix.py` |
+| [`docs/FILE_INVENTORY.csv`](FILE_INVENTORY.csv) | Complete file inventory with metadata | `scripts/generate_docs.py` |
+| [`docs/GENERATED_STRUCTURE.md`](GENERATED_STRUCTURE.md) | Repository structure summary | `scripts/generate_docs.py` |
+| [`docs/DOCUMENTATION_COVERAGE_MATRIX.md`](DOCUMENTATION_COVERAGE_MATRIX.md) | Documentation coverage by module | Maintained manually |
 
 ---
 
@@ -239,26 +246,7 @@ These artifacts are **generated automatically** by repository tooling. Do not ed
 | Status | Meaning |
 |--------|---------|
 | **Active** | Current, maintained, and authoritative — listed in this portal |
-| **Historical** | Retained for audit traceability — stored in `docs/archive/` — not operational |
 | **Reference** | Informational only — stored in `docs/whitepapers/` — not operational runbooks |
-| **Assessment** | Periodic review snapshots — stored in `docs/archive/assessments/` |
-
----
-
-## Archived Assessments
-
-The following assessment documents are retained for audit traceability. They are **not** active references. See `docs/archive/assessments/2026-02/` for the full set.
-
-| Document | Date | Description |
-|----------|------|-------------|
-| `APPLICATION_REVIEW_RECOMMENDED_IMPROVEMENTS_2026-02-10.md` | 2026-02-10 | Full application review with recommended improvements |
-| `SUBSYSTEMS_SECTIONS_1_TO_4_UPDATED_REPORT_2026-02-16.md` | 2026-02-16 | Subsystem review: sections 1–4 |
-| `SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md` | 2026-02-16 | Subsystem review: sections 5–8 |
-| `SUBSYSTEMS_SECTIONS_9_TO_11_REVIEW_2026-02-16.md` | 2026-02-16 | Subsystem review: sections 9–11 |
-| `REPO_CLEANUP_AND_WIRING_AUDIT_2026-02-16.md` | 2026-02-16 | Repository cleanup and wiring audit |
-| `LINT_STYLE_SWEEP_PHASE9_2026-02-17.md` | 2026-02-17 | Python lint sweep Phase 9 execution report |
-| `LINT_STYLE_SWEEP_PHASE10_2026-02-17.md` | 2026-02-17 | Python lint sweep Phase 10 execution report |
-| `LINT_STYLE_SWEEP_PHASE11_2026-02-17.md` | 2026-02-17 | Python lint sweep Phase 11 execution report |
 
 ---
 

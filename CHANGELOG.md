@@ -243,7 +243,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `docs/README.md`
   - `docs/TESTING.md`
   - `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
-  - `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_9_TO_11_REVIEW_2026-02-16.md`
   - `CONTRIBUTING.md`
   - `docs/CONTRIBUTING.md`
 
@@ -276,7 +275,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `README.md`
   - `docs/README.md`
   - `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
-  - `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_9_TO_11_REVIEW_2026-02-16.md`
 
 ### Testing
 - Section 10 debug/error sweep completed:
@@ -297,7 +295,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Local-mode parity regression suite (`tests/parity/test_local_mode_parity.py`).
   - Windows packaging smoke automation with portable launch checks and optional installer-mode validation (`scripts/windows/run_packaging_smoke.ps1`).
   - Frontend strict typecheck gate via dedicated production typecheck config (`frontend/tsconfig.typecheck.json`, `frontend/package.json`).
-  - Section 9-11 review document initialized with completed Section 9 control matrix (`docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_9_TO_11_REVIEW_2026-02-16.md`).
+  - Section 9-11 control matrix completed and folded into active testing and operations docs.
 
 ### Changed
 - CI enforcement pipeline now includes:
@@ -351,7 +349,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `docs/PRODUCT_OVERVIEW.md`
   - `docs/PRODUCTION_READINESS.md`
   - `docs/OPERATIONAL_RUNBOOKS.md`
-  - `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
 
 ### Testing
 - Debug/error sweep completed:
@@ -401,7 +398,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `docs/PRODUCT_OVERVIEW.md`
   - `docs/PRODUCTION_READINESS.md`
   - `docs/OPERATIONAL_RUNBOOKS.md`
-  - `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
 
 ### Testing
 - Targeted phase hardening/debug sweep completed:
@@ -664,7 +660,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated README.md with current project state and structure
 - Reorganized project structure (moved demos, scripts, configs)
-- Archived old task documents to docs/archive/
+- Consolidated old task documents into the root TODO.
 
 ### Fixed
 

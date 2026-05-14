@@ -22,9 +22,8 @@ This standard applies to:
 
 This standard does not apply to:
 
-1. `docs/archive/` historical records
-2. `docs/whitepapers/` research narratives
-3. Auto-generated outputs (`docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`)
+1. `docs/whitepapers/` research narratives
+2. Auto-generated outputs (`docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`)
 
 ## External baseline references
 
@@ -128,7 +127,7 @@ Before merge:
 ## Lifecycle management
 
 1. Active docs must be reviewed at the cadence declared in the document control block.
-2. Deprecated docs must be moved to `docs/archive/` with replacement links.
+2. Deprecated planning docs must have actionable items folded into root `TODO.md` before removal.
 3. Release-impacting changes must update:
    `README.md`, `docs/DEPLOYMENT.md`, `docs/SECURITY.md`, `docs/PRODUCTION_READINESS.md`
 4. Documentation version metadata must be updated in `docs/DOCS_VERSION.json`.

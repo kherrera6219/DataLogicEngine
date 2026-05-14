@@ -388,7 +388,7 @@ Current CI runs:
 | Mid term | Publish signed release artifacts with checksums and provenance metadata. |
 | Long term | Harden multi-tenant operations, cost controls, and policy-as-code governance for larger deployments. |
 
-See [`TODO.md`](TODO.md), [`PROJECT.md`](PROJECT.md), and [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) for current planning and release readiness detail.
+See [`TODO.md`](TODO.md) for the canonical open work list and [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) for release readiness gates.
 
 ## Contributing
 
@@ -439,5 +439,4 @@ Personal, research, and educational use are permitted under the license terms. C
 | `docs/assets/readme/architecture-overview.png` | Public README architecture image for GitHub social previews and non-Mermaid consumers. |
 | `.github/FUNDING.yml` | Optional sponsorship metadata if the project accepts funding. |
 | `CITATION.cff` | Citation metadata for research and academic users. |
-| `docs/openapi.yaml` or generated API artifact | The docs reference this path; publish or generate it as part of release automation. |
 | GitHub repository topics | Suggested: `ai`, `llm`, `knowledge-graph`, `flask`, `nextjs`, `governance`, `compliance`, `enterprise-ai`. |

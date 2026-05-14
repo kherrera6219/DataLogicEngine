@@ -41,10 +41,7 @@ Define enterprise testing standards, required quality gates, and execution workf
    - `.venv\Scripts\python.exe -m ruff check .`
    - `.venv\Scripts\python.exe -m py_compile` across changed Python files
    - `.venv\Scripts\python.exe -m pytest -q --no-cov tests/knowledge_algorithms/test_ka_bulk.py tests/truth_engine/test_layer10_emergence.py tests/truth_engine/test_layer9_meta_reasoning.py tests/truth_engine/test_truth_infrastructure.py sdk/UKG_Python_SDK/tests/test_truth_engine.py tests/integration_routes/test_app_route_wiring.py`
-3. Phase reports:
-   - `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE9_2026-02-17.md`
-   - `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE10_2026-02-17.md`
-   - `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE11_2026-02-17.md`
+3. Historical phase reports were removed from the active documentation set. Current testing guidance is maintained in this document.
 
 ## 2026-03-31 Phase 4 contract hardening update
 

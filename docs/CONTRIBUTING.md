@@ -15,7 +15,7 @@ Use the repository root policy as source-of-truth:
 1. Follow `docs/DOCUMENTATION_STANDARDS.md`.
 2. Update `docs/README.md` and `docs/DOCUMENTATION_COVERAGE_MATRIX.md` when adding or replacing active docs.
 3. Use one source-of-truth document per domain area.
-4. Move obsolete docs to `docs/archive/` instead of deleting historical records.
+4. Fold actionable planning items into root `TODO.md` before deleting obsolete planning docs.
 5. Include tested commands for operational runbooks.
 6. Update `README.md` when setup, runtime, or security prerequisites change.
 7. Keep governance docs current: `docs/RELEASE_CHECKLIST.md`, `docs/BRANCH_PROTECTION_POLICY.md`, `docs/DOCUMENTATION_VERSIONING.md`.

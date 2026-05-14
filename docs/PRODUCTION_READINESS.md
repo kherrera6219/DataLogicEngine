@@ -277,9 +277,6 @@ The following controls are now implemented and validated:
 18. Code-signing governance drills (certificate rotation threshold + revocation checks).
 19. AI and connector p95/p99 latency SLO baseline/violation gauges in `/metrics`.
 
-Reference implementation report:
-- `docs/archive/assessments/2026-02/SUBSYSTEMS_SECTIONS_5_TO_8_REVIEW_2026-02-16.md`
-
 Validation commands:
 
 ```powershell
@@ -304,11 +301,6 @@ The following quality-gate controls were completed and validated:
 4. Post-change syntax safety pass succeeded (`py_compile` across all changed Python files).
 5. Targeted regression sweep succeeded (`271 passed`, `--no-cov`) covering truth engine, KA bulk contract, SDK truth-engine, and route wiring.
 
-Reference implementation reports:
-- `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE9_2026-02-17.md`
-- `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE10_2026-02-17.md`
-- `docs/archive/assessments/2026-02/LINT_STYLE_SWEEP_PHASE11_2026-02-17.md`
-
 ## Universal Knowledge Graph (UKG) system architecture
 
 **Version 4.1.0 - Reviewed February 8, 2026**
@@ -329,7 +321,7 @@ Reference implementation reports:
 - [x] **Configure backup strategy** for database and logs
 - [x] **Set up monitoring and alerting**
 - [x] **Implement log rotation** and retention policies (backend/retention_service.py)
-- [x] **Review all TODO/FIXME items** - Completed for v2.1 pass
+- [x] **Consolidate TODO/FIXME planning** - Current open work is tracked only in root `TODO.md`
 - [x] **Complete security vulnerability scan** - Bandit/Safety verified
 - [x] **Perform load testing** - Locust scripts in tests/performance/
 - [x] **Document incident response procedures**

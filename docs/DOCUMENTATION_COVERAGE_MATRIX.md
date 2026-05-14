@@ -31,13 +31,12 @@ Track source-of-truth documents across all core application areas and identify d
 | File inventory and repository map | `docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`, `docs/FILE_STRUCTURE.md` | Active | Generated inventory, structure map, and naming policy |
 | Workflow reasoning model | `docs/WORKFLOW.md` | Active | High-level query pipeline workflow |
 | Privacy/legal policy | `docs/PRIVACY_POLICY.md` | Active | User data handling and policy disclosure |
-| Historical records | `docs/archive/*` | Archived | Not source-of-truth |
 | Research whitepapers | `docs/whitepapers/*` | Reference | Not operational source-of-truth |
 
 ## Gaps and follow-up items
 
 1. Keep generated inventory docs (`docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`) refreshed after repository cleanup/refactors.
-2. Continue consolidating any conflicting instructions between legacy `docs/archive/` files and active source-of-truth docs.
+2. Keep root `TODO.md` as the only active planning and outstanding-work tracker.
 3. Expand CI docs enforcement to include markdown linting for active files.
 4. Keep vendor guidance baseline (`docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`) reviewed at least monthly.
 
