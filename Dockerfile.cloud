@@ -2,8 +2,10 @@
 # Multi-stage build for Performance and Security
 
 # --- Stage 1: Build Frontend ---
-FROM node:20-alpine AS frontend-builder
+FROM node:24-alpine AS frontend-builder
+ARG NPM_VERSION=11.14.1
 WORKDIR /app/frontend
+RUN npm install -g npm@${NPM_VERSION} && npm cache clean --force
 COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm ci
 COPY frontend/ ./
@@ -19,7 +21,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     NODE_ENV=production
 
 # Install system dependencies (including Node.js for frontend runner)
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     ca-certificates \
@@ -30,8 +32,8 @@ WORKDIR /app
 
 # Install Python dependencies
 COPY requirements.txt .
+RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install gunicorn
 
 # Copy backend code
 COPY . .

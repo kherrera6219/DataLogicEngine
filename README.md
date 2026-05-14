@@ -6,7 +6,7 @@ Enterprise AI orchestration, governed LLM routing, and knowledge graph reasoning
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
 [![Deploy](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/deploy.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/deploy.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-3776AB)](requirements.txt)
-[![Node](https://img.shields.io/badge/node-20%2B-339933)](frontend/package.json)
+[![Node](https://img.shields.io/badge/node-24%2B-339933)](frontend/package.json)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue)](LICENSE)
 
 DataLogicEngine is a full-stack platform for building traceable AI systems over structured enterprise knowledge. It combines a Flask API, Next.js console, LLM gateway, 17-axis knowledge graph model, audit controls, and Windows/Electron packaging for local-first deployments.
@@ -103,7 +103,7 @@ flowchart LR
 | Tool | Version | Purpose |
 | --- | --- | --- |
 | Python | 3.11+ | Backend runtime and tests |
-| Node.js | 20+ | Frontend and Electron tooling |
+| Node.js | 24+ | Frontend and Electron tooling |
 | Docker | Current stable | Local full-stack development |
 | PostgreSQL | 15+ | Production relational store |
 | Redis | 7+ | Cache, rate limiting, async support |

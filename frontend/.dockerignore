@@ -1,6 +1,13 @@
 # Docker Ignore for Frontend
 node_modules
 .next
+dist
+dist-smoke
+out
+storybook-static
+test-results
+playwright-report
+playwright-report-visual
 .git
 .env
 Dockerfile

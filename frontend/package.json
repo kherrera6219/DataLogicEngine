@@ -5,6 +5,10 @@
   "author": "UKG",
   "private": true,
   "main": "dist-electron/main.js",
+  "engines": {
+    "node": ">=24",
+    "npm": ">=11"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -66,7 +70,7 @@
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
-    "@types/node": "^20.19.30",
+    "@types/node": "^24.12.4",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@types/recharts": "^1.8.29",

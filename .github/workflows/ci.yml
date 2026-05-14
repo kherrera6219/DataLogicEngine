@@ -50,7 +50,7 @@ jobs:
     - name: Set up Node.js for deterministic startup precheck
       uses: actions/setup-node@v6
       with:
-        node-version: '20'
+        node-version: '24'
 
     - name: Install frontend dependencies for startup precheck
       run: |
@@ -127,7 +127,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '20'
+        node-version: '24'
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
         
@@ -240,7 +240,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '20'
+        node-version: '24'
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
 
@@ -291,7 +291,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '20'
+        node-version: '24'
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
 
