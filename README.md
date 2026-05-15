@@ -29,15 +29,15 @@ Open:
 | Service | URL |
 | --- | --- |
 | Web console | `http://localhost:3000` |
-| Backend API | `http://localhost:5000` |
-| Health probe | `http://localhost:5000/health` |
-| Metrics | `http://localhost:5000/metrics` |
-| Swagger UI | `http://localhost:5000/api/docs` |
+| Backend API | `http://localhost:8080` |
+| Health probe | `http://localhost:8080/health` |
+| Metrics | `http://localhost:8080/metrics` |
+| Swagger UI | `http://localhost:8080/api/docs` |
 
 Minimal API call:
 
 ```bash
-curl http://localhost:5000/health
+curl http://localhost:8080/health
 ```
 
 ## Contents
@@ -139,6 +139,30 @@ npm ci
 npm run dev
 ```
 
+### Local Mode (no Docker, no cloud databases)
+
+For workstation development without Docker, the setup script downloads and installs portable PostgreSQL, Redis, and Neo4j binaries locally and the app manages their lifecycle automatically:
+
+```bash
+# Install portable database binaries (one-time)
+python scripts/setup_local_databases.py --all
+
+# Seed Neo4j with UKG pillar taxonomy
+python scripts/seed_neo4j.py
+
+# Run database migrations
+flask db upgrade
+
+# Start the backend (databases auto-start on app launch)
+python app.py
+```
+
+Verify all services are reachable:
+
+```bash
+python scripts/setup_local_databases.py --verify
+```
+
 ### Desktop Build
 
 ```bash
@@ -201,22 +225,22 @@ Base URLs:
 
 | Environment | Base URL |
 | --- | --- |
-| Local backend | `http://localhost:5000` |
-| Versioned API | `http://localhost:5000/api/v1` |
+| Local backend | `http://localhost:8080` |
+| Versioned API | `http://localhost:8080/api/v1` |
 | Production | `https://your-domain.example/api/v1` |
 
 ### Health and Readiness
 
 ```bash
-curl http://localhost:5000/health
-curl http://localhost:5000/live
-curl http://localhost:5000/ready
+curl http://localhost:8080/health
+curl http://localhost:8080/live
+curl http://localhost:8080/ready
 ```
 
 ### Authentication
 
 ```bash
-curl -X POST http://localhost:5000/api/v1/auth/login \
+curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "operator@example.com",
@@ -224,11 +248,18 @@ curl -X POST http://localhost:5000/api/v1/auth/login \
   }'
 ```
 
+API key authentication is also supported for programmatic access. Generate a key via the admin interface and include it as `X-API-Key`:
+
+```bash
+export UKG_KEY="ukg_<prefix>_<secret>"
+curl -H "X-API-Key: $UKG_KEY" http://localhost:8080/api/v1/gateway/chat ...
+```
+
 ### LLM Gateway Request
 
 ```bash
-curl -X POST http://localhost:5000/api/v1/gateway/chat \
-  -H "Authorization: Bearer $TOKEN" \
+curl -X POST http://localhost:8080/api/v1/gateway/chat \
+  -H "X-API-Key: $UKG_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "messages": [
@@ -238,23 +269,38 @@ curl -X POST http://localhost:5000/api/v1/gateway/chat \
       }
     ],
     "model": "gpt-4o",
-    "mode": "ukg",
-    "trace_enabled": true
+    "tier": "2"
   }'
 ```
+
+Tier 2+ responses include a verifiable audit footer:
+
+```
+[UKG Audit Trace]
+Tier: 2
+Active Axes: ...
+Personas Invoked: ...
+Confidence: 0.395
+Refinement Steps Executed: ...
+Compliance Flags: ...
+Key Assumption to Verify: ...
+What Changes if Wrong: ...
+```
+
+Every Tier 2+ run also writes a `TruthAuditEvent` row with a SHA-256 hash-chain receipt for EU AI Act Article 53 compliance.
 
 ### Knowledge Graph Query
 
 ```bash
-curl -H "Authorization: Bearer $TOKEN" \
-  http://localhost:5000/api/v1/knowledge-nodes
+curl -H "X-API-Key: $UKG_KEY" \
+  http://localhost:8080/api/v1/knowledge-nodes
 ```
 
 ### Knowledge Algorithm Execution
 
 ```bash
-curl -X POST http://localhost:5000/api/v1/ka/algorithms/KA-001/execute \
-  -H "Authorization: Bearer $TOKEN" \
+curl -X POST http://localhost:8080/api/v1/ka/algorithms/KA-001/execute \
+  -H "X-API-Key: $UKG_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "input": {
@@ -293,7 +339,7 @@ docker compose ps
 
 ```bash
 docker build -f Dockerfile.cloud -t datalogicengine:latest .
-docker run --env-file .env -p 5000:5000 -p 3000:3000 datalogicengine:latest
+docker run --env-file .env -p 8080:8080 -p 3000:3000 datalogicengine:latest
 ```
 
 ### Production Checklist
@@ -384,9 +430,17 @@ Current CI runs:
 | --- | --- |
 | Near term | Tighten public API contracts, reduce legacy route aliases, improve generated OpenAPI coverage. |
 | Near term | Add public architecture assets under `docs/assets/readme/`. |
+| Near term | Install ChromaDB and complete vector store collection validation end-to-end. |
 | Mid term | Expand deployment reference material for Kubernetes, managed Postgres, managed Redis, and managed Neo4j. |
 | Mid term | Publish signed release artifacts with checksums and provenance metadata. |
 | Long term | Harden multi-tenant operations, cost controls, and policy-as-code governance for larger deployments. |
+
+### Recently Completed
+
+- **Local stack QC (2026-05-15)** — All five internal databases (PostgreSQL, Neo4j, Redis, ChromaDB, object storage) wired and validated in local mode. End-to-end Tier 2 gateway query returns `[UKG Audit Trace]` footer with F-CONF-01 confidence score and SHA-256 hash-chain `TruthAuditEvent` receipt.
+- **AuditBundle service layer** — `TruthMemoryCommitService` seals each Tier 2+ `TraceRun` into the immutable audit chain (EU AI Act Article 53 alignment).
+- **F-CONF-01 confidence calculator** — Canonical formula weighing evidence quality, KA consensus, persona agreement, and TruthGate pass/fail replaces raw LLM output probability.
+- **Portable database lifecycle manager** — `DatabaseLifecycleManager` starts and stops PostgreSQL, Redis, and Neo4j child processes automatically for workstation deployments.
 
 See [`TODO.md`](TODO.md) for the canonical open work list and [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) for release readiness gates.
 

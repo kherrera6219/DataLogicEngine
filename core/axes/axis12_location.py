@@ -8,7 +8,7 @@ providing spatial and geographical context for knowledge.
 import logging
 import uuid
 from typing import Dict, Any, Optional
-from app import db
+from extensions import db
 from models import Location, KnowledgeNode
 
 logger = logging.getLogger(__name__)

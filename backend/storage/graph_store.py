@@ -62,9 +62,29 @@ class GraphStore:
             self.driver = GraphDatabase.driver(self.uri, auth=(self.user, self.password))
             self.driver.verify_connectivity()
             logger.info(f"Connected to Neo4j at {self.uri}")
+            self.ensure_schema()
         except Exception as e:
             logger.error(f"Failed to connect to Neo4j: {e}")
             self.driver = None
+
+    _SCHEMA_STATEMENTS = [
+        "CREATE CONSTRAINT pillar_uid IF NOT EXISTS FOR (p:Pillar) REQUIRE p.uid IS UNIQUE",
+        "CREATE CONSTRAINT node_uid IF NOT EXISTS FOR (n:KnowledgeNode) REQUIRE n.uid IS UNIQUE",
+        "CREATE INDEX pillar_code IF NOT EXISTS FOR (p:Pillar) ON (p.code)",
+        "CREATE INDEX node_axis IF NOT EXISTS FOR (n:KnowledgeNode) ON (n.axis_number)",
+    ]
+
+    def ensure_schema(self) -> None:
+        """Idempotently create required Neo4j constraints and indexes."""
+        if not self.driver:
+            return
+        try:
+            with self.driver.session() as session:
+                for stmt in self._SCHEMA_STATEMENTS:
+                    session.run(stmt)
+            logger.info("Neo4j schema constraints and indexes ensured")
+        except Exception as exc:
+            logger.warning("Neo4j schema setup skipped (may require Enterprise or older syntax): %s", exc)
 
     def close(self):
         """Close the Neo4j driver."""

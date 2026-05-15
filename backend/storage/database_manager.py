@@ -151,6 +151,50 @@ class DatabaseLifecycleManager:
         except Exception as e:
             logger.error(f"Failed to start Redis: {e}")
 
+    @staticmethod
+    def _find_java_home() -> str:
+        """Return a JAVA_HOME path, searching common locations when not set."""
+        # 1. Explicit env var takes priority
+        if os.environ.get("JAVA_HOME"):
+            return os.environ["JAVA_HOME"]
+
+        # 2. Bundled JRE inside Neo4j installation (neo4j 5.x enterprise bundles it)
+        # (caller passes neo4j_bin which is the bin/ dir; jre/ is a sibling of bin/)
+
+        # 3. Common Windows install locations
+        candidates = []
+        if os.name == "nt":
+            for base in [
+                os.path.expandvars(r"%ProgramFiles%\Java"),
+                os.path.expandvars(r"%ProgramFiles%\Eclipse Adoptium"),
+                os.path.expandvars(r"%ProgramFiles%\Amazon Corretto"),
+                os.path.expandvars(r"%ProgramFiles%\Microsoft"),
+                os.path.expandvars(r"%LOCALAPPDATA%\Programs\Eclipse Adoptium"),
+            ]:
+                if os.path.isdir(base):
+                    for entry in os.listdir(base):
+                        full = os.path.join(base, entry)
+                        if os.path.isfile(os.path.join(full, "bin", "java.exe")):
+                            candidates.append(full)
+            # VS Code / IntelliJ embedded JREs
+            for pattern_base in [
+                os.path.expandvars(r"%USERPROFILE%\.antigravity\extensions"),
+                os.path.expandvars(r"%USERPROFILE%\.vscode\extensions"),
+            ]:
+                if os.path.isdir(pattern_base):
+                    for ext in os.listdir(pattern_base):
+                        jre_dir = os.path.join(pattern_base, ext, "jre")
+                        if os.path.isdir(jre_dir):
+                            for jvm in os.listdir(jre_dir):
+                                full = os.path.join(jre_dir, jvm)
+                                if os.path.isfile(os.path.join(full, "bin", "java.exe")):
+                                    candidates.append(full)
+
+        # Return newest-looking candidate (heuristic: sort by name desc)
+        if candidates:
+            return sorted(candidates, reverse=True)[0]
+        return ""
+
     def start_neo4j(self):
         """Start portable Neo4j instance."""
         if self.is_port_in_use(self.neo4j_port):
@@ -161,8 +205,16 @@ class DatabaseLifecycleManager:
         try:
             neo4j_bin = os.path.join(self.neo4j_bin, 'neo4j.bat' if os.name == 'nt' else 'neo4j')
             safe_neo4j = self._resolve_executable(neo4j_bin)
+            neo4j_home = os.path.dirname(self.neo4j_bin)
+            java_home = self._find_java_home()
+            env = {**os.environ, "NEO4J_HOME": neo4j_home}
+            if java_home:
+                env["JAVA_HOME"] = java_home
+                logger.info(f"Neo4j using JAVA_HOME={java_home}")
             # Use 'console' mode to run as a child process we can monitor
-            self.neo4j_process = subprocess.Popen([safe_neo4j, 'console'], env={**os.environ, 'NEO4J_HOME': os.path.dirname(self.neo4j_bin)}, shell=False)  # nosec B603
+            self.neo4j_process = subprocess.Popen(
+                [safe_neo4j, 'console'], env=env, shell=False  # nosec B603
+            )
             logger.info("Neo4j started successfully.")
         except Exception as e:
             logger.error(f"Failed to start Neo4j: {e}")

@@ -11,7 +11,7 @@ import logging
 import uuid
 from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional
-from app import db
+from extensions import db
 from models import TimeContext, KnowledgeNode
 
 logger = logging.getLogger(__name__)

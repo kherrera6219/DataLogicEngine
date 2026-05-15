@@ -709,6 +709,58 @@ def _register_application_routes() -> None:
 _register_application_routes()
 
 
+def _initialize_storage_collections() -> None:
+    """Ensure ChromaDB named collections and object-storage buckets exist at startup."""
+    try:
+        from backend.storage.vector_store import initialize_collections
+        initialize_collections()
+        logger.info("ChromaDB collections initialized")
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.warning("ChromaDB collection init skipped: %s", exc)
+
+    try:
+        from backend.storage.object_store import get_object_store
+        store = get_object_store()
+        for bucket in ["audit_logs", "simulation_artifacts", "deliverables", "graphs", "eval_data"]:
+            store.create_bucket(bucket)
+        logger.info("Object storage buckets initialized")
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.warning("Object storage bucket init skipped: %s", exc)
+
+
+_initialize_storage_collections()
+
+
+def _start_local_databases() -> None:
+    """Auto-start bundled PostgreSQL, Redis, and Neo4j when running in local/desktop mode.
+
+    Mirrors the main.py Electron startup pattern so plain `python app.py` behaves
+    identically to the packaged desktop app.  Non-fatal — a missing binary directory
+    or an already-running service is silently skipped.
+    """
+    import atexit
+
+    try:
+        from backend.storage.runtime_settings import get_auto_start_databases
+        if not get_auto_start_databases():
+            logger.info("Local database auto-start disabled by user setting")
+            return
+    except Exception as exc:
+        logger.debug("Could not read auto-start setting, defaulting to enabled: %s", exc)
+
+    try:
+        from backend.storage.database_manager import get_db_manager
+        db_manager = get_db_manager()
+        db_manager.start_all()
+        atexit.register(db_manager.stop_all)
+        logger.info("Local database auto-start complete")
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.warning("Local database auto-start skipped: %s", exc)
+
+
+_start_local_databases()
+
+
 @app.route('/api/v1/csp-report', methods=['POST'])
 def csp_report():
     """Receive and log Content-Security-Policy violation reports."""
@@ -882,6 +934,15 @@ def health() -> tuple:
     }
 
     return jsonify(payload), http_status
+
+
+@app.route("/health/cache", methods=["GET"])
+def health_cache() -> tuple:
+    """Redis liveness check for QC validation."""
+    from backend.storage.connection_manager import get_connection_manager
+    ok = get_connection_manager().check_health("redis")
+    status = "ok" if ok else "unavailable"
+    return jsonify({"redis": status, "timestamp": datetime.now(UTC).isoformat()}), 200 if ok else 503
 
 
 @app.route("/metrics", methods=["GET"])

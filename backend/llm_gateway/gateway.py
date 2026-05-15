@@ -1056,20 +1056,57 @@ class LLMGateway:
         }
         if isinstance(usage_data, dict) and "estimated_cost_usd" in usage_data:
             usage_payload["estimated_cost_usd"] = usage_data.get("estimated_cost_usd")
+
+        tier = result.get("tier")
+        content = result.get("answer", "")
+        if tier and str(tier) not in ("", "1", "t1", "trivial", "moderate"):
+            content = content + "\n\n" + self._audit_footer(result, tier, latency_ms)
+
         return GatewayResponse(
-            content=result.get("answer", ""),
+            content=content,
             run_id=run_id,
             provider_used=provider.provider_type,
             model_used=model,
             usage=usage_payload,
             ok=result.get("ok", True),
             coordinate=result.get("coordinate"),
-            tier=result.get("tier"),
+            tier=tier,
             layers=result.get("layers"),
             trace=result.get("trace"),
             explainability=result.get("explainability"),
             warnings=list(result.get("warnings", [])),
             error=result.get("error"),
+        )
+
+    @staticmethod
+    def _audit_footer(result: dict, tier, latency_ms: int) -> str:
+        """Return the spec Section 11.2 canonical audit footer for Tier 2+ responses."""
+        expl = result.get("explainability") or {}
+        raw_coord = result.get("coordinate") or {}
+        coordinate = raw_coord if isinstance(raw_coord, dict) else {}
+        active_axes = coordinate.get("active_axes") or []
+        personas = expl.get("personas_invoked") or []
+        confidence = result.get("confidence", 0.0)
+        steps = result.get("refinement_steps") or []
+        compliance_flags = result.get("compliance_flags") or "None"
+        assumption = expl.get("key_assumption", "Not specified")
+        consequence = expl.get("consequence_if_wrong", "Not specified")
+
+        axes_str = ", ".join(str(a) for a in active_axes) if active_axes else "Not resolved"
+        personas_str = ", ".join(str(p) for p in personas) if personas else "Not recorded"
+        steps_str = ", ".join(str(s) for s in steps) if steps else "None"
+        flags_str = str(compliance_flags) if isinstance(compliance_flags, str) else ", ".join(str(f) for f in compliance_flags)
+
+        return (
+            f"[UKG Audit Trace]\n"
+            f"Tier: {tier}\n"
+            f"Active Axes: {axes_str}\n"
+            f"Personas Invoked: {personas_str}\n"
+            f"Confidence: {confidence:.3f}\n"
+            f"Refinement Steps Executed: {steps_str}\n"
+            f"Compliance Flags: {flags_str}\n"
+            f"Key Assumption to Verify: {assumption}\n"
+            f"What Changes if Wrong: {consequence}"
         )
 
     def _error_response(self, run_id: str, error: str, start_time: datetime, request: GatewayRequest) -> GatewayResponse:
@@ -1216,6 +1253,7 @@ class LLMGateway:
                 or "unknown"
             )
             
+            sdk_tier = str(sdk_result.get("tier") or "")
             run = TraceRun(
                 session_id=uuid.UUID(session_id) if session_id else None,
                 status="pass" if sdk_result.get("ok") else "fail",
@@ -1224,10 +1262,14 @@ class LLMGateway:
                 input_message=query,
                 final_answer=sdk_result.get("answer", ""),
                 correlation_id=correlation_id,
-                confidence=0.85,  # From SDK result if available
+                confidence=sdk_result.get("confidence", 0.85),
+                tier=sdk_tier if sdk_tier else None,
+                layers_executed=sdk_result.get("layers"),
+                truthgate_decision=sdk_result.get("truthgate_decision"),
             )
             db.session.add(run)
-            
+            db.session.flush()  # populate run.run_id before child TraceStage rows reference it
+
             # Create TraceStages from SDK trace
             trace = sdk_result.get("trace", [])
             for i, trace_item in enumerate(trace):
@@ -1240,9 +1282,31 @@ class LLMGateway:
                     outputs=trace_item.get("output", {}),
                 )
                 db.session.add(stage)
-            
+
             db.session.commit()
             logger.info(f"Created TraceRun {run.run_id} with {len(trace)} stages")
+
+            # Compute F-CONF-01 canonical confidence and update the run
+            try:
+                from backend.truth_engine.confidence_calculator import ConfidenceCalculator
+                canonical_conf = ConfidenceCalculator().calculate(
+                    run,
+                    ka_results=sdk_result.get("trace"),
+                    gate_decision=sdk_result.get("truthgate_decision"),
+                )
+                run.confidence = canonical_conf
+                db.session.add(run)
+                db.session.commit()
+            except Exception as conf_exc:
+                logger.warning("F-CONF-01 calculation failed (non-fatal): %s", conf_exc)
+
+            # Commit audit bundle for Tier 2+ runs
+            if sdk_tier and sdk_tier not in ("", "1", "t1", "trivial", "moderate"):
+                try:
+                    from backend.truth_engine.truth_memory.commit_service import TruthMemoryCommitService
+                    TruthMemoryCommitService().commit(run, db.session)
+                except Exception as commit_exc:
+                    logger.warning("Audit bundle commit failed (non-fatal): %s", commit_exc)
             
         except Exception as e:
             logger.warning(f"Failed to create trace records: {e}")
