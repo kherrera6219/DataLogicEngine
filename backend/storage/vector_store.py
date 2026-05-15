@@ -399,6 +399,13 @@ class VectorStore:
         return self._backend.delete_collection(collection)
 
 
+REQUIRED_COLLECTIONS = [
+    "knowledge_nodes",
+    "persona_profiles",
+    "citation_cache",
+    "audit_evidence",
+]
+
 # Singleton instance
 _vector_store: Optional[VectorStore] = None
 
@@ -409,3 +416,13 @@ def get_vector_store() -> VectorStore:
     if _vector_store is None:
         _vector_store = VectorStore()
     return _vector_store
+
+
+def initialize_collections() -> None:
+    """Ensure all required spec-defined collections exist. Idempotent."""
+    store = get_vector_store()
+    for name in REQUIRED_COLLECTIONS:
+        try:
+            store.create_collection(name)
+        except Exception:
+            pass  # collection already exists or backend unavailable — non-fatal

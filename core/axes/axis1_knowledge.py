@@ -9,7 +9,7 @@ import logging
 import uuid
 from typing import Dict, Any, Optional
 from sqlalchemy import and_, or_, func
-from app import db
+from extensions import db
 from models import PillarLevel, KnowledgeNode
 
 logger = logging.getLogger(__name__)

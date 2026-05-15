@@ -410,23 +410,38 @@ class SimulationSession(db.Model):
 
 
 class KnowledgeGraphNode(db.Model):
-    """Knowledge graph node model."""
+    """Canonical knowledge graph node model — merged from graph and content node schemas."""
 
     __tablename__ = 'ukg_knowledge_nodes'
     __table_args__ = (
         Index('ix_ukg_knowledge_nodes_node_type', 'node_type'),
         Index('ix_ukg_knowledge_nodes_axis_number', 'axis_number'),
         Index('ix_ukg_knowledge_nodes_type_axis', 'node_type', 'axis_number'),
+        Index('ix_ukg_knowledge_nodes_tenant_id', 'tenant_id'),
         {'extend_existing': True}
     )
 
     id: int = db.Column(db.Integer, primary_key=True)
-    node_id: str = db.Column(db.String(50), unique=True, nullable=False)
+    # Graph identity fields
+    node_id: str = db.Column(db.String(50), unique=True, nullable=True)
     node_type: Optional[str] = db.Column(db.String(50))
     label: Optional[str] = db.Column(db.String(100))
     description: Optional[str] = db.Column(db.Text)
     axis_number: Optional[int] = db.Column(db.Integer)
     data: Optional[Dict] = db.Column(JSON)
+    # Knowledge content fields
+    uid: Optional[str] = db.Column(db.String(255), unique=True, nullable=True)
+    title: Optional[str] = db.Column(db.String(255), nullable=True)
+    content: Optional[str] = db.Column(db.Text, nullable=True)
+    content_type: Optional[str] = db.Column(db.String(50), nullable=True)
+    pillar_level_id: Optional[int] = db.Column(db.Integer, db.ForeignKey('ukg_pillar_levels.id'), nullable=True)
+    domain_id: Optional[int] = db.Column(db.Integer, db.ForeignKey('ukg_domains.id'), nullable=True)
+    location_id: Optional[int] = db.Column(db.Integer, db.ForeignKey('ukg_locations.id'), nullable=True)
+    time_context_id: Optional[int] = db.Column(db.Integer, db.ForeignKey('ukg_time_contexts.id'), nullable=True)
+    node_metadata: Optional[Dict] = db.Column(JSON, nullable=True)
+    tenant_id: Optional[str] = db.Column(db.String(64), nullable=True)
+    created_at: Optional[datetime] = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at: Optional[datetime] = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     # Relationships
     integrated_views = db.relationship("IntegratedView", back_populates="knowledge_node", cascade="all, delete-orphan")
@@ -441,11 +456,23 @@ class KnowledgeGraphNode(db.Model):
             'label': self.label,
             'description': self.description,
             'axis_number': self.axis_number,
-            'data': self.data
+            'data': self.data,
+            'uid': self.uid,
+            'title': self.title,
+            'content': self.content,
+            'content_type': self.content_type,
+            'pillar_level_id': self.pillar_level_id,
+            'domain_id': self.domain_id,
+            'location_id': self.location_id,
+            'time_context_id': self.time_context_id,
+            'metadata': self.node_metadata,
+            'tenant_id': self.tenant_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
 
     def __repr__(self) -> str:
-        return f'<KnowledgeGraphNode {self.node_id}>'
+        return f'<KnowledgeGraphNode {self.node_id or self.uid}>'
 
 
 class KnowledgeGraphEdge(db.Model):
@@ -916,6 +943,18 @@ class TraceRun(db.Model):
     input_message = db.Column(db.Text, nullable=True)
     final_answer = db.Column(db.Text, nullable=True)
 
+    # AuditBundle fields (spec Section 12.1)
+    tier = db.Column(db.String(10), nullable=True)  # 1, 2, 3
+    coordinate17_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_axis_vectors.vector_id'), nullable=True)
+    evidence_pack_hash = db.Column(db.String(64), nullable=True)  # SHA-256 of sealed evidence set
+    layers_executed = db.Column(JSONB, nullable=True)  # list of layer indices that fired
+    refinement_cycles = db.Column(db.Integer, default=0)
+    regulatory_pass = db.Column(db.Boolean, nullable=True)
+    security_pass = db.Column(db.Boolean, nullable=True)
+    truthgate_decision = db.Column(db.String(16), nullable=True)  # allow/block/escalate/hitl
+    token_cost = db.Column(db.Integer, nullable=True)
+    latency_ms = db.Column(db.Integer, nullable=True)
+
     # Relationships
     stages = db.relationship('TraceStage', backref='run', lazy='dynamic', cascade='all, delete-orphan')
     evidence_items = db.relationship('TraceEvidence', backref='run', lazy='dynamic', cascade='all, delete-orphan')
@@ -943,7 +982,19 @@ class TraceRun(db.Model):
                 'bias_risk': self.bias_risk
             },
             'input_message': self.input_message,
-            'final_answer': self.final_answer
+            'final_answer': self.final_answer,
+            'audit_bundle': {
+                'tier': self.tier,
+                'coordinate17_id': str(self.coordinate17_id) if self.coordinate17_id else None,
+                'evidence_pack_hash': self.evidence_pack_hash,
+                'layers_executed': self.layers_executed,
+                'refinement_cycles': self.refinement_cycles,
+                'regulatory_pass': self.regulatory_pass,
+                'security_pass': self.security_pass,
+                'truthgate_decision': self.truthgate_decision,
+                'token_cost': self.token_cost,
+                'latency_ms': self.latency_ms,
+            },
         }
 
 
@@ -2162,42 +2213,8 @@ class TimeContext(db.Model):
             'tenant_id': self.tenant_id
         }
 
-class KnowledgeNode(db.Model):
-    """Model for Knowledge Nodes containing actual knowledge content."""
-    __tablename__ = 'ukg_knowledge_nodes'
-    __table_args__ = (
-        db.Index('ix_ukg_knowledge_nodes_tenant_id', 'tenant_id'),
-        {'extend_existing': True}
-    )
-
-    id = db.Column(db.Integer, primary_key=True)
-    uid = db.Column(db.String(255), unique=True, nullable=False)
-    title = db.Column(db.String(255), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    content_type = db.Column(db.String(50), nullable=False)  # e.g., "text", "markdown", "code"
-    pillar_level_id = db.Column(db.Integer, db.ForeignKey('ukg_pillar_levels.id'), nullable=True)
-    domain_id = db.Column(db.Integer, db.ForeignKey('ukg_domains.id'), nullable=True)
-    location_id = db.Column(db.Integer, db.ForeignKey('ukg_locations.id'), nullable=True)
-    node_metadata = db.Column(db.JSON, nullable=True)
-    tenant_id = db.Column(db.String(64))
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'uid': self.uid,
-            'title': self.title,
-            'content': self.content,
-            'content_type': self.content_type,
-            'pillar_level_id': self.pillar_level_id,
-            'domain_id': self.domain_id,
-            'location_id': self.location_id,
-            'metadata': self.node_metadata,
-            'tenant_id': self.tenant_id,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
+# Alias — KnowledgeNode and KnowledgeGraphNode are the same merged model.
+KnowledgeNode = KnowledgeGraphNode
 
 class MethodNode(db.Model):
     """Model for Method Nodes (Axis 4: Methods)."""
