@@ -108,9 +108,9 @@ npm --prefix frontend run electron:dist
 
 Resulting files:
 
-1. `DataLogicEngine Setup Latest.exe` (repo root alias)
-2. `DataLogicEngine Setup <version>.exe` (repo root versioned copy)
-3. `frontend/dist/` artifacts
+1. `DataLogicEngine Setup Latest.exe` (repo root installer)
+2. `DataLogicEngine Setup Latest.exe.sha256` and `DataLogicEngine Setup Latest.exe.blockmap` (repo root integrity sidecars)
+3. `frontend/dist/` packaged app artifacts without duplicate setup EXEs
 
 Run manually:
 

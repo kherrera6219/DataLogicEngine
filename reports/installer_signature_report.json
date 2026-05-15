@@ -1,18 +1,7 @@
 ﻿{
-    "generated_at":  "2026-05-14T03:51:24.7381194Z",
+    "generated_at":  "2026-05-15T04:03:23.6259223Z",
     "repo_root":  "C:\\software\\DataLogicEngine",
     "artifacts":  [
-                      {
-                          "artifact":  "DataLogicEngine Setup 0.1.1.exe",
-                          "status":  "Valid",
-                          "signer":  "CN=Kevin Herrera",
-                          "thumbprint":  "F4F95839FB100B64B340747B991497B219E75AD3",
-                          "revocation_checked":  false,
-                          "revocation_valid":  null,
-                          "revocation_statuses":  {
-
-                                                  }
-                      },
                       {
                           "artifact":  "DataLogicEngine Setup Latest.exe",
                           "status":  "Valid",

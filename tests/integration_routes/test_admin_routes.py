@@ -311,7 +311,7 @@ class TestOwnershipTransfer:
     def test_cannot_transfer_to_inactive_user(self, owner_client, sample_users):
         """Test that ownership cannot be transferred to inactive user."""
         with app.app_context():
-            user = User.query.get(sample_users[0])
+            user = db.session.get(User, sample_users[0])
             user.active = False
             db.session.commit()
 

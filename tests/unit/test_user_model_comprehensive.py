@@ -35,12 +35,11 @@ class TestUserPasswordManagement:
         """Test set_password updates last_password_change"""
         with app.app_context():
             user = User(username="testuser", email="test@example.com")
-            # Ensure we have a timezone-aware comparison baseline
-            old_time = user.last_password_change.replace(tzinfo=None) if user.last_password_change else datetime.utcnow()
+            old_time = user.last_password_change or datetime.now(timezone.utc)
 
             user.set_password("SecureP@ssw0rd123")
 
-            new_time = user.last_password_change.replace(tzinfo=None)
+            new_time = user.last_password_change
             assert new_time >= old_time
 
     def test_set_password_weak_password_raises_error(self, app, client):
@@ -153,7 +152,7 @@ class TestPasswordExpiration:
         """Test password changed recently is not expired"""
         with app.app_context():
             user = User(username="testuser", email="test@example.com")
-            user.last_password_change = datetime.utcnow() - timedelta(days=30)
+            user.last_password_change = datetime.now(timezone.utc) - timedelta(days=30)
 
             assert user.is_password_expired() is False
 
@@ -161,7 +160,7 @@ class TestPasswordExpiration:
         """Test old password is expired"""
         with app.app_context():
             user = User(username="testuser", email="test@example.com")
-            user.last_password_change = datetime.utcnow() - timedelta(days=100)
+            user.last_password_change = datetime.now(timezone.utc) - timedelta(days=100)
 
             assert user.is_password_expired() is True
 
@@ -299,7 +298,7 @@ class TestUserSerialization:
                 role="user",
                 mfa_enabled=True
             )
-            user.last_successful_login = datetime.utcnow()
+            user.last_successful_login = datetime.now(timezone.utc)
 
             result = user.to_dict()
 

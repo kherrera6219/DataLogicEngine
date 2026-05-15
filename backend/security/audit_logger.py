@@ -256,6 +256,9 @@ class AuditLogger:
                 from flask import has_app_context
                 
                 if has_app_context():
+                    if not db.session.is_active:
+                        db.session.rollback()
+
                     db_audit = AuditLog(
                         user_id=user_id,
                         action=action or event_type,

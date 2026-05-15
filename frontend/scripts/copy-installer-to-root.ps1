@@ -14,20 +14,16 @@ if (-not (Test-Path $DistDir)) {
     throw "Installer output directory not found: $DistDir"
 }
 
-$Installer = Get-ChildItem -Path $DistDir -File -Filter "DataLogicEngine Setup *.exe" |
-    Where-Object { $_.Name -notmatch "__uninstaller" } |
-    Sort-Object LastWriteTime -Descending |
+$CanonicalInstallerName = "DataLogicEngine Setup Latest.exe"
+$Installer = Get-ChildItem -Path $DistDir -File -Filter $CanonicalInstallerName |
     Select-Object -First 1
 
 if (-not $Installer) {
-    throw "No installer executable found in $DistDir"
+    throw "No canonical installer executable found in $DistDir"
 }
 
-$RepoInstaller = Join-Path $RepoRoot $Installer.Name
+$RepoInstaller = Join-Path $RepoRoot $CanonicalInstallerName
 Copy-Item -Path $Installer.FullName -Destination $RepoInstaller -Force
-
-$LatestInstallerAlias = Join-Path $RepoRoot "DataLogicEngine Setup Latest.exe"
-Copy-Item -Path $Installer.FullName -Destination $LatestInstallerAlias -Force
 
 function Write-InstallerHash {
     Param(
@@ -53,32 +49,30 @@ function Write-InstallerHash {
 $BlockMap = "$($Installer.FullName).blockmap"
 if (Test-Path $BlockMap) {
     Copy-Item -Path $BlockMap -Destination "${RepoInstaller}.blockmap" -Force
-    Copy-Item -Path $BlockMap -Destination (Join-Path $RepoRoot "DataLogicEngine Setup Latest.exe.blockmap") -Force
 }
 
 $RepoInstallerHash = Write-InstallerHash -FilePath $RepoInstaller
-$LatestInstallerHash = Write-InstallerHash -FilePath $LatestInstallerAlias
 
-# Keep repo root focused on the latest installer and alias only.
+# Keep the repo root focused on the single canonical installer.
 Get-ChildItem -Path $RepoRoot -File -Filter "DataLogicEngine Setup *.exe" |
-    Where-Object { $_.FullName -ne $RepoInstaller -and $_.FullName -ne $LatestInstallerAlias } |
+    Where-Object { $_.FullName -ne $RepoInstaller } |
     Remove-Item -Force -ErrorAction SilentlyContinue
 
 Get-ChildItem -Path $RepoRoot -File -Filter "DataLogicEngine Setup *.exe.blockmap" |
-    Where-Object {
-        $_.FullName -ne "${RepoInstaller}.blockmap" -and
-        $_.FullName -ne (Join-Path $RepoRoot "DataLogicEngine Setup Latest.exe.blockmap")
-    } |
+    Where-Object { $_.FullName -ne "${RepoInstaller}.blockmap" } |
     Remove-Item -Force -ErrorAction SilentlyContinue
 
 Get-ChildItem -Path $RepoRoot -File -Filter "DataLogicEngine Setup *.exe.sha256" |
-    Where-Object {
-        $_.FullName -ne "${RepoInstaller}.sha256" -and
-        $_.FullName -ne (Join-Path $RepoRoot "DataLogicEngine Setup Latest.exe.sha256")
-    } |
+    Where-Object { $_.FullName -ne "${RepoInstaller}.sha256" } |
+    Remove-Item -Force -ErrorAction SilentlyContinue
+
+# The signed, user-facing installer lives at the repo root. Remove transient
+# setup copies from frontend/dist so the checkout never shows two app installers.
+Get-ChildItem -Path $DistDir -File -Filter "DataLogicEngine Setup *.exe" |
+    Remove-Item -Force -ErrorAction SilentlyContinue
+
+Get-ChildItem -Path $DistDir -File -Filter "DataLogicEngine Setup *.exe.blockmap" |
     Remove-Item -Force -ErrorAction SilentlyContinue
 
 Write-Host "Installer copied to repo root: $RepoInstaller" -ForegroundColor Green
-Write-Host "Installer alias updated: $LatestInstallerAlias" -ForegroundColor Green
 Write-Host "Installer checksum written: $RepoInstallerHash" -ForegroundColor Green
-Write-Host "Installer alias checksum written: $LatestInstallerHash" -ForegroundColor Green

@@ -81,7 +81,7 @@ def test_get_migration_history_returns_latest_first(flask_app):
             {
                 "version": version,
                 "description": "Manual migration",
-                "executed_at": datetime(2099, 1, 1),
+                "executed_at": "2099-01-01 00:00:00",
             },
         )
         db.session.commit()

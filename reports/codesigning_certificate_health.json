@@ -1,5 +1,5 @@
 ﻿{
-    "generated_at":  "2026-05-14T03:50:50.0276477Z",
+    "generated_at":  "2026-05-15T03:59:24.5205329Z",
     "certificate_path":  "C:\\software\\DataLogicEngine\\certs\\dev-codesign-kevin-herrera.pfx",
     "minimum_days_remaining":  45,
     "status":  {
@@ -7,7 +7,7 @@
                    "thumbprint":  "F4F95839FB100B64B340747B991497B219E75AD3",
                    "not_before":  "2026-05-14T03:20:12.0000000Z",
                    "not_after":  "2028-05-14T03:30:11.0000000Z",
-                   "days_remaining":  730,
+                   "days_remaining":  729,
                    "has_code_signing_eku":  true,
                    "revocation":  {
                                       "checked":  false,

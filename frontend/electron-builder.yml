@@ -31,7 +31,7 @@ nsis:
   createStartMenuShortcut: true
   shortcutName: "DataLogicEngine"
   uninstallDisplayName: "DataLogicEngine Desktop"
-  artifactName: "DataLogicEngine Setup ${version}.exe"
+  artifactName: "DataLogicEngine Setup Latest.exe"
   deleteAppDataOnUninstall: false
   runAfterFinish: true
   include: electron/installer.nsh

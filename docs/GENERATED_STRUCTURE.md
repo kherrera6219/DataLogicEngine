@@ -742,9 +742,7 @@ frontend/
 │   │   ├── vk_swiftshader.dll
 │   │   ├── vk_swiftshader_icd.json
 │   │   └── vulkan-1.dll
-│   ├── builder-debug.yml
-│   ├── DataLogicEngine Setup 0.1.0.exe
-│   └── DataLogicEngine Setup 0.1.0.exe.blockmap
+│   └── builder-debug.yml
 ├── electron/
 │   ├── installer.nsh
 │   ├── main.ts

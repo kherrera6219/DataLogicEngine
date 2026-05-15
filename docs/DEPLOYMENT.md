@@ -51,9 +51,9 @@ npm run electron:dist
 *   **Under the hood**: Runs `cross-env BUILD_MODE=electron npm run build` (generates `out/`) -> Compiles Main Process -> Packages with `electron-builder`.
 
 ### Output
-*   Build artifacts: `frontend/dist/`
-*   Manual-run installer copy (repo root): `DataLogicEngine Setup <version>.exe`
-*   Stable alias (repo root): `DataLogicEngine Setup Latest.exe`
+*   Build artifacts: `frontend/dist/` (packaged app output; setup EXEs are removed after the root copy is written)
+*   Manual-run installer copy (repo root): `DataLogicEngine Setup Latest.exe`
+*   Matching integrity sidecars: `DataLogicEngine Setup Latest.exe.sha256` and `DataLogicEngine Setup Latest.exe.blockmap`
 
 To run the installer manually from the repo root:
 ```powershell

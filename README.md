@@ -145,9 +145,8 @@ npm run dev
 npm --prefix frontend run electron:dist
 ```
 
-Installer artifacts are copied to the repository root as:
+Installer artifacts are copied to the repository root as a single canonical setup executable:
 
-- `DataLogicEngine Setup <version>.exe`
 - `DataLogicEngine Setup Latest.exe`
 - matching `.sha256` and `.blockmap` files
 
