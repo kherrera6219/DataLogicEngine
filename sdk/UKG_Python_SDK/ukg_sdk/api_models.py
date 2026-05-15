@@ -6,7 +6,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # ============== Enums ==============
@@ -95,8 +95,7 @@ class Scores(BaseModel):
     entropy: float = 0.0
     bias_risk: float = Field(0.0, alias="biasRisk")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class DataSnapshot(BaseModel):
@@ -104,8 +103,7 @@ class DataSnapshot(BaseModel):
     uskd_snapshot_id: Optional[str] = Field(None, alias="uskdSnapshotId")
     index_versions: Optional[dict[str, str]] = Field(None, alias="indexVersions")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class StageTiming(BaseModel):
@@ -113,8 +111,7 @@ class StageTiming(BaseModel):
     end_time: Optional[datetime] = Field(None, alias="endTime")
     duration_ms: Optional[int] = Field(None, alias="durationMs")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class AnswerSpan(BaseModel):
@@ -128,8 +125,7 @@ class ClaimSupport(BaseModel):
     evidence_ids: Optional[list[str]] = Field(None, alias="evidenceIds")
     stage_ids: Optional[list[str]] = Field(None, alias="stageIds")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class EvidenceSource(BaseModel):
@@ -144,8 +140,7 @@ class RetrievalInfo(BaseModel):
     relevance_score: Optional[float] = Field(None, alias="relevanceScore")
     axis_match: Optional[float] = Field(None, alias="axisMatch")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class UsedBy(BaseModel):
@@ -158,8 +153,7 @@ class PersonaInputs(BaseModel):
     evidence_ids: Optional[list[str]] = Field(None, alias="evidenceIds")
     context_scope: Optional[str] = Field(None, alias="contextScope")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class PersonaDraft(BaseModel):
@@ -170,8 +164,7 @@ class PersonaDraft(BaseModel):
 class KATiming(BaseModel):
     duration_ms: Optional[int] = Field(None, alias="durationMs")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class Redaction(BaseModel):
@@ -180,8 +173,7 @@ class Redaction(BaseModel):
     reason_code: str = Field(alias="reasonCode")
     policy_rule_id: Optional[str] = Field(None, alias="policyRuleId")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 # ============== Main Models ==============
@@ -202,8 +194,7 @@ class Run(BaseModel):
     input_message: Optional[str] = Field(None, alias="inputMessage")
     final_answer: Optional[str] = Field(None, alias="finalAnswer")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class Stage(BaseModel):
@@ -221,8 +212,7 @@ class Stage(BaseModel):
     decisions: Optional[list[dict[str, Any]]] = None
     metrics: Optional[dict[str, Any]] = None
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class Artifact(BaseModel):
@@ -237,8 +227,7 @@ class Artifact(BaseModel):
     hash: Optional[str] = None
     redactions: Optional[list[Redaction]] = None
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class Claim(BaseModel):
@@ -249,8 +238,7 @@ class Claim(BaseModel):
     answer_span: Optional[AnswerSpan] = Field(None, alias="answerSpan")
     support: Optional[ClaimSupport] = None
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class Evidence(BaseModel):
@@ -265,8 +253,7 @@ class Evidence(BaseModel):
     used_by: Optional[UsedBy] = Field(None, alias="usedBy")
     conflicts_with: Optional[list[str]] = Field(None, alias="conflictsWith")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class AxisValue(BaseModel):
@@ -278,8 +265,7 @@ class AxisValue(BaseModel):
     candidates: Optional[list[dict[str, Any]]] = None
     trigger_evidence_ids: Optional[list[str]] = Field(None, alias="triggerEvidenceIds")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class AxisVector(BaseModel):
@@ -289,8 +275,7 @@ class AxisVector(BaseModel):
     coordinate_hash: Optional[str] = Field(None, alias="coordinateHash")
     axes: list[AxisValue]
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class Persona(BaseModel):
@@ -305,8 +290,7 @@ class Persona(BaseModel):
     objections: Optional[list[dict[str, Any]]] = None
     consensus_impact: Optional[dict[str, Any]] = Field(None, alias="consensusImpact")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class KAInvocation(BaseModel):
@@ -324,8 +308,7 @@ class KAInvocation(BaseModel):
     routing: Optional[dict[str, Any]] = None
     side_effects: Optional[list[dict[str, Any]]] = Field(None, alias="sideEffects")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class PolicyDecision(BaseModel):
@@ -340,8 +323,7 @@ class PolicyDecision(BaseModel):
     actor: str = "system"
     timestamp: Optional[datetime] = None
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class MemoryEvent(BaseModel):
@@ -355,8 +337,7 @@ class MemoryEvent(BaseModel):
     gating: Optional[dict[str, Any]] = None
     timestamp: Optional[datetime] = None
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class TraceSpan(BaseModel):
@@ -372,8 +353,7 @@ class TraceSpan(BaseModel):
     attributes: Optional[dict[str, Any]] = None
     events: Optional[list[dict[str, Any]]] = None
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class StageLog(BaseModel):
@@ -386,8 +366,7 @@ class StageLog(BaseModel):
     data: Optional[dict[str, Any]] = None
     time: Optional[datetime] = None
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class Export(BaseModel):
@@ -403,8 +382,7 @@ class Export(BaseModel):
     created_at: Optional[datetime] = Field(None, alias="createdAt")
     expires_at: Optional[datetime] = Field(None, alias="expiresAt")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ChatSession(BaseModel):
@@ -417,8 +395,7 @@ class ChatSession(BaseModel):
     updated_at: Optional[datetime] = Field(None, alias="updatedAt")
     constraints: Optional[dict[str, Any]] = None
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ComplianceMapping(BaseModel):
@@ -431,8 +408,7 @@ class ComplianceMapping(BaseModel):
     evidence_ids: Optional[list[str]] = Field(None, alias="evidenceIds")
     created_at: Optional[datetime] = Field(None, alias="createdAt")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 # ============== Response Models ==============
@@ -475,15 +451,13 @@ class KAsResponse(BaseModel):
 class PolicyResponse(BaseModel):
     policy_decisions: list[PolicyDecision] = Field(alias="policyDecisions")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class MemoryResponse(BaseModel):
     memory_events: list[MemoryEvent] = Field(alias="memoryEvents")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class SpansResponse(BaseModel):
@@ -507,5 +481,6 @@ class ComplianceResponse(BaseModel):
     compliance_mappings: dict[str, list[ComplianceMapping]] = Field(alias="complianceMappings")
     total: int
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
+
+

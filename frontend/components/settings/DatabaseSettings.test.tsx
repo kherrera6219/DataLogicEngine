@@ -83,7 +83,9 @@ describe('DatabaseSettings', () => {
     await waitFor(() => screen.getByText('Start All'));
 
     fireEvent.click(screen.getByText('Start All'));
-    expect(request).toHaveBeenCalledWith('/storage/databases/start', { method: 'POST' });
+    await waitFor(() => {
+      expect(request).toHaveBeenCalledWith('/storage/databases/start', { method: 'POST' });
+    });
   });
 
   it('should persist auto-start toggle', async () => {
@@ -102,6 +104,8 @@ describe('DatabaseSettings', () => {
     await waitFor(() => screen.getByRole('switch'));
 
     fireEvent.click(screen.getByRole('switch'));
-    expect(request).toHaveBeenCalledWith('/storage/databases/autostart', expect.objectContaining({ method: 'POST' }));
+    await waitFor(() => {
+      expect(request).toHaveBeenCalledWith('/storage/databases/autostart', expect.objectContaining({ method: 'POST' }));
+    });
   });
 });

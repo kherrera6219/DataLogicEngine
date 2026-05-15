@@ -19,11 +19,18 @@ if (-not (Test-Path $certificateHealthScript)) {
     throw "Certificate health verification script not found: $certificateHealthScript"
 }
 
-& powershell -NoProfile -ExecutionPolicy Bypass -File $certificateHealthScript `
-    -CertificatePath $CertificatePath `
-    -CertificatePassword $CertificatePassword `
-    -MinDaysRemaining $MinimumCertificateDaysRemaining `
-    -CheckRevocation:$CheckCertificateRevocation
+$certificateHealthArgs = @(
+    "-NoProfile",
+    "-ExecutionPolicy", "Bypass",
+    "-File", $certificateHealthScript,
+    "-CertificatePath", $CertificatePath,
+    "-CertificatePassword", $CertificatePassword,
+    "-MinDaysRemaining", $MinimumCertificateDaysRemaining
+)
+if ($CheckCertificateRevocation) {
+    $certificateHealthArgs += "-CheckRevocation"
+}
+& powershell @certificateHealthArgs
 
 if ($LASTEXITCODE -ne 0) {
     throw "Certificate health verification failed."
@@ -36,9 +43,30 @@ if (-not $installers) {
     throw "No installer artifacts found in $RepoRoot"
 }
 
-$signtool = (Get-Command signtool.exe -ErrorAction SilentlyContinue | Select-Object -First 1).Source
+function Get-SignToolPath {
+    $pathCommand = Get-Command signtool.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($pathCommand) {
+        return $pathCommand.Source
+    }
+
+    $candidatePaths = @(
+        (Join-Path $RepoRoot "frontend\node_modules\@electron\windows-sign\vendor\signtool.exe"),
+        (Join-Path $RepoRoot "frontend\node_modules\electron-winstaller\vendor\signtool.exe"),
+        (Join-Path $env:LOCALAPPDATA "electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\windows-10\x64\signtool.exe")
+    )
+
+    foreach ($candidatePath in $candidatePaths) {
+        if (Test-Path -LiteralPath $candidatePath) {
+            return $candidatePath
+        }
+    }
+
+    return $null
+}
+
+$signtool = Get-SignToolPath
 if (-not $signtool) {
-    throw "signtool.exe not found on PATH."
+    throw "signtool.exe not found on PATH or known local build-tool paths."
 }
 
 function Write-InstallerHash {
@@ -70,10 +98,17 @@ foreach ($installer in $installers) {
 }
 
 $verifyScript = Join-Path $PSScriptRoot "verify_installer_signature.ps1"
-& powershell -NoProfile -ExecutionPolicy Bypass -File $verifyScript `
-    -RepoRoot $RepoRoot `
-    -RequireArtifacts `
-    -CheckRevocation:$CheckSignatureRevocation
+$verifyArgs = @(
+    "-NoProfile",
+    "-ExecutionPolicy", "Bypass",
+    "-File", $verifyScript,
+    "-RepoRoot", $RepoRoot,
+    "-RequireArtifacts"
+)
+if ($CheckSignatureRevocation) {
+    $verifyArgs += "-CheckRevocation"
+}
+& powershell @verifyArgs
 
 if ($LASTEXITCODE -ne 0) {
     throw "Post-signature verification failed."

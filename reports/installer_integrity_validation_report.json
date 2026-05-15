@@ -1,0 +1,27 @@
+{
+  "status": "pass",
+  "summary": {
+    "errors": 0,
+    "warnings": 0,
+    "total_issues": 0
+  },
+  "results": {
+    "installers": [
+      {
+        "artifact": "DataLogicEngine Setup 0.1.1.exe",
+        "sha256": "c7f7c0e4c7a5077f06bab380aede0c4c0f364013ad503ca0f4ca1918dfc90ec4",
+        "checksum_file": "DataLogicEngine Setup 0.1.1.exe.sha256",
+        "blockmap_present": true,
+        "valid": true
+      },
+      {
+        "artifact": "DataLogicEngine Setup Latest.exe",
+        "sha256": "a2dc250ca3a7806c89013edca7b96a4cb2a718d6a00b4a7aac8e138580f2c893",
+        "checksum_file": "DataLogicEngine Setup Latest.exe.sha256",
+        "blockmap_present": true,
+        "valid": true
+      }
+    ]
+  },
+  "issues": []
+}

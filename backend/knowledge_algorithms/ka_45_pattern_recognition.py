@@ -4,15 +4,14 @@ Purpose: Identify recurring patterns in data.
 """
 import logging
 from typing import Dict, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 logger = logging.getLogger(__name__)
 
 
 class KA045Input(BaseModel):
-    class Config:
-        extra = 'allow'
+    model_config = ConfigDict(extra="allow")
 class KA045PatternRecognition(KnowledgeAlgorithm):
     input_schema = KA045Input
     def __init__(self, context: Dict[str, Any]):
@@ -44,3 +43,5 @@ def run(context: Dict[str, Any]) -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"KA-045 Failed: {e}")
         return {"success": False, "error": str(e)}
+
+

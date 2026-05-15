@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.1.1",
   "description": "Local-first AI orchestration and knowledge-graph workspace for desktop and web",
-  "author": "UKG",
+  "author": "Kevin Herrera",
   "private": true,
   "main": "dist-electron/main.js",
   "engines": {

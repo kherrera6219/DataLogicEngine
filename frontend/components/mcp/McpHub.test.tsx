@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { McpHub } from './McpHub';
 import { useRouter } from 'next/navigation';
@@ -21,17 +21,19 @@ afterEach(() => {
 });
 
 describe('McpHub', () => {
-  it('should render correctly', () => {
+  it('should render correctly', async () => {
     (useRouter as any).mockReturnValue({ push: vi.fn() });
     render(<McpHub />);
     expect(screen.getByText('UKG Model Context Protocol (MCP) Hub')).toBeInTheDocument();
     expect(screen.getByText('Active Servers')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('2')).toBeInTheDocument());
   });
 
-  it('should navigate on click', () => {
+  it('should navigate on click', async () => {
     const push = vi.fn();
     (useRouter as any).mockReturnValue({ push });
     render(<McpHub />);
+    await waitFor(() => expect(screen.getByText('2')).toBeInTheDocument());
     
     // Find the "Manage Servers" button
     const manageBtn = screen.getByText('Manage Servers');

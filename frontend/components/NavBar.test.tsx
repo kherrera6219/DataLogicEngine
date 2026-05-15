@@ -31,7 +31,10 @@ vi.mock('@/components/ui/cloud-status-indicator', () => ({
 
 vi.mock('@/components/ui/dropdown-menu', () => ({
   DropdownMenu: ({ children }: any) => <div>{children}</div>,
-  DropdownMenuTrigger: ({ children }: any) => <button data-testid="user-menu-trigger">{children}</button>,
+  DropdownMenuTrigger: ({ children, asChild }: any) =>
+    asChild && React.isValidElement(children)
+      ? React.cloneElement(children, { 'data-testid': 'user-menu-trigger' } as React.HTMLAttributes<HTMLElement>)
+      : <button data-testid="user-menu-trigger">{children}</button>,
   DropdownMenuContent: ({ children }: any) => <div data-testid="dropdown-content">{children}</div>,
   DropdownMenuItem: ({ children, onClick }: any) => <div onClick={onClick} role="button">{children}</div>,
   DropdownMenuLabel: ({ children }: any) => <div>{children}</div>,
@@ -107,12 +110,8 @@ describe('NavBar', () => {
     const mobileNav = screen.getByLabelText('Mobile navigation');
     expect(within(mobileNav).getByText('testuser')).toBeInTheDocument();
     
-    // Close menu locally
-    const dashboardLink = screen.getAllByText('Dashboard')[1]; // Second one is inside mobile menu
-    fireEvent.click(dashboardLink);
-    
-    // We can't easily check 'closed' state here because state update is async/internal, 
-    // ensuring the handler was called is implicit by the component logic
+    fireEvent.click(screen.getByLabelText('Close main menu'));
+    expect(screen.queryByLabelText('Mobile navigation')).not.toBeInTheDocument();
   });
 
   it('handles logout interaction', async () => {

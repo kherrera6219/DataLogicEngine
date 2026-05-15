@@ -153,6 +153,8 @@ class RequestSigner:
             })
             return False, "Request timestamp too old or too far in future"
 
+        nonce_key = None
+
         # Check nonce for replay prevention
         if nonce:
             nonce_key = f"{api_key_id}:{nonce}"
@@ -162,9 +164,6 @@ class RequestSigner:
                     "nonce": nonce
                 })
                 return False, "Nonce already used (replay attack detected)"
-
-            # Store nonce
-            self._store_nonce(nonce_key)
 
         # Recreate canonical string
         canonical = self._create_canonical_string(method, path, body, timestamp_int)
@@ -180,6 +179,9 @@ class RequestSigner:
                 "path": path
             })
             return False, "Invalid signature"
+
+        if nonce_key:
+            self._store_nonce(nonce_key)
 
         # Log successful verification
         self._log_audit("request_signature_verified", {

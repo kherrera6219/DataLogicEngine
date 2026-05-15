@@ -24,7 +24,12 @@ function Get-CertificateStatus {
 
     $ekuOids = @()
     foreach ($eku in $Certificate.EnhancedKeyUsageList) {
-        $ekuOids += [string]$eku.Value
+        if ($eku.PSObject.Properties.Name -contains "ObjectId") {
+            $ekuOids += [string]$eku.ObjectId
+        }
+        elseif ($eku.PSObject.Properties.Name -contains "Value") {
+            $ekuOids += [string]$eku.Value
+        }
     }
     $hasCodeSigningEku = $ekuOids -contains $codeSigningOid
 

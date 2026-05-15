@@ -1,5 +1,6 @@
 
 from unittest.mock import Mock, patch
+from uuid import uuid4
 
 # Import Targets
 from backend.security.api_security import RequestSigner
@@ -64,7 +65,7 @@ class TestRequestSigner:
         
         # First verification (stores nonce if provided, but sign_request doesn't add nonce by default in output dict?)
         # Let's verify nonce logic if we manually add a nonce.
-        nonce = "unique-nonce-123"
+        nonce = f"unique-nonce-{uuid4()}"
         
         # Verify first time
         valid, _ = self.signer.verify_request(

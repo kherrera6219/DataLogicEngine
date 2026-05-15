@@ -9,6 +9,7 @@
 
 !macro customInstall
   DetailPrint "DataLogicEngine custom install hook"
+  WriteRegStr SHELL_CONTEXT "${UNINSTALL_REGISTRY_KEY}" "InstallLocation" "$INSTDIR"
 !macroend
 
 !macro customUnInstall

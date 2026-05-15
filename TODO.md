@@ -7,24 +7,17 @@ This is the only active TODO list for the repository. Keep open work here instea
 
 ## Current Priority
 
-### Microsoft Store Submission Readiness
+### Application Readiness
 
-#### Partner Center
+#### Product Copy and Disclosures
 
-- [ ] Register the published privacy policy URL in Partner Center.
-- [ ] Complete the Partner Center data practices disclosure.
-- [ ] Confirm pricing/subscription disclosure, or explicitly mark the app as free/no in-app purchases.
-- [ ] List all third-party AI services used by the app.
+- [ ] Replace overbroad product claims in app-facing copy with conservative, verifiable wording.
+- [ ] Align AI provider names across `README.md`, `docs/PRIVACY_POLICY.md`, `frontend/app/about/ai-limitations/page.tsx`, and `frontend/app/about/cloud-services/page.tsx`.
+- [ ] Explicitly disclose cloud AI processing and internet requirement anywhere AI settings or chat entry points are shown.
+- [ ] Finalize the in-app feature list used by `frontend/public/manifest.json`, `README.md`, and About pages.
+- [ ] Finalize privacy practices wording in the app and docs so export/delete/history/AI-processing controls match actual behavior.
 
-#### Store Listing Copy
-
-- [ ] Finalize conservative app description.
-- [ ] Finalize conservative AI capability wording with no overpromising.
-- [ ] Explicitly disclose cloud AI processing and internet requirement.
-- [ ] Finalize feature list.
-- [ ] Finalize privacy practices wording.
-
-Draft listing baseline:
+Baseline app description:
 
 ```text
 DataLogicEngine is a local-first, cloud-augmented knowledge graph workspace for governed AI reasoning. It helps users organize enterprise knowledge, run traceable AI-assisted analysis, inspect provider/model usage, and manage privacy controls.
@@ -32,12 +25,21 @@ DataLogicEngine is a local-first, cloud-augmented knowledge graph workspace for 
 Internet access is required for AI reasoning features. Prompts and related context may be sent to configured third-party AI providers such as OpenAI, Anthropic, Google, or Microsoft Azure OpenAI. AI-generated responses may contain errors and should be verified before use in critical decisions.
 ```
 
-#### Store Assets
+#### App Assets and Manifest
 
-- [ ] Capture 5-10 screenshots from the actual app UI.
+- [ ] Capture 5-10 screenshots from the actual app UI for docs, manifest, and release verification.
 - [ ] Add screenshots to `frontend/public/manifest.json` if publishing as a web/PWA surface.
-- [ ] Create Microsoft Store icon assets in all required sizes beyond `frontend/public/icon.png`.
-- [ ] Prepare promotional banner images.
+- [ ] Create missing PWA icon assets referenced by `frontend/public/manifest.json`.
+- [ ] Prepare in-app and documentation banner images where useful.
+
+#### Windows Installer
+
+- [x] Rebuild the Electron/NSIS installer after current app updates.
+- [x] Verify installer configuration for assisted install location selection, progress, completion behavior, and desktop/start menu shortcuts.
+- [x] Verify Windows Apps registry metadata lists `DataLogicEngine Desktop` with publisher `Kevin Herrera`, install location, and uninstall command.
+- [x] Verify normal Windows uninstall removes application binaries and keeps app data by default.
+- [x] Create a local dev certificate helper for development validation.
+- [ ] Create and document a trusted production code-signing certificate path.
 
 Known asset gap:
 
@@ -45,16 +47,113 @@ Known asset gap:
 
 #### Manual Validation
 
-- [ ] Manual WCAG 2.1 AA audit passed.
-- [ ] Keyboard navigation manually tested across all primary pages.
-- [ ] Screen reader compatibility confirmed with NVDA, JAWS, or VoiceOver.
-- [ ] Cloud outage handling tested for graceful degradation.
-- [ ] Auth failure handling tested end to end.
-- [ ] Rate-limit user experience tested.
-- [ ] AI provider failure modes tested.
-- [ ] Data export and delete flows tested end to end.
+- [ ] Add repeatable WCAG 2.1 AA accessibility evidence for primary app routes.
+- [ ] Add or document keyboard navigation coverage across primary pages.
+- [ ] Add or document screen reader compatibility checks with NVDA on Windows.
+- [ ] Add cloud outage graceful-degradation test coverage.
+- [ ] Add auth failure end-to-end test coverage.
+- [ ] Add rate-limit user experience test coverage.
+- [ ] Add AI provider failure-mode test coverage.
+- [ ] Add data export and delete end-to-end test coverage.
 
-## Completed Store-Readiness Work
+## Validated Gap Review
+
+Review date: 2026-05-14
+
+| TODO area | Code validation | Current status |
+| --- | --- | --- |
+| App-facing product copy | Baseline copy exists in this file, but app-facing copy still contains stronger claims such as "Enterprise-grade" in `frontend/public/manifest.json` and "world-class accuracy" in `frontend/app/about/cloud-services/page.tsx`. | Open, needs conservative copy pass. |
+| Third-party AI services list | Provider disclosures exist in `README.md`, `docs/PRIVACY_POLICY.md`, `frontend/app/about/ai-limitations/page.tsx`, and `frontend/app/about/cloud-services/page.tsx`. | Partially ready; reconcile final in-app/docs list. |
+| Screenshots | `frontend/public/manifest.json` has `"screenshots": []`; Playwright visual snapshots exist but are test baselines, not release/docs assets. | Open. |
+| PWA icons | `frontend/public/manifest.json` references `/icons/icon-192.png` and `/icons/icon-512.png`; `frontend/public/icons/` is absent. Only `frontend/public/icon.png` exists. | Open. |
+| App/banner images | No dedicated app/documentation banner assets found under `frontend/public/`. | Open. |
+| Windows installer publisher | Rebuilt installer metadata now reports company/publisher as `Kevin Herrera`, product as `DataLogicEngine Desktop`; Windows Apps registry metadata includes display name, publisher, install location, and uninstall command; local dev signature status is `Valid` for `CN=Kevin Herrera`. | Partially ready; still needs a production trusted certificate. |
+| Automated accessibility support | `frontend/package.json` includes `test:a11y:ci`; `frontend/scripts/run-a11y-ci.mjs` scans static disclosure/auth routes. | Partially ready; manual WCAG audit still required. |
+| Keyboard/navigation route coverage | `frontend/tests/e2e/route-sidebar-smoke.spec.ts` covers route load and sidebar toggles. | Partially ready; manual keyboard pass still required. |
+| AI transparency labels | `frontend/components/Chat/MessageBubble.tsx` labels AI-generated output and shows provider/model metadata. | Implemented; add regression coverage where missing. |
+| User data controls | `routes/user_data_routes.py` includes export/delete endpoints, and `frontend/app/settings/privacy/page.tsx` exists. | Implemented; end-to-end manual validation still required. |
+| AI processing controls | `frontend/components/settings/AiModelSettings.tsx` includes AI processing and chat history preferences. | Implemented; end-to-end manual validation still required. |
+
+## Phased Completion Plan
+
+### Phase 1: App Copy and Disclosures
+
+Goal: Make every in-app and repo-facing statement conservative, specific, and consistent with actual behavior.
+
+- Finalize app description from the baseline description.
+- Replace overbroad wording in app surfaces and manifest metadata with conservative wording.
+- Reconcile third-party AI provider names across `README.md`, `docs/PRIVACY_POLICY.md`, `frontend/app/about/ai-limitations/page.tsx`, and `frontend/app/about/cloud-services/page.tsx`.
+- Ensure chat, AI settings, privacy settings, and cloud disclosure pages clearly state when internet/cloud AI processing is used.
+- Ensure privacy wording matches implemented export, delete, chat-history, and AI-processing controls.
+
+Exit criteria:
+
+- Manifest description, README description, About pages, AI limitations page, cloud services page, and privacy policy use consistent provider and data-handling wording.
+- No app-facing copy promises guaranteed accuracy, certification, zero retention, or enterprise agreements unless backed by repo evidence.
+
+### Phase 2: App Assets and PWA Manifest
+
+Goal: Make referenced app assets real and keep generated visual assets usable by the app/docs.
+
+- Capture 5-10 screenshots from real app routes: dashboard, chat with AI label, settings/privacy, cloud services disclosure, graph/knowledge view, and provider/model settings.
+- Create `frontend/public/icons/icon-192.png` and `frontend/public/icons/icon-512.png`.
+- Generate reusable app/documentation banner images from the approved brand asset if needed.
+- Update `frontend/public/manifest.json` with real screenshot entries if publishing the web/PWA surface.
+- Verify assets render in the packaged Electron build and web build.
+
+Exit criteria:
+
+- Manifest icon references resolve on disk.
+- Screenshots and banners are committed in a documented asset path.
+- `npm run build` and `npm run test:e2e:visual` pass or have documented environment blockers.
+
+### Phase 3: Automated Regression Evidence
+
+Goal: Convert existing smoke coverage into repeatable application-readiness evidence.
+
+- Expand `test:a11y:ci` routes to include `/dashboard`, `/chat`, `/settings`, `/settings/privacy`, `/about/cloud-services`, and `/about/ai-limitations` once authenticated/local fixture routing is stable.
+- Add or update Playwright coverage for auth failure, cloud/provider failure, rate-limit UX, export flow, and delete flow.
+- Save test command output and screenshots under `reports/app-readiness/`.
+- Confirm no not-found, hydration, or accessibility regressions on primary pages.
+
+Exit criteria:
+
+- Frontend lint, typecheck, unit tests, route smoke, visual smoke, and a11y scans pass.
+- Backend route tests cover user export/delete and AI preference APIs.
+- App-readiness report links to exact commands and generated artifacts.
+
+### Phase 4: Manual Accessibility and Failure-Mode Audit
+
+Goal: Complete the manual checks that automation cannot prove.
+
+- Perform WCAG 2.1 AA manual audit on the packaged/local app build.
+- Keyboard-test all primary pages and modal/dialog workflows.
+- Confirm screen reader compatibility with NVDA on Windows at minimum.
+- Test cloud outage, AI provider failure, auth failure, rate-limit behavior, data export, and data deletion end to end.
+- Record findings, fixes, screenshots, and pass/fail evidence in `reports/app-readiness/`.
+
+Exit criteria:
+
+- Every item under Manual Validation is checked off with evidence.
+- Any blocking issue has either a fix committed or a documented application risk decision.
+
+### Phase 5: Release Readiness Cleanup
+
+Goal: Leave the application in a release-ready state with no stale TODOs.
+
+- Rebuild and validate the normal Windows installer/uninstaller path.
+- Sign installer artifacts with a real trusted certificate before release; use the dev certificate generator only for local validation.
+- Run final packaged installer smoke test.
+- Verify `frontend/public/manifest.json`, docs, and app pages agree with implemented behavior.
+- Archive app-readiness evidence in `reports/app-readiness/`.
+- Update `TODO.md` checkboxes based on completed code and verification work.
+
+Exit criteria:
+
+- Application readiness evidence is complete.
+- `TODO.md` contains only unresolved repo-actionable work.
+
+## Completed Application-Readiness Work
 
 | Area | Evidence |
 | --- | --- |

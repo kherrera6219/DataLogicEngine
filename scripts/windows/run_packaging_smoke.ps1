@@ -6,7 +6,8 @@ Param(
     [switch]$SkipUninstall,
     [int]$LaunchTimeoutSeconds = 25,
     [int]$InstallTimeoutSeconds = 240,
-    [int]$UninstallTimeoutSeconds = 180
+    [int]$UninstallTimeoutSeconds = 180,
+    [int]$UninstallCleanupTimeoutSeconds = 120
 )
 
 Set-StrictMode -Version Latest
@@ -45,6 +46,22 @@ function Invoke-ProcessWithTimeout(
         throw "$OperationName timed out after $TimeoutSeconds seconds"
     }
     return [int]$process.ExitCode
+}
+
+function Wait-PathRemoved(
+    [string]$Path,
+    [int]$TimeoutSeconds,
+    [string]$Description
+) {
+    $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
+    while ([DateTime]::UtcNow -lt $deadline) {
+        if (-not (Test-Path -LiteralPath $Path)) {
+            return
+        }
+        Start-Sleep -Seconds 1
+    }
+
+    throw "$Description still present after waiting $TimeoutSeconds seconds: $Path"
 }
 
 function Invoke-PortableLaunchSmoke(
@@ -166,10 +183,10 @@ if ($Mode -eq "installer") {
                 throw "Silent uninstaller exited with code $uninstallExitCode"
             }
 
-            Start-Sleep -Seconds 2
-            if (Test-Path -LiteralPath $installedExecutable.FullName) {
-                throw "Installed executable still present after uninstall: $($installedExecutable.FullName)"
-            }
+            Wait-PathRemoved `
+                -Path $installedExecutable.FullName `
+                -TimeoutSeconds $UninstallCleanupTimeoutSeconds `
+                -Description "Installed executable"
 
             $report.installer_mode.uninstall_success = $true
         }

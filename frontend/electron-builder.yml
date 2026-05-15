@@ -1,5 +1,6 @@
 appId: com.ukg.datalogicengine
 productName: DataLogicEngine Desktop
+copyright: Copyright © 2026 Kevin Herrera
 directories:
   output: dist
   buildResources: build
@@ -29,6 +30,7 @@ nsis:
   createDesktopShortcut: always
   createStartMenuShortcut: true
   shortcutName: "DataLogicEngine"
+  uninstallDisplayName: "DataLogicEngine Desktop"
   artifactName: "DataLogicEngine Setup ${version}.exe"
   deleteAppDataOnUninstall: false
   runAfterFinish: true

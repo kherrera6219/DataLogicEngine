@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { McpServerConfig } from './McpServerConfig';
 
@@ -29,9 +29,11 @@ afterEach(() => {
 });
 
 describe('McpServerConfig', () => {
-  it('should render server list', () => {
+  it('should render server list', async () => {
     render(<McpServerConfig />);
     expect(screen.getByText('MCP Server Configuration')).toBeInTheDocument();
-    // Assuming static data or empty state
+    await waitFor(() => {
+      expect(screen.getByText('UKG Production (ukg-prod)')).toBeInTheDocument();
+    });
   });
 });
