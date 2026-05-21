@@ -27,7 +27,7 @@ class GatewayChatRequest(BaseModel):
 
     messages: List[Message] = Field(..., min_length=1)
     provider: Optional[str] = None
-    model: str = Field(..., min_length=1)
+    model: Optional[str] = Field(None, min_length=1)
     mode: Literal["chat", "trace", "explain", "quad"] = "chat"
     constraints: Dict[str, Any] = Field(default_factory=dict)
     run_ukg_pipeline: bool = True

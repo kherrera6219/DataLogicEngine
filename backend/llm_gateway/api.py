@@ -29,6 +29,7 @@ from models import (
 )
 from backend.llm_gateway.gateway import LLMGateway, GatewayRequest
 from backend.llm_gateway.schemas import GatewayChatRequest
+from backend.auth.api_decorators import api_session_login_required
 from backend.utils.request_validation import validate_pydantic_payload
 from backend.utils.error_normalization import normalize_public_error_message
 try:
@@ -234,8 +235,6 @@ async def gateway_chat():
     raw_data = request.get_json(silent=True) or {}
     if not raw_data.get('messages'):
         return jsonify({'error': 'messages required'}), 400
-    if not raw_data.get('model'):
-        return jsonify({'error': 'model required'}), 400
 
     validated_payload, validation_error_response = validate_pydantic_payload(
         GatewayChatRequest,
@@ -316,8 +315,6 @@ def gateway_chat_stream():
     raw_data = request.get_json(silent=True) or {}
     if not raw_data.get('messages'):
         return jsonify({'error': 'messages required'}), 400
-    if not raw_data.get('model'):
-        return jsonify({'error': 'model required'}), 400
 
     validated_payload, validation_error_response = validate_pydantic_payload(
         GatewayChatRequest,
@@ -423,13 +420,14 @@ def list_active_providers():
 
 
 @gateway_bp.route('/keys', methods=['POST'])
-@login_required
+@api_session_login_required
 def save_provider_key():
     """Create or update an LLM provider API key (basic UI helper)."""
     data = request.get_json() or {}
     provider_type = data.get('provider')
     api_key = data.get('key')
     model_id = data.get('model')
+    auth_user = getattr(g, 'auth_user', None) or current_user
     
     if not provider_type or not api_key:
         return jsonify({'error': 'provider and key required'}), 400
@@ -443,13 +441,21 @@ def save_provider_key():
             name=str(provider_type).title(),
             provider_type=provider_type,
             is_active=True,
-            created_by=current_user.id,
+            created_by=auth_user.id,
         )
         db.session.add(provider)
 
     if model_id:
         provider.model_id = str(model_id)
-    
+
+    provider.is_active = True
+    provider.is_default = True
+    provider.priority = 1
+    LLMProvider.query.filter(
+        LLMProvider.id != provider.id,
+        LLMProvider.is_default.is_(True),
+    ).update({'is_default': False}, synchronize_session=False)
+
     provider.set_api_key(api_key)
     db.session.commit()
     
@@ -656,7 +662,7 @@ def delete_provider(provider_id):
 
 
 @gateway_bp.route('/providers/<provider_id>/test', methods=['POST'])
-@login_required
+@api_session_login_required
 def test_provider(provider_id):
     """Test provider connection using the Gateway SDK adapter."""
     parsed = _parse_uuid_or_404(provider_id, 'provider_id')

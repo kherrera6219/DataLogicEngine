@@ -1,5 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+
 block_cipher = None
 
 a = Analysis(
@@ -16,7 +18,7 @@ a = Analysis(
         ('extensions.py', '.'),
         ('models.py', '.'),
         ('core/data', 'core/data'),
-    ],
+    ] + collect_data_files('rfc3987_syntax'),
     hiddenimports=[
         'flask',
         'flask_sqlalchemy',
@@ -60,7 +62,7 @@ a = Analysis(
         'langchain_openai',
         'langchain_community',
         'dotenv',
-    ],
+    ] + collect_submodules('chromadb'),
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

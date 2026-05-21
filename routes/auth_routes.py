@@ -14,7 +14,7 @@ from flask import Blueprint, request, jsonify, session, current_app
 from flask_login import current_user, login_user, logout_user
 
 from extensions import db
-from backend.auth.api_decorators import api_session_login_required
+from backend.auth.api_decorators import api_session_login_required, check_desktop_request_auth
 from models import User
 from backend.schemas.auth_schemas import LoginRequest, RegisterRequest, TokenRequest
 from backend.utils.request_validation import validate_pydantic_payload
@@ -70,6 +70,15 @@ def check_auth():
             "user": current_user.to_dict(),
             "mfa_verified": mfa_verified
         })
+
+    desktop_auth, desktop_user = check_desktop_request_auth()
+    if desktop_auth and desktop_user:
+        return success_response(data={
+            "user": desktop_user.to_dict(),
+            "mfa_verified": True,
+            "auth_mode": "desktop",
+        })
+
     return jsonify({"authenticated": False}), 200
 
 @auth_bp.route('/login', methods=['POST'])
@@ -289,6 +298,9 @@ def register():
 @api_session_login_required
 def logout():
     """Handle user logout."""
+    if os.environ.get("IS_DESKTOP_APP", "false").lower() == "true":
+        return success_response(message="Desktop session is managed by Windows")
+
     logout_user()
     return success_response(message="Logged out")
 

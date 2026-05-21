@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext'; // Added useAuth import
-import { Menu, X, Hexagon, User as UserIcon, LogOut, Settings } from 'lucide-react';
+import { Menu, X, Hexagon, User as UserIcon, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CloudStatusIndicator } from '@/components/ui/cloud-status-indicator';
@@ -21,7 +21,7 @@ import { // Added DropdownMenu imports
 export function NavBar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   // Hide NavBar on login/register pages
   if (pathname === '/login' || pathname === '/register') return null;
@@ -108,18 +108,10 @@ export function NavBar() {
                                 <Link href="/admin"><Hexagon className="mr-2 h-4 w-4"/> Admin</Link>
                             </DropdownMenuItem>
                         )}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => logout()} className="text-destructive focus:text-destructive">
-                            <LogOut className="mr-2 h-4 w-4" />
-                            Log out
-                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
              ) : (
-                <div className="space-x-2">
-                    <Button variant="ghost" asChild><Link href="/login">Login</Link></Button>
-                    <Button asChild><Link href="/register">Sign up</Link></Button>
-                </div>
+                null
              )}
           </div>
           
@@ -172,15 +164,9 @@ export function NavBar() {
                                 <span className="text-xs text-muted-foreground">{user.email}</span>
                             </div>
                         </div>
-                        <Button variant="outline" className="w-full justify-start" onClick={() => { logout(); setIsMenuOpen(false); }}>
-                            <LogOut className="mr-2 h-4 w-4" /> Log out
-                        </Button>
                     </div>
                 ) : (
-                    <div className="grid gap-2">
-                        <Button variant="outline" className="w-full" asChild><Link href="/login">Log in</Link></Button>
-                        <Button className="w-full" asChild><Link href="/register">Sign up</Link></Button>
-                    </div>
+                    null
                 )}
             </div>
           </nav>

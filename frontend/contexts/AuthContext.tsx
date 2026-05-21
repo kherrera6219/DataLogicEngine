@@ -111,6 +111,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
+    if (shouldUseDesktopSessionFlow()) {
+      router.push("/dashboard");
+      router.refresh();
+      return;
+    }
+
     await api.auth.logout();
     setUser(null);
     router.push("/login");
@@ -128,11 +134,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isPublic = publicRoutes.some((p) => pathname?.startsWith(p));
     const desktopRuntime = shouldUseDesktopSessionFlow();
 
-    if (!user && !isPublic) {
+    if (!user && !isPublic && !desktopRuntime) {
       router.push("/login");
     }
 
-    // Web "Zero-Login" Experience: authenticated web sessions skip landing/login.
+    if (desktopRuntime && pathname === "/login") {
+      router.push("/dashboard");
+      return;
+    }
+
+    // Web sessions skip landing/login once authenticated.
     // Desktop keeps the landing page as the installed app's entry point.
     if (!desktopRuntime && user && (pathname === "/" || pathname === "/login")) {
       router.push("/dashboard");

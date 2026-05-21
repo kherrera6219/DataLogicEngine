@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { getLocalStorageItem, setLocalStorageItem } from '@/lib/state/storage';
+import { shouldUseDesktopSessionFlow } from '@/lib/runtime/policy';
 
 interface SidebarItemProps {
   icon: React.ElementType;
@@ -50,6 +51,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const desktopRuntime = shouldUseDesktopSessionFlow();
 
   React.useEffect(() => {
     const stored = getLocalStorageItem('ukg.sidebar.collapsed');
@@ -163,7 +165,7 @@ export function AppSidebar() {
               </div>
            )}
            
-           {!isCollapsed && (
+           {!isCollapsed && !desktopRuntime && (
              <Button
                variant="ghost"
                size="icon"
