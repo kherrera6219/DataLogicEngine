@@ -32,11 +32,11 @@ export function CloudDisclosureBanner() {
           </div>
           <div>
             <p className="text-sm font-bold flex items-center gap-2">
-              Cloud-Hybrid Architecture Active
+              Cloud AI Features Available
               <ShieldCheck className="h-3 w-3" />
             </p>
             <p className="text-xs text-white/95 font-medium leading-tight">
-              DataLogicEngine stores data locally but processes intelligence via cloud providers (OpenAI, Anthropic, Google).
+              Local data stays on this device, but AI requests may send prompts and selected context to configured providers such as OpenAI, Anthropic, Google Gemini/Vertex AI, or Azure OpenAI.
             </p>
           </div>
         </div>

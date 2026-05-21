@@ -1,6 +1,7 @@
+{
   "name": "DataLogicEngine UKG",
   "short_name": "UKG",
-  "description": "Enterprise-grade Universal Knowledge Graph system with AI-powered reasoning, compliance auditing, and adversarial defense.",
+  "description": "Local-first, cloud-augmented knowledge graph workspace for traceable AI-assisted analysis, provider usage inspection, and privacy controls.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

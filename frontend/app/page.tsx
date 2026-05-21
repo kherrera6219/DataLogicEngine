@@ -61,7 +61,7 @@ export default function Home() {
     },
     {
        title: "Data Sovereignty",
-       desc: "Protected by KA-61 Adversarial Shields & Zero Retention policies.",
+       desc: "Review local storage, cloud AI processing, and provider data-handling controls.",
        icon: ShieldCheck,
        href: "/about/cloud-services",
        color: "text-blue-400",

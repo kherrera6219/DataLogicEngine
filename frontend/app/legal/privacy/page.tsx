@@ -36,7 +36,7 @@ export default function PrivacyPolicyPage() {
                 Introduction
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                DataLogic Systems (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates the DataLogicEngine application (&quot;App&quot;). We are committed to protecting your privacy and ensuring you have full control over your data. This Privacy Policy explains how our App collects, uses, and discloses information, and your rights regarding that information.
+                DataLogicEngine is a local-first, cloud-augmented knowledge graph workspace for governed AI reasoning. This Privacy Policy explains how the App collects, uses, and discloses information across the current Windows desktop build and future or managed cloud deployment modes.
               </p>
             </section>
 
@@ -47,7 +47,7 @@ export default function PrivacyPolicyPage() {
               </h2>
               <ul className="grid gap-3 list-none pl-0">
                 <li className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
-                  <strong className="text-gray-900 dark:text-white">Account Information:</strong> Username, email address, and authentication credentials.
+                  <strong className="text-gray-900 dark:text-white">Local Identity Information:</strong> Windows account identity metadata used to create the local desktop user profile. Web or cloud deployments may also collect username, email address, and authentication credentials.
                 </li>
                 <li className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
                   <strong className="text-gray-900 dark:text-white">Usage Data:</strong> Logs of application usage, including timestamps and feature interactions, for security auditing and performance monitoring.
@@ -69,7 +69,7 @@ export default function PrivacyPolicyPage() {
               <p className="text-gray-600 dark:text-gray-300 mb-4">We use your information exclusively for the following purposes:</p>
               <ul className="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-300">
                 <li>To provide the core functionality of the App (knowledge synthesis and reasoning).</li>
-                <li>To authenticate your identity and secure your account.</li>
+                <li>To authenticate your local Windows identity or, in web/cloud deployments, your application account.</li>
                 <li>To prevent fraud, abuse, and security threats (e.g., adversarial prompt detection).</li>
                 <li>To comply with legal obligations and enforce our Terms of Service.</li>
               </ul>
@@ -83,11 +83,11 @@ export default function PrivacyPolicyPage() {
               <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 text-sm">
                 <p className="font-semibold text-blue-900 dark:text-blue-200 mb-2">Cloud Dependency Disclosure</p>
                 <p className="text-blue-800 dark:text-blue-300 leading-relaxed">
-                  This App is a cloud-dependent service. We share specific User Content with trusted third-party AI providers solely for the purpose of generating responses.
-                  These providers include <strong>OpenAI, Microsoft Azure, Anthropic, and Google Vertex AI</strong>.
+                  AI reasoning features require internet access. Prompts, selected context, and provider/model metadata may be sent to the configured third-party AI provider for response generation.
+                  Supported provider families include <strong>OpenAI, Anthropic, Google Gemini / Vertex AI, and Microsoft Azure OpenAI</strong>.
                 </p>
-                <p className="mt-2 text-blue-800 dark:text-blue-300 font-bold">
-                  We have entered into enterprise agreements ensuring your data is NOT used to train their public models.
+                <p className="mt-2 text-blue-800 dark:text-blue-300">
+                  Provider retention, training, regional handling, and logging are governed by the provider account, contract, and API settings you configure.
                 </p>
               </div>
             </section>
@@ -121,7 +121,7 @@ export default function PrivacyPolicyPage() {
                  </div>
                  <div className="p-4 rounded-xl border border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10">
                     <h3 className="font-bold text-red-600 dark:text-red-400 mb-1">Deletion</h3>
-                    <p className="text-xs text-red-600/70 dark:text-red-400/70">Request permanent account deletion. 30-day grace period.</p>
+                    <p className="text-xs text-red-600/70 dark:text-red-400/70">Request deletion of the local profile and application data controlled by this installation.</p>
                  </div>
                  <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
                     <h3 className="font-bold mb-1">AI Controls</h3>

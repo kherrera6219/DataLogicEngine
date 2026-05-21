@@ -30,7 +30,7 @@ export default function AILimitationsPage() {
           <h2 className="text-2xl font-bold">The Nature of Our AI</h2>
         </div>
         <p className="text-lg leading-relaxed">
-          DataLogicEngine acts as a <strong>17-Dimensional Gateway</strong> to multiple Large Language Models (LLMs). While these models are highly capable, they operate based on probabilistic patterns rather than absolute internal truth.
+          DataLogicEngine can route configured requests through multiple Large Language Model (LLM) providers. These systems operate from probabilistic patterns and retrieved context rather than guaranteed internal truth.
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -57,7 +57,7 @@ export default function AILimitationsPage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Training data may contain human biases. The AI may inadvertently reflect these biases in its reasoning, although we apply KA-61 adversarial filters to mitigate this.
+                Training data may contain human biases. The AI may reflect these biases in its reasoning. DataLogicEngine includes prompt and output controls, but those controls do not eliminate this risk.
               </p>
             </CardContent>
           </Card>
@@ -67,14 +67,14 @@ export default function AILimitationsPage() {
       <section className="space-y-6">
         <h2 className="text-2xl font-bold">Our AI Providers</h2>
         <p className="text-muted-foreground">
-          Depending on your settings and the task complexity, we route queries to various industry-standard providers:
+          Depending on your settings and available credentials, requests may be routed to configured third-party providers:
         </p>
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
-            { name: "OpenAI", models: "GPT-4o, o1" },
-            { name: "Anthropic", models: "Claude 3.5 Sonnet" },
-            { name: "Google Cloud", models: "Gemini 1.5 Pro" },
-            { name: "Microsoft Azure", models: "Enterprise GPT instances" }
+            { name: "OpenAI", models: "Configured OpenAI models" },
+            { name: "Anthropic", models: "Configured Claude models" },
+            { name: "Google Gemini / Vertex AI", models: "Configured Gemini models" },
+            { name: "Microsoft Azure OpenAI", models: "Configured Azure OpenAI deployments" }
           ].map(p => (
             <li key={p.name} className="flex items-center gap-3 p-4 rounded-xl bg-muted/50 border border-border">
               <CheckCircle className="text-green-500 h-5 w-5" />
@@ -90,7 +90,7 @@ export default function AILimitationsPage() {
       <section className="p-8 rounded-[2rem] bg-blue-600/5 border border-blue-500/10 space-y-4">
         <h2 className="text-2xl font-bold">Risk Mitigation: Our Truth Engine</h2>
         <p className="leading-relaxed">
-          To combat AI limitations, the <strong>DataLogicEngine Truth Engine</strong> applies systematic deconfliction across multiple personas. This &quot;Quad-Persona&quot; approach reduces individual model error by requiring consensus across different reasoning vectors.
+          DataLogicEngine can add trace metadata, evidence context, and multi-perspective review steps around AI output. These controls are designed to make review easier; they do not certify that an answer is complete or correct.
         </p>
         <div className="flex justify-end">
           <Link href="/about" className="inline-flex items-center gap-2 text-blue-500 font-bold hover:underline">
@@ -101,7 +101,7 @@ export default function AILimitationsPage() {
 
       <footer className="text-center pt-8 border-t border-border">
         <p className="text-sm text-muted-foreground">
-          Last Updated: January 2026 | Compliant with MS-A10 Store Standards
+          Last Updated: May 2026 | AI output should be reviewed before operational, legal, medical, financial, or safety-critical use.
         </p>
       </footer>
     </div>

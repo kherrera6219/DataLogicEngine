@@ -142,7 +142,7 @@ function loadOrCreatePlainSecretFile(secretName: string): string {
     if (existing) {
       return secretPath;
     }
-  } catch (error) {
+  } catch {
     appendDesktopLog('WARN', `Failed to read ${secretName} secret file; rotating desktop-managed secret.`);
   }
 

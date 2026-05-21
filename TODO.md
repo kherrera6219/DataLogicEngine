@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-05-15  
+**Last updated:** 2026-05-21  
 **Status:** Canonical planning source
 
 This is the only active TODO list for the repository. Keep open work here instead of adding separate project plans, roadmap files, assessment TODOs, or notes documents.
@@ -11,11 +11,11 @@ This is the only active TODO list for the repository. Keep open work here instea
 
 #### Product Copy and Disclosures
 
-- [ ] Replace overbroad product claims in app-facing copy with conservative, verifiable wording.
-- [ ] Align AI provider names across `README.md`, `docs/PRIVACY_POLICY.md`, `frontend/app/about/ai-limitations/page.tsx`, and `frontend/app/about/cloud-services/page.tsx`.
-- [ ] Explicitly disclose cloud AI processing and internet requirement anywhere AI settings or chat entry points are shown.
+- [x] Replace overbroad product claims in app-facing copy with conservative, verifiable wording.
+- [x] Align AI provider names across `README.md`, `docs/PRIVACY_POLICY.md`, `frontend/app/about/ai-limitations/page.tsx`, and `frontend/app/about/cloud-services/page.tsx`.
+- [x] Explicitly disclose cloud AI processing and internet requirement anywhere AI settings or chat entry points are shown.
 - [ ] Finalize the in-app feature list used by `frontend/public/manifest.json`, `README.md`, and About pages.
-- [ ] Finalize privacy practices wording in the app and docs so export/delete/history/AI-processing controls match actual behavior.
+- [x] Finalize privacy practices wording in the app and docs so export/delete/history/AI-processing controls match actual behavior.
 
 Baseline app description:
 
@@ -62,8 +62,8 @@ Review date: 2026-05-14
 
 | TODO area | Code validation | Current status |
 | --- | --- | --- |
-| App-facing product copy | Baseline copy exists in this file, but app-facing copy still contains stronger claims such as "Enterprise-grade" in `frontend/public/manifest.json` and "world-class accuracy" in `frontend/app/about/cloud-services/page.tsx`. | Open, needs conservative copy pass. |
-| Third-party AI services list | Provider disclosures exist in `README.md`, `docs/PRIVACY_POLICY.md`, `frontend/app/about/ai-limitations/page.tsx`, and `frontend/app/about/cloud-services/page.tsx`. | Partially ready; reconcile final in-app/docs list. |
+| App-facing product copy | Baseline copy exists in this file; app-facing claims were revised to conservative local-first/cloud-augmented wording in manifest, About, AI limitations, cloud-services, chat, and settings surfaces on 2026-05-21. | Implemented; keep future copy changes aligned with baseline wording. |
+| Third-party AI services list | Provider disclosures exist in `README.md`, `docs/PRIVACY_POLICY.md`, `frontend/app/about/ai-limitations/page.tsx`, and `frontend/app/about/cloud-services/page.tsx`, using OpenAI, Anthropic, Google Gemini / Vertex AI, and Microsoft Azure OpenAI. | Implemented; keep provider labels consistent when adding new providers. |
 | Screenshots | `frontend/public/manifest.json` has `"screenshots": []`; Playwright visual snapshots exist but are test baselines, not release/docs assets. | Open. |
 | PWA icons | `frontend/public/manifest.json` references `/icons/icon-192.png` and `/icons/icon-512.png`; `frontend/public/icons/` is absent. Only `frontend/public/icon.png` exists. | Open. |
 | App/banner images | No dedicated app/documentation banner assets found under `frontend/public/`. | Open. |
@@ -196,6 +196,7 @@ All five internal databases have been wired, seeded, and mutually validated in l
 | AI processing toggle | `frontend/components/settings/AiModelSettings.tsx` |
 | Chat history opt-out toggle | `frontend/components/settings/AiModelSettings.tsx` |
 | Automated accessibility audit command | `frontend/package.json` (`test:a11y:ci`) |
+| Conservative copy/disclosure pass | `frontend/public/manifest.json`, `frontend/app/about/page.tsx`, `frontend/app/about/ai-limitations/page.tsx`, `frontend/app/about/cloud-services/page.tsx`, `frontend/app/legal/privacy/page.tsx`, `frontend/components/Chat/ChatInterface.tsx`, `frontend/components/settings/AiModelSettings.tsx`, `frontend/components/CloudDisclosureBanner.tsx`, `docs/PRIVACY_POLICY.md` |
 
 ## Documentation Cleanup Policy
 

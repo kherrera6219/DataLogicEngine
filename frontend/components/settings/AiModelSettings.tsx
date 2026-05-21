@@ -249,7 +249,7 @@ export function AiModelSettings() {
           AI Model Controls
         </h2>
         <p className="text-sm text-muted-foreground">
-          Configure provider model selection and validate connectivity.
+          Configure provider model selection and validate connectivity. AI requests require internet access and may send prompts and selected context to the configured provider.
         </p>
       </div>
 
@@ -260,7 +260,7 @@ export function AiModelSettings() {
             <Power className="h-4 w-4" />
             Processing Controls
           </CardTitle>
-          <CardDescription>Control how AI processes your requests and stores data.</CardDescription>
+          <CardDescription>Control whether AI requests are sent to configured third-party providers and whether chat history is stored locally.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">

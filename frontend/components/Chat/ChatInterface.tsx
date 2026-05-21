@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { cn } from "@/lib/utils";
@@ -202,8 +202,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       const errorMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
-        content: 'Your request could not be completed. This may be a temporary issue — please try again. If the problem continues, check that your API key is configured in Settings → AI Models.',
-        finalAnswer: 'Your request could not be completed. This may be a temporary issue — please try again. If the problem continues, check that your API key is configured in Settings → AI Models.',
+        content: 'Your request could not be completed. This may be a temporary issue â€” please try again. If the problem continues, check that your API key is configured in Settings â†’ AI Models.',
+        finalAnswer: 'Your request could not be completed. This may be a temporary issue â€” please try again. If the problem continues, check that your API key is configured in Settings â†’ AI Models.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, errorMsg]);
@@ -317,7 +317,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   return (
     <div className="flex h-full text-gray-900 dark:text-white font-sans overflow-hidden">
       
-      {/* 📁 Conversational Sidebar */}
+      {/* ðŸ“ Conversational Sidebar */}
       <div className="w-64 border-r border-white/5 flex flex-col fluent-acrylic z-20">
          <div className="p-4 border-b border-white/5 space-y-4">
             <Button 
@@ -370,12 +370,12 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
          </div>
       </div>
 
-      {/* 💬 Main Chat Area */}
+      {/* ðŸ’¬ Main Chat Area */}
       <div className="flex-1 flex flex-col relative z-10 bg-transparent" data-testid="main-chat-area">
          {/* Header */}
          <div className="h-14 border-b border-white/5 flex items-center justify-between px-6 fluent-acrylic sticky top-0 z-30">
             <h1 className="font-bold text-sm tracking-wide flex items-center gap-2 text-slate-900 dark:text-gray-100" data-testid="app-header">
-               🎯 UKG Enterprise AI Assistant
+               ðŸŽ¯ UKG Enterprise AI Assistant
             </h1>
             <div className="flex items-center gap-3">
                <span className="text-xs text-slate-600 dark:text-gray-400">
@@ -395,7 +395,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
             {messages.map((msg) => (
                 <div key={msg.id} data-testid="message-item" className={`flex gap-4 animate-in ...`}>
                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${msg.role === 'assistant' ? 'bg-blue-600' : 'bg-slate-200 dark:bg-[#2a2a2a] border border-slate-300/70 dark:border-white/10'}`}>
-                      {msg.role === 'assistant' ? '🤖' : '👤'}
+                      {msg.role === 'assistant' ? 'ðŸ¤–' : 'ðŸ‘¤'}
                    </div>
                    <div className="flex-1 space-y-2">
                       <div className="flex items-center justify-between">
@@ -490,15 +490,19 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                 </Button>
             </div>
             
+            <p className="max-w-4xl mx-auto mt-2 text-[11px] leading-relaxed text-slate-500 dark:text-gray-500">
+              AI requests require internet access and may send your prompt, attachments, and selected context to the configured provider. Verify generated responses before using them for critical decisions.
+            </p>
+
              <div className="max-w-4xl mx-auto mt-4">
                <TraceVisualizer trace={latestTrace} hasExecutedQuery={hasExecutedQuery} />
              </div>
 
-            <div className="text-center text-[10px] text-slate-500 dark:text-gray-600 mt-2 font-mono">UKG AI v2.1.0 • Enterprise Edition • Confidential</div>
+            <div className="text-center text-[10px] text-slate-500 dark:text-gray-600 mt-2 font-mono">DataLogicEngine AI workspace</div>
          </div>
       </div>
 
-      {/* 🔬 Live Trace Sidebar */}
+      {/* ðŸ”¬ Live Trace Sidebar */}
       <div className="w-72 border-l border-white/5 flex flex-col fluent-acrylic z-20">
          <LiveTracePanel />
       </div>
@@ -506,3 +510,4 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     </div>
   );
 }
+

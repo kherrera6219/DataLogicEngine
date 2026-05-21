@@ -8,21 +8,27 @@ export default function CloudServicesPage() {
   const providers = [
     {
       name: "OpenAI",
-      usage: "Primary reasoning vector for analytical and mathematical tasks.",
-      data: "Prompt content only. No metadata or personal identifiers.",
-      residency: "Global (Primarily US)"
+      usage: "Optional provider for configured AI reasoning requests.",
+      data: "Prompt text and any context you include in the request.",
+      residency: "Handled under the provider account and region settings you configure."
     },
     {
       name: "Anthropic",
-      usage: "Used for long-form reasoning and ethical deconfliction.",
-      data: "Prompt content only. Strictly transient processing.",
-      residency: "Global (Primarily US)"
+      usage: "Optional provider for configured long-context AI requests.",
+      data: "Prompt text and any context you include in the request.",
+      residency: "Handled under the provider account and region settings you configure."
     },
     {
-      name: "Google Cloud (Vertex AI)",
-      usage: "Enterprise search and knowledge graph grounding.",
-      data: "Internal vector representations.",
-      residency: "Configurable / Regional"
+      name: "Google Gemini / Vertex AI",
+      usage: "Optional provider for configured AI reasoning requests.",
+      data: "Prompt text and any context you include in the request.",
+      residency: "Handled under the provider account and region settings you configure."
+    },
+    {
+      name: "Microsoft Azure OpenAI",
+      usage: "Optional OpenAI-compatible deployment for configured enterprise environments.",
+      data: "Prompt text and any context you include in the request.",
+      residency: "Handled under the Azure resource and region settings you configure."
     }
   ];
 
@@ -46,29 +52,29 @@ export default function CloudServicesPage() {
             <CardDescription>Your data stays with you.</CardDescription>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            All user profiles, chat history, and configuration files are stored locally in your installation path. We do not maintain a cloud database of your personal files.
+            In the Windows desktop build, user profiles, chat history, provider settings, and local app data are stored on the workstation. Cloud database connections are optional configuration paths for future or managed deployments.
           </CardContent>
         </Card>
 
         <Card className="border-premium bg-background/50">
           <CardHeader>
             <Cloud className="h-8 w-8 text-violet-500 mb-2" />
-            <CardTitle>Cloud Intelligence</CardTitle>
-            <CardDescription>Intelligence as a Service.</CardDescription>
+            <CardTitle>Cloud AI Requests</CardTitle>
+            <CardDescription>Internet required for AI reasoning.</CardDescription>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            Reasoning logic is processed in the cloud to provide world-class accuracy. This requires sending your specific query to our verified AI partners.
+            AI reasoning uses configured third-party providers. Prompts and selected context may be sent over the internet to the provider you configure, and responses should be verified before critical use.
           </CardContent>
         </Card>
 
         <Card className="border-premium bg-background/50">
           <CardHeader>
             <Lock className="h-8 w-8 text-emerald-500 mb-2" />
-            <CardTitle>Zero Retention</CardTitle>
-            <CardDescription>Privacy by design.</CardDescription>
+            <CardTitle>Provider Policies</CardTitle>
+            <CardDescription>Controlled by provider configuration.</CardDescription>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            We use API-level integrations with &quot;Zero Retention&quot; policies where possible. Your prompts are used for inference, not for training parent models.
+            Data retention, logging, training, and regional handling depend on the third-party provider account, contract, and API settings you use. Review those provider terms before sending sensitive content.
           </CardContent>
         </Card>
       </div>
@@ -107,14 +113,14 @@ export default function CloudServicesPage() {
             <h2 className="text-2xl font-bold">Your Privacy Controls</h2>
           </div>
           <p className="text-lg leading-relaxed text-muted-foreground">
-            In the <strong>Settings &gt; Privacy</strong> section, you can export your entire local dataset, delete your profile, or toggle specific cloud providers on/off to suit your internal compliance requirements.
+            In <strong>Settings &gt; Privacy</strong>, you can export local data, request local profile deletion, and manage chat history behavior. In AI model settings, you can disable AI processing or choose which configured provider is used.
           </p>
         </div>
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[100px] pointer-events-none" />
       </section>
 
       <footer className="text-center text-muted-foreground text-sm py-8">
-        <p>&copy; 2026 DataLogicEngine. Certified Cloud-Hybrid Compliance Tier 1.</p>
+        <p>&copy; 2026 DataLogicEngine. Cloud and AI behavior depends on the providers and deployment mode you configure.</p>
       </footer>
     </div>
   );
