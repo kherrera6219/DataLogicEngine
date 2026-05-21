@@ -50,7 +50,11 @@ export function isDesktopRendererRuntime(): boolean {
 }
 
 export function shouldUseDesktopSessionFlow(): boolean {
-  return runtimeAllowsDesktopAuth() && isDesktopRendererRuntime();
+  if (isDesktopRendererRuntime()) {
+    return true;
+  }
+
+  return runtimeAllowsDesktopAuth();
 }
 
 interface DesktopRequestAuthorizationInput {

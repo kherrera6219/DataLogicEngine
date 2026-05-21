@@ -51,6 +51,7 @@ initialize_crash_reporting(
 log_level = logging.DEBUG if os.environ.get("FLASK_ENV") == "development" else logging.INFO
 logger = logging.getLogger(__name__)
 IS_PRODUCTION_MODE = os.environ.get("FLASK_ENV") == "production"
+IS_DESKTOP_MODE = os.environ.get("IS_DESKTOP_APP", "False").lower() == "true"
 RESOLVED_SESSION_SECRET = None
 SESSION_SECRET_SOURCE = "missing"
 
@@ -311,6 +312,8 @@ def add_legacy_api_deprecation_headers(response):
 def force_https():
     """Force HTTPS redirection in production environments."""
     is_prod = os.environ.get('FLASK_ENV') == 'production'
+    if IS_DESKTOP_MODE:
+        return None
     if is_prod and not request.is_secure and request.headers.get('X-Forwarded-Proto', 'http') != 'https':
         url = request.url.replace('http://', 'https://', 1)
         return redirect(url, code=301)
@@ -532,6 +535,15 @@ def load_user(user_id):
     return db.session.get(User, int(user_id))
 
 
+@login_manager.request_loader
+def load_desktop_user_from_request(_request):
+    """Authenticate signed Electron loopback requests without relying on cookies."""
+    from backend.auth.api_decorators import check_desktop_request_auth
+
+    is_auth, user = check_desktop_request_auth()
+    return user if is_auth else None
+
+
 def password_meets_policy(password: str) -> bool:
     """Enforce a basic password policy for initial hardening."""
     if not password or len(password) < 12:
@@ -553,7 +565,7 @@ def _initialize_database_schema() -> None:
         logger.info("Startup schema auto-creation disabled; use 'flask db upgrade' or backend/init_db.py.")
         return
 
-    if IS_PRODUCTION_MODE:
+    if IS_PRODUCTION_MODE and not IS_DESKTOP_MODE:
         raise RuntimeError(
             "AUTO_CREATE_SCHEMA=true is not allowed in production. "
             "Apply migrations explicitly with 'flask db upgrade' before startup."

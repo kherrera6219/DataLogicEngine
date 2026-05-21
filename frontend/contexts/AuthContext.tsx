@@ -126,13 +126,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (isLoading) return;
     const publicRoutes = ["/login", "/register", "/"];
     const isPublic = publicRoutes.some((p) => pathname?.startsWith(p));
+    const desktopRuntime = shouldUseDesktopSessionFlow();
 
     if (!user && !isPublic) {
       router.push("/login");
     }
 
-    // Desktop "Zero-Login" Experience: If user is authenticated and on landing/login page, go to dashboard
-    if (user && (pathname === "/" || pathname === "/login")) {
+    // Web "Zero-Login" Experience: authenticated web sessions skip landing/login.
+    // Desktop keeps the landing page as the installed app's entry point.
+    if (!desktopRuntime && user && (pathname === "/" || pathname === "/login")) {
       router.push("/dashboard");
     }
   }, [user, isLoading, pathname, router]);

@@ -12,6 +12,8 @@ let backendProcess: ChildProcess | null = null;
 let desktopInstallSecret = '';
 let updateCheckTimer: NodeJS.Timeout | null = null;
 
+app.setName('DataLogicEngine Desktop');
+
 type UpdateStatus =
   | 'disabled'
   | 'idle'
@@ -50,6 +52,14 @@ function desktopSecretFilePath(): string {
 
 function desktopLogFilePath(): string {
   return path.join(app.getPath('userData'), 'logs', 'desktop-runtime.log');
+}
+
+function desktopRuntimeDir(): string {
+  return path.join(app.getPath('userData'), 'runtime');
+}
+
+function desktopSecretVaultDir(): string {
+  return path.join(app.getPath('userData'), 'secrets');
 }
 
 function normalizeLogLine(raw: string): string {
@@ -120,6 +130,28 @@ function persistDesktopSecret(secretPath: string, secret: string): void {
 
   secureDirectoryBestEffort(path.dirname(secretPath));
   fs.writeFileSync(secretPath, payload, { encoding: 'utf8', mode: 0o600 });
+}
+
+function loadOrCreatePlainSecretFile(secretName: string): string {
+  const secretPath = path.join(desktopSecretVaultDir(), `${secretName.toLowerCase()}.secret`);
+
+  try {
+    const existing = fs.existsSync(secretPath)
+      ? fs.readFileSync(secretPath, 'utf8').trim()
+      : '';
+    if (existing) {
+      return secretPath;
+    }
+  } catch (error) {
+    appendDesktopLog('WARN', `Failed to read ${secretName} secret file; rotating desktop-managed secret.`);
+  }
+
+  secureDirectoryBestEffort(path.dirname(secretPath));
+  fs.writeFileSync(secretPath, crypto.randomBytes(32).toString('hex'), {
+    encoding: 'utf8',
+    mode: 0o600,
+  });
+  return secretPath;
 }
 
 function loadOrCreateDesktopInstallSecret(): string {
@@ -275,11 +307,20 @@ function readHeaderValue(
   return null;
 }
 
-function signDesktopAuthNonce(nonce: string): string {
+function signDesktopAuthPayload(payload: string): string {
   return crypto
     .createHmac('sha256', desktopInstallSecret)
-    .update(nonce, 'utf8')
+    .update(payload, 'utf8')
     .digest('hex');
+}
+
+function signDesktopAuthNonce(nonce: string): string {
+  return signDesktopAuthPayload(nonce);
+}
+
+function signedDesktopRequestPayload(method: string, requestUrl: string, timestamp: string): string {
+  const parsedUrl = new URL(requestUrl);
+  return `${method.toUpperCase()}\n${parsedUrl.pathname}${parsedUrl.search}\n${timestamp}`;
 }
 
 function isTrustedIpcSender(event: IpcMainInvokeEvent): boolean {
@@ -339,7 +380,7 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
   } else {
     // In production, load via custom protocol
-    mainWindow.loadURL('app://-/dashboard');
+    mainWindow.loadURL('app://-/');
   }
 
   mainWindow.on('closed', () => {
@@ -453,6 +494,11 @@ app.on('ready', () => {
       details.url.startsWith('http://127.0.0.1:5000')
     ) {
       requestHeaders['X-DataLogic-Desktop'] = 'true';
+      const timestamp = Math.floor(Date.now() / 1000).toString();
+      requestHeaders['X-Desktop-Auth-Timestamp'] = timestamp;
+      requestHeaders['X-Desktop-Auth-Request-Signature'] = signDesktopAuthPayload(
+        signedDesktopRequestPayload(details.method || 'GET', details.url, timestamp),
+      );
 
       const nonce = (readHeaderValue(requestHeaders, 'X-Desktop-Auth-Nonce') || '').trim();
       if (nonce && desktopInstallSecret) {
@@ -465,8 +511,8 @@ app.on('ready', () => {
 
   // Security: Set CSP headers on all responses.
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-    const scriptSrc = isDev ? "'self' 'unsafe-inline' app:" : "'self' app:";
-    const styleSrc = isDev ? "'self' 'unsafe-inline' app:" : "'self' app:";
+    const scriptSrc = "'self' 'unsafe-inline' app:";
+    const styleSrc = "'self' 'unsafe-inline' app:";
 
     callback({
       responseHeaders: {
@@ -493,6 +539,10 @@ function startBackend() {
   
   const isDev = !app.isPackaged;
   const rootDir = path.join(__dirname, '../../');
+  const runtimeDir = isDev ? rootDir : desktopRuntimeDir();
+  secureDirectoryBestEffort(runtimeDir);
+  secureDirectoryBestEffort(path.join(runtimeDir, 'logs'));
+  secureDirectoryBestEffort(path.join(runtimeDir, 'instance'));
   
   let pythonPath = 'python'; // Default to system python
   let scriptPath = path.join(rootDir, 'main.py');
@@ -505,6 +555,9 @@ function startBackend() {
   }
 
   const args = scriptPath ? [scriptPath] : [];
+  const sessionSecretFile = loadOrCreatePlainSecretFile('SESSION_SECRET');
+  const encryptionKekSecretFile = loadOrCreatePlainSecretFile('ENCRYPTION_KEK_SECRET');
+  const encryptionKekSecret = fs.readFileSync(encryptionKekSecretFile, 'utf8').trim();
   const env = { 
     ...process.env, 
     PORT: '5000', 
@@ -514,9 +567,16 @@ function startBackend() {
     SESSION_COOKIE_SAMESITE: 'Lax',
     CORS_ORIGINS: 'http://localhost:3000,http://127.0.0.1:3000,app://dashboard,app://-',
     DESKTOP_INSTALL_SECRET: desktopInstallSecret,
+    SESSION_SECRET_FILE: sessionSecretFile,
+    ENCRYPTION_KEK_SECRET: encryptionKekSecret,
+    DATABASE_URL: `sqlite:///${path.join(runtimeDir, 'ukg_database.db').replace(/\\/g, '/')}`,
+    LOG_FILE: path.join(runtimeDir, 'logs', 'app.log'),
+    DATALOGIC_STORAGE_SETTINGS_PATH: path.join(runtimeDir, 'settings.json'),
+    AUTO_CREATE_SCHEMA: isDev ? 'False' : 'true',
   };
 
-  backendProcess = spawn(pythonPath, args, { env, cwd: rootDir });
+  appendDesktopLog('INFO', `Backend working directory: ${runtimeDir}`);
+  backendProcess = spawn(pythonPath, args, { env, cwd: runtimeDir });
 
   backendProcess.stdout?.on('data', (data) => {
     const log = data.toString();

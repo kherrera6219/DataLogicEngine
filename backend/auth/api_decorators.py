@@ -1,7 +1,94 @@
 from functools import wraps
+import os
+
 from flask import jsonify, request, g
 from flask_login import current_user
+from extensions import db
 from models import ExternalAPIKey, User
+from backend.security.desktop_local_auth import (
+    get_or_create_install_secret,
+    verify_desktop_request_signature,
+)
+
+
+def _is_loopback_request() -> bool:
+    remote_addr = (request.remote_addr or "").strip().lower()
+    return remote_addr in {"127.0.0.1", "::1", "localhost", ""}
+
+
+def _is_desktop_mode() -> bool:
+    return os.environ.get("IS_DESKTOP_APP", "false").lower() == "true"
+
+
+def _desktop_header_present() -> bool:
+    return (request.headers.get("X-DataLogic-Desktop") or "").strip().lower() in {"true", "1"}
+
+
+def _get_or_create_desktop_user() -> User:
+    from backend.auth.windows_identity import get_windows_user_identity
+
+    try:
+        identity = get_windows_user_identity()
+    except Exception:
+        username = os.environ.get("USERNAME") or "desktop_user"
+        identity = {
+            "username": username,
+            "sid": f"desktop-local:{username}",
+            "is_fallback": True,
+        }
+
+    sid = str(identity.get("sid") or "").strip()
+    username = str(identity.get("username") or "desktop_user").strip() or "desktop_user"
+    if not sid:
+        sid = f"desktop-local:{username}"
+
+    user = User.query.filter_by(sid=sid).first()
+    if user:
+        return user
+
+    import secrets
+
+    base_username = username
+    username_candidate = base_username
+    counter = 1
+    while User.query.filter_by(username=username_candidate).first():
+        username_candidate = f"{base_username}_{counter}"
+        counter += 1
+
+    user = User()
+    user.username = username_candidate
+    user.email = f"{username_candidate}@local.ukg"
+    user.set_password(secrets.token_urlsafe(32) + "!A1a")
+    user.sid = sid
+    user.role = "user"
+    user.is_admin = False
+    db.session.add(user)
+    db.session.commit()
+    return user
+
+
+def check_desktop_request_auth():
+    """Check signed Electron loopback auth for packaged desktop requests."""
+    if not (_is_desktop_mode() and _is_loopback_request() and _desktop_header_present()):
+        return False, None
+
+    timestamp = (request.headers.get("X-Desktop-Auth-Timestamp") or "").strip()
+    signature = (request.headers.get("X-Desktop-Auth-Request-Signature") or "").strip()
+    install_secret = get_or_create_install_secret()
+    is_valid, _ = verify_desktop_request_signature(
+        method=request.method,
+        full_path=request.full_path,
+        timestamp=timestamp,
+        signature=signature,
+        install_secret=install_secret,
+    )
+    if not is_valid:
+        return False, None
+
+    user = _get_or_create_desktop_user()
+    g.auth_user = user
+    g.auth_mode = "desktop"
+    return True, user
 
 
 def _extract_api_key() -> str | None:
@@ -29,8 +116,13 @@ def check_api_auth():
         g.auth_user = current_user
         g.auth_mode = "session"
         return True, current_user
+
+    # 2. Check signed desktop loopback auth
+    desktop_auth, desktop_user = check_desktop_request_auth()
+    if desktop_auth:
+        return True, desktop_user
     
-    # 2. Check API Key Auth (header only, hashed ExternalAPIKey)
+    # 3. Check API Key Auth (header only, hashed ExternalAPIKey)
     api_key = _extract_api_key()
     if api_key and api_key.startswith("ukg_"):
         key_record = ExternalAPIKey.verify_key(api_key)
@@ -77,6 +169,17 @@ def api_session_login_required(f):
     """Decorator to require an authenticated Flask session and return JSON on failure."""
     @wraps(f)
     def api_session_login_required_wrapper(*args, **kwargs):
+        if current_user.is_authenticated:
+            g.auth_user = current_user
+            g.auth_mode = "session"
+            return f(*args, **kwargs)
+
+        desktop_auth, desktop_user = check_desktop_request_auth()
+        if desktop_auth:
+            g.auth_user = desktop_user
+            g.auth_mode = "desktop"
+            return f(*args, **kwargs)
+
         if not current_user.is_authenticated:
             return jsonify({
                 'status': 'error',
@@ -84,9 +187,6 @@ def api_session_login_required(f):
                 'message': 'Authentication required. Please log in with an active session.',
                 'code': 'UNAUTHORIZED'
             }), 401
-        g.auth_user = current_user
-        g.auth_mode = "session"
-        return f(*args, **kwargs)
 
     try:
         api_session_login_required_wrapper.__name__ = f.__name__

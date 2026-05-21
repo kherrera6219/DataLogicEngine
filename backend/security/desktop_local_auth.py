@@ -14,6 +14,7 @@ import secrets
 import time
 from pathlib import Path
 from typing import MutableMapping, Tuple
+from urllib.parse import urlsplit
 
 
 DESKTOP_NONCE_SESSION_KEY = "desktop_auth_nonce"
@@ -68,6 +69,60 @@ def build_desktop_auth_signature(nonce: str, install_secret: str) -> str:
         nonce.encode("utf-8"),
         digestmod=hashlib.sha256,
     ).hexdigest()
+
+
+def build_desktop_request_signature(
+    method: str,
+    full_path: str,
+    timestamp: str,
+    install_secret: str,
+) -> str:
+    """Create HMAC signature for a desktop loopback API request."""
+    parsed = urlsplit(full_path)
+    path_with_query = parsed.path or full_path or "/"
+    if parsed.query:
+        path_with_query = f"{path_with_query}?{parsed.query}"
+    payload = f"{method.upper()}\n{path_with_query}\n{timestamp}"
+    return hmac.new(
+        install_secret.encode("utf-8"),
+        payload.encode("utf-8"),
+        digestmod=hashlib.sha256,
+    ).hexdigest()
+
+
+def verify_desktop_request_signature(
+    *,
+    method: str,
+    full_path: str,
+    timestamp: str,
+    signature: str,
+    install_secret: str,
+) -> Tuple[bool, str]:
+    """Validate signed per-request desktop auth headers."""
+    if not timestamp:
+        return False, "Desktop auth timestamp required"
+    if not signature:
+        return False, "Desktop request signature required"
+
+    try:
+        timestamp_seconds = int(timestamp)
+    except (TypeError, ValueError):
+        return False, "Desktop auth timestamp invalid"
+
+    max_skew_seconds = int(os.environ.get("DESKTOP_AUTH_MAX_SKEW_SECONDS", "300"))
+    if abs(int(time.time()) - timestamp_seconds) > max(30, min(max_skew_seconds, 900)):
+        return False, "Desktop auth timestamp expired"
+
+    expected_signature = build_desktop_request_signature(
+        method=method,
+        full_path=full_path,
+        timestamp=timestamp,
+        install_secret=install_secret,
+    )
+    if not hmac.compare_digest(signature, expected_signature):
+        return False, "Desktop request signature invalid"
+
+    return True, ""
 
 
 def issue_desktop_auth_challenge(session_obj: MutableMapping[str, object]) -> Tuple[str, int]:
