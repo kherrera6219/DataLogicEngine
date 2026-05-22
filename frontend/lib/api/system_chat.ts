@@ -11,7 +11,7 @@ export async function sendChat(payload: ChatRequest): Promise<ChatResponse> {
     body: JSON.stringify({
         messages: payload.messages,
         provider: payload.provider || 'openai',
-        model: payload.model || 'gpt-4',
+        model: payload.model || 'gpt-5.5',
         run_ukg_pipeline: payload.run_ukg_pipeline,
         mode: payload.mode
     })

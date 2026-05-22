@@ -21,6 +21,12 @@ sys.modules["models.ChatMessage"] = MagicMock()
 
 # Now import the module under test
 from backend.llm_gateway.gateway import CircuitBreaker, GatewayRequest, GatewayResponse, LLMGateway
+from backend.llm_gateway.model_defaults import (
+    ANTHROPIC_PRIMARY_MODEL,
+    GOOGLE_PRIMARY_MODEL,
+    OPENAI_LATEST_MODEL,
+    default_model_for_provider,
+)
 
 # Restore global import state to avoid polluting unrelated tests.
 if _original_models_module is not None:
@@ -100,6 +106,26 @@ class TestGatewayRequest:
         assert req.run_ukg_pipeline is True
         assert req.temperature == 0.5
         assert req.messages == [{"role": "user", "content": "hello"}]
+
+
+class TestModelDefaults:
+    def test_provider_defaults_use_current_primary_models(self):
+        assert default_model_for_provider("openai") == OPENAI_LATEST_MODEL
+        assert default_model_for_provider("anthropic") == ANTHROPIC_PRIMARY_MODEL
+        assert default_model_for_provider("google") == GOOGLE_PRIMARY_MODEL
+        assert default_model_for_provider("gemini") == GOOGLE_PRIMARY_MODEL
+
+    def test_gateway_resolves_missing_model_from_provider_family(self):
+        provider = MagicMock()
+        provider.provider_type = "anthropic"
+        provider.model_id = None
+
+        model = LLMGateway._resolve_model(
+            GatewayRequest(messages=[{"role": "user", "content": "hello"}]),
+            provider,
+        )
+
+        assert model == ANTHROPIC_PRIMARY_MODEL
 
 class TestGatewayResponse:
     def test_structure(self):

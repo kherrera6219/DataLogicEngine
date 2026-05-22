@@ -84,7 +84,7 @@ beforeEach(() => {
           id: 'provider-openai-id',
           name: 'OpenAI',
           type: 'openai',
-          model: 'gpt-5.2',
+          model: 'gpt-5.5',
           is_default: true,
         }]
       });

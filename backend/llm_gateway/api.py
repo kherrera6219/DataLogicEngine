@@ -28,6 +28,7 @@ from models import (
     AIAuditEvent,
 )
 from backend.llm_gateway.gateway import LLMGateway, GatewayRequest
+from backend.llm_gateway.model_defaults import default_model_for_provider
 from backend.llm_gateway.schemas import GatewayChatRequest
 from backend.auth.api_decorators import api_session_login_required
 from backend.utils.request_validation import validate_pydantic_payload
@@ -445,8 +446,7 @@ def save_provider_key():
         )
         db.session.add(provider)
 
-    if model_id:
-        provider.model_id = str(model_id)
+    provider.model_id = str(model_id or provider.model_id or default_model_for_provider(provider_type))
 
     provider.is_active = True
     provider.is_default = True

@@ -30,10 +30,10 @@ interface SaveKeyResponse {
 }
 
 const MODEL_LIBRARY: Record<string, string[]> = {
-  openai: ['gpt-5.2', 'gpt-4.1', 'gpt-4o-mini'],
-  anthropic: ['claude-opus-4.5', 'claude-sonnet-4.5'],
-  google: ['gemini-3.0-pro', 'gemini-2.5-pro'],
-  azure: ['gpt-4.1'],
+  openai: ['gpt-5.5', 'gpt-5.4', 'gpt-5.4-mini'],
+  anthropic: ['claude-opus-4-7', 'claude-sonnet-4-6', 'claude-haiku-4-5'],
+  google: ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3-flash-preview'],
+  azure: ['gpt-5.5', 'gpt-5.4'],
 };
 
 function formatError(error: unknown): string {
@@ -48,7 +48,7 @@ export function AiModelSettings() {
   const [providers, setProviders] = useState<ProviderOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [provider, setProvider] = useState('openai');
-  const [model, setModel] = useState('gpt-5.2');
+  const [model, setModel] = useState('gpt-5.5');
   const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);

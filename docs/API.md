@@ -200,7 +200,7 @@ Unified interface for Large Language Models with UKG context injection. Prefix: 
     ```json
     {
       "messages": [{ "role": "user", "content": "..." }],
-      "model": "gpt-4o",
+      "model": "gpt-5.5",
       "mode": "ukg",
       "trace_enabled": true
     }

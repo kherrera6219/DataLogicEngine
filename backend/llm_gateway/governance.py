@@ -19,8 +19,12 @@ from backend.security.prompt_injection_shield import validate_user_input
 
 
 DEFAULT_MODEL_COSTS_USD_PER_1K = {
+    "gpt-5.5": {"input": 0.005, "output": 0.03},
+    "gpt-5.4": {"input": 0.0025, "output": 0.015},
     "gpt-5": {"input": 0.01, "output": 0.03},
     "gpt-4": {"input": 0.01, "output": 0.03},
+    "gpt-5.4-mini": {"input": 0.00075, "output": 0.003},
+    "gpt-5.4-nano": {"input": 0.00015, "output": 0.0006},
     "gpt-5-mini": {"input": 0.002, "output": 0.006},
     "gpt-5-nano": {"input": 0.001, "output": 0.003},
     "gemini": {"input": 0.003, "output": 0.009},

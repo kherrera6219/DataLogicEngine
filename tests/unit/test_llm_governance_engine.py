@@ -44,5 +44,5 @@ def test_output_classification_detects_sensitive_patterns():
 
 
 def test_cost_estimation_returns_positive_value():
-    cost = AIGovernanceEngine.estimate_cost_usd("gpt-5.2", tokens_in=2000, tokens_out=1000)
+    cost = AIGovernanceEngine.estimate_cost_usd("gpt-5.5", tokens_in=2000, tokens_out=1000)
     assert cost > 0

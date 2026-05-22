@@ -6,6 +6,11 @@ Provides task-based LLM routing for optimal model selection.
 
 import logging
 from typing import Dict, Any, List
+from backend.llm_gateway.model_defaults import (
+    ANTHROPIC_PRIMARY_MODEL,
+    GOOGLE_PRIMARY_MODEL,
+    OPENAI_LATEST_MODEL,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -23,41 +28,41 @@ class LLMRouter:
     ROUTING_PROFILES = {
         'code': {
             'primary': 'codestral',
-            'fallback': 'gpt-4o',
+            'fallback': OPENAI_LATEST_MODEL,
             'description': 'Code generation and debugging',
             'keywords': ['code', 'function', 'program', 'debug', 'script', 'api']
         },
         'analysis': {
-            'primary': 'claude-3.5-sonnet',
-            'fallback': 'gpt-4o',
+            'primary': ANTHROPIC_PRIMARY_MODEL,
+            'fallback': OPENAI_LATEST_MODEL,
             'description': 'Deep analysis and evaluation',
             'keywords': ['analyze', 'evaluate', 'assess', 'review', 'examine']
         },
         'long_context': {
-            'primary': 'gemini-1.5-pro',
-            'fallback': 'claude-3.5-sonnet',
+            'primary': GOOGLE_PRIMARY_MODEL,
+            'fallback': ANTHROPIC_PRIMARY_MODEL,
             'description': 'Long document processing',
             'keywords': [],
             'context_threshold': 50000
         },
         'reasoning': {
             'primary': 'grok-4-fast',
-            'fallback': 'gpt-4o',
+            'fallback': OPENAI_LATEST_MODEL,
             'description': 'Complex reasoning and logic',
             'keywords': ['reason', 'logic', 'deduce', 'infer', 'conclude']
         },
         'default': {
-            'primary': 'gpt-4o',
-            'fallback': 'claude-3.5-sonnet',
+            'primary': OPENAI_LATEST_MODEL,
+            'fallback': ANTHROPIC_PRIMARY_MODEL,
             'description': 'General purpose',
             'keywords': []
         }
     }
     
     SUPPORTED_MODELS = {
-        'gpt-4o': {'provider': 'openai', 'context_window': 128000},
-        'claude-3.5-sonnet': {'provider': 'anthropic', 'context_window': 200000},
-        'gemini-1.5-pro': {'provider': 'google', 'context_window': 1000000},
+        OPENAI_LATEST_MODEL: {'provider': 'openai', 'context_window': 1050000},
+        ANTHROPIC_PRIMARY_MODEL: {'provider': 'anthropic', 'context_window': 1000000},
+        GOOGLE_PRIMARY_MODEL: {'provider': 'google', 'context_window': 1048576},
         'grok-4-fast': {'provider': 'xai', 'context_window': 131072},
         'codestral': {'provider': 'mistral', 'context_window': 32000},
         'llama-3-70b': {'provider': 'meta', 'context_window': 8192}
@@ -65,7 +70,7 @@ class LLMRouter:
 
     def __init__(self, available_models: List[str] = None):
         """Initialize router with available models."""
-        self.available_models = available_models or ['gpt-4o']
+        self.available_models = available_models or [OPENAI_LATEST_MODEL]
         logger.info(f"LLM Router initialized with models: {self.available_models}")
 
     def route(self, query: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
@@ -108,15 +113,15 @@ class LLMRouter:
         """Select best available model for profile."""
         profile_config = self.ROUTING_PROFILES.get(profile, self.ROUTING_PROFILES['default'])
         
-        primary = profile_config.get('primary', 'gpt-4o')
+        primary = profile_config.get('primary', OPENAI_LATEST_MODEL)
         if primary in self.available_models:
             return primary
         
-        fallback = profile_config.get('fallback', 'gpt-4o')
+        fallback = profile_config.get('fallback', OPENAI_LATEST_MODEL)
         if fallback in self.available_models:
             return fallback
         
-        return self.available_models[0] if self.available_models else 'gpt-4o'
+        return self.available_models[0] if self.available_models else OPENAI_LATEST_MODEL
 
     def _create_routing_decision(self, model: str, profile: str, query: str) -> Dict[str, Any]:
         """Create routing decision object."""

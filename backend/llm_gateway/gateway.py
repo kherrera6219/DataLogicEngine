@@ -31,6 +31,18 @@ from models import LLMProvider, LLMProviderUsage, ChatSession, ChatMessage, User
 from backend.utils.error_normalization import normalize_public_error_message
 from backend.llm_gateway.governance import AIGovernanceEngine
 from backend.llm_gateway.latency_metrics import record_ai_request
+from backend.llm_gateway.model_defaults import (
+    ANTHROPIC_PRIMARY_MODEL,
+    GOOGLE_FAST_MODEL,
+    GOOGLE_PRIMARY_MODEL,
+    OPENAI_FAST_MODEL,
+    OPENAI_LONG_CONTEXT_MODEL,
+    OPENAI_NANO_MODEL,
+    OPENAI_PRO_MODEL,
+    OPENAI_RESEARCH_MODEL,
+    OPENAI_STANDARD_MODEL,
+    default_model_for_provider,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -156,7 +168,8 @@ class LLMGateway:
             return str(request.model)
         if provider_record and getattr(provider_record, "model_id", None):
             return str(provider_record.model_id)
-        return "gpt-4"
+        provider_type = getattr(provider_record, "provider_type", None) if provider_record else "openai"
+        return default_model_for_provider(provider_type)
 
     @staticmethod
     def _positive_int(value: Any, default: int, minimum: int = 1, maximum: int = 60) -> int:
@@ -839,7 +852,7 @@ class LLMGateway:
         elif provider_type == "anthropic":
             return AnthropicProvider(api_key=api_key)
         elif provider_type in ["google", "gemini"]:
-             return GoogleGeminiProvider(api_key=api_key, model=provider_record.model_id or "gemini-2.5-pro")
+             return GoogleGeminiProvider(api_key=api_key, model=provider_record.model_id or GOOGLE_PRIMARY_MODEL)
         elif provider_type in ["local_slm", "ollama", "vllm"]:
             return LocalSLMProvider(base_url=provider_record.endpoint or "http://localhost:11434/v1")
         else:
@@ -881,14 +894,14 @@ class LLMGateway:
 
             # Helper class for synthetic providers
             class EnvProvider:
-                def __init__(self, name, provider_type, priority=10, model="gpt-4o"):
+                def __init__(self, name, provider_type, priority=10, model=None):
                     self.id = name
                     self.name = name
                     self.provider_type = provider_type
                     self.endpoint = None
                     self.deployment_name = None
                     self.api_version = None
-                    self.model_id = model
+                    self.model_id = model or default_model_for_provider(provider_type)
                     self.priority = priority
                     self.timeout_seconds = self._env_timeout_default
                     self.max_retries = self._env_retry_default
@@ -914,15 +927,15 @@ class LLMGateway:
             openai_key = os.environ.get("OPENAI_API_KEY")
             google_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
             anthropic_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("anthropic_API_KEY")
-            openai_primary_model = os.environ.get("OPENAI_MODEL_PRIMARY", "gpt-5.2-pro")
-            openai_standard_model = os.environ.get("OPENAI_MODEL_STANDARD", "gpt-5.2")
-            openai_fast_model = os.environ.get("OPENAI_MODEL_FAST", "gpt-5-mini")
-            openai_nano_model = os.environ.get("OPENAI_MODEL_NANO", "gpt-5-nano")
-            openai_long_context_model = os.environ.get("OPENAI_MODEL_LONG_CONTEXT", "gpt-4.1")
-            openai_research_model = os.environ.get("OPENAI_MODEL_RESEARCH", "o3-deep-research")
-            google_primary_model = os.environ.get("GOOGLE_MODEL_PRIMARY", "gemini-2.5-pro")
-            google_fast_model = os.environ.get("GOOGLE_MODEL_FAST", "gemini-2.5-flash")
-            anthropic_primary_model = os.environ.get("ANTHROPIC_MODEL_PRIMARY", "claude-opus-4-6")
+            openai_primary_model = os.environ.get("OPENAI_MODEL_PRIMARY", OPENAI_PRO_MODEL)
+            openai_standard_model = os.environ.get("OPENAI_MODEL_STANDARD", OPENAI_STANDARD_MODEL)
+            openai_fast_model = os.environ.get("OPENAI_MODEL_FAST", OPENAI_FAST_MODEL)
+            openai_nano_model = os.environ.get("OPENAI_MODEL_NANO", OPENAI_NANO_MODEL)
+            openai_long_context_model = os.environ.get("OPENAI_MODEL_LONG_CONTEXT", OPENAI_LONG_CONTEXT_MODEL)
+            openai_research_model = os.environ.get("OPENAI_MODEL_RESEARCH", OPENAI_RESEARCH_MODEL)
+            google_primary_model = os.environ.get("GOOGLE_MODEL_PRIMARY", GOOGLE_PRIMARY_MODEL)
+            google_fast_model = os.environ.get("GOOGLE_MODEL_FAST", GOOGLE_FAST_MODEL)
+            anthropic_primary_model = os.environ.get("ANTHROPIC_MODEL_PRIMARY", ANTHROPIC_PRIMARY_MODEL)
 
             providers_list = []
 

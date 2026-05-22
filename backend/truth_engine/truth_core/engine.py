@@ -17,6 +17,11 @@ from typing import Dict, List, Any, Optional
 from backend.truth_engine.truth_core.personas import PersonaEnhancer, PersonaPod
 from backend.truth_engine.truth_core.persona_sufficiency import PersonaSufficiencyTool
 from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator
+from backend.llm_gateway.model_defaults import (
+    ANTHROPIC_PRIMARY_MODEL,
+    GOOGLE_PRIMARY_MODEL,
+    OPENAI_LATEST_MODEL,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,10 +48,10 @@ class TruthCoreEngine:
     
     ROUTING_PROFILES = {
         'code': 'codestral',
-        'analysis': 'claude-3.5-sonnet',
-        'long_context': 'gemini-1.5-pro',
+        'analysis': ANTHROPIC_PRIMARY_MODEL,
+        'long_context': GOOGLE_PRIMARY_MODEL,
         'reasoning': 'grok-4-fast',
-        'default': 'gpt-4o'
+        'default': OPENAI_LATEST_MODEL
     }
     
     REFINEMENT_STEPS = [

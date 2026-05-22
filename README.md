@@ -268,7 +268,7 @@ curl -X POST http://localhost:8080/api/v1/gateway/chat \
         "content": "Summarize the compliance impact of this control change."
       }
     ],
-    "model": "gpt-4o",
+    "model": "gpt-5.5",
     "tier": "2"
   }'
 ```

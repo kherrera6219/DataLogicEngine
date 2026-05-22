@@ -12,6 +12,15 @@ from dotenv import load_dotenv
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 load_dotenv(".env")
 
+from backend.llm_gateway.model_defaults import (  # noqa: E402
+    ANTHROPIC_PRIMARY_MODEL,
+    GOOGLE_FAST_MODEL,
+    GOOGLE_PRIMARY_MODEL,
+    OPENAI_FAST_MODEL,
+    OPENAI_PRO_MODEL,
+    OPENAI_STANDARD_MODEL,
+)
+
 
 def _normalize_env_aliases() -> None:
     """Normalize common env var aliases used in older local files."""
@@ -51,13 +60,12 @@ async def check_openai() -> ProviderCheck:
         return ProviderCheck("OpenAI", False, detail="openai package not installed.")
 
     client = AsyncOpenAI(api_key=api_key, timeout=30.0)
-    requested_model = os.getenv("OPENAI_TEST_MODEL", "gpt-5.2")
+    requested_model = os.getenv("OPENAI_TEST_MODEL", OPENAI_STANDARD_MODEL)
     candidate_models = [
         requested_model,
-        "gpt-5.2",
-        "gpt-5.2-pro",
-        "gpt-5-mini",
-        "gpt-4.1",
+        OPENAI_STANDARD_MODEL,
+        OPENAI_PRO_MODEL,
+        OPENAI_FAST_MODEL,
     ]
 
     visible_models = []
@@ -126,14 +134,12 @@ async def check_google() -> ProviderCheck:
         except Exception as e:
             print(f"   > Gemini model list warning: {_clean_error(e)}")
 
-        requested_model = os.getenv("GEMINI_TEST_MODEL", "gemini-3-pro")
+        requested_model = os.getenv("GEMINI_TEST_MODEL", GOOGLE_PRIMARY_MODEL)
         candidates = [
             requested_model,
-            "gemini-3-pro",
-            "gemini-3-pro-latest",
-            "gemini-3-flash",
-            "gemini-2.5-pro",
-            "gemini-2.5-flash",
+            GOOGLE_PRIMARY_MODEL,
+            "gemini-3.1-pro-preview",
+            GOOGLE_FAST_MODEL,
         ]
 
         last_error = "No model probe attempted."
@@ -190,15 +196,12 @@ async def check_anthropic() -> ProviderCheck:
         except Exception as e:
             print(f"   > Anthropic model list warning: {_clean_error(e)}")
 
-        requested_model = os.getenv("ANTHROPIC_TEST_MODEL", "claude-opus-4-5")
+        requested_model = os.getenv("ANTHROPIC_TEST_MODEL", ANTHROPIC_PRIMARY_MODEL)
         candidates = [
             requested_model,
-            "claude-opus-4-5",
-            "claude-opus-4-1",
-            "claude-opus-4",
-            "claude-sonnet-4-5",
-            "claude-sonnet-4",
-            "claude-3-5-sonnet-latest",
+            ANTHROPIC_PRIMARY_MODEL,
+            "claude-sonnet-4-6",
+            "claude-haiku-4-5",
         ]
 
         if available:

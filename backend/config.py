@@ -1,5 +1,6 @@
 import os
 import secrets
+from backend.llm_gateway.model_defaults import OPENAI_LATEST_MODEL
 from backend.security.secret_resolver import resolve_secret_with_source
 
 class APIConfig:
@@ -8,7 +9,7 @@ class APIConfig:
     def __init__(self):
         # OpenAI Configuration
         self.openai_api_key, _ = resolve_secret_with_source('OPENAI_API_KEY', default='')
-        self.openai_model = os.environ.get('OPENAI_MODEL', 'gpt-4')
+        self.openai_model = os.environ.get('OPENAI_MODEL', OPENAI_LATEST_MODEL)
         self.app_version = '2.4.0'
         
         # Database Configuration

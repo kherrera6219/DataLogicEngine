@@ -2,6 +2,7 @@
 import os
 import asyncio
 from flask import Flask
+from backend.llm_gateway.model_defaults import GOOGLE_FAST_MODEL, GOOGLE_PRIMARY_MODEL
 
 # Mock flask app for context
 app = Flask(__name__)
@@ -24,7 +25,7 @@ async def verify():
         return
 
     try:
-        provider = GoogleGeminiProvider(model="gemini-2.5-pro")
+        provider = GoogleGeminiProvider(model=GOOGLE_PRIMARY_MODEL)
         print("[PASS] Provider initialized")
     except Exception as e:
         print(f"[FAIL] Provider initialization failed: {e}")
@@ -45,7 +46,7 @@ async def verify():
     try:
         print("Testing Chat Completion...")
         messages = [{"role": "user", "content": "Hello, are you Gemini?"}]
-        response = await provider.complete(messages=messages, model="gemini-2.5-flash")
+        response = await provider.complete(messages=messages, model=GOOGLE_FAST_MODEL)
         print(f"[PASS] Chat response received: {response.text[:50]}...")
     except Exception as e:
         print(f"[FAIL] Chat completion failed: {e}")
@@ -56,8 +57,8 @@ async def verify():
         from backend.llm_gateway.gateway import LLMGateway
         gateway = LLMGateway()
         
-        # Test 1: Complex Reasoning -> Expect GPT-5.2 Pro + Fallbacks (Total ~3)
-        print("Test 1: Tier='complex_reasoning' (Expect 3 layers: GPT-5.2 Pro -> Gemini -> Fallback)")
+        # Test 1: Complex Reasoning -> Expect latest OpenAI + Fallbacks (Total ~3)
+        print("Test 1: Tier='complex_reasoning' (Expect 3 layers: latest OpenAI -> Gemini -> Fallback)")
         # Mock env for testing routing purely
         os.environ["OPENAI_API_KEY"] = "sk-test-mock"
         os.environ["GOOGLE_API_KEY"] = "AIza-test-mock"
@@ -72,8 +73,8 @@ async def verify():
         else:
              print(f"[FAIL] Expected 3+ layers, got {len(providers)}")
 
-        # Test 2: RAG Heavy -> Expect Gemini Pro + Fallbacks
-        print("\nTest 2: Tier='rag_heavy' (Expect 3 layers: Gemini Pro -> GPT-4.1 -> Flash)")
+        # Test 2: RAG Heavy -> Expect latest Gemini + Fallbacks
+        print("\nTest 2: Tier='rag_heavy' (Expect 3 layers: Gemini latest -> OpenAI latest -> Flash)")
         providers = await gateway._get_eligible_providers(meta={"tier": "rag_heavy"})
         print(f"   -> Found {len(providers)} providers")
         for i, p in enumerate(providers):

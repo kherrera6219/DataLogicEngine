@@ -18,6 +18,11 @@ if PROJECT_ROOT not in sys.path:
 from app import app
 from extensions import db
 from models import LLMProvider, ExternalAPIKey, User
+from backend.llm_gateway.model_defaults import (
+    ANTHROPIC_PRIMARY_MODEL,
+    GOOGLE_PRIMARY_MODEL,
+    OPENAI_STANDARD_MODEL,
+)
 
 
 def setup_default_providers():
@@ -37,7 +42,7 @@ def setup_default_providers():
             provider = LLMProvider(
                 name="OpenAI",
                 provider_type="openai",
-                model_id="gpt-5.2",
+                model_id=os.environ.get("OPENAI_MODEL_STANDARD", OPENAI_STANDARD_MODEL),
                 is_active=True,
                 is_default=True,
                 priority=10,
@@ -54,7 +59,7 @@ def setup_default_providers():
                 name="Azure OpenAI",
                 provider_type="azure",
                 endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
-                deployment_name=os.environ.get("AZURE_OPENAI_DEPLOYMENT", "gpt-4"),
+                deployment_name=os.environ.get("AZURE_OPENAI_DEPLOYMENT", OPENAI_STANDARD_MODEL),
                 api_version=os.environ.get("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
                 is_active=True,
                 is_default=not bool(os.environ.get("OPENAI_API_KEY")),  # Default if no OpenAI
@@ -71,7 +76,7 @@ def setup_default_providers():
             provider = LLMProvider(
                 name="Anthropic Claude",
                 provider_type="anthropic",
-                model_id="claude-opus-4-6",
+                model_id=os.environ.get("ANTHROPIC_MODEL_PRIMARY", ANTHROPIC_PRIMARY_MODEL),
                 is_active=True,
                 is_default=False,
                 priority=30,
@@ -87,7 +92,7 @@ def setup_default_providers():
             provider = LLMProvider(
                 name="Google Gemini",
                 provider_type="google",
-                model_id="gemini-2.5-pro",
+                model_id=os.environ.get("GOOGLE_MODEL_PRIMARY", GOOGLE_PRIMARY_MODEL),
                 is_active=True,
                 is_default=False,
                 priority=40,
