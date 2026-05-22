@@ -9,7 +9,7 @@ def _desktop_headers() -> dict[str, str]:
 
 def test_desktop_challenge_rejects_cloud_mode(client, monkeypatch) -> None:
     monkeypatch.setenv("IS_DESKTOP_APP", "false")
-    monkeypatch.setattr("routes.auth_routes.os.name", "nt", raising=False)
+    monkeypatch.setattr("routes.auth_routes._is_windows_desktop_host", lambda: True)
 
     response = client.post("/api/v1/auth/desktop/challenge", headers=_desktop_headers())
     assert response.status_code == 403
@@ -19,7 +19,7 @@ def test_desktop_challenge_rejects_cloud_mode(client, monkeypatch) -> None:
 
 def test_desktop_challenge_requires_loopback_origin(client, monkeypatch) -> None:
     monkeypatch.setenv("IS_DESKTOP_APP", "true")
-    monkeypatch.setattr("routes.auth_routes.os.name", "nt", raising=False)
+    monkeypatch.setattr("routes.auth_routes._is_windows_desktop_host", lambda: True)
 
     response = client.post(
         "/api/v1/auth/desktop/challenge",
@@ -33,7 +33,7 @@ def test_desktop_challenge_requires_loopback_origin(client, monkeypatch) -> None
 
 def test_desktop_challenge_succeeds_in_local_desktop_mode(client, monkeypatch) -> None:
     monkeypatch.setenv("IS_DESKTOP_APP", "true")
-    monkeypatch.setattr("routes.auth_routes.os.name", "nt", raising=False)
+    monkeypatch.setattr("routes.auth_routes._is_windows_desktop_host", lambda: True)
 
     response = client.post("/api/v1/auth/desktop/challenge", headers=_desktop_headers())
     assert response.status_code == 200
@@ -45,7 +45,7 @@ def test_desktop_challenge_succeeds_in_local_desktop_mode(client, monkeypatch) -
 
 def test_desktop_auto_login_rejects_cloud_mode(client, monkeypatch) -> None:
     monkeypatch.setenv("IS_DESKTOP_APP", "false")
-    monkeypatch.setattr("routes.auth_routes.os.name", "nt", raising=False)
+    monkeypatch.setattr("routes.auth_routes._is_windows_desktop_host", lambda: True)
 
     response = client.post("/api/v1/auth/desktop/auto-login", headers=_desktop_headers())
     assert response.status_code == 403

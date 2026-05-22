@@ -38,8 +38,12 @@ def _is_loopback_request() -> bool:
     return False
 
 
+def _is_windows_desktop_host() -> bool:
+    return os.name == 'nt'
+
+
 def _validate_desktop_preconditions():
-    if os.name != 'nt':
+    if not _is_windows_desktop_host():
         return error_response("Desktop auto-login only supported on Windows", 400)
 
     is_desktop_mode = os.environ.get("IS_DESKTOP_APP", "false").lower() == "true"
