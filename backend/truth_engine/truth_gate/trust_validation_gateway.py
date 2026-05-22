@@ -57,6 +57,11 @@ RISK_THRESHOLDS = {
 MAX_PROCESSING_TIME_MS = 30000
 
 
+def _elapsed_ms(start_time: float) -> float:
+    """Return a positive monotonic elapsed duration for audit results."""
+    return max((time.perf_counter() - start_time) * 1000, 0.001)
+
+
 class TrustValidationGateway:
     """
     Layer 8: Trust Validation Gateway
@@ -122,7 +127,7 @@ class TrustValidationGateway:
         Returns:
             L8GateResult with gate decision and audit artifacts
         """
-        start_time = time.time()
+        start_time = time.perf_counter()
         kas_invoked = []
         
         try:
@@ -147,7 +152,7 @@ class TrustValidationGateway:
             )
             
             # Calculate processing time
-            processing_time_ms = (time.time() - start_time) * 1000
+            processing_time_ms = _elapsed_ms(start_time)
             
             # Check timeout (fail-closed)
             if processing_time_ms > self.max_processing_time:
@@ -188,7 +193,7 @@ class TrustValidationGateway:
         except Exception as e:
             # Fail-closed on any error
             logger.error(f"L8 critical error, fail-closed: {e}")
-            processing_time_ms = (time.time() - start_time) * 1000
+            processing_time_ms = _elapsed_ms(start_time)
             
             return L8GateResult(
                 simulation_id=input_data.simulation_id,
