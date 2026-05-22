@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_PYTHON = (3, 11)
-EXPECTED_NODE_MAJOR = 20
+EXPECTED_NODE_MAJOR = 24
 
 
 @dataclass
@@ -146,10 +146,10 @@ def _check_ci_version_pins() -> list[Finding]:
     else:
         findings.append(Finding("ERROR", "CI workflow is missing Python 3.11 pin"))
 
-    if "node-version: '20'" in text:
-        findings.append(Finding("OK", "CI workflow pins Node 20"))
+    if f"node-version: '{EXPECTED_NODE_MAJOR}'" in text:
+        findings.append(Finding("OK", f"CI workflow pins Node {EXPECTED_NODE_MAJOR}"))
     else:
-        findings.append(Finding("ERROR", "CI workflow is missing Node 20 pin"))
+        findings.append(Finding("ERROR", f"CI workflow is missing Node {EXPECTED_NODE_MAJOR} pin"))
     return findings
 
 

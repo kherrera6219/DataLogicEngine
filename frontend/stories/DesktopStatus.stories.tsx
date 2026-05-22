@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DesktopStatus } from '@/components/DesktopStatus';
+import DesktopStatus from '@/components/DesktopStatus';
 
 const meta: Meta<typeof DesktopStatus> = {
   title: 'Layout/DesktopStatus',

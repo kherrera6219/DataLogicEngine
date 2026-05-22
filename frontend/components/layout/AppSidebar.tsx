@@ -5,13 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, MessageSquare, Database, Folder, 
-  ShieldAlert, Settings, LogOut, Hexagon, PanelLeftClose, PanelLeftOpen 
+  ShieldAlert, Settings, Hexagon, PanelLeftClose, PanelLeftOpen 
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { getLocalStorageItem, setLocalStorageItem } from '@/lib/state/storage';
-import { shouldUseDesktopSessionFlow } from '@/lib/runtime/policy';
 
 interface SidebarItemProps {
   icon: React.ElementType;
@@ -49,9 +48,8 @@ function SidebarItem({ icon: Icon, label, href, isActive, isCollapsed }: Sidebar
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
-  const desktopRuntime = shouldUseDesktopSessionFlow();
 
   React.useEffect(() => {
     const stored = getLocalStorageItem('ukg.sidebar.collapsed');
@@ -68,11 +66,6 @@ export function AppSidebar() {
     });
   }, []);
 
-  const handleLogout = React.useCallback(() => {
-    logout().catch((error: unknown) => {
-      console.error('[AppSidebar] Logout failed:', error);
-    });
-  }, [logout]);
   const isAdmin = Boolean(user?.is_admin || user?.role === 'admin' || user?.role === 'owner');
   const initials = user?.username
     ? user.username
@@ -165,18 +158,6 @@ export function AppSidebar() {
               </div>
            )}
            
-           {!isCollapsed && !desktopRuntime && (
-             <Button
-               variant="ghost"
-               size="icon"
-               className="h-8 w-8 text-gray-500 hover:text-white hover:bg-white/5 shrink-0"
-               onClick={handleLogout}
-               aria-label="Log out"
-               title="Log out"
-             >
-                <LogOut className="h-4 w-4" />
-             </Button>
-           )}
         </div>
       </div>
     </div>

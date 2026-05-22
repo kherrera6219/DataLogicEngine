@@ -84,7 +84,7 @@ describe('NavBar', () => {
     render(<NavBar />);
     expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
     expect(screen.getByText('About')).toBeInTheDocument();
-    expect(screen.getByText('Login')).toBeInTheDocument();
+    expect(screen.queryByText('Login')).not.toBeInTheDocument();
   });
 
   it('shows user menu when authenticated', () => {
@@ -114,17 +114,14 @@ describe('NavBar', () => {
     expect(screen.queryByLabelText('Mobile navigation')).not.toBeInTheDocument();
   });
 
-  it('handles logout interaction', async () => {
+  it('does not expose logout controls in desktop local-first mode', async () => {
     render(<NavBar />);
     
     // Open dropdown
     const trigger = screen.getByLabelText('User Menu');
     fireEvent.click(trigger);
     
-    // Find logout - Dropdowns are typically async/animated
-    const logoutBtn = await screen.findByText('Log out');
-    fireEvent.click(logoutBtn);
-    
-    expect(mockLogout).toHaveBeenCalled();
+    expect(screen.queryByText('Log out')).not.toBeInTheDocument();
+    expect(mockLogout).not.toHaveBeenCalled();
   });
 });
