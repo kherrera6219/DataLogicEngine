@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { mcp } from '@/lib/api/mcp';
-import { request } from '@/lib/api/index';
+import { request } from '@/lib/api/client';
 
-vi.mock('@/lib/api/index', () => ({
+vi.mock('@/lib/api/client', () => ({
     request: vi.fn()
 }));
 

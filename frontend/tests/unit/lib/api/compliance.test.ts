@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { compliance } from '@/lib/api/compliance';
-import { request, buildApiUrl } from '@/lib/api/index';
+import { request, buildApiUrl } from '@/lib/api/client';
 
-vi.mock('@/lib/api/index', () => ({
+vi.mock('@/lib/api/client', () => ({
     request: vi.fn(),
     buildApiUrl: vi.fn((endpoint: string) => `http://localhost:5000/api/v1${endpoint}`)
 }));

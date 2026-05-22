@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { chat } from '@/lib/api/chat';
-import { request } from '@/lib/api/index';
+import { request } from '@/lib/api/client';
 
 // Mock the request function
-vi.mock('@/lib/api/index', () => ({
+vi.mock('@/lib/api/client', () => ({
   request: vi.fn(),
   API_BASE: 'http://localhost:5000/api/v1'
 }));

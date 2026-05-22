@@ -1,0 +1,49 @@
+{
+  "base": "http://127.0.0.1:3104",
+  "viewport": "1440x900",
+  "routes": [
+    {
+      "slug": "dashboard",
+      "route": "/dashboard",
+      "label": "Dashboard overview",
+      "file": "/screenshots/dashboard-1440x900.png",
+      "url": "http://127.0.0.1:3104/dashboard"
+    },
+    {
+      "slug": "chat",
+      "route": "/chat",
+      "label": "AI chat workspace",
+      "file": "/screenshots/chat-1440x900.png",
+      "url": "http://127.0.0.1:3104/chat"
+    },
+    {
+      "slug": "settings-privacy",
+      "route": "/settings/privacy",
+      "label": "Privacy controls",
+      "file": "/screenshots/settings-privacy-1440x900.png",
+      "url": "http://127.0.0.1:3104/settings/privacy"
+    },
+    {
+      "slug": "cloud-services",
+      "route": "/about/cloud-services",
+      "label": "Cloud services disclosure",
+      "file": "/screenshots/cloud-services-1440x900.png",
+      "url": "http://127.0.0.1:3104/about/cloud-services"
+    },
+    {
+      "slug": "knowledge-graph",
+      "route": "/graph",
+      "label": "Knowledge graph view",
+      "file": "/screenshots/knowledge-graph-1440x900.png",
+      "url": "http://127.0.0.1:3104/graph"
+    },
+    {
+      "slug": "provider-settings",
+      "route": "/settings",
+      "label": "Provider and model settings",
+      "file": "/screenshots/provider-settings-1440x900.png",
+      "url": "http://127.0.0.1:3104/settings"
+    }
+  ],
+  "consoleMessages": []
+}

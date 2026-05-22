@@ -1,4 +1,4 @@
-import { request } from '@/lib/api/index';
+import { request } from '@/lib/api/client';
 
 export const trace = {
     list: (limit: number = 20) => request<{ runs?: unknown[] }>(`/trace/runs?per_page=${limit}`).then((d) => d.runs || []),

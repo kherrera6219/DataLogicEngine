@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { auth } from '@/lib/api/auth';
-import { request } from '@/lib/api/index';
+import { request } from '@/lib/api/client';
 
 // Mock the request function
-vi.mock('@/lib/api/index', () => ({
+vi.mock('@/lib/api/client', () => ({
   request: vi.fn(),
 }));
 

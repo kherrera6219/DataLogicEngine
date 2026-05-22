@@ -25,9 +25,16 @@ function buildCsp(nonce: string): string {
     scriptSrc.push("'unsafe-eval'");
   }
 
-  const styleSrc = [`'self'`, `'nonce-${nonce}'`, 'https://fonts.googleapis.com'];
+  const styleSrc = [`'self'`, 'https://fonts.googleapis.com'];
   if (isDevelopment) {
     styleSrc.push("'unsafe-inline'");
+  } else {
+    styleSrc.push(`'nonce-${nonce}'`);
+  }
+
+  const connectSrc = [`'self'`, 'https:', 'ws:', 'wss:'];
+  if (isDevelopment) {
+    connectSrc.push('http://localhost:*', 'http://127.0.0.1:*');
   }
 
   const cspHeader = `
@@ -36,7 +43,7 @@ function buildCsp(nonce: string): string {
       style-src ${styleSrc.join(' ')};
       img-src 'self' blob: data: https://images.unsplash.com;
       font-src 'self' https://fonts.gstatic.com;
-      connect-src 'self' https: ws: wss:;
+      connect-src ${connectSrc.join(' ')};
       frame-src 'none';
       object-src 'none';
       base-uri 'self';

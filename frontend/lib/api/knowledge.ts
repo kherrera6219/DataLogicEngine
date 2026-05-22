@@ -1,5 +1,5 @@
 import { KnowledgePillar, KnowledgeStats, GraphNode, GraphEdge } from './types';
-import { request } from '@/lib/api/index';
+import { request } from '@/lib/api/client';
 
 export const knowledge = {
     pillars: () => request<KnowledgePillar[]>('/ukg/pillars'),

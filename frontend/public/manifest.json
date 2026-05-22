@@ -24,7 +24,50 @@
     }
   ],
   "categories": ["business", "productivity", "utilities"],
-  "screenshots": [],
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard-1440x900.png",
+      "sizes": "1440x900",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard overview"
+    },
+    {
+      "src": "/screenshots/chat-1440x900.png",
+      "sizes": "1440x900",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "AI chat workspace"
+    },
+    {
+      "src": "/screenshots/settings-privacy-1440x900.png",
+      "sizes": "1440x900",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Privacy controls"
+    },
+    {
+      "src": "/screenshots/cloud-services-1440x900.png",
+      "sizes": "1440x900",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Cloud services disclosure"
+    },
+    {
+      "src": "/screenshots/knowledge-graph-1440x900.png",
+      "sizes": "1440x900",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Knowledge graph view"
+    },
+    {
+      "src": "/screenshots/provider-settings-1440x900.png",
+      "sizes": "1440x900",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Provider and model settings"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Dashboard",

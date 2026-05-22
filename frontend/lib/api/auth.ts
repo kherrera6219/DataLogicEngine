@@ -1,5 +1,5 @@
 import { User } from './types';
-import { request } from './index';
+import { request } from './client';
 
 export interface LoginCredentials {
     username?: string;

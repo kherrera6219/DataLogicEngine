@@ -1,5 +1,5 @@
 import { ChatRequest, ChatResponse } from './types';
-import { request } from '@/lib/api/index';
+import { request } from '@/lib/api/client';
 
 export const system = {
     health: () => request<string>('/health').catch(() => 'Offline')

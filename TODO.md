@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-05-21  
+**Last updated:** 2026-05-22
 **Status:** Canonical planning source
 
 This is the only active TODO list for the repository. Keep open work here instead of adding separate project plans, roadmap files, assessment TODOs, or notes documents.
@@ -27,10 +27,10 @@ Internet access is required for AI reasoning features. Prompts and related conte
 
 #### App Assets and Manifest
 
-- [ ] Capture 5-10 screenshots from the actual app UI for docs, manifest, and release verification.
-- [ ] Add screenshots to `frontend/public/manifest.json` if publishing as a web/PWA surface.
-- [ ] Create missing PWA icon assets referenced by `frontend/public/manifest.json`.
-- [ ] Prepare in-app and documentation banner images where useful.
+- [x] Capture 5-10 screenshots from the actual app UI for docs, manifest, and release verification.
+- [x] Add screenshots to `frontend/public/manifest.json` if publishing as a web/PWA surface.
+- [x] Create missing PWA icon assets referenced by `frontend/public/manifest.json`.
+- [x] Prepare in-app and documentation banner images where useful.
 
 #### Windows Installer
 
@@ -41,9 +41,11 @@ Internet access is required for AI reasoning features. Prompts and related conte
 - [x] Create a local dev certificate helper for development validation.
 - [ ] Create and document a trusted production code-signing certificate path.
 
-Known asset gap:
+Completed asset work:
 
-- `frontend/public/manifest.json` references `/icons/icon-192.png` and `/icons/icon-512.png`, but those files are not present under `frontend/public/icons/`.
+- `frontend/public/icons/icon-192.png` and `frontend/public/icons/icon-512.png` are generated from the existing app icon.
+- `frontend/public/screenshots/` contains six 1440x900 route captures from the running app: dashboard, chat, settings/privacy, cloud services, graph, and settings/provider controls.
+- `frontend/public/brand/datalogicengine-banner-1600x900.png` provides a reusable documentation/banner asset based on the existing app icon.
 
 #### Manual Validation
 

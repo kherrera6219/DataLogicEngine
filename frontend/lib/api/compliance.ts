@@ -1,4 +1,4 @@
-import { request, buildApiUrl } from "./index";
+import { request, buildApiUrl } from "./client";
 
 export interface ComplianceStandard {
   uid: string;

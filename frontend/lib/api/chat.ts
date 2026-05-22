@@ -1,4 +1,4 @@
-import { request } from '@/lib/api/index';
+import { request } from '@/lib/api/client';
 import { ChatRequest, ChatResponse } from './types';
 
 export interface ChatSession {
