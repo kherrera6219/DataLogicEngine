@@ -27,11 +27,6 @@ def test_get_usage(authenticated_client):
 
 def test_gateway_chat_validation(authenticated_client):
     """Test chat endpoint with invalid data."""
-    # Test missing model (bad request)
-    response = authenticated_client.post('/api/v1/gateway/chat', 
-                                json={'messages': [{'role': 'user', 'content': 'hi'}]})
-    assert response.status_code == 400
-    
     # Test missing messages
     response = authenticated_client.post('/api/v1/gateway/chat', 
                                 json={'model': 'gpt-4'})

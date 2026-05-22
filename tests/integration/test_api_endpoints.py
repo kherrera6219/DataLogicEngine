@@ -6,6 +6,7 @@ import pytest
 from unittest.mock import patch
 from app import app, db
 import routes.simulation_routes as simulation_routes_module
+from conftest import drop_all_test_tables
 
 
 from extensions import limiter
@@ -39,7 +40,7 @@ def client():
             db.create_all()
         yield client
         with app.app_context():
-            db.drop_all()
+            drop_all_test_tables()
     
     # Restoration is not strictly necessary as fixture tears down app context/client
     # but good practice if app is shared. However, we modified the app instance's list.

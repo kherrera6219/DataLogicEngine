@@ -51,6 +51,19 @@ def _dispose_stray_sqlalchemy_engines() -> None:
                 pass
 
 
+def drop_all_test_tables() -> None:
+    """Drop test tables while tolerating SQLite foreign-key cycles."""
+    db.session.remove()
+    if db.engine.dialect.name == "sqlite":
+        with db.engine.connect() as connection:
+            connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
+            db.metadata.drop_all(bind=connection)
+            connection.exec_driver_sql("PRAGMA foreign_keys=ON")
+        return
+
+    db.drop_all()
+
+
 @pytest.fixture
 def app():
     """Provide app fixture for tests that need app context."""
@@ -90,11 +103,10 @@ def app():
             TEST_DB_PATH.unlink()
         # Ensure test runs start from a clean schema even if the module-level
         # app initialization previously populated the default sqlite database.
-        db.drop_all()
+        drop_all_test_tables()
         db.create_all()
         yield flask_app
-        db.session.remove()
-        db.drop_all()
+        drop_all_test_tables()
         _dispose_sqlalchemy_engines()
         if TEST_DB_PATH.exists():
             TEST_DB_PATH.unlink()
