@@ -20,15 +20,15 @@ Modern Next.js 16 frontend application for the Universal Knowledge Graph (UKG) s
 
 ### Prerequisites
 
-- Node.js 22+
-- npm or yarn
+- Node.js 24+
+- npm 11+
 - Backend running on `http://localhost:5000`
 
 ### Installation
 
 ```bash
 cd frontend
-npm install
+npm ci
 ```
 
 ### Development
@@ -67,7 +67,7 @@ frontend/
 ├── app/                        # Next.js App Router
 │   ├── (auth)/                 # Auth group layout
 │   │   ├── login/              # Login page
-│   │   └── register/           # Registration page
+│   │   └── register/           # Disabled local-first route; redirects to dashboard
 │   ├── dashboard/              # Main dashboard
 │   ├── chat/                   # AI chat interface
 │   ├── graph/                  # Knowledge graph (Three.js 3D)

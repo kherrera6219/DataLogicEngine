@@ -926,6 +926,6 @@ Already implemented in the current codebase:
 
 Active backlog:
 
-- Mobile applications (React Native — research tracked in `docs/REACT_NATIVE_RESEARCH.md`)
+- Mobile applications (React Native — historical research retained in `docs/archive/research/REACT_NATIVE_RESEARCH.md`)
 - Machine learning model serving (local SLM routing for L1/L2 tasks)
 - Multi-language support (i18n)

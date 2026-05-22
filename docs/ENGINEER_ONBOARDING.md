@@ -5,7 +5,7 @@
 | Field | Value |
 |-------|-------|
 | Owner | Platform Engineering |
-| Last Updated | March 2026 |
+| Last Updated | May 2026 |
 | Status | Active |
 | Audience | New software engineers joining the DataLogicEngine team |
 | Review Cadence | Every 60 days |
@@ -100,7 +100,7 @@ Ensure these are installed before starting:
 | Tool | Minimum Version | Install Command |
 |------|----------------|-----------------|
 | Python | 3.11 | [python.org](https://www.python.org) |
-| Node.js | 20.x LTS | [nodejs.org](https://nodejs.org) |
+| Node.js | 24.x | [nodejs.org](https://nodejs.org) |
 | Git | 2.40+ | [git-scm.com](https://git-scm.com) |
 | Docker Desktop | Latest | [docker.com](https://www.docker.com) |
 

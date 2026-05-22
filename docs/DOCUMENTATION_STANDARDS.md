@@ -22,7 +22,7 @@ This standard applies to:
 
 This standard does not apply to:
 
-1. `docs/whitepapers/` research narratives
+1. `docs/archive/whitepapers/` research narratives
 2. Auto-generated outputs (`docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`)
 
 ## External baseline references

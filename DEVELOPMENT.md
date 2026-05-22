@@ -7,8 +7,8 @@ This file is the quick-entry development guide for contributors working in the r
 ## Prerequisites
 
 - Python 3.11+
-- Node.js 20+
-- npm 10+
+- Node.js 24+
+- npm 11+
 - Git 2.40+
 - Optional local services for full-stack work: PostgreSQL, Redis, Neo4j, MinIO
 
@@ -23,7 +23,7 @@ cp .env.template .env
 git config core.hooksPath .githooks
 
 cd frontend
-npm install
+npm ci
 cd ..
 ```
 

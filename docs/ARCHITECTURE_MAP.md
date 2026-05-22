@@ -138,7 +138,7 @@ sequenceDiagram
 
 1. Some `Settings` and `MCP admin` UI actions remain partially wired; see `docs/PRODUCT_OVERVIEW.md`.
 2. External connector coverage depends on configured credentials and environment readiness.
-3. Architecture details in `docs/whitepapers/` may include exploratory content that is not operational source-of-truth.
+3. Architecture details in `docs/archive/whitepapers/` may include exploratory content that is not operational source-of-truth.
 4. Some compatibility aliases remain active for migration coverage, but they are explicitly marked as transitional in response headers and API/versioning docs.
 
 ## Related documents

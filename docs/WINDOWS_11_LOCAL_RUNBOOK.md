@@ -10,7 +10,7 @@ Run DataLogicEngine locally on Windows 11 with:
 
 Default path uses SQLite/in-memory fallbacks. PostgreSQL/Redis/Neo4j/object services are optional.
 
-## Current State (February 16, 2026)
+## Current State (May 22, 2026)
 
 1. Local startup scripts are functional.
 2. Core frontend routes are reachable.
@@ -24,7 +24,7 @@ Default path uses SQLite/in-memory fallbacks. PostgreSQL/Redis/Neo4j/object serv
 ## Prerequisites
 
 1. Python 3.11+
-2. Node.js 22+
+2. Node.js 24+
 3. npm
 4. Optional: Docker Desktop for local data service stack
 
@@ -174,10 +174,9 @@ This ensures:
 
 ## Known Limitations
 
-1. `Settings > Notifications` remains placeholder.
-2. Storage cloud config form persistence is incomplete.
-3. Register submit flow is not wired.
-4. Some MCP admin actions remain disabled pending backend workflow completion.
+1. Manual application-readiness evidence remains open: WCAG, keyboard, NVDA, and failure-mode validation are tracked in `TODO.md`.
+2. Register submit flow is intentionally disabled in the current local-first build; `/register` redirects to `/dashboard`.
+3. Release builds still need trusted production code-signing certificate evidence before public distribution.
 
 ## Related Documents
 
@@ -190,6 +189,6 @@ This ensures:
 ## Document Control
 
 1. Owner: Platform Engineering
-2. Last updated: 2026-02-16
+2. Last updated: 2026-05-22
 3. Status: Active
 4. Review cadence: Every 30 days

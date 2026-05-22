@@ -5,7 +5,7 @@
 | Field | Value |
 |-------|-------|
 | Owner | Platform Engineering |
-| Last Updated | March 2026 |
+| Last Updated | May 2026 |
 | Status | Active |
 | Review Cadence | Every 30 days |
 | Version | 4.1.19 |
@@ -17,6 +17,8 @@
 This portal is the authoritative entry point for all DataLogicEngine documentation. It is organized by audience and use case to allow rapid navigation to relevant reference material.
 
 All documents listed here are **active and maintained**. Current planning belongs in the root [`TODO.md`](../TODO.md); do not create separate roadmap, project-plan, or assessment TODO documents.
+
+Historical PDFs, old release notes, wireframes, and research spikes are preserved under [`docs/archive/`](archive/README.md). Archived material is reference-only and must be validated against current code before being used for implementation decisions.
 
 ---
 
@@ -33,14 +35,15 @@ All documents listed here are **active and maintained**. Current planning belong
 8. [Governance and Process](#governance-and-process)
 9. [Current Planning](#current-planning)
 10. [Repository Inventory and Maps](#repository-inventory-and-maps)
-11. [Documentation Standards](#documentation-standards-1)
-12. [Document Classification](#document-classification)
+11. [Archive](#archive)
+12. [Documentation Standards](#documentation-standards-1)
+13. [Document Classification](#document-classification)
 
 ---
 
 ## Platform Status
 
-**Current Version:** 4.1.19 | **As of:** March 2026
+**Current Version:** 4.1.19 | **As of:** May 2026
 
 ### Production-Ready
 
@@ -50,6 +53,9 @@ All documents listed here are **active and maintained**. Current planning belong
 | Desktop no-login startup (Electron, Windows 11) | Operational |
 | API key save/test and AI model configuration | Operational |
 | Storage health checks and local service lifecycle (`Start All` / `Stop All`) | Operational |
+| Storage cloud configuration persistence | Operational |
+| Notification preferences | Operational |
+| MCP server add/list/delete admin actions | Operational |
 | MCP connector scope enforcement and OAuth lifecycle | Operational |
 | Connector and AI latency telemetry (p50/p95/p99) | Operational |
 | SSRF protection on API gateway | Operational |
@@ -72,10 +78,8 @@ All documents listed here are **active and maintained**. Current planning belong
 
 | Item | Status |
 |------|--------|
-| Settings > Notifications | Placeholder UI — not wired |
-| Settings > Storage > Cloud Config | Form fields not fully persisted |
-| MCP > Add Server (admin UI actions) | Disabled in UI |
-| Registration submit flow | UI exists; submit not wired |
+| Registration flow | `/register` redirects to `/dashboard`; web self-registration is disabled in the current local-first build. |
+| Application-readiness evidence | Manual WCAG, keyboard, NVDA, and failure-mode evidence is still tracked in `TODO.md`. |
 
 ---
 
@@ -234,6 +238,21 @@ These artifacts are **generated automatically** by repository tooling. Do not ed
 
 ---
 
+## Archive
+
+Historical and reference-only documents are preserved in [`docs/archive/`](archive/README.md).
+
+| Archive Area | Contents |
+|--------------|----------|
+| [`docs/archive/historical-documents/`](archive/historical-documents/) | Imported planning PDFs, MVP plans, mathematical framework papers, and source research documents |
+| [`docs/archive/whitepapers/`](archive/whitepapers/) | UKG/USKD whitepapers and deep architecture narratives |
+| [`docs/archive/wireframes/`](archive/wireframes/) | 2025 design-system and wireframe drafts |
+| [`docs/archive/research/`](archive/research/) | Old release notes, platform research, cross-user testing notes, and design spikes |
+
+Archived material is not active implementation guidance. Fold actionable items into [`TODO.md`](../TODO.md) before using archived documents for current work.
+
+---
+
 ## Documentation Standards
 
 | Document | Description |
@@ -246,7 +265,7 @@ These artifacts are **generated automatically** by repository tooling. Do not ed
 | Status | Meaning |
 |--------|---------|
 | **Active** | Current, maintained, and authoritative — listed in this portal |
-| **Reference** | Informational only — stored in `docs/whitepapers/` — not operational runbooks |
+| **Reference** | Informational only — stored in `docs/archive/` — not operational runbooks |
 
 ---
 
@@ -262,4 +281,4 @@ All documentation in this repository is classified as follows unless otherwise n
 
 ---
 
-*This portal is the authoritative documentation index for DataLogicEngine. All other documentation entry points should link here. Reviewed: March 2026.*
+*This portal is the authoritative documentation index for DataLogicEngine. All other documentation entry points should link here. Reviewed: May 2026.*

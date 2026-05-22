@@ -16,7 +16,7 @@ Provide production acceptance criteria, operational controls, and validation che
 ## Document control
 
 1. Owner: Platform Operations
-2. Last updated: 2026-03-31
+2. Last updated: 2026-05-22
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -44,7 +44,25 @@ Provide production acceptance criteria, operational controls, and validation che
 
 DataLogicEngine is an enterprise-grade AI/ML knowledge management platform designed for production deployment. This guide outlines the critical steps, configurations, and best practices for deploying the system in a production environment.
 
-**Current status**: Remediation in progress. Production-readiness claims must be backed by passing validation evidence on the real execution paths, not by stubbed fallbacks or documentation alone.
+**Current status**: Application-readiness validation is in progress. Local stack QC, Tier 2 audit receipts, app assets, privacy controls, cloud disclosures, notification preferences, storage cloud configuration, and MCP server administration are implemented. Production release still requires repeatable app-readiness evidence, manual accessibility evidence, failure-mode validation, and a trusted production code-signing path.
+
+## 2026-05-22 Application-Readiness Update
+
+Completed or validated in the current application state:
+
+1. Manifest screenshots, PWA icons, and a reusable documentation banner exist under `frontend/public/`.
+2. Local-first/cloud-augmented product copy and third-party AI provider disclosures are aligned across active app and documentation surfaces.
+3. User data export/delete endpoints, privacy settings, AI-processing preferences, notification preferences, storage cloud configuration, and MCP server add/list/delete flows are present.
+4. The frontend `/register` route is disabled by design in the local-first build; backend registration remains available only as an API surface when a deployment explicitly reopens web self-registration.
+5. Backend default runtime port is `5000`, matching `app.py`, `docker-compose.yml`, `Dockerfile.cloud`, and current API documentation.
+
+Remaining release blockers:
+
+1. Repeatable WCAG 2.1 AA evidence for authenticated primary app routes.
+2. Manual keyboard and NVDA screen-reader validation on Windows.
+3. Cloud outage, AI provider failure, auth failure, rate-limit, data export, and data deletion end-to-end evidence.
+4. Trusted production code-signing certificate path and signed release artifact validation.
+5. Product-owner pass on the final manifest/About/README feature list.
 
 ## 2026-03-31 Phase 1 API Truthfulness + Authorization Update
 
@@ -1230,6 +1248,6 @@ Following this production readiness guide will ensure your DataLogicEngine deplo
 
 ---
 
-**Document version:** 1.1.0
-**Last updated:** February 16, 2026
-**Next review:** March 10, 2026
+**Document version:** 1.2.0
+**Last updated:** May 22, 2026
+**Next review:** June 22, 2026

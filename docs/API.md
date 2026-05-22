@@ -14,7 +14,7 @@ Provide the source-of-truth API contract guidance for DataLogicEngine REST endpo
 ## Document control
 
 1. Owner: API Platform Team
-2. Last updated: 2026-03-31
+2. Last updated: 2026-05-22
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -154,9 +154,10 @@ Manage user authentication, sessions, and identity. Primary prefix: `/api/v1/aut
 
 ### Register
 
-- **POST** `/register`
+- **POST** `/api/v1/auth/register`
   - Create new user account with enterprise security policy.
   - **Body**: `{ "username": "user", "email": "user@example.com", "password": "..." }`
+  - **Current UI note**: the local-first frontend route `/register` is intentionally disabled and redirects to `/dashboard`. Use the API route only when a deployment explicitly reopens web self-registration.
 
 ### SSO Login
 

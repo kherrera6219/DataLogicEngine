@@ -31,18 +31,20 @@ Track source-of-truth documents across all core application areas and identify d
 | File inventory and repository map | `docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`, `docs/FILE_STRUCTURE.md` | Active | Generated inventory, structure map, and naming policy |
 | Workflow reasoning model | `docs/WORKFLOW.md` | Active | High-level query pipeline workflow |
 | Privacy/legal policy | `docs/PRIVACY_POLICY.md` | Active | User data handling and policy disclosure |
-| Research whitepapers | `docs/whitepapers/*` | Reference | Not operational source-of-truth |
+| Documentation archive | `docs/archive/*` | Reference | Historical documents, whitepapers, wireframes, old release notes, and research spikes; not operational source-of-truth |
 
 ## Gaps and follow-up items
 
 1. Keep generated inventory docs (`docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`) refreshed after repository cleanup/refactors.
 2. Keep root `TODO.md` as the only active planning and outstanding-work tracker.
-3. Expand CI docs enforcement to include markdown linting for active files.
-4. Keep vendor guidance baseline (`docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`) reviewed at least monthly.
+3. Complete app-readiness evidence for authenticated accessibility coverage, manual keyboard/NVDA checks, cloud/provider/auth/rate-limit failure modes, and export/delete end-to-end validation.
+4. Expand CI docs enforcement to include markdown linting for active files.
+5. Regenerate file inventory and generated structure artifacts after archive moves.
+6. Keep vendor guidance baseline (`docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`) reviewed at least monthly.
 
 ## Document control
 
 1. Owner: Platform Engineering
-2. Last updated: 2026-02-16
+2. Last updated: 2026-05-22
 3. Status: Active
 4. Review cadence: Every 30 days

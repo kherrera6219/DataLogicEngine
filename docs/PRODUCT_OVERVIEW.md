@@ -25,7 +25,7 @@ DataLogicEngine is a local-first AI orchestration application that combines:
 1. Web mode: browser UX with login/session authentication.
 2. Desktop mode: Windows Electron runtime with no-login boot to the internal dashboard.
 
-## Current Capability Status (February 16, 2026)
+## Current Capability Status (May 22, 2026)
 
 | Area | Routes | Status | Notes |
 |---|---|---|---|
@@ -35,10 +35,10 @@ DataLogicEngine is a local-first AI orchestration application that combines:
 | Knowledge graph | `/graph` | Live | Interactive graph and node inspection |
 | Settings: API gateway | `/settings` (`API Gateway`) | Live | Save key, provider test, query playground |
 | Settings: AI model controls | `/settings` (`AI Models`) | Live | Provider/model selection + save/test |
-| Settings: storage operations | `/settings` (`Storage`) | Mixed | Health + local lifecycle live; cloud config persistence still partial |
-| Settings: notifications | `/settings` (`Notifications`) | Partial | Placeholder UI only |
+| Settings: storage operations | `/settings` (`Storage`) | Live | Health, local lifecycle, auto-start preference, and cloud config persistence are wired; local port fields are display/edit UI only until a broader local-service config flow is needed |
+| Settings: notifications | `/settings` (`Notifications`) | Live | Per-user preferences are loaded and persisted through `/api/v1/user/notifications`; delivery-channel integrations are not separately validated here |
 | Admin dashboard | `/admin` | Live | Role-gated, backend-backed stats/user data |
-| MCP admin registry | `/admin/mcp`, `/admin/mcp/servers` | Mixed | Stats/list/delete live; add server flow pending |
+| MCP admin registry | `/admin/mcp`, `/admin/mcp/servers` | Live | Stats, list, add, and delete flows are wired for admin users |
 | Connector scope enforcement | MCP tool execution paths | Live | Runtime scope checks added with user/tenant context propagation |
 | Connector safety controls | API gateway/service discovery | Live | SSRF outbound validation + allowlist guardrails enforced |
 | Connector OAuth + contracts | Jira/Salesforce MCP tools | Live | Managed OAuth token lifecycle + runtime request/response contract validation |
@@ -54,7 +54,7 @@ DataLogicEngine is a local-first AI orchestration application that combines:
 | Crash reporting hardening | Global Flask error handlers + `/metrics` | Live | Fallback crash IDs and provider telemetry/probe hooks active |
 | Diagnostic tooling | Support bundle generator | Live | Sanitized support bundle script available for incident triage |
 | Public info/legal pages | `/about`, `/about/*`, `/legal/privacy` | Live | Informational pages available |
-| Registration flow | `/register` | Partial | UI present, submit flow not wired |
+| Registration flow | `/register` | Disabled by design | Current local-first build redirects `/register` to `/dashboard`; reopen only if web self-registration becomes a product requirement |
 
 ## Data and Service Model
 
@@ -64,10 +64,10 @@ DataLogicEngine is a local-first AI orchestration application that combines:
 
 ## Known Gaps
 
-1. `Settings > Notifications` is not implemented.
-2. `Settings > Storage > Cloud Config` form is not fully persisted.
-3. MCP admin add-server actions are not yet enabled.
-4. Register form does not submit to backend registration API.
+1. Application-readiness evidence remains open: manual WCAG 2.1 AA, keyboard navigation, NVDA screen reader checks, and end-to-end failure-mode validation.
+2. Production release signing still needs a trusted production code-signing certificate path and release evidence.
+3. The in-app feature list across manifest, README, and About pages needs a final product-owner pass.
+4. Web self-registration is disabled; decide whether that is the intended local-first behavior or a future web-mode feature.
 
 ## Validation Commands
 
@@ -89,6 +89,6 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows\test_frontend_route_p
 ## Document Control
 
 1. Owner: Product and Platform Engineering
-2. Last updated: 2026-02-16
+2. Last updated: 2026-05-22
 3. Status: Active
 4. Review cadence: Every 30 days

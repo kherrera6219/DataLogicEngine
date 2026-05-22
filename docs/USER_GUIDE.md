@@ -84,10 +84,9 @@ Task-focused usage instructions for day-to-day operation.
 
 ## Known Limitations
 
-1. `Settings > Notifications` remains placeholder UI.
-2. `Settings > Storage > Cloud Config` save path is not fully wired.
-3. MCP add-server actions are not enabled from admin UI.
-4. `/register` form does not currently submit registration requests.
+1. Manual accessibility and failure-mode validation evidence remains open in `TODO.md`.
+2. `/register` redirects to `/dashboard` in the current local-first build; self-service registration is disabled unless web mode is reopened as a product requirement.
+3. Release builds still require trusted production code-signing evidence before public distribution.
 
 ## Validation Checklist
 
@@ -119,6 +118,6 @@ Task-focused usage instructions for day-to-day operation.
 ## Document Control
 
 1. Owner: Product Operations
-2. Last updated: 2026-02-08
+2. Last updated: 2026-05-22
 3. Status: Active
 4. Review cadence: Every 30 days

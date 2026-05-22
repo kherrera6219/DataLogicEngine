@@ -7,7 +7,7 @@ Developer onboarding and daily engineering workflow.
 ## Prerequisites
 
 1. Python 3.11+
-2. Node.js 22+
+2. Node.js 24+
 3. Windows PowerShell (for local run scripts on Windows)
 4. At least one provider API key for end-to-end feature testing
 
@@ -174,6 +174,6 @@ Regenerate inventory and generated structure docs after major repository changes
 ## Document Control
 
 1. Owner: Developer Experience
-2. Last updated: 2026-03-31
+2. Last updated: 2026-05-22
 3. Status: Active
 4. Review cadence: Every 30 days

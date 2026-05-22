@@ -20,7 +20,7 @@ Define the current UX architecture, route model, interaction patterns, and desig
 ## Document control
 
 1. Owner: Product Design and Frontend Engineering
-2. Last updated: 2026-02-08
+2. Last updated: 2026-05-22
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -50,7 +50,8 @@ Define the current UX architecture, route model, interaction patterns, and desig
 | `/about/ai-limitations` | AI transparency and limitations |
 | `/about/cloud-services` | Cloud dependency and data residency disclosure |
 | `/legal/privacy` | Privacy policy and user rights |
-| `/login`, `/register` | Web mode authentication entry points |
+| `/login` | Web mode authentication entry point |
+| `/register` | Disabled in the current local-first build; redirects to `/dashboard` |
 
 ### Authenticated operator surfaces
 
@@ -119,10 +120,10 @@ Define the current UX architecture, route model, interaction patterns, and desig
 
 ## Known UX debt
 
-1. `Settings > Notifications` and `Settings > AI Models` are still placeholder views.
-2. Register page form is present but not yet wired to submit logic.
-3. Multiple MCP and admin screens still include static demo metrics.
-4. Some toolbar actions are visual placeholders and do not call backend APIs yet.
+1. Manual WCAG, keyboard, and NVDA evidence is still required before release readiness can be closed.
+2. Register/self-service account creation is disabled in the current local-first build; decide separately whether web-mode self-registration is required.
+3. Multiple MCP and admin screens still need a final live-data/static-metric audit.
+4. Some toolbar actions may still be visual placeholders and need route-by-route verification before release.
 
 ## Validation
 

@@ -14,7 +14,7 @@ Define enterprise testing standards, required quality gates, and execution workf
 ## Document control
 
 1. Owner: Quality Engineering
-2. Last updated: 2026-03-31
+2. Last updated: 2026-05-22
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -236,7 +236,7 @@ python .\scripts\dev\run_precommit_checks.py
 
 ## CI parity guidelines
 
-1. Use same Python and Node major versions as CI (`3.11`, `20`).
+1. Use same Python and Node major versions as CI (`3.11`, `24`).
 2. Keep local commands aligned with workflow commands in:
    - `.github/workflows/ci.yml`
    - `.github/workflows/deploy.yml`

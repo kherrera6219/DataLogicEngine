@@ -14,7 +14,7 @@ This is the only active TODO list for the repository. Keep open work here instea
 - [x] Replace overbroad product claims in app-facing copy with conservative, verifiable wording.
 - [x] Align AI provider names across `README.md`, `docs/PRIVACY_POLICY.md`, `frontend/app/about/ai-limitations/page.tsx`, and `frontend/app/about/cloud-services/page.tsx`.
 - [x] Explicitly disclose cloud AI processing and internet requirement anywhere AI settings or chat entry points are shown.
-- [ ] Finalize the in-app feature list used by `frontend/public/manifest.json`, `README.md`, and About pages.
+- [ ] Finalize the in-app feature list used by `frontend/public/manifest.json`, `README.md`, and About pages. Current copy is conservative and aligned, but the manifest shortcuts/features still need a product-owner pass before release.
 - [x] Finalize privacy practices wording in the app and docs so export/delete/history/AI-processing controls match actual behavior.
 
 Baseline app description:
@@ -60,21 +60,42 @@ Completed asset work:
 
 ## Validated Gap Review
 
-Review date: 2026-05-14
+Review date: 2026-05-22
+
+No standalone `ROADMAP.md` file exists in the repository. The only roadmap-style source found during the May 22 review was `docs/archive/historical-documents/MVP Plan_ Universal Knowledge Graph (UKG) System.pdf`; actionable current work from that historical plan is tracked in this file instead of creating a second roadmap.
 
 | TODO area | Code validation | Current status |
 | --- | --- | --- |
 | App-facing product copy | Baseline copy exists in this file; app-facing claims were revised to conservative local-first/cloud-augmented wording in manifest, About, AI limitations, cloud-services, chat, and settings surfaces on 2026-05-21. | Implemented; keep future copy changes aligned with baseline wording. |
 | Third-party AI services list | Provider disclosures exist in `README.md`, `docs/PRIVACY_POLICY.md`, `frontend/app/about/ai-limitations/page.tsx`, and `frontend/app/about/cloud-services/page.tsx`, using OpenAI, Anthropic, Google Gemini / Vertex AI, and Microsoft Azure OpenAI. | Implemented; keep provider labels consistent when adding new providers. |
-| Screenshots | `frontend/public/manifest.json` has `"screenshots": []`; Playwright visual snapshots exist but are test baselines, not release/docs assets. | Open. |
-| PWA icons | `frontend/public/manifest.json` references `/icons/icon-192.png` and `/icons/icon-512.png`; `frontend/public/icons/` is absent. Only `frontend/public/icon.png` exists. | Open. |
-| App/banner images | No dedicated app/documentation banner assets found under `frontend/public/`. | Open. |
-| Windows installer publisher | Rebuilt installer metadata now reports company/publisher as `Kevin Herrera`, product as `DataLogicEngine Desktop`; Windows Apps registry metadata includes display name, publisher, install location, and uninstall command; local dev signature status is `Valid` for `CN=Kevin Herrera`. | Partially ready; still needs a production trusted certificate. |
-| Automated accessibility support | `frontend/package.json` includes `test:a11y:ci`; `frontend/scripts/run-a11y-ci.mjs` scans static disclosure/auth routes. | Partially ready; manual WCAG audit still required. |
+| Screenshots | `frontend/public/manifest.json` contains six real screenshot entries and `frontend/public/screenshots/` contains dashboard, chat, privacy, cloud-services, graph, and provider-settings captures. | Implemented; keep screenshots refreshed when primary UI changes. |
+| PWA icons | `frontend/public/manifest.json` references `/icons/icon-192.png` and `/icons/icon-512.png`; both files exist under `frontend/public/icons/`. | Implemented. |
+| App/banner images | `frontend/public/brand/datalogicengine-banner-1600x900.png` exists for documentation/banner reuse. | Implemented. |
+| Windows installer publisher | Rebuilt installer metadata now reports company/publisher as `Kevin Herrera`, product as `DataLogicEngine Desktop`; Windows Apps registry metadata includes display name, publisher, install location, and uninstall command; local dev signature status is `Valid` for `CN=Kevin Herrera`. | Partially ready; release still needs a trusted production certificate configured and documented. |
+| Automated accessibility support | `frontend/package.json` includes `test:a11y:ci`; `frontend/scripts/run-a11y-ci.mjs` scans public/static routes with axe WCAG A/AA tags. | Partially ready; authenticated primary-route coverage and manual WCAG evidence are still required. |
 | Keyboard/navigation route coverage | `frontend/tests/e2e/route-sidebar-smoke.spec.ts` covers route load and sidebar toggles. | Partially ready; manual keyboard pass still required. |
 | AI transparency labels | `frontend/components/Chat/MessageBubble.tsx` labels AI-generated output and shows provider/model metadata. | Implemented; add regression coverage where missing. |
 | User data controls | `routes/user_data_routes.py` includes export/delete endpoints, and `frontend/app/settings/privacy/page.tsx` exists. | Implemented; end-to-end manual validation still required. |
 | AI processing controls | `frontend/components/settings/AiModelSettings.tsx` includes AI processing and chat history preferences. | Implemented; end-to-end manual validation still required. |
+
+## MVP Roadmap Document Validation
+
+Source reviewed: `docs/archive/historical-documents/MVP Plan_ Universal Knowledge Graph (UKG) System.pdf`
+
+| MVP / roadmap item | Current validation | Status |
+| --- | --- | --- |
+| 13-axis coordinate MVP | Current architecture and code have evolved to a 17-axis coordinate model (`core/coordinate_system.py`, `docs/ARCHITECTURE.md`, `docs/DECISION_LOGIC.md`). | Superseded and implemented as 17-axis. |
+| Pillar and sector classification | Pillars, sectors, domains, coordinates, and knowledge-node APIs are documented and implemented across backend models/routes and architecture docs. | Implemented; keep API coverage current. |
+| Basic simulation engine with traceability | Truth Engine, trace routes, `TraceRun` fields, Tier 2 audit footer, and `TruthAuditEvent` hash-chain receipt are implemented. | Implemented; broader staging/provider evidence still required. |
+| Regulatory and compliance reasoning | Regulatory/compliance axes, TruthGate checks, compliance routes, and audit metadata are implemented. | Implemented; conflict/failure-mode evidence still required. |
+| Quad-persona reasoning | Persona axes, persona routes, and multi-persona reasoning docs/code exist. | Implemented foundation; recursive debate and dynamic persona expansion remain future work. |
+| Node/honeycomb graph navigation | Graph, knowledge-node, edge, and related UI/API surfaces exist. | Implemented foundation; keep graph UX and OpenAPI coverage improving. |
+| Compliance overlays and coordinate trace UI | AI labels, provider/model metadata, audit footer, and trace-oriented backend support exist. | Partially implemented; richer user-facing trace/overlay UX remains open. |
+| External API / enterprise connector extension | MCP server management, tool/resource/prompt routes, scope enforcement, and connector infrastructure exist. | Implemented foundation; production connector validation remains open. |
+| Enterprise data ingestion and vector store | PostgreSQL, Neo4j, Redis, ChromaDB, object storage, and local setup/QC are implemented. | Implemented for local QC; production-scale ingestion validation remains open. |
+| Real-time monitoring/dashboard | `/health`, `/live`, `/ready`, `/metrics`, Sentry configuration, admin routes, and dashboard surfaces exist. | Implemented foundation; production alerting evidence remains open. |
+| Testing and evaluation report | Automated commands and partial a11y route scan exist. | Partially implemented; app-readiness evidence and manual accessibility/failure-mode report remain open. |
+| Post-MVP recursive debate, dynamic PoV expansion, automated axis learning, quantum-ready nodes, feedback loops, enterprise scaling | Architecture and simulation modules include foundations for advanced reasoning and operations. | Future work; not release blockers for the current local-first application readiness pass. |
 
 ## Phased Completion Plan
 
