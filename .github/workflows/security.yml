@@ -260,20 +260,31 @@ jobs:
       uses: sigstore/cosign-installer@v4.0.0
 
     - name: Sign SBOM artifacts (keyless OIDC)
-      continue-on-error: true
       env:
         COSIGN_EXPERIMENTAL: "1"
       run: |
+        set +e
         cosign version
         test -f sbom-backend.json
         cosign sign-blob --yes sbom-backend.json \
           --output-signature sbom-backend.json.sig \
           --output-certificate sbom-backend.json.pem
+        backend_status=$?
+        if [ "$backend_status" -ne 0 ]; then
+          echo "::warning::Cosign SBOM signing is unavailable for this run; continuing without signatures."
+          rm -f sbom-backend.json.sig sbom-backend.json.pem sbom-frontend.json.sig sbom-frontend.json.pem
+          exit 0
+        fi
 
         if [ -f sbom-frontend.json ]; then
           cosign sign-blob --yes sbom-frontend.json \
             --output-signature sbom-frontend.json.sig \
             --output-certificate sbom-frontend.json.pem
+          frontend_status=$?
+          if [ "$frontend_status" -ne 0 ]; then
+            echo "::warning::Cosign frontend SBOM signing failed; backend SBOM signature was preserved."
+            rm -f sbom-frontend.json.sig sbom-frontend.json.pem
+          fi
         fi
 
     - name: Upload signing artifacts
