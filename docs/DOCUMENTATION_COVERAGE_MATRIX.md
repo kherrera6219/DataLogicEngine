@@ -35,16 +35,11 @@ Track source-of-truth documents across all core application areas and identify d
 
 ## Gaps and follow-up items
 
-1. Keep generated inventory docs (`docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`) refreshed after repository cleanup/refactors.
-2. Keep root `TODO.md` as the only active planning and outstanding-work tracker.
-3. Complete app-readiness evidence for authenticated accessibility coverage, manual keyboard/NVDA checks, cloud/provider/auth/rate-limit failure modes, and export/delete end-to-end validation.
-4. Expand CI docs enforcement to include markdown linting for active files.
-5. Regenerate file inventory and generated structure artifacts after archive moves.
-6. Keep vendor guidance baseline (`docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`) reviewed at least monthly.
+Root `TODO.md` is the only active backlog for documentation, roadmap, and follow-up work. Keep this matrix limited to document ownership and status.
 
 ## Document control
 
 1. Owner: Platform Engineering
-2. Last updated: 2026-05-22
+2. Last updated: 2026-05-23
 3. Status: Active
 4. Review cadence: Every 30 days

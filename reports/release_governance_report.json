@@ -1,0 +1,144 @@
+{
+  "generated_at": "2026-05-23T04:54:42.670790+00:00",
+  "findings": [
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Found .github\\workflows\\ci.yml"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: lint:"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: backend-test:"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: frontend-build:"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: windows-packaging-smoke:"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: governance:"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: Run deterministic startup precheck gate"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: Validate docs references"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: Validate SQLite/Postgres schema parity"
+    },
+    {
+      "level": "OK",
+      "scope": "deploy",
+      "message": "Found .github\\workflows\\deploy.yml"
+    },
+    {
+      "level": "OK",
+      "scope": "deploy",
+      "message": "Contains required token: Run deterministic startup precheck gate"
+    },
+    {
+      "level": "OK",
+      "scope": "deploy",
+      "message": "Contains required token: Validate docs references"
+    },
+    {
+      "level": "OK",
+      "scope": "deploy",
+      "message": "Contains required token: Validate SQLite/Postgres schema parity"
+    },
+    {
+      "level": "OK",
+      "scope": "deploy",
+      "message": "Contains required token: Verify installer artifact integrity"
+    },
+    {
+      "level": "OK",
+      "scope": "deploy",
+      "message": "Contains required token: Production health check"
+    },
+    {
+      "level": "OK",
+      "scope": "release-checklist",
+      "message": "Found docs\\RELEASE_CHECKLIST.md"
+    },
+    {
+      "level": "OK",
+      "scope": "release-checklist",
+      "message": "Contains required token: python scripts/dev_doctor.py --skip-ports"
+    },
+    {
+      "level": "OK",
+      "scope": "release-checklist",
+      "message": "Contains required token: python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process"
+    },
+    {
+      "level": "OK",
+      "scope": "release-checklist",
+      "message": "Contains required token: python scripts/verify_lockfiles.py"
+    },
+    {
+      "level": "OK",
+      "scope": "release-checklist",
+      "message": "Contains required token: python scripts/verify_docs_references.py"
+    },
+    {
+      "level": "OK",
+      "scope": "release-checklist",
+      "message": "Contains required token: python scripts/validate_schema_parity.py"
+    },
+    {
+      "level": "OK",
+      "scope": "release-checklist",
+      "message": "Contains required token: python scripts/verify_release_governance.py"
+    },
+    {
+      "level": "OK",
+      "scope": "release-checklist",
+      "message": "Contains required token: python scripts/verify_installer_integrity.py --require-artifacts"
+    },
+    {
+      "level": "OK",
+      "scope": "release-checklist",
+      "message": "Contains required token: powershell -ExecutionPolicy Bypass -File .\\scripts\\windows\\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation"
+    },
+    {
+      "level": "OK",
+      "scope": "release-checklist",
+      "message": "Contains required token: Deployment health checks validated."
+    },
+    {
+      "level": "OK",
+      "scope": "release-checklist",
+      "message": "Contains required token: Metrics/alerts reviewed for first 30 minutes after rollout."
+    },
+    {
+      "level": "OK",
+      "scope": "release-checklist",
+      "message": "Contains required token: Disaster recovery restore drill reviewed within the last 30 days."
+    }
+  ],
+  "summary": {
+    "ok": 27,
+    "error": 0
+  }
+}

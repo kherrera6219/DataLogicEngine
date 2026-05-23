@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Copy, Terminal, Code2, BookOpen, MessageSquare } from "lucide-react";
+import { Copy, Terminal, Code2, Workflow } from "lucide-react";
 
 export function McpIntegrationExamples() {
   const [copied, setCopied] = useState('');
@@ -94,6 +94,29 @@ const transport = new WebSocketServerTransport({
 
 await server.connect(transport);`;
 
+  const langChainExample = `from langchain_core.tools import tool
+from mcp import MCPClient
+
+client = MCPClient(
+    uri="http://localhost:8000/api/v1/mcp",
+    auth_token=os.environ["DLE_MCP_TOKEN"],
+)
+
+@tool
+async def query_datalogic_engine(query: str) -> str:
+    """Query DataLogicEngine through an MCP-backed tool."""
+    await client.initialize()
+    result = await client.call_tool(
+        name="query_knowledge",
+        arguments={
+            "query": query,
+            "confidence_threshold": 0.9,
+        },
+    )
+    return result["summary"]
+
+# Add query_datalogic_engine to the agent tool list used by your LangChain graph.`;
+
   const [activeTab, setActiveTab] = useState("python");
 
   return (
@@ -103,10 +126,6 @@ await server.connect(transport);`;
           <div>
              <h2 className="text-2xl font-bold text-white">MCP Integration Examples</h2>
              <p className="text-gray-400">Code snippets to connect and extend UKG capabilities</p>
-          </div>
-          <div className="flex gap-2">
-             <Button variant="outline"><BookOpen className="mr-2 h-4 w-4" /> View Full Documentation</Button>
-             <Button variant="outline"><MessageSquare className="mr-2 h-4 w-4" /> Get Support</Button>
           </div>
        </div>
 
@@ -157,8 +176,18 @@ await server.connect(transport);`;
 
           <TabsContent value="langchain" className="mt-0">
              <Card className="border-white/10">
-                <CardContent className="p-12 text-center text-gray-500">
-                   Integration example coming soon...
+                <CardHeader className="bg-white/5 border-b border-white/10 pb-4 flex flex-row items-center justify-between">
+                   <CardTitle className="text-lg flex items-center gap-2">
+                      <Workflow className="h-5 w-5 text-emerald-400" /> LangChain Tool Example
+                   </CardTitle>
+                   <Button size="sm" variant="outline" onClick={() => handleCopy(langChainExample, 'langchain')}>
+                      {copied === 'langchain' ? 'Copied!' : <><Copy className="mr-2 h-3 w-3" /> Copy Code</>}
+                   </Button>
+                </CardHeader>
+                <CardContent className="p-0 bg-black/40">
+                   <pre className="p-6 overflow-x-auto text-sm font-mono text-gray-300 leading-relaxed">
+                      {langChainExample}
+                   </pre>
                 </CardContent>
              </Card>
           </TabsContent>

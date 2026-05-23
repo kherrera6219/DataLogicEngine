@@ -75,6 +75,6 @@ Use this split so release evidence stays honest about what can be automated loca
 ## Document Control
 
 1. Owner: Release Engineering
-2. Last updated: 2026-03-31
+2. Last updated: 2026-05-23
 3. Status: Active
 4. Review cadence: Every release cycle

@@ -1,15 +1,17 @@
 'use client';
 
 import React from 'react';
-import { Search, Settings, Bell, LayoutGrid, Download, HelpCircle } from 'lucide-react';
+import { Search, Settings, LayoutGrid, Download, HelpCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export function CommandBar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [query, setQuery] = React.useState('');
   
   const getBreadcrumbs = () => {
     if (pathname === '/dashboard') return [{ label: "Executive Dashboard" }];
@@ -25,13 +27,14 @@ export function CommandBar() {
       aria-label="Primary Application Toolbar"
     >
       <div className="flex items-center gap-4">
-        <div 
+        <button
+          type="button"
           className="p-2 hover:bg-gray-800 rounded-lg cursor-pointer"
           aria-label="Open application launcher"
-          role="button"
+          onClick={() => router.push('/dashboard')}
         >
           <LayoutGrid className="h-5 w-5 text-gray-400" />
-        </div>
+        </button>
         <div className="h-6 w-px bg-gray-800" />
         <div className="flex flex-col">
           <h2 className="text-[10px] font-bold text-white tracking-widest uppercase opacity-70">
@@ -45,44 +48,52 @@ export function CommandBar() {
       </div>
 
       <div className="flex-1 max-w-md mx-8 hidden md:block">
-        <div className="relative group">
+        <form
+          className="relative group"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const trimmed = query.trim();
+            router.push(trimmed ? `/graph?search=${encodeURIComponent(trimmed)}` : '/graph');
+          }}
+        >
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 group-focus-within:text-blue-500" />
           <Input 
             className="w-full bg-gray-800/50 border-gray-700/50 h-9 pl-10 focus-visible:ring-blue-500 transition-all rounded-xl" 
             placeholder="Search nodes, pillars, or compliance controls..." 
             aria-label="Global search for nodes and compliance controls"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
           />
-        </div>
+        </form>
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="flex gap-1 mr-2 px-2 py-1 bg-gray-800/50 rounded-lg border border-gray-700/50 hidden lg:flex">
-          <Button variant="ghost" size="sm" className="h-7 text-xs text-gray-400 hover:text-white" aria-label="Export data to Excel">
-            <Download className="h-3.5 w-3.5 mr-1" /> Open in Excel
-          </Button>
-          <div className="w-px h-4 bg-gray-700 my-auto mx-1" />
-          <Button variant="ghost" size="sm" className="h-7 text-xs text-gray-400 hover:text-white" aria-label="Export to Business Intelligence platform">
-            Export BI
-          </Button>
-        </div>
-
         <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl"
+            aria-label="Help and Documentation"
+            onClick={() => router.push('/about')}
+          >
+            <HelpCircle className="h-5 w-5" />
+          </Button>
           {[
-            { Icon: HelpCircle, label: "Help and Documentation" },
-            { Icon: Bell, label: "View Notifications" },
-            { Icon: Settings, label: "Account and System Settings" }
-          ].map(({ Icon, label }, idx) => (
-             <Button key={idx} variant="ghost" size="icon" className="h-9 w-9 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl" aria-label={label}>
+            { Icon: Download, label: "Open export history", href: "/tools/history" },
+            { Icon: Settings, label: "Account and System Settings", href: "/settings" }
+          ].map(({ Icon, label, href }, idx) => (
+             <Button key={idx} variant="ghost" size="icon" className="h-9 w-9 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl" aria-label={label} onClick={() => router.push(href)}>
                <Icon className="h-5 w-5" />
              </Button>
           ))}
-          <div 
+          <button
+            type="button"
             className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center text-white text-xs font-bold cursor-pointer"
             aria-label="User Profile: Admin User"
-            role="button"
+            onClick={() => router.push('/profile')}
           >
              AD
-          </div>
+          </button>
         </div>
       </div>
     </div>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Users, Activity, ShieldAlert, Server,
-  MoreHorizontal, Search, RefreshCw, Database
+  Search, RefreshCw, Database
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from '@/contexts/AuthContext';
@@ -212,7 +212,6 @@ export default function AdminPage() {
                     <th className="p-4 font-medium">Role</th>
                     <th className="p-4 font-medium">Status</th>
                     <th className="p-4 font-medium">Last Active</th>
-                    <th className="p-4 font-medium text-right pr-6">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5 text-slate-700 dark:text-gray-300">
@@ -236,23 +235,18 @@ export default function AdminPage() {
                       <td className="p-4 font-mono text-xs text-slate-500 dark:text-gray-500">
                         {formatRelative(entry.last_login || entry.created_at)}
                       </td>
-                      <td className="p-4 text-right pr-6">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 dark:text-gray-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/10 rounded-md">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </td>
                     </tr>
                   ))}
                   {!loadingData && filteredUsers.length === 0 && (
                     <tr>
-                      <td className="p-6 text-sm text-slate-500 dark:text-gray-500" colSpan={5}>
+                      <td className="p-6 text-sm text-slate-500 dark:text-gray-500" colSpan={4}>
                         No users matched your filters.
                       </td>
                     </tr>
                   )}
                   {loadingData && (
                     <tr>
-                      <td className="p-6 text-sm text-slate-500 dark:text-gray-500" colSpan={5}>
+                      <td className="p-6 text-sm text-slate-500 dark:text-gray-500" colSpan={4}>
                         Loading user telemetry...
                       </td>
                     </tr>

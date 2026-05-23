@@ -16,7 +16,7 @@ Provide production acceptance criteria, operational controls, and validation che
 ## Document control
 
 1. Owner: Platform Operations
-2. Last updated: 2026-05-22
+2. Last updated: 2026-05-23
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -44,9 +44,9 @@ Provide production acceptance criteria, operational controls, and validation che
 
 DataLogicEngine is an enterprise-grade AI/ML knowledge management platform designed for production deployment. This guide outlines the critical steps, configurations, and best practices for deploying the system in a production environment.
 
-**Current status**: Application-readiness validation is in progress. Local stack QC, Tier 2 audit receipts, app assets, privacy controls, cloud disclosures, notification preferences, storage cloud configuration, MCP server administration, authenticated automated accessibility scans, failure-mode tests, export/delete tests, and the production code-signing workflow path are implemented. Production release still requires manual keyboard/NVDA accessibility evidence, provisioned trusted signing credentials, and signed release artifact validation.
+**Current status**: Application-readiness validation is in progress. Local stack QC, Tier 2 audit receipts, app assets, privacy controls, cloud disclosures, notification preferences, storage cloud configuration, MCP server administration, authenticated automated accessibility scans, keyboard navigation evidence, failure-mode tests, export/delete tests, UI placeholder audit evidence, and the production code-signing workflow path are implemented. Production release still requires manual NVDA accessibility evidence, provisioned trusted signing credentials, and signed release artifact validation.
 
-## 2026-05-22 Application-Readiness Update
+## 2026-05-23 Application-Readiness Update
 
 Completed or validated in the current application state:
 
@@ -56,13 +56,7 @@ Completed or validated in the current application state:
 4. The frontend `/register` route is disabled by design in the local-first build; backend registration remains available only as an API surface when a deployment explicitly reopens web self-registration.
 5. Backend default runtime port is `5000`, matching `app.py`, `docker-compose.yml`, `Dockerfile.cloud`, and current API documentation.
 
-Remaining release blockers:
-
-1. Repeatable WCAG 2.1 AA evidence for authenticated primary app routes is automated through `npm --prefix frontend run test:a11y:ci`.
-2. Manual keyboard and NVDA screen-reader validation on Windows.
-3. Cloud outage, AI provider failure, auth failure, rate-limit, data export, and data deletion end-to-end evidence is automated through `frontend/tests/e2e/app-readiness-evidence.spec.ts`.
-4. Trusted production code-signing certificate path is documented through `.github/workflows/release-installer-signing.yml`; signed release artifact validation still requires a trusted certificate in GitHub secrets.
-5. Product-owner pass on the final manifest/About/README feature list.
+Remaining release blockers and future work are consolidated in the root `TODO.md`. Keep release-readiness actions there and keep this guide focused on validation procedures and production controls.
 
 ## Production Code-Signing Path
 
@@ -336,49 +330,7 @@ The following quality-gate controls were completed and validated:
 
 ## Production Checklist
 
-### Critical (Must Complete Before Production)
-
-- [x] **Remove default credentials** from .env file
-- [x] **Disable debug mode** in main.py and app.py
-- [x] **Generate strong secret keys** (SECRET_KEY, JWT_SECRET_KEY, ENCRYPTION_KEK_SECRET)
-- [x] **Configure production database** (PostgreSQL recommended)
-- [x] **Enable HTTPS/SSL** with forced redirection (middleware implemented)
-- [x] **Set SESSION_COOKIE_SECURE=true**
-- [x] **Configure proper CORS origins** (no wildcards)
-- [x] **Review and implement rate limiting** for all endpoints
-- [x] **Enable audit logging** to secure storage
-- [x] **Configure backup strategy** for database and logs
-- [x] **Set up monitoring and alerting**
-- [x] **Implement log rotation** and retention policies (backend/retention_service.py)
-- [x] **Consolidate TODO/FIXME planning** - Current open work is tracked only in root `TODO.md`
-- [x] **Complete security vulnerability scan** - Bandit/Safety verified
-- [x] **Perform load testing** - Locust scripts in tests/performance/
-- [x] **Document incident response procedures**
-- [x] **Configure production error handlers** (using enterprise KA exception framework)
-- [x] **Set up CI/CD pipeline** with automated testing
-- [x] **Enable database connection pooling**
-- [ ] **Configure firewall rules** and network security groups
-
----
-
-### High Priority (Complete Within First Week)
-
-- [x] **Maintain comprehensive test suite** (coverage gate: >=70%, current: 71.47%)
-- [x] **Primary query/simulation API paths fail closed when the gateway is unavailable**
-- [ ] **Validate simulation engine in provider-backed staging environment** (current pass removed synthetic fallback behavior, but end-to-end provider validation is still required)
-- [x] **Integrate all 123 Knowledge Algorithms** (Hardened with Pydantic & Fallbacks)
-- [x] **Implement 17-axis system** (Fully integrated into KA processing)
-- [x] **Set up automated database backups** - scripts/verify_backup_cron.sh
-- [x] **Configure log aggregation** (ELK/Splunk/CloudWatch) via LOG_AGGREGATION_URL
-- [x] **Implement health check endpoints** with detailed status (/api/health)
-- [x] **Set up performance monitoring** - Prometheus/Grafana metrics in /api/v1/metrics
-- [x] **Configure auto-scaling** - K8s KAOperator implemented
-- [x] **Document API versioning strategy** - docs/API_VERSIONING.md
-- [x] **Implement API rate limit quotas** per user
-- [x] **Set up Redis** for session storage and caching
-- [x] **Configure CDN** for static assets (NEXT_PUBLIC_CDN_URL assetPrefix support)
-- [x] **Implement data retention policies** (User-controlled deletion implemented)
-- [ ] **Set up security incident response team**
+Open production-readiness work is consolidated in the root `TODO.md`. This guide documents production controls and validation procedures; it should not maintain a second active backlog.
 
 ### Phase 8: Microsoft Store & Compliance ✅
 - [x] **AI Transparency Labeling**: Added badges and disclaimers to all AI-generated content.
@@ -395,24 +347,6 @@ The following quality-gate controls were completed and validated:
 - [x] **Binary Integrity**: SHA-256 verification of all core application binaries (Backend/Frontend) to prevent tampering.
 - [x] **Validated Identity**: Format-hardened Windows SID anchoring for deterministic user profiles.
 - [x] **Automated Verification**: Pester (PowerShell) and Pytest (Platform) suites established with 100% pass rates.
-
-### Medium Priority (Complete Within First Month)
-
-- [ ] **Implement comprehensive integration tests**
-- [ ] **Set up blue-green deployment** strategy
-- [ ] **Configure disaster recovery** procedures
-- [ ] **Implement database read replicas** for scalability
-- [ ] **Set up A/B testing** infrastructure
-- [ ] **Configure user analytics** and usage tracking
-- [x] **Implement advanced caching strategies** (Redis UKG caching)
-- [ ] **Set up continuous security scanning**
-- [ ] **Document runbook procedures** for operations team
-- [ ] **Configure backup verification** and restore testing
-- [ ] **Implement feature flags** system
-- [ ] **Set up chaos engineering** tests
-- [ ] **Configure compliance reporting** automation
-- [ ] **Implement API documentation** portal
-- [ ] **Set up performance benchmarking**
 
 ## Security Hardening
 
@@ -1260,5 +1194,5 @@ Following this production readiness guide will ensure your DataLogicEngine deplo
 ---
 
 **Document version:** 1.2.0
-**Last updated:** May 22, 2026
+**Last updated:** May 23, 2026
 **Next review:** June 22, 2026

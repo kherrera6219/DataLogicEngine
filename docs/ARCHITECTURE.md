@@ -924,8 +924,4 @@ Already implemented in the current codebase:
 - Kubernetes operator (`k8s/` manifests and operator definitions)
 - Advanced analytics dashboard (`backend/routes/analytics_routes.py`)
 
-Active backlog:
-
-- Mobile applications (React Native — historical research retained in `docs/archive/research/REACT_NATIVE_RESEARCH.md`)
-- Machine learning model serving (local SLM routing for L1/L2 tasks)
-- Multi-language support (i18n)
+Active backlog is consolidated in the root `TODO.md`. Historical mobile research is retained in `docs/archive/research/REACT_NATIVE_RESEARCH.md`, but mobile, local SLM routing, and i18n remain future items only if they are selected in the canonical backlog.

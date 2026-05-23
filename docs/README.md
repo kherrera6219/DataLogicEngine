@@ -79,7 +79,7 @@ Historical PDFs, old release notes, wireframes, and research spikes are preserve
 | Item | Status |
 |------|--------|
 | Registration flow | `/register` redirects to `/dashboard`; web self-registration is disabled in the current local-first build. |
-| Application-readiness evidence | Manual WCAG, keyboard, NVDA, and failure-mode evidence is still tracked in `TODO.md`. |
+| Application-readiness evidence | Automated WCAG, keyboard navigation, failure-mode, export/delete, and UI placeholder audit evidence is captured under `reports/app-readiness/`; manual NVDA evidence is still tracked in `TODO.md`. |
 
 ---
 
@@ -211,7 +211,7 @@ These documents are produced to the Microsoft enterprise standard for engineerin
 
 | Document | Description | Audience |
 |----------|-------------|----------|
-| [`TODO.md`](../TODO.md) | Canonical open work list and Microsoft Store readiness tracker | Developers, release owners |
+| [`TODO.md`](../TODO.md) | Canonical roadmap, backlog, and open work list | Developers, release owners |
 | [`docs/RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) | Release validation gates and sign-off process | Developers, SRE |
 | [`docs/BRANCH_PROTECTION_POLICY.md`](BRANCH_PROTECTION_POLICY.md) | Branch protection rules and code-owner policy | Developers, leads |
 | [`docs/DOCUMENTATION_VERSIONING.md`](DOCUMENTATION_VERSIONING.md) | Documentation version control and change management policy | All |

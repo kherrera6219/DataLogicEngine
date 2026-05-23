@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">DataLogicEngine architecture overview</title>
+  <desc id="desc">High-level architecture showing clients, frontend, Flask API, security, AI gateway, graph APIs, tracing, data services, providers, and observability endpoints.</desc>
+  <defs>
+    <style>
+      .bg{fill:#0b1020}
+      .panel{fill:#111827;stroke:#334155;stroke-width:2;rx:12}
+      .accent{fill:#0f766e;stroke:#2dd4bf;stroke-width:2;rx:12}
+      .service{fill:#1f2937;stroke:#64748b;stroke-width:2;rx:10}
+      .data{fill:#172554;stroke:#60a5fa;stroke-width:2;rx:10}
+      .external{fill:#3b1d4a;stroke:#c084fc;stroke-width:2;rx:10}
+      .label{font-family:Segoe UI,Arial,sans-serif;font-size:21px;font-weight:700;fill:#f8fafc}
+      .small{font-family:Segoe UI,Arial,sans-serif;font-size:15px;fill:#cbd5e1}
+      .tiny{font-family:Segoe UI,Arial,sans-serif;font-size:13px;fill:#94a3b8}
+      .line{stroke:#94a3b8;stroke-width:2.5;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1200" height="620"/>
+  <text x="50" y="55" class="label">DataLogicEngine Runtime Architecture</text>
+  <text x="50" y="82" class="small">Local-first desktop/web console with secured API, graph services, provider gateway, and production observability.</text>
+
+  <rect x="55" y="145" width="190" height="110" class="panel"/>
+  <text x="85" y="188" class="label">Clients</text>
+  <text x="85" y="218" class="small">Electron desktop</text>
+  <text x="85" y="241" class="small">Browser / API</text>
+
+  <rect x="325" y="145" width="205" height="110" class="accent"/>
+  <text x="355" y="188" class="label">Next.js Frontend</text>
+  <text x="355" y="218" class="small">Dashboard, chat, graph</text>
+  <text x="355" y="241" class="small">Settings, admin, MCP</text>
+
+  <rect x="610" y="145" width="205" height="110" class="accent"/>
+  <text x="650" y="188" class="label">Flask API</text>
+  <text x="650" y="218" class="small">REST, Socket.IO</text>
+  <text x="650" y="241" class="small">Validation, routing</text>
+
+  <rect x="890" y="105" width="230" height="85" class="service"/>
+  <text x="925" y="145" class="label">Security</text>
+  <text x="925" y="170" class="small">Auth, RBAC, CSRF, limits</text>
+
+  <rect x="890" y="225" width="230" height="85" class="service"/>
+  <text x="925" y="264" class="label">Observability</text>
+  <text x="925" y="289" class="small">/health /ready /metrics</text>
+
+  <rect x="165" y="365" width="200" height="100" class="service"/>
+  <text x="200" y="405" class="label">LLM Gateway</text>
+  <text x="200" y="433" class="small">Provider routing</text>
+
+  <rect x="440" y="365" width="200" height="100" class="service"/>
+  <text x="475" y="405" class="label">Graph APIs</text>
+  <text x="475" y="433" class="small">KAs, nodes, edges</text>
+
+  <rect x="715" y="365" width="200" height="100" class="service"/>
+  <text x="750" y="405" class="label">Truth Engine</text>
+  <text x="750" y="433" class="small">Trace and evidence</text>
+
+  <rect x="55" y="510" width="245" height="70" class="external"/>
+  <text x="85" y="552" class="small">OpenAI, Anthropic, Azure, Google</text>
+
+  <rect x="375" y="510" width="355" height="70" class="data"/>
+  <text x="410" y="552" class="small">PostgreSQL, Neo4j, Redis, S3-compatible storage</text>
+
+  <rect x="805" y="510" width="315" height="70" class="data"/>
+  <text x="835" y="552" class="small">Audit records, traces, exports, readiness evidence</text>
+
+  <path class="line" d="M245 200 H325"/>
+  <path class="line" d="M530 200 H610"/>
+  <path class="line" d="M815 180 H890"/>
+  <path class="line" d="M815 225 H890"/>
+  <path class="line" d="M690 255 C690 310 270 310 270 365"/>
+  <path class="line" d="M715 255 C715 310 540 310 540 365"/>
+  <path class="line" d="M740 255 C740 310 815 310 815 365"/>
+  <path class="line" d="M265 465 V510"/>
+  <path class="line" d="M540 465 V510"/>
+  <path class="line" d="M815 465 V510"/>
+</svg>

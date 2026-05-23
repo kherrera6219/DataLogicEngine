@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-05-23T04:57:20.911Z",
+  "evidence": [
+    {
+      "name": "global keyboard navigation",
+      "status": "passed",
+      "details": "Sidebar collapse/expand and dashboard Start New Session are keyboard-operable."
+    },
+    {
+      "name": "settings keyboard navigation",
+      "status": "passed",
+      "details": "Settings sections and privacy controls link are reachable and operable by keyboard."
+    },
+    {
+      "name": "privacy keyboard action",
+      "status": "passed",
+      "details": "Export My Data is keyboard-operable and shows success feedback."
+    }
+  ]
+}

@@ -174,7 +174,7 @@ This ensures:
 
 ## Known Limitations
 
-1. Manual application-readiness evidence remains open for keyboard and NVDA validation; automated WCAG, failure-mode, and export/delete evidence is tracked in `reports/app-readiness/`.
+1. Manual application-readiness evidence remains open for NVDA validation; automated WCAG, keyboard navigation, failure-mode, and export/delete evidence is tracked in `reports/app-readiness/`.
 2. Register submit flow is intentionally disabled in the current local-first build; `/register` redirects to `/dashboard`.
 3. Release builds still need a trusted production certificate provisioned in GitHub secrets and a signed release workflow run before public distribution.
 
@@ -189,6 +189,6 @@ This ensures:
 ## Document Control
 
 1. Owner: Platform Engineering
-2. Last updated: 2026-05-22
+2. Last updated: 2026-05-23
 3. Status: Active
 4. Review cadence: Every 30 days

@@ -1,180 +1,71 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-05-22
+**Last updated:** 2026-05-23
 **Status:** Canonical planning source
 
 This is the only active TODO list for the repository. Keep open work here instead of adding separate project plans, roadmap files, assessment TODOs, or notes documents.
 
-## Current Priority
+## Unified Backlog
 
-### Application Readiness
+Review date: 2026-05-23
 
-#### Product Copy and Disclosures
+No standalone `ROADMAP.md` file exists in the repository. The only roadmap-style source found during the May 22 review was `docs/archive/historical-documents/MVP Plan_ Universal Knowledge Graph (UKG) System.pdf`; actionable current and future work is consolidated below.
 
-- [x] Replace overbroad product claims in app-facing copy with conservative, verifiable wording.
-- [x] Align AI provider names across `README.md`, `docs/PRIVACY_POLICY.md`, `frontend/app/about/ai-limitations/page.tsx`, and `frontend/app/about/cloud-services/page.tsx`.
-- [x] Explicitly disclose cloud AI processing and internet requirement anywhere AI settings or chat entry points are shown.
-- [ ] Finalize the in-app feature list used by `frontend/public/manifest.json`, `README.md`, and About pages. Current copy is conservative and aligned, but the manifest shortcuts/features still need a product-owner pass before release.
-- [x] Finalize privacy practices wording in the app and docs so export/delete/history/AI-processing controls match actual behavior.
+### Release Readiness
 
-Baseline app description:
+- [x] Finalize the in-app feature list used by `frontend/public/manifest.json`, `README.md`, and About pages. Current copy is conservative and aligned; manifest shortcuts now point to dashboard, chat, privacy controls, and provider settings.
+- [x] Add or document keyboard navigation coverage across primary pages and modal/dialog workflows on the packaged Windows app.
+- [ ] Execute NVDA screen reader compatibility checks on Windows using `reports/app-readiness/nvda-manual-checklist.md`.
+- [ ] Provision a trusted production code-signing certificate in GitHub secrets and run `.github/workflows/release-installer-signing.yml` to produce signed release artifacts with signature reports.
+- [ ] Prepare release checklist evidence: changelog entry, governance command output, CI/security scan review, artifact signing evidence, code-owner approval, rollback plan, and disaster recovery review. Local evidence is started in `reports/release-readiness/local-release-evidence-2026-05-23.md`, and `docs/DOCS_VERSION.json` is current for this docs pass.
 
-```text
-DataLogicEngine is a local-first, cloud-augmented knowledge graph workspace for governed AI reasoning. It helps users organize enterprise knowledge, run traceable AI-assisted analysis, inspect provider/model usage, and manage privacy controls.
+### Product And UX
 
-Internet access is required for AI reasoning features. Prompts and related context may be sent to configured third-party AI providers such as OpenAI, Anthropic, Google, or Microsoft Azure OpenAI. AI-generated responses may contain errors and should be verified before use in critical decisions.
-```
+- [x] Decide whether `/register` remaining disabled is the intended local-first behavior or whether web self-registration should be reopened as a future web-mode feature. Decision: keep disabled for the current local-first desktop build; reopen only as a future web-mode product requirement.
+- [x] Audit MCP and admin screens for live-data versus static metric placeholders and update any placeholder controls before release. Evidence: `reports/app-readiness/ui-placeholder-audit.md`.
+- [x] Verify toolbar actions route by route and either wire, hide, or document placeholder-only actions. The graph toolbar now routes search/help/settings/history/profile actions and hides unsupported export/notification controls.
+- [x] Add public architecture assets under `docs/assets/readme/` for the external README.
+- [ ] Keep screenshots refreshed when primary UI changes.
 
-#### App Assets and Manifest
+### API, Contracts, And Documentation
 
-- [x] Capture 5-10 screenshots from the actual app UI for docs, manifest, and release verification.
-- [x] Add screenshots to `frontend/public/manifest.json` if publishing as a web/PWA surface.
-- [x] Create missing PWA icon assets referenced by `frontend/public/manifest.json`.
-- [x] Prepare in-app and documentation banner images where useful.
+- [ ] Tighten public API contracts, reduce legacy route aliases, and improve generated OpenAPI coverage.
+- [ ] Keep generated inventory docs (`docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`) refreshed after repository cleanup/refactors.
+- [ ] Expand CI docs enforcement to include markdown linting for active files.
+- [ ] Keep vendor guidance baseline (`docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`) reviewed at least monthly.
+- [ ] Expand deployment reference material for Kubernetes, managed Postgres, managed Redis, and managed Neo4j.
 
-#### Windows Installer
+### Runtime, Testing, And Operations
 
-- [x] Rebuild the Electron/NSIS installer after current app updates.
-- [x] Verify installer configuration for assisted install location selection, progress, completion behavior, and desktop/start menu shortcuts.
-- [x] Verify Windows Apps registry metadata lists `DataLogicEngine Desktop` with publisher `Kevin Herrera`, install location, and uninstall command.
-- [x] Verify normal Windows uninstall removes application binaries and keeps app data by default.
-- [x] Create a local dev certificate helper for development validation.
-- [x] Create and document a trusted production code-signing certificate path.
+- [ ] Validate the simulation engine in a provider-backed staging environment.
+- [ ] Expand comprehensive integration tests beyond current targeted route and readiness evidence.
+- [ ] Configure production firewall rules and network security groups.
+- [ ] Set up or document the production security incident response team.
+- [ ] Configure backup verification and restore testing.
+- [ ] Set up continuous security scanning review evidence for release.
+- [ ] Set up performance benchmarking evidence.
+- [ ] Configure compliance reporting automation.
+- [ ] Document production blue-green deployment, disaster recovery, read-replica, and rollback procedures where applicable.
+- [ ] Configure user analytics, usage tracking, A/B testing, feature flags, and chaos testing only if they remain product requirements for the target deployment.
 
-Completed asset work:
+### MCP And Connector Roadmap
 
-- `frontend/public/icons/icon-192.png` and `frontend/public/icons/icon-512.png` are generated from the existing app icon.
-- `frontend/public/screenshots/` contains six 1440x900 route captures from the running app: dashboard, chat, settings/privacy, cloud services, graph, and settings/provider controls.
-- `frontend/public/brand/datalogicengine-banner-1600x900.png` provides a reusable documentation/banner asset based on the existing app icon.
+- [x] Reconcile `docs/MCP_INTEGRATION.md` future items against implemented connector/OAuth/metrics work and close stale entries.
+- [ ] Add MCP sampling support for LLM completions if still required.
+- [ ] Add advanced MCP resource subscriptions and real-time update notifications.
+- [ ] Add external/remote MCP server connection management.
+- [ ] Add dynamic MCP plugin discovery and loading.
+- [ ] Validate production connector operation against real external systems.
 
-#### Manual Validation
+### Long-Term Research And Platform Roadmap
 
-- [x] Add repeatable WCAG 2.1 AA accessibility evidence for primary app routes.
-- [ ] Add or document keyboard navigation coverage across primary pages.
-- [ ] Add or document screen reader compatibility checks with NVDA on Windows.
-- [x] Add cloud outage graceful-degradation test coverage.
-- [x] Add auth failure end-to-end test coverage.
-- [x] Add rate-limit user experience test coverage.
-- [x] Add AI provider failure-mode test coverage.
-- [x] Add data export and delete end-to-end test coverage.
-
-## Validated Gap Review
-
-Review date: 2026-05-22
-
-No standalone `ROADMAP.md` file exists in the repository. The only roadmap-style source found during the May 22 review was `docs/archive/historical-documents/MVP Plan_ Universal Knowledge Graph (UKG) System.pdf`; actionable current work from that historical plan is tracked in this file instead of creating a second roadmap.
-
-| TODO area | Code validation | Current status |
-| --- | --- | --- |
-| App-facing product copy | Baseline copy exists in this file; app-facing claims were revised to conservative local-first/cloud-augmented wording in manifest, About, AI limitations, cloud-services, chat, and settings surfaces on 2026-05-21. | Implemented; keep future copy changes aligned with baseline wording. |
-| Third-party AI services list | Provider disclosures exist in `README.md`, `docs/PRIVACY_POLICY.md`, `frontend/app/about/ai-limitations/page.tsx`, and `frontend/app/about/cloud-services/page.tsx`, using OpenAI, Anthropic, Google Gemini / Vertex AI, and Microsoft Azure OpenAI. | Implemented; keep provider labels consistent when adding new providers. |
-| Screenshots | `frontend/public/manifest.json` contains six real screenshot entries and `frontend/public/screenshots/` contains dashboard, chat, privacy, cloud-services, graph, and provider-settings captures. | Implemented; keep screenshots refreshed when primary UI changes. |
-| PWA icons | `frontend/public/manifest.json` references `/icons/icon-192.png` and `/icons/icon-512.png`; both files exist under `frontend/public/icons/`. | Implemented. |
-| App/banner images | `frontend/public/brand/datalogicengine-banner-1600x900.png` exists for documentation/banner reuse. | Implemented. |
-| Windows installer publisher | Rebuilt installer metadata now reports company/publisher as `Kevin Herrera`, product as `DataLogicEngine Desktop`; Windows Apps registry metadata includes display name, publisher, install location, and uninstall command; local dev signature status is `Valid` for `CN=Kevin Herrera`. Production signing is documented through `.github/workflows/release-installer-signing.yml`, `WINDOWS_CODESIGN_CERT_BASE64`, `WINDOWS_CODESIGN_CERT_PASSWORD`, and `scripts/windows/sign_release_installers.ps1`. | Path documented; release still needs a trusted certificate provisioned in GitHub secrets and a signed-release run. |
-| Automated accessibility support | `frontend/package.json` includes `test:a11y:ci`; `frontend/scripts/run-a11y-ci.mjs` scans public, static, and authenticated primary routes with axe WCAG 2.0/2.1 A/AA tags and writes `reports/app-readiness/a11y-ci-report.json`. | Automated evidence implemented; manual keyboard/NVDA evidence is still required. |
-| Keyboard/navigation route coverage | `frontend/tests/e2e/route-sidebar-smoke.spec.ts` covers route load and sidebar toggles. | Partially ready; manual keyboard pass still required. |
-| AI transparency labels | `frontend/components/Chat/MessageBubble.tsx` labels AI-generated output and shows provider/model metadata. | Implemented; add regression coverage where missing. |
-| User data controls | `routes/user_data_routes.py` includes export/delete endpoints, and `frontend/app/settings/privacy/page.tsx` exists. `frontend/tests/e2e/app-readiness-evidence.spec.ts` covers export success, export 429 handling, export 401 handling, and deletion confirmation. | Automated end-to-end evidence implemented; manual packaged-app validation remains for release. |
-| AI processing controls | `frontend/components/settings/AiModelSettings.tsx` includes AI processing and chat history preferences. | Implemented; end-to-end manual validation still required. |
-
-## MVP Roadmap Document Validation
-
-Source reviewed: `docs/archive/historical-documents/MVP Plan_ Universal Knowledge Graph (UKG) System.pdf`
-
-| MVP / roadmap item | Current validation | Status |
-| --- | --- | --- |
-| 13-axis coordinate MVP | Current architecture and code have evolved to a 17-axis coordinate model (`core/coordinate_system.py`, `docs/ARCHITECTURE.md`, `docs/DECISION_LOGIC.md`). | Superseded and implemented as 17-axis. |
-| Pillar and sector classification | Pillars, sectors, domains, coordinates, and knowledge-node APIs are documented and implemented across backend models/routes and architecture docs. | Implemented; keep API coverage current. |
-| Basic simulation engine with traceability | Truth Engine, trace routes, `TraceRun` fields, Tier 2 audit footer, and `TruthAuditEvent` hash-chain receipt are implemented. | Implemented; broader staging/provider evidence still required. |
-| Regulatory and compliance reasoning | Regulatory/compliance axes, TruthGate checks, compliance routes, and audit metadata are implemented. | Implemented; conflict/failure-mode evidence still required. |
-| Quad-persona reasoning | Persona axes, persona routes, and multi-persona reasoning docs/code exist. | Implemented foundation; recursive debate and dynamic persona expansion remain future work. |
-| Node/honeycomb graph navigation | Graph, knowledge-node, edge, and related UI/API surfaces exist. | Implemented foundation; keep graph UX and OpenAPI coverage improving. |
-| Compliance overlays and coordinate trace UI | AI labels, provider/model metadata, audit footer, and trace-oriented backend support exist. | Partially implemented; richer user-facing trace/overlay UX remains open. |
-| External API / enterprise connector extension | MCP server management, tool/resource/prompt routes, scope enforcement, and connector infrastructure exist. | Implemented foundation; production connector validation remains open. |
-| Enterprise data ingestion and vector store | PostgreSQL, Neo4j, Redis, ChromaDB, object storage, and local setup/QC are implemented. | Implemented for local QC; production-scale ingestion validation remains open. |
-| Real-time monitoring/dashboard | `/health`, `/live`, `/ready`, `/metrics`, Sentry configuration, admin routes, and dashboard surfaces exist. | Implemented foundation; production alerting evidence remains open. |
-| Testing and evaluation report | Automated commands, authenticated a11y route scans, and Playwright failure-mode/export-delete evidence exist. | Partially implemented; manual keyboard/NVDA accessibility report remains open. |
-| Post-MVP recursive debate, dynamic PoV expansion, automated axis learning, quantum-ready nodes, feedback loops, enterprise scaling | Architecture and simulation modules include foundations for advanced reasoning and operations. | Future work; not release blockers for the current local-first application readiness pass. |
-
-## Phased Completion Plan
-
-### Phase 1: App Copy and Disclosures
-
-Goal: Make every in-app and repo-facing statement conservative, specific, and consistent with actual behavior.
-
-- Finalize app description from the baseline description.
-- Replace overbroad wording in app surfaces and manifest metadata with conservative wording.
-- Reconcile third-party AI provider names across `README.md`, `docs/PRIVACY_POLICY.md`, `frontend/app/about/ai-limitations/page.tsx`, and `frontend/app/about/cloud-services/page.tsx`.
-- Ensure chat, AI settings, privacy settings, and cloud disclosure pages clearly state when internet/cloud AI processing is used.
-- Ensure privacy wording matches implemented export, delete, chat-history, and AI-processing controls.
-
-Exit criteria:
-
-- Manifest description, README description, About pages, AI limitations page, cloud services page, and privacy policy use consistent provider and data-handling wording.
-- No app-facing copy promises guaranteed accuracy, certification, zero retention, or enterprise agreements unless backed by repo evidence.
-
-### Phase 2: App Assets and PWA Manifest
-
-Goal: Make referenced app assets real and keep generated visual assets usable by the app/docs.
-
-- Capture 5-10 screenshots from real app routes: dashboard, chat with AI label, settings/privacy, cloud services disclosure, graph/knowledge view, and provider/model settings.
-- Create `frontend/public/icons/icon-192.png` and `frontend/public/icons/icon-512.png`.
-- Generate reusable app/documentation banner images from the approved brand asset if needed.
-- Update `frontend/public/manifest.json` with real screenshot entries if publishing the web/PWA surface.
-- Verify assets render in the packaged Electron build and web build.
-
-Exit criteria:
-
-- Manifest icon references resolve on disk.
-- Screenshots and banners are committed in a documented asset path.
-- `npm run build` and `npm run test:e2e:visual` pass or have documented environment blockers.
-
-### Phase 3: Automated Regression Evidence
-
-Goal: Convert existing smoke coverage into repeatable application-readiness evidence.
-
-- Expand `test:a11y:ci` routes to include `/dashboard`, `/chat`, `/settings`, `/settings/privacy`, `/about/cloud-services`, and `/about/ai-limitations` once authenticated/local fixture routing is stable. Done: `frontend/scripts/run-a11y-ci.mjs` now mocks authenticated desktop APIs and scans these primary routes.
-- Add or update Playwright coverage for auth failure, cloud/provider failure, rate-limit UX, export flow, and delete flow. Done: `frontend/tests/e2e/app-readiness-evidence.spec.ts`.
-- Save test command output and screenshots under `reports/app-readiness/`.
-- Confirm no not-found, hydration, or accessibility regressions on primary pages.
-
-Exit criteria:
-
-- Frontend lint, typecheck, unit tests, route smoke, visual smoke, and a11y scans pass.
-- Backend route tests cover user export/delete and AI preference APIs.
-- App-readiness report links to exact commands and generated artifacts.
-
-### Phase 4: Manual Accessibility and Failure-Mode Audit
-
-Goal: Complete the manual checks that automation cannot prove.
-
-- Perform WCAG 2.1 AA manual audit on the packaged/local app build.
-- Keyboard-test all primary pages and modal/dialog workflows.
-- Confirm screen reader compatibility with NVDA on Windows at minimum.
-- Test cloud outage, AI provider failure, auth failure, rate-limit behavior, data export, and data deletion end to end.
-- Record findings, fixes, screenshots, and pass/fail evidence in `reports/app-readiness/`.
-
-Exit criteria:
-
-- Every item under Manual Validation is checked off with evidence.
-- Any blocking issue has either a fix committed or a documented application risk decision.
-
-### Phase 5: Release Readiness Cleanup
-
-Goal: Leave the application in a release-ready state with no stale TODOs.
-
-- Rebuild and validate the normal Windows installer/uninstaller path.
-- Provision a real trusted certificate in GitHub secrets and run `.github/workflows/release-installer-signing.yml` before release; use the dev certificate generator only for local validation.
-- Run final packaged installer smoke test.
-- Verify `frontend/public/manifest.json`, docs, and app pages agree with implemented behavior.
-- Archive app-readiness evidence in `reports/app-readiness/`.
-- Update `TODO.md` checkboxes based on completed code and verification work.
-
-Exit criteria:
-
-- Application readiness evidence is complete.
-- `TODO.md` contains only unresolved repo-actionable work.
+- [ ] Evaluate mobile applications only if mobile becomes a product requirement; historical research is retained in `docs/archive/research/REACT_NATIVE_RESEARCH.md`.
+- [ ] Evaluate local SLM/model serving for L1/L2 tasks.
+- [ ] Add multi-language/i18n support if required by target users.
+- [ ] Expand richer user-facing trace and compliance overlay UX.
+- [ ] Validate production-scale enterprise ingestion and vector-store workflows.
+- [ ] Validate production alerting evidence for `/health`, `/live`, `/ready`, `/metrics`, Sentry, and admin dashboards.
+- [ ] Harden multi-tenant operations, cost controls, recursive persona evaluation, dynamic persona expansion, human feedback loops, automated axis learning, quantum-ready node research, and policy-as-code governance for larger deployments.
 
 ## Completed Local Stack QC (Phase 6 — 2026-05-15)
 
@@ -221,6 +112,10 @@ All five internal databases have been wired, seeded, and mutually validated in l
 | Automated accessibility audit command | `frontend/package.json` (`test:a11y:ci`) |
 | Authenticated WCAG 2.1 A/AA route evidence | `frontend/scripts/run-a11y-ci.mjs`, `reports/app-readiness/a11y-ci-report.json` |
 | Failure-mode/export-delete Playwright evidence | `frontend/tests/e2e/app-readiness-evidence.spec.ts`, `reports/app-readiness/playwright-app-readiness-report.json` |
+| Keyboard navigation evidence | `frontend/tests/e2e/keyboard-navigation-evidence.spec.ts`, `reports/app-readiness/keyboard-navigation-report.json` |
+| NVDA manual screen reader checklist | `reports/app-readiness/nvda-manual-checklist.md` |
+| UI placeholder audit | `reports/app-readiness/ui-placeholder-audit.md` |
+| Local release evidence | `reports/release-readiness/local-release-evidence-2026-05-23.md` |
 | Conservative copy/disclosure pass | `frontend/public/manifest.json`, `frontend/app/about/page.tsx`, `frontend/app/about/ai-limitations/page.tsx`, `frontend/app/about/cloud-services/page.tsx`, `frontend/app/legal/privacy/page.tsx`, `frontend/components/Chat/ChatInterface.tsx`, `frontend/components/settings/AiModelSettings.tsx`, `frontend/components/CloudDisclosureBanner.tsx`, `docs/PRIVACY_POLICY.md` |
 
 ## Documentation Cleanup Policy

@@ -1,6 +1,6 @@
 {
-  "name": "DataLogicEngine UKG",
-  "short_name": "UKG",
+  "name": "DataLogicEngine Desktop",
+  "short_name": "DataLogicEngine",
   "description": "Local-first, cloud-augmented knowledge graph workspace for traceable AI-assisted analysis, provider usage inspection, and privacy controls.",
   "start_url": "/",
   "scope": "/",
@@ -72,12 +72,22 @@
     {
       "name": "Dashboard",
       "url": "/dashboard",
-      "description": "View System Dashboard"
+      "description": "Review operational status, recent activity, and quick actions."
     },
     {
-      "name": "Simulations",
-      "url": "/simulations",
-      "description": "Run Knowledge Simulations"
+      "name": "AI Chat Workspace",
+      "url": "/chat",
+      "description": "Start traceable AI-assisted analysis with configured providers."
+    },
+    {
+      "name": "Privacy Controls",
+      "url": "/settings/privacy",
+      "description": "Export local data and manage profile deletion controls."
+    },
+    {
+      "name": "Provider Settings",
+      "url": "/settings",
+      "description": "Configure provider keys, AI model defaults, and storage settings."
     }
   ]
 }

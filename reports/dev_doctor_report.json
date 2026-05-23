@@ -1,0 +1,176 @@
+{
+  "generated_at": "2026-05-23T04:54:27.579336+00:00",
+  "strict": false,
+  "fail_on_warn": false,
+  "skip_ports": true,
+  "allow_env_from_process": false,
+  "findings": [
+    {
+      "area": "runtime",
+      "level": "OK",
+      "message": "Python version meets minimum requirement (3.11+)."
+    },
+    {
+      "area": "runtime",
+      "level": "WARN",
+      "message": "Not running inside a virtual environment; recreate per README to avoid dependency conflicts."
+    },
+    {
+      "area": "runtime",
+      "level": "OK",
+      "message": "node found at C:\\nvm4w\\nodejs\\node.EXE"
+    },
+    {
+      "area": "runtime",
+      "level": "OK",
+      "message": "npm found at C:\\nvm4w\\nodejs\\npm.CMD"
+    },
+    {
+      "area": "runtime",
+      "level": "OK",
+      "message": "Frontend dependencies directory detected."
+    },
+    {
+      "area": "runtime",
+      "level": "OK",
+      "message": "requirements.txt found at C:\\software\\DataLogicEngine\\requirements.txt"
+    },
+    {
+      "area": "runtime",
+      "level": "INFO",
+      "message": "Install with `pip install -r requirements.txt`."
+    },
+    {
+      "area": "runtime",
+      "level": "OK",
+      "message": "Python workspace metadata aligned (project.name=datalogicengine)."
+    },
+    {
+      "area": "runtime",
+      "level": "OK",
+      "message": "Virtual environment directory detected at .venv."
+    },
+    {
+      "area": "runtime",
+      "level": "WARN",
+      "message": "templates/ directory missing; legacy server-rendered pages may be unavailable."
+    },
+    {
+      "area": "runtime",
+      "level": "OK",
+      "message": "Static assets directory located at C:\\software\\DataLogicEngine\\static"
+    },
+    {
+      "area": "runtime",
+      "level": "OK",
+      "message": "Found .env at C:\\software\\DataLogicEngine\\.env"
+    },
+    {
+      "area": "runtime",
+      "level": "ACTION",
+      "message": "Initialize local schema via `scripts/windows/start_local_stack.ps1` (it handles migration stamping for local SQLite)."
+    },
+    {
+      "area": "runtime",
+      "level": "INFO",
+      "message": "Port checks skipped"
+    },
+    {
+      "area": "parity",
+      "level": "OK",
+      "message": "Python compatibility satisfied: 3.13"
+    },
+    {
+      "area": "parity",
+      "level": "OK",
+      "message": "Node.js version accepted: 24.14.0"
+    },
+    {
+      "area": "parity",
+      "level": "OK",
+      "message": "npm detected: 11.9.0"
+    },
+    {
+      "area": "parity",
+      "level": "OK",
+      "message": "Found required parity file: requirements.txt"
+    },
+    {
+      "area": "parity",
+      "level": "OK",
+      "message": "Found required parity file: uv.lock"
+    },
+    {
+      "area": "parity",
+      "level": "OK",
+      "message": "Found required parity file: frontend\\package-lock.json"
+    },
+    {
+      "area": "parity",
+      "level": "OK",
+      "message": "Found required parity file: .github\\workflows\\ci.yml"
+    },
+    {
+      "area": "parity",
+      "level": "OK",
+      "message": "Found required parity file: .env.template"
+    },
+    {
+      "area": "parity",
+      "level": "OK",
+      "message": "CI workflow pins Python 3.11"
+    },
+    {
+      "area": "parity",
+      "level": "OK",
+      "message": "CI workflow pins Node 24"
+    },
+    {
+      "area": "lockfiles",
+      "level": "OK",
+      "message": "uv.lock contains package entries."
+    },
+    {
+      "area": "lockfiles",
+      "level": "OK",
+      "message": "uv.lock contains no insecure http:// sources."
+    },
+    {
+      "area": "lockfiles",
+      "level": "OK",
+      "message": "uv.lock root package matches pyproject.toml (datalogicengine)."
+    },
+    {
+      "area": "lockfiles",
+      "level": "OK",
+      "message": "package-lock.json lockfileVersion is 3."
+    },
+    {
+      "area": "lockfiles",
+      "level": "OK",
+      "message": "package-lock.json contains no insecure http:// dependency URLs."
+    },
+    {
+      "area": "git",
+      "level": "OK",
+      "message": "git found at C:\\Program Files\\Git\\cmd\\git.EXE"
+    },
+    {
+      "area": "git",
+      "level": "OK",
+      "message": "Found repo hooks directory at C:\\software\\DataLogicEngine\\.githooks"
+    },
+    {
+      "area": "git",
+      "level": "OK",
+      "message": "Git hooks path configured as .githooks."
+    }
+  ],
+  "summary": {
+    "ok": 27,
+    "info": 2,
+    "action": 1,
+    "warn": 2,
+    "error": 0
+  }
+}

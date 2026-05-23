@@ -84,7 +84,7 @@ Task-focused usage instructions for day-to-day operation.
 
 ## Known Limitations
 
-1. Manual accessibility and failure-mode validation evidence remains open in `TODO.md`.
+1. Manual NVDA accessibility evidence remains open in `TODO.md`; automated WCAG, keyboard navigation, failure-mode, and export/delete evidence is captured under `reports/app-readiness/`.
 2. `/register` redirects to `/dashboard` in the current local-first build; self-service registration is disabled unless web mode is reopened as a product requirement.
 3. Release builds still require trusted production code-signing evidence before public distribution.
 
@@ -118,6 +118,6 @@ Task-focused usage instructions for day-to-day operation.
 ## Document Control
 
 1. Owner: Product Operations
-2. Last updated: 2026-05-22
+2. Last updated: 2026-05-23
 3. Status: Active
 4. Review cadence: Every 30 days

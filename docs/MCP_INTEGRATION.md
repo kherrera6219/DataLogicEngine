@@ -429,13 +429,7 @@ All MCP operations are logged:
 
 ## Future Enhancements
 
-1. **Sampling Support**: Enable LLM completion sampling
-2. **Advanced Subscriptions**: Real-time resource update notifications
-3. **Remote MCP Servers**: Connect to external MCP servers
-4. **MCP Plugins**: Dynamic plugin discovery and loading
-5. **WebSocket Support**: Real-time bidirectional communication
-6. **OAuth Integration**: Enhanced authentication for MCP clients
-7. **Metrics Dashboard**: Advanced analytics and monitoring
+MCP future items are consolidated in the root `TODO.md`. Keep implementation decisions there so completed connector/OAuth/metrics work is not restated as future work in this integration reference.
 
 ## Troubleshooting
 

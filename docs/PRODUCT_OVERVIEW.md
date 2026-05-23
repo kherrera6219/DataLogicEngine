@@ -64,10 +64,7 @@ DataLogicEngine is a local-first AI orchestration application that combines:
 
 ## Known Gaps
 
-1. Application-readiness evidence remains open: manual WCAG 2.1 AA, keyboard navigation, NVDA screen reader checks, and end-to-end failure-mode validation.
-2. Production release signing still needs a trusted production code-signing certificate path and release evidence.
-3. The in-app feature list across manifest, README, and About pages needs a final product-owner pass.
-4. Web self-registration is disabled; decide whether that is the intended local-first behavior or a future web-mode feature.
+Known gaps and product backlog items are consolidated in the root `TODO.md`. This overview describes current capability status and should not maintain a second planning list.
 
 ## Validation Commands
 
@@ -89,6 +86,6 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows\test_frontend_route_p
 ## Document Control
 
 1. Owner: Product and Platform Engineering
-2. Last updated: 2026-05-22
+2. Last updated: 2026-05-23
 3. Status: Active
 4. Review cadence: Every 30 days

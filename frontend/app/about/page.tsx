@@ -39,7 +39,7 @@ export default function AboutPage() {
                       <CardTitle>Truth Engine & KAs</CardTitle>
                    </CardHeader>
                    <CardContent className="text-gray-600 dark:text-gray-300">
-                      114 specialized Knowledge Algorithms (KAs) act as the &quot;brain&quot;. From <span className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1 rounded">KA-001 Algorithm of Thought</span> to <span className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1 rounded">KA-114 Fractal Recursion</span>, these execute distributed reasoning.
+                      More than 100 specialized Knowledge Algorithms (KAs) support distributed reasoning, validation, confidence scoring, provenance tracking, and provider-aware analysis.
                    </CardContent>
                 </Card>
                 <Card>
@@ -62,7 +62,7 @@ export default function AboutPage() {
                          {algo}
                       </Badge>
                    ))}
-                   <Badge variant="outline" className="px-3 py-1 text-sm">+ 95 more</Badge>
+                   <Badge variant="outline" className="px-3 py-1 text-sm">+ more validated KAs</Badge>
                 </div>
             </div>
         </section>

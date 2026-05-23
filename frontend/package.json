@@ -24,6 +24,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:a11y:ci": "cross-env NEXT_PUBLIC_APP_RUNTIME_MODE=local concurrently -k -s first -n WEB,A11Y \"npm run start -- -p 3200\" \"wait-on http://127.0.0.1:3200 && node scripts/run-a11y-ci.mjs\"",
+    "test:app-readiness": "playwright test tests/e2e/app-readiness-evidence.spec.ts tests/e2e/keyboard-navigation-evidence.spec.ts -c playwright-visual.config.ts",
     "test:e2e": "playwright test -c playwright-electron.config.ts",
     "test:e2e:visual": "playwright test -c playwright-visual.config.ts",
     "test:e2e:visual:update": "playwright test -c playwright-visual.config.ts --update-snapshots",

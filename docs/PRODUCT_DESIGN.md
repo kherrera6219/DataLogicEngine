@@ -20,7 +20,7 @@ Define the current UX architecture, route model, interaction patterns, and desig
 ## Document control
 
 1. Owner: Product Design and Frontend Engineering
-2. Last updated: 2026-05-22
+2. Last updated: 2026-05-23
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -120,10 +120,7 @@ Define the current UX architecture, route model, interaction patterns, and desig
 
 ## Known UX debt
 
-1. Manual WCAG, keyboard, and NVDA evidence is still required before release readiness can be closed.
-2. Register/self-service account creation is disabled in the current local-first build; decide separately whether web-mode self-registration is required.
-3. Multiple MCP and admin screens still need a final live-data/static-metric audit.
-4. Some toolbar actions may still be visual placeholders and need route-by-route verification before release.
+UX debt and product backlog items are consolidated in the root `TODO.md`. This design guide documents the current UX model and validation approach.
 
 ## Validation
 
