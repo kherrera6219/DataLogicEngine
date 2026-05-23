@@ -1,0 +1,20 @@
+{
+  "status": "pass",
+  "summary": {
+    "errors": 0,
+    "warnings": 0,
+    "total_issues": 0
+  },
+  "results": {
+    "installers": [
+      {
+        "artifact": "DataLogicEngine Setup Latest.exe",
+        "sha256": "3b08933f4be2435273013541d4f7368aa6e7cf810e0b8f4d44c581d79526f14d",
+        "checksum_file": "DataLogicEngine Setup Latest.exe.sha256",
+        "blockmap_present": true,
+        "valid": true
+      }
+    ]
+  },
+  "issues": []
+}

@@ -428,7 +428,7 @@ Current CI runs:
 
 | Horizon | Focus |
 | --- | --- |
-| Near term | Complete app-readiness evidence: authenticated accessibility coverage, keyboard/NVDA checks, failure-mode tests, and export/delete end-to-end validation. |
+| Near term | Complete remaining app-readiness evidence: manual keyboard/NVDA checks and signed release validation. |
 | Near term | Tighten public API contracts, reduce legacy route aliases, and improve generated OpenAPI coverage. |
 | Near term | Add public architecture assets under `docs/assets/readme/`. |
 | Mid term | Expand deployment reference material for Kubernetes, managed Postgres, managed Redis, and managed Neo4j. |
@@ -441,7 +441,7 @@ Current CI runs:
 - **AuditBundle service layer** — `TruthMemoryCommitService` seals each Tier 2+ `TraceRun` into the immutable audit chain (EU AI Act Article 53 alignment).
 - **F-CONF-01 confidence calculator** — Canonical formula weighing evidence quality, KA consensus, persona agreement, and TruthGate pass/fail replaces raw LLM output probability.
 - **Portable database lifecycle manager** — `DatabaseLifecycleManager` starts and stops PostgreSQL, Redis, and Neo4j child processes automatically for workstation deployments.
-- **Application assets and release metadata (2026-05-22)** — Manifest screenshots, PWA icons, documentation banner, conservative app copy, cloud AI disclosures, privacy controls, notification preferences, storage cloud configuration, and MCP server administration surfaces are present; release evidence and production code signing remain open.
+- **Application readiness evidence (2026-05-22)** — Manifest screenshots, PWA icons, documentation banner, conservative app copy, cloud AI disclosures, privacy controls, notification preferences, storage cloud configuration, MCP server administration surfaces, authenticated a11y scans, failure-mode tests, and export/delete tests are present; manual keyboard/NVDA checks and signed release validation remain open.
 
 See [`TODO.md`](TODO.md) for the canonical open work list and [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) for release readiness gates.
 

@@ -1,0 +1,106 @@
+{
+  "generated_at": "2026-05-22T22:58:30.245Z",
+  "base_url": "http://127.0.0.1:3200",
+  "routes": [
+    "/",
+    "/about",
+    "/about/ai-limitations",
+    "/about/cloud-services",
+    "/legal/privacy",
+    "/login",
+    "/register",
+    "/dashboard",
+    "/chat",
+    "/settings",
+    "/settings/privacy",
+    "/admin/mcp/servers"
+  ],
+  "total_routes": 12,
+  "total_violations": 0,
+  "results": [
+    {
+      "route": "/",
+      "url": "http://127.0.0.1:3200/",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/about",
+      "url": "http://127.0.0.1:3200/about",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/about/ai-limitations",
+      "url": "http://127.0.0.1:3200/about/ai-limitations",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/about/cloud-services",
+      "url": "http://127.0.0.1:3200/about/cloud-services",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/legal/privacy",
+      "url": "http://127.0.0.1:3200/legal/privacy",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/login",
+      "url": "http://127.0.0.1:3200/login",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/register",
+      "url": "http://127.0.0.1:3200/register",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/dashboard",
+      "url": "http://127.0.0.1:3200/dashboard",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/chat",
+      "url": "http://127.0.0.1:3200/chat",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/settings",
+      "url": "http://127.0.0.1:3200/settings",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/settings/privacy",
+      "url": "http://127.0.0.1:3200/settings/privacy",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "route": "/admin/mcp/servers",
+      "url": "http://127.0.0.1:3200/admin/mcp/servers",
+      "status": 200,
+      "violation_count": 0,
+      "violations": []
+    }
+  ]
+}

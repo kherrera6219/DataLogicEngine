@@ -91,7 +91,7 @@ export function AppSidebar() {
     <div
       data-testid="app-sidebar"
       className={cn(
-      "h-screen fluent-acrylic border-r border-white/5 flex flex-col transition-all duration-300 z-50 shadow-2xl shrink-0",
+      "h-screen bg-[#111827] border-r border-slate-700/70 flex flex-col transition-all duration-300 z-50 shadow-2xl shrink-0",
       isCollapsed ? "w-20" : "w-64"
     )}>
       
@@ -103,8 +103,8 @@ export function AppSidebar() {
            </div>
            {!isCollapsed && (
               <div className="animate-in fade-in slide-in-from-left-2 duration-300">
-                 <h1 className="font-bold text-sm tracking-wide text-white">UKG<span className="text-gray-500 mx-1">/</span>REGISTRY</h1>
-                 <div className="text-[10px] text-gray-500 font-mono tracking-wider">ENTERPRISE v2.4</div>
+                 <h1 className="font-bold text-sm tracking-wide text-white">UKG<span className="text-gray-300 mx-1">/</span>REGISTRY</h1>
+                 <div className="text-[10px] text-gray-300 font-mono tracking-wider">ENTERPRISE v2.4</div>
               </div>
            )}
         </div>
@@ -154,7 +154,7 @@ export function AppSidebar() {
            {!isCollapsed && (
               <div className="flex-1 min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
                  <div className="text-sm font-medium text-white truncate">{user?.username || 'User'}</div>
-                 <div className="text-xs text-blue-400 truncate">{roleLabel}</div>
+                 <div className="text-xs text-blue-200 truncate">{roleLabel}</div>
               </div>
            )}
            

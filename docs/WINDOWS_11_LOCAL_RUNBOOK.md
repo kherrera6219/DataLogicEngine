@@ -174,9 +174,9 @@ This ensures:
 
 ## Known Limitations
 
-1. Manual application-readiness evidence remains open: WCAG, keyboard, NVDA, and failure-mode validation are tracked in `TODO.md`.
+1. Manual application-readiness evidence remains open for keyboard and NVDA validation; automated WCAG, failure-mode, and export/delete evidence is tracked in `reports/app-readiness/`.
 2. Register submit flow is intentionally disabled in the current local-first build; `/register` redirects to `/dashboard`.
-3. Release builds still need trusted production code-signing certificate evidence before public distribution.
+3. Release builds still need a trusted production certificate provisioned in GitHub secrets and a signed release workflow run before public distribution.
 
 ## Related Documents
 

@@ -33,7 +33,7 @@ function Stop-ActiveAppProcesses {
 }
 
 function Remove-WinSWService([string]$ServiceName, [string]$WrapperPath) {
-    if (Test-Path -LiteralPath $WrapperPath) {
+    if ($WrapperPath -and (Test-Path -LiteralPath $WrapperPath)) {
         try {
             & $WrapperPath stop | Out-Null
         }

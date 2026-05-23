@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-05-22T22:55:09.355Z",
+  "evidence": [
+    {
+      "name": "data export flow",
+      "status": "passed",
+      "details": "Privacy page starts a JSON export download and shows success feedback."
+    },
+    {
+      "name": "rate-limit UX",
+      "status": "passed",
+      "details": "429 response from data export endpoint leaves the user on-page with visible error feedback."
+    },
+    {
+      "name": "data deletion flow",
+      "status": "passed",
+      "details": "Delete action opens browser confirmation and posts confirm=DELETE to the profile deletion endpoint."
+    },
+    {
+      "name": "cloud outage UX",
+      "status": "passed",
+      "details": "Storage health failure displays an error while preserving the settings route."
+    },
+    {
+      "name": "AI provider failure UX",
+      "status": "passed",
+      "details": "Provider test failure is surfaced in the AI model settings UI."
+    },
+    {
+      "name": "auth failure E2E",
+      "status": "passed",
+      "details": "401 response from export endpoint leaves the privacy page stable with visible error feedback."
+    }
+  ]
+}

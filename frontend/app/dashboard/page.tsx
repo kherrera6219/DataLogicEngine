@@ -163,7 +163,7 @@ export default function DashboardPage() {
                            </Badge>
                         </div>
                         <div className="text-4xl font-semibold tracking-tight relative z-10">{m.value}</div>
-                        <div className="text-sm text-gray-500 mt-1 font-medium relative z-10">{m.label}</div>
+                        <div className="text-sm text-gray-400 mt-1 font-medium relative z-10">{m.label}</div>
                      </CardContent>
                   </Card>
               ))}
@@ -198,7 +198,7 @@ export default function DashboardPage() {
                        );
                     })}
                     {activity.length === 0 && !loading && (
-                      <div className="p-8 text-center border-2 border-dashed border-white/5 rounded-xl text-gray-500 italic">
+                      <div className="p-8 text-center border-2 border-dashed border-white/5 rounded-xl text-gray-400 italic">
                         No recent activity recorded.
                       </div>
                     )}
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                       </div>
                     ))}
                     {trendingTopics.length === 0 && !loading && (
-                      <div className="p-3 text-sm text-gray-500">No activity topics available yet.</div>
+                      <div className="p-3 text-sm text-gray-400">No activity topics available yet.</div>
                     )}
                  </div>
 

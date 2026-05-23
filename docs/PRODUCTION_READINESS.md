@@ -44,7 +44,7 @@ Provide production acceptance criteria, operational controls, and validation che
 
 DataLogicEngine is an enterprise-grade AI/ML knowledge management platform designed for production deployment. This guide outlines the critical steps, configurations, and best practices for deploying the system in a production environment.
 
-**Current status**: Application-readiness validation is in progress. Local stack QC, Tier 2 audit receipts, app assets, privacy controls, cloud disclosures, notification preferences, storage cloud configuration, and MCP server administration are implemented. Production release still requires repeatable app-readiness evidence, manual accessibility evidence, failure-mode validation, and a trusted production code-signing path.
+**Current status**: Application-readiness validation is in progress. Local stack QC, Tier 2 audit receipts, app assets, privacy controls, cloud disclosures, notification preferences, storage cloud configuration, MCP server administration, authenticated automated accessibility scans, failure-mode tests, export/delete tests, and the production code-signing workflow path are implemented. Production release still requires manual keyboard/NVDA accessibility evidence, provisioned trusted signing credentials, and signed release artifact validation.
 
 ## 2026-05-22 Application-Readiness Update
 
@@ -58,11 +58,22 @@ Completed or validated in the current application state:
 
 Remaining release blockers:
 
-1. Repeatable WCAG 2.1 AA evidence for authenticated primary app routes.
+1. Repeatable WCAG 2.1 AA evidence for authenticated primary app routes is automated through `npm --prefix frontend run test:a11y:ci`.
 2. Manual keyboard and NVDA screen-reader validation on Windows.
-3. Cloud outage, AI provider failure, auth failure, rate-limit, data export, and data deletion end-to-end evidence.
-4. Trusted production code-signing certificate path and signed release artifact validation.
+3. Cloud outage, AI provider failure, auth failure, rate-limit, data export, and data deletion end-to-end evidence is automated through `frontend/tests/e2e/app-readiness-evidence.spec.ts`.
+4. Trusted production code-signing certificate path is documented through `.github/workflows/release-installer-signing.yml`; signed release artifact validation still requires a trusted certificate in GitHub secrets.
 5. Product-owner pass on the final manifest/About/README feature list.
+
+## Production Code-Signing Path
+
+The trusted Windows signing path is the `Release Installer Signing` GitHub Actions workflow:
+
+1. Store the production PFX as base64 in `WINDOWS_CODESIGN_CERT_BASE64`.
+2. Store its password in `WINDOWS_CODESIGN_CERT_PASSWORD`.
+3. Run `.github/workflows/release-installer-signing.yml` from a `v*` tag or manual dispatch.
+4. The workflow builds the unsigned installer, validates certificate health and rotation threshold with `scripts/windows/verify_signing_certificate_health.ps1`, signs installers with `scripts/windows/sign_release_installers.ps1`, verifies signatures with `scripts/windows/verify_installer_signature.ps1`, and uploads signed installers plus reports.
+
+Local dev certificates remain valid only for workstation validation and must not be treated as production signing evidence.
 
 ## 2026-03-31 Phase 1 API Truthfulness + Authorization Update
 
