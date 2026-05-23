@@ -5,10 +5,10 @@
 | Field | Value |
 |-------|-------|
 | Owner | Platform Engineering |
-| Last Updated | May 2026 |
+| Last Updated | May 23, 2026 |
 | Status | Active |
 | Review Cadence | Every 30 days |
-| Version | 4.1.19 |
+| Version | 4.1.20 |
 
 ---
 
@@ -43,7 +43,9 @@ Historical PDFs, old release notes, wireframes, and research spikes are preserve
 
 ## Platform Status
 
-**Current Version:** 4.1.19 | **As of:** May 2026
+**Current Version:** 4.1.20 | **As of:** May 23, 2026
+
+DataLogicEngine is currently in application-readiness cleanup and release-preparation status. The local-first Windows/Electron application, web console, backend API, AI gateway, graph surfaces, storage controls, MCP administration, privacy controls, and core governance evidence are implemented and actively documented.
 
 ### Production-Ready
 
@@ -73,6 +75,10 @@ Historical PDFs, old release notes, wireframes, and research spikes are preserve
 | Environment parity and lockfile integrity CI gate | Operational |
 | Python lint baseline (Ruff) — zero findings | Operational |
 | ADR baseline, branch protection, and code-owner policy | Operational |
+| Public README architecture asset | Operational |
+| Keyboard navigation Playwright evidence | Operational |
+| UI placeholder audit evidence | Operational |
+| Local release-governance command evidence | Operational with one runtime-precheck action item |
 
 ### In Progress
 
@@ -80,6 +86,9 @@ Historical PDFs, old release notes, wireframes, and research spikes are preserve
 |------|--------|
 | Registration flow | `/register` redirects to `/dashboard`; web self-registration is disabled in the current local-first build. |
 | Application-readiness evidence | Automated WCAG, keyboard navigation, failure-mode, export/delete, and UI placeholder audit evidence is captured under `reports/app-readiness/`; manual NVDA evidence is still tracked in `TODO.md`. |
+| Release signing | Release signing workflow exists, but trusted production certificate provisioning and signed artifact validation remain external release tasks. |
+| Release approval evidence | CI/security scan review, code-owner approval, rollback plan, and disaster recovery review remain release-ticket tasks. |
+| Staging and connector validation | Provider-backed staging validation and production connector checks require real external systems. |
 
 ---
 
@@ -224,6 +233,19 @@ These documents are produced to the Microsoft enterprise standard for engineerin
 
 [`TODO.md`](../TODO.md) is the only active planning and outstanding-work list. Historical assessment documents, project plans, and roadmap drafts were removed from the active documentation set to avoid conflicting guidance for contributors and AI agents.
 
+Current open work is concentrated in production code-review remediation, external/manual release tasks, NVDA validation, trusted code-signing certificate provisioning, signed artifact validation, CI/security review, release approvals, rollback/disaster-recovery review, provider-backed staging validation, and production connector validation.
+
+Current local evidence includes:
+
+| Evidence | Purpose |
+|----------|---------|
+| [`reports/app-readiness/a11y-ci-report.json`](../reports/app-readiness/a11y-ci-report.json) | Authenticated accessibility route evidence |
+| [`reports/app-readiness/keyboard-navigation-report.json`](../reports/app-readiness/keyboard-navigation-report.json) | Keyboard navigation evidence |
+| [`reports/app-readiness/playwright-app-readiness-report.json`](../reports/app-readiness/playwright-app-readiness-report.json) | Failure-mode and privacy export/delete evidence |
+| [`reports/app-readiness/ui-placeholder-audit.md`](../reports/app-readiness/ui-placeholder-audit.md) | MCP, admin, and toolbar placeholder audit |
+| [`reports/production-code-review-2026-05-23.md`](../reports/production-code-review-2026-05-23.md) | Production code-review findings and remediation source |
+| [`reports/release-readiness/local-release-evidence-2026-05-23.md`](../reports/release-readiness/local-release-evidence-2026-05-23.md) | Local release-governance command evidence |
+
 ---
 
 ## Repository Inventory and Maps
@@ -281,4 +303,4 @@ All documentation in this repository is classified as follows unless otherwise n
 
 ---
 
-*This portal is the authoritative documentation index for DataLogicEngine. All other documentation entry points should link here. Reviewed: May 2026.*
+*This portal is the authoritative documentation index for DataLogicEngine. All other documentation entry points should link here. Reviewed: May 23, 2026.*

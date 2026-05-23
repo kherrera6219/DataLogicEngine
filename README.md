@@ -11,7 +11,18 @@ Enterprise AI orchestration, governed LLM routing, and knowledge graph reasoning
 
 DataLogicEngine is a full-stack platform for building traceable AI systems over structured enterprise knowledge. It combines a Flask API, Next.js console, LLM gateway, 17-axis knowledge graph model, audit controls, and Windows/Electron packaging for local-first deployments.
 
-> Recommended architecture asset path: `docs/assets/readme/architecture-overview.png`. Add a dark-mode-safe PNG/SVG export when publishing visual docs.
+## Current Status
+
+As of May 23, 2026, the repository is in application-readiness cleanup and release-preparation status. The local-first Windows/Electron application, web console, backend API, AI gateway, graph surfaces, storage controls, MCP administration, privacy controls, and core governance evidence are implemented and actively documented.
+
+Completed readiness evidence includes authenticated WCAG scans, keyboard navigation checks, failure-mode tests, privacy export/delete tests, UI placeholder audit evidence, local release-governance command output, and the public README architecture asset. The canonical planning source is [`TODO.md`](TODO.md).
+
+Release blockers that still require manual or external execution:
+
+- NVDA screen reader validation on Windows.
+- Trusted production code-signing certificate provisioning and signed installer artifact validation.
+- CI/security scan review, code-owner approval, rollback plan, and disaster recovery review for the release ticket.
+- Provider-backed staging validation and production connector validation against real external systems.
 
 ## Quickstart
 
@@ -393,6 +404,14 @@ Do not report vulnerabilities in public issues. Follow the private reporting pro
 | Crash reporting | `SENTRY_DSN`, `SENTRY_TRACES_SAMPLE_RATE`, `SENTRY_PROFILES_SAMPLE_RATE` |
 | Run tracing | `/api/v1/trace/*` and run-oriented UI routes |
 
+Current local evidence:
+
+- [`reports/app-readiness/a11y-ci-report.json`](reports/app-readiness/a11y-ci-report.json)
+- [`reports/app-readiness/keyboard-navigation-report.json`](reports/app-readiness/keyboard-navigation-report.json)
+- [`reports/app-readiness/playwright-app-readiness-report.json`](reports/app-readiness/playwright-app-readiness-report.json)
+- [`reports/app-readiness/ui-placeholder-audit.md`](reports/app-readiness/ui-placeholder-audit.md)
+- [`reports/release-readiness/local-release-evidence-2026-05-23.md`](reports/release-readiness/local-release-evidence-2026-05-23.md)
+
 Recommended production integrations:
 
 - Prometheus-compatible scraping for `/metrics`.
@@ -481,12 +500,12 @@ Personal, research, and educational use are permitted under the license terms. C
 | `.github/ISSUE_TEMPLATE/*` | Present |
 | `.env.template` | Present |
 | `Dockerfile.cloud` and `docker-compose.yml` | Present |
+| `docs/assets/readme/architecture-overview.svg` | Present |
 
 ### Recommended Additions
 
 | Recommendation | Purpose |
 | --- | --- |
-| `docs/assets/readme/architecture-overview.png` | Public README architecture image for GitHub social previews and non-Mermaid consumers. |
 | `.github/FUNDING.yml` | Optional sponsorship metadata if the project accepts funding. |
 | `CITATION.cff` | Citation metadata for research and academic users. |
 | GitHub repository topics | Suggested: `ai`, `llm`, `knowledge-graph`, `flask`, `nextjs`, `governance`, `compliance`, `enterprise-ai`. |

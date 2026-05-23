@@ -11,6 +11,59 @@ Review date: 2026-05-23
 
 No standalone `ROADMAP.md` file exists in the repository. The only roadmap-style source found during the May 22 review was `docs/archive/historical-documents/MVP Plan_ Universal Knowledge Graph (UKG) System.pdf`; actionable current and future work is consolidated below.
 
+### Production Code Review Remediation
+
+Source report: `reports/production-code-review-2026-05-23.md`
+
+Validation status: all production code-review remediation items remain open as of 2026-05-23.
+
+| Item | Code validation | Status |
+| --- | --- | --- |
+| API gateway authentication | `backend/api_gateway/api_gateway.py` still accepts any bearer token and protected routes still depend on `verify_token`. | Open |
+| Migration-first deployment | `scripts/deploy.py` still calls `db.create_all()` in `run_database_migrations`. | Open |
+| Trusted proxy and host validation | `app.py` still installs `ProxyFix` unconditionally and HTTPS redirect logic still trusts `X-Forwarded-Proto`; no trusted-host allowlist was found. | Open |
+| Multimodal upload hardening | `routes/__init__.py` still registers `multimodal_bp`; upload routes still read full files into memory and trust client MIME type. | Open |
+| Security scan API protection | `backend/security_scan_api.py` still defines unauthenticated scan/compliance endpoints; current registration remains test-only. | Open |
+| Legacy fallback secrets | `backend/__init__.py` still falls back to `dev-secret-key` and `jwt-secret-key` outside pytest. | Open |
+| Shell-based static copy | `scripts/deploy.py` still uses `cp -r` with `shell=True`. | Open |
+| Strict runtime precheck | `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process` still fails with one action item: initialize local schema. | Open |
+
+Phased update plan:
+
+| Phase | Scope | TODO items | Exit gate |
+| --- | --- | --- | --- |
+| Phase 1: Stop production blockers | Fix gateway authentication and migration-first deployment; remove shell-based static copy while touching deploy flow. | 1, 2, 7 | Token validation tests pass; deployment script uses migrations and cross-platform file operations; targeted backend/deploy tests pass. |
+| Phase 2: Harden request perimeter | Add trusted proxy/host validation and harden active multimodal upload routes. | 3, 4 | Spoofed host/forwarded-header tests fail closed; upload abuse tests cover size, MIME spoofing, sanitized filenames, and normalized errors. |
+| Phase 3: Remove latent unsafe surfaces | Protect or remove security scan API and remove insecure legacy factory defaults. | 5, 6 | Security scan endpoints require admin auth if retained; legacy factory cannot start outside tests without explicit secrets; regression tests cover both. |
+| Phase 4: Release evidence refresh | Re-run strict runtime precheck after schema initialization and refresh release evidence/docs. | 8 | Strict precheck passes; release-readiness evidence is updated; docs reference validation and governance checks pass. |
+
+Priority order:
+
+1. [ ] Replace API gateway placeholder authentication with real token validation.
+   - Evidence: `backend/api_gateway/api_gateway.py` accepts any bearer token in `verify_token` and protected gateway routes depend on it.
+   - Acceptance: JWT/API-key validation checks signature, issuer, audience, expiration, and authorization roles; negative tests cover missing, malformed, expired, wrong-audience, and tampered tokens.
+2. [ ] Replace production deployment `db.create_all()` behavior with migration-first deployment.
+   - Evidence: `scripts/deploy.py` currently calls `db.create_all()` in `run_database_migrations`.
+   - Acceptance: production deploys run the migration system only, fail when migration state is not current, and reserve `create_all()` for disposable local/test bootstrap paths.
+3. [ ] Add trusted proxy and host validation controls.
+   - Evidence: `app.py` installs `ProxyFix` unconditionally and HTTPS redirection trusts forwarded headers without an observed host allowlist.
+   - Acceptance: proxy header trust is environment-gated, trusted host/canonical-origin validation is enforced, and tests cover direct-backend requests with spoofed `Host`, `X-Forwarded-Host`, and `X-Forwarded-Proto`.
+4. [ ] Harden active multimodal upload routes.
+   - Evidence: registered `/api/v1/multimodal/*` routes read full uploads into memory, trust client MIME type, and return raw exception text.
+   - Acceptance: upload routes enforce per-route limits before processing, validate file type from content signatures, sanitize filenames, normalize public errors, and include abuse/rate-limit tests.
+5. [ ] Protect or remove the security scan API before any production registration.
+   - Evidence: `backend/security_scan_api.py` exposes scan and compliance endpoints without auth decorators, though current search found it registered only in tests.
+   - Acceptance: endpoints require administrator auth if retained, unauthenticated/unauthorized tests assert `401`/`403`, and public errors do not expose internal exception details.
+6. [ ] Remove insecure fallback secrets from the legacy Flask app factory.
+   - Evidence: `backend/__init__.py` falls back to `dev-secret-key` and `jwt-secret-key` outside pytest.
+   - Acceptance: defaults are pytest-only; non-test startup fails when required secrets are missing, or the factory is moved under test utilities.
+7. [ ] Replace shell-based static file copy in `scripts/deploy.py`.
+   - Evidence: static collection uses `cp -r` with `shell=True`.
+   - Acceptance: static collection uses `pathlib`/`shutil` or a deterministic artifact packaging step and works on Windows and Linux without shell glob behavior.
+8. [ ] Clear the strict runtime precheck action item and update release evidence.
+   - Evidence: strict precheck still reports local schema initialization as an action item.
+   - Acceptance: run the documented local schema initialization path, rerun `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process`, and update release-readiness evidence with the passing output.
+
 ### Release Readiness
 
 - [x] Finalize the in-app feature list used by `frontend/public/manifest.json`, `README.md`, and About pages. Current copy is conservative and aligned; manifest shortcuts now point to dashboard, chat, privacy controls, and provider settings.
