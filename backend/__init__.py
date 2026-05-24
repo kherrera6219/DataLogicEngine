@@ -5,14 +5,25 @@ from flask_jwt_extended import JWTManager
 import os
 from backend.utils.cors_policy import resolve_service_cors_policy
 
+
+def _required_secret_config(name: str, *, pytest_default: str) -> str:
+    is_pytest = "PYTEST_CURRENT_TEST" in os.environ
+    if is_pytest:
+        return os.environ.get(name, pytest_default)
+
+    value = os.environ.get(name)
+    if not value:
+        raise RuntimeError(f"{name} must be configured before create_legacy_app starts outside tests")
+    return value
+
+
 def create_legacy_app():
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
-    # Keep deterministic defaults under pytest while preserving env override behavior elsewhere.
-    is_pytest = "PYTEST_CURRENT_TEST" in os.environ
-    app.config['SECRET_KEY'] = 'dev-secret-key' if is_pytest else os.environ.get('SECRET_KEY', 'dev-secret-key')
+    # Keep deterministic defaults under pytest only; runtime callers must provide secrets.
+    app.config['SECRET_KEY'] = _required_secret_config('SECRET_KEY', pytest_default='dev-secret-key')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///chatbot.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['JWT_SECRET_KEY'] = 'jwt-secret-key' if is_pytest else os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key')
+    app.config['JWT_SECRET_KEY'] = _required_secret_config('JWT_SECRET_KEY', pytest_default='jwt-secret-key')
     
     # Initialize extensions
     from extensions import db, login_manager

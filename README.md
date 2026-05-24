@@ -15,7 +15,7 @@ DataLogicEngine is a full-stack platform for building traceable AI systems over 
 
 As of May 23, 2026, the repository is in application-readiness cleanup and release-preparation status. The local-first Windows/Electron application, web console, backend API, AI gateway, graph surfaces, storage controls, MCP administration, privacy controls, and core governance evidence are implemented and actively documented.
 
-Completed readiness evidence includes authenticated WCAG scans, keyboard navigation checks, failure-mode tests, privacy export/delete tests, UI placeholder audit evidence, local release-governance command output, and the public README architecture asset. The canonical planning source is [`TODO.md`](TODO.md).
+Completed readiness evidence includes authenticated WCAG scans, keyboard navigation checks, failure-mode tests, privacy export/delete tests, UI placeholder audit evidence, production code-review remediation, strict runtime precheck evidence, local release-governance command output, and the public README architecture asset. The canonical planning source is [`TODO.md`](TODO.md).
 
 Release blockers that still require manual or external execution:
 

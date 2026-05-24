@@ -215,38 +215,47 @@ def test_graph_node_dict(app):
 def test_create_legacy_app():
     # We patch init_app to prevent actual connection / extension logic if needed
     # But we want to test that it is called.
-    
-    with patch('extensions.db.init_app') as mock_db, \
-         patch('backend.JWTManager') as mock_jwt, \
-         patch('backend.CORS') as mock_cors, \
-         patch.dict('os.environ', {"CORS_ORIGINS": "http://localhost:3000,http://127.0.0.1:3000,app://-"}):
-         
-         # Mock blueprints to avoid importing routes which might trigger more issues
-         # We iterate over the list of blueprints in __init__.py
-         
-         modules_to_mock = [
-             'routes.auth_routes', 'backend.chat', 'backend.admin', 'backend.ukg_api',
-             'routes.user_data_routes', 'backend.routes.settings_routes', 
-             'backend.routes.location_routes', 'routes.admin_routes', 
-             'routes.api_routes', 'routes.ka_routes', 'backend.truth_engine.api',
-             'backend.tracing.api', 'backend.routes.search_routes',
-             'backend.llm_gateway.api', 'backend.pillar_api', 'backend.rest_api'
-         ]
-         
-         mock_modules = {}
-         for m in modules_to_mock:
-             mock_modules[m] = MagicMock()
-             
-         with patch.dict('sys.modules', mock_modules):
-              app = create_legacy_app()
-              assert isinstance(app, Flask)
-              assert app.config['SECRET_KEY'] == 'dev-secret-key'
 
-              # Verify extensions initialized
-              mock_db.assert_called_with(app)
-              mock_jwt.assert_called_with(app)
-              mock_cors.assert_called_with(
-                  app,
-                  resources={r"/api/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "app://-"]}},
-                  supports_credentials=True,
-              )
+    test_env = {
+        "PYTEST_CURRENT_TEST": "tests/unit/test_models.py::test_create_legacy_app",
+        "CORS_ORIGINS": "http://localhost:3000,http://127.0.0.1:3000,app://-",
+    }
+    with patch('extensions.db.init_app') as mock_db, \
+            patch('backend.JWTManager') as mock_jwt, \
+            patch('backend.CORS') as mock_cors, \
+            patch.dict('os.environ', test_env, clear=True):
+
+        # Mock blueprints to avoid importing routes which might trigger more issues
+        # We iterate over the list of blueprints in __init__.py
+        modules_to_mock = [
+            'routes.auth_routes', 'backend.chat', 'backend.admin', 'backend.ukg_api',
+            'routes.user_data_routes', 'backend.routes.settings_routes',
+            'backend.routes.location_routes', 'routes.admin_routes',
+            'routes.api_routes', 'routes.ka_routes', 'backend.truth_engine.api',
+            'backend.tracing.api', 'backend.routes.search_routes',
+            'backend.llm_gateway.api', 'backend.pillar_api', 'backend.rest_api'
+        ]
+
+        mock_modules = {}
+        for m in modules_to_mock:
+            mock_modules[m] = MagicMock()
+
+        with patch.dict('sys.modules', mock_modules):
+            app = create_legacy_app()
+            assert isinstance(app, Flask)
+            assert app.config['SECRET_KEY'] == 'dev-secret-key'
+
+            # Verify extensions initialized
+            mock_db.assert_called_with(app)
+            mock_jwt.assert_called_with(app)
+            mock_cors.assert_called_with(
+                app,
+                resources={r"/api/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "app://-"]}},
+                supports_credentials=True,
+            )
+
+
+def test_create_legacy_app_requires_secrets_outside_pytest():
+    with patch.dict('os.environ', {}, clear=True):
+        with pytest.raises(RuntimeError, match="SECRET_KEY must be configured"):
+            create_legacy_app()

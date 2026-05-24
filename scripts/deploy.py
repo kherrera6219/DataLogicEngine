@@ -11,9 +11,12 @@ import argparse
 import logging
 import subprocess
 import datetime
+import shutil
 from datetime import UTC
 import json
+from pathlib import Path
 from dotenv import load_dotenv
+from sqlalchemy import text
 
 # Configure logging
 logging.basicConfig(
@@ -83,8 +86,8 @@ def check_database_connection():
         # Import here to avoid circular imports
         from app import db
         
-        # Simple query to check connection
-        db.engine.execute("SELECT 1")
+        with db.engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
         logger.info("Database connection successful")
         return True
     
@@ -93,21 +96,32 @@ def check_database_connection():
         return False
 
 def run_database_migrations():
-    """Run database migrations."""
+    """Run database migrations using Flask-Migrate/Alembic."""
     logger.info("Running database migrations...")
     
     try:
-        # Simple approach - use db.create_all()
-        from app import app, db
-        with app.app_context():
-            db.create_all()
-            logger.info("Database tables created successfully")
-        
-        # For more complex migrations, you would use Alembic/Flask-Migrate
-        # subprocess.run(["flask", "db", "upgrade"], check=True)
-        
+        env = os.environ.copy()
+        env.setdefault("FLASK_APP", "app.py")
+        result = subprocess.run(
+            [sys.executable, "-m", "flask", "db", "upgrade"],
+            check=True,
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+        if result.stdout:
+            logger.info("Database migration output: %s", result.stdout.strip())
+        if result.stderr:
+            logger.warning("Database migration stderr: %s", result.stderr.strip())
+        logger.info("Database migrations applied successfully")
         return True
-    
+    except subprocess.CalledProcessError as e:
+        if e.stdout:
+            logger.error("Database migration stdout: %s", e.stdout.strip())
+        if e.stderr:
+            logger.error("Database migration stderr: %s", e.stderr.strip())
+        logger.error("Database migration command failed with exit code %s", e.returncode)
+        return False
     except Exception as e:
         logger.error("Database migration error: %s", str(e))
         return False
@@ -148,22 +162,20 @@ def collect_static_files():
     logger.info("Collecting static files...")
     
     try:
-        # Create static directory if it doesn't exist
-        static_dir = os.path.join(os.getcwd(), "static")
-        os.makedirs(static_dir, exist_ok=True)
+        static_dir = Path(os.getcwd()) / "static"
+        static_dir.mkdir(parents=True, exist_ok=True)
         
-        # Copy built frontend files to static directory
-        frontend_build_dir = os.path.join(os.getcwd(), "frontend", "build")
-        if not os.path.exists(frontend_build_dir):
+        frontend_build_dir = Path(os.getcwd()) / "frontend" / "build"
+        if not frontend_build_dir.exists():
             logger.error("Frontend build directory not found: %s", frontend_build_dir)
             return False
         
-        # Use subprocess to copy files
-        subprocess.run(
-            ["cp", "-r", f"{frontend_build_dir}/*", static_dir], 
-            check=True,
-            shell=True
-        )
+        for source in frontend_build_dir.iterdir():
+            destination = static_dir / source.name
+            if source.is_dir():
+                shutil.copytree(source, destination, dirs_exist_ok=True)
+            else:
+                shutil.copy2(source, destination)
         
         logger.info("Static files collected successfully")
         return True

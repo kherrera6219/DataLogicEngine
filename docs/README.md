@@ -8,7 +8,7 @@
 | Last Updated | May 23, 2026 |
 | Status | Active |
 | Review Cadence | Every 30 days |
-| Version | 4.1.20 |
+| Version | 4.1.21 |
 
 ---
 
@@ -43,7 +43,7 @@ Historical PDFs, old release notes, wireframes, and research spikes are preserve
 
 ## Platform Status
 
-**Current Version:** 4.1.20 | **As of:** May 23, 2026
+**Current Version:** 4.1.21 | **As of:** May 23, 2026
 
 DataLogicEngine is currently in application-readiness cleanup and release-preparation status. The local-first Windows/Electron application, web console, backend API, AI gateway, graph surfaces, storage controls, MCP administration, privacy controls, and core governance evidence are implemented and actively documented.
 
@@ -78,7 +78,7 @@ DataLogicEngine is currently in application-readiness cleanup and release-prepar
 | Public README architecture asset | Operational |
 | Keyboard navigation Playwright evidence | Operational |
 | UI placeholder audit evidence | Operational |
-| Local release-governance command evidence | Operational with one runtime-precheck action item |
+| Local release-governance command evidence | Operational |
 
 ### In Progress
 
@@ -233,7 +233,7 @@ These documents are produced to the Microsoft enterprise standard for engineerin
 
 [`TODO.md`](../TODO.md) is the only active planning and outstanding-work list. Historical assessment documents, project plans, and roadmap drafts were removed from the active documentation set to avoid conflicting guidance for contributors and AI agents.
 
-Current open work is concentrated in production code-review remediation, external/manual release tasks, NVDA validation, trusted code-signing certificate provisioning, signed artifact validation, CI/security review, release approvals, rollback/disaster-recovery review, provider-backed staging validation, and production connector validation.
+Current open work is concentrated in external/manual release tasks, NVDA validation, trusted code-signing certificate provisioning, signed artifact validation, CI/security review, release approvals, rollback/disaster-recovery review, provider-backed staging validation, and production connector validation.
 
 Current local evidence includes:
 

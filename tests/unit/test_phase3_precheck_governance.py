@@ -18,6 +18,25 @@ def test_runtime_precheck_blocks_production_auto_create_schema(tmp_path, monkeyp
     )
 
 
+def test_runtime_precheck_resolves_flask_sqlite_instance_path(tmp_path, monkeypatch):
+    monkeypatch.setattr(runtime_precheck, "ROOT", tmp_path)
+    instance_dir = tmp_path / "instance"
+    instance_dir.mkdir()
+    (instance_dir / "ukg_database.db").write_bytes(b"sqlite")
+    (tmp_path / ".env").write_text(
+        "DATABASE_URL=sqlite:///ukg_database.db\nSESSION_SECRET=test-secret\n",
+        encoding="utf-8",
+    )
+
+    results = runtime_precheck.check_env_files()
+
+    assert any(
+        item.level == "OK" and str(instance_dir / "ukg_database.db") in item.message
+        for item in results
+    )
+    assert not any("Initialize local schema" in item.message for item in results)
+
+
 def test_runtime_precheck_validates_pyproject_and_uv_lock_alignment(tmp_path, monkeypatch):
     monkeypatch.setattr(runtime_precheck, "ROOT", tmp_path)
     (tmp_path / "requirements.txt").write_text("Flask==3.1.2\n", encoding="utf-8")

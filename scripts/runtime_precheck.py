@@ -111,11 +111,11 @@ def check_env_files(*, allow_env_from_process: bool = False) -> list[CheckResult
     env_values.update({key: value for key, value in os.environ.items()})
 
     database_url = str(env_values.get("DATABASE_URL") or "").strip()
-    sqlite_path = ROOT / "ukg_database.db"
-    if sqlite_path.exists():
+    sqlite_path = _sqlite_database_path(database_url)
+    if sqlite_path and sqlite_path.exists():
         results.append(CheckResult("OK", f"SQLite database file present at {sqlite_path}"))
     else:
-        if database_url and not database_url.startswith("sqlite:///ukg_database.db"):
+        if database_url and not database_url.startswith("sqlite"):
             results.append(
                 CheckResult(
                     "INFO",
@@ -291,6 +291,29 @@ def check_backend_dependencies() -> list[CheckResult]:
     for item in results:
         print(f"[{item.level}] {item.message}")
     return results
+
+
+def _sqlite_database_path(database_url: str) -> Path | None:
+    """Resolve the SQLite file path using Flask-SQLAlchemy relative-path semantics."""
+    if not database_url:
+        return ROOT / "instance" / "ukg_database.db"
+
+    if database_url in {"sqlite://", "sqlite:///:memory:"}:
+        return None
+
+    prefix = "sqlite:///"
+    if not database_url.startswith(prefix):
+        return None
+
+    raw_path = database_url[len(prefix):]
+    if not raw_path:
+        return None
+
+    path = Path(raw_path)
+    if path.is_absolute():
+        return path
+
+    return ROOT / "instance" / path
 
 
 def _read_pyproject_name(path: Path) -> str | None:

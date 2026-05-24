@@ -127,7 +127,8 @@ if not RESOLVED_SESSION_SECRET:
         "Sessions will be invalidated on restart. Set SESSION_SECRET in .env for persistent sessions."
     )
 app.secret_key = RESOLVED_SESSION_SECRET
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
+if os.environ.get("TRUST_PROXY_HEADERS", "false").lower() == "true":
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Process-level observability counters for /metrics endpoint.
 APP_START_TIME = time.time()
@@ -275,6 +276,82 @@ def _legacy_api_successor_path(path: str) -> str | None:
     return None
 
 
+def _split_config_values(raw_value) -> list[str]:
+    if not raw_value:
+        return []
+    if isinstance(raw_value, str):
+        return [item.strip() for item in raw_value.split(",") if item.strip()]
+    if isinstance(raw_value, (list, tuple, set)):
+        return [str(item).strip() for item in raw_value if str(item).strip()]
+    return []
+
+
+def _hostname_from_value(raw_value: str) -> str:
+    value = (raw_value or "").strip().lower()
+    if not value:
+        return ""
+    if "://" in value:
+        return (urlparse(value).hostname or "").lower().rstrip(".")
+    return (urlparse(f"//{value}").hostname or value.split(":", 1)[0]).lower().rstrip(".")
+
+
+def _trusted_hosts() -> set[str]:
+    raw_hosts = current_app.config.get("TRUSTED_HOSTS") or os.environ.get("TRUSTED_HOSTS")
+    hosts = {_hostname_from_value(host) for host in _split_config_values(raw_hosts)}
+
+    server_name = current_app.config.get("SERVER_NAME")
+    if server_name:
+        hosts.add(_hostname_from_value(server_name))
+
+    canonical_origin = current_app.config.get("CANONICAL_EXTERNAL_ORIGIN") or os.environ.get("CANONICAL_EXTERNAL_ORIGIN")
+    if canonical_origin:
+        hosts.add(_hostname_from_value(canonical_origin))
+
+    return {host for host in hosts if host}
+
+
+def _request_hostname() -> str:
+    raw_host = request.environ.get("HTTP_HOST") or request.environ.get("SERVER_NAME") or ""
+    return _hostname_from_value(raw_host)
+
+
+@app.before_request
+def validate_trusted_host():
+    """Reject untrusted Host values when a host policy is configured."""
+    if IS_DESKTOP_MODE:
+        return None
+
+    trusted_hosts = _trusted_hosts()
+    if not trusted_hosts:
+        if os.environ.get("FLASK_ENV") == "production" and not current_app.config.get("TESTING"):
+            return jsonify(
+                {
+                    "error": "Trusted host policy is not configured",
+                    "success": False,
+                    "code": "TRUSTED_HOSTS_NOT_CONFIGURED",
+                }
+            ), 500
+        return None
+
+    if _request_hostname() not in trusted_hosts:
+        return jsonify(
+            {
+                "error": "Untrusted host",
+                "success": False,
+                "code": "UNTRUSTED_HOST",
+            }
+        ), 400
+    return None
+
+
+def _redirect_target_url() -> str:
+    canonical_origin = current_app.config.get("CANONICAL_EXTERNAL_ORIGIN") or os.environ.get("CANONICAL_EXTERNAL_ORIGIN")
+    path = request.full_path if request.query_string else request.path
+    if canonical_origin:
+        return f"{canonical_origin.rstrip('/')}{path}"
+    return request.url.replace("http://", "https://", 1)
+
+
 @app.after_request
 def normalize_server_error_payload(response):
     """Sanitize 5xx JSON payloads to block raw exception/provider leaks."""
@@ -314,9 +391,8 @@ def force_https():
     is_prod = os.environ.get('FLASK_ENV') == 'production'
     if IS_DESKTOP_MODE:
         return None
-    if is_prod and not request.is_secure and request.headers.get('X-Forwarded-Proto', 'http') != 'https':
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+    if is_prod and not current_app.config.get("TESTING") and not request.is_secure:
+        return redirect(_redirect_target_url(), code=301)
 
 # SSO Configuration
 from backend.auth.sso import configure_sso

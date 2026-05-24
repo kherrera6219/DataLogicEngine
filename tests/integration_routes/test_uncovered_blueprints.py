@@ -246,6 +246,19 @@ def security_scan_client(security_scan_app):
     return security_scan_app.test_client()
 
 
+def test_security_scan_api_requires_admin(security_scan_client):
+    with patch("backend.auth.api_decorators.check_api_auth", return_value=(False, None)):
+        resp = security_scan_client.post("/api/security/scan")
+        assert resp.status_code == 401
+        assert resp.json["code"] == "UNAUTHORIZED"
+
+    non_admin = SimpleNamespace(is_admin=False)
+    with patch("backend.auth.api_decorators.check_api_auth", return_value=(True, non_admin)):
+        resp = security_scan_client.get("/api/security/scan/recent")
+        assert resp.status_code == 403
+        assert resp.json["code"] == "FORBIDDEN"
+
+
 def test_security_scan_api_endpoints(security_scan_client, tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     (tmp_path / "logs" / "security").mkdir(parents=True, exist_ok=True)
@@ -260,9 +273,14 @@ def test_security_scan_api_endpoints(security_scan_client, tmp_path, monkeypatch
 
     mock_compliance_manager = MagicMock()
     mock_compliance_manager.log_compliance_event.return_value = "evt-1"
+    admin = SimpleNamespace(is_admin=True)
 
-    with patch.object(security_scan_api_module, "get_security_manager", return_value=mock_security_manager), patch.object(
-        security_scan_api_module, "get_compliance_manager", return_value=mock_compliance_manager
+    with patch("backend.auth.api_decorators.check_api_auth", return_value=(True, admin)), patch.object(
+        security_scan_api_module, "get_security_manager", return_value=mock_security_manager
+    ), patch.object(
+        security_scan_api_module,
+        "get_compliance_manager",
+        return_value=mock_compliance_manager,
     ):
         resp = security_scan_client.post("/api/security/scan")
         assert resp.status_code == 200
@@ -291,12 +309,19 @@ def test_security_scan_api_endpoints(security_scan_client, tmp_path, monkeypatch
 
 
 def test_security_scan_api_error_paths(security_scan_client):
-    with patch.object(security_scan_api_module, "get_security_manager") as get_mgr:
+    admin = SimpleNamespace(is_admin=True)
+
+    with patch("backend.auth.api_decorators.check_api_auth", return_value=(True, admin)), patch.object(
+        security_scan_api_module, "get_security_manager"
+    ) as get_mgr:
         get_mgr.side_effect = RuntimeError("boom")
         resp = security_scan_client.post("/api/security/scan")
         assert resp.status_code == 500
+        assert "boom" not in resp.json["message"]
 
-    with patch.object(security_scan_api_module, "get_security_manager") as get_mgr, patch.object(
+    with patch("backend.auth.api_decorators.check_api_auth", return_value=(True, admin)), patch.object(
+        security_scan_api_module, "get_security_manager"
+    ) as get_mgr, patch.object(
         security_scan_api_module.os.path, "exists", return_value=False
     ):
         get_mgr.return_value = MagicMock(last_scan_results=None)
@@ -412,4 +437,3 @@ def test_pillar_api_error_paths(pillar_app, pillar_client):
 
     resp = pillar_client.post("/pillar/export", json={"file_path": "x"})
     assert resp.status_code == 400
-

@@ -10,6 +10,7 @@ from fastapi import FastAPI, Request, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
 import httpx
+import jwt
 import os
 import sys
 import time
@@ -56,31 +57,104 @@ REQUEST_METRICS = {"total": 0, "inflight": 0}
 REQUEST_METRICS_LOCK = Lock()
 UPSTREAM_REQUEST_TIMEOUT = httpx.Timeout(20.0, connect=5.0)
 
-# Authentication middleware
+
+def _gateway_jwt_secret() -> str:
+    """Return the configured gateway JWT secret or fail closed."""
+    secret = (
+        os.environ.get("API_GATEWAY_JWT_SECRET")
+        or os.environ.get("JWT_SECRET_KEY")
+        or ""
+    ).strip()
+    if not secret:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="API gateway authentication is not configured",
+        )
+    return secret
+
+
+def _gateway_jwt_algorithms() -> list[str]:
+    raw_algorithms = os.environ.get("API_GATEWAY_JWT_ALGORITHMS", "HS256")
+    algorithms = [item.strip() for item in raw_algorithms.split(",") if item.strip()]
+    return algorithms or ["HS256"]
+
+
+def _required_gateway_roles() -> set[str]:
+    raw_roles = os.environ.get("API_GATEWAY_REQUIRED_ROLES", "")
+    return {role.strip() for role in raw_roles.split(",") if role.strip()}
+
+
+def _token_roles(payload: Dict[str, Any]) -> set[str]:
+    roles = payload.get("roles", [])
+    if isinstance(roles, str):
+        return {role.strip() for role in roles.split(",") if role.strip()}
+    if isinstance(roles, (list, tuple, set)):
+        return {str(role).strip() for role in roles if str(role).strip()}
+    return set()
+
+
+# Authentication dependency
 async def verify_token(request: Request):
-    """Verify JWT token for protected routes"""
+    """Verify a signed JWT bearer token for protected routes."""
     auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
+    if not auth_header:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing or invalid authentication token",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Extract token safely
-    auth_parts = auth_header.split(" ")
-    if len(auth_parts) < 2:
+    auth_parts = auth_header.split(None, 1)
+    if len(auth_parts) != 2 or auth_parts[0].lower() != "bearer" or not auth_parts[1].strip():
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authorization header format",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    # In a real implementation, validate the JWT token
-    # For now, we'll accept any token for demonstration
-    
-    # Return user info extracted from token
-    return {"user_id": "demo_user", "roles": ["user"]}
+
+    audience = os.environ.get("API_GATEWAY_JWT_AUDIENCE") or None
+    issuer = os.environ.get("API_GATEWAY_JWT_ISSUER") or None
+    decode_kwargs: dict[str, Any] = {
+        "algorithms": _gateway_jwt_algorithms(),
+        "options": {"require": ["exp"], "verify_aud": bool(audience)},
+    }
+    if audience:
+        decode_kwargs["audience"] = audience
+    if issuer:
+        decode_kwargs["issuer"] = issuer
+
+    try:
+        payload = jwt.decode(auth_parts[1].strip(), _gateway_jwt_secret(), **decode_kwargs)
+    except jwt.ExpiredSignatureError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from exc
+    except jwt.InvalidTokenError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication token",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from exc
+
+    user_id = payload.get("sub") or payload.get("user_id") or payload.get("identity")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication token is missing a subject",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    required_roles = _required_gateway_roles()
+    roles = _token_roles(payload)
+    if required_roles and roles.isdisjoint(required_roles):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient token role",
+        )
+
+    return {"user_id": str(user_id), "roles": sorted(roles), "claims": payload}
 
 # Request logging middleware
 @app.middleware("http")

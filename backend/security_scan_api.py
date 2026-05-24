@@ -13,7 +13,9 @@ import uuid
 import os
 
 # Import security components
+from backend.auth.api_decorators import api_admin_required
 from backend.security import get_security_manager, get_compliance_manager
+from backend.utils.error_normalization import normalize_public_error_message
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -22,6 +24,13 @@ logger = logging.getLogger(__name__)
 # Create the blueprint
 scan_bp = Blueprint('scan', __name__, url_prefix='/api/security/scan')
 
+
+def _error_response(exc: Exception, fallback: str):
+    return jsonify({
+        'status': 'error',
+        'message': normalize_public_error_message(str(exc), fallback)
+    }), 500
+
 def register_scan_api(app):
     """Register the security scan API blueprint with the Flask app."""
     app.register_blueprint(scan_bp)
@@ -29,6 +38,7 @@ def register_scan_api(app):
 
 # Run security scan endpoint
 @scan_bp.route('', methods=['POST'])
+@api_admin_required
 def run_security_scan():
     """
     Run a comprehensive security scan of the system.
@@ -55,14 +65,12 @@ def run_security_scan():
         })
         
     except Exception as e:
-        logger.error(f"Error running security scan: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': f"Error running security scan: {str(e)}"
-        }), 500
+        logger.error("Error running security scan", exc_info=True)
+        return _error_response(e, "Error running security scan")
 
 # Get scan results endpoint
 @scan_bp.route('/<scan_id>', methods=['GET'])
+@api_admin_required
 def get_scan_results(scan_id):
     """
     Get the results of a specific security scan.
@@ -93,14 +101,12 @@ def get_scan_results(scan_id):
         return jsonify(scan_results)
         
     except Exception as e:
-        logger.error(f"Error retrieving scan results: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': f"Error retrieving scan results: {str(e)}"
-        }), 500
+        logger.error("Error retrieving scan results", exc_info=True)
+        return _error_response(e, "Error retrieving scan results")
 
 # Get recent scans endpoint
 @scan_bp.route('/recent', methods=['GET'])
+@api_admin_required
 def get_recent_scans():
     """Get a list of recent security scans."""
     try:
@@ -143,14 +149,12 @@ def get_recent_scans():
         })
         
     except Exception as e:
-        logger.error(f"Error retrieving recent scans: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': f"Error retrieving recent scans: {str(e)}"
-        }), 500
+        logger.error("Error retrieving recent scans", exc_info=True)
+        return _error_response(e, "Error retrieving recent scans")
 
 # SOC 2 control verification endpoint
 @scan_bp.route('/verify/<control_id>', methods=['GET'])
+@api_admin_required
 def verify_control(control_id):
     """
     Verify compliance with a specific SOC 2 control.
@@ -224,8 +228,5 @@ def verify_control(control_id):
         })
         
     except Exception as e:
-        logger.error(f"Error verifying control: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': f"Error verifying control: {str(e)}"
-        }), 500
+        logger.error("Error verifying control", exc_info=True)
+        return _error_response(e, "Error verifying control")

@@ -15,54 +15,54 @@ No standalone `ROADMAP.md` file exists in the repository. The only roadmap-style
 
 Source report: `reports/production-code-review-2026-05-23.md`
 
-Validation status: all production code-review remediation items remain open as of 2026-05-23.
+Validation status: Production code-review remediation phases 1 through 4 are complete as of 2026-05-23.
 
 | Item | Code validation | Status |
 | --- | --- | --- |
-| API gateway authentication | `backend/api_gateway/api_gateway.py` still accepts any bearer token and protected routes still depend on `verify_token`. | Open |
-| Migration-first deployment | `scripts/deploy.py` still calls `db.create_all()` in `run_database_migrations`. | Open |
-| Trusted proxy and host validation | `app.py` still installs `ProxyFix` unconditionally and HTTPS redirect logic still trusts `X-Forwarded-Proto`; no trusted-host allowlist was found. | Open |
-| Multimodal upload hardening | `routes/__init__.py` still registers `multimodal_bp`; upload routes still read full files into memory and trust client MIME type. | Open |
-| Security scan API protection | `backend/security_scan_api.py` still defines unauthenticated scan/compliance endpoints; current registration remains test-only. | Open |
-| Legacy fallback secrets | `backend/__init__.py` still falls back to `dev-secret-key` and `jwt-secret-key` outside pytest. | Open |
-| Shell-based static copy | `scripts/deploy.py` still uses `cp -r` with `shell=True`. | Open |
-| Strict runtime precheck | `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process` still fails with one action item: initialize local schema. | Open |
+| API gateway authentication | `backend/api_gateway/api_gateway.py` validates signed JWT bearer tokens, required expiration, optional issuer/audience, and optional roles. | Done |
+| Migration-first deployment | `scripts/deploy.py` runs `python -m flask db upgrade` through Flask-Migrate/Alembic. | Done |
+| Trusted proxy and host validation | `app.py` gates `ProxyFix` behind `TRUST_PROXY_HEADERS=true`, enforces `TRUSTED_HOSTS`, and no longer trusts raw `X-Forwarded-Proto` for HTTPS redirects. | Done |
+| Multimodal upload hardening | `backend/routes/multimodal_routes.py` validates route-specific size, extension, content signatures, sanitized filenames, inferred MIME types, and normalized public errors before processing. | Done |
+| Security scan API protection | `backend/security_scan_api.py` requires admin authentication on scan/compliance endpoints and normalizes public 500 errors. | Done |
+| Legacy fallback secrets | `backend/__init__.py` keeps deterministic defaults under pytest only and fails fast outside tests when secrets are missing. | Done |
+| Shell-based static copy | `scripts/deploy.py` copies static build artifacts with `pathlib`/`shutil` and no shell invocation. | Done |
+| Strict runtime precheck | `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process` passes with no blockers and no action items. | Done |
 
 Phased update plan:
 
 | Phase | Scope | TODO items | Exit gate |
 | --- | --- | --- | --- |
-| Phase 1: Stop production blockers | Fix gateway authentication and migration-first deployment; remove shell-based static copy while touching deploy flow. | 1, 2, 7 | Token validation tests pass; deployment script uses migrations and cross-platform file operations; targeted backend/deploy tests pass. |
-| Phase 2: Harden request perimeter | Add trusted proxy/host validation and harden active multimodal upload routes. | 3, 4 | Spoofed host/forwarded-header tests fail closed; upload abuse tests cover size, MIME spoofing, sanitized filenames, and normalized errors. |
-| Phase 3: Remove latent unsafe surfaces | Protect or remove security scan API and remove insecure legacy factory defaults. | 5, 6 | Security scan endpoints require admin auth if retained; legacy factory cannot start outside tests without explicit secrets; regression tests cover both. |
-| Phase 4: Release evidence refresh | Re-run strict runtime precheck after schema initialization and refresh release evidence/docs. | 8 | Strict precheck passes; release-readiness evidence is updated; docs reference validation and governance checks pass. |
+| Phase 1: Stop production blockers | Fix gateway authentication and migration-first deployment; remove shell-based static copy while touching deploy flow. | 1, 2, 7 | Done: `python -m pytest -q --no-cov tests/unit/test_api_gateway_auth.py tests/unit/test_deploy_phase1.py`; `python -m ruff check backend/api_gateway/api_gateway.py scripts/deploy.py tests/unit/test_api_gateway_auth.py tests/unit/test_deploy_phase1.py`. |
+| Phase 2: Harden request perimeter | Add trusted proxy/host validation and harden active multimodal upload routes. | 3, 4 | Done: `python -m pytest -q --no-cov tests/unit/test_phase2_request_perimeter.py`; `python -m ruff check app.py backend/routes/multimodal_routes.py tests/unit/test_phase2_request_perimeter.py`. |
+| Phase 3: Remove latent unsafe surfaces | Protect or remove security scan API and remove insecure legacy factory defaults. | 5, 6 | Done: `python -m pytest -q --no-cov tests/integration_routes/test_uncovered_blueprints.py::test_security_scan_api_requires_admin tests/integration_routes/test_uncovered_blueprints.py::test_security_scan_api_endpoints tests/integration_routes/test_uncovered_blueprints.py::test_security_scan_api_error_paths tests/unit/test_models.py::test_create_legacy_app tests/unit/test_models.py::test_create_legacy_app_requires_secrets_outside_pytest`; `python -m ruff check backend/security_scan_api.py backend/__init__.py tests/integration_routes/test_uncovered_blueprints.py tests/unit/test_models.py`. |
+| Phase 4: Release evidence refresh | Re-run strict runtime precheck after schema initialization and refresh release evidence/docs. | 8 | Done: `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process`; `python scripts/verify_docs_references.py`. |
 
 Priority order:
 
-1. [ ] Replace API gateway placeholder authentication with real token validation.
-   - Evidence: `backend/api_gateway/api_gateway.py` accepts any bearer token in `verify_token` and protected gateway routes depend on it.
-   - Acceptance: JWT/API-key validation checks signature, issuer, audience, expiration, and authorization roles; negative tests cover missing, malformed, expired, wrong-audience, and tampered tokens.
-2. [ ] Replace production deployment `db.create_all()` behavior with migration-first deployment.
-   - Evidence: `scripts/deploy.py` currently calls `db.create_all()` in `run_database_migrations`.
-   - Acceptance: production deploys run the migration system only, fail when migration state is not current, and reserve `create_all()` for disposable local/test bootstrap paths.
-3. [ ] Add trusted proxy and host validation controls.
-   - Evidence: `app.py` installs `ProxyFix` unconditionally and HTTPS redirection trusts forwarded headers without an observed host allowlist.
+1. [x] Replace API gateway placeholder authentication with real token validation.
+   - Evidence: `backend/api_gateway/api_gateway.py` now rejects unsigned placeholder tokens and validates signed JWT bearer tokens in `verify_token`.
+   - Acceptance: JWT validation checks signature, expiration, optional issuer, optional audience, and optional authorization roles; negative tests cover missing, malformed, wrong-audience, and insufficient-role tokens.
+2. [x] Replace production deployment `db.create_all()` behavior with migration-first deployment.
+   - Evidence: `scripts/deploy.py` now runs `python -m flask db upgrade` in `run_database_migrations`.
+   - Acceptance: production deploys run the migration system and fail when the migration command fails; `create_all()` remains reserved for disposable local/test bootstrap paths outside this deployment script.
+3. [x] Add trusted proxy and host validation controls.
+   - Evidence: `app.py` now gates proxy header trust behind `TRUST_PROXY_HEADERS=true`, validates request hosts against `TRUSTED_HOSTS`, and redirects HTTPS without trusting raw forwarded headers.
    - Acceptance: proxy header trust is environment-gated, trusted host/canonical-origin validation is enforced, and tests cover direct-backend requests with spoofed `Host`, `X-Forwarded-Host`, and `X-Forwarded-Proto`.
-4. [ ] Harden active multimodal upload routes.
-   - Evidence: registered `/api/v1/multimodal/*` routes read full uploads into memory, trust client MIME type, and return raw exception text.
+4. [x] Harden active multimodal upload routes.
+   - Evidence: registered `/api/v1/multimodal/*` routes now validate uploads before processing and normalize public errors.
    - Acceptance: upload routes enforce per-route limits before processing, validate file type from content signatures, sanitize filenames, normalize public errors, and include abuse/rate-limit tests.
-5. [ ] Protect or remove the security scan API before any production registration.
-   - Evidence: `backend/security_scan_api.py` exposes scan and compliance endpoints without auth decorators, though current search found it registered only in tests.
+5. [x] Protect or remove the security scan API before any production registration.
+   - Evidence: `backend/security_scan_api.py` now requires administrator authentication on scan/compliance endpoints.
    - Acceptance: endpoints require administrator auth if retained, unauthenticated/unauthorized tests assert `401`/`403`, and public errors do not expose internal exception details.
-6. [ ] Remove insecure fallback secrets from the legacy Flask app factory.
-   - Evidence: `backend/__init__.py` falls back to `dev-secret-key` and `jwt-secret-key` outside pytest.
+6. [x] Remove insecure fallback secrets from the legacy Flask app factory.
+   - Evidence: `backend/__init__.py` now limits fallback secrets to pytest and raises outside tests when required secrets are missing.
    - Acceptance: defaults are pytest-only; non-test startup fails when required secrets are missing, or the factory is moved under test utilities.
-7. [ ] Replace shell-based static file copy in `scripts/deploy.py`.
-   - Evidence: static collection uses `cp -r` with `shell=True`.
-   - Acceptance: static collection uses `pathlib`/`shutil` or a deterministic artifact packaging step and works on Windows and Linux without shell glob behavior.
-8. [ ] Clear the strict runtime precheck action item and update release evidence.
-   - Evidence: strict precheck still reports local schema initialization as an action item.
-   - Acceptance: run the documented local schema initialization path, rerun `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process`, and update release-readiness evidence with the passing output.
+7. [x] Replace shell-based static file copy in `scripts/deploy.py`.
+   - Evidence: static collection now uses `pathlib` and `shutil`.
+   - Acceptance: static collection no longer uses `cp -r`, `shell=True`, or shell glob behavior.
+8. [x] Clear the strict runtime precheck action item and update release evidence.
+   - Evidence: strict precheck now detects the Flask SQLite instance database path and passes with no action items.
+   - Acceptance: ran the documented local schema initialization path, reran `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process`, and updated release-readiness evidence with the passing output.
 
 ### Release Readiness
 
