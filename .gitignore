@@ -71,6 +71,7 @@ reports/environment_parity_report*.json
 reports/lockfile_governance_report*.json
 reports/packaging_smoke_report.json
 reports/nsis_governance_report.json
+reports/phase1_provider_staging.sqlite*
 
 # OS
 .DS_Store

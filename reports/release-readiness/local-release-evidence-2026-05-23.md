@@ -16,6 +16,9 @@ Date: 2026-05-23
 | `python -c "import sys; sys.path.insert(0, r'sdk\UKG_Python_SDK'); import ukg_sdk; print(ukg_sdk.__version__)"` | Passed | Printed `0.4.0`; SDK now has a single version assignment. |
 | `python -m pytest tests\unit\test_models.py tests\unit\test_models_extended.py tests\integration_routes\test_api_routers.py -q` | Passed | 43 tests passed after adding API-key expiration and chat-session serialization coverage. |
 | `python -m pytest tests\integration\test_gateway_api_coverage.py tests\unit\test_llm_gateway_internal_units.py -q` | Passed | 23 tests passed for gateway API/internal behavior. |
+| `python scripts\validate_phase1_provider_staging.py --provider openai --model gpt-4.1-mini --reset-database` | Passed | Live provider-backed Phase 1 staging evidence: `IS_DESKTOP_APP=true`, provider/model `openai / gpt-4.1-mini`, Tier `T2`, `[UKG Audit Trace]` footer present, and `TruthAuditEvent` rows `0 -> 1`; report written to `reports/phase1_provider_staging_report.json`. |
+| `powershell -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot C:\software\DataLogicEngine -Mode installer` | Passed | Packaged desktop smoke: portable launch started and stayed running until timeout; silent install/uninstall succeeded; installer SHA256 captured. Signature status is `NotSigned`, so signing remains an open release gate. |
+| `powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation` | Failed as expected | Confirms the current local installer is unsigned: `DataLogicEngine Setup Latest.exe: NotSigned`. This blocks A-2 until trusted signing credentials and CI signing evidence exist. |
 | `python -m pytest tests\unit\test_uskd_memory_graph.py tests\unit\test_storage_hardening.py -q` | Passed | 13 tests passed for the Phase 2 NetworkX graph and GraphStore cached traversal helpers. |
 | `python -m pytest tests\truth_engine\test_layer10_emergence.py tests\truth_engine\test_truth_engine_coverage.py -q` | Passed | 15 tests passed for L10 Lane B graph persistence and TruthCore coordinate-vector graph context extraction. |
 | `python -m ruff check app.py backend\storage\uskd_memory_graph.py backend\storage\graph_store.py backend\truth_engine\truth_core\engine.py backend\truth_engine\truth_core\emergence_controller.py core\simulation\layer2_knowledge.py core\coordinate_system.py scripts\sync_nodes_to_neo4j.py tests\unit\test_uskd_memory_graph.py tests\unit\test_storage_hardening.py tests\truth_engine\test_layer10_emergence.py tests\truth_engine\test_truth_engine_coverage.py` | Passed | Phase 2 touched Python files pass Ruff. |
@@ -35,6 +38,8 @@ Completed locally on 2026-05-24:
 - API-key creation persists a Python datetime expiration instead of assigning a SQL expression to an unmapped attribute.
 - `ChatSession.to_dict()` exists for gateway/tracing session list endpoints.
 - Gateway-created `TraceRun` records set `user_id`, allowing authenticated trace-list views to see chat-generated runs.
+- Provider-backed staging validation is complete for a live OpenAI call: the gateway returned Tier `T2`, added the `[UKG Audit Trace]` footer, created a `TraceRun`, and committed a hash-chained `TruthAuditEvent` row in SQLite.
+- Installer-mode packaging smoke is complete for the current unsigned artifact: install/uninstall succeeded, portable launch stayed alive until the smoke timeout, and Electron source sets `IS_DESKTOP_APP=true` plus the per-user `ukg_database.db` SQLite path.
 
 ## Phase 2 / DB-N Local Code Evidence
 
@@ -56,5 +61,6 @@ Completed locally on 2026-05-24:
 
 1. Review current CI results for the release branch or tag.
 2. Review security scan output for the release branch or tag.
-3. Produce signed installer artifacts through `.github/workflows/release-installer-signing.yml`.
-4. Attach code-owner approval, rollback plan, disaster recovery review, and artifact signing evidence to the release ticket.
+3. Complete NVDA manual validation against the packaged Windows executable.
+4. Produce signed installer artifacts through `.github/workflows/release-installer-signing.yml`.
+5. Attach code-owner approval, rollback plan, disaster recovery review, and artifact signing evidence to the release ticket.

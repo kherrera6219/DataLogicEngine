@@ -251,7 +251,7 @@ PHASE 1 / A
 	Weeks 1–3
 	
 
-Eight tasks before v1 ships: remaining manual release gates plus local code-contract fixes found during May 24 validation. A-4, A-7, and A-8 are locally code-validated as of May 24, 2026; A-1, A-2, A-3, A-5, and A-6 still require packaged-installer, provider-backed, CI, signing, or manual evidence.
+Eight tasks before v1 ships: remaining manual release gates plus local code-contract fixes found during May 24 validation. A-3, A-4, A-6, A-7, and A-8 are locally validated as of May 24, 2026; A-1, A-2, and A-5 still require manual NVDA evidence, trusted production signing, CI/release approval, rollback, and DR evidence.
 
 
 ID
@@ -262,17 +262,17 @@ ID
 	A-1
 	NVDA screen reader validation on Windows against packaged .exe
 	reports/app-readiness/nvda-manual-checklist.md
-	All checklist items pass on Windows 11 + packaged EXE
+	OPEN: NVDA was not found on PATH, C:\Program Files\NVDA\nvda.exe, or C:\Program Files (x86)\NVDA\nvda.exe on May 24, 2026; all checklist items must pass on Windows 11 + packaged EXE
 	DESKTOP
 	A-2
 	Provision production PFX code-signing cert; run signing workflow
 	.github/workflows/release-installer-signing.yml
-	Signed installer + SHA256 + verification report as CI artifact
+	OPEN: local installer verification on May 24, 2026 reports DataLogicEngine Setup Latest.exe: NotSigned; exit gate remains signed installer + SHA256 + verification report as CI artifact
 	DESKTOP
 	A-3
-	Provider-backed staging validation — Tier 2 query returns audit trace against live provider
-	backend/llm_gateway/gateway.py
-	IS_DESKTOP_APP=true + real API key → [UKG Audit Trace] footer + TruthAuditEvent row in SQLite
+	COMPLETED May 24, 2026 — Provider-backed staging validation against live provider
+	scripts/validate_phase1_provider_staging.py + backend/llm_gateway/gateway.py
+	Validated: IS_DESKTOP_APP=true + real OpenAI key; `python scripts\validate_phase1_provider_staging.py --provider openai --model gpt-4.1-mini --reset-database` returned Tier T2, [UKG Audit Trace] footer present, and TruthAuditEvent rows 0 -> 1 in SQLite; report: reports/phase1_provider_staging_report.json
 	DESKTOP
 	A-4
 	Maintain strict runtime precheck evidence
@@ -282,12 +282,12 @@ ID
 	A-5
 	Write release evidence bundle (changelog, sign evidence, CI review, rollback plan)
 	reports/release-readiness/
-	docs/RELEASE_CHECKLIST.md all gates checked
+	OPEN: local release evidence has been refreshed, but final exit still requires docs/RELEASE_CHECKLIST.md all gates checked plus signed-artifact evidence, current CI/security review, code-owner approval, rollback plan, and DR review
 	DESKTOP+VM
 	A-6
-	Installer smoke: verify IS_DESKTOP_APP propagation + SQLite auto-path set correctly
-	scripts/windows/run_packaging_smoke.ps1
-	Smoke test confirms SQLite at %AppData%/DataLogicEngine/ukg_database.db after install
+	COMPLETED May 24, 2026 — Installer smoke for packaged desktop artifact
+	scripts/windows/run_packaging_smoke.ps1 + frontend/electron/main.ts
+	Validated: `powershell -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot C:\software\DataLogicEngine -Mode installer` installed and uninstalled successfully, portable launch stayed running until timeout, source launcher sets IS_DESKTOP_APP=true and DATABASE_URL to the per-user ukg_database.db path; report: reports/packaging_smoke_report.json. Signature remains NotSigned and is tracked under A-2.
 	DESKTOP
 	A-7
 	COMPLETED May 24, 2026 — Fix duplicate __version__ in SDK

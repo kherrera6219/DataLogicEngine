@@ -1,0 +1,50 @@
+{
+  "audit_footer_present": true,
+  "database_url": "sqlite:///C:/software/DataLogicEngine/reports/phase1_provider_staging.sqlite",
+  "desktop_mode": "true",
+  "error": null,
+  "generated_at": "2026-05-24T23:28:50.595279+00:00",
+  "latest_truth_audit_event": {
+    "actor_id": null,
+    "actor_type": null,
+    "axis_involved": null,
+    "compliance_flags": {
+      "eu_ai_act_article_53": true
+    },
+    "decision_rationale": null,
+    "event_category": "audit",
+    "event_data": {
+      "confidence": 0.395,
+      "evidence_pack_hash": "66dab469ef31ebe7be187c4b067906cd5d8a523d12410d9168a95706bfd5b560",
+      "status": "pass",
+      "tier": "T2",
+      "truthgate_decision": null
+    },
+    "event_id": "9d56fca8-fccf-48a6-8bbf-042e89517833",
+    "event_type": "audit_bundle_commit",
+    "hash_chain": "c25b1f1503616d0ec95e552c1747197daa029522f29d33e566f682343ed8fa52",
+    "id": 1,
+    "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "retention_until": "2033-05-22T23:28:59.875730",
+    "session_id": null,
+    "timestamp": "2026-05-24T23:28:59.875730"
+  },
+  "model": "gpt-4.1-mini",
+  "model_used": "gpt-4.1-mini",
+  "ok": true,
+  "provider": "openai",
+  "provider_used": "openai",
+  "query_sha256": "7f438337785d7972925d204dee3e96d83f269dac0007e37ee0226eb9bb871e32",
+  "run_id": "6bed32b1-776c-4953-9854-9e6476b9548c",
+  "tier": "T2",
+  "truth_audit_event_created": true,
+  "truth_audit_events_after": 1,
+  "truth_audit_events_before": 0,
+  "usage": {
+    "estimated_cost_usd": 0.0,
+    "latency_ms": 9195,
+    "tokens_in": 0,
+    "tokens_out": 0
+  },
+  "warnings": []
+}
