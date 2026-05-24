@@ -91,3 +91,20 @@ def test_load_from_neo4j_uses_graph_store_records():
 def test_singleton_returns_memory_graph_instance():
     graph = get_uskd_memory_graph()
     assert isinstance(graph, UskdMemoryGraph)
+
+
+def test_upsert_authorized_knowledge_node_updates_existing_graph():
+    graph = UskdMemoryGraph()
+    graph.add_pillar("pillar-1", code="PL01", name="Healthcare")
+
+    stats = graph.upsert_authorized_knowledge_node(
+        "node-1",
+        node_id="KN01",
+        title="Approved knowledge",
+        axis_number=1,
+        pillar_uid="pillar-1",
+    )
+
+    assert stats.node_count == 2
+    assert stats.edge_count == 1
+    assert graph.coordinate_nodes(axis_number=1, text="approved")[0]["uid"] == "node-1"

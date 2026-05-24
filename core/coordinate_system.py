@@ -791,7 +791,33 @@ class CrosswalkTraversal:
         return unique_coords
     
     def _get_octopus_connections(self, hub_id: int) -> List[Dict[str, Any]]:
-        """Get predefined octopus hub connections."""
+        """Get octopus hub connections from Neo4j with static fallback."""
+        try:
+            from backend.storage import get_graph_store
+
+            rows = get_graph_store().cached_run_query(
+                """
+                MATCH (hub)-[:HONEYCOMB_BRIDGE|HAS_CHILD|RELATED_TO*1..2]-(target)
+                WHERE hub.code = $hub OR hub.uid = $hub OR hub.node_id = $hub
+                RETURN properties(target) AS props
+                LIMIT 25
+                """,
+                {"hub": str(hub_id)},
+                cache_key_prefix="subgraph",
+                timeout=300,
+            )
+            live_connections = []
+            for row in rows:
+                props = row.get("props") or {}
+                live_connections.append({
+                    "pillar": str(props.get("code") or props.get("pillar_id") or props.get("axis_number") or ""),
+                    "sector": str(props.get("sector_code") or props.get("node_id") or props.get("uid") or ""),
+                })
+            if live_connections:
+                return live_connections
+        except Exception as exc:
+            logger.debug("Neo4j octopus traversal unavailable: %s", exc)
+
         connections = {
             1: [{'pillar': '32', 'sector': '54'}, {'pillar': '33', 'sector': '61'}],
             2: [{'pillar': '11', 'sector': '62'}, {'pillar': '12', 'sector': '52'}],

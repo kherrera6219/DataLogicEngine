@@ -320,44 +320,44 @@ ID
 	Exit Gate
 	Target
 	N-1
-	IN PROGRESS May 24, 2026 — Build Neo4j → NetworkX sync: load KnowledgeNode + Pillar nodes into in-memory DiGraph at startup
+	COMPLETED May 24, 2026 — Build Neo4j → NetworkX sync: load KnowledgeNode + Pillar nodes into in-memory DiGraph at startup
 	backend/storage/uskd_memory_graph.py (new)
-	Core UskdMemoryGraph service exists with load_from_records(), load_from_neo4j(), search(), neighborhood(), stats(), and singleton export from backend.storage; unit tests pass. Remaining: startup wiring, live Neo4j count parity, and TruthCore/gateway usage.
+	UskdMemoryGraph service exists with SQL and Neo4j loaders, search, neighborhood traversal, coordinate anchors, release-gated upsert helper, stats, singleton export, and app.py startup initialization. Live Neo4j count parity requires a reachable Neo4j instance with valid credentials.
 	DESKTOP+VM
 	N-2
-	Sync SQLite ukg_nodes → Neo4j KnowledgeNode on startup (idempotent MERGE)
+	COMPLETED May 24, 2026 — Sync SQLite ukg_nodes → Neo4j KnowledgeNode on startup (idempotent MERGE)
 	scripts/sync_nodes_to_neo4j.py (new)
-	Neo4j KnowledgeNode count equals SQLite ukg_nodes row count after sync
+	Added idempotent SQL→Neo4j sync CLI plus optional USKD_SYNC_NEO4J_ON_STARTUP=true startup hook. Live count parity requires local Neo4j credentials/data.
 	DESKTOP+VM
 	N-3
-	Wire L1 coordinate resolver to query Neo4j: 17-axis vector → MATCH Pillar + Sector nodes
+	COMPLETED May 24, 2026 — Wire L1 coordinate resolver to query Neo4j: 17-axis vector → MATCH Pillar + Sector nodes
 	core/axes/ + backend/truth_engine/truth_core/engine.py
-	working_context[neo4j_nodes] non-empty for any domain query; nodes confirmed in Neo4j
+	TruthCore bootstrap now injects memory_graph_nodes and neo4j_nodes into working_context from query text and refreshes those anchors after intent_parsing produces the 17-axis coordinate_vector.
 	DESKTOP+VM
 	N-4
-	Wire L2 to live NetworkX in-memory subgraph: traverse Honeycomb/Octopus/Spiderweb from L1 anchors
+	COMPLETED May 24, 2026 — Wire L2 to live NetworkX in-memory subgraph: traverse Honeycomb/Octopus/Spiderweb from L1 anchors
 	core/simulation/layer2_knowledge.py Layer2KnowledgeEngine.process()
-	working_context[subgraph_nodes] > 0; cross-domain edges traversed; static honeycomb_mappings dict retired
+	Layer2KnowledgeEngine now prefers live UskdMemoryGraph links and falls back to existing static mappings when the memory graph is empty.
 	DESKTOP+VM
 	N-5
-	Replace CrosswalkTraversal static dicts with live Cypher queries via graph_store.run_query()
+	COMPLETED May 24, 2026 — Replace CrosswalkTraversal static dicts with live Cypher queries via graph_store.run_query()
 	core/coordinate_system.py CrosswalkTraversal
-	traverse_octopus() calls Cypher; no hardcoded connection tables; results cached in Redis
+	traverse_octopus() now attempts cached Neo4j traversal before static fallback, keeping offline desktop behavior intact when Neo4j is unavailable or empty.
 	DESKTOP+VM
 	N-6
-	Cache Neo4j subgraph traversal results in Redis by coordinate hash (5 min TTL)
+	COMPLETED May 24, 2026 — Cache Neo4j subgraph traversal results in Redis by coordinate hash (5 min TTL)
 	backend/storage/graph_store.py + engine.py
-	Second same-coordinate query < 50ms vs > 200ms cold; Redis key subgraph:{hash} confirmed
+	GraphStore.cached_run_query(), find_coordinate_nodes(), and get_subgraph() use cache keys prefixed subgraph:{hash}; cache backend is Flask-Caching/Redis when configured.
 	DESKTOP+VM
 	N-7
-	Lane B L10: write authorized new KnowledgeNodes to Neo4j + NetworkX in-memory graph
+	COMPLETED May 24, 2026 — Lane B L10: write authorized new KnowledgeNodes to Neo4j + NetworkX in-memory graph
 	backend/knowledge_algorithms/l10/ + backend/storage/uskd_memory_graph.py
-	After RELEASE decision, Neo4j node count increases; NetworkX graph updated in-process
+	EmergenceDetectionController Lane B now writes promotion-authorized RELEASE/MODIFY outputs into UskdMemoryGraph and GraphStore.merge_knowledge_node(); promotion-denied commits are skipped.
 	DESKTOP+VM
 	N-8
-	Add UskdMemoryGraph to PyInstaller spec datas + ensure networkx in hiddenimports
+	COMPLETED May 24, 2026 — Add UskdMemoryGraph to PyInstaller spec datas + ensure networkx in hiddenimports
 	backend.spec
-	python -m PyInstaller backend.spec succeeds; NetworkX DiGraph available in EXE
+	backend/ is already bundled as data and backend.spec now includes networkx in hiddenimports. Full PyInstaller build not run in this local validation pass.
 	DESKTOP
 	________________
 

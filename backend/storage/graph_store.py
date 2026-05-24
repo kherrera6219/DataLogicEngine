@@ -1,6 +1,8 @@
 import logging
 import os
 import re
+import hashlib
+import json
 from typing import List, Dict, Any, Optional
 from neo4j import GraphDatabase, Driver
 from backend.config_manager import get_config
@@ -106,6 +108,130 @@ class GraphStore:
         except Exception as e:
             logger.error(f"Cypher query failed: {e}")
             return []
+
+    def cached_run_query(
+        self,
+        query: str,
+        parameters: Optional[Dict[str, Any]] = None,
+        *,
+        cache_key_prefix: str = "subgraph",
+        timeout: int = 300,
+    ) -> List[Dict[str, Any]]:
+        """Run a Cypher query with optional Flask cache/Redis caching."""
+        parameters = parameters or {}
+        cache_key = self._cache_key(cache_key_prefix, query, parameters)
+        try:
+            from extensions import cache
+
+            cached = cache.get(cache_key)
+            if cached is not None:
+                return cached
+            result = self.run_query(query, parameters)
+            cache.set(cache_key, result, timeout=timeout)
+            return result
+        except Exception:
+            return self.run_query(query, parameters)
+
+    def find_coordinate_nodes(
+        self,
+        *,
+        axis_number: Optional[int] = None,
+        text: str = "",
+        limit: int = 25,
+        cached: bool = True,
+    ) -> List[Dict[str, Any]]:
+        """Find Pillar/KnowledgeNode anchors for coordinate resolution."""
+        query = """
+        MATCH (n)
+        WHERE (n:Pillar OR n:KnowledgeNode)
+          AND ($axis_number IS NULL OR n.axis_number = $axis_number OR n:Pillar)
+          AND (
+            $text = '' OR
+            toLower(coalesce(n.name, '')) CONTAINS $text OR
+            toLower(coalesce(n.title, '')) CONTAINS $text OR
+            toLower(coalesce(n.description, '')) CONTAINS $text OR
+            toLower(coalesce(n.content, '')) CONTAINS $text OR
+            toLower(coalesce(n.code, '')) CONTAINS $text
+          )
+        RETURN labels(n) AS labels, properties(n) AS props
+        LIMIT $limit
+        """
+        params = {
+            "axis_number": axis_number,
+            "text": str(text or "").strip().lower(),
+            "limit": int(limit),
+        }
+        runner = self.cached_run_query if cached else self.run_query
+        return runner(query, params, cache_key_prefix="subgraph", timeout=300)
+
+    def get_subgraph(
+        self,
+        uid: str,
+        *,
+        depth: int = 1,
+        limit: int = 100,
+        cached: bool = True,
+    ) -> List[Dict[str, Any]]:
+        """Return a bounded Neo4j subgraph around a node uid."""
+        query = """
+        MATCH (center {uid: $uid})
+        MATCH path = (center)-[*0..2]-(neighbor)
+        WHERE length(path) <= $depth
+        RETURN path
+        LIMIT $limit
+        """
+        params = {"uid": uid, "depth": max(0, int(depth)), "limit": int(limit)}
+        runner = self.cached_run_query if cached else self.run_query
+        return runner(query, params, cache_key_prefix="subgraph", timeout=300)
+
+    def merge_knowledge_node(self, properties: Dict[str, Any]) -> bool:
+        """Idempotently merge a KnowledgeNode by uid."""
+        uid = properties.get("uid") or properties.get("node_id")
+        if not uid:
+            return False
+        props = {k: v for k, v in properties.items() if v is not None}
+        props["uid"] = str(uid)
+        query = """
+        MERGE (n:KnowledgeNode {uid: $uid})
+        SET n += $props
+        RETURN n
+        """
+        return bool(self.run_query(query, {"uid": str(uid), "props": props}))
+
+    def merge_relationship_by_uid(
+        self,
+        source_uid: str,
+        target_uid: str,
+        rel_type: str,
+        props: Optional[Dict[str, Any]] = None,
+    ) -> bool:
+        """Idempotently merge a relationship between uid-addressed nodes."""
+        try:
+            safe_rel_type = self._validate_identifier(
+                rel_type,
+                identifier_type="relationship type",
+                allowlist=self.allowed_relationship_types,
+            )
+        except ValueError as exc:
+            logger.warning(f"Rejected merge_relationship_by_uid request: {exc}")
+            return False
+        query = (
+            "MATCH (a {uid: $source_uid}), (b {uid: $target_uid}) "
+            f"MERGE (a)-[r:{safe_rel_type}]->(b) "
+            "SET r += $props "
+            "RETURN r"
+        )
+        return bool(self.run_query(query, {
+            "source_uid": source_uid,
+            "target_uid": target_uid,
+            "props": props or {},
+        }))
+
+    @staticmethod
+    def _cache_key(prefix: str, query: str, parameters: Dict[str, Any]) -> str:
+        payload = json.dumps({"query": query, "parameters": parameters}, sort_keys=True, default=str)
+        digest = hashlib.sha256(payload.encode()).hexdigest()
+        return f"{prefix}:{digest}"
 
     def create_node(self, label: str, properties: Dict[str, Any]) -> bool:
         """Create a single node in the graph."""

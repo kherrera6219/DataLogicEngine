@@ -35,6 +35,47 @@ def test_graph_store_blocks_default_password_in_production(monkeypatch):
         assert store.driver is None
 
 
+def test_graph_store_cached_run_query_uses_cache(monkeypatch):
+    store = GraphStore()
+    store.run_query = MagicMock(return_value=[{"n": 1}])
+
+    cache_store = {}
+
+    class FakeCache:
+        @staticmethod
+        def get(key):
+            return cache_store.get(key)
+
+        @staticmethod
+        def set(key, value, timeout=0):
+            cache_store[key] = value
+
+    monkeypatch.setattr("extensions.cache", FakeCache)
+
+    first = store.cached_run_query("MATCH (n) RETURN n", {"x": 1})
+    second = store.cached_run_query("MATCH (n) RETURN n", {"x": 1})
+
+    assert first == [{"n": 1}]
+    assert second == [{"n": 1}]
+    store.run_query.assert_called_once()
+
+
+def test_graph_store_merge_knowledge_node_requires_uid():
+    store = GraphStore()
+    store.run_query = MagicMock()
+
+    assert store.merge_knowledge_node({"title": "No identity"}) is False
+    store.run_query.assert_not_called()
+
+
+def test_graph_store_merge_relationship_by_uid_validates_type():
+    store = GraphStore()
+    store.run_query = MagicMock()
+
+    assert store.merge_relationship_by_uid("a", "b", "BAD-TYPE") is False
+    store.run_query.assert_not_called()
+
+
 def test_local_object_store_rejects_path_traversal(tmp_path):
     backend = LocalFileBackend(base_path=str(tmp_path))
 

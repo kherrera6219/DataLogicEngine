@@ -314,12 +314,68 @@ class TruthCoreEngine:
         
         return session
 
+    def _refresh_graph_context(self, query: str, working_context: Dict[str, Any]) -> None:
+        """Populate live graph anchors from text and any available 17-axis vector."""
+        try:
+            from backend.storage import get_graph_store, get_uskd_memory_graph
+
+            memory_graph = get_uskd_memory_graph()
+            graph_store = get_graph_store()
+            coordinate_vector = working_context.get('coordinate_vector') or {}
+            axis_queries = self._axis_queries_from_coordinate_vector(coordinate_vector)
+
+            memory_nodes = memory_graph.coordinate_nodes(text=query, limit=10)
+            neo4j_nodes = graph_store.find_coordinate_nodes(text=query, limit=10)
+            for axis_number, axis_text in axis_queries:
+                memory_nodes.extend(memory_graph.coordinate_nodes(axis_number=axis_number, text=axis_text, limit=5))
+                neo4j_nodes.extend(graph_store.find_coordinate_nodes(axis_number=axis_number, text=axis_text, limit=5))
+
+            working_context['memory_graph_nodes'] = self._dedupe_graph_nodes(memory_nodes)
+            working_context['neo4j_nodes'] = self._dedupe_graph_nodes(neo4j_nodes)
+        except Exception as exc:
+            logger.debug("Graph-grounded context bootstrap skipped: %s", exc)
+
+    @staticmethod
+    def _axis_queries_from_coordinate_vector(coordinate_vector: Dict[str, Any]) -> List[tuple[int, str]]:
+        if not isinstance(coordinate_vector, dict):
+            return []
+        queries: List[tuple[int, str]] = []
+        active_axes = coordinate_vector.get('active_axes')
+        axes = coordinate_vector.get('axes') if isinstance(coordinate_vector.get('axes'), dict) else coordinate_vector
+        candidates = active_axes if isinstance(active_axes, list) else list(axes.keys())
+        for raw_axis in candidates:
+            try:
+                axis_number = int(str(raw_axis).removeprefix('axis_').removeprefix('A'))
+            except (TypeError, ValueError):
+                continue
+            if not 1 <= axis_number <= 17:
+                continue
+            value = axes.get(raw_axis, axes.get(str(raw_axis), axes.get(f'axis_{axis_number}', axes.get(f'A{axis_number}'))))
+            if isinstance(value, dict):
+                value = value.get('uid') or value.get('value') or value.get('code') or value.get('label')
+            queries.append((axis_number, str(value or '').strip()))
+        return queries
+
+    @staticmethod
+    def _dedupe_graph_nodes(nodes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        seen = set()
+        deduped = []
+        for node in nodes:
+            props = node.get('props') if isinstance(node.get('props'), dict) else node
+            key = props.get('uid') or props.get('node_id') or props.get('code') or repr(node)
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(node)
+        return deduped
+
     async def _execute_workflow(self, query: str, context: Dict[str, Any], steps: List[str], tier: str) -> Dict[str, Any]:
         """Unified execution loop for all tiers."""
         executed_steps = []
         working_context = context.copy()
         working_context['session_id'] = context.get('session_id', str(uuid.uuid4()))
         working_context['persona_results'] = {}
+        self._refresh_graph_context(query, working_context)
         personas_used = set()
         
         for step in steps:
@@ -335,6 +391,7 @@ class TruthCoreEngine:
                 if step == 'intent_parsing':
                     working_context['intent_id'] = output.get('intent_id')
                     working_context['coordinate_vector'] = output.get('coordinates', {})
+                    self._refresh_graph_context(query, working_context)
                 
                 elif step == 'hybrid_retrieval':
                     working_context['evidence'] = output.get('evidence', [])

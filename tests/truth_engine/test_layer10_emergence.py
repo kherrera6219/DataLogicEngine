@@ -116,3 +116,37 @@ class TestLayer10Controller:
         assert "KA-109" in result.kas_invoked
         assert "KA-079" in result.kas_invoked
         # Decision was RELEASE, so Lane B logic executed
+
+    def test_lane_b_persists_authorized_knowledge_to_graphs(self, monkeypatch, base_l10_input):
+        """Verify Lane B writes authorized knowledge into NetworkX and Neo4j helpers."""
+        from backend.storage.uskd_memory_graph import UskdMemoryGraph
+
+        memory_graph = UskdMemoryGraph()
+        merged_nodes = []
+        merged_relationships = []
+
+        class FakeGraphStore:
+            @staticmethod
+            def merge_knowledge_node(properties):
+                merged_nodes.append(properties)
+                return True
+
+            @staticmethod
+            def merge_relationship_by_uid(source_uid, target_uid, rel_type, props=None):
+                merged_relationships.append((source_uid, target_uid, rel_type, props))
+                return True
+
+        monkeypatch.setattr("backend.storage.get_uskd_memory_graph", lambda: memory_graph)
+        monkeypatch.setattr("backend.storage.get_graph_store", lambda: FakeGraphStore())
+
+        base_l10_input.coordinate_vector = {"active_axes": [1], "1": {"uid": "pillar-1", "value": "PL01"}}
+        memory_graph.add_pillar("pillar-1", code="PL01", name="Healthcare")
+        controller = EmergenceDetectionController(ka_controller=MockKAController())
+
+        result = controller.authorize(base_l10_input)
+
+        assert result.decision == L10Decision.RELEASE
+        assert merged_nodes[0]["node_type"] == "authorized_knowledge"
+        assert merged_relationships[0][2] == "AUTHORIZED_KNOWLEDGE"
+        matches = memory_graph.coordinate_nodes(axis_number=1, text="safe and effective")
+        assert matches[0]["data"]["promotion_authorized"] is True

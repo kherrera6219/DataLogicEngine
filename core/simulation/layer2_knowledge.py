@@ -228,6 +228,10 @@ class Layer2KnowledgeEngine:
         
         primary_pillar = pillar_context.get('primary_pillar', '')
         matched_pillars = [p['pillar'] for p in pillar_context.get('matched_pillars', [])]
+
+        live_links = self._find_live_graph_links(primary_pillar, matched_pillars)
+        if live_links:
+            return live_links
         
         for mapping_key, concepts in self.honeycomb_mappings.items():
             pillars_in_mapping = mapping_key.split('_')
@@ -248,6 +252,45 @@ class Layer2KnowledgeEngine:
                 })
         
         return sorted(cross_domain_links, key=lambda x: x['relevance'], reverse=True)
+
+    def _find_live_graph_links(self, primary_pillar: str, matched_pillars: List[str]) -> List[Dict[str, Any]]:
+        """Prefer the live USKD memory graph when it has relevant anchors."""
+        try:
+            from backend.storage import get_uskd_memory_graph
+
+            graph = get_uskd_memory_graph()
+            anchors = []
+            for value in [primary_pillar, *matched_pillars]:
+                if value:
+                    anchors.extend(graph.search(value, limit=3))
+            links = []
+            seen = set()
+            for anchor in anchors:
+                uid = str(anchor.get("uid"))
+                if uid in seen:
+                    continue
+                seen.add(uid)
+                neighborhood = graph.neighborhood(uid, depth=1)
+                related = [
+                    node
+                    for node in neighborhood.get("nodes", [])
+                    if str(node.get("uid")) != uid
+                ]
+                if related:
+                    links.append({
+                        'mapping_key': f"uskd:{uid}",
+                        'concepts': [
+                            str(node.get("title") or node.get("name") or node.get("uid"))
+                            for node in related[:5]
+                        ],
+                        'relevance': 1.0,
+                        'source_pillars': [primary_pillar] if primary_pillar else [],
+                        'subgraph_nodes': related,
+                    })
+            return links
+        except Exception as exc:
+            logger.debug("Live USKD graph links unavailable: %s", exc)
+            return []
     
     def _broaden_context(self, expanded_axes: Dict[int, Dict[str, Any]],
                          cross_domain: List[Dict[str, Any]],

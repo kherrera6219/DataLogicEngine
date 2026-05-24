@@ -8,6 +8,8 @@ and makes the final binary RELEASE vs CONTAIN decision.
 
 import logging
 import time
+import hashlib
+import json
 from typing import Dict, List, Any, Optional, Tuple
 
 from .l10_schemas import (
@@ -266,28 +268,130 @@ class EmergenceDetectionController:
 
     def _process_knowledge_commit_lane_b(self, input_data: L10Input, kas_invoked: List[str]) -> Dict[str, Any]:
         """Authorized persistence logic (Lane B). Decides if knowledge is saved."""
-        commit_report = {"status": "authorized"}
+        commit_report = {"status": "authorized", "promotion_authorized": True}
         
-        if not self.ka_controller:
+        # KA-109: Containment Classifier (Tagging)
+        if self.ka_controller:
+            try:
+                ka_res = self.ka_controller.execute_algorithm("KA-109", {"content": input_data.reasoning_trace})
+                kas_invoked.append("KA-109")
+                commit_report["containment_class"] = ka_res.get("class", "RESTRICTED")
+            except Exception as exc:
+                logger.debug("KA-109 Lane B classification failed: %s", exc)
+
+            # KA-079: Knowledge Promotion Gate
+            try:
+                ka_res = self.ka_controller.execute_algorithm("KA-079", {"trace": input_data.reasoning_trace})
+                kas_invoked.append("KA-079")
+                commit_report["promotion_authorized"] = ka_res.get("authorized", False)
+            except Exception as exc:
+                logger.debug("KA-079 Lane B promotion gate failed: %s", exc)
+                commit_report["promotion_authorized"] = False
+
+        if not self.config.get("enable_lane_b_commit", True):
+            commit_report["status"] = "disabled"
             return commit_report
 
-        # KA-109: Containment Classifier (Tagging)
-        try:
-            ka_res = self.ka_controller.execute_algorithm("KA-109", {"content": input_data.reasoning_trace})
-            kas_invoked.append("KA-109")
-            commit_report["containment_class"] = ka_res.get("class", "RESTRICTED")
-        except Exception:
-            pass
+        if not commit_report.get("promotion_authorized"):
+            commit_report["status"] = "skipped"
+            return commit_report
 
-        # KA-079: Knowledge Promotion Gate
+        properties = self._build_lane_b_knowledge_node(input_data, commit_report)
+        if not properties.get("content"):
+            commit_report["status"] = "skipped_empty_content"
+            return commit_report
+
         try:
-            ka_res = self.ka_controller.execute_algorithm("KA-079", {"trace": input_data.reasoning_trace})
-            kas_invoked.append("KA-079")
-            commit_report["promotion_authorized"] = ka_res.get("authorized", False)
-        except Exception:
-            pass
+            from backend.storage import get_graph_store, get_uskd_memory_graph
+
+            pillar_uid = self._coordinate_axis_value(input_data.coordinate_vector, 1)
+            memory_stats = get_uskd_memory_graph().upsert_authorized_knowledge_node(
+                properties["uid"],
+                node_id=properties["node_id"],
+                title=properties["title"],
+                axis_number=properties.get("axis_number"),
+                pillar_uid=pillar_uid,
+                data=properties,
+            )
+            commit_report["memory_graph_updated"] = True
+            commit_report["memory_graph_nodes"] = memory_stats.node_count
+
+            store = get_graph_store()
+            commit_report["neo4j_node_merged"] = store.merge_knowledge_node(properties)
+            if pillar_uid:
+                commit_report["neo4j_relationship_merged"] = store.merge_relationship_by_uid(
+                    str(pillar_uid),
+                    properties["uid"],
+                    "AUTHORIZED_KNOWLEDGE",
+                    {"simulation_id": input_data.simulation_id},
+                )
+            commit_report["status"] = "committed"
+        except Exception as exc:
+            logger.warning("Lane B graph commit skipped: %s", exc)
+            commit_report["status"] = "graph_commit_skipped"
+            commit_report["error"] = str(exc)
 
         return commit_report
+
+    def _build_lane_b_knowledge_node(self, input_data: L10Input, commit_report: Dict[str, Any]) -> Dict[str, Any]:
+        """Build a deterministic KnowledgeNode payload for release-authorized output."""
+        final_answer = str(input_data.l9_result.get("epistemic_report", {}).get("current_output", "") or "").strip()
+        trace_payload = {
+            "simulation_id": input_data.simulation_id,
+            "answer": final_answer,
+            "coordinate_vector": input_data.coordinate_vector,
+            "reasoning_trace": input_data.reasoning_trace,
+        }
+        digest = hashlib.sha256(json.dumps(trace_payload, sort_keys=True, default=str).encode()).hexdigest()[:24]
+        axis_number = self._first_coordinate_axis(input_data.coordinate_vector)
+        return {
+            "uid": f"l10:{digest}",
+            "node_id": f"L10-{digest}",
+            "node_type": "authorized_knowledge",
+            "title": final_answer[:120] or f"Authorized knowledge {input_data.simulation_id}",
+            "label": "L10 Authorized Knowledge",
+            "description": "Knowledge promoted by Layer 10 Lane B after release authorization.",
+            "content": final_answer,
+            "content_type": "text/plain",
+            "axis_number": axis_number,
+            "simulation_id": input_data.simulation_id,
+            "risk_domain": input_data.risk_domain,
+            "coordinate_vector": input_data.coordinate_vector,
+            "reasoning_trace": input_data.reasoning_trace,
+            "containment_class": commit_report.get("containment_class"),
+            "promotion_authorized": commit_report.get("promotion_authorized"),
+        }
+
+    @staticmethod
+    def _first_coordinate_axis(coordinate_vector: Dict[str, Any]) -> Optional[int]:
+        active_axes = coordinate_vector.get("active_axes") if isinstance(coordinate_vector, dict) else None
+        if isinstance(active_axes, list):
+            for axis in active_axes:
+                try:
+                    return int(axis)
+                except (TypeError, ValueError):
+                    continue
+        if isinstance(coordinate_vector, dict):
+            for key in coordinate_vector:
+                try:
+                    axis = int(str(key).removeprefix("axis_").removeprefix("A"))
+                    if 1 <= axis <= 17:
+                        return axis
+                except ValueError:
+                    continue
+        return None
+
+    @staticmethod
+    def _coordinate_axis_value(coordinate_vector: Dict[str, Any], axis_number: int) -> Optional[str]:
+        if not isinstance(coordinate_vector, dict):
+            return None
+        for key in (axis_number, str(axis_number), f"axis_{axis_number}", f"A{axis_number}"):
+            value = coordinate_vector.get(key)
+            if isinstance(value, dict):
+                value = value.get("uid") or value.get("value") or value.get("code")
+            if value:
+                return str(value)
+        return None
 
     def _make_containment_decision(self, 
                                   input_data: L10Input, 

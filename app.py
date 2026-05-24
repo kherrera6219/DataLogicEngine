@@ -819,6 +819,36 @@ def _initialize_storage_collections() -> None:
 _initialize_storage_collections()
 
 
+def _initialize_uskd_memory_graph() -> None:
+    """Load the RAM-resident USKD graph from SQL rows, then Neo4j if available."""
+    try:
+        from backend.storage import get_graph_store, get_uskd_memory_graph
+
+        memory_graph = get_uskd_memory_graph()
+        with app.app_context():
+            sql_stats = memory_graph.load_from_database(db.session)
+        logger.info("USKD memory graph loaded from SQL: %s", sql_stats.to_dict())
+
+        graph_store = get_graph_store()
+        if os.environ.get("USKD_SYNC_NEO4J_ON_STARTUP", "false").lower() in {"1", "true", "yes", "on"}:
+            try:
+                from scripts.sync_nodes_to_neo4j import sync
+
+                sync_result = sync()
+                logger.info("USKD SQL→Neo4j startup sync complete: %s", sync_result)
+            except Exception as sync_exc:  # pylint: disable=broad-except
+                logger.warning("USKD SQL→Neo4j startup sync skipped: %s", sync_exc)
+
+        neo4j_stats = memory_graph.load_from_neo4j(graph_store)
+        if neo4j_stats.node_count:
+            logger.info("USKD memory graph refreshed from Neo4j: %s", neo4j_stats.to_dict())
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.warning("USKD memory graph init skipped: %s", exc)
+
+
+_initialize_uskd_memory_graph()
+
+
 def _start_local_databases() -> None:
     """Auto-start bundled PostgreSQL, Redis, and Neo4j when running in local/desktop mode.
 

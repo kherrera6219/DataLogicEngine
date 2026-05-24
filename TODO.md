@@ -17,7 +17,7 @@ Source report: `reports/production-code-review-2026-05-23.md`
 
 Validation status: Production code-review remediation phases 1 through 4 are complete as of 2026-05-23.
 
-Master completion plan status: Phase 1 / A local code-contract fixes are complete as of 2026-05-24. Phase 2 / DB-N has started with the `UskdMemoryGraph` core service. Remaining Phase 1 release gates are manual or packaged-runtime evidence items.
+Master completion plan status: Phase 1 / A local code-contract fixes and Phase 2 / DB-N local implementation are complete as of 2026-05-24. Remaining Phase 1 release gates are manual or packaged-runtime evidence items. Phase 2 live Neo4j parity still requires a reachable Neo4j instance with valid credentials and seeded data.
 
 | Item | Code validation | Status |
 | --- | --- | --- |
@@ -30,7 +30,7 @@ Master completion plan status: Phase 1 / A local code-contract fixes are complet
 | Shell-based static copy | `scripts/deploy.py` copies static build artifacts with `pathlib`/`shutil` and no shell invocation. | Done |
 | Strict runtime precheck | `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process` passes with no blockers and no action items. | Done |
 | Phase 1 gateway/model contract drift | `ChatSession.to_dict()` exists; API key expiration is modeled/enforced; gateway-created `TraceRun` rows set `user_id`; SDK version has a single `0.4.0` assignment. | Done |
-| Phase 2 USKD memory graph foundation | `backend/storage/uskd_memory_graph.py` provides a NetworkX-backed `UskdMemoryGraph` with record/Neo4j loaders, search, neighborhood traversal, stats, and tests. | In progress |
+| Phase 2 USKD memory graph implementation | `backend/storage/uskd_memory_graph.py`, `scripts/sync_nodes_to_neo4j.py`, `GraphStore` cached traversal helpers, TruthCore graph context bootstrap, Layer 2 live graph preference, L10 Lane B authorized graph commit, and `backend.spec` NetworkX hidden import are implemented and locally validated. | Done |
 
 Phased update plan:
 

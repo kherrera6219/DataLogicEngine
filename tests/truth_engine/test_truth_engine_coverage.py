@@ -18,7 +18,7 @@ class TestLLMRouter:
         result = router.route("Write a python function to sort a list")
         assert result["profile"] == "code"
         # Check defaults logic
-        assert result["model"] in ["codestral", "gpt-4o"]
+        assert result["model"] in ["codestral", "gpt-4o", "gpt-5.5"]
 
     def test_route_long_context(self):
         router = LLMRouter()
@@ -103,4 +103,18 @@ class TestTruthCoreEngine:
              
              assert result_session["status"] == "completed"
              assert len(result_session["workflow_steps"]) == 2
+
+    def test_axis_queries_from_coordinate_vector(self):
+        vector = {
+            "active_axes": [1, "A6", "axis_17"],
+            "1": {"uid": "pillar-1", "value": "PL01"},
+            "A6": {"value": "octopus-bridge"},
+            "axis_17": "public",
+        }
+
+        assert TruthCoreEngine._axis_queries_from_coordinate_vector(vector) == [
+            (1, "pillar-1"),
+            (6, "octopus-bridge"),
+            (17, "public"),
+        ]
 

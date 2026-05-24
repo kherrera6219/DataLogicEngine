@@ -33,6 +33,7 @@ a = Analysis(
         'langchain_core',
         'langsmith',
         'neo4j',
+        'networkx',
         'pydantic',
         'pydantic_core',
         'pydantic_settings',

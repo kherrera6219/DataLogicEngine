@@ -115,6 +115,10 @@ class UskdMemoryGraph:
             RETURN labels(n) AS labels, properties(n) AS props
             """
         )
+        if not records:
+            logger.info("Neo4j returned no USKD records; retaining existing memory graph")
+            return self.stats()
+
         rel_records = graph_store.run_query(
             """
             MATCH (a)-[r]->(b)
@@ -162,6 +166,33 @@ class UskdMemoryGraph:
 
         self.last_loaded_at = datetime.now(UTC)
         return self.stats()
+
+    def load_from_database(self, db_session: Any) -> UskdGraphStats:
+        """Load PillarLevel, KnowledgeGraphNode, and KnowledgeGraphEdge rows."""
+        from sqlalchemy import inspect
+        from models import KnowledgeGraphEdge, KnowledgeGraphNode, PillarLevel
+
+        bind = db_session.get_bind() if hasattr(db_session, "get_bind") else getattr(db_session, "bind", None)
+        if bind is None:
+            logger.info("USKD SQL load skipped; no database bind available")
+            return self.stats()
+        inspector = inspect(bind)
+        table_names = set(inspector.get_table_names())
+        required_tables = {
+            PillarLevel.__tablename__,
+            KnowledgeGraphNode.__tablename__,
+            KnowledgeGraphEdge.__tablename__,
+        }
+        if not required_tables.issubset(table_names):
+            missing = sorted(required_tables - table_names)
+            logger.info("USKD SQL load skipped; missing tables: %s", missing)
+            return self.stats()
+
+        return self.load_from_records(
+            pillars=db_session.query(PillarLevel).all(),
+            knowledge_nodes=db_session.query(KnowledgeGraphNode).all(),
+            edges=db_session.query(KnowledgeGraphEdge).all(),
+        )
 
     def add_pillar(
         self,
@@ -217,6 +248,57 @@ class UskdMemoryGraph:
             weight=self._coerce_weight(weight),
             data=dict(data or {}),
         )
+
+    def upsert_authorized_knowledge_node(
+        self,
+        uid: str,
+        *,
+        node_id: Optional[str] = None,
+        title: Optional[str] = None,
+        axis_number: Any = None,
+        pillar_uid: Optional[str] = None,
+        relationship_type: str = "AUTHORIZED_KNOWLEDGE",
+        data: Optional[Mapping[str, Any]] = None,
+    ) -> UskdGraphStats:
+        """Update the in-process graph after a release-gated knowledge commit."""
+        self.add_knowledge_node(
+            uid,
+            node_id=node_id,
+            title=title,
+            axis_number=axis_number,
+            data=data,
+        )
+        if pillar_uid:
+            self.add_relationship(str(pillar_uid), uid, relationship_type)
+        return self.stats()
+
+    def coordinate_nodes(self, *, axis_number: Optional[int] = None, text: str = "", limit: int = 25) -> list[dict[str, Any]]:
+        """Find candidate graph anchors for a coordinate/text pair."""
+        matches: list[dict[str, Any]] = []
+        needle = str(text or "").strip().lower()
+        for uid, attrs in self.graph.nodes(data=True):
+            if axis_number is not None and attrs.get("axis_number") not in (None, axis_number):
+                continue
+            if needle:
+                data = attrs.get("data") if isinstance(attrs.get("data"), dict) else {}
+                haystack = " ".join(
+                    str(value or "")
+                    for value in (
+                        uid,
+                        attrs.get("name"),
+                        attrs.get("title"),
+                        attrs.get("code"),
+                        attrs.get("node_id"),
+                        data.get("description"),
+                        data.get("content"),
+                    )
+                ).lower()
+                if needle not in haystack:
+                    continue
+            matches.append({"uid": uid, **attrs})
+            if len(matches) >= limit:
+                break
+        return matches
 
     def neighborhood(self, uid: str, *, depth: int = 1) -> dict[str, Any]:
         """Return a bounded directed neighborhood around a node."""
