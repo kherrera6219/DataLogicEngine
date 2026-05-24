@@ -302,7 +302,7 @@ ID
 	________________
 
 
-DB-N
+PHASE 2 / DB-N
 	Neo4j + NetworkX  —  Graph-Grounded Reasoning and In-Memory USKD
 	Weeks 1–3 (parallel with A)
 	
@@ -320,9 +320,9 @@ ID
 	Exit Gate
 	Target
 	N-1
-	Build Neo4j → NetworkX sync: load KnowledgeNode + Pillar nodes into in-memory DiGraph at startup
+	IN PROGRESS May 24, 2026 — Build Neo4j → NetworkX sync: load KnowledgeNode + Pillar nodes into in-memory DiGraph at startup
 	backend/storage/uskd_memory_graph.py (new)
-	UskdMemoryGraph.load_from_neo4j() populates nx.DiGraph; node count matches Neo4j MATCH (n:KnowledgeNode)
+	Core UskdMemoryGraph service exists with load_from_records(), load_from_neo4j(), search(), neighborhood(), stats(), and singleton export from backend.storage; unit tests pass. Remaining: startup wiring, live Neo4j count parity, and TruthCore/gateway usage.
 	DESKTOP+VM
 	N-2
 	Sync SQLite ukg_nodes → Neo4j KnowledgeNode on startup (idempotent MERGE)

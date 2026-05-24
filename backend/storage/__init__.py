@@ -33,6 +33,12 @@ from backend.storage.graph_store import (
     get_graph_store
 )
 
+from backend.storage.uskd_memory_graph import (
+    UskdGraphStats,
+    UskdMemoryGraph,
+    get_uskd_memory_graph
+)
+
 from backend.storage.database_manager import (
     DatabaseLifecycleManager,
     get_db_manager
@@ -58,6 +64,11 @@ __all__ = [
     # Graph Store
     'GraphStore',
     'get_graph_store',
+
+    # In-memory USKD graph
+    'UskdGraphStats',
+    'UskdMemoryGraph',
+    'get_uskd_memory_graph',
     
     # Database Lifecycle
     'DatabaseLifecycleManager',
