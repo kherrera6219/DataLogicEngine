@@ -225,6 +225,8 @@ Copy `.env.template` to `.env` and set values for your deployment target.
 | `REDIS_URL` | `redis://localhost:6379/0` | Cache and runtime coordination. |
 | `RATELIMIT_STORAGE_URI` | `redis://localhost:6379` | Flask-Limiter storage backend. |
 | `NEO4J_URI` | `bolt://localhost:7687` | Neo4j Bolt endpoint. |
+| `NEO4J_HTTP_PORT` | `7474` | Host port for the Neo4j browser when using Docker Compose. |
+| `NEO4J_LOCAL_PORT` | `7687` | Host Bolt port for the Neo4j Docker Compose service. |
 | `NEO4J_USER` | `neo4j` | Neo4j username. |
 | `NEO4J_PASSWORD` | unset | Neo4j password. |
 | `OBJECT_ENDPOINT_URL` | `http://localhost:9000` | S3-compatible object storage endpoint. |

@@ -27,6 +27,7 @@ def test_graph_store_rejects_invalid_relationship_type():
 
 def test_graph_store_blocks_default_password_in_production(monkeypatch):
     monkeypatch.setenv("FLASK_ENV", "production")
+    monkeypatch.setenv("NEO4J_PASSWORD", "password")
     store = GraphStore()
 
     with patch("backend.storage.graph_store.GraphDatabase.driver") as mock_driver:

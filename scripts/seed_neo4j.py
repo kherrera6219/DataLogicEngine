@@ -24,6 +24,7 @@ from dotenv import load_dotenv  # noqa: E402
 load_dotenv()
 
 from app import app  # noqa: E402
+from extensions import db  # noqa: E402
 from models import PillarLevel  # noqa: E402
 from backend.storage.graph_store import get_graph_store  # noqa: E402
 
@@ -79,7 +80,7 @@ def _load_yaml_pillars() -> list:
                 "pillar_id": pillar_id,
                 "name": item.get("label", pillar_id),
                 "description": item.get("description", ""),
-                "children": [],  # top-level YAML doesn't encode parent→child
+                "children": [],  # top-level YAML does not encode parent-to-child
             })
         return rows
     except Exception as exc:
@@ -133,8 +134,16 @@ def seed(wipe: bool = False) -> None:
         print("ERROR: Could not connect to Neo4j. Is it running?")
         sys.exit(1)
 
+    pillar_rows = []
     with app.app_context():
-        pillar_rows = PillarLevel.query.all()
+        try:
+            from sqlalchemy import inspect
+
+            bind = db.session.get_bind()
+            if PillarLevel.__tablename__ in set(inspect(bind).get_table_names()):
+                pillar_rows = PillarLevel.query.all()
+        except Exception as exc:
+            print(f"  SQLite pillar query skipped; using YAML/starter data if needed: {exc}")
 
     # Build pillar list: prefer YAML file > DB rows > starter data
     yaml_pillars = _load_yaml_pillars()
@@ -150,7 +159,7 @@ def seed(wipe: bool = False) -> None:
         uid_by_code = {p.pillar_id: p.uid for p in pillar_rows}
         child_pairs = []
     else:
-        print("  No pillar data found — seeding from starter dataset")
+        print("  No pillar data found - seeding from starter dataset")
         uid_map = {pid: str(uuid.uuid4()) for pid, *_ in STARTER_PILLARS}
         pillars = [(uid_map[pid], pid, name, desc) for pid, name, desc, _ in STARTER_PILLARS]
         uid_by_code = uid_map
@@ -173,7 +182,7 @@ def seed(wipe: bool = False) -> None:
         for parent_uid, child_uid in child_pairs:
             _merge_has_child(session, parent_uid, child_uid)
 
-        # Honeycomb bridges — map from pillar code to uid
+        # Honeycomb bridges - map from pillar code to uid
         print(f"  Merging {len(HONEYCOMB_BRIDGES)} HONEYCOMB_BRIDGE edge pairs...")
         for src_code, tgt_code in HONEYCOMB_BRIDGES:
             src_uid = uid_by_code.get(src_code)

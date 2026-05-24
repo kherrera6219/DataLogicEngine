@@ -322,12 +322,12 @@ ID
 	N-1
 	COMPLETED May 24, 2026 — Build Neo4j → NetworkX sync: load KnowledgeNode + Pillar nodes into in-memory DiGraph at startup
 	backend/storage/uskd_memory_graph.py (new)
-	UskdMemoryGraph service exists with SQL and Neo4j loaders, search, neighborhood traversal, coordinate anchors, release-gated upsert helper, stats, singleton export, and app.py startup initialization. Live Neo4j count parity requires a reachable Neo4j instance with valid credentials.
+	UskdMemoryGraph service exists with SQL and Neo4j loaders, search, neighborhood traversal, coordinate anchors, release-gated upsert helper, stats, singleton export, and app.py startup initialization. Live local Neo4j is configured, seeded, and verified.
 	DESKTOP+VM
 	N-2
 	COMPLETED May 24, 2026 — Sync SQLite ukg_nodes → Neo4j KnowledgeNode on startup (idempotent MERGE)
 	scripts/sync_nodes_to_neo4j.py (new)
-	Added idempotent SQL→Neo4j sync CLI plus optional USKD_SYNC_NEO4J_ON_STARTUP=true startup hook. Live count parity requires local Neo4j credentials/data.
+	Added idempotent SQL→Neo4j sync CLI plus optional USKD_SYNC_NEO4J_ON_STARTUP=true startup hook. Neo4j is locally reachable; SQL node parity depends on initialized SQL graph tables.
 	DESKTOP+VM
 	N-3
 	COMPLETED May 24, 2026 — Wire L1 coordinate resolver to query Neo4j: 17-axis vector → MATCH Pillar + Sector nodes

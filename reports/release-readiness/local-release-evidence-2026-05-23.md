@@ -20,8 +20,11 @@ Date: 2026-05-23
 | `python -m pytest tests\truth_engine\test_layer10_emergence.py tests\truth_engine\test_truth_engine_coverage.py -q` | Passed | 15 tests passed for L10 Lane B graph persistence and TruthCore coordinate-vector graph context extraction. |
 | `python -m ruff check app.py backend\storage\uskd_memory_graph.py backend\storage\graph_store.py backend\truth_engine\truth_core\engine.py backend\truth_engine\truth_core\emergence_controller.py core\simulation\layer2_knowledge.py core\coordinate_system.py scripts\sync_nodes_to_neo4j.py tests\unit\test_uskd_memory_graph.py tests\unit\test_storage_hardening.py tests\truth_engine\test_layer10_emergence.py tests\truth_engine\test_truth_engine_coverage.py` | Passed | Phase 2 touched Python files pass Ruff. |
 | `python -m py_compile app.py backend\storage\uskd_memory_graph.py backend\storage\graph_store.py backend\truth_engine\truth_core\engine.py backend\truth_engine\truth_core\emergence_controller.py core\simulation\layer2_knowledge.py core\coordinate_system.py scripts\sync_nodes_to_neo4j.py tests\unit\test_uskd_memory_graph.py tests\unit\test_storage_hardening.py tests\truth_engine\test_layer10_emergence.py tests\truth_engine\test_truth_engine_coverage.py` | Passed | Phase 2 touched Python files compile. |
-| `python -c "import app; print('app-import-ok')"` | Passed | Startup imports with USKD memory graph initialization; local Neo4j was unreachable, so live parity remains environment evidence. |
+| `python -c "import app; print('app-import-ok')"` | Passed | Startup imports with USKD memory graph initialization. |
 | `python -c "from backend.storage import UskdMemoryGraph, get_uskd_memory_graph; g=get_uskd_memory_graph(); print(type(g).__name__)"` | Passed | Printed `UskdMemoryGraph`; storage package exports the Phase 2 graph singleton. |
+| `docker compose up -d neo4j` | Passed | Started DataLogicEngine-local Neo4j as `ukg-neo4j` on host ports `7476` and `7690` to avoid existing local stack conflicts. |
+| `python scripts/seed_neo4j.py --wipe` | Passed | Seeded the configured local Neo4j instance with 20 `Pillar` nodes and 18 `HONEYCOMB_BRIDGE` edges. |
+| `python -c "import app; from backend.storage import get_uskd_memory_graph; print(get_uskd_memory_graph().stats().to_dict())"` | Passed | App startup refreshed the USKD memory graph from Neo4j: 20 nodes, 18 edges, 20 pillar nodes. |
 
 ## Phase 1 / A Local Code Evidence
 
@@ -47,7 +50,7 @@ Completed locally on 2026-05-24:
 - Wired CrosswalkTraversal to attempt cached Neo4j traversal before static fallback.
 - Wired L10 Lane B to persist release-authorized knowledge into the NetworkX graph and Neo4j merge helpers after the promotion gate authorizes commit.
 - Added `networkx` to `backend.spec` hidden imports.
-- Local validation proves code paths and fallbacks. Live Neo4j count parity still requires a reachable Neo4j instance with valid credentials and seeded data.
+- Local validation proves code paths and fallbacks. A DataLogicEngine-local Neo4j container is configured via ignored `.env`, seeded, and verified with 20 pillar nodes and 18 graph edges. SQL `KnowledgeGraphNode` parity still depends on initializing the local SQL graph tables.
 
 ## Release-Runner Or Manual Evidence Still Required
 

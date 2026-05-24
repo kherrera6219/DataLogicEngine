@@ -17,7 +17,7 @@ Source report: `reports/production-code-review-2026-05-23.md`
 
 Validation status: Production code-review remediation phases 1 through 4 are complete as of 2026-05-23.
 
-Master completion plan status: Phase 1 / A local code-contract fixes and Phase 2 / DB-N local implementation are complete as of 2026-05-24. Remaining Phase 1 release gates are manual or packaged-runtime evidence items. Phase 2 live Neo4j parity still requires a reachable Neo4j instance with valid credentials and seeded data.
+Master completion plan status: Phase 1 / A local code-contract fixes and Phase 2 / DB-N local implementation are complete as of 2026-05-24. Remaining Phase 1 release gates are manual or packaged-runtime evidence items. Phase 2 live Neo4j is configured locally through ignored `.env`, seeded, and verified; SQL graph-node parity still depends on initializing the local SQL graph tables.
 
 | Item | Code validation | Status |
 | --- | --- | --- |

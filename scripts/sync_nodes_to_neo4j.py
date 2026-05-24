@@ -21,6 +21,7 @@ from dotenv import load_dotenv  # noqa: E402
 load_dotenv()
 
 from app import app  # noqa: E402
+from extensions import db  # noqa: E402
 from models import KnowledgeGraphEdge, KnowledgeGraphNode  # noqa: E402
 from backend.storage import get_graph_store, get_uskd_memory_graph  # noqa: E402
 
@@ -51,6 +52,23 @@ def sync(limit: int | None = None) -> dict[str, int]:
         raise RuntimeError("Could not connect to Neo4j. Is it running?")
 
     with app.app_context():
+        from sqlalchemy import inspect
+
+        bind = db.session.get_bind()
+        table_names = set(inspect(bind).get_table_names())
+        required_tables = {KnowledgeGraphNode.__tablename__, KnowledgeGraphEdge.__tablename__}
+        if not required_tables.issubset(table_names):
+            missing = ", ".join(sorted(required_tables - table_names))
+            return {
+                "sql_nodes": 0,
+                "sql_edges": 0,
+                "merged_nodes": 0,
+                "merged_edges": 0,
+                "memory_nodes": get_uskd_memory_graph().stats().node_count,
+                "memory_edges": get_uskd_memory_graph().stats().edge_count,
+                "skipped_missing_tables": missing,
+            }
+
         query = KnowledgeGraphNode.query.order_by(KnowledgeGraphNode.id)
         if limit:
             query = query.limit(limit)
@@ -104,8 +122,12 @@ def main() -> int:
         print(f"ERROR: {exc}")
         return 1
 
+    if result.get("skipped_missing_tables"):
+        print(f"Skipped SQL-to-Neo4j sync; missing SQL tables: {result['skipped_missing_tables']}")
+        return 0
+
     print(
-        "Synced SQL→Neo4j: "
+        "Synced SQL-to-Neo4j: "
         f"{result['merged_nodes']}/{result['sql_nodes']} nodes, "
         f"{result['merged_edges']}/{result['sql_edges']} edges; "
         f"memory graph={result['memory_nodes']} nodes/{result['memory_edges']} edges"

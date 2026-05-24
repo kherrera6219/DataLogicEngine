@@ -20,9 +20,9 @@ class GraphStore:
     
     def __init__(self):
         config = get_config()
-        self.uri = getattr(config, 'NEO4J_URI', 'bolt://localhost:7687')
-        self.user = getattr(config, 'NEO4J_USER', 'neo4j')
-        self.password = getattr(config, 'NEO4J_PASSWORD', 'password')
+        self.uri = os.getenv("NEO4J_URI") or getattr(config, 'NEO4J_URI', 'bolt://localhost:7687')
+        self.user = os.getenv("NEO4J_USER") or getattr(config, 'NEO4J_USER', 'neo4j')
+        self.password = os.getenv("NEO4J_PASSWORD") or getattr(config, 'NEO4J_PASSWORD', 'password')
         self.driver: Optional[Driver] = None
         self.allowed_labels = self._parse_allowlist(os.getenv("NEO4J_ALLOWED_LABELS"))
         self.allowed_relationship_types = self._parse_allowlist(os.getenv("NEO4J_ALLOWED_REL_TYPES"))
