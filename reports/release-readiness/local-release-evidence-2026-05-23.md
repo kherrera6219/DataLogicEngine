@@ -12,6 +12,20 @@ Date: 2026-05-23
 | `python scripts/verify_docs_references.py` | Passed | Documentation references are valid after the TODO and README consolidation. |
 | `python scripts/validate_schema_parity.py` | Passed | Report written to `reports/schema_parity_report.json`. |
 | `python scripts/verify_release_governance.py` | Passed | Report written to `reports/release_governance_report.json`. |
+| `python -m py_compile models.py backend\llm_gateway\api.py backend\llm_gateway\gateway.py sdk\UKG_Python_SDK\ukg_sdk\__init__.py tests\unit\test_models_extended.py` | Passed | Phase 1 gateway/model contract and SDK version files compile. |
+| `python -c "import sys; sys.path.insert(0, r'sdk\UKG_Python_SDK'); import ukg_sdk; print(ukg_sdk.__version__)"` | Passed | Printed `0.4.0`; SDK now has a single version assignment. |
+| `python -m pytest tests\unit\test_models.py tests\unit\test_models_extended.py tests\integration_routes\test_api_routers.py -q` | Passed | 43 tests passed after adding API-key expiration and chat-session serialization coverage. |
+| `python -m pytest tests\integration\test_gateway_api_coverage.py tests\unit\test_llm_gateway_internal_units.py -q` | Passed | 23 tests passed for gateway API/internal behavior. |
+
+## Phase 1 / A Local Code Evidence
+
+Completed locally on 2026-05-24:
+
+- SDK duplicate `__version__` assignment removed; `ukg_sdk.__version__` resolves to `0.4.0`.
+- `ExternalAPIKey.expires_at` is modeled, serialized, and enforced by `verify_key()`.
+- API-key creation persists a Python datetime expiration instead of assigning a SQL expression to an unmapped attribute.
+- `ChatSession.to_dict()` exists for gateway/tracing session list endpoints.
+- Gateway-created `TraceRun` records set `user_id`, allowing authenticated trace-list views to see chat-generated runs.
 
 ## Release-Runner Or Manual Evidence Still Required
 

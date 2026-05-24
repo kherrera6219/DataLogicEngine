@@ -1269,6 +1269,7 @@ class LLMGateway:
             sdk_tier = str(sdk_result.get("tier") or "")
             run = TraceRun(
                 session_id=uuid.UUID(session_id) if session_id else None,
+                user_id=int(user_id) if user_id else None,
                 status="pass" if sdk_result.get("ok") else "fail",
                 model_name=model,
                 model_version=model_version,

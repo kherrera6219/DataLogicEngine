@@ -1,0 +1,1768 @@
+﻿UKG / DataLogicEngine  —  Master Phased Completion Plan  v1.0  |  Consolidated May 2026  |  Lucentry CONFIDENTIAL
+UKG / DataLogicEngine
+Master Phased Completion Plan
+Consolidated  ·  v1.0  ·  All Gaps  ·  All Requests  ·  All DB Sprints
+10 Phases  ·  6 DB Sprints  ·  ~52 Weeks  ·  Code-Validated May 23, 2026  |  Lucentry
+
+
+
+
+How to read this document
+This is the single authoritative plan replacing all earlier documents (Gap Analysis, Phased Plan v1, LocalFirst Plan v2, Database Integration Plan). Every task maps to a real file path validated against the actual codebase at C:\software\DataLogicEngine. The "Target" column uses: DESKTOP+VM = required on both paths; DESKTOP = Electron/NSIS installer specific; VM-ONLY = cloud deployment only. Phases run in dependency order. DB Sprints run in parallel with main phases and are NOT sequential blocks.
+	
+
+1.  Validated Current State — What the Code Review Found
+
+
+This section is the authoritative baseline. Everything below was confirmed by reading actual source files. Status ratings reflect what the code does, not what documentation claims.
+
+
+1.1  Platform & Infrastructure (no changes needed)
+Component
+	Status
+	Finding
+	Key File
+	Flask 3.1 + SQLAlchemy + 64 DB models
+	IMPLEMENTED
+	Production-grade. WAL mode on SQLite. Connection pooling on PostgreSQL. 64 models migrated. Auth, RBAC, MFA, CSRF, rate limiting all working.
+	app.py + extensions.py
+	Electron 40 + NSIS installer
+	IMPLEMENTED
+	main.ts spawns DataLogic_Backend.exe. DPAPI/safeStorage secrets. IPC origin validation. Auto-updater wired (disabled by default). Signed installer workflow present.
+	frontend/electron/main.ts
+	DatabaseLifecycleManager
+	IMPLEMENTED
+	start_all() auto-starts PostgreSQL, Redis, Neo4j from databases/. JAVA_HOME auto-discovery. atexit cleanup. scram-sha-256 PG init.
+	backend/storage/database_manager.py
+	ConnectionManager (config routing)
+	IMPLEMENTED
+	Reads all 5 storage configs from ENV. Health checks. Local/cloud switching per DB_MODE.
+	backend/storage/connection_manager.py
+	LLM Gateway (OpenAI/Anthropic/Google/Azure)
+	IMPLEMENTED
+	Circuit breaker, provider failover, F-CONF-01 confidence formula, audit footer, TruthAuditEvent hash chain on Tier 2+.
+	backend/llm_gateway/gateway.py
+	LocalSLMProvider (Ollama/vLLM)
+	PARTIAL
+	Full implementation in SDK providers. gateway.py can instantiate local_slm/ollama/vllm providers and prioritises DB-configured local providers for trivial/moderate tiers. BUT: it does not auto-create a local fallback provider when cloud providers fail; offline fallback routing is still required.
+	sdk/UKG_Python_SDK/ukg_sdk/providers/local_slm.py + backend/llm_gateway/gateway.py
+	TruthEngine L8 TrustValidationGateway
+	IMPLEMENTED
+	534 lines. RISK_THRESHOLDS: standard=0.95, healthcare/finance/legal=0.995. 12 KAs wired. BUT: thresholds are hardcoded, not data-driven from TraceRun history.
+	backend/truth_engine/truth_gate/trust_validation_gateway.py
+	TruthEngine L9 MetaReasoningController
+	IMPLEMENTED
+	704 lines. 7 L9-specific KAs + 4 canonical KAs. Drift detection. BUT: operates on current session only — no historical DB comparison.
+	backend/truth_engine/truth_core/meta_reasoning_controller.py
+	TruthEngine L10 EmergenceDetectionController
+	IMPLEMENTED
+	351 lines. Lane A/B. BELIEF_DECAY_FACTOR=0.98. BUT: L10 KA files in backend/knowledge_algorithms/l10/ are empty stubs.
+	backend/truth_engine/truth_core/emergence_controller.py
+	12-step RefinementOrchestrator
+	IMPLEMENTED
+	All 12 steps named. KAs assigned. confidence gate 0.995. BUT: Steps 6+11 (PII_Redaction, Ethics_Validation) rely on empty L10 KA files.
+	backend/truth_engine/truth_core/refinement_orchestrator.py
+	FROST Service (snapshot/branch/merge)
+	IMPLEMENTED
+	FROSTService: immutable snapshots with HMAC integrity, branch/merge. In-memory only. Serialisation to disk not wired.
+	core/system/frost_service.py
+	PersonaConstructionService
+	IMPLEMENTED
+	construct_persona(axis_num, coordinate_path) with 7-part set_component(). Seeds from static profiles. NOT called by TruthCoreEngine L5.
+	core/system/persona_construction_service.py
+	quad_persona/ math layer
+	IMPLEMENTED
+	835-line DynamicWeightFunctions, KnowledgeSpaceMapper, StructuredMemoryGraph, DeepRecursiveLearning. PodOrchestrator 752 lines. FULLY DISCONNECTED from gateway.
+	quad_persona/mathematical_framework.py
+	RAGService (LlamaIndex + 3-layer embedding)
+	IMPLEMENTED
+	LlamaIndex chunking. OpenAI→Google→HuggingFace failover. ingest_knowledge_node() exists. Gateway calls get_context_for_query(). BUT: startup creates spec collections (knowledge_nodes, persona_profiles, citation_cache, audit_evidence) while RAGService uses documents, knowledge_graph, and chat_history; ingestion and collection alignment are both required.
+	backend/services/rag_service.py
+	NetworkX
+	PARTIAL
+	networkx==3.4.2 is in requirements.txt and is imported by core/simulation/memory_simulation.py and simulation/layer2_knowledge.py. BUT: there is no UskdMemoryGraph, no Neo4j→NetworkX sync, and no NetworkX reasoning substrate wired into the main gateway/TruthCore path.
+	requirements.txt + core/simulation/memory_simulation.py + simulation/layer2_knowledge.py
+	Neo4j graph store
+	PARTIAL
+	GraphStore connects. Schema constraints. seed_neo4j.py seeds 12 Pillars. BUT: L1/L2 in TruthCoreEngine never call graph_store. L2 uses static Python dict.
+	backend/storage/graph_store.py
+	Redis (TruthCache)
+	PARTIAL
+	Flask-Limiter + sessions use Redis correctly. TruthCache has backend= flag but ALWAYS uses in-memory OrderedDict regardless of flag.
+	backend/truth_engine/truth_memory/cache.py
+	ChromaDB (4 collections)
+	PARTIAL
+	Collections created at startup. RAGService works. BUT: knowledge_nodes, persona_profiles, citation_cache, audit_evidence are ALL empty — no ingestion pipeline.
+	backend/storage/vector_store.py
+	Object store (5 buckets)
+	PARTIAL
+	LocalFileBackend implemented. 5 buckets created. BUT: TruthMemoryCommitService never writes to it — audit bundles go to SQLite TEXT columns only.
+	backend/storage/object_store.py
+	StructuredMemoryGraph
+	NOT WIRED
+	Complete implementation: MemoryVertex/Edge, SR(q,c,t) recall with temporal decay, MC(M,I,t) consolidation. Never called by any pipeline step.
+	quad_persona/mathematical_framework.py
+	BlockchainAdapter
+	NOT WIRED
+	MerkleTree + Web3 in blockchain_adapter.py. Simulated fallback without private key. commit_service never calls it.
+	backend/truth_engine/truth_link/blockchain_adapter.py
+	Axis 14-17 naming (3-way conflict)
+	MISSING
+	coordinate_system.py, core/axes/*.py, and canonical spec all define axes 14-17 differently. No single source of truth.
+	core/coordinate_system.py + core/axes/
+	DSQP dynamic persona construction
+	MISSING
+	PersonaConstructionService._seed_components() uses static profile dicts. Dynamic 7-step self-questioning chain never built.
+	backend/dsqp/ (directory does not exist)
+	DMRF middleware engine
+	MISSING
+	Not a single file, class, or import exists. Absent from requirements.txt. No directory.
+	backend/dmrf/ (does not exist)
+	L10 KA suite (7 files)
+	EMPTY
+	backend/knowledge_algorithms/l10/ contains only __init__.py. L9 has 7 complete files — L10 mirrors this pattern but is empty.
+	backend/knowledge_algorithms/l10/
+	SDK version
+	PARTIAL
+	Validated May 24, 2026: duplicate __version__ assignment fixed to a single 0.4.0 assignment. Remaining SDK work: CoordinateResolver17 not yet wired to live backend and SDK v0.5.0 release tasks remain in Phase G-A.
+	sdk/UKG_Python_SDK/ukg_sdk/__init__.py
+	Java/JRE for Neo4j desktop
+	MISSING
+	DatabaseLifecycleManager._find_java_home() searches common paths but does NOT bundle a JRE. Neo4j 5 requires Java 17. Clean Windows installs will fail.
+	backend/storage/database_manager.py
+	Knowledge corpus ingestion pipeline
+	MISSING
+	No script converts raw domain documents into ukg_nodes → ChromaDB → Neo4j. The system has no way to grow its knowledge base without manual SQL inserts.
+	scripts/ (no ingest_*.py exists)
+	TODO.md item #8 (strict precheck)
+	IMPLEMENTED
+	Validated May 24, 2026: python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process exits 0 with 0 blockers and 0 action items. Warnings remain: not running inside virtual environment; templates/ directory missing.
+	scripts/runtime_precheck.py
+	Gateway/model contract drift
+	IMPLEMENTED
+	Fixed and validated May 24, 2026: ChatSession.to_dict() exists; ExternalAPIKey.expires_at is modeled, serialized, and enforced by verify_key(); API key creation writes a Python datetime expiration; gateway-created TraceRun rows set user_id for trace UI visibility.
+	models.py + backend/llm_gateway/api.py + backend/llm_gateway/gateway.py + backend/tracing/api.py
+	
+
+________________
+
+
+2.  Complete Phase and Sprint Overview
+
+
+Item
+	Title
+	Focus
+	Weeks
+	Outcome
+	A
+	Release Gate
+	Ship v1 installer — clear all TODO.md blockers
+	1–3
+	v1 ships
+	DB-N
+	Neo4j + NetworkX USKD Layer
+	Graph-grounded L1/L2 + in-memory graph
+	2–3
+	Reasoning graph-grounded
+	B
+	Axis Alignment
+	Fix 3-way axis 14-17 naming conflict
+	2–3
+	Single canonical definition
+	DB-C
+	ChromaDB Ingestion + Wiring
+	Populate collections + wire L3/L4/L6/L9
+	2–3
+	RAG returns real evidence
+	DB-R
+	Redis TruthCache Persistence
+	Persistent caching across restarts
+	1–2
+	Cache survives restart
+	C
+	Integration Bridge
+	Wire quad_persona/ math + LocalSLM offline
+	2–4
+	Full local pipeline live
+	DB-P
+	SQL Historical Queries
+	L8 calibration + L9 baseline from DB
+	1–2
+	Data-driven confidence gates
+	D
+	DSQP Protocol
+	7-part dynamic persona construction — core IP
+	4–8
+	Patent claim implemented
+	E
+	L10 KA Suite + KA Depth
+	Fill L10/ + deepen high-frequency stubs
+	3–5
+	Reasoning complete
+	DB-O
+	Object Store + Blockchain
+	Artifact persistence + Merkle anchoring
+	2–3
+	Audit bundles persistent
+	DB-M
+	StructuredMemoryGraph
+	Cross-session persistent memory
+	3–4
+	System learns over time
+	F
+	DMRF Middleware
+	Routing engine — Python lite + Rust optional
+	8–14
+	Enterprise routing
+	G-A
+	Enterprise Integrations (Desktop)
+	MLflow local, OPA bundled, SDK v0.5.0
+	3–5
+	Full spec fidelity
+	G-B
+	Enterprise Integrations (VM-Only)
+	Redis Streams, 7yr retention, PQ-gRPC ADR
+	2–4
+	VM path complete
+	H
+	Desktop Experience
+	JRE bundling, offline mode, IPC, crash recovery
+	3–6
+	Best-in-class desktop app
+	IP
+	IP Protection
+	Patent disclosure before Phase D ships
+	1 week
+	Core IP protected
+	KI
+	Knowledge Ingestion Pipeline
+	Raw docs → ukg_nodes → ChromaDB → Neo4j
+	2–3
+	System can grow knowledge
+	
+
+Critical path: A → B → C → D. DB sprints start immediately and run in parallel. Phase H and IP run alongside the main phases (H alongside C/D; IP before Phase D starts). Total: ~33 weeks conservative, ~22 weeks focused (skip F Rust + G-B).
+________________
+
+
+PHASE 1 / A
+	Release Gate  —  Clear All Blockers and Ship v1
+	Weeks 1–3
+	
+
+Eight tasks before v1 ships: remaining manual release gates plus local code-contract fixes found during May 24 validation. A-4, A-7, and A-8 are locally code-validated as of May 24, 2026; A-1, A-2, A-3, A-5, and A-6 still require packaged-installer, provider-backed, CI, signing, or manual evidence.
+
+
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	A-1
+	NVDA screen reader validation on Windows against packaged .exe
+	reports/app-readiness/nvda-manual-checklist.md
+	All checklist items pass on Windows 11 + packaged EXE
+	DESKTOP
+	A-2
+	Provision production PFX code-signing cert; run signing workflow
+	.github/workflows/release-installer-signing.yml
+	Signed installer + SHA256 + verification report as CI artifact
+	DESKTOP
+	A-3
+	Provider-backed staging validation — Tier 2 query returns audit trace against live provider
+	backend/llm_gateway/gateway.py
+	IS_DESKTOP_APP=true + real API key → [UKG Audit Trace] footer + TruthAuditEvent row in SQLite
+	DESKTOP
+	A-4
+	Maintain strict runtime precheck evidence
+	scripts/runtime_precheck.py
+	Validated May 24, 2026: python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process exits 0 with 0 blockers and 0 action items
+	DESKTOP+VM
+	A-5
+	Write release evidence bundle (changelog, sign evidence, CI review, rollback plan)
+	reports/release-readiness/
+	docs/RELEASE_CHECKLIST.md all gates checked
+	DESKTOP+VM
+	A-6
+	Installer smoke: verify IS_DESKTOP_APP propagation + SQLite auto-path set correctly
+	scripts/windows/run_packaging_smoke.ps1
+	Smoke test confirms SQLite at %AppData%/DataLogicEngine/ukg_database.db after install
+	DESKTOP
+	A-7
+	COMPLETED May 24, 2026 — Fix duplicate __version__ in SDK
+	sdk/UKG_Python_SDK/ukg_sdk/__init__.py
+	Validated: single __version__ assignment; python -c "import sys; sys.path.insert(0, r'sdk\\UKG_Python_SDK'); import ukg_sdk; print(ukg_sdk.__version__)" prints 0.4.0; focused Phase 1 pytest set passes
+	DESKTOP+VM
+	A-8
+	COMPLETED May 24, 2026 — Fix gateway/model contract drift found during May 24 validation
+	models.py + backend/llm_gateway/api.py + backend/llm_gateway/gateway.py + backend/tracing/api.py
+	Validated: ChatSession.to_dict() exists; ExternalAPIKey.expires_at is modeled, serialized, tested, and enforced; gateway-created TraceRun rows set user_id so trace UI can list chat-generated runs; focused Phase 1 pytest set passes
+	DESKTOP+VM
+	________________
+
+
+DB-N
+	Neo4j + NetworkX  —  Graph-Grounded Reasoning and In-Memory USKD
+	Weeks 1–3 (parallel with A)
+	
+
+Two sub-tracks run in parallel: (1) wire Neo4j for live graph traversal during L1/L2, and (2) build the NetworkX in-memory graph as the RAM-resident USKD that the canonical architecture specifies. networkx==3.4.2 is already in requirements.txt and two simulation modules import it, but there is still no UskdMemoryGraph, no Neo4j→NetworkX sync, and no NetworkX reasoning substrate wired into the main gateway/TruthCore path.
+
+
+NetworkX exists only in isolated simulation modules, not as the active USKD substrate
+The UKG MVP specification requires an in-memory NetworkX graph as the active reasoning substrate: nodes are loaded from Neo4j at startup into RAM, simulation layers operate on the in-memory graph at zero latency, and new authorized knowledge is written back to Neo4j at L10 Lane B. This is distinct from the live Neo4j queries that power L1/L2 traversal. Both are needed.
+	
+
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	N-1
+	Build Neo4j → NetworkX sync: load KnowledgeNode + Pillar nodes into in-memory DiGraph at startup
+	backend/storage/uskd_memory_graph.py (new)
+	UskdMemoryGraph.load_from_neo4j() populates nx.DiGraph; node count matches Neo4j MATCH (n:KnowledgeNode)
+	DESKTOP+VM
+	N-2
+	Sync SQLite ukg_nodes → Neo4j KnowledgeNode on startup (idempotent MERGE)
+	scripts/sync_nodes_to_neo4j.py (new)
+	Neo4j KnowledgeNode count equals SQLite ukg_nodes row count after sync
+	DESKTOP+VM
+	N-3
+	Wire L1 coordinate resolver to query Neo4j: 17-axis vector → MATCH Pillar + Sector nodes
+	core/axes/ + backend/truth_engine/truth_core/engine.py
+	working_context[neo4j_nodes] non-empty for any domain query; nodes confirmed in Neo4j
+	DESKTOP+VM
+	N-4
+	Wire L2 to live NetworkX in-memory subgraph: traverse Honeycomb/Octopus/Spiderweb from L1 anchors
+	core/simulation/layer2_knowledge.py Layer2KnowledgeEngine.process()
+	working_context[subgraph_nodes] > 0; cross-domain edges traversed; static honeycomb_mappings dict retired
+	DESKTOP+VM
+	N-5
+	Replace CrosswalkTraversal static dicts with live Cypher queries via graph_store.run_query()
+	core/coordinate_system.py CrosswalkTraversal
+	traverse_octopus() calls Cypher; no hardcoded connection tables; results cached in Redis
+	DESKTOP+VM
+	N-6
+	Cache Neo4j subgraph traversal results in Redis by coordinate hash (5 min TTL)
+	backend/storage/graph_store.py + engine.py
+	Second same-coordinate query < 50ms vs > 200ms cold; Redis key subgraph:{hash} confirmed
+	DESKTOP+VM
+	N-7
+	Lane B L10: write authorized new KnowledgeNodes to Neo4j + NetworkX in-memory graph
+	backend/knowledge_algorithms/l10/ + backend/storage/uskd_memory_graph.py
+	After RELEASE decision, Neo4j node count increases; NetworkX graph updated in-process
+	DESKTOP+VM
+	N-8
+	Add UskdMemoryGraph to PyInstaller spec datas + ensure networkx in hiddenimports
+	backend.spec
+	python -m PyInstaller backend.spec succeeds; NetworkX DiGraph available in EXE
+	DESKTOP
+	________________
+
+
+PHASE B
+	Axis Alignment  —  Fix the 3-Way Naming Conflict
+	Weeks 2–4
+	
+
+Three different files define axes 14-17 with three completely different meanings. This must be resolved before any new AI capability work — every layer that uses coordinate routing will propagate the inconsistency into all new code. Axes 1-13 are correct and unchanged.
+
+
+Axis
+	coordinate_system.py
+	core/axes/*.py
+	CANONICAL TARGET (adopt this)
+	14
+	Risk & Confidence
+	Source Provenance
+	Acquisition Lifecycle (AL1-AL7)
+	15
+	Federated Intelligence
+	Object Type
+	Risk & Threat Context (6 dimensions)
+	16
+	Arrows of Time
+	Validation State
+	Ethics, Trust & Criticality
+	17
+	Observability & Analytics
+	Security Classification
+	FROST-Mode Selector (tier→L1-L10 depth)
+	
+
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	B-1
+	Update AXIS_NAMES dict in coordinate_system.py to canonical spec names
+	core/coordinate_system.py
+	grep "Acquisition Lifecycle" core/coordinate_system.py returns match
+	DESKTOP+VM
+	B-2
+	Create axis14_acquisition_lifecycle.py — AL1-AL7 stage detection, FAR/DFARS/CLIN/IDIQ keywords
+	core/axes/axis14_acquisition_lifecycle.py (new)
+	Returns JSON-serialisable dict; KA-24/KA-29 called; works in SQLite and PostgreSQL
+	DESKTOP+VM
+	B-3
+	Create axis15_risk_threat.py — 6-dimensional risk decomposition
+	core/axes/axis15_risk_threat.py (new)
+	6 dimensions (technical/security/compliance/financial/schedule/reputational) returned; composite score 0-1
+	DESKTOP+VM
+	B-4
+	Create axis16_ethics_trust.py — sensitivity category detection
+	core/axes/axis16_ethics_trust.py (new)
+	LOW/MEDIUM/HIGH/CRITICAL; ethics framework mapping; JSON serialisable
+	DESKTOP+VM
+	B-5
+	Create axis17_frost_mode.py — tier→FROST depth bridge; wire into TruthCoreEngine.get_workflow_steps()
+	core/axes/axis17_frost_mode.py (new)
+	tier="high_stakes" → {frost_layer_depth:7, truth_engine_mode:"regulatory_strict"} returned
+	DESKTOP+VM
+	B-6
+	Move old axis14-17 concepts to KnowledgeNode.metadata schema
+	models.py
+	Provenance/ObjectType/ValidationState/SecurityClass in node.metadata JSON; no new DB columns needed
+	DESKTOP+VM
+	B-7
+	Add Alembic migration: frost_depth + truth_engine_mode columns to TraceRun
+	migrations/
+	flask db upgrade completes on BOTH SQLite and PostgreSQL
+	DESKTOP+VM
+	B-8
+	Update SDK CoordinateResolver17 to use bundled taxonomy files (offline capable)
+	sdk/UKG_Python_SDK/ukg_sdk/coordinates17.py + data/
+	CoordinateResolver17.resolve() works with no network; uses bundled data/*.json files
+	DESKTOP+VM
+	B-9
+	Write axis alignment tests — validate consistency across all 3 files
+	tests/unit/test_axis_alignment.py (new)
+	pytest tests/unit/test_axis_alignment.py passes on both SQLite and PostgreSQL
+	DESKTOP+VM
+	________________
+
+
+DB-C
+	ChromaDB  —  Ingest, Populate, and Wire L3/L4/L6/L9
+	Weeks 2–4 (parallel with B)
+	
+
+All 4 ChromaDB collections are created but empty. The RAGService retrieval pipeline is complete and working — it just has nothing to retrieve. This sprint fills the collections and wires the retrieval calls into the TruthEngine layers.
+
+
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	C-1
+	Build knowledge ingestion pipeline: chunk + embed all ukg_nodes → knowledge_nodes collection
+	scripts/index_knowledge_nodes.py (new)
+	rag_service.search_knowledge("healthcare compliance") returns > 5 results after indexing
+	DESKTOP+VM
+	C-2
+	Add startup check: if knowledge_nodes empty → trigger background re-index thread
+	app.py _initialize_storage_collections()
+	After fresh install, /health shows chromadb non-empty within 60s
+	DESKTOP+VM
+	C-3
+	Wire L3 RAG evidence retrieval into TruthCoreEngine deep_research step
+	backend/truth_engine/truth_core/engine.py + rag_service.py
+	working_context[evidence] list non-empty; source node IDs traceable in audit event
+	DESKTOP+VM
+	C-4
+	Wire L4 persona profile cache: check persona_profiles before DSQP construction
+	backend/truth_engine/truth_core/personas.py + persona_construction_service.py
+	Cache hit returns prior ExpandedPersona in < 5ms; miss triggers construction + stores result
+	DESKTOP+VM
+	C-5
+	Wire L6 citation validation: TrustValidationGateway searches citation_cache
+	backend/truth_engine/truth_gate/trust_validation_gateway.py
+	KA-026 pulls from citation_cache; confidence score improves when prior citation found
+	DESKTOP+VM
+	C-6
+	Wire L9 historical drift: MetaReasoningController searches audit_evidence
+	backend/truth_engine/truth_core/meta_reasoning_controller.py
+	Drift detection compares vs top-3 semantically similar past sessions
+	DESKTOP+VM
+	C-7
+	Lane B L10: index new reasoning traces into audit_evidence + knowledge_nodes
+	backend/knowledge_algorithms/l10/ (Phase E dependency)
+	Every RELEASE-gated trace indexed within 5s of L10 completion
+	DESKTOP+VM
+	C-8
+	Add sentence-transformers to requirements.txt + PyInstaller hiddenimports (offline embedding)
+	requirements.txt + backend.spec
+	sentence-transformers installs; all-MiniLM-L6-v2 loads without network; embedding_layer_3 in logs
+	DESKTOP
+	C-9
+	Add ChromaDB collection doc-counts to IPC database-health channel
+	frontend/electron/main.ts
+	database-health IPC returns chroma_collections with per-collection document counts
+	DESKTOP
+	________________
+
+
+DB-R
+	Redis TruthCache  —  Persistent Caching Across Restarts
+	Weeks 2–4 (parallel with B)
+	
+
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	R-1
+	Implement Redis backend in TruthCache: USE_REDIS=true → Redis HSET/HGET instead of OrderedDict
+	backend/truth_engine/truth_memory/cache.py
+	After restart, get_persona() returns cached profile; redis-cli KEYS "persona:*" non-empty
+	DESKTOP+VM
+	R-2
+	Wire Redis TruthCache into TruthMemoryManager construction
+	backend/truth_engine/truth_memory/manager.py
+	TruthMemoryManager(cache_backend="redis") when USE_REDIS=true; in-memory fallback when Redis absent
+	DESKTOP+VM
+	R-3
+	Cache Neo4j subgraph results in Redis (5 min TTL) — shared with DB-N task N-6
+	backend/storage/graph_store.py
+	P99 latency < 50ms on repeated coordinate; Redis key subgraph:{coord_hash} confirmed
+	DESKTOP+VM
+	R-4
+	Cache computed embedding vectors in Redis by SHA-256 text hash (1h TTL)
+	backend/services/rag_service.py _default_embedding()
+	Repeated embedding calls return in < 2ms vs 200ms+; Redis HGET embedding:{hash} confirmed
+	DESKTOP+VM
+	R-5
+	Add Redis ping_ms to IPC database-health channel
+	frontend/electron/main.ts
+	database-health returns redis_ping_ms; red indicator in Settings when Redis down
+	DESKTOP
+	________________
+
+
+PHASE C
+	Integration Bridge  —  Wire Math Layer + LocalSLM Offline
+	Weeks 3–6
+	
+
+The quad_persona/ directory contains 835+752 lines of fully written code that is still not used as the main gateway/TruthCore math path. Phase C connects existing code — it does not build new systems. The LocalSLMProvider in the SDK is implemented and gateway.py can instantiate DB-configured local_slm/ollama/vllm providers, but automatic desktop offline fallback still needs to be built.
+
+
+Key discovery: PersonaConstructionService already has 7-part structure
+core/system/persona_construction_service.py implements construct_persona(axis_num, coordinate_path) with 7-part set_component() calls. This is the bridge between axis resolution and quad persona. Phase C wires it into TruthCoreEngine L5. Phase D then makes those 7 slots dynamic via DSQP rather than static templates.
+	
+
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	C-1
+	Wire _run_quad_analysis() in gateway.py to PodOrchestrator.orchestrate()
+	backend/llm_gateway/gateway.py
+	mode="quad" request reaches PodOrchestrator; result has pod_count + collective_confidence in audit trace
+	DESKTOP+VM
+	C-2
+	Wire PersonaConstructionService into TruthCoreEngine L5 multi_persona_reasoning step
+	backend/truth_engine/truth_core/engine.py + core/system/persona_construction_service.py
+	L5 step calls construct_persona() for axes 8-11; 7-part profile in TruthAuditEvent.event_data
+	DESKTOP+VM
+	C-3
+	Wire DynamicWeightFunctions into KA-038 ConsensusEngine
+	backend/knowledge_algorithms/ka_38_consensus_engine.py
+	KA-038 uses DynamicWeightFunctions.compute_all_weights(); weights JSON-serialisable for SQLite
+	DESKTOP+VM
+	C-4
+	Wire IntegrationFunction Ψ into PersonaEnhancer._synthesize_responses()
+	backend/truth_engine/truth_core/personas.py
+	PersonaEnhancer uses quad_persona IntegrationFunction for weighted output; not simple string join
+	DESKTOP+VM
+	C-5
+	Wire PersonaSufficiencyTool → PodOrchestrator in TruthCoreEngine._execute_workflow()
+	backend/truth_engine/truth_core/engine.py
+	sufficiency_tool.evaluate() → EXPANDED_COMMITTEE → PodOrchestrator; QUAD_ONLY fast-paths
+	DESKTOP+VM
+	C-6
+	Wire DeepRecursiveLearning convergence into RefinementOrchestrator final step
+	backend/truth_engine/truth_core/refinement_orchestrator.py
+	refine() calls DeepRecursiveLearning.deep_recursive_learning() for convergence at target_confidence=0.995
+	DESKTOP+VM
+	C-7
+	Wire LocalSLMProvider as auto-discovered offline fallback in gateway._get_eligible_providers()
+	backend/llm_gateway/gateway.py
+	IS_DESKTOP_APP=true + all cloud APIs unreachable → LocalSLMProvider on localhost:11434 attempted; graceful offline error if also unavailable
+	DESKTOP
+	C-8
+	Add IS_DESKTOP_APP offline guard: degrade to Tier 1/2 max when all providers unreachable
+	backend/llm_gateway/gateway.py + backend/dmrf/tier_classifier.py (Phase F)
+	Offline desktop never attempts Tier 3+ when no provider available; user sees clear offline message
+	DESKTOP
+	C-9
+	Register IPC channel quad-analysis-status in main.ts + preload.ts
+	frontend/electron/main.ts + frontend/electron/preload.ts
+	preload exposes quadAnalysisStatus(); returns {pod_count, collective_confidence, mode}
+	DESKTOP
+	C-10
+	Ensure DynamicWeightFunctions weight history is JSON-serialisable for SQLite audit
+	quad_persona/mathematical_framework.py
+	json.dumps(weight_history_entry) succeeds; datetime fields converted to ISO strings
+	DESKTOP+VM
+	________________
+
+
+DB-P
+	PostgreSQL / SQLite  —  Historical Reasoning Calibration
+	Weeks 4–5 (parallel with C)
+	
+
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	P-1
+	L8 dynamic threshold calibration: query TraceRun 90-day rolling average by domain
+	backend/truth_engine/truth_gate/trust_validation_gateway.py
+	_get_threshold(domain) returns data-driven value differing between healthcare and general domains
+	DESKTOP+VM
+	P-2
+	Add input_embedding TEXT column to TruthSession via Alembic migration
+	migrations/
+	flask db upgrade applies on SQLite and PostgreSQL; column present in schema
+	DESKTOP+VM
+	P-3
+	L9 session similarity query using TruthSession.input_embedding for drift baseline
+	backend/truth_engine/truth_core/meta_reasoning_controller.py
+	MetaReasoningController returns db_similar_sessions list; drift includes historical baseline
+	DESKTOP+VM
+	P-4
+	Write KA execution timing to KAExecution table; use for L1 complexity estimation
+	backend/knowledge_algorithms/ka_master_controller.py
+	KAExecution rows written; KA-036 reads p95 latency from last 100 executions
+	DESKTOP+VM
+	________________
+
+
+PHASE D
+	DSQP Protocol  —  7-Part Dynamic Persona Construction  [CORE IP]
+	Weeks 5–12
+	
+
+Dynamic Self-Questioning Protocol — the primary IP claim. PersonaConstructionService._seed_components() has the 7-part set_component() schema but fills it from static templates. DSQP makes it dynamic: query → structured self-questioning → 7-part expert profile constructed at runtime.
+
+
+Write patent disclosure BEFORE coding Phase D — this is the core IP
+Before writing a single line of DSQP code: produce a 2-3 page technical disclosure documenting (1) the 7-step self-questioning protocol and the exact question forms per persona type, (2) why LLM performance is an activation problem not a knowledge problem — the DSQP activates latent expert knowledge rather than retrieving from a database, (3) the novelty: query-specific dynamic role construction vs static template selection. File a provisional patent application or defensive publication with date-stamped evidence before Phase D ships publicly.
+	
+
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	IP-1
+	Write DSQP patent disclosure document (do this before any D tasks)
+	docs/ip/dsqp_technical_disclosure.md (new)
+	Document exists with date stamp; covers 7-step protocol + activation-not-training insight + prior art search
+	DESKTOP+VM
+	D-1
+	Create DSQPChain — 7-step structured self-questioning protocol
+	backend/dsqp/dsqp_chain.py (new)
+	DSQPChain.construct(query, axis_vector) returns ExpandedPersona with all 7 components; result JSON-serialisable
+	DESKTOP+VM
+	D-2
+	Create DSQPRegistry — domain question templates, bundled as JSON (no CDN)
+	backend/dsqp/dsqp_registry.py + backend/dsqp/templates/*.json (new)
+	Templates read from local files; work fully offline; PyInstaller datas block includes templates/
+	DESKTOP+VM
+	D-3
+	Create DSQPOrchestrator — runs all 4 DSQP chains concurrently (asyncio.gather)
+	backend/dsqp/dsqp_orchestrator.py (new)
+	4 chains run in parallel; timeout per chain: 30s desktop, 120s VM; partial results on timeout
+	DESKTOP+VM
+	D-4
+	Replace PersonaConstructionService._seed_components() with DSQPChain.construct()
+	core/system/persona_construction_service.py
+	construct_persona() calls DSQPOrchestrator when dsqp_mode=True; static seeding remains as fallback
+	DESKTOP+VM
+	D-5
+	Wire DSQPOrchestrator into TruthCoreEngine._execute_workflow() L5 step
+	backend/truth_engine/truth_core/engine.py
+	multi_persona_reasoning step receives DSQP-constructed personas; dsqp_chain in working_context
+	DESKTOP+VM
+	D-6
+	Persist DSQP chain to SQLite TruthAuditEvent.event_data
+	backend/truth_engine/truth_memory/commit_service.py
+	TruthAuditEvent.event_data includes dsqp_chain (7 Q&A pairs per persona); confirmed in SQLite
+	DESKTOP+VM
+	D-7
+	Create DSQPValidator — quality gate: all 7 components populated, coverage_score >= 0.70
+	backend/dsqp/dsqp_validator.py (new)
+	DSQPValidator.validate() returns coverage_score; blocks if < 0.70 with fallback to static
+	DESKTOP+VM
+	D-8
+	Deepen KA-012 Persona Simulation — invoke DSQPChain via LLM
+	backend/knowledge_algorithms/ka_12_persona_simulation.py
+	KA-012._run_logic() calls DSQPChain; returns 7-part output; SQLite-safe
+	DESKTOP+VM
+	D-9
+	Add IPC channel dsqp-persona-profiles — expose constructed profiles to Electron renderer
+	frontend/electron/main.ts + frontend/electron/preload.ts
+	preload exposes dsqpPersonaProfiles(); renderer shows 4 persona cards with role/axis/constraints
+	DESKTOP
+	D-10
+	Add DSQP templates to PyInstaller spec datas + electron-builder extraResources
+	backend.spec + frontend/electron-builder.yml
+	DataLogic_Backend.exe includes dsqp/templates/*.json; confirmed by extraction test
+	DESKTOP
+	D-11
+	SDK DSQPClient — offline-capable, reads bundled templates
+	sdk/UKG_Python_SDK/ukg_sdk/dsqp.py (new)
+	from ukg_sdk import DSQPClient; DSQPClient.construct(query, coordinate) works offline
+	DESKTOP+VM
+	D-12
+	Benchmark DSQP vs StrataMind baseline (95.3/100 on 18 adversarial questions)
+	tests/benchmarks/test_dsqp_benchmark.py (new)
+	Score >= 95.3 against same 18 questions; benchmark report saved to reports/dsqp_benchmark.json
+	DESKTOP+VM
+	________________
+
+
+PHASE E
+	L10 KA Suite + KA Depth Pass  (PyInstaller Compatible)
+	Weeks 8–13
+	
+
+Two parallel workstreams: (1) fill the empty L10 KA directory — critical for L10 EmergenceDetectionController, 12-step Steps 6+11, and DB-C task C-7 (Lane B indexing), and (2) deepen the highest-frequency stub KAs. All new files must py_compile and survive PyInstaller packaging.
+
+
+E-1 through E-7: L10 KA Suite — following the L9 pattern exactly
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	E-1
+	L10-KA-001 Entropy-Based Emergence Scorer — real Shannon entropy from token distribution
+	backend/knowledge_algorithms/l10/l10_ka_001_entropy_scorer.py (new)
+	entropy_score varies by input; EmergenceDetectionController uses it; replaces hardcoded 0.22 in KA-116
+	DESKTOP+VM
+	E-2
+	L10-KA-002 Self-Awareness Monitor — capability escalation + self-referential detection
+	backend/knowledge_algorithms/l10/l10_ka_002_self_awareness.py (new)
+	awareness_detected bool + escalation_patterns list; py_compile passes; no subprocess calls
+	DESKTOP+VM
+	E-3
+	L10-KA-003 PII Redactor — pure Python regex for 12-step Step 6
+	backend/knowledge_algorithms/l10/l10_ka_003_pii_redactor.py (new)
+	5 PII types redacted with [REDACTED_*] tokens; no spaCy/Presidio binary dependencies
+	DESKTOP+VM
+	E-4
+	L10-KA-004 Ethical Alignment Validator — EU AI Act risk classification
+	backend/knowledge_algorithms/l10/l10_ka_004_ethics_validator.py (new)
+	violations list with type/severity; EU AI Act tier mapping; pure Python; py_compile passes
+	DESKTOP+VM
+	E-5
+	L10-KA-005 Containment Decision Engine — RELEASE/MODIFY/HALT/ESCALATE
+	backend/knowledge_algorithms/l10/l10_ka_005_containment.py (new)
+	Decision tree matching EmergenceDetectionController logic; no external calls
+	DESKTOP+VM
+	E-6
+	L10-KA-006 Terminal Trust Gate — wraps BELIEF_DECAY_FACTOR=0.98 as callable KA
+	backend/knowledge_algorithms/l10/l10_ka_006_trust_gate.py (new)
+	confidence after decay verified in test; wraps existing emergence_controller._evaluate_trust_gate_lane_a()
+	DESKTOP+VM
+	E-7
+	L10-KA-007 Human Escalation Router — HITL queue + SQLite audit event
+	backend/knowledge_algorithms/l10/l10_ka_007_escalation_router.py (new)
+	Healthcare/finance/legal + low confidence → HITL; audit event written to SQLite; py_compile passes
+	DESKTOP+VM
+	
+
+E-8 through E-14: KA Depth Pass — highest-frequency stubs
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	E-8
+	KA-116 Entropy Detection — delegate to L10-KA-001; remove hardcoded 0.22
+	backend/knowledge_algorithms/ka_116_entropy_detection.py
+	entropy_score varies by input; L6 QuantValidationService returns meaningful signal
+	DESKTOP+VM
+	E-9
+	KA-014 Confidence Scoring — Platt scaling proxy; domain-aware calibration
+	backend/knowledge_algorithms/ka_14_confidence_scoring.py
+	calibrated_confidence varies with domain_scores; not always 0.9
+	DESKTOP+VM
+	E-10
+	KA-023 Belief Decay — domain-specific lambdas (healthcare=0.05, finance=0.02, general=0.001/day)
+	backend/knowledge_algorithms/ka_23_belief_decay.py
+	Lambdas from config/ka_23_config.json; bundled in PyInstaller spec
+	DESKTOP+VM
+	E-11
+	KA-002 Tree of Thought — real 3-branch BFS decomposition
+	backend/knowledge_algorithms/ka_02_tree_of_thought.py
+	Returns sub_goals list with 3 branches; not template fallback
+	DESKTOP+VM
+	E-12
+	KA-022 Risk Assessment — 6-dimensional scoring aligned with Axis 15 output schema
+	backend/knowledge_algorithms/ka_22_risk_assessment.py
+	6 risk dimensions returned matching axis15_risk_threat.py output
+	DESKTOP+VM
+	E-13
+	Add all L10 KA files to backend.spec PyInstaller datas + hiddenimports
+	backend.spec
+	python -m PyInstaller backend.spec builds; all L10 KAs import in EXE; packaging smoke passes
+	DESKTOP
+	E-14
+	L10 KA test suite (mirrors l9/ structure)
+	tests/truth_engine/test_layer10_ka_suite.py (new)
+	All 7 L10 KAs pass unit tests; 12-step Steps 6+11 execute real logic
+	DESKTOP+VM
+	________________
+
+
+DB-O
+	Object Store + Blockchain  —  Persistent Artifacts and Audit Anchoring
+	Weeks 8–10 (parallel with E)
+	
+
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	O-1
+	Route Tier 2+ audit bundles to audit_logs/ bucket: commit_service writes JSON + stores object key in TruthAuditEvent
+	backend/truth_engine/truth_memory/commit_service.py + backend/storage/object_store.py
+	Every Tier 2+ run writes audit_logs/{run_id}.json; SQLite row has object_store_key
+	DESKTOP+VM
+	O-2
+	Route FROST snapshots to simulation_artifacts/ bucket on every snapshot()
+	core/system/frost_service.py + backend/storage/object_store.py
+	FROSTService.snapshot() writes simulation_artifacts/{snap_id}.json; in-memory dict kept as hot cache
+	DESKTOP+VM
+	O-3
+	Route DSQP construction outputs to deliverables/ bucket (Phase D dependency)
+	backend/dsqp/dsqp_chain.py
+	DSQPChain.construct() writes deliverables/dsqp/{persona_id}.json; recoverable after restart
+	DESKTOP+VM
+	O-4
+	Connect BlockchainAdapter to TruthMemoryCommitService for Tier 3+ Merkle anchoring
+	backend/truth_engine/truth_memory/commit_service.py + backend/truth_engine/truth_link/blockchain_adapter.py
+	Tier 3+ sessions have merkle_root in TruthAuditEvent; simulated anchor in desktop mode (no private key required)
+	DESKTOP+VM
+	O-5
+	Add per-bucket size_mb to IPC database-health channel
+	frontend/electron/main.ts
+	database-health returns object_store_buckets with per-bucket size; visible in Settings → Databases
+	DESKTOP
+	________________
+
+
+DB-M
+	StructuredMemoryGraph  —  Persistent Cross-Session Memory
+	Weeks 10–13 (parallel with E/F)
+	
+
+The StructuredMemoryGraph in quad_persona/mathematical_framework.py is a complete 835-line implementation: MemoryVertex/Edge graph, SR(q,c,t) structured recall with temporal decay, MC(M,I,t) memory consolidation. It is never called. This sprint wires it into the full pipeline as the system's long-term intelligence layer.
+
+
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	M-1
+	Create UnifiedMemoryService — wraps StructuredMemoryGraph + Redis + ChromaDB into one interface
+	backend/memory/unified_memory_service.py (new)
+	UnifiedMemoryService.recall(query, layer, persona) returns ranked MemoryVertex list
+	DESKTOP+VM
+	M-2
+	Wire UnifiedMemoryService into TruthCoreEngine — every L1-L10 step reads + writes memory
+	backend/truth_engine/truth_core/engine.py
+	working_context[memory_context] non-empty on all layers; vertex count grows with use
+	DESKTOP+VM
+	M-3
+	Persist StructuredMemoryGraph to databases/memory/memory_graph.json on shutdown; load on startup
+	quad_persona/mathematical_framework.py + backend/memory/
+	Vertex count persists across restart; confirmed by shutdown/restart test
+	DESKTOP+VM
+	M-4
+	Layer + persona namespacing: MemoryVertex.metadata[layer] + metadata[persona]
+	backend/memory/unified_memory_service.py
+	recall(layer="L3", persona="knowledge") returns different results than recall(layer="L8", persona="compliance")
+	DESKTOP+VM
+	M-5
+	Lane B L10: knowledge consolidation via MC(M,I,t) after every RELEASE-gated trace
+	backend/knowledge_algorithms/l10/ + backend/memory/unified_memory_service.py
+	Vertex count increases after each Tier 2+ completed session; importance field increments on re-recall
+	DESKTOP+VM
+	M-6
+	Wire FROST branch() to memory checkpointing: rollback restores memory to pre-branch state
+	core/system/frost_service.py + backend/memory/unified_memory_service.py
+	FROSTService.branch() creates memory checkpoint; rollback confirmed by vertex count test
+	DESKTOP+VM
+	M-7
+	Add memory stats to IPC database-health channel
+	frontend/electron/main.ts
+	database-health returns memory_vertices, memory_edges, last_recall_timestamp
+	DESKTOP
+	________________
+
+
+PHASE F
+	DMRF Middleware Engine  —  Desktop Lite + VM Full  [Largest Build]
+	Weeks 10–23
+	
+
+DMRF is the largest build item — approximately 19 new Python files. The desktop lite mode is Python-only (no Rust); the Rust execution layer is optional and VM-targeted. The DMRF wraps the TruthCoreEngine (control plane) rather than replacing it (execution plane).
+
+
+Two operating modes from a single DMRFOrchestrator class
+Desktop lite (IS_DESKTOP_APP=true): Python-only. Tier capped at high_stakes when offline. State to SQLite. FROST in-memory. DSQP against bundled templates. No Rust.VM full: Python orchestrator + optional Rust hot path. All tiers available. PostgreSQL + Redis Streams for TruthLink. FROST snapshots to disk. MLflow tracking.
+	
+
+F1 — Python Orchestrator (Weeks 10–18)
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	F-1
+	Create backend/dmrf/ package — DMRFOrchestrator with desktop_mode flag
+	backend/dmrf/__init__.py + backend/dmrf/orchestrator.py (new)
+	DMRFOrchestrator(desktop_mode=IS_DESKTOP_APP).process(query) returns DMRFResult; caps tier when offline
+	DESKTOP+VM
+	F-2
+	17-axis middleware router — calls all Phase B axis resolvers; Axis 17 sets frost_layer_depth
+	backend/dmrf/router.py (new)
+	DMRFRouter.route(query) returns AxisVector with all 17 axes; result JSON-serialisable for SQLite
+	DESKTOP+VM
+	F-3
+	5-tier classifier using KA-005 + KA-113 + heuristic fallback; desktop_mode caps autonomous tier
+	backend/dmrf/tier_classifier.py (new)
+	tier classified trivial→autonomous; desktop offline caps at high_stakes; confidence + rationale returned
+	DESKTOP+VM
+	F-4
+	Convergence policy engine using KA-023 domain lambdas
+	backend/dmrf/convergence_policy.py (new)
+	ConvergencePolicy(domain).should_refine() reads lambdas from bundled config; SQLite-serialisable
+	DESKTOP+VM
+	F-5
+	Evidence model with domain-specific freshness decay
+	backend/dmrf/evidence_model.py (new)
+	healthcare λ=0.05/day, finance=0.02/day, general=0.001/day; loaded from bundled config
+	DESKTOP+VM
+	F-6
+	Injection defense — 5-category detector, pure Python (wraps existing KA-061)
+	backend/dmrf/injection_defense.py (new)
+	Returns NONE/PROMPT_INJECT/LOGICAL_TRAP/OBFUSCATED/PERSONA_HIJACK/RESOURCE_EXHAUSTION; pure Python
+	DESKTOP+VM
+	F-7
+	TruthGate adapter — wrap gateway.evaluate() as DMRF entry point
+	backend/dmrf/truth_integration/gate_adapter.py (new)
+	All queries pass TruthGateGateway.evaluate() before DMRF Step 1; gate_pass feeds runtimeOverrides
+	DESKTOP+VM
+	F-8
+	TruthCore adapter — DMRF tier + frost_layer_depth maps to TruthCoreEngine.get_workflow_steps()
+	backend/dmrf/truth_integration/core_adapter.py (new)
+	EXTREME tier → L1-L10 full execution; Axis 17 bridge confirmed via Phase B
+	DESKTOP+VM
+	F-9
+	TruthMemory adapter — write DMRF telemetry to SQLite TruthAuditEvent (desktop) or PostgreSQL (VM)
+	backend/dmrf/truth_integration/memory_adapter.py (new)
+	DMRFResult.export_bundle() written to TruthAuditEvent; confirmed in both DB engines
+	DESKTOP+VM
+	F-10
+	TruthLink adapter — publish DMRF events to TruthLinkBus (in-memory desktop; Redis Streams VM)
+	backend/dmrf/truth_integration/link_adapter.py (new)
+	Desktop: in-memory bus. VM: Redis Streams (G-B dependency)
+	DESKTOP+VM
+	F-11
+	Wire DSQP from Phase D into DMRF Step 3 (persona construction)
+	backend/dmrf/orchestrator.py + backend/dsqp/dsqp_orchestrator.py
+	DMRF Step 3 calls DSQPOrchestrator; dsqp_chain stored in DMRFResult and audit event
+	DESKTOP+VM
+	F-12
+	Wire FROSTService as DMRF snapshot layer — snapshot after every DMRF step
+	backend/dmrf/frost_bridge.py (new) + core/system/frost_service.py
+	DMRF creates FROST snapshot per step; verify_snapshot() confirms integrity; file-backed on VM
+	DESKTOP+VM
+	F-13
+	DMRF desktop config at %AppData%/DataLogicEngine/dmrf_config.json
+	backend/dmrf/desktop_config.py (new)
+	Config loaded at startup; tier caps, offline behaviour, FROST mode configurable; DPAPI-safe
+	DESKTOP
+	F-14
+	Wire DMRF into LLM gateway — gateway.process() calls DMRFOrchestrator when USE_DMRF=true
+	backend/llm_gateway/gateway.py
+	Existing TruthCoreEngine path remains for direct calls; DMRF as optional control plane
+	DESKTOP+VM
+	F-15
+	Observability: dmrf.* Prometheus metrics + IPC channel dmrf-status
+	backend/dmrf/observability.py (new) + frontend/electron/main.ts
+	dmrf.router.tier counter at /metrics; preload exposes dmrfStatus() returning tier + frost_depth
+	DESKTOP+VM
+	F-16
+	DMRF integration tests — run on both SQLite and PostgreSQL
+	tests/dmrf/test_dmrf_integration.py (new)
+	pytest tests/dmrf/ passes; 17 axes in DMRFResult; desktop_mode and VM mode both tested
+	DESKTOP+VM
+	
+
+F2 — Rust Execution Layer (Weeks 18–23, VM path only, optional)
+Only build if profiling shows Python bottlenecks in the VM deployment. Python orchestrator is fully functional without Rust.
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	F-17
+	Set up Rust workspace with PyO3 bindings — VM build only; NOT in NSIS installer
+	rust/Cargo.toml + rust/src/lib.rs (new)
+	cargo build succeeds; Python import rust_dmrf works in VM Docker image; EXCLUDED from NSIS
+	VM-ONLY
+	F-18
+	Port convergence policy hot path to Rust
+	rust/src/convergence.rs (new)
+	>=10× faster than Python on VM benchmark; Python path remains default on desktop
+	VM-ONLY
+	F-19
+	Port injection defense multi-pattern scanner to Rust (aho-corasick)
+	rust/src/injection.rs (new)
+	Scan < 1ms on 10KB input in VM mode; Python regex fallback on desktop
+	VM-ONLY
+	F-20
+	CI: add Rust build to GitHub Actions — VM Docker image only
+	.github/workflows/ci.yml
+	Rust job gates VM Docker build only; NSIS installer build never depends on Rust
+	VM-ONLY
+	________________
+
+
+PHASE G
+	Enterprise Integrations  —  Split Desktop-Compatible vs VM-Only
+	Weeks 20–28
+	
+
+G-A: Desktop-Compatible (add to NSIS installer and DataLogic_Backend.exe)
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	G-1
+	MLflow local file tracking: mlflow.set_tracking_uri("%AppData%/DataLogicEngine/mlruns") in desktop mode
+	backend/truth_engine/truth_memory/manager.py
+	IS_DESKTOP_APP → local file tracking; VM → configurable remote URI; mlflow ui shows runs
+	DESKTOP+VM
+	G-2
+	OPA bundled binary (opa.exe in extraResources/opa/) for policy evaluation; TruthGate policies in Rego
+	policies/truthgate.rego (new) + frontend/electron-builder.yml + backend/truth_engine/truth_gate/opa_policy.py (new)
+	OPA policies evaluated offline via subprocess; hot-reloadable without app restart
+	DESKTOP+VM
+	G-3
+	W3C PROV provenance schema for TruthMemory — pure Python, SQLite-serialisable
+	backend/truth_engine/truth_memory/provenance.py (new)
+	ProvenanceRecord.to_w3c_prov() returns valid W3C PROV-JSON; stored in TruthAuditEvent.event_data
+	DESKTOP+VM
+	G-4
+	MCP sampling protocol for LLM completions
+	backend/mcp_server/sampling.py (new)
+	MCP sampling works with local Ollama and cloud providers; confirmed by MCP client test
+	DESKTOP+VM
+	G-5
+	MCP resource subscriptions + SSE notifications
+	backend/mcp_server/subscriptions.py (new)
+	SSE stream works on localhost desktop; same endpoint works on VM
+	DESKTOP+VM
+	G-6
+	SDK v0.5.0 release — DSQPClient + CoordinateResolver17 wired to live backend; clean CHANGELOG
+	sdk/UKG_Python_SDK/ all relevant files
+	__version__=0.5.0 (single assignment); CHANGELOG updated; pip install ukg-sdk works offline; wheel ships taxonomy JSONs
+	DESKTOP+VM
+	
+
+G-B: VM-Only (guard with IS_DESKTOP_APP check; do NOT add to NSIS installer)
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	G-7
+	TruthLink: Redis Streams for federated event distribution
+	backend/truth_engine/truth_link/bus.py
+	if REDIS_URL and not IS_DESKTOP_APP: use Redis XADD/XREAD; else in-memory bus
+	VM-ONLY
+	G-8
+	TruthMemory: 7-year retention cold storage routing (MinIO/S3)
+	backend/truth_engine/truth_memory/retention_router.py (new)
+	IS_DESKTOP_APP check guards all cold storage calls; desktop uses local archive dir
+	VM-ONLY
+	G-9
+	TruthGate: Llama Guard 3 + Rebuff model-based screening
+	backend/truth_engine/truth_gate/model_screening.py (new)
+	TRUTH_GATE_ENHANCED_SCREENING=true + not IS_DESKTOP_APP required; graceful no-op on desktop
+	VM-ONLY
+	G-10
+	PQ-gRPC transport research and ADR (long-term)
+	docs/adr/ADR-XXXX-pq-grpc-transport.md (new)
+	ADR documents go/no-go decision; if go: prototype in VM Docker only; no desktop dependency
+	VM-ONLY
+	________________
+
+
+PHASE H
+	Desktop Experience  —  JRE Bundling, Offline Mode, IPC, Crash Recovery
+	Weeks 12–18 (parallel with D/E)
+	
+
+New phase with no equivalent in earlier plans. Addresses the fundamental local-first desktop gaps: Java/JRE for Neo4j, offline mode, IPC expansion, crash recovery, and PyInstaller hardening.
+
+
+H-1: Java/JRE Bundling for Neo4j (CRITICAL — Neo4j silently fails without Java 17)
+Neo4j requires Java 17 — not present on most clean Windows installs
+Neo4j Community 5.x requires Java 17+. The DatabaseLifecycleManager._find_java_home() searches common install paths but does NOT bundle a JRE. On a clean Windows laptop with only DataLogicEngine installed, Neo4j will fail to start with no user-visible error message. Solution: download and bundle Eclipse Temurin JRE 17 (headless, ~60MB) alongside the Neo4j binary in databases/jre/.
+	
+
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	H-1
+	Add JRE download to setup_local_databases.py --neo4j path; bundle Eclipse Temurin JRE 17 in databases/jre/
+	scripts/setup_local_databases.py + backend/storage/database_manager.py
+	Neo4j starts on clean Windows with no prior Java; _find_java_home() checks databases/jre/ first
+	DESKTOP
+	H-2
+	Add databases/jre/ to electron-builder.yml extraResources and NSIS installer manifest
+	frontend/electron-builder.yml + frontend/electron/installer.nsh
+	Installed .exe contains JRE; Neo4j auto-starts on machines with no existing Java
+	DESKTOP
+	H-3
+	Update _find_java_home() to check databases/jre/ as the first (highest priority) location
+	backend/storage/database_manager.py
+	databases/jre/bin/java.exe found before system Java; correct JRE version confirmed
+	DESKTOP
+	
+
+H-2: Offline Mode
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	H-4
+	Network availability detector — check LLM provider reachability at startup and on request (30s TTL)
+	backend/llm_gateway/gateway.py NetworkState
+	NetworkState.check() returns ONLINE/DEGRADED/OFFLINE; used by tier classifier and UI
+	DESKTOP+VM
+	H-5
+	Offline fallback: queue Tier 3+ requests in SQLite; replay on reconnect
+	backend/llm_gateway/gateway.py + backend/storage/
+	Offline queue in SQLite; user sees "Queued — will complete when online"; Celery replays on reconnect
+	DESKTOP
+	H-6
+	DSQP lite mode: use LocalSLMProvider for persona construction when cloud unavailable
+	backend/dsqp/dsqp_chain.py (Phase D dependency)
+	dsqp_chain.construct() uses LocalSLMProvider when cloud unreachable; marks result LOCAL_MODEL in audit
+	DESKTOP
+	H-7
+	Expose network status via IPC — live connectivity badge in Electron UI
+	frontend/electron/main.ts + frontend/electron/preload.ts
+	preload exposes getNetworkStatus(); renderer shows badge; updates every 30s
+	DESKTOP
+	
+
+H-3: IPC Channel Expansion
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	H-8
+	Add IPC channels: reasoning-layer-progress, ka-execution-feed
+	frontend/electron/main.ts + frontend/electron/preload.ts
+	reasoning-layer-progress returns {current_layer, layer_name, kas_running, confidence_so_far}
+	DESKTOP
+	H-9
+	Add live reasoning trace panel to chat UI — expandable, driven by IPC feeds
+	frontend/app/chat/
+	Panel shows current layer, active KAs, persona confidence bars, FROST snapshot count
+	DESKTOP
+	H-10
+	Add portable database health dashboard in Settings
+	frontend/app/settings/
+	Shows SQLite size/rows, Neo4j node/edge counts, Redis ping, ChromaDB collection sizes, object store usage
+	DESKTOP
+	H-11
+	One-click database backup to user-chosen folder
+	frontend/app/settings/ + backend/routes/
+	SQLite VACUUM+copy + Neo4j data export + ChromaDB snapshot; progress bar via IPC
+	DESKTOP
+	
+
+H-4: PyInstaller EXE Hardening and Crash Recovery
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	H-12
+	Audit backend.spec — ensure all Phase D/E/F modules included
+	backend.spec
+	python -m PyInstaller backend.spec builds; all phase D/E/F imports resolve in EXE
+	DESKTOP
+	H-13
+	Electron startup: poll /health with 60s timeout before createWindow(); show splash during wait
+	frontend/electron/main.ts startBackend()
+	main.ts polls http://127.0.0.1:5000/health; splash shown; UI appears only when Flask healthy
+	DESKTOP
+	H-14
+	Crash recovery: restart backend.exe up to 3× on unexpected exit; notify user; log code
+	frontend/electron/main.ts
+	backendProcess on("close") → unexpected exit → restart 3× → notification; exit code logged
+	DESKTOP
+	H-15
+	Cold start target: Flask /health responds < 5s on modern Windows SSD; profile with py-spy
+	app.py + backend imports
+	py-spy flamegraph identifies top imports; lazy-load heavy modules; < 5s confirmed on test machine
+	DESKTOP
+	________________
+
+
+KI
+	Knowledge Ingestion Pipeline  —  Raw Docs to Knowledge Corpus
+	Weeks 5–7 (parallel with B/C)
+	
+
+The system currently has no way to grow its knowledge base from raw documents. This pipeline is how domain content (FAR regulations, healthcare compliance docs, cybersecurity frameworks, case law) enters the system. The RAGService.ingest_knowledge_node() method exists but there is no orchestration pipeline calling it.
+
+
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	KI-1
+	Build DocumentIngestionPipeline: raw text → chunk → embed → ChromaDB knowledge_nodes + SQLite ukg_nodes + Neo4j KnowledgeNode
+	backend/ingestion/document_pipeline.py (new)
+	Pipeline ingests a 100-page PDF; ukg_nodes + Neo4j + ChromaDB all have matching records after run
+	DESKTOP+VM
+	KI-2
+	Build ingestion CLI: python scripts/ingest_document.py --file <path> --domain <domain> --pillar <PL-XXX>
+	scripts/ingest_document.py (new)
+	Single command ingests a document into all 3 stores; progress shown; idempotent on re-run
+	DESKTOP+VM
+	KI-3
+	Build batch ingestion for standard corpus: FAR/DFARS, NIST CSF, HIPAA, SOX, ISO 27001
+	scripts/ingest_standard_corpus.py (new)
+	Standard corpus (regulatory frameworks) loaded from data/corpus/; 1000+ ukg_nodes after run
+	DESKTOP+VM
+	KI-4
+	Add Settings → Knowledge page: browse knowledge nodes, trigger re-index, ingest new document
+	frontend/app/settings/knowledge/ (new)
+	User can upload a PDF or paste text; pipeline runs in background; ChromaDB count updates
+	DESKTOP
+	KI-5
+	Add ingestion pipeline to electron-builder extraResources so script is bundled with installer
+	frontend/electron-builder.yml + backend.spec
+	Scripts accessible from installed .exe; IPC trigger for background indexing confirmed
+	DESKTOP
+	________________
+
+
+3.  Local Database Architecture — Target State
+
+
+After all phases complete, every database runs locally on the desktop installer and is accessed by the LLM during every reasoning step. The VM path uses the same code pointed at managed services.
+
+
+Store
+	Local Desktop (NSIS installer)
+	VM / Cloud
+	LLM Access During Reasoning
+	PostgreSQL 16
+	Portable binary in databases/postgresql/. auto-init. SQLite fallback if PG absent.
+	External managed PostgreSQL 15+
+	L1 reads domain confidence from TraceRun. L8 calibrates thresholds. L9 session similarity via input_embedding.
+	Neo4j 5 + JRE 17
+	Portable binary in databases/neo4j/. JRE bundled in databases/jre/. Pillar + KnowledgeNode seeded.
+	External Neo4j 5+
+	L1 MATCH nodes by 17-axis coordinate. L2 traverse subgraph. NetworkX in-memory graph for zero-latency simulation.
+	Redis 7
+	Portable binary in databases/redis/. Persist every 60s. Bind 127.0.0.1.
+	External Redis 7+
+	L2 subgraph cache (5min). L4 persona cache (24h). L5 citation cache (7 days). Embedding cache (1h).
+	ChromaDB (embedded)
+	databases/chroma/. No server process. 4 collections. HuggingFace MiniLM offline embedding.
+	Same local OR Qdrant/Milvus managed
+	L3 evidence search (knowledge_nodes). L4 persona profile lookup. L6 citation validation. L9 historical drift (audit_evidence).
+	Object Store (local FS)
+	databases/objects/. 5 buckets. S3-compatible interface. Path-traversal protected.
+	MinIO or AWS S3
+	L10 Lane A: audit bundles → audit_logs/. FROST snapshots → simulation_artifacts/. DSQP → deliverables/.
+	StructuredMemoryGraph
+	In-process Python. Persisted to databases/memory/memory_graph.json on shutdown.
+	Same serialised to VM disk
+	Per-layer + per-persona namespacing. SR(q,c,t) recall across all L1-L10 steps. MC(M,I,t) consolidation at L10 Lane B.
+	
+
+4.  IPC Channel Registry  —  All New Electron Channels
+
+
+Every channel must be added to ALLOWED_INVOKE_CHANNELS in preload.ts before use. All use ipcRenderer.invoke() (request-response), never ipcRenderer.send() (fire-and-forget).
+
+
+Channel Name
+	Phase
+	Payload
+	quad-analysis-status
+	C
+	{pod_count, collective_confidence, deconfliction_passes, mode}
+	dsqp-persona-profiles
+	D
+	Array of 4: {role, education, certifications, skills, training, career_path, related_jobs, axis, confidence}
+	dmrf-status
+	F
+	{tier, frost_layer_depth, truth_engine_mode, desktop_mode, offline}
+	reasoning-layer-progress
+	H
+	{current_layer: 1-10, layer_name, kas_running: [], confidence_so_far}
+	ka-execution-feed
+	H
+	{ka_id, ka_name, status: running|complete|error, confidence, duration_ms}
+	network-status
+	H
+	{state: ONLINE|DEGRADED|OFFLINE, last_checked, active_provider}
+	database-health
+	H
+	{sqlite_size_mb, neo4j_nodes, neo4j_edges, redis_ping_ms, chroma_collections, object_store_buckets, memory_vertices}
+	local-model-status
+	H
+	{ollama_available, models_installed: [], active_model}
+	
+
+5.  Installer Packaging — What Goes in the Bundle
+
+
+Item
+	Location
+	How It Gets There / Verification
+	DataLogic_Backend.exe (main EXE)
+	resources/backend/
+	PyInstaller + electron-builder extraResources; smoke test
+	Eclipse Temurin JRE 17 (headless)
+	databases/jre/
+	setup_local_databases.py --jre; bundled in NSIS; critical for Neo4j
+	PostgreSQL 16 portable
+	databases/postgresql/
+	setup_local_databases.py --pg
+	Redis 7 portable
+	databases/redis/
+	setup_local_databases.py --redis
+	Neo4j Community 5 portable
+	databases/neo4j/
+	setup_local_databases.py --neo4j
+	ChromaDB data dir
+	databases/chroma/
+	Created at first startup; persists between sessions
+	Object store 5 buckets
+	databases/objects/
+	Created at first startup; persists between sessions
+	StructuredMemoryGraph JSON
+	databases/memory/memory_graph.json
+	Written by UnifiedMemoryService on shutdown; absent on first run
+	HuggingFace MiniLM-L6-v2 model
+	%AppData%/DataLogicEngine/models/
+	sentence-transformers auto-downloads on first embedding call; cache_dir set to %AppData%
+	DSQP templates/*.json
+	backend/dsqp/templates/ (in EXE via PyInstaller datas)
+	backend.spec datas block; verified by EXE extraction test
+	DMRF config/*.json
+	backend/dmrf/config/ (in EXE via PyInstaller datas)
+	backend.spec datas block
+	OPA binary (opa.exe)
+	extraResources/opa/opa.exe
+	electron-builder.yml extraResources; Phase G
+	ingestion scripts
+	extraResources/scripts/
+	electron-builder.yml extraResources; IPC-triggered background indexing
+	EXCLUDED: Rust .dll/.pyd
+	(not in installer)
+	Rust only gates VM Docker build; never in NSIS
+	EXCLUDED: MLflow server binary
+	(not in installer)
+	MLflow client only; local file tracking at %AppData%/DataLogicEngine/mlruns/
+	
+
+________________
+
+
+6.  Master Timeline — All Phases and DB Sprints
+
+
+Item
+	Title
+	Start
+	Duration
+	Cumulative
+	A
+	Release Gate
+	Week 1
+	1–3 wks
+	Week 3
+	IP
+	Patent Disclosure (before D starts)
+	Week 2 (parallel A)
+	1 wk
+	Week 3
+	DB-N
+	Neo4j + NetworkX USKD Layer
+	Week 1 (parallel A)
+	2–3 wks
+	Week 4
+	B
+	Axis Alignment
+	Week 2 (parallel A)
+	2–3 wks
+	Week 5
+	DB-C
+	ChromaDB Ingestion + Wiring
+	Week 2 (parallel B)
+	2–3 wks
+	Week 5
+	DB-R
+	Redis TruthCache Persistence
+	Week 2 (parallel B)
+	1–2 wks
+	Week 4
+	KI
+	Knowledge Ingestion Pipeline
+	Week 3 (after DB-N started)
+	2–3 wks
+	Week 6
+	C
+	Integration Bridge + LocalSLM
+	Week 3 (after B-5)
+	2–4 wks
+	Week 7
+	DB-P
+	SQL Historical Queries
+	Week 4 (parallel C)
+	1–2 wks
+	Week 6
+	H
+	Desktop Experience (H-1 JRE first)
+	Week 4 (parallel C)
+	3–6 wks
+	Week 10
+	D
+	DSQP Protocol
+	Week 5 (after C)
+	4–8 wks
+	Week 13
+	E
+	L10 KA Suite + KA Depth
+	Week 8 (after C-4)
+	3–5 wks
+	Week 13
+	DB-O
+	Object Store + Blockchain
+	Week 8 (parallel E)
+	2–3 wks
+	Week 11
+	DB-M
+	StructuredMemoryGraph
+	Week 10 (after C complete)
+	3–4 wks
+	Week 14
+	F1
+	DMRF Python Orchestrator
+	Week 10 (after D started)
+	8–10 wks
+	Week 20
+	F2
+	DMRF Rust (VM, optional)
+	Week 18 (after F1 core)
+	5–7 wks
+	Week 25
+	G-A
+	Enterprise (Desktop-compatible)
+	Week 20 (after F1)
+	3–5 wks
+	Week 25
+	G-B
+	Enterprise (VM-only)
+	Week 22 (after G-A)
+	2–4 wks
+	Week 28
+	
+
+Range summary: Conservative (all phases, F2, G-B) = ~28–35 weeks. Focused desktop build (A–F1 + H, skip F2/G-B) = ~22 weeks. Minimum viable (A–D + H-JRE + H-offline + DB-N + DB-C) = ~15 weeks.
+________________
+
+
+7.  Testing Matrix — Both DB Engines Required
+
+
+Every phase exit gate must pass on both SQLite (desktop) and PostgreSQL (VM). The test runner is parameterised by DB engine. Code that only passes one engine is not done.
+
+
+Phase
+	Command
+	SQLite (Desktop)
+	PostgreSQL (VM)
+	A
+	python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process
+	Exits 0 in IS_DESKTOP_APP=true mode
+	Exits 0 in production ENV mode
+	DB-N
+	MATCH (n:KnowledgeNode) RETURN count(n) in Neo4j + NetworkX graph loaded
+	Node count matches SQLite ukg_nodes; NetworkX DiGraph non-empty
+	Same; confirmed in both DB configs
+	B
+	pytest tests/unit/test_axis_alignment.py -v
+	All 17 axes consistent; SQLite migration applies
+	All 17 axes consistent; PostgreSQL migration applies
+	DB-C
+	rag_service.search_knowledge("healthcare compliance")
+	Returns > 5 results; sources traceable
+	Same; ChromaDB works with both backends
+	C
+	pytest tests/integration/test_quad_gateway.py -v
+	PersonaPod synthesis + DynamicWeightFunctions output in SQLite audit event
+	Same; event_data in PostgreSQL
+	D
+	pytest tests/benchmarks/test_dsqp_benchmark.py
+	Score >= 95.3; dsqp_chain in SQLite TruthAuditEvent; templates bundled in EXE
+	Same score; chain in PostgreSQL
+	E
+	pytest tests/truth_engine/test_layer10_ka_suite.py
+	All 7 L10 KAs pass; Steps 6+11 execute real logic; py_compile clean
+	Same; no Postgres-specific types in any KA
+	F1
+	pytest tests/dmrf/test_dmrf_integration.py
+	DMRFResult with 17 axes in SQLite; desktop_mode caps tier; FROST integrity confirmed
+	Full tier range; PostgreSQL TruthAuditEvent
+	H
+	scripts/windows/run_packaging_smoke.ps1 + cold start timer
+	EXE starts < 5s; JRE bundles Neo4j; offline mode confirmed; IPC channels respond
+	N/A (H is desktop-only)
+	KI
+	python scripts/ingest_document.py --file test_doc.pdf --domain healthcare
+	ukg_nodes + Neo4j + ChromaDB all have records after ingest
+	Same; idempotent on re-run
+	G
+	pytest tests/ --cov=backend --cov-fail-under=70
+	Coverage gate holds; IS_DESKTOP_APP tests pass
+	Coverage gate holds; VM-specific tests pass
+	________________
+
+
+8.  New Files to Create — Complete Inventory
+
+
+These files do not exist and must be created. Files requiring edits to existing code are not listed here — they appear in each phase's task table above.
+
+
+Phase
+	New File Path
+	Purpose
+	DB-N
+	backend/storage/uskd_memory_graph.py
+	NetworkX in-memory USKD graph; load from Neo4j; update on Lane B
+	DB-N
+	scripts/sync_nodes_to_neo4j.py
+	Sync SQLite ukg_nodes → Neo4j KnowledgeNode (MERGE)
+	B
+	core/axes/axis14_acquisition_lifecycle.py
+	AL1-AL7 stage detection; FAR/DFARS keywords
+	B
+	core/axes/axis15_risk_threat.py
+	6-dimensional risk decomposition
+	B
+	core/axes/axis16_ethics_trust.py
+	Sensitivity categories; ethics framework mapping
+	B
+	core/axes/axis17_frost_mode.py
+	Tier→FROST depth bridge; truth_engine_mode selector
+	B
+	tests/unit/test_axis_alignment.py
+	17-axis consistency test suite
+	C
+	tests/integration/test_quad_gateway.py
+	End-to-end quad pipeline integration test
+	D (IP first)
+	docs/ip/dsqp_technical_disclosure.md
+	Patent/IP technical disclosure — write before any D code
+	D
+	backend/dsqp/__init__.py
+	DSQP package
+	D
+	backend/dsqp/dsqp_chain.py
+	7-step self-questioning protocol
+	D
+	backend/dsqp/dsqp_registry.py + templates/*.json
+	Domain question templates; bundled offline
+	D
+	backend/dsqp/dsqp_orchestrator.py
+	Parallel 4-chain executor (asyncio.gather)
+	D
+	backend/dsqp/dsqp_validator.py
+	7-part persona quality gate
+	D
+	sdk/UKG_Python_SDK/ukg_sdk/dsqp.py
+	SDK DSQPClient; offline-capable
+	D
+	tests/benchmarks/test_dsqp_benchmark.py
+	DSQP vs StrataMind 18-question benchmark
+	E
+	backend/knowledge_algorithms/l10/l10_ka_001_entropy_scorer.py
+	Real Shannon entropy; replaces KA-116 stub
+	E
+	backend/knowledge_algorithms/l10/l10_ka_002_self_awareness.py
+	Capability escalation detection
+	E
+	backend/knowledge_algorithms/l10/l10_ka_003_pii_redactor.py
+	PII redaction for Step 6 (pure Python)
+	E
+	backend/knowledge_algorithms/l10/l10_ka_004_ethics_validator.py
+	EU AI Act ethical alignment
+	E
+	backend/knowledge_algorithms/l10/l10_ka_005_containment.py
+	RELEASE/MODIFY/HALT/ESCALATE decision tree
+	E
+	backend/knowledge_algorithms/l10/l10_ka_006_trust_gate.py
+	BELIEF_DECAY_FACTOR=0.98 wrapper
+	E
+	backend/knowledge_algorithms/l10/l10_ka_007_escalation_router.py
+	HITL queue router
+	E
+	tests/truth_engine/test_layer10_ka_suite.py
+	L10 KA unit + integration tests
+	DB-M
+	backend/memory/unified_memory_service.py
+	StructuredMemoryGraph + Redis + ChromaDB unified interface
+	F
+	backend/dmrf/__init__.py + orchestrator.py
+	DMRF package + master orchestrator
+	F
+	backend/dmrf/router.py
+	17-axis middleware router
+	F
+	backend/dmrf/tier_classifier.py
+	5-tier classifier
+	F
+	backend/dmrf/convergence_policy.py
+	Domain convergence policy
+	F
+	backend/dmrf/evidence_model.py
+	Freshness decay model
+	F
+	backend/dmrf/injection_defense.py
+	5-category injection defense
+	F
+	backend/dmrf/frost_bridge.py
+	FROSTService snapshot integration
+	F
+	backend/dmrf/desktop_config.py
+	Desktop mode config loader
+	F
+	backend/dmrf/observability.py
+	dmrf.* Prometheus metrics
+	F
+	backend/dmrf/multi_tenancy.py
+	Per-tenant tier overrides
+	F
+	backend/dmrf/truth_integration/gate_adapter.py
+	TruthGate DMRF adapter
+	F
+	backend/dmrf/truth_integration/core_adapter.py
+	TruthCore tier mapping
+	F
+	backend/dmrf/truth_integration/memory_adapter.py
+	TruthMemory DMRF export
+	F
+	backend/dmrf/truth_integration/link_adapter.py
+	TruthLink DMRF event publishing
+	F
+	tests/dmrf/test_dmrf_integration.py
+	DMRF end-to-end integration tests
+	F (opt)
+	rust/Cargo.toml + rust/src/lib.rs
+	Rust workspace (VM only; optional)
+	F (opt)
+	rust/src/convergence.rs + injection.rs
+	Rust hot paths (VM only)
+	G-A
+	backend/truth_engine/truth_memory/provenance.py
+	W3C PROV-JSON schema
+	G-A
+	backend/truth_engine/truth_gate/opa_policy.py + policies/truthgate.rego
+	OPA policy evaluation
+	G-A
+	backend/mcp_server/sampling.py
+	MCP sampling protocol
+	G-A
+	backend/mcp_server/subscriptions.py
+	MCP resource subscriptions + SSE
+	G-B
+	backend/truth_engine/truth_memory/retention_router.py
+	7-year retention (VM-only)
+	G-B
+	backend/truth_engine/truth_gate/model_screening.py
+	Llama Guard 3 + Rebuff (VM-only)
+	G-B
+	docs/adr/ADR-XXXX-pq-grpc-transport.md
+	PQ-gRPC ADR (VM research)
+	KI
+	backend/ingestion/document_pipeline.py
+	Raw docs → chunk → embed → all 3 stores
+	KI
+	scripts/ingest_document.py
+	CLI ingestion script
+	KI
+	scripts/ingest_standard_corpus.py
+	Batch ingestion for regulatory corpus
+	________________
+
+
+9.  Key Principles
+
+
+* Write the patent disclosure first. The DSQP dynamic persona construction is the core IP. Before writing any DSQP code, produce a dated technical disclosure. Code can always be rewritten; prior art dates cannot be moved backwards.
+
+
+* DB-N and DB-C start immediately. These sprints run parallel with Phase A and take 2-3 weeks each. By the time Phase C ships, the databases will be populated. Wiring retrieval before populating collections is the most common mistake — it creates working code that returns nothing.
+
+
+* JRE bundling is a Phase H-1 blocker for desktop Neo4j. On a clean Windows machine without prior Java, Neo4j silently fails. The installer must bundle Eclipse Temurin JRE 17. This is addressed in H-1 but should be considered a prerequisite for any desktop Neo4j testing.
+
+
+* Phase C before Phase D. The quad_persona/ math layer is 100% written and 0% connected. Connecting it (Phase C) delivers more value per hour than any other task because it activates existing work. DSQP (Phase D) then makes what Phase C connects dynamic.
+
+
+* NetworkX is the reasoning substrate; Neo4j is the persistent store. Neo4j persists the knowledge graph. NetworkX holds the active working subgraph in RAM for zero-latency simulation during L1-L10 reasoning. Both are needed; they serve different roles.
+
+
+* LocalSLMProvider already exists and works. sdk/UKG_Python_SDK/ukg_sdk/providers/local_slm.py is a complete Ollama/vLLM adapter. Phase C wires it as a gateway fallback — do not rebuild it.
+
+
+* SQLite-first, PostgreSQL-compatible. All new code targets SQLite first. No JSONB operators, no CTEs unsupported by SQLite. PostgreSQL compatibility is tested second. Both engines must pass every exit gate.
+
+
+* Every new Python file must py_compile + survive PyInstaller. Before declaring any phase complete, run python -m PyInstaller backend.spec and confirm the new module loads in the resulting EXE. Add hidden imports and datas entries proactively — finding missing imports at user-install time is avoidable.
+
+
+
+
+— End of Master Phased Completion Plan  |  v1.0  |  May 23, 2026  |  Lucentry —
+C:\software\DataLogicEngine  |  All tasks code-validated  |  Target: DESKTOP+VM = both paths  ·  DESKTOP = Electron only  ·  VM-ONLY = cloud only

@@ -1,9 +1,9 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 **Status:** Canonical planning source
 
-This is the only active TODO list for the repository. Keep open work here instead of adding separate project plans, roadmap files, assessment TODOs, or notes documents.
+This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
 
 ## Unified Backlog
 
@@ -17,6 +17,8 @@ Source report: `reports/production-code-review-2026-05-23.md`
 
 Validation status: Production code-review remediation phases 1 through 4 are complete as of 2026-05-23.
 
+Master completion plan status: Phase 1 / A local code-contract fixes are complete as of 2026-05-24. Remaining Phase 1 release gates are manual or packaged-runtime evidence items.
+
 | Item | Code validation | Status |
 | --- | --- | --- |
 | API gateway authentication | `backend/api_gateway/api_gateway.py` validates signed JWT bearer tokens, required expiration, optional issuer/audience, and optional roles. | Done |
@@ -27,6 +29,7 @@ Validation status: Production code-review remediation phases 1 through 4 are com
 | Legacy fallback secrets | `backend/__init__.py` keeps deterministic defaults under pytest only and fails fast outside tests when secrets are missing. | Done |
 | Shell-based static copy | `scripts/deploy.py` copies static build artifacts with `pathlib`/`shutil` and no shell invocation. | Done |
 | Strict runtime precheck | `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process` passes with no blockers and no action items. | Done |
+| Phase 1 gateway/model contract drift | `ChatSession.to_dict()` exists; API key expiration is modeled/enforced; gateway-created `TraceRun` rows set `user_id`; SDK version has a single `0.4.0` assignment. | Done |
 
 Phased update plan:
 

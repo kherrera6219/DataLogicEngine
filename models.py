@@ -833,6 +833,7 @@ class ExternalAPIKey(db.Model):
     allowed_models = db.Column(db.JSON)
     
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    expires_at = db.Column(db.DateTime, nullable=True)
     
     usage_records = db.relationship('LLMProviderUsage', backref='api_key', lazy='dynamic')
 
@@ -855,7 +856,19 @@ class ExternalAPIKey(db.Model):
             return None
         
         key_hash = hashlib.sha256(full_key.encode()).hexdigest()
-        return cls.query.filter_by(key_hash=key_hash, is_active=True).first()
+        key_record = cls.query.filter_by(key_hash=key_hash, is_active=True).first()
+        if not key_record:
+            return None
+
+        expires_at = getattr(key_record, 'expires_at', None)
+        if expires_at:
+            now = datetime.now(UTC)
+            if expires_at.tzinfo is None:
+                now = now.replace(tzinfo=None)
+            if expires_at <= now:
+                return None
+
+        return key_record
 
     def to_dict(self):
         return {
@@ -865,7 +878,8 @@ class ExternalAPIKey(db.Model):
             'is_active': self.is_active,
             'total_requests': self.total_requests,
             'last_used_at': self.last_used_at.isoformat() if self.last_used_at else None,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'expires_at': self.expires_at.isoformat() if self.expires_at else None
         }
 
 
@@ -884,6 +898,17 @@ class ChatSession(db.Model):
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
     
     messages = db.relationship('ChatMessage', backref='session', lazy='dynamic', cascade='all, delete-orphan')
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'user_id': self.user_id,
+            'title': self.title,
+            'model': self.model,
+            'mode': self.mode,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
 
 
 class ChatMessage(db.Model):

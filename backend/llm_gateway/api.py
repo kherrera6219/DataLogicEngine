@@ -938,7 +938,7 @@ def create_api_key():
     # Handle expiration
     if data.get('expires_in_days'):
         from datetime import timedelta
-        api_key.expires_at = db.func.now() + timedelta(days=data['expires_in_days'])
+        api_key.expires_at = datetime.now(UTC) + timedelta(days=data['expires_in_days'])
     
     db.session.add(api_key)
     db.session.commit()

@@ -1,6 +1,8 @@
 
 import pytest
 import uuid
+from datetime import UTC, datetime, timedelta
+from unittest.mock import MagicMock
 from models import (
     KnowledgeGraphEdge, OAuthAccount, PasswordHistory, AuditLog,
     LLMProviderUsage, ExternalAPIKey, ChatSession, ChatMessage,
@@ -66,25 +68,53 @@ def test_provider_usage_basic(app):
 
 # --- ExternalAPIKey ---
 def test_external_api_key_dict(app):
+    expires_at = datetime.now(UTC) + timedelta(days=7)
     k = ExternalAPIKey(
         id=uuid.uuid4(),
         name="Test Client",
         key_prefix="ukg_test",
         key_hash="hash",
         user_id=1,
-        is_active=True
+        is_active=True,
+        expires_at=expires_at
     )
     d = k.to_dict()
     assert d['name'] == "Test Client"
     assert d['prefix'] == "ukg_test"
+    assert d['expires_at'] == expires_at.isoformat()
     assert 'key_hash' not in d
+
+def test_external_api_key_verify_rejects_expired_key(app):
+    full_key, _prefix, key_hash = ExternalAPIKey.generate_key()
+    expired = ExternalAPIKey(
+        id=uuid.uuid4(),
+        name="Expired Client",
+        key_prefix="ukg_test",
+        key_hash=key_hash,
+        user_id=1,
+        is_active=True,
+        expires_at=datetime.now(UTC) - timedelta(seconds=1)
+    )
+    query = MagicMock()
+    query.filter_by.return_value.first.return_value = expired
+    setattr(ExternalAPIKey, 'query', query)
+    try:
+        assert ExternalAPIKey.verify_key(full_key) is None
+    finally:
+        delattr(ExternalAPIKey, 'query')
 
 # --- ChatSession & ChatMessage ---
 def test_chat_session_basic(app):
     sid = uuid.uuid4()
-    s = ChatSession(id=sid, title="My Chat")
+    s = ChatSession(id=sid, user_id=1, title="My Chat", model="gpt-test", mode="chat")
     assert s.title == "My Chat"
     assert s.id == sid
+    d = s.to_dict()
+    assert d['id'] == str(sid)
+    assert d['user_id'] == 1
+    assert d['title'] == "My Chat"
+    assert d['model'] == "gpt-test"
+    assert d['mode'] == "chat"
 
 def test_chat_message_basic(app):
     mid = uuid.uuid4()
