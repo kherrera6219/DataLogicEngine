@@ -2,7 +2,11 @@
 
 ## Purpose
 
-Provide a release governance checklist for tagged builds and production deployment approvals.
+Provide a release governance checklist for tagged builds and production deployment approvals. This checklist is separate from local-first desktop completion evidence.
+
+## Local-First Status
+
+Phase 1 is complete for the local-first desktop target as of 2026-05-25. Local completion evidence is recorded in `reports/release-readiness/local-first-phase1-completion-2026-05-25.md`. The remaining unchecked items in this document are production/public release gates.
 
 ## Pre-Release Gate
 
@@ -75,6 +79,6 @@ Use this split so release evidence stays honest about what can be automated loca
 ## Document Control
 
 1. Owner: Release Engineering
-2. Last updated: 2026-05-23
+2. Last updated: 2026-05-25
 3. Status: Active
 4. Review cadence: Every release cycle

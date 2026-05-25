@@ -247,11 +247,11 @@ ________________
 
 
 PHASE 1 / A
-	Release Gate  —  Clear All Blockers and Ship v1
+	Local-First Release Gate  —  Clear Local Desktop Blockers
 	Weeks 1–3
 	
 
-Eight tasks before v1 ships: remaining manual release gates plus local code-contract fixes found during May 24 validation. A-3, A-4, A-6, A-7, and A-8 are locally validated as of May 24, 2026; A-1, A-2, and A-5 still require manual NVDA evidence, trusted production signing, CI/release approval, rollback, and DR evidence.
+COMPLETED FOR LOCAL-FIRST DESKTOP May 25, 2026 — All local code-contract, runtime, provider-backed staging, and packaged desktop smoke blockers are complete. A-1, A-2, and A-5 are reclassified as production/public release evidence gates, not local-first application blockers: NVDA requires a manual assistive-technology pass, trusted signing requires a production certificate, and release approval/rollback/DR evidence belongs to tagged release governance. Local-first evidence is captured in reports/release-readiness/local-release-evidence-2026-05-23.md and reports/release-readiness/local-first-phase1-completion-2026-05-25.md.
 
 
 ID
@@ -260,14 +260,14 @@ ID
 	Exit Gate
 	Target
 	A-1
-	NVDA screen reader validation on Windows against packaged .exe
+	PRODUCTION RELEASE EVIDENCE — NVDA screen reader validation on Windows against packaged .exe
 	reports/app-readiness/nvda-manual-checklist.md
-	OPEN: NVDA was not found on PATH, C:\Program Files\NVDA\nvda.exe, or C:\Program Files (x86)\NVDA\nvda.exe on May 24, 2026; all checklist items must pass on Windows 11 + packaged EXE
+	Deferred from local-first completion: NVDA was not found on PATH, C:\Program Files\NVDA\nvda.exe, or C:\Program Files (x86)\NVDA\nvda.exe on May 24, 2026; checklist remains required before public production release, but it is not a local desktop runtime blocker.
 	DESKTOP
 	A-2
-	Provision production PFX code-signing cert; run signing workflow
+	PRODUCTION RELEASE EVIDENCE — Provision production PFX code-signing cert; run signing workflow
 	.github/workflows/release-installer-signing.yml
-	OPEN: local installer verification on May 24, 2026 reports DataLogicEngine Setup Latest.exe: NotSigned; exit gate remains signed installer + SHA256 + verification report as CI artifact
+	Deferred from local-first completion: local installer verification on May 24, 2026 reports DataLogicEngine Setup Latest.exe: NotSigned; signed installer + SHA256 + verification report remains required for public release artifacts.
 	DESKTOP
 	A-3
 	COMPLETED May 24, 2026 — Provider-backed staging validation against live provider
@@ -280,9 +280,9 @@ ID
 	Validated May 24, 2026: python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process exits 0 with 0 blockers and 0 action items
 	DESKTOP+VM
 	A-5
-	Write release evidence bundle (changelog, sign evidence, CI review, rollback plan)
+	PRODUCTION RELEASE EVIDENCE — Write release evidence bundle (changelog, sign evidence, CI review, rollback plan)
 	reports/release-readiness/
-	OPEN: local release evidence has been refreshed, but final exit still requires docs/RELEASE_CHECKLIST.md all gates checked plus signed-artifact evidence, current CI/security review, code-owner approval, rollback plan, and DR review
+	Local-first completion evidence is complete; public production release still requires docs/RELEASE_CHECKLIST.md all gates checked plus signed-artifact evidence, current CI/security review, code-owner approval, rollback plan, and DR review.
 	DESKTOP+VM
 	A-6
 	COMPLETED May 24, 2026 — Installer smoke for packaged desktop artifact

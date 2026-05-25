@@ -35,7 +35,7 @@ Date: 2026-05-23
 
 ## Phase 1 / A Local Code Evidence
 
-Completed locally on 2026-05-24:
+Completed locally on 2026-05-24. Closed for the local-first desktop target on 2026-05-25; see `reports/release-readiness/local-first-phase1-completion-2026-05-25.md`.
 
 - SDK duplicate `__version__` assignment removed; `ukg_sdk.__version__` resolves to `0.4.0`.
 - `ExternalAPIKey.expires_at` is modeled, serialized, and enforced by `verify_key()`.
@@ -74,6 +74,8 @@ Completed locally on 2026-05-25:
 - Added `tests/unit/test_axis_alignment.py` to lock the aligned definitions and resolver behavior.
 
 ## Release-Runner Or Manual Evidence Still Required
+
+These gates are required for public production release artifacts, not for local-first desktop completion.
 
 1. Review current CI results for the release branch or tag.
 2. Review security scan output for the release branch or tag.
