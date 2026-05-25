@@ -325,6 +325,7 @@ class EmergenceDetectionController:
                     "AUTHORIZED_KNOWLEDGE",
                     {"simulation_id": input_data.simulation_id},
                 )
+            commit_report.update(self._index_lane_b_trace(input_data, properties))
             commit_report["status"] = "committed"
         except Exception as exc:
             logger.warning("Lane B graph commit skipped: %s", exc)
@@ -332,6 +333,50 @@ class EmergenceDetectionController:
             commit_report["error"] = str(exc)
 
         return commit_report
+
+    @staticmethod
+    def _index_lane_b_trace(input_data: L10Input, properties: Dict[str, Any]) -> Dict[str, Any]:
+        """Index release-authorized traces into DB-C vector collections."""
+        report = {
+            "audit_evidence_indexed": False,
+            "knowledge_nodes_indexed": False,
+        }
+        try:
+            from backend.services.rag_service import RAGService, get_rag_service
+
+            rag = get_rag_service()
+            content = str(properties.get("content") or properties.get("title") or "")
+            if content:
+                report["knowledge_nodes_indexed"] = rag.ingest_knowledge_node(
+                    properties["uid"],
+                    content,
+                    properties.get("node_type", "authorized_knowledge"),
+                    properties,
+                )
+
+            trace_text = json.dumps(
+                {
+                    "simulation_id": input_data.simulation_id,
+                    "l9_result": input_data.l9_result,
+                    "reasoning_trace": input_data.reasoning_trace,
+                    "coordinate_vector": input_data.coordinate_vector,
+                },
+                sort_keys=True,
+                default=str,
+            )
+            report["audit_evidence_indexed"] = rag.ingest_text(
+                RAGService.COLLECTION_AUDIT_EVIDENCE,
+                f"audit:{properties['uid']}",
+                trace_text,
+                {
+                    "simulation_id": input_data.simulation_id,
+                    "knowledge_uid": properties["uid"],
+                    "risk_domain": input_data.risk_domain,
+                },
+            )
+        except Exception as exc:
+            report["vector_index_error"] = str(exc)
+        return report
 
     def _build_lane_b_knowledge_node(self, input_data: L10Input, commit_report: Dict[str, Any]) -> Dict[str, Any]:
         """Build a deterministic KnowledgeNode payload for release-authorized output."""

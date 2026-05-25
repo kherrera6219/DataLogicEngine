@@ -374,6 +374,14 @@ class MetaReasoningController:
                                 break
                 except (TypeError, ValueError):
                     pass
+
+            historical_matches = self._search_audit_evidence(original_query, final_solution)
+            if historical_matches:
+                details = details or f"Compared against {len(historical_matches)} similar prior sessions"
+                if any(match.get("score", 0.0) < 0.65 for match in historical_matches):
+                    drift_detected = True
+                    drift_type = drift_type or "semantic"
+                    drift_score = max(drift_score, 0.25)
         
         # KA integration (L9-KA-002)
         if self.ka_controller:
@@ -398,6 +406,23 @@ class MetaReasoningController:
             current_output=final_solution[:200] if final_solution else None,
             details=details
         )
+
+    @staticmethod
+    def _search_audit_evidence(original_query: str, final_solution: str) -> List[Dict[str, Any]]:
+        """Search semantically similar prior sessions from audit_evidence."""
+        try:
+            from backend.services.rag_service import RAGService, get_rag_service
+
+            query = "\n".join(part for part in [original_query, final_solution[:500]] if part)
+            if not query:
+                return []
+            return get_rag_service().search_collection(
+                RAGService.COLLECTION_AUDIT_EVIDENCE,
+                query,
+                k=3,
+            )
+        except Exception:
+            return []
     
     def _audit_persona_agreement(self, input_data: L9Input, threshold: float, kas_invoked: List[str]) -> PersonaAgreementMatrix:
         """Audit persona agreement for silent dissent."""

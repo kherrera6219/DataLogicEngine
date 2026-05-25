@@ -638,10 +638,22 @@ ipcMain.handle('get-backend-status', (event, ...args: unknown[]) => {
   return backendProcess ? (backendProcess.exitCode === null ? 'running' : 'stopped') : 'not_started';
 });
 
-ipcMain.handle('get-db-status', (event, ...args: unknown[]) => {
+ipcMain.handle('get-db-status', async (event, ...args: unknown[]) => {
   assertTrustedIpcInvoke(event, 'get-db-status', args);
-  // This is a simplification; a real check would query the ports
-  return backendProcess ? 'managed' : 'offline';
+  if (!backendProcess || backendProcess.exitCode !== null) {
+    return { status: 'offline', chroma_collections: {} };
+  }
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/health');
+    const payload = await response.json();
+    return {
+      status: payload?.database?.status === 'ok' ? 'managed' : 'degraded',
+      chroma_collections: payload?.database?.chromadb?.collections ?? {},
+    };
+  } catch {
+    return { status: 'managed', chroma_collections: {} };
+  }
 });
 
 ipcMain.handle('get-update-state', (event, ...args: unknown[]) => {

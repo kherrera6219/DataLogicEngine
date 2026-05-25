@@ -60,6 +60,11 @@ class VectorBackend(ABC):
     def get_collection_stats(self, collection: str) -> Dict[str, Any]:
         """Get statistics about a collection."""
         pass
+
+    @abstractmethod
+    def list_collection_stats(self) -> Dict[str, Dict[str, Any]]:
+        """Get statistics for all required collections."""
+        pass
     
     @abstractmethod
     def create_collection(self, collection: str, dimension: int = 1536) -> bool:
@@ -121,7 +126,8 @@ class ChromaDBBackend(VectorBackend):
         """Add embeddings to ChromaDB."""
         try:
             coll = self._get_collection(collection)
-            coll.add(
+            write = getattr(coll, "upsert", coll.add)
+            write(
                 ids=ids,
                 documents=texts,
                 embeddings=embeddings,
@@ -188,6 +194,10 @@ class ChromaDBBackend(VectorBackend):
         except Exception as e:
             logger.error(f"Failed to get collection stats: {e}")
             return {"name": collection, "count": 0, "error": str(e)}
+
+    def list_collection_stats(self) -> Dict[str, Dict[str, Any]]:
+        """Get statistics for the required ChromaDB collections."""
+        return {name: self.get_collection_stats(name) for name in REQUIRED_COLLECTIONS}
     
     def create_collection(self, collection: str, dimension: int = 1536) -> bool:
         """Create a new collection in ChromaDB."""
@@ -315,6 +325,10 @@ class PineconeBackend(VectorBackend):
         except Exception as e:
             logger.error(f"Failed to get Pinecone stats: {e}")
             return {"name": collection, "count": 0, "error": str(e)}
+
+    def list_collection_stats(self) -> Dict[str, Dict[str, Any]]:
+        """Get statistics for the required logical collections."""
+        return {name: self.get_collection_stats(name) for name in REQUIRED_COLLECTIONS}
     
     def create_collection(self, collection: str, dimension: int = 1536) -> bool:
         """Collections are virtual in Pinecone (using metadata filtering)."""
@@ -389,6 +403,10 @@ class VectorStore:
     def get_collection_stats(self, collection: str) -> Dict[str, Any]:
         """Get collection statistics."""
         return self._backend.get_collection_stats(collection)
+
+    def list_collection_stats(self) -> Dict[str, Dict[str, Any]]:
+        """Get statistics for all required collections."""
+        return self._backend.list_collection_stats()
     
     def create_collection(self, collection: str, dimension: int = 1536) -> bool:
         """Create a new collection."""
@@ -426,3 +444,12 @@ def initialize_collections() -> None:
             store.create_collection(name)
         except Exception:
             pass  # collection already exists or backend unavailable — non-fatal
+
+
+def get_collection_counts() -> Dict[str, int]:
+    """Return document counts for required vector collections."""
+    stats = get_vector_store().list_collection_stats()
+    return {
+        name: int((data or {}).get("count", (data or {}).get("total_count", 0)) or 0)
+        for name, data in stats.items()
+    }

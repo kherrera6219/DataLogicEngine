@@ -8,6 +8,8 @@ requirements into functional personas with canonical UKGIDs.
 
 import logging
 import uuid
+import json
+import hashlib
 from typing import Dict, Any, Optional
 from quad_persona.quad_engine import PersonaProfile
 
@@ -27,6 +29,7 @@ class PersonaConstructionService:
         self.uids = uids
         self.uns = uns
         self.mapping = mapping
+        self._persona_cache: Dict[str, PersonaProfile] = {}
         
         # Mapping from Axis Number to Persona Type
         self.axis_to_type = {
@@ -51,7 +54,17 @@ class PersonaConstructionService:
         """
         if axis_number not in self.axis_to_type:
             raise ValueError(f"Axis {axis_number} is not a valid persona axis (8-11)")
-            
+
+        cache_key = self._cache_key(axis_number, coordinate_path, context)
+        cached = self._persona_cache.get(cache_key)
+        if cached:
+            return cached
+
+        cached = self._load_cached_persona(cache_key)
+        if cached:
+            self._persona_cache[cache_key] = cached
+            return cached
+
         persona_type = self.axis_to_type[axis_number]
         context = context or {}
         
@@ -92,9 +105,64 @@ class PersonaConstructionService:
         
         # 5. Seed components based on sourced meta-data
         self._seed_components(profile, axis_number, source_context, context)
+        profile.metadata["cache_key"] = cache_key
+        self._persona_cache[cache_key] = profile
+        self._store_cached_persona(cache_key, profile, axis_number, coordinate_path)
         
         self.logger.info(f"Constructed dynamic persona: {label} ({profile.persona_id}) sourced from Axis {source_axis}")
         return profile
+
+    @staticmethod
+    def _cache_key(axis_number: int, coordinate_path: str, context: Optional[Dict[str, Any]]) -> str:
+        payload = {
+            "axis_number": axis_number,
+            "coordinate_path": coordinate_path,
+            "context": context or {},
+        }
+        digest = hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()[:24]
+        return f"persona:{axis_number}:{digest}"
+
+    def _load_cached_persona(self, cache_key: str) -> Optional[PersonaProfile]:
+        try:
+            from backend.services.rag_service import RAGService, get_rag_service
+
+            results = get_rag_service().search_collection(
+                RAGService.COLLECTION_PERSONA_PROFILES,
+                cache_key,
+                k=1,
+                filters={"cache_key": cache_key},
+            )
+            if not results:
+                return None
+            payload = json.loads(results[0].get("text") or "{}")
+            return PersonaProfile.from_dict(payload)
+        except Exception as exc:
+            self.logger.debug("Persona profile cache read skipped: %s", exc)
+            return None
+
+    def _store_cached_persona(
+        self,
+        cache_key: str,
+        profile: PersonaProfile,
+        axis_number: int,
+        coordinate_path: str,
+    ) -> None:
+        try:
+            from backend.services.rag_service import RAGService, get_rag_service
+
+            get_rag_service().ingest_text(
+                RAGService.COLLECTION_PERSONA_PROFILES,
+                cache_key,
+                json.dumps(profile.to_dict(), sort_keys=True, default=str),
+                {
+                    "cache_key": cache_key,
+                    "axis_number": axis_number,
+                    "coordinate_path": coordinate_path,
+                    "persona_type": profile.persona_type,
+                },
+            )
+        except Exception as exc:
+            self.logger.debug("Persona profile cache write skipped: %s", exc)
 
     def _seed_components(self, profile: PersonaProfile, axis: int, source_context: Dict[str, Any], request_context: Dict[str, Any]):
         """Seed the 7 core components with context-aware data sourced from primary axes."""

@@ -326,6 +326,11 @@ class TrustValidationGateway:
             base_confidence = sum(d.confidence for d in domain_confidences) / len(domain_confidences)
         else:
             base_confidence = 0.9
+
+        citation_hits = self._search_citation_cache(input_data)
+        if citation_hits:
+            kas_invoked.append("RAG-CITATION-CACHE")
+            base_confidence = min(1.0, base_confidence + min(0.05, len(citation_hits) * 0.01))
         
         # KA-014: Confidence Scoring
         if self.ka_controller:
@@ -394,6 +399,25 @@ class TrustValidationGateway:
                 logger.debug(f"KA-024 skipped: {e}")
         
         return min(max(base_confidence, 0.0), 1.0)
+
+    @staticmethod
+    def _search_citation_cache(input_data: L8Input) -> List[Dict[str, Any]]:
+        """Search prior citation evidence for similar claims or query text."""
+        try:
+            from backend.services.rag_service import RAGService, get_rag_service
+
+            query_parts = [input_data.query_text]
+            query_parts.extend(str(claim.get("text", claim)) for claim in input_data.claims[:3])
+            query = "\n".join(part for part in query_parts if part)
+            if not query:
+                return []
+            return get_rag_service().search_collection(
+                RAGService.COLLECTION_CITATION_CACHE,
+                query,
+                k=3,
+            )
+        except Exception:
+            return []
     
     def _run_self_critique(self, input_data: L8Input, kas_invoked: List[str]) -> List[str]:
         """Attack the solution for flaws."""

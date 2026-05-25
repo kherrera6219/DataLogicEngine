@@ -14,10 +14,15 @@ export interface DesktopUpdateState {
   message: string;
 }
 
+export interface DesktopDatabaseStatus {
+  status: string;
+  chroma_collections: Record<string, number>;
+}
+
 export interface ElectronAPI {
   ping: () => Promise<string>;
   getBackendStatus: () => Promise<string>;
-  getDbStatus: () => Promise<string>;
+  getDbStatus: () => Promise<DesktopDatabaseStatus>;
   getUpdateState: () => Promise<DesktopUpdateState>;
   checkForUpdates: () => Promise<DesktopUpdateState>;
   downloadUpdate: () => Promise<DesktopUpdateState>;

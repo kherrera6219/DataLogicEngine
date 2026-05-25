@@ -563,6 +563,29 @@ class TruthCoreEngine:
             except Exception as e:
                 logger.error(f"Layer 7 Service failed: {e}")
 
+        # L3: RAG-backed evidence retrieval
+        if step == 'deep_research':
+            try:
+                from backend.services.rag_service import get_rag_service
+
+                rag = get_rag_service()
+                evidence = rag.search_knowledge(query, k=8)
+                return {
+                    'step': step,
+                    'ka_id': 'RAG-KNOWLEDGE-NODES',
+                    'status': 'completed',
+                    'output': {
+                        'evidence': evidence,
+                        'source_node_ids': [
+                            item.get('metadata', {}).get('node_id') or item.get('id')
+                            for item in evidence
+                        ],
+                    },
+                    'confidence': 0.85 if evidence else 0.5
+                }
+            except Exception as e:
+                logger.error(f"Layer 3 RAG retrieval failed: {e}")
+
         # L8: Trust Validation Gateway
         if step == 'trust_validation' and self.trust_gateway:
             try:

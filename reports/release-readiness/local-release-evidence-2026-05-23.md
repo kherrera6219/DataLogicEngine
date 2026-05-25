@@ -73,13 +73,16 @@ Completed locally on 2026-05-25:
 - Updated the SDK `CoordinateResolver17` to use bundled offline JSON taxonomy files.
 - Added `tests/unit/test_axis_alignment.py` to lock the aligned definitions and resolver behavior.
 
-## Phase 4 / DB-C Validation Evidence
+## Phase 4 / DB-C Local Code Evidence
 
-Validated on 2026-05-25:
+Completed locally on 2026-05-25:
 
-- `python -m pytest tests\unit\test_vector_store_unit.py tests\unit\test_services.py -q` passed with 29 tests.
-- DB-C remains open. VectorStore and RAG unit support are present, but the ingestion script, startup background indexing, TruthCore Chroma retrieval wiring, local/offline `sentence-transformers` packaging, and Electron IPC Chroma counts are not implemented.
-- First implementation step is collection-name alignment: DB-C and `backend/storage/vector_store.py` use `knowledge_nodes`, while `backend/services/rag_service.py` currently uses `knowledge_graph`.
+- `python -m pytest tests\unit\test_phase4_dbc.py tests\unit\test_vector_store_unit.py tests\unit\test_services.py -q` passed with 35 tests.
+- Embedded Chroma smoke passed with temporary local storage: `RAGService.ingest_knowledge_node()` wrote to `knowledge_nodes`, `search_knowledge()` returned `KG-1`, and `VectorStore.list_collection_stats()["knowledge_nodes"]["count"]` returned 1.
+- `scripts/index_knowledge_nodes.py` indexes SQL `KnowledgeGraphNode` rows into the `knowledge_nodes` collection.
+- Startup can trigger background indexing for empty local desktop `knowledge_nodes` collections, and `/health` exposes Chroma collection counts.
+- TruthCore DB-C paths are wired: L3 deep research searches `knowledge_nodes`; L8 trust validation searches `citation_cache`; L9 drift detection searches `audit_evidence`; L10 Lane B indexes release-authorized traces into `audit_evidence` and `knowledge_nodes`.
+- Persona construction checks/stores `persona_profiles`, `sentence-transformers` is pinned, and PyInstaller hidden imports include the local embedding stack.
 
 ## Release-Runner Or Manual Evidence Still Required
 

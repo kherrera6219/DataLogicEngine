@@ -58,6 +58,7 @@ requests==2.33.0
 # RAG and orchestration stack
 chromadb==1.4.1
 llama-index==0.14.13
+sentence-transformers==5.2.2
 langchain==1.2.9
 langgraph==1.0.10
 

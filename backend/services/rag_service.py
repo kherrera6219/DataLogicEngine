@@ -8,6 +8,7 @@ Falls back to basic implementation if LlamaIndex is not installed.
 import logging
 import hashlib
 import os
+import json
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 
@@ -44,8 +45,11 @@ class RAGService:
     """
     
     COLLECTION_DOCUMENTS = "documents"
-    COLLECTION_KNOWLEDGE = "knowledge_graph"
+    COLLECTION_KNOWLEDGE = "knowledge_nodes"
     COLLECTION_CHAT_HISTORY = "chat_history"
+    COLLECTION_PERSONA_PROFILES = "persona_profiles"
+    COLLECTION_CITATION_CACHE = "citation_cache"
+    COLLECTION_AUDIT_EVIDENCE = "audit_evidence"
     SUSPICIOUS_RETRIEVAL_MARKERS = (
         "ignore previous instructions",
         "system prompt",
@@ -445,6 +449,19 @@ class RAGService:
         if not exclude_session_id:
             return results
         return [r for r in results if r.get("metadata", {}).get("session_id") != exclude_session_id]
+
+    @staticmethod
+    def _metadata_for_chroma(metadata: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Normalize metadata to Chroma-compatible scalar values."""
+        normalized = {}
+        for key, value in (metadata or {}).items():
+            if value is None:
+                continue
+            if isinstance(value, (str, int, float, bool)):
+                normalized[key] = value
+            else:
+                normalized[key] = json.dumps(value, sort_keys=True, default=str)
+        return normalized
     
     def ingest_knowledge_node(
         self,
@@ -474,7 +491,7 @@ class RAGService:
                 texts=[content],
                 embeddings=[embedding],
                 metadata=[{
-                    **(metadata or {}),
+                    **self._metadata_for_chroma(metadata),
                     "node_type": node_type
                 }]
             )
@@ -497,6 +514,40 @@ class RAGService:
             filters=filters,
             collection=self.COLLECTION_KNOWLEDGE
         )
+
+    def ingest_text(
+        self,
+        collection: str,
+        item_id: str,
+        text: str,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> bool:
+        """Ingest one text item into a named vector collection."""
+        store = self._get_vector_store()
+        if store is None or not text:
+            return False
+        try:
+            store.add_embeddings(
+                collection=collection,
+                ids=[item_id],
+                texts=[text],
+                embeddings=[self._embedding_provider(text)],
+                metadata=[self._metadata_for_chroma(metadata)],
+            )
+            return True
+        except Exception as e:
+            logger.error(f"Failed to ingest text item {item_id} into {collection}: {e}")
+            return False
+
+    def search_collection(
+        self,
+        collection: str,
+        query: str,
+        k: int = 5,
+        filters: Optional[Dict[str, Any]] = None,
+    ) -> List[Dict[str, Any]]:
+        """Search an arbitrary named vector collection."""
+        return self.search_documents(query, k=k, filters=filters, collection=collection)
 
 
 # Global instance

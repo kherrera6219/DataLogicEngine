@@ -4,7 +4,7 @@ import re
 import json
 import logging
 import time
-from threading import Lock
+from threading import Lock, Thread
 from datetime import UTC, datetime, timedelta
 from urllib.parse import urlparse
 from dotenv import load_dotenv
@@ -803,6 +803,7 @@ def _initialize_storage_collections() -> None:
         from backend.storage.vector_store import initialize_collections
         initialize_collections()
         logger.info("ChromaDB collections initialized")
+        _maybe_start_db_c_indexing()
     except Exception as exc:  # pylint: disable=broad-except
         logger.warning("ChromaDB collection init skipped: %s", exc)
 
@@ -814,6 +815,47 @@ def _initialize_storage_collections() -> None:
         logger.info("Object storage buckets initialized")
     except Exception as exc:  # pylint: disable=broad-except
         logger.warning("Object storage bucket init skipped: %s", exc)
+
+def _chroma_collection_counts() -> dict:
+    """Return ChromaDB collection counts for health and desktop IPC."""
+    try:
+        from backend.storage.vector_store import get_collection_counts
+
+        return get_collection_counts()
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.debug("ChromaDB collection counts unavailable: %s", exc)
+        return {}
+
+
+def _db_c_auto_index_enabled() -> bool:
+    configured = os.environ.get("DB_C_AUTO_INDEX_ON_STARTUP")
+    if configured is not None:
+        return configured.lower() in {"1", "true", "yes", "on"}
+    if os.environ.get("FLASK_ENV", "").lower() == "testing":
+        return False
+    return os.environ.get("IS_DESKTOP_APP", "").lower() in {"1", "true", "yes", "on"}
+
+
+def _run_db_c_indexing_background() -> None:
+    """Run DB-C knowledge-node indexing inside an app context."""
+    try:
+        from scripts.index_knowledge_nodes import index_from_database
+
+        with app.app_context():
+            result = index_from_database()
+        logger.info("DB-C knowledge_nodes background index complete: %s", result.to_dict())
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.warning("DB-C knowledge_nodes background index failed: %s", exc)
+
+
+def _maybe_start_db_c_indexing() -> None:
+    """Trigger DB-C indexing when local desktop Chroma starts empty."""
+    if not _db_c_auto_index_enabled():
+        return
+    counts = _chroma_collection_counts()
+    if counts.get("knowledge_nodes", 0) > 0:
+        return
+    Thread(target=_run_db_c_indexing_background, name="db-c-index-knowledge-nodes", daemon=True).start()
 
 
 _initialize_storage_collections()
@@ -907,7 +949,7 @@ def _config_health() -> dict:
 
 
 def _database_health() -> dict:
-    """Confirm database connectivity with a trivial query."""
+    """Confirm database connectivity and local vector-store readiness."""
 
     try:
         with db.engine.connect() as connection:
@@ -917,7 +959,12 @@ def _database_health() -> dict:
         logger.error("Database connectivity check failed", exc_info=exc)
         return {"status": "error", "detail": "unavailable"}
 
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "chromadb": {
+            "collections": _chroma_collection_counts(),
+        },
+    }
 
 
 def _readiness_payload() -> tuple[dict, int]:
