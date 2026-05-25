@@ -73,6 +73,14 @@ Completed locally on 2026-05-25:
 - Updated the SDK `CoordinateResolver17` to use bundled offline JSON taxonomy files.
 - Added `tests/unit/test_axis_alignment.py` to lock the aligned definitions and resolver behavior.
 
+## Phase 4 / DB-C Validation Evidence
+
+Validated on 2026-05-25:
+
+- `python -m pytest tests\unit\test_vector_store_unit.py tests\unit\test_services.py -q` passed with 29 tests.
+- DB-C remains open. VectorStore and RAG unit support are present, but the ingestion script, startup background indexing, TruthCore Chroma retrieval wiring, local/offline `sentence-transformers` packaging, and Electron IPC Chroma counts are not implemented.
+- First implementation step is collection-name alignment: DB-C and `backend/storage/vector_store.py` use `knowledge_nodes`, while `backend/services/rag_service.py` currently uses `knowledge_graph`.
+
 ## Release-Runner Or Manual Evidence Still Required
 
 These gates are required for public production release artifacts, not for local-first desktop completion.

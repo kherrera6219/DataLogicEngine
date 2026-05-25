@@ -450,7 +450,16 @@ DB-C
 	Weeks 2–4 (parallel with B)
 	
 
-All 4 ChromaDB collections are created but empty. The RAGService retrieval pipeline is complete and working — it just has nothing to retrieve. This sprint fills the collections and wires the retrieval calls into the TruthEngine layers.
+VALIDATED May 25, 2026 — DB-C is not complete. The ChromaDB/VectorStore foundation exists and the current vector/RAG unit suite passes, but the sprint work is still open: there is no `scripts/index_knowledge_nodes.py`, startup only creates collections, TruthCore L3/L6/L9 are not wired to Chroma retrieval, Electron IPC does not expose collection counts, and the local/offline embedding dependency is incomplete. First fix before implementation: align collection naming. `backend/storage/vector_store.py` creates `knowledge_nodes`, while `backend/services/rag_service.py` currently writes/searches `knowledge_graph`.
+
+Validation evidence:
+- `python -m pytest tests\unit\test_vector_store_unit.py tests\unit\test_services.py -q` passes.
+- `backend/storage/vector_store.py` defines required collections: `knowledge_nodes`, `persona_profiles`, `citation_cache`, `audit_evidence`.
+- `backend/services/rag_service.py` currently uses `COLLECTION_KNOWLEDGE = "knowledge_graph"`, which does not satisfy DB-C's `knowledge_nodes` exit gate.
+- `app.py _initialize_storage_collections()` creates collections only; it does not check emptiness or trigger background indexing.
+- `backend/truth_engine/truth_core/engine.py` still maps `deep_research` to `KA-029` without RAG evidence retrieval.
+- `backend/truth_engine/truth_core/meta_reasoning_controller.py` still uses a placeholder semantic-drift path instead of `audit_evidence`.
+- `requirements.txt` includes `chromadb` and `llama-index`, but not `sentence-transformers`.
 
 
 ID
@@ -459,47 +468,47 @@ ID
 	Exit Gate
 	Target
 	C-1
-	Build knowledge ingestion pipeline: chunk + embed all ukg_nodes → knowledge_nodes collection
-	scripts/index_knowledge_nodes.py (new)
-	rag_service.search_knowledge("healthcare compliance") returns > 5 results after indexing
+	OPEN — Build knowledge ingestion pipeline: chunk + embed all KnowledgeGraphNode rows → knowledge_nodes collection
+	scripts/index_knowledge_nodes.py (new) + backend/services/rag_service.py
+	Exit gate: collection naming aligned; script indexes SQL nodes idempotently; rag_service.search_knowledge("healthcare compliance") returns > 5 results after indexing
 	DESKTOP+VM
 	C-2
-	Add startup check: if knowledge_nodes empty → trigger background re-index thread
+	OPEN — Add startup check: if knowledge_nodes empty → trigger background re-index thread
 	app.py _initialize_storage_collections()
 	After fresh install, /health shows chromadb non-empty within 60s
 	DESKTOP+VM
 	C-3
-	Wire L3 RAG evidence retrieval into TruthCoreEngine deep_research step
+	OPEN — Wire L3 RAG evidence retrieval into TruthCoreEngine deep_research step
 	backend/truth_engine/truth_core/engine.py + rag_service.py
 	working_context[evidence] list non-empty; source node IDs traceable in audit event
 	DESKTOP+VM
 	C-4
-	Wire L4 persona profile cache: check persona_profiles before DSQP construction
+	OPEN — Wire L4 persona profile cache: check persona_profiles before DSQP construction
 	backend/truth_engine/truth_core/personas.py + persona_construction_service.py
 	Cache hit returns prior ExpandedPersona in < 5ms; miss triggers construction + stores result
 	DESKTOP+VM
 	C-5
-	Wire L6 citation validation: TrustValidationGateway searches citation_cache
+	OPEN — Wire L6 citation validation: TrustValidationGateway searches citation_cache
 	backend/truth_engine/truth_gate/trust_validation_gateway.py
 	KA-026 pulls from citation_cache; confidence score improves when prior citation found
 	DESKTOP+VM
 	C-6
-	Wire L9 historical drift: MetaReasoningController searches audit_evidence
+	OPEN — Wire L9 historical drift: MetaReasoningController searches audit_evidence
 	backend/truth_engine/truth_core/meta_reasoning_controller.py
 	Drift detection compares vs top-3 semantically similar past sessions
 	DESKTOP+VM
 	C-7
-	Lane B L10: index new reasoning traces into audit_evidence + knowledge_nodes
+	OPEN — Lane B L10: index new reasoning traces into audit_evidence + knowledge_nodes
 	backend/knowledge_algorithms/l10/ (Phase E dependency)
 	Every RELEASE-gated trace indexed within 5s of L10 completion
 	DESKTOP+VM
 	C-8
-	Add sentence-transformers to requirements.txt + PyInstaller hiddenimports (offline embedding)
+	OPEN — Add sentence-transformers to requirements.txt + PyInstaller hiddenimports (offline embedding)
 	requirements.txt + backend.spec
 	sentence-transformers installs; all-MiniLM-L6-v2 loads without network; embedding_layer_3 in logs
 	DESKTOP
 	C-9
-	Add ChromaDB collection doc-counts to IPC database-health channel
+	OPEN — Add ChromaDB collection doc-counts to IPC database-health channel
 	frontend/electron/main.ts
 	database-health IPC returns chroma_collections with per-collection document counts
 	DESKTOP
