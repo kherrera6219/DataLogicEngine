@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "name": "compliance",
+      "coordinate": "compliance",
+      "keywords": ["compliance", "audit", "control", "policy"]
+    },
+    {
+      "name": "acquisition",
+      "coordinate": "acquisition",
+      "keywords": ["acquisition", "procurement", "contract", "solicitation"]
+    },
+    {
+      "name": "risk",
+      "coordinate": "risk",
+      "keywords": ["risk", "threat", "criticality"]
+    }
+  ]
+}

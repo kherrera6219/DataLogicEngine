@@ -119,10 +119,10 @@ class UnifiedCoordinate:
         11: "Spiderweb Compliance Expert",
         12: "Location",
         13: "Temporal",
-        14: "Risk & Confidence",
-        15: "Federated Intelligence",
-        16: "Arrows of Time",
-        17: "Observability & Analytics"
+        14: "Acquisition Lifecycle",
+        15: "Risk & Threat Context",
+        16: "Ethics, Trust & Criticality",
+        17: "FROST-Mode Selector"
     }
     
     AXIS_FORMATS = {
@@ -139,10 +139,10 @@ class UnifiedCoordinate:
         11: "11.<ComplianceProfileID>",
         12: "12.<LocationID>[.<SubLocation>]",
         13: "13.<TimeID>[.<Period>]",
-        14: "14.<RiskLevel>.<ConfidenceScore>[.<ValidationMetric>]",
-        15: "15.<SystemID>.<SyncState>[.<DistributedNode>]",
-        16: "16.<CausalityChain>.<TemporalVector>[.<PredictiveModel>]",
-        17: "17.<MetricID>.<AuditTrailID>[.<PerformanceMarker>]"
+        14: "14.<LifecycleStage>[.<AcquisitionInstrument>...]",
+        15: "15.<CompositeRisk>[.<RiskDimension>...]",
+        16: "16.<Criticality>[.<EthicsFramework>...]",
+        17: "17.<Tier>[.<FROSTDepth>.<TruthEngineMode>]"
     }
     
     def __post_init__(self):
@@ -468,13 +468,13 @@ class CoordinateResolver:
         elif axis_num == 13:
             result['temporal_context'] = self._resolve_temporal(axis_coord)
         elif axis_num == 14:
-            result['risk_context'] = self._resolve_risk(axis_coord)
+            result['acquisition_lifecycle_context'] = self._resolve_acquisition_lifecycle(axis_coord)
         elif axis_num == 15:
-            result['federated_context'] = self._resolve_federated(axis_coord)
+            result['risk_threat_context'] = self._resolve_risk_threat(axis_coord)
         elif axis_num == 16:
-            result['arrows_of_time_context'] = self._resolve_arrows_of_time(axis_coord)
+            result['ethics_trust_context'] = self._resolve_ethics_trust(axis_coord)
         elif axis_num == 17:
-            result['observability_context'] = self._resolve_observability(axis_coord)
+            result['frost_mode_context'] = self._resolve_frost_mode(axis_coord)
         
         return result
     
@@ -568,47 +568,74 @@ class CoordinateResolver:
             'type': 'temporal'
         }
     
-    def _resolve_risk(self, coord: AxisCoordinate) -> Dict[str, Any]:
-        """Resolve Axis 14 (Risk & Confidence) context."""
+    def _resolve_acquisition_lifecycle(self, coord: AxisCoordinate) -> Dict[str, Any]:
+        """Resolve Axis 14 (Acquisition Lifecycle) context."""
         levels = coord.levels
+        stages = {
+            1: "market_research",
+            2: "solicitation",
+            3: "evaluation",
+            4: "award",
+            5: "performance",
+            6: "closeout",
+            7: "dispute_or_protest",
+        }
         return {
-            'risk_level': levels[0] if levels else None,
-            'confidence_score': levels[1] / 100 if len(levels) > 1 else None,
-            'validation_metric': levels[2] if len(levels) > 2 else None,
-            'risk_classification': self._classify_risk_level(levels[0] if levels else 0),
-            'type': 'risk_confidence'
+            'lifecycle_stage_id': levels[0] if levels else None,
+            'lifecycle_stage': stages.get(levels[0], 'unknown') if levels else 'unknown',
+            'instrument_code': levels[1] if len(levels) > 1 else None,
+            'substage': levels[2] if len(levels) > 2 else None,
+            'type': 'acquisition_lifecycle'
         }
     
-    def _resolve_federated(self, coord: AxisCoordinate) -> Dict[str, Any]:
-        """Resolve Axis 15 (Federated Intelligence) context."""
+    def _resolve_risk_threat(self, coord: AxisCoordinate) -> Dict[str, Any]:
+        """Resolve Axis 15 (Risk & Threat Context) context."""
         levels = coord.levels
-        sync_states = {0: 'disconnected', 1: 'syncing', 2: 'synchronized', 3: 'propagating'}
+        dimensions = {
+            1: "technical",
+            2: "security",
+            3: "compliance",
+            4: "financial",
+            5: "schedule",
+            6: "reputational",
+        }
+        composite = min(max((levels[0] if levels else 0) / 100, 0), 1)
         return {
-            'system_id': levels[0] if levels else None,
-            'sync_state': sync_states.get(levels[1], 'unknown') if len(levels) > 1 else None,
-            'distributed_node': levels[2] if len(levels) > 2 else None,
-            'type': 'federated_intelligence'
+            'composite_score': composite,
+            'risk_band': self._classify_risk_level(levels[0] if levels else 0),
+            'dominant_dimension': dimensions.get(levels[1], 'unknown') if len(levels) > 1 else None,
+            'dimension_id': levels[1] if len(levels) > 1 else None,
+            'type': 'risk_threat_context'
         }
     
-    def _resolve_arrows_of_time(self, coord: AxisCoordinate) -> Dict[str, Any]:
-        """Resolve Axis 16 (Arrows of Time) context."""
+    def _resolve_ethics_trust(self, coord: AxisCoordinate) -> Dict[str, Any]:
+        """Resolve Axis 16 (Ethics, Trust & Criticality) context."""
         levels = coord.levels
+        categories = {1: "LOW", 2: "MEDIUM", 3: "HIGH", 4: "CRITICAL"}
+        frameworks = {1: "EU_AI_ACT", 2: "NIST_AI_RMF", 3: "SOC2", 4: "HIPAA", 5: "ISO_42001"}
         return {
-            'causality_chain': levels[0] if levels else None,
-            'temporal_vector': levels[1] if len(levels) > 1 else None,
-            'predictive_model': levels[2] if len(levels) > 2 else None,
-            'direction': 'forward' if (levels[1] if len(levels) > 1 else 0) > 0 else 'backward',
-            'type': 'arrows_of_time'
+            'criticality_id': levels[0] if levels else None,
+            'criticality': categories.get(levels[0], 'LOW') if levels else 'LOW',
+            'ethics_framework': frameworks.get(levels[1], 'GENERAL') if len(levels) > 1 else 'GENERAL',
+            'requires_human_review': (levels[0] if levels else 1) >= 3,
+            'type': 'ethics_trust_criticality'
         }
     
-    def _resolve_observability(self, coord: AxisCoordinate) -> Dict[str, Any]:
-        """Resolve Axis 17 (Observability & Analytics) context."""
+    def _resolve_frost_mode(self, coord: AxisCoordinate) -> Dict[str, Any]:
+        """Resolve Axis 17 (FROST-Mode Selector) context."""
         levels = coord.levels
+        modes = {
+            1: {"tier": "trivial", "frost_layer_depth": 2, "truth_engine_mode": "direct"},
+            2: {"tier": "moderate", "frost_layer_depth": 4, "truth_engine_mode": "standard"},
+            3: {"tier": "high_stakes", "frost_layer_depth": 7, "truth_engine_mode": "regulatory_strict"},
+            4: {"tier": "extreme", "frost_layer_depth": 10, "truth_engine_mode": "full_refinement"},
+            5: {"tier": "autonomous", "frost_layer_depth": 10, "truth_engine_mode": "governed_agentic"},
+        }
+        selected = modes.get(levels[0] if levels else 2, modes[2])
         return {
-            'metric_id': levels[0] if levels else None,
-            'audit_trail_id': levels[1] if len(levels) > 1 else None,
-            'performance_marker': levels[2] if len(levels) > 2 else None,
-            'type': 'observability_analytics'
+            **selected,
+            'tier_id': levels[0] if levels else 2,
+            'type': 'frost_mode_selector'
         }
     
     def _classify_risk_level(self, level: int) -> str:

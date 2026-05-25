@@ -28,6 +28,10 @@ Date: 2026-05-23
 | `docker compose up -d neo4j` | Passed | Started DataLogicEngine-local Neo4j as `ukg-neo4j` on host ports `7476` and `7690` to avoid existing local stack conflicts. |
 | `python scripts/seed_neo4j.py --wipe` | Passed | Seeded the configured local Neo4j instance with 20 `Pillar` nodes and 18 `HONEYCOMB_BRIDGE` edges. |
 | `python -c "import app; from backend.storage import get_uskd_memory_graph; print(get_uskd_memory_graph().stats().to_dict())"` | Passed | App startup refreshed the USKD memory graph from Neo4j: 20 nodes, 18 edges, 20 pillar nodes. |
+| `python -m pytest tests\unit\test_axis_alignment.py -q` | Passed | 6 tests passed for Phase B canonical axis names, Axis 14-17 managers, CoordinateResolver contexts, Axis 17 FROST bridge, SDK offline taxonomy resolver, legacy metadata storage, and TraceRun FROST fields. |
+| `python -m ruff check core\coordinate_system.py core\axes\axis_system.py core\axes\axis14_acquisition_lifecycle.py core\axes\axis15_risk_threat.py core\axes\axis16_ethics_trust.py core\axes\axis17_frost_mode.py backend\truth_engine\truth_core\engine.py models.py sdk\UKG_Python_SDK\ukg_sdk\coordinates17.py tests\unit\test_axis_alignment.py` | Passed | Phase B touched Python files pass Ruff. |
+| `python -m py_compile core\coordinate_system.py core\axes\axis_system.py core\axes\axis14_acquisition_lifecycle.py core\axes\axis15_risk_threat.py core\axes\axis16_ethics_trust.py core\axes\axis17_frost_mode.py backend\truth_engine\truth_core\engine.py models.py sdk\UKG_Python_SDK\ukg_sdk\coordinates17.py tests\unit\test_axis_alignment.py` | Passed | Phase B touched Python files compile. |
+| `DATABASE_URL=sqlite:///reports/phase_b_migration.sqlite python -m flask db upgrade` | Passed | Temporary SQLite migration smoke ran all Alembic revisions through `e2f3a4b5c6d7`; `trace_runs` contained `frost_depth` and `truth_engine_mode`; temporary DB was removed after verification. |
 
 ## Phase 1 / A Local Code Evidence
 
@@ -56,6 +60,18 @@ Completed locally on 2026-05-24:
 - Wired L10 Lane B to persist release-authorized knowledge into the NetworkX graph and Neo4j merge helpers after the promotion gate authorizes commit.
 - Added `networkx` to `backend.spec` hidden imports.
 - Local validation proves code paths and fallbacks. A DataLogicEngine-local Neo4j container is configured via ignored `.env`, seeded, and verified with 20 pillar nodes and 18 graph edges. SQL `KnowledgeGraphNode` parity still depends on initializing the local SQL graph tables.
+
+## Phase B / Axis Alignment Local Code Evidence
+
+Completed locally on 2026-05-25:
+
+- Updated `UnifiedCoordinate.AXIS_NAMES` and coordinate resolver contexts so Axes 14-17 use Acquisition Lifecycle, Risk & Threat Context, Ethics/Trust/Criticality, and FROST-Mode Selector.
+- Added dedicated canonical axis managers for Axis 14-17 and registered them in `AxisSystem`.
+- Wired Axis 17 FROST mode context into `TruthCoreEngine.get_workflow_steps()`.
+- Added `TraceRun.frost_depth` and `TraceRun.truth_engine_mode` with an Alembic migration using `batch_alter_table`.
+- Kept legacy provenance/object type/validation/security concepts in `KnowledgeGraphNode.node_metadata["legacy_axis_metadata"]`.
+- Updated the SDK `CoordinateResolver17` to use bundled offline JSON taxonomy files.
+- Added `tests/unit/test_axis_alignment.py` to lock the aligned definitions and resolver behavior.
 
 ## Release-Runner Or Manual Evidence Still Required
 

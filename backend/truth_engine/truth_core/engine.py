@@ -67,8 +67,21 @@ class TruthCoreEngine:
         'final_safety_gate',         # Layer 10
     ]
 
-    def get_workflow_steps(self, tier: str) -> List[str]:
-        """Dynamically define steps for each complexity tier."""
+    def get_workflow_steps(
+        self,
+        tier: str,
+        axis17_context: Optional[Dict[str, Any]] = None,
+    ) -> List[str]:
+        """Dynamically define steps for each complexity tier.
+
+        Phase B wires Axis 17 as the FROST mode selector. When supplied, its
+        `truth_engine_mode` can force the full regulatory/refinement path.
+        """
+        if axis17_context:
+            mode = str(axis17_context.get("truth_engine_mode") or "").lower()
+            if mode in {"regulatory_strict", "full_refinement", "governed_agentic"}:
+                tier = "high_stakes" if mode == "regulatory_strict" else "extreme"
+
         if tier == 'trivial':
             return ['intent_parsing', 'final_safety_gate']
         elif tier == 'moderate':

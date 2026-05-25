@@ -1,5 +1,5 @@
 """
-17‑Axis coordinate resolver.
+17-axis coordinate resolver.
 
 This module defines a placeholder implementation of a resolver that maps
 queries onto the 17‑axis coordinate system used by UKG.  The real resolver
@@ -8,6 +8,8 @@ and context, consult axis schemas and return a structured coordinate.
 """
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any, Dict
 
 
@@ -44,25 +46,23 @@ class CoordinateResolver17:
     external files, the resolver falls back to empty dictionaries.
     """
 
-    def __init__(self, axis2_json: str = "AXIS2_UPDATED_WITH_IDS.json", pillar_json: str = "PL1_107_UPDATED_WITH_IDS.json") -> None:
-        import json
-        import os
+    def __init__(self, axis2_json: str | None = None, pillar_json: str | None = None) -> None:
+        # Load bundled offline taxonomy by default. Explicit paths still work for
+        # tests or generated taxonomy refreshes.
+        data_dir = Path(__file__).resolve().parent / "data"
+        axis2_path = Path(axis2_json) if axis2_json else data_dir / "axis2_catalog.json"
+        pillar_path = Path(pillar_json) if pillar_json else data_dir / "pillar_catalog.json"
+        self.axis_data = self._load_json(axis2_path)
+        self.pillar_data = self._load_json(pillar_path)
 
-        # Attempt to load axis definitions; ignore errors silently
-        self.axis_data = {}
-        self.pillar_data = {}
-        if os.path.exists(axis2_json):
-            try:
-                with open(axis2_json, "r", encoding="utf-8") as f:
-                    self.axis_data = json.load(f)
-            except Exception:
-                self.axis_data = {}
-        if os.path.exists(pillar_json):
-            try:
-                with open(pillar_json, "r", encoding="utf-8") as f:
-                    self.pillar_data = json.load(f)
-            except Exception:
-                self.pillar_data = {}
+    @staticmethod
+    def _load_json(path: Path) -> dict[str, Any]:
+        try:
+            if path.exists():
+                return json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+        return {}
 
     def resolve(self, input_data: str | Dict[str, Any]) -> Coordinate:
         """
@@ -100,25 +100,32 @@ class CoordinateResolver17:
             "axis_11": "compliance",
             "axis_12": "global",
             "axis_13": "present",
-            "axis_14": "risk_unscored",
-            "axis_15": "federated_standby",
-            "axis_16": "causality_unbound",
-            "axis_17": "telemetry_inactive",
+            "axis_14": "AL1",
+            "axis_15": "risk_0.15",
+            "axis_16": "LOW",
+            "axis_17": "moderate",
+            "active_axes": [],
         }
+        # Simple pillar matching from bundled taxonomy.
+        for item in self.pillar_data.get("items", []):
+            terms = [str(item.get("name", "")).lower(), *[str(t).lower() for t in item.get("keywords", [])]]
+            if any(term and term in text for term in terms):
+                axes["axis_1"] = item.get("coordinate", axes["axis_1"])
+                axes["active_axes"].append(1)
+                break
+
         # Simple sector matching using loaded axis2 data
         if self.axis_data:
-            # Flatten keywords from axis definitions (assuming sheet structure)
             keywords = {}
-            sheets = self.axis_data.get("sheets", {})
-            for sheet in sheets.values():
-                for row in sheet.get("rows", {}).values():
-                    name = str(row.get("value", "")).lower()
-                    coords = row.get("coordinate", "")
-                    if name:
-                        keywords[name] = coords
-            for word in text.split():
-                if word in keywords:
-                    axes["axis_2"] = keywords[word]
+            for item in self.axis_data.get("items", []):
+                coord = item.get("coordinate", "")
+                for term in [item.get("name", ""), *item.get("keywords", [])]:
+                    if term:
+                        keywords[str(term).lower()] = coord
+            for term, coord in keywords.items():
+                if term in text:
+                    axes["axis_2"] = coord
+                    axes["active_axes"].append(2)
                     break
         # Simple location detection
         for loc in ["us", "europe", "asia", "africa"]:
@@ -132,5 +139,18 @@ class CoordinateResolver17:
             axes["axis_13"] = "past"
         elif any(t in text for t in ["tomorrow", "next week", "next year"]):
             axes["axis_13"] = "future"
+
+        if any(term in text for term in ["far", "dfars", "solicitation", "rfp", "idiq", "clin"]):
+            axes["axis_14"] = "AL2"
+            axes["active_axes"].append(14)
+        if any(term in text for term in ["breach", "security", "compliance", "audit", "risk"]):
+            axes["axis_15"] = "risk_0.70"
+            axes["active_axes"].append(15)
+        if any(term in text for term in ["medical", "patient", "critical", "regulated"]):
+            axes["axis_16"] = "CRITICAL"
+            axes["active_axes"].append(16)
+        if any(term in text for term in ["compliance", "audit", "regulated", "high stakes"]):
+            axes["axis_17"] = "high_stakes"
+            axes["active_axes"].append(17)
             
         return Coordinate(axes)

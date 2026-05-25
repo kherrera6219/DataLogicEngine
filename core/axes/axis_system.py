@@ -18,10 +18,10 @@ The 17-Axis system is structured as follows:
 - Axis 11: Compliance Expert
 - Axis 12: Location
 - Axis 13: Temporal
-- Axis 14: Risk & Impact
-- Axis 15: Performance & Optimization
-- Axis 16: Ethics & Bias
-- Axis 17: Learning & Adaptation
+- Axis 14: Acquisition Lifecycle
+- Axis 15: Risk & Threat Context
+- Axis 16: Ethics, Trust & Criticality
+- Axis 17: FROST-Mode Selector
 """
 
 import logging
@@ -46,10 +46,10 @@ from core.axes.axis11_compliance_expert import ComplianceExpertAxis as Complianc
 from core.axes.axis12_location import LocationAxis
 from core.axes.axis13_time import TimeAxis
 
-from core.axes.axis14_provenance import SourceProvenanceAxis
-from core.axes.axis15_object_type import ObjectTypeAxis
-from core.axes.axis16_validation_state import ValidationStateAxis
-from core.axes.axis17_security import SecurityAxis
+from core.axes.axis14_acquisition_lifecycle import AcquisitionLifecycleAxis
+from core.axes.axis15_risk_threat import RiskThreatAxis
+from core.axes.axis16_ethics_trust import EthicsTrustAxis
+from core.axes.axis17_frost_mode import FrostModeAxis
 
 from core.coordinate_system import (
     UnifiedCoordinateSystem, 
@@ -94,10 +94,10 @@ class AxisSystem:
             11: {"name": "Compliance Expert", "description": "Internal policy & controls"},
             12: {"name": "Location", "description": "Jurisdiction, geography, authority"},
             13: {"name": "Temporal", "description": "Time, validity window, regulatory versioning"},
-            14: {"name": "Source Provenance", "description": "Origin, lineage, chain-of-custody"},
-            15: {"name": "Object Type", "description": "Structure (statute, rule, guidance, claim)"},
-            16: {"name": "Validation State", "description": "Lifecycle maturity (raw -> certified)"},
-            17: {"name": "Security & Access", "description": "Visibility and access control policies"}
+            14: {"name": "Acquisition Lifecycle", "description": "AL1-AL7 acquisition stage routing"},
+            15: {"name": "Risk & Threat Context", "description": "Six-dimensional risk decomposition"},
+            16: {"name": "Ethics, Trust & Criticality", "description": "Sensitivity and ethics framework routing"},
+            17: {"name": "FROST-Mode Selector", "description": "Tier to FROST depth and TruthCore mode bridge"}
         }
 
         # Initialize axes
@@ -176,17 +176,17 @@ class AxisSystem:
             self.register_axis_manager(13, self.time_axis)
 
             # Group IV: Governance (Axes 14-17)
-            self.provenance_axis = SourceProvenanceAxis()
-            self.register_axis_manager(14, self.provenance_axis)
+            self.acquisition_lifecycle_axis = AcquisitionLifecycleAxis()
+            self.register_axis_manager(14, self.acquisition_lifecycle_axis)
             
-            self.object_type_axis = ObjectTypeAxis()
-            self.register_axis_manager(15, self.object_type_axis)
+            self.risk_threat_axis = RiskThreatAxis()
+            self.register_axis_manager(15, self.risk_threat_axis)
             
-            self.validation_axis = ValidationStateAxis()
-            self.register_axis_manager(16, self.validation_axis)
+            self.ethics_trust_axis = EthicsTrustAxis()
+            self.register_axis_manager(16, self.ethics_trust_axis)
             
-            self.security_axis = SecurityAxis()
-            self.register_axis_manager(17, self.security_axis)
+            self.frost_mode_axis = FrostModeAxis()
+            self.register_axis_manager(17, self.frost_mode_axis)
             
             self.logging.info(f"[{datetime.now()}] Axis System initialized successfully")
 

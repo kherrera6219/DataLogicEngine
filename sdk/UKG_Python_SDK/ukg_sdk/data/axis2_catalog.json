@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "name": "healthcare",
+      "coordinate": "healthcare",
+      "keywords": ["healthcare", "medical", "patient", "hipaa"]
+    },
+    {
+      "name": "government acquisition",
+      "coordinate": "government_acquisition",
+      "keywords": ["far", "dfars", "solicitation", "rfp", "idiq", "clin", "contract"]
+    },
+    {
+      "name": "cybersecurity",
+      "coordinate": "cybersecurity",
+      "keywords": ["security", "breach", "nist", "fedramp", "soc 2"]
+    }
+  ]
+}

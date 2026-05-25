@@ -471,6 +471,30 @@ class KnowledgeGraphNode(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
 
+    def set_axis_legacy_metadata(
+        self,
+        *,
+        provenance: Optional[str] = None,
+        object_type: Optional[str] = None,
+        validation_state: Optional[str] = None,
+        security_classification: Optional[str] = None,
+    ) -> None:
+        """Store retired Axis 14-17 concepts as metadata, not coordinate columns."""
+        metadata = dict(self.node_metadata or {})
+        legacy = dict(metadata.get("legacy_axis_metadata") or {})
+        updates = {
+            "provenance": provenance,
+            "object_type": object_type,
+            "validation_state": validation_state,
+            "security_classification": security_classification,
+        }
+        for key, value in updates.items():
+            if value is not None:
+                legacy[key] = value
+        if legacy:
+            metadata["legacy_axis_metadata"] = legacy
+        self.node_metadata = metadata
+
     def __repr__(self) -> str:
         return f'<KnowledgeGraphNode {self.node_id or self.uid}>'
 
@@ -979,6 +1003,8 @@ class TraceRun(db.Model):
     truthgate_decision = db.Column(db.String(16), nullable=True)  # allow/block/escalate/hitl
     token_cost = db.Column(db.Integer, nullable=True)
     latency_ms = db.Column(db.Integer, nullable=True)
+    frost_depth = db.Column(db.Integer, nullable=True)
+    truth_engine_mode = db.Column(db.String(50), nullable=True)
 
     # Relationships
     stages = db.relationship('TraceStage', backref='run', lazy='dynamic', cascade='all, delete-orphan')
@@ -1019,6 +1045,8 @@ class TraceRun(db.Model):
                 'truthgate_decision': self.truthgate_decision,
                 'token_cost': self.token_cost,
                 'latency_ms': self.latency_ms,
+                'frost_depth': self.frost_depth,
+                'truth_engine_mode': self.truth_engine_mode,
             },
         }
 

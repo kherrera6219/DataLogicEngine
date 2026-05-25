@@ -17,7 +17,7 @@ Source report: `reports/production-code-review-2026-05-23.md`
 
 Validation status: Production code-review remediation phases 1 through 4 are complete as of 2026-05-23.
 
-Master completion plan status: Phase 1 / A local code-contract fixes, provider-backed staging evidence, installer smoke evidence, and Phase 2 / DB-N local implementation are complete as of 2026-05-24. Remaining Phase 1 release gates are external/manual: NVDA screen-reader pass, trusted production signing, final CI/security/code-owner/rollback/DR release evidence. Phase 2 live Neo4j is configured locally through ignored `.env`, seeded, and verified; SQL graph-node parity still depends on initializing the local SQL graph tables.
+Master completion plan status: Phase 1 / A local code-contract fixes, provider-backed staging evidence, installer smoke evidence, Phase 2 / DB-N local implementation, and Phase B / Axis Alignment are complete as of 2026-05-25. Remaining Phase 1 release gates are external/manual: NVDA screen-reader pass, trusted production signing, final CI/security/code-owner/rollback/DR release evidence. Phase 2 live Neo4j is configured locally through ignored `.env`, seeded, and verified; SQL graph-node parity still depends on initializing the local SQL graph tables.
 
 | Item | Code validation | Status |
 | --- | --- | --- |
@@ -33,6 +33,7 @@ Master completion plan status: Phase 1 / A local code-contract fixes, provider-b
 | Phase 1 provider-backed staging | `scripts/validate_phase1_provider_staging.py` runs a live-provider Tier 2 gateway request with `IS_DESKTOP_APP=true` and verifies the audit footer plus a SQLite `TruthAuditEvent` row. | Done |
 | Phase 1 installer smoke | `scripts/windows/run_packaging_smoke.ps1 -Mode installer` verifies packaged portable launch plus silent installer/uninstaller behavior; Electron source sets desktop mode and the per-user SQLite database path. | Done |
 | Phase 2 USKD memory graph implementation | `backend/storage/uskd_memory_graph.py`, `scripts/sync_nodes_to_neo4j.py`, `GraphStore` cached traversal helpers, TruthCore graph context bootstrap, Layer 2 live graph preference, L10 Lane B authorized graph commit, and `backend.spec` NetworkX hidden import are implemented and locally validated. | Done |
+| Phase B axis alignment | Axes 14-17 now use the canonical Acquisition Lifecycle, Risk & Threat Context, Ethics/Trust/Criticality, and FROST-Mode Selector definitions across coordinate system, axis managers, SDK resolver, TraceRun, and tests. | Done |
 
 Phased update plan:
 

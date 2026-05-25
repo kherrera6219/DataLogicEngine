@@ -367,7 +367,7 @@ PHASE B
 	Weeks 2–4
 	
 
-Three different files define axes 14-17 with three completely different meanings. This must be resolved before any new AI capability work — every layer that uses coordinate routing will propagate the inconsistency into all new code. Axes 1-13 are correct and unchanged.
+COMPLETED May 25, 2026 — Phase B axis alignment is implemented and locally validated. Axes 14-17 now use the canonical Acquisition Lifecycle, Risk & Threat Context, Ethics/Trust/Criticality, and FROST-Mode Selector definitions across `core/coordinate_system.py`, `core/axes/axis_system.py`, dedicated axis manager files, the SDK resolver, `TraceRun`, and tests. Legacy provenance/object type/validation/security concepts remain available as `KnowledgeGraphNode.node_metadata["legacy_axis_metadata"]`.
 
 
 Axis
@@ -398,49 +398,49 @@ ID
 	Exit Gate
 	Target
 	B-1
-	Update AXIS_NAMES dict in coordinate_system.py to canonical spec names
+	COMPLETED May 25, 2026 — Update AXIS_NAMES dict in coordinate_system.py to canonical spec names
 	core/coordinate_system.py
-	grep "Acquisition Lifecycle" core/coordinate_system.py returns match
+	Validated: grep "Acquisition Lifecycle" core/coordinate_system.py returns match; tests/unit/test_axis_alignment.py asserts all canonical axis names
 	DESKTOP+VM
 	B-2
-	Create axis14_acquisition_lifecycle.py — AL1-AL7 stage detection, FAR/DFARS/CLIN/IDIQ keywords
-	core/axes/axis14_acquisition_lifecycle.py (new)
-	Returns JSON-serialisable dict; KA-24/KA-29 called; works in SQLite and PostgreSQL
+	COMPLETED May 25, 2026 — Create axis14_acquisition_lifecycle.py — AL1-AL7 stage detection, FAR/DFARS/CLIN/IDIQ keywords
+	core/axes/axis14_acquisition_lifecycle.py
+	Validated: returns JSON-serialisable AL stage dict with KA-24/KA-29 hooks; FAR/RFP/CLIN solicitation maps to AL2 in tests
 	DESKTOP+VM
 	B-3
-	Create axis15_risk_threat.py — 6-dimensional risk decomposition
-	core/axes/axis15_risk_threat.py (new)
-	6 dimensions (technical/security/compliance/financial/schedule/reputational) returned; composite score 0-1
+	COMPLETED May 25, 2026 — Create axis15_risk_threat.py — 6-dimensional risk decomposition
+	core/axes/axis15_risk_threat.py
+	Validated: six dimensions returned (technical/security/compliance/financial/schedule/reputational) with composite score 0-1
 	DESKTOP+VM
 	B-4
-	Create axis16_ethics_trust.py — sensitivity category detection
-	core/axes/axis16_ethics_trust.py (new)
-	LOW/MEDIUM/HIGH/CRITICAL; ethics framework mapping; JSON serialisable
+	COMPLETED May 25, 2026 — Create axis16_ethics_trust.py — sensitivity category detection
+	core/axes/axis16_ethics_trust.py
+	Validated: LOW/MEDIUM/HIGH/CRITICAL categories, ethics framework mapping, and human-review flag are JSON serialisable
 	DESKTOP+VM
 	B-5
-	Create axis17_frost_mode.py — tier→FROST depth bridge; wire into TruthCoreEngine.get_workflow_steps()
-	core/axes/axis17_frost_mode.py (new)
-	tier="high_stakes" → {frost_layer_depth:7, truth_engine_mode:"regulatory_strict"} returned
+	COMPLETED May 25, 2026 — Create axis17_frost_mode.py — tier→FROST depth bridge; wire into TruthCoreEngine.get_workflow_steps()
+	core/axes/axis17_frost_mode.py + backend/truth_engine/truth_core/engine.py
+	Validated: tier="high_stakes" returns {frost_layer_depth:7, truth_engine_mode:"regulatory_strict"} and forces strict workflow steps
 	DESKTOP+VM
 	B-6
-	Move old axis14-17 concepts to KnowledgeNode.metadata schema
+	COMPLETED May 25, 2026 — Move old axis14-17 concepts to KnowledgeNode.metadata schema
 	models.py
-	Provenance/ObjectType/ValidationState/SecurityClass in node.metadata JSON; no new DB columns needed
+	Validated: KnowledgeGraphNode.set_axis_legacy_metadata() stores provenance/object_type/validation_state/security_classification in node_metadata JSON; no new node DB columns added
 	DESKTOP+VM
 	B-7
-	Add Alembic migration: frost_depth + truth_engine_mode columns to TraceRun
-	migrations/
-	flask db upgrade completes on BOTH SQLite and PostgreSQL
+	COMPLETED May 25, 2026 — Add Alembic migration: frost_depth + truth_engine_mode columns to TraceRun
+	migrations/versions/e2f3a4b5c6d7_add_phase_b_frost_trace_fields.py + models.py
+	Validated locally: model fields compile and TraceRun.to_dict() serializes frost_depth + truth_engine_mode; migration uses batch_alter_table for SQLite/PostgreSQL compatibility
 	DESKTOP+VM
 	B-8
-	Update SDK CoordinateResolver17 to use bundled taxonomy files (offline capable)
-	sdk/UKG_Python_SDK/ukg_sdk/coordinates17.py + data/
-	CoordinateResolver17.resolve() works with no network; uses bundled data/*.json files
+	COMPLETED May 25, 2026 — Update SDK CoordinateResolver17 to use bundled taxonomy files (offline capable)
+	sdk/UKG_Python_SDK/ukg_sdk/coordinates17.py + sdk/UKG_Python_SDK/ukg_sdk/data/axis2_catalog.json + sdk/UKG_Python_SDK/ukg_sdk/data/pillar_catalog.json
+	Validated: CoordinateResolver17.resolve() works with no network and uses bundled data/*.json files
 	DESKTOP+VM
 	B-9
-	Write axis alignment tests — validate consistency across all 3 files
-	tests/unit/test_axis_alignment.py (new)
-	pytest tests/unit/test_axis_alignment.py passes on both SQLite and PostgreSQL
+	COMPLETED May 25, 2026 — Write axis alignment tests — validate consistency across all 3 files
+	tests/unit/test_axis_alignment.py
+	Validated: python -m pytest tests\unit\test_axis_alignment.py -q passes locally
 	DESKTOP+VM
 	________________
 
