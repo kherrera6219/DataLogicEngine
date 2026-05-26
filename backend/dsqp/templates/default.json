@@ -1,0 +1,12 @@
+{
+  "persona_type": "default",
+  "questions": {
+    "job_role": "What concrete professional role should own this query for this persona axis?",
+    "education": "What formal education best supports this role?",
+    "certifications": "What credentials, licenses, or attestations are relevant?",
+    "skills": "What task skills and domain skills are required for this query?",
+    "training": "What training prepares this persona for the current risk and evidence context?",
+    "career_path": "What professional experience makes this persona credible for this task?",
+    "related_jobs": "Which adjacent roles should inform blind-spot coverage?"
+  }
+}

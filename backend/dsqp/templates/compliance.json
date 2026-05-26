@@ -1,0 +1,12 @@
+{
+  "persona_type": "compliance",
+  "questions": {
+    "job_role": "Which compliance governance role should own this query?",
+    "education": "What compliance or risk education grounds this role?",
+    "certifications": "What audit, risk, or compliance credentials are relevant?",
+    "skills": "What control, auditability, and remediation skills are required?",
+    "training": "What compliance control training should this persona have?",
+    "career_path": "What compliance career path gives this role credibility?",
+    "related_jobs": "Which adjacent assurance roles should inform blind-spot coverage?"
+  }
+}

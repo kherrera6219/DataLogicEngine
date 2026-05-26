@@ -120,6 +120,13 @@ async def _run(args: argparse.Namespace) -> int:
         footer_present = "[UKG Audit Trace]" in (response.content or "")
         tier = str(response.tier or "")
         audit_row_created = after > before
+        latest_event_data = latest.event_data if latest else {}
+        dsqp_chain = latest_event_data.get("dsqp_chain") if isinstance(latest_event_data, dict) else None
+        dsqp_profiles = {}
+        if isinstance(dsqp_chain, dict):
+            for stage_payload in dsqp_chain.values():
+                if isinstance(stage_payload, dict):
+                    dsqp_profiles.update(stage_payload.get("profiles") or {})
 
         report.update(
             {
@@ -132,6 +139,8 @@ async def _run(args: argparse.Namespace) -> int:
                 "truth_audit_events_before": before,
                 "truth_audit_events_after": after,
                 "truth_audit_event_created": audit_row_created,
+                "dsqp_chain_present": bool(dsqp_chain),
+                "dsqp_profile_axes": sorted(dsqp_profiles),
                 "latest_truth_audit_event": latest.to_dict() if latest else None,
                 "usage": response.usage,
                 "warnings": response.warnings,
@@ -150,6 +159,8 @@ async def _run(args: argparse.Namespace) -> int:
         failures.append("missing [UKG Audit Trace] footer")
     if not audit_row_created:
         failures.append("TruthAuditEvent row was not created")
+    if args.require_dsqp_chain and not report.get("dsqp_chain_present"):
+        failures.append("TruthAuditEvent row does not include dsqp_chain")
 
     if failures:
         print("Phase 1 provider staging validation failed:")
@@ -162,6 +173,8 @@ async def _run(args: argparse.Namespace) -> int:
     print(f"Provider/model: {report['provider_used']} / {report['model_used']}")
     print(f"Tier: {tier}")
     print(f"TruthAuditEvent rows: {before} -> {after}")
+    if args.require_dsqp_chain:
+        print(f"DSQP profile axes: {', '.join(report['dsqp_profile_axes'])}")
     print(f"Report: {args.report_path}")
     return 0
 
@@ -176,6 +189,7 @@ def main() -> int:
     parser.add_argument("--database-path", default="reports/phase1_provider_staging.sqlite")
     parser.add_argument("--report-path", default="reports/phase1_provider_staging_report.json")
     parser.add_argument("--reset-database", action="store_true")
+    parser.add_argument("--require-dsqp-chain", action="store_true")
     args = parser.parse_args()
     return asyncio.run(_run(args))
 

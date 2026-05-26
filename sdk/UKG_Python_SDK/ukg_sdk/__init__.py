@@ -21,6 +21,11 @@ from .coordinates17 import CoordinateResolver17, Coordinate
 
 __version__ = "0.4.0"
 
+try:
+    from .dsqp import DSQPClient
+except Exception:  # pragma: no cover - optional local package surface
+    DSQPClient = None
+
 __all__ = [
     # API Clients
     "UKGClient",

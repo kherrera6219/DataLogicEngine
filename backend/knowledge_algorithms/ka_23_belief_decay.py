@@ -5,7 +5,8 @@ Purpose: Apply confidence decay to stale beliefs and knowledge entries based on 
 import logging
 import json
 import os
-from datetime import datetime
+import math
+from datetime import datetime, UTC
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
@@ -17,6 +18,7 @@ logger = logging.getLogger(__name__)
 class KA023Input(BaseModel):
     knowledge_items: List[Dict[str, Any]] = Field(default_factory=list, description="Knowledge entries with timestamps and confidence")
     reference_time: str = Field(None, description="ISO reference time for decay calculation")
+    domain: str = Field("general", description="Domain-specific decay profile")
 
 class KA023BeliefDecay(KnowledgeAlgorithm):
     """
@@ -41,16 +43,17 @@ class KA023BeliefDecay(KnowledgeAlgorithm):
 
     def _run_logic(self, input_data: KA023Input) -> Dict[str, Any]:
         knowledge_items = input_data.knowledge_items
-        reference_time = input_data.reference_time or datetime.now().isoformat()
+        reference_time = input_data.reference_time or datetime.now(UTC).isoformat()
         
         try:
             ref_dt = datetime.fromisoformat(reference_time)
         except ValueError:
-            ref_dt = datetime.now()
+            ref_dt = datetime.now(UTC)
             
         self.log_execution_step("Applying Belief Decay", {"item_count": len(knowledge_items)})
         
-        half_life = self.config.get("decay_half_life_days", 180)
+        lambdas = self.config.get("domain_lambdas", {"healthcare": 0.05, "finance": 0.02, "general": 0.001})
+        default_lambda = float(lambdas.get(input_data.domain, lambdas.get("general", 0.001)))
         floor = self.config.get("min_confidence_floor", 0.1)
         exclusions = self.config.get("categories_exclusion", [])
         
@@ -65,14 +68,19 @@ class KA023BeliefDecay(KnowledgeAlgorithm):
                 continue
             try:
                 ts_dt = datetime.fromisoformat(ts_str)
-                age_days = (ref_dt - ts_dt).total_seconds() / (24 * 3600)
+                if ts_dt.tzinfo is None and ref_dt.tzinfo is not None:
+                    ts_dt = ts_dt.replace(tzinfo=ref_dt.tzinfo)
+                age_days = max(0.0, (ref_dt - ts_dt).total_seconds() / (24 * 3600))
                 c0 = item.get("confidence", 1.0)
-                decayed_c = max(floor, c0 * (0.5 ** (age_days / half_life)))
+                item_domain = str(item.get("domain") or input_data.domain or "general")
+                decay_lambda = float(lambdas.get(item_domain, default_lambda))
+                decayed_c = max(floor, c0 * math.exp(-decay_lambda * age_days))
                 updated_items.append({
                     **item,
                     "original_confidence": c0,
                     "confidence": decayed_c,
                     "decay_applied": True,
+                    "decay_lambda": decay_lambda,
                     "age_days": round(age_days, 1)
                 })
             except Exception:
@@ -82,7 +90,8 @@ class KA023BeliefDecay(KnowledgeAlgorithm):
             "success": True,
             "processed_items": updated_items,
             "decay_stats": {
-                "average_loss": sum(i.get("original_confidence", 0) - i.get("confidence", 0) for i in updated_items if i.get("decay_applied"))
+                "average_loss": sum(i.get("original_confidence", 0) - i.get("confidence", 0) for i in updated_items if i.get("decay_applied")),
+                "domain_lambdas": lambdas,
             }
         }
 

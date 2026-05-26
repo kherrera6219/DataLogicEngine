@@ -106,6 +106,9 @@ class TruthMemoryCommitService:
             "confidence": run.confidence,
             "truthgate_decision": run.truthgate_decision,
         }
+        dsqp_chain = TruthMemoryCommitService._extract_dsqp_chain(run, bundle)
+        if dsqp_chain:
+            event_data["dsqp_chain"] = dsqp_chain
         record = audit.log_event(
             session_id=session_id,
             event_type="audit_bundle_commit",
@@ -113,3 +116,21 @@ class TruthMemoryCommitService:
             category="audit",
         )
         return record.get("hash_chain", "")
+
+    @staticmethod
+    def _extract_dsqp_chain(run, bundle: dict) -> dict:
+        explicit = getattr(run, "dsqp_chain", None)
+        if explicit:
+            return explicit
+        chains = {}
+        for stage in bundle.get("stages", []) or []:
+            outputs = stage.get("outputs") or {}
+            if not isinstance(outputs, dict):
+                continue
+            if outputs.get("dsqp_chain"):
+                chains[stage.get("name") or "stage"] = outputs["dsqp_chain"]
+            for axis, profile in (outputs.get("constructed_persona_profiles") or {}).items():
+                metadata = profile.get("metadata", {}) if isinstance(profile, dict) else {}
+                if metadata.get("dsqp_chain"):
+                    chains[str(axis)] = metadata["dsqp_chain"]
+        return chains

@@ -44,17 +44,33 @@ class KA022RiskAssessment(KnowledgeAlgorithm):
         
         self.log_execution_step("Risk Profiling", {"recommendation": recommendation[:50]})
         
+        dimensions = ("technical", "security", "compliance", "financial", "schedule", "reputational")
+        keyword_map = {
+            "technical": ("outage", "latency", "failure", "integration", "scale"),
+            "security": ("breach", "vulnerability", "secret", "attack", "token"),
+            "compliance": ("compliance", "audit", "regulation", "policy", "legal"),
+            "financial": ("cost", "budget", "revenue", "invoice", "finance"),
+            "schedule": ("delay", "deadline", "timeline", "blocked", "late"),
+            "reputational": ("reputation", "public", "customer", "trust", "press"),
+        }
+        text = recommendation.lower()
         risk_factors = self.config.get("risk_factors", {})
         total_risk = 0.0
         details = {}
-        for area, weight in risk_factors.items():
-            area_score = impact_areas.get(area, 0.0)
+        for area in dimensions:
+            config_weight = risk_factors.get(area, risk_factors.get(area.upper(), 1 / len(dimensions)))
+            keyword_score = min(1.0, sum(0.2 for keyword in keyword_map[area] if keyword in text))
+            area_score = max(float(impact_areas.get(area, impact_areas.get(area.upper(), 0.0)) or 0.0), keyword_score)
+            weight = float(config_weight)
             weighted_score = area_score * weight
             total_risk += weighted_score
             details[area] = {
                 "input_score": area_score,
                 "weighted_risk": weighted_score
             }
+        total_weight = sum(float(risk_factors.get(area, risk_factors.get(area.upper(), 1 / len(dimensions)))) for area in dimensions)
+        if total_weight > 0:
+            total_risk = total_risk / total_weight
             
         status = "LOW"
         if total_risk >= self.config.get("critical_threshold", 0.75):
@@ -66,6 +82,8 @@ class KA022RiskAssessment(KnowledgeAlgorithm):
             "success": True,
             "overall_risk_score": total_risk,
             "risk_status": status,
+            "axis15_dimensions": details,
+            "dominant_dimension": max(details, key=lambda key: details[key]["input_score"]),
             "area_details": details,
             "mitigation_required": status != "LOW"
         }

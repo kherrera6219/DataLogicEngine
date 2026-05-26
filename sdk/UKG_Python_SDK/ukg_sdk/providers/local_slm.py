@@ -40,7 +40,7 @@ class LocalSLMProvider(LLMProvider):
                     if resp.status != 200:
                         error_text = await resp.text()
                         logger.error(f"Local SLM failed: {resp.status} - {error_text}")
-                        return LLMResponse(text="", ok=False, raw={"error": error_text})
+                        return LLMResponse(text="", raw={"error": error_text, "ok": False})
                     
                     data = await resp.json()
                     content = data["choices"][0]["message"]["content"]
@@ -54,4 +54,4 @@ class LocalSLMProvider(LLMProvider):
                     )
         except Exception as e:
             logger.error(f"Local SLM exception: {e}")
-            return LLMResponse(text="", ok=False, raw={"error": str(e)})
+            return LLMResponse(text="", raw={"error": str(e), "ok": False})

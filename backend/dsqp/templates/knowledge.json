@@ -1,0 +1,12 @@
+{
+  "persona_type": "knowledge",
+  "questions": {
+    "job_role": "Which knowledge-domain expert role should own this query?",
+    "education": "What technical or scientific education grounds this knowledge role?",
+    "certifications": "What knowledge-system credentials are relevant?",
+    "skills": "What analysis, synthesis, and verification skills are required?",
+    "training": "What UKG and evidence-review training should this persona have?",
+    "career_path": "What knowledge-work career path gives this role credibility?",
+    "related_jobs": "Which adjacent knowledge roles should inform blind-spot coverage?"
+  }
+}

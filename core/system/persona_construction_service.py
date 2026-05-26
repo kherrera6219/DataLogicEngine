@@ -10,6 +10,7 @@ import logging
 import uuid
 import json
 import hashlib
+import os
 from typing import Dict, Any, Optional
 from quad_persona.quad_engine import PersonaProfile
 
@@ -103,8 +104,9 @@ class PersonaConstructionService:
             description=f"Dynamically generated expert for {label}"
         )
         
-        # 5. Seed components based on sourced meta-data
-        self._seed_components(profile, axis_number, source_context, context)
+        # 5. Seed components based on sourced meta-data or DSQP dynamic construction.
+        if not self._seed_components_with_dsqp(profile, axis_number, coordinate_path, source_context, context):
+            self._seed_components(profile, axis_number, source_context, context)
         profile.metadata["cache_key"] = cache_key
         self._persona_cache[cache_key] = profile
         self._store_cached_persona(cache_key, profile, axis_number, coordinate_path)
@@ -163,6 +165,69 @@ class PersonaConstructionService:
             )
         except Exception as exc:
             self.logger.debug("Persona profile cache write skipped: %s", exc)
+
+    def _seed_components_with_dsqp(
+        self,
+        profile: PersonaProfile,
+        axis: int,
+        coordinate_path: str,
+        source_context: Dict[str, Any],
+        request_context: Dict[str, Any],
+    ) -> bool:
+        """Try DSQP dynamic persona construction, returning False for static fallback."""
+        dsqp_requested = request_context.get("dsqp_mode")
+        if dsqp_requested is None:
+            dsqp_requested = os.environ.get("DSQP_ENABLED", "true").lower() in {"1", "true", "yes", "on"}
+        if not dsqp_requested:
+            return False
+
+        try:
+            from backend.dsqp import DSQPChain, DSQPValidator
+
+            query = str(
+                request_context.get("query")
+                or request_context.get("user_query")
+                or request_context.get("input_message")
+                or source_context.get("description")
+                or coordinate_path
+            )
+            axis_vector = request_context.get("coordinate_vector") or request_context.get("axis_vector") or {}
+            dsqp_context = {
+                **request_context,
+                "coordinate_path": coordinate_path,
+                "source_context": source_context,
+            }
+            expanded = DSQPChain().construct(
+                query,
+                axis_vector,
+                axis_number=axis,
+                coordinate_path=coordinate_path,
+                context=dsqp_context,
+            )
+            validation = DSQPValidator().validate(expanded)
+            if not validation["valid"]:
+                profile.metadata["dsqp_validation"] = validation
+                return False
+            payload = expanded.to_dict()
+            for component_key, component_data in payload["components"].items():
+                profile.set_component(component_key, component_data)
+            profile.name = payload["name"]
+            profile.description = payload["description"]
+            profile.metadata.update({
+                "dsqp_enabled": True,
+                "dsqp_chain": payload["dsqp_chain"],
+                "dsqp_coverage_score": validation["coverage_score"],
+                "dsqp_persona_id": payload["persona_id"],
+                "construction_mode": "dsqp",
+            })
+            if axis == 10:
+                profile.octopus_connections = source_context.get("links", ["Federal Regulatory Hub"])
+            elif axis == 11:
+                profile.spiderweb_connections = source_context.get("crosswalks", ["Standard Harmonization Layer"])
+            return True
+        except Exception as exc:
+            self.logger.debug("DSQP persona construction skipped: %s", exc)
+            return False
 
     def _seed_components(self, profile: PersonaProfile, axis: int, source_context: Dict[str, Any], request_context: Dict[str, Any]):
         """Seed the 7 core components with context-aware data sourced from primary axes."""

@@ -19,6 +19,8 @@ class KA014Input(BaseModel):
     truth_score: float = Field(1.0, ge=0.0, le=1.0)
     relevance_score: float = Field(1.0, ge=0.0, le=1.0)
     has_contradictions: bool = Field(False)
+    domain_scores: Dict[str, float] = Field(default_factory=dict)
+    risk_domain: str = Field("standard")
 
 class KA014ConfidenceScoring(KnowledgeAlgorithm):
     """
@@ -57,8 +59,22 @@ class KA014ConfidenceScoring(KnowledgeAlgorithm):
         for key, val in metrics.items():
             total_score += val * weights.get(key, 0.25)
             
+        if input_data.domain_scores:
+            domain_values = [max(0.0, min(1.0, float(value))) for value in input_data.domain_scores.values()]
+            domain_mean = sum(domain_values) / len(domain_values)
+            # Platt-style logistic proxy centered at 0.5, blended with weighted evidence.
+            import math
+
+            calibrated = 1.0 / (1.0 + math.exp(-6.0 * (domain_mean - 0.5)))
+            total_score = (0.65 * total_score) + (0.35 * calibrated)
+
+        risk_adjustments = self.config.get("risk_domain_adjustments", {"high_risk": -0.05, "healthcare": -0.03, "finance": -0.02})
+        total_score += risk_adjustments.get(input_data.risk_domain, 0.0)
+
         if has_conflict:
             total_score *= self.config.get("conflict_penalty_multiplier", 0.8)
+
+        total_score = max(0.0, min(1.0, total_score))
             
         thresholds = self.config.get("thresholds", {})
         status = "risky"
@@ -70,6 +86,9 @@ class KA014ConfidenceScoring(KnowledgeAlgorithm):
         return {
             "success": True,
             "final_confidence": total_score,
+            "calibrated_confidence": total_score,
+            "risk_domain": input_data.risk_domain,
+            "domain_scores": input_data.domain_scores,
             "status_tier": status,
             "metrics_breakdown": metrics,
             "is_certified": status == "certified"

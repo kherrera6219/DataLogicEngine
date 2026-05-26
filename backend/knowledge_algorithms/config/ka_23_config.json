@@ -1,6 +1,10 @@
 {
-    "decay_half_life_days": 180,
     "min_confidence_floor": 0.1,
     "decay_method": "exponential",
+    "domain_lambdas": {
+        "healthcare": 0.05,
+        "finance": 0.02,
+        "general": 0.001
+    },
     "categories_exclusion": ["ETERNAL_FACT", "SYSTEM_RULE"]
 }

@@ -13,6 +13,7 @@ interface MockElectronAPI {
   getBackendStatus: () => Promise<string>;
   getDbStatus: () => Promise<{ status: string; chroma_collections: Record<string, number>; redis_ping_ms: number | null }>;
   quadAnalysisStatus: () => Promise<{ pod_count: number; collective_confidence: number; mode: string }>;
+  dsqpPersonaProfiles: () => Promise<{ success: boolean; profiles: Array<{ axis: number; persona_type: string; name: string; coverage_score: number; job_role: string; skills: string[]; chain_steps: number }>; partial: boolean; failures: Record<string, string> }>;
   onBackendLog: (callback: ElectronLogHandler) => () => void;
 }
 
@@ -30,6 +31,7 @@ describe('DesktopStatus', () => {
       getBackendStatus: vi.fn().mockResolvedValue('checking'),
       getDbStatus: vi.fn().mockResolvedValue({ status: 'managed', chroma_collections: {}, redis_ping_ms: null }),
       quadAnalysisStatus: vi.fn().mockResolvedValue({ pod_count: 0, collective_confidence: 0, mode: 'idle' }),
+      dsqpPersonaProfiles: vi.fn().mockResolvedValue({ success: true, profiles: [], partial: false, failures: {} }),
       onBackendLog: vi.fn(() => () => undefined),
     };
   });
@@ -118,5 +120,27 @@ describe('DesktopStatus', () => {
 
     expect(screen.getByText('System initialized')).toBeInTheDocument();
     expect(screen.getByText('Database connected')).toBeInTheDocument();
+  });
+
+  it('displays DSQP persona cards when backend is running', async () => {
+    window.electronAPI!.getBackendStatus = vi.fn().mockResolvedValue('running');
+    window.electronAPI!.dsqpPersonaProfiles = vi.fn().mockResolvedValue({
+      success: true,
+      profiles: [
+        { axis: 8, persona_type: 'knowledge', name: 'Lead Knowledge Analyst', coverage_score: 1, job_role: 'Lead Knowledge Analyst', skills: ['Analysis'], chain_steps: 7 },
+      ],
+      partial: false,
+      failures: {},
+    });
+
+    render(<DesktopStatus />);
+
+    await act(async () => {
+      vi.advanceTimersByTime(0);
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText('DSQP Personas')).toBeInTheDocument();
+    expect(screen.getByText('A8 knowledge')).toBeInTheDocument();
   });
 });

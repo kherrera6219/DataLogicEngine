@@ -61,7 +61,7 @@ class KAMasterController(KnowledgeAlgorithm):
         try:
             return f"KA-{int(num_part):03d}"
         except ValueError:
-            return ka_id
+            return clean_id
 
     def execute_algorithm(self, ka_id: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Dynamically imports and executes a specific Knowledge Algorithm with error propagation."""

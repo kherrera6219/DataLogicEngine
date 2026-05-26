@@ -46,6 +46,7 @@ class KA012PersonaSimulation(KnowledgeAlgorithm):
         self.log_execution_step("Persona Simulation", {"personas": active_personas})
         
         persona_configs = self.config.get("personas", {})
+        dsqp_profiles = self._construct_dsqp_profiles(query, active_personas)
         results = []
         claims = []
         
@@ -55,7 +56,7 @@ class KA012PersonaSimulation(KnowledgeAlgorithm):
                 # Use default if config missing
                 p_info = {"name": p_key.title(), "focus": "general", "base_confidence": 0.8}
                 
-            persona_res = self._simulate_persona(p_key, p_info, query)
+            persona_res = self._simulate_persona(p_key, p_info, query, dsqp_profiles.get(p_key))
             results.append(persona_res)
             
             # Map response to a structured claim for KA-038
@@ -69,23 +70,62 @@ class KA012PersonaSimulation(KnowledgeAlgorithm):
         return {
             "success": True,
             "persona_results": results,
+            "dsqp_profiles": dsqp_profiles,
+            "dsqp_chain": {
+                key: value.get("dsqp_chain", [])
+                for key, value in dsqp_profiles.items()
+            },
             "claims": claims, # Added for KA-038 compatibility
             "summary": f"Simulated {len(results)} expert perspectives."
         }
 
-    def _simulate_persona(self, key: str, info: Dict[str, Any], query: str) -> Dict[str, Any]:
+    def _construct_dsqp_profiles(self, query: str, active_personas: List[str]) -> Dict[str, Any]:
+        axis_by_persona = {"knowledge": 8, "sector": 9, "regulatory": 10, "compliance": 11}
+        active_axes = [axis_by_persona[p] for p in active_personas if p in axis_by_persona]
+        if not active_axes:
+            return {}
+        try:
+            from backend.dsqp import DSQPOrchestrator
+
+            result = DSQPOrchestrator().construct_all_sync(
+                query,
+                {"active_axes": active_axes},
+                active_axes=active_axes,
+                context={"query": query, "dsqp_mode": True},
+            )
+            profiles_by_persona = {}
+            for payload in result.get("profiles", {}).values():
+                profiles_by_persona[payload["persona_type"]] = payload
+            return profiles_by_persona
+        except Exception as exc:
+            logger.debug("KA-012 DSQP construction skipped: %s", exc)
+            return {}
+
+    def _simulate_persona(
+        self,
+        key: str,
+        info: Dict[str, Any],
+        query: str,
+        dsqp_profile: Dict[str, Any] | None = None,
+    ) -> Dict[str, Any]:
         focus = info.get("focus", "general")
         base_confidence = info.get("base_confidence", 0.8)
+        name = info.get('name', key.title())
+        role_title = name
+        if dsqp_profile:
+            role_title = dsqp_profile.get("name") or role_title
+            focus = dsqp_profile.get("components", {}).get("job_role", {}).get("focus_area", focus)
         
-        response = f"[{info.get('name', key.title())} Perspective]: Regarding '{query}', my analysis focused on {focus} " \
+        response = f"[{role_title} Perspective]: Regarding '{query}', my analysis focused on {focus} " \
                    f"indicates that the primary considerations should include the structural integrity " \
                    f"of the proposed solution and adherence to established {key} standards."
         
         return {
             "persona_type": key,
-            "name": info.get("name", key.title()),
+            "name": role_title,
             "response": response,
             "confidence": base_confidence + random.uniform(-0.05, 0.05),
+            "dsqp_profile": dsqp_profile,
             "success": True
         }
 

@@ -18,6 +18,7 @@ a = Analysis(
         ('extensions.py', '.'),
         ('models.py', '.'),
         ('core/data', 'core/data'),
+        ('backend/dsqp/templates', 'backend/dsqp/templates'),
     ] + collect_data_files('rfc3987_syntax'),
     hiddenimports=[
         'flask',
@@ -66,7 +67,7 @@ a = Analysis(
         'transformers',
         'torch',
         'dotenv',
-    ] + collect_submodules('chromadb') + collect_submodules('sentence_transformers'),
+    ] + collect_submodules('chromadb') + collect_submodules('sentence_transformers') + collect_submodules('backend.dsqp') + collect_submodules('backend.knowledge_algorithms.l10'),
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

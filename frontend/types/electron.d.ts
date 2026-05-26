@@ -26,11 +26,29 @@ export interface QuadAnalysisStatus {
   mode: string;
 }
 
+export interface DSQPPersonaProfile {
+  axis: number;
+  persona_type: string;
+  name: string;
+  coverage_score: number;
+  job_role: string;
+  skills: string[];
+  chain_steps: number;
+}
+
+export interface DSQPPersonaProfilesStatus {
+  success: boolean;
+  profiles: DSQPPersonaProfile[];
+  partial: boolean;
+  failures: Record<string, string>;
+}
+
 export interface ElectronAPI {
   ping: () => Promise<string>;
   getBackendStatus: () => Promise<string>;
   getDbStatus: () => Promise<DesktopDatabaseStatus>;
   quadAnalysisStatus: () => Promise<QuadAnalysisStatus>;
+  dsqpPersonaProfiles: () => Promise<DSQPPersonaProfilesStatus>;
   getUpdateState: () => Promise<DesktopUpdateState>;
   checkForUpdates: () => Promise<DesktopUpdateState>;
   downloadUpdate: () => Promise<DesktopUpdateState>;

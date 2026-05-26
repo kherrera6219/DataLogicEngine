@@ -1,0 +1,12 @@
+{
+  "persona_type": "regulatory",
+  "questions": {
+    "job_role": "Which regulatory expert role should own this query?",
+    "education": "What legal or policy education grounds this role?",
+    "certifications": "What regulatory credentials are relevant?",
+    "skills": "What statute, rule, and enforcement-analysis skills are required?",
+    "training": "What regulatory review training should this persona have?",
+    "career_path": "What regulatory career path gives this role credibility?",
+    "related_jobs": "Which adjacent policy roles should inform blind-spot coverage?"
+  }
+}

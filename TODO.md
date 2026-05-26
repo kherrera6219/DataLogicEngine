@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-05-25
+**Last updated:** 2026-05-26
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -39,6 +39,19 @@ Master completion plan status: Phase 1 / A is complete for the local-first deskt
 | Phase 5 / DB-R Redis TruthCache persistence | TruthCache supports Redis HSET/HGET persistence with memory fallback; TruthMemoryManager auto-selects Redis when `USE_REDIS=true`; GraphStore subgraph and RAG embedding caches can use Redis; `/health` and Electron IPC expose `redis_ping_ms`. | Done |
 | Phase C Integration Bridge + LocalSLM | Gateway quad mode reaches `PodOrchestrator` and records pod status; TruthCore L5 constructs 7-part personas for axes 8-11 and uses pod expansion; KA-038, PersonaEnhancer, DRL refinement, JSON-safe weights, desktop LocalSLM fallback, and `quadAnalysisStatus` IPC are wired. | Done |
 | Phase DB-P SQL historical reasoning calibration | L8 calibrates confidence thresholds from 90-day TraceRun history by risk domain; TruthSession stores local deterministic input embeddings; L9 returns `db_similar_sessions` historical drift baselines; KA execution timing is persisted and KA-036 reads p95 latency from the last 100 executions. | Done |
+
+Remaining phase validation update: 2026-05-26
+
+| Remaining phase | Live-code validation | Status |
+| --- | --- | --- |
+| Phase D / DSQP | `docs/ip/dsqp_technical_disclosure.md`, `backend/dsqp/`, local templates, DSQP chain/registry/orchestrator/validator, PersonaConstructionService DSQP fallback, TruthCore L5 context wiring, KA-012 DSQP profiles, SDK `DSQPClient`, PyInstaller template datas, Electron DSQP IPC, desktop persona cards, DSQP benchmark/report, and provider-backed `dsqp_chain` audit evidence are implemented. | Done for D-1..D-12 code/test/evidence scope; broader production packaging smoke remains under release evidence. |
+| Phase E / L10 KA suite | `backend/knowledge_algorithms/l10/l10_ka_001..007` modules expose `.run` callables; `ka_registry.yaml` points at importable functions; KA-116 delegates entropy scoring to L10-KA-001; KA-014, KA-023, KA-002, and KA-022 have deterministic depth implementations; L10 modules are included in PyInstaller collection and covered by focused tests. | Done for E-0..E-14 code/test scope; broader production packaging smoke remains under release evidence. |
+| DB-O / Object store + blockchain | `ObjectStore` and `BlockchainAdapter` exist, but `TruthMemoryCommitService` does not write audit bundles to buckets or anchor Merkle roots; `TruthAuditEvent` has no queryable object-store/anchor fields. | Plan updated: add O-0 schema fields before wiring persistence. |
+| DB-M / StructuredMemoryGraph | `StructuredMemoryGraph` is implemented and used by quad persona internals, but there is no `backend/memory/` service, no persistence to `databases/memory/`, and no TruthCore-wide L1-L10 memory loop. | Still open; wording corrected from "never called" to "not TruthCore-wide/persistent." |
+| Phase F / DMRF | `backend/dmrf/` is absent. | Not started. |
+| Phase G / Enterprise integrations | TruthLink SSE/in-memory bus and core MCP subscription tracking exist; Redis Streams, OPA policy integration, MLflow tracking, W3C PROV records, and SDK v0.5.0 DSQP client remain open. | Partially pre-existing primitives; phase remains open. |
+| Phase H / Desktop experience | Existing IPC exposes `get-db-status` and `quad-analysis-status`; JRE bundling, offline request queue, network status IPC, reasoning feeds, backup UI, backend restart loop, and cold-start profiling remain open. | Partially complete only for previous DB/quad IPC. |
+| KI / Knowledge ingestion | `scripts/index_knowledge_nodes.py` can index SQL nodes to Chroma, but `backend/ingestion/` and document ingestion CLIs are absent. | Open and should follow or run parallel with DSQP/L10 if corpus value is needed. |
 
 Phased update plan:
 
@@ -133,7 +146,12 @@ Priority order:
 - [x] Phase 5 / DB-R: implement Redis-backed TruthCache persistence, Redis subgraph cache, Redis embedding cache, TruthMemoryManager Redis selection, and Redis ping latency in health/IPC.
 - [x] Phase C: wire quad-persona `PodOrchestrator`, L5 7-part persona construction, dynamic weighted synthesis, DRL convergence, desktop LocalSLM fallback, and quad analysis IPC status.
 - [x] Phase DB-P: implement SQL historical reasoning calibration with TraceRun threshold history, TruthSession input embeddings, L9 DB similarity baselines, KAExecution timing persistence, and KA-036 p95 latency estimation.
-- [ ] Phase D prerequisite: write the DSQP technical disclosure before implementing the DSQP Protocol code.
+- [x] Phase D prerequisite: write the DSQP technical disclosure before implementing the DSQP Protocol code.
+- [x] Phase D first slice: write DSQP technical disclosure, implement offline deterministic DSQP chain/registry/orchestrator/validator, wire PersonaConstructionService and KA-012 to DSQP, expose SDK `DSQPClient`, and include templates in PyInstaller datas.
+- [x] Phase E first slice: repair L10 registry/import shape, add executable L10-KA-001..007 modules, and route KA-116 entropy scoring through L10-KA-001.
+- [x] Phase D follow-up: expose DSQP persona profiles through backend/Electron IPC, render desktop persona cards, and add deterministic 18-question DSQP benchmark report.
+- [x] Phase E follow-up: complete E-9..E-14 with KA-014 domain calibration, KA-023 domain lambdas, KA-002 deterministic 3-branch BFS decomposition, KA-022 six-dimensional Axis 15 risk schema, PyInstaller L10 collection, and focused tests.
+- [x] Phase D live evidence: provider-backed end-to-end flow confirmed `dsqp_chain` appears in persisted audit events via `reports/dsqp_provider_audit_report.json`.
 - [ ] Validate production alerting evidence for `/health`, `/live`, `/ready`, `/metrics`, Sentry, and admin dashboards.
 - [ ] Harden multi-tenant operations, cost controls, recursive persona evaluation, dynamic persona expansion, human feedback loops, automated axis learning, quantum-ready node research, and policy-as-code governance for larger deployments.
 

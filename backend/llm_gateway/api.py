@@ -484,6 +484,48 @@ def quad_analysis_status():
     return jsonify(LLMGateway.get_quad_analysis_status())
 
 
+@gateway_bp.route('/dsqp-persona-profiles', methods=['GET'])
+def dsqp_persona_profiles():
+    """Construct compact DSQP persona profiles for desktop IPC."""
+    query = request.args.get("query") or "DataLogicEngine desktop reasoning workflow"
+    risk_domain = request.args.get("risk_domain") or "standard"
+    try:
+        from backend.dsqp import DSQPOrchestrator
+
+        result = DSQPOrchestrator(timeout_seconds=5).construct_all_sync(
+            query,
+            {"active_axes": [8, 9, 10, 11]},
+            active_axes=[8, 9, 10, 11],
+            context={"query": query, "risk_domain": risk_domain, "dsqp_mode": True},
+        )
+        compact_profiles = []
+        for axis, profile in sorted(result.get("profiles", {}).items()):
+            components = profile.get("components", {})
+            compact_profiles.append(
+                {
+                    "axis": int(axis),
+                    "persona_type": profile.get("persona_type"),
+                    "name": profile.get("name"),
+                    "coverage_score": profile.get("coverage_score", 0),
+                    "job_role": components.get("job_role", {}).get("title"),
+                    "skills": components.get("skills", {}).get("items", [])[:4],
+                    "chain_steps": len(profile.get("dsqp_chain", [])),
+                }
+            )
+        return jsonify(
+            {
+                "success": True,
+                "query": query,
+                "profiles": compact_profiles,
+                "partial": result.get("partial", False),
+                "failures": result.get("failures", {}),
+            }
+        )
+    except Exception as exc:
+        logger.warning("DSQP persona profile construction failed: %s", exc)
+        return jsonify({"success": False, "profiles": [], "error": "DSQP profile construction failed"}), 503
+
+
 @gateway_bp.route('/sessions/<session_id>/messages', methods=['GET'])
 @api_key_required
 def get_session_messages(session_id):

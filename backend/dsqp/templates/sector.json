@@ -1,0 +1,12 @@
+{
+  "persona_type": "sector",
+  "questions": {
+    "job_role": "Which sector operations role should own this query?",
+    "education": "What sector-management education grounds this role?",
+    "certifications": "What industry or process credentials are relevant?",
+    "skills": "What operating-model and stakeholder skills are required?",
+    "training": "What sector-specific training should this persona have?",
+    "career_path": "What sector career path gives this role credibility?",
+    "related_jobs": "Which adjacent sector roles should inform blind-spot coverage?"
+  }
+}

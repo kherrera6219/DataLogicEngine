@@ -1,0 +1,26 @@
+{
+  "benchmark": "DSQP deterministic offline coverage",
+  "question_count": 18,
+  "score": 100.0,
+  "threshold": 95.3,
+  "scores": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ]
+}

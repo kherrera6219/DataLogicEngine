@@ -2,7 +2,7 @@
 UKG / DataLogicEngine
 Master Phased Completion Plan
 Consolidated  ·  v1.0  ·  All Gaps  ·  All Requests  ·  All DB Sprints
-10 Phases  ·  6 DB Sprints  ·  ~52 Weeks  ·  Code-Validated May 23, 2026  |  Lucentry
+10 Phases  ·  6 DB Sprints  ·  ~52 Weeks  ·  Code-Validated May 23, 2026  ·  Remaining Phases Revalidated May 26, 2026  |  Lucentry
 
 
 
@@ -56,11 +56,11 @@ Component
 	backend/truth_engine/truth_core/meta_reasoning_controller.py
 	TruthEngine L10 EmergenceDetectionController
 	IMPLEMENTED
-	351 lines. Lane A/B. BELIEF_DECAY_FACTOR=0.98. BUT: L10 KA files in backend/knowledge_algorithms/l10/ are empty stubs.
+	IMPLEMENTED with gap. Lane A/B and BELIEF_DECAY_FACTOR=0.98 are present. Current L10 KA suite is a single backend/knowledge_algorithms/l10/__init__.py with placeholder functions; ka_registry.yaml points at missing standalone modules without .run callables, so KAMasterController cannot dynamically execute L10-KA-001..007 yet.
 	backend/truth_engine/truth_core/emergence_controller.py
 	12-step RefinementOrchestrator
 	IMPLEMENTED
-	All 12 steps named. KAs assigned. confidence gate 0.995. BUT: Steps 6+11 (PII_Redaction, Ethics_Validation) rely on empty L10 KA files.
+	All 12 steps named. KAs assigned. confidence gate 0.995. BUT: Steps 6+11 (PII_Redaction, Ethics_Validation) still rely on unresolved/placeholder L10 KA execution paths.
 	backend/truth_engine/truth_core/refinement_orchestrator.py
 	FROST Service (snapshot/branch/merge)
 	IMPLEMENTED
@@ -68,47 +68,47 @@ Component
 	core/system/frost_service.py
 	PersonaConstructionService
 	IMPLEMENTED
-	construct_persona(axis_num, coordinate_path) with 7-part set_component(). Seeds from static profiles. NOT called by TruthCoreEngine L5.
+	Phase C wired construct_persona(axis_num, coordinate_path) into TruthCoreEngine L5 for axes 8-11. It still seeds from static profiles; Phase D replaces static seeding with DSQP dynamic construction.
 	core/system/persona_construction_service.py
 	quad_persona/ math layer
 	IMPLEMENTED
-	835-line DynamicWeightFunctions, KnowledgeSpaceMapper, StructuredMemoryGraph, DeepRecursiveLearning. PodOrchestrator 752 lines. FULLY DISCONNECTED from gateway.
+	Phase C connects PodOrchestrator, dynamic weights, persona expansion, and DeepRecursiveLearning metadata into gateway/TruthCore paths. StructuredMemoryGraph remains local to quad_persona internals and is not yet the persistent TruthCore-wide memory layer.
 	quad_persona/mathematical_framework.py
 	RAGService (LlamaIndex + 3-layer embedding)
 	IMPLEMENTED
-	LlamaIndex chunking. OpenAI→Google→HuggingFace failover. ingest_knowledge_node() exists. Gateway calls get_context_for_query(). BUT: startup creates spec collections (knowledge_nodes, persona_profiles, citation_cache, audit_evidence) while RAGService uses documents, knowledge_graph, and chat_history; ingestion and collection alignment are both required.
+	Phase DB-C aligned the active collections: knowledge_nodes, persona_profiles, citation_cache, and audit_evidence. TruthCore L3/L8/L9/L10 and startup indexing are wired. Remaining usefulness depends on Knowledge Ingestion Pipeline (KI) populating the corpus at scale.
 	backend/services/rag_service.py
 	NetworkX
-	PARTIAL
-	networkx==3.4.2 is in requirements.txt and is imported by core/simulation/memory_simulation.py and simulation/layer2_knowledge.py. BUT: there is no UskdMemoryGraph, no Neo4j→NetworkX sync, and no NetworkX reasoning substrate wired into the main gateway/TruthCore path.
-	requirements.txt + core/simulation/memory_simulation.py + simulation/layer2_knowledge.py
+	IMPLEMENTED for DB-N local target
+	UskdMemoryGraph, SQL/Neo4j loaders, bounded traversal, coordinate anchors, singleton access, TruthCore graph context bootstrap, Layer 2 live graph preference, and Lane B graph commit are implemented and locally validated. SQL graph-node parity still depends on local SQL graph table initialization and corpus ingestion.
+	backend/storage/uskd_memory_graph.py + backend/truth_engine/truth_core/engine.py
 	Neo4j graph store
-	PARTIAL
-	GraphStore connects. Schema constraints. seed_neo4j.py seeds 12 Pillars. BUT: L1/L2 in TruthCoreEngine never call graph_store. L2 uses static Python dict.
+	IMPLEMENTED for DB-N local target
+	GraphStore cached traversal, coordinate lookup, merge helpers, schema constraints, local Docker configuration, and seeding are implemented. Clean desktop startup still needs Phase H JRE bundling.
 	backend/storage/graph_store.py
 	Redis (TruthCache)
-	PARTIAL
-	Flask-Limiter + sessions use Redis correctly. TruthCache has backend= flag but ALWAYS uses in-memory OrderedDict regardless of flag.
+	IMPLEMENTED for DB-R local target
+	TruthCache supports Redis HSET/HGET persistence with TTL and memory fallback; TruthMemoryManager can select Redis; GraphStore and RAG embedding caches can use Redis; health/IPC expose redis_ping_ms.
 	backend/truth_engine/truth_memory/cache.py
 	ChromaDB (4 collections)
-	PARTIAL
-	Collections created at startup. RAGService works. BUT: knowledge_nodes, persona_profiles, citation_cache, audit_evidence are ALL empty — no ingestion pipeline.
+	IMPLEMENTED for DB-C local target
+	Collections are initialized and used by RAG paths. Startup can background-index empty desktop knowledge_nodes from SQL. Remaining gap: KI document ingestion must populate SQL, Neo4j, and Chroma from raw domain corpora.
 	backend/storage/vector_store.py
 	Object store (5 buckets)
 	PARTIAL
 	LocalFileBackend implemented. 5 buckets created. BUT: TruthMemoryCommitService never writes to it — audit bundles go to SQLite TEXT columns only.
 	backend/storage/object_store.py
 	StructuredMemoryGraph
-	NOT WIRED
-	Complete implementation: MemoryVertex/Edge, SR(q,c,t) recall with temporal decay, MC(M,I,t) consolidation. Never called by any pipeline step.
+	PARTIAL
+	Complete implementation: MemoryVertex/Edge, SR(q,c,t) recall with temporal decay, MC(M,I,t) consolidation. Used by quad_persona internals, but not wired as the TruthCore-wide persistent cross-session memory layer and not persisted to databases/memory/.
 	quad_persona/mathematical_framework.py
 	BlockchainAdapter
 	NOT WIRED
 	MerkleTree + Web3 in blockchain_adapter.py. Simulated fallback without private key. commit_service never calls it.
 	backend/truth_engine/truth_link/blockchain_adapter.py
 	Axis 14-17 naming (3-way conflict)
-	MISSING
-	coordinate_system.py, core/axes/*.py, and canonical spec all define axes 14-17 differently. No single source of truth.
+	IMPLEMENTED
+	Phase B aligned coordinate_system.py, AxisSystem managers, SDK resolver, TraceRun fields, and tests to the canonical Axis 14-17 definitions.
 	core/coordinate_system.py + core/axes/
 	DSQP dynamic persona construction
 	MISSING
@@ -119,8 +119,8 @@ Component
 	Not a single file, class, or import exists. Absent from requirements.txt. No directory.
 	backend/dmrf/ (does not exist)
 	L10 KA suite (7 files)
-	EMPTY
-	backend/knowledge_algorithms/l10/ contains only __init__.py. L9 has 7 complete files — L10 mirrors this pattern but is empty.
+	PARTIAL / REGISTRY BROKEN
+	backend/knowledge_algorithms/l10/ contains only __init__.py with 7 placeholder functions. Standalone files listed in Phase E do not exist, and ka_registry.yaml points at non-module paths without .run suffixes. Phase E must first repair registry/import shape, then deepen logic.
 	backend/knowledge_algorithms/l10/
 	SDK version
 	PARTIAL
@@ -679,6 +679,8 @@ PHASE D
 
 Dynamic Self-Questioning Protocol — the primary IP claim. PersonaConstructionService._seed_components() has the 7-part set_component() schema but fills it from static templates. DSQP makes it dynamic: query → structured self-questioning → 7-part expert profile constructed at runtime.
 
+Implementation update May 26, 2026: IP-1 and D-1 through D-12 are complete for the code/test/evidence scope. The repo now contains docs/ip/dsqp_technical_disclosure.md, backend/dsqp/ chain/registry/orchestrator/validator modules, bundled local templates, PersonaConstructionService DSQP-first construction with static fallback, TruthCore L5 dsqp_chain context capture, KA-012 DSQP profile construction, SDK DSQPClient, backend.spec template datas, Electron dsqp-persona-profiles IPC, desktop DSQP persona cards, deterministic 18-question benchmark test, reports/dsqp_benchmark.json, focused tests, SDK overlay DSQP trace emission, and provider-backed audit evidence in reports/dsqp_provider_audit_report.json proving dsqp_chain persistence in a real Tier 2 trace.
+
 
 Write patent disclosure BEFORE coding Phase D — this is the core IP
 Before writing a single line of DSQP code: produce a 2-3 page technical disclosure documenting (1) the 7-step self-questioning protocol and the exact question forms per persona type, (2) why LLM performance is an activation problem not a knowledge problem — the DSQP activates latent expert knowledge rather than retrieving from a database, (3) the novelty: query-specific dynamic role construction vs static template selection. File a provisional patent application or defensive publication with date-stamped evidence before Phase D ships publicly.
@@ -762,7 +764,9 @@ PHASE E
 	Weeks 8–13
 	
 
-Two parallel workstreams: (1) fill the empty L10 KA directory — critical for L10 EmergenceDetectionController, 12-step Steps 6+11, and DB-C task C-7 (Lane B indexing), and (2) deepen the highest-frequency stub KAs. All new files must py_compile and survive PyInstaller packaging.
+Two parallel workstreams: (1) replace the current single-file placeholder L10 KA suite with standalone executable modules — critical for L10 EmergenceDetectionController, 12-step Steps 6+11, and DB-C task C-7 (Lane B indexing), and (2) deepen the highest-frequency stub KAs. Current validation on May 26, 2026 found backend/knowledge_algorithms/l10/__init__.py contains placeholder functions, while ka_registry.yaml points at missing module paths without .run callables. All new files must py_compile and survive PyInstaller packaging.
+
+Implementation update May 26, 2026: E-0 through E-14 are complete for the code/test scope. backend/knowledge_algorithms/l10/ now has importable .run modules for L10-KA-001..007, ka_registry.yaml points at those callables, KAMasterController.execute_algorithm("L10-KA-001", {...}) succeeds, KA-116 delegates entropy scoring to L10-KA-001, KA-014 performs domain-aware confidence calibration, KA-023 uses domain lambdas, KA-002 returns deterministic three-branch decomposition, KA-022 returns the six-dimensional Axis 15 risk schema, backend.spec collects L10 submodules, and tests/truth_engine/test_layer10_ka_suite.py plus tests/knowledge_algorithms/test_phase_e_depth.py validate the behavior. Remaining Phase E work is production packaging smoke under release evidence, not unresolved KA implementation.
 
 
 E-1 through E-7: L10 KA Suite — following the L9 pattern exactly
@@ -771,6 +775,11 @@ ID
 	Primary File(s)
 	Exit Gate
 	Target
+	E-0
+	Repair L10 registry/import shape before deepening logic
+	backend/knowledge_algorithms/ka_registry.yaml + backend/knowledge_algorithms/l10/*.py
+	Each L10-KA-001..007 registry value points to an importable .run callable; KAMasterController.execute_algorithm("L10-KA-001", {...}) succeeds
+	DESKTOP+VM
 	E-1
 	L10-KA-001 Entropy-Based Emergence Scorer — real Shannon entropy from token distribution
 	backend/knowledge_algorithms/l10/l10_ka_001_entropy_scorer.py (new)
@@ -862,10 +871,15 @@ ID
 	Primary File(s)
 	Exit Gate
 	Target
+	O-0
+	Add audit artifact reference fields before wiring object/blockchain persistence
+	models.py + migrations/
+	TruthAuditEvent has queryable object_store_key, merkle_root, and blockchain_anchor_tx fields; migration applies on SQLite and PostgreSQL
+	DESKTOP+VM
 	O-1
 	Route Tier 2+ audit bundles to audit_logs/ bucket: commit_service writes JSON + stores object key in TruthAuditEvent
 	backend/truth_engine/truth_memory/commit_service.py + backend/storage/object_store.py
-	Every Tier 2+ run writes audit_logs/{run_id}.json; SQLite row has object_store_key
+	Every Tier 2+ run writes audit_logs/{run_id}.json; SQLite row has object_store_key and event_data fallback
 	DESKTOP+VM
 	O-2
 	Route FROST snapshots to simulation_artifacts/ bucket on every snapshot()
@@ -895,7 +909,7 @@ DB-M
 	Weeks 10–13 (parallel with E/F)
 	
 
-The StructuredMemoryGraph in quad_persona/mathematical_framework.py is a complete 835-line implementation: MemoryVertex/Edge graph, SR(q,c,t) structured recall with temporal decay, MC(M,I,t) memory consolidation. It is never called. This sprint wires it into the full pipeline as the system's long-term intelligence layer.
+The StructuredMemoryGraph in quad_persona/mathematical_framework.py is implemented and used inside quad_persona flows. It is not yet the persisted cross-session memory substrate for TruthCore L1-L10. This sprint wraps it in a service, adds persistence, and wires it into the full pipeline as the system's long-term intelligence layer.
 
 
 ID
@@ -1105,7 +1119,7 @@ ID
 	G-5
 	MCP resource subscriptions + SSE notifications
 	backend/mcp_server/subscriptions.py (new)
-	SSE stream works on localhost desktop; same endpoint works on VM
+	Core MCP has lightweight subscription tracking today; this task promotes it to the active backend MCP server with SSE notifications. SSE stream works on localhost desktop; same endpoint works on VM
 	DESKTOP+VM
 	G-6
 	SDK v0.5.0 release — DSQPClient + CoordinateResolver17 wired to live backend; clean CHANGELOG
@@ -1153,7 +1167,7 @@ New phase with no equivalent in earlier plans. Addresses the fundamental local-f
 
 H-1: Java/JRE Bundling for Neo4j (CRITICAL — Neo4j silently fails without Java 17)
 Neo4j requires Java 17 — not present on most clean Windows installs
-Neo4j Community 5.x requires Java 17+. The DatabaseLifecycleManager._find_java_home() searches common install paths but does NOT bundle a JRE. On a clean Windows laptop with only DataLogicEngine installed, Neo4j will fail to start with no user-visible error message. Solution: download and bundle Eclipse Temurin JRE 17 (headless, ~60MB) alongside the Neo4j binary in databases/jre/.
+Neo4j Community 5.x requires Java 17+. Current DatabaseLifecycleManager._find_java_home() checks JAVA_HOME, common Windows install locations, and some IDE/extension JREs, but it does NOT install or prioritize a DataLogicEngine-owned databases/jre/ runtime. On a clean Windows laptop with only DataLogicEngine installed, Neo4j can fail to start with no user-visible error message. Solution: download and bundle Eclipse Temurin JRE 17 (headless, ~60MB) alongside the Neo4j binary in databases/jre/.
 	
 
 ID

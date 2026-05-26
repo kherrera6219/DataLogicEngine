@@ -5,7 +5,6 @@ Purpose: Explore multiple reasoning paths using tree search (BFS/DFS).
 import logging
 import json
 import os
-import random
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
@@ -16,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 class KA002Input(BaseModel):
     initial_state: str = Field("start", description="Initial state node for tree search")
+    goal: str = Field("", description="Optional goal/query to decompose")
 
 class KA002TreeOfThought(KnowledgeAlgorithm):
     """
@@ -39,7 +39,7 @@ class KA002TreeOfThought(KnowledgeAlgorithm):
             return {}
 
     def _run_logic(self, input_data: KA002Input) -> Dict[str, Any]:
-        initial_state = input_data.initial_state
+        initial_state = input_data.goal or input_data.initial_state
         method = self.config.get("search_method", "BFS")
         
         self.log_execution_step("Tree Search", {"method": method, "start": initial_state})
@@ -52,18 +52,17 @@ class KA002TreeOfThought(KnowledgeAlgorithm):
         return {
             "success": True,
             "method": method,
-            "best_path": best_path
+            "best_path": best_path,
+            "sub_goals": self._sub_goals(initial_state),
         }
 
     def _bfs_search(self, start_node: str) -> List[str]:
         queue = [[start_node]]
         max_depth = self.config.get("max_depth", 3)
         branching = self.config.get("branching_factor", 2)
-        prune_thresh = self.config.get("pruning_threshold", 0.4)
         
         best_path = []
         best_score = -1.0
-        expanded = 0
         
         while queue:
             path = queue.pop(0)
@@ -72,24 +71,41 @@ class KA002TreeOfThought(KnowledgeAlgorithm):
                 
             current = path[-1]
             children = [f"{current}_child_{i}" for i in range(branching)]
-            expanded += 1
             
             for child in children:
                 new_path = list(path)
                 new_path.append(child)
-                score = random.random() # Stub evaluation
+                score = self._score_path(new_path)
                 
                 if score > best_score:
                     best_score = score
                     best_path = new_path
                 
-                if score >= prune_thresh:
+                if len(new_path) < max_depth:
                     queue.append(new_path)
                     
         return best_path
 
     def _dfs_search(self, start_node: str) -> List[str]:
-        return [start_node, "dfs_stub"]
+        sub_goals = self._sub_goals(start_node)
+        return [start_node] + [goal["label"] for goal in sub_goals]
+
+    @staticmethod
+    def _score_path(path: List[str]) -> float:
+        joined = " ".join(path).lower()
+        score = 0.25 + min(0.5, len(set(joined.split())) / 20)
+        if any(word in joined for word in ("risk", "verify", "evidence", "compliance")):
+            score += 0.2
+        return min(1.0, score)
+
+    @staticmethod
+    def _sub_goals(goal: str) -> List[Dict[str, Any]]:
+        clean_goal = goal.strip() or "reason about the request"
+        return [
+            {"branch": "evidence", "label": f"Gather evidence for {clean_goal}", "priority": 1},
+            {"branch": "risk", "label": f"Identify risks and contradictions in {clean_goal}", "priority": 2},
+            {"branch": "synthesis", "label": f"Synthesize a defensible answer for {clean_goal}", "priority": 3},
+        ]
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

@@ -428,10 +428,11 @@ class TruthCoreEngine:
         if not self.persona_construction:
             return {}
         profiles: Dict[str, Any] = {}
+        persona_context = {**working_context, "dsqp_mode": working_context.get("dsqp_mode", True)}
         for axis_number in self._active_persona_axes(working_context):
             coordinate_path = self._coordinate_path_for_axis(axis_number, working_context)
             try:
-                profile = self.persona_construction.construct_persona(axis_number, coordinate_path, working_context)
+                profile = self.persona_construction.construct_persona(axis_number, coordinate_path, persona_context)
                 profiles[str(axis_number)] = profile.to_dict()
             except Exception as exc:
                 logger.debug("Persona construction skipped for axis %s: %s", axis_number, exc)
@@ -473,6 +474,11 @@ class TruthCoreEngine:
                         output['constructed_persona_profiles'] = constructed_profiles
                         step_result['output'] = output
                         working_context['constructed_persona_profiles'] = constructed_profiles
+                        working_context['dsqp_chain'] = {
+                            axis: profile.get('metadata', {}).get('dsqp_chain', [])
+                            for axis, profile in constructed_profiles.items()
+                            if profile.get('metadata', {}).get('dsqp_chain')
+                        }
                         personas_used.update(profile.get('persona_type', str(axis)) for axis, profile in constructed_profiles.items())
                     
                     # --- PERSONA SUFFICIENCY GATE ---

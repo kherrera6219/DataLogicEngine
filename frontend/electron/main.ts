@@ -676,6 +676,26 @@ ipcMain.handle('quad-analysis-status', async (event, ...args: unknown[]) => {
   }
 });
 
+ipcMain.handle('dsqp-persona-profiles', async (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'dsqp-persona-profiles', args);
+  if (!backendProcess || backendProcess.exitCode !== null) {
+    return { success: false, profiles: [], partial: true, failures: { backend: 'offline' } };
+  }
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/api/v1/gateway/dsqp-persona-profiles');
+    const payload = await response.json();
+    return {
+      success: Boolean(payload?.success),
+      profiles: Array.isArray(payload?.profiles) ? payload.profiles : [],
+      partial: Boolean(payload?.partial),
+      failures: payload?.failures ?? {},
+    };
+  } catch {
+    return { success: false, profiles: [], partial: true, failures: { dsqp: 'unavailable' } };
+  }
+});
+
 ipcMain.handle('get-update-state', (event, ...args: unknown[]) => {
   assertTrustedIpcInvoke(event, 'get-update-state', args);
   return { ...updateState };

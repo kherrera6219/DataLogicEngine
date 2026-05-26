@@ -8,7 +8,8 @@ from pydantic import BaseModel
 logger = logging.getLogger(__name__)
 
 class KA116Input(BaseModel):
-    pass # No specific inputs needed for basic entropy scan
+    content: str = ""
+    claims: list = []
 
 class KA116EntropyDetection(KnowledgeAlgorithm):
     """
@@ -33,9 +34,14 @@ class KA116EntropyDetection(KnowledgeAlgorithm):
 
     def _run_logic(self, input_data: KA116Input) -> Dict[str, Any]:
         self.log_execution_step("Measuring System Entropy", {})
-        
-        # Simulate entropy calculation
-        entropy_score = 0.22 
+
+        from backend.knowledge_algorithms.l10.l10_ka_001_entropy_scorer import run as entropy_run
+
+        payload = input_data.model_dump()
+        if not payload.get("content") and payload.get("claims"):
+            payload["content"] = " ".join(str(claim) for claim in payload["claims"])
+        entropy_result = entropy_run(payload)
+        entropy_score = entropy_result.get("entropy_score", 0.0)
         threshold = self.config.get("entropy_threshold", 0.5)
         
         return {

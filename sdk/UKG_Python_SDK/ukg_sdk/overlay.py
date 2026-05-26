@@ -132,6 +132,16 @@ class UKGOverlay:
         tier = tier_override or out_route.output.get("tier") or "T1"
         layers = out_route.output.get("layers") or ["L1", "L2", "L9"]
 
+        dsqp_trace_output = self._build_dsqp_trace_output(
+            query=query,
+            coord=coord,
+            tier=tier,
+            layers=layers,
+            meta=meta,
+        )
+        if dsqp_trace_output:
+            t("DSQP", "ok", dsqp_trace_output)
+
         # light AoT in L2 if present
         aot = None
         if "L2" in layers and self.registry.has("KA-001"):
@@ -167,6 +177,43 @@ class UKGOverlay:
             "trace": trace,
             "explainability": explain.output.get("explainability"),
         }
+
+    def _build_dsqp_trace_output(
+        self,
+        *,
+        query: str,
+        coord: str,
+        tier: str,
+        layers: List[str],
+        meta: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Attach deterministic DSQP persona evidence to gateway trace records."""
+        try:
+            from backend.dsqp.dsqp_orchestrator import DSQPOrchestrator
+
+            context = {
+                **(meta or {}),
+                "coordinate_path": coord,
+                "tier": tier,
+                "layers": layers,
+                "source": "ukg_sdk_overlay",
+            }
+            result = DSQPOrchestrator(timeout_seconds=30).construct_all_sync(
+                query,
+                axis_vector={"coordinate": coord, "tier": tier},
+                context=context,
+            )
+            return {
+                "dsqp_chain": result,
+                "constructed_persona_profiles": result.get("profiles", {}),
+            }
+        except Exception as exc:
+            return {
+                "dsqp_chain_unavailable": {
+                    "error_type": type(exc).__name__,
+                    "message": str(exc),
+                }
+            }
         
     def _ka_61_handler(self, ctx: KAExecutionContext) -> KAExecutionResult:
         """KA-61: Adversarial Input Shield.

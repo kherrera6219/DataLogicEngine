@@ -1,0 +1,235 @@
+"""DSQP chain primitives.
+
+The first DSQP implementation is deterministic and offline-capable. Later
+LLM-assisted construction can replace `_answer_question` without changing the
+serialized output contract.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+import hashlib
+import json
+import re
+from typing import Any
+
+from backend.dsqp.dsqp_registry import DSQPRegistry
+
+COMPONENT_KEYS = [
+    "job_role",
+    "education",
+    "certifications",
+    "skills",
+    "training",
+    "career_path",
+    "related_jobs",
+]
+
+AXIS_PERSONA_TYPES = {
+    8: "knowledge",
+    9: "sector",
+    10: "regulatory",
+    11: "compliance",
+}
+
+
+@dataclass
+class ExpandedPersona:
+    """Serializable DSQP persona output."""
+
+    persona_id: str
+    axis_number: int
+    persona_type: str
+    name: str
+    description: str
+    components: dict[str, Any]
+    dsqp_chain: list[dict[str, Any]]
+    coverage_score: float
+    metadata: dict[str, Any] = field(default_factory=dict)
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "persona_id": self.persona_id,
+            "axis_number": self.axis_number,
+            "persona_type": self.persona_type,
+            "name": self.name,
+            "description": self.description,
+            "components": self.components,
+            "dsqp_chain": self.dsqp_chain,
+            "coverage_score": self.coverage_score,
+            "metadata": self.metadata,
+            "created_at": self.created_at,
+        }
+
+
+class DSQPChain:
+    """Construct one seven-component persona for one persona axis."""
+
+    def __init__(self, registry: DSQPRegistry | None = None):
+        self.registry = registry or DSQPRegistry()
+
+    def construct(
+        self,
+        query: str,
+        axis_vector: dict[str, Any] | None = None,
+        *,
+        axis_number: int = 8,
+        coordinate_path: str = "default",
+        context: dict[str, Any] | None = None,
+    ) -> ExpandedPersona:
+        if axis_number not in AXIS_PERSONA_TYPES:
+            raise ValueError(f"DSQP supports persona axes 8-11, got {axis_number}")
+
+        context = context or {}
+        axis_vector = axis_vector or {}
+        persona_type = AXIS_PERSONA_TYPES[axis_number]
+        template = self.registry.template_for(persona_type)
+        keywords = self._keywords(query, coordinate_path, context)
+
+        components: dict[str, Any] = {}
+        chain: list[dict[str, Any]] = []
+        for step_number, component_key in enumerate(COMPONENT_KEYS, start=1):
+            question = template["questions"][component_key]
+            answer = self._answer_question(
+                component_key,
+                persona_type,
+                query,
+                coordinate_path,
+                keywords,
+                context,
+            )
+            components[component_key] = answer
+            chain.append(
+                {
+                    "step": step_number,
+                    "component": component_key,
+                    "question": question,
+                    "answer": answer,
+                    "axis_number": axis_number,
+                    "persona_type": persona_type,
+                }
+            )
+
+        digest = hashlib.sha256(
+            json.dumps(
+                {
+                    "axis_number": axis_number,
+                    "coordinate_path": coordinate_path,
+                    "query": query,
+                    "persona_type": persona_type,
+                },
+                sort_keys=True,
+            ).encode()
+        ).hexdigest()[:12]
+        title = components["job_role"]["title"]
+        coverage_score = self._coverage_score(components)
+        return ExpandedPersona(
+            persona_id=f"dsqp_{axis_number}_{digest}",
+            axis_number=axis_number,
+            persona_type=persona_type,
+            name=title,
+            description=f"DSQP-constructed {persona_type} persona for {coordinate_path}",
+            components=components,
+            dsqp_chain=chain,
+            coverage_score=coverage_score,
+            metadata={
+                "coordinate_path": coordinate_path,
+                "axis_vector": axis_vector,
+                "query_digest": hashlib.sha256(query.encode()).hexdigest()[:16],
+                "construction_mode": "deterministic_offline",
+            },
+        )
+
+    @staticmethod
+    def _keywords(query: str, coordinate_path: str, context: dict[str, Any]) -> list[str]:
+        tokens = re.findall(r"[A-Za-z][A-Za-z0-9_-]{2,}", f"{query} {coordinate_path}")
+        ignored = {"the", "and", "for", "with", "from", "that", "this", "into", "about"}
+        keywords = []
+        for token in tokens:
+            normalized = token.lower()
+            if normalized not in ignored and normalized not in keywords:
+                keywords.append(normalized)
+        for key in ("risk_domain", "domain", "sector"):
+            value = context.get(key)
+            if value and str(value).lower() not in keywords:
+                keywords.append(str(value).lower())
+        return keywords[:8] or ["general", "analysis"]
+
+    def _answer_question(
+        self,
+        component_key: str,
+        persona_type: str,
+        query: str,
+        coordinate_path: str,
+        keywords: list[str],
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
+        domain = str(context.get("risk_domain") or context.get("domain") or "standard")
+        label = coordinate_path.replace("_", " ").replace(".", " / ")
+        skill_terms = [word.title() for word in keywords[:5]]
+        if component_key == "job_role":
+            return {
+                "title": f"Lead {persona_type.title()} Analyst",
+                "level": context.get("experience_level", "Senior Specialist"),
+                "focus_area": label,
+                "query_mission": query[:240],
+            }
+        if component_key == "education":
+            degree = {
+                "knowledge": "PhD or equivalent in applied knowledge systems",
+                "sector": "MBA or MS in sector operations",
+                "regulatory": "JD, LLM, or regulatory affairs graduate training",
+                "compliance": "MS in enterprise compliance or risk governance",
+            }[persona_type]
+            return {"degree": degree, "focus": label, "domain": domain}
+        if component_key == "certifications":
+            certs = {
+                "knowledge": ["UKG-Certified Scholar", "Evidence Synthesis Practitioner"],
+                "sector": ["Six Sigma Black Belt", "Industry Operations Lead"],
+                "regulatory": ["Regulatory Affairs Certified", "Policy Analysis Lead"],
+                "compliance": ["CAMS", "Enterprise Risk Management Professional"],
+            }[persona_type]
+            return {"list": certs, "required_for": domain}
+        if component_key == "skills":
+            return {
+                "items": sorted(set(skill_terms + ["Analysis", "Verification", "Risk Review"])),
+                "domain_focus": label,
+                "constraints": context.get("constraints", []),
+            }
+        if component_key == "training":
+            return {
+                "modules": [
+                    "DSQP Role Activation",
+                    "UKG 17-Axis Reasoning",
+                    f"{persona_type.title()} Evidence Review",
+                ],
+                "risk_domain": domain,
+            }
+        if component_key == "career_path":
+            return {
+                "stages": [
+                    "Analyst",
+                    f"{persona_type.title()} Specialist",
+                    f"Lead {persona_type.title()} Analyst",
+                ],
+                "years_in_field": 12 if domain == "standard" else 15,
+            }
+        return {
+            "overlapping_roles": [
+                "Risk Manager",
+                "Technical Lead",
+                f"{persona_type.title()} Reviewer",
+            ],
+            "blind_spot_coverage": skill_terms[:3],
+        }
+
+    @staticmethod
+    def _coverage_score(components: dict[str, Any]) -> float:
+        populated = 0
+        for key in COMPONENT_KEYS:
+            value = components.get(key)
+            if isinstance(value, dict) and any(v not in (None, "", [], {}) for v in value.values()):
+                populated += 1
+        return round(populated / len(COMPONENT_KEYS), 4)

@@ -1,12 +1,23 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Terminal, Shield, CheckCircle, XCircle, Loader2, Database } from 'lucide-react';
+import { Terminal, Shield, CheckCircle, XCircle, Loader2, Database, Users } from 'lucide-react';
+
+interface DSQPPersonaProfile {
+  axis: number;
+  persona_type: string;
+  name: string;
+  coverage_score: number;
+  job_role: string;
+  skills: string[];
+  chain_steps: number;
+}
 
 const DesktopStatus = () => {
   const [status, setStatus] = useState<string>('checking');
   const [logs, setLogs] = useState<string[]>([]);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [dsqpProfiles, setDsqpProfiles] = useState<DSQPPersonaProfile[]>([]);
 
   useEffect(() => {
     const electronApi = typeof window !== 'undefined' ? window.electronAPI : undefined;
@@ -19,6 +30,10 @@ const DesktopStatus = () => {
         try {
           const s = await electronApi.getBackendStatus();
           setStatus(s);
+          if (s === 'running' && electronApi.dsqpPersonaProfiles) {
+            const dsqp = await electronApi.dsqpPersonaProfiles();
+            setDsqpProfiles(Array.isArray(dsqp.profiles) ? dsqp.profiles.slice(0, 4) : []);
+          }
         } catch {
           setStatus('error');
         }
@@ -71,6 +86,27 @@ const DesktopStatus = () => {
           )}
         </div>
       </div>
+
+      {dsqpProfiles.length > 0 && (
+        <div className="mb-3 rounded border border-slate-800 bg-slate-950/80 p-2">
+          <div className="mb-2 flex items-center gap-1 text-[10px] font-medium text-slate-400">
+            <Users className="h-3 w-3" />
+            <span>DSQP Personas</span>
+          </div>
+          <div className="grid grid-cols-2 gap-1.5">
+            {dsqpProfiles.map((profile) => (
+              <div key={profile.axis} className="min-w-0 rounded border border-slate-800 bg-slate-900 px-2 py-1">
+                <div className="truncate text-[10px] font-semibold text-slate-200">
+                  A{profile.axis} {profile.persona_type}
+                </div>
+                <div className="truncate text-[9px] text-slate-500">
+                  {profile.chain_steps}/7 steps · {Math.round(profile.coverage_score * 100)}%
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="bg-slate-950 rounded p-2 text-[10px] font-mono h-24 overflow-hidden border border-slate-800">
         <div className="flex items-center gap-1 border-b border-slate-800 mb-1 pb-1 text-slate-500">

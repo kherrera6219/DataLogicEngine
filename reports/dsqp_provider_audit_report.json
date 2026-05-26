@@ -1,0 +1,854 @@
+{
+  "audit_footer_present": true,
+  "database_url": "sqlite:///C:/software/DataLogicEngine/reports/dsqp_provider_audit.sqlite",
+  "desktop_mode": "true",
+  "dsqp_chain_present": true,
+  "dsqp_profile_axes": [
+    "10",
+    "11",
+    "8",
+    "9"
+  ],
+  "error": null,
+  "generated_at": "2026-05-26T05:53:33.308748+00:00",
+  "latest_truth_audit_event": {
+    "actor_id": null,
+    "actor_type": null,
+    "axis_involved": null,
+    "compliance_flags": {
+      "eu_ai_act_article_53": true
+    },
+    "decision_rationale": null,
+    "event_category": "audit",
+    "event_data": {
+      "confidence": 0.395,
+      "dsqp_chain": {
+        "DSQP": {
+          "failures": {},
+          "partial": false,
+          "profiles": {
+            "10": {
+              "axis_number": 10,
+              "components": {
+                "career_path": {
+                  "stages": [
+                    "Analyst",
+                    "Regulatory Specialist",
+                    "Lead Regulatory Analyst"
+                  ],
+                  "years_in_field": 12
+                },
+                "certifications": {
+                  "list": [
+                    "Regulatory Affairs Certified",
+                    "Policy Analysis Lead"
+                  ],
+                  "required_for": "standard"
+                },
+                "education": {
+                  "degree": "JD, LLM, or regulatory affairs graduate training",
+                  "domain": "standard",
+                  "focus": "UKG:unknown pillar:unknown sector"
+                },
+                "job_role": {
+                  "focus_area": "UKG:unknown pillar:unknown sector",
+                  "level": "Senior Specialist",
+                  "query_mission": "Summarize the compliance audit controls required before releasing a desktop AI application.",
+                  "title": "Lead Regulatory Analyst"
+                },
+                "related_jobs": {
+                  "blind_spot_coverage": [
+                    "Summarize",
+                    "Compliance",
+                    "Audit"
+                  ],
+                  "overlapping_roles": [
+                    "Risk Manager",
+                    "Technical Lead",
+                    "Regulatory Reviewer"
+                  ]
+                },
+                "skills": {
+                  "constraints": [],
+                  "domain_focus": "UKG:unknown pillar:unknown sector",
+                  "items": [
+                    "Analysis",
+                    "Audit",
+                    "Compliance",
+                    "Controls",
+                    "Required",
+                    "Risk Review",
+                    "Summarize",
+                    "Verification"
+                  ]
+                },
+                "training": {
+                  "modules": [
+                    "DSQP Role Activation",
+                    "UKG 17-Axis Reasoning",
+                    "Regulatory Evidence Review"
+                  ],
+                  "risk_domain": "standard"
+                }
+              },
+              "coverage_score": 1.0,
+              "created_at": "2026-05-26T05:53:40.710822+00:00",
+              "description": "DSQP-constructed regulatory persona for UKG:unknown_pillar:unknown_sector",
+              "dsqp_chain": [
+                {
+                  "answer": {
+                    "focus_area": "UKG:unknown pillar:unknown sector",
+                    "level": "Senior Specialist",
+                    "query_mission": "Summarize the compliance audit controls required before releasing a desktop AI application.",
+                    "title": "Lead Regulatory Analyst"
+                  },
+                  "axis_number": 10,
+                  "component": "job_role",
+                  "persona_type": "regulatory",
+                  "question": "Which regulatory expert role should own this query?",
+                  "step": 1
+                },
+                {
+                  "answer": {
+                    "degree": "JD, LLM, or regulatory affairs graduate training",
+                    "domain": "standard",
+                    "focus": "UKG:unknown pillar:unknown sector"
+                  },
+                  "axis_number": 10,
+                  "component": "education",
+                  "persona_type": "regulatory",
+                  "question": "What legal or policy education grounds this role?",
+                  "step": 2
+                },
+                {
+                  "answer": {
+                    "list": [
+                      "Regulatory Affairs Certified",
+                      "Policy Analysis Lead"
+                    ],
+                    "required_for": "standard"
+                  },
+                  "axis_number": 10,
+                  "component": "certifications",
+                  "persona_type": "regulatory",
+                  "question": "What regulatory credentials are relevant?",
+                  "step": 3
+                },
+                {
+                  "answer": {
+                    "constraints": [],
+                    "domain_focus": "UKG:unknown pillar:unknown sector",
+                    "items": [
+                      "Analysis",
+                      "Audit",
+                      "Compliance",
+                      "Controls",
+                      "Required",
+                      "Risk Review",
+                      "Summarize",
+                      "Verification"
+                    ]
+                  },
+                  "axis_number": 10,
+                  "component": "skills",
+                  "persona_type": "regulatory",
+                  "question": "What statute, rule, and enforcement-analysis skills are required?",
+                  "step": 4
+                },
+                {
+                  "answer": {
+                    "modules": [
+                      "DSQP Role Activation",
+                      "UKG 17-Axis Reasoning",
+                      "Regulatory Evidence Review"
+                    ],
+                    "risk_domain": "standard"
+                  },
+                  "axis_number": 10,
+                  "component": "training",
+                  "persona_type": "regulatory",
+                  "question": "What regulatory review training should this persona have?",
+                  "step": 5
+                },
+                {
+                  "answer": {
+                    "stages": [
+                      "Analyst",
+                      "Regulatory Specialist",
+                      "Lead Regulatory Analyst"
+                    ],
+                    "years_in_field": 12
+                  },
+                  "axis_number": 10,
+                  "component": "career_path",
+                  "persona_type": "regulatory",
+                  "question": "What regulatory career path gives this role credibility?",
+                  "step": 6
+                },
+                {
+                  "answer": {
+                    "blind_spot_coverage": [
+                      "Summarize",
+                      "Compliance",
+                      "Audit"
+                    ],
+                    "overlapping_roles": [
+                      "Risk Manager",
+                      "Technical Lead",
+                      "Regulatory Reviewer"
+                    ]
+                  },
+                  "axis_number": 10,
+                  "component": "related_jobs",
+                  "persona_type": "regulatory",
+                  "question": "Which adjacent policy roles should inform blind-spot coverage?",
+                  "step": 7
+                }
+              ],
+              "metadata": {
+                "axis_vector": {
+                  "coordinate": "UKG:unknown_pillar:unknown_sector",
+                  "tier": "T2"
+                },
+                "construction_mode": "deterministic_offline",
+                "coordinate_path": "UKG:unknown_pillar:unknown_sector",
+                "query_digest": "7f438337785d7972"
+              },
+              "name": "Lead Regulatory Analyst",
+              "persona_id": "dsqp_10_fe4e38413a8b",
+              "persona_type": "regulatory",
+              "validation": {
+                "coverage_score": 1.0,
+                "minimum_coverage": 0.7,
+                "missing_components": [],
+                "valid": true
+              }
+            },
+            "11": {
+              "axis_number": 11,
+              "components": {
+                "career_path": {
+                  "stages": [
+                    "Analyst",
+                    "Compliance Specialist",
+                    "Lead Compliance Analyst"
+                  ],
+                  "years_in_field": 12
+                },
+                "certifications": {
+                  "list": [
+                    "CAMS",
+                    "Enterprise Risk Management Professional"
+                  ],
+                  "required_for": "standard"
+                },
+                "education": {
+                  "degree": "MS in enterprise compliance or risk governance",
+                  "domain": "standard",
+                  "focus": "UKG:unknown pillar:unknown sector"
+                },
+                "job_role": {
+                  "focus_area": "UKG:unknown pillar:unknown sector",
+                  "level": "Senior Specialist",
+                  "query_mission": "Summarize the compliance audit controls required before releasing a desktop AI application.",
+                  "title": "Lead Compliance Analyst"
+                },
+                "related_jobs": {
+                  "blind_spot_coverage": [
+                    "Summarize",
+                    "Compliance",
+                    "Audit"
+                  ],
+                  "overlapping_roles": [
+                    "Risk Manager",
+                    "Technical Lead",
+                    "Compliance Reviewer"
+                  ]
+                },
+                "skills": {
+                  "constraints": [],
+                  "domain_focus": "UKG:unknown pillar:unknown sector",
+                  "items": [
+                    "Analysis",
+                    "Audit",
+                    "Compliance",
+                    "Controls",
+                    "Required",
+                    "Risk Review",
+                    "Summarize",
+                    "Verification"
+                  ]
+                },
+                "training": {
+                  "modules": [
+                    "DSQP Role Activation",
+                    "UKG 17-Axis Reasoning",
+                    "Compliance Evidence Review"
+                  ],
+                  "risk_domain": "standard"
+                }
+              },
+              "coverage_score": 1.0,
+              "created_at": "2026-05-26T05:53:40.710980+00:00",
+              "description": "DSQP-constructed compliance persona for UKG:unknown_pillar:unknown_sector",
+              "dsqp_chain": [
+                {
+                  "answer": {
+                    "focus_area": "UKG:unknown pillar:unknown sector",
+                    "level": "Senior Specialist",
+                    "query_mission": "Summarize the compliance audit controls required before releasing a desktop AI application.",
+                    "title": "Lead Compliance Analyst"
+                  },
+                  "axis_number": 11,
+                  "component": "job_role",
+                  "persona_type": "compliance",
+                  "question": "Which compliance governance role should own this query?",
+                  "step": 1
+                },
+                {
+                  "answer": {
+                    "degree": "MS in enterprise compliance or risk governance",
+                    "domain": "standard",
+                    "focus": "UKG:unknown pillar:unknown sector"
+                  },
+                  "axis_number": 11,
+                  "component": "education",
+                  "persona_type": "compliance",
+                  "question": "What compliance or risk education grounds this role?",
+                  "step": 2
+                },
+                {
+                  "answer": {
+                    "list": [
+                      "CAMS",
+                      "Enterprise Risk Management Professional"
+                    ],
+                    "required_for": "standard"
+                  },
+                  "axis_number": 11,
+                  "component": "certifications",
+                  "persona_type": "compliance",
+                  "question": "What audit, risk, or compliance credentials are relevant?",
+                  "step": 3
+                },
+                {
+                  "answer": {
+                    "constraints": [],
+                    "domain_focus": "UKG:unknown pillar:unknown sector",
+                    "items": [
+                      "Analysis",
+                      "Audit",
+                      "Compliance",
+                      "Controls",
+                      "Required",
+                      "Risk Review",
+                      "Summarize",
+                      "Verification"
+                    ]
+                  },
+                  "axis_number": 11,
+                  "component": "skills",
+                  "persona_type": "compliance",
+                  "question": "What control, auditability, and remediation skills are required?",
+                  "step": 4
+                },
+                {
+                  "answer": {
+                    "modules": [
+                      "DSQP Role Activation",
+                      "UKG 17-Axis Reasoning",
+                      "Compliance Evidence Review"
+                    ],
+                    "risk_domain": "standard"
+                  },
+                  "axis_number": 11,
+                  "component": "training",
+                  "persona_type": "compliance",
+                  "question": "What compliance control training should this persona have?",
+                  "step": 5
+                },
+                {
+                  "answer": {
+                    "stages": [
+                      "Analyst",
+                      "Compliance Specialist",
+                      "Lead Compliance Analyst"
+                    ],
+                    "years_in_field": 12
+                  },
+                  "axis_number": 11,
+                  "component": "career_path",
+                  "persona_type": "compliance",
+                  "question": "What compliance career path gives this role credibility?",
+                  "step": 6
+                },
+                {
+                  "answer": {
+                    "blind_spot_coverage": [
+                      "Summarize",
+                      "Compliance",
+                      "Audit"
+                    ],
+                    "overlapping_roles": [
+                      "Risk Manager",
+                      "Technical Lead",
+                      "Compliance Reviewer"
+                    ]
+                  },
+                  "axis_number": 11,
+                  "component": "related_jobs",
+                  "persona_type": "compliance",
+                  "question": "Which adjacent assurance roles should inform blind-spot coverage?",
+                  "step": 7
+                }
+              ],
+              "metadata": {
+                "axis_vector": {
+                  "coordinate": "UKG:unknown_pillar:unknown_sector",
+                  "tier": "T2"
+                },
+                "construction_mode": "deterministic_offline",
+                "coordinate_path": "UKG:unknown_pillar:unknown_sector",
+                "query_digest": "7f438337785d7972"
+              },
+              "name": "Lead Compliance Analyst",
+              "persona_id": "dsqp_11_bfc6ae6d9d1d",
+              "persona_type": "compliance",
+              "validation": {
+                "coverage_score": 1.0,
+                "minimum_coverage": 0.7,
+                "missing_components": [],
+                "valid": true
+              }
+            },
+            "8": {
+              "axis_number": 8,
+              "components": {
+                "career_path": {
+                  "stages": [
+                    "Analyst",
+                    "Knowledge Specialist",
+                    "Lead Knowledge Analyst"
+                  ],
+                  "years_in_field": 12
+                },
+                "certifications": {
+                  "list": [
+                    "UKG-Certified Scholar",
+                    "Evidence Synthesis Practitioner"
+                  ],
+                  "required_for": "standard"
+                },
+                "education": {
+                  "degree": "PhD or equivalent in applied knowledge systems",
+                  "domain": "standard",
+                  "focus": "UKG:unknown pillar:unknown sector"
+                },
+                "job_role": {
+                  "focus_area": "UKG:unknown pillar:unknown sector",
+                  "level": "Senior Specialist",
+                  "query_mission": "Summarize the compliance audit controls required before releasing a desktop AI application.",
+                  "title": "Lead Knowledge Analyst"
+                },
+                "related_jobs": {
+                  "blind_spot_coverage": [
+                    "Summarize",
+                    "Compliance",
+                    "Audit"
+                  ],
+                  "overlapping_roles": [
+                    "Risk Manager",
+                    "Technical Lead",
+                    "Knowledge Reviewer"
+                  ]
+                },
+                "skills": {
+                  "constraints": [],
+                  "domain_focus": "UKG:unknown pillar:unknown sector",
+                  "items": [
+                    "Analysis",
+                    "Audit",
+                    "Compliance",
+                    "Controls",
+                    "Required",
+                    "Risk Review",
+                    "Summarize",
+                    "Verification"
+                  ]
+                },
+                "training": {
+                  "modules": [
+                    "DSQP Role Activation",
+                    "UKG 17-Axis Reasoning",
+                    "Knowledge Evidence Review"
+                  ],
+                  "risk_domain": "standard"
+                }
+              },
+              "coverage_score": 1.0,
+              "created_at": "2026-05-26T05:53:40.710411+00:00",
+              "description": "DSQP-constructed knowledge persona for UKG:unknown_pillar:unknown_sector",
+              "dsqp_chain": [
+                {
+                  "answer": {
+                    "focus_area": "UKG:unknown pillar:unknown sector",
+                    "level": "Senior Specialist",
+                    "query_mission": "Summarize the compliance audit controls required before releasing a desktop AI application.",
+                    "title": "Lead Knowledge Analyst"
+                  },
+                  "axis_number": 8,
+                  "component": "job_role",
+                  "persona_type": "knowledge",
+                  "question": "Which knowledge-domain expert role should own this query?",
+                  "step": 1
+                },
+                {
+                  "answer": {
+                    "degree": "PhD or equivalent in applied knowledge systems",
+                    "domain": "standard",
+                    "focus": "UKG:unknown pillar:unknown sector"
+                  },
+                  "axis_number": 8,
+                  "component": "education",
+                  "persona_type": "knowledge",
+                  "question": "What technical or scientific education grounds this knowledge role?",
+                  "step": 2
+                },
+                {
+                  "answer": {
+                    "list": [
+                      "UKG-Certified Scholar",
+                      "Evidence Synthesis Practitioner"
+                    ],
+                    "required_for": "standard"
+                  },
+                  "axis_number": 8,
+                  "component": "certifications",
+                  "persona_type": "knowledge",
+                  "question": "What knowledge-system credentials are relevant?",
+                  "step": 3
+                },
+                {
+                  "answer": {
+                    "constraints": [],
+                    "domain_focus": "UKG:unknown pillar:unknown sector",
+                    "items": [
+                      "Analysis",
+                      "Audit",
+                      "Compliance",
+                      "Controls",
+                      "Required",
+                      "Risk Review",
+                      "Summarize",
+                      "Verification"
+                    ]
+                  },
+                  "axis_number": 8,
+                  "component": "skills",
+                  "persona_type": "knowledge",
+                  "question": "What analysis, synthesis, and verification skills are required?",
+                  "step": 4
+                },
+                {
+                  "answer": {
+                    "modules": [
+                      "DSQP Role Activation",
+                      "UKG 17-Axis Reasoning",
+                      "Knowledge Evidence Review"
+                    ],
+                    "risk_domain": "standard"
+                  },
+                  "axis_number": 8,
+                  "component": "training",
+                  "persona_type": "knowledge",
+                  "question": "What UKG and evidence-review training should this persona have?",
+                  "step": 5
+                },
+                {
+                  "answer": {
+                    "stages": [
+                      "Analyst",
+                      "Knowledge Specialist",
+                      "Lead Knowledge Analyst"
+                    ],
+                    "years_in_field": 12
+                  },
+                  "axis_number": 8,
+                  "component": "career_path",
+                  "persona_type": "knowledge",
+                  "question": "What knowledge-work career path gives this role credibility?",
+                  "step": 6
+                },
+                {
+                  "answer": {
+                    "blind_spot_coverage": [
+                      "Summarize",
+                      "Compliance",
+                      "Audit"
+                    ],
+                    "overlapping_roles": [
+                      "Risk Manager",
+                      "Technical Lead",
+                      "Knowledge Reviewer"
+                    ]
+                  },
+                  "axis_number": 8,
+                  "component": "related_jobs",
+                  "persona_type": "knowledge",
+                  "question": "Which adjacent knowledge roles should inform blind-spot coverage?",
+                  "step": 7
+                }
+              ],
+              "metadata": {
+                "axis_vector": {
+                  "coordinate": "UKG:unknown_pillar:unknown_sector",
+                  "tier": "T2"
+                },
+                "construction_mode": "deterministic_offline",
+                "coordinate_path": "UKG:unknown_pillar:unknown_sector",
+                "query_digest": "7f438337785d7972"
+              },
+              "name": "Lead Knowledge Analyst",
+              "persona_id": "dsqp_8_8112ff2d0763",
+              "persona_type": "knowledge",
+              "validation": {
+                "coverage_score": 1.0,
+                "minimum_coverage": 0.7,
+                "missing_components": [],
+                "valid": true
+              }
+            },
+            "9": {
+              "axis_number": 9,
+              "components": {
+                "career_path": {
+                  "stages": [
+                    "Analyst",
+                    "Sector Specialist",
+                    "Lead Sector Analyst"
+                  ],
+                  "years_in_field": 12
+                },
+                "certifications": {
+                  "list": [
+                    "Six Sigma Black Belt",
+                    "Industry Operations Lead"
+                  ],
+                  "required_for": "standard"
+                },
+                "education": {
+                  "degree": "MBA or MS in sector operations",
+                  "domain": "standard",
+                  "focus": "UKG:unknown pillar:unknown sector"
+                },
+                "job_role": {
+                  "focus_area": "UKG:unknown pillar:unknown sector",
+                  "level": "Senior Specialist",
+                  "query_mission": "Summarize the compliance audit controls required before releasing a desktop AI application.",
+                  "title": "Lead Sector Analyst"
+                },
+                "related_jobs": {
+                  "blind_spot_coverage": [
+                    "Summarize",
+                    "Compliance",
+                    "Audit"
+                  ],
+                  "overlapping_roles": [
+                    "Risk Manager",
+                    "Technical Lead",
+                    "Sector Reviewer"
+                  ]
+                },
+                "skills": {
+                  "constraints": [],
+                  "domain_focus": "UKG:unknown pillar:unknown sector",
+                  "items": [
+                    "Analysis",
+                    "Audit",
+                    "Compliance",
+                    "Controls",
+                    "Required",
+                    "Risk Review",
+                    "Summarize",
+                    "Verification"
+                  ]
+                },
+                "training": {
+                  "modules": [
+                    "DSQP Role Activation",
+                    "UKG 17-Axis Reasoning",
+                    "Sector Evidence Review"
+                  ],
+                  "risk_domain": "standard"
+                }
+              },
+              "coverage_score": 1.0,
+              "created_at": "2026-05-26T05:53:40.710651+00:00",
+              "description": "DSQP-constructed sector persona for UKG:unknown_pillar:unknown_sector",
+              "dsqp_chain": [
+                {
+                  "answer": {
+                    "focus_area": "UKG:unknown pillar:unknown sector",
+                    "level": "Senior Specialist",
+                    "query_mission": "Summarize the compliance audit controls required before releasing a desktop AI application.",
+                    "title": "Lead Sector Analyst"
+                  },
+                  "axis_number": 9,
+                  "component": "job_role",
+                  "persona_type": "sector",
+                  "question": "Which sector operations role should own this query?",
+                  "step": 1
+                },
+                {
+                  "answer": {
+                    "degree": "MBA or MS in sector operations",
+                    "domain": "standard",
+                    "focus": "UKG:unknown pillar:unknown sector"
+                  },
+                  "axis_number": 9,
+                  "component": "education",
+                  "persona_type": "sector",
+                  "question": "What sector-management education grounds this role?",
+                  "step": 2
+                },
+                {
+                  "answer": {
+                    "list": [
+                      "Six Sigma Black Belt",
+                      "Industry Operations Lead"
+                    ],
+                    "required_for": "standard"
+                  },
+                  "axis_number": 9,
+                  "component": "certifications",
+                  "persona_type": "sector",
+                  "question": "What industry or process credentials are relevant?",
+                  "step": 3
+                },
+                {
+                  "answer": {
+                    "constraints": [],
+                    "domain_focus": "UKG:unknown pillar:unknown sector",
+                    "items": [
+                      "Analysis",
+                      "Audit",
+                      "Compliance",
+                      "Controls",
+                      "Required",
+                      "Risk Review",
+                      "Summarize",
+                      "Verification"
+                    ]
+                  },
+                  "axis_number": 9,
+                  "component": "skills",
+                  "persona_type": "sector",
+                  "question": "What operating-model and stakeholder skills are required?",
+                  "step": 4
+                },
+                {
+                  "answer": {
+                    "modules": [
+                      "DSQP Role Activation",
+                      "UKG 17-Axis Reasoning",
+                      "Sector Evidence Review"
+                    ],
+                    "risk_domain": "standard"
+                  },
+                  "axis_number": 9,
+                  "component": "training",
+                  "persona_type": "sector",
+                  "question": "What sector-specific training should this persona have?",
+                  "step": 5
+                },
+                {
+                  "answer": {
+                    "stages": [
+                      "Analyst",
+                      "Sector Specialist",
+                      "Lead Sector Analyst"
+                    ],
+                    "years_in_field": 12
+                  },
+                  "axis_number": 9,
+                  "component": "career_path",
+                  "persona_type": "sector",
+                  "question": "What sector career path gives this role credibility?",
+                  "step": 6
+                },
+                {
+                  "answer": {
+                    "blind_spot_coverage": [
+                      "Summarize",
+                      "Compliance",
+                      "Audit"
+                    ],
+                    "overlapping_roles": [
+                      "Risk Manager",
+                      "Technical Lead",
+                      "Sector Reviewer"
+                    ]
+                  },
+                  "axis_number": 9,
+                  "component": "related_jobs",
+                  "persona_type": "sector",
+                  "question": "Which adjacent sector roles should inform blind-spot coverage?",
+                  "step": 7
+                }
+              ],
+              "metadata": {
+                "axis_vector": {
+                  "coordinate": "UKG:unknown_pillar:unknown_sector",
+                  "tier": "T2"
+                },
+                "construction_mode": "deterministic_offline",
+                "coordinate_path": "UKG:unknown_pillar:unknown_sector",
+                "query_digest": "7f438337785d7972"
+              },
+              "name": "Lead Sector Analyst",
+              "persona_id": "dsqp_9_d9b5b82a0727",
+              "persona_type": "sector",
+              "validation": {
+                "coverage_score": 1.0,
+                "minimum_coverage": 0.7,
+                "missing_components": [],
+                "valid": true
+              }
+            }
+          },
+          "timeout_seconds": 30
+        }
+      },
+      "evidence_pack_hash": "db586fdf8991798538a1604baa0e9020aa0b339a261ef2ce6088c9c8a0138919",
+      "status": "pass",
+      "tier": "T2",
+      "truthgate_decision": null
+    },
+    "event_id": "35b21143-fa3f-4d61-97ba-71be3b2a5256",
+    "event_type": "audit_bundle_commit",
+    "hash_chain": "58c24f0581d51f45c6975f46231261c85ec4458ba74bb5ebfb6a47c637614034",
+    "id": 1,
+    "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "retention_until": "2033-05-24T05:53:45.796724",
+    "session_id": null,
+    "timestamp": "2026-05-26T05:53:45.796724"
+  },
+  "model": "gpt-4.1-mini",
+  "model_used": "gpt-4.1-mini",
+  "ok": true,
+  "provider": "openai",
+  "provider_used": "openai",
+  "query_sha256": "7f438337785d7972925d204dee3e96d83f269dac0007e37ee0226eb9bb871e32",
+  "run_id": "93b6ac90-f7df-4773-a9ce-aca467c0095f",
+  "tier": "T2",
+  "truth_audit_event_created": true,
+  "truth_audit_events_after": 1,
+  "truth_audit_events_before": 0,
+  "usage": {
+    "estimated_cost_usd": 0.0,
+    "latency_ms": 12375,
+    "tokens_in": 0,
+    "tokens_out": 0
+  },
+  "warnings": []
+}
