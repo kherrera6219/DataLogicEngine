@@ -6,7 +6,10 @@ providing a unified interface for complex query resolution and system self-manag
 import logging
 import os
 import importlib
+import time
+import uuid
 import yaml
+from datetime import datetime, UTC
 from typing import Dict, Any
 from pydantic import BaseModel
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
@@ -75,14 +78,111 @@ class KAMasterController(KnowledgeAlgorithm):
             return {"success": True, "ka_id": norm_id, "mode": "async", "task_id": task.id, "status": "PENDING"}
 
         impl_path = self.algorithms[norm_id]["metadata"]["Implementation"]
+        started_at = datetime.now(UTC)
+        start_time = time.perf_counter()
         try:
             module_path, function_name = impl_path.rsplit(".", 1)
             module = importlib.import_module(module_path)
             run_func = getattr(module, function_name)
-            return run_func(input_data)
+            result = run_func(input_data)
+            self._record_ka_execution(
+                norm_id,
+                input_data,
+                output_data=result,
+                elapsed_ms=(time.perf_counter() - start_time) * 1000,
+                started_at=started_at,
+                completed_at=datetime.now(UTC),
+            )
+            return result
         except Exception as e:
+            self._record_ka_execution(
+                norm_id,
+                input_data,
+                error=e,
+                elapsed_ms=(time.perf_counter() - start_time) * 1000,
+                started_at=started_at,
+                completed_at=datetime.now(UTC),
+            )
             self.logger.error(f"Execution of {norm_id} failed: {e}")
             raise KAError(f"Recursive Execution Failure on {norm_id}", error_code="E502", details={"inner_error": str(e)})
+
+    def _record_ka_execution(
+        self,
+        ka_id: str,
+        input_data: Dict[str, Any],
+        output_data: Dict[str, Any] | None = None,
+        error: Exception | None = None,
+        elapsed_ms: float = 0.0,
+        started_at: datetime | None = None,
+        completed_at: datetime | None = None,
+    ) -> None:
+        """Persist KA timing telemetry when the local database is available."""
+        session = self._get_db_session()
+        if session is None:
+            return
+
+        try:
+            from models import KAExecution
+
+            self._ensure_ka_catalog_entry(session, ka_id)
+            execution = KAExecution(
+                uid=str(uuid.uuid4()),
+                ka_id=ka_id,
+                status="failed" if error else "completed",
+                input_data=self._json_safe(input_data),
+                output_data=self._json_safe(output_data) if output_data is not None else None,
+                error_message=str(error) if error else None,
+                execution_time_ms=max(0, int(round(elapsed_ms))),
+                tenant_id=(input_data or {}).get("tenant_id"),
+                started_at=started_at or datetime.now(UTC),
+                completed_at=completed_at or datetime.now(UTC),
+            )
+            session.add(execution)
+            session.commit()
+        except Exception as exc:
+            try:
+                session.rollback()
+            except Exception:
+                pass
+            logger.debug(f"KAExecution timing persistence skipped for {ka_id}: {exc}")
+
+    def _ensure_ka_catalog_entry(self, session, ka_id: str) -> None:
+        """Ensure KAExecution foreign keys can resolve in local-first databases."""
+        try:
+            from models import KnowledgeAlgorithm
+
+            exists = session.query(KnowledgeAlgorithm).filter_by(ka_id=ka_id).first()
+            if exists:
+                return
+            session.add(KnowledgeAlgorithm(
+                uid=f"ka-{ka_id.lower()}",
+                ka_id=ka_id,
+                name=ka_id,
+                description="Auto-registered by KA execution telemetry.",
+            ))
+        except Exception:
+            return
+
+    @staticmethod
+    def _json_safe(value: Any) -> Any:
+        if isinstance(value, dict):
+            return {str(key): KAMasterController._json_safe(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [KAMasterController._json_safe(item) for item in value]
+        if isinstance(value, tuple):
+            return [KAMasterController._json_safe(item) for item in value]
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            return value
+        return str(value)
+
+    @staticmethod
+    def _get_db_session():
+        try:
+            from extensions import db
+
+            return db.session
+        except Exception:
+            return None
 
     def _run_logic(self, input_data: BaseModel) -> Dict[str, Any]:
         """High-level query orchestration."""

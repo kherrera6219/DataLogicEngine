@@ -29,7 +29,8 @@ Required KAs:
 
 import logging
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from statistics import mean
 from typing import Dict, List, Any, Optional
 
 from .l8_schemas import (
@@ -104,6 +105,7 @@ class TrustValidationGateway:
         
         # Thresholds
         self.risk_thresholds = self.config.get("risk_thresholds", RISK_THRESHOLDS)
+        self.db_session = self.config.get("db_session")
         self.max_processing_time = self.config.get("max_processing_time_ms", MAX_PROCESSING_TIME_MS)
         
         # 17-axis mode
@@ -215,8 +217,80 @@ class TrustValidationGateway:
         # Axis 14 override takes precedence
         if input_data.axis_14_threshold is not None:
             return input_data.axis_14_threshold
-        
-        return self.risk_thresholds.get(input_data.risk_domain, 0.95)
+
+        domain = input_data.risk_domain or "standard"
+        calibrated = self._get_historical_threshold(domain)
+        if calibrated is not None:
+            return calibrated
+
+        return self.risk_thresholds.get(domain, 0.95)
+
+    def _get_historical_threshold(self, domain: str) -> Optional[float]:
+        """Calibrate thresholds from 90-day TraceRun confidence history by domain."""
+        confidences = self._trace_confidences_for_domain(domain)
+        if not confidences:
+            return None
+
+        static_threshold = self.risk_thresholds.get(domain, self.risk_thresholds.get("standard", 0.95))
+        calibrated = mean(confidences) + 0.03
+        return max(0.80, min(static_threshold, round(calibrated, 4)))
+
+    def _trace_confidences_for_domain(self, domain: str) -> List[float]:
+        session = self._get_db_session()
+        if session is None:
+            return []
+
+        try:
+            from models import TraceRun
+
+            cutoff = datetime.now(timezone.utc) - timedelta(days=90)
+            rows = (
+                session.query(TraceRun)
+                .filter(TraceRun.created_at >= cutoff)
+                .filter(TraceRun.confidence.isnot(None))
+                .order_by(TraceRun.created_at.desc())
+                .limit(500)
+                .all()
+            )
+        except Exception as exc:
+            logger.debug(f"L8 historical calibration skipped: {exc}")
+            return []
+
+        requested = (domain or "standard").lower()
+        confidences = []
+        for row in rows:
+            snapshot = row.data_snapshot or {}
+            row_domain = self._domain_from_snapshot(snapshot)
+            if row_domain == requested:
+                try:
+                    confidences.append(float(row.confidence))
+                except (TypeError, ValueError):
+                    continue
+        return confidences
+
+    @staticmethod
+    def _domain_from_snapshot(snapshot: Dict[str, Any]) -> str:
+        if not isinstance(snapshot, dict):
+            return "standard"
+        risk = snapshot.get("risk") if isinstance(snapshot.get("risk"), dict) else {}
+        value = (
+            snapshot.get("risk_domain")
+            or snapshot.get("domain")
+            or snapshot.get("truth_domain")
+            or risk.get("domain")
+            or "standard"
+        )
+        return str(value).lower()
+
+    def _get_db_session(self):
+        if self.db_session is not None:
+            return self.db_session
+        try:
+            from extensions import db
+
+            return db.session
+        except Exception:
+            return None
     
     def _run_consistency_scan(self, input_data: L8Input, kas_invoked: List[str]) -> List[ContradictionItem]:
         """Run contradiction detection on claims."""

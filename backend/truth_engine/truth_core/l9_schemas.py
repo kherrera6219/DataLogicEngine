@@ -31,6 +31,7 @@ class BeliefDriftReport(BaseModel):
     original_intent: Optional[str] = None
     current_output: Optional[str] = None
     details: Optional[str] = None
+    db_similar_sessions: List[Dict[str, Any]] = Field(default_factory=list)
 
 
 class PersonaAgreementItem(BaseModel):

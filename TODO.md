@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-05-24
+**Last updated:** 2026-05-25
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -38,6 +38,7 @@ Master completion plan status: Phase 1 / A is complete for the local-first deskt
 | Phase 4 / DB-C Chroma wiring | `knowledge_nodes` collection naming is aligned; `scripts/index_knowledge_nodes.py` indexes SQL nodes; startup can background-index empty local desktop collections; `/health` and Electron IPC expose Chroma counts; L3/L8/L9/L10 use DB-C retrieval/indexing; persona_profiles cache path and sentence-transformers packaging are in place. | Done |
 | Phase 5 / DB-R Redis TruthCache persistence | TruthCache supports Redis HSET/HGET persistence with memory fallback; TruthMemoryManager auto-selects Redis when `USE_REDIS=true`; GraphStore subgraph and RAG embedding caches can use Redis; `/health` and Electron IPC expose `redis_ping_ms`. | Done |
 | Phase C Integration Bridge + LocalSLM | Gateway quad mode reaches `PodOrchestrator` and records pod status; TruthCore L5 constructs 7-part personas for axes 8-11 and uses pod expansion; KA-038, PersonaEnhancer, DRL refinement, JSON-safe weights, desktop LocalSLM fallback, and `quadAnalysisStatus` IPC are wired. | Done |
+| Phase DB-P SQL historical reasoning calibration | L8 calibrates confidence thresholds from 90-day TraceRun history by risk domain; TruthSession stores local deterministic input embeddings; L9 returns `db_similar_sessions` historical drift baselines; KA execution timing is persisted and KA-036 reads p95 latency from the last 100 executions. | Done |
 
 Phased update plan:
 
@@ -131,6 +132,8 @@ Priority order:
 - [x] Phase 4 / DB-C: align RAG `knowledge_nodes` collection naming, add `scripts/index_knowledge_nodes.py`, wire startup empty-index detection, connect Chroma retrieval to TruthCore L3/L8/L9/L10, add local/offline embedding packaging, and expose Chroma collection counts through health/IPC.
 - [x] Phase 5 / DB-R: implement Redis-backed TruthCache persistence, Redis subgraph cache, Redis embedding cache, TruthMemoryManager Redis selection, and Redis ping latency in health/IPC.
 - [x] Phase C: wire quad-persona `PodOrchestrator`, L5 7-part persona construction, dynamic weighted synthesis, DRL convergence, desktop LocalSLM fallback, and quad analysis IPC status.
+- [x] Phase DB-P: implement SQL historical reasoning calibration with TraceRun threshold history, TruthSession input embeddings, L9 DB similarity baselines, KAExecution timing persistence, and KA-036 p95 latency estimation.
+- [ ] Phase D prerequisite: write the DSQP technical disclosure before implementing the DSQP Protocol code.
 - [ ] Validate production alerting evidence for `/health`, `/live`, `/ready`, `/metrics`, Sentry, and admin dashboards.
 - [ ] Harden multi-tenant operations, cost controls, recursive persona evaluation, dynamic persona expansion, human feedback loops, automated axis learning, quantum-ready node research, and policy-as-code governance for larger deployments.
 

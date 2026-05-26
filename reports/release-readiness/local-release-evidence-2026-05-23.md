@@ -106,6 +106,18 @@ Completed locally on 2026-05-25:
 - PersonaEnhancer synthesis uses quad `IntegrationFunction.integrate_text()`, and RefinementOrchestrator adds DeepRecursiveLearning convergence metadata.
 - Desktop gateway routing auto-registers a localhost LocalSLM fallback when `IS_DESKTOP_APP=true`, and Electron exposes `quadAnalysisStatus()`.
 
+## Phase DB-P SQL Historical Reasoning Local Code Evidence
+
+Completed locally on 2026-05-25:
+
+- `python -m pytest tests\unit\test_dbp_historical_calibration.py -q` passed with 6 tests.
+- `python -m py_compile backend\truth_engine\truth_core\historical_embeddings.py backend\truth_engine\truth_core\engine.py backend\truth_engine\truth_core\l9_schemas.py backend\truth_engine\truth_core\meta_reasoning_controller.py backend\truth_engine\truth_gate\trust_validation_gateway.py backend\knowledge_algorithms\ka_master_controller.py backend\knowledge_algorithms\ka_36_complexity_estimator.py models.py migrations\versions\f3a4b5c6d7e8_add_truth_session_input_embedding.py` passed.
+- Temporary SQLite migration smoke passed by creating local schema, stamping prior head `e2f3a4b5c6d7`, upgrading to `f3a4b5c6d7e8`, and confirming `truth_sessions.input_embedding` exists.
+- L8 `_get_threshold()` keeps Axis 14 override precedence, then calibrates from 90-day `TraceRun.confidence` history grouped by risk domain in `data_snapshot`.
+- `TruthSession.input_embedding` is modeled and migrated through `f3a4b5c6d7e8`; TruthCore session creation stores local deterministic query embeddings.
+- L9 drift detection searches `TruthSession.input_embedding` history and returns `db_similar_sessions` alongside the existing `audit_evidence` comparison.
+- KA execution timing is persisted to `KAExecution` when the local DB is available, and KA-036 reads p95 latency from the last 100 rows as a complexity baseline.
+
 ## Release-Runner Or Manual Evidence Still Required
 
 These gates are required for public production release artifacts, not for local-first desktop completion.

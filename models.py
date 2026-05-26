@@ -1868,6 +1868,7 @@ class TruthSession(db.Model):
     status = db.Column(db.String(20), default='pending')
 
     query = db.Column(db.Text)
+    input_embedding = db.Column(db.Text)
     response = db.Column(db.Text)
 
     budget_limit = db.Column(db.Float, default=0.0)
@@ -1899,6 +1900,7 @@ class TruthSession(db.Model):
             'tier': self.tier,
             'status': self.status,
             'query': self.query,
+            'input_embedding': self.input_embedding,
             'response': self.response,
             'budget_limit': self.budget_limit,
             'budget_spent': self.budget_spent,

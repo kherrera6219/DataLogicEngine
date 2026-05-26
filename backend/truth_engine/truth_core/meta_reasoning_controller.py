@@ -41,6 +41,7 @@ from .l9_schemas import (
     L9Input,
     L9Result
 )
+from .historical_embeddings import cosine_similarity, parse_embedding, text_to_embedding
 
 logger = logging.getLogger(__name__)
 
@@ -376,12 +377,22 @@ class MetaReasoningController:
                     pass
 
             historical_matches = self._search_audit_evidence(original_query, final_solution)
+            db_similar_sessions = self._search_db_similar_sessions(original_query)
             if historical_matches:
                 details = details or f"Compared against {len(historical_matches)} similar prior sessions"
                 if any(match.get("score", 0.0) < 0.65 for match in historical_matches):
                     drift_detected = True
                     drift_type = drift_type or "semantic"
                     drift_score = max(drift_score, 0.25)
+            if db_similar_sessions:
+                baseline = sum(item.get("confidence_score", 0.0) for item in db_similar_sessions) / len(db_similar_sessions)
+                details = details or f"Compared against {len(db_similar_sessions)} DB historical sessions"
+                if baseline < 0.70:
+                    drift_detected = True
+                    drift_type = drift_type or "historical_baseline"
+                    drift_score = max(drift_score, 1.0 - baseline)
+        else:
+            db_similar_sessions = []
         
         # KA integration (L9-KA-002)
         if self.ka_controller:
@@ -404,7 +415,8 @@ class MetaReasoningController:
             drift_type=drift_type,
             original_intent=original_query[:200] if original_query else None,
             current_output=final_solution[:200] if final_solution else None,
-            details=details
+            details=details,
+            db_similar_sessions=db_similar_sessions
         )
 
     @staticmethod
@@ -421,6 +433,40 @@ class MetaReasoningController:
                 query,
                 k=3,
             )
+        except Exception:
+            return []
+
+    @staticmethod
+    def _search_db_similar_sessions(original_query: str) -> List[Dict[str, Any]]:
+        """Search TruthSession.input_embedding for local historical drift baseline."""
+        if not original_query:
+            return []
+        try:
+            from extensions import db
+            from models import TruthSession
+
+            current_embedding = text_to_embedding(original_query)
+            rows = (
+                db.session.query(TruthSession)
+                .filter(TruthSession.input_embedding.isnot(None))
+                .order_by(TruthSession.created_at.desc())
+                .limit(100)
+                .all()
+            )
+            matches = []
+            for row in rows:
+                stored_embedding = parse_embedding(row.input_embedding)
+                similarity = cosine_similarity(current_embedding, stored_embedding)
+                if similarity < 0.55:
+                    continue
+                matches.append({
+                    "session_id": row.session_id,
+                    "similarity": round(similarity, 4),
+                    "confidence_score": float(row.confidence_score or 0.0),
+                    "tier": row.tier,
+                    "created_at": row.created_at.isoformat() if row.created_at else None,
+                })
+            return sorted(matches, key=lambda item: item["similarity"], reverse=True)[:3]
         except Exception:
             return []
     

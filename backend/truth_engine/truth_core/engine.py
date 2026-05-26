@@ -21,6 +21,7 @@ from backend.truth_engine.truth_core.persona_scaling_bridge import (
 )
 from backend.truth_engine.truth_core.persona_sufficiency import PersonaSufficiencyTool
 from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator
+from backend.truth_engine.truth_core.historical_embeddings import serialize_embedding
 from backend.llm_gateway.model_defaults import (
     ANTHROPIC_PRIMARY_MODEL,
     GOOGLE_PRIMARY_MODEL,
@@ -236,12 +237,14 @@ class TruthCoreEngine:
         tier = tier or await self.determine_tier(query, context)
         routing_profile = await self.get_routing_profile(query, context)
         tenant = tenant_id or f"tenant_{user_id or 'default'}"
+        input_embedding = serialize_embedding(query)
         
         session = {
             'session_id': session_id,
             'user_id': user_id,
             'tenant_id': tenant,
             'query': query,
+            'input_embedding': input_embedding,
             'tier': tier,
             'routing_profile': routing_profile,
             'status': 'created',
@@ -260,6 +263,7 @@ class TruthCoreEngine:
                     tier=tier,
                     status='created',
                     query=query,
+                    input_embedding=input_embedding,
                     routing_profile=routing_profile,
                     axis_context=context or {}
                 )
