@@ -95,6 +95,17 @@ Completed locally on 2026-05-25:
 - RAGService embedding generation can read/write Redis `embedding:{sha256}` entries with 1h TTL.
 - `/health` includes `database.redis.ping_ms`, and Electron `get-db-status` returns `redis_ping_ms`.
 
+## Phase C Integration Bridge Local Code Evidence
+
+Completed locally on 2026-05-25:
+
+- `python -m pytest tests\unit\test_phase5_phase_c.py -q` passed with 6 tests.
+- Gateway quad mode now calls `PodOrchestrator.orchestrate()` and stores compact `{pod_count, collective_confidence, mode}` status for audit traces and desktop IPC.
+- TruthCore L5 calls `PersonaConstructionService.construct_persona()` for axes 8-11 and records 7-part persona profiles in workflow context.
+- Persona sufficiency expansion uses `PodOrchestrator` for expanded committees; KA-038 weights and DynamicWeightFunctions history are JSON-safe for SQLite audit storage.
+- PersonaEnhancer synthesis uses quad `IntegrationFunction.integrate_text()`, and RefinementOrchestrator adds DeepRecursiveLearning convergence metadata.
+- Desktop gateway routing auto-registers a localhost LocalSLM fallback when `IS_DESKTOP_APP=true`, and Electron exposes `quadAnalysisStatus()`.
+
 ## Release-Runner Or Manual Evidence Still Required
 
 These gates are required for public production release artifacts, not for local-first desktop completion.

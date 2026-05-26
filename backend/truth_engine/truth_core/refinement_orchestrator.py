@@ -1,5 +1,6 @@
 import logging
 import asyncio
+import hashlib
 from typing import Dict, Any
 from datetime import datetime, UTC
 
@@ -83,9 +84,35 @@ class RefinementOrchestrator:
                 current_response = last_good_state.copy()
 
         current_response['refinement_history'] = history
+        try:
+            drl_result = self._run_drl_convergence(current_response, context)
+            current_response['drl_convergence'] = drl_result
+            current_response['confidence'] = max(
+                float(current_response.get('confidence', 0) or 0),
+                float(drl_result.get('confidence', 0) or 0),
+            )
+        except Exception as exc:
+            logger.debug("DRL convergence refinement skipped: %s", exc)
         current_response['final_confidence'] = current_response.get('confidence', 0)
         
         return current_response
+
+    def _run_drl_convergence(self, current_response: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+        """Run quad DeepRecursiveLearning convergence on a deterministic content vector."""
+        import numpy as np
+        from quad_persona.mathematical_framework import DeepRecursiveLearning
+
+        content = str(current_response.get('content', ''))
+        digest = hashlib.sha256(content.encode()).digest()
+        vector = np.array([(byte - 128) / 128.0 for byte in digest], dtype=float)
+        learner = DeepRecursiveLearning(max_depth=12, epsilon=-1.0)
+        _, iterations, confidence = learner.deep_recursive_learning(vector, context)
+        return {
+            "iterations": iterations,
+            "confidence": confidence,
+            "target_confidence": self.target_confidence,
+            "threshold_met": confidence >= self.target_confidence,
+        }
 
     async def _execute_step(self, step: RefinementStep, content: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         """Invokes a specific KA for refinement via the Master Controller."""

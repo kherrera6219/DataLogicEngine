@@ -10,6 +10,7 @@ from typing import Dict, Any, List
 from datetime import datetime, UTC
 
 from backend.knowledge_algorithms.ka_master_controller import get_controller
+from quad_persona.mathematical_framework import IntegrationFunction
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,7 @@ class PersonaEnhancer:
         """Initialize with optional QuadPersonaEngine integration."""
         self.quad_persona_engine = quad_persona_engine
         self.active_personas = {}
+        self.integration_function = IntegrationFunction()
         logger.info("PersonaEnhancer initialized")
 
     def enhance_query(self, query: str, context: Dict[str, Any] = None,
@@ -89,6 +91,7 @@ class PersonaEnhancer:
             
             persona_config = self.TRUTH_PERSONAS[persona_name]
             response = self._get_persona_response(persona_name, persona_config, query, context)
+            response = self._resolve_maybe_async(response)
             persona_responses[persona_name] = response
             weights[persona_name] = persona_config['weight']
         
@@ -102,6 +105,23 @@ class PersonaEnhancer:
             'personas_used': personas,
             'timestamp': datetime.now(UTC).isoformat()
         }
+
+    @staticmethod
+    def _resolve_maybe_async(value: Any) -> Any:
+        """Resolve coroutine values from the sync enhancement API."""
+        if not hasattr(value, "__await__"):
+            return value
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(value)
+        if not loop.is_running():
+            return asyncio.run(value)
+
+        import concurrent.futures
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            return executor.submit(asyncio.run, value).result()
 
     async def _get_persona_response(self, persona_name: str, persona_config: Dict[str, Any],
                                      query: str, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -149,25 +169,57 @@ class PersonaEnhancer:
 
     def _synthesize_responses(self, responses: Dict[str, Dict[str, Any]],
                                weights: Dict[str, float]) -> Dict[str, Any]:
-        """Synthesize multiple persona responses into unified result."""
+        """Synthesize multiple persona responses with quad IntegrationFunction."""
         if not responses:
             return {'content': '', 'confidence': 0}
+
+        persona_key_map = {
+            'knowledge_expert': 'knowledge',
+            'sector_expert': 'sector',
+            'regulatory_expert': 'regulatory',
+            'compliance_expert': 'compliance',
+        }
+        text_outputs = {
+            persona_key_map.get(name, name): str(response.get('response', ''))
+            for name, response in responses.items()
+            if isinstance(response, dict)
+        }
+        integration_context = {
+            key: value
+            for key, value in {
+                'sector_relevance': weights.get('sector_expert'),
+                'regulatory_urgency': weights.get('regulatory_expert'),
+                'compliance_criticality': weights.get('compliance_expert'),
+            }.items()
+            if value is not None
+        }
+        try:
+            content, dynamic_weights = self.integration_function.integrate_text(text_outputs, integration_context)
+        except Exception as exc:
+            logger.warning("IntegrationFunction synthesis failed; using fallback join: %s", exc)
+            content = ""
+            dynamic_weights = weights
         
         weighted_confidence = sum(
             responses[p].get('confidence', 0) * weights.get(p, 0.25)
             for p in responses
+            if isinstance(responses[p], dict)
         )
         
-        perspectives = [
-            f"**{responses[p]['role']}**: {responses[p].get('focus', '')}"
-            for p in responses
-        ]
+        if not content:
+            perspectives = [
+                f"**{responses[p]['role']}**: {responses[p].get('response', '')}"
+                for p in responses
+                if isinstance(responses[p], dict)
+            ]
+            content = '\n'.join(perspectives)
         
         return {
-            'content': '\n'.join(perspectives),
+            'content': content,
             'confidence': min(weighted_confidence, 1.0),
             'persona_count': len(responses),
-            'synthesis_method': 'weighted_integration'
+            'synthesis_method': 'quad_integration_function',
+            'dynamic_weights': dynamic_weights,
         }
 
     def get_persona_info(self, persona: str = None) -> Dict[str, Any]:

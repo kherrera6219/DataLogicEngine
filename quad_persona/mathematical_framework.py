@@ -10,6 +10,7 @@ Implements formulas from the Mathematical Formulas PDF:
 
 import math
 import logging
+import json
 import numpy as np
 from datetime import datetime, UTC
 from typing import Dict, List, Any, Tuple, Optional, Set
@@ -195,11 +196,15 @@ class DynamicWeightFunctions:
         
         self.weight_history.append({
             'timestamp': datetime.now(UTC).isoformat(),
-            'weights': weights.copy(),
-            'context_keys': list(context.keys())
+            'weights': json.loads(json.dumps(weights.copy(), sort_keys=True, default=float)),
+            'context_keys': sorted(str(key) for key in context.keys())
         })
         
         return weights
+
+    def get_serializable_weight_history(self) -> List[Dict[str, Any]]:
+        """Return weight history guaranteed to survive JSON/SQLite storage."""
+        return json.loads(json.dumps(self.weight_history, sort_keys=True, default=str))
     
     def update_weights(self, gradient: Dict[str, float]):
         """

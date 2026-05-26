@@ -122,6 +122,12 @@ class LLMGateway:
     
     # Class-level circuit breaker state
     _circuit_breakers: dict[str, CircuitBreaker] = {}
+    _last_quad_analysis_status: dict[str, Any] = {
+        "pod_count": 0,
+        "collective_confidence": 0.0,
+        "mode": "idle",
+        "status": "idle",
+    }
     
     def __init__(self, db_session=None):
         self.db = db_session
@@ -132,6 +138,11 @@ class LLMGateway:
         if provider_id not in self._circuit_breakers:
             self._circuit_breakers[provider_id] = CircuitBreaker(provider_id)
         return self._circuit_breakers[provider_id]
+
+    @classmethod
+    def get_quad_analysis_status(cls) -> dict[str, Any]:
+        """Return the latest compact quad-analysis status for desktop IPC."""
+        return dict(cls._last_quad_analysis_status)
 
     @staticmethod
     def _normalize_allowlist(values: Any) -> set[str]:
@@ -161,6 +172,11 @@ class LLMGateway:
             or provider_name in allowed_provider_types
             or provider_family in allowed_provider_types
         )
+
+    @staticmethod
+    def _desktop_local_first_enabled() -> bool:
+        """Return True when the gateway should prefer local desktop fallback behavior."""
+        return os.environ.get("IS_DESKTOP_APP", "false").lower() in {"1", "true", "yes", "on"}
 
     @staticmethod
     def _resolve_model(request: GatewayRequest, provider_record: Optional[LLMProvider]) -> str:
@@ -1035,6 +1051,39 @@ class LLMGateway:
                     [p.name for p in providers_list],
                 )
                 providers = providers_list
+
+        # Phase C local-first fallback: packaged desktop should always attempt
+        # the local Ollama/vLLM adapter after cloud providers have failed.
+        if self._desktop_local_first_enabled():
+            local_types = {"local_slm", "ollama", "vllm"}
+            has_local = any(str(getattr(provider, "provider_type", "")).lower() in local_types for provider in providers)
+            if not has_local:
+                class DesktopLocalProvider:
+                    id = "desktop-local-slm"
+                    name = "desktop-local-slm"
+                    provider_type = "local_slm"
+                    endpoint = os.environ.get("LOCAL_SLM_BASE_URL", "http://localhost:11434/v1")
+                    deployment_name = None
+                    api_version = None
+                    model_id = os.environ.get("LOCAL_SLM_MODEL", "local-slm")
+                    priority = 999
+                    timeout_seconds = LLMGateway._positive_int(
+                        os.environ.get("LOCAL_SLM_TIMEOUT_SECONDS"),
+                        5,
+                        minimum=1,
+                        maximum=60,
+                    )
+                    max_retries = 1
+
+                    def get_api_key(self):
+                        return None
+
+                providers.append(DesktopLocalProvider())
+                if task_tier not in {"trivial", "moderate", "t1", "t2", "fast_chat", "structured_workflow"}:
+                    meta["offline_guard"] = "desktop_local_slm_tier_cap"
+                    meta["original_tier"] = task_tier
+                    task_tier = "moderate"
+                logger.info("Desktop local SLM fallback registered for gateway routing")
         
         if allowed_provider_types:
             providers = [
@@ -1124,6 +1173,12 @@ class LLMGateway:
 
     def _error_response(self, run_id: str, error: str, start_time: datetime, request: GatewayRequest) -> GatewayResponse:
         latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
+        public_error = self._public_error_message(error)
+        if request.meta.get("offline_guard") == "desktop_local_slm_tier_cap":
+            public_error = (
+                "Local-first desktop mode could not reach a configured cloud provider or the local SLM "
+                "at localhost:11434. Start Ollama/vLLM locally or configure a provider key."
+            )
         return GatewayResponse(
             content="",
             run_id=run_id,
@@ -1131,7 +1186,7 @@ class LLMGateway:
             model_used=request.model or "unknown",
             usage={"latency_ms": latency_ms},
             ok=False,
-            error=self._public_error_message(error),
+            error=public_error,
         )
     
     
@@ -1163,27 +1218,68 @@ class LLMGateway:
         query: str,
         context: dict[str, Any],
     ) -> dict[str, Any]:
-        """Run query through QuadPersonaEngine for 4-way expert analysis."""
+        """Run query through QuadPersonaEngine and PodOrchestrator."""
         try:
-            from backend.quad_persona.quad_engine import create_quad_engine
-            engine = create_quad_engine()
+            from backend.quad_persona.quad_engine import create_quad_persona_engine
+            from backend.truth_engine.truth_core.persona_scaling_bridge import (
+                orchestration_summary,
+                scaling_decision_from_sufficiency,
+            )
+            from backend.truth_engine.truth_core.persona_sufficiency import PersonaSufficiencyTool
+            from quad_persona.pod_orchestrator import create_pod_orchestrator
+            engine = create_quad_persona_engine()
             
             # Run the concurrent analysis
             analysis = await engine.run_quad_analysis(query, context)
+            perspectives = analysis.get("perspectives", {})
+            active_axes = context.get("active_axes") or context.get("mapped_axes") or [8, 9, 10, 11]
+            sufficiency = PersonaSufficiencyTool().evaluate(
+                query,
+                active_axes,
+                perspectives,
+                {"domain": context.get("risk_domain", context.get("domain", "standard")), "tags": context.get("tags", [])},
+            )
+            if context.get("force_expanded_committee"):
+                sufficiency["mode"] = "expanded_committee"
+                sufficiency["spawn"] = sufficiency.get("spawn") or {
+                    "knowledge": 1,
+                    "sector": 1,
+                    "regulatory": 1,
+                    "compliance": 1,
+                }
+
+            scaling_decision = scaling_decision_from_sufficiency(sufficiency)
+            orchestration_state = create_pod_orchestrator().orchestrate(
+                query,
+                {**context, "query_id": context.get("query_id") or str(uuid.uuid4())},
+                scaling_decision,
+                base_persona_results=perspectives,
+            )
+            pod_summary = orchestration_summary(orchestration_state)
+            self.__class__._last_quad_analysis_status = pod_summary
+            answer = orchestration_state.final_synthesis or analysis.get("synthesis", "Failed to synthesize persona perspectives.")
             
             return {
                 "ok": True,
-                "answer": analysis.get("synthesis", "Failed to synthesize persona perspectives."),
+                "answer": answer,
                 "trace": [
-                    {"ka_id": "PersonaAnalysis", "status": "pass", "output": analysis.get("perspectives", {})},
-                    {"ka_id": "Synthesis", "status": "pass", "output": {"summary": analysis.get("synthesis")[:200] + "..."}}
+                    {"ka_id": "PersonaAnalysis", "status": "pass", "output": perspectives},
+                    {"ka_id": "PodOrchestrator", "status": "pass", "output": pod_summary},
+                    {"ka_id": "Synthesis", "status": "pass", "output": {"summary": answer[:200] + "..."}}
                 ],
-                "confidence_score": analysis.get("metadata", {}).get("confidence", 0.9),
+                "confidence_score": pod_summary["collective_confidence"] or analysis.get("metadata", {}).get("confidence", 0.9),
                 "tier": "high_stakes",
-                "coordinate": "AXIS_07_COMPLIANCE" # Default coordinate for persona analysis
+                "coordinate": "AXIS_07_COMPLIANCE", # Default coordinate for persona analysis
+                "metadata": {"quad_analysis_status": pod_summary},
             }
         except Exception as e:
             logger.error(f"Quad persona analysis failed: {e}")
+            self.__class__._last_quad_analysis_status = {
+                "pod_count": 0,
+                "collective_confidence": 0.0,
+                "mode": "error",
+                "status": "failed",
+            }
             return {"ok": False, "error": str(e)}
 
     async def _run_ukg_overlay(

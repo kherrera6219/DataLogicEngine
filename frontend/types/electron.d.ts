@@ -20,10 +20,17 @@ export interface DesktopDatabaseStatus {
   redis_ping_ms: number | null;
 }
 
+export interface QuadAnalysisStatus {
+  pod_count: number;
+  collective_confidence: number;
+  mode: string;
+}
+
 export interface ElectronAPI {
   ping: () => Promise<string>;
   getBackendStatus: () => Promise<string>;
   getDbStatus: () => Promise<DesktopDatabaseStatus>;
+  quadAnalysisStatus: () => Promise<QuadAnalysisStatus>;
   getUpdateState: () => Promise<DesktopUpdateState>;
   checkForUpdates: () => Promise<DesktopUpdateState>;
   downloadUpdate: () => Promise<DesktopUpdateState>;

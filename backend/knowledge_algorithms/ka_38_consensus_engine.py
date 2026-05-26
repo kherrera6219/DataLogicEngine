@@ -3,6 +3,7 @@ KA-038: Consensus Engine
 Purpose: Derive weighted consensus from multiple persona claims and detect expert conflicts.
 """
 import logging
+import json
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field, field_validator
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
@@ -62,6 +63,7 @@ class KA038ConsensusEngine(KnowledgeAlgorithm):
             else:
                 # Fallback to equal weights
                 weights = {"knowledge": 0.25, "sector": 0.25, "regulatory": 0.25, "compliance": 0.25}
+        weights = json.loads(json.dumps(weights, sort_keys=True, default=float))
 
         self.log_execution_step("Calculating Weighted Consensus", {"claim_count": len(claims), "weights": weights})
 

@@ -14,7 +14,11 @@ import asyncio
 from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional
 
-from backend.truth_engine.truth_core.personas import PersonaEnhancer, PersonaPod
+from backend.truth_engine.truth_core.personas import PersonaEnhancer
+from backend.truth_engine.truth_core.persona_scaling_bridge import (
+    orchestration_summary,
+    scaling_decision_from_sufficiency,
+)
 from backend.truth_engine.truth_core.persona_sufficiency import PersonaSufficiencyTool
 from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator
 from backend.llm_gateway.model_defaults import (
@@ -154,6 +158,13 @@ class TruthCoreEngine:
             
         # Initialize Persona Enhancer and Sufficiency Tool
         self.persona_enhancer = PersonaEnhancer(quad_persona_engine=self.ka_controller if hasattr(self.ka_controller, 'process_with_persona') else None)
+        try:
+            from core.system.persona_construction_service import PersonaConstructionService
+
+            self.persona_construction = PersonaConstructionService()
+        except Exception as exc:
+            logger.warning("PersonaConstructionService unavailable: %s", exc)
+            self.persona_construction = None
         self.sufficiency_tool = PersonaSufficiencyTool()
         self.refinement_orchestrator = RefinementOrchestrator(ka_controller=self.ka_controller)
         
@@ -382,6 +393,46 @@ class TruthCoreEngine:
             deduped.append(node)
         return deduped
 
+    @staticmethod
+    def _active_persona_axes(working_context: Dict[str, Any]) -> List[int]:
+        """Return active persona axes, defaulting to the canonical 8-11 set."""
+        coordinate_vector = working_context.get('coordinate_vector') or {}
+        active_axes = coordinate_vector.get('active_axes') if isinstance(coordinate_vector, dict) else None
+        if not active_axes:
+            return [8, 9, 10, 11]
+        axes: List[int] = []
+        for raw_axis in active_axes:
+            try:
+                axis_number = int(str(raw_axis).removeprefix('axis_').removeprefix('A'))
+            except (TypeError, ValueError):
+                continue
+            if 8 <= axis_number <= 11:
+                axes.append(axis_number)
+        return axes or [8, 9, 10, 11]
+
+    @staticmethod
+    def _coordinate_path_for_axis(axis_number: int, working_context: Dict[str, Any]) -> str:
+        coordinate_vector = working_context.get('coordinate_vector') or {}
+        axes = coordinate_vector.get('axes') if isinstance(coordinate_vector, dict) and isinstance(coordinate_vector.get('axes'), dict) else coordinate_vector
+        raw_value = axes.get(axis_number) or axes.get(str(axis_number)) or axes.get(f'axis_{axis_number}') or axes.get(f'A{axis_number}')
+        if isinstance(raw_value, dict):
+            raw_value = raw_value.get('uid') or raw_value.get('code') or raw_value.get('value') or raw_value.get('label')
+        return str(raw_value or f"axis_{axis_number}.default").strip()
+
+    def _construct_l5_personas(self, working_context: Dict[str, Any]) -> Dict[str, Any]:
+        """Construct 7-part profiles for persona axes 8-11."""
+        if not self.persona_construction:
+            return {}
+        profiles: Dict[str, Any] = {}
+        for axis_number in self._active_persona_axes(working_context):
+            coordinate_path = self._coordinate_path_for_axis(axis_number, working_context)
+            try:
+                profile = self.persona_construction.construct_persona(axis_number, coordinate_path, working_context)
+                profiles[str(axis_number)] = profile.to_dict()
+            except Exception as exc:
+                logger.debug("Persona construction skipped for axis %s: %s", axis_number, exc)
+        return profiles
+
     async def _execute_workflow(self, query: str, context: Dict[str, Any], steps: List[str], tier: str) -> Dict[str, Any]:
         """Unified execution loop for all tiers."""
         executed_steps = []
@@ -413,39 +464,49 @@ class TruthCoreEngine:
                     # Standard Quad Persona Execution
                     working_context['claims'] = output.get('claims', [])
                     working_context['persona_results'] = output.get('personas', {})
+                    constructed_profiles = self._construct_l5_personas(working_context)
+                    if constructed_profiles:
+                        output['constructed_persona_profiles'] = constructed_profiles
+                        step_result['output'] = output
+                        working_context['constructed_persona_profiles'] = constructed_profiles
+                        personas_used.update(profile.get('persona_type', str(axis)) for axis, profile in constructed_profiles.items())
                     
                     # --- PERSONA SUFFICIENCY GATE ---
+                    active_persona_axes = self._active_persona_axes(working_context)
                     sufficiency = self.sufficiency_tool.evaluate(
                         query, 
-                        working_context.get('coordinate_vector', {}).get('active_axes', []),
+                        active_persona_axes,
                         working_context['persona_results'],
                         {"domain": working_context.get('risk_domain', 'standard'), "tags": working_context.get('tags', [])}
                     )
                     logger.info(f"SUFFICIENCY DECISION: {sufficiency['mode']} (Reasons: {sufficiency['reasons']})")
+                    output['persona_sufficiency'] = sufficiency
+                    step_result['output'] = output
                     
                     if sufficiency['mode'] == 'expanded_committee':
                         logger.info(f"SUFFICIENCY TRIGGER: Expanding committee. Reasons: {sufficiency['reasons']}")
                         try:
-                            # Spawn and execute pods
-                            pods = []
-                            for lane, count in sufficiency['spawn'].items():
-                                if count > 0:
-                                    specialists = self.persona_enhancer.spawn_specialists(f"{lane}_expert", count)
-                                    pod = PersonaPod(lane, specialists)
-                                    pods.append(pod)
-                            
-                            # Execute pods concurrently
-                            if pods:
-                                await asyncio.gather(*[pod.execute(query, working_context, self) for pod in pods])
-                                
-                                for pod in pods:
-                                    pod_result = pod.synthesize()
-                                    # Merge pod results into the dedicated results map
-                                    if 'persona_results' not in working_context:
-                                        working_context['persona_results'] = {}
-                                    working_context['persona_results'][f"{pod.lane}_pod"] = pod_result
-                            
-                            logger.info("Persona Pods executed and synthesized in parallel.")
+                            from quad_persona.pod_orchestrator import create_pod_orchestrator
+
+                            scaling_decision = scaling_decision_from_sufficiency(sufficiency)
+                            orchestration_state = create_pod_orchestrator().orchestrate(
+                                query,
+                                working_context,
+                                scaling_decision,
+                                base_persona_results=working_context['persona_results'],
+                            )
+                            pod_summary = orchestration_summary(orchestration_state)
+                            working_context['pod_orchestration'] = orchestration_state.to_dict()
+                            working_context['pod_orchestration_summary'] = pod_summary
+                            working_context['persona_results']['expanded_committee'] = {
+                                'response': orchestration_state.final_synthesis,
+                                'confidence': orchestration_state.final_confidence,
+                                'source': 'PodOrchestrator',
+                                **pod_summary,
+                            }
+                            output['pod_orchestration'] = pod_summary
+                            step_result['output'] = output
+                            logger.info("Persona PodOrchestrator executed and synthesized expanded committee.")
                         except Exception as e:
                             logger.error(f"Persona Pod scaling failed: {e}. Reverting to base Quad.")
                 

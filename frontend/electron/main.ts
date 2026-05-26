@@ -657,6 +657,25 @@ ipcMain.handle('get-db-status', async (event, ...args: unknown[]) => {
   }
 });
 
+ipcMain.handle('quad-analysis-status', async (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'quad-analysis-status', args);
+  if (!backendProcess || backendProcess.exitCode !== null) {
+    return { pod_count: 0, collective_confidence: 0, mode: 'offline' };
+  }
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/api/v1/gateway/quad-analysis-status');
+    const payload = await response.json();
+    return {
+      pod_count: payload?.pod_count ?? 0,
+      collective_confidence: payload?.collective_confidence ?? 0,
+      mode: payload?.mode ?? 'unknown',
+    };
+  } catch {
+    return { pod_count: 0, collective_confidence: 0, mode: 'unavailable' };
+  }
+});
+
 ipcMain.handle('get-update-state', (event, ...args: unknown[]) => {
   assertTrustedIpcInvoke(event, 'get-update-state', args);
   return { ...updateState };

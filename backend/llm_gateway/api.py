@@ -478,6 +478,12 @@ def gateway_health():
     })
 
 
+@gateway_bp.route('/quad-analysis-status', methods=['GET'])
+def quad_analysis_status():
+    """Latest compact quad analysis status for desktop IPC."""
+    return jsonify(LLMGateway.get_quad_analysis_status())
+
+
 @gateway_bp.route('/sessions/<session_id>/messages', methods=['GET'])
 @api_key_required
 def get_session_messages(session_id):
