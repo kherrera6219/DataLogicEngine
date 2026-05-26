@@ -5,7 +5,7 @@
 | Field | Value |
 |-------|-------|
 | Owner | Platform Architecture |
-| Last Updated | March 2026 |
+| Last Updated | May 25, 2026 |
 | Status | Active |
 | Audience | Software engineers, architects, QA, security reviewers |
 | Review Cadence | Every 60 days |
@@ -32,6 +32,7 @@ This document captures every significant decision point in the DataLogicEngine p
 10. [DL-10: Simulation Layer Selection](#dl-10-simulation-layer-selection)
 11. [DL-11: TruthGate Budget and Compliance Control](#dl-11-truthgate-budget-and-compliance-control)
 12. [DL-12: Circuit Breaker State Machine](#dl-12-circuit-breaker-state-machine)
+13. [DL-13: Historical Reasoning Calibration](#dl-13-historical-reasoning-calibration)
 
 ---
 
@@ -718,4 +719,58 @@ ERROR TYPES THAT TRIP THE CIRCUIT:
     alert admin immediately instead
   - HTTP 400 (bad request) → NO — do not trip;
     these are request errors, not provider failures
+```
+
+---
+
+## DL-13: Historical Reasoning Calibration
+
+**Source:** `backend/truth_engine/truth_gate/trust_validation_gateway.py` · `backend/truth_engine/truth_core/meta_reasoning_controller.py` · `backend/knowledge_algorithms/ka_master_controller.py` · `backend/knowledge_algorithms/ka_36_complexity_estimator.py`
+
+DB-P adds local SQL history to the reasoning loop without requiring cloud services.
+
+### L8 Threshold Selection
+
+```
+INPUT: L8Input.risk_domain + optional axis_14_threshold
+
+IF axis_14_threshold is present:
+  → use axis_14_threshold
+
+ELSE:
+  → query TraceRun rows from the last 90 days
+  → filter rows whose data_snapshot domain matches L8Input.risk_domain
+  → compute calibrated_threshold = average(confidence) + 0.03
+  → clamp to static risk threshold ceiling
+
+IF no matching history exists:
+  → use static RISK_THRESHOLDS fallback
+```
+
+### L9 Historical Drift Baseline
+
+```
+INPUT: original query + L8 final solution
+
+TruthCore session creation:
+  → serialize deterministic local query embedding into TruthSession.input_embedding
+
+MetaReasoningController:
+  → search recent TruthSession.input_embedding values
+  → compute cosine similarity against the current query embedding
+  → return top db_similar_sessions
+  → if the similar-session confidence baseline is low, raise historical_baseline drift
+```
+
+### KA Timing Feedback
+
+```
+KAMasterController.execute_algorithm():
+  → measure synchronous KA execution time
+  → write KAExecution row when local DB is available
+
+KA-036 complexity estimator:
+  → read last 100 KAExecution.execution_time_ms rows
+  → compute p95 latency
+  → raise complexity score for high-latency baselines
 ```

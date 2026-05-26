@@ -5,10 +5,10 @@
 | Field | Value |
 |-------|-------|
 | Owner | Platform Engineering |
-| Last Updated | May 23, 2026 |
+| Last Updated | May 25, 2026 |
 | Status | Active |
 | Review Cadence | Every 30 days |
-| Version | 4.1.21 |
+| Version | 4.1.22 |
 
 ---
 
@@ -43,9 +43,9 @@ Historical PDFs, old release notes, wireframes, and research spikes are preserve
 
 ## Platform Status
 
-**Current Version:** 4.1.21 | **As of:** May 23, 2026
+**Current Version:** 4.1.22 | **As of:** May 25, 2026
 
-DataLogicEngine is currently in application-readiness cleanup and release-preparation status. The local-first Windows/Electron application, web console, backend API, AI gateway, graph surfaces, storage controls, MCP administration, privacy controls, and core governance evidence are implemented and actively documented.
+DataLogicEngine is currently in application-readiness cleanup and release-preparation status. The local-first Windows/Electron application, web console, backend API, AI gateway, graph surfaces, storage controls, MCP administration, privacy controls, SQL historical reasoning calibration, and core governance evidence are implemented and actively documented.
 
 ### Production-Ready
 
@@ -79,6 +79,7 @@ DataLogicEngine is currently in application-readiness cleanup and release-prepar
 | Keyboard navigation Playwright evidence | Operational |
 | UI placeholder audit evidence | Operational |
 | Local release-governance command evidence | Operational |
+| DB-P SQL historical calibration: L8 TraceRun thresholds, L9 session baselines, KAExecution timing | Operational |
 
 ### In Progress
 
@@ -89,6 +90,7 @@ DataLogicEngine is currently in application-readiness cleanup and release-prepar
 | Release signing | Release signing workflow exists, but trusted production certificate provisioning and signed artifact validation remain external release tasks. |
 | Release approval evidence | CI/security scan review, code-owner approval, rollback plan, and disaster recovery review remain release-ticket tasks. |
 | Staging and connector validation | Provider-backed staging validation and production connector checks require real external systems. |
+| Phase D prerequisite | DSQP technical disclosure must be written before implementing Phase D protocol code. |
 
 ---
 

@@ -14,7 +14,7 @@ Define the logical and runtime architecture of DataLogicEngine for engineering, 
 ## Document control
 
 1. Owner: Platform Architecture
-2. Last updated: 2026-03-17
+2. Last updated: 2026-05-25
 3. Status: Active
 4. Review cadence: Every 60 days
 
@@ -45,6 +45,19 @@ This architecture baseline includes the following newly enforced controls:
    - Request signing nonce state supports Redis-backed persistence for multi-worker deployments.
 5. **Upload trust boundary hardening**
    - Upload pipeline validates binary signatures against declared MIME type.
+
+### 2026-05-25 SQL Historical Reasoning Delta
+
+The local-first reasoning path now includes DB-P historical calibration:
+
+1. **L8 threshold calibration**
+   - `TrustValidationGateway._get_threshold()` keeps Axis 14 override precedence, then reads 90-day `TraceRun.confidence` history by risk domain before falling back to static thresholds.
+2. **TruthSession input embeddings**
+   - `TruthCoreEngine.create_session()` stores a deterministic local query embedding in `truth_sessions.input_embedding` for SQLite/PostgreSQL-compatible historical comparisons.
+3. **L9 historical drift baseline**
+   - `MetaReasoningController` returns `db_similar_sessions` from recent `TruthSession` embeddings and incorporates the historical confidence baseline into drift detection.
+4. **KA execution timing**
+   - `KAMasterController` writes `KAExecution` timing rows when the local database is available, and `KA-036` reads p95 latency from the last 100 executions for complexity estimation.
 
 - **Frontend**: Next.js 16.1 App Router (React 18.3)
   - _Role_: User Interface, Visualization, State Management, Real-time Updates
