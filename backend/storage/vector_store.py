@@ -347,9 +347,9 @@ class PineconeBackend(VectorBackend):
 class VectorStore:
     """
     Unified vector store interface.
-    
-    Automatically selects between local (ChromaDB) and cloud (Pinecone) backends
-    based on configuration.
+
+    Runtime selection is intentionally fixed to the app-owned ChromaDB backend.
+    A Windows VM deployment uses the same internal storage model as desktop.
     """
     
     def __init__(self, backend: Optional[VectorBackend] = None):
@@ -364,16 +364,8 @@ class VectorStore:
         
         config = get_connection_manager().config.vector
         
-        if config.is_cloud and config.provider == "pinecone" and config.api_key:
-            logger.info("Using Pinecone cloud backend")
-            return PineconeBackend(
-                api_key=config.api_key,
-                environment=config.environment or "us-east-1",
-                index_name="datalogic"
-            )
-        else:
-            logger.info("Using ChromaDB local backend")
-            return ChromaDBBackend(persist_directory=config.local_path)
+        logger.info("Using app-owned ChromaDB backend")
+        return ChromaDBBackend(persist_directory=config.local_path)
     
     def add_embeddings(
         self,

@@ -2,7 +2,9 @@
 Unified Connection Manager for DataLogicEngine Storage Layer.
 
 Provides centralized configuration and connection routing for all storage backends,
-supporting both local (portable) and cloud-hosted database deployments.
+using application-owned local database services. A Windows VM deployment runs the
+same internal stack as the desktop app; externally hosted database sources are not
+part of the runtime model.
 """
 
 import os
@@ -18,8 +20,7 @@ logger = logging.getLogger(__name__)
 class ConnectionMode(Enum):
     """Storage connection mode."""
     LOCAL = "local"      # Use portable/embedded databases
-    CLOUD = "cloud"      # Use cloud-hosted services
-    HYBRID = "hybrid"    # Use local with cloud fallback
+    VM = "vm"            # Same Windows app stack running inside a Windows VM
     AUTO = "auto"        # Auto-detect based on availability
 
 
@@ -32,7 +33,7 @@ class PostgresConfig:
     user: str = "postgres"
     password: str = ""
     
-    # Cloud override
+    # Deprecated compatibility field; external database URLs are ignored.
     cloud_url: Optional[str] = None
     
     @property
@@ -41,7 +42,7 @@ class PostgresConfig:
     
     @property
     def connection_url(self) -> str:
-        return self.cloud_url or self.local_url
+        return self.local_url
 
 
 @dataclass
@@ -52,7 +53,7 @@ class RedisConfig:
     password: Optional[str] = None
     db: int = 0
     
-    # Cloud override
+    # Deprecated compatibility field; external database URLs are ignored.
     cloud_url: Optional[str] = None
     
     @property
@@ -62,7 +63,7 @@ class RedisConfig:
     
     @property
     def connection_url(self) -> str:
-        return self.cloud_url or self.local_url
+        return self.local_url
 
 
 @dataclass
@@ -73,7 +74,7 @@ class Neo4jConfig:
     user: str = "neo4j"
     password: str = "password"
     
-    # Cloud override (Neo4j Aura)
+    # Deprecated compatibility fields; external database URLs are ignored.
     cloud_url: Optional[str] = None
     cloud_user: Optional[str] = None
     cloud_password: Optional[str] = None
@@ -84,22 +85,20 @@ class Neo4jConfig:
     
     @property
     def connection_url(self) -> str:
-        return self.cloud_url or self.local_url
+        return self.local_url
     
     @property
     def credentials(self) -> tuple:
-        if self.cloud_url:
-            return (self.cloud_user or self.user, self.cloud_password or self.password)
         return (self.user, self.password)
 
 
 @dataclass
 class VectorDBConfig:
     """Vector database configuration."""
-    # Local (ChromaDB)
+    # Local/app-owned ChromaDB.
     local_path: str = "./databases/chroma"
     
-    # Cloud options
+    # Deprecated compatibility fields; external vector database sources are ignored.
     provider: Optional[str] = None  # "pinecone", "qdrant", "weaviate"
     cloud_url: Optional[str] = None
     api_key: Optional[str] = None
@@ -107,16 +106,17 @@ class VectorDBConfig:
     
     @property
     def is_cloud(self) -> bool:
-        return bool(self.cloud_url or self.api_key)
+        return False
 
 
 @dataclass
 class ObjectStorageConfig:
     """Object/blob storage configuration."""
-    # Local filesystem
+    # Local/app-owned filesystem object store.
     local_path: str = "./databases/objects"
     
-    # Cloud (S3/MinIO compatible)
+    # Deprecated compatibility fields; external object stores are ignored by
+    # ConnectionManager. Internal MinIO/S3-compatible work uses local app storage.
     endpoint_url: Optional[str] = None
     access_key: Optional[str] = None
     secret_key: Optional[str] = None
@@ -125,7 +125,7 @@ class ObjectStorageConfig:
     
     @property
     def is_cloud(self) -> bool:
-        return bool(self.endpoint_url and self.access_key)
+        return False
 
 
 @dataclass
@@ -143,8 +143,9 @@ class ConnectionManager:
     """
     Unified connection manager for all storage backends.
     
-    Handles connection pooling, health checks, and failover between
-    local and cloud backends.
+    Handles configuration and health checks for the app-owned internal storage
+    stack. VM mode is the same Windows application running inside a Windows VM,
+    not a switch to externally hosted databases.
     """
     
     _instance: Optional['ConnectionManager'] = None
@@ -172,6 +173,9 @@ class ConnectionManager:
         
         # Mode
         mode_str = os.environ.get('DB_MODE', 'auto').lower()
+        if mode_str in {"cloud", "hybrid"}:
+            logger.warning("DB_MODE=%s is deprecated; using internal app-owned storage mode.", mode_str)
+            mode_str = "auto"
         config.mode = ConnectionMode(mode_str) if mode_str in [m.value for m in ConnectionMode] else ConnectionMode.AUTO
         
         # PostgreSQL
@@ -180,7 +184,6 @@ class ConnectionManager:
         config.postgres.database = os.environ.get('POSTGRES_DB', 'datalogic')
         config.postgres.user = os.environ.get('POSTGRES_USER', 'postgres')
         config.postgres.password = os.environ.get('POSTGRES_PASSWORD', '')
-        config.postgres.cloud_url = os.environ.get('POSTGRES_CLOUD_URL')
 
         database_url = os.environ.get('DATABASE_URL')
         if database_url and database_url.startswith(("postgresql://", "postgres://")):
@@ -195,15 +198,11 @@ class ConnectionManager:
                 config.postgres.user = parsed.username
             if parsed.password:
                 config.postgres.password = parsed.password
-            # If explicit cloud URL not provided, reuse DATABASE_URL for parity.
-            if not config.postgres.cloud_url:
-                config.postgres.cloud_url = database_url
         
         # Redis
         config.redis.host = os.environ.get('REDIS_HOST', '127.0.0.1')
         config.redis.port = int(os.environ.get('REDIS_LOCAL_PORT', '6379'))
         config.redis.password = os.environ.get('REDIS_PASSWORD')
-        config.redis.cloud_url = os.environ.get('REDIS_CLOUD_URL')
 
         redis_url = os.environ.get('REDIS_URL')
         if redis_url and redis_url.startswith(("redis://", "rediss://")):
@@ -216,17 +215,12 @@ class ConnectionManager:
                 config.redis.password = parsed.password
             if parsed.path and parsed.path.strip("/").isdigit():
                 config.redis.db = int(parsed.path.strip("/"))
-            if not config.redis.cloud_url:
-                config.redis.cloud_url = redis_url
         
         # Neo4j
         config.neo4j.host = os.environ.get('NEO4J_HOST', '127.0.0.1')
         config.neo4j.port = int(os.environ.get('NEO4J_LOCAL_PORT', '7687'))
         config.neo4j.user = os.environ.get('NEO4J_USER', 'neo4j')
         config.neo4j.password = os.environ.get('NEO4J_PASSWORD', 'password')
-        config.neo4j.cloud_url = os.environ.get('NEO4J_CLOUD_URL')
-        config.neo4j.cloud_user = os.environ.get('NEO4J_CLOUD_USER')
-        config.neo4j.cloud_password = os.environ.get('NEO4J_CLOUD_PASSWORD')
 
         neo4j_uri = os.environ.get('NEO4J_URI')
         if neo4j_uri and neo4j_uri.startswith(("bolt://", "neo4j://", "neo4j+s://", "neo4j+ssc://")):
@@ -239,36 +233,14 @@ class ConnectionManager:
                 config.neo4j.user = parsed.username
             if parsed.password:
                 config.neo4j.password = parsed.password
-            if not config.neo4j.cloud_url:
-                config.neo4j.cloud_url = neo4j_uri
         
         # Vector DB
         config.vector.local_path = os.environ.get('VECTOR_LOCAL_PATH', os.environ.get('CHROMA_PERSIST_DIR', './databases/chroma'))
-        config.vector.provider = os.environ.get('VECTOR_PROVIDER')
-        config.vector.cloud_url = os.environ.get('VECTOR_CLOUD_URL')
-        config.vector.api_key = os.environ.get('VECTOR_API_KEY')
-        config.vector.environment = os.environ.get('VECTOR_ENVIRONMENT')
         
         # Object Storage
         config.object_storage.local_path = os.environ.get('OBJECT_LOCAL_PATH', './databases/objects')
-        config.object_storage.endpoint_url = (
-            os.environ.get('OBJECT_ENDPOINT_URL')
-            or os.environ.get('OBJECT_STORAGE_ENDPOINT')
-            or os.environ.get('S3_ENDPOINT_URL')
-            or os.environ.get('MINIO_ENDPOINT')
-        )
-        config.object_storage.access_key = (
-            os.environ.get('OBJECT_ACCESS_KEY')
-            or os.environ.get('AWS_ACCESS_KEY_ID')
-            or os.environ.get('MINIO_ACCESS_KEY')
-        )
-        config.object_storage.secret_key = (
-            os.environ.get('OBJECT_SECRET_KEY')
-            or os.environ.get('AWS_SECRET_ACCESS_KEY')
-            or os.environ.get('MINIO_SECRET_KEY')
-        )
-        config.object_storage.bucket = os.environ.get('OBJECT_BUCKET', os.environ.get('S3_BUCKET', 'datalogic'))
-        config.object_storage.region = os.environ.get('OBJECT_REGION', os.environ.get('AWS_REGION', 'us-east-1'))
+        config.object_storage.bucket = os.environ.get('OBJECT_BUCKET', 'datalogic')
+        config.object_storage.region = os.environ.get('OBJECT_REGION', 'us-east-1')
         
         return config
     
@@ -336,31 +308,21 @@ class ConnectionManager:
     
     def _check_vector_health(self) -> bool:
         """Check vector database availability."""
-        if self.config.vector.is_cloud:
-            # Cloud health check would require API call
-            return bool(self.config.vector.api_key)
-        else:
-            # Local ChromaDB - check if directory exists or can be created
-            import os
-            try:
-                os.makedirs(self.config.vector.local_path, exist_ok=True)
-                return True
-            except Exception:
-                return False
+        import os
+        try:
+            os.makedirs(self.config.vector.local_path, exist_ok=True)
+            return True
+        except Exception:
+            return False
     
     def _check_object_health(self) -> bool:
         """Check object storage availability."""
-        if self.config.object_storage.is_cloud:
-            # Cloud health check would require API call
-            return bool(self.config.object_storage.access_key)
-        else:
-            # Local filesystem - check if directory exists or can be created
-            import os
-            try:
-                os.makedirs(self.config.object_storage.local_path, exist_ok=True)
-                return True
-            except Exception:
-                return False
+        import os
+        try:
+            os.makedirs(self.config.object_storage.local_path, exist_ok=True)
+            return True
+        except Exception:
+            return False
     
     def get_status_report(self) -> Dict[str, Any]:
         """Get comprehensive status report of all storage services."""
@@ -372,27 +334,32 @@ class ConnectionManager:
                 'postgres': {
                     'healthy': health.get('postgres', False),
                     'url': self.config.postgres.connection_url.replace(self.config.postgres.password, '***') if self.config.postgres.password else self.config.postgres.connection_url,
-                    'is_cloud': bool(self.config.postgres.cloud_url)
+                    'is_cloud': False,
+                    'source': 'internal'
                 },
                 'redis': {
                     'healthy': health.get('redis', False),
                     'url': self.config.redis.connection_url.replace(self.config.redis.password, '***') if self.config.redis.password else self.config.redis.connection_url,
-                    'is_cloud': bool(self.config.redis.cloud_url)
+                    'is_cloud': False,
+                    'source': 'internal'
                 },
                 'neo4j': {
                     'healthy': health.get('neo4j', False),
                     'url': self.config.neo4j.connection_url,
-                    'is_cloud': bool(self.config.neo4j.cloud_url)
+                    'is_cloud': False,
+                    'source': 'internal'
                 },
                 'vector': {
                     'healthy': health.get('vector', False),
                     'provider': self.config.vector.provider or 'chromadb',
-                    'is_cloud': self.config.vector.is_cloud
+                    'is_cloud': False,
+                    'source': 'internal'
                 },
                 'object': {
                     'healthy': health.get('object', False),
                     'endpoint': self.config.object_storage.endpoint_url or 'local',
-                    'is_cloud': self.config.object_storage.is_cloud
+                    'is_cloud': False,
+                    'source': 'internal'
                 }
             }
         }

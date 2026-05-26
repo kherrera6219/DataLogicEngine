@@ -4,13 +4,13 @@
 
 ## 1. Introduction
 
-DataLogicEngine is a local-first, cloud-augmented knowledge graph workspace for governed AI reasoning. This Privacy Policy explains how the App collects, uses, and discloses information across the current **Local-First Desktop** build and future or managed **Cloud/Enterprise** deployment modes.
+DataLogicEngine is a local-first knowledge graph workspace for governed AI reasoning. This Privacy Policy explains how the App collects, uses, and discloses information across the current **Local-First Desktop** build and the same Windows application running inside a Windows virtual machine.
 
 ## 2. Information We Collect
 
 The App collects the following types of information:
 
-- **Local Identity Information**: Windows account identity metadata used to create the local desktop user profile. Web/cloud deployments may also collect username, email address, and authentication credentials.
+- **Local Identity Information**: Windows account identity metadata used to create the local desktop or Windows VM user profile.
 - **Usage Data**: Logs of application usage, including timestamps and feature interactions, for security auditing and performance monitoring.
 - **Content Data**: The text queries, documents, and data sources you explicitly upload or input into the App for processing ("User Content").
 - **Technical Data**: IP address, device type, and operating system information required for secure connection and session management.
@@ -20,7 +20,7 @@ The App collects the following types of information:
 We use your information exclusively for the following purposes:
 
 - To provide the core functionality of the App (knowledge synthesis and reasoning).
-- To authenticate your local Windows identity or, in web/cloud deployments, your application account.
+- To authenticate your local Windows identity.
 - To prevent fraud, abuse, and security threats (e.g., adversarial prompt detection).
 - To comply with legal obligations and enforce our Terms of Service.
 
@@ -28,10 +28,10 @@ We use your information exclusively for the following purposes:
 
 The App supports two primary deployment architectures:
 
-### 4.1. Cloud/Enterprise Mode
-In this mode, data is stored in secured, tenant-isolated cloud databases.
-- **Data Residency**: Data is stored in the region selected by your enterprise administrator.
-- **Multi-Tenancy**: Strict logical isolation ensures your data is only accessible to authorized users within your tenant.
+### 4.1. Windows VM Mode
+In this mode, the same Windows application runs inside a Windows virtual machine.
+- **Data Residency**: Application databases remain internal to the installed app stack on the VM.
+- **Database Sources**: The App does not use externally hosted PostgreSQL, Redis, Neo4j, ChromaDB, vector, or object-store services as runtime database sources.
 
 ### 4.2. Local-First Desktop Mode
 In this mode, the App runs as a standalone service on your Windows 11 machine.

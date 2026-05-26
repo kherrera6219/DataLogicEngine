@@ -1071,6 +1071,18 @@ def _prometheus_metrics_payload() -> str:
     lines.extend(latency_slo_prometheus_lines(prefix="datalogicengine"))
     lines.extend(crash_reporting_prometheus_lines(prefix="datalogicengine"))
     lines.extend(tenant_rls_prometheus_lines(TENANT_RLS_STATUS, prefix="datalogicengine"))
+    try:
+        from backend.dmrf import DMRFOrchestrator
+
+        lines.extend(DMRFOrchestrator.prometheus_lines(prefix="datalogicengine"))
+    except Exception:
+        lines.extend(
+            [
+                "# HELP datalogicengine_dmrf_metrics_available DMRF metrics availability.",
+                "# TYPE datalogicengine_dmrf_metrics_available gauge",
+                "datalogicengine_dmrf_metrics_available 0",
+            ]
+        )
     return "\n".join(lines) + "\n"
 
 

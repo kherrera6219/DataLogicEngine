@@ -1,0 +1,49 @@
+{
+  "checks": [
+    {
+      "audit_persisted": true,
+      "audit_rows_after": 1,
+      "audit_rows_before": 0,
+      "axis_count": 17,
+      "dsqp_profiles": [
+        "10",
+        "11",
+        "8",
+        "9"
+      ],
+      "elapsed_ms": 54.044,
+      "frost_depth": 7,
+      "label": "desktop_windows_internal",
+      "ok": true,
+      "step_count": 9,
+      "tier": "high_stakes",
+      "warnings": []
+    },
+    {
+      "audit_persisted": true,
+      "audit_rows_after": 1,
+      "audit_rows_before": 0,
+      "axis_count": 17,
+      "dsqp_profiles": [
+        "10",
+        "11",
+        "8",
+        "9"
+      ],
+      "elapsed_ms": 4105.005,
+      "frost_depth": 7,
+      "label": "vm_windows_internal",
+      "ok": true,
+      "step_count": 9,
+      "tier": "high_stakes",
+      "warnings": []
+    }
+  ],
+  "environment_model": "desktop and VM both run the same Windows application with bundled/internal databases; no external database source is required or expected",
+  "generated_at": "2026-05-26T23:27:18.492123+00:00",
+  "phase": "F",
+  "rust_f2_decision": {
+    "reason": "F2 is optional unless profiling shows a Python bottleneck; current Phase F evidence validates the Python control plane on the same internal database model used for desktop and Windows VM.",
+    "required": false
+  }
+}

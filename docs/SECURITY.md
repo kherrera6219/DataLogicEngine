@@ -117,7 +117,7 @@ The `API Gateway` implements multi-tiered rate limiting using **Redis**:
   - **Provider Keys**:
     - **Cloud**: LLM API keys are encrypted via Fernet using rotating keys stored in secured environment variables.
     - **Desktop**: LLM API keys are encrypted via **Windows DPAPI**, tying secrets to the local user profile and machine hardware.
-- **Database Volumes**: Recommended deployment on cloud-native encrypted volumes (AWS KMS / Azure Key Vault).
+- **Database Volumes**: Application databases run on app-owned local/Windows VM storage. Use OS volume encryption and restricted ACLs for those internal data directories; do not move runtime databases to externally hosted database services.
 
 ### 3. Session Secret & CSRF Origin Policy
 

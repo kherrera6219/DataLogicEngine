@@ -177,7 +177,7 @@ def test_pinecone_backend_error_paths():
 def test_vector_store_backend_selection(monkeypatch):
     import backend.storage.connection_manager as connection_manager_module
 
-    cloud_config = SimpleNamespace(
+    stale_external_config = SimpleNamespace(
         vector=SimpleNamespace(
             is_cloud=True,
             provider="pinecone",
@@ -186,23 +186,10 @@ def test_vector_store_backend_selection(monkeypatch):
             local_path="./db/chroma",
         )
     )
-    local_config = SimpleNamespace(
-        vector=SimpleNamespace(
-            is_cloud=False,
-            provider=None,
-            api_key=None,
-            environment=None,
-            local_path="./db/local_chroma",
-        )
-    )
 
-    monkeypatch.setattr(connection_manager_module, "get_connection_manager", lambda: SimpleNamespace(config=cloud_config))
-    cloud_store = VectorStore()
-    assert isinstance(cloud_store._backend, PineconeBackend)
-
-    monkeypatch.setattr(connection_manager_module, "get_connection_manager", lambda: SimpleNamespace(config=local_config))
-    local_store = VectorStore()
-    assert isinstance(local_store._backend, ChromaDBBackend)
+    monkeypatch.setattr(connection_manager_module, "get_connection_manager", lambda: SimpleNamespace(config=stale_external_config))
+    store = VectorStore()
+    assert isinstance(store._backend, ChromaDBBackend)
 
 
 def test_vector_store_proxy_methods():

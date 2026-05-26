@@ -55,7 +55,7 @@ DataLogicEngine is currently in application-readiness cleanup and release-prepar
 | Desktop no-login startup (Electron, Windows 11) | Operational |
 | API key save/test and AI model configuration | Operational |
 | Storage health checks and local service lifecycle (`Start All` / `Stop All`) | Operational |
-| Storage cloud configuration persistence | Operational |
+| Internal storage configuration persistence | Operational |
 | Notification preferences | Operational |
 | MCP server add/list/delete admin actions | Operational |
 | MCP connector scope enforcement and OAuth lifecycle | Operational |
@@ -143,7 +143,7 @@ DataLogicEngine is currently in application-readiness cleanup and release-prepar
 | Document | Purpose |
 |----------|---------|
 | [`docs/OPERATIONAL_RUNBOOKS.md`](OPERATIONAL_RUNBOOKS.md) | Incident response, escalation, and operational procedures |
-| [`docs/DEPLOYMENT.md`](DEPLOYMENT.md) | Deployment patterns (local, Docker, Kubernetes, cloud) |
+| [`docs/DEPLOYMENT.md`](DEPLOYMENT.md) | Deployment patterns for desktop and Windows VM internal app database modes |
 | [`deploy/DEPLOYMENT_CHECKLIST.md`](../deploy/DEPLOYMENT_CHECKLIST.md) | Pre-deployment validation checklist |
 | [`deploy/DISASTER_RECOVERY.md`](../deploy/DISASTER_RECOVERY.md) | Disaster recovery procedures |
 
@@ -203,7 +203,7 @@ These documents are produced to the Microsoft enterprise standard for engineerin
 
 | Document | Description | Audience |
 |----------|-------------|----------|
-| [`docs/DEPLOYMENT.md`](DEPLOYMENT.md) | Deployment patterns: local, Docker Compose, Kubernetes, AWS, GCP, Azure | SRE, operations |
+| [`docs/DEPLOYMENT.md`](DEPLOYMENT.md) | Deployment patterns: desktop and Windows VM with internal app-owned databases | SRE, operations |
 | [`docs/OPERATIONAL_RUNBOOKS.md`](OPERATIONAL_RUNBOOKS.md) | Incident response procedures, escalation paths, operational playbooks | SRE, operations |
 | [`deploy/DEPLOYMENT_CHECKLIST.md`](../deploy/DEPLOYMENT_CHECKLIST.md) | Pre-production deployment validation gate | SRE, operations |
 | [`deploy/DISASTER_RECOVERY.md`](../deploy/DISASTER_RECOVERY.md) | Disaster recovery and business continuity procedures | SRE, operations |

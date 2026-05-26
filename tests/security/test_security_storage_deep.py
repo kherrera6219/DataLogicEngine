@@ -135,13 +135,26 @@ class TestSessionManager:
         mock_redis.delete.assert_any_call("session:s1")
 
 class TestConnectionManager:
-    @patch.dict(os.environ, {"DB_MODE": "cloud", "POSTGRES_HOST": "cloud-db"})
-    def test_config_loading(self):
+    @patch.dict(os.environ, {
+        "DB_MODE": "cloud",
+        "POSTGRES_HOST": "127.0.0.1",
+        "POSTGRES_CLOUD_URL": "postgresql://external.example/ukg",
+        "REDIS_CLOUD_URL": "rediss://external.example/0",
+        "NEO4J_CLOUD_URL": "neo4j+s://external.example",
+        "VECTOR_CLOUD_URL": "https://external-vector.example",
+        "VECTOR_API_KEY": "key",
+        "S3_ENDPOINT_URL": "https://external-object.example",
+        "AWS_ACCESS_KEY_ID": "key",
+    }, clear=False)
+    def test_config_loading_uses_internal_database_model(self):
         # Reset singleton for test
         ConnectionManager._instance = None
         cm = ConnectionManager()
-        assert cm.config.mode == ConnectionMode.CLOUD
-        assert cm.config.postgres.host == "cloud-db"
+        assert cm.config.mode == ConnectionMode.AUTO
+        assert cm.config.postgres.host == "127.0.0.1"
+        report = cm.get_status_report()
+        assert all(service["is_cloud"] is False for service in report["services"].values())
+        assert {service["source"] for service in report["services"].values()} == {"internal"}
 
     def test_health_checks(self):
         cm = ConnectionManager()
@@ -184,11 +197,13 @@ class TestObjectStore:
 
     @patch("backend.storage.object_store.get_object_store")
     def test_store_singleton_selection(self, mock_get_store):
-        # Verify ObjectStore selects backend correctly
+        # Verify ObjectStore remains internal even if stale external config is present.
         with patch("backend.storage.connection_manager.get_connection_manager") as mock_cm:
             mock_cm.return_value.config.object_storage.is_cloud = True
             mock_cm.return_value.config.object_storage.access_key = "key"
+            mock_cm.return_value.config.object_storage.local_path = "databases/objects"
             
             with patch("backend.storage.object_store.S3Backend") as mock_s3:
-                ObjectStore()
-                assert mock_s3.called
+                store = ObjectStore()
+                assert not mock_s3.called
+                assert isinstance(store._backend, LocalFileBackend)

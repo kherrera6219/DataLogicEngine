@@ -457,7 +457,7 @@ The canonical roadmap, future items, and backlog are consolidated in [`TODO.md`]
 - **AuditBundle service layer** — `TruthMemoryCommitService` seals each Tier 2+ `TraceRun` into the immutable audit chain (EU AI Act Article 53 alignment).
 - **F-CONF-01 confidence calculator** — Canonical formula weighing evidence quality, KA consensus, persona agreement, and TruthGate pass/fail replaces raw LLM output probability.
 - **Portable database lifecycle manager** — `DatabaseLifecycleManager` starts and stops PostgreSQL, Redis, and Neo4j child processes automatically for workstation deployments.
-- **Application readiness evidence (2026-05-23)** — Manifest shortcuts, PWA icons, documentation banner, conservative app copy, cloud AI disclosures, privacy controls, notification preferences, storage cloud configuration, MCP server administration surfaces, authenticated a11y scans, keyboard navigation checks, failure-mode tests, and export/delete tests are present; manual NVDA checks and signed release validation remain open.
+- **Application readiness evidence (2026-05-23)** — Manifest shortcuts, PWA icons, documentation banner, conservative app copy, external AI provider disclosures, privacy controls, notification preferences, internal storage configuration, MCP server administration surfaces, authenticated a11y scans, keyboard navigation checks, failure-mode tests, and export/delete tests are present; manual NVDA checks and signed release validation remain open.
 
 See [`TODO.md`](TODO.md) for the canonical open work list and [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) for release readiness gates.
 

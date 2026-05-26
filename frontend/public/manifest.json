@@ -1,7 +1,7 @@
 {
   "name": "DataLogicEngine Desktop",
   "short_name": "DataLogicEngine",
-  "description": "Local-first, cloud-augmented knowledge graph workspace for traceable AI-assisted analysis, provider usage inspection, and privacy controls.",
+  "description": "Local-first knowledge graph workspace for traceable AI-assisted analysis, internal app-owned databases, provider usage inspection, and privacy controls.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

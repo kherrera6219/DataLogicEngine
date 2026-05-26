@@ -676,6 +676,27 @@ ipcMain.handle('quad-analysis-status', async (event, ...args: unknown[]) => {
   }
 });
 
+ipcMain.handle('dmrf-status', async (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'dmrf-status', args);
+  if (!backendProcess || backendProcess.exitCode !== null) {
+    return { status: 'offline' };
+  }
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/api/v1/gateway/dmrf-status');
+    const payload = await response.json();
+    return {
+      status: payload?.status ?? 'idle',
+      tier: payload?.tier ?? null,
+      frost_depth: payload?.frost_depth ?? null,
+      run_id: payload?.run_id ?? null,
+      tier_counts: payload?.tier_counts ?? {},
+    };
+  } catch {
+    return { status: 'unavailable' };
+  }
+});
+
 ipcMain.handle('dsqp-persona-profiles', async (event, ...args: unknown[]) => {
   assertTrustedIpcInvoke(event, 'dsqp-persona-profiles', args);
   if (!backendProcess || backendProcess.exitCode !== null) {

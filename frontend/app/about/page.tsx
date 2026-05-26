@@ -19,7 +19,7 @@ export default function AboutPage() {
         <header className="mb-12 text-center">
            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">About DataLogicEngine</h1>
            <p className="text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
-             A local-first, cloud-augmented knowledge graph workspace for traceable AI-assisted analysis and provider usage inspection.
+             A local-first knowledge graph workspace for traceable AI-assisted analysis, internal app-owned databases, and provider usage inspection.
            </p>
         </header>
 

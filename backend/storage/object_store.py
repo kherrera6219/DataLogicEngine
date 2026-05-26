@@ -465,9 +465,11 @@ class S3Backend(ObjectBackend):
 class ObjectStore:
     """
     Unified object store interface.
-    
-    Automatically selects between local filesystem and S3 backends
-    based on configuration.
+
+    Runtime selection is intentionally fixed to the app-owned local filesystem
+    backend. A Windows VM deployment uses the same internal storage model as
+    desktop; externally hosted object stores are not application database
+    sources.
     """
     
     def __init__(self, backend: Optional[ObjectBackend] = None):
@@ -482,17 +484,8 @@ class ObjectStore:
         
         config = get_connection_manager().config.object_storage
         
-        if config.is_cloud and config.access_key:
-            logger.info("Using S3 cloud backend")
-            return S3Backend(
-                endpoint_url=config.endpoint_url,
-                access_key=config.access_key,
-                secret_key=config.secret_key,
-                region=config.region
-            )
-        else:
-            logger.info("Using local filesystem backend")
-            return LocalFileBackend(base_path=config.local_path)
+        logger.info("Using app-owned local filesystem backend")
+        return LocalFileBackend(base_path=config.local_path)
     
     def put(
         self,

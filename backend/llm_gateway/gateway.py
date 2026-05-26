@@ -179,6 +179,13 @@ class LLMGateway:
         return os.environ.get("IS_DESKTOP_APP", "false").lower() in {"1", "true", "yes", "on"}
 
     @staticmethod
+    def _dmrf_enabled(meta: dict[str, Any]) -> bool:
+        """Return True when DMRF should wrap the gateway control plane."""
+        if meta.get("use_dmrf") is not None:
+            return str(meta.get("use_dmrf")).lower() in {"1", "true", "yes", "on"}
+        return os.environ.get("USE_DMRF", "false").lower() in {"1", "true", "yes", "on"}
+
+    @staticmethod
     def _resolve_model(request: GatewayRequest, provider_record: Optional[LLMProvider]) -> str:
         if request.model:
             return str(request.model)
@@ -336,6 +343,33 @@ class LLMGateway:
             request.meta["allowed_provider_types"] = sorted(allowed_provider_types)
         if allowed_models:
             request.meta["allowed_models"] = sorted(allowed_models)
+
+        if request.run_ukg_pipeline and self._dmrf_enabled(request.meta):
+            try:
+                from backend.dmrf import DMRFOrchestrator
+
+                dmrf_result = await DMRFOrchestrator(
+                    desktop_mode=self._desktop_local_first_enabled(),
+                    db_session=self.db,
+                ).process(
+                    query,
+                    context=request.meta,
+                    offline=bool(request.meta.get("offline") or request.meta.get("providers_unreachable")),
+                )
+                dmrf_bundle = dmrf_result.export_bundle()
+                request.meta["dmrf"] = dmrf_bundle
+                request.meta["dmrf_tier"] = dmrf_result.tier
+                request.meta["axis_vector"] = dmrf_bundle.get("axis_vector", {})
+                if not dmrf_result.ok:
+                    return self._error_response(
+                        run_id,
+                        "; ".join(dmrf_result.warnings) or "DMRF blocked request",
+                        start_time,
+                        request,
+                    )
+            except Exception as exc:
+                logger.warning("DMRF control plane failed open: %s", exc)
+                request.meta.setdefault("dmrf_warnings", []).append(str(exc))
 
         requested_model = str(request.model).strip().lower() if request.model else ""
         if allowed_models and requested_model and requested_model not in allowed_models:
@@ -1325,6 +1359,7 @@ class LLMGateway:
             meta=meta,
             temperature=temperature,
             max_tokens=max_tokens,
+            tier_override=meta.get("dmrf_tier"),
         )
         
         # Connect SDK trace to TraceRun/TraceStage models

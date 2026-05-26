@@ -26,6 +26,14 @@ export interface QuadAnalysisStatus {
   mode: string;
 }
 
+export interface DMRFStatus {
+  status: string;
+  tier?: string | null;
+  frost_depth?: number | null;
+  run_id?: string | null;
+  tier_counts?: Record<string, number>;
+}
+
 export interface DSQPPersonaProfile {
   axis: number;
   persona_type: string;
@@ -48,6 +56,7 @@ export interface ElectronAPI {
   getBackendStatus: () => Promise<string>;
   getDbStatus: () => Promise<DesktopDatabaseStatus>;
   quadAnalysisStatus: () => Promise<QuadAnalysisStatus>;
+  dmrfStatus: () => Promise<DMRFStatus>;
   dsqpPersonaProfiles: () => Promise<DSQPPersonaProfilesStatus>;
   getUpdateState: () => Promise<DesktopUpdateState>;
   checkForUpdates: () => Promise<DesktopUpdateState>;

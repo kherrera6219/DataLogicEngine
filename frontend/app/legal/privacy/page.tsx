@@ -36,7 +36,7 @@ export default function PrivacyPolicyPage() {
                 Introduction
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                DataLogicEngine is a local-first, cloud-augmented knowledge graph workspace for governed AI reasoning. This Privacy Policy explains how the App collects, uses, and discloses information across the current Windows desktop build and future or managed cloud deployment modes.
+                DataLogicEngine is a local-first knowledge graph workspace for governed AI reasoning. This Privacy Policy explains how the App collects, uses, and discloses information across the current Windows desktop build and the same Windows application running inside a Windows virtual machine.
               </p>
             </section>
 
@@ -47,7 +47,7 @@ export default function PrivacyPolicyPage() {
               </h2>
               <ul className="grid gap-3 list-none pl-0">
                 <li className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
-                  <strong className="text-gray-900 dark:text-white">Local Identity Information:</strong> Windows account identity metadata used to create the local desktop user profile. Web or cloud deployments may also collect username, email address, and authentication credentials.
+                  <strong className="text-gray-900 dark:text-white">Local Identity Information:</strong> Windows account identity metadata used to create the local desktop or Windows VM user profile.
                 </li>
                 <li className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
                   <strong className="text-gray-900 dark:text-white">Usage Data:</strong> Logs of application usage, including timestamps and feature interactions, for security auditing and performance monitoring.
@@ -69,7 +69,7 @@ export default function PrivacyPolicyPage() {
               <p className="text-gray-600 dark:text-gray-300 mb-4">We use your information exclusively for the following purposes:</p>
               <ul className="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-300">
                 <li>To provide the core functionality of the App (knowledge synthesis and reasoning).</li>
-                <li>To authenticate your local Windows identity or, in web/cloud deployments, your application account.</li>
+                <li>To authenticate your local Windows identity.</li>
                 <li>To prevent fraud, abuse, and security threats (e.g., adversarial prompt detection).</li>
                 <li>To comply with legal obligations and enforce our Terms of Service.</li>
               </ul>

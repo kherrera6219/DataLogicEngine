@@ -484,6 +484,18 @@ def quad_analysis_status():
     return jsonify(LLMGateway.get_quad_analysis_status())
 
 
+@gateway_bp.route('/dmrf-status', methods=['GET'])
+def dmrf_status():
+    """Latest compact DMRF status for desktop IPC."""
+    try:
+        from backend.dmrf import DMRFOrchestrator
+
+        return jsonify(DMRFOrchestrator.status())
+    except Exception as exc:
+        logger.warning("DMRF status unavailable: %s", exc)
+        return jsonify({"status": "unavailable"}), 503
+
+
 @gateway_bp.route('/dsqp-persona-profiles', methods=['GET'])
 def dsqp_persona_profiles():
     """Construct compact DSQP persona profiles for desktop IPC."""

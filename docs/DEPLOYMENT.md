@@ -14,7 +14,7 @@ Define supported deployment modes, release procedures, and required CI/CD config
 ## Document control
 
 1. Owner: Platform Operations
-2. Last updated: 2026-03-31
+2. Last updated: 2026-05-26
 3. Status: Active
 4. Review cadence: Every 30 days
 
@@ -26,9 +26,11 @@ Define supported deployment modes, release procedures, and required CI/CD config
 4. `docs/SECURITY.md`
 
 ## Overview
-DataLogicEngine supports two primary deployment targets:
-1.  **Desktop (Electron)**: A self-contained `.exe`/`.dmg` with bundled backend.
-2.  **Cloud (Docker)**: Containerized Frontend (Next.js Standalone) and Backend (Flask/Gunicorn).
+DataLogicEngine supports two primary runtime targets:
+1.  **Desktop (Electron)**: A self-contained Windows app with bundled backend and app-owned database services.
+2.  **Windows VM**: The same Windows app stack running inside a Windows virtual machine with the same internal database services.
+
+All application database systems are internal to the installed app stack. Do not configure externally hosted PostgreSQL, Redis, Neo4j, ChromaDB, object-store, or vector database services as runtime database sources.
 
 ## Deployment Guardrails
 
@@ -85,29 +87,29 @@ It also generates dedicated service wrappers:
 - `deploy/windows/DataLogic_Backend.exe`
 - `deploy/windows/DataLogic_Frontend.exe`
 
-## 2. Cloud Deployment (Docker)
+## 2. Windows VM Deployment
 
-The cloud build uses `output: 'standalone'` (Node.js Server) to support API Rewrites and SSR features.
+The Windows VM target installs and runs the same app package used by the desktop target. The VM is not a switch to managed cloud databases. PostgreSQL, Redis, Neo4j, ChromaDB, object storage, and SQLite fallback remain app-owned/internal services on the VM filesystem and loopback network.
 
-### Frontend
-```bash
-cd frontend
-docker build -t datalogic-frontend .
-```
-*   **Note**: Uses default `npm run build` which defaults to `BUILD_MODE=standalone`.
-*   **Rewrites**: Configured to proxy `/api/*` to `http://127.0.0.1:5000` (or host networking).
+### VM Setup
 
-### Backend
-```bash
-cd backend
-docker build -t datalogic-backend .
-```
-*   **Port**: 5000
-*   **Env Vars**: Ensure `.env` is mounted or secrets injected.
+1. Provision a Windows VM with the same OS prerequisites as the local Windows desktop target.
+2. Install the signed app package or current installer artifact.
+3. Let the application initialize its internal database services under the app-owned data directories.
+4. Validate health through the app `/health` endpoint and the desktop database status IPC path.
 
-### 2.1 GitHub Actions Docker Publish (GHCR)
+### Unsupported Runtime Database Sources
 
-The deployment workflow at `.github/workflows/deploy.yml` always builds `Dockerfile.cloud` on pushes to `main`.
+The following are not supported for the application database layer:
+- managed PostgreSQL or external `DATABASE_URL`
+- managed Redis or external `REDIS_URL`
+- Neo4j Aura or external `NEO4J_URI`
+- hosted vector databases
+- S3/Azure/GCS buckets as the primary object store
+
+### 2.1 GitHub Actions Build Artifacts
+
+The deployment workflow may build container artifacts for CI compatibility, but production/runtime database sources remain internal to the Windows app and Windows VM targets.
 
 - Image build: always runs
 - Image push to `ghcr.io/<owner>/datalogicengine`: runs only when `GHCR_PAT` is configured

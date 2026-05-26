@@ -67,7 +67,7 @@ a = Analysis(
         'transformers',
         'torch',
         'dotenv',
-    ] + collect_submodules('chromadb') + collect_submodules('sentence_transformers') + collect_submodules('backend.dsqp') + collect_submodules('backend.knowledge_algorithms.l10'),
+    ] + collect_submodules('chromadb') + collect_submodules('sentence_transformers') + collect_submodules('backend.dsqp') + collect_submodules('backend.dmrf') + collect_submodules('backend.knowledge_algorithms.l10'),
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

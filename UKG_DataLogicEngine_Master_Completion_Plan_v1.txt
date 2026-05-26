@@ -8,7 +8,7 @@ Consolidated  ·  v1.0  ·  All Gaps  ·  All Requests  ·  All DB Sprints
 
 
 How to read this document
-This is the single authoritative plan replacing all earlier documents (Gap Analysis, Phased Plan v1, LocalFirst Plan v2, Database Integration Plan). Every task maps to a real file path validated against the actual codebase at C:\software\DataLogicEngine. The "Target" column uses: DESKTOP+VM = required on both paths; DESKTOP = Electron/NSIS installer specific; VM-ONLY = cloud deployment only. Phases run in dependency order. DB Sprints run in parallel with main phases and are NOT sequential blocks.
+This is the single authoritative plan replacing all earlier documents (Gap Analysis, Phased Plan v1, LocalFirst Plan v2, Database Integration Plan). Every task maps to a real file path validated against the actual codebase at C:\software\DataLogicEngine. The "Target" column uses: DESKTOP+VM = required on both paths; DESKTOP = Electron/NSIS installer specific; VM = the same Windows app stack running on Windows inside a virtual machine. The VM path uses the application's bundled/internal databases, not external database sources. Phases run in dependency order. DB Sprints run in parallel with main phases and are NOT sequential blocks.
 	
 
 1.  Validated Current State — What the Code Review Found
@@ -36,7 +36,7 @@ Component
 	backend/storage/database_manager.py
 	ConnectionManager (config routing)
 	IMPLEMENTED
-	Reads all 5 storage configs from ENV. Health checks. Local/cloud switching per DB_MODE.
+	Reads all 5 internal storage configs from ENV. Health checks. DB_MODE supports desktop/Windows VM internal modes only; cloud/hybrid aliases are deprecated and do not route to external database sources.
 	backend/storage/connection_manager.py
 	LLM Gateway (OpenAI/Anthropic/Google/Azure)
 	IMPLEMENTED
@@ -44,7 +44,7 @@ Component
 	backend/llm_gateway/gateway.py
 	LocalSLMProvider (Ollama/vLLM)
 	PARTIAL
-	Full implementation in SDK providers. gateway.py can instantiate local_slm/ollama/vllm providers and prioritises DB-configured local providers for trivial/moderate tiers. BUT: it does not auto-create a local fallback provider when cloud providers fail; offline fallback routing is still required.
+	Full implementation in SDK providers. gateway.py can instantiate local_slm/ollama/vllm providers and prioritises DB-configured local providers for trivial/moderate tiers. BUT: it does not auto-create a local fallback provider when external LLM providers fail; offline fallback routing is still required.
 	sdk/UKG_Python_SDK/ukg_sdk/providers/local_slm.py + backend/llm_gateway/gateway.py
 	TruthEngine L8 TrustValidationGateway
 	IMPLEMENTED
@@ -221,10 +221,10 @@ Item
 	3–5
 	Full spec fidelity
 	G-B
-	Enterprise Integrations (VM-Only)
-	Redis Streams, 7yr retention, PQ-gRPC ADR
+	Enterprise Integrations (Windows VM optional)
+	App-managed Redis Streams, local retention, PQ-gRPC ADR
 	2–4
-	VM path complete
+	Windows VM optional path complete
 	H
 	Desktop Experience
 	JRE bundling, offline mode, IPC, crash recovery
@@ -964,7 +964,9 @@ DMRF is the largest build item — approximately 19 new Python files. The deskto
 
 
 Two operating modes from a single DMRFOrchestrator class
-Desktop lite (IS_DESKTOP_APP=true): Python-only. Tier capped at high_stakes when offline. State to SQLite. FROST in-memory. DSQP against bundled templates. No Rust.VM full: Python orchestrator + optional Rust hot path. All tiers available. PostgreSQL + Redis Streams for TruthLink. FROST snapshots to disk. MLflow tracking.
+Desktop lite (IS_DESKTOP_APP=true): Python-only. Tier capped at high_stakes when offline. State to the internal SQLite/PostgreSQL-compatible store. FROST in-memory. DSQP against bundled templates. No Rust. VM full: the same Windows app stack running inside Windows on a VM, using the app's bundled/internal PostgreSQL, Redis, Neo4j, ChromaDB, object store, and SQLite fallback. All tiers available. Redis Streams for TruthLink use the app-managed Redis service only. FROST snapshots to disk. MLflow/local tracking writes inside the app-owned data directory.
+
+Implementation update May 26, 2026: F-1 through F-16 are complete for the Python desktop and VM-compatible control-plane scope. backend/dmrf/ now contains the orchestrator/result models, 17-axis router, five-tier classifier with desktop offline cap, convergence/evidence policy using KA-023 lambdas, pure-Python injection defense, TruthGate/TruthCore/TruthMemory/TruthLink adapters, Redis Streams-compatible publishing for the app-managed Redis service with in-memory fallback, FROST step snapshots, DSQP persona construction, MLflow/local JSONL tracking, Prometheus metrics, observability status, and desktop config loader. LLMGateway can wrap requests through DMRF behind USE_DMRF=true or request meta use_dmrf=true, backend.spec collects backend.dmrf modules, /api/v1/gateway/dmrf-status and Electron preload expose DMRF status, and tests/dmrf/test_dmrf_integration.py validates 17 axes, tier caps, injection defense, convergence policy, DSQP output, FROST snapshot IDs, Redis stream shape, MLflow fallback, metrics, and TruthAuditEvent persistence. reports/dmrf_phase_f_validation.json captures Phase F evidence for both desktop_windows_internal and vm_windows_internal modes using the same internal Windows app database model: DMRF audit persistence passed with 17 axes, 9 steps, frost_depth=7, and no external database source. F2 Rust is not built because it is optional unless profiling shows a Python bottleneck.
 	
 
 F1 — Python Orchestrator (Weeks 10–18)
@@ -1014,14 +1016,14 @@ ID
 	EXTREME tier → L1-L10 full execution; Axis 17 bridge confirmed via Phase B
 	DESKTOP+VM
 	F-9
-	TruthMemory adapter — write DMRF telemetry to SQLite TruthAuditEvent (desktop) or PostgreSQL (VM)
+	TruthMemory adapter — write DMRF telemetry to the internal TruthAuditEvent store; desktop and VM both use app-owned SQLite/PostgreSQL-compatible persistence
 	backend/dmrf/truth_integration/memory_adapter.py (new)
-	DMRFResult.export_bundle() written to TruthAuditEvent; confirmed in both DB engines
+	DMRFResult.export_bundle() written to TruthAuditEvent; confirmed in both internal Windows app database modes
 	DESKTOP+VM
 	F-10
-	TruthLink adapter — publish DMRF events to TruthLinkBus (in-memory desktop; Redis Streams VM)
+	TruthLink adapter — publish DMRF events to TruthLinkBus (in-memory fallback; Redis Streams when app-managed Redis is running)
 	backend/dmrf/truth_integration/link_adapter.py (new)
-	Desktop: in-memory bus. VM: Redis Streams (G-B dependency)
+	Desktop and VM both use the same adapter; Redis Streams activate only against the app-managed Redis service, otherwise in-memory fallback is used
 	DESKTOP+VM
 	F-11
 	Wire DSQP from Phase D into DMRF Step 3 (persona construction)
@@ -1055,7 +1057,7 @@ ID
 	DESKTOP+VM
 	
 
-F2 — Rust Execution Layer (Weeks 18–23, VM path only, optional)
+F2 — Rust Execution Layer (Weeks 18–23, Windows VM optional)
 Only build if profiling shows Python bottlenecks in the VM deployment. Python orchestrator is fully functional without Rust.
 ID
 	Task
@@ -1063,30 +1065,30 @@ ID
 	Exit Gate
 	Target
 	F-17
-	Set up Rust workspace with PyO3 bindings — VM build only; NOT in NSIS installer
+	Set up Rust workspace with PyO3 bindings — optional Windows VM build; NOT in NSIS installer
 	rust/Cargo.toml + rust/src/lib.rs (new)
-	cargo build succeeds; Python import rust_dmrf works in VM Docker image; EXCLUDED from NSIS
-	VM-ONLY
+	cargo build succeeds; Python import rust_dmrf works in Windows VM build; EXCLUDED from NSIS
+	VM
 	F-18
 	Port convergence policy hot path to Rust
 	rust/src/convergence.rs (new)
 	>=10× faster than Python on VM benchmark; Python path remains default on desktop
-	VM-ONLY
+	VM
 	F-19
 	Port injection defense multi-pattern scanner to Rust (aho-corasick)
 	rust/src/injection.rs (new)
 	Scan < 1ms on 10KB input in VM mode; Python regex fallback on desktop
-	VM-ONLY
+	VM
 	F-20
-	CI: add Rust build to GitHub Actions — VM Docker image only
+	CI: add Rust build to GitHub Actions — Windows VM artifact only
 	.github/workflows/ci.yml
-	Rust job gates VM Docker build only; NSIS installer build never depends on Rust
-	VM-ONLY
+	Rust job gates optional VM artifact only; NSIS installer build never depends on Rust
+	VM
 	________________
 
 
 PHASE G
-	Enterprise Integrations  —  Split Desktop-Compatible vs VM-Only
+	Enterprise Integrations  —  Same Internal Windows App Stack
 	Weeks 20–28
 	
 
@@ -1099,7 +1101,7 @@ ID
 	G-1
 	MLflow local file tracking: mlflow.set_tracking_uri("%AppData%/DataLogicEngine/mlruns") in desktop mode
 	backend/truth_engine/truth_memory/manager.py
-	IS_DESKTOP_APP → local file tracking; VM → configurable remote URI; mlflow ui shows runs
+	Desktop and VM both use app-owned local file tracking; mlflow ui can inspect the local app data directory
 	DESKTOP+VM
 	G-2
 	OPA bundled binary (opa.exe in extraResources/opa/) for policy evaluation; TruthGate policies in Rego
@@ -1128,7 +1130,7 @@ ID
 	DESKTOP+VM
 	
 
-G-B: VM-Only (guard with IS_DESKTOP_APP check; do NOT add to NSIS installer)
+G-B: Windows VM Optional Enhancements (same internal app services; do NOT depend on external databases)
 ID
 	Task
 	Primary File(s)
@@ -1137,23 +1139,23 @@ ID
 	G-7
 	TruthLink: Redis Streams for federated event distribution
 	backend/truth_engine/truth_link/bus.py
-	if REDIS_URL and not IS_DESKTOP_APP: use Redis XADD/XREAD; else in-memory bus
-	VM-ONLY
+	if app-managed Redis is running: use Redis XADD/XREAD; else in-memory bus
+	VM
 	G-8
-	TruthMemory: 7-year retention cold storage routing (MinIO/S3)
+	TruthMemory: 7-year retention cold storage routing to app-owned archive directory
 	backend/truth_engine/truth_memory/retention_router.py (new)
-	IS_DESKTOP_APP check guards all cold storage calls; desktop uses local archive dir
-	VM-ONLY
+	Desktop and VM use local archive directories under app-owned storage
+	VM
 	G-9
 	TruthGate: Llama Guard 3 + Rebuff model-based screening
 	backend/truth_engine/truth_gate/model_screening.py (new)
-	TRUTH_GATE_ENHANCED_SCREENING=true + not IS_DESKTOP_APP required; graceful no-op on desktop
-	VM-ONLY
+	TRUTH_GATE_ENHANCED_SCREENING=true enables local/bundled screening where installed; graceful no-op otherwise
+	VM
 	G-10
 	PQ-gRPC transport research and ADR (long-term)
 	docs/adr/ADR-XXXX-pq-grpc-transport.md (new)
-	ADR documents go/no-go decision; if go: prototype in VM Docker only; no desktop dependency
-	VM-ONLY
+	ADR documents go/no-go decision; if go: prototype in Windows VM only; no desktop dependency
+	VM
 	________________
 
 
@@ -1321,36 +1323,36 @@ ID
 3.  Local Database Architecture — Target State
 
 
-After all phases complete, every database runs locally on the desktop installer and is accessed by the LLM during every reasoning step. The VM path uses the same code pointed at managed services.
+After all phases complete, every database runs inside the application-owned local stack and is accessed by the LLM during every reasoning step. The VM path is the same Windows application running on a Windows VM with the same bundled/internal database systems; it does not use external database sources.
 
 
 Store
 	Local Desktop (NSIS installer)
-	VM / Cloud
+	Windows VM
 	LLM Access During Reasoning
 	PostgreSQL 16
 	Portable binary in databases/postgresql/. auto-init. SQLite fallback if PG absent.
-	External managed PostgreSQL 15+
+	Same app-managed PostgreSQL 16 portable binary; SQLite fallback if PG absent.
 	L1 reads domain confidence from TraceRun. L8 calibrates thresholds. L9 session similarity via input_embedding.
 	Neo4j 5 + JRE 17
 	Portable binary in databases/neo4j/. JRE bundled in databases/jre/. Pillar + KnowledgeNode seeded.
-	External Neo4j 5+
+	Same app-managed Neo4j 5 + bundled JRE.
 	L1 MATCH nodes by 17-axis coordinate. L2 traverse subgraph. NetworkX in-memory graph for zero-latency simulation.
 	Redis 7
 	Portable binary in databases/redis/. Persist every 60s. Bind 127.0.0.1.
-	External Redis 7+
+	Same app-managed Redis 7 bound to loopback.
 	L2 subgraph cache (5min). L4 persona cache (24h). L5 citation cache (7 days). Embedding cache (1h).
 	ChromaDB (embedded)
 	databases/chroma/. No server process. 4 collections. HuggingFace MiniLM offline embedding.
-	Same local OR Qdrant/Milvus managed
+	Same embedded ChromaDB.
 	L3 evidence search (knowledge_nodes). L4 persona profile lookup. L6 citation validation. L9 historical drift (audit_evidence).
 	Object Store (local FS)
 	databases/objects/. 5 buckets. S3-compatible interface. Path-traversal protected.
-	MinIO or AWS S3
+	Same local filesystem object store.
 	L10 Lane A: audit bundles → audit_logs/. FROST snapshots → simulation_artifacts/. DSQP → deliverables/.
 	StructuredMemoryGraph
 	In-process Python. Persisted to databases/memory/memory_graph.json on shutdown.
-	Same serialised to VM disk
+	Same serialized graph on VM disk.
 	Per-layer + per-persona namespacing. SR(q,c,t) recall across all L1-L10 steps. MC(M,I,t) consolidation at L10 Lane B.
 	
 
@@ -1436,7 +1438,7 @@ Item
 	electron-builder.yml extraResources; IPC-triggered background indexing
 	EXCLUDED: Rust .dll/.pyd
 	(not in installer)
-	Rust only gates VM Docker build; never in NSIS
+	Rust only gates an optional Windows VM performance artifact; never in NSIS
 	EXCLUDED: MLflow server binary
 	(not in installer)
 	MLflow client only; local file tracking at %AppData%/DataLogicEngine/mlruns/
@@ -1539,7 +1541,7 @@ Item
 	3–5 wks
 	Week 25
 	G-B
-	Enterprise (VM-only)
+	Enterprise (Windows VM)
 	Week 22 (after G-A)
 	2–4 wks
 	Week 28
@@ -1549,16 +1551,16 @@ Range summary: Conservative (all phases, F2, G-B) = ~28–35 weeks. Focused desk
 ________________
 
 
-7.  Testing Matrix — Both DB Engines Required
+7.  Testing Matrix — Internal DB Modes Required
 
 
-Every phase exit gate must pass on both SQLite (desktop) and PostgreSQL (VM). The test runner is parameterised by DB engine. Code that only passes one engine is not done.
+Every phase exit gate must pass against the internal desktop database mode and the same internal Windows VM app mode. PostgreSQL validation means the app-managed portable PostgreSQL service when it is installed/initialized, not an external database source. Code must not require externally hosted databases.
 
 
 Phase
 	Command
 	SQLite (Desktop)
-	PostgreSQL (VM)
+	Windows VM internal DB mode
 	A
 	python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process
 	Exits 0 in IS_DESKTOP_APP=true mode
@@ -1755,13 +1757,13 @@ Phase
 	MCP resource subscriptions + SSE
 	G-B
 	backend/truth_engine/truth_memory/retention_router.py
-	7-year retention (VM-only)
+	7-year retention (Windows VM optional)
 	G-B
 	backend/truth_engine/truth_gate/model_screening.py
-	Llama Guard 3 + Rebuff (VM-only)
+	Llama Guard 3 + Rebuff (Windows VM optional)
 	G-B
 	docs/adr/ADR-XXXX-pq-grpc-transport.md
-	PQ-gRPC ADR (VM research)
+	PQ-gRPC ADR (Windows VM research)
 	KI
 	backend/ingestion/document_pipeline.py
 	Raw docs → chunk → embed → all 3 stores
@@ -1804,4 +1806,4 @@ Phase
 
 
 — End of Master Phased Completion Plan  |  v1.0  |  May 23, 2026  |  Lucentry —
-C:\software\DataLogicEngine  |  All tasks code-validated  |  Target: DESKTOP+VM = both paths  ·  DESKTOP = Electron only  ·  VM-ONLY = cloud only
+C:\software\DataLogicEngine  |  All tasks code-validated  |  Target: DESKTOP+VM = both paths  ·  DESKTOP = Electron only  ·  VM = same Windows app running in a Windows virtual machine with internal app-owned databases

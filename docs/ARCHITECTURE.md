@@ -159,9 +159,9 @@ This coordinate system allows the engine to retrieve exactly the right "slice" o
 
 ## 🧪 Deployment Patterns
 
-- **Edge Deployment**: Next.js frontend deployed to Vercel/Cloudflare.
-- **Engine Cluster**: Flask backend deployed to Kubernetes with HPA.
-- **Data Persistence**: Managed RDS (PostgreSQL) and Managed Redis.
+- **Desktop Deployment**: Electron app, bundled Flask backend, and app-owned internal databases.
+- **Windows VM Deployment**: Same Windows app stack running inside a Windows virtual machine.
+- **Data Persistence**: App-owned PostgreSQL/SQLite, Redis, Neo4j, ChromaDB, and object storage. Externally hosted database sources are not part of the supported runtime model.
 
 ---
 
@@ -171,8 +171,8 @@ In v2.4.0, the system introduced first-class support for **Local-First** desktop
 
 ### 1. Multi-Mode Execution Layer
 The system can operate in two primary modes defined by environment variables:
-- **Local-Only**: Uses local instances of PostgreSQL and Redis. Data residency is strictly on the local machine.
-- **Cloud-Hybrid**: Connects to existing cloud-hosted databases while maintaining local application state.
+- **Desktop**: Uses app-owned internal database services. Data residency is strictly on the local machine.
+- **Windows VM**: Uses the same app-owned internal database services inside the VM.
 
 ### 2. Service Orchestration (Windows)
 For local Windows bring-up, the supported workflow uses `scripts/windows/start_local_stack.ps1` and `scripts/windows/stop_local_stack.ps1`.
@@ -724,43 +724,26 @@ services:
     command: server /data --console-address ":9001"
 ```
 
-### Kubernetes (Production)
+### Windows VM (Production)
 
 **Components**:
 
-- Backend Deployment (4 replicas)
-- Frontend Deployment (2 replicas)
-- PostgreSQL StatefulSet
-- Redis Deployment
-- Ingress for routing
-- ConfigMaps for configuration
-- Secrets for credentials
+- Same Electron/Flask application package as desktop.
+- App-owned PostgreSQL/SQLite database path.
+- App-owned Redis, Neo4j, ChromaDB, and object storage under local VM directories.
+- Local health checks and release smoke validation inside the VM.
 
 **Features**:
 
-- Auto-scaling based on CPU/memory
-- Rolling updates
-- Health checks
-- Persistent volumes for PostgreSQL
-- Load balancing
+- Same internal database source model as desktop.
+- VM-local service supervision and restart validation.
+- Local backup/archive directories under app-owned storage.
+- No externally hosted application databases.
 
-### Cloud Platforms
+### Unsupported Application Database Targets
 
-**Azure**:
-
-- Azure App Service (Backend)
-- Azure Static Web Apps (Frontend)
-- Azure Database for PostgreSQL
-- Azure Redis Cache
-- Azure Container Registry
-
-**AWS**:
-
-- ECS/EKS for containers
-- RDS for PostgreSQL
-- ElastiCache for Redis
-- CloudFront for frontend
-- Application Load Balancer
+- Kubernetes StatefulSets as the production database layer.
+- Managed PostgreSQL, Redis, Neo4j, vector databases, or object stores as application database sources.
 
 ---
 
@@ -934,7 +917,7 @@ Already implemented in the current codebase:
 - WebSocket support (`backend/websocket.py`, initialized via `init_socketio(app)`)
 - GraphQL API endpoint (`/graphql`, registered via `backend/graphql_schema.py`)
 - Advanced graph visualization — 3D (`react-force-graph-3d` in `frontend/`)
-- Kubernetes operator (`k8s/` manifests and operator definitions)
+- Windows VM internal-stack deployment validation
 - Advanced analytics dashboard (`backend/routes/analytics_routes.py`)
 
 Active backlog is consolidated in the root `TODO.md`. Historical mobile research is retained in `docs/archive/research/REACT_NATIVE_RESEARCH.md`, but mobile, local SLM routing, and i18n remain future items only if they are selected in the canonical backlog.

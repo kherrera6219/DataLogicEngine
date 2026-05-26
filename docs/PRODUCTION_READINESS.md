@@ -44,15 +44,15 @@ Provide production acceptance criteria, operational controls, and validation che
 
 DataLogicEngine is an enterprise-grade AI/ML knowledge management platform designed for production deployment. This guide outlines the critical steps, configurations, and best practices for deploying the system in a production environment.
 
-**Current status**: Application-readiness validation is in progress. Local stack QC, Tier 2 audit receipts, app assets, privacy controls, cloud disclosures, notification preferences, storage cloud configuration, MCP server administration, authenticated automated accessibility scans, keyboard navigation evidence, failure-mode tests, export/delete tests, UI placeholder audit evidence, and the production code-signing workflow path are implemented. Production release still requires manual NVDA accessibility evidence, provisioned trusted signing credentials, and signed release artifact validation.
+**Current status**: Application-readiness validation is in progress. Local stack QC, Tier 2 audit receipts, app assets, privacy controls, external AI/provider disclosures, notification preferences, internal storage configuration, MCP server administration, authenticated automated accessibility scans, keyboard navigation evidence, failure-mode tests, export/delete tests, UI placeholder audit evidence, and the production code-signing workflow path are implemented. Production release still requires manual NVDA accessibility evidence, provisioned trusted signing credentials, and signed release artifact validation.
 
 ## 2026-05-23 Application-Readiness Update
 
 Completed or validated in the current application state:
 
 1. Manifest screenshots, PWA icons, and a reusable documentation banner exist under `frontend/public/`.
-2. Local-first/cloud-augmented product copy and third-party AI provider disclosures are aligned across active app and documentation surfaces.
-3. User data export/delete endpoints, privacy settings, AI-processing preferences, notification preferences, storage cloud configuration, and MCP server add/list/delete flows are present.
+2. Local-first product copy and third-party AI provider disclosures are aligned across active app and documentation surfaces.
+3. User data export/delete endpoints, privacy settings, AI-processing preferences, notification preferences, internal storage configuration, and MCP server add/list/delete flows are present.
 4. The frontend `/register` route is disabled by design in the local-first build; backend registration remains available only as an API surface when a deployment explicitly reopens web self-registration.
 5. Backend default runtime port is `5000`, matching `app.py`, `docker-compose.yml`, `Dockerfile.cloud`, and current API documentation.
 
@@ -334,7 +334,7 @@ Open production-readiness work is consolidated in the root `TODO.md`. This guide
 
 ### Phase 8: Microsoft Store & Compliance ✅
 - [x] **AI Transparency Labeling**: Added badges and disclaimers to all AI-generated content.
-- [x] **Cloud Disclosure Banner**: Implemented first-run disclosure for cloud-hybrid processing.
+- [x] **External AI Provider Disclosure Banner**: Implemented first-run disclosure for configured external AI provider processing.
 - [x] **AI Limitations Disclosure**: Created dedicated page documenting AI risks and mitigation.
 - [x] **Standalone Distribution**: Created a structured `dist_package/` with local launchers and orchestration scripts.
 - [x] **Zero-Ops Installer**: Finalized WiX-based `Setup.exe` with silent dependency bundling (PostgreSQL/Redis) and automated backup/restore orchestration.
@@ -693,103 +693,41 @@ The application implements the **KA-61 Adversarial Shield** at the first reasoni
 
 ### Deployment Options
 
-#### 1. Cloud Platform (Recommended)
+#### 1. Windows App / Windows VM Platform (Recommended)
 
-**AWS Architecture**
-
-```
-- Frontend: CloudFront + S3 (Next.js static export)
-- Backend: ECS Fargate or EKS (containerized)
-- Database: RDS PostgreSQL (Multi-AZ)
-- Cache: ElastiCache Redis
-- Storage: S3 for media/backups
-- Logs: CloudWatch Logs
-- Monitoring: CloudWatch + X-Ray
-```
-
-**Azure Architecture**
+**Supported Architecture**
 
 ```
-- Frontend: Azure CDN + Azure Storage (static)
-- Backend: Azure App Service or AKS
-- Database: Azure Database for PostgreSQL
-- Cache: Azure Cache for Redis
-- Storage: Azure Blob Storage
-- Logs: Azure Monitor
-- Identity: Azure AD (already integrated ✅)
+- Frontend: Electron-packaged app UI
+- Backend: Bundled Flask backend process
+- Database: App-owned PostgreSQL or SQLite fallback
+- Cache: App-owned Redis with in-memory fallback
+- Graph: App-owned Neo4j plus in-memory NetworkX graph
+- Vector store: App-owned ChromaDB
+- Object storage: App-owned local object directory
+- Logs/monitoring: Local app logs and bundled telemetry exports
 ```
 
-**GCP Architecture**
+**Unsupported Managed Database Architecture**
 
 ```
-- Frontend: Cloud CDN + Cloud Storage
-- Backend: Cloud Run or GKE
-- Database: Cloud SQL for PostgreSQL
-- Cache: Memorystore for Redis
-- Storage: Cloud Storage
-- Logs: Cloud Logging
-- Monitoring: Cloud Monitoring
+- RDS/Azure Database/Cloud SQL as application PostgreSQL
+- ElastiCache/Azure Cache/Memorystore as application Redis
+- Neo4j Aura as application graph database
+- Pinecone/Qdrant/Weaviate as application vector database
+- S3/Azure Blob/GCS as primary application object store
 ```
 
-#### 2. Container Deployment (Docker/Kubernetes)
+#### 2. Container Deployment (CI/compatibility only)
 
-**Docker Compose (Development/Staging)**
+Container builds are retained for CI/build reproducibility only. They are not the production runtime model for application databases. Do not add Compose/Kubernetes database services as a replacement for the app-owned Windows desktop/VM database stack.
 
-```yaml
-version: "3.8"
+**Windows VM Deployment**
 
-services:
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://backend:5000
-
-  backend:
-    build: .
-    ports:
-      - "5000:5000"
-    environment:
-      - DATABASE_URL=postgresql://user:pass@db:5432/ukg
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - db
-      - redis
-
-  db:
-    image: postgres:16
-    environment:
-      - POSTGRES_DB=ukg_production
-      - POSTGRES_USER=ukg_user
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7-alpine
-    volumes:
-      - redis_data:/data
-
-  worker:
-    build: .
-    command: celery -A tasks worker --loglevel=info
-    depends_on:
-      - redis
-      - db
-
-volumes:
-  postgres_data:
-  redis_data:
-```
-
-**Kubernetes Deployment**
-
-- See `k8s/` directory for manifests (to be created)
-- Horizontal Pod Autoscaling for backend
-- StatefulSet for database
-- Ingress for load balancing
-- ConfigMaps and Secrets for configuration
+- Install the same Windows app package used by desktop.
+- Keep PostgreSQL, Redis, Neo4j, ChromaDB, object storage, and SQLite fallback under app-owned directories.
+- Bind internal services to loopback unless a future reviewed requirement explicitly expands local access.
+- Validate `/health`, `get-db-status`, and release smoke evidence inside the VM.
 
 #### 3. Traditional VPS/Dedicated Server
 
@@ -866,7 +804,7 @@ Recommended:
    archive_command = 'cp %p /path/to/archive/%f'
 
    # Retention: Keep 30 days of backups
-   # Store off-site (S3/Azure Blob/GCS)
+   # Store in app-owned backup/archive directories, then export manually if policy requires it
    ```
 
 4. **High Availability**
@@ -1086,7 +1024,7 @@ See `backend/security/audit_logger.py` for implementation.
    python -c "import secrets; print(f'JWT_SECRET_KEY={secrets.token_hex(32)}')"
 
    # 3. Configure database
-   # Update DATABASE_URL with production PostgreSQL
+   # Use the app-owned internal PostgreSQL/SQLite path; do not point DATABASE_URL at an external database
 
    # 4. Set production flags
    export FLASK_ENV=production
@@ -1162,7 +1100,7 @@ See `backend/security/audit_logger.py` for implementation.
 
 1. **Database Connection Failures**
 
-   - Check DATABASE_URL configuration
+   - Check internal DATABASE_URL/app-owned database path configuration
    - Verify PostgreSQL service running
    - Check firewall rules
    - Verify connection pool settings

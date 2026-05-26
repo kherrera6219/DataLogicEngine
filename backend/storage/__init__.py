@@ -3,8 +3,8 @@ Storage Layer for DataLogicEngine.
 
 Provides unified interfaces for:
 - ConnectionManager: Configuration and health monitoring
-- VectorStore: Embedding storage (ChromaDB local, Pinecone cloud)
-- ObjectStore: Blob storage (Local filesystem, S3/MinIO cloud)
+- VectorStore: Embedding storage (app-owned ChromaDB)
+- ObjectStore: Blob storage (app-owned local filesystem)
 - GraphStore: Graph database (Neo4j)
 - DatabaseLifecycleManager: Portable database management
 """

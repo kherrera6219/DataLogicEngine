@@ -1,6 +1,7 @@
 from backend.dsqp import COMPONENT_KEYS, DSQPChain, DSQPOrchestrator, DSQPValidator
 from core.system.persona_construction_service import PersonaConstructionService
 from sdk.UKG_Python_SDK.ukg_sdk.overlay import UKGOverlay
+from sdk.UKG_Python_SDK.ukg_sdk.audit import FileAuditStore
 from sdk.UKG_Python_SDK.ukg_sdk.providers import LLMResponse
 
 
@@ -59,8 +60,12 @@ def test_persona_construction_service_uses_dsqp_with_static_fallback_available()
     assert profile.components["job_role"]["query_mission"]
 
 
-async def test_sdk_overlay_trace_includes_dsqp_chain():
-    overlay = UKGOverlay(provider=_Provider(), model="test-model")
+async def test_sdk_overlay_trace_includes_dsqp_chain(tmp_path):
+    overlay = UKGOverlay(
+        provider=_Provider(),
+        model="test-model",
+        audit=FileAuditStore(tmp_path / "audit.jsonl"),
+    )
 
     result = await overlay.run(
         query="Assess finance AI release controls",
