@@ -5,6 +5,7 @@ Central manager for caching, audit, and metrics.
 """
 
 import logging
+import os
 from datetime import datetime, UTC
 from typing import Dict, Any, Optional
 
@@ -26,10 +27,12 @@ class TruthMemoryManager:
     - Artifact storage
     """
 
-    def __init__(self, db_session=None, cache_backend: str = 'memory'):
+    def __init__(self, db_session=None, cache_backend: str = None):
         """Initialize TruthMemory with components."""
         self.db_session = db_session
         self.audit_logger = AuditLogger(db_session)
+        if cache_backend is None:
+            cache_backend = 'redis' if os.environ.get("USE_REDIS", "false").lower() in {"1", "true", "yes", "on"} else 'memory'
         self.cache = TruthCache(backend=cache_backend)
         self.metrics = MetricsTracker(db_session)
         logger.info("TruthMemoryManager initialized")

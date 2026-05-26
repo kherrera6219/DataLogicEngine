@@ -641,7 +641,7 @@ ipcMain.handle('get-backend-status', (event, ...args: unknown[]) => {
 ipcMain.handle('get-db-status', async (event, ...args: unknown[]) => {
   assertTrustedIpcInvoke(event, 'get-db-status', args);
   if (!backendProcess || backendProcess.exitCode !== null) {
-    return { status: 'offline', chroma_collections: {} };
+    return { status: 'offline', chroma_collections: {}, redis_ping_ms: null };
   }
 
   try {
@@ -650,9 +650,10 @@ ipcMain.handle('get-db-status', async (event, ...args: unknown[]) => {
     return {
       status: payload?.database?.status === 'ok' ? 'managed' : 'degraded',
       chroma_collections: payload?.database?.chromadb?.collections ?? {},
+      redis_ping_ms: payload?.database?.redis?.ping_ms ?? null,
     };
   } catch {
-    return { status: 'managed', chroma_collections: {} };
+    return { status: 'managed', chroma_collections: {}, redis_ping_ms: null };
   }
 });
 

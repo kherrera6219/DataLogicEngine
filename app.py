@@ -827,6 +827,21 @@ def _chroma_collection_counts() -> dict:
         return {}
 
 
+def _redis_ping_ms() -> float | None:
+    """Return Redis ping latency in milliseconds when Redis is reachable."""
+    try:
+        import redis
+
+        redis_url = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0")
+        client = redis.Redis.from_url(redis_url, socket_connect_timeout=0.5, socket_timeout=0.5)
+        start = time.perf_counter()
+        client.ping()
+        return round((time.perf_counter() - start) * 1000, 3)
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.debug("Redis ping unavailable: %s", exc)
+        return None
+
+
 def _db_c_auto_index_enabled() -> bool:
     configured = os.environ.get("DB_C_AUTO_INDEX_ON_STARTUP")
     if configured is not None:
@@ -963,6 +978,9 @@ def _database_health() -> dict:
         "status": "ok",
         "chromadb": {
             "collections": _chroma_collection_counts(),
+        },
+        "redis": {
+            "ping_ms": _redis_ping_ms(),
         },
     }
 

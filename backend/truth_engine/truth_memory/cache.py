@@ -6,6 +6,8 @@ High-performance caching for personas, sessions, and citations.
 
 import logging
 import time
+import os
+import json
 from typing import Dict, Any, Optional
 from collections import OrderedDict
 
@@ -30,7 +32,7 @@ class TruthCache:
     
     MAX_SIZE = 10000
 
-    def __init__(self, backend: str = 'memory', max_size: int = None):
+    def __init__(self, backend: str = 'memory', max_size: int = None, redis_client=None):
         """Initialize cache with backend."""
         self.backend = backend
         self.max_size = max_size or self.MAX_SIZE
@@ -38,10 +40,36 @@ class TruthCache:
         self.ttls = {}
         self.hits = 0
         self.misses = 0
-        logger.info(f"TruthCache initialized with {backend} backend")
+        self.redis_client = redis_client
+        if backend == "redis" and self.redis_client is None:
+            self.redis_client = self._build_redis_client()
+        if backend == "redis" and self.redis_client is None:
+            self.backend = "memory"
+            logger.warning("Redis TruthCache unavailable; falling back to memory backend")
+        logger.info(f"TruthCache initialized with {self.backend} backend")
+
+    @staticmethod
+    def _build_redis_client():
+        try:
+            import redis
+
+            redis_url = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0")
+            client = redis.Redis.from_url(redis_url, decode_responses=True)
+            client.ping()
+            return client
+        except Exception as exc:
+            logger.debug("Redis TruthCache client unavailable: %s", exc)
+            return None
+
+    @property
+    def _using_redis(self) -> bool:
+        return self.backend == "redis" and self.redis_client is not None
 
     def get(self, key: str) -> Optional[Any]:
         """Get value from cache."""
+        if self._using_redis:
+            return self._redis_get(key)
+
         if key in self.cache:
             if self._is_expired(key):
                 self._evict(key)
@@ -60,6 +88,9 @@ class TruthCache:
         if ttl is None:
             key_type = key.split(':')[0] if ':' in key else 'session'
             ttl = self.DEFAULT_TTL.get(key_type, 3600)
+
+        if self._using_redis:
+            return self._redis_set(key, value, ttl)
         
         if len(self.cache) >= self.max_size:
             self._evict_oldest()
@@ -72,6 +103,13 @@ class TruthCache:
 
     def delete(self, key: str) -> bool:
         """Delete key from cache."""
+        if self._using_redis:
+            try:
+                return bool(self.redis_client.delete(key))
+            except Exception as exc:
+                logger.warning("Redis TruthCache delete failed for %s: %s", key, exc)
+                return False
+
         if key in self.cache:
             self._evict(key)
             return True
@@ -79,6 +117,16 @@ class TruthCache:
 
     def clear(self) -> None:
         """Clear all cache entries."""
+        if self._using_redis:
+            deleted = sum(
+                self.invalidate_pattern(pattern)
+                for pattern in ("persona:*", "session:*", "citation:*")
+            )
+            logger.debug("Cleared %s Redis TruthCache keys", deleted)
+            self.hits = 0
+            self.misses = 0
+            return
+
         self.cache.clear()
         self.ttls.clear()
         self.hits = 0
@@ -105,6 +153,15 @@ class TruthCache:
 
     def invalidate_pattern(self, pattern: str) -> int:
         """Invalidate all keys matching pattern."""
+        if self._using_redis:
+            deleted = 0
+            try:
+                for key in self.redis_client.scan_iter(pattern):
+                    deleted += int(self.redis_client.delete(key) or 0)
+            except Exception as exc:
+                logger.warning("Redis TruthCache pattern invalidation failed for %s: %s", pattern, exc)
+            return deleted
+
         keys_to_delete = [k for k in self.cache.keys() if pattern in k]
         for key in keys_to_delete:
             self._evict(key)
@@ -124,6 +181,17 @@ class TruthCache:
         """Get cache statistics."""
         total_requests = self.hits + self.misses
         hit_rate = self.hits / total_requests if total_requests > 0 else 0.0
+        if self._using_redis:
+            size = self._redis_key_count()
+            return {
+                'backend': self.backend,
+                'size': size,
+                'max_size': self.max_size,
+                'hits': self.hits,
+                'misses': self.misses,
+                'hit_rate': hit_rate,
+                'utilization': min(size / self.max_size, 1.0),
+            }
         
         return {
             'backend': self.backend,
@@ -134,6 +202,40 @@ class TruthCache:
             'hit_rate': hit_rate,
             'utilization': len(self.cache) / self.max_size
         }
+
+    def _redis_get(self, key: str) -> Optional[Any]:
+        try:
+            raw = self.redis_client.hget(key, "value")
+            if raw is None:
+                self.misses += 1
+                return None
+            self.hits += 1
+            return json.loads(raw)
+        except Exception as exc:
+            logger.warning("Redis TruthCache get failed for %s: %s", key, exc)
+            self.misses += 1
+            return None
+
+    def _redis_set(self, key: str, value: Any, ttl: int) -> bool:
+        try:
+            self.redis_client.hset(key, mapping={
+                "value": json.dumps(value, sort_keys=True, default=str),
+                "expires_at": str(time.time() + ttl),
+            })
+            self.redis_client.expire(key, ttl)
+            return True
+        except Exception as exc:
+            logger.warning("Redis TruthCache set failed for %s: %s", key, exc)
+            return False
+
+    def _redis_key_count(self) -> int:
+        try:
+            return sum(
+                sum(1 for _ in self.redis_client.scan_iter(pattern))
+                for pattern in ("persona:*", "session:*", "citation:*")
+            )
+        except Exception:
+            return 0
 
     def cache_persona(self, role_key: str, persona_data: Dict[str, Any]) -> bool:
         """Cache persona with default persona TTL."""

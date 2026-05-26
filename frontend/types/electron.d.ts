@@ -17,6 +17,7 @@ export interface DesktopUpdateState {
 export interface DesktopDatabaseStatus {
   status: string;
   chroma_collections: Record<string, number>;
+  redis_ping_ms: number | null;
 }
 
 export interface ElectronAPI {

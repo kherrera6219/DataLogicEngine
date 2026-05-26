@@ -36,6 +36,7 @@ Master completion plan status: Phase 1 / A is complete for the local-first deskt
 | Phase 2 USKD memory graph implementation | `backend/storage/uskd_memory_graph.py`, `scripts/sync_nodes_to_neo4j.py`, `GraphStore` cached traversal helpers, TruthCore graph context bootstrap, Layer 2 live graph preference, L10 Lane B authorized graph commit, and `backend.spec` NetworkX hidden import are implemented and locally validated. | Done |
 | Phase B axis alignment | Axes 14-17 now use the canonical Acquisition Lifecycle, Risk & Threat Context, Ethics/Trust/Criticality, and FROST-Mode Selector definitions across coordinate system, axis managers, SDK resolver, TraceRun, and tests. | Done |
 | Phase 4 / DB-C Chroma wiring | `knowledge_nodes` collection naming is aligned; `scripts/index_knowledge_nodes.py` indexes SQL nodes; startup can background-index empty local desktop collections; `/health` and Electron IPC expose Chroma counts; L3/L8/L9/L10 use DB-C retrieval/indexing; persona_profiles cache path and sentence-transformers packaging are in place. | Done |
+| Phase 5 / DB-R Redis TruthCache persistence | TruthCache supports Redis HSET/HGET persistence with memory fallback; TruthMemoryManager auto-selects Redis when `USE_REDIS=true`; GraphStore subgraph and RAG embedding caches can use Redis; `/health` and Electron IPC expose `redis_ping_ms`. | Done |
 
 Phased update plan:
 
@@ -127,6 +128,7 @@ Priority order:
 - [ ] Expand richer user-facing trace and compliance overlay UX.
 - [ ] Validate production-scale enterprise ingestion and vector-store workflows.
 - [x] Phase 4 / DB-C: align RAG `knowledge_nodes` collection naming, add `scripts/index_knowledge_nodes.py`, wire startup empty-index detection, connect Chroma retrieval to TruthCore L3/L8/L9/L10, add local/offline embedding packaging, and expose Chroma collection counts through health/IPC.
+- [x] Phase 5 / DB-R: implement Redis-backed TruthCache persistence, Redis subgraph cache, Redis embedding cache, TruthMemoryManager Redis selection, and Redis ping latency in health/IPC.
 - [ ] Validate production alerting evidence for `/health`, `/live`, `/ready`, `/metrics`, Sentry, and admin dashboards.
 - [ ] Harden multi-tenant operations, cost controls, recursive persona evaluation, dynamic persona expansion, human feedback loops, automated axis learning, quantum-ready node research, and policy-as-code governance for larger deployments.
 

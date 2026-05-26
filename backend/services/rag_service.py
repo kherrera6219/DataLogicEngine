@@ -9,6 +9,7 @@ import logging
 import hashlib
 import os
 import json
+import time
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 
@@ -100,6 +101,11 @@ class RAGService:
         Layer 2: Google Gemini (models/text-embedding-004) - High quality fallback.
         Layer 3: Local HuggingFace (all-MiniLM-L6-v2) - Startup safe/Total outage safe.
         """
+        cache_key = self._embedding_cache_key(text)
+        cached_embedding = self._get_cached_embedding(cache_key)
+        if cached_embedding is not None:
+            return cached_embedding
+
         errors = []
         
         # --- Layer 1: OpenAI ---
@@ -115,7 +121,9 @@ class RAGService:
                         model="text-embedding-3-small",
                         input=text
                     )
-                    return response.data[0].embedding
+                    embedding = response.data[0].embedding
+                    self._set_cached_embedding(cache_key, embedding)
+                    return embedding
                 finally:
                     close_client = getattr(client, "close", None)
                     if callable(close_client):
@@ -137,7 +145,9 @@ class RAGService:
                         model="text-embedding-004",
                         contents=text,
                     )
-                    return result.embeddings[0].values
+                    embedding = result.embeddings[0].values
+                    self._set_cached_embedding(cache_key, embedding)
+                    return embedding
                 finally:
                     close_client = getattr(client, "close", None)
                     if callable(close_client):
@@ -152,7 +162,9 @@ class RAGService:
             if not hasattr(self, '_hf_model'):
                 # Load efficient local model
                 self._hf_model = SentenceTransformer('all-MiniLM-L6-v2')
-            return self._hf_model.encode(text).tolist()
+            embedding = self._hf_model.encode(text).tolist()
+            self._set_cached_embedding(cache_key, embedding)
+            return embedding
         except Exception as e:
             errors.append(f"Local Failed: {str(e)}")
             logger.error(f"Embedding Layer 3 (Local) failed: {e}")
@@ -163,8 +175,58 @@ class RAGService:
         allow_mock_embeddings = os.environ.get("ALLOW_MOCK_EMBEDDINGS", "false").lower() == "true"
         if allow_mock_embeddings or env in {"development", "testing"}:
             # Development/testing fallback only.
-            return self._mock_embedding(text)
+            embedding = self._mock_embedding(text)
+            self._set_cached_embedding(cache_key, embedding)
+            return embedding
         raise RuntimeError("All embedding providers failed in production mode")
+
+    @staticmethod
+    def _embedding_cache_key(text: str) -> str:
+        return f"embedding:{hashlib.sha256(text.encode()).hexdigest()}"
+
+    @staticmethod
+    def _redis_embedding_client():
+        if os.environ.get("USE_REDIS", "false").lower() not in {"1", "true", "yes", "on"}:
+            return None
+        try:
+            import redis
+
+            client = redis.Redis.from_url(os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0"), decode_responses=True)
+            client.ping()
+            return client
+        except Exception as exc:
+            logger.debug("Embedding Redis cache unavailable: %s", exc)
+            return None
+
+    @classmethod
+    def _get_cached_embedding(cls, cache_key: str) -> Optional[List[float]]:
+        client = cls._redis_embedding_client()
+        if client is None:
+            return None
+        try:
+            raw = client.hget(cache_key, "value")
+            if raw is None:
+                return None
+            value = json.loads(raw)
+            return value if isinstance(value, list) else None
+        except Exception as exc:
+            logger.debug("Embedding Redis cache get failed for %s: %s", cache_key, exc)
+            return None
+
+    @classmethod
+    def _set_cached_embedding(cls, cache_key: str, embedding: List[float]) -> None:
+        client = cls._redis_embedding_client()
+        if client is None:
+            return
+        try:
+            ttl = 3600
+            client.hset(cache_key, mapping={
+                "value": json.dumps(embedding),
+                "expires_at": str(time.time() + ttl),
+            })
+            client.expire(cache_key, ttl)
+        except Exception as exc:
+            logger.debug("Embedding Redis cache set failed for %s: %s", cache_key, exc)
     
     def _mock_embedding(self, text: str) -> List[float]:
         """Generate mock embedding for testing (384 dimensions like MiniLM)."""

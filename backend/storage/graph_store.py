@@ -3,6 +3,7 @@ import os
 import re
 import hashlib
 import json
+import time
 from typing import List, Dict, Any, Optional
 from neo4j import GraphDatabase, Driver
 from backend.config_manager import get_config
@@ -120,6 +121,9 @@ class GraphStore:
         """Run a Cypher query with optional Flask cache/Redis caching."""
         parameters = parameters or {}
         cache_key = self._cache_key(cache_key_prefix, query, parameters)
+        redis_result = self._redis_cache_get(cache_key)
+        if redis_result is not None:
+            return redis_result
         try:
             from extensions import cache
 
@@ -128,9 +132,58 @@ class GraphStore:
                 return cached
             result = self.run_query(query, parameters)
             cache.set(cache_key, result, timeout=timeout)
+            self._redis_cache_set(cache_key, result, timeout)
             return result
         except Exception:
-            return self.run_query(query, parameters)
+            result = self.run_query(query, parameters)
+            self._redis_cache_set(cache_key, result, timeout)
+            return result
+
+    @staticmethod
+    def _redis_enabled() -> bool:
+        return os.environ.get("USE_REDIS", "false").lower() in {"1", "true", "yes", "on"}
+
+    @staticmethod
+    def _redis_client():
+        if not GraphStore._redis_enabled():
+            return None
+        try:
+            import redis
+
+            client = redis.Redis.from_url(os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0"), decode_responses=True)
+            client.ping()
+            return client
+        except Exception as exc:
+            logger.debug("GraphStore Redis cache unavailable: %s", exc)
+            return None
+
+    @classmethod
+    def _redis_cache_get(cls, key: str) -> Optional[List[Dict[str, Any]]]:
+        client = cls._redis_client()
+        if client is None:
+            return None
+        try:
+            raw = client.hget(key, "value")
+            if raw is None:
+                return None
+            return json.loads(raw)
+        except Exception as exc:
+            logger.debug("GraphStore Redis cache get failed for %s: %s", key, exc)
+            return None
+
+    @classmethod
+    def _redis_cache_set(cls, key: str, value: List[Dict[str, Any]], ttl: int) -> None:
+        client = cls._redis_client()
+        if client is None:
+            return
+        try:
+            client.hset(key, mapping={
+                "value": json.dumps(value, sort_keys=True, default=str),
+                "expires_at": str(time.time() + ttl),
+            })
+            client.expire(key, ttl)
+        except Exception as exc:
+            logger.debug("GraphStore Redis cache set failed for %s: %s", key, exc)
 
     def find_coordinate_nodes(
         self,

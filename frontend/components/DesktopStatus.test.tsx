@@ -11,7 +11,7 @@ interface ElectronLogHandler {
 
 interface MockElectronAPI {
   getBackendStatus: () => Promise<string>;
-  getDbStatus: () => Promise<{ status: string; chroma_collections: Record<string, number> }>;
+  getDbStatus: () => Promise<{ status: string; chroma_collections: Record<string, number>; redis_ping_ms: number | null }>;
   onBackendLog: (callback: ElectronLogHandler) => () => void;
 }
 
@@ -27,7 +27,7 @@ describe('DesktopStatus', () => {
     // Default mock implementation
     window.electronAPI = {
       getBackendStatus: vi.fn().mockResolvedValue('checking'),
-      getDbStatus: vi.fn().mockResolvedValue({ status: 'managed', chroma_collections: {} }),
+      getDbStatus: vi.fn().mockResolvedValue({ status: 'managed', chroma_collections: {}, redis_ping_ms: null }),
       onBackendLog: vi.fn(() => () => undefined),
     };
   });

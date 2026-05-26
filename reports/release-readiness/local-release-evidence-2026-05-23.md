@@ -84,6 +84,17 @@ Completed locally on 2026-05-25:
 - TruthCore DB-C paths are wired: L3 deep research searches `knowledge_nodes`; L8 trust validation searches `citation_cache`; L9 drift detection searches `audit_evidence`; L10 Lane B indexes release-authorized traces into `audit_evidence` and `knowledge_nodes`.
 - Persona construction checks/stores `persona_profiles`, `sentence-transformers` is pinned, and PyInstaller hidden imports include the local embedding stack.
 
+## Phase 5 / DB-R Local Code Evidence
+
+Completed locally on 2026-05-25:
+
+- `python -m pytest tests\unit\test_phase5_dbr.py tests\unit\test_phase4_dbc.py tests\unit\test_vector_store_unit.py tests\unit\test_services.py -q` passed with 41 tests.
+- TruthCache supports Redis HSET/HGET persistence with TTLs and memory fallback; Redis clear is limited to TruthCache prefixes so unrelated local Redis data is preserved.
+- TruthMemoryManager selects Redis when `USE_REDIS=true`.
+- GraphStore cached subgraph calls can read/write Redis `subgraph:{hash}` entries.
+- RAGService embedding generation can read/write Redis `embedding:{sha256}` entries with 1h TTL.
+- `/health` includes `database.redis.ping_ms`, and Electron `get-db-status` returns `redis_ping_ms`.
+
 ## Release-Runner Or Manual Evidence Still Required
 
 These gates are required for public production release artifacts, not for local-first desktop completion.

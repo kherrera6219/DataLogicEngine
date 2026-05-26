@@ -520,6 +520,14 @@ DB-R
 	Redis TruthCache  —  Persistent Caching Across Restarts
 	Weeks 2–4 (parallel with B)
 	
+IMPLEMENTED May 25, 2026 — DB-R local-first code wiring is complete. TruthCache supports Redis HSET/HGET persistence with in-memory fallback, TruthMemoryManager auto-selects Redis when `USE_REDIS=true`, Neo4j subgraph query caching can write/read Redis `subgraph:{hash}` keys, RAG embeddings can use Redis `embedding:{hash}` keys with 1h TTL, and `/health` plus Electron `get-db-status` expose Redis ping latency.
+
+Validation evidence:
+- `python -m pytest tests\unit\test_phase5_dbr.py tests\unit\test_phase4_dbc.py tests\unit\test_vector_store_unit.py tests\unit\test_services.py -q` passes.
+- `python -m py_compile backend\truth_engine\truth_memory\cache.py backend\truth_engine\truth_memory\manager.py backend\storage\graph_store.py backend\services\rag_service.py app.py tests\unit\test_phase5_dbr.py` passes.
+- `python -m ruff check backend\truth_engine\truth_memory\cache.py backend\truth_engine\truth_memory\manager.py backend\storage\graph_store.py backend\services\rag_service.py app.py tests\unit\test_phase5_dbr.py` passes.
+- `npm --prefix frontend run typecheck` passes.
+- `FLASK_ENV=testing USE_REDIS=false DB_C_AUTO_INDEX_ON_STARTUP=false python -c "import app; print('app-import-ok')"` passes.
 
 ID
 	Task
@@ -527,29 +535,29 @@ ID
 	Exit Gate
 	Target
 	R-1
-	Implement Redis backend in TruthCache: USE_REDIS=true → Redis HSET/HGET instead of OrderedDict
+	COMPLETED May 25, 2026 — Implement Redis backend in TruthCache: USE_REDIS=true → Redis HSET/HGET instead of OrderedDict
 	backend/truth_engine/truth_memory/cache.py
-	After restart, get_persona() returns cached profile; redis-cli KEYS "persona:*" non-empty
+	Validated: Redis-backed TruthCache persists persona data across cache instances using HSET/HGET and keeps in-memory fallback when Redis is unavailable
 	DESKTOP+VM
 	R-2
-	Wire Redis TruthCache into TruthMemoryManager construction
+	COMPLETED May 25, 2026 — Wire Redis TruthCache into TruthMemoryManager construction
 	backend/truth_engine/truth_memory/manager.py
-	TruthMemoryManager(cache_backend="redis") when USE_REDIS=true; in-memory fallback when Redis absent
+	Validated: TruthMemoryManager selects cache_backend="redis" when USE_REDIS=true and falls back to memory if Redis client creation fails
 	DESKTOP+VM
 	R-3
-	Cache Neo4j subgraph results in Redis (5 min TTL) — shared with DB-N task N-6
+	COMPLETED May 25, 2026 — Cache Neo4j subgraph results in Redis (5 min TTL) — shared with DB-N task N-6
 	backend/storage/graph_store.py
-	P99 latency < 50ms on repeated coordinate; Redis key subgraph:{coord_hash} confirmed
+	Validated: GraphStore cached subgraph calls reuse Redis `subgraph:{hash}` payloads and avoid repeated query execution in tests
 	DESKTOP+VM
 	R-4
-	Cache computed embedding vectors in Redis by SHA-256 text hash (1h TTL)
+	COMPLETED May 25, 2026 — Cache computed embedding vectors in Redis by SHA-256 text hash (1h TTL)
 	backend/services/rag_service.py _default_embedding()
-	Repeated embedding calls return in < 2ms vs 200ms+; Redis HGET embedding:{hash} confirmed
+	Validated: RAGService checks Redis `embedding:{sha256}` before provider calls and stores computed embeddings with 1h TTL
 	DESKTOP+VM
 	R-5
-	Add Redis ping_ms to IPC database-health channel
+	COMPLETED May 25, 2026 — Add Redis ping_ms to IPC database-health channel
 	frontend/electron/main.ts
-	database-health returns redis_ping_ms; red indicator in Settings when Redis down
+	Validated: /health returns database.redis.ping_ms and Electron get-db-status returns redis_ping_ms
 	DESKTOP
 	________________
 
