@@ -7,6 +7,7 @@ Capture high-impact technical decisions with context, alternatives, and conseque
 ## Index
 
 1. `ADR-0001-engineering-governance-baseline.md`
+2. `ADR-0002-pq-grpc-transport.md`
 
 ## Authoring Rules
 

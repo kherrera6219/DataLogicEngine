@@ -220,6 +220,22 @@ class TruthMemoryCommitService:
         dsqp_chain = TruthMemoryCommitService._extract_dsqp_chain(run, bundle)
         if dsqp_chain:
             event_data["dsqp_chain"] = dsqp_chain
+        try:
+            from backend.truth_engine.truth_memory.retention_router import TruthMemoryRetentionRouter
+
+            archive_id = f"{run.run_id}-{evidence_pack_hash[:16]}"
+            event_data["retention_archive"] = TruthMemoryRetentionRouter().archive_payload(
+                record_id=archive_id,
+                payload={
+                    "run_id": str(run.run_id),
+                    "event_type": "audit_bundle_commit",
+                    "event_data": event_data,
+                    "bundle": bundle,
+                },
+                category="truth_audit",
+            )
+        except Exception as exc:
+            logger.debug("TruthMemory retention archive skipped for run %s: %s", run.run_id, exc)
         record = audit.log_event(
             session_id=session_id,
             event_type="audit_bundle_commit",

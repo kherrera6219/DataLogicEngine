@@ -1093,7 +1093,9 @@ PHASE G
 	Enterprise Integrations  —  Same Internal Windows App Stack
 	Weeks 20–28
 	
-Implementation update May 27, 2026: G-A is complete for the local-first desktop/VM-compatible scope. TruthMemory now tracks sessions to the app-owned local MLflow path with JSONL fallback, TruthGate has a Rego policy plus OPA subprocess/Python fallback evaluator wired into Layer 8, TruthMemory audit commits include W3C PROV-JSON, MCP JSON-RPC supports `sampling/createMessage`, MCP resource subscriptions have an SSE-compatible subscription manager and route, and the SDK is updated to v0.5.0 with offline `DSQPClient` construction and bundled taxonomy/template package data. G-B remains optional VM enhancement work.
+Implementation update May 27, 2026: G-A is complete for the local-first desktop/VM-compatible scope. TruthMemory now tracks sessions to the app-owned local MLflow path with JSONL fallback, TruthGate has a Rego policy plus OPA subprocess/Python fallback evaluator wired into Layer 8, TruthMemory audit commits include W3C PROV-JSON, MCP JSON-RPC supports `sampling/createMessage`, MCP resource subscriptions have an SSE-compatible subscription manager and route, and the SDK is updated to v0.5.0 with offline `DSQPClient` construction and bundled taxonomy/template package data.
+
+Implementation update May 27, 2026: G-B is complete for optional Windows VM enhancements while preserving the local-first desktop dependency boundary. TruthLinkBus can publish/read app-managed Redis Streams with in-memory fallback, TruthMemory routes audit bundles into app-owned 7-year cold archives, TruthGate enhanced model screening is opt-in and fails closed on detected risks with no hard model dependency, and ADR-0002 records PQ-gRPC as VM-only research/no-go for desktop dependency.
 
 
 G-A: Desktop-Compatible (add to NSIS installer and DataLogic_Backend.exe)
@@ -1141,24 +1143,24 @@ ID
 	Exit Gate
 	Target
 	G-7
-	TruthLink: Redis Streams for federated event distribution
+	COMPLETED May 27, 2026 — TruthLink: Redis Streams for federated event distribution
 	backend/truth_engine/truth_link/bus.py
-	if app-managed Redis is running: use Redis XADD/XREAD; else in-memory bus
+	Validated: if app-managed Redis is enabled/running, TruthLink uses XADD/XREAD; otherwise it remains an in-memory/SSE bus
 	VM
 	G-8
-	TruthMemory: 7-year retention cold storage routing to app-owned archive directory
+	COMPLETED May 27, 2026 — TruthMemory: 7-year retention cold storage routing to app-owned archive directory
 	backend/truth_engine/truth_memory/retention_router.py (new)
-	Desktop and VM use local archive directories under app-owned storage
+	Validated: audit bundle commits write gzipped JSON archives under app-owned local archive storage with retention metadata
 	VM
 	G-9
-	TruthGate: Llama Guard 3 + Rebuff model-based screening
+	COMPLETED May 27, 2026 — TruthGate: Llama Guard 3 + Rebuff model-based screening compatibility
 	backend/truth_engine/truth_gate/model_screening.py (new)
-	TRUTH_GATE_ENHANCED_SCREENING=true enables local/bundled screening where installed; graceful no-op otherwise
+	Validated: TRUTH_GATE_ENHANCED_SCREENING=true enables local enhanced screening fallback and Layer 8 blocks detected risks; disabled mode is a no-op
 	VM
 	G-10
-	PQ-gRPC transport research and ADR (long-term)
-	docs/adr/ADR-XXXX-pq-grpc-transport.md (new)
-	ADR documents go/no-go decision; if go: prototype in Windows VM only; no desktop dependency
+	COMPLETED May 27, 2026 — PQ-gRPC transport research and ADR (long-term)
+	docs/adr/ADR-0002-pq-grpc-transport.md (new)
+	Validated: ADR records no desktop dependency and limits future prototype work to opt-in Windows VM research
 	VM
 	________________
 

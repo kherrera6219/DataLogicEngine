@@ -6,8 +6,10 @@ Inter-module messaging system.
 
 import logging
 import uuid
+import json
+import os
 from datetime import datetime, UTC
-from typing import Dict, Any, List, Callable
+from typing import Dict, Any, List, Callable, Optional
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)
@@ -37,7 +39,7 @@ class TruthLinkBus:
         'metric_recorded'
     ]
 
-    def __init__(self, db_session=None):
+    def __init__(self, db_session=None, redis_client=None, enable_redis_streams: bool | None = None):
         """Initialize event bus."""
         self.db_session = db_session
         self.subscribers = defaultdict(list)
@@ -45,6 +47,12 @@ class TruthLinkBus:
         self.dead_letter_queue = []
         self.processed_count = 0
         self.failed_count = 0
+        self.redis_client = (
+            redis_client
+            if redis_client is not None
+            else self._create_redis_client(enable_redis_streams=enable_redis_streams)
+        )
+        self.stream_prefix = os.environ.get("TRUTHLINK_STREAM_PREFIX", "dle:truthlink")
         
         from backend.truth_engine.truth_link.transport import SSETransport
         self.sse_transport = SSETransport()
@@ -72,6 +80,9 @@ class TruthLinkBus:
         
         self.message_queue.append(message)
         self.message_queue.sort(key=lambda m: m['priority'], reverse=True)
+        stream_id = self._publish_to_redis_stream(message)
+        if stream_id:
+            message["redis_stream_id"] = stream_id
         
         if self.db_session:
             try:
@@ -96,6 +107,73 @@ class TruthLinkBus:
         self._dispatch(message)
         
         return message
+
+    def _publish_to_redis_stream(self, message: Dict[str, Any]) -> Optional[str]:
+        if not self.redis_client:
+            return None
+        try:
+            topic = f"{self.stream_prefix}:{message['message_type']}"
+            stream_id = self.redis_client.xadd(
+                topic,
+                {
+                    "payload": json.dumps(message, sort_keys=True, default=str),
+                    "message_id": str(message["message_id"]),
+                    "source_module": str(message["source_module"]),
+                    "target_module": str(message.get("target_module") or ""),
+                    "session_id": str(message.get("session_id") or ""),
+                },
+            )
+            return stream_id.decode("utf-8") if isinstance(stream_id, bytes) else str(stream_id)
+        except Exception as exc:
+            logger.debug("TruthLink Redis Stream publish skipped: %s", exc)
+            self.redis_client = None
+            return None
+
+    def read_stream(self, message_type: str, last_id: str = "0-0", count: int = 100) -> List[Dict[str, Any]]:
+        if not self.redis_client:
+            return []
+        topic = f"{self.stream_prefix}:{message_type}"
+        try:
+            entries = self.redis_client.xread({topic: last_id}, count=count, block=0)
+            parsed = []
+            for _, messages in entries:
+                for stream_id, fields in messages:
+                    normalized = {
+                        (k.decode("utf-8") if isinstance(k, bytes) else str(k)): (
+                            v.decode("utf-8") if isinstance(v, bytes) else str(v)
+                        )
+                        for k, v in fields.items()
+                    }
+                    payload = json.loads(normalized.get("payload", "{}"))
+                    payload["redis_stream_id"] = stream_id.decode("utf-8") if isinstance(stream_id, bytes) else str(stream_id)
+                    parsed.append(payload)
+            return parsed
+        except Exception as exc:
+            logger.debug("TruthLink Redis Stream read skipped: %s", exc)
+            return []
+
+    @staticmethod
+    def _create_redis_client(enable_redis_streams: bool | None = None):
+        if enable_redis_streams is None:
+            enable_redis_streams = (
+                os.environ.get("TRUTHLINK_REDIS_STREAMS")
+                or os.environ.get("USE_REDIS", "false")
+            ).lower() in {"1", "true", "yes", "on"}
+        if not enable_redis_streams:
+            return None
+        try:
+            import redis
+
+            client = redis.Redis.from_url(
+                os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0"),
+                socket_connect_timeout=0.5,
+                socket_timeout=0.5,
+            )
+            client.ping()
+            return client
+        except Exception as exc:
+            logger.debug("TruthLink Redis unavailable, using in-memory bus: %s", exc)
+            return None
 
     def subscribe(self, message_type: str, handler: Callable[[Dict[str, Any]], None],
                   target_module: str = None) -> str:
@@ -191,6 +269,8 @@ class TruthLinkBus:
             'failed_count': self.failed_count,
             'subscriber_count': sum(len(subs) for subs in self.subscribers.values()),
             'sse_clients': len(self.sse_transport.clients),
+            'redis_streams_enabled': self.redis_client is not None,
+            'stream_prefix': self.stream_prefix,
             'modules': self.MODULES,
             'message_types': self.MESSAGE_TYPES
         }

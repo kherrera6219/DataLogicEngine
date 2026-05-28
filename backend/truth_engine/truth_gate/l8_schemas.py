@@ -108,6 +108,7 @@ class L8GateResult(BaseModel):
     requires_human_review: bool = Field(default=False)
     disclosure_required: bool = Field(default=False)
     opa_policy: Dict[str, Any] = Field(default_factory=dict)
+    model_screening: Dict[str, Any] = Field(default_factory=dict)
 
 
 class L8AuditArtifact(BaseModel):

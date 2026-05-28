@@ -28,6 +28,7 @@ Required KAs:
 """
 
 import logging
+import json
 import time
 from datetime import datetime, timedelta, timezone
 from statistics import mean
@@ -61,6 +62,14 @@ MAX_PROCESSING_TIME_MS = 30000
 def _elapsed_ms(start_time: float) -> float:
     """Return a positive monotonic elapsed duration for audit results."""
     return max((time.perf_counter() - start_time) * 1000, 0.001)
+
+
+def _jsonish(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    return json.dumps(value, sort_keys=True, default=str)
 
 
 class TrustValidationGateway:
@@ -184,6 +193,20 @@ class TrustValidationGateway:
                 requires_human_review=input_data.axis_17_requires_human,
                 disclosure_required=(status == GateDecision.WARN)
             )
+            screening_result = self._evaluate_model_screening(input_data)
+            result.model_screening = screening_result
+            if screening_result.get("action") == "block":
+                result.status = GateDecision.FAIL
+                result.warnings.append("Enhanced model screening blocked TruthGate release")
+                for risk in screening_result.get("risks", []):
+                    result.fix_directives.append(
+                        FixDirective(
+                            target_layer=8,
+                            reason=f"Enhanced model screening risk: {risk}",
+                            priority="critical",
+                        )
+                    )
+                result.disclosure_required = True
             opa_result = self._evaluate_opa_policy(input_data, result)
             result.opa_policy = opa_result
             if not opa_result.get("allow", True):
@@ -622,6 +645,36 @@ class TrustValidationGateway:
                 "backend": "error",
                 "allow": False,
                 "violations": ["opa_evaluation_error"],
+                "error": str(exc),
+            }
+
+    @staticmethod
+    def _evaluate_model_screening(input_data: L8Input) -> Dict[str, Any]:
+        try:
+            from backend.truth_engine.truth_gate.model_screening import TruthGateModelScreening
+
+            claim_text = "\n".join(str(claim.get("text", claim)) for claim in input_data.claims[:20])
+            synthesis_text = _jsonish(input_data.l5_synthesis)
+            plan_text = _jsonish(input_data.l7_agi_plan)
+            text = "\n".join(
+                part
+                for part in [input_data.query_text, claim_text, synthesis_text, plan_text]
+                if part
+            )
+            return TruthGateModelScreening().screen(
+                text,
+                metadata={
+                    "simulation_id": input_data.simulation_id,
+                    "risk_domain": input_data.risk_domain,
+                },
+            )
+        except Exception as exc:
+            return {
+                "enabled": False,
+                "allowed": False,
+                "risks": ["model_screening_error"],
+                "action": "block",
+                "backend": "error",
                 "error": str(exc),
             }
     
