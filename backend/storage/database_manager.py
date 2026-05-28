@@ -151,17 +151,21 @@ class DatabaseLifecycleManager:
         except Exception as e:
             logger.error(f"Failed to start Redis: {e}")
 
-    @staticmethod
-    def _find_java_home() -> str:
+    def _find_java_home(self) -> str:
         """Return a JAVA_HOME path, searching common locations when not set."""
-        # 1. Explicit env var takes priority
+        bundled_jre = os.path.join(self.base_dir, "jre")
+        if self._java_home_has_runtime(bundled_jre):
+            return bundled_jre
+
+        neo4j_home = os.path.dirname(self.neo4j_bin)
+        neo4j_jre = os.path.join(neo4j_home, "jre")
+        if self._java_home_has_runtime(neo4j_jre):
+            return neo4j_jre
+
+        # Explicit env var is respected after app-owned runtimes.
         if os.environ.get("JAVA_HOME"):
             return os.environ["JAVA_HOME"]
 
-        # 2. Bundled JRE inside Neo4j installation (neo4j 5.x enterprise bundles it)
-        # (caller passes neo4j_bin which is the bin/ dir; jre/ is a sibling of bin/)
-
-        # 3. Common Windows install locations
         candidates = []
         if os.name == "nt":
             for base in [
@@ -194,6 +198,11 @@ class DatabaseLifecycleManager:
         if candidates:
             return sorted(candidates, reverse=True)[0]
         return ""
+
+    @staticmethod
+    def _java_home_has_runtime(java_home: str) -> bool:
+        java_exe = "java.exe" if os.name == "nt" else "java"
+        return os.path.isfile(os.path.join(java_home, "bin", java_exe))
 
     def start_neo4j(self):
         """Start portable Neo4j instance."""

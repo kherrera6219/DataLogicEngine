@@ -14,6 +14,8 @@ interface MockElectronAPI {
   getDbStatus: () => Promise<{ status: string; chroma_collections: Record<string, number>; redis_ping_ms: number | null }>;
   quadAnalysisStatus: () => Promise<{ pod_count: number; collective_confidence: number; mode: string }>;
   dsqpPersonaProfiles: () => Promise<{ success: boolean; profiles: Array<{ axis: number; persona_type: string; name: string; coverage_score: number; job_role: string; skills: string[]; chain_steps: number }>; partial: boolean; failures: Record<string, string> }>;
+  getNetworkStatus: () => Promise<{ state: string; last_checked: string; active_provider: string | null }>;
+  getLocalModelStatus: () => Promise<{ ollama_available: boolean; models_installed: string[]; active_model: string | null }>;
   onBackendLog: (callback: ElectronLogHandler) => () => void;
 }
 
@@ -32,6 +34,8 @@ describe('DesktopStatus', () => {
       getDbStatus: vi.fn().mockResolvedValue({ status: 'managed', chroma_collections: {}, redis_ping_ms: null }),
       quadAnalysisStatus: vi.fn().mockResolvedValue({ pod_count: 0, collective_confidence: 0, mode: 'idle' }),
       dsqpPersonaProfiles: vi.fn().mockResolvedValue({ success: true, profiles: [], partial: false, failures: {} }),
+      getNetworkStatus: vi.fn().mockResolvedValue({ state: 'ONLINE', last_checked: '2026-05-28T00:00:00Z', active_provider: 'openai' }),
+      getLocalModelStatus: vi.fn().mockResolvedValue({ ollama_available: false, models_installed: [], active_model: null }),
       onBackendLog: vi.fn(() => () => undefined),
     };
   });

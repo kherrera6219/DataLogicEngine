@@ -21,6 +21,10 @@ extraResources:
     to: policies
     filter:
       - "*.rego"
+  - from: ../databases/jre
+    to: backend/databases/jre
+    filter:
+      - "**/*"
 win:
   target:
     - nsis

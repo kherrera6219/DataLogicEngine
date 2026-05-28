@@ -27,7 +27,7 @@ from models import (
     ModelRoutingPolicy,
     AIAuditEvent,
 )
-from backend.llm_gateway.gateway import LLMGateway, GatewayRequest
+from backend.llm_gateway.gateway import LLMGateway, GatewayRequest, NetworkState
 from backend.llm_gateway.model_defaults import default_model_for_provider
 from backend.llm_gateway.schemas import GatewayChatRequest
 from backend.auth.api_decorators import api_session_login_required
@@ -476,6 +476,13 @@ def gateway_health():
         'active_providers': providers,
         'message': 'Gateway operational' if providers > 0 else 'No providers configured',
     })
+
+
+@gateway_bp.route('/network-status', methods=['GET'])
+def network_status():
+    """Cached local-first provider/network status for desktop IPC."""
+    force = str(request.args.get("force") or "").lower() in {"1", "true", "yes", "on"}
+    return jsonify(NetworkState.check(force=force))
 
 
 @gateway_bp.route('/quad-analysis-status', methods=['GET'])

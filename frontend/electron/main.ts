@@ -8,9 +8,12 @@ import * as fs from 'fs';
 import * as crypto from 'crypto';
 
 let mainWindow: BrowserWindow | null = null;
+let splashWindow: BrowserWindow | null = null;
 let backendProcess: ChildProcess | null = null;
 let desktopInstallSecret = '';
 let updateCheckTimer: NodeJS.Timeout | null = null;
+let intentionalBackendShutdown = false;
+let backendRestartAttempts = 0;
 
 app.setName('DataLogicEngine Desktop');
 
@@ -44,6 +47,8 @@ const ALLOWED_IPC_ORIGINS = ['app://', 'http://localhost:3000', 'http://127.0.0.
 const DESKTOP_SECRET_PREFIX = 'enc:v1:';
 const MAX_DESKTOP_LOG_FILE_BYTES = 5 * 1024 * 1024;
 const AUTO_UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
+const BACKEND_HEALTH_TIMEOUT_MS = 60 * 1000;
+const MAX_BACKEND_RESTART_ATTEMPTS = 3;
 
 const updateState: UpdateState = {
   enabled: false,
@@ -400,11 +405,64 @@ function createWindow() {
   });
 }
 
-app.on('ready', () => {
+function createSplashWindow() {
+  splashWindow = new BrowserWindow({
+    width: 420,
+    height: 220,
+    resizable: false,
+    frame: false,
+    show: true,
+    title: 'Starting DataLogicEngine',
+    webPreferences: {
+      contextIsolation: true,
+      sandbox: true,
+    },
+  });
+
+  const html = `
+    <html>
+      <body style="margin:0;background:#0f172a;color:#e2e8f0;font-family:Segoe UI,Arial,sans-serif;display:grid;place-items:center;height:100vh">
+        <main style="text-align:center">
+          <h1 style="font-size:18px;font-weight:600;margin:0 0 10px">DataLogicEngine</h1>
+          <p style="font-size:13px;margin:0;color:#94a3b8">Starting local reasoning services...</p>
+        </main>
+      </body>
+    </html>
+  `;
+  void splashWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
+  splashWindow.on('closed', () => {
+    splashWindow = null;
+  });
+}
+
+async function waitForBackendHealth(timeoutMs = BACKEND_HEALTH_TIMEOUT_MS): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (!backendProcess || backendProcess.exitCode !== null) {
+      return false;
+    }
+    try {
+      const response = await fetch('http://127.0.0.1:5000/health');
+      if (response.ok) {
+        backendRestartAttempts = 0;
+        appendDesktopLog('INFO', 'Backend health check passed.');
+        return true;
+      }
+    } catch {
+      // Backend is still starting.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  appendDesktopLog('WARN', 'Backend health check timed out after 60 seconds.');
+  return false;
+}
+
+app.on('ready', async () => {
   const isDev = !app.isPackaged;
   appendDesktopLog('INFO', `Desktop runtime booting (packaged=${app.isPackaged})`);
   desktopInstallSecret = loadOrCreateDesktopInstallSecret();
   configureAutoUpdater(isDev);
+  createSplashWindow();
 
   // Register protocol handler for 'app://'
   protocol.handle('app', async (request) => {
@@ -542,10 +600,13 @@ app.on('ready', () => {
   });
 
   startBackend();
+  await waitForBackendHealth();
   createWindow();
+  splashWindow?.close();
 });
 
 function startBackend() {
+  intentionalBackendShutdown = false;
   console.log('Starting Python backend... v0.1.1');
   appendDesktopLog('INFO', 'Starting backend process.');
   
@@ -607,6 +668,21 @@ function startBackend() {
   backendProcess.on('close', (code) => {
     console.log(`Backend process exited with code ${code}`);
     appendDesktopLog('WARN', `Backend process exited with code ${String(code)}`);
+    if (!intentionalBackendShutdown && backendRestartAttempts < MAX_BACKEND_RESTART_ATTEMPTS) {
+      backendRestartAttempts += 1;
+      appendDesktopLog(
+        'WARN',
+        `Restarting backend after unexpected exit (${backendRestartAttempts}/${MAX_BACKEND_RESTART_ATTEMPTS}).`,
+      );
+      setTimeout(() => startBackend(), 1500);
+      return;
+    }
+    if (!intentionalBackendShutdown && backendRestartAttempts >= MAX_BACKEND_RESTART_ATTEMPTS) {
+      mainWindow?.webContents.send(
+        'backend-error',
+        `Backend exited repeatedly and will not restart automatically. Last exit code: ${String(code)}`,
+      );
+    }
   });
 }
 
@@ -628,6 +704,7 @@ app.on('quit', () => {
 
   if (backendProcess) {
     console.log('Terminating Python backend...');
+    intentionalBackendShutdown = true;
     backendProcess.kill();
     appendDesktopLog('INFO', 'Backend process termination requested.');
   }
@@ -753,6 +830,48 @@ ipcMain.handle('dsqp-persona-profiles', async (event, ...args: unknown[]) => {
     };
   } catch {
     return { success: false, profiles: [], partial: true, failures: { dsqp: 'unavailable' } };
+  }
+});
+
+ipcMain.handle('network-status', async (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'network-status', args);
+  if (!backendProcess || backendProcess.exitCode !== null) {
+    return { state: 'OFFLINE', last_checked: new Date().toISOString(), active_provider: null, details: {} };
+  }
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/api/v1/gateway/network-status');
+    const payload = await responseJson<{
+      state?: string;
+      last_checked?: string;
+      active_provider?: string | null;
+      details?: Record<string, unknown>;
+    }>(response);
+    return {
+      state: payload?.state ?? 'DEGRADED',
+      last_checked: payload?.last_checked ?? new Date().toISOString(),
+      active_provider: payload?.active_provider ?? null,
+      details: payload?.details ?? {},
+    };
+  } catch {
+    return { state: 'DEGRADED', last_checked: new Date().toISOString(), active_provider: null, details: {} };
+  }
+});
+
+ipcMain.handle('local-model-status', async (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'local-model-status', args);
+  try {
+    const response = await fetch('http://127.0.0.1:11434/api/tags');
+    if (!response.ok) {
+      return { ollama_available: false, models_installed: [], active_model: null };
+    }
+    const payload = await responseJson<{ models?: Array<{ name?: string }> }>(response);
+    const models = Array.isArray(payload?.models)
+      ? payload.models.map((model) => model.name).filter((name): name is string => Boolean(name))
+      : [];
+    return { ollama_available: true, models_installed: models, active_model: models[0] ?? null };
+  } catch {
+    return { ollama_available: false, models_installed: [], active_model: null };
   }
 });
 

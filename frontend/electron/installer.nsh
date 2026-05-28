@@ -9,6 +9,7 @@
 
 !macro customInstall
   DetailPrint "DataLogicEngine custom install hook"
+  DetailPrint "Bundled Java runtime is installed under resources\\backend\\databases\\jre when present"
   WriteRegStr SHELL_CONTEXT "${UNINSTALL_REGISTRY_KEY}" "InstallLocation" "$INSTDIR"
 !macroend
 

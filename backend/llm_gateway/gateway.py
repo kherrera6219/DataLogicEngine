@@ -15,9 +15,10 @@ The gateway provides:
 import asyncio
 import logging
 import os
+import socket
 import sys
 import uuid
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 from pathlib import Path
 from typing import Any, AsyncIterator, Optional
 from dataclasses import dataclass, field
@@ -113,6 +114,70 @@ class CircuitBreaker:
         if self.failures >= self.failure_threshold:
             self.state = "OPEN"
             logger.error(f"Circuit Breaker for {self.name} is now OPEN")
+
+
+class NetworkState:
+    """Cached local-first provider reachability state for desktop/VM status."""
+
+    _last_checked: Optional[datetime] = None
+    _last_result: dict[str, Any] = {}
+    _ttl_seconds = 30
+
+    @classmethod
+    def check(cls, *, force: bool = False) -> dict[str, Any]:
+        now = datetime.now(UTC)
+        if (
+            not force
+            and cls._last_checked is not None
+            and now - cls._last_checked < timedelta(seconds=cls._ttl_seconds)
+            and cls._last_result
+        ):
+            return dict(cls._last_result)
+
+        providers = cls._configured_providers()
+        local_available = cls._tcp_reachable("127.0.0.1", int(os.environ.get("OLLAMA_PORT", "11434")))
+        remote_configured = any(provider not in {"local_slm", "ollama", "vllm"} for provider in providers)
+        state = "ONLINE" if remote_configured or local_available else "OFFLINE"
+        if remote_configured and not local_available and os.environ.get("IS_DESKTOP_APP", "false").lower() in {"1", "true", "yes", "on"}:
+            state = "DEGRADED"
+
+        active_provider = "local_slm" if local_available else (providers[0] if providers else None)
+        cls._last_checked = now
+        cls._last_result = {
+            "state": state,
+            "last_checked": now.isoformat(),
+            "active_provider": active_provider,
+            "details": {
+                "configured_providers": providers,
+                "local_model_available": local_available,
+                "ttl_seconds": cls._ttl_seconds,
+            },
+        }
+        return dict(cls._last_result)
+
+    @staticmethod
+    def _configured_providers() -> list[str]:
+        providers = []
+        env_map = {
+            "openai": "OPENAI_API_KEY",
+            "anthropic": "ANTHROPIC_API_KEY",
+            "google": "GOOGLE_API_KEY",
+            "azure": "AZURE_OPENAI_API_KEY",
+        }
+        for provider, env_name in env_map.items():
+            if os.environ.get(env_name):
+                providers.append(provider)
+        if os.environ.get("LOCAL_SLM_ENDPOINT") or os.environ.get("OLLAMA_BASE_URL"):
+            providers.append("local_slm")
+        return providers
+
+    @staticmethod
+    def _tcp_reachable(host: str, port: int) -> bool:
+        try:
+            with socket.create_connection((host, port), timeout=0.25):
+                return True
+        except OSError:
+            return False
 
 
 class LLMGateway:

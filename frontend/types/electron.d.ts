@@ -55,6 +55,19 @@ export interface DSQPPersonaProfilesStatus {
   failures: Record<string, string>;
 }
 
+export interface DesktopNetworkStatus {
+  state: 'ONLINE' | 'DEGRADED' | 'OFFLINE' | string;
+  last_checked: string;
+  active_provider: string | null;
+  details?: Record<string, unknown>;
+}
+
+export interface LocalModelStatus {
+  ollama_available: boolean;
+  models_installed: string[];
+  active_model: string | null;
+}
+
 export interface ElectronAPI {
   ping: () => Promise<string>;
   getBackendStatus: () => Promise<string>;
@@ -62,6 +75,8 @@ export interface ElectronAPI {
   quadAnalysisStatus: () => Promise<QuadAnalysisStatus>;
   dmrfStatus: () => Promise<DMRFStatus>;
   dsqpPersonaProfiles: () => Promise<DSQPPersonaProfilesStatus>;
+  getNetworkStatus: () => Promise<DesktopNetworkStatus>;
+  getLocalModelStatus: () => Promise<LocalModelStatus>;
   getUpdateState: () => Promise<DesktopUpdateState>;
   checkForUpdates: () => Promise<DesktopUpdateState>;
   downloadUpdate: () => Promise<DesktopUpdateState>;

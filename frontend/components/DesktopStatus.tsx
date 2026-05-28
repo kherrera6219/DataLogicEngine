@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Terminal, Shield, CheckCircle, XCircle, Loader2, Database, Users } from 'lucide-react';
+import { Terminal, Shield, CheckCircle, XCircle, Loader2, Database, Users, Wifi, Cpu } from 'lucide-react';
 
 interface DSQPPersonaProfile {
   axis: number;
@@ -18,6 +18,8 @@ const DesktopStatus = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [isDesktop, setIsDesktop] = useState(false);
   const [dsqpProfiles, setDsqpProfiles] = useState<DSQPPersonaProfile[]>([]);
+  const [networkState, setNetworkState] = useState<string>('checking');
+  const [localModel, setLocalModel] = useState<string | null>(null);
 
   useEffect(() => {
     const electronApi = typeof window !== 'undefined' ? window.electronAPI : undefined;
@@ -33,6 +35,14 @@ const DesktopStatus = () => {
           if (s === 'running' && electronApi.dsqpPersonaProfiles) {
             const dsqp = await electronApi.dsqpPersonaProfiles();
             setDsqpProfiles(Array.isArray(dsqp.profiles) ? dsqp.profiles.slice(0, 4) : []);
+          }
+          if (s === 'running' && electronApi.getNetworkStatus) {
+            const network = await electronApi.getNetworkStatus();
+            setNetworkState(network.state);
+          }
+          if (s === 'running' && electronApi.getLocalModelStatus) {
+            const model = await electronApi.getLocalModelStatus();
+            setLocalModel(model.active_model);
           }
         } catch {
           setStatus('error');
@@ -84,6 +94,17 @@ const DesktopStatus = () => {
               <XCircle className="w-3 h-3" /> Offline
             </span>
           )}
+        </div>
+      </div>
+
+      <div className="mb-3 grid grid-cols-2 gap-2 text-[10px]">
+        <div className="flex min-w-0 items-center gap-1 rounded border border-slate-800 bg-slate-950/80 px-2 py-1 text-slate-300">
+          <Wifi className="h-3 w-3 shrink-0 text-slate-500" />
+          <span className="truncate">{networkState}</span>
+        </div>
+        <div className="flex min-w-0 items-center gap-1 rounded border border-slate-800 bg-slate-950/80 px-2 py-1 text-slate-300">
+          <Cpu className="h-3 w-3 shrink-0 text-slate-500" />
+          <span className="truncate">{localModel || 'No local model'}</span>
         </div>
       </div>
 

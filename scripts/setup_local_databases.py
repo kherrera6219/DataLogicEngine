@@ -26,6 +26,7 @@ import zipfile
 PG_VERSION = "16.2"
 REDIS_VERSION = "5.0.14.1"
 NEO4J_VERSION = "5.16.0"
+TEMURIN_JRE_VERSION = "17"
 
 # ---------------------------------------------------------------------------
 # Download URLs
@@ -47,6 +48,10 @@ _NEO4J_URL = (
     f"https://dist.neo4j.org/neo4j-community-{NEO4J_VERSION}-windows.zip"
     if IS_WINDOWS
     else f"https://dist.neo4j.org/neo4j-community-{NEO4J_VERSION}-unix.tar.gz"
+)
+_TEMURIN_JRE_URL = (
+    "https://api.adoptium.net/v3/binary/latest/"
+    f"{TEMURIN_JRE_VERSION}/ga/windows/x64/jre/hotspot/normal/eclipse"
 )
 
 # ---------------------------------------------------------------------------
@@ -177,10 +182,11 @@ def setup_neo4j() -> bool:
     neo4j_dir = os.path.join(DATABASES_DIR, "neo4j")
     bin_name = "neo4j.bat" if IS_WINDOWS else "neo4j"
     neo4j_bin = os.path.join(neo4j_dir, "bin", bin_name)
+    jre_ok = setup_jre()
 
     if os.path.exists(neo4j_bin):
         print(f"[Neo4j] Already installed at {neo4j_dir}")
-        return True
+        return jre_ok
 
     print(f"[Neo4j Community {NEO4J_VERSION}] Installing ...")
     with tempfile.TemporaryDirectory() as tmp:
@@ -207,7 +213,37 @@ def setup_neo4j() -> bool:
     os.makedirs(os.path.join(neo4j_dir, "data"), exist_ok=True)
     print(f"[Neo4j] Done - binary: {neo4j_bin}")
     print("  Default credentials: neo4j / neo4j  (change on first login)")
-    return True
+    return jre_ok
+
+
+def setup_jre() -> bool:
+    jre_dir = os.path.join(DATABASES_DIR, "jre")
+    java_bin = os.path.join(jre_dir, "bin", "java.exe" if IS_WINDOWS else "java")
+
+    if os.path.exists(java_bin):
+        print(f"[JRE] Already installed at {jre_dir}")
+        return True
+
+    if not IS_WINDOWS:
+        print("[JRE] Automatic install only supported on Windows.")
+        print(f"  Install Java 17 JRE and place bin/java at: {jre_dir}/bin/java")
+        return False
+
+    print(f"[Eclipse Temurin JRE {TEMURIN_JRE_VERSION}] Installing ...")
+    with tempfile.TemporaryDirectory() as tmp:
+        zip_path = os.path.join(tmp, "temurin-jre.zip")
+        try:
+            _download(_TEMURIN_JRE_URL, zip_path)
+        except Exception:
+            print("  Manual download:", _TEMURIN_JRE_URL)
+            print(f"  Extract to: {jre_dir}/")
+            return False
+
+        _extract_zip(zip_path, jre_dir)
+        _flatten_single_subdir(jre_dir)
+
+    print(f"[JRE] Done - binary: {java_bin}")
+    return os.path.exists(java_bin)
 
 
 # ---------------------------------------------------------------------------
@@ -225,6 +261,8 @@ def verify() -> None:
                                             "redis-server.exe" if IS_WINDOWS else "redis-server")),
         ("Neo4j binary",      os.path.join(DATABASES_DIR, "neo4j", "bin",
                                             "neo4j.bat" if IS_WINDOWS else "neo4j")),
+        ("Java 17 JRE",       os.path.join(DATABASES_DIR, "jre", "bin",
+                                            "java.exe" if IS_WINDOWS else "java")),
     ]
 
     port_checks = [
@@ -258,6 +296,7 @@ def main() -> None:
     parser.add_argument("--pg",     action="store_true", help="Install PostgreSQL")
     parser.add_argument("--redis",  action="store_true", help="Install Redis")
     parser.add_argument("--neo4j",  action="store_true", help="Install Neo4j")
+    parser.add_argument("--jre",    action="store_true", help="Install Eclipse Temurin Java 17 JRE")
     parser.add_argument("--all",    action="store_true", help="Install all three")
     parser.add_argument("--verify", action="store_true", help="Check installed binaries and service ports")
     args = parser.parse_args()
@@ -269,8 +308,9 @@ def main() -> None:
     do_pg    = args.pg    or args.all
     do_redis = args.redis or args.all
     do_neo4j = args.neo4j or args.all
+    do_jre   = args.jre   or args.all
 
-    if not (do_pg or do_redis or do_neo4j):
+    if not (do_pg or do_redis or do_neo4j or do_jre):
         parser.print_help()
         sys.exit(0)
 
@@ -282,6 +322,8 @@ def main() -> None:
         results["PostgreSQL"] = setup_postgresql()
     if do_redis:
         results["Redis"] = setup_redis()
+    if do_jre and not do_neo4j:
+        results["JRE"] = setup_jre()
     if do_neo4j:
         results["Neo4j"] = setup_neo4j()
 

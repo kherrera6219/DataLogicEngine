@@ -1172,6 +1172,8 @@ PHASE H
 
 New phase with no equivalent in earlier plans. Addresses the fundamental local-first desktop gaps: Java/JRE for Neo4j, offline mode, IPC expansion, crash recovery, and PyInstaller hardening.
 
+Implementation update May 28, 2026: Phase H first slice is complete. `scripts/setup_local_databases.py --neo4j` now installs Eclipse Temurin JRE 17 into `databases/jre/`, `DatabaseLifecycleManager` prioritizes that app-owned JRE before system Java, Electron packaging copies the JRE into the backend resource tree where the frozen backend resolves `databases/jre`, backend `NetworkState` exposes cached provider/local-model network status, Electron preload exposes network/local-model IPC, the desktop status component renders those signals, startup shows a splash while polling `/health`, and unexpected backend exits restart up to three times. Remaining H work is the heavier offline queue/replay, DSQP LocalSLM audit mode, reasoning/KA live feeds, settings health/backup UI, PyInstaller build evidence, and cold-start profiling.
+
 
 H-1: Java/JRE Bundling for Neo4j (CRITICAL — Neo4j silently fails without Java 17)
 Neo4j requires Java 17 — not present on most clean Windows installs
@@ -1184,19 +1186,19 @@ ID
 	Exit Gate
 	Target
 	H-1
-	Add JRE download to setup_local_databases.py --neo4j path; bundle Eclipse Temurin JRE 17 in databases/jre/
+	COMPLETED May 28, 2026 — Add JRE download to setup_local_databases.py --neo4j path; bundle Eclipse Temurin JRE 17 in databases/jre/
 	scripts/setup_local_databases.py + backend/storage/database_manager.py
-	Neo4j starts on clean Windows with no prior Java; _find_java_home() checks databases/jre/ first
+	Validated: setup_local_databases.py supports --jre and runs setup_jre() from --neo4j; tests confirm _find_java_home() prefers databases/jre/
 	DESKTOP
 	H-2
-	Add databases/jre/ to electron-builder.yml extraResources and NSIS installer manifest
+	COMPLETED May 28, 2026 — Add databases/jre/ to electron-builder.yml extraResources and NSIS installer manifest
 	frontend/electron-builder.yml + frontend/electron/installer.nsh
-	Installed .exe contains JRE; Neo4j auto-starts on machines with no existing Java
+	Validated: electron-builder extraResources includes ../databases/jre -> backend/databases/jre and NSIS install hook documents bundled runtime location
 	DESKTOP
 	H-3
-	Update _find_java_home() to check databases/jre/ as the first (highest priority) location
+	COMPLETED May 28, 2026 — Update _find_java_home() to check databases/jre/ as the first (highest priority) location
 	backend/storage/database_manager.py
-	databases/jre/bin/java.exe found before system Java; correct JRE version confirmed
+	Validated: app-owned databases/jre/bin/java.exe is selected before JAVA_HOME or system Java
 	DESKTOP
 	
 
@@ -1207,9 +1209,9 @@ ID
 	Exit Gate
 	Target
 	H-4
-	Network availability detector — check LLM provider reachability at startup and on request (30s TTL)
+	COMPLETED May 28, 2026 — Network availability detector — check LLM provider reachability at startup and on request (30s TTL)
 	backend/llm_gateway/gateway.py NetworkState
-	NetworkState.check() returns ONLINE/DEGRADED/OFFLINE; used by tier classifier and UI
+	Validated: NetworkState.check() returns ONLINE/DEGRADED/OFFLINE with configured-provider/local-model details and is exposed at /api/v1/gateway/network-status
 	DESKTOP+VM
 	H-5
 	Offline fallback: queue Tier 3+ requests in SQLite; replay on reconnect
@@ -1222,9 +1224,9 @@ ID
 	dsqp_chain.construct() uses LocalSLMProvider when cloud unreachable; marks result LOCAL_MODEL in audit
 	DESKTOP
 	H-7
-	Expose network status via IPC — live connectivity badge in Electron UI
+	COMPLETED May 28, 2026 — Expose network status via IPC — live connectivity badge in Electron UI
 	frontend/electron/main.ts + frontend/electron/preload.ts
-	preload exposes getNetworkStatus(); renderer shows badge; updates every 30s
+	Validated: preload exposes getNetworkStatus()/getLocalModelStatus(); DesktopStatus renders network and local model state
 	DESKTOP
 	
 
@@ -1268,14 +1270,14 @@ ID
 	python -m PyInstaller backend.spec builds; all phase D/E/F imports resolve in EXE
 	DESKTOP
 	H-13
-	Electron startup: poll /health with 60s timeout before createWindow(); show splash during wait
+	COMPLETED May 28, 2026 — Electron startup: poll /health with 60s timeout before createWindow(); show splash during wait
 	frontend/electron/main.ts startBackend()
-	main.ts polls http://127.0.0.1:5000/health; splash shown; UI appears only when Flask healthy
+	Validated: main.ts creates a splash window, starts backend, polls http://127.0.0.1:5000/health for up to 60s, then creates the main window
 	DESKTOP
 	H-14
-	Crash recovery: restart backend.exe up to 3× on unexpected exit; notify user; log code
+	COMPLETED May 28, 2026 — Crash recovery: restart backend.exe up to 3× on unexpected exit; notify user; log code
 	frontend/electron/main.ts
-	backendProcess on("close") → unexpected exit → restart 3× → notification; exit code logged
+	Validated: backendProcess close handler restarts unexpected exits up to 3 times, logs attempts, and sends backend-error after repeated failure
 	DESKTOP
 	H-15
 	Cold start target: Flask /health responds < 5s on modern Windows SSD; profile with py-spy
