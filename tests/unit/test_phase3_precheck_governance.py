@@ -37,6 +37,21 @@ def test_runtime_precheck_resolves_flask_sqlite_instance_path(tmp_path, monkeypa
     assert not any("Initialize local schema" in item.message for item in results)
 
 
+def test_runtime_precheck_accepts_explicit_in_memory_sqlite_for_ci(tmp_path, monkeypatch):
+    monkeypatch.setattr(runtime_precheck, "ROOT", tmp_path)
+    monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+    monkeypatch.setenv("SESSION_SECRET", "ci-session-secret")
+    monkeypatch.setenv("OPENAI_API_KEY", "mock-key-for-ci")
+
+    results = runtime_precheck.check_env_files(allow_env_from_process=True)
+
+    assert any(
+        item.level == "OK" and "in-memory database configured" in item.message
+        for item in results
+    )
+    assert not any("Initialize local schema" in item.message for item in results)
+
+
 def test_runtime_precheck_validates_pyproject_and_uv_lock_alignment(tmp_path, monkeypatch):
     monkeypatch.setattr(runtime_precheck, "ROOT", tmp_path)
     (tmp_path / "requirements.txt").write_text("Flask==3.1.2\n", encoding="utf-8")

@@ -112,7 +112,9 @@ def check_env_files(*, allow_env_from_process: bool = False) -> list[CheckResult
 
     database_url = str(env_values.get("DATABASE_URL") or "").strip()
     sqlite_path = _sqlite_database_path(database_url)
-    if sqlite_path and sqlite_path.exists():
+    if database_url in {"sqlite://", "sqlite:///:memory:"}:
+        results.append(CheckResult("OK", "SQLite in-memory database configured for disposable CI/test runtime."))
+    elif sqlite_path and sqlite_path.exists():
         results.append(CheckResult("OK", f"SQLite database file present at {sqlite_path}"))
     else:
         if database_url and not database_url.startswith("sqlite"):
