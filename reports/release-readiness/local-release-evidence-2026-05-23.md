@@ -127,3 +127,12 @@ These gates are required for public production release artifacts, not for local-
 3. Complete NVDA manual validation against the packaged Windows executable.
 4. Produce signed installer artifacts through `.github/workflows/release-installer-signing.yml`.
 5. Attach code-owner approval, rollback plan, disaster recovery review, and artifact signing evidence to the release ticket.
+
+## CI And Security Remediation Evidence
+
+Updated on 2026-05-28:
+
+- Dependabot/security cleanup was completed for the active Python and frontend dependency surfaces. Frontend `tmp` is resolved through npm overrides, Python `idna` is updated in `uv.lock`, `npm --prefix frontend audit --audit-level=moderate` reports zero vulnerabilities, and the GitHub Dependabot open-alert query returned no open alerts.
+- GitHub Deploy failures on `main` were traced to strict runtime precheck handling and backend test regressions. The fixes cover explicit in-memory SQLite CI precheck support, KA-116 scalar claim coercion, Axis 14-aware TruthGate OPA policy checks, refinement confidence recovery behavior, lane-level expanded persona pod summaries, health payload assertions, and SQLite cyclic-table cleanup for DMRF audit tests.
+- Local validation after the fix passed: `python -m pytest -q` (`1717 passed, 21 skipped`), targeted ruff checks, targeted py_compile checks, and the commit hook's repository ruff/frontend lint/frontend typecheck.
+- GitHub status when this evidence was recorded: commit `edbf0127` was pushed to `main`; Security Scan completed successfully; CI/CD Pipeline and Deploy were rerunning on the same head.

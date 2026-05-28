@@ -447,6 +447,12 @@ Current CI runs:
 - Windows packaging smoke test
 - Governance and release checklist workflows
 
+Latest validation snapshot, 2026-05-28:
+
+- Dependency alerts were remediated for the Python and frontend lockfiles; `npm --prefix frontend audit --audit-level=moderate` reports zero vulnerabilities and the GitHub Dependabot open-alert query returns no open alerts.
+- Backend CI regressions from the Deploy build were corrected and validated locally with `python -m pytest -q` (`1717 passed, 21 skipped`).
+- Commit `edbf0127` is pushed to `main`; GitHub Security Scan completed successfully for that commit, with CI/CD and Deploy rerunning on the same head.
+
 ## Roadmap
 
 The canonical roadmap, future items, and backlog are consolidated in [`TODO.md`](TODO.md). Keep new planning items there instead of duplicating roadmap tables across README or docs pages.

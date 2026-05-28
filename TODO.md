@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-05-27
+**Last updated:** 2026-05-28
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -18,6 +18,8 @@ Source report: `reports/production-code-review-2026-05-23.md`
 Validation status: Production code-review remediation phases 1 through 4 are complete as of 2026-05-23.
 
 Master completion plan status: Phase 1 / A is complete for the local-first desktop target as of 2026-05-25. Phase 2 / DB-N local implementation and Phase B / Axis Alignment are also complete. NVDA screen-reader pass, trusted production signing, final CI/security/code-owner/rollback/DR release evidence remain production/public release gates, not local-first blockers. Phase 2 live Neo4j is configured locally through ignored `.env`, seeded, and verified; SQL graph-node parity still depends on initializing the local SQL graph tables.
+
+CI/security update, 2026-05-28: dependency-alert remediation and backend CI regression fixes are pushed to `main` in `edbf0127`. Local validation passed `python -m pytest -q` (`1717 passed, 21 skipped`), targeted ruff/py_compile checks, and the commit hook's ruff/frontend lint/frontend typecheck. GitHub Security Scan passed on `edbf0127`; CI/CD and Deploy were rerunning on that head when this document was updated.
 
 | Item | Code validation | Status |
 | --- | --- | --- |
@@ -52,6 +54,15 @@ Remaining phase validation update: 2026-05-26
 | Phase G / Enterprise integrations | G-A desktop-compatible scope is implemented: TruthMemory local MLflow/JSONL tracking, Rego policy file plus OPA subprocess/Python fallback evaluation in TruthGate, W3C PROV-JSON in TruthAuditEvent data, active MCP `sampling/createMessage`, MCP resource subscriptions with SSE stream route, and SDK v0.5.0 metadata with offline `DSQPClient` plus bundled taxonomy data. G-B optional VM enhancements are now implemented with TruthLink Redis Streams fallback, TruthMemory local retention archives, opt-in TruthGate enhanced screening, and ADR-0002 for PQ-gRPC research/no-go on desktop dependency. | Done for Phase G local-first desktop/VM scope. |
 | Phase H / Desktop experience | H-1/H-3 JRE setup and app-owned Java priority are implemented; H-2 installer resource wiring is present; H-4/H-7 network status is exposed through backend and Electron IPC; H-13/H-14 backend health-gated startup splash and three-attempt restart recovery are implemented. Existing IPC also exposes DB/quad/DMRF/DSQP status. | In progress. Remaining H work: Tier 3+ offline queue/replay, DSQP LocalSLM audit mode, live reasoning/KA feeds and trace panel, database health dashboard, one-click backup, PyInstaller build evidence, and cold-start profiling. |
 | KI / Knowledge ingestion | `scripts/index_knowledge_nodes.py` can index SQL nodes to Chroma, but `backend/ingestion/` and document ingestion CLIs are absent. | Open and should follow or run parallel with DSQP/L10 if corpus value is needed. |
+
+### CI And Security Evidence
+
+Latest update: 2026-05-28
+
+- Security/dependency remediation: frontend `tmp` transitive dependency is pinned through npm overrides, Python lockfile `idna` is updated, `npm --prefix frontend audit --audit-level=moderate` reports zero vulnerabilities, and GitHub Dependabot open-alert query returns no open alerts.
+- Deploy/CI remediation: strict runtime precheck accepts explicit in-memory SQLite for disposable CI/runtime checks; KA-116 bulk-contract input coercion accepts scalar claims; TruthGate OPA policy respects Axis 14 threshold overrides; DRL convergence no longer overwrites a recovered refinement confidence when refinement steps fail; expanded persona pod outputs expose lane-level pod summaries; SQLite DMRF audit tests disable foreign-key checks while dropping cyclic test tables.
+- Validation: `python -m pytest -q` passed with `1717 passed, 21 skipped`; targeted ruff and py_compile checks passed; commit hook ran repository ruff plus frontend lint and typecheck successfully.
+- GitHub status at documentation update: Security Scan passed for `edbf0127`; CI/CD Pipeline and Deploy were rerunning on `edbf0127`.
 
 Phased update plan:
 
