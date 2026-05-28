@@ -842,6 +842,32 @@ def _redis_ping_ms() -> float | None:
         return None
 
 
+def _object_store_bucket_stats() -> dict:
+    """Return object-store bucket counts and byte totals for health and desktop IPC."""
+    buckets = ["audit_logs", "simulation_artifacts", "deliverables", "graphs", "eval_data"]
+    stats: dict[str, dict[str, int | str]] = {}
+    try:
+        from backend.storage.object_store import get_object_store
+
+        store = get_object_store()
+        for bucket in buckets:
+            objects = store.list(bucket)
+            stats[bucket] = {
+                "object_count": len(objects),
+                "total_bytes": sum(int(getattr(obj, "size", 0) or 0) for obj in objects),
+            }
+        return {"status": "ok", "buckets": stats}
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.debug("Object-store bucket stats unavailable: %s", exc)
+        return {
+            "status": "unavailable",
+            "buckets": {
+                bucket: {"object_count": 0, "total_bytes": 0}
+                for bucket in buckets
+            },
+        }
+
+
 def _db_c_auto_index_enabled() -> bool:
     configured = os.environ.get("DB_C_AUTO_INDEX_ON_STARTUP")
     if configured is not None:
@@ -982,6 +1008,7 @@ def _database_health() -> dict:
         "redis": {
             "ping_ms": _redis_ping_ms(),
         },
+        "object_store": _object_store_bucket_stats(),
     }
 
 

@@ -32,6 +32,8 @@ type UpdateState = {
   message: string;
 };
 
+type ObjectStoreBucketStats = Record<string, { object_count: number; total_bytes: number }>;
+
 const ALLOWED_IPC_ORIGINS = ['app://', 'http://localhost:3000', 'http://127.0.0.1:3000'];
 const DESKTOP_SECRET_PREFIX = 'enc:v1:';
 const MAX_DESKTOP_LOG_FILE_BYTES = 5 * 1024 * 1024;
@@ -60,6 +62,10 @@ function desktopRuntimeDir(): string {
 
 function desktopSecretVaultDir(): string {
   return path.join(app.getPath('userData'), 'secrets');
+}
+
+async function responseJson<T>(response: Response): Promise<T> {
+  return (await response.json()) as T;
 }
 
 function normalizeLogLine(raw: string): string {
@@ -641,19 +647,27 @@ ipcMain.handle('get-backend-status', (event, ...args: unknown[]) => {
 ipcMain.handle('get-db-status', async (event, ...args: unknown[]) => {
   assertTrustedIpcInvoke(event, 'get-db-status', args);
   if (!backendProcess || backendProcess.exitCode !== null) {
-    return { status: 'offline', chroma_collections: {}, redis_ping_ms: null };
+    return { status: 'offline', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {} };
   }
 
   try {
     const response = await fetch('http://127.0.0.1:5000/health');
-    const payload = await response.json();
+    const payload = await responseJson<{
+      database?: {
+        status?: string;
+        chromadb?: { collections?: Record<string, number> };
+        redis?: { ping_ms?: number | null };
+        object_store?: { buckets?: ObjectStoreBucketStats };
+      };
+    }>(response);
     return {
       status: payload?.database?.status === 'ok' ? 'managed' : 'degraded',
       chroma_collections: payload?.database?.chromadb?.collections ?? {},
       redis_ping_ms: payload?.database?.redis?.ping_ms ?? null,
+      object_store_buckets: payload?.database?.object_store?.buckets ?? {},
     };
   } catch {
-    return { status: 'managed', chroma_collections: {}, redis_ping_ms: null };
+    return { status: 'managed', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {} };
   }
 });
 
@@ -665,7 +679,11 @@ ipcMain.handle('quad-analysis-status', async (event, ...args: unknown[]) => {
 
   try {
     const response = await fetch('http://127.0.0.1:5000/api/v1/gateway/quad-analysis-status');
-    const payload = await response.json();
+    const payload = await responseJson<{
+      pod_count?: number;
+      collective_confidence?: number;
+      mode?: string;
+    }>(response);
     return {
       pod_count: payload?.pod_count ?? 0,
       collective_confidence: payload?.collective_confidence ?? 0,
@@ -684,7 +702,13 @@ ipcMain.handle('dmrf-status', async (event, ...args: unknown[]) => {
 
   try {
     const response = await fetch('http://127.0.0.1:5000/api/v1/gateway/dmrf-status');
-    const payload = await response.json();
+    const payload = await responseJson<{
+      status?: string;
+      tier?: string | null;
+      frost_depth?: number | null;
+      run_id?: string | null;
+      tier_counts?: Record<string, number>;
+    }>(response);
     return {
       status: payload?.status ?? 'idle',
       tier: payload?.tier ?? null,
@@ -705,7 +729,12 @@ ipcMain.handle('dsqp-persona-profiles', async (event, ...args: unknown[]) => {
 
   try {
     const response = await fetch('http://127.0.0.1:5000/api/v1/gateway/dsqp-persona-profiles');
-    const payload = await response.json();
+    const payload = await responseJson<{
+      success?: boolean;
+      profiles?: unknown[];
+      partial?: boolean;
+      failures?: Record<string, string>;
+    }>(response);
     return {
       success: Boolean(payload?.success),
       profiles: Array.isArray(payload?.profiles) ? payload.profiles : [],

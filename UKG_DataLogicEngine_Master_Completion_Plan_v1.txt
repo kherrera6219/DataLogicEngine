@@ -865,6 +865,8 @@ DB-O
 	Object Store + Blockchain  —  Persistent Artifacts and Audit Anchoring
 	Weeks 8–10 (parallel with E)
 	
+Implementation update May 27, 2026: DB-O is complete for the local-first desktop/VM scope. TruthAuditEvent now has queryable object_store_bucket, object_store_key, merkle_root, blockchain_anchor_tx, and blockchain_anchor_status fields with an Alembic migration. TruthMemoryCommitService writes canonical Tier 2+ audit bundles to the app-owned audit_logs bucket, records object-store references in both columns and event_data, computes a Merkle root, and anchors Tier 3+ runs through BlockchainAdapter with a local simulated anchor when no blockchain node/private key is configured. FROSTService snapshots persist to simulation_artifacts while retaining the in-memory hot cache, DSQPChain writes constructed persona artifacts to deliverables/dsqp, and /health plus Electron get-db-status now report object-store bucket counts and byte totals.
+
 
 ID
 	Task
@@ -872,34 +874,34 @@ ID
 	Exit Gate
 	Target
 	O-0
-	Add audit artifact reference fields before wiring object/blockchain persistence
-	models.py + migrations/
-	TruthAuditEvent has queryable object_store_key, merkle_root, and blockchain_anchor_tx fields; migration applies on SQLite and PostgreSQL
+	COMPLETED May 27, 2026 — Add audit artifact reference fields before wiring object/blockchain persistence
+	models.py + migrations/versions/a4b5c6d7e8f9_add_db_o_audit_artifact_fields.py
+	Validated: TruthAuditEvent has queryable object_store_bucket, object_store_key, merkle_root, blockchain_anchor_tx, and blockchain_anchor_status fields
 	DESKTOP+VM
 	O-1
-	Route Tier 2+ audit bundles to audit_logs/ bucket: commit_service writes JSON + stores object key in TruthAuditEvent
+	COMPLETED May 27, 2026 — Route Tier 2+ audit bundles to audit_logs/ bucket: commit_service writes JSON + stores object key in TruthAuditEvent
 	backend/truth_engine/truth_memory/commit_service.py + backend/storage/object_store.py
-	Every Tier 2+ run writes audit_logs/{run_id}.json; SQLite row has object_store_key and event_data fallback
+	Validated: commit writes audit_logs/{run_id}.json; SQLite row has object_store_key and event_data fallback
 	DESKTOP+VM
 	O-2
-	Route FROST snapshots to simulation_artifacts/ bucket on every snapshot()
+	COMPLETED May 27, 2026 — Route FROST snapshots to simulation_artifacts/ bucket on every snapshot()
 	core/system/frost_service.py + backend/storage/object_store.py
-	FROSTService.snapshot() writes simulation_artifacts/{snap_id}.json; in-memory dict kept as hot cache
+	Validated: FROSTService.snapshot() writes simulation_artifacts/{snap_id}.json; in-memory dict kept as hot cache
 	DESKTOP+VM
 	O-3
-	Route DSQP construction outputs to deliverables/ bucket (Phase D dependency)
+	COMPLETED May 27, 2026 — Route DSQP construction outputs to deliverables/ bucket (Phase D dependency)
 	backend/dsqp/dsqp_chain.py
-	DSQPChain.construct() writes deliverables/dsqp/{persona_id}.json; recoverable after restart
+	Validated: DSQPChain.construct() writes deliverables/dsqp/{persona_id}.json; object reference is included in persona metadata
 	DESKTOP+VM
 	O-4
-	Connect BlockchainAdapter to TruthMemoryCommitService for Tier 3+ Merkle anchoring
+	COMPLETED May 27, 2026 — Connect BlockchainAdapter to TruthMemoryCommitService for Tier 3+ Merkle anchoring
 	backend/truth_engine/truth_memory/commit_service.py + backend/truth_engine/truth_link/blockchain_adapter.py
-	Tier 3+ sessions have merkle_root in TruthAuditEvent; simulated anchor in desktop mode (no private key required)
+	Validated: Tier 3+ sessions have merkle_root and blockchain_anchor_tx in TruthAuditEvent; desktop/no-key mode returns simulated local anchor
 	DESKTOP+VM
 	O-5
-	Add per-bucket size_mb to IPC database-health channel
-	frontend/electron/main.ts
-	database-health returns object_store_buckets with per-bucket size; visible in Settings → Databases
+	COMPLETED May 27, 2026 — Add per-bucket object-store stats to IPC database-health channel
+	app.py + frontend/electron/main.ts + frontend/types/electron.d.ts
+	Validated: /health returns object_store.buckets and get-db-status returns object_store_buckets with per-bucket object_count and total_bytes
 	DESKTOP
 	________________
 

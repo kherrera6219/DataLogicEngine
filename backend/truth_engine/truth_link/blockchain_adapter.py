@@ -82,6 +82,9 @@ class BlockchainAdapter:
         Anchor a Merkle root hash to the blockchain via a transaction memo or data field.
         """
         if not self.w3.is_connected():
+            if not self.account:
+                logger.warning("Web3 unavailable and no private key configured; returning local simulated anchor.")
+                return self._simulated_anchor(merkle_root, metadata)
             logger.error("Web3 is not connected to any node.")
             return {"error": "Blockchain node unreachable"}
 

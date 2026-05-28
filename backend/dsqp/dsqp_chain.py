@@ -11,10 +11,13 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 import hashlib
 import json
+import logging
 import re
 from typing import Any
 
 from backend.dsqp.dsqp_registry import DSQPRegistry
+
+logger = logging.getLogger(__name__)
 
 COMPONENT_KEYS = [
     "job_role",
@@ -125,7 +128,7 @@ class DSQPChain:
         ).hexdigest()[:12]
         title = components["job_role"]["title"]
         coverage_score = self._coverage_score(components)
-        return ExpandedPersona(
+        persona = ExpandedPersona(
             persona_id=f"dsqp_{axis_number}_{digest}",
             axis_number=axis_number,
             persona_type=persona_type,
@@ -141,6 +144,36 @@ class DSQPChain:
                 "construction_mode": "deterministic_offline",
             },
         )
+        self._persist_deliverable(persona)
+        return persona
+
+    @staticmethod
+    def _persist_deliverable(persona: ExpandedPersona) -> None:
+        """Persist DSQP construction output to the app-owned object store when available."""
+        try:
+            from backend.storage import get_object_store
+
+            key = f"dsqp/{persona.persona_id}.json"
+            persona.metadata["object_store"] = {
+                "bucket": "deliverables",
+                "key": key,
+            }
+            payload = json.dumps(persona.to_dict(), sort_keys=True).encode("utf-8")
+            store = get_object_store()
+            store.put(
+                "deliverables",
+                key,
+                payload,
+                content_type="application/json",
+                metadata={
+                    "artifact_type": "dsqp_persona",
+                    "persona_id": persona.persona_id,
+                    "axis_number": str(persona.axis_number),
+                },
+            )
+            persona.metadata["object_store"]["size_bytes"] = len(payload)
+        except Exception as exc:  # pylint: disable=broad-except
+            logger.debug("DSQP deliverable object persistence skipped: %s", exc)
 
     @staticmethod
     def _keywords(query: str, coordinate_path: str, context: dict[str, Any]) -> list[str]:

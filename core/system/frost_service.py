@@ -91,7 +91,40 @@ class FROSTService:
             "signed_at": datetime.now(UTC).isoformat(),
             "metadata": copy.deepcopy(metadata) if metadata else {},
         }
+        self._persist_snapshot_object(snapshot_id, state_copy)
         return snapshot_id
+
+    def _persist_snapshot_object(self, snapshot_id: str, state: Dict[str, Any]) -> None:
+        """Persist snapshot artifacts to the app-owned object store when available."""
+        try:
+            from backend.storage import get_object_store
+
+            key = f"{snapshot_id}.json"
+            bundle = {
+                "snapshot_id": snapshot_id,
+                "state": state,
+                "integrity": self.snapshot_metadata.get(snapshot_id, {}),
+                "persisted_at": datetime.now(UTC).isoformat(),
+            }
+            payload = json.dumps(bundle, sort_keys=True, cls=DateTimeEncoder).encode("utf-8")
+            store = get_object_store()
+            store.put(
+                "simulation_artifacts",
+                key,
+                payload,
+                content_type="application/json",
+                metadata={
+                    "artifact_type": "frost_snapshot",
+                    "snapshot_id": snapshot_id,
+                },
+            )
+            self.snapshot_metadata[snapshot_id]["object_store"] = {
+                "bucket": "simulation_artifacts",
+                "key": key,
+                "size_bytes": len(payload),
+            }
+        except Exception as exc:  # pylint: disable=broad-except
+            self.logger.debug("FROST snapshot object persistence skipped: %s", exc)
 
     def verify_snapshot(self, snapshot_id: str) -> bool:
         """Verify snapshot hash/HMAC integrity."""

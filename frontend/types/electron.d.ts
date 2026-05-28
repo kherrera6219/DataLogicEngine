@@ -18,6 +18,7 @@ export interface DesktopDatabaseStatus {
   status: string;
   chroma_collections: Record<string, number>;
   redis_ping_ms: number | null;
+  object_store_buckets: Record<string, { object_count: number; total_bytes: number }>;
 }
 
 export interface QuadAnalysisStatus {

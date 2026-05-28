@@ -1931,6 +1931,11 @@ class TruthAuditEvent(db.Model):
 
     event_data = db.Column(db.JSON)
     decision_rationale = db.Column(db.Text)
+    object_store_bucket = db.Column(db.String(128))
+    object_store_key = db.Column(db.String(512), index=True)
+    merkle_root = db.Column(db.String(64), index=True)
+    blockchain_anchor_tx = db.Column(db.String(128))
+    blockchain_anchor_status = db.Column(db.String(32))
 
     hash_chain = db.Column(db.String(64), nullable=False)
     previous_hash = db.Column(db.String(64))
@@ -1955,6 +1960,11 @@ class TruthAuditEvent(db.Model):
             'event_category': self.event_category,
             'event_data': self.event_data,
             'decision_rationale': self.decision_rationale,
+            'object_store_bucket': self.object_store_bucket,
+            'object_store_key': self.object_store_key,
+            'merkle_root': self.merkle_root,
+            'blockchain_anchor_tx': self.blockchain_anchor_tx,
+            'blockchain_anchor_status': self.blockchain_anchor_status,
             'hash_chain': self.hash_chain,
             'previous_hash': self.previous_hash,
             'actor_id': self.actor_id,
