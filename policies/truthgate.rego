@@ -9,7 +9,7 @@ critical_domain if input.risk_domain == "safety"
 
 confidence_violation := "critical_domain_confidence_below_0_995" if {
   critical_domain
-  input.overall_confidence < 0.995
+  input.overall_confidence < object.get(input, "minimum_confidence", 0.995)
 }
 
 human_review_violation := "human_review_required" if {

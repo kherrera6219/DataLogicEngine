@@ -141,7 +141,13 @@ async def test_dmrf_persists_truth_audit_event_sqlite(tmp_path):
         config_overrides={"SQLALCHEMY_DATABASE_URI": f"sqlite:///{tmp_path / 'dmrf.sqlite'}"},
     )
     with app.app_context():
-        db.drop_all()
+        if db.engine.dialect.name == "sqlite":
+            with db.engine.connect() as connection:
+                connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
+                db.metadata.drop_all(bind=connection)
+                connection.exec_driver_sql("PRAGMA foreign_keys=ON")
+        else:
+            db.drop_all()
         db.create_all()
 
         result = await DMRFOrchestrator(desktop_mode=True, db_session=db.session).process(

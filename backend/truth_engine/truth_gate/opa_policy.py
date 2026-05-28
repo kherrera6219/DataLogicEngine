@@ -48,9 +48,11 @@ class OPAPolicyEvaluator:
     def _fallback(input_data: dict[str, Any]) -> dict[str, Any]:
         risk_domain = str(input_data.get("risk_domain") or "standard").lower()
         confidence = float(input_data.get("overall_confidence") or 0.0)
+        minimum_confidence = float(input_data.get("minimum_confidence") or 0.995)
         violations = []
-        if risk_domain in {"healthcare", "finance", "legal", "safety"} and confidence < 0.995:
-            violations.append("critical_domain_confidence_below_0_995")
+        if risk_domain in {"healthcare", "finance", "legal", "safety"} and confidence < minimum_confidence:
+            threshold_label = f"{minimum_confidence:.3f}".replace(".", "_")
+            violations.append(f"critical_domain_confidence_below_{threshold_label}")
         if input_data.get("axis_17_requires_human") and not input_data.get("human_reviewed"):
             violations.append("human_review_required")
         return {

@@ -596,6 +596,16 @@ class TruthCoreEngine:
                                 'source': 'PodOrchestrator',
                                 **pod_summary,
                             }
+                            for pod_type, pod in orchestration_state.pods.items():
+                                working_context['persona_results'][f"{pod_type}_pod"] = {
+                                    'response': pod.synthesized_output,
+                                    'confidence': pod.collective_confidence,
+                                    'source': 'PodOrchestrator',
+                                    'specialist_count': pod.persona_count,
+                                    'active_specialist_count': len(
+                                        [persona for persona in pod.personas if persona.is_active]
+                                    ),
+                                }
                             output['pod_orchestration'] = pod_summary
                             step_result['output'] = output
                             logger.info("Persona PodOrchestrator executed and synthesized expanded committee.")

@@ -3,13 +3,22 @@ import json
 import os
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
 class KA116Input(BaseModel):
     content: str = ""
-    claims: list = []
+    claims: list = Field(default_factory=list)
+
+    @field_validator("claims", mode="before")
+    @classmethod
+    def coerce_claims(cls, value):
+        if value is None:
+            return []
+        if isinstance(value, list):
+            return value
+        return [value]
 
 class KA116EntropyDetection(KnowledgeAlgorithm):
     """

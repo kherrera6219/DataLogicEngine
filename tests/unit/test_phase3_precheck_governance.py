@@ -20,6 +20,9 @@ def test_runtime_precheck_blocks_production_auto_create_schema(tmp_path, monkeyp
 
 def test_runtime_precheck_resolves_flask_sqlite_instance_path(tmp_path, monkeypatch):
     monkeypatch.setattr(runtime_precheck, "ROOT", tmp_path)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.delenv("SESSION_SECRET", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     instance_dir = tmp_path / "instance"
     instance_dir.mkdir()
     (instance_dir / "ukg_database.db").write_bytes(b"sqlite")

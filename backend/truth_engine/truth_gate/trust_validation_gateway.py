@@ -634,6 +634,7 @@ class TrustValidationGateway:
                     "simulation_id": input_data.simulation_id,
                     "risk_domain": input_data.risk_domain,
                     "overall_confidence": result.overall_confidence,
+                    "minimum_confidence": result.target_threshold,
                     "status": result.status.value,
                     "axis_17_requires_human": input_data.axis_17_requires_human,
                     "human_reviewed": False,

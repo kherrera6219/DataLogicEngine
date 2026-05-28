@@ -54,7 +54,11 @@ def test_database_health_success_path(monkeypatch, app_module):
     monkeypatch.setattr(app_module.db.engine, "connect", lambda: DummyConnection())
 
     status = app_module._database_health()
-    assert status == {"status": "ok"}
+    assert status["status"] == "ok"
+    assert "chromadb" in status
+    assert "redis" in status
+    assert "object_store" in status
+    assert "memory" in status
 
 
 def test_database_health_failure_path(monkeypatch, app_module):

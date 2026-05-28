@@ -87,10 +87,12 @@ class RefinementOrchestrator:
         try:
             drl_result = self._run_drl_convergence(current_response, context)
             current_response['drl_convergence'] = drl_result
-            current_response['confidence'] = max(
-                float(current_response.get('confidence', 0) or 0),
-                float(drl_result.get('confidence', 0) or 0),
-            )
+            current_response['confidence_candidates'] = {
+                "refinement": float(current_response.get('confidence', 0) or 0),
+                "drl_convergence": float(drl_result.get('confidence', 0) or 0),
+            }
+            if not self.STEPS and drl_result.get("threshold_met"):
+                current_response['confidence'] = current_response['confidence_candidates']['drl_convergence']
         except Exception as exc:
             logger.debug("DRL convergence refinement skipped: %s", exc)
         current_response['final_confidence'] = current_response.get('confidence', 0)
