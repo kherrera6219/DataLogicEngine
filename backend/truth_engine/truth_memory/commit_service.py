@@ -207,6 +207,16 @@ class TruthMemoryCommitService:
             event_data["merkle_root"] = merkle_root
         if anchor:
             event_data["blockchain_anchor"] = anchor
+        try:
+            from backend.truth_engine.truth_memory.provenance import ProvenanceRecord
+
+            event_data["w3c_prov"] = ProvenanceRecord.from_trace_run(
+                run,
+                evidence_pack_hash=evidence_pack_hash,
+                object_ref=object_ref,
+            ).to_w3c_prov()
+        except Exception as exc:
+            logger.debug("W3C PROV generation skipped for run %s: %s", run.run_id, exc)
         dsqp_chain = TruthMemoryCommitService._extract_dsqp_chain(run, bundle)
         if dsqp_chain:
             event_data["dsqp_chain"] = dsqp_chain

@@ -184,6 +184,20 @@ class TrustValidationGateway:
                 requires_human_review=input_data.axis_17_requires_human,
                 disclosure_required=(status == GateDecision.WARN)
             )
+            opa_result = self._evaluate_opa_policy(input_data, result)
+            result.opa_policy = opa_result
+            if not opa_result.get("allow", True):
+                result.status = GateDecision.FAIL
+                result.warnings.append("OPA policy denied TruthGate release")
+                for violation in opa_result.get("violations", []):
+                    result.fix_directives.append(
+                        FixDirective(
+                            target_layer=8,
+                            reason=f"OPA policy violation: {violation}",
+                            priority="critical",
+                        )
+                    )
+                result.disclosure_required = True
             
             # Update stats
             self._update_stats(status)
@@ -586,6 +600,30 @@ class TrustValidationGateway:
         
         # PASS
         return GateDecision.PASS, fix_directives
+
+    @staticmethod
+    def _evaluate_opa_policy(input_data: L8Input, result: L8GateResult) -> Dict[str, Any]:
+        try:
+            from backend.truth_engine.truth_gate.opa_policy import OPAPolicyEvaluator
+
+            return OPAPolicyEvaluator().evaluate(
+                {
+                    "simulation_id": input_data.simulation_id,
+                    "risk_domain": input_data.risk_domain,
+                    "overall_confidence": result.overall_confidence,
+                    "status": result.status.value,
+                    "axis_17_requires_human": input_data.axis_17_requires_human,
+                    "human_reviewed": False,
+                }
+            )
+        except Exception as exc:
+            return {
+                "available": False,
+                "backend": "error",
+                "allow": False,
+                "violations": ["opa_evaluation_error"],
+                "error": str(exc),
+            }
     
     def _get_escalation_target(self, fix_directives: List[FixDirective]) -> Optional[int]:
         """Determine which layer to escalate to."""

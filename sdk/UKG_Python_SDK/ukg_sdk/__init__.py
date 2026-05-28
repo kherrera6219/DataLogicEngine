@@ -1,4 +1,4 @@
-"""UKG Python SDK (UKG/USKD) — consolidated release v0.4.0.
+"""UKG Python SDK (UKG/USKD) — consolidated release v0.5.0.
 
 Primary entrypoints:
 - :class:`ukg_sdk.UKGClient` — sync HTTP API client
@@ -19,7 +19,7 @@ from .overlay import UKGOverlay
 from .workflow import WorkflowRunner, ComplexityTier, WorkflowConfig
 from .coordinates17 import CoordinateResolver17, Coordinate
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 try:
     from .dsqp import DSQPClient
@@ -48,4 +48,5 @@ __all__ = [
     # Coordinates
     "CoordinateResolver17",
     "Coordinate",
+    "DSQPClient",
 ]

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ukg-sdk"
-version = "0.3.1"
+version = "0.5.0"
 description = "UKG SDK: public API overlay for LLMs with KA execution hooks, 17-axis resolver, memory/audit adapters"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -31,4 +31,4 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-ukg_sdk = ["data/*"]
+ukg_sdk = ["data/*", "data/audit/*", "data/dsqp_templates/*"]

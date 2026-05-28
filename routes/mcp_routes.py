@@ -6,7 +6,7 @@ Provides REST API endpoints for managing MCP servers, clients,
 resources, tools, and prompts.
 """
 
-from flask import Blueprint, request, jsonify, g
+from flask import Blueprint, Response, jsonify, g, request, stream_with_context
 from flask_login import login_required, current_user
 from datetime import datetime, UTC
 import asyncio
@@ -18,6 +18,7 @@ from extensions import db
 from models import MCPServer as MCPServerModel, MCPResource, MCPTool, MCPPrompt
 from core.mcp import MCPManager
 from backend.mcp_server.connector_metrics import infer_connector_id, record_connector_execution
+from backend.mcp_server.router import MCPRouter
 from backend.mcp_server.scope_enforcement import (
     ScopeEnforcementError,
     enforce_scopes,
@@ -138,6 +139,36 @@ def _build_tool_execution_context() -> dict:
         "scopes": sorted(scopes),
         "is_admin": is_admin,
     }
+
+
+@mcp_bp.route('/rpc', methods=['POST'])
+@login_required
+def mcp_rpc():
+    """Handle active MCP JSON-RPC requests, including sampling and subscriptions."""
+    try:
+        payload = request.get_json() or {}
+        response = run_async(MCPRouter().handle_message(payload))
+        return jsonify(response), 200
+    except Exception as exc:
+        logger.error("MCP RPC failed: %s", exc)
+        return jsonify({"jsonrpc": "2.0", "id": None, "error": {"code": -32603, "message": "MCP RPC failed"}}), 500
+
+
+@mcp_bp.route('/subscriptions/stream/<client_id>', methods=['GET'])
+@login_required
+def mcp_subscription_stream(client_id):
+    """SSE stream for MCP resource subscription notifications."""
+    from backend.mcp_server.subscriptions import subscription_manager
+
+    return Response(
+        stream_with_context(subscription_manager.stream(client_id)),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',
+        },
+    )
 
 
 # Server Management Endpoints

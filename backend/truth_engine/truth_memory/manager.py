@@ -12,6 +12,7 @@ from typing import Dict, Any, Optional
 from backend.truth_engine.truth_memory.audit import AuditLogger
 from backend.truth_engine.truth_memory.cache import TruthCache
 from backend.truth_engine.truth_memory.metrics import MetricsTracker
+from backend.truth_engine.truth_memory.mlflow_tracker import TruthMemoryMLflowTracker
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,7 @@ class TruthMemoryManager:
             cache_backend = 'redis' if os.environ.get("USE_REDIS", "false").lower() in {"1", "true", "yes", "on"} else 'memory'
         self.cache = TruthCache(backend=cache_backend)
         self.metrics = MetricsTracker(db_session)
+        self.mlflow_tracker = TruthMemoryMLflowTracker()
         logger.info("TruthMemoryManager initialized")
 
     def record_session(self, session_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -68,12 +70,14 @@ class TruthMemoryManager:
                 value=session_data['processing_time_ms'],
                 tier=session_data.get('tier')
             )
+        tracking_result = self.mlflow_tracker.record_session(session_data)
         
         return {
             'session_id': session_id,
             'audit_event_id': audit_result.get('event_id'),
             'cached': True,
             'metrics_recorded': True,
+            'mlflow_tracking': tracking_result,
             'timestamp': datetime.now(UTC).isoformat()
         }
 

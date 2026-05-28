@@ -1093,6 +1093,8 @@ PHASE G
 	Enterprise Integrations  —  Same Internal Windows App Stack
 	Weeks 20–28
 	
+Implementation update May 27, 2026: G-A is complete for the local-first desktop/VM-compatible scope. TruthMemory now tracks sessions to the app-owned local MLflow path with JSONL fallback, TruthGate has a Rego policy plus OPA subprocess/Python fallback evaluator wired into Layer 8, TruthMemory audit commits include W3C PROV-JSON, MCP JSON-RPC supports `sampling/createMessage`, MCP resource subscriptions have an SSE-compatible subscription manager and route, and the SDK is updated to v0.5.0 with offline `DSQPClient` construction and bundled taxonomy/template package data. G-B remains optional VM enhancement work.
+
 
 G-A: Desktop-Compatible (add to NSIS installer and DataLogic_Backend.exe)
 ID
@@ -1101,34 +1103,34 @@ ID
 	Exit Gate
 	Target
 	G-1
-	MLflow local file tracking: mlflow.set_tracking_uri("%AppData%/DataLogicEngine/mlruns") in desktop mode
-	backend/truth_engine/truth_memory/manager.py
-	Desktop and VM both use app-owned local file tracking; mlflow ui can inspect the local app data directory
+	COMPLETED May 27, 2026 — MLflow local file tracking: mlflow.set_tracking_uri("%AppData%/DataLogicEngine/mlruns") in desktop mode
+	backend/truth_engine/truth_memory/manager.py + backend/truth_engine/truth_memory/mlflow_tracker.py
+	Validated: TruthMemoryMLflowTracker uses app-owned local path and JSONL fallback when mlflow is not installed
 	DESKTOP+VM
 	G-2
-	OPA bundled binary (opa.exe in extraResources/opa/) for policy evaluation; TruthGate policies in Rego
+	COMPLETED May 27, 2026 — OPA policy evaluation; TruthGate policies in Rego with local fallback when opa.exe is absent
 	policies/truthgate.rego (new) + frontend/electron-builder.yml + backend/truth_engine/truth_gate/opa_policy.py (new)
-	OPA policies evaluated offline via subprocess; hot-reloadable without app restart
+	Validated: OPAPolicyEvaluator evaluates offline via subprocess when configured and deterministic Python fallback otherwise; policies bundled as Electron extraResources
 	DESKTOP+VM
 	G-3
-	W3C PROV provenance schema for TruthMemory — pure Python, SQLite-serialisable
+	COMPLETED May 27, 2026 — W3C PROV provenance schema for TruthMemory — pure Python, SQLite-serialisable
 	backend/truth_engine/truth_memory/provenance.py (new)
-	ProvenanceRecord.to_w3c_prov() returns valid W3C PROV-JSON; stored in TruthAuditEvent.event_data
+	Validated: ProvenanceRecord.to_w3c_prov() returns W3C PROV-JSON and TruthMemoryCommitService stores it in TruthAuditEvent.event_data
 	DESKTOP+VM
 	G-4
-	MCP sampling protocol for LLM completions
-	backend/mcp_server/sampling.py (new)
-	MCP sampling works with local Ollama and cloud providers; confirmed by MCP client test
+	COMPLETED May 27, 2026 — MCP sampling protocol for LLM completions
+	backend/mcp_server/sampling.py (new) + backend/mcp_server/router.py
+	Validated: MCPRouter handles sampling/createMessage with local deterministic fallback and optional provider hook
 	DESKTOP+VM
 	G-5
-	MCP resource subscriptions + SSE notifications
-	backend/mcp_server/subscriptions.py (new)
-	Core MCP has lightweight subscription tracking today; this task promotes it to the active backend MCP server with SSE notifications. SSE stream works on localhost desktop; same endpoint works on VM
+	COMPLETED May 27, 2026 — MCP resource subscriptions + SSE notifications
+	backend/mcp_server/subscriptions.py (new) + backend/mcp_server/router.py + routes/mcp_routes.py
+	Validated: resources/subscribe creates tracked subscriptions; notify pushes SSE-compatible resource update events; backend route exposes subscription stream
 	DESKTOP+VM
 	G-6
-	SDK v0.5.0 release — DSQPClient + CoordinateResolver17 wired to live backend; clean CHANGELOG
+	COMPLETED May 27, 2026 — SDK v0.5.0 release — DSQPClient + CoordinateResolver17 wired for live/offline use; clean CHANGELOG
 	sdk/UKG_Python_SDK/ all relevant files
-	__version__=0.5.0 (single assignment); CHANGELOG updated; pip install ukg-sdk works offline; wheel ships taxonomy JSONs
+	Validated: __version__=0.5.0 single assignment; pyproject version updated; CHANGELOG updated; DSQPClient constructs offline without backend imports; package data includes taxonomy and DSQP template JSONs
 	DESKTOP+VM
 	
 

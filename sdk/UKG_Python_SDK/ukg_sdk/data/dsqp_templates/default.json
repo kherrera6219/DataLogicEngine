@@ -1,0 +1,11 @@
+{
+  "questions": {
+    "job_role": "What role should be activated for this query?",
+    "education": "What education background is needed?",
+    "certifications": "What certifications establish competence?",
+    "skills": "What skills are required?",
+    "training": "What training modules should be active?",
+    "career_path": "What career path informs this persona?",
+    "related_jobs": "What adjacent roles cover blind spots?"
+  }
+}

@@ -17,6 +17,10 @@ extraResources:
     to: scripts
     filter:
       - "*.ps1"
+  - from: ../policies
+    to: policies
+    filter:
+      - "*.rego"
 win:
   target:
     - nsis

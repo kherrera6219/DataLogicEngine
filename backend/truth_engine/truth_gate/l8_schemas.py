@@ -107,6 +107,7 @@ class L8GateResult(BaseModel):
     # Governance hooks (17-axis)
     requires_human_review: bool = Field(default=False)
     disclosure_required: bool = Field(default=False)
+    opa_policy: Dict[str, Any] = Field(default_factory=dict)
 
 
 class L8AuditArtifact(BaseModel):

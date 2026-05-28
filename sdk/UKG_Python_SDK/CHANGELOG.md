@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0 (2026-05-27)
+
+- Added offline-capable `DSQPClient` that no longer depends on backend package imports.
+- Kept `CoordinateResolver17` wired to bundled taxonomy JSON files for local/offline resolution.
+- Updated package metadata and package data for SDK v0.5.0.
+
 ## 0.3.1 (2026-01-30)
 
 - **Readiness**: Added `py.typed` marker for PEP 561 compliance.
@@ -14,5 +20,4 @@
 - Added/updated KA execution hooks (live registry → execution map) and KA hooks.
 - Added 10-layer stack, 12-step refinement, and FROST context-simulation modules.
 - Maintained provider adapters (OpenAI / Azure OpenAI / Anthropic) and memory adapters.
-
 

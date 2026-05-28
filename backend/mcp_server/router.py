@@ -7,6 +7,8 @@ Handles incoming MCP requests and routes them to the Tool Registry.
 import logging
 from typing import Dict, Any
 from backend.mcp_server.registry import registry
+from backend.mcp_server.sampling import sampling_service
+from backend.mcp_server.subscriptions import subscription_manager
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +62,8 @@ class MCPRouter:
                 },
                 "capabilities": {
                     "tools": {},
-                    "resources": {}
+                    "resources": {"subscribe": True},
+                    "sampling": {}
                 }
             })
 
@@ -89,6 +92,25 @@ class MCPRouter:
             except Exception as e:
                 logger.exception("MCP tools/call failed for tool=%s", name)
                 return self._error(request_id, -32603, _safe_error_message(e))
+
+        if method == "sampling/createMessage":
+            try:
+                return self._response(request_id, await sampling_service.create_message(params))
+            except Exception as e:
+                logger.exception("MCP sampling/createMessage failed")
+                return self._error(request_id, -32603, _safe_error_message(e))
+
+        if method == "resources/subscribe":
+            uri = params.get("uri")
+            if not uri:
+                return self._error(request_id, -32602, "Missing required parameter: uri")
+            return self._response(request_id, subscription_manager.subscribe(uri, client_id=params.get("clientId")))
+
+        if method == "resources/unsubscribe":
+            subscription_id = params.get("subscriptionId")
+            if not subscription_id:
+                return self._error(request_id, -32602, "Missing required parameter: subscriptionId")
+            return self._response(request_id, {"unsubscribed": subscription_manager.unsubscribe(subscription_id)})
 
         return self._error(request_id, -32601, f"Method not found: {method}")
 
