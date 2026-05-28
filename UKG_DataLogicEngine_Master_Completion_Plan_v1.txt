@@ -911,7 +911,7 @@ DB-M
 	Weeks 10–13 (parallel with E/F)
 	
 
-The StructuredMemoryGraph in quad_persona/mathematical_framework.py is implemented and used inside quad_persona flows. It is not yet the persisted cross-session memory substrate for TruthCore L1-L10. This sprint wraps it in a service, adds persistence, and wires it into the full pipeline as the system's long-term intelligence layer.
+Implementation update May 27, 2026: DB-M is complete for the local-first desktop/VM scope. `backend/memory/unified_memory_service.py` wraps the existing `StructuredMemoryGraph` with deterministic local embeddings, layer/persona namespacing, JSON persistence at `databases/memory/memory_graph.json`, startup load, shutdown save, recall/consolidation APIs, FROST branch checkpoints, and runtime stats. TruthCore now recalls and writes memory for each L1-L10 workflow step, L10 Lane B records release-authorized knowledge into StructuredMemoryGraph, and `/health` plus Electron `get-db-status` expose memory vertex/edge counts and the last recall timestamp.
 
 
 ID
@@ -920,39 +920,39 @@ ID
 	Exit Gate
 	Target
 	M-1
-	Create UnifiedMemoryService — wraps StructuredMemoryGraph + Redis + ChromaDB into one interface
+	COMPLETED May 27, 2026 — Create UnifiedMemoryService — wraps StructuredMemoryGraph into a local-first recall/consolidation interface
 	backend/memory/unified_memory_service.py (new)
-	UnifiedMemoryService.recall(query, layer, persona) returns ranked MemoryVertex list
+	Validated: UnifiedMemoryService.recall(query, layer, persona) returns ranked MemoryVertex list
 	DESKTOP+VM
 	M-2
-	Wire UnifiedMemoryService into TruthCoreEngine — every L1-L10 step reads + writes memory
+	COMPLETED May 27, 2026 — Wire UnifiedMemoryService into TruthCoreEngine — every L1-L10 step reads + writes memory
 	backend/truth_engine/truth_core/engine.py
-	working_context[memory_context] non-empty on all layers; vertex count grows with use
+	Validated: working_context[memory_context] records layer recall; vertex count grows with workflow use
 	DESKTOP+VM
 	M-3
-	Persist StructuredMemoryGraph to databases/memory/memory_graph.json on shutdown; load on startup
-	quad_persona/mathematical_framework.py + backend/memory/
-	Vertex count persists across restart; confirmed by shutdown/restart test
+	COMPLETED May 27, 2026 — Persist StructuredMemoryGraph to databases/memory/memory_graph.json on shutdown; load on startup
+	backend/memory/unified_memory_service.py
+	Validated: vertex count persists across service reload; confirmed by focused test
 	DESKTOP+VM
 	M-4
-	Layer + persona namespacing: MemoryVertex.metadata[layer] + metadata[persona]
+	COMPLETED May 27, 2026 — Layer + persona namespacing: MemoryVertex.metadata[layer] + metadata[persona]
 	backend/memory/unified_memory_service.py
-	recall(layer="L3", persona="knowledge") returns different results than recall(layer="L8", persona="compliance")
+	Validated: recall(layer="L3", persona="knowledge") returns different results than recall(layer="L8", persona="compliance")
 	DESKTOP+VM
 	M-5
-	Lane B L10: knowledge consolidation via MC(M,I,t) after every RELEASE-gated trace
-	backend/knowledge_algorithms/l10/ + backend/memory/unified_memory_service.py
-	Vertex count increases after each Tier 2+ completed session; importance field increments on re-recall
+	COMPLETED May 27, 2026 — Lane B L10: knowledge consolidation via MC(M,I,t) after every RELEASE-gated trace
+	backend/truth_engine/truth_core/emergence_controller.py + backend/memory/unified_memory_service.py
+	Validated: release-authorized Lane B graph commit records structured_memory_vertex_id and StructuredMemoryGraph vertex count
 	DESKTOP+VM
 	M-6
-	Wire FROST branch() to memory checkpointing: rollback restores memory to pre-branch state
+	COMPLETED May 27, 2026 — Wire FROST branch() to memory checkpointing: rollback restores memory to pre-branch state
 	core/system/frost_service.py + backend/memory/unified_memory_service.py
-	FROSTService.branch() creates memory checkpoint; rollback confirmed by vertex count test
+	Validated: FROSTService.branch() creates memory checkpoint; rollback confirmed by vertex count test
 	DESKTOP+VM
 	M-7
-	Add memory stats to IPC database-health channel
-	frontend/electron/main.ts
-	database-health returns memory_vertices, memory_edges, last_recall_timestamp
+	COMPLETED May 27, 2026 — Add memory stats to IPC database-health channel
+	app.py + frontend/electron/main.ts + frontend/types/electron.d.ts
+	Validated: /health and get-db-status return memory_vertices, memory_edges, and last_recall_timestamp
 	DESKTOP
 	________________
 

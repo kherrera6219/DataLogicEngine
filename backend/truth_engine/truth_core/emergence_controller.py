@@ -302,6 +302,7 @@ class EmergenceDetectionController:
             return commit_report
 
         try:
+            from backend.memory import get_unified_memory_service
             from backend.storage import get_graph_store, get_uskd_memory_graph
 
             pillar_uid = self._coordinate_axis_value(input_data.coordinate_vector, 1)
@@ -315,6 +316,17 @@ class EmergenceDetectionController:
             )
             commit_report["memory_graph_updated"] = True
             commit_report["memory_graph_nodes"] = memory_stats.node_count
+            memory_vertex = get_unified_memory_service().record_release_commit(
+                content=str(properties.get("content") or properties.get("title") or ""),
+                simulation_id=input_data.simulation_id,
+                metadata={
+                    "uid": properties.get("uid"),
+                    "node_id": properties.get("node_id"),
+                    "containment_class": commit_report.get("containment_class"),
+                },
+            )
+            commit_report["structured_memory_vertex_id"] = memory_vertex.vertex_id
+            commit_report["structured_memory_vertices"] = get_unified_memory_service().stats()["memory_vertices"]
 
             store = get_graph_store()
             commit_report["neo4j_node_merged"] = store.merge_knowledge_node(properties)

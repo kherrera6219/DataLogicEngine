@@ -220,8 +220,27 @@ class FROSTService:
             raise ValueError(f"Snapshot {snapshot_id} not found")
             
         self.branches[branch_name] = snapshot_id
+        self._checkpoint_memory_graph(branch_name)
         self.logger.info(f"Created branch '{branch_name}' at {snapshot_id}")
         return snapshot_id
+
+    def rollback_memory_branch(self, branch_name: str) -> bool:
+        """Restore the UnifiedMemoryService checkpoint captured for a branch."""
+        try:
+            from backend.memory import get_unified_memory_service
+
+            return get_unified_memory_service().restore(f"frost_branch:{branch_name}")
+        except Exception as exc:  # pylint: disable=broad-except
+            self.logger.debug("FROST memory rollback skipped: %s", exc)
+            return False
+
+    def _checkpoint_memory_graph(self, branch_name: str) -> None:
+        try:
+            from backend.memory import get_unified_memory_service
+
+            get_unified_memory_service().checkpoint(f"frost_branch:{branch_name}")
+        except Exception as exc:  # pylint: disable=broad-except
+            self.logger.debug("FROST memory checkpoint skipped: %s", exc)
 
     def merge(self, base_id: str, branch_snapshots: List[str], policy: str = "latest wins") -> str:
         """

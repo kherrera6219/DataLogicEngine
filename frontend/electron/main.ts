@@ -34,6 +34,12 @@ type UpdateState = {
 
 type ObjectStoreBucketStats = Record<string, { object_count: number; total_bytes: number }>;
 
+type StructuredMemoryStats = {
+  memory_vertices: number;
+  memory_edges: number;
+  last_recall_timestamp: string | null;
+};
+
 const ALLOWED_IPC_ORIGINS = ['app://', 'http://localhost:3000', 'http://127.0.0.1:3000'];
 const DESKTOP_SECRET_PREFIX = 'enc:v1:';
 const MAX_DESKTOP_LOG_FILE_BYTES = 5 * 1024 * 1024;
@@ -647,7 +653,7 @@ ipcMain.handle('get-backend-status', (event, ...args: unknown[]) => {
 ipcMain.handle('get-db-status', async (event, ...args: unknown[]) => {
   assertTrustedIpcInvoke(event, 'get-db-status', args);
   if (!backendProcess || backendProcess.exitCode !== null) {
-    return { status: 'offline', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {} };
+    return { status: 'offline', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null };
   }
 
   try {
@@ -658,6 +664,7 @@ ipcMain.handle('get-db-status', async (event, ...args: unknown[]) => {
         chromadb?: { collections?: Record<string, number> };
         redis?: { ping_ms?: number | null };
         object_store?: { buckets?: ObjectStoreBucketStats };
+        memory?: StructuredMemoryStats;
       };
     }>(response);
     return {
@@ -665,9 +672,12 @@ ipcMain.handle('get-db-status', async (event, ...args: unknown[]) => {
       chroma_collections: payload?.database?.chromadb?.collections ?? {},
       redis_ping_ms: payload?.database?.redis?.ping_ms ?? null,
       object_store_buckets: payload?.database?.object_store?.buckets ?? {},
+      memory_vertices: payload?.database?.memory?.memory_vertices ?? 0,
+      memory_edges: payload?.database?.memory?.memory_edges ?? 0,
+      last_recall_timestamp: payload?.database?.memory?.last_recall_timestamp ?? null,
     };
   } catch {
-    return { status: 'managed', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {} };
+    return { status: 'managed', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null };
   }
 });
 

@@ -868,6 +868,22 @@ def _object_store_bucket_stats() -> dict:
         }
 
 
+def _structured_memory_stats() -> dict:
+    """Return StructuredMemoryGraph stats for health and desktop IPC."""
+    try:
+        from backend.memory import get_unified_memory_service
+
+        return get_unified_memory_service().stats()
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.debug("Structured memory stats unavailable: %s", exc)
+        return {
+            "status": "unavailable",
+            "memory_vertices": 0,
+            "memory_edges": 0,
+            "last_recall_timestamp": None,
+        }
+
+
 def _db_c_auto_index_enabled() -> bool:
     configured = os.environ.get("DB_C_AUTO_INDEX_ON_STARTUP")
     if configured is not None:
@@ -1009,6 +1025,7 @@ def _database_health() -> dict:
             "ping_ms": _redis_ping_ms(),
         },
         "object_store": _object_store_bucket_stats(),
+        "memory": _structured_memory_stats(),
     }
 
 

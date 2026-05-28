@@ -168,6 +168,13 @@ class TruthCoreEngine:
             self.persona_construction = None
         self.sufficiency_tool = PersonaSufficiencyTool()
         self.refinement_orchestrator = RefinementOrchestrator(ka_controller=self.ka_controller)
+        try:
+            from backend.memory import get_unified_memory_service
+
+            self.memory_service = get_unified_memory_service()
+        except Exception as exc:
+            logger.warning("UnifiedMemoryService unavailable: %s", exc)
+            self.memory_service = None
         
         self.active_sessions = {}
         logger.info("TruthCore Engine initialized with Final Assembly stack")
@@ -438,18 +445,93 @@ class TruthCoreEngine:
                 logger.debug("Persona construction skipped for axis %s: %s", axis_number, exc)
         return profiles
 
+    @staticmethod
+    def _layer_for_step(step: str) -> str:
+        layer_map = {
+            "intent_parsing": "L1",
+            "hybrid_retrieval": "L2",
+            "deep_research": "L3",
+            "pov_expansion": "L4",
+            "multi_persona_reasoning": "L5",
+            "quant_validation": "L6",
+            "agi_planning": "L7",
+            "trust_validation": "L8",
+            "meta_reasoning": "L9",
+            "final_safety_gate": "L10",
+            "memory_patch": "L10",
+        }
+        return layer_map.get(step, "global")
+
+    @staticmethod
+    def _memory_vertex_payload(vertex: Any) -> Dict[str, Any]:
+        return {
+            "vertex_id": getattr(vertex, "vertex_id", ""),
+            "content": getattr(vertex, "content", ""),
+            "importance": getattr(vertex, "importance", 0),
+            "access_count": getattr(vertex, "access_count", 0),
+            "metadata": getattr(vertex, "metadata", {}),
+        }
+
     async def _execute_workflow(self, query: str, context: Dict[str, Any], steps: List[str], tier: str) -> Dict[str, Any]:
         """Unified execution loop for all tiers."""
         executed_steps = []
         working_context = context.copy()
         working_context['session_id'] = context.get('session_id', str(uuid.uuid4()))
         working_context['persona_results'] = {}
+        working_context['memory_context'] = {}
         self._refresh_graph_context(query, working_context)
+        if self.memory_service:
+            try:
+                self.memory_service.consolidate(
+                    query,
+                    layer="global",
+                    persona="global",
+                    metadata={
+                        "session_id": working_context["session_id"],
+                        "tier": tier,
+                        "source": "truthcore_session_query",
+                    },
+                )
+            except Exception as exc:
+                logger.debug("TruthCore query memory consolidation skipped: %s", exc)
         personas_used = set()
         
         for step in steps:
+            layer = self._layer_for_step(step)
+            if self.memory_service:
+                try:
+                    recalled = self.memory_service.recall(
+                        query,
+                        layer=layer,
+                        context=working_context,
+                        limit=5,
+                    )
+                    working_context['memory_context'][layer] = [
+                        self._memory_vertex_payload(vertex)
+                        for vertex in recalled
+                    ]
+                except Exception as exc:
+                    logger.debug("TruthCore memory recall skipped for %s: %s", layer, exc)
             step_result = self._execute_refinement_step(step, query, working_context)
             executed_steps.append(step_result)
+            if self.memory_service and step_result.get('status') == 'completed':
+                try:
+                    vertex = self.memory_service.record_layer_result(
+                        query=query,
+                        layer=layer,
+                        step=step,
+                        result=step_result,
+                        context=working_context,
+                    )
+                    working_context.setdefault('memory_writes', []).append(
+                        {
+                            "layer": layer,
+                            "vertex_id": vertex.vertex_id,
+                            "content": vertex.content[:240],
+                        }
+                    )
+                except Exception as exc:
+                    logger.debug("TruthCore memory consolidation skipped for %s: %s", layer, exc)
             
             # Layer-Specific Data Piping & Context Injection
             if step_result['status'] == 'completed':
