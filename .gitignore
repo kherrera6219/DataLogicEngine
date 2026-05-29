@@ -102,3 +102,4 @@ replit.nix
 
 # Local agent/worktree cache
 .claude/
+API KEY/key.txt

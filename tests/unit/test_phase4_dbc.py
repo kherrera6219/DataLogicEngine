@@ -40,14 +40,43 @@ def test_rag_uses_knowledge_nodes_collection_and_scalar_metadata():
         "node-1",
         "healthcare compliance",
         "regulation",
-        {"axis": 10, "nested": {"source": "unit"}},
+        {"axis": 10, "nested": {"source": "unit"}, "source_path": "policy.md", "chunk_index": 0, "chunk_count": 1},
     )
     assert store.add_calls[0]["collection"] == "knowledge_nodes"
     assert store.add_calls[0]["metadata"][0]["nested"] == '{"source": "unit"}'
 
     results = service.search_knowledge("healthcare compliance")
     assert results[0]["metadata"]["node_id"] == "KG-1"
+    assert results[0]["citation"]["source_title"] == "KG-1"
     assert store.search_calls[0]["collection"] == "knowledge_nodes"
+
+
+def test_rag_context_includes_ingested_citation_metadata():
+    store = RecordingStore()
+    service = RAGService(vector_store=store, embedding_provider=lambda _text: [0.1, 0.2])
+    store.search = lambda **_kwargs: [
+        SearchResult(
+            id="ki-1",
+            score=0.91,
+            text="local corpus evidence",
+            metadata={
+                "source": "local_file_ingestion",
+                "source_path": "C:/corpus/policy.md",
+                "file_name": "policy.md",
+                "chunk_index": 1,
+                "chunk_count": 3,
+                "content_hash": "abc",
+                "chunk_hash": "def",
+            },
+        )
+    ]
+
+    context = service.get_context_for_query("policy", include_sources=True)
+    result = service.search_knowledge("policy")[0]
+
+    assert "[Source: policy.md chunk 2/3]" in context
+    assert result["citation"]["content_hash"] == "abc"
+    assert result["citation"]["locator"]["chunk_index"] == 1
 
 
 def test_index_knowledge_nodes_indexes_sql_node_like_objects():

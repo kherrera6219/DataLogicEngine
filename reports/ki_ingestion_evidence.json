@@ -1,0 +1,48 @@
+{
+  "success": true,
+  "result": {
+    "ingestion_id": "f3718698-df94-4a92-9b74-1246c763ce67",
+    "source": "C:\\Users\\kevin\\AppData\\Local\\Temp\\dle_ki_18579ma6\\corpus",
+    "files_scanned": 1,
+    "files_ingested": 1,
+    "files_rejected": 0,
+    "chunks_created": 2,
+    "chunks_indexed": 2,
+    "rejected_files": [],
+    "chunks": [
+      {
+        "node_uid": "ki_02d0f5e89d43b5042ea519d9",
+        "node_id": "KI-02d0f5e89d43b504",
+        "source_path": "C:\\Users\\kevin\\AppData\\Local\\Temp\\dle_ki_18579ma6\\corpus\\policy.md",
+        "chunk_index": 0,
+        "chunk_count": 2,
+        "content_hash": "68deb3e9d626f6f9fae61dd3f805b15385ac9a262233a36fcd0c5c1253c1c1f1",
+        "chunk_hash": "02d0f5e89d43b5042ea519d96506430fd30c4258776754f12d9658ea0c975fe1",
+        "indexed": true
+      },
+      {
+        "node_uid": "ki_e4e647ea31333885cebaef59",
+        "node_id": "KI-e4e647ea31333885",
+        "source_path": "C:\\Users\\kevin\\AppData\\Local\\Temp\\dle_ki_18579ma6\\corpus\\policy.md",
+        "chunk_index": 1,
+        "chunk_count": 2,
+        "content_hash": "68deb3e9d626f6f9fae61dd3f805b15385ac9a262233a36fcd0c5c1253c1c1f1",
+        "chunk_hash": "e4e647ea31333885cebaef592bbdefdca23b5f6abe937434be18a633d623e650",
+        "indexed": true
+      }
+    ],
+    "manifest_path": "C:\\Users\\kevin\\AppData\\Local\\Temp\\dle_ki_18579ma6\\manifests\\f3718698-df94-4a92-9b74-1246c763ce67.json"
+  },
+  "sql_knowledge_node_count": 2,
+  "search_result_citation": {
+    "source_path": "C:\\Users\\kevin\\AppData\\Local\\Temp\\dle_ki_18579ma6\\corpus\\policy.md",
+    "source_title": "policy.md",
+    "content_hash": "68deb3e9d626f6f9fae61dd3f805b15385ac9a262233a36fcd0c5c1253c1c1f1",
+    "chunk_hash": "02d0f5e89d43b5042ea519d96506430fd30c4258776754f12d9658ea0c975fe1",
+    "locator": {
+      "chunk_index": 0,
+      "chunk_count": 2
+    },
+    "ingestion_id": "f3718698-df94-4a92-9b74-1246c763ce67"
+  }
+}

@@ -53,6 +53,7 @@ Representative canonical versioned namespaces:
 9. `/api/v1/simulations/*`
 10. `/api/v1/{pillars,sectors,domains,knowledge,nodes,edges}`
 11. `/api/v1/trace/*`
+12. `/api/v1/ingestion/*`
 
 Canonical unversioned operational namespaces currently remain supported for internal/admin workflows:
 
@@ -133,11 +134,12 @@ All API responses follow this structure:
 4. [Knowledge Algorithm Routes](#4-knowledge-algorithm-routes-ka)
 5. [Trace Routes](#5-trace-routes-trace)
 6. [Knowledge Graph Routes](#6-knowledge-graph-routes-knowledge)
-7. [Location Routes](#7-location-routes-locations)
-8. [MCP Routes](#8-mcp-routes-mcp)
-9. [Compliance & Regulatory Routes](#9-compliance--regulatory-routes-compliance)
-10. [Simulation Routes](#10-simulation-routes-simulation)
-11. [Admin & System Routes](#11-admin--system-routes-system)
+7. [Knowledge Ingestion Routes](#7-knowledge-ingestion-routes-ingestion)
+8. [Location Routes](#8-location-routes-locations)
+9. [MCP Routes](#9-mcp-routes-mcp)
+10. [Compliance & Regulatory Routes](#10-compliance--regulatory-routes-compliance)
+11. [Simulation Routes](#11-simulation-routes-simulation)
+12. [Admin & System Routes](#12-admin--system-routes-system)
 
 ---
 
@@ -206,7 +208,19 @@ Unified interface for Large Language Models with UKG context injection. Prefix: 
       "trace_enabled": true
     }
     ```
-  - **Response**: Returns assistant message plus `ukg_trace` section containing `trace_id`.
+  - **Response**: Returns assistant message content, `run_id`, and `audit_trail` links when tracing is enabled.
+    ```json
+    {
+      "response": "...",
+      "model": "gpt-5.5",
+      "run_id": "00000000-0000-0000-0000-000000000000",
+      "audit_trail": {
+        "decision_path": "/api/v1/trace/runs/00000000-0000-0000-0000-000000000000",
+        "complete_trace_url": "/api/v1/trace/runs/00000000-0000-0000-0000-000000000000/bundle",
+        "download_url": "/api/v1/trace/runs/00000000-0000-0000-0000-000000000000/export"
+      }
+    }
+    ```
 
 ### Streaming Chat
 
@@ -286,10 +300,28 @@ Comprehensive execution traceability. Prefix: `/api/v1/trace`.
 - **GET** `/runs/<run_id>`
   - Comprehensive details for a specific run, including scores and timing.
 
+### Get Complete Trace Bundle
+
+- **GET** `/runs/<run_id>/bundle`
+  - Aggregate local trace viewer payload containing `run`, `frost_layers`, `evidence_sources`, `claims`, `persona_positions`, `ka_invocations`, coordinate axes, policy decisions, memory events, and summary `metrics`.
+
 ### Get Stages
 
 - **GET** `/runs/<run_id>/stages`
   - Step-by-step breakdown of the execution flow.
+
+### Get Trace Subresources
+
+- **GET** `/runs/<run_id>/evidence`
+  - Evidence source serializers with viewer aliases such as `source_id`, `title`, `evidence_tier`, `claims_supported`, `layer_retrieved`, and `ka_that_invoked`.
+- **GET** `/runs/<run_id>/personas`
+  - Persona position serializers with `initial_position`, `critique_of_others`, `final_position`, `synthesis_weight`, and `flagged_conflicts`.
+- **GET** `/runs/<run_id>/kas`
+  - Knowledge Algorithm invocation records for the run.
+- **GET** `/runs/<run_id>/metrics`
+  - Duration, token, retrieval, confidence, entropy, and stage-count metrics.
+- **POST** `/runs/<run_id>/export`
+  - Downloadable JSON trace export for local evidence retention.
 
 ---
 
@@ -320,7 +352,30 @@ Manage Sectors, Domains, and Knowledge Nodes. Canonical routes live under `/api/
 
 ---
 
-## 7. Location Routes (`/locations`)
+## 7. Knowledge Ingestion Routes (`/ingestion`)
+
+Local-first corpus ingestion. Prefix: `/api/v1/ingestion`.
+
+### Local File Or Folder Ingestion
+
+- **POST** `/local`
+  - Ingest supported local text files into chunk-level SQL `KnowledgeGraphNode` rows and Chroma `knowledge_nodes`.
+  - **Body**:
+    ```json
+    {
+      "path": "C:\\path\\to\\corpus",
+      "recursive": true,
+      "chunk_size": 1200,
+      "source_label": "Optional corpus label",
+      "metadata": {"domain": "policy"}
+    }
+    ```
+  - **Response**: ingestion id, scanned/ingested/rejected file counts, created/indexed chunk counts, rejected-file reasons, chunk source hashes, and manifest path.
+  - **Security**: outside desktop mode, paths must stay under `DATALOGIC_INGESTION_ROOT` or the process working directory.
+
+---
+
+## 8. Location Routes (`/locations`)
 
 Manage geospatial context and hierarchy. Current supported prefix: `/api/locations*`.
 
@@ -351,7 +406,7 @@ Manage geospatial context and hierarchy. Current supported prefix: `/api/locatio
 
 ---
 
-## 8. MCP Routes (`/mcp`)
+## 9. MCP Routes (`/mcp`)
 
 Model Context Protocol management. Primary prefix: `/api/v1/mcp`; legacy alias: `/api/mcp` with deprecation headers.
 
@@ -362,7 +417,7 @@ Model Context Protocol management. Primary prefix: `/api/v1/mcp`; legacy alias: 
 
 ---
 
-## 9. Compliance & Regulatory Routes (`/compliance`)
+## 10. Compliance & Regulatory Routes (`/compliance`)
 
 Enterprise compliance and auditing. Primary prefix: `/api/v1/compliance`; legacy alias: `/api/compliance` with deprecation headers.
 
@@ -373,7 +428,7 @@ Enterprise compliance and auditing. Primary prefix: `/api/v1/compliance`; legacy
 
 ---
 
-## 10. Simulation Routes (`/simulations`)
+## 11. Simulation Routes (`/simulations`)
 
 Scenario simulation and reasoning control. Primary prefix: `/api/v1/simulations`; legacy alias: `/api/simulations` with deprecation headers.
 
@@ -384,7 +439,7 @@ Scenario simulation and reasoning control. Primary prefix: `/api/v1/simulations`
 
 ---
 
-## 11. Admin & System Routes
+## 12. Admin & System Routes
 
 Operational/admin namespaces that intentionally remain unversioned in the current contract:
 

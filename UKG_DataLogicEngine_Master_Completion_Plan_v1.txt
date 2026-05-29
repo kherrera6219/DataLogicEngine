@@ -2,7 +2,7 @@
 UKG / DataLogicEngine
 Master Phased Completion Plan
 Consolidated  ·  v1.0  ·  All Gaps  ·  All Requests  ·  All DB Sprints
-10 Phases  ·  6 DB Sprints  ·  ~52 Weeks  ·  Code-Validated May 23, 2026  ·  Remaining Phases Revalidated May 28, 2026  |  Lucentry
+10 Phases  ·  6 DB Sprints  ·  ~52 Weeks  ·  Code-Validated May 23, 2026  ·  Plan Status Revalidated Against Code May 29, 2026  |  Lucentry
 
 
 
@@ -18,6 +18,10 @@ This section is the authoritative baseline. Everything below was confirmed by re
 
 
 1.1  Platform & Infrastructure (no changes needed)
+
+Validation update May 29, 2026: this table has been reconciled against the live repository after Phases D, E, F, G, H, and KI were implemented. "DONE" means the planned local-first desktop/Windows-VM code path exists and has focused test or script evidence. "PARTLY DONE" means the local-first slice exists but release packaging, optional VM/Rust acceleration, broad corpus ingestion, or public-release evidence remains. "NOT DONE" means the plan item is still absent from code.
+
+
 Component
 	Status
 	Finding
@@ -43,8 +47,8 @@ Component
 	Circuit breaker, provider failover, F-CONF-01 confidence formula, audit footer, TruthAuditEvent hash chain on Tier 2+.
 	backend/llm_gateway/gateway.py
 	LocalSLMProvider (Ollama/vLLM)
-	PARTIAL
-	Full implementation in SDK providers. gateway.py can instantiate local_slm/ollama/vllm providers and prioritises DB-configured local providers for trivial/moderate tiers. BUT: it does not auto-create a local fallback provider when external LLM providers fail; offline fallback routing is still required.
+	DONE for local-first desktop / PARTLY DONE for production model ops
+	Gateway auto-registers a localhost Ollama-compatible local_slm fallback in desktop mode, prefers local providers for trivial/moderate tiers, exposes NetworkState, queues failed desktop chat requests for replay, and marks local model responses with LOCAL_MODEL audit metadata. Remaining work is operational: user-installed local model availability, packaged-machine validation, and optional richer local model management.
 	sdk/UKG_Python_SDK/ukg_sdk/providers/local_slm.py + backend/llm_gateway/gateway.py
 	TruthEngine L8 TrustValidationGateway
 	IMPLEMENTED
@@ -56,19 +60,19 @@ Component
 	backend/truth_engine/truth_core/meta_reasoning_controller.py
 	TruthEngine L10 EmergenceDetectionController
 	IMPLEMENTED
-	IMPLEMENTED with gap. Lane A/B and BELIEF_DECAY_FACTOR=0.98 are present. Current L10 KA suite is a single backend/knowledge_algorithms/l10/__init__.py with placeholder functions; ka_registry.yaml points at missing standalone modules without .run callables, so KAMasterController cannot dynamically execute L10-KA-001..007 yet.
+	DONE May 26, 2026 for code/test scope. Lane A/B and BELIEF_DECAY_FACTOR=0.98 remain present; L10-KA-001..007 now exist as standalone importable .run modules, ka_registry.yaml points at executable callables, KAMasterController can execute them, and focused L10/KA-depth tests validate the path. Remaining work is production packaging smoke evidence only.
 	backend/truth_engine/truth_core/emergence_controller.py
 	12-step RefinementOrchestrator
 	IMPLEMENTED
-	All 12 steps named. KAs assigned. confidence gate 0.995. BUT: Steps 6+11 (PII_Redaction, Ethics_Validation) still rely on unresolved/placeholder L10 KA execution paths.
+	DONE for code/test scope. All 12 steps are named with KA assignments and confidence gate 0.995; Steps 6 and 11 now have executable L10 PII redaction and ethics-validation modules instead of unresolved placeholders.
 	backend/truth_engine/truth_core/refinement_orchestrator.py
 	FROST Service (snapshot/branch/merge)
 	IMPLEMENTED
-	FROSTService: immutable snapshots with HMAC integrity, branch/merge. In-memory only. Serialisation to disk not wired.
+	DONE for local-first persistence scope. FROSTService still keeps an in-memory hot cache, and DB-O routes snapshots to the app-owned object store simulation_artifacts bucket for durable local artifacts; DMRF also creates per-step FROST snapshots.
 	core/system/frost_service.py
 	PersonaConstructionService
 	IMPLEMENTED
-	Phase C wired construct_persona(axis_num, coordinate_path) into TruthCoreEngine L5 for axes 8-11. It still seeds from static profiles; Phase D replaces static seeding with DSQP dynamic construction.
+	DONE. Phase C wired construct_persona(axis_num, coordinate_path) into TruthCoreEngine L5 for axes 8-11; Phase D added DSQPChain/DSQPOrchestrator/DSQPValidator and PersonaConstructionService now uses DSQP-first dynamic construction with static fallback.
 	core/system/persona_construction_service.py
 	quad_persona/ math layer
 	IMPLEMENTED
@@ -76,7 +80,7 @@ Component
 	quad_persona/mathematical_framework.py
 	RAGService (LlamaIndex + 3-layer embedding)
 	IMPLEMENTED
-	Phase DB-C aligned the active collections: knowledge_nodes, persona_profiles, citation_cache, and audit_evidence. TruthCore L3/L8/L9/L10 and startup indexing are wired. Remaining usefulness depends on Knowledge Ingestion Pipeline (KI) populating the corpus at scale.
+	DONE for local-first retrieval and citation scope. DB-C aligned knowledge_nodes, persona_profiles, citation_cache, and audit_evidence; TruthCore L3/L8/L9/L10 and startup indexing are wired; KI now adds local text-corpus ingestion and trace-friendly citation metadata. Remaining usefulness depends on loading real domain corpora and adding richer PDF/DOCX/binary extraction.
 	backend/services/rag_service.py
 	NetworkX
 	IMPLEMENTED for DB-N local target
@@ -84,7 +88,7 @@ Component
 	backend/storage/uskd_memory_graph.py + backend/truth_engine/truth_core/engine.py
 	Neo4j graph store
 	IMPLEMENTED for DB-N local target
-	GraphStore cached traversal, coordinate lookup, merge helpers, schema constraints, local Docker configuration, and seeding are implemented. Clean desktop startup still needs Phase H JRE bundling.
+	GraphStore cached traversal, coordinate lookup, merge helpers, schema constraints, local Docker configuration, and seeding are implemented. Phase H added app-owned JRE setup and desktop packaging resources so clean desktop startup no longer depends on system Java when databases/jre is installed/bundled.
 	backend/storage/graph_store.py
 	Redis (TruthCache)
 	IMPLEMENTED for DB-R local target
@@ -92,48 +96,48 @@ Component
 	backend/truth_engine/truth_memory/cache.py
 	ChromaDB (4 collections)
 	IMPLEMENTED for DB-C local target
-	Collections are initialized and used by RAG paths. Startup can background-index empty desktop knowledge_nodes from SQL. Remaining gap: KI document ingestion must populate SQL, Neo4j, and Chroma from raw domain corpora.
+	Collections are initialized and used by RAG paths. Startup can background-index empty desktop knowledge_nodes from SQL. KI now populates SQL KnowledgeGraphNode chunks and Chroma knowledge_nodes from local text-like corpora; Neo4j parity remains dependent on SQL->Neo4j sync and richer corpus ingestion runs.
 	backend/storage/vector_store.py
 	Object store (5 buckets)
-	PARTIAL
-	LocalFileBackend implemented. 5 buckets created. BUT: TruthMemoryCommitService never writes to it — audit bundles go to SQLite TEXT columns only.
+	DONE for local-first audit artifact scope
+	LocalFileBackend and 5 buckets exist. DB-O wires TruthMemoryCommitService to write Tier 2+ audit bundles to audit_logs, FROST snapshots to simulation_artifacts, and DSQP construction outputs to deliverables. Remaining work is external/object-store provider hardening only if a non-local backend is introduced.
 	backend/storage/object_store.py
 	StructuredMemoryGraph
-	PARTIAL
-	Complete implementation: MemoryVertex/Edge, SR(q,c,t) recall with temporal decay, MC(M,I,t) consolidation. Used by quad_persona internals, but not wired as the TruthCore-wide persistent cross-session memory layer and not persisted to databases/memory/.
-	quad_persona/mathematical_framework.py
+	DONE for DB-M local-first scope / PARTLY DONE for productized memory UI
+	Structured memory is wired through the unified memory service with local persistence metrics and Lane B commit metadata. Remaining work is productized browsing/administration UX and broader long-running corpus validation, not core persistence wiring.
+	core/memory/structured_memory_manager.py + backend/truth_engine/truth_core/emergence_controller.py
 	BlockchainAdapter
-	NOT WIRED
-	MerkleTree + Web3 in blockchain_adapter.py. Simulated fallback without private key. commit_service never calls it.
+	DONE for local simulated anchoring / PARTLY DONE for real chain anchoring
+	DB-O connects TruthMemoryCommitService to BlockchainAdapter for Tier 3+ Merkle anchoring. Local-first mode records simulated anchors when no blockchain RPC/private key is configured. Real external chain anchoring remains optional production configuration.
 	backend/truth_engine/truth_link/blockchain_adapter.py
 	Axis 14-17 naming (3-way conflict)
 	IMPLEMENTED
 	Phase B aligned coordinate_system.py, AxisSystem managers, SDK resolver, TraceRun fields, and tests to the canonical Axis 14-17 definitions.
 	core/coordinate_system.py + core/axes/
 	DSQP dynamic persona construction
-	MISSING
-	PersonaConstructionService._seed_components() uses static profile dicts. Dynamic 7-step self-questioning chain never built.
-	backend/dsqp/ (directory does not exist)
+	DONE
+	backend/dsqp exists with DSQPChain, DSQPRegistry, DSQPOrchestrator, DSQPValidator, bundled templates, SDK DSQPClient support, PersonaConstructionService DSQP-first construction, IPC/UI surfacing, benchmark evidence, and provider-backed audit evidence.
+	backend/dsqp/ + core/system/persona_construction_service.py
 	DMRF middleware engine
-	MISSING
-	Not a single file, class, or import exists. Absent from requirements.txt. No directory.
-	backend/dmrf/ (does not exist)
+	DONE for Python desktop/VM-compatible control plane / PARTLY DONE for optional Rust VM acceleration
+	backend/dmrf exists with orchestrator/result models, 17-axis router, tier classifier, convergence/evidence policy, injection defense, TruthGate/TruthCore/TruthMemory/TruthLink adapters, Redis Streams-compatible bus use, FROST snapshots, DSQP persona construction, MLflow/local JSONL tracking, Prometheus metrics, desktop config, gateway integration, API/IPC status, and validation evidence. Optional Rust F2 acceleration is not built.
+	backend/dmrf/
 	L10 KA suite (7 files)
-	PARTIAL / REGISTRY BROKEN
-	backend/knowledge_algorithms/l10/ contains only __init__.py with 7 placeholder functions. Standalone files listed in Phase E do not exist, and ka_registry.yaml points at non-module paths without .run suffixes. Phase E must first repair registry/import shape, then deepen logic.
+	DONE for code/test scope
+	backend/knowledge_algorithms/l10/ contains standalone L10-KA-001..007 modules with .run callables. ka_registry.yaml points at executable imports, and focused tests validate registry execution plus KA-116/014/023/002/022 depth work. Remaining work is production packaging smoke evidence only.
 	backend/knowledge_algorithms/l10/
 	SDK version
-	PARTIAL
-	Validated May 24, 2026: duplicate __version__ assignment fixed to a single 0.4.0 assignment. Remaining SDK work: CoordinateResolver17 not yet wired to live backend and SDK v0.5.0 release tasks remain in Phase G-A.
+	DONE for Phase G-A scope
+	SDK version is 0.5.0 with a single __version__ assignment; CoordinateResolver17 supports bundled offline taxonomy data and DSQPClient constructs offline without backend imports. Remaining SDK work belongs to future public packaging/release workflows, not this plan's implementation phases.
 	sdk/UKG_Python_SDK/ukg_sdk/__init__.py
 	Java/JRE for Neo4j desktop
-	MISSING
-	DatabaseLifecycleManager._find_java_home() searches common paths but does NOT bundle a JRE. Neo4j 5 requires Java 17. Clean Windows installs will fail.
+	DONE for local-first desktop setup
+	scripts/setup_local_databases.py supports --jre and --neo4j JRE setup, DatabaseLifecycleManager prioritizes databases/jre before system Java, and Electron packaging resources include databases/jre. Remaining release evidence is a packaged clean-machine smoke pass.
 	backend/storage/database_manager.py
 	Knowledge corpus ingestion pipeline
-	MISSING
-	No script converts raw domain documents into ukg_nodes → ChromaDB → Neo4j. The system has no way to grow its knowledge base without manual SQL inserts.
-	scripts/ (no ingest_*.py exists)
+	DONE for local-first text-like corpus ingestion / PARTLY DONE for full binary corpus ingestion
+	backend/ingestion/local_ingestion.py, scripts/ingest_local_corpus.py, and POST /api/v1/ingestion/local ingest local .txt/.md/.csv/.json/.yaml/.log files into chunk-level SQL KnowledgeGraphNode rows, dedupe by hash, scrub common prompt-injection markers, write manifests, and index through RAGService into Chroma knowledge_nodes with citation metadata. Rich PDF/DOCX/binary extractors, UI job management, and prebuilt standard corpus loaders remain future enhancements.
+	backend/ingestion/local_ingestion.py + scripts/ingest_local_corpus.py + backend/routes/ingestion_routes.py
 	TODO.md item #8 (strict precheck)
 	IMPLEMENTED
 	Validated May 24, 2026: python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process exits 0 with 0 blockers and 0 action items. Warnings remain: not running inside virtual environment; templates/ directory missing.
@@ -240,9 +244,34 @@ Item
 	Raw docs → ukg_nodes → ChromaDB → Neo4j
 	2–3
 	System can grow knowledge
+	TV
+	Trace Viewer Wiring
+	Chat response → trace bundle → inline UI → live stream
+	1–3
+	End-to-end trace visibility
 	
 
 Critical path: A → B → C → D. DB sprints start immediately and run in parallel. Phase H and IP run alongside the main phases (H alongside C/D; IP before Phase D starts). Total: ~33 weeks conservative, ~22 weeks focused (skip F Rust + G-B).
+
+Code-validated phase status rollup May 29, 2026:
+
+* A / Phase 1 — DONE for local-first desktop. PARTLY DONE for public release because NVDA manual validation, production code signing, signed-artifact evidence, and release governance remain external/manual gates.
+* DB-N — DONE for local graph infrastructure. PARTLY DONE for corpus parity until real ingested corpora are synced through SQL→Neo4j at scale.
+* B — DONE. Axis 14-17 canonical naming, managers, SDK resolver, TraceRun fields, and tests are aligned.
+* DB-C — DONE for local RAG wiring. PARTLY DONE for value at scale until real domain corpora are loaded.
+* DB-R — DONE. Redis-backed TruthCache, graph cache, embedding cache, and health/IPC visibility are implemented with fallback.
+* C — DONE. Quad persona math, LocalSLM fallback, dynamic weights, and desktop IPC are wired.
+* DB-P — DONE. SQL-backed L8 calibration, TruthSession input embeddings, L9 similarity, and KA timing are implemented.
+* IP/D — DONE for local code/test/evidence scope. Public patent filing/defensive publication is outside code completion.
+* E — DONE for code/test scope. Production packaging smoke remains release evidence.
+* DB-O — DONE for local object-store artifacts and simulated Merkle/blockchain anchoring. Real chain anchoring remains optional production configuration.
+* DB-M — DONE for local persistent unified/structured memory. PARTLY DONE for productized memory administration UI and long-running corpus validation.
+* F1 — DONE for Python desktop/VM-compatible DMRF control plane. F2 Rust acceleration is OPTIONAL / NOT DONE by design unless profiling proves it is needed.
+* G-A — DONE for desktop-compatible enterprise integrations.
+* G-B — DONE for optional Windows VM enhancements within the local-first dependency boundary.
+* H — DONE for local-first desktop experience. Packaged clean-machine stopwatch/JRE verification remains release evidence.
+* KI — DONE for local-first text-like corpus ingestion and citation evidence. PARTLY DONE for rich PDF/DOCX/binary extraction, standard corpus loaders, and Settings UI job controls.
+* TV — DONE local phased update from `UKG_TraceViewer_Wiring_Plan_v3_1.docx`. Gateway chat responses now expose structured audit_trail links, `/api/v1/trace/runs/<run_id>/bundle` serves the aggregate trace bundle, chat messages render a lazy inline trace panel, `/runs/view` consumes the same bundle, trace-specific Socket.IO room/events are implemented, and evidence/persona/stage serializers expose the viewer contract.
 ________________
 
 
@@ -567,7 +596,7 @@ PHASE C
 	Weeks 3–6
 	
 
-The quad_persona/ directory contains 835+752 lines of fully written code that is still not used as the main gateway/TruthCore math path. Phase C connects existing code — it does not build new systems. The LocalSLMProvider in the SDK is implemented and gateway.py can instantiate DB-configured local_slm/ollama/vllm providers, but automatic desktop offline fallback still needs to be built.
+Phase C is complete for the local-first integration bridge. The quad_persona/ math layer is now used by gateway/TruthCore paths, and the LocalSLMProvider is wired as a desktop fallback path with explicit offline guard metadata. Remaining LocalSLM work is operational validation against installed local models, not missing integration code.
 
 
 Key discovery: PersonaConstructionService already has 7-part structure
@@ -764,7 +793,7 @@ PHASE E
 	Weeks 8–13
 	
 
-Two parallel workstreams: (1) replace the current single-file placeholder L10 KA suite with standalone executable modules — critical for L10 EmergenceDetectionController, 12-step Steps 6+11, and DB-C task C-7 (Lane B indexing), and (2) deepen the highest-frequency stub KAs. Current validation on May 26, 2026 found backend/knowledge_algorithms/l10/__init__.py contains placeholder functions, while ka_registry.yaml points at missing module paths without .run callables. All new files must py_compile and survive PyInstaller packaging.
+Two parallel workstreams were completed: (1) replace the former single-file placeholder L10 KA suite with standalone executable modules, and (2) deepen the highest-frequency stub KAs. Current validation on May 29, 2026 confirms backend/knowledge_algorithms/l10/ contains importable L10-KA-001..007 modules, ka_registry.yaml points at .run callables, and focused tests cover EmergenceDetectionController, 12-step Steps 6+11, and DB-C Lane B dependencies. Remaining evidence is production packaging smoke, not unresolved implementation.
 
 Implementation update May 26, 2026: E-0 through E-14 are complete for the code/test scope. backend/knowledge_algorithms/l10/ now has importable .run modules for L10-KA-001..007, ka_registry.yaml points at those callables, KAMasterController.execute_algorithm("L10-KA-001", {...}) succeeds, KA-116 delegates entropy scoring to L10-KA-001, KA-014 performs domain-aware confidence calibration, KA-023 uses domain lambdas, KA-002 returns deterministic three-branch decomposition, KA-022 returns the six-dimensional Axis 15 risk schema, backend.spec collects L10 submodules, and tests/truth_engine/test_layer10_ka_suite.py plus tests/knowledge_algorithms/test_phase_e_depth.py validate the behavior. Remaining Phase E work is production packaging smoke under release evidence, not unresolved KA implementation.
 
@@ -1292,7 +1321,16 @@ KI
 	Weeks 5–7 (parallel with B/C)
 	
 
-The system currently has no way to grow its knowledge base from raw documents. This pipeline is how domain content (FAR regulations, healthcare compliance docs, cybersecurity frameworks, case law) enters the system. The RAGService.ingest_knowledge_node() method exists but there is no orchestration pipeline calling it.
+KI is the local-first path for growing the knowledge base from app-owned documents. It is how domain content such as FAR regulations, healthcare compliance docs, cybersecurity frameworks, and case law enters the system. The completed local-first slice covers text-like files and evidence-grade citation metadata; richer PDF/DOCX/binary extraction and UI job controls are future enhancements.
+
+Implementation update May 29, 2026: KI local-first text-corpus scope is complete. `RAGService` now normalizes retrieval hits into citation objects with source path/title, content hash, chunk hash, chunk locator, and ingestion id; `get_context_for_query(include_sources=True)` renders source/chunk labels; TruthCore deep-research output includes citation metadata beside RAG evidence; and `scripts/verify_ki_ingestion.py` generates `reports/ki_ingestion_evidence.json` proving sample corpus ingest, SQL node creation, indexing handoff, and query citation metadata. Rich PDF/DOCX/binary extraction and UI job management remain future enhancements.
+
+Recommended KI execution order:
+
+1. KI-1 — COMPLETED: create `backend/ingestion/` with file discovery, text extraction for text-like files, chunking, content hashing, metadata normalization, duplicate detection, prompt-injection scrubbing, and app-owned manifest paths.
+2. KI-2 — COMPLETED: add a local folder/file ingestion CLI and authenticated desktop API route that create SQL knowledge nodes and then index them through the existing DB-C Chroma path.
+3. KI-3 — COMPLETED: surface ingestion manifests/source hashes/chunk locators as RAG citation metadata and TruthCore deep-research citations.
+4. KI-4 — COMPLETED: run disposable sample corpus evidence through ingest -> SQL nodes -> indexing handoff -> query citation, recorded in `reports/ki_ingestion_evidence.json`.
 
 
 ID
@@ -1301,30 +1339,85 @@ ID
 	Exit Gate
 	Target
 	KI-1
-	Build DocumentIngestionPipeline: raw text → chunk → embed → ChromaDB knowledge_nodes + SQLite ukg_nodes + Neo4j KnowledgeNode
-	backend/ingestion/document_pipeline.py (new)
-	Pipeline ingests a 100-page PDF; ukg_nodes + Neo4j + ChromaDB all have matching records after run
+	DONE May 29, 2026 — Build local text-corpus ingestion service: discover files → extract text → scrub prompt-injection markers → chunk → hash/dedupe → SQL KnowledgeGraphNode rows → Chroma knowledge_nodes
+	backend/ingestion/local_ingestion.py
+	Validated: scripts/verify_ki_ingestion.py proves sample corpus ingest, SQL node creation, indexing handoff, and citation metadata; Neo4j parity uses existing SQL→Neo4j sync path when enabled.
 	DESKTOP+VM
 	KI-2
-	Build ingestion CLI: python scripts/ingest_document.py --file <path> --domain <domain> --pillar <PL-XXX>
-	scripts/ingest_document.py (new)
-	Single command ingests a document into all 3 stores; progress shown; idempotent on re-run
+	DONE May 29, 2026 — Build local folder/file ingestion CLI and authenticated desktop API route
+	scripts/ingest_local_corpus.py + backend/routes/ingestion_routes.py
+	Validated: CLI ingests local files/folders into SQL and Chroma; POST /api/v1/ingestion/local requires session/desktop auth and constrains paths outside desktop mode.
 	DESKTOP+VM
 	KI-3
-	Build batch ingestion for standard corpus: FAR/DFARS, NIST CSF, HIPAA, SOX, ISO 27001
-	scripts/ingest_standard_corpus.py (new)
-	Standard corpus (regulatory frameworks) loaded from data/corpus/; 1000+ ukg_nodes after run
+	DONE May 29, 2026 for trace citation metadata / PARTLY DONE for prebuilt standard corpus loaders
+	backend/services/rag_service.py + backend/truth_engine/truth_core/engine.py
+	Validated: RAG search results include source path/title, content hash, chunk hash, locator, and ingestion id; get_context_for_query(include_sources=True) renders source labels; TruthCore deep-research output includes citations. Prepackaged FAR/DFARS/NIST/HIPAA/SOX/ISO corpus loader remains future enhancement.
 	DESKTOP+VM
 	KI-4
-	Add Settings → Knowledge page: browse knowledge nodes, trigger re-index, ingest new document
-	frontend/app/settings/knowledge/ (new)
-	User can upload a PDF or paste text; pipeline runs in background; ChromaDB count updates
+	DONE May 29, 2026 for disposable sample corpus evidence / PARTLY DONE for Settings UI job controls
+	scripts/verify_ki_ingestion.py + reports/ki_ingestion_evidence.json
+	Validated: evidence report records discovered files, chunks, SQL node count, indexing handoff count, and citation payload. Settings → Knowledge page, upload/paste UI, and background job management remain future enhancements.
 	DESKTOP
 	KI-5
-	Add ingestion pipeline to electron-builder extraResources so script is bundled with installer
-	frontend/electron-builder.yml + backend.spec
-	Scripts accessible from installed .exe; IPC trigger for background indexing confirmed
+	DONE for PyInstaller backend module inclusion / PARTLY DONE for Electron UI resource workflow
+	backend.spec
+	Validated: backend.spec collects backend.ingestion for DataLogic_Backend.exe. Dedicated Electron Settings UI/IPC trigger and packaged script workflow remain future enhancements.
 	DESKTOP
+	________________
+
+
+TV
+	Trace Viewer Wiring  —  Chat Response to Full Reasoning Trace UI
+	Local phased update from UKG_TraceViewer_Wiring_Plan_v3_1.docx
+
+
+Implementation validation May 29, 2026: this plan was read from `UKG_TraceViewer_Wiring_Plan_v3_1.docx`, validated against live code, and completed locally. The implementation keeps `/api/v1/trace/runs/*` as the canonical trace route family, adds a structured gateway `audit_trail`, serves an aggregate trace bundle, wires inline assistant-message trace panels, aligns `/runs/view` to the bundle contract, validates evidence/persona/stage serializer aliases, and adds trace-specific WebSocket rooms/events. Local evidence is recorded in `reports/trace_viewer_wiring_evidence.json`.
+
+ID
+	Task
+	Primary File(s)
+	Exit Gate
+	Target
+	TV-0
+	DONE — Contract verification: capture local gateway and trace route payload shapes; document exact live shapes and DOCX mismatches
+	backend/llm_gateway/api.py + backend/tracing/api.py + reports/
+	`scripts/verify_trace_viewer_wiring.py` writes `reports/trace_viewer_wiring_evidence.json` with structured audit_trail links and aggregate bundle keys for run, stages, evidence, personas, KAs, axes, policy, memory, and metrics.
+	DESKTOP+VM
+	TV-1
+	DONE — Backend response and bundle contract: add `audit_trail` to `/api/v1/gateway/chat`; add aggregate trace bundle using current `/api/v1/trace/runs/*` canonical routes
+	backend/llm_gateway/api.py + backend/tracing/api.py
+	Gateway chat includes `audit_trail.decision_path`, `complete_trace_url`, and `download_url`; `/api/v1/trace/runs/<run_id>/bundle` returns the aggregate bundle; trace UUID route parsing is fixed and backend contract tests pass.
+	DESKTOP+VM
+	TV-2
+	DONE — Frontend trace types and API client: expand typed client for bundle, stages, evidence, personas, KAs, axes, metrics, and export
+	frontend/lib/api/trace.ts + frontend/lib/api/types.ts
+	TraceBundle, AuditTrail, TraceEvidenceSource, TraceKAInvocation, TracePersona, TraceAxisVector, and TraceStage typings are wired through the API client; focused frontend API tests pass.
+	DESKTOP
+	TV-3
+	DONE — Inline chat trace panel: thread runId/auditTrail through ChatInterface and MessageBubble; lazy-load full trace panel on expand
+	frontend/components/Chat/ChatInterface.tsx + MessageBubble.tsx + trace components
+	`ChatInterface` threads assistant auditTrail/runId, `MessageBubble` renders `ChatTracePanel`, and the panel lazy-loads bundle data, shows summary/stages/personas/evidence counts, streams run updates, opens details, and exports traces.
+	DESKTOP
+	TV-4
+	DONE — Runs explorer completion: align /runs list/detail pages with the same trace bundle and add missing detail panels
+	frontend/app/runs/
+	`/runs/view` consumes the aggregate bundle and renders stages, evidence, personas, KA feed, policy/memory counts, coordinates, metrics, and trace export; frontend typecheck passes.
+	DESKTOP
+	TV-5
+	DONE — Evidence and persona depth: validate/add serializer fields for evidence tier, source provenance, KA invoked, claims supported, persona positions, debate log, synthesis weights, and conflicts
+	models.py + backend/tracing/api.py
+	TraceEvidence, TracePersona, TraceStage, and TraceKAInvocation serializers expose the viewer aliases required by the frontend panels; backend contract tests validate evidence tier, claim support, persona synthesis/conflict, and KA fields.
+	DESKTOP+VM
+	TV-6
+	DONE — Real-time trace streaming: add trace-specific join/leave and emit `trace_stage_update` after TraceStage create/update; add frontend live hook/badge
+	backend/websocket.py + backend tracing write paths + frontend hooks/components
+	Trace-specific `join_run_room`/`leave_run_room` handlers, `emit_trace_stage_update`, gateway stage emissions, frontend `useTraceStream`, and socket tests are implemented.
+	DESKTOP
+	TV-7
+	DONE — Validation and documentation: add trace viewer contract/component tests, evidence report, and docs updates
+	tests/ + frontend tests + TODO.md + docs/API.md
+	Focused pytest, Vitest, frontend typecheck, ruff, docs reference validation, and `scripts/verify_trace_viewer_wiring.py` pass. Browser smoke reached the local Next app, but authenticated trace page rendering requires backend/auth on `127.0.0.1:5000`.
+	DESKTOP+VM
 	________________
 
 
@@ -1606,9 +1699,9 @@ Phase
 	EXE starts < 5s; JRE bundles Neo4j; offline mode confirmed; IPC channels respond
 	N/A (H is desktop-only)
 	KI
-	python scripts/ingest_document.py --file test_doc.pdf --domain healthcare
-	ukg_nodes + Neo4j + ChromaDB all have records after ingest
-	Same; idempotent on re-run
+	python scripts/verify_ki_ingestion.py
+	Sample corpus creates SQL KnowledgeGraphNode chunks, indexes through Chroma handoff, and returns citation metadata
+	Same local-first service path; SQL->Neo4j sync remains a separate DB-N parity step when enabled
 	G
 	pytest tests/ --cov=backend --cov-fail-under=70
 	Coverage gate holds; IS_DESKTOP_APP tests pass
@@ -1616,10 +1709,10 @@ Phase
 	________________
 
 
-8.  New Files to Create — Complete Inventory
+8.  File Inventory — Created, Optional, and Future Items
 
 
-These files do not exist and must be created. Files requiring edits to existing code are not listed here — they appear in each phase's task table above.
+Validation update May 29, 2026: this inventory has been reconciled against the live repository. Most entries now exist. Entries marked OPTIONAL are intentionally not built unless the optional VM/Rust path is activated. Entries marked FUTURE are enhancements beyond the current local-first scope.
 
 
 Phase
@@ -1647,8 +1740,8 @@ Phase
 	tests/unit/test_axis_alignment.py
 	17-axis consistency test suite
 	C
-	tests/integration/test_quad_gateway.py
-	End-to-end quad pipeline integration test
+	tests/unit/test_phase5_phase_c.py
+	COMPLETED — Quad gateway/local-SLM integration test coverage
 	D (IP first)
 	docs/ip/dsqp_technical_disclosure.md
 	Patent/IP technical disclosure — write before any D code
@@ -1729,7 +1822,7 @@ Phase
 	dmrf.* Prometheus metrics
 	F
 	backend/dmrf/multi_tenancy.py
-	Per-tenant tier overrides
+	FUTURE / NOT DONE — Per-tenant tier overrides are not part of the current local-first desktop scope
 	F
 	backend/dmrf/truth_integration/gate_adapter.py
 	TruthGate DMRF adapter
@@ -1770,17 +1863,23 @@ Phase
 	backend/truth_engine/truth_gate/model_screening.py
 	Llama Guard 3 + Rebuff (Windows VM optional)
 	G-B
-	docs/adr/ADR-XXXX-pq-grpc-transport.md
-	PQ-gRPC ADR (Windows VM research)
+	docs/adr/ADR-0002-pq-grpc-transport.md
+	COMPLETED — PQ-gRPC ADR (Windows VM research/no-go for desktop dependency)
 	KI
-	backend/ingestion/document_pipeline.py
-	Raw docs → chunk → embed → all 3 stores
+	backend/ingestion/local_ingestion.py
+	COMPLETED — Local text-like corpus ingestion: raw files → chunks → SQL KnowledgeGraphNode rows → Chroma handoff with citations
 	KI
-	scripts/ingest_document.py
-	CLI ingestion script
+	scripts/ingest_local_corpus.py
+	COMPLETED — Local folder/file ingestion CLI
 	KI
-	scripts/ingest_standard_corpus.py
-	Batch ingestion for regulatory corpus
+	backend/routes/ingestion_routes.py
+	COMPLETED — Authenticated local ingestion API route
+	KI
+	scripts/verify_ki_ingestion.py + reports/ki_ingestion_evidence.json
+	COMPLETED — Disposable sample-corpus validation evidence
+	KI
+	frontend/app/settings/knowledge/ + rich PDF/DOCX/binary extractors + scripts/ingest_standard_corpus.py
+	FUTURE / PARTLY DONE — UI job controls and standard corpus loaders are enhancements beyond the completed local-first text-corpus slice
 	________________
 
 

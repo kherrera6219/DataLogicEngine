@@ -82,6 +82,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           isEnhanced: true,
           providerUsed: (data as { provider_used?: string }).provider_used,
           modelUsed: (data as { model_used?: string }).model_used,
+          auditTrail: (data as { audit_trail?: ChatMessage['auditTrail'] }).audit_trail,
         };
         setMessages(prev => [...prev, assistantMsg]);
         setIsLoading(false);
@@ -185,6 +186,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           traces: data.trace_summary as TracePipeline | undefined,
           providerUsed: data.provider_used,
           modelUsed: data.model_used,
+          auditTrail: data.audit_trail,
         };
         setMessages(prev => [...prev, assistantMsg]);
         setIsLoading(false);

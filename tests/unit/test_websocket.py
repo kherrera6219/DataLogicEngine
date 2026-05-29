@@ -83,6 +83,20 @@ class TestWebSocketClient:
             assert call_args[0][1]['response'] == 'AI response here'
             assert call_args[0][1]['personas'] == ['Expert1']
 
+    def test_emit_trace_stage_update(self):
+        """Test trace stage updates are emitted to run-scoped rooms."""
+        from backend.websocket import emit_trace_stage_update
+
+        with patch('backend.websocket.socketio') as mock_socketio:
+            emit_trace_stage_update('run-123', {'stage_id': 'stage-1', 'status': 'running'})
+
+            mock_socketio.emit.assert_called_once()
+            call_args = mock_socketio.emit.call_args
+            assert call_args[0][0] == 'trace_stage_update'
+            assert call_args[0][1]['run_id'] == 'run-123'
+            assert call_args[0][1]['stage_id'] == 'stage-1'
+            assert call_args[1]['room'] == 'run_run-123'
+
 
 class TestWebSocketIntegration:
     """Integration tests for WebSocket module."""

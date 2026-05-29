@@ -100,6 +100,17 @@ def _public_gateway_error(raw_error: Optional[str], fallback: str = "Gateway req
     return normalize_public_error_message(raw_error=raw_error, fallback=fallback)
 
 
+def _audit_trail_for_run(run_id: Optional[str]) -> Optional[dict]:
+    """Build the frontend trace contract for a gateway run."""
+    if not run_id:
+        return None
+    return {
+        "decision_path": f"/api/v1/trace/runs/{run_id}",
+        "complete_trace_url": f"/api/v1/trace/runs/{run_id}/bundle",
+        "download_url": f"/api/v1/trace/runs/{run_id}/export",
+    }
+
+
 def _apply_api_key_request_policy(payload: dict):
     """
     Enforce API key policy controls on gateway requests.
@@ -327,6 +338,7 @@ async def gateway_chat():
     return api_response({
         'response': response.content,
         'run_id': response.run_id,
+        'audit_trail': _audit_trail_for_run(response.run_id),
         'provider_used': response.provider_used,
         'model_used': response.model_used,
         'usage': response.usage,

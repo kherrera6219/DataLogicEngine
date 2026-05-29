@@ -1,0 +1,32 @@
+{
+  "success": true,
+  "audit_trail": {
+    "decision_path": "/api/v1/trace/runs/2188f33f-1c8a-4ccb-9ba7-84de4b50d867",
+    "complete_trace_url": "/api/v1/trace/runs/2188f33f-1c8a-4ccb-9ba7-84de4b50d867/bundle",
+    "download_url": "/api/v1/trace/runs/2188f33f-1c8a-4ccb-9ba7-84de4b50d867/export"
+  },
+  "bundle_keys": [
+    "axes",
+    "claims",
+    "coordinate",
+    "evidence",
+    "evidence_sources",
+    "export_url",
+    "frost_layers",
+    "ka_invocations",
+    "kas",
+    "memory_events",
+    "metrics",
+    "persona_positions",
+    "personas",
+    "policy_decisions",
+    "run",
+    "run_id",
+    "stages",
+    "status"
+  ],
+  "stage_count": 1,
+  "evidence_tier": "GOLD",
+  "persona_count": 1,
+  "ka_count": 1
+}

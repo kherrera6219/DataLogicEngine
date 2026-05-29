@@ -20,12 +20,20 @@ export interface ChatResponse {
   response?: string;
   history?: Message[];
   trace_id?: string;
+  run_id?: string;
+  audit_trail?: AuditTrail;
   trace_summary?: unknown;
   error?: string;
   queued?: boolean;
   queue_item?: unknown;
   provider_used?: string;
   model_used?: string;
+}
+
+export interface AuditTrail {
+  decision_path: string;
+  complete_trace_url: string;
+  download_url: string;
 }
 
 export interface TraceRun {
@@ -71,6 +79,63 @@ export interface TraceDetail extends TraceRun {
   metrics?: Record<string, number>;
 }
 
+export interface TraceEvidenceSource {
+  evidence_id: string;
+  run_id: string;
+  source_id?: string | null;
+  source_type?: string | null;
+  title?: string | null;
+  evidence_tier?: 'GOLD' | 'SILVER' | 'BRONZE' | 'UNVERIFIED';
+  credibility_score?: number | null;
+  claims_supported?: string[];
+  layer_retrieved?: string | null;
+  ka_that_invoked?: string | null;
+  source?: Record<string, unknown>;
+  locator?: Record<string, unknown> | null;
+  snippet?: string | null;
+}
+
+export interface TraceKAInvocation {
+  invocation_id: string;
+  run_id: string;
+  stage_id?: string | null;
+  ka_id: string;
+  ka_name?: string | null;
+  status: string;
+  timing?: { duration_ms?: number | null };
+  inputs?: Record<string, unknown> | null;
+  outputs?: Record<string, unknown> | null;
+}
+
+export interface TraceBundle {
+  run_id: string;
+  status: string;
+  run: TraceRun;
+  frost_layers: TraceStage[];
+  stages: TraceStage[];
+  evidence_sources: TraceEvidenceSource[];
+  evidence: TraceEvidenceSource[];
+  claims: Record<string, unknown>[];
+  persona_positions: TracePersona[];
+  personas: TracePersona[];
+  ka_invocations: TraceKAInvocation[];
+  kas: TraceKAInvocation[];
+  coordinate: TraceAxisVector | null;
+  axes: TraceAxisVector | null;
+  policy_decisions: Record<string, unknown>[];
+  memory_events: Record<string, unknown>[];
+  metrics: {
+    total_duration_ms: number;
+    total_tokens_in: number;
+    total_tokens_out: number;
+    total_retrievals: number;
+    stage_count: number;
+    confidence?: number | null;
+    entropy?: number | null;
+  };
+  export_url: string;
+}
+
 export interface PillarLevel {
   uid: string;
   pillar_id: string; // Changed from number to match backend PL01 string
@@ -105,6 +170,11 @@ export interface TracePersona {
     confidence?: number;
   };
   confidence?: number; // Top level confidence
+  initial_position?: string | null;
+  critique_of_others?: string | null;
+  final_position?: string | null;
+  synthesis_weight?: number | null;
+  flagged_conflicts?: string[];
 }
 
 export interface TraceAxisVector {

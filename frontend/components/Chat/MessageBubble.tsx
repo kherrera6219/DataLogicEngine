@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Shield, User, Bot } from 'lucide-react';
 import { ChatMessage } from './types';
+import { ChatTracePanel } from './ChatTracePanel';
 
 interface Props {
   message: ChatMessage;
@@ -116,6 +117,9 @@ export function MessageBubble({ message, isThinking }: Props) {
                     Learn about AI limitations
                   </Link>
                 </p>
+                {(message.runId || message.auditTrail) && (
+                  <ChatTracePanel runId={message.runId} auditTrail={message.auditTrail} />
+                )}
               </div>
           )}
         </div>

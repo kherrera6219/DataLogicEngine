@@ -66,6 +66,15 @@ describe('Socket Logic', () => {
       expect(mockSocket.emit).toHaveBeenCalledWith('leave', { room: 'test-room' });
     });
 
+    it('should emit trace room join and leave events', () => {
+      (socketClient as any).socket = mockSocket;
+      socketClient.joinRunRoom('run-1');
+      socketClient.leaveRunRoom('run-1');
+
+      expect(mockSocket.emit).toHaveBeenNthCalledWith(1, 'join_run_room', { run_id: 'run-1' });
+      expect(mockSocket.emit).toHaveBeenNthCalledWith(2, 'leave_run_room', { run_id: 'run-1' });
+    });
+
     it('should emit chat_message event when sendChatMessage is called', () => {
       (socketClient as any).socket = mockSocket;
       socketClient.sendChatMessage('session-1', 'Hello');
@@ -96,6 +105,11 @@ describe('Socket Logic', () => {
       const responseData = { session_id: '1', response: 'hi' };
       chatResponseListener(responseData);
       expect(handlers.onChatResponse).toHaveBeenCalledWith(responseData);
+
+      const traceUpdateCall = mockSocket.on.mock.calls.find(
+        (call: any) => call[0] === 'trace_stage_update'
+      );
+      expect(traceUpdateCall).toBeDefined();
       
       // Test disconnect listener
       const disconnectCall = mockSocket.on.mock.calls.find(

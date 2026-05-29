@@ -739,6 +739,11 @@ class TruthCoreEngine:
                     'status': 'completed',
                     'output': {
                         'evidence': evidence,
+                        'citations': [
+                            item.get('citation')
+                            for item in evidence
+                            if isinstance(item, dict) and item.get('citation')
+                        ],
                         'source_node_ids': [
                             item.get('metadata', {}).get('node_id') or item.get('id')
                             for item in evidence

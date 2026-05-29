@@ -24,6 +24,12 @@ describe('trace API', () => {
     expect(apiBase.request).toHaveBeenCalledWith('/trace/runs/123');
   });
 
+  it('gets an aggregate trace bundle', async () => {
+    vi.mocked(apiBase.request).mockResolvedValueOnce({ run_id: '123', stages: [] });
+    await trace.getBundle('123');
+    expect(apiBase.request).toHaveBeenCalledWith('/trace/runs/123/bundle');
+  });
+
   it('gets stages for a trace', async () => {
     vi.mocked(apiBase.request).mockResolvedValueOnce({ stages: [] });
     await trace.getStages('123');
@@ -34,6 +40,21 @@ describe('trace API', () => {
     vi.mocked(apiBase.request).mockResolvedValueOnce({ personas: [] });
     await trace.getPersonas('123');
     expect(apiBase.request).toHaveBeenCalledWith('/trace/runs/123/personas');
+  });
+
+  it('gets evidence, KAs, and metrics for a trace', async () => {
+    vi.mocked(apiBase.request)
+      .mockResolvedValueOnce({ evidence: [] })
+      .mockResolvedValueOnce({ kas: [] })
+      .mockResolvedValueOnce({ metrics: {} });
+
+    await trace.getEvidence('123');
+    await trace.getKAs('123');
+    await trace.getMetrics('123');
+
+    expect(apiBase.request).toHaveBeenNthCalledWith(1, '/trace/runs/123/evidence');
+    expect(apiBase.request).toHaveBeenNthCalledWith(2, '/trace/runs/123/kas');
+    expect(apiBase.request).toHaveBeenNthCalledWith(3, '/trace/runs/123/metrics');
   });
 
   it('gets axes for a trace', async () => {

@@ -119,6 +119,8 @@ def test_api_key_auth_header(app_client):
     
     assert resp.status_code == 200
     assert resp.json['response'] == "Response"
+    assert resp.json['audit_trail']['complete_trace_url'] == "/api/v1/trace/runs/run1/bundle"
+    assert resp.json['audit_trail']['download_url'] == "/api/v1/trace/runs/run1/export"
     MockAPIKey.verify_key.assert_called_with('ukg_valid')
 
 def test_api_key_invalid(app_client):
@@ -164,6 +166,7 @@ def test_gateway_chat_endpoint(app_client):
     
     assert resp.status_code == 200
     assert resp.json['response'] == "Response"
+    assert resp.json['audit_trail']['decision_path'] == "/api/v1/trace/runs/run1"
 
 def test_gateway_chat_no_messages(app_client):
     mocks = app_client.application.mocks
@@ -200,11 +203,12 @@ def test_gateway_chat_provider_failure_returns_503(app_client):
     mock_gw_instance = mock_gateway_cls.return_value
     mock_gw_instance.process = AsyncMock(return_value=mock_resp)
 
-    resp = app_client.post(
-        '/api/v1/gateway/chat',
-        headers={'X-API-Key': 'ukg_valid'},
-        json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]},
-    )
+    with patch('backend.llm_gateway.api.get_offline_queue_enabled', return_value=False):
+        resp = app_client.post(
+            '/api/v1/gateway/chat',
+            headers={'X-API-Key': 'ukg_valid'},
+            json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]},
+        )
     assert resp.status_code == 503
     assert resp.json['error'] == "Gateway failed to generate a response"
     assert resp.json['code'] == "GATEWAY_REQUEST_FAILED"

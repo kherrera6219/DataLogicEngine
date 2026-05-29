@@ -390,7 +390,8 @@ class RAGService:
                     "id": r.id,
                     "text": r.text,
                     "score": r.score,
-                    "metadata": r.metadata
+                    "metadata": r.metadata,
+                    "citation": self._citation_from_result(r.id, r.metadata),
                 }
                 for r in results
             ]
@@ -440,8 +441,16 @@ class RAGService:
                 break
             
             if include_sources:
-                source = r.get("metadata", {}).get("filename", "Unknown")
-                context_parts.append(f"[Source: {source}]\n{text}")
+                citation = r.get("citation") or self._citation_from_result(
+                    str(r.get("id", "")),
+                    r.get("metadata", {}),
+                )
+                source = citation.get("source_title") or citation.get("source_path") or "Unknown"
+                locator = citation.get("locator") or {}
+                chunk = locator.get("chunk_index")
+                chunk_count = locator.get("chunk_count")
+                chunk_suffix = f" chunk {chunk + 1}/{chunk_count}" if isinstance(chunk, int) and chunk_count else ""
+                context_parts.append(f"[Source: {source}{chunk_suffix}]\n{text}")
             else:
                 context_parts.append(text)
             
@@ -524,6 +533,40 @@ class RAGService:
             else:
                 normalized[key] = json.dumps(value, sort_keys=True, default=str)
         return normalized
+
+    @staticmethod
+    def _loads_json_like(value: Any) -> Any:
+        if not isinstance(value, str):
+            return value
+        stripped = value.strip()
+        if not stripped or stripped[0] not in "[{":
+            return value
+        try:
+            return json.loads(stripped)
+        except Exception:
+            return value
+
+    @classmethod
+    def _citation_from_result(cls, result_id: str, metadata: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Build trace-friendly citation metadata from a vector search hit."""
+        raw = {key: cls._loads_json_like(value) for key, value in (metadata or {}).items()}
+        source_path = raw.get("source_path") or raw.get("filename") or raw.get("source")
+        source_title = raw.get("title") or raw.get("file_name") or raw.get("node_id") or source_path
+        return {
+            "evidence_id": result_id,
+            "source_type": raw.get("source") or "vector",
+            "source_path": source_path,
+            "source_title": source_title,
+            "content_hash": raw.get("content_hash"),
+            "chunk_hash": raw.get("chunk_hash"),
+            "locator": {
+                "chunk_index": raw.get("chunk_index"),
+                "chunk_count": raw.get("chunk_count"),
+                "node_id": raw.get("node_id"),
+                "uid": raw.get("uid"),
+            },
+            "ingestion_id": raw.get("ingestion_id"),
+        }
     
     def ingest_knowledge_node(
         self,

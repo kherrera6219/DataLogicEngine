@@ -32,6 +32,21 @@ export interface ChatResponse {
   personas?: string[];
 }
 
+export interface TraceStageUpdate {
+  run_id: string;
+  stage_id?: string;
+  name?: string;
+  status?: string;
+  layer_index?: number;
+  step_index?: number;
+  timing?: {
+    duration_ms?: number | null;
+  };
+  inputs?: unknown;
+  outputs?: unknown;
+  metrics?: Record<string, unknown> | null;
+}
+
 // Event handlers type
 export interface SocketEventHandlers {
   onSimulationProgress?: (data: SimulationProgress) => void;
@@ -42,6 +57,7 @@ export interface SocketEventHandlers {
   onNotification?: (data: Notification) => void;
   onChatResponse?: (data: ChatResponse) => void;
   onChatTyping?: (data: { session_id: string }) => void;
+  onTraceStageUpdate?: (data: TraceStageUpdate) => void;
   onConnected?: (data: { status: string; sid: string }) => void;
   onDisconnected?: () => void;
 }
@@ -112,6 +128,14 @@ class SocketClient {
     this.socket?.emit("leave", { room });
   }
 
+  joinRunRoom(runId: string): void {
+    this.socket?.emit("join_run_room", { run_id: runId });
+  }
+
+  leaveRunRoom(runId: string): void {
+    this.socket?.emit("leave_run_room", { run_id: runId });
+  }
+
   /**
    * Send a chat message
    */
@@ -168,6 +192,10 @@ class SocketClient {
 
     this.socket.on("chat_typing", (data) => {
       this.handlers.onChatTyping?.(data);
+    });
+
+    this.socket.on("trace_stage_update", (data: TraceStageUpdate) => {
+      this.handlers.onTraceStageUpdate?.(data);
     });
   }
 }

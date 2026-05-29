@@ -47,6 +47,11 @@ export interface ChatMessage {
   isEnhanced?: boolean;
   providerUsed?: string;
   modelUsed?: string;
+  auditTrail?: {
+    decision_path: string;
+    complete_trace_url: string;
+    download_url: string;
+  };
 }
 
 export interface ChatSession {

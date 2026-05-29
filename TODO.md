@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-05-28
+**Last updated:** 2026-05-29
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -44,6 +44,8 @@ CI/security update, 2026-05-28: dependency-alert remediation and backend CI regr
 
 Remaining phase validation update: 2026-05-26
 
+Next priority update: 2026-05-29. Phase H is complete and pushed. KI / Knowledge Ingestion local-first text-corpus scope is implemented and validated. The next local implementation phase is Trace Viewer Wiring because `UKG_TraceViewer_Wiring_Plan_v3_1.docx` identifies frontend/backend trace-contract gaps that are partly implemented but not yet wired end-to-end in the current Next.js desktop UI. Production release evidence and manual store/release tasks can run in parallel, but they should not block Trace Viewer Wiring unless the target is immediate public distribution.
+
 | Remaining phase | Live-code validation | Status |
 | --- | --- | --- |
 | Phase D / DSQP | `docs/ip/dsqp_technical_disclosure.md`, `backend/dsqp/`, local templates, DSQP chain/registry/orchestrator/validator, PersonaConstructionService DSQP fallback, TruthCore L5 context wiring, KA-012 DSQP profiles, SDK `DSQPClient`, PyInstaller template datas, Electron DSQP IPC, desktop persona cards, DSQP benchmark/report, and provider-backed `dsqp_chain` audit evidence are implemented. | Done for D-1..D-12 code/test/evidence scope; broader production packaging smoke remains under release evidence. |
@@ -53,7 +55,48 @@ Remaining phase validation update: 2026-05-26
 | Phase F / DMRF | `backend/dmrf/` now contains the Python control-plane foundation: orchestrator/result models, 17-axis router, tier classifier, convergence/evidence policy, injection defense, TruthGate/TruthCore/TruthMemory/TruthLink adapters, Redis Streams publishing against the app-managed Redis service with in-memory fallback, FROST snapshots, DSQP persona construction, MLflow/local JSONL tracking, gateway `USE_DMRF` flag, Prometheus metrics, `dmrf-status` API/IPC, validation script, and focused integration tests. | Done for Phase F Python control-plane scope on the internal Windows app database model. Desktop and VM are treated as identical Windows app deployments; no external database source is required. Optional Rust F2 is not required unless VM profiling later shows a Python bottleneck. |
 | Phase G / Enterprise integrations | G-A desktop-compatible scope is implemented: TruthMemory local MLflow/JSONL tracking, Rego policy file plus OPA subprocess/Python fallback evaluation in TruthGate, W3C PROV-JSON in TruthAuditEvent data, active MCP `sampling/createMessage`, MCP resource subscriptions with SSE stream route, and SDK v0.5.0 metadata with offline `DSQPClient` plus bundled taxonomy data. G-B optional VM enhancements are now implemented with TruthLink Redis Streams fallback, TruthMemory local retention archives, opt-in TruthGate enhanced screening, and ADR-0002 for PQ-gRPC research/no-go on desktop dependency. | Done for Phase G local-first desktop/VM scope. |
 | Phase H / Desktop experience | H-1..H-15 local-first desktop scope is implemented: app-owned JRE setup/priority and installer resources; provider/local-model network status; signed Electron IPC for live reasoning progress and KA execution feed; trace panel active KA/persona confidence/FROST enrichment; detailed storage metrics; one-click backup archive; durable desktop offline queue/replay; DSQP and gateway LocalSLM audit metadata; backend health-gated splash startup and three-attempt restart recovery; PyInstaller desktop module inclusion; reproducible cold-start/packaging evidence in `reports/phase_h_desktop_evidence.json`. | Done for Phase H local-first desktop/VM scope. |
-| KI / Knowledge ingestion | `scripts/index_knowledge_nodes.py` can index SQL nodes to Chroma, but `backend/ingestion/` and document ingestion CLIs are absent. | Open and should follow or run parallel with DSQP/L10 if corpus value is needed. |
+| KI / Knowledge ingestion | KI local-first scope is implemented: `backend/ingestion/` ingests supported local text files into chunk-level SQL `KnowledgeGraphNode` rows, scrubs prompt-injection markers, writes manifests, indexes chunks through existing `RAGService`/Chroma `knowledge_nodes`, exposes `POST /api/v1/ingestion/local`, adds `scripts/ingest_local_corpus.py`, surfaces citation metadata in RAG and TruthCore deep-research output, and records reproducible sample-corpus evidence in `reports/ki_ingestion_evidence.json`. Richer PDF/DOCX/binary extractors and UI job controls are future enhancements, not blockers for the KI local-first phase. | Done for KI local-first text-corpus ingestion scope. |
+| TV / Trace Viewer Wiring | `UKG_TraceViewer_Wiring_Plan_v3_1.docx` was reviewed against live code and completed locally. Gateway chat responses now expose structured trace links, `/api/v1/trace/runs/<run_id>/bundle` returns an aggregate bundle, chat messages show a lazy inline trace panel, trace-specific Socket.IO run rooms/events exist, trace serializers expose viewer aliases, and `/runs/view` consumes the same bundle contract. | Completed with local evidence in `reports/trace_viewer_wiring_evidence.json`; focused backend/frontend tests, typecheck, ruff, and docs reference validation pass. Browser smoke reached the local Next app but authenticated page rendering still requires backend/auth running on `127.0.0.1:5000`. |
+
+### Next Work Queue
+
+1. [x] KI-1: build the local-first knowledge ingestion package.
+   - Evidence: `backend/ingestion/local_ingestion.py` discovers supported local text files, extracts/scrubs text, chunks through `RAGService`, creates chunk-level SQL `KnowledgeGraphNode` rows, dedupes by chunk hash, indexes Chroma `knowledge_nodes`, and writes JSON manifests.
+   - Validation: `python -m pytest -q --no-cov tests\unit\test_ki_local_ingestion.py tests\unit\test_phase4_dbc.py::test_index_knowledge_nodes_indexes_sql_node_like_objects`.
+2. [x] KI-2: add document ingestion CLI and API entrypoints.
+   - Evidence: `scripts/ingest_local_corpus.py` runs ingestion under Flask app context; `POST /api/v1/ingestion/local` is registered through `routes/__init__.py` and path-scoped outside desktop mode.
+   - Validation: route tests cover allowed local ingestion and path rejection outside `DATALOGIC_INGESTION_ROOT`.
+3. [x] KI-3: connect ingestion evidence to trace/audit surfaces.
+   - Evidence: `RAGService.search_documents()` now returns normalized `citation` objects from source metadata; `get_context_for_query(include_sources=True)` renders source/chunk labels; TruthCore deep-research output includes `citations` alongside RAG evidence.
+   - Validation: focused RAG/TruthCore tests verify citation metadata from ingested corpus search results.
+4. [x] KI-4: release evidence refresh after KI.
+   - Evidence: `scripts/verify_ki_ingestion.py` creates a disposable sample corpus/database, ingests it, verifies SQL node creation, verifies indexing handoff, verifies search citation metadata, and writes `reports/ki_ingestion_evidence.json`.
+   - Validation: KI tests, ruff, py_compile, docs reference validation, and the KI evidence script passed.
+
+### Trace Viewer Wiring Phased Update Plan
+
+Source plan: `UKG_TraceViewer_Wiring_Plan_v3_1.docx` reviewed 2026-05-29 against live code.
+
+Live-code baseline:
+
+- Existing: `backend/tracing/api.py` exposes run, stage, evidence, claim, axis, persona, KA, policy, memory, metrics, export, replay, span, and log routes under `/api/v1/trace/runs*`.
+- Existing: `frontend/lib/api/trace.ts`, `frontend/app/runs/page.tsx`, `frontend/app/runs/view/page.tsx`, `frontend/components/Chat/LiveTracePanel.tsx`, `frontend/components/Chat/MessageBubble.tsx`, and `frontend/components/Chat/ChatInterface.tsx`.
+- Existing: `backend/websocket.py` initializes Socket.IO and supports generic room join/leave plus chat/simulation events.
+- Gap: the DOCX assumes direct `/api/v1/trace/{run_id}` endpoints, but current live routes use `/api/v1/trace/runs/{run_id}` and related subroutes.
+- Gap: `/api/v1/gateway/chat` currently returns `run_id` but not a structured `audit_trail` object with `complete_trace_url` and `download_url`.
+- Gap: `MessageBubble` does not render an inline lazy-loaded trace panel for a specific assistant response.
+- Gap: live WebSocket trace streaming needs trace-specific room join and `trace_stage_update` emissions after `TraceStage` writes.
+
+| Phase | Scope | Local exit gate | Status |
+| --- | --- | --- | --- |
+| TV-0: Contract verification | Capture local Tier 2/Tier 3 gateway responses and trace route payloads; document exact live shapes for chat response, run detail, stages, evidence, personas, KAs, axes, and export. | A fixture report records current JSON contracts and mismatches from the DOCX assumptions. | Done: `scripts/verify_trace_viewer_wiring.py` writes `reports/trace_viewer_wiring_evidence.json` with gateway `audit_trail` links and aggregate bundle keys. |
+| TV-1: Backend response and bundle contract | Add `audit_trail` to `/api/v1/gateway/chat`; add or document a single aggregate trace bundle shape that wraps run, stages, evidence, claims, personas, KAs, axes, policy, memory, and metrics; keep `/api/v1/trace/runs/*` canonical unless aliases are deliberately added. | Focused backend tests prove chat response contains `audit_trail.complete_trace_url`, `download_url`, and trace bundle data resolves for a generated/local fixture run. | Done: gateway chat includes `audit_trail`; `/api/v1/trace/runs/<run_id>/bundle` returns the aggregate contract; UUID route parsing and backend contract tests pass. |
+| TV-2: Frontend trace types and API client | Expand `frontend/lib/api/trace.ts` and add typed trace interfaces for run bundle, stages, evidence, personas, KA invocations, axes, and export. | Frontend unit tests prove each API function unwraps the backend response shape and handles missing optional sections. | Done: `TraceBundle`, evidence, KA, persona, axis, stage, metrics, and audit-trail types are wired through `frontend/lib/api/trace.ts`; focused API tests pass. |
+| TV-3: Inline chat trace panel | Thread `runId`/`auditTrail` through `ChatInterface` into `MessageBubble`; build an inline lazy-loaded TracePanel with summary, coordinate, FROST stages, personas, evidence, KA feed, refinement, and export affordance using the current design system. | Assistant messages with a trace run show a compact trace control; expanding it fetches the bundle only once and renders useful panels. | Done: `ChatInterface` threads `auditTrail`, `MessageBubble` renders `ChatTracePanel`, and the panel lazy-loads bundle data, streams live updates, links details, and exports traces. |
+| TV-4: Runs explorer completion | Align `/runs` list/detail pages with the same typed trace bundle and add missing detail panels rather than relying on shallow run metadata. | `/runs` list and detail page render seeded/local trace fixture data, handle empty/error states, and pass frontend typecheck. | Done: `/runs/view` now consumes the aggregate bundle and renders stages, evidence, personas, KA feed, policy/memory counts, coordinates, metrics, and export. |
+| TV-5: Evidence and persona depth | Validate or add serializer fields for evidence tier, source provenance, KA invoked, claims supported, persona positions, debate log, synthesis weights, and conflicts. | Backend tests prove evidence/persona APIs expose the fields used by the frontend panels without leaking unauthorized runs. | Done: `TraceEvidence`, `TracePersona`, `TraceStage`, and `TraceKAInvocation` serializers expose the viewer aliases used by frontend panels; backend contract tests validate them. |
+| TV-6: Real-time trace streaming | Add trace-specific `join_run_room`/leave handling and emit `trace_stage_update` after `TraceStage` creation/update; add frontend hook for run-scoped live updates and a live badge. | WebSocket unit tests prove join + emit behavior; frontend tests prove streamed stage updates merge into panel state. | Done: trace run room join/leave, `trace_stage_update` emission, gateway stage emission, frontend `useTraceStream`, and socket tests are implemented. |
+| TV-7: Validation and docs | Add trace viewer contract tests, frontend component tests, update API docs/TODO/master plan, and record local evidence. | Focused pytest, frontend unit/typecheck, docs reference validation, and trace viewer evidence report pass locally. | Done: pytest, Vitest, typecheck, ruff, docs validation, and evidence generation pass. Browser smoke was limited by auth/backend not running. |
 
 ### CI And Security Evidence
 

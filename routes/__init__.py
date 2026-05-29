@@ -61,6 +61,11 @@ def register_routes(app):
 
     app.register_blueprint(storage_api)
 
+    # Local-first knowledge ingestion routes (`/api/v1/ingestion/*`)
+    from backend.routes.ingestion_routes import ingestion_api
+
+    app.register_blueprint(ingestion_api)
+
     # Search routes (`/api/search/*`)
     app.register_blueprint(search_api, url_prefix="/api/search")
 

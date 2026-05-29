@@ -600,6 +600,7 @@ class LLMGateway:
                                 sdk_provider=sdk_provider,
                                 model=model,
                                 query=query,
+                                run_id=run_id,
                                 user_id=user_id_str,
                                 session_id=request.session_id,
                                 meta=augmented_meta,
@@ -1386,6 +1387,7 @@ class LLMGateway:
         sdk_provider: Any,
         model: str,
         query: str,
+        run_id: str,
         user_id: str,
         session_id: Optional[str],
         meta: dict[str, Any],
@@ -1428,7 +1430,7 @@ class LLMGateway:
         )
         
         # Connect SDK trace to TraceRun/TraceStage models
-        await self._create_trace_run(result, query, user_id, session_id, model)
+        await self._create_trace_run(result, query, run_id, user_id, session_id, model)
         
         return result
     
@@ -1436,6 +1438,7 @@ class LLMGateway:
         self,
         sdk_result: dict[str, Any],
         query: str,
+        run_id: str,
         user_id: str,
         session_id: Optional[str],
         model: str,
@@ -1463,7 +1466,9 @@ class LLMGateway:
             )
             
             sdk_tier = str(sdk_result.get("tier") or "")
+            trace_run_id = uuid.UUID(run_id)
             run = TraceRun(
+                run_id=trace_run_id,
                 session_id=uuid.UUID(session_id) if session_id else None,
                 user_id=int(user_id) if user_id else None,
                 status="pass" if sdk_result.get("ok") else "fail",
@@ -1482,6 +1487,7 @@ class LLMGateway:
 
             # Create TraceStages from SDK trace
             trace = sdk_result.get("trace", [])
+            emitted_stages: list[Any] = []
             for i, trace_item in enumerate(trace):
                 stage = TraceStage(
                     run_id=run.run_id,
@@ -1492,9 +1498,16 @@ class LLMGateway:
                     outputs=trace_item.get("output", {}),
                 )
                 db.session.add(stage)
+                emitted_stages.append(stage)
 
             db.session.commit()
             logger.info(f"Created TraceRun {run.run_id} with {len(trace)} stages")
+            for stage in emitted_stages:
+                try:
+                    from backend.websocket import emit_trace_stage_update
+                    emit_trace_stage_update(run.run_id, stage.to_dict())
+                except Exception as emit_exc:
+                    logger.debug("Trace stage websocket emit skipped: %s", emit_exc)
 
             # Compute F-CONF-01 canonical confidence and update the run
             try:

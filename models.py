@@ -1093,9 +1093,13 @@ class TraceStage(db.Model):
             'run_id': str(self.run_id),
             'name': self.name,
             'type': self.stage_type,
+            'stage_type': self.stage_type,
             'layer_index': self.layer_index,
             'step_index': self.step_index,
             'status': self.status,
+            'start_time': self.start_time.isoformat() if self.start_time else None,
+            'end_time': self.end_time.isoformat() if self.end_time else None,
+            'duration_ms': self.duration_ms,
             'timing': {
                 'start_time': self.start_time.isoformat() if self.start_time else None,
                 'end_time': self.end_time.isoformat() if self.end_time else None,
@@ -1148,9 +1152,24 @@ class TraceEvidence(db.Model):
     conflicts_with = db.Column(JSONB, nullable=True)  # [evidence_id]
 
     def to_dict(self):
+        authority_to_tier = {
+            'high': 'GOLD',
+            'medium': 'SILVER',
+            'low': 'BRONZE',
+        }
+        claims_supported = self.used_by_claims or []
+        stages = self.used_by_stages or []
         return {
             'evidence_id': str(self.evidence_id),
             'run_id': str(self.run_id),
+            'source_id': self.source_id,
+            'source_type': self.source_type,
+            'title': self.source_title,
+            'credibility_score': self.relevance_score,
+            'evidence_tier': authority_to_tier.get((self.authority or '').lower(), 'UNVERIFIED'),
+            'claims_supported': claims_supported,
+            'layer_retrieved': stages[0] if isinstance(stages, list) and stages else None,
+            'ka_that_invoked': (self.retrieval_method or '').upper() if self.retrieval_method else None,
             'source': {
                 'type': self.source_type,
                 'id': self.source_id,
@@ -1258,9 +1277,20 @@ class TracePersona(db.Model):
     consensus_impact = db.Column(JSONB, nullable=True)  # {changed_answer, delta_summary}
 
     def to_dict(self):
+        consensus = self.consensus_impact if isinstance(self.consensus_impact, dict) else {}
+        objections = self.objections if isinstance(self.objections, list) else []
         return {
             'persona_id': str(self.persona_id),
             'run_id': str(self.run_id),
+            'initial_position': self.draft_text,
+            'critique_of_others': consensus.get('critique_of_others') or consensus.get('delta_summary'),
+            'final_position': consensus.get('final_position') or self.draft_text,
+            'synthesis_weight': consensus.get('synthesis_weight'),
+            'flagged_conflicts': [
+                item.get('detail') if isinstance(item, dict) else str(item)
+                for item in objections
+            ],
+            'confidence': self.confidence,
             'persona_type': self.persona_type,
             'persona_name': self.persona_name,
             'status': self.status,

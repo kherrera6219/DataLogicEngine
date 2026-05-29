@@ -8,7 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TracePersona, TraceAxisVector, TraceStage } from '@/lib/api/types';
+import {
+  TraceAxisVector,
+  TraceBundle,
+  TraceEvidenceSource,
+  TraceKAInvocation,
+  TracePersona,
+  TraceStage,
+} from '@/lib/api/types';
 
 function TraceDetailContent() {
   const searchParams = useSearchParams();
@@ -17,24 +24,30 @@ function TraceDetailContent() {
   const [trace, setTrace] = useState<TraceDetail | null>(null);
   const [personas, setPersonas] = useState<TracePersona[]>([]);
   const [axes, setAxes] = useState<TraceAxisVector | null>(null);
-  const [stages, setStages] = useState<TraceStage[]>([]); // Use TraceStage[]
-  const [activeTab, setActiveTab] = useState("evidence");
+  const [stages, setStages] = useState<TraceStage[]>([]);
+  const [evidence, setEvidence] = useState<TraceEvidenceSource[]>([]);
+  const [kas, setKas] = useState<TraceKAInvocation[]>([]);
+  const [policyDecisions, setPolicyDecisions] = useState<Record<string, unknown>[]>([]);
+  const [memoryEvents, setMemoryEvents] = useState<Record<string, unknown>[]>([]);
+  const [metrics, setMetrics] = useState<TraceBundle['metrics'] | null>(null);
+  const [activeTab, setActiveTab] = useState("stages");
   const [isLoading, setIsLoading] = useState(!!runId);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   useEffect(() => {
      let mounted = true;
      if (runId) {
-        Promise.all([
-            api.trace.get(runId),
-            api.trace.getPersonas(runId).catch(() => ({ personas: [] })),
-            api.trace.getAxes(runId).catch(() => ({ axes: null })),
-            api.trace.getStages(runId).catch(() => ({ stages: [] }))
-        ]).then(([traceData, personaData, axisData, stageData]) => {
+        api.trace.getBundle(runId).then((bundle) => {
            if (mounted) {
-              setTrace(traceData as TraceDetail);
-              setPersonas((personaData as { personas: TracePersona[] }).personas || []);
-              setAxes((axisData as { axes: TraceAxisVector }).axes || null);
-              setStages((stageData as { stages: TraceStage[] }).stages || []);
+              setTrace(bundle.run as TraceDetail);
+              setPersonas(bundle.personas || []);
+              setAxes(bundle.axes || bundle.coordinate || null);
+              setStages(bundle.stages || bundle.frost_layers || []);
+              setEvidence(bundle.evidence_sources || bundle.evidence || []);
+              setKas(bundle.ka_invocations || bundle.kas || []);
+              setPolicyDecisions(bundle.policy_decisions || []);
+              setMemoryEvents(bundle.memory_events || []);
+              setMetrics(bundle.metrics || null);
               setIsLoading(false);
            }
         }).catch((err) => {
@@ -44,6 +57,29 @@ function TraceDetailContent() {
      }
      return () => { mounted = false; };
   }, [runId]);
+
+  const exportTrace = async () => {
+     if (!runId) return;
+     setExportError(null);
+     try {
+        const exported = await api.trace.export(runId);
+        if (!exported) {
+           setExportError('Trace export is unavailable.');
+           return;
+        }
+        const blob = new Blob([typeof exported === 'string' ? exported : JSON.stringify(exported, null, 2)], {
+           type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = `trace_${runId}.json`;
+        anchor.click();
+        URL.revokeObjectURL(url);
+     } catch (err) {
+        setExportError(err instanceof Error ? err.message : 'Trace export failed.');
+     }
+  };
 
   if (isLoading) {
      return <div className="p-8 text-center text-gray-500">Loading trace details...</div>;
@@ -63,19 +99,22 @@ function TraceDetailContent() {
                   <Badge variant={trace.status === 'completed' ? 'success' : 'secondary'}>{trace.status}</Badge>
                </div>
             </div>
-            <Button variant="outline">Download Logs</Button>
+            <Button variant="outline" onClick={() => void exportTrace()}>Download Trace</Button>
          </header>
+         {exportError && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{exportError}</div>}
 
          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-               <Tabs defaultValue="evidence" value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid w-full grid-cols-3">
-                     <TabsTrigger value="evidence">Evidence Chain</TabsTrigger>
+               <Tabs defaultValue="stages" value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="grid w-full grid-cols-5">
+                     <TabsTrigger value="stages">Stages</TabsTrigger>
+                     <TabsTrigger value="evidence">Evidence</TabsTrigger>
                      <TabsTrigger value="personas">Expert Analysis</TabsTrigger>
+                     <TabsTrigger value="kas">KAs</TabsTrigger>
                      <TabsTrigger value="coordinates">Coordinates</TabsTrigger>
                   </TabsList>
                   
-                  <TabsContent value="evidence" className="space-y-4 mt-4">
+                  <TabsContent value="stages" className="space-y-4 mt-4">
                      <Card>
                         <CardHeader>
                            <CardTitle>Reasoning Trace</CardTitle>
@@ -112,6 +151,38 @@ function TraceDetailContent() {
                                  )}
                               </div>
                            ))}
+                        </CardContent>
+                     </Card>
+                  </TabsContent>
+
+                  <TabsContent value="evidence" className="space-y-4 mt-4">
+                     <Card>
+                        <CardHeader>
+                           <CardTitle>Evidence Sources</CardTitle>
+                           <CardDescription>Claim support and source provenance.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                           {evidence.map((item) => (
+                              <div key={item.evidence_id} className="rounded-lg border bg-white p-4 dark:bg-gray-900">
+                                 <div className="flex items-start justify-between gap-3">
+                                    <div>
+                                       <h4 className="font-semibold">{item.title || item.source_id || 'Evidence source'}</h4>
+                                       <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{item.snippet || 'No snippet recorded.'}</p>
+                                    </div>
+                                    <Badge variant="outline">{item.evidence_tier || 'UNVERIFIED'}</Badge>
+                                 </div>
+                                 <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-500">
+                                    <span>Source: {item.source_type || 'unknown'}</span>
+                                    <span>KA: {item.ka_that_invoked || 'N/A'}</span>
+                                    <span>Claims: {item.claims_supported?.length ?? 0}</span>
+                                 </div>
+                              </div>
+                           ))}
+                           {!evidence.length && (
+                              <div className="p-8 text-center text-gray-500 border rounded-lg border-dashed">
+                                 No evidence sources found for this run.
+                              </div>
+                           )}
                         </CardContent>
                      </Card>
                   </TabsContent>
@@ -169,6 +240,42 @@ function TraceDetailContent() {
                         </CardContent>
                      </Card>
                   </TabsContent>
+
+                  <TabsContent value="kas" className="space-y-4 mt-4">
+                     <Card>
+                        <CardHeader>
+                           <CardTitle>Knowledge Algorithm Feed</CardTitle>
+                           <CardDescription>KA invocations, policy decisions, and memory events.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                           <div className="space-y-2">
+                              {kas.map((ka) => (
+                                 <div key={ka.invocation_id} className="flex items-center justify-between rounded-lg border bg-white px-4 py-3 dark:bg-gray-900">
+                                    <div>
+                                       <div className="font-semibold">{ka.ka_id}</div>
+                                       <div className="text-sm text-gray-500">{ka.ka_name || 'Unnamed KA'}</div>
+                                    </div>
+                                    <div className="text-right">
+                                       <Badge variant="outline">{ka.status}</Badge>
+                                       <div className="mt-1 text-xs text-gray-500">{ka.timing?.duration_ms ?? 0} ms</div>
+                                    </div>
+                                 </div>
+                              ))}
+                              {!kas.length && <p className="text-sm text-gray-500">No KA invocations recorded.</p>}
+                           </div>
+                           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                              <div className="rounded-lg border p-3">
+                                 <div className="text-xs font-semibold uppercase text-gray-500">Policy Decisions</div>
+                                 <div className="mt-1 text-2xl font-bold">{policyDecisions.length}</div>
+                              </div>
+                              <div className="rounded-lg border p-3">
+                                 <div className="text-xs font-semibold uppercase text-gray-500">Memory Events</div>
+                                 <div className="mt-1 text-2xl font-bold">{memoryEvents.length}</div>
+                              </div>
+                           </div>
+                        </CardContent>
+                     </Card>
+                  </TabsContent>
                </Tabs>
             </div>
 
@@ -195,6 +302,22 @@ function TraceDetailContent() {
                            <div className="flex justify-between">
                               <span className="text-gray-500">Bias Risk</span>
                               <span className="font-medium">{trace.scores.bias_risk.toFixed(2)}</span>
+                           </div>
+                        </>
+                     )}
+                     {metrics && (
+                        <>
+                           <div className="flex justify-between">
+                              <span className="text-gray-500">Stages</span>
+                              <span className="font-medium">{metrics.stage_count}</span>
+                           </div>
+                           <div className="flex justify-between">
+                              <span className="text-gray-500">Duration</span>
+                              <span className="font-medium">{metrics.total_duration_ms} ms</span>
+                           </div>
+                           <div className="flex justify-between">
+                              <span className="text-gray-500">Retrievals</span>
+                              <span className="font-medium">{metrics.total_retrievals}</span>
                            </div>
                         </>
                      )}

@@ -1,7 +1,16 @@
 
 import pytest
 from unittest.mock import patch
-from backend.websocket import init_socketio, handle_connect, handle_disconnect, handle_join, handle_leave, handle_chat_message
+from backend.websocket import (
+    handle_chat_message,
+    handle_connect,
+    handle_disconnect,
+    handle_join,
+    handle_join_run_room,
+    handle_leave,
+    handle_leave_run_room,
+    init_socketio,
+)
 from flask import Flask
 
 @pytest.fixture
@@ -58,6 +67,24 @@ def test_leave_room(mock_leave_room, app):
             mock_request.sid = '123'
             handle_leave({'room': 'test_room'})
             mock_leave_room.assert_called_with('test_room')
+
+@patch('backend.websocket.join_room')
+@patch('backend.websocket.emit')
+def test_join_run_room(mock_emit, mock_join_room, app):
+    with app.test_request_context():
+        with patch('backend.websocket.request') as mock_request:
+            mock_request.sid = '123'
+            handle_join_run_room({'run_id': 'run-1'})
+            mock_join_room.assert_called_with('run_run-1')
+            mock_emit.assert_called_with('joined', {'run_id': 'run-1', 'room': 'run_run-1'})
+
+@patch('backend.websocket.leave_room')
+def test_leave_run_room(mock_leave_room, app):
+    with app.test_request_context():
+        with patch('backend.websocket.request') as mock_request:
+            mock_request.sid = '123'
+            handle_leave_run_room({'run_id': 'run-1'})
+            mock_leave_room.assert_called_with('run_run-1')
 
 @patch('backend.websocket.emit')
 def test_chat_message_flow(mock_emit, app):

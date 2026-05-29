@@ -79,6 +79,27 @@ def handle_leave(data):
         logger.info(f"Client {request.sid} left room: {room}")
 
 
+@socketio.on('join_run_room')
+def handle_join_run_room(data):
+    """Join a trace-run room for live stage updates."""
+    run_id = data.get('run_id') if isinstance(data, dict) else None
+    if run_id:
+        room = f"run_{run_id}"
+        join_room(room)
+        logger.info("Client %s joined trace room: %s", request.sid, room)
+        emit('joined', {'run_id': str(run_id), 'room': room})
+
+
+@socketio.on('leave_run_room')
+def handle_leave_run_room(data):
+    """Leave a trace-run room."""
+    run_id = data.get('run_id') if isinstance(data, dict) else None
+    if run_id:
+        room = f"run_{run_id}"
+        leave_room(room)
+        logger.info("Client %s left trace room: %s", request.sid, room)
+
+
 # Simulation events
 @socketio.on('subscribe_simulation')
 def handle_subscribe_simulation(data):
@@ -105,6 +126,15 @@ def emit_simulation_complete(simulation_id: str, results: dict):
     socketio.emit('simulation_complete', {
         'simulation_id': simulation_id,
         'results': results
+    }, room=room)
+
+
+def emit_trace_stage_update(run_id: str, stage: dict):
+    """Emit a run-scoped trace stage update."""
+    room = f"run_{run_id}"
+    socketio.emit('trace_stage_update', {
+        'run_id': str(run_id),
+        **stage,
     }, room=room)
 
 
