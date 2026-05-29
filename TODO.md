@@ -44,7 +44,7 @@ CI/security update, 2026-05-28: dependency-alert remediation and backend CI regr
 
 Remaining phase validation update: 2026-05-26
 
-Next priority update: 2026-05-29. Phase H is complete and pushed. KI / Knowledge Ingestion local-first text-corpus scope is implemented and validated. The next local implementation phase is Trace Viewer Wiring because `UKG_TraceViewer_Wiring_Plan_v3_1.docx` identifies frontend/backend trace-contract gaps that are partly implemented but not yet wired end-to-end in the current Next.js desktop UI. Production release evidence and manual store/release tasks can run in parallel, but they should not block Trace Viewer Wiring unless the target is immediate public distribution.
+Next priority update: 2026-05-29. Phase H, KI local-first text-corpus ingestion, and TV / Trace Viewer Wiring are implemented, validated, and pushed. The next local implementation priority is KI productization: Settings -> Knowledge ingestion UI, background ingestion job status/history, richer PDF/DOCX/binary extractors, standard corpus loaders, and optional SQL -> Neo4j sync evidence after ingestion. Production release evidence and manual store/release tasks can run in parallel, but they should not block KI productization unless the target is immediate public distribution.
 
 | Remaining phase | Live-code validation | Status |
 | --- | --- | --- |
