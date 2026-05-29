@@ -205,6 +205,42 @@ export interface TraceStage {
   algorithm_name?: string; // Legacy support if needed
   started_at?: string;     // Legacy support
 }
+
+export interface IngestionRejectedFile {
+  path: string;
+  reason: string;
+}
+
+export interface IngestionChunk {
+  node_uid: string;
+  node_id: string;
+  source_path: string;
+  chunk_index: number;
+  chunk_count: number;
+  content_hash: string;
+  chunk_hash: string;
+  indexed: boolean;
+}
+
+export interface IngestionResult {
+  ingestion_id: string;
+  source: string;
+  files_scanned: number;
+  files_ingested: number;
+  files_rejected: number;
+  chunks_created: number;
+  chunks_indexed: number;
+  rejected_files: IngestionRejectedFile[];
+  chunks: IngestionChunk[];
+  manifest_path?: string | null;
+}
+
+export interface IngestionSupportedTypes {
+  extensions: string[];
+  default_chunk_size: number;
+  default_max_file_bytes: number;
+}
+
 export interface AnalyticsOverview {
   api_requests_24h: number;
   kg_nodes: number;

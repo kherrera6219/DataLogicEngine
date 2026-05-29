@@ -356,6 +356,11 @@ Manage Sectors, Domains, and Knowledge Nodes. Canonical routes live under `/api/
 
 Local-first corpus ingestion. Prefix: `/api/v1/ingestion`.
 
+### Supported Local Types
+
+- **GET** `/supported`
+  - Returns supported local file extensions and default ingestion limits for the current build.
+
 ### Local File Or Folder Ingestion
 
 - **POST** `/local`
@@ -372,6 +377,12 @@ Local-first corpus ingestion. Prefix: `/api/v1/ingestion`.
     ```
   - **Response**: ingestion id, scanned/ingested/rejected file counts, created/indexed chunk counts, rejected-file reasons, chunk source hashes, and manifest path.
   - **Security**: outside desktop mode, paths must stay under `DATALOGIC_INGESTION_ROOT` or the process working directory.
+
+### Ingestion History
+
+- **GET** `/history?limit=20`
+  - Lists recent manifest-backed local ingestion runs from the app-owned manifest directory.
+  - **Response**: recent ingestion result records including source path, scanned/ingested/rejected counts, chunk/index counts, rejected-file reasons, and manifest path.
 
 ---
 

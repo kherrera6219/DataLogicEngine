@@ -52,6 +52,10 @@ const AiModelSettings = dynamic(
   () => import("@/components/settings/AiModelSettings"),
   { loading: () => <div className="p-6 text-sm text-muted-foreground">Loading AI model controls...</div> }
 );
+const KnowledgeIngestionSettings = dynamic(
+  () => import("@/components/settings/KnowledgeIngestionSettings"),
+  { loading: () => <div className="p-6 text-sm text-muted-foreground">Loading knowledge ingestion...</div> }
+);
 
 interface UserDataSummary {
   account_created?: string;
@@ -168,6 +172,7 @@ export default function SettingsPage() {
                         { id: 'notifications', label: 'Notifications', icon: Bell },
                         { id: 'api', label: 'API Gateway', icon: Network },
                         { id: 'storage', label: 'Storage', icon: Database },
+                        { id: 'knowledge', label: 'Knowledge', icon: Database },
                         { id: 'security', label: 'Security', icon: Shield },
                         { id: 'ai', label: 'AI Models', icon: Brain },
                      ].map(tab => (
@@ -372,6 +377,11 @@ export default function SettingsPage() {
                    {/* STORAGE */}
                    <TabsContent value="storage" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
                       <DatabaseSettings />
+                   </TabsContent>
+
+                   {/* KNOWLEDGE INGESTION */}
+                   <TabsContent value="knowledge" className="m-0 focus-visible:ring-0 animate-in fade-in slide-in-from-right-4 duration-500">
+                      <KnowledgeIngestionSettings />
                    </TabsContent>
 
                    {/* SECURITY */}

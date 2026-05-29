@@ -116,3 +116,35 @@ def test_ingestion_route_rejects_path_outside_allowed_root(authenticated_client,
 
     assert response.status_code == 400
     assert "Source path must stay under" in response.get_json()["error"]
+
+
+def test_ingestion_history_lists_recent_manifests(authenticated_client, tmp_path, monkeypatch):
+    manifest_dir = tmp_path / "manifests"
+    manifest_dir.mkdir()
+    monkeypatch.setenv("DATALOGIC_INGESTION_MANIFEST_DIR", str(manifest_dir))
+    (manifest_dir / "one.json").write_text(
+        '{"ingestion_id":"one","source":"C:/corpus","files_ingested":1}',
+        encoding="utf-8",
+    )
+
+    response = authenticated_client.get("/api/v1/ingestion/history?limit=5")
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["success"] is True
+    assert payload["data"]["items"][0]["ingestion_id"] == "one"
+    assert payload["data"]["items"][0]["manifest_path"].endswith("one.json")
+
+    fallback_response = authenticated_client.get("/api/v1/ingestion/history?limit=abc")
+    assert fallback_response.status_code == 200
+    assert fallback_response.get_json()["data"]["items"][0]["ingestion_id"] == "one"
+
+
+def test_ingestion_supported_returns_defaults(authenticated_client):
+    response = authenticated_client.get("/api/v1/ingestion/supported")
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["success"] is True
+    assert ".txt" in payload["data"]["extensions"]
+    assert payload["data"]["default_chunk_size"] == 1200

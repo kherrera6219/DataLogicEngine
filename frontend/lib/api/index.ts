@@ -5,6 +5,7 @@ import { trace } from './trace';
 import { chat } from './chat';
 import { mcp } from './mcp';
 import { compliance } from './compliance';
+import { ingestion } from './ingestion';
 import { request } from './client';
 
 export { API_BASE, buildApiUrl, request } from './client';
@@ -16,6 +17,7 @@ export const api = {
   simulation,
   knowledge,
   trace,
+  ingestion,
   mcp,
   compliance,
   system: {

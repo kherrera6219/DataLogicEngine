@@ -136,7 +136,7 @@ Component
 	backend/storage/database_manager.py
 	Knowledge corpus ingestion pipeline
 	DONE for local-first text-like corpus ingestion / PARTLY DONE for full binary corpus ingestion
-	backend/ingestion/local_ingestion.py, scripts/ingest_local_corpus.py, and POST /api/v1/ingestion/local ingest local .txt/.md/.csv/.json/.yaml/.log files into chunk-level SQL KnowledgeGraphNode rows, dedupe by hash, scrub common prompt-injection markers, write manifests, and index through RAGService into Chroma knowledge_nodes with citation metadata. Rich PDF/DOCX/binary extractors, UI job management, and prebuilt standard corpus loaders remain future enhancements.
+	backend/ingestion/local_ingestion.py, scripts/ingest_local_corpus.py, and POST /api/v1/ingestion/local ingest local .txt/.md/.csv/.json/.yaml/.log files into chunk-level SQL KnowledgeGraphNode rows, dedupe by hash, scrub common prompt-injection markers, write manifests, and index through RAGService into Chroma knowledge_nodes with citation metadata. GET /api/v1/ingestion/supported, GET /api/v1/ingestion/history, and Settings -> Knowledge provide local UI ingestion controls and manifest-backed history. Rich PDF/DOCX/binary extractors, async/background job management, SQL->Neo4j sync evidence, and prebuilt standard corpus loaders remain future enhancements.
 	backend/ingestion/local_ingestion.py + scripts/ingest_local_corpus.py + backend/routes/ingestion_routes.py
 	TODO.md item #8 (strict precheck)
 	IMPLEMENTED
@@ -270,7 +270,7 @@ Code-validated phase status rollup May 29, 2026:
 * G-A — DONE for desktop-compatible enterprise integrations.
 * G-B — DONE for optional Windows VM enhancements within the local-first dependency boundary.
 * H — DONE for local-first desktop experience. Packaged clean-machine stopwatch/JRE verification remains release evidence.
-* KI — DONE for local-first text-like corpus ingestion and citation evidence. PARTLY DONE for rich PDF/DOCX/binary extraction, standard corpus loaders, and Settings UI job controls.
+* KI — DONE for local-first text-like corpus ingestion, citation evidence, Settings UI path ingestion, and manifest-backed history. PARTLY DONE for rich PDF/DOCX/binary extraction, standard corpus loaders, async/background queue semantics, and SQL->Neo4j sync evidence after ingestion.
 * TV — DONE local phased update from `UKG_TraceViewer_Wiring_Plan_v3_1.docx`. Gateway chat responses now expose structured audit_trail links, `/api/v1/trace/runs/<run_id>/bundle` serves the aggregate trace bundle, chat messages render a lazy inline trace panel, `/runs/view` consumes the same bundle, trace-specific Socket.IO room/events are implemented, and evidence/persona/stage serializers expose the viewer contract.
 ________________
 
@@ -1321,9 +1321,9 @@ KI
 	Weeks 5–7 (parallel with B/C)
 	
 
-KI is the local-first path for growing the knowledge base from app-owned documents. It is how domain content such as FAR regulations, healthcare compliance docs, cybersecurity frameworks, and case law enters the system. The completed local-first slice covers text-like files and evidence-grade citation metadata; richer PDF/DOCX/binary extraction and UI job controls are future enhancements.
+KI is the local-first path for growing the knowledge base from app-owned documents. It is how domain content such as FAR regulations, healthcare compliance docs, cybersecurity frameworks, and case law enters the system. The completed local-first slice covers text-like files, evidence-grade citation metadata, Settings UI path ingestion, and manifest-backed history; richer PDF/DOCX/binary extraction, standard corpus loaders, async/background queue semantics, and SQL->Neo4j sync evidence are future enhancements.
 
-Implementation update May 29, 2026: KI local-first text-corpus scope is complete. `RAGService` now normalizes retrieval hits into citation objects with source path/title, content hash, chunk hash, chunk locator, and ingestion id; `get_context_for_query(include_sources=True)` renders source/chunk labels; TruthCore deep-research output includes citation metadata beside RAG evidence; and `scripts/verify_ki_ingestion.py` generates `reports/ki_ingestion_evidence.json` proving sample corpus ingest, SQL node creation, indexing handoff, and query citation metadata. Rich PDF/DOCX/binary extraction and UI job management remain future enhancements.
+Implementation update May 29, 2026: KI local-first text-corpus scope is complete. `RAGService` now normalizes retrieval hits into citation objects with source path/title, content hash, chunk hash, chunk locator, and ingestion id; `get_context_for_query(include_sources=True)` renders source/chunk labels; TruthCore deep-research output includes citation metadata beside RAG evidence; and `scripts/verify_ki_ingestion.py` generates `reports/ki_ingestion_evidence.json` proving sample corpus ingest, SQL node creation, indexing handoff, and query citation metadata. Productization slice 1 is also complete: `/api/v1/ingestion/supported`, `/api/v1/ingestion/history`, frontend ingestion API helpers, and Settings -> Knowledge controls allow local path ingestion and manifest-backed history from the desktop UI. Rich PDF/DOCX/binary extraction, standard corpus loaders, async/background queue semantics, and SQL->Neo4j sync evidence remain future enhancements.
 
 Recommended KI execution order:
 
@@ -1331,6 +1331,9 @@ Recommended KI execution order:
 2. KI-2 — COMPLETED: add a local folder/file ingestion CLI and authenticated desktop API route that create SQL knowledge nodes and then index them through the existing DB-C Chroma path.
 3. KI-3 — COMPLETED: surface ingestion manifests/source hashes/chunk locators as RAG citation metadata and TruthCore deep-research citations.
 4. KI-4 — COMPLETED: run disposable sample corpus evidence through ingest -> SQL nodes -> indexing handoff -> query citation, recorded in `reports/ki_ingestion_evidence.json`.
+5. KI-5 — COMPLETED: add Settings -> Knowledge controls plus `/supported` and `/history` endpoints for local ingestion productization.
+6. KI-6 — FUTURE: add richer PDF/DOCX/binary extractors and standard corpus loaders.
+7. KI-7 — FUTURE: add optional async/background queue semantics and SQL->Neo4j sync evidence after ingestion.
 
 
 ID
@@ -1354,14 +1357,14 @@ ID
 	Validated: RAG search results include source path/title, content hash, chunk hash, locator, and ingestion id; get_context_for_query(include_sources=True) renders source labels; TruthCore deep-research output includes citations. Prepackaged FAR/DFARS/NIST/HIPAA/SOX/ISO corpus loader remains future enhancement.
 	DESKTOP+VM
 	KI-4
-	DONE May 29, 2026 for disposable sample corpus evidence / PARTLY DONE for Settings UI job controls
-	scripts/verify_ki_ingestion.py + reports/ki_ingestion_evidence.json
-	Validated: evidence report records discovered files, chunks, SQL node count, indexing handoff count, and citation payload. Settings → Knowledge page, upload/paste UI, and background job management remain future enhancements.
+	DONE May 29, 2026 for disposable sample corpus evidence and manifest-backed Settings history / PARTLY DONE for async/background job management
+	scripts/verify_ki_ingestion.py + reports/ki_ingestion_evidence.json + backend/routes/ingestion_routes.py + frontend/components/settings/KnowledgeIngestionSettings.tsx
+	Validated: evidence report records discovered files, chunks, SQL node count, indexing handoff count, and citation payload. `/api/v1/ingestion/history` reads manifest records and Settings -> Knowledge displays recent ingestion totals. Background queue semantics remain future enhancement.
 	DESKTOP
 	KI-5
-	DONE for PyInstaller backend module inclusion / PARTLY DONE for Electron UI resource workflow
-	backend.spec
-	Validated: backend.spec collects backend.ingestion for DataLogic_Backend.exe. Dedicated Electron Settings UI/IPC trigger and packaged script workflow remain future enhancements.
+	DONE for PyInstaller backend module inclusion and Settings UI trigger / PARTLY DONE for packaged script workflow and richer corpus loaders
+	backend.spec + frontend/app/settings/page.tsx + frontend/components/settings/KnowledgeIngestionSettings.tsx
+	Validated: backend.spec collects backend.ingestion for DataLogic_Backend.exe. Settings -> Knowledge loads supported types/history and triggers `POST /api/v1/ingestion/local`. Packaged standard-corpus loader workflow remains future enhancement.
 	DESKTOP
 	________________
 
@@ -1878,8 +1881,8 @@ Phase
 	scripts/verify_ki_ingestion.py + reports/ki_ingestion_evidence.json
 	COMPLETED — Disposable sample-corpus validation evidence
 	KI
-	frontend/app/settings/knowledge/ + rich PDF/DOCX/binary extractors + scripts/ingest_standard_corpus.py
-	FUTURE / PARTLY DONE — UI job controls and standard corpus loaders are enhancements beyond the completed local-first text-corpus slice
+	frontend/components/settings/KnowledgeIngestionSettings.tsx + rich PDF/DOCX/binary extractors + scripts/ingest_standard_corpus.py
+	PARTLY DONE — Settings UI path ingestion and manifest history are implemented; standard corpus loaders, rich extractors, async/background queue semantics, and SQL->Neo4j sync evidence remain future enhancements
 	________________
 
 
