@@ -61,7 +61,7 @@
 └──────────────────────────────────────────────────────────────────┘
                               +
 ┌──────────────────┐  ┌──────────────┐  ┌───────────────────┐
-│ Redis 5+         │  │ Neo4j 5      │  │ ChromaDB 1.4      │
+│ Redis 5+         │  │ Neo4j 5      │  │ ChromaDB 0.5      │
 │ Sessions         │  │ Graph nodes  │  │ Embedding vectors │
 │ Rate limit       │  │ Graph edges  │  │ RAG index         │
 │ Celery queue     │  │ (mirror of   │  │ (mirror of PG     │

@@ -82,7 +82,7 @@ graph TB
         POSTGRES[(PostgreSQL 15+\nPrimary store\nRLS enforced)]
         REDIS[(Redis 5+\nSessions · Cache · Queue)]
         NEO4J[(Neo4j 5\nGraph database)]
-        CHROMA[(ChromaDB 1.4\nVector store / RAG)]
+        CHROMA[(ChromaDB 0.5\nVector store / RAG)]
         MINIO[(MinIO\nObject storage)]
     end
 
