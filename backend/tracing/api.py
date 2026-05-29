@@ -5,6 +5,7 @@ REST API for accessing trace data with RBAC-aware filtering.
 """
 
 import json
+from datetime import datetime
 from flask import Blueprint, jsonify, request, Response
 from flask_login import current_user
 from backend.auth.api_decorators import api_session_login_required
@@ -16,7 +17,7 @@ from models import (
     TraceAxisVector, TracePersona, TraceKAInvocation,
     TracePolicyDecision, TraceMemoryEvent, TraceArtifact,
     ChatSession, TraceSpan, StageLog, TraceExport,
-    ClaimEvidenceLink, ComplianceMapping
+    ClaimEvidenceLink, ComplianceMapping, KAExecution
 )
 
 trace_bp = Blueprint('trace', __name__, url_prefix='/api/v1/trace')
@@ -58,6 +59,135 @@ def filter_by_permissions(data: dict) -> dict:
     """Filter response data based on user permissions."""
     # For now, return full data - implement redaction as needed
     return data
+
+
+def _user_can_access_run(run: TraceRun) -> bool:
+    return run.user_id == current_user.id or (hasattr(current_user, 'is_admin') and current_user.is_admin)
+
+
+def _latest_accessible_run() -> TraceRun | None:
+    query = TraceRun.query
+    if not (hasattr(current_user, 'is_admin') and current_user.is_admin):
+        query = query.filter_by(user_id=current_user.id)
+    running = query.filter_by(status='running').order_by(TraceRun.created_at.desc()).first()
+    if running:
+        return running
+    return query.order_by(TraceRun.created_at.desc()).first()
+
+
+def _confidence_from_payload(payload: dict | None) -> float | None:
+    if not isinstance(payload, dict):
+        return None
+    for key in ("confidence", "confidence_score", "collective_confidence"):
+        value = payload.get(key)
+        if isinstance(value, (int, float)):
+            return float(value)
+    return None
+
+
+def _count_frost_snapshots(stages: list[TraceStage], run: TraceRun) -> int:
+    count = int(run.frost_depth or 0)
+    for stage in stages:
+        metrics = stage.metrics if isinstance(stage.metrics, dict) else {}
+        for key in ("frost_depth", "frost_snapshot_count", "recursive_snapshots"):
+            value = metrics.get(key)
+            if isinstance(value, int):
+                count = max(count, value)
+    return count
+
+
+def _serialize_layer_progress(run: TraceRun) -> dict:
+    stages = TraceStage.query.filter_by(run_id=run.run_id).order_by(
+        TraceStage.layer_index, TraceStage.step_index
+    ).all()
+    current_stage = (
+        next((stage for stage in stages if stage.status == 'running'), None)
+        or next((stage for stage in stages if stage.status not in {'pass', 'completed', 'skipped'}), None)
+        or (stages[-1] if stages else None)
+    )
+    kas = TraceKAInvocation.query.filter_by(run_id=run.run_id).all()
+    personas = TracePersona.query.filter_by(run_id=run.run_id).all()
+    active_kas = [
+        {
+            "ka_id": ka.ka_id,
+            "ka_name": ka.ka_name,
+            "status": ka.status,
+            "confidence": _confidence_from_payload(ka.outputs),
+            "duration_ms": ka.duration_ms,
+        }
+        for ka in kas
+        if ka.status in {'pending', 'running'}
+    ]
+    if not active_kas:
+        active_kas = [
+            {
+                "ka_id": ka.ka_id,
+                "ka_name": ka.ka_name,
+                "status": ka.status,
+                "confidence": _confidence_from_payload(ka.outputs),
+                "duration_ms": ka.duration_ms,
+            }
+            for ka in kas[-6:]
+        ]
+
+    return {
+        "active_run_id": str(run.run_id),
+        "status": run.status,
+        "current_layer": current_stage.layer_index if current_stage else None,
+        "layer_name": current_stage.name if current_stage else None,
+        "kas_running": active_kas,
+        "confidence_so_far": run.confidence,
+        "persona_confidences": [
+            {
+                "persona": persona.persona_name or persona.persona_type,
+                "persona_type": persona.persona_type,
+                "confidence": persona.confidence,
+                "status": persona.status,
+            }
+            for persona in personas
+        ],
+        "frost_snapshot_count": _count_frost_snapshots(stages, run),
+        "updated_at": datetime.now().isoformat(),
+    }
+
+
+@trace_bp.route('/live-progress', methods=['GET'])
+@api_session_login_required
+def get_live_progress():
+    """Return current reasoning layer progress for desktop IPC."""
+    run = _latest_accessible_run()
+    if not run:
+        return jsonify({
+            "active_run_id": None,
+            "status": "idle",
+            "current_layer": None,
+            "layer_name": None,
+            "kas_running": [],
+            "confidence_so_far": None,
+            "persona_confidences": [],
+            "frost_snapshot_count": 0,
+            "updated_at": datetime.now().isoformat(),
+        })
+    if not _user_can_access_run(run):
+        return jsonify({'error': 'Access denied'}), 403
+    return jsonify(_serialize_layer_progress(run))
+
+
+@trace_bp.route('/ka-execution-feed', methods=['GET'])
+@api_session_login_required
+def get_ka_execution_feed():
+    """Return recent KA execution activity for desktop IPC."""
+    limit = min(max(request.args.get('limit', 20, type=int), 1), 100)
+    query = KAExecution.query
+    tenant_id = getattr(current_user, 'tenant_id', None)
+    if tenant_id:
+        query = query.filter_by(tenant_id=tenant_id)
+    executions = query.order_by(KAExecution.started_at.desc()).limit(limit).all()
+    return jsonify({
+        "items": [execution.to_dict() for execution in executions],
+        "limit": limit,
+        "updated_at": datetime.now().isoformat(),
+    })
 
 
 # ============== Run Endpoints ==============

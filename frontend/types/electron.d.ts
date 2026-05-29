@@ -68,6 +68,60 @@ export interface LocalModelStatus {
   active_model: string | null;
 }
 
+export interface ReasoningLayerProgress {
+  active_run_id: string | null;
+  status: string;
+  current_layer: number | null;
+  layer_name: string | null;
+  kas_running: Array<{
+    ka_id: string;
+    ka_name?: string | null;
+    status?: string;
+    confidence?: number | null;
+    duration_ms?: number | null;
+  }>;
+  confidence_so_far: number | null;
+  persona_confidences: Array<{
+    persona: string;
+    persona_type?: string;
+    confidence: number;
+    status?: string;
+  }>;
+  frost_snapshot_count: number;
+  updated_at: string;
+}
+
+export interface KAExecutionFeed {
+  items: Array<{
+    id: number;
+    uid: string;
+    ka_id: string;
+    status: string;
+    execution_time_ms: number | null;
+    started_at: string | null;
+    completed_at: string | null;
+  }>;
+  limit: number;
+  updated_at: string;
+}
+
+export interface DesktopStorageMetrics {
+  generated_at: string;
+  runtime_root: string;
+  sqlite: Record<string, unknown>;
+  neo4j: Record<string, unknown>;
+  chroma: Record<string, unknown>;
+  object_store: Record<string, unknown>;
+  structured_memory: Record<string, unknown>;
+  total_local_bytes: number;
+}
+
+export interface DesktopBackupResult {
+  artifact_path: string;
+  size_bytes: number;
+  manifest: Record<string, unknown>;
+}
+
 export interface ElectronAPI {
   ping: () => Promise<string>;
   getBackendStatus: () => Promise<string>;
@@ -77,6 +131,11 @@ export interface ElectronAPI {
   dsqpPersonaProfiles: () => Promise<DSQPPersonaProfilesStatus>;
   getNetworkStatus: () => Promise<DesktopNetworkStatus>;
   getLocalModelStatus: () => Promise<LocalModelStatus>;
+  getReasoningLayerProgress: () => Promise<ReasoningLayerProgress>;
+  getKAExecutionFeed: () => Promise<KAExecutionFeed>;
+  getDesktopStorageMetrics: () => Promise<DesktopStorageMetrics | null>;
+  chooseBackupFolder: () => Promise<string | null>;
+  runDatabaseBackup: (payload?: { target_dir?: string }) => Promise<DesktopBackupResult>;
   getUpdateState: () => Promise<DesktopUpdateState>;
   checkForUpdates: () => Promise<DesktopUpdateState>;
   downloadUpdate: () => Promise<DesktopUpdateState>;

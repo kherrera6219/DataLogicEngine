@@ -14,6 +14,8 @@ from typing import Any
 
 DEFAULT_STORAGE_SETTINGS: dict[str, Any] = {
     "auto_start_databases": True,
+    "local_slm_audit_mode": True,
+    "offline_queue_enabled": True,
 }
 
 
@@ -52,6 +54,8 @@ def load_storage_settings() -> dict[str, Any]:
         return settings
 
     settings["auto_start_databases"] = bool(settings.get("auto_start_databases", True))
+    settings["local_slm_audit_mode"] = bool(settings.get("local_slm_audit_mode", True))
+    settings["offline_queue_enabled"] = bool(settings.get("offline_queue_enabled", True))
     return settings
 
 
@@ -60,6 +64,8 @@ def save_storage_settings(settings: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(DEFAULT_STORAGE_SETTINGS)
     normalized.update(settings)
     normalized["auto_start_databases"] = bool(normalized.get("auto_start_databases", True))
+    normalized["local_slm_audit_mode"] = bool(normalized.get("local_slm_audit_mode", True))
+    normalized["offline_queue_enabled"] = bool(normalized.get("offline_queue_enabled", True))
 
     path = _settings_file_path()
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -82,3 +88,30 @@ def set_auto_start_databases(enabled: bool) -> bool:
     persisted = save_storage_settings(settings)
     return bool(persisted.get("auto_start_databases", True))
 
+
+def get_local_slm_audit_mode() -> bool:
+    """Return whether LocalSLM answers should carry explicit audit metadata."""
+    settings = load_storage_settings()
+    return bool(settings.get("local_slm_audit_mode", True))
+
+
+def set_local_slm_audit_mode(enabled: bool) -> bool:
+    """Update and persist the LocalSLM audit-mode preference."""
+    settings = load_storage_settings()
+    settings["local_slm_audit_mode"] = bool(enabled)
+    persisted = save_storage_settings(settings)
+    return bool(persisted.get("local_slm_audit_mode", True))
+
+
+def get_offline_queue_enabled() -> bool:
+    """Return whether desktop failed chat requests should be queued locally."""
+    settings = load_storage_settings()
+    return bool(settings.get("offline_queue_enabled", True))
+
+
+def set_offline_queue_enabled(enabled: bool) -> bool:
+    """Update and persist the desktop offline queue preference."""
+    settings = load_storage_settings()
+    settings["offline_queue_enabled"] = bool(enabled)
+    persisted = save_storage_settings(settings)
+    return bool(persisted.get("offline_queue_enabled", True))

@@ -1,7 +1,14 @@
 import os
 
+from backend.desktop.offline_queue import enqueue_chat_request, list_queue, mark_item
 from backend.llm_gateway.gateway import NetworkState
 from backend.storage.database_manager import DatabaseLifecycleManager
+from backend.storage.runtime_settings import (
+    get_local_slm_audit_mode,
+    get_offline_queue_enabled,
+    set_local_slm_audit_mode,
+    set_offline_queue_enabled,
+)
 
 
 def test_database_manager_prefers_app_owned_jre(tmp_path, monkeypatch):
@@ -41,3 +48,33 @@ def test_network_state_reports_desktop_degraded_with_remote_only(monkeypatch):
 
     assert status["state"] == "DEGRADED"
     assert status["active_provider"] == "openai"
+
+
+def test_desktop_runtime_flags_persist(tmp_path, monkeypatch):
+    settings_path = tmp_path / "settings.json"
+    monkeypatch.setenv("DATALOGIC_STORAGE_SETTINGS_PATH", str(settings_path))
+
+    assert get_local_slm_audit_mode() is True
+    assert get_offline_queue_enabled() is True
+
+    assert set_local_slm_audit_mode(False) is False
+    assert set_offline_queue_enabled(False) is False
+    assert get_local_slm_audit_mode() is False
+    assert get_offline_queue_enabled() is False
+
+
+def test_desktop_offline_queue_lifecycle(tmp_path, monkeypatch):
+    queue_path = tmp_path / "offline_queue.json"
+    monkeypatch.setenv("DATALOGIC_OFFLINE_QUEUE_PATH", str(queue_path))
+
+    item = enqueue_chat_request({"messages": [{"role": "user", "content": "hello"}]}, reason="test")
+    queue = list_queue()
+
+    assert queue["counts"]["pending"] == 1
+    assert queue["items"][0]["id"] == item["id"]
+
+    mark_item(item["id"], "completed", response={"run_id": "run-1"})
+    queue = list_queue()
+
+    assert queue["counts"]["completed"] == 1
+    assert queue["items"][0]["response"]["run_id"] == "run-1"

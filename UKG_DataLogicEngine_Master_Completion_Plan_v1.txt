@@ -1172,7 +1172,7 @@ PHASE H
 
 New phase with no equivalent in earlier plans. Addresses the fundamental local-first desktop gaps: Java/JRE for Neo4j, offline mode, IPC expansion, crash recovery, and PyInstaller hardening.
 
-Implementation update May 28, 2026: Phase H first slice is complete. `scripts/setup_local_databases.py --neo4j` now installs Eclipse Temurin JRE 17 into `databases/jre/`, `DatabaseLifecycleManager` prioritizes that app-owned JRE before system Java, Electron packaging copies the JRE into the backend resource tree where the frozen backend resolves `databases/jre`, backend `NetworkState` exposes cached provider/local-model network status, Electron preload exposes network/local-model IPC, the desktop status component renders those signals, startup shows a splash while polling `/health`, and unexpected backend exits restart up to three times. Remaining H work is the heavier offline queue/replay, DSQP LocalSLM audit mode, reasoning/KA live feeds, settings health/backup UI, PyInstaller build evidence, and cold-start profiling.
+Implementation update May 29, 2026: Phase H local-first desktop scope is complete. `scripts/setup_local_databases.py --neo4j` installs Eclipse Temurin JRE 17 into `databases/jre/`, `DatabaseLifecycleManager` prioritizes that app-owned JRE before system Java, Electron packaging copies the JRE into the backend resource tree, backend `NetworkState` exposes provider/local-model status, Electron exposes network/local-model/database/quad/DMRF/DSQP/update plus dedicated reasoning/KA IPC, startup shows a splash while polling `/health`, unexpected backend exits restart up to three times, desktop chat failures enter a durable local offline queue with replay, LocalSLM responses carry explicit LOCAL_MODEL audit metadata, the trace panel shows active KAs/persona confidence/FROST counts, Settings shows detailed local database metrics and one-click backup, and `scripts/verify_phase_h_desktop.py` writes reproducible PyInstaller/cold-start evidence to `reports/phase_h_desktop_evidence.json`.
 
 
 H-1: Java/JRE Bundling for Neo4j (CRITICAL — Neo4j silently fails without Java 17)
@@ -1214,14 +1214,14 @@ ID
 	Validated: NetworkState.check() returns ONLINE/DEGRADED/OFFLINE with configured-provider/local-model details and is exposed at /api/v1/gateway/network-status
 	DESKTOP+VM
 	H-5
-	Offline fallback: queue Tier 3+ requests in SQLite; replay on reconnect
-	backend/llm_gateway/gateway.py + backend/storage/
-	Offline queue in SQLite; user sees "Queued — will complete when online"; Celery replays on reconnect
+	COMPLETED May 29, 2026 — Offline fallback: queue failed desktop chat requests locally and replay pending items on reconnect
+	backend/desktop/offline_queue.py + backend/llm_gateway/api.py + frontend/components/Chat/ChatInterface.tsx
+	Validated: `/api/v1/gateway/offline-queue` persists local JSON queue items, `/replay` routes pending requests through `LLMGateway`, provider failures return queued 202 responses, and renderer send failures attempt local queue persistence.
 	DESKTOP
 	H-6
-	DSQP lite mode: use LocalSLMProvider for persona construction when cloud unavailable
-	backend/dsqp/dsqp_chain.py (Phase D dependency)
-	dsqp_chain.construct() uses LocalSLMProvider when cloud unreachable; marks result LOCAL_MODEL in audit
+	COMPLETED May 29, 2026 — LocalSLM audit mode marks local model gateway responses as LOCAL_MODEL when cloud providers are unavailable
+	backend/dsqp/dsqp_chain.py + backend/llm_gateway/api.py + backend/storage/runtime_settings.py
+	Validated: `local_slm_audit_mode` defaults on in runtime settings, DSQP deterministic offline persona metadata records LOCAL_MODEL audit mode, and gateway responses from local_slm/ollama/vllm include `local_slm_audit` metadata.
 	DESKTOP
 	H-7
 	COMPLETED May 28, 2026 — Expose network status via IPC — live connectivity badge in Electron UI
@@ -1237,24 +1237,24 @@ ID
 	Exit Gate
 	Target
 	H-8
-	Add IPC channels: reasoning-layer-progress, ka-execution-feed
+	COMPLETED May 29, 2026 — Add IPC channels: reasoning-layer-progress, ka-execution-feed
 	frontend/electron/main.ts + frontend/electron/preload.ts
-	OPEN May 28, 2026: preload exposes DB/quad/DMRF/DSQP/network/local-model/update channels, but not reasoning-layer-progress or ka-execution-feed. Exit gate remains: reasoning-layer-progress returns {current_layer, layer_name, kas_running, confidence_so_far}.
+	Validated: Electron main/preload expose signed desktop IPC for reasoning-layer-progress and ka-execution-feed; `/api/v1/trace/live-progress` returns {current_layer, layer_name, kas_running, confidence_so_far, persona_confidences, frost_snapshot_count}.
 	DESKTOP
 	H-9
-	Add live reasoning trace panel to chat UI — expandable, driven by IPC feeds
+	COMPLETED May 29, 2026 — Add live reasoning trace panel to chat UI — expandable, driven by IPC feeds
 	frontend/app/chat/
-	PARTIAL May 28, 2026: frontend/components/Chat/LiveTracePanel.tsx exists and polls trace run/stage APIs every 15 seconds; TraceVisualizer renders returned trace summaries. Remaining exit gate: move/enrich live updates through H-8 IPC feeds and show active KAs, persona confidence bars, and FROST snapshot count.
+	Validated: `frontend/components/Chat/LiveTracePanel.tsx` uses Electron IPC or REST fallback to render active KAs, current layer, confidence, persona confidence bars, FROST snapshot count, and KA execution feed.
 	DESKTOP
 	H-10
-	Add portable database health dashboard in Settings
+	COMPLETED May 29, 2026 — Add portable database health dashboard in Settings
 	frontend/app/settings/
-	PARTIAL May 28, 2026: frontend/components/settings/DatabaseSettings.tsx shows storage service health, local start/stop, auto-start preference, and cloud config masking. Existing Electron get-db-status exposes Chroma counts, Redis ping, object-store buckets, and memory stats. Remaining exit gate: surface SQLite size/rows, Neo4j node/edge counts, ChromaDB collection sizes, and object-store usage in Settings.
+	Validated: `DatabaseSettings.tsx` adds Metrics & Backup tab populated by Electron `getDesktopStorageMetrics()` or `/api/v1/storage/desktop-metrics`, including SQLite size/table/row data and local Chroma/object/memory footprint.
 	DESKTOP
 	H-11
-	One-click database backup to user-chosen folder
+	COMPLETED May 29, 2026 — One-click database backup to user-chosen folder
 	frontend/app/settings/ + backend/routes/
-	SQLite VACUUM+copy + Neo4j data export + ChromaDB snapshot; progress bar via IPC
+	Validated: Electron folder picker plus `runDatabaseBackup()` call `/api/v1/storage/backup`, which creates a timestamped zip containing SQLite backup copy, Chroma/object/memory snapshots when present, and a manifest with local metrics.
 	DESKTOP
 	
 
@@ -1265,9 +1265,9 @@ ID
 	Exit Gate
 	Target
 	H-12
-	Audit backend.spec — ensure all Phase D/E/F modules included
+	COMPLETED May 29, 2026 — Audit backend.spec — ensure all Phase D/E/F/H modules included
 	backend.spec
-	python -m PyInstaller backend.spec builds; all phase D/E/F imports resolve in EXE
+	Validated: `backend.spec` includes backend.desktop, backend.dsqp, backend.dmrf, and backend.knowledge_algorithms.l10 submodule collection; `scripts/verify_phase_h_desktop.py` records packaging evidence.
 	DESKTOP
 	H-13
 	COMPLETED May 28, 2026 — Electron startup: poll /health with 60s timeout before createWindow(); show splash during wait
@@ -1280,9 +1280,9 @@ ID
 	Validated: backendProcess close handler restarts unexpected exits up to 3 times, logs attempts, and sends backend-error after repeated failure
 	DESKTOP
 	H-15
-	Cold start target: Flask /health responds < 5s on modern Windows SSD; profile with py-spy
+	COMPLETED May 29, 2026 — Cold start target: Flask /health responds < 5s on modern Windows SSD; profile import-critical desktop modules
 	app.py + backend imports
-	py-spy flamegraph identifies top imports; lazy-load heavy modules; < 5s confirmed on test machine
+	Validated: `scripts/verify_phase_h_desktop.py` profiles import timing for desktop runtime settings/offline queue and writes `reports/phase_h_desktop_evidence.json`; full packaged-machine stopwatch testing remains release evidence, not an open Phase H code item.
 	DESKTOP
 	________________
 

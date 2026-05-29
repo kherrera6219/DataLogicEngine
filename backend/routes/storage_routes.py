@@ -8,13 +8,180 @@ Provides endpoints for:
 """
 
 import logging
+import json
 import os
+import shutil
+import sqlite3
+from datetime import UTC, datetime
+from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 from flask import Blueprint, jsonify, request
 from backend.auth.api_decorators import api_session_login_required
 
 storage_api = Blueprint('storage_api', __name__, url_prefix='/api/v1/storage')
 logger = logging.getLogger(__name__)
+
+
+def _runtime_root() -> Path:
+    settings_path = os.environ.get("DATALOGIC_STORAGE_SETTINGS_PATH")
+    if settings_path:
+        return Path(settings_path).resolve().parent
+    return Path.cwd()
+
+
+def _sqlite_path_from_database_url() -> Path | None:
+    url = os.environ.get("DATABASE_URL") or ""
+    if not url.startswith("sqlite"):
+        return None
+    parsed = urlparse(url)
+    if parsed.path:
+        return Path(unquote(parsed.path)).resolve()
+    if ":///" in url:
+        return Path(unquote(url.split(":///", 1)[1])).resolve()
+    return None
+
+
+def _directory_size(path: Path) -> int:
+    if not path.exists():
+        return 0
+    if path.is_file():
+        return path.stat().st_size
+    total = 0
+    for child in path.rglob("*"):
+        try:
+            if child.is_file():
+                total += child.stat().st_size
+        except OSError:
+            continue
+    return total
+
+
+def _sqlite_metrics() -> dict:
+    db_path = _sqlite_path_from_database_url()
+    if not db_path or not db_path.exists():
+        return {"available": False, "path": str(db_path) if db_path else None, "size_bytes": 0, "tables": 0, "rows": 0}
+
+    metrics = {"available": True, "path": str(db_path), "size_bytes": db_path.stat().st_size, "tables": 0, "rows": 0}
+    try:
+        with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as conn:
+            table_names = [
+                row[0]
+                for row in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+                ).fetchall()
+            ]
+            metrics["tables"] = len(table_names)
+            metrics["rows"] = sum(
+                int(conn.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0])
+                for table in table_names
+            )
+    except Exception as exc:
+        metrics["available"] = False
+        metrics["error"] = str(exc)
+    return metrics
+
+
+def _local_path_metrics(name: str, relative_path: str) -> dict:
+    path = (_runtime_root() / relative_path).resolve()
+    return {
+        "name": name,
+        "path": str(path),
+        "exists": path.exists(),
+        "size_bytes": _directory_size(path),
+    }
+
+
+def _object_store_metrics() -> dict:
+    base_path = (_runtime_root() / "databases" / "objects").resolve()
+    buckets = {}
+    if base_path.exists():
+        for child in base_path.iterdir():
+            if child.is_dir():
+                buckets[child.name] = {
+                    "object_count": sum(1 for item in child.rglob("*") if item.is_file()),
+                    "total_bytes": _directory_size(child),
+                }
+    return {"path": str(base_path), "buckets": buckets, "size_bytes": _directory_size(base_path)}
+
+
+def _neo4j_metrics() -> dict:
+    data_path = (_runtime_root() / "databases" / "neo4j" / "data").resolve()
+    return {
+        "available": data_path.exists(),
+        "path": str(data_path),
+        "size_bytes": _directory_size(data_path),
+    }
+
+
+def _build_desktop_metrics() -> dict:
+    sqlite_metrics = _sqlite_metrics()
+    chroma_metrics = _local_path_metrics("chroma", "databases/chroma")
+    memory_metrics = _local_path_metrics("structured_memory", "databases/memory")
+    object_metrics = _object_store_metrics()
+    return {
+        "generated_at": datetime.now(UTC).isoformat(),
+        "runtime_root": str(_runtime_root()),
+        "sqlite": sqlite_metrics,
+        "neo4j": _neo4j_metrics(),
+        "chroma": chroma_metrics,
+        "object_store": object_metrics,
+        "structured_memory": memory_metrics,
+        "total_local_bytes": sum(
+            int(item.get("size_bytes") or 0)
+            for item in [sqlite_metrics, chroma_metrics, object_metrics, memory_metrics]
+        ),
+    }
+
+
+def _create_backup(target_dir: str | None = None) -> dict:
+    root = _runtime_root()
+    backup_root = Path(target_dir).expanduser().resolve() if target_dir else root / "backups"
+    backup_root.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    staging_dir = backup_root / f"datalogic_backup_{timestamp}"
+    staging_dir.mkdir(parents=True, exist_ok=False)
+
+    manifest = {
+        "created_at": datetime.now(UTC).isoformat(),
+        "runtime_root": str(root),
+        "components": {},
+    }
+
+    db_path = _sqlite_path_from_database_url()
+    if db_path and db_path.exists():
+        sqlite_target = staging_dir / "ukg_database.db"
+        with sqlite3.connect(db_path) as source, sqlite3.connect(sqlite_target) as target:
+            source.backup(target)
+        manifest["components"]["sqlite"] = {"path": str(db_path), "included": True}
+    else:
+        manifest["components"]["sqlite"] = {"path": str(db_path) if db_path else None, "included": False}
+
+    for name, relative_path in {
+        "chroma": "databases/chroma",
+        "objects": "databases/objects",
+        "memory": "databases/memory",
+    }.items():
+        source = (root / relative_path).resolve()
+        if source.exists():
+            shutil.copytree(source, staging_dir / name, dirs_exist_ok=True)
+            manifest["components"][name] = {"path": str(source), "included": True}
+        else:
+            manifest["components"][name] = {"path": str(source), "included": False}
+
+    manifest["metrics"] = _build_desktop_metrics()
+    manifest_path = staging_dir / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
+    archive_base = str(staging_dir)
+    archive_path = shutil.make_archive(archive_base, "zip", staging_dir)
+    shutil.rmtree(staging_dir)
+    return {
+        "artifact_path": archive_path,
+        "manifest": manifest,
+        "size_bytes": Path(archive_path).stat().st_size,
+    }
 
 
 @storage_api.route('/health', methods=['GET'])
@@ -68,6 +235,85 @@ def check_service_health(service: str):
             'success': False,
             'error': str(e)
         }), 500
+
+
+@storage_api.route('/desktop-metrics', methods=['GET'])
+@api_session_login_required
+def get_desktop_metrics():
+    """Return detailed local desktop storage metrics."""
+    try:
+        return jsonify({
+            'success': True,
+            'data': _build_desktop_metrics(),
+        })
+    except Exception as e:
+        logger.error("Failed to build desktop metrics: %s", e)
+        return jsonify({
+            'success': False,
+            'error': 'Failed to build desktop metrics'
+        }), 500
+
+
+@storage_api.route('/backup', methods=['POST'])
+@api_session_login_required
+def run_desktop_backup():
+    """Create a one-click local backup archive in the selected folder."""
+    try:
+        data = request.get_json(silent=True) or {}
+        target_dir = data.get("target_dir") if isinstance(data.get("target_dir"), str) else None
+        backup = _create_backup(target_dir)
+        return jsonify({
+            'success': True,
+            'data': backup,
+        }), 201
+    except Exception as e:
+        logger.error("Desktop backup failed: %s", e)
+        return jsonify({
+            'success': False,
+            'error': 'Desktop backup failed'
+        }), 500
+
+
+@storage_api.route('/desktop-flags', methods=['GET'])
+@api_session_login_required
+def get_desktop_flags():
+    """Return desktop local-first runtime feature flags."""
+    try:
+        from backend.storage.runtime_settings import (
+            get_local_slm_audit_mode,
+            get_offline_queue_enabled,
+        )
+        return jsonify({
+            'success': True,
+            'data': {
+                'local_slm_audit_mode': get_local_slm_audit_mode(),
+                'offline_queue_enabled': get_offline_queue_enabled(),
+            },
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@storage_api.route('/desktop-flags', methods=['POST'])
+@api_session_login_required
+def set_desktop_flags():
+    """Persist desktop local-first runtime feature flags."""
+    try:
+        from backend.storage.runtime_settings import (
+            set_local_slm_audit_mode,
+            set_offline_queue_enabled,
+        )
+        data = request.get_json(silent=True) or {}
+        response: dict[str, bool] = {}
+        if 'local_slm_audit_mode' in data:
+            response['local_slm_audit_mode'] = set_local_slm_audit_mode(bool(data.get('local_slm_audit_mode')))
+        if 'offline_queue_enabled' in data:
+            response['offline_queue_enabled'] = set_offline_queue_enabled(bool(data.get('offline_queue_enabled')))
+        if not response:
+            return jsonify({'success': False, 'error': 'No desktop flags provided'}), 400
+        return jsonify({'success': True, 'data': response})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @storage_api.route('/test-connection', methods=['POST'])

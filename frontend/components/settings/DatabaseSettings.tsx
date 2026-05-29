@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Database, Server, HardDrive, Network, Zap, 
   CheckCircle, XCircle, RefreshCw, Play, Square,
-  Cloud, Laptop, Settings2, AlertCircle
+  Cloud, Laptop, Settings2, AlertCircle, Archive
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,6 +45,23 @@ interface LifecycleResponse {
   message?: string;
 }
 
+interface DesktopStorageMetrics {
+  generated_at: string;
+  runtime_root: string;
+  sqlite: Record<string, unknown>;
+  neo4j: Record<string, unknown>;
+  chroma: Record<string, unknown>;
+  object_store: Record<string, unknown>;
+  structured_memory: Record<string, unknown>;
+  total_local_bytes: number;
+}
+
+interface DesktopBackupResult {
+  artifact_path: string;
+  size_bytes: number;
+  manifest: Record<string, unknown>;
+}
+
 const SERVICE_ICONS: Record<string, React.ElementType> = {
   postgres: Database,
   redis: Zap,
@@ -66,6 +83,14 @@ function formatErrorMessage(error: unknown): string {
     return error.message;
   }
   return String(error);
+}
+
+function formatBytes(value: unknown): string {
+  const bytes = typeof value === 'number' ? value : 0;
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
 }
 
 function isStorageHealth(value: unknown): value is StorageHealth {
@@ -103,6 +128,9 @@ export function DatabaseSettings() {
   const [autoStartEnabled, setAutoStartEnabled] = useState(true);
   const [savingAutoStart, setSavingAutoStart] = useState(false);
   const [activeTab, setActiveTab] = useState('status');
+  const [desktopMetrics, setDesktopMetrics] = useState<DesktopStorageMetrics | null>(null);
+  const [backupRunning, setBackupRunning] = useState(false);
+  const [lastBackup, setLastBackup] = useState<DesktopBackupResult | null>(null);
   // Cloud config state
   const [cloudConfig, setCloudConfig] = useState<CloudConfig>(EMPTY_CLOUD);
   const [savedCloudKeys, setSavedCloudKeys] = useState<Record<string, boolean>>({});
@@ -143,9 +171,12 @@ export function DatabaseSettings() {
 
   const fetchHealth = useCallback(async () => {
     try {
-      const [healthData, autoStartData] = await Promise.all([
+      const [healthData, autoStartData, metricsData] = await Promise.all([
         request<StorageHealth>('/storage/health'),
         request<AutoStartResponse>('/storage/databases/autostart').catch(() => ({ enabled: true })),
+        window.electronAPI?.getDesktopStorageMetrics
+          ? window.electronAPI.getDesktopStorageMetrics().catch(() => null)
+          : request<DesktopStorageMetrics>('/storage/desktop-metrics').catch(() => null),
       ]);
 
       if (isStorageHealth(healthData)) {
@@ -159,6 +190,7 @@ export function DatabaseSettings() {
       if (typeof autoStartData.enabled === 'boolean') {
         setAutoStartEnabled(autoStartData.enabled);
       }
+      setDesktopMetrics(metricsData);
     } catch (error) {
       console.error('Failed to fetch storage health:', error);
       toast(`Failed to fetch storage health: ${formatErrorMessage(error)}`, 'error');
@@ -245,6 +277,35 @@ export function DatabaseSettings() {
       toast(`Failed to save auto-start preference: ${formatErrorMessage(error)}`, 'error');
     } finally {
       setSavingAutoStart(false);
+    }
+  };
+
+  const handleBackup = async () => {
+    setBackupRunning(true);
+    try {
+      let target_dir: string | undefined;
+      if (window.electronAPI?.chooseBackupFolder) {
+        const selected = await window.electronAPI.chooseBackupFolder();
+        if (!selected) {
+          setBackupRunning(false);
+          return;
+        }
+        target_dir = selected;
+      }
+
+      const result = window.electronAPI?.runDatabaseBackup
+        ? await window.electronAPI.runDatabaseBackup({ target_dir })
+        : await request<DesktopBackupResult>('/storage/backup', {
+            method: 'POST',
+            body: JSON.stringify({ target_dir }),
+          });
+      setLastBackup(result);
+      toast('Database backup completed.', 'success', 3000);
+      void fetchHealth();
+    } catch (error) {
+      toast(`Backup failed: ${formatErrorMessage(error)}`, 'error');
+    } finally {
+      setBackupRunning(false);
     }
   };
 
@@ -385,6 +446,7 @@ export function DatabaseSettings() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="status">Status</TabsTrigger>
+          <TabsTrigger value="metrics">Metrics & Backup</TabsTrigger>
           <TabsTrigger value="local">Local Config</TabsTrigger>
           <TabsTrigger value="cloud">Cloud Config</TabsTrigger>
         </TabsList>
@@ -395,6 +457,92 @@ export function DatabaseSettings() {
               renderServiceCard(key, status)
             )}
           </div>
+        </TabsContent>
+
+        <TabsContent value="metrics" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <HardDrive className="h-5 w-5" />
+                Local Storage Metrics
+              </CardTitle>
+              <CardDescription>
+                Runtime storage footprint and local database inventory
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {desktopMetrics ? (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                    {[
+                      ['SQLite', desktopMetrics.sqlite],
+                      ['Neo4j', desktopMetrics.neo4j],
+                      ['Chroma', desktopMetrics.chroma],
+                      ['Objects', desktopMetrics.object_store],
+                    ].map(([label, metric]) => {
+                      const data = metric as Record<string, unknown>;
+                      return (
+                        <div key={label as string} className="rounded-md border p-3">
+                          <div className="text-xs text-muted-foreground uppercase">{label as string}</div>
+                          <div className="text-lg font-semibold">{formatBytes(data.size_bytes)}</div>
+                          {'tables' in data && (
+                            <div className="text-xs text-muted-foreground">
+                              {String(data.tables)} tables, {String(data.rows)} rows
+                            </div>
+                          )}
+                          {'exists' in data && (
+                            <div className="text-xs text-muted-foreground">
+                              {data.exists ? 'Present' : 'Not created'}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="rounded-md border p-3 text-sm">
+                    <div className="font-medium">Runtime root</div>
+                    <div className="text-xs text-muted-foreground break-all">{desktopMetrics.runtime_root}</div>
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      Total local data: {formatBytes(desktopMetrics.total_local_bytes)}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="rounded-md border p-3 text-sm text-muted-foreground">
+                  Desktop metrics are not available yet.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Archive className="h-5 w-5" />
+                Backup
+              </CardTitle>
+              <CardDescription>
+                Create a portable archive of local desktop storage
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button onClick={handleBackup} disabled={backupRunning}>
+                {backupRunning ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Archive className="h-4 w-4 mr-2" />
+                )}
+                {backupRunning ? 'Backing Up...' : 'Run Backup'}
+              </Button>
+              {lastBackup && (
+                <div className="rounded-md border p-3 text-sm">
+                  <div className="font-medium">Last backup</div>
+                  <div className="text-xs text-muted-foreground break-all">{lastBackup.artifact_path}</div>
+                  <div className="text-xs text-muted-foreground">{formatBytes(lastBackup.size_bytes)}</div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="local" className="space-y-4">

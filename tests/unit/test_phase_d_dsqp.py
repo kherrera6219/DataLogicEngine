@@ -28,6 +28,7 @@ def test_dsqp_chain_returns_seven_component_json_serializable_persona():
     assert set(payload["components"]) == set(COMPONENT_KEYS)
     assert len(payload["dsqp_chain"]) == 7
     assert payload["coverage_score"] >= 0.70
+    assert payload["metadata"]["local_slm_audit"]["mode"] == "LOCAL_MODEL"
     assert DSQPValidator().validate(payload)["valid"] is True
 
 

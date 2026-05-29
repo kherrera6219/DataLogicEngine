@@ -128,6 +128,13 @@ class DSQPChain:
         ).hexdigest()[:12]
         title = components["job_role"]["title"]
         coverage_score = self._coverage_score(components)
+        try:
+            from backend.storage.runtime_settings import get_local_slm_audit_mode
+
+            local_slm_audit_enabled = get_local_slm_audit_mode()
+        except Exception:
+            local_slm_audit_enabled = True
+
         persona = ExpandedPersona(
             persona_id=f"dsqp_{axis_number}_{digest}",
             axis_number=axis_number,
@@ -142,6 +149,11 @@ class DSQPChain:
                 "axis_vector": axis_vector,
                 "query_digest": hashlib.sha256(query.encode()).hexdigest()[:16],
                 "construction_mode": "deterministic_offline",
+                "local_slm_audit": {
+                    "mode": "LOCAL_MODEL",
+                    "enabled": local_slm_audit_enabled,
+                    "reason": "desktop_offline_dsqp_construction",
+                },
             },
         )
         self._persist_deliverable(persona)

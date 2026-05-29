@@ -1,5 +1,5 @@
-import { app, BrowserWindow, ipcMain, protocol, safeStorage, session } from 'electron';
-import type { IpcMainInvokeEvent } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, protocol, safeStorage, session } from 'electron';
+import type { IpcMainInvokeEvent, OpenDialogOptions } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
@@ -402,6 +402,36 @@ function createWindow() {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+}
+
+function assertTrustedIpcSender(event: IpcMainInvokeEvent, channel: string): void {
+  if (!isTrustedIpcSender(event)) {
+    throw new Error(`Blocked untrusted IPC sender for channel "${channel}"`);
+  }
+}
+
+function desktopRequestHeaders(method: string, requestUrl: string): Record<string, string> {
+  const timestamp = Math.floor(Date.now() / 1000).toString();
+  return {
+    'Content-Type': 'application/json',
+    'X-DataLogic-Desktop': 'true',
+    'X-Desktop-Auth-Timestamp': timestamp,
+    'X-Desktop-Auth-Request-Signature': signDesktopAuthPayload(
+      signedDesktopRequestPayload(method, requestUrl, timestamp),
+    ),
+  };
+}
+
+function desktopFetch(requestUrl: string, init: RequestInit = {}): Promise<Response> {
+  const method = (init.method || 'GET').toString().toUpperCase();
+  return fetch(requestUrl, {
+    ...init,
+    method,
+    headers: {
+      ...desktopRequestHeaders(method, requestUrl),
+      ...(init.headers as Record<string, string> | undefined),
+    },
   });
 }
 
@@ -873,6 +903,104 @@ ipcMain.handle('local-model-status', async (event, ...args: unknown[]) => {
   } catch {
     return { ollama_available: false, models_installed: [], active_model: null };
   }
+});
+
+ipcMain.handle('reasoning-layer-progress', async (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'reasoning-layer-progress', args);
+  if (!backendProcess || backendProcess.exitCode !== null) {
+    return {
+      active_run_id: null,
+      status: 'offline',
+      current_layer: null,
+      layer_name: null,
+      kas_running: [],
+      confidence_so_far: null,
+      persona_confidences: [],
+      frost_snapshot_count: 0,
+      updated_at: new Date().toISOString(),
+    };
+  }
+
+  try {
+    const response = await desktopFetch('http://127.0.0.1:5000/api/v1/trace/live-progress');
+    if (!response.ok) {
+      throw new Error(`Backend returned ${response.status}`);
+    }
+    return await responseJson<Record<string, unknown>>(response);
+  } catch {
+    return {
+      active_run_id: null,
+      status: 'unavailable',
+      current_layer: null,
+      layer_name: null,
+      kas_running: [],
+      confidence_so_far: null,
+      persona_confidences: [],
+      frost_snapshot_count: 0,
+      updated_at: new Date().toISOString(),
+    };
+  }
+});
+
+ipcMain.handle('ka-execution-feed', async (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'ka-execution-feed', args);
+  if (!backendProcess || backendProcess.exitCode !== null) {
+    return { items: [], limit: 20, updated_at: new Date().toISOString() };
+  }
+
+  try {
+    const response = await desktopFetch('http://127.0.0.1:5000/api/v1/trace/ka-execution-feed?limit=20');
+    if (!response.ok) {
+      throw new Error(`Backend returned ${response.status}`);
+    }
+    return await responseJson<Record<string, unknown>>(response);
+  } catch {
+    return { items: [], limit: 20, updated_at: new Date().toISOString() };
+  }
+});
+
+ipcMain.handle('get-desktop-storage-metrics', async (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'get-desktop-storage-metrics', args);
+  if (!backendProcess || backendProcess.exitCode !== null) {
+    return null;
+  }
+
+  const response = await desktopFetch('http://127.0.0.1:5000/api/v1/storage/desktop-metrics');
+  const payload = await responseJson<{ data?: unknown }>(response);
+  return payload?.data ?? payload;
+});
+
+ipcMain.handle('choose-backup-folder', async (event, ...args: unknown[]) => {
+  assertTrustedIpcInvoke(event, 'choose-backup-folder', args);
+  const options: OpenDialogOptions = {
+    properties: ['openDirectory', 'createDirectory'],
+    title: 'Choose DataLogicEngine backup folder',
+  };
+  const result = mainWindow
+    ? await dialog.showOpenDialog(mainWindow, options)
+    : await dialog.showOpenDialog(options);
+  return result.canceled ? null : result.filePaths[0] ?? null;
+});
+
+ipcMain.handle('run-database-backup', async (event, payload?: unknown, ...args: unknown[]) => {
+  assertTrustedIpcSender(event, 'run-database-backup');
+  if (args.length > 0) {
+    throw new Error('Blocked unexpected IPC payload for channel "run-database-backup"');
+  }
+  const targetDir =
+    payload && typeof payload === 'object' && typeof (payload as { target_dir?: unknown }).target_dir === 'string'
+      ? (payload as { target_dir: string }).target_dir
+      : undefined;
+
+  const response = await desktopFetch('http://127.0.0.1:5000/api/v1/storage/backup', {
+    method: 'POST',
+    body: JSON.stringify({ target_dir: targetDir }),
+  });
+  const result = await responseJson<{ data?: unknown; error?: string }>(response);
+  if (!response.ok) {
+    throw new Error(result?.error || `Backup failed with status ${response.status}`);
+  }
+  return result?.data ?? result;
 });
 
 ipcMain.handle('get-update-state', (event, ...args: unknown[]) => {

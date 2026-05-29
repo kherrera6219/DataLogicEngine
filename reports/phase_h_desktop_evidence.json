@@ -1,0 +1,45 @@
+{
+  "generated_at": "2026-05-29T05:42:20.419301+00:00",
+  "packaging": {
+    "backend_spec": {
+      "collect_submodules('backend.dsqp')": true,
+      "collect_submodules('backend.dmrf')": true,
+      "collect_submodules('backend.desktop')": true,
+      "collect_submodules('backend.knowledge_algorithms.l10')": true,
+      "backend/dsqp/templates": true
+    },
+    "electron_builder": {
+      "../dist/DataLogic_Backend": true,
+      "../databases/jre": true,
+      "../policies": true
+    }
+  },
+  "ipc": {
+    "preload": {
+      "reasoning-layer-progress": true,
+      "ka-execution-feed": true,
+      "get-desktop-storage-metrics": true,
+      "run-database-backup": true
+    },
+    "main": {
+      "reasoning-layer-progress": true,
+      "ka-execution-feed": true,
+      "choose-backup-folder": true,
+      "run-database-backup": true
+    }
+  },
+  "cold_start_profile": {
+    "backend.storage.runtime_settings": {
+      "ok": true,
+      "duration_ms": 921.26,
+      "error": ""
+    },
+    "backend.desktop.offline_queue": {
+      "ok": true,
+      "duration_ms": 5.12,
+      "error": ""
+    }
+  },
+  "success": true,
+  "failures": []
+}

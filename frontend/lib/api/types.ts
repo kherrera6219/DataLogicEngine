@@ -17,11 +17,13 @@ export interface ChatRequest {
 }
 
 export interface ChatResponse {
-  response: string;
+  response?: string;
   history?: Message[];
   trace_id?: string;
   trace_summary?: unknown;
   error?: string;
+  queued?: boolean;
+  queue_item?: unknown;
   provider_used?: string;
   model_used?: string;
 }

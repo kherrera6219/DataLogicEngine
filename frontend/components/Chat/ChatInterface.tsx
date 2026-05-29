@@ -188,6 +188,16 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         };
         setMessages(prev => [...prev, assistantMsg]);
         setIsLoading(false);
+      } else if ((data as { queued?: boolean }).queued) {
+        const queuedMsg: ChatMessage = {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: 'The local desktop queue saved this request for replay when providers are reachable.',
+          finalAnswer: 'The local desktop queue saved this request for replay when providers are reachable.',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        setMessages(prev => [...prev, queuedMsg]);
+        setIsLoading(false);
       }
       
       // Refresh session list in case a new session was created
@@ -195,6 +205,18 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       setSessions(sessionData.sessions || []);
 
     } catch (error) {
+      await request('/gateway/offline-queue', {
+        method: 'POST',
+        body: JSON.stringify({
+          reason: 'renderer_send_failure',
+          payload: {
+            messages: [{ role: 'user', content: userMsg.content }],
+            mode,
+            session_id: currentSessionId ?? undefined,
+            run_ukg_pipeline: true,
+          },
+        }),
+      }).catch(() => undefined);
       reportClientError(error, {
         module: 'ChatInterface',
         action: 'sendMessage',
@@ -202,8 +224,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       const errorMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
-        content: 'Your request could not be completed. This may be a temporary issue â€” please try again. If the problem continues, check that your API key is configured in Settings â†’ AI Models.',
-        finalAnswer: 'Your request could not be completed. This may be a temporary issue â€” please try again. If the problem continues, check that your API key is configured in Settings â†’ AI Models.',
+        content: 'Your request could not be completed. In desktop mode it was added to the local offline queue when possible.',
+        finalAnswer: 'Your request could not be completed. In desktop mode it was added to the local offline queue when possible.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, errorMsg]);

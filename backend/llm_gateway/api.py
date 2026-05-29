@@ -31,6 +31,8 @@ from backend.llm_gateway.gateway import LLMGateway, GatewayRequest, NetworkState
 from backend.llm_gateway.model_defaults import default_model_for_provider
 from backend.llm_gateway.schemas import GatewayChatRequest
 from backend.auth.api_decorators import api_session_login_required
+from backend.desktop.offline_queue import enqueue_chat_request, list_queue, mark_item
+from backend.storage.runtime_settings import get_local_slm_audit_mode, get_offline_queue_enabled
 from backend.utils.request_validation import validate_pydantic_payload
 from backend.utils.error_normalization import normalize_public_error_message
 try:
@@ -272,8 +274,30 @@ async def gateway_chat():
     response = await gateway.process(gateway_request)
     
     if not response:
+        if get_offline_queue_enabled():
+            queued = enqueue_chat_request(data, reason="gateway_no_response")
+            return jsonify({
+                'error': 'No response generated from any provider',
+                'code': 'GATEWAY_QUEUED_OFFLINE',
+                'queued': True,
+                'queue_item': queued,
+            }), 202
         return jsonify({'error': 'No response generated from any provider'}), 503
     if not getattr(response, "ok", True):
+        if get_offline_queue_enabled():
+            queued = enqueue_chat_request(data, reason=_public_gateway_error(response.error, fallback='gateway_failed'))
+            return jsonify({
+                'error': _public_gateway_error(
+                    response.error,
+                    fallback='Gateway failed to generate a response',
+                ),
+                'code': 'GATEWAY_QUEUED_OFFLINE',
+                'run_id': response.run_id,
+                'provider_used': response.provider_used,
+                'model_used': response.model_used,
+                'queued': True,
+                'queue_item': queued,
+            }), 202
         return jsonify({
             'error': _public_gateway_error(
                 response.error,
@@ -289,6 +313,17 @@ async def gateway_chat():
     if isinstance(response.explainability, dict):
         output_classification = response.explainability.get('output_classification')
 
+    provider_used = response.provider_used or ""
+    local_slm_audit = None
+    if get_local_slm_audit_mode() and provider_used.lower() in {"local_slm", "ollama", "vllm"}:
+        local_slm_audit = {
+            "mode": "LOCAL_MODEL",
+            "provider": provider_used,
+            "model": response.model_used,
+            "offline_cap_applied": bool(response.meta.get("offline_guard")) if hasattr(response, "meta") else False,
+            "recorded_at": datetime.now(UTC).isoformat(),
+        }
+
     return api_response({
         'response': response.content,
         'run_id': response.run_id,
@@ -301,8 +336,75 @@ async def gateway_chat():
         'claims': [], 
         'evidence_count': 0,
         'output_classification': output_classification,
+        'local_slm_audit': local_slm_audit,
         'warnings': response.warnings,
     })
+
+
+@gateway_bp.route('/offline-queue', methods=['GET'])
+@api_session_login_required
+def get_offline_queue():
+    """Return locally persisted desktop chat requests waiting for replay."""
+    return api_response(list_queue())
+
+
+@gateway_bp.route('/offline-queue', methods=['POST'])
+@api_session_login_required
+def add_offline_queue_item():
+    """Explicitly queue a chat payload from the desktop renderer."""
+    if not get_offline_queue_enabled():
+        return jsonify({'error': 'Offline queue is disabled'}), 409
+
+    raw_data = request.get_json(silent=True) or {}
+    payload = raw_data.get("payload") if isinstance(raw_data.get("payload"), dict) else raw_data
+    if not isinstance(payload, dict) or not payload.get("messages"):
+        return jsonify({'error': 'payload.messages required'}), 400
+
+    queued = enqueue_chat_request(payload, reason=str(raw_data.get("reason") or "renderer_offline"))
+    return api_response({"queued": True, "queue_item": queued}, status_code=202)
+
+
+@gateway_bp.route('/offline-queue/replay', methods=['POST'])
+@api_session_login_required
+async def replay_offline_queue():
+    """Replay pending desktop chat requests through the normal gateway path."""
+    queue = list_queue()
+    pending = [item for item in queue["items"] if item.get("status") == "pending"]
+    results = []
+    gateway = LLMGateway()
+
+    for item in pending:
+        payload = item.get("payload") if isinstance(item.get("payload"), dict) else {}
+        mark_item(str(item.get("id")), "pending")
+        gateway_request = GatewayRequest(
+            messages=payload.get("messages", []),
+            provider=payload.get("provider"),
+            model=payload.get("model"),
+            mode=payload.get("mode", "chat"),
+            constraints=payload.get("constraints", {}),
+            run_ukg_pipeline=payload.get("run_ukg_pipeline", True),
+            temperature=payload.get("temperature", 0.7),
+            max_tokens=payload.get("max_tokens"),
+            user_id=getattr(g.auth_user, "id", None),
+            session_id=payload.get("session_id"),
+            api_key_id=None,
+            meta={**payload.get("meta", {}), "offline_replay": True},
+        )
+        response = await gateway.process(gateway_request)
+        if response and getattr(response, "ok", True):
+            replay_response = {
+                "run_id": response.run_id,
+                "provider_used": response.provider_used,
+                "model_used": response.model_used,
+            }
+            mark_item(str(item.get("id")), "completed", response=replay_response)
+            results.append({"id": item.get("id"), "status": "completed", **replay_response})
+        else:
+            error = getattr(response, "error", None) if response else "No response generated"
+            mark_item(str(item.get("id")), "failed", error=_public_gateway_error(error, fallback="Replay failed"))
+            results.append({"id": item.get("id"), "status": "failed", "error": _public_gateway_error(error, fallback="Replay failed")})
+
+    return api_response({"replayed": len(results), "results": results, "queue": list_queue()})
 
 
 @gateway_bp.route('/chat/stream', methods=['POST'])

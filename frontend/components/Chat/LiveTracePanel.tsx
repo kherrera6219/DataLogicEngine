@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
+import { request } from '@/lib/api';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +37,38 @@ interface TraceStageRecord {
   };
 }
 
+interface ReasoningLayerProgress {
+  active_run_id: string | null;
+  status: string;
+  current_layer: number | null;
+  layer_name: string | null;
+  kas_running: Array<{
+    ka_id: string;
+    ka_name?: string | null;
+    status?: string;
+    confidence?: number | null;
+    duration_ms?: number | null;
+  }>;
+  confidence_so_far: number | null;
+  persona_confidences: Array<{
+    persona: string;
+    confidence: number;
+    status?: string;
+  }>;
+  frost_snapshot_count: number;
+}
+
+interface KAExecutionFeed {
+  items: Array<{
+    id: number;
+    uid: string;
+    ka_id: string;
+    status: string;
+    execution_time_ms: number | null;
+    started_at: string | null;
+  }>;
+}
+
 function formatStatus(value?: string): string {
   if (!value) return 'unknown';
   return value.replace(/_/g, ' ');
@@ -62,6 +95,8 @@ export function LiveTracePanel() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reasoningProgress, setReasoningProgress] = useState<ReasoningLayerProgress | null>(null);
+  const [kaFeed, setKaFeed] = useState<KAExecutionFeed | null>(null);
 
   const loadTraceData = useCallback(async () => {
     setError(null);
@@ -79,10 +114,22 @@ export function LiveTracePanel() {
         .getStages(selectedRun.run_id)
         .catch(() => ({ stages: [] as TraceStageRecord[] })) as { stages?: TraceStageRecord[] };
       setStages(stagePayload.stages || []);
+
+      const progressPayload = window.electronAPI?.getReasoningLayerProgress
+        ? await window.electronAPI.getReasoningLayerProgress()
+        : await request<ReasoningLayerProgress>('/trace/live-progress');
+      setReasoningProgress(progressPayload);
+
+      const feedPayload = window.electronAPI?.getKAExecutionFeed
+        ? await window.electronAPI.getKAExecutionFeed()
+        : await request<KAExecutionFeed>('/trace/ka-execution-feed?limit=20');
+      setKaFeed(feedPayload);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load trace telemetry');
       setRuns([]);
       setStages([]);
+      setReasoningProgress(null);
+      setKaFeed(null);
     }
   }, []);
 
@@ -210,6 +257,61 @@ export function LiveTracePanel() {
               </div>
             </div>
 
+            {reasoningProgress && (
+              <div className="space-y-2">
+                <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider">Reasoning Feed</div>
+                <Card className="bg-white/70 dark:bg-black/40 border border-slate-200 dark:border-white/10">
+                  <CardContent className="p-3 space-y-3">
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div>
+                        <div className="text-[10px] uppercase text-slate-500 dark:text-gray-500">Layer</div>
+                        <div className="text-sm font-semibold">{reasoningProgress.current_layer ?? '--'}</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase text-slate-500 dark:text-gray-500">Confidence</div>
+                        <div className="text-sm font-semibold">{scoreToPercent(reasoningProgress.confidence_so_far ?? undefined)}</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase text-slate-500 dark:text-gray-500">FROST</div>
+                        <div className="text-sm font-semibold">{reasoningProgress.frost_snapshot_count}</div>
+                      </div>
+                    </div>
+                    <div className="text-xs text-slate-600 dark:text-gray-400">
+                      {reasoningProgress.layer_name || 'No active reasoning layer'}
+                    </div>
+                    <div className="space-y-1">
+                      {reasoningProgress.kas_running.slice(0, 5).map((ka) => (
+                        <div key={`${ka.ka_id}-${ka.status}`} className="flex items-center justify-between text-xs">
+                          <span className="truncate">{ka.ka_name || ka.ka_id}</span>
+                          <span className={statusClass(ka.status)}>{formatStatus(ka.status)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {reasoningProgress?.persona_confidences?.length ? (
+              <div className="space-y-2">
+                <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider">Persona Confidence</div>
+                <div className="space-y-2">
+                  {reasoningProgress.persona_confidences.slice(0, 6).map((persona) => {
+                    const pct = Math.max(0, Math.min(100, (persona.confidence <= 1 ? persona.confidence * 100 : persona.confidence)));
+                    return (
+                      <div key={persona.persona} className="space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="truncate">{persona.persona}</span>
+                          <span>{pct.toFixed(1)}%</span>
+                        </div>
+                        <Progress value={pct} className="h-1 bg-slate-200 dark:bg-white/10 [&>div]:bg-emerald-500" />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+
             {currentStage && (
               <div className="space-y-2">
                 <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider">Current Stage</div>
@@ -255,6 +357,22 @@ export function LiveTracePanel() {
                 </div>
               </div>
             )}
+
+            {kaFeed?.items?.length ? (
+              <div className="space-y-2">
+                <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider">KA Execution Feed</div>
+                <div className="space-y-1">
+                  {kaFeed.items.slice(0, 6).map((item) => (
+                    <div key={item.uid} className="flex items-center justify-between text-xs p-1.5 rounded bg-white/60 dark:bg-white/5">
+                      <span className="font-mono">{item.ka_id}</span>
+                      <span className={statusClass(item.status)}>
+                        {formatStatus(item.status)} {typeof item.execution_time_ms === 'number' ? `(${item.execution_time_ms}ms)` : ''}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
 
             <div className="space-y-2 pt-2 border-t border-white/10">
               <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider mb-3">Run Scores</div>
