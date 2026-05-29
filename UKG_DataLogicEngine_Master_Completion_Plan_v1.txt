@@ -2,7 +2,7 @@
 UKG / DataLogicEngine
 Master Phased Completion Plan
 Consolidated  ·  v1.0  ·  All Gaps  ·  All Requests  ·  All DB Sprints
-10 Phases  ·  6 DB Sprints  ·  ~52 Weeks  ·  Code-Validated May 23, 2026  ·  Remaining Phases Revalidated May 26, 2026  |  Lucentry
+10 Phases  ·  6 DB Sprints  ·  ~52 Weeks  ·  Code-Validated May 23, 2026  ·  Remaining Phases Revalidated May 28, 2026  |  Lucentry
 
 
 
@@ -1239,17 +1239,17 @@ ID
 	H-8
 	Add IPC channels: reasoning-layer-progress, ka-execution-feed
 	frontend/electron/main.ts + frontend/electron/preload.ts
-	reasoning-layer-progress returns {current_layer, layer_name, kas_running, confidence_so_far}
+	OPEN May 28, 2026: preload exposes DB/quad/DMRF/DSQP/network/local-model/update channels, but not reasoning-layer-progress or ka-execution-feed. Exit gate remains: reasoning-layer-progress returns {current_layer, layer_name, kas_running, confidence_so_far}.
 	DESKTOP
 	H-9
 	Add live reasoning trace panel to chat UI — expandable, driven by IPC feeds
 	frontend/app/chat/
-	Panel shows current layer, active KAs, persona confidence bars, FROST snapshot count
+	PARTIAL May 28, 2026: frontend/components/Chat/LiveTracePanel.tsx exists and polls trace run/stage APIs every 15 seconds; TraceVisualizer renders returned trace summaries. Remaining exit gate: move/enrich live updates through H-8 IPC feeds and show active KAs, persona confidence bars, and FROST snapshot count.
 	DESKTOP
 	H-10
 	Add portable database health dashboard in Settings
 	frontend/app/settings/
-	Shows SQLite size/rows, Neo4j node/edge counts, Redis ping, ChromaDB collection sizes, object store usage
+	PARTIAL May 28, 2026: frontend/components/settings/DatabaseSettings.tsx shows storage service health, local start/stop, auto-start preference, and cloud config masking. Existing Electron get-db-status exposes Chroma counts, Redis ping, object-store buckets, and memory stats. Remaining exit gate: surface SQLite size/rows, Neo4j node/edge counts, ChromaDB collection sizes, and object-store usage in Settings.
 	DESKTOP
 	H-11
 	One-click database backup to user-chosen folder
