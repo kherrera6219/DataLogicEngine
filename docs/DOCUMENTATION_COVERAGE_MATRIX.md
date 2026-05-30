@@ -1,45 +1,74 @@
 # Documentation Coverage Matrix
 
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Status | Active |
+| Owner | Platform Engineering |
+| Review cadence | Every 30 days |
+
 ## Purpose
 
-Track source-of-truth documents across all core application areas and identify documentation ownership/status.
+Track source-of-truth documents across all core DataLogicEngine areas and identify documentation ownership, status, and reviewer entry points.
+
+This matrix covers active documentation only. Archived whitepapers, historical notes, research spikes, and old planning material are reference inputs, not operational source-of-truth.
+
+---
 
 ## Coverage matrix
 
 | Area | Source-of-truth document | Status | Notes |
 |---|---|---|---|
-| Product overview | `README.md`, `docs/PRODUCT_OVERVIEW.md` | Active | Root entry point plus explicit product narrative |
-| Product design and UX | `docs/PRODUCT_DESIGN.md` | Active | Information architecture, interaction model, lazy-loading strategy |
-| End-user operations guide | `docs/USER_GUIDE.md` | Active | Task-oriented usage and workflow guidance |
-| Architecture and design | `docs/ARCHITECTURE.md` | Active | Logical and deployment architecture |
-| Architecture implementation map | `docs/ARCHITECTURE_MAP.md` | Active | Runtime mode map, trust boundaries, code-path mapping |
-| API contract and usage | `docs/API.md`, `docs/openapi.yaml` | Active | Human + machine-readable API references |
-| Security controls | `docs/SECURITY.md` | Active | IAM, encryption, audit, runtime controls |
-| Compliance mapping | `docs/SDLC_SSDF_MAPPING.md`, `docs/AI_MANAGEMENT_SYSTEM_42001.md` | Active | SSDF and AI management alignment |
-| Deployment operations | `docs/DEPLOYMENT.md` | Active | Cloud and desktop deployment procedures |
-| Production readiness | `docs/PRODUCTION_READINESS.md` | Active | Readiness, reliability, scale, DR |
-| Windows local operations | `docs/WINDOWS_11_LOCAL_RUNBOOK.md` | Active | Local bring-up and validation |
-| Incident response runbooks | `docs/OPERATIONAL_RUNBOOKS.md` | Active | Security and operational incidents |
-| Testing standards | `docs/TESTING.md` | Active | Quality gate execution standards |
-| Documentation versioning | `docs/DOCUMENTATION_VERSIONING.md`, `docs/DOCS_VERSION.json` | Active | Documentation lifecycle and semantic version metadata |
-| Release governance | `docs/RELEASE_CHECKLIST.md` | Active | Release gate checklist and approval controls |
-| Branch governance | `docs/BRANCH_PROTECTION_POLICY.md` | Active | Required checks, review gates, and code-owner policy |
-| Architecture decisions | `docs/adr/*` | Active | Immutable architecture decision records |
-| Developer onboarding | `docs/DEVELOPER_GUIDE.md` | Active | Local setup and development workflows |
-| Contribution workflow | `docs/CONTRIBUTING.md` | Active | Branching, review, and doc update policy |
-| Documentation standard baseline | `docs/DOCUMENTATION_STANDARDS.md`, `docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md` | Active | Production documentation requirements with vendor alignment |
-| File inventory and repository map | `docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`, `docs/FILE_STRUCTURE.md` | Active | Generated inventory, structure map, and naming policy |
-| Workflow reasoning model | `docs/WORKFLOW.md` | Active | High-level query pipeline workflow |
-| Privacy/legal policy | `docs/PRIVACY_POLICY.md` | Active | User data handling and policy disclosure |
-| Documentation archive | `docs/archive/*` | Reference | Historical documents, whitepapers, wireframes, old release notes, and research spikes; not operational source-of-truth |
+| Product overview | `README.md`, `docs/PRODUCT_OVERVIEW.md` | Active | Entry point and product narrative. |
+| Product design and UX | `docs/PRODUCT_DESIGN.md` | Active | UX thesis, routes, user journeys, trace-first product model. |
+| End-user guide | `docs/USER_GUIDE.md` | Active | First-run and day-to-day workflows. |
+| Engineer onboarding | `docs/ENGINEER_ONBOARDING.md` | Active | New engineer/reviewer onboarding path. |
+| Architecture | `docs/ARCHITECTURE.md` | Active | System architecture and implementation model. |
+| Architecture map | `docs/ARCHITECTURE_MAP.md` | Active | Runtime mode, trust boundaries, code-path mapping, doc map. |
+| Data flow diagrams | `docs/DATA_FLOW_DIAGRAMS.md` | Active | Current DMRF/Truth Engine/data/privacy/export flows. |
+| Decision logic | `docs/DECISION_LOGIC.md` | Active | Current decision points and implementation paths. |
+| Workflow | `docs/WORKFLOW.md` | Active | Governed request lifecycle. |
+| API contract | `docs/API.md`, `docs/openapi.yaml` | Active | Human and machine-readable API references. |
+| API versioning | `docs/API_VERSIONING.md` | Active | Canonical `/api/v1/*`, compatibility aliases, deprecation policy. |
+| Data/storage | `docs/DATABASE_SCHEMA.md` | Active | Multi-store data and memory architecture. |
+| Security controls | `docs/SECURITY.md`, root `SECURITY.md` | Active | IAM, desktop auth, export integrity, AI security, release security. |
+| Privacy/legal | `docs/PRIVACY_POLICY.md` | Active | Local-first privacy, provider/connector disclosure, export/delete. |
+| HTTPS/TLS | `docs/SSL_CONFIGURATION.md` | Active | Web/cloud TLS and local desktop trust distinction. |
+| CIS-style hardening | `docs/CIS_BENCHMARKS.md` | Active | Evidence-guided hardening map, not attestation. |
+| Secure SDLC | `docs/SDLC_SSDF_MAPPING.md` | Active | NIST SSDF-style mapping. |
+| AI management mapping | `docs/AI_MANAGEMENT_SYSTEM_42001.md` | Active | ISO/IEC 42001-style AIMS mapping, not certification claim. |
+| Supply chain roadmap | `docs/SLSA_LEVEL_3_ATTESTATION.md` | Active / roadmap | Current-state/target-state supply-chain roadmap. |
+| Testing standards | `docs/TESTING.md` | Active | Quality gates and validation architecture. |
+| Deployment | `docs/DEPLOYMENT.md` | Active | Local/VM/web/cloud deployment guidance. |
+| Windows local operations | `docs/WINDOWS_11_LOCAL_RUNBOOK.md` | Active | Local-first Windows operation and packaging. |
+| Operational runbooks | `docs/OPERATIONAL_RUNBOOKS.md` | Active | Incident response and operational recovery. |
+| Release governance | `docs/RELEASE_CHECKLIST.md` | Active | Release evidence and approval controls. |
+| Production readiness | `docs/PRODUCTION_READINESS.md` | Active | Readiness scorecard and production caveats. |
+| File structure/inventory | `docs/FILE_STRUCTURE.md`, `docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md` | Active/generated | Repository map and generated inventory. |
+| Documentation standards | `docs/DOCUMENTATION_STANDARDS.md` | Active | Documentation requirements and quality gates. |
+| Documentation versioning | `docs/DOCUMENTATION_VERSIONING.md`, `docs/DOCS_VERSION.json` | Active | Docs version/lifecycle policy. |
+| Production docs baseline | `docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md` | Active | Baseline coverage and evidence rules. |
+| Branch governance | `docs/BRANCH_PROTECTION_POLICY.md` | Active | Required checks, review gates, branch policy. |
+| Architecture decisions | `docs/adr/*` | Active/reference | Architecture decision records. |
+| Contribution workflow | `CONTRIBUTING.md`, `docs/CONTRIBUTING.md` | Active | Contributor process and doc update policy. |
+| Documentation archive | `docs/archive/*` | Historical/reference | Not operational source-of-truth. Use as input for future combined papers. |
 
-## Gaps and follow-up items
+---
 
-Root `TODO.md` is the only active backlog for documentation, roadmap, and follow-up work. Keep this matrix limited to document ownership and status.
+## Maintenance rules
 
-## Document control
+1. Add new active docs to this matrix.
+2. Do not add archived exploratory docs as source-of-truth unless promoted to active docs.
+3. Keep root `TODO.md` as the active backlog for doc follow-up work.
+4. Update this matrix when product, architecture, security, release, or governance docs are added, renamed, or retired.
+5. Keep document metadata consistent with `docs/DOCUMENTATION_VERSIONING.md`.
 
-1. Owner: Platform Engineering
-2. Last updated: 2026-05-23
-3. Status: Active
-4. Review cadence: Every 30 days
+## Change notes for v2.6.0
+
+1. Added document metadata with explicit version and update date.
+2. Expanded coverage to include DATA_FLOW_DIAGRAMS, DECISION_LOGIC, API_VERSIONING, SSL/TLS, CIS, SLSA roadmap, and production baseline docs.
+3. Clarified archive/reference status.
+4. Added maintenance rules.
