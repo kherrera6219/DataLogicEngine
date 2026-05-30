@@ -1,0 +1,420 @@
+DataLogicEngine
+Full-Stack Wiring Plan v3.0
+
+Frontend ? Backend ? AI Workflow — Complete Integration Specification  |  May 2026  |  Lucentry
+This document defines the complete wiring between every frontend component, the Flask backend, and the UKG AI reasoning workflow — covering the LLM Gateway, TruthEngine, FROST simulation stack, Quad Persona system, KA invocations, WebSocket real-time streaming, and audit/trace persistence. Built from live code review of app.py (1,226 lines), CHANGELOG.md, and TODO.md.
+
+Scope: This plan covers all wiring for the Reasoning Trace Viewer feature across three layers: (1) frontend components ? backend REST endpoints, (2) backend endpoints ? UKG AI reasoning pipeline, and (3) real-time streaming via Socket.IO WebSocket.
+Source of truth: app.py blueprint registrations, CHANGELOG.md v1.3.0 trace wiring entries, TODO.md Unreleased section, and project knowledge YAML/JSON files.
+
+
+1. Confirmed Backend Architecture — From app.py
+The following is derived directly from reading app.py (1,226 lines). This is the ground truth for all backend wiring.
+
+1.1 Blueprint Registration Map — Confirmed Routes
+From the _register_application_routes() function in app.py, every relevant blueprint is confirmed registered:
+
+Blueprint / ModuleURL PrefixRegistered InRelevance to Trace Viewerbackend.tracing.api ? trace_bp/api/v1/traceapp.py line ~920PRIMARY — all trace endpoints live herebackend.llm_gateway.api ? register_gateway_routes/api/v1/gateway + /api/adminapp.py line ~930PRIMARY — chat endpoint that emits audit_trailbackend.truth_engine.api ? truth_api/api/v1/truth (+ legacy /api/truth)app.py line ~850Audit bundle commits via TruthMemorybackend.persona_api ? persona_api/api/v1/persona (+ legacy)app.py line ~860Persona positions for Quad Persona panelbackend.ukg_api ? ukg_api/api/v1 (+ legacy /api/ukg)app.py line ~890KA execution endpoints live herebackend.regulatory_api ? regulatory_api/api/v1/compliance + /api/v1/regulatoryapp.py line ~870Compliance flags in trace panelsroutes package ? register_routes/api/v1/ka, /api/v1/mcp, etc.app.py line ~950KA list and detail endpointsbackend.routes.analytics_routes ? analytics_bp/api/v1/analyticsapp.py line ~935Performance metrics for trace timeline
+1.2 Socket.IO WebSocket — Confirmed Initialization
+From app.py: "from backend.websocket import init_socketio; init_socketio(app)" — the WebSocket is initialized via a dedicated module. From CHANGELOG Unreleased section: "WebSocket real-time trace updates" and "Trace capture integration into chat flow" are both listed as Planned. The infrastructure exists; the event emission for trace stages needs to be added.
+
+? CONFIRMED: Socket.IO initialized in app.py via backend/websocket/__init__.py. Namespace and event structure to be defined in that module for trace streaming.
+? WARNING: CHANGELOG confirms: "WebSocket real-time trace updates" is UNRELEASED. Backend must emit trace_stage_update events from backend/tracing/api.py or from the simulation layer after each TraceStage write.
+
+1.3 Authentication Pattern — API Key + Session
+From app.py CSRF logic: the backend supports two auth modes. For frontend calls using session cookies, CSRF same-origin checks apply. For API key calls (X-API-Key header or Bearer token), CSRF is bypassed. The frontend uses session-based auth (confirmed in ChatInterface.tsx and settings routes). All trace API calls from the frontend must include the session cookie OR the X-API-Key header — not both.
+
+? NOTE: Frontend fetch calls to /api/v1/trace/* must include credentials: "include" to send the session cookie. No X-API-Key needed for the web UI.
+
+1.4 CHANGELOG v1.3.0 — What the Trace System Actually Has
+CHANGELOG v1.3.0 (2026-01-08) is the definitive record of what was built for the traceability chatbot. Confirmed implemented in that release:
+
+• 10 SQLAlchemy models for trace data: TraceRun, TraceStage, TraceEvidence, and 7 others
+• 15+ REST API endpoints for trace access at /api/v1/trace/*
+• Enterprise chatbot at /chat with full tracing panels
+• Run explorer at /runs with search and filters
+• Run detail at /runs/:id with timeline and tabbed panels
+• DAG viewer with D3.js for execution pipeline visualization
+• Persona workbench with consensus flow and weight distribution
+• Evidence panel with claim-to-source mapping
+• 17-axis coordinate inspector with visual grid
+• KA trace page with layer mapping
+• Export bundle functionality for audit
+• RBAC-aware trace filtering
+
+? WARNING: CRITICAL DISCOVERY: v1.3.0 says all of this was built. But TODO.md and current CHANGELOG [Unreleased] list trace capture and WebSocket streaming as still Planned. This means: the SERVER-SIDE trace storage and API endpoints exist from v1.3.0, but the FRONTEND COMPONENTS that render them may have been removed or never connected to the current Next.js App Router frontend. The v1.3.0 UI was likely built on template pages (Jinja2/Flask), not the Next.js frontend. The Next.js frontend needs new React components wired to these existing backend endpoints.
+
+
+2. The AI Workflow Pipeline — End-to-End Wiring
+This section maps the complete flow from a user submitting a chat message to trace data appearing in the frontend. Every step is a wiring point.
+
+PHASE A: Chat Request ? LLM Gateway ? AI Reasoning Pipeline
+What happens when the user hits Send
+Step A1: Frontend ChatInterface.tsx ? POST /api/v1/gateway/chat
+The user submits a message. ChatInterface.tsx POSTs to /api/v1/gateway/chat with the messages array, model, and tier. This is confirmed working (CHANGELOG v4.2.0: "gateway wires preferred provider, preferred model, and ai_processing_enabled flag before routing each request").
+
+// Current call in ChatInterface.tsx (approximate)
+const res = await fetch("/api/v1/gateway/chat", {
+  method: "POST",
+  credentials: "include",          // session cookie
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ messages, model, tier: "2" })
+})
+
+The gateway routes to the selected LLM provider (OpenAI, Anthropic, Azure, Google) based on UserAIPreferences pulled from the DB. This is the entry point to the entire reasoning workflow.
+
+Step A2: LLM Gateway ? UKG Reasoning Orchestrator
+Inside backend/llm_gateway/api.py, for Tier 2+ requests, the gateway does NOT just call the LLM directly. It passes the request through the UKG reasoning pipeline, which lives in core/simulation/query_persona_engine.py (QPE) and the SimulationEngine. The CHANGELOG v2.3.1 confirms this: "Refactored SimulationEngine and LayerController to implement the reasoning-centric model."
+
+• Tier 1: Direct LLM call. No simulation layers. No TraceRun created.
+• Tier 2: Layers 1, 2, 5, 8, 10 active. TraceRun + TruthAuditEvent created.
+• Tier 3–5: All 10 layers active. Full persona debate, scenario simulation, refinement.
+
+Step A3: FROST Simulation Stack Execution (10 Layers)
+CHANGELOG v2.2.0 confirms the exact KAs wired to each layer. This is the definitive wiring map:
+
+LayerNameKAs Invoked (Confirmed)Writes to TraceStage?L1Context Init & Query ParsingKA-004 (Input Validation), KA-005 (Query Classification), KA-036 (Complexity Estimator), KA-113 (Complexity Router)YES — tier routing decisionL2Knowledge RetrievalKA-025 (Dependency Mapping), KA-018 (Source Provenance)YES — evidence_pack assembledL3Simulated Research AgentsKA-009 (Evidence Validation), KA-010 (Bias Detection), KA-034 (Adversarial Reasoning)YES — agent findingsL4POV IntegrationKA-028 (POV Expansion), KA-057 (Persona Emotion Adaptation)YES — stakeholder matrixL5Multi-Agent Orchestration & DebateKA-013 (Persona Weighting), KA-026 (Contradiction Detection)  +  P8/P9/P10/P11 invocationsYES — persona_positions + debate_logL6Pattern Analysis & Quant ValidationKA-039 (Anomaly Detection), KA-116 (Entropy Detection)  via QuantValidationServiceYES — quant_validation_reportL7Scenario SimulationKA-002 (Tree-of-Thought), KA-040 (Hypothesis Generation), KA-021 (Emergence Detection)  via AGIPlannerServiceYES — scenario_runsL8Recursive Cross-VerificationKA-003, KA-008, KA-014, KA-016, KA-022, KA-023, KA-024, KA-025, KA-026, KA-030, KA-034  via TrustValidationGatewayYES — consistency_reportL9Deep Integration / Meta-ReasoningMetaReasoningController: KA-008, KA-010, KA-022, KA-025  +  belief drift detectionYES — recursion routing decisionsL10Emergence Detection & Final AssemblyKA-014, KA-102  +  TruthCoreEngine final gateYES — preliminary_answer + confidence_vector + audit_bundle
+Step A4: Quad Persona Debate (Layer 5)
+Layer 5 runs the four expert personas (P8 Knowledge, P9 Sector, P10 Regulatory, P11 Compliance) via the KAMasterController. CHANGELOG v2.5.0 confirms "integration tests for KAMasterController and TruthEngine coordination." Each persona:
+• Produces an initial_position from its domain lens (DSQP-driven, 7-part role construction)
+• Cross-critiques other persona positions (debate_log entries)
+• Has a synthesis_weight computed by KA-013 (Persona Weighting)
+• Flags persistent conflicts via KA-026 (Contradiction Detection)
+All of this is written to the TraceStage row for L5, with the persona_positions and debate_log included in the stage output JSONB column in PostgreSQL.
+
+Step A5: 12-Step Refinement Workflow (TruthCoreEngine)
+CHANGELOG v2.3.0 confirms: "Expanded refinement pipeline to 27 steps including meta-reasoning evaluation" and v2.2.0 confirms "Expanded refinement steps from 15 to 26." The canonical 12-step workflow runs inside TruthCoreEngine (backend/truth_engine/ or core/). The RefinementOrchestrator manages execution. Triggered when confidence < 0.95 (standard) or < 0.995 (high-risk domains).
+• Step 1: Tree of Thought — KA-002
+• Step 2: Algorithm of Thought — KA-001
+• Steps 3–4: Gap Analysis + Evidence Validation — KA-003, KA-040, KA-041, KA-042
+• Step 5: NLP Enhancement — KA-050
+• Step 6: Data Consistency Validation — KA-008
+• Step 7: Cross-Reference Validation — KA-052
+• Step 8: Logic Check — KA-053
+• Steps 9–10: Ethical/Bias Audit + Regulatory Compliance — KA-010, KA-027, KA-066, KA-067
+• Step 11: Security Validation — KA-061, KA-107
+• Step 12: Final Optimization — KA-014, KA-102
+
+Step A6: TruthGate Evaluation + TruthMemory Commit
+After refinement, TruthGate evaluates the draft answer against evidence quality and risk profile. TruthMemory seals the audit bundle with SHA-256 hash-chain (confirmed working in CHANGELOG Phase 6 QC, 2026-05-15). The sealed AuditBundle is stored in PostgreSQL with all evidence_pack, coordinate17_id, and execution timing fields confirmed present (TODO.md QC table).
+
+Step A7: Gateway Response with audit_trail
+The LLM gateway response to the frontend includes the [UKG Audit Trace] footer text AND a structured audit_trail object in the JSON response. This is confirmed in the README and CHANGELOG. The audit_trail object contains:
+// Confirmed fields in gateway response.audit_trail:
+{
+  "decision_path": "...",
+  "complete_trace_url": "/api/v1/trace/{run_id}",
+  "download_url": "/api/v1/audit/{run_id}/download"
+}
+
+? NOTE: The complete_trace_url is the key link. The frontend fetches this URL to load the full TraceBundle for the collapsible trace panel.
+
+
+3. Frontend Component Wiring — Exact Integration Specs
+This section defines exactly how each frontend component wires to the backend, including the fetch URL, auth pattern, response shape, and error handling.
+
+3.1 MessageBubble.tsx — Inline Trace Panel Wiring
+The highest-priority integration point
+Current State (Confirmed from CHANGELOG v4.2.0)
+• Already renders: AI output label, provider/model badge per response
+• Already has: ChatInterface.tsx test coverage for "ChatInterface" component
+• Already wired: settings_routes.py persists preferred provider/model to DB
+
+Wiring to Add
+The response object from /api/v1/gateway/chat already contains audit_trail. MessageBubble.tsx needs to read it and conditionally render TracePanel. The exact prop threading:
+
+// In ChatInterface.tsx — after receiving chat response:
+// The response already has audit_trail for Tier 2+
+// Thread it down to MessageBubble as a prop
+
+interface MessageBubbleProps {
+  // EXISTING PROPS (already present):
+  content: string
+  role: "user" | "assistant"
+  provider?: string
+  model?: string
+  // NEW PROPS TO ADD:
+  auditTrail?: {
+    complete_trace_url: string
+    decision_path: string
+    download_url: string
+  }
+  tier?: number
+}
+
+TracePanel Lazy-Load Pattern
+The TraceBundle is NOT fetched on message render. It is fetched only when the user expands the trace panel. This prevents unnecessary API calls for messages the user never inspects.
+
+// In TracePanel.tsx
+const [expanded, setExpanded] = useState(false)
+const [bundle, setBundle] = useState<TraceBundle | null>(null)
+const [loading, setLoading] = useState(false)
+
+const handleExpand = async () => {
+  if (!expanded && !bundle) {
+    setLoading(true)
+    // Fetch the full trace bundle
+    const res = await fetch(props.auditTrail.complete_trace_url, {
+      credentials: "include"   // session cookie required
+    })
+    const data = await res.json()
+    setBundle(data.data)       // standard {success, data} response shape
+    setLoading(false)
+  }
+  setExpanded(!expanded)
+}
+
+3.2 /api/v1/trace/* — Endpoint Wiring Map
+All 15+ endpoints confirmed in CHANGELOG v1.3.0
+From CHANGELOG v1.3.0: "15+ REST API endpoints for trace access at /api/v1/trace/*." From app.py: "from backend.tracing.api import trace_bp; app.register_blueprint(trace_bp)." The exact route names inside trace_bp must be verified by reading backend/tracing/api.py, but the standard CRUD pattern gives us the inferred endpoints:
+
+EndpointMethodFrontend ConsumerPurposehttp://localhost:5000/api/v1/trace/{run_id}GETTracePanel.tsx (lazy-load on expand)Full TraceBundle — coordinate, personas, layers, refinement, evidencehttp://localhost:5000/api/v1/trace/GETfrontend/app/runs/page.tsxPaginated run list with summary fieldshttp://localhost:5000/api/v1/trace/{run_id}/stagesGETFROSTStackPanel.tsxIndividual TraceStage rows — one per FROST layerhttp://localhost:5000/api/v1/trace/{run_id}/evidenceGETEvidencePanel.tsxEvidence pack with source URLs, credibility scores, claim attributionhttp://localhost:5000/api/v1/trace/{run_id}/personasGETPersonaDebatePanel.tsxPersona positions, debate log, synthesis weightshttp://localhost:5000/api/v1/audit/{run_id}/downloadGETExportAuditDialog.tsxDownload audit bundle (json/pdf/csv/xlsx/compliance_report)http://localhost:5000/api/v1/ka/algorithms/GETKAChip.tsx prebuild fallbackKA registry list (used if prebuild fails)http://localhost:5000/api/v1/ka/algorithms/{ka_id}GETKARegistryModal.tsxFull KA detail on chip click
+Auth Headers for All Trace Fetches
+All frontend fetch calls to /api/v1/trace/* must use session cookie auth. The session is already established when the user is logged in. No additional setup needed.
+
+// Pattern for ALL trace API calls from the frontend
+const TRACE_FETCH_OPTIONS: RequestInit = {
+  credentials: "include",          // sends session cookie
+  headers: {
+    "Accept": "application/json",
+    "X-Requested-With": "XMLHttpRequest"  // helps CSRF same-origin check
+  }
+}
+
+3.3 frontend/lib/api/trace.ts — Complete API Client
+New file, exact implementation spec
+This is the new file that wraps all trace API calls. Every trace component imports from this file — never fetches directly.
+
+// frontend/lib/api/trace.ts
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+const OPTS: RequestInit = { credentials: "include", headers: {
+  "Accept": "application/json", "X-Requested-With": "XMLHttpRequest"
+}}
+
+export async function fetchTraceBundle(traceUrl: string): Promise<TraceBundle> {
+  const res = await fetch(`${API_BASE}${traceUrl}`, OPTS)
+  if (!res.ok) throw new Error(`Trace fetch failed: ${res.status}`)
+  const json = await res.json()
+  // Backend wraps in standard {success, data, error, timestamp} shape
+  return json.data as TraceBundle
+}
+
+export async function fetchRunList(page=1, filters?: RunFilters) {
+  const params = new URLSearchParams({ page: String(page), ...filters })
+  const res = await fetch(`${API_BASE}/api/v1/trace/?${params}`, OPTS)
+  if (!res.ok) throw new Error(`Run list fetch failed: ${res.status}`)
+  return (await res.json()).data
+}
+
+export async function fetchRunDetail(runId: string): Promise<TraceBundle> {
+  return fetchTraceBundle(`/api/v1/trace/${runId}`)
+}
+
+export async function fetchKADetail(kaId: string) {
+  const res = await fetch(`${API_BASE}/api/v1/ka/algorithms/${kaId}`, OPTS)
+  if (!res.ok) throw new Error(`KA fetch failed: ${res.status}`)
+  return (await res.json()).data
+}
+
+
+
+4. WebSocket Real-Time Trace Streaming — Complete Wiring
+CHANGELOG [Unreleased]: "WebSocket real-time trace updates" and "Trace capture integration into chat flow." This section specifies exactly what needs to be added to the backend and how the frontend hooks in.
+
+4.1 Backend: What Needs to Be Added (1–2 hours of work)
+The Socket.IO server is already initialized via backend/websocket/__init__.py. The simulation layers already write TraceStage rows to PostgreSQL. The only missing piece is emitting a socket event after each write.
+
+Where to Add the Emit
+The emit should happen in one of two places — wherever TraceStage rows are created. From the FROST layer execution code (likely in core/simulation/ or backend/tracing/):
+
+# In the layer execution code (wherever TraceStage is written to DB):
+from backend.websocket import get_socketio  # import the initialized instance
+
+# After db.session.flush() or db.session.commit() for each TraceStage:
+socketio = get_socketio()
+socketio.emit(
+    "trace_stage_update",
+    {
+        "run_id": str(trace_run.id),
+        "layer_id": layer.layer_id,
+        "layer_name": layer.layer_name,
+        "status": "active",
+        "confidence_out": layer.confidence_out,
+        "ka_invocations": [ka.to_dict() for ka in layer.ka_invocations],
+        "duration_ms": layer.duration_ms,
+        "timestamp": datetime.utcnow().isoformat()
+    },
+    room=f"run_{trace_run.id}"  # room per run — only sender sees their trace
+)
+
+Client Room Join — Backend
+Add a join_run_room event handler so the frontend can subscribe to a specific run:
+
+# In backend/websocket/__init__.py or a dedicated trace_events.py:
+@socketio.on("join_run_room")
+def on_join_run_room(data):
+    run_id = data.get("run_id")
+    if run_id:
+        join_room(f"run_{run_id}")
+        emit("joined", {"run_id": run_id})
+
+4.2 Frontend: useTraceStream.ts — Complete Hook Spec
+The hook connects to Socket.IO, joins the run room, and accumulates partial TraceBundle state as layer updates arrive.
+
+// frontend/hooks/useTraceStream.ts
+import { useEffect, useState, useCallback } from "react"
+import { io, Socket } from "socket.io-client"  // npm install socket.io-client
+
+export function useTraceStream(runId: string | null) {
+  const [layers, setLayers] = useState<Partial<FROSTLayer>[]>([])
+  const [connected, setConnected] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!runId) return
+
+    // Connect to the same origin; Socket.IO path matches Flask-SocketIO default
+    const socket: Socket = io(process.env.NEXT_PUBLIC_API_URL || "", {
+      withCredentials: true,       // session cookie
+      transports: ["websocket", "polling"],
+      path: "/socket.io"
+    })
+
+    socket.on("connect", () => {
+      setConnected(true)
+      socket.emit("join_run_room", { run_id: runId })
+    })
+
+    socket.on("trace_stage_update", (data) => {
+      setLayers(prev => {
+        const updated = [...prev]
+        const idx = updated.findIndex(l => l.layer_id === data.layer_id)
+        if (idx >= 0) updated[idx] = { ...updated[idx], ...data }
+        else updated.push(data)
+        return updated
+      })
+    })
+
+    socket.on("connect_error", (err) => setError(err.message))
+    socket.on("disconnect", () => setConnected(false))
+
+    return () => { socket.disconnect() }
+  }, [runId])
+
+  return { layers, connected, error }
+}
+
+4.3 TracePanel Integration of Live vs Static Mode
+TracePanel.tsx needs to switch between two data sources: live WebSocket streaming (for in-progress runs) and static fetch (for completed runs). The run status field in the TraceBundle determines which mode to use.
+
+// In TracePanel.tsx — data source switcher
+const isLive = bundle?.status === "in_progress"
+const { layers: streamedLayers } = useTraceStream(isLive ? runId : null)
+
+// FROSTStackPanel receives whichever source is active
+<FROSTStackPanel
+  layers={isLive ? streamedLayers : bundle?.frost_layers ?? []}
+  isLive={isLive}
+/>
+
+
+5. Backend Data Contract — What the Frontend Expects
+The frontend TypeScript types must exactly match what the backend TraceBundle serializer outputs. These are the contracts that must be verified against backend/tracing/api.py before any frontend component is written.
+
+5.1 TraceRun DB Model — Confirmed Columns
+From TODO.md Phase 6 QC table: "TraceRun AuditBundle columns added — layers_executed, refinement_cycles, regulatory_pass, security_pass, truthgate_decision, token_cost, latency_ms, evidence_pack_hash, coordinate17_id." These are the confirmed PostgreSQL columns. The API serializer must expose these.
+
+DB ColumnTypeFrontend FieldUsed In PanelidUUIDrun_idAll panels — primary keycoordinate17_idFK ? Coordinate17coordinateCoordinatePanellayers_executedJSONB arrayfrost_layersFROSTStackPanelrefinement_cyclesINTrefinement_stepsRefinementPanelregulatory_passBOOLEANcompliance.all_passedTraceSummaryBarsecurity_passBOOLEANcompliance.security_passTraceSummaryBartruthgate_decisionVARCHARtruthgate_decisionTraceSummaryBarevidence_pack_hashVARCHAR (SHA-256)receipt_hashTraceSummaryBar receipt chiplatency_msFLOATtotal_duration_msRun list page timing columntoken_costFLOATperformance.token_costRun detail header
+5.2 Evidence Pack Wiring — EvidencePanel.tsx
+The evidence pack comes from TraceEvidence rows (one of the 10 SQLAlchemy models from CHANGELOG v1.3.0). Each row represents one external source consulted. The frontend EvidencePanel needs these fields:
+
+// What the EvidencePanel.tsx expects from each evidence item:
+interface EvidenceSource {
+  source_id: string
+  source_type: "web_search" | "knowledge_graph" | "internal_doc" | "api_call"
+  url?: string
+  title: string
+  retrieved_at: string         // ISO timestamp
+  credibility_score: number    // 0–1
+  evidence_tier: "GOLD" | "SILVER" | "BRONZE" | "UNVERIFIED"
+  claims_supported: string[]   // which answer claims this source backs
+  layer_retrieved: string      // e.g. "L2" or "L3"
+  ka_that_invoked: string      // e.g. "KA-018"
+}
+
+? NOTE: KA-018 (Source Provenance) in Layer 2 and Layer 6 is confirmed in CHANGELOG v2.2.0 as the KA responsible for populating source provenance data. If evidence_tier or ka_that_invoked fields are missing from the backend response, they need to be added to the TraceEvidence serializer.
+
+5.3 Persona Position Wiring — PersonaDebatePanel.tsx
+From CHANGELOG v1.3.0: "Persona workbench with consensus flow and weight distribution." The TraceRun.layers_executed JSONB for L5 contains persona_positions and debate_log. If a dedicated personas sub-endpoint does not exist at /api/v1/trace/{run_id}/personas, the L5 stage data from /api/v1/trace/{run_id}/stages provides the same information.
+
+// PersonaDebatePanel.tsx receives from L5 stage data:
+interface PersonaPosition {
+  persona_id: "P8" | "P9" | "P10" | "P11"
+  persona_name: string           // "Knowledge Expert", etc.
+  initial_position: string       // independent answer
+  critique_of_others: string     // cross-critique text
+  final_position: string         // post-debate position
+  synthesis_weight: number       // 0–1 from KA-013
+  flagged_conflicts: string[]    // from KA-026
+  ka_invocations: KAInvocation[] // KAs this persona used
+}
+
+5.4 Standard Response Shape — Required Wrapper
+app.py and CHANGELOG v4.1.0 confirm: "Unified API Response Middleware: Standardized async/sync handlers." ALL backend responses use the shape:
+
+{ "success": true, "data": {}, "error": null, "timestamp": "2026-..." }
+
+? NOTE: All frontend fetch functions must unwrap .data before passing to components. Never pass the raw response object to a React component.
+
+
+6. Complete Wiring Table — Every Connection
+This table is the master reference. Every frontend component, its data source, the exact backend endpoint, the AI workflow stage it draws from, and its auth pattern.
+
+ComponentData Source (API)AI Workflow StageAuthNotesMessageBubble.tsxResponse from POST /api/v1/gateway/chatGateway response — audit_trail fieldSession cookieAlready in response; just read itTraceSummaryBar.tsxaudit_trail object (no extra fetch)Gateway response summarySession cookieCollapsed-state data — zero extra callsTracePanel.tsx (expanded)GET /api/v1/trace/{run_id}Full AuditBundle from TruthMemorySession cookieLazy-loaded on expand onlyCoordinatePanel.tsxTraceBundle.coordinate (nested in bundle)Axis resolution — L1 outputSession cookieNo separate fetch neededPersonaDebatePanel.tsxTraceBundle.persona_positions OR GET /api/v1/trace/{run_id}/personasL5 Multi-Agent Orchestration — debate_logSession cookieUse L5 stage JSONB if no personas sub-endpointFROSTStackPanel.tsx (static)TraceBundle.frost_layers (nested in bundle)All active FROST layersSession cookieNo separate fetch; from bundleFROSTStackPanel.tsx (live)useTraceStream WebSocket eventsEach TraceStage write in real-timeSession cookie (WS withCredentials)Requires backend emit additionRefinementPanel.tsxTraceBundle.refinement_steps (nested)TruthCoreEngine RefinementOrchestratorSession cookieOnly renders if refinement_triggered=trueKAChip.tsx tooltipStatic import from ka_registry.ts (built from ka_registry_by_id.json)No API call — build-time dataN/APrebuild script generates typed TS fileKARegistryModal.tsxGET /api/v1/ka/algorithms/{ka_id} (fallback only)KA registry — no AI workflow stageSession cookieOnly if static registry missing entryEvidencePanel.tsxTraceBundle.evidence_sources OR GET /api/v1/trace/{run_id}/evidenceL2/L3 KA-018 Source Provenance outputSession cookieFrom TraceEvidence DB rowsConfidenceTimeline.tsxTraceBundle.frost_layers[*].confidence_out arrayConfidence vector across all layersSession cookieDerived from layer data — no extra fetchfrontend/app/runs/page.tsxGET /api/v1/trace/?page=N&filters=...All TraceRun rows in PostgreSQLSession cookieUses RBAC-aware trace filtering from v1.3.0frontend/app/runs/[run_id]/page.tsxGET /api/v1/trace/{run_id}Full AuditBundle for selected runSession cookieSame data as inline panel, full-page viewExportAuditDialog.tsxGET /api/v1/audit/{run_id}/download?format=XTruthMemory ledger entry + provenance graphSession cookieBackend confirmed in OpenAPI specLiveTraceBadge.tsxWebSocket "trace_stage_update" eventTraceStage write emit (needs backend addition)Session cookie (WS)Pulsing indicator during in-progress runsfrontend/app/settings/trace/page.tsxlocalStorage only (no API)N/AN/ASettings persisted client-side
+
+7. Backend Gaps to Close Before Frontend Can Wire
+These are the specific backend tasks that must be done before the corresponding frontend component can be tested end-to-end. Ordered by priority.
+
+7.1 Critical — Must Be Done Before Phase 1 Starts
+
+Gap 1: Verify audit_trail in /api/v1/gateway/chat response
+The README confirms the [UKG Audit Trace] text footer. But we need the structured audit_trail.complete_trace_url field in the JSON response body. Run this verification:
+curl -X POST http://localhost:5000/api/v1/gateway/chat \
+  -H "X-API-Key: $UKG_KEY" -H "Content-Type: application/json" \
+  -d '{"messages":[{"role":"user","content":"test"}],"model":"gpt-4o","tier":"2"}' \
+  | python3 -m json.tool | grep -A5 "audit_trail"
+If audit_trail is absent from the JSON body, it must be added to the gateway response serializer in backend/llm_gateway/api.py. This is a 30-minute backend task.
+
+Gap 2: Verify /api/v1/trace/{run_id} returns populated bundle
+The endpoint is confirmed registered. The TraceRun DB model has all required columns. But the serializer (to_dict() or schema) may not yet expose nested data like frost_layers, persona_positions, or evidence_sources. Verify:
+# After running a Tier 3 query, get the run_id from the response, then:
+curl -b session.txt http://localhost:5000/api/v1/trace/{run_id} \
+  | python3 -m json.tool | python3 -c "import sys,json; d=json.load(sys.stdin)
+  [print(k, type(v)) for k,v in d.get('data',{}).items()]"
+If frost_layers or persona_positions are missing/null, the serializer needs to join and include those related models in the response. This is a 1–2 hour backend task.
+
+7.2 Required Before Phase 4 (WebSocket Streaming)
+
+Gap 3: Emit trace_stage_update after each TraceStage write
+Confirmed needed per CHANGELOG [Unreleased]. Location: wherever db.session.flush() happens for TraceStage in the simulation layer execution code (likely in simulation/trace_system.py based on CHANGELOG v4.1.5 reference). Add the emit after the flush, as specified in Section 4.1.
+
+Gap 4: Add join_run_room WebSocket handler
+The frontend hook calls socket.emit("join_run_room", { run_id }) to subscribe to a specific run's events. This handler needs to be added to backend/websocket/__init__.py or a dedicated trace_events.py registered with the socketio instance.
+
+7.3 Nice-to-Have Before Phase 3 (Evidence Depth)
+
+Gap 5: Ensure evidence_tier and ka_that_invoked fields in TraceEvidence serializer
+KA-018 (Source Provenance) is confirmed wired to L2 and L6. The TraceEvidence model should capture the KA ID that invoked the source lookup. If these fields are absent from the TraceEvidence model, add them in a migration. This enables the claim citation map feature.
+
+8. Implementation Sequence — Exact Order
+Based on all wiring dependencies, this is the correct order to implement:
+
+StepTaskFileDependency1Read MessageBubble.tsx and ChatInterface.tsx to understand existing propsfrontend/components/Chat/*.tsxNone — first action2Run Tier 2 and Tier 3 test queries; capture full JSON responses to fixturesN/A — curl commandsRequires running backend3Verify audit_trail.complete_trace_url is in chat response (Gap 1)backend/llm_gateway/api.pyFix if missing before proceeding4Verify /api/v1/trace/{run_id} returns full populated bundle (Gap 2)backend/tracing/api.pyFix serializer if needed5Create frontend/types/trace.ts with all TypeScript interfacesfrontend/types/trace.tsNone — pure types6Create frontend/lib/api/trace.ts with all fetch functionsfrontend/lib/api/trace.tsDepends on types in step 57Create KAChip.tsx + prebuild script + ka_registry.ts3 filesDepends on ka_registry_by_id.json in repo root8Build and test CoordinatePanel.tsx against fixture datafrontend/components/trace/CoordinatePanel.tsxDepends on types + api client9Build PersonaDebatePanel.tsx against L5 stage fixture datafrontend/components/trace/PersonaDebatePanel.tsxDepends on CoordinatePanel pass10Build FROSTStackPanel.tsx with static data mode onlyfrontend/components/trace/FROSTStackPanel.tsxDepends on KAChip11Build RefinementPanel.tsxfrontend/components/trace/RefinementPanel.tsxDepends on KAChip12Build EvidencePanel.tsxfrontend/components/trace/EvidencePanel.tsxDepends on types13Build TraceSummaryBar.tsx + TracePanel.tsx assembler2 filesDepends on all panels14Modify MessageBubble.tsx — add auditTrail prop + render TracePanelfrontend/components/Chat/MessageBubble.tsxDepends on TracePanel15Build /runs list + detail pagesfrontend/app/runs/Depends on api client16Add backend WebSocket emit (Gap 3 + Gap 4)backend/websocket/ + simulation layerBackend task17Build useTraceStream.ts + wire live mode in FROSTStackPanel2 filesDepends on backend WS emit18Build ExportAuditDialog.tsxfrontend/components/trace/ExportAuditDialog.tsxNone — standalone
+
+
+DataLogicEngine Full-Stack Wiring Plan v3.0  |  Lucentry  |  May 2026
+DataLogicEngine — Full-Stack Wiring Plan  |  Frontend ? Backend ? AI Workflow  |  v3.0
+
+CONFIDENTIAL — Internal Development Plan  v3.0  |  Lucentry
+
