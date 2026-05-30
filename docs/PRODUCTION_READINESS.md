@@ -1,1136 +1,369 @@
 # Production Readiness Guide
 
-> Comprehensive guide for deploying DataLogicEngine to production environments
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Status | Active |
+| Owner | Platform Operations |
+| Review cadence | Every 30 days |
 
 ## Purpose
 
-Provide production acceptance criteria, operational controls, and validation checkpoints for enterprise deployment.
+Provide production acceptance criteria, operational controls, validation checkpoints, and release-readiness scoring for DataLogicEngine.
+
+This version aligns production readiness with the current architecture: DMRF control plane, Truth Engine v7.3, local-first desktop/VM deployment, canonical `/api/v1/*` routes, multi-store data architecture, trace/export integrity, security controls, packaging smoke tests, and release-governance validation.
 
 ## Audience
 
 1. Platform and release engineers
-2. SRE and operations
+2. SRE and operations teams
 3. Security/compliance stakeholders
 4. Engineering managers
-
-## Document control
-
-1. Owner: Platform Operations
-2. Last updated: 2026-05-23
-3. Status: Active
-4. Review cadence: Every 30 days
+5. Desktop packaging maintainers
+6. Technical judges and external reviewers
 
 ## Related documents
 
-1. `docs/DEPLOYMENT.md`
-2. `docs/SECURITY.md`
-3. `docs/OPERATIONAL_RUNBOOKS.md`
-4. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Production Checklist](#production-checklist)
-- [Security Hardening](#security-hardening)
-- [Performance Optimization](#performance-optimization)
-- [Monitoring & Observability](#monitoring--observability)
-- [Deployment Architecture](#deployment-architecture)
-- [Database Configuration](#database-configuration)
-- [Scaling Considerations](#scaling-considerations)
-- [Disaster Recovery](#disaster-recovery)
-- [Compliance & Audit](#compliance--audit)
-
-## Overview
-
-DataLogicEngine is an enterprise-grade AI/ML knowledge management platform designed for production deployment. This guide outlines the critical steps, configurations, and best practices for deploying the system in a production environment.
-
-**Current status**: Application-readiness validation is in progress. Local stack QC, Tier 2 audit receipts, app assets, privacy controls, external AI/provider disclosures, notification preferences, internal storage configuration, MCP server administration, authenticated automated accessibility scans, keyboard navigation evidence, failure-mode tests, export/delete tests, UI placeholder audit evidence, and the production code-signing workflow path are implemented. Production release still requires manual NVDA accessibility evidence, provisioned trusted signing credentials, and signed release artifact validation.
-
-## 2026-05-23 Application-Readiness Update
-
-Completed or validated in the current application state:
-
-1. Manifest screenshots, PWA icons, and a reusable documentation banner exist under `frontend/public/`.
-2. Local-first product copy and third-party AI provider disclosures are aligned across active app and documentation surfaces.
-3. User data export/delete endpoints, privacy settings, AI-processing preferences, notification preferences, internal storage configuration, and MCP server add/list/delete flows are present.
-4. The frontend `/register` route is disabled by design in the local-first build; backend registration remains available only as an API surface when a deployment explicitly reopens web self-registration.
-5. Backend default runtime port is `5000`, matching `app.py`, `docker-compose.yml`, `Dockerfile.cloud`, and current API documentation.
-
-Remaining release blockers and future work are consolidated in the root `TODO.md`. Keep release-readiness actions there and keep this guide focused on validation procedures and production controls.
-
-## Production Code-Signing Path
-
-The trusted Windows signing path is the `Release Installer Signing` GitHub Actions workflow:
-
-1. Store the production PFX as base64 in `WINDOWS_CODESIGN_CERT_BASE64`.
-2. Store its password in `WINDOWS_CODESIGN_CERT_PASSWORD`.
-3. Run `.github/workflows/release-installer-signing.yml` from a `v*` tag or manual dispatch.
-4. The workflow builds the unsigned installer, validates certificate health and rotation threshold with `scripts/windows/verify_signing_certificate_health.ps1`, signs installers with `scripts/windows/sign_release_installers.ps1`, verifies signatures with `scripts/windows/verify_installer_signature.ps1`, and uploads signed installers plus reports.
-
-Local dev certificates remain valid only for workstation validation and must not be treated as production signing evidence.
-
-## 2026-03-31 Phase 1 API Truthfulness + Authorization Update
-
-Completed in this pass:
-
-1. **Simulation session authorization hardening**
-   - `GET`, `run/step`, and `stop` on `/api/v1/simulations/<session_id>` now scope access to the authenticated principal and the persisted `session_id`.
-2. **Primary query path now uses a real gateway**
-   - `/api/v1/query` now calls the LLM gateway instead of returning canned keyword-based text.
-3. **Fail-closed simulation behavior**
-   - The backend simulation engine no longer returns synthetic success text when no gateway/provider path is available.
-4. **Legacy request compatibility**
-   - Simulation creation now normalizes legacy request bodies with `query` into `parameters` so older callers do not silently fail validation.
-5. **Verification sweep**
-   - `python -m pytest -q --no-cov tests/unit/test_simulation_engine_unit.py tests/unit/test_phase1_api_hardening.py`
-   - `python -m ruff check backend/simulation/simulation_engine.py routes/simulation_routes.py backend/routes/simulation_routes.py routes/api_routes.py tests/unit/test_simulation_engine_unit.py tests/unit/test_phase1_api_hardening.py`
-
-Remaining blockers before this area can be called production-ready:
-
-1. Run the gateway-backed query and simulation paths against a provider-configured staging environment.
-2. Expand strict integration coverage beyond the targeted unit/regression tests used in this pass.
-3. Remove or consolidate duplicate legacy route surfaces so the production path is unambiguous.
-
-## 2026-03-31 Phase 2 Startup Normalization Update
-
-Completed in this pass:
-
-1. **Schema mutation is no longer implicit at startup**
-   - `app.py` now requires explicit `AUTO_CREATE_SCHEMA=true` before calling `db.create_all()`.
-   - Default startup guidance now expects `flask db upgrade` before `python main.py`.
-2. **Canonical blueprint registration path**
-   - App-level blueprint wiring was collapsed into a single registration function in `app.py` so the startup path is easier to audit.
-3. **Duplicate startup wiring removed**
-   - Removed the extra simulation-blueprint registration fallback from `app.py`.
-   - Removed duplicate `limiter.init_app(app)` startup initialization.
-   - `backend/routes/simulation_routes.py` now acts as a compatibility shim over the canonical `routes/simulation_routes.py` blueprint instead of defining a second route implementation.
-4. **Entrypoint consistency**
-   - `main.py`, `wsgi.py`, and direct `app` imports now share the same runtime compatibility patch path through `backend/bootstrap_compat.py`.
-
-Validation commands:
-
-```powershell
-python -m pytest -q --no-cov tests/test_health_endpoint.py tests/unit/test_simulation_engine_unit.py tests/unit/test_phase1_api_hardening.py
-python -m ruff check app.py main.py wsgi.py routes/api_routes.py routes/simulation_routes.py backend/routes/simulation_routes.py backend/simulation/simulation_engine.py tests/unit/test_simulation_engine_unit.py tests/unit/test_phase1_api_hardening.py
-```
-
-Remaining blockers in this area:
-
-1. Finish moving app bootstrap toward an app-factory structure.
-2. Reduce legacy route duplication across `routes/` and `backend/routes/`.
-3. Align deployment/run scripts around the canonical migration-first startup path.
-
-## 2026-03-31 Phase 3 Runtime Guardrails Update
-
-Completed in this slice:
-
-1. **Production startup guardrail**
-   - `app.py` now refuses to start when `AUTO_CREATE_SCHEMA=true` is set in production.
-2. **Preflight environment hardening**
-   - `scripts/runtime_precheck.py` now blocks production startup profiles that combine `AUTO_CREATE_SCHEMA=true` with `FLASK_ENV=production`.
-   - The same precheck now escalates missing `SESSION_SECRET` / `DATABASE_URL` in production and warns on production SQLite usage.
-3. **Dependency metadata governance**
-   - `scripts/runtime_precheck.py` and `scripts/verify_lockfiles.py` now verify that `pyproject.toml` and `uv.lock` agree on the root package identity.
-
-Validation commands:
-
-```powershell
-python -m pytest -q --no-cov tests/test_health_endpoint.py tests/unit/test_bootstrap_normalization.py tests/unit/test_phase3_precheck_governance.py
-python -m ruff check app.py scripts/runtime_precheck.py scripts/verify_lockfiles.py tests/unit/test_bootstrap_normalization.py tests/unit/test_phase3_precheck_governance.py
-python scripts/verify_lockfiles.py
-```
-
-## 2026-03-31 Phase 3 API Surface Governance Update
-
-Completed in this slice:
-
-1. **Canonical REST surface is explicit**
-   - `docs/API.md` now defines `/api/v1/*` as the supported REST contract for new integrations and tests.
-2. **Legacy route aliases self-identify**
-   - `/api/compliance/*`, `/api/ka/*`, `/api/mcp/*`, `/api/persona/*`, `/api/pillar/*`, `/api/simulations/*`, `/api/truth/*`, and `/api/ukg/*` now emit `Deprecation`, `Sunset`, and `Link: rel="successor-version"` headers that point clients at the canonical `/api/v1/*` route.
-3. **Route-governance regressions added**
-   - Focused tests now verify transition headers on representative legacy simulation, truth, and UKG aliases while canonical `/api/v1/*` responses remain undecorated.
-4. **Versioning docs aligned with live route map**
-   - `docs/API.md` and `docs/API_VERSIONING.md` now distinguish canonical `/api/v1/*` application routes, canonical unversioned operational namespaces, and compatibility aliases.
-
-Validation commands:
-
-```powershell
-python -m pytest -q --no-cov tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py tests/test_health_endpoint.py tests/contract/test_api_contract.py
-python -m ruff check app.py docs/API.md docs/API_VERSIONING.md docs/ARCHITECTURE_MAP.md docs/PRODUCTION_READINESS.md tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py
-```
-
-## 2026-03-31 Phase 4 Testing Hardening Update
-
-Completed in this slice:
-
-1. **Canonical v1 route contracts added**
-   - `tests/contract/test_canonical_v1_route_contracts.py` now enforces strict status semantics on supported `/api/v1/*` routes.
-2. **Redirect-style auth regressions are blocked on canonical routes**
-   - Unauthenticated requests to `/api/v1/graph`, `/api/v1/query`, `/api/v1/simulation/run`, and `/api/v1/simulations` must return JSON `401` responses with no `Location` redirect.
-3. **Malformed request semantics are explicit**
-   - Authenticated malformed calls now have locked regression expectations for `422 VALIDATION_ERROR` and `400 Missing parameters` on the canonical simulation/query paths.
-4. **Canonical simulation happy path is pinned**
-   - Create, list, run, and fetch for `/api/v1/simulations` now have strict success-path assertions instead of broad acceptable-status buckets.
-5. **Legacy compatibility checks are no longer vague**
-   - `tests/integration/test_api_endpoints.py` now asserts exact `/api/v1/auth/*` outcomes and exact legacy `/api/simulations` compatibility behavior, including deprecation headers, instead of tolerating `302/404/500` buckets.
-6. **Session-only auth routes now fail like APIs**
-   - `/api/v1/auth/logout`, `/api/v1/auth/mfa/setup`, `/api/v1/auth/mfa/confirm`, and `/api/v1/auth/step-up` now use a JSON-native session auth decorator instead of Flask-Login’s default non-JSON unauthorized handling.
-7. **Canonical application routes no longer rely on browser-style auth redirects**
-   - `/api/v1/analytics/*`, `/api/v1/gdpr/*`, `/api/v1/privacy/*`, `/api/v1/storage/*`, `/api/v1/persona/*`, and `/api/v1/trace/*` now enforce JSON-native session auth.
-   - `/api/v1/retention/*` now enforces JSON-native admin auth instead of redirecting through the legacy admin decorator.
-8. **Expanded contract and integration coverage on the supported v1 surface**
-   - `tests/contract/test_canonical_v1_route_contracts.py` now covers canonical unauthenticated `401` behavior for analytics, GDPR export, privacy purge, storage health, persona query, trace runs, and retention policies.
-   - `tests/integration/test_analytics_api.py` now asserts exact success and auth-failure semantics instead of broad acceptable-status buckets.
-   - The focused GDPR regression sweep now verifies exact unauthenticated JSON `401` behavior for export, deletion, consent, and access-request endpoints.
-
-Validation commands:
-
-```powershell
-python -m pytest -q --no-cov tests/contract/test_canonical_v1_route_contracts.py tests/contract/test_api_contract.py tests/unit/test_phase1_api_hardening.py tests/unit/test_phase3_api_surface_governance.py tests/unit/test_phase3_precheck_governance.py tests/unit/test_bootstrap_normalization.py tests/test_health_endpoint.py
-python -m pytest -q --no-cov tests/integration/test_api_endpoints.py
-python -m pytest -q --no-cov tests/integration/test_analytics_api.py tests/integration_routes/test_api_ext_coverage.py
-python -m pytest -q --no-cov tests/integration/test_additional_coverage.py::test_gdpr_export tests/integration/test_additional_coverage.py::test_gdpr_delete tests/integration/test_additional_coverage.py::test_gdpr_consent tests/integration/test_additional_coverage.py::test_storage_health tests/integration/test_additional_coverage.py::test_storage_service_health tests/integration/test_additional_coverage.py::test_storage_test_connection
-python -m pytest -q --no-cov tests/compliance/test_gdpr_comprehensive.py::TestGDPRDataExport::test_export_requires_authentication tests/compliance/test_gdpr_comprehensive.py::TestGDPRDataDeletion::test_deletion_requires_authentication tests/compliance/test_gdpr_comprehensive.py::TestGDPRConsentManagement::test_get_consent_requires_authentication tests/compliance/test_gdpr_comprehensive.py::TestGDPRConsentManagement::test_update_consent_requires_authentication tests/compliance/test_gdpr_comprehensive.py::TestGDPRAccessRequests::test_access_request_requires_authentication
-python -m ruff check backend/auth/api_decorators.py routes/auth_routes.py docs/TESTING.md docs/PRODUCTION_READINESS.md tests/contract/test_canonical_v1_route_contracts.py tests/integration/test_api_endpoints.py
-python -m ruff check backend/routes/analytics_routes.py backend/routes/gdpr_routes.py backend/routes/privacy_routes.py backend/routes/retention_routes.py backend/routes/storage_routes.py backend/persona_api.py backend/tracing/api.py tests/integration/test_analytics_api.py tests/integration_routes/test_api_ext_coverage.py tests/compliance/test_gdpr_comprehensive.py tests/integration/test_additional_coverage.py
-```
-
-## 2026-03-31 Phase 5 Observability Update
-
-Completed in this slice:
-
-1. **Route-level HTTP telemetry added to `/metrics`**
-   - The Flask app now exports low-cardinality counters by route template, method, and status family via `datalogicengine_http_requests_by_route_total{...}`.
-   - It also exports per-route average and max latency gauges via `datalogicengine_http_request_latency_ms_avg{...}` and `datalogicengine_http_request_latency_ms_max{...}`.
-2. **Operational debugging is more actionable**
-   - Metrics now distinguish canonical route regressions from generic traffic spikes and can surface unmatched `4xx` noise separately from healthy routes.
-3. **Runbook and regression coverage updated**
-   - `tests/test_health_endpoint.py` now locks the new route/status and unmatched-route metrics.
-   - `docs/OPERATIONAL_RUNBOOKS.md` now points incident responders at the new route-level metrics during latency and outage triage.
-
-Validation commands:
-
-```powershell
-python -m pytest -q --no-cov tests/test_health_endpoint.py
-python -m ruff check app.py tests/test_health_endpoint.py docs/OPERATIONAL_RUNBOOKS.md docs/PRODUCTION_READINESS.md docs/TESTING.md
-```
-
-## 2026-03-31 Phase 6 Developer Experience Update
-
-Completed in this slice:
-
-1. **Single developer preflight command**
-   - `scripts/dev_doctor.py` now aggregates runtime readiness, CI parity, lockfile governance, and git-hook bootstrap checks into one local onboarding command.
-2. **Onboarding docs aligned to one workflow**
-   - `README.md`, `DEVELOPMENT.md`, `docs/DEVELOPER_GUIDE.md`, and `docs/ENGINEER_ONBOARDING.md` now all direct contributors through the same local readiness command before booting services.
-3. **Regression coverage added for the DX path**
-   - `tests/unit/test_dev_doctor.py` locks strict-mode behavior and git-hook bootstrap guidance so the onboarding path remains deterministic.
-
-Validation commands:
-
-```powershell
-python -m pytest -q --no-cov tests/unit/test_dev_doctor.py
-python scripts/dev_doctor.py --skip-ports
-python -m ruff check scripts/dev_doctor.py tests/unit/test_dev_doctor.py
-python scripts/verify_docs_references.py
-```
-
-## 2026-03-31 Phase 7 Release Governance Update
-
-Completed in this slice:
-
-1. **Release governance is now machine-checkable**
-   - `scripts/verify_release_governance.py` verifies that the release checklist, CI workflow, and deploy workflow stay aligned on required promotion gates.
-2. **Release checklist now separates repo evidence from live-release evidence**
-   - `docs/RELEASE_CHECKLIST.md` now distinguishes repo-verifiable checks, artifact-only checks, and manual approval requirements so local validation does not overclaim production proof.
-3. **Targeted release-safety regressions are now part of the closing sweep**
-   - The final regression pass explicitly exercises desktop auto-login security and trace/export integrity paths alongside the release-governance verifier.
-
-Validation commands:
-
-```powershell
-python -m pytest -q --no-cov tests/unit/test_release_governance.py tests/unit/test_phase3_integrity_crash_controls.py tests/integration_routes/test_desktop_auto_login_security.py
-python -m ruff check scripts/verify_release_governance.py tests/unit/test_release_governance.py
-python scripts/verify_release_governance.py
-$env:DATABASE_URL='sqlite:///:memory:'; $env:OPENAI_API_KEY='phase7-mock-key'; python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process
-python scripts/verify_lockfiles.py
-python scripts/verify_docs_references.py
-```
-
-## 2026-03-24 Remediation Sweep (Debugging + Error Hardening)
-
-Completed in this pass:
-
-1. **Critical authorization fix**
-   - Enforced per-user ownership checks for gateway session message retrieval.
-2. **Middleware failure safety**
-   - Frontend proxy middleware now returns `503` on internal validation failures (fail-closed behavior).
-3. **Replay defense upgrade**
-   - Request signing nonce checks now use Redis-backed persistence when available.
-4. **RAG reliability controls**
-   - Production mode no longer silently falls back to mock embeddings when all providers fail.
-   - Added retrieval chunk safeguards for suspicious prompt-injection markers and minimum score threshold.
-5. **File ingestion hardening**
-   - Added binary signature checks to reject MIME-spoofed uploads.
-6. **Secret management baseline**
-   - Removed hardcoded credentials from default compose/sample configuration surfaces.
-
-## 2026-02-16 Hardening Update (Sections 5-8 + Post-Baseline Controls)
-
-The following controls are now implemented and validated:
-
-1. MCP connector scope enforcement with user/tenant execution context.
-2. SSRF outbound URL validation for API gateway forwarding and architecture health probes.
-3. Connector latency/error telemetry surfaced to metrics and analytics.
-4. Connector OAuth lifecycle manager with runtime refresh/persistence support for Jira/Salesforce.
-5. Runtime connector request/response contract validation in MCP registry + core MCP server.
-6. AI latency percentile telemetry (`p50`/`p95`/`p99`) exported via `/metrics`.
-7. Support-bundle diagnostics generator for incident triage.
-8. Deterministic startup precheck gate required in CI + deploy workflows.
-9. Schema parity validator for SQLite/PostgreSQL wired into CI + deploy workflows.
-10. Installer checksum generation and integrity verification wired into deploy workflow.
-11. Snapshot and trace bundle hash/HMAC integrity verification controls.
-12. Crash reporting fallback IDs + telemetry and workflow probe checks.
-13. Dedicated Windows installer code-signing workflow with signature verification.
-14. Postgres tenant RLS bootstrap with request-scoped tenant DB context binding.
-15. Production vault-backed secret source enforcement for runtime session bootstrap.
-16. Trace export authenticity layer (manifest signing + optional payload encryption).
-17. Immutable audit replica hash-chain append + integrity verification controls.
-18. Code-signing governance drills (certificate rotation threshold + revocation checks).
-19. AI and connector p95/p99 latency SLO baseline/violation gauges in `/metrics`.
-
-Validation commands:
-
-```powershell
-python .\scripts\validate_schema_parity.py
-python .\scripts\verify_installer_integrity.py --require-artifacts
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation
-python -m pytest -q --no-cov tests/unit/test_tenant_rls_controls.py tests/unit/test_secret_resolver_controls.py tests/unit/test_export_authenticity_controls.py tests/security/test_audit_logger_immutable_replica.py tests/unit/test_latency_slo_alerts.py
-python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process
-python .\scripts\generate_support_bundle.py --skip-http
-python -m pytest -q --no-cov tests/unit/test_phase1_scope_ssrf_controls.py
-python -m pytest -q --no-cov tests/unit/test_phase2_oauth_contract_metrics.py
-python -m pytest -q --no-cov tests/unit/test_phase3_integrity_crash_controls.py
-```
-
-## 2026-02-17 Quality Gate Stabilization Update (Lint + Regression)
-
-The following quality-gate controls were completed and validated:
-
-1. Repository Python lint baseline now passes with no findings (`ruff check .`).
-2. Residual style debt classes (`E712`, `E722`, `E721`, `E711`, `E741`, `F811`, `F403`, `F401`, `F841`, `E701`, `E402`) were cleared.
-3. Bootstrap/runtime-order modules with intentionally deferred imports were documented via explicit file-level `# ruff: noqa: E402` to preserve startup behavior while enforcing lint governance.
-4. Post-change syntax safety pass succeeded (`py_compile` across all changed Python files).
-5. Targeted regression sweep succeeded (`271 passed`, `--no-cov`) covering truth engine, KA bulk contract, SDK truth-engine, and route wiring.
-
-## Universal Knowledge Graph (UKG) system architecture
-
-**Version 4.1.0 - Reviewed February 8, 2026**
-
-## Production Checklist
-
-Open production-readiness work is consolidated in the root `TODO.md`. This guide documents production controls and validation procedures; it should not maintain a second active backlog.
-
-### Phase 8: Microsoft Store & Compliance ✅
-- [x] **AI Transparency Labeling**: Added badges and disclaimers to all AI-generated content.
-- [x] **External AI Provider Disclosure Banner**: Implemented first-run disclosure for configured external AI provider processing.
-- [x] **AI Limitations Disclosure**: Created dedicated page documenting AI risks and mitigation.
-- [x] **Standalone Distribution**: Created a structured `dist_package/` with local launchers and orchestration scripts.
-- [x] **Zero-Ops Installer**: Finalized WiX-based `Setup.exe` with silent dependency bundling (PostgreSQL/Redis) and automated backup/restore orchestration.
-- [x] **User Data Rights**: Implemented self-service Data Export and Account Deletion.
-- [x] **Secure Secret Storage**: Switched to Windows DPAPI for local secret management with externalizable entropy.
-- [x] **Adversarial Hardening**: Enhanced KA-61 shield with 5-point adversarial check.
-
-### Phase 9: Desktop Hardening & Verification ✅
-- [x] **Atomic Rollback**: Specialized installer logic ensures the system remains clean if setup fails.
-- [x] **Binary Integrity**: SHA-256 verification of all core application binaries (Backend/Frontend) to prevent tampering.
-- [x] **Validated Identity**: Format-hardened Windows SID anchoring for deterministic user profiles.
-- [x] **Automated Verification**: Pester (PowerShell) and Pytest (Platform) suites established with 100% pass rates.
-
-## Security Hardening
-
-### Authentication & Authorization
-
-#### Current Implementation ✅
-
-- JWT-based authentication with configurable expiry
-- bcrypt password hashing (4.2.1)
-- Azure AD / Entra ID integration
-- Flask-Login session management
-- API key authentication for programmatic access
-
-#### Production Requirements 🔴
-
-1. **Remove Default Credentials**
-
-   ```bash
-   # Current (INSECURE)
-   ADMIN_USERNAME=admin
-   ADMIN_PASSWORD=admin123
-
-   # Production (generate strong credentials)
-   ADMIN_USERNAME=<random-username>
-   ADMIN_PASSWORD=<32+ char random password>
-   ```
-
-2. **Generate Cryptographically Strong Secrets**
-
-   ```python
-   import secrets
-
-   # Generate new secrets
-   SECRET_KEY = secrets.token_hex(32)  # 64 characters
-   JWT_SECRET_KEY = secrets.token_hex(32)  # 64 characters
-   SESSION_SECRET = secrets.token_hex(32)  # 64 characters
-   ```
-
-3. **Enforce Strong Password Policy** (already implemented ✅)
-
-   - Minimum 12 characters
-   - Requires uppercase, lowercase, digit, and symbol
-   - Location: `app.py:68-76`
-
-4. **Implement Multi-Factor Authentication (MFA)** ✅
-   - TOTP-based MFA implemented using `MFAManager`.
-   - Setup and verification endpoints available in `auth_routes.py`.
-   - Secure backup code generation included.
-
-5. **Session Security Hardening** ✅
-   ```python
-   # Hardened settings (app.py)
-   SESSION_TYPE = 'redis'
-   SESSION_COOKIE_SECURE = True
-   SESSION_COOKIE_HTTPONLY = True
-   SESSION_COOKIE_SAMESITE = 'Strict'
-   PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
-   ```
-
-### Network Security
-
-1. **HTTPS/TLS Configuration**
-
-   - Use TLS 1.3 minimum
-   - Disable weak ciphers
-   - Configure HSTS headers
-   - Use valid certificates (Let's Encrypt recommended)
-
-2. **CORS Configuration**
-
-   ```python
-   # Current (INSECURE for production)
-   CORS_ORIGINS = "*"
-
-   # Production
-   CORS_ORIGINS = "https://app.yourdomain.com,https://api.yourdomain.com"
-   ```
-
-3. **Rate Limiting** (already implemented ✅)
-
-   - Current: 200 requests/hour globally
-   - Adjust per endpoint as needed
-   - Consider Redis-backed rate limiting for distributed systems
-
-4. **Firewall Rules**
-   - Allow only necessary ports (443, 80 redirect to 443)
-   - Whitelist backend-to-database communication
-   - Block direct database access from public internet
-   - Configure WAF (Web Application Firewall)
-
-### Data Protection
-
-1. **Encryption at Rest**
-
-   - Enable database encryption (PostgreSQL TDE)
-   - Encrypt sensitive environment variables
-   - Use encrypted backups
-
-2. **Encryption in Transit**
-
-   - Enforce HTTPS for all connections
-   - Use TLS for database connections
-   - Encrypt inter-service communication
-
-3. **Sensitive Data Handling**
-   - Never log passwords or tokens
-   - Mask sensitive data in logs
-   - Implement data classification
-   - Follow GDPR/CCPA requirements
-
-### Code Security
-
-1. **Dependency Management**
-
-   ```bash
-   # Regular security audits
-   pip install safety
-   safety check -r requirements.txt
-
-   npm audit
-   npm audit fix
-   ```
-
-2. **Input Validation**
-
-   - Sanitize all user inputs ✅ (partially implemented)
-   - Use parameterized queries ✅ (SQLAlchemy ORM)
-   - Validate file uploads
-   - Implement content security policy
-
-3. **Error Handling**
-
-   ```python
-   # Production: Don't expose stack traces
-   DEBUG = False
-   TESTING = False
-
-   # Custom error handlers (already implemented ✅)
-    return render_template('errors/500.html'), 500
-    ```
-
-### 4. Adversarial Input Hardening (KA-61) ✅
-The application implements the **KA-61 Adversarial Shield** at the first reasoning gate (L1) to protect against modern prompt injection and social engineering attacks.
-- **Prompt Injection**: Detects attempt to override system instructions.
-- **Logical Traps**: Identifies paradoxes designed to hang the reasoning engine.
-- **Obfuscation Detection**: Catches encoded malicious payloads (Base64/Hex).
-- **Resource Exhaustion**: Prevents instruction-looping (DoS) attacks.
-- **Persona Hijacking**: Protects expert personas from forced safety guideline bypass.
-
-
-## Performance Optimization
-
-### Database Optimization
-
-1. **Connection Pooling** (already implemented ✅)
-
-   ```python
-   SQLALCHEMY_ENGINE_OPTIONS = {
-       "pool_pre_ping": True,  # Verify connections before use
-       "pool_recycle": 300,    # Recycle connections every 5 min
-       "pool_size": 20,        # Production: increase from default
-       "max_overflow": 40,     # Allow up to 60 total connections
-   }
-   ```
-
-2. **Query Optimization**
-
-   - Add indexes on frequently queried columns
-   - Use pagination for large result sets ✅ (implemented in routes.py)
-   - Implement database query caching
-   - Monitor slow queries and optimize
-
-3. **Database Configuration**
-   ```sql
-   -- PostgreSQL recommended settings
-   shared_buffers = 256MB  -- 25% of RAM for dedicated server
-   effective_cache_size = 1GB
-   maintenance_work_mem = 128MB
-   work_mem = 32MB
-   max_connections = 100
-   ```
-
-### Application Performance
-
-1. **Caching Strategy**
-
-   ```python
-   # Implement Redis caching
-   - Session data in Redis
-   - Frequently accessed knowledge graph nodes
-   - API response caching
-   - Query result caching
-   ```
-
-2. **Async Processing**
-
-   - Move long-running simulations to background workers
-   - Use Celery with Redis/RabbitMQ
-   - Implement webhook notifications for completion
-
-3. **Static Asset Optimization**
-
-   - Minify JavaScript and CSS
-   - Enable gzip/brotli compression
-   - Use CDN for static assets (set NEXT_PUBLIC_CDN_URL for assetPrefix)
-   - Implement browser caching headers
-
-4. **API Optimization**
-   - Implement GraphQL for flexible queries
-   - Use ETags for conditional requests
-   - Enable response compression
-   - Implement request batching
-
-### Frontend Performance
-
-1. **Next.js Optimization** (already configured ✅)
-
-   - Static generation where possible
-   - Image optimization
-   - Code splitting
-   - Lazy loading components
-
-2. **Bundle Optimization**
-   - Tree shaking
-   - Remove unused dependencies
-   - Analyze bundle size regularly
-   - Use dynamic imports
-
-## Monitoring & Observability
-
-### Application Monitoring
-
-1. **Logging Strategy**
-
-   ```python
-   # Current: Good structured logging foundation ✅
-   - Audit logs: logs/audit/*.jsonl
-   - Security logs: logs/security/
-   - Compliance logs: logs/compliance/
-
-   # Production enhancements needed:
-   - Centralized log aggregation (ELK/Splunk/CloudWatch)
-   - Real-time log analysis
-   - Anomaly detection
-   - Log retention policies (90 days minimum)
-   ```
-
-2. **Metrics Collection**
-
-   - Request rate and latency
-   - Error rates by endpoint
-   - Database query performance
-   - Simulation execution time
-   - Cache hit rates
-   - API usage by user/endpoint
-
-3. **Health Checks** (partially implemented ✅)
-
-   ```python
-   # Current: /api/health endpoint exists
-   # Enhancement needed: More detailed health status
-
-   GET /api/health
-   {
-     "status": "healthy",
-     "version": "1.0.0",
-     "timestamp": "2025-12-02T...",
-     "components": {
-       "api": "healthy",
-       "database": "healthy",
-       "redis": "healthy",
-       "simulation_engine": "healthy",
-       "openai_api": "healthy"
-     },
-     "metrics": {
-       "uptime_seconds": 86400,
-       "active_simulations": 5,
-       "db_pool_usage": 15,
-       "memory_usage_mb": 512
-     }
-   }
-   ```
-
-4. **Alerting Rules**
-   - Error rate > 5% for 5 minutes
-   - Response time > 2s for 95th percentile
-   - Database connections > 80% of pool
-   - Disk usage > 85%
-   - CPU usage > 80% sustained
-   - Memory usage > 90%
-   - Failed login attempts > 10 per minute
-
-### Security Monitoring
-
-1. **Audit Trail** (implemented ✅)
-
-   - All authentication attempts
-   - Authorization failures
-   - Data access patterns
-   - Configuration changes
-   - Admin actions
-
-2. **Security Incident Detection**
-
-   - Multiple failed login attempts
-   - Unusual API usage patterns
-   - Suspicious file uploads
-   - SQL injection attempts
-   - XSS attack attempts
-
-3. **Compliance Monitoring**
-   - Data access tracking
-   - User activity logs
-   - Configuration compliance
-   - Regular security audits
-
-## Deployment Architecture
-
-### Recommended Architecture
-
-```
-                        Internet
-                           |
-                    [Load Balancer]
-                           |
-            +-------------+-------------+
-            |                           |
-     [Frontend Tier]              [API Tier]
-     (Next.js on CDN)         (Flask/Gunicorn)
-                                      |
-                            +--------+--------+
-                            |                 |
-                    [Cache Layer]      [Background Workers]
-                     (Redis)           (Celery)
-                            |                 |
-                            +---------+-------+
-                                      |
-                              [Database Tier]
-                         (PostgreSQL Primary)
-                                      |
-                            [Database Replicas]
-                          (Read replicas for scale)
-```
-
-### Deployment Options
-
-#### 1. Windows App / Windows VM Platform (Recommended)
-
-**Supported Architecture**
-
-```
-- Frontend: Electron-packaged app UI
-- Backend: Bundled Flask backend process
-- Database: App-owned PostgreSQL or SQLite fallback
-- Cache: App-owned Redis with in-memory fallback
-- Graph: App-owned Neo4j plus in-memory NetworkX graph
-- Vector store: App-owned ChromaDB
-- Object storage: App-owned local object directory
-- Logs/monitoring: Local app logs and bundled telemetry exports
-```
-
-**Unsupported Managed Database Architecture**
-
-```
-- RDS/Azure Database/Cloud SQL as application PostgreSQL
-- ElastiCache/Azure Cache/Memorystore as application Redis
-- Neo4j Aura as application graph database
-- Pinecone/Qdrant/Weaviate as application vector database
-- S3/Azure Blob/GCS as primary application object store
-```
-
-#### 2. Container Deployment (CI/compatibility only)
-
-Container builds are retained for CI/build reproducibility only. They are not the production runtime model for application databases. Do not add Compose/Kubernetes database services as a replacement for the app-owned Windows desktop/VM database stack.
-
-**Windows VM Deployment**
-
-- Install the same Windows app package used by desktop.
-- Keep PostgreSQL, Redis, Neo4j, ChromaDB, object storage, and SQLite fallback under app-owned directories.
-- Bind internal services to loopback unless a future reviewed requirement explicitly expands local access.
-- Validate `/health`, `get-db-status`, and release smoke evidence inside the VM.
-
-#### 3. Traditional VPS/Dedicated Server
-
-```
-Server Requirements (Minimum):
-- CPU: 4 cores
-- RAM: 8 GB
-- Storage: 50 GB SSD
-- OS: Ubuntu 22.04 LTS or RHEL 9
-
-Recommended:
-- CPU: 8+ cores
-- RAM: 16+ GB
-- Storage: 100+ GB SSD
-- OS: Ubuntu 22.04 LTS
-```
-
-## Database Configuration
-
-### PostgreSQL Production Setup
-
-1. **Installation and Configuration**
-
-   ```sql
-   -- Create production database
-   CREATE DATABASE ukg_production;
-   CREATE USER ukg_user WITH ENCRYPTED PASSWORD '<strong-password>';
-   GRANT ALL PRIVILEGES ON DATABASE ukg_production TO ukg_user;
-
-   -- Create read-only user for reporting
-   CREATE USER ukg_readonly WITH ENCRYPTED PASSWORD '<strong-password>';
-   GRANT CONNECT ON DATABASE ukg_production TO ukg_readonly;
-   GRANT SELECT ON ALL TABLES IN SCHEMA public TO ukg_readonly;
-   ```
-
-2. **Performance Tuning**
-
-   ```conf
-   # postgresql.conf
-
-   # Memory Settings
-   shared_buffers = 2GB                # 25% of system RAM
-   effective_cache_size = 6GB          # 75% of system RAM
-   maintenance_work_mem = 512MB
-   work_mem = 32MB
-
-   # Checkpoint Settings
-   checkpoint_completion_target = 0.9
-   wal_buffers = 16MB
-   default_statistics_target = 100
-
-   # Connection Settings
-   max_connections = 100
-
-   # Query Optimization
-   random_page_cost = 1.1              # SSD
-   effective_io_concurrency = 200      # SSD
-
-   # Logging
-   log_min_duration_statement = 1000   # Log queries > 1s
-   log_connections = on
-   log_disconnections = on
-   log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d '
-   ```
-
-3. **Backup Strategy**
-
-   ```bash
-   # Automated daily backups
-   pg_dump -Fc ukg_production > backup_$(date +%Y%m%d).dump
-
-   # Point-in-time recovery (WAL archiving)
-   archive_mode = on
-   archive_command = 'cp %p /path/to/archive/%f'
-
-   # Retention: Keep 30 days of backups
-   # Store in app-owned backup/archive directories, then export manually if policy requires it
-   ```
-
-4. **High Availability**
-   - Configure streaming replication
-   - Set up read replicas (2+ replicas)
-   - Implement automatic failover (Patroni/repmgr)
-   - Use connection pooling (PgBouncer)
-
-## Scaling Considerations
-
-### Horizontal Scaling
-
-1. **Backend Services**
-
-   - Deploy multiple instances behind load balancer
-   - Use Redis for shared session storage
-   - Implement service mesh for microservices
-   - Use message queues for async processing
-
-2. **Database Scaling**
-
-   - Read replicas for read-heavy workloads
-   - Connection pooling (PgBouncer/PgPool)
-   - Partitioning for large tables
-   - Consider sharding for extreme scale
-
-3. **Cache Layer**
-   - Redis cluster for high availability
-   - Implement cache warming strategies
-   - Use local cache + distributed cache
-   - Monitor cache hit rates
-
-### Vertical Scaling
-
-- Start with appropriate instance sizes
-- Monitor resource utilization
-- Scale up before hitting limits
-- Database: Consider larger instances with more RAM
-
-### Auto-Scaling Policies
-
-```yaml
-# Kubernetes HPA example
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: backend-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: backend
-  minReplicas: 3
-  maxReplicas: 20
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 70
-    - type: Resource
-      resource:
-        name: memory
-        target:
-          type: Utilization
-          averageUtilization: 80
-```
-
-## Disaster Recovery
-
-### Backup Strategy
-
-1. **Database Backups**
-
-   - Full backup: Daily
-   - Incremental: Every 6 hours
-   - Transaction logs: Continuous archiving
-   - Retention: 30 days online, 1 year archive
-   - Off-site storage: Yes (S3/Azure/GCS)
-
-2. **Application Backups**
-
-   - Configuration files: Git repository
-   - Media/uploads: Daily sync to object storage
-   - Logs: Retained per compliance policy (90+ days)
-
-3. **Backup Verification**
-   - Monthly restore tests
-   - Automated validation
-   - Document restore procedures
-   - Test RTO/RPO objectives
-
-### Recovery Procedures
-
-1. **Database Recovery**
-
-   ```bash
-   # Full restore from dump
-   pg_restore -d ukg_production backup_20251202.dump
-
-   # Point-in-time recovery
-   # Set recovery target in postgresql.conf
-   recovery_target_time = '2025-12-02 12:00:00'
-   ```
-
-2. **Application Recovery**
-
-   - Redeploy from Git tag/release
-   - Restore configuration from secure storage
-   - Verify health checks pass
-   - Gradually restore traffic
-
-3. **RTO/RPO Targets**
-   - **RTO** (Recovery Time Objective): < 1 hour
-   - **RPO** (Recovery Point Objective): < 15 minutes
-   - Critical systems: < 5 minutes RTO
-
-## Compliance & Audit
-
-### SOC 2 Compliance
-
-DataLogicEngine includes built-in support for SOC 2 Type 2 compliance:
-
-- ✅ Comprehensive audit logging
-- ✅ Access control and authentication
-- ✅ Data encryption (at rest and in transit)
-- ✅ Security monitoring and alerting
-- ✅ Incident response procedures
-- ✅ Change management tracking
-
-See `backend/security/audit_logger.py` for implementation.
-
-### GDPR Compliance
-
-1. **Data Subject Rights**
-
-   - Implement data export functionality
-   - Add data deletion workflows
-   - Maintain data processing records
-   - Obtain explicit consent for data processing
-
-2. **Privacy by Design**
-   - Minimize data collection
-   - Pseudonymization where possible
-   - Regular privacy impact assessments
-   - Document data flows
-
-### HIPAA Compliance (If Applicable)
-
-1. **Technical Safeguards**
-
-   - Access controls ✅
-   - Audit controls ✅
-   - Data integrity controls
-   - Transmission security ✅
-
-2. **Administrative Safeguards**
-
-   - Security management process
-   - Workforce security procedures
-   - Information access management
-   - Security awareness training
-
-3. **Physical Safeguards**
-   - Facility access controls
-   - Workstation security
-   - Device and media controls
-
-### Audit Requirements
-
-1. **Logging Requirements**
-
-   - All user authentication
-   - All data access (especially PHI/PII)
-   - All administrative actions
-   - All configuration changes
-   - All security events
-
-2. **Log Retention**
-
-   - Security logs: 1 year minimum
-   - Audit logs: 7 years for compliance
-   - Access logs: 90 days minimum
-   - Error logs: 30 days minimum
-
-3. **Regular Audits**
-   - Quarterly access reviews
-   - Annual security assessments
-   - Penetration testing (annually)
-   - Compliance audits (per requirements)
-
-## Production Deployment Steps
-
-### Pre-Deployment Checklist
-
-1. ✅ Review all items in Production Checklist above
-2. ✅ Complete security hardening steps
-3. ✅ Set up monitoring and alerting
-4. ✅ Configure backup and disaster recovery
-5. ✅ Perform load testing
-6. ✅ Review and approve by security team
-7. ✅ Document rollback procedures
-8. ✅ Train operations team
-
-### Deployment Process
-
-1. **Prepare Environment**
-
-   ```bash
-   # 1. Set up production environment variables
-   cp .env.template .env.production
-   # Edit with production values
-
-   # 2. Generate production secrets
-   python -c "import secrets; print(f'SECRET_KEY={secrets.token_hex(32)}')"
-   python -c "import secrets; print(f'JWT_SECRET_KEY={secrets.token_hex(32)}')"
-
-   # 3. Configure database
-   # Use the app-owned internal PostgreSQL/SQLite path; do not point DATABASE_URL at an external database
-
-   # 4. Set production flags
-   export FLASK_ENV=production
-   export DEBUG=False
-   ```
-
-2. **Deploy Database**
-
-   ```bash
-   # Run migrations
-   flask db upgrade
-
-   # Verify schema
-   flask db current
-
-   # Create admin user (remove default)
-   python scripts/create_admin.py
-   ```
-
-3. **Deploy Application**
-
-   ```bash
-   # Build frontend
-   cd frontend
-   npm run build
-
-   # Deploy backend (example for systemd)
-   sudo systemctl start ukg-backend
-   sudo systemctl enable ukg-backend
-
-   # Verify health
-   curl https://api.yourdomain.com/api/health
-   ```
-
-4. **Post-Deployment Verification**
-   - [ ] Health checks passing
-   - [ ] SSL certificate valid
-   - [ ] Database connections working
-   - [ ] Authentication working
-   - [ ] API endpoints responding
-   - [ ] Monitoring collecting data
-   - [ ] Logs being written
-   - [ ] Backups configured
-
-### Rollback Procedures
-
-1. **Application Rollback**
-
-   ```bash
-   # Stop current version
-   systemctl stop ukg-backend
-
-   # Restore previous version
-   git checkout <previous-tag>
-
-   # Restart
-   systemctl start ukg-backend
-   ```
-
-2. **Database Rollback**
-
-   ```bash
-   # Rollback migration
-   flask db downgrade
-
-   # Or restore from backup
-   pg_restore -d ukg_production backup_<timestamp>.dump
-   ```
-
-## Support & Troubleshooting
-
-### Common Issues
-
-1. **Database Connection Failures**
-
-   - Check internal DATABASE_URL/app-owned database path configuration
-   - Verify PostgreSQL service running
-   - Check firewall rules
-   - Verify connection pool settings
-
-2. **Authentication Issues**
-
-   - Verify JWT_SECRET_KEY configured
-   - Check session cookie settings
-   - Verify Azure AD configuration (if using)
-
-3. **Performance Degradation**
-   - Check database slow query log
-   - Review application metrics
-   - Check resource utilization
-   - Review cache hit rates
-
-### Getting Help
-
-- **Documentation:** See `docs/` directory
-- **Issues:** https://github.com/kherrera6219/DataLogicEngine/issues
-- **Security:** See SECURITY.md for vulnerability reporting
-
-## Conclusion
-
-Following this production readiness guide will ensure your DataLogicEngine deployment is secure, scalable, and reliable. Regular reviews and updates of these procedures are recommended as the system evolves.
-
-**Remember:** Security and reliability are ongoing processes, not one-time tasks.
+1. `docs/ARCHITECTURE.md`
+2. `docs/API.md`
+3. `docs/DEPLOYMENT.md`
+4. `docs/DATABASE_SCHEMA.md`
+5. `docs/TESTING.md`
+6. `docs/RELEASE_CHECKLIST.md`
+7. `docs/OPERATIONAL_RUNBOOKS.md`
+8. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+9. `docs/diagrams/08_testing_validation_and_release_governance.md`
+10. `docs/diagrams/12_end_to_end_request_lifecycle.md`
 
 ---
 
-**Document version:** 1.2.0
-**Last updated:** May 23, 2026
-**Next review:** June 22, 2026
+## Production readiness status
+
+Current status: **application-readiness validation is strong for local-first/desktop and engineering review, but signed production release still requires final external evidence and credential validation.**
+
+### Ready / substantially implemented
+
+1. Local-first desktop architecture.
+2. Canonical `/api/v1/*` API route policy.
+3. JSON-native auth/error behavior for tested canonical routes.
+4. DMRF control-plane lifecycle.
+5. Truth Engine modules: TruthGate, TruthCore, TruthMemory, TruthLink.
+6. Multi-store data architecture: SQL, Redis, Neo4j, ChromaDB, object store, USKD memory graph, UnifiedMemory, TruthMemory.
+7. Trace Explorer and export integrity architecture.
+8. Runtime precheck, docs reference validation, schema parity, environment parity, and lockfile governance.
+9. CI jobs for backend, frontend, packaging, governance, and Docker build verification.
+10. Windows packaging smoke and NSIS governance checks.
+11. Privacy controls, cloud/AI disclosures, local-first product copy, and admin/compliance surfaces.
+12. Frontend accessibility automation path and visual/E2E testing path.
+
+### Remaining release blockers before signed production distribution
+
+1. Manual NVDA or equivalent assistive-technology evidence for accessibility release signoff.
+2. Provisioned trusted production signing credentials.
+3. Signed release artifact validation.
+4. Final provider-configured staging run for gateway-backed query/simulation paths.
+5. Final release checklist completion with generated reports attached.
+6. Confirmation that no production build uses default secrets, `AUTO_CREATE_SCHEMA=true`, or desktop-only trust in cloud mode.
+
+Keep tactical task tracking in `TODO.md`; keep this guide focused on release criteria and validation controls.
+
+---
+
+## Production readiness scorecard
+
+| Domain | Status | Required evidence |
+|---|---|---|
+| Architecture | Ready for review | `docs/ARCHITECTURE.md`, diagram set, DMRF/Truth Engine files. |
+| API contract | Mostly ready | Contract tests, canonical `/api/v1/*` docs, route governance headers. |
+| Security | Ready with release caveats | Security tests, runtime precheck, desktop auth tests, secret validation, signing evidence. |
+| Data/storage | Ready for local-first | Schema parity report, storage mode verification, object/vector/graph health. |
+| Testing | Strong | Backend/frontend/contract/parity/security/governance/packaging CI. |
+| Frontend/product | Strong | Dashboard, chat, trace, graph, Truth Engine, MCP, admin, privacy/disclosure surfaces. |
+| Desktop packaging | Strong but signing-dependent | NSIS governance, packaging smoke, signed artifact verification. |
+| Accessibility | Automated path present; manual evidence pending | Playwright/a11y sweep plus manual screen-reader evidence. |
+| Observability | Strong baseline | `/health`, `/live`, `/ready`, `/metrics`, DMRF/Truth status, trace review. |
+| Production cloud | Controlled/conditional | HTTPS, trusted hosts, CORS, secrets, provider staging test, no desktop trust assumptions. |
+
+---
+
+## Production checklist
+
+### Required before any release candidate
+
+1. `docs/API.md`, `docs/ARCHITECTURE.md`, `docs/DEPLOYMENT.md`, `docs/DATABASE_SCHEMA.md`, `docs/TESTING.md`, and this document have current version/date metadata.
+2. `scripts/runtime_precheck.py --strict` passes.
+3. `scripts/verify_docs_references.py` passes.
+4. `scripts/validate_schema_parity.py` passes.
+5. `scripts/verify_environment_parity.py --strict` passes.
+6. `scripts/verify_lockfiles.py` passes.
+7. Backend pytest suite passes.
+8. API contract, local-mode parity, and security sweeps pass.
+9. Frontend lint, typecheck, tests, build, E2E, accessibility, and visual regression checks pass or have documented accepted exceptions.
+10. Windows packaging smoke passes for desktop release.
+11. NSIS governance passes for installer release.
+12. Docker build verification passes where applicable.
+13. Release governance verifier passes.
+14. No default secrets are present in production config.
+15. `AUTO_CREATE_SCHEMA=true` is not enabled in production.
+16. Production cloud mode does not rely on desktop loopback auth.
+17. Trace export integrity path is verified.
+18. Health/readiness/metrics endpoints are verified in target runtime.
+
+### Required before signed Windows production distribution
+
+1. Trusted signing certificate is available.
+2. `WINDOWS_CODESIGN_CERT_BASE64` is configured.
+3. `WINDOWS_CODESIGN_CERT_PASSWORD` is configured.
+4. Signing certificate health/rotation validation passes.
+5. Installer signing completes.
+6. Installer signature verification passes.
+7. Signed installer and reports are uploaded as artifacts.
+8. Packaging smoke is run against the signed artifact when practical.
+
+---
+
+## Security hardening
+
+Required production security controls:
+
+1. Strong `SESSION_SECRET`.
+2. Strong JWT/API-key secrets where enabled.
+3. HTTPS enforcement in web/cloud mode.
+4. Trusted host validation.
+5. CORS allowlist with no production wildcard.
+6. CSRF token/origin validation.
+7. Secure session cookies.
+8. Rate limiting enabled.
+9. API JSON error behavior for canonical routes.
+10. TruthGate enabled for governed reasoning paths.
+11. DMRF injection defense enabled for DMRF routes.
+12. Desktop local auth restricted to local/hybrid desktop runtime.
+13. DPAPI helper available for Windows-local protected data where applicable.
+14. Trace export integrity enabled for export workflows.
+15. Production logs must not expose secrets, provider keys, or raw credentials.
+
+Implementation caveat: current field encryption uses Fernet/key registry behavior in `EncryptionManager`; AES-256-GCM remains a target-state standard unless the implementation is upgraded.
+
+---
+
+## Operational readiness
+
+Required endpoints:
+
+1. `/health` — process/database/session-secret health.
+2. `/live` — liveness.
+3. `/ready` — readiness.
+4. `/metrics` — Prometheus-format metrics.
+5. `/api/v1/truth/health` — Truth Engine health where route is enabled.
+
+Required operational reports:
+
+1. runtime precheck report;
+2. schema parity report;
+3. environment parity report;
+4. lockfile governance report;
+5. packaging smoke report;
+6. NSIS governance report;
+7. release checklist evidence;
+8. accessibility report/evidence;
+9. signed artifact verification report for production distribution.
+
+---
+
+## Deployment architecture
+
+Production readiness must be evaluated by target.
+
+| Target | Readiness requirements |
+|---|---|
+| Windows desktop | local stack, Electron shell, backend loopback service, desktop local auth, internal storage, packaging smoke, signing. |
+| Windows VM | same internal app stack as desktop, VM-local storage, health/readiness checks, no managed cloud DB substitution by default. |
+| Web/cloud | HTTPS, trusted host/CORS/CSRF/session hardening, provider staging tests, explicit database/storage approval, no desktop trust assumption. |
+
+See `docs/DEPLOYMENT.md` for deployment procedures.
+
+---
+
+## Data and storage readiness
+
+Required data checks:
+
+1. SQL migrations are current where migration-managed DB is used.
+2. SQLite/PostgreSQL schema parity validation passes where applicable.
+3. `AUTO_CREATE_SCHEMA=true` is not used in production.
+4. Object store buckets initialize correctly.
+5. ChromaDB local vector path is writable where vector search is enabled.
+6. Neo4j graph store is reachable where configured.
+7. USKD memory graph loads from configured source.
+8. UnifiedMemory JSON persistence path is writable.
+9. TruthMemory audit/artifact/metrics paths work.
+10. Trace export integrity can generate valid manifest and hashes.
+
+See `docs/DATABASE_SCHEMA.md` for the current data architecture.
+
+---
+
+## Testing and release validation
+
+Required testing gates:
+
+1. backend pytest;
+2. backend coverage gate;
+3. API contract tests;
+4. canonical `/api/v1/*` route tests;
+5. local-mode parity tests;
+6. security regression tests;
+7. Truth Engine tests;
+8. Knowledge Algorithm tests;
+9. 17-axis tests;
+10. frontend lint/typecheck/unit/build;
+11. Playwright route smoke;
+12. accessibility sweep;
+13. visual regression;
+14. Windows packaging smoke;
+15. NSIS governance;
+16. environment parity;
+17. lockfile governance;
+18. release governance verifier;
+19. Docker build verification where applicable.
+
+See `docs/TESTING.md` for commands and quality baseline.
+
+---
+
+## Production code-signing path
+
+The trusted Windows signing path is the `Release Installer Signing` GitHub Actions workflow.
+
+Required secrets:
+
+1. `WINDOWS_CODESIGN_CERT_BASE64`
+2. `WINDOWS_CODESIGN_CERT_PASSWORD`
+
+Expected workflow path:
+
+1. Build unsigned installer.
+2. Validate certificate health and rotation threshold using `scripts/windows/verify_signing_certificate_health.ps1`.
+3. Sign installers using `scripts/windows/sign_release_installers.ps1`.
+4. Verify signatures using `scripts/windows/verify_installer_signature.ps1`.
+5. Upload signed installers and reports.
+
+Local development certificates are valid only for workstation validation and must not be treated as production signing evidence.
+
+---
+
+## Accessibility readiness
+
+Automated accessibility checks are part of the frontend validation path, but production release still requires manual assistive-technology evidence.
+
+Required evidence:
+
+1. automated a11y sweep output;
+2. keyboard navigation evidence;
+3. screen-reader evidence such as NVDA manual pass/fail notes;
+4. documented exceptions with remediation plan;
+5. no critical blocker for login, dashboard, chat, trace review, settings/privacy, and admin/compliance flows.
+
+---
+
+## Compliance and audit readiness
+
+Required compliance/audit controls:
+
+1. audit logs available for security-relevant events;
+2. TruthMemory audit/explainability data generated for Truth Engine sessions;
+3. trace runs visible through Trace Explorer;
+4. trace exports include integrity metadata;
+5. privacy settings and export/delete flows are present;
+6. cloud-service and AI-limitation disclosures are present;
+7. admin/compliance surfaces are protected by role/admin checks;
+8. release evidence is attached to release checklist.
+
+---
+
+## Failure-mode readiness
+
+A release candidate must demonstrate safe behavior for:
+
+1. missing provider credentials;
+2. provider outage;
+3. runtime precheck failure;
+4. schema parity mismatch;
+5. failed auth/session;
+6. desktop auth nonce/signature failure;
+7. TruthGate block;
+8. DMRF injection-defense block;
+9. local object-store path rejection;
+10. trace export/signature failure;
+11. frontend API error boundary recovery;
+12. packaging smoke failure.
+
+Failures must be explicit, logged, and triageable. Do not silently return synthetic success for production paths.
+
+---
+
+## Reviewer verification path
+
+A production reviewer should inspect these files in order:
+
+1. `docs/diagrams/08_testing_validation_and_release_governance.md`
+2. `docs/diagrams/12_end_to_end_request_lifecycle.md`
+3. `docs/ARCHITECTURE.md`
+4. `docs/DEPLOYMENT.md`
+5. `docs/DATABASE_SCHEMA.md`
+6. `docs/TESTING.md`
+7. `docs/RELEASE_CHECKLIST.md`
+8. `.github/workflows/ci.yml`
+9. `.github/workflows/deploy.yml`
+10. `.github/workflows/release-installer-signing.yml`
+11. `scripts/runtime_precheck.py`
+12. `scripts/verify_release_governance.py`
+13. `scripts/verify_environment_parity.py`
+14. `scripts/verify_lockfiles.py`
+15. `scripts/validate_schema_parity.py`
+16. `scripts/windows/run_packaging_smoke.ps1`
+17. `scripts/windows/verify_nsis_governance.ps1`
+18. `scripts/windows/verify_installer_signature.ps1`
+19. `backend/security/desktop_local_auth.py`
+20. `backend/security/export_integrity.py`
+21. `backend/dmrf/orchestrator.py`
+22. `backend/truth_engine/api.py`
+23. `frontend/app/layout.tsx`
+24. `frontend/components/layout/AppSidebar.tsx`
+
+---
+
+## Current release decision
+
+For contest, architecture review, technical demonstration, and sponsor/employer review:
+
+```text
+Recommended status: Ready to present with caveats
+```
+
+For signed Windows production distribution:
+
+```text
+Recommended status: Not final until trusted signing credentials, signed artifact validation, and manual accessibility evidence are complete
+```
+
+For public cloud production:
+
+```text
+Recommended status: Conditional; requires cloud-specific security/storage approval and staging provider validation
+```
+
+---
+
+## Change notes for v2.6.0
+
+1. Added document metadata with explicit version and update date.
+2. Reframed this guide as a production readiness scorecard rather than a chronological phase log.
+3. Added target-specific readiness status for desktop, Windows VM, and web/cloud deployments.
+4. Added current release blockers and signed Windows distribution requirements.
+5. Added architecture, API, data, testing, security, accessibility, compliance, and failure-mode readiness sections.
+6. Added reviewer verification path tied to actual workflows, scripts, and implementation files.
+7. Preserved key readiness themes while removing long stale phase-history detail from the active guidance path.
