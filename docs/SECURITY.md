@@ -1,8 +1,20 @@
-# Enterprise Security & Compliance
+# Enterprise Security and Compliance
+
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Status | Active |
+| Owner | Security Engineering |
+| Review cadence | Every 30 days |
 
 ## Purpose
 
-Define security controls, identity/access patterns, data protection measures, and audit/compliance posture for DataLogicEngine.
+Define DataLogicEngine security controls, identity/access patterns, local-first desktop protections, data protection measures, AI safety controls, trace/export integrity, and audit/compliance posture.
+
+This version reflects the current architecture: canonical `/api/v1/*` APIs, DMRF injection defense, TruthGate, Truth Engine v7.3, desktop loopback auth, DPAPI helper, export integrity, multi-store data protections, MCP governance, and signed-release controls.
 
 ## Audience
 
@@ -10,195 +22,442 @@ Define security controls, identity/access patterns, data protection measures, an
 2. Platform engineers
 3. Compliance and audit stakeholders
 4. Incident response operators
-
-## Document control
-
-1. Owner: Security Engineering
-2. Last updated: 2026-03-31
-3. Status: Active
-4. Review cadence: Every 30 days
+5. Release engineers
+6. Technical judges and external reviewers
 
 ## Related documents
 
-1. `docs/PRODUCTION_READINESS.md`
-2. `docs/OPERATIONAL_RUNBOOKS.md`
-3. `docs/SDLC_SSDF_MAPPING.md`
-4. `docs/AI_MANAGEMENT_SYSTEM_42001.md`
-
-## 2026-03-31 API Authorization & Fail-Closed Update
-
-The following controls were implemented in this remediation pass:
-
-1. **Simulation object-level authorization**
-   - `/api/v1/simulations/<session_id>` read/run/stop operations now scope by authenticated principal and persisted `session_id`.
-2. **Principal consistency across session and API-key auth**
-   - Updated route handling now uses the authenticated API principal resolved by `api_login_required`, rather than assuming a session-backed `current_user`.
-3. **Fail-closed query behavior**
-   - `/api/v1/query` now returns `503` when the gateway/provider path cannot serve the request, instead of returning canned content that could be mistaken for a real answer.
-4. **Simulation engine fallback removal**
-   - The backend simulation engine now raises on gateway failures instead of generating synthetic analysis text.
-
-Verification evidence:
-
-- `python -m pytest -q --no-cov tests/unit/test_simulation_engine_unit.py tests/unit/test_phase1_api_hardening.py`
-- `python -m ruff check backend/simulation/simulation_engine.py routes/simulation_routes.py backend/routes/simulation_routes.py routes/api_routes.py tests/unit/test_simulation_engine_unit.py tests/unit/test_phase1_api_hardening.py`
-
-## Overview
-
-DataLogicEngine is designed with a **Security-First** philosophy, incorporating multiple layers of defense to protect sensitive enterprise data and ensure the integrity of AI reasoning.
-
-## 2026-03-24 Security Remediation Update
-
-The following controls were implemented as part of the production-readiness remediation sweep:
-
-1. **Gateway session object authorization hardening**
-   - `/api/v1/gateway/sessions/<session_id>/messages` now enforces session ownership by authenticated user/API-key identity.
-2. **Replay protection hardening**
-   - Request signing nonces now support Redis-backed persistence when `REDIS_URL` is configured, reducing cross-worker replay risk.
-3. **Frontend edge hardening**
-   - Frontend proxy middleware now fails closed on catastrophic errors (HTTP 503), rather than redirecting to a public page.
-4. **Secret hygiene baseline**
-   - Compose and sample config were updated to remove tracked static secrets and require environment-based secret injection.
-5. **Upload validation hardening**
-   - File upload service now validates magic signatures against declared MIME type to reduce spoofing.
+1. `docs/ARCHITECTURE.md`
+2. `docs/API.md`
+3. `docs/DATABASE_SCHEMA.md`
+4. `docs/DEPLOYMENT.md`
+5. `docs/PRODUCTION_READINESS.md`
+6. `docs/OPERATIONAL_RUNBOOKS.md`
+7. `docs/SDLC_SSDF_MAPPING.md`
+8. `docs/AI_MANAGEMENT_SYSTEM_42001.md`
+9. `docs/diagrams/06_local_first_security_model.md`
+10. `docs/diagrams/05_truth_engine_architecture.md`
 
 ---
 
-## Identity & Access Management (IAM)
+## Security architecture overview
 
-### 1. Hardened IAM & Authentication
+DataLogicEngine uses layered security across the product, API, AI control plane, data plane, desktop runtime, and release pipeline.
 
-DataLogicEngine implements an "Identity-First" security model:
+```mermaid
+flowchart TD
+    User[User / Operator]
+    FE[Frontend / Electron]
+    API[Flask API Security Envelope]
+    DMRF[DMRF Control Plane]
+    TruthGate[TruthGate]
+    TruthCore[TruthCore]
+    Data[Data and Memory Stores]
+    Export[Trace Export Integrity]
+    Release[Release Signing / Packaging]
 
-- **Single Sign-On (SSO)**: Native OIDC (OpenID Connect) for **Azure AD / Microsoft Entra ID**, Okta, and Auth0.
-- **Multi-Factor Authentication (MFA)**: Native TOTP support (Google Authenticator, Authy) with cryptographically secure setup and backup codes.
-- **Granular RBAC**: Role-Based Access Control with specific permissions (e.g., `user:read`, `user:manage_roles`, `security:read`, `system:config`). The RBAC engine enforces **deny-on-ambiguity**: if a user object lacks a valid `role` attribute or carries an unrecognized role name, the permission check returns `False` and logs a warning — it never silently defaults to a permissive role.
-- **Account Protection**:
-  - **Lockout Policy**: 5 failed attempts trigger a 30-minute account lockout.
-  - **Password Hygiene**: Minimum 12 characters, complexity requirements, and automatic password expiry tracking.
-  - **Session Hardening**: Redis-backed session management with rotation, concurrency limits, and strict idle timeouts.
+    User --> FE
+    FE --> API
+    API --> DMRF
+    DMRF --> TruthGate
+    TruthGate --> TruthCore
+    TruthCore --> Data
+    Data --> Export
+    Release --> FE
+    Release --> API
 
-### 2. Multi-Tenancy & Isolation
+    subgraph Controls[Primary Controls]
+        Auth[Session / API key / SSO / MFA]
+        Desktop[Desktop loopback auth]
+        CSRF[CSRF + origin checks]
+        Rate[Rate limiting]
+        Hosts[Trusted host validation]
+        Injection[DMRF InjectionDefense]
+        Gate[TruthGate security/budget/compliance]
+        Encryption[Field encryption + DPAPI helper]
+        Integrity[Hashes + HMAC signatures + optional encrypted exports]
+        Tests[Contract / security / parity / packaging tests]
+    end
 
-DataLogicEngine uses a "Hard Isolation" strategy:
+    API --> Auth
+    API --> Desktop
+    API --> CSRF
+    API --> Rate
+    API --> Hosts
+    DMRF --> Injection
+    DMRF --> Gate
+    Data --> Encryption
+    Export --> Integrity
+    Release --> Tests
+```
 
-- **Tenant Context**: Every database query is scoped by `tenant_id`.
-- **Cross-Tenant Safety**: It is physically impossible for a user from Tenant A to query or traverse nodes belonging to Tenant B.
-- **Logic Isolation**: Circuit breakers and rate limits can be configured per tenant to prevent "Noisy Neighbor" effects.
-
----
-
-## Infrastructure & network security
-
-### 1. Rate Limiting & DoS Protection
-
-The `API Gateway` implements multi-tiered rate limiting using **Redis**:
-
-- **Global Limits**: Protects the infrastructure from massive bursts.
-- **User/Tenant Quotas**: Ensures fair usage and cost predictability.
-- **Endpoint Specific**: Critical reasoning endpoints have tighter limits than static asset routes.
-
-**Current status**: Security remediation in progress. Controls described below should be treated as implemented only when backed by passing tests, deploy checks, and environment validation.
-**Version**: 4.1.0
-**Last security control review**: 2026-02-08
-
----
-
-## Production Checklist
-
-### 2. Encryption & Data Protection
-
-- **In Transit**:
-  - Forced **Strict TLS 1.3** for all production traffic.
-  - **HSTS (HTTP Strict Transport Security)** with preloading support (max-age: 1 year).
-  - Hardened security headers: `Content-Security-Policy`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`.
-- **At Rest**:
-  - **Field-Level Encryption**: Sensitive PII (emails, simulation metadata) is encrypted in the database using a **KEK/DEK (Key Encryption Key / Data Encryption Key)** pattern with AES-256-GCM.
-  - **Provider Keys**:
-    - **Cloud**: LLM API keys are encrypted via Fernet using rotating keys stored in secured environment variables.
-    - **Desktop**: LLM API keys are encrypted via **Windows DPAPI**, tying secrets to the local user profile and machine hardware.
-- **Database Volumes**: Application databases run on app-owned local/Windows VM storage. Use OS volume encryption and restricted ACLs for those internal data directories; do not move runtime databases to externally hosted database services.
-
-### 3. Session Secret & CSRF Origin Policy
-
-**Session secret (`SESSION_SECRET`)**
-
-- In production (`FLASK_ENV=production`) the app will **refuse to start** (`RuntimeError`) if `SESSION_SECRET` is not set or is not resolvable from the configured vault/env source. This prevents Flask operating with a `None` secret key, which would allow session forgery.
-- In development the app generates an ephemeral random secret and logs a warning. Sessions are invalidated on restart. Always set `SESSION_SECRET` in `.env` for persistent developer sessions.
-- Generate a production-grade secret with: `python scripts/generate_secrets.py`
-
-**CSRF trusted origins**
-
-- Electron `app://` origins are always trusted (the scheme is not reachable from web browsers).
-- Loopback origins (`http://localhost:*`, `http://127.0.0.1:*`) are only included in the trusted set in **non-production** environments. This prevents CSRF bypass via locally-running attacker pages in deployed environments.
+Security is implemented as a defense-in-depth model, not a single perimeter.
 
 ---
 
-## Compliance & auditability
+## Identity and access management
 
-### 1. Hash-Chained Audit Logs
+Supported identity/authentication patterns:
 
-The UKG SDK implements a compliance-grade audit store. Every reasoning step (KA execution, LLM call, Policy decision) is recorded in an **append-only, hash-chained** ledger.
+1. **Session authentication** — cookie-based frontend sessions.
+2. **API key / bearer token authentication** — programmatic access where enabled.
+3. **SSO/OIDC** — enterprise identity provider integration where configured.
+4. **MFA** — TOTP setup/confirmation and step-up flows where enabled.
+5. **Desktop local auth** — loopback/Electron-only local-first auth flow.
 
-- **Tamper Evidence**: Any modification to a previous log entry invalidates the hash chain.
-- **Compliance Alignment**: Designed to meet the stringent requirements of **SOC2 Type II** and **HIPAA**.
+Security expectations:
 
-### 3. AI Safety Fortress (2026 Standard)
+- Canonical `/api/v1/*` auth failures must return JSON-native `401`/`403` responses, not browser redirects.
+- Admin and retention routes must enforce admin/role checks.
+- API principal resolution must not assume browser session identity when API key identity is used.
+- Role checks should fail closed when identity/role state is ambiguous.
 
-We implement a 3-Layer Defense Strategy to protect against generative attacks:
+Relevant implementation:
 
-- **Layer 1: The Gatekeeper (Input/Output Middleware)**
-  - Blocks structural attacks (Base64, Leetspeak). Base64 detection decodes the token and checks the decoded text against the prohibited phrase list — it does not block all base64-encoded content, only payloads containing injected instructions.
-  - Rejects prohibited intent phrases ("Ignore instructions", "DAN mode").
-  - Filters output for System Prompt Leakage and PII (email, phone, SSN, credit card patterns).
-- **Layer 2: The Watchtower (Context Drift Detection)**
-  - Analyzes the trajectory of the last 5 conversation turns.
-  - Detects "Crescendo" attacks (Incremental Context Poisoning) by tracking Risk Velocity.
-- **Layer 3: The Sieve (RAG Sanitization)**
-  - Strips imperative commands from ingested documents to prevent Indirect Prompt Injection.
-  - Enforces XML isolation (`<document>`) for trusted data.
-- **Layer 4: The Sentinel (L9 Meta-Cognitive Guardrails)**
-  - Performs final "Belief Drift" analysis to ensure the solution hasn't strayed from the user's safety constraints.
-  - Audits "Persona Agreement" to identify internal model dissent or safety-vs-utility conflicts.
-  - Implements a mandatory **FINALIZE/REFINE** gate that defaults to fail-closed (REFINE) on any meta-cognitive uncertainty.
-- **Layer 5: KA-61 Adversarial Shield (v2.4.0)**
-  - Proactive rejection of "System Override" attempts- **Adversarial Hardening**: Enhanced KA-61 shield with 5-point adversarial check.
-
-## Phase 9: Distributable Installer & Lifecycle [x]
-
-- [x] **Setup.exe (WiX)**: Professional installer UI with programmable installation directory.
-- [x] **Silent Dependencies**: Automated MSI delivery of PostgreSQL and Redis.
-- [x] **Automated Lifecycle**: Nightly backup task registration and interactive uninstallation.
-- [x] **Store Packaging**: Optimized artifacts for Microsoft Store submission.
-- [x] **Atomic Rollback**: Ensures clean system state on installation failure.
-- [x] **Binary Integrity**: SHA-256 verification of all core application executables.
-- [x] **Identity Validation**: SID-anchored local profiles with format validation.
+- `routes/auth_routes.py`
+- `backend/auth/api_decorators.py`
+- `frontend/contexts/AuthContext.tsx`
+- `tests/contract/test_canonical_v1_route_contracts.py`
 
 ---
 
-### Medium Priority (Complete Within First Month)
+## Desktop local-auth security
 
-### 4. Active Defense Isolation (Supervisor Mode)
+Desktop authentication is local/hybrid runtime security. It is not a cloud trust mechanism.
 
-The "Supervisor AI" operates on a **strictly isolated infrastructure**:
+Current controls:
 
-- **Separate Credentials**: Uses a distinct API Key from the primary model, managed via the **Admin Settings Panel**.
-- **Isolation Goal**: Prevents "Starvation Attacks" (DoS) where an attacker exhausts the primary model's quota to disable security checks.
+1. loopback/Electron runtime policy;
+2. per-install local secret;
+3. one-time challenge nonce;
+4. nonce TTL;
+5. HMAC-SHA256 challenge response;
+6. per-request HMAC signature;
+7. timestamp skew validation;
+8. constant-time signature comparison;
+9. desktop auto-login tests.
 
-### 2. Traceability (The "Why" Behind the AI)
+Security rules:
 
-Every AI response includes a `X-Correlation-ID`. This ID allows auditors to reconstruct the entire "Reasoning Tree":
+- Desktop auth must never be accepted as a public cloud trust boundary.
+- Cloud mode must disable desktop-only auth assumptions.
+- Nonce reuse and stale timestamps must fail.
+- Desktop local-auth failure should produce explicit, logged failure behavior.
 
-- What evidence was retrieved?
-- Which Knowledge Algorithm processed it?
-- What were the confidence scores at each layer?
+Relevant implementation:
+
+- `backend/security/desktop_local_auth.py`
+- `frontend/lib/runtime/policy.ts`
+- `frontend/contexts/AuthContext.tsx`
+- `tests/integration_routes/test_desktop_auto_login_security.py`
 
 ---
 
-## 🚨 Security Incident Response
+## API and network security
 
-Incident reports and vulnerability disclosures should be sent to `security@datalogicengine.com`. We support PGP-encrypted communications for sensitive disclosures.
+Required controls:
+
+1. CSRF token/origin validation.
+2. CORS allowlist.
+3. Trusted host validation.
+4. Secure session cookies.
+5. HTTPS enforcement in production web/cloud mode.
+6. Rate limiting.
+7. JSON-native API errors.
+8. Sanitized 5xx responses.
+9. Request size/limit controls.
+10. Security headers such as CSP, HSTS, X-Frame-Options, and X-Content-Type-Options where configured.
+
+Operational probes intentionally exposed without authentication:
+
+1. `/health`
+2. `/live`
+3. `/ready`
+4. `/metrics`
+
+Canonical route policy:
+
+- `/api/v1/*` is the supported route family.
+- Legacy aliases are transition-only and should emit deprecation headers.
 
 ---
 
-© 2026 DataLogicEngine. Security & Compliance Division.
+## AI safety and governed reasoning security
+
+DataLogicEngine security extends into AI reasoning.
+
+Primary AI controls:
+
+1. **DMRF InjectionDefense** — detects prompt injection, logical traps, obfuscation, persona hijack, and resource-exhaustion patterns.
+2. **TruthGate** — evaluates trust, budget, priority, compliance, PII, and blocked-pattern controls before deeper processing.
+3. **TierClassifier** — classifies requests into trivial, moderate, high-stakes, extreme, or autonomous tiers.
+4. **17-axis router** — binds request context to explicit coordinates, including risk and ethics/trust axes.
+5. **DSQP personas** — structured personas reduce vague role-prompting and support explainable review.
+6. **TruthCore** — applies tiered workflow planning and execution.
+7. **EvidenceModel and ConvergencePolicy** — incorporate freshness and confidence thresholds.
+8. **Trace Explorer** — exposes evidence, claims, personas, policy decisions, and run metadata for review.
+
+Fail-safe behavior:
+
+- InjectionDefense blocks return structured `ok=false` results.
+- TruthGate blocks stop deeper execution.
+- Provider/gateway failures must not silently return synthetic success.
+- Low-confidence or stale-evidence conditions should trigger refinement or safe fallback.
+
+Relevant implementation:
+
+- `backend/dmrf/orchestrator.py`
+- `backend/dmrf/injection_defense.py`
+- `backend/dmrf/evidence_model.py`
+- `backend/dmrf/convergence_policy.py`
+- `backend/truth_engine/truth_gate/gateway.py`
+- `backend/truth_engine/truth_core/engine.py`
+
+---
+
+## Data protection
+
+### In transit
+
+Production web/cloud deployments require:
+
+1. HTTPS.
+2. strict trusted-host configuration.
+3. production-safe CORS allowlist.
+4. secure cookies.
+5. no loopback trust assumptions.
+
+### At rest
+
+Current data protection layers:
+
+1. SQL model-level encryption where fields use the encryption manager.
+2. Windows DPAPI helper for local protected data.
+3. local filesystem permissions/ACLs for app-owned databases and object stores.
+4. trace export hashing/signing/encryption options.
+5. provider/MCP credential storage through encrypted or secure-source paths where configured.
+
+Implementation caveat:
+
+- Current `EncryptionManager` implementation uses Fernet and records `Fernet-AES-128-CBC` in key registry metadata.
+- Some standards/docs refer to AES-256-GCM as target-state encryption. Treat AES-256-GCM as a target unless the code is upgraded.
+- DPAPI protection is platform-provided through Windows `win32crypt` when available.
+
+Relevant implementation:
+
+- `backend/security/encryption_manager.py`
+- `backend/security/dpapi_store.py`
+- `backend/security/export_integrity.py`
+
+---
+
+## Multi-store data security
+
+DataLogicEngine uses multiple data stores with different control requirements.
+
+| Store | Security control focus |
+|---|---|
+| SQLAlchemy DB | auth context, tenant scoping, migrations, encrypted fields, audit records. |
+| Redis | session/cache/rate-limit/queue isolation and secure configuration. |
+| Neo4j | graph scope, connection security, tenant-aware traversal where applicable. |
+| ChromaDB | local path permissions, no unintended external telemetry, collection hygiene. |
+| Object store | bucket validation, key normalization, traversal rejection, hashes, metadata sidecars. |
+| USKD NetworkX graph | controlled source loading and runtime memory containment. |
+| UnifiedMemory | local JSON persistence controls and safe recall behavior. |
+| TruthMemory | audit/explainability integrity and session artifact controls. |
+
+Object-store safety controls include null-byte rejection, absolute-path rejection, `..` traversal rejection, resolved-path containment, strict bucket names, and SHA-256 ETags.
+
+---
+
+## Tenant isolation
+
+Tenant isolation can be enforced through authenticated context and PostgreSQL RLS where configured.
+
+Security expectations:
+
+1. Multi-tenant tables include `tenant_id` where applicable.
+2. PostgreSQL RLS uses session-level tenant context when enabled.
+3. Cross-tenant graph traversal must be prevented.
+4. Tenant context propagation failures should be treated as security incidents.
+5. Desktop/local mode should treat tenant scope as local profile/app context unless a deployment explicitly enables multi-user tenancy.
+
+Relevant implementation:
+
+- `backend/security/tenant_rls.py`
+- `/metrics` tenant RLS status signals where enabled
+- `tests/unit/test_tenant_rls_controls.py`
+
+---
+
+## MCP and connector security
+
+MCP connector security controls:
+
+1. connector/server registry access control;
+2. OAuth/token lifecycle controls;
+3. scope enforcement;
+4. input/output schema validation;
+5. connector analytics and audit logging;
+6. SSRF/upstream allowlist controls where applicable;
+7. admin-only server management routes.
+
+Incident signals:
+
+- repeated `MCP_SCOPE_DENIED`;
+- schema validation failures;
+- unexpected upstream target;
+- OAuth token refresh failure;
+- connector latency SLO surge.
+
+Relevant implementation:
+
+- `backend/mcp_server/`
+- `backend/routes/mcp_routes.py`
+- `frontend/components/mcp/`
+
+---
+
+## Trace, audit, and export integrity
+
+Security-relevant AI execution evidence can be reviewed through traces and exports.
+
+Trace/evidence surfaces:
+
+1. DMRF step records and FROST snapshots.
+2. TruthMemory audit/explainability data.
+3. Trace runs, stages, evidence, claims, personas, KAs, policy decisions, memory events, and artifacts.
+4. Trace Explorer UI.
+5. Export integrity manifest.
+
+Export integrity pipeline:
+
+```text
+trace bundle
+  -> section hashes
+  -> bundle SHA-256
+  -> optional HMAC-SHA256 signature
+  -> optional encrypted payload
+  -> manifest/envelope
+```
+
+Relevant implementation:
+
+- `backend/security/export_integrity.py`
+- `backend/tracing/`
+- `backend/truth_engine/truth_memory/manager.py`
+- `frontend/app/runs/`
+
+---
+
+## Release and supply-chain security
+
+Release security controls:
+
+1. CI backend, frontend, packaging, governance, and Docker build verification.
+2. Dependency audit through `pip-audit` in CI.
+3. Lockfile governance.
+4. Environment parity validation.
+5. Runtime precheck.
+6. Schema parity validation.
+7. Documentation reference validation.
+8. Windows packaging smoke.
+9. NSIS governance.
+10. Trusted Windows code signing for production distribution.
+11. Signature verification before release distribution.
+
+Required signing path:
+
+- `.github/workflows/release-installer-signing.yml`
+- `scripts/windows/verify_signing_certificate_health.ps1`
+- `scripts/windows/sign_release_installers.ps1`
+- `scripts/windows/verify_installer_signature.ps1`
+
+Local dev certificates are not production release evidence.
+
+---
+
+## Security testing and validation
+
+Required security validation includes:
+
+1. `tests/security/`
+2. `tests/contract/`
+3. `tests/parity/`
+4. `tests/integration_routes/test_desktop_auto_login_security.py`
+5. Truth Engine tests.
+6. DMRF-adjacent tests.
+7. export authenticity tests.
+8. audit logger immutable replica tests where present.
+9. runtime precheck.
+10. lockfile and environment governance.
+11. packaging smoke and signing validation for release.
+
+Common commands:
+
+```powershell
+python -m pytest -q --no-cov tests\security\test_security_headers.py tests\security\test_request_limits.py
+python -m pytest -q --no-cov tests\contract\test_api_contract.py tests\contract\test_canonical_v1_route_contracts.py
+python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process
+python .\scripts\verify_lockfiles.py
+python .\scripts\verify_environment_parity.py --strict
+```
+
+---
+
+## Security incident response
+
+Use `docs/OPERATIONAL_RUNBOOKS.md` for incident-specific procedures covering:
+
+1. DMRF injection-defense block/bypass.
+2. TruthGate failure.
+3. PII leakage.
+4. unauthorized access/RBAC violation.
+5. desktop local-auth failure.
+6. local object/vector/graph store failure.
+7. runtime precheck failure.
+8. schema parity/migration failure.
+9. installer signature failure.
+10. packaging smoke failure.
+11. export/audit integrity failure.
+12. MCP scope/contract failure.
+13. latency SLO surge.
+14. frontend trace-review failure.
+
+Vulnerability disclosures should be sent to `security@datalogicengine.com` when that mailbox is operational for the project. Sensitive disclosures should use encrypted communication when available.
+
+---
+
+## Reviewer verification path
+
+A security reviewer should inspect these files in order:
+
+1. `docs/diagrams/06_local_first_security_model.md`
+2. `docs/diagrams/05_truth_engine_architecture.md`
+3. `docs/diagrams/09_dmrf_control_plane_deep_dive.md`
+4. `app.py`
+5. `backend/security/desktop_local_auth.py`
+6. `backend/security/dpapi_store.py`
+7. `backend/security/encryption_manager.py`
+8. `backend/security/export_integrity.py`
+9. `backend/dmrf/injection_defense.py`
+10. `backend/truth_engine/truth_gate/gateway.py`
+11. `backend/truth_engine/truth_memory/manager.py`
+12. `backend/storage/object_store.py`
+13. `backend/auth/api_decorators.py`
+14. `tests/security/`
+15. `tests/contract/`
+16. `.github/workflows/ci.yml`
+17. `.github/workflows/release-installer-signing.yml`
+
+---
+
+## Change notes for v2.6.0
+
+1. Added document metadata with explicit version and update date.
+2. Reframed the security guide around current DMRF, TruthGate, Truth Engine, local-first desktop auth, export integrity, and multi-store security architecture.
+3. Added desktop local-auth security section.
+4. Added AI safety and governed reasoning security section.
+5. Added multi-store data security, MCP security, trace/export integrity, and release supply-chain security sections.
+6. Added implementation caveat distinguishing current Fernet implementation from AES-256-GCM target-state documentation.
+7. Added security reviewer verification path tied to actual implementation files.
