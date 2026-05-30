@@ -1,36 +1,95 @@
 # DataLogicEngine Windows 11 Local Runbook
 
-## Goal
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Status | Active |
+| Owner | Platform Engineering |
+| Review cadence | Every 30 days |
+
+## Purpose
+
+Run, validate, package, troubleshoot, and recover DataLogicEngine as a local-first Windows 11 application.
+
+This runbook reflects the current Windows/local-first architecture: Electron frontend, Flask loopback backend, desktop local auth, app-owned storage services, local object/vector/graph/memory stores, provider-key management, packaging smoke, NSIS governance, and signed-release preparation.
+
+## Audience
+
+1. Windows desktop maintainers
+2. Platform engineers
+3. QA/release engineers
+4. Support operators
+5. Technical reviewers validating local-first behavior
+
+## Related documents
+
+1. `docs/ARCHITECTURE.md`
+2. `docs/DEPLOYMENT.md`
+3. `docs/SECURITY.md`
+4. `docs/DATABASE_SCHEMA.md`
+5. `docs/TESTING.md`
+6. `docs/PRODUCTION_READINESS.md`
+7. `docs/RELEASE_CHECKLIST.md`
+8. `docs/diagrams/06_local_first_security_model.md`
+9. `docs/diagrams/07_data_storage_and_memory_architecture.md`
+
+---
+
+## Local-first goal
 
 Run DataLogicEngine locally on Windows 11 with:
 
-1. Internet access
-2. At least one LLM provider API key
-3. Local `.env` configuration
+1. local frontend and backend runtime;
+2. local/hybrid desktop session behavior;
+3. app-owned internal storage services;
+4. optional provider API keys for model-backed flows;
+5. deterministic validation and packaging evidence;
+6. no requirement for externally hosted runtime databases.
 
-Default path uses SQLite/in-memory fallbacks. PostgreSQL/Redis/Neo4j/object services are optional.
+Default local mode can use SQLite/in-memory fallbacks. Full local data mode can use app-owned PostgreSQL, Redis, Neo4j, ChromaDB, object store, USKD graph, and local memory files.
 
-## Current State (May 30, 2026)
+---
+
+## Current state
+
+As of v2.6.0:
 
 1. Local startup scripts are functional.
 2. Core frontend routes are reachable.
-3. Desktop mode supports no-login startup.
+3. Desktop mode supports no-login startup through desktop local-auth policy.
 4. Settings API key save/test, AI model controls, and local storage lifecycle controls are wired.
-5. Desktop installer builds successfully and is copied to repo root.
-6. Startup script now auto-resolves backend/frontend port conflicts by default.
-7. Desktop runtime now stores install secret using OS-protected encryption when available and writes local runtime logs under user data.
-8. Silent install and retention-aware silent uninstall controls are available for enterprise deployments.
-9. The installer build now rebuilds the PyInstaller backend before packaging (`frontend/build_installer.ps1`), so the shipped backend always matches source. Previously the bundled backend could be stale, producing `404`s for `/gateway/dsqp-persona-profiles` and `/gateway/network-status` and keeping backend fixes inactive. See `HANDOFF.md`.
-10. Provider test (`backend/llm_gateway/api.py`) returns specific failure reasons: `invalid_api_key`, `rate_limited`, `invalid_model`, `network_error`.
+5. Desktop installer builds and is copied to repo root where configured.
+6. Startup script auto-resolves backend/frontend port conflicts by default.
+7. Desktop runtime stores install secret using OS-protected encryption when available and writes local runtime logs under user data.
+8. Silent install and retention-aware silent uninstall controls are available for enterprise deployment patterns.
+9. Installer build rebuilds the PyInstaller backend before packaging so the shipped backend matches source.
+10. Provider tests return specific failure reasons such as `invalid_api_key`, `rate_limited`, `invalid_model`, and `network_error`.
+
+---
 
 ## Prerequisites
 
-1. Python 3.11+
-2. Node.js 24+
-3. npm
-4. Optional: Docker Desktop for local data service stack
+Required:
 
-## Initial Setup
+1. Windows 11.
+2. Python `3.11`.
+3. Node.js `24`.
+4. npm.
+5. PowerShell.
+6. Git.
+
+Optional:
+
+1. Docker Desktop for container/build verification.
+2. Provider API key for model-backed testing.
+3. Local portable database binaries for full data services.
+
+---
+
+## Initial setup
 
 ```powershell
 python -m venv .venv
@@ -43,18 +102,31 @@ Copy-Item .env.template .env
 Set in `.env`:
 
 1. `SESSION_SECRET=<long_random_value>`
-2. At least one key:
-   `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` or `GEMINI_API_KEY`/`GOOGLE_API_KEY`
+2. Optional provider key:
+   - `OPENAI_API_KEY`
+   - `ANTHROPIC_API_KEY`
+   - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
 
 Install frontend dependencies:
 
 ```powershell
 cd frontend
-npm install
+npm ci
 cd ..
 ```
 
-## Start / Stop
+Run readiness checks:
+
+```powershell
+.\.venv\Scripts\python.exe .\scripts\dev_doctor.py --skip-ports
+python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process
+python .\scripts\verify_lockfiles.py
+python .\scripts\verify_environment_parity.py --strict
+```
+
+---
+
+## Start and stop
 
 ### Fast local mode
 
@@ -62,10 +134,7 @@ cd ..
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
 ```
 
-Port conflict behavior:
-
-1. `BackendPort` and `FrontendPort` are auto-resolved to the next available port by default.
-2. Disable auto-resolution when needed:
+### Disable port auto-resolution
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1 -AutoResolvePortConflicts $false
@@ -83,64 +152,125 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\stop_local_stack.ps1
 ```
 
-### Stop app + data services
+### Stop app and data services
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\stop_local_stack.ps1 -WithDataServices
 ```
 
-## Local Data Services Subsystem Architecture
+---
 
-DataLogicEngine operates as a local-first application using an embedded and portable database stack. All database executables, configuration files, and active data directories reside entirely under the `databases/` folder in the repository root.
+## Local data services architecture
 
-### 1. Database Provisioning & Installation
+The Windows local-first runtime uses app-owned/internal data services and local filesystem stores.
 
-Portable databases (Windows binaries) are prepared using an automated script that pulls from validated mirrors and extracts them without system-level registration or registry pollution:
+| Store | Default port | Mode | Directory path | Purpose |
+|---|---:|---|---|---|
+| PostgreSQL | `5432` | portable process where enabled | `databases/postgresql/` | structured system tables, traces, audit records. |
+| Redis | `6379` | portable process where enabled | `databases/redis/` | cache, session/rate-limit support, queue/stream behavior. |
+| Neo4j | `7687` | portable process where enabled | `databases/neo4j/` | graph relationships and graph query behavior. |
+| ChromaDB | portless | embedded local client | `databases/chroma/` | vector storage and semantic retrieval. |
+| Object store | portless | filesystem | `databases/objects/` | deliverables, audit logs, FROST snapshots, trace bundles, eval data. |
+| UnifiedMemory | portless | JSON persistence | `databases/memory/memory_graph.json` | structured reasoning memory graph. |
+
+Default object-store buckets:
+
+```text
+audit_logs
+simulation_artifacts
+deliverables
+graphs
+eval_data
+```
+
+### Prepare local databases
 
 ```powershell
-# Download and install PostgreSQL 16, Redis, Neo4j Community, and Eclipse Temurin Java 17 JRE
 python scripts/setup_local_databases.py --all
 ```
 
-*Existing installations are automatically skipped. JRE 17 is bundled locally for isolated Neo4j Community operations, keeping the system free of global JRE path requirements.*
+This prepares local PostgreSQL, Redis, Neo4j, and Java dependencies where supported by the setup script.
 
-### 2. Datastore Inventory & Network Topology
+### Verify local databases
 
-The local-first runtime utilizes 5 distinct datastores to implement structured RAG, temporal auditing, and high-performance caching:
+```powershell
+python scripts/setup_local_databases.py --verify
+```
 
-| Datastore | Port | Mode | Directory Path | Purpose |
-|---|---|---|---|---|
-| **PostgreSQL 16** | `5432` | Portable Process | `databases/postgresql/` | Structured system tables, relational models, and transaction audit trails. |
-| **Redis** | `6379` | Portable Process | `databases/redis/` | Ultra-fast caching, rate-limiting tokens, and real-time reasoning cache. |
-| **Neo4j Community** | `7687` | Portable Process | `databases/neo4j/` | Graph reasoning context, cross-persona debate paths, and relationship taxonomies. |
-| **ChromaDB** | *(Portless)* | Embedded Client | `databases/chroma/` | High-dimensional RAG vector storage, indexing text chunks and document metadata. |
-| **Local File Object Store** | *(Portless)* | Native Filesystem | `databases/objects/` | Local blob storage for Merkle logs, FROST snapshots, and immutable trace audit bundles. |
+### Validate local data plane
 
-### 3. Service Lifecycle & Lifecycle Hooks
+```powershell
+.venv\Scripts\python.exe .\scripts\verify_local_data_stack.py
+python .\scripts\validate_schema_parity.py --report reports\schema_parity_report_local.json
+```
 
-* **Auto-Start Hook**: The databases automatically bootstrap when launching `python app.py` through the Flask-embedded `DatabaseLifecycleManager`.
-* **Manual Lifecycle Operations**: Developers can manually start and stop individual datastores:
-  * PostgreSQL: `databases/postgresql/bin/pg_ctl.exe -D databases/postgresql/data -l databases/postgresql/pg.log start`
-  * Redis: `databases/redis/redis-server.exe`
-  * Neo4j: `databases/neo4j/bin/neo4j.bat start`
-* **Verification Command**:
-  ```powershell
-  python scripts/setup_local_databases.py --verify
-  ```
-  *This checks whether expected binaries exist and attempts socket connections on service ports to report active statuses.*
+---
 
-## Validation Checklist
+## Desktop local-auth behavior
+
+Desktop mode uses local/hybrid runtime policy rather than public cloud auth assumptions.
+
+Current desktop local-auth controls:
+
+1. loopback/Electron runtime detection;
+2. per-install secret;
+3. one-time nonce challenge;
+4. nonce TTL;
+5. HMAC-SHA256 challenge response;
+6. per-request HMAC signature;
+7. timestamp skew validation;
+8. constant-time comparison;
+9. DPAPI helper where available.
+
+Troubleshooting desktop auth:
+
+1. confirm runtime mode is local/hybrid;
+2. confirm request is loopback/Electron;
+3. confirm install secret exists;
+4. check nonce expiry;
+5. check timestamp skew;
+6. check HMAC signature generation;
+7. confirm cloud mode is not accidentally enabled.
+
+Relevant files:
+
+- `backend/security/desktop_local_auth.py`
+- `backend/security/dpapi_store.py`
+- `frontend/lib/runtime/policy.ts`
+- `frontend/contexts/AuthContext.tsx`
+
+---
+
+## Validation checklist
 
 1. Frontend responds: `http://127.0.0.1:3000`
 2. Backend health responds: `http://127.0.0.1:5000/health`
-3. Provider key validates:
-   `.venv\Scripts\python.exe .\scripts\verify_api_keys.py`
-4. Route policy smoke passes:
-   `powershell -ExecutionPolicy Bypass -File .\scripts\windows\test_frontend_route_policy.ps1 -FrontendPort 3000`
-5. Optional local data stack validates:
-   `.venv\Scripts\python.exe .\scripts\verify_local_data_stack.py`
+3. Readiness responds: `http://127.0.0.1:5000/ready`
+4. Metrics responds: `http://127.0.0.1:5000/metrics`
+5. Provider key validates:
+   ```powershell
+   .venv\Scripts\python.exe .\scripts\verify_api_keys.py
+   ```
+6. Route policy smoke passes:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\scripts\windows\test_frontend_route_policy.ps1 -FrontendPort 3000
+   ```
+7. Local data stack validates:
+   ```powershell
+   .venv\Scripts\python.exe .\scripts\verify_local_data_stack.py
+   ```
+8. Runtime precheck passes:
+   ```powershell
+   python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process
+   ```
+9. Schema parity passes:
+   ```powershell
+   python .\scripts\validate_schema_parity.py
+   ```
 
-## Desktop Installer Workflow
+---
+
+## Desktop installer workflow
 
 Build installer:
 
@@ -148,11 +278,12 @@ Build installer:
 npm --prefix frontend run electron:dist
 ```
 
-Resulting files:
+Expected files:
 
-1. `DataLogicEngine Setup Latest.exe` (repo root installer)
-2. `DataLogicEngine Setup Latest.exe.sha256` and `DataLogicEngine Setup Latest.exe.blockmap` (repo root integrity sidecars)
-3. `frontend/dist/` packaged app artifacts without duplicate setup EXEs
+1. `DataLogicEngine Setup Latest.exe`
+2. `DataLogicEngine Setup Latest.exe.sha256`
+3. `DataLogicEngine Setup Latest.exe.blockmap`
+4. `frontend/dist/` packaged app artifacts
 
 Run manually:
 
@@ -166,124 +297,178 @@ Silent install:
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\install_silent.ps1
 ```
 
-Silent uninstall (preserve data by default):
+Silent uninstall preserving data:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\uninstall.ps1 -Silent -KeepData
 ```
 
-Silent uninstall (delete data):
+Silent uninstall deleting data:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\uninstall.ps1 -Silent -DeleteData
 ```
 
-NSIS governance + packaging smoke checks:
+---
+
+## Packaging smoke and governance
+
+Run before release candidate approval:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -Mode portable
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
 ```
 
-Controlled auto-update policy (desktop packaged runtime):
+For signed production distribution, run the signing workflow and verify signature:
 
-1. Auto-update is disabled by default.
-2. Enable only with explicit feed policy:
-   - `DLE_AUTO_UPDATE_ENABLED=true`
-   - `DLE_AUTO_UPDATE_FEED_URL=<https://...>`
-3. Optional controls:
-   - `DLE_AUTO_UPDATE_AUTO_DOWNLOAD=true|false`
-   - `DLE_AUTO_UPDATE_AUTO_INSTALL_ON_QUIT=true|false`
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation
+```
 
-Secure local log storage:
+Local unsigned builds are valid for workstation validation, but they are not production release evidence.
 
-1. Desktop runtime log file: `%APPDATA%\DataLogicEngine\logs\desktop-runtime.log` (best-effort restricted permissions).
-2. Installer-managed local data logs: `C:\ProgramData\DataLogicEngine\logs` (restricted ACL applied by installer script).
+---
 
-## Optional WiX/WinSW Packaging Path
+## Controlled auto-update policy
 
-If you use `deploy/windows/` manifests:
+Auto-update is disabled by default.
+
+Enable only with explicit feed policy:
+
+```text
+DLE_AUTO_UPDATE_ENABLED=true
+DLE_AUTO_UPDATE_FEED_URL=<https://...>
+```
+
+Optional controls:
+
+```text
+DLE_AUTO_UPDATE_AUTO_DOWNLOAD=true|false
+DLE_AUTO_UPDATE_AUTO_INSTALL_ON_QUIT=true|false
+```
+
+Do not enable auto-update for production without signed update artifacts and tested rollback behavior.
+
+---
+
+## Secure local log storage
+
+Runtime logs:
+
+```text
+%APPDATA%\DataLogicEngine\logs\desktop-runtime.log
+```
+
+Installer-managed local data logs:
+
+```text
+C:\ProgramData\DataLogicEngine\logs
+```
+
+Logs should not include raw provider keys, plaintext secrets, unredacted PII, or private customer content.
+
+---
+
+## Optional WiX/WinSW packaging path
+
+If using `deploy/windows/` manifests:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\prepare_wix_assets.ps1
 ```
 
-This ensures:
+This verifies:
 
-1. `deploy/windows/winsw.exe` is present.
-2. Service wrappers are refreshed:
-   `deploy/windows/DataLogic_Backend.exe`, `deploy/windows/DataLogic_Frontend.exe`.
+1. `deploy/windows/winsw.exe` exists;
+2. service wrappers are refreshed:
+   - `deploy/windows/DataLogic_Backend.exe`
+   - `deploy/windows/DataLogic_Frontend.exe`
 
-## Troubleshooting (Desktop)
+Electron Builder/NSIS is the primary current packaging path. WiX/WinSW remains optional.
 
-### Chat fails with "No active providers found" even with a saved API key
+---
 
-The LLM gateway resolves providers from the local database. When the backend is
-launched by the Electron process, the provider lookup runs inside an async
-coroutine. Earlier builds queried the database outside a Flask application
-context, which raised "Working outside of application context", was silently
-swallowed, and fell back to environment-only discovery. If no provider key was
-present in the process environment, every chat failed with
-"No active providers found".
+## Troubleshooting
 
-Fixed in `backend/llm_gateway/gateway.py` by pushing an explicit
-`app.app_context()` before the provider query. If you still see this:
+### Chat fails with `No active providers found`
 
 1. Open Settings -> AI Providers and confirm at least one provider is listed and active.
-2. Confirm the key was saved to the same database the running app uses
-   (desktop uses the runtime-root SQLite file, not `instance/`).
-3. As a fallback, set the key in `.env` (`OPENAI_API_KEY` / `ANTHROPIC_API_KEY`
-   / `GEMINI_API_KEY`); Electron now forwards `.env` keys into the backend
-   process environment.
+2. Confirm key was saved to the same database the running app uses.
+3. Desktop uses the runtime-root SQLite file, not necessarily `instance/`.
+4. As a fallback, set provider key in `.env`.
+5. Re-run:
+   ```powershell
+   .venv\Scripts\python.exe .\scripts\verify_api_keys.py
+   ```
 
-### Settings page shows "Module Error ... reading 'size_bytes'"
+### Settings page shows module/storage size error
 
-This is a UI guard issue, not a database fault. In local SQLite mode the
-Neo4j/Chroma/object-store backends are typically not running, so their storage
-metric objects are `undefined`. The Settings page now renders "0 B / Not created"
-for absent backends instead of crashing. If you see this on an older build,
-rebuild the frontend.
+This usually means a local storage backend is absent or disabled.
 
-### electron-builder fails: "No JSON content found in output" / MODULE_NOT_FOUND
+1. Rebuild the frontend.
+2. Validate local data stack.
+3. Confirm absent backends render as `0 B` / `Not created` rather than crashing.
 
-On Windows with NVM-for-Windows, `npm` may not be resolvable in the
-electron-builder subprocess PATH, and its `.cmd` -> `.bat` -> `cmd.exe` wrapper
-chain mangles paths that contain spaces. The repo includes a durable fix:
+### Electron Builder fails with npm/path errors
 
-- `frontend/scripts/patch-electron-builder.js` generates a space-free `.cmd`
-  shim that runs `node.exe` against npm-cli with absolute paths and patches the
-  app-builder-lib npm path cache.
-- It runs automatically via the `postinstall` hook and before `electron:dist`.
-
-If a build still fails here, run the patch manually then rebuild:
+Run:
 
 ```powershell
 cd frontend
 npm run fix:eb
 npm run electron:dist
+cd ..
 ```
 
-Unsigned local builds are supported (`verifyUpdateCodeSignature: false` in
-`frontend/electron-builder.yml`); a trusted certificate is only required for
-signed public release builds.
+The repo includes a patch for NVM-for-Windows/npm wrapper path issues.
 
-## Known Limitations
+### Backend health fails
+
+1. Check backend port.
+2. Check `.env` and `SESSION_SECRET`.
+3. Check database service startup.
+4. Check `AUTO_CREATE_SCHEMA` is not set in unsafe mode.
+5. Run runtime precheck.
+6. Review local logs.
+
+### Chroma/Object/Neo4j/local data store fails
+
+1. Check local directory permissions.
+2. Check antivirus/file locks.
+3. Check `databases/chroma/`.
+4. Check `databases/objects/`.
+5. Check Neo4j process and port `7687`.
+6. Run local data stack validation.
+7. Run schema parity validation.
+
+### Desktop auth fails
+
+1. Confirm Electron/loopback runtime.
+2. Confirm local/hybrid mode.
+3. Check install secret.
+4. Check nonce expiry.
+5. Check timestamp skew.
+6. Check HMAC signature.
+7. Confirm cloud mode did not enable desktop trust.
+
+---
+
+## Known limitations
 
 1. Manual application-readiness evidence remains open for NVDA validation; automated WCAG, keyboard navigation, failure-mode, and export/delete evidence is tracked in `reports/app-readiness/`.
 2. Register submit flow is intentionally disabled in the current local-first build; `/register` redirects to `/dashboard`.
-3. Release builds still need a trusted production certificate provisioned in GitHub secrets and a signed release workflow run before public distribution.
+3. Release builds require trusted production certificate provisioned in GitHub secrets and signed release workflow run before public distribution.
+4. Provider-backed flows require valid provider credentials and network access.
+5. Unsigned local builds are suitable for developer validation but not public/customer release.
 
-## Related Documents
+---
 
-1. `docs/PRODUCT_OVERVIEW.md`
-2. `docs/USER_GUIDE.md`
-3. `docs/DEVELOPER_GUIDE.md`
-4. `docs/DEPLOYMENT.md`
-5. `docs/TESTING.md`
+## Change notes for v2.6.0
 
-## Document Control
-
-1. Owner: Platform Engineering
-2. Last updated: 2026-05-30
-3. Status: Active
-4. Review cadence: Every 30 days
+1. Added document metadata with explicit version and update date.
+2. Updated the runbook around the current local-first Windows architecture.
+3. Added desktop local-auth behavior and troubleshooting.
+4. Added current local data services, object/vector/graph/memory architecture.
+5. Added packaging smoke, NSIS governance, signed-release verification, and auto-update policy guidance.
+6. Expanded validation checklist and troubleshooting sections.
