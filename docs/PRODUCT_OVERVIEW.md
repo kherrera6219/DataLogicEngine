@@ -1,92 +1,193 @@
 # DataLogicEngine Product Overview
 
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Status | Active |
+| Owner | Product and Platform Engineering |
+| Review cadence | Every 30 days |
+
 ## Purpose
 
-Describe what DataLogicEngine does, which capabilities are currently production-usable, and where work is still in progress.
+Describe what DataLogicEngine is, what it does, which capabilities are currently usable, and how the product maps to the current DMRF, Truth Engine, local-first, trace, security, and governance architecture.
 
 ## Audience
 
 1. Product and business stakeholders
 2. Implementers and solution architects
 3. Operators evaluating deployment fit
+4. Contest judges and technical reviewers
+5. Sponsors, employers, and enterprise evaluators
 
-## What DataLogicEngine Is
+## What DataLogicEngine is
 
-DataLogicEngine is a local-first AI orchestration application that combines:
+DataLogicEngine is a local-first AI governance and knowledge-reasoning platform.
 
-1. Chat-driven AI workflows
-2. Traceable run execution and review
-3. Knowledge graph exploration
-4. Simulation workflows
-5. Provider and storage operations controls
+It combines:
 
-## Deployment Modes
+1. governed AI chat and reasoning workflows;
+2. DMRF control-plane orchestration;
+3. Truth Engine security, workflow, audit, and eventing;
+4. 17-axis knowledge routing;
+5. DSQP structured persona construction;
+6. traceable run execution and review;
+7. knowledge graph exploration;
+8. local-first storage and memory systems;
+9. MCP connector and tool governance;
+10. desktop packaging and release-governance controls.
 
-1. Web mode: browser UX with login/session authentication.
-2. Desktop mode: Windows Electron runtime with no-login boot to the internal dashboard.
+The product is not simply a chat wrapper around an LLM. Its core lifecycle is:
 
-## Current Capability Status (May 22, 2026)
+```text
+prompt
+  -> security/API envelope
+  -> DMRF
+  -> TruthGate
+  -> tiering
+  -> 17-axis routing
+  -> DSQP
+  -> TruthCore
+  -> model/tool execution where required
+  -> evidence/convergence
+  -> memory/audit
+  -> trace review/export
+```
 
-| Area | Routes | Status | Notes |
-|---|---|---|---|
-| Chat and session workflows | `/chat`, `/projects`, `/projects/view` | Live | Session list/detail are backend-backed |
-| Run and trace visibility | `/runs`, `/runs/view`, `/dashboard` | Live | Live telemetry with empty-state fallbacks |
-| Simulations | `/simulations` | Live | Run orchestration and status tracking |
-| Knowledge graph | `/graph` | Live | Interactive graph and node inspection |
-| Settings: API gateway | `/settings` (`API Gateway`) | Live | Save key, provider test, query playground |
-| Settings: AI model controls | `/settings` (`AI Models`) | Live | Provider/model selection + save/test |
-| Settings: storage operations | `/settings` (`Storage`) | Live | Health, local lifecycle, auto-start preference, and internal storage config persistence are wired; local port fields are display/edit UI only until a broader local-service config flow is needed |
-| Settings: notifications | `/settings` (`Notifications`) | Live | Per-user preferences are loaded and persisted through `/api/v1/user/notifications`; delivery-channel integrations are not separately validated here |
-| Knowledge ingestion | `/api/v1/ingestion/*`, `/settings` (`Knowledge`) | Live | Supports text and binary (PDF/DOCX) async ingestion with optional Neo4j sync and manifest-backed history |
-| Admin dashboard | `/admin` | Live | Role-gated, backend-backed stats/user data |
-| MCP admin registry | `/admin/mcp`, `/admin/mcp/servers` | Live | Stats, list, add, and delete flows are wired for admin users |
-| Connector scope enforcement | MCP tool execution paths | Live | Runtime scope checks added with user/tenant context propagation |
-| Connector safety controls | API gateway/service discovery | Live | SSRF outbound validation + allowlist guardrails enforced |
-| Connector OAuth + contracts | Jira/Salesforce MCP tools | Live | Managed OAuth token lifecycle + runtime request/response contract validation |
-| Connector observability | `/metrics`, analytics MCP stats | Live | Connector latency/error telemetry exported with p95/p99 SLO violation gauges |
-| AI latency observability | `/metrics` | Live | Gateway latency percentiles (`p50`/`p95`/`p99`) plus p95/p99 SLO violation gauges |
-| Data/integrity release gates | CI + deploy workflows | Live | Schema parity, installer checksum, deterministic startup precheck, and crash-reporting probe checks required in pipeline |
-| Snapshot + trace integrity | FROST + tracing services | Live | Snapshot and audit bundle hash/HMAC verification enforced |
-| Trace export authenticity | Trace export API | Live | Signed export manifests and optional encrypted payload envelopes |
-| Tenant DB isolation | Postgres-backed APIs | Live | Request-scoped tenant context + RLS policy bootstrap controls available |
-| Vault-backed secret enforcement | Runtime bootstrap | Live | Production runtime enforces secure secret sources (file/DPAPI/JSON/keyring) |
-| Immutable audit replication | Audit logger | Live | Hash-chain immutable replica stream + verification controls active |
-| Installer code signing | Release + governance workflows | Live | Signature verification plus certificate rotation/revocation drill workflows |
-| Crash reporting hardening | Global Flask error handlers + `/metrics` | Live | Fallback crash IDs and provider telemetry/probe hooks active |
-| Diagnostic tooling | Support bundle generator | Live | Sanitized support bundle script available for incident triage |
-| Public info/legal pages | `/about`, `/about/*`, `/legal/privacy` | Live | Informational pages available |
-| Registration flow | `/register` | Disabled by design | Current local-first build redirects `/register` to `/dashboard`; reopen only if web self-registration becomes a product requirement |
+## Deployment modes
 
-## Data and Service Model
+| Mode | Description | Status |
+|---|---|---|
+| Local-first desktop | Windows Electron runtime with loopback backend, desktop local-auth, local storage, and optional provider keys. | Primary target |
+| Windows VM | Same Windows app stack running inside a VM with app-owned internal services. | Supported |
+| Controlled web/cloud | Hosted deployment with hardened session/CORS/CSRF/trusted-host rules and no desktop trust assumptions. | Conditional |
 
-1. Default local runtime supports SQLite and in-memory fallbacks.
-2. Optional local services support PostgreSQL, Redis, Neo4j, vector DB, and object storage.
-3. AI inference requires at least one valid provider API key and internet access.
+## Product surfaces
 
-## Known Gaps
+| Surface | Routes | Purpose |
+|---|---|---|
+| Dashboard | `/dashboard` | system overview and entry point. |
+| Enterprise AI | `/chat` | governed AI interaction surface. |
+| Trace Explorer | `/runs`, `/runs/view` | run review, evidence, stages, personas, trace details. |
+| Graph / Knowledge | `/graph`, `/knowledge` | graph exploration, nodes, edges, coordinate context. |
+| Projects | `/projects`, `/projects/view` | project/session organization. |
+| Simulations | `/simulations` | scenario simulation and status tracking. |
+| Truth Engine | `/truth-engine` | Truth Engine monitoring and review. |
+| MCP Hub | `/mcp`, `/admin/mcp`, `/admin/mcp/servers` | connector/server registry and governance. |
+| Admin | `/admin` | role-gated admin, users, providers, compliance, audit views. |
+| Settings | `/settings`, `/settings/privacy` | provider, model, storage, privacy, notifications, local config. |
+| Public/legal | `/about`, `/about/*`, `/legal/privacy` | disclosures, limitations, privacy information. |
 
-Known gaps and product backlog items are consolidated in the root `TODO.md`. This overview describes current capability status and should not maintain a second planning list.
+## Current capability status
 
-## Validation Commands
+| Area | Status | Notes |
+|---|---|---|
+| Chat and AI workflows | Live | backend-backed sessions, provider/model configuration, trace metadata where enabled. |
+| DMRF control plane | Live | injection defense, TruthGate, tiering, axis routing, DSQP, TruthCore plan, evidence/convergence, memory/eventing. |
+| Truth Engine | Live | TruthGate, TruthCore, TruthMemory, TruthLink modules and APIs. |
+| 17-axis routing | Live | implemented under `core/axes/` and `backend/dmrf/router.py`. |
+| DSQP personas | Live | deterministic/offline structured personas for axes 8-11. |
+| Trace Explorer | Live | run detail review, stages, evidence, claims, personas, metrics, export path. |
+| Knowledge graph | Live | graph and knowledge views, SQL/Neo4j/USKD model support. |
+| Knowledge ingestion | Live | local ingestion APIs, text/binary support, manifests, optional Neo4j sync. |
+| Settings/API gateway | Live | provider save/test, query playground, model/provider controls. |
+| Storage operations | Live | local storage status and lifecycle controls. |
+| Notifications | Live | user preferences loaded and persisted through user notification API. |
+| Admin dashboard | Live | role-gated backend-backed admin data. |
+| MCP admin registry | Live | stats/list/add/delete flows for admin users. |
+| Connector safety | Live | scope checks, SSRF/upstream guardrails, schema validation, telemetry. |
+| Observability | Live | `/metrics`, route metrics, AI/connector latency signals, DMRF/Truth signals where enabled. |
+| Data/integrity gates | Live | schema parity, runtime precheck, docs validation, lockfile/environment governance. |
+| Trace export authenticity | Live | hashes, optional HMAC signature, optional encrypted export envelope. |
+| Desktop local-auth | Live | loopback/Electron policy, install secret, nonce/HMAC, timestamp skew. |
+| Installer packaging | Live | Electron/NSIS path, packaging smoke, installer integrity/signing checks. |
+| Registration flow | Disabled by design | current local-first build redirects `/register` to `/dashboard`; reopen only if web self-registration becomes a requirement. |
+
+## Data and service model
+
+Current data architecture includes:
+
+1. SQLAlchemy database with SQLite/PostgreSQL paths.
+2. Redis for cache/session/rate-limit/queue/stream behavior where enabled.
+3. Neo4j graph store where configured.
+4. USKD NetworkX RAM graph for reasoning traversal.
+5. ChromaDB local vector store.
+6. Local object store for deliverables, audit logs, simulations, graphs, eval data, and exports.
+7. UnifiedMemory structured reasoning memory.
+8. TruthMemory audit/explainability memory.
+
+Local-first does not mean air-gapped. AI provider or MCP connector calls may transmit selected prompts/context/tool inputs depending on configuration.
+
+## Security and governance model
+
+Product-level security and governance include:
+
+1. desktop local-auth for local/hybrid runtime;
+2. CSRF/CORS/trusted-host/session/rate-limit controls;
+3. DMRF injection defense;
+4. TruthGate security/budget/compliance gate;
+5. trace and audit records;
+6. export integrity;
+7. release checklist and CI governance;
+8. packaging smoke and signing verification;
+9. privacy/export/delete user controls;
+10. operational runbooks.
+
+## Known gaps
+
+Known gaps and product backlog items are consolidated in the root `TODO.md`. This overview should not maintain a second planning list.
+
+Current high-level caveats:
+
+1. signed public Windows distribution requires trusted certificate workflow completion;
+2. manual accessibility evidence remains required before final production distribution;
+3. provider-backed flows require valid configured provider credentials and network access;
+4. AES-256-GCM remains target-state language where current encryption implementation is Fernet/DPAPI-based.
+
+## Validation commands
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
 .venv\Scripts\python.exe .\scripts\verify_api_keys.py
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\test_frontend_route_policy.ps1 -FrontendPort 3000
 .venv\Scripts\python.exe .\scripts\verify_local_data_stack.py
+python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process
+python .\scripts\validate_schema_parity.py
+python .\scripts\verify_docs_references.py
 ```
 
-## Related Documents
+## Reviewer path
+
+A product reviewer should inspect:
+
+1. `docs/diagrams/12_end_to_end_request_lifecycle.md`
+2. `docs/diagrams/11_frontend_product_surface_and_trace_review_map.md`
+3. `docs/ARCHITECTURE.md`
+4. `docs/USER_GUIDE.md`
+5. `docs/SECURITY.md`
+6. `docs/PRODUCTION_READINESS.md`
+7. `frontend/app/layout.tsx`
+8. `frontend/components/layout/AppSidebar.tsx`
+9. `backend/dmrf/orchestrator.py`
+10. `backend/truth_engine/api.py`
+
+## Related documents
 
 1. `docs/USER_GUIDE.md`
 2. `docs/DEVELOPER_GUIDE.md`
 3. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
 4. `docs/ARCHITECTURE.md`
 5. `docs/API.md`
+6. `docs/SECURITY.md`
+7. `docs/PRODUCTION_READINESS.md`
 
-## Document Control
+## Change notes for v2.6.0
 
-1. Owner: Product and Platform Engineering
-2. Last updated: 2026-05-23
-3. Status: Active
-4. Review cadence: Every 30 days
+1. Added document metadata with explicit version and update date.
+2. Updated product description around DMRF, Truth Engine, 17-axis, DSQP, trace, memory, and local-first architecture.
+3. Added deployment mode matrix and product surface table.
+4. Updated capability status to reflect current architecture.
+5. Added security/governance model and reviewer path.
+6. Added current caveats aligned with production readiness and security docs.
