@@ -9,7 +9,83 @@ Enterprise AI orchestration, governed LLM routing, and knowledge graph reasoning
 [![Node](https://img.shields.io/badge/node-24%2B-339933)](frontend/package.json)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue)](LICENSE)
 
-DataLogicEngine (DLE) is a local-first enterprise AI orchestration platform built around the Universal Knowledge Graph (UKG). The platform combines a 17-Axis Knowledge Framework, 10-Layer Truth Engine, multi-agent reasoning, GraphRAG, MCP integration, knowledge graph analytics, and end-to-end traceability to deliver explainable, governed, and auditable AI workflows. Designed for enterprise, government, compliance, cybersecurity, acquisition, and research environments, DLE provides transparent reasoning, evidence-backed outputs, policy-aware decision support, and complete audit visibility across every stage of execution.
+DataLogicEngine (DLE) is a local-first Enterprise AI Platform built around the Universal Knowledge Graph (UKG).
+
+Unlike traditional AI applications that operate as black boxes, DLE provides explainable reasoning, multi-agent orchestration, GraphRAG retrieval, governance controls, and complete audit traceability through a 17-Axis Knowledge Framework, 10-Layer Truth Engine, and 12-Step Refinement Workflow.
+
+Designed for enterprise, government, compliance, cybersecurity, acquisition, and research environments, every AI decision can be traced through evidence sources, personas, reasoning stages, validation gates, policies, and immutable audit records.
+
+Current Status: Feature Complete (Local-First Edition)
+
+Major Systems Completed:
+
+Universal Knowledge Graph (UKG)
+17-Axis Knowledge Framework
+10-Layer Truth Engine
+12-Step Refinement Workflow
+Knowledge Algorithm Framework (120+ KAs)
+Multi-Agent Orchestration
+GraphRAG Integration
+Knowledge Ingestion Pipeline
+Trace Viewer
+MCP Integration Framework
+Local Database Lifecycle Management
+Enterprise Audit & Governance Framework
+
+Current Focus:
+
+Accessibility validation (NVDA)
+Production code signing
+Release evidence package
+Public architecture assets
+Expanded integration benchmarks
+Public release readiness
+
+What Makes DataLogicEngine Different?
+
+Most AI applications answer questions.
+
+DataLogicEngine explains how answers were produced.
+
+Core Differentiators
+Universal Knowledge Graph (UKG)
+
+A structured knowledge system designed to organize information, expertise, regulations, compliance requirements, risk factors, locations, time contexts, and reasoning workflows into a unified framework.
+
+17-Axis Knowledge Framework
+
+A multidimensional coordinate system that maps every request across knowledge domains, industries, regulatory frameworks, compliance requirements, expertise models, geography, temporal context, risk, ethics, and execution modes.
+
+10-Layer Truth Engine
+
+A progressive reasoning architecture that combines retrieval, validation, simulation, planning, trust analysis, safety controls, and audit generation into a governed AI workflow.
+
+12-Step Refinement Workflow
+
+A structured reasoning improvement pipeline that continuously validates, refines, audits, and strengthens outputs before release.
+
+Knowledge Algorithm Framework
+
+More than 120 specialized Knowledge Algorithms (KAs) provide modular capabilities for planning, validation, compliance analysis, contradiction detection, risk assessment, reasoning control, governance, and traceability.
+
+Explainable AI
+
+Every response can be traced through:
+
+Evidence sources
+Personas
+Knowledge Algorithms
+Validation checkpoints
+Refinement stages
+Governance policies
+Audit records
+Local-First Architecture
+
+Supports disconnected, air-gapped, enterprise, government, and workstation deployments without requiring external cloud infrastructure.
+
+Model Context Protocol (MCP)
+
+Native MCP support enables integration with tools, resources, external agent systems, subscriptions, and dynamic plugin architectures.
 
 > Recommended architecture asset path: `docs/assets/readme/architecture-overview.png`. Add a dark-mode-safe PNG/SVG export when publishing visual docs.
 
