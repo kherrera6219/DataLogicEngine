@@ -87,6 +87,46 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows\stop_local_stack.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\stop_local_stack.ps1 -WithDataServices
 ```
 
+## Local Data Services Subsystem Architecture
+
+DataLogicEngine operates as a local-first application using an embedded and portable database stack. All database executables, configuration files, and active data directories reside entirely under the `databases/` folder in the repository root.
+
+### 1. Database Provisioning & Installation
+
+Portable databases (Windows binaries) are prepared using an automated script that pulls from validated mirrors and extracts them without system-level registration or registry pollution:
+
+```powershell
+# Download and install PostgreSQL 16, Redis, Neo4j Community, and Eclipse Temurin Java 17 JRE
+python scripts/setup_local_databases.py --all
+```
+
+*Existing installations are automatically skipped. JRE 17 is bundled locally for isolated Neo4j Community operations, keeping the system free of global JRE path requirements.*
+
+### 2. Datastore Inventory & Network Topology
+
+The local-first runtime utilizes 5 distinct datastores to implement structured RAG, temporal auditing, and high-performance caching:
+
+| Datastore | Port | Mode | Directory Path | Purpose |
+|---|---|---|---|---|
+| **PostgreSQL 16** | `5432` | Portable Process | `databases/postgresql/` | Structured system tables, relational models, and transaction audit trails. |
+| **Redis** | `6379` | Portable Process | `databases/redis/` | Ultra-fast caching, rate-limiting tokens, and real-time reasoning cache. |
+| **Neo4j Community** | `7687` | Portable Process | `databases/neo4j/` | Graph reasoning context, cross-persona debate paths, and relationship taxonomies. |
+| **ChromaDB** | *(Portless)* | Embedded Client | `databases/chroma/` | High-dimensional RAG vector storage, indexing text chunks and document metadata. |
+| **Local File Object Store** | *(Portless)* | Native Filesystem | `databases/objects/` | Local blob storage for Merkle logs, FROST snapshots, and immutable trace audit bundles. |
+
+### 3. Service Lifecycle & Lifecycle Hooks
+
+* **Auto-Start Hook**: The databases automatically bootstrap when launching `python app.py` through the Flask-embedded `DatabaseLifecycleManager`.
+* **Manual Lifecycle Operations**: Developers can manually start and stop individual datastores:
+  * PostgreSQL: `databases/postgresql/bin/pg_ctl.exe -D databases/postgresql/data -l databases/postgresql/pg.log start`
+  * Redis: `databases/redis/redis-server.exe`
+  * Neo4j: `databases/neo4j/bin/neo4j.bat start`
+* **Verification Command**:
+  ```powershell
+  python scripts/setup_local_databases.py --verify
+  ```
+  *This checks whether expected binaries exist and attempts socket connections on service ports to report active statuses.*
+
 ## Validation Checklist
 
 1. Frontend responds: `http://127.0.0.1:3000`
