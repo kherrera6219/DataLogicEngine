@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-29T05:42:20.419301+00:00",
+  "generated_at": "2026-05-30T07:09:29.380205+00:00",
   "packaging": {
     "backend_spec": {
       "collect_submodules('backend.dsqp')": true,
@@ -31,12 +31,12 @@
   "cold_start_profile": {
     "backend.storage.runtime_settings": {
       "ok": true,
-      "duration_ms": 921.26,
+      "duration_ms": 828.83,
       "error": ""
     },
     "backend.desktop.offline_queue": {
       "ok": true,
-      "duration_ms": 5.12,
+      "duration_ms": 0.53,
       "error": ""
     }
   },
