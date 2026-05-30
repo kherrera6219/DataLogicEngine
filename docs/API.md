@@ -1,59 +1,86 @@
-# API documentation
+# API Documentation
+
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Status | Active |
+| Owner | API Platform Team |
+| Review cadence | Every 30 days |
 
 ## Purpose
 
-Provide the source-of-truth API contract guidance for DataLogicEngine REST endpoints and their enterprise integration patterns.
+Provide source-of-truth API contract guidance for DataLogicEngine REST endpoints and their enterprise integration patterns. This version reflects the current architecture: local-first runtime modes, canonical `/api/v1/*` routes, DMRF control-plane execution, Truth Engine modules, trace/export integrity, MCP integration, and operational governance surfaces.
 
 ## Audience
 
 1. API consumers and integrators
 2. Backend engineers
-3. Security and compliance reviewers
-4. QA and test engineers
-
-## Document control
-
-1. Owner: API Platform Team
-2. Last updated: 2026-05-22
-3. Status: Active
-4. Review cadence: Every 30 days
+3. Frontend engineers
+4. Security and compliance reviewers
+5. QA and test engineers
+6. Contest or technical reviewers validating the system architecture
 
 ## Related documents
 
 1. `docs/openapi.yaml`
 2. `docs/ARCHITECTURE.md`
-3. `docs/SECURITY.md`
-4. `docs/TESTING.md`
+3. `docs/TESTING.md`
+4. `docs/PRODUCTION_READINESS.md`
+5. `docs/diagrams/12_end_to_end_request_lifecycle.md`
+6. `docs/diagrams/09_dmrf_control_plane_deep_dive.md`
+7. `docs/diagrams/05_truth_engine_architecture.md`
+8. `docs/diagrams/06_local_first_security_model.md`
 
-The DataLogicEngine exposes a comprehensive REST API powered by Flask 3.1 blueprints. Endpoints support Knowledge Graph, Truth Engine, tracing, LLM gateway, MCP, and compliance operations.
+## API architecture summary
 
-## Base URL
+DataLogicEngine exposes a Flask REST API with canonical versioned routes under `/api/v1/*` and selected operational routes that remain intentionally unversioned. The current backend architecture includes these major API-facing systems:
 
-**Primary application API base URL**
+1. Authentication, session, SSO, MFA, API key, and desktop local-auth flows.
+2. LLM Gateway routes for provider-managed model access.
+3. DMRF control-plane execution for governed AI reasoning.
+4. Truth Engine routes for TruthGate, TruthCore, TruthMemory, and TruthLink operations.
+5. Trace routes for run review, trace bundles, evidence, personas, metrics, and exports.
+6. Knowledge graph, 17-axis, ingestion, and search routes.
+7. MCP routes for connector and server management.
+8. Compliance, privacy, GDPR, retention, and admin routes.
+9. Health/readiness/metrics routes for operations and CI validation.
+
+## Base URLs
+
+Primary application API base URL:
 
 - Local development: `http://localhost:5000/api/v1`
-- Production: `https://your-domain.com/api/v1`
+- Local desktop/Electron runtime: backend loopback API exposed by the desktop app.
+- Production web deployment: `https://your-domain.com/api/v1`
 
-Some operational namespaces remain intentionally unversioned and are documented below.
+Selected operational namespaces remain unversioned, such as `/health`, `/live`, `/ready`, `/metrics`, `/api/docs`, and some admin/internal namespaces.
 
 ## Canonical and legacy route policy
 
-`/api/v1/*` is the canonical application REST surface for new integrations, tests, and documentation.
+`/api/v1/*` is the canonical REST surface for new integrations, tests, and documentation.
 
 Representative canonical versioned namespaces:
 
 1. `/api/v1/auth/*`
 2. `/api/v1/gateway/*`
 3. `/api/v1/truth/*`
-4. `/api/v1/persona/*`
-5. `/api/v1/pillar/*`
-6. `/api/v1/compliance/*`
-7. `/api/v1/ka/*`
-8. `/api/v1/mcp/*`
-9. `/api/v1/simulations/*`
-10. `/api/v1/{pillars,sectors,domains,knowledge,nodes,edges}`
-11. `/api/v1/trace/*`
+4. `/api/v1/trace/*`
+5. `/api/v1/persona/*`
+6. `/api/v1/pillar/*`
+7. `/api/v1/compliance/*`
+8. `/api/v1/ka/*`
+9. `/api/v1/mcp/*`
+10. `/api/v1/simulations/*`
+11. `/api/v1/{pillars,sectors,domains,knowledge,nodes,edges}`
 12. `/api/v1/ingestion/*`
+13. `/api/v1/gdpr/*`
+14. `/api/v1/privacy/*`
+15. `/api/v1/retention/*`
+16. `/api/v1/storage/*`
+17. `/api/v1/analytics/*`
 
 Canonical unversioned operational namespaces currently remain supported for internal/admin workflows:
 
@@ -64,6 +91,10 @@ Canonical unversioned operational namespaces currently remain supported for inte
 5. `/api/methods*`
 6. `/api/search/*`
 7. `/api/docs`
+8. `/health`
+9. `/live`
+10. `/ready`
+11. `/metrics`
 
 The following legacy aliases remain active only for transition coverage:
 
@@ -76,40 +107,47 @@ The following legacy aliases remain active only for transition coverage:
 7. `/api/truth/*` -> `/api/v1/truth/*`
 8. `/api/ukg/*` -> `/api/v1/*`
 
-Legacy alias responses emit transition headers so clients can migrate deterministically:
+Legacy alias responses should emit transition headers so clients can migrate deterministically:
 
 1. `Deprecation: true`
 2. `Sunset: Wed, 30 Sep 2026 00:00:00 GMT`
 3. `Link: </api/v1/...>; rel="successor-version"`
 
-## Authentication and context
+## Authentication and runtime context
 
 Most application endpoints require authentication via one of the following methods:
 
-1. **Session Authentication**: Cookie-based (for frontend proxy)
-2. **Bearer Token**: `Authorization: Bearer <jwt-token>` (for external clients)
-3. **API Key**: `X-API-Key: <api-key>` (for programmatic access)
-4. **SSO/OIDC**: Azure AD/Entra ID integration
+1. **Session authentication**: Cookie-based frontend sessions.
+2. **Bearer token**: `Authorization: Bearer <jwt-token>` for external clients.
+3. **API key**: `X-API-Key: <api-key>` for programmatic access where enabled.
+4. **SSO/OIDC**: Azure AD/Entra ID integration where configured.
+5. **Desktop local auth**: loopback challenge/response and signed desktop requests in local/hybrid desktop mode.
 
-Unauthenticated operational probes are explicitly limited to `/health`, `/live`, `/ready`, and `/metrics`. Unversioned operational namespaces may still have module-specific auth requirements; use the canonical route family and verify the endpoint contract before integrating.
+Unauthenticated operational probes are explicitly limited to `/health`, `/live`, `/ready`, and `/metrics`.
 
-- **Tenant Isolation**: The `tenant_id` is automatically extracted from your JWT/SSO session. All operations are strictly scoped to your tenant.
-- **Traceability**: All responses include a `X-Correlation-ID` header. Use this ID for debugging and audit reconstruction.
+Security and runtime context:
+
+- Tenant context is extracted from the authenticated session/JWT/SSO identity where applicable.
+- Responses include correlation metadata for debugging and audit reconstruction.
+- Desktop local auth is only valid when runtime policy permits local or hybrid mode.
+- Cloud mode must not rely on desktop loopback trust.
+- CSRF, origin, CORS, trusted-host, session, and rate-limit controls are enforced in the backend envelope.
 
 ## Standard response format
 
-All API responses follow this structure:
+Most JSON API responses follow this structure or a module-specific extension of it:
 
 ```json
 {
   "success": true,
   "data": {},
   "error": null,
-  "timestamp": "2026-01-11T19:35:00Z"
+  "timestamp": "2026-05-30T00:00:00Z",
+  "correlation_id": "optional-correlation-id"
 }
 ```
 
-**Error Response**:
+Error response:
 
 ```json
 {
@@ -120,252 +158,383 @@ All API responses follow this structure:
     "message": "Invalid input parameters",
     "details": {}
   },
-  "timestamp": "2026-01-11T19:35:00Z"
+  "timestamp": "2026-05-30T00:00:00Z",
+  "correlation_id": "optional-correlation-id"
 }
 ```
 
+## End-to-end AI request lifecycle
+
+The current AI request lifecycle is:
+
+```text
+frontend prompt
+  -> API client + CSRF/session handling
+  -> Flask API/security envelope
+  -> DMRF injection defense
+  -> TruthGate
+  -> tier classification
+  -> 17-axis routing
+  -> DSQP persona construction
+  -> TruthCore workflow planning/execution
+  -> LLM Gateway or MCP/tool execution where needed
+  -> evidence freshness and convergence policy
+  -> TruthMemory / UnifiedMemory persistence
+  -> TruthLink event publication
+  -> trace/run review
+  -> optional integrity-protected export
+```
+
+See `docs/diagrams/12_end_to_end_request_lifecycle.md` for the full lifecycle diagram.
+
 ---
 
-## Table of Contents
+## Table of contents
 
 1. [Authentication Routes](#1-authentication-routes-auth)
 2. [LLM Gateway Routes](#2-llm-gateway-routes-gateway)
-3. [Truth Engine Routes](#3-truth-engine-routes-truth)
-4. [Knowledge Algorithm Routes](#4-knowledge-algorithm-routes-ka)
-5. [Trace Routes](#5-trace-routes-trace)
-6. [Knowledge Graph Routes](#6-knowledge-graph-routes-knowledge)
-7. [Knowledge Ingestion Routes](#7-knowledge-ingestion-routes-ingestion)
-8. [Location Routes](#8-location-routes-locations)
-9. [MCP Routes](#9-mcp-routes-mcp)
-10. [Compliance & Regulatory Routes](#10-compliance--regulatory-routes-compliance)
-11. [Simulation Routes](#11-simulation-routes-simulation)
-12. [Admin & System Routes](#12-admin--system-routes-system)
+3. [DMRF Control-Plane Routes](#3-dmrf-control-plane-routes)
+4. [Truth Engine Routes](#4-truth-engine-routes-truth)
+5. [Knowledge Algorithm Routes](#5-knowledge-algorithm-routes-ka)
+6. [Trace Routes](#6-trace-routes-trace)
+7. [Knowledge Graph Routes](#7-knowledge-graph-routes-knowledge)
+8. [Knowledge Ingestion Routes](#8-knowledge-ingestion-routes-ingestion)
+9. [Location Routes](#9-location-routes-locations)
+10. [MCP Routes](#10-mcp-routes-mcp)
+11. [Compliance, Privacy, GDPR, and Retention Routes](#11-compliance-privacy-gdpr-and-retention-routes)
+12. [Simulation Routes](#12-simulation-routes-simulations)
+13. [Admin and System Routes](#13-admin-and-system-routes)
+14. [Operational Health, Readiness, and Metrics](#14-operational-health-readiness-and-metrics)
+15. [Trace Export Integrity](#15-trace-export-integrity)
+16. [Reviewer verification path](#16-reviewer-verification-path)
 
 ---
 
 ## 1. Authentication Routes (`/auth`)
 
-Manage user authentication, sessions, and identity. Primary prefix: `/api/v1/auth`.
+Manage user authentication, sessions, identity, MFA, and desktop local-auth session behavior.
+
+Primary prefix: `/api/v1/auth`.
 
 ### Login
 
 - **POST** `/login`
   - Standard username/password login.
-  - **Body**: `{ "username": "user", "password": "pass" }`
-  - **Response**: `{ "success": true, "data": { "token": "...", "user": {...} } }`
+  - Body:
+    ```json
+    {
+      "username": "user",
+      "password": "pass"
+    }
+    ```
 
 ### Register
 
-- **POST** `/api/v1/auth/register`
-  - Create new user account with enterprise security policy.
-  - **Body**: `{ "username": "user", "email": "user@example.com", "password": "..." }`
-  - **Current UI note**: the local-first frontend route `/register` is intentionally disabled and redirects to `/dashboard`. Use the API route only when a deployment explicitly reopens web self-registration.
-
-### SSO Login
-
-- **GET** `/login/sso`
-  - Initiate OIDC/Azure AD Single Sign-On flow.
+- **POST** `/register`
+  - Create a new user account where enabled by deployment policy.
+  - Current UI note: the local-first frontend route `/register` is intentionally disabled and redirects to `/dashboard`. Use this API route only when a deployment explicitly reopens web self-registration.
 
 ### Logout
 
 - **POST** `/logout`
   - Terminate current session.
 
-### MFA Setup
-
-- **POST** `/mfa/setup`
-  - Initiate MFA setup for the logged-in user.
-  - **Returns**: QR code secret, backup codes, and setup URI.
-
-### MFA Confirm
-
-- **POST** `/mfa/confirm`
-  - Verify and enable MFA using a TOTP token.
-  - **Body**: `{ "token": "123456" }`
-
-### Check Auth
+### Check auth
 
 - **GET** `/check`
   - Check current authentication status and MFA verification state.
-  - **Response**: `{ "authenticated": true, "user": {...}, "mfa_verified": true }`
+
+### MFA setup and confirmation
+
+- **POST** `/mfa/setup`
+  - Initiate TOTP MFA setup.
+- **POST** `/mfa/confirm`
+  - Confirm and enable MFA.
+- **POST** `/mfa/verify`
+  - Verify MFA challenge where supported by the auth flow.
+
+### SSO login
+
+- **GET** `/login/sso`
+  - Initiate OIDC/Azure AD/Entra ID login flow where configured.
+
+### Desktop local auth
+
+Desktop auth is a local/hybrid runtime capability, not a public cloud trust mechanism. It uses a per-install secret, one-time nonce challenge, HMAC signatures, timestamp skew checks, and loopback/Electron runtime policy.
+
+Relevant implementation:
+
+- `backend/security/desktop_local_auth.py`
+- `frontend/contexts/AuthContext.tsx`
+- `frontend/lib/runtime/policy.ts`
 
 ---
 
 ## 2. LLM Gateway Routes (`/gateway`)
 
-Unified interface for Large Language Models with UKG context injection. Prefix: `/api/v1/gateway`.
+Unified interface for model/provider calls with governance, telemetry, provider configuration, and optional UKG/trace integration.
 
-### Chat Completion
+Primary prefix: `/api/v1/gateway`.
+
+### Chat completion
 
 - **POST** `/chat`
-  - Send chat request with automatic UKG context injection.
-  - **Body**:
+  - Send chat request with model/provider configuration and optional trace behavior.
+  - Body:
     ```json
     {
-      "messages": [{ "role": "user", "content": "..." }],
-      "model": "gpt-5.5",
+      "messages": [
+        {"role": "user", "content": "..."}
+      ],
+      "model": "configured-model-name",
       "mode": "ukg",
       "trace_enabled": true
     }
     ```
-  - **Response**: Returns assistant message content, `run_id`, and `audit_trail` links when tracing is enabled.
+  - Response includes assistant content and may include run/trace metadata when tracing is enabled.
+
+### Streaming chat
+
+- **POST** `/stream`
+  - Server-Sent Events or streaming response path where supported by the gateway.
+
+### Provider/admin management
+
+Administrative provider management is exposed through `/api/admin/*` and gateway admin routes where enabled.
+
+---
+
+## 3. DMRF Control-Plane Routes
+
+DMRF is the governed AI reasoning control plane. It is not merely a model wrapper. It coordinates:
+
+1. injection defense;
+2. TruthGate;
+3. tier classification;
+4. 17-axis routing;
+5. DSQP persona construction;
+6. TruthCore workflow planning;
+7. evidence freshness scoring;
+8. convergence/refinement policy;
+9. TruthMemory persistence;
+10. MLflow-style tracking;
+11. TruthLink publication;
+12. observability.
+
+Primary implementation:
+
+- `backend/dmrf/orchestrator.py`
+- `backend/dmrf/models.py`
+- `backend/dmrf/router.py`
+- `backend/dmrf/tier_classifier.py`
+- `backend/dmrf/truth_integration/`
+
+DMRF may be invoked through chat/system routes, gateway-integrated flows, or internal service calls depending on deployment wiring. See `docs/diagrams/09_dmrf_control_plane_deep_dive.md`.
+
+---
+
+## 4. Truth Engine Routes (`/truth`)
+
+Control and inspect the Truth Engine subsystem.
+
+Primary prefix: `/api/v1/truth`.
+Legacy alias: `/api/truth` with deprecation headers.
+
+Truth Engine modules:
+
+1. **TruthGate** — security, budget, priority, compliance, and trust entry gate.
+2. **TruthCore** — tiered reasoning workflow engine.
+3. **TruthMemory** — audit, cache, artifacts, metrics, explainability, and MLflow-style tracking.
+4. **TruthLink** — event bus, priority queue, optional Redis streams, SSE, and dead-letter handling.
+
+### Health
+
+- **GET** `/health`
+  - Truth Engine component initialization state and subsystem health.
+
+### Create session
+
+- **POST** `/core/session`
+  - Create a TruthCore processing session after TruthGate evaluation.
+  - Body:
     ```json
     {
-      "response": "...",
-      "model": "gpt-5.5",
-      "run_id": "00000000-0000-0000-0000-000000000000",
-      "audit_trail": {
-        "decision_path": "/api/v1/trace/runs/00000000-0000-0000-0000-000000000000",
-        "complete_trace_url": "/api/v1/trace/runs/00000000-0000-0000-0000-000000000000/bundle",
-        "download_url": "/api/v1/trace/runs/00000000-0000-0000-0000-000000000000/export"
-      }
+      "query": "...",
+      "context": {},
+      "user_id": "optional-user-id",
+      "tenant_id": "optional-tenant-id"
     }
     ```
 
-### Streaming Chat
+### Process session
 
-- **POST** `/stream`
-  - Server-Sent Events (SSE) stream for real-time response delivery.
+- **POST** `/core/session/<session_id>/process`
+  - Process a TruthCore session through the selected workflow steps.
+
+### Get session
+
+- **GET** `/core/session/<session_id>`
+  - Read session status and result metadata.
+
+### Tiers
+
+- **GET** `/core/tiers`
+  - Retrieve available TruthCore tier information.
+
+### Gate evaluation
+
+- **POST** `/gate/evaluate`
+  - Run a direct TruthGate evaluation.
+
+### Gate stats and budget
+
+- **GET** `/gate/stats`
+- **GET** `/gate/budget/<tenant_id>`
+
+### Memory and explainability
+
+- **GET** `/memory/session/<session_id>`
+- **GET** `/memory/artifacts/<session_id>`
+- **POST** `/memory/artifacts/<session_id>`
+- **GET** `/memory/explain/<session_id>`
+- **GET** `/memory/stats`
+- **GET** `/memory/metrics/<metric_name>`
+
+### TruthLink
+
+- **POST** `/link/publish`
+- **GET** `/link/stats`
+- **GET** `/link/pending`
+- **GET** `/link/dead-letter`
+- **GET** `/link/stream/<client_id>`
+
+### Compliance report and audit
+
+- **GET** `/compliance/report`
+- **GET** `/compliance/audit/<session_id>`
 
 ---
 
-## 3. Truth Engine Routes (`/truth`)
+## 5. Knowledge Algorithm Routes (`/ka`)
 
-Control the 5-tier reasoning engine. Primary prefix: `/api/v1/truth`; legacy alias: `/api/truth` with deprecation headers.
+Execute and manage Knowledge Algorithms.
 
-### Create Session
+Primary prefix: `/api/v1/ka`.
+Legacy alias: `/api/ka` with deprecation headers.
 
-- **POST** `/session`
-  - Initialize a new reasoning session.
-  - **Body**: `{ "query": "...", "context": {...} }`
-  - **Response**: `{ "success": true, "session_id": "...", "tier": "high-stakes" }`
-
-### Process Session
-
-- **POST** `/session/<session_id>/process`
-  - Execute reasoning for an existing session.
-
-### Get Metrics & Stats
-
-- **GET** `/metrics`
-  - Retrieve real-time metrics for TruthCore, TruthGate, and TruthMemory.
-
-### Get Audit Trail
-
-- **GET** `/session/<session_id>/audit`
-  - Retrieve the hash-linked audit trail for a specific session (EU AI Act compliant).
-
----
-
-## 4. Knowledge Algorithm Routes (`/ka`)
-
-Execute and manage Knowledge Algorithms (KA-001 to KA-116). Primary prefix: `/api/v1/ka`; legacy alias: `/api/ka` with deprecation headers.
-
-### List Algorithms
+### List algorithms
 
 - **GET** `/algorithms`
-  - List all available algorithms with metadata and registration status.
+  - List available algorithms with metadata and registration status.
 
-### Execute Algorithm
+### Execute algorithm
 
 - **POST** `/algorithms/<ka_id>/execute`
   - Run a specific Knowledge Algorithm.
-  - **Body**: `{ "data": {...}, "context": {...} }`
+  - Body:
+    ```json
+    {
+      "data": {},
+      "context": {}
+    }
+    ```
 
-### High-Stakes Workflow
+### High-stakes workflow
 
 - **POST** `/workflow/high-stakes`
-  - Trigger the full 12-step high-stakes refinement workflow.
-  - **Body**: `{ "query": "...", "context": {...} }`
-  - **Response**: Returns `session_id` and the final refined result.
+  - Trigger the high-stakes refinement workflow where supported by the KA route layer.
 
-### Workflow Trace
+### Workflow trace
 
 - **GET** `/trace/<session_id>`
-  - Retrieve the detailed execution trace for a workflow session.
+  - Retrieve execution trace for a KA workflow session where available.
 
 ---
 
-## 5. Trace Routes (`/trace`)
+## 6. Trace Routes (`/trace`)
 
-Comprehensive execution traceability. Prefix: `/api/v1/trace`.
+Comprehensive execution traceability.
 
-### List Trace Runs
+Primary prefix: `/api/v1/trace`.
+
+### List trace runs
 
 - **GET** `/runs`
   - List recent trace runs with pagination and filtering.
 
-### Get Run Details
+### Get run details
 
 - **GET** `/runs/<run_id>`
-  - Comprehensive details for a specific run, including scores and timing.
+  - Detailed run metadata, scores, timings, and status.
 
-### Get Complete Trace Bundle
+### Get complete trace bundle
 
 - **GET** `/runs/<run_id>/bundle`
-  - Aggregate local trace viewer payload containing `run`, `frost_layers`, `evidence_sources`, `claims`, `persona_positions`, `ka_invocations`, coordinate axes, policy decisions, memory events, and summary `metrics`.
+  - Aggregate trace viewer payload containing run, FROST layers, evidence sources, claims, persona positions, KA invocations, coordinate axes, policy decisions, memory events, and summary metrics where available.
 
-### Get Stages
+### Get stages
 
 - **GET** `/runs/<run_id>/stages`
-  - Step-by-step breakdown of the execution flow.
+  - Step-by-step execution flow.
 
-### Get Trace Subresources
+### Get trace subresources
 
 - **GET** `/runs/<run_id>/evidence`
-  - Evidence source serializers with viewer aliases such as `source_id`, `title`, `evidence_tier`, `claims_supported`, `layer_retrieved`, and `ka_that_invoked`.
 - **GET** `/runs/<run_id>/personas`
-  - Persona position serializers with `initial_position`, `critique_of_others`, `final_position`, `synthesis_weight`, and `flagged_conflicts`.
 - **GET** `/runs/<run_id>/kas`
-  - Knowledge Algorithm invocation records for the run.
 - **GET** `/runs/<run_id>/metrics`
-  - Duration, token, retrieval, confidence, entropy, and stage-count metrics.
+
+### Export trace
+
 - **POST** `/runs/<run_id>/export`
   - Downloadable JSON trace export for local evidence retention.
+  - Export envelopes may include section hashes, bundle hash, optional HMAC signature, optional encrypted payload, and manifest metadata.
 
 ---
 
-## 6. Knowledge Graph Routes (`/knowledge`)
+## 7. Knowledge Graph Routes (`/knowledge`)
 
-Manage Sectors, Domains, and Knowledge Nodes. Canonical routes live under `/api/v1/*`; the legacy alias family remains under `/api/ukg/*` with deprecation headers.
+Manage sectors, domains, pillars, graph nodes, graph edges, and knowledge-node content.
 
-### Knowledge Nodes
+Canonical routes live under `/api/v1/*`; the legacy alias family remains under `/api/ukg/*` with deprecation headers.
+
+Representative routes:
 
 - **GET** `/knowledge`
-  - List knowledge-node content records.
 - **POST** `/knowledge`
-  - Create a knowledge-node content record.
 - **GET** `/nodes`
-  - List graph nodes.
 - **POST** `/nodes`
-  - Create a graph node.
 - **GET** `/edges`
-  - List graph edges.
 - **POST** `/edges`
-  - Create a graph edge.
 - **GET** `/pillars`
-  - List pillar levels.
 - **GET** `/sectors`
-  - List sectors.
 - **GET** `/domains`
-  - List domains.
+
+Current architecture note:
+
+- Durable graph records can live in SQL.
+- Neo4j is used for graph-store operations where configured.
+- `backend/storage/uskd_memory_graph.py` provides a RAM-resident NetworkX graph for reasoning-layer traversal.
+- 17-axis routing is implemented under `core/axes/` and `backend/dmrf/router.py`.
 
 ---
 
-## 7. Knowledge Ingestion Routes (`/ingestion`)
+## 8. Knowledge Ingestion Routes (`/ingestion`)
 
-Local-first corpus ingestion. Prefix: `/api/v1/ingestion`.
+Local-first corpus ingestion.
 
-### Supported Local Types
+Primary prefix: `/api/v1/ingestion`.
+
+### Supported local types
 
 - **GET** `/supported`
-  - Returns supported local file extensions (text and binary formats like `.pdf`, `.docx`) and default ingestion limits for the current build.
+  - Return supported file extensions and ingestion limits.
 
-### Local File Or Folder Ingestion
+### Local file or folder ingestion
 
 - **POST** `/local`
-  - Ingest supported local files (text and binary) into chunk-level SQL `KnowledgeGraphNode` rows and Chroma `knowledge_nodes`.
-  - **Body**:
+  - Ingest supported local files into chunk-level SQL `KnowledgeGraphNode` records and Chroma `knowledge_nodes` vectors where configured.
+  - Body:
     ```json
     {
       "path": "C:\\path\\to\\corpus",
@@ -375,95 +544,110 @@ Local-first corpus ingestion. Prefix: `/api/v1/ingestion`.
       "metadata": {"domain": "policy"}
     }
     ```
-  - **Response**: ingestion id, scanned/ingested/rejected file counts, created/indexed chunk counts, rejected-file reasons, chunk source hashes, and manifest path.
-  - **Security**: outside desktop mode, paths must stay under `DATALOGIC_INGESTION_ROOT` or the process working directory.
+  - Security: outside desktop mode, paths must remain under `DATALOGIC_INGESTION_ROOT` or the process working directory.
 
-### Async Local Ingestion
+### Async local ingestion
 
 - **POST** `/local/async`
-  - Starts an ingestion job in a background thread and returns an `ingestion_id` immediately. Supports optional Neo4j sync.
-  - **Body**: Same as `/local`, with an additional optional `"sync_neo4j": true` boolean.
-  - **Response**: `202 Accepted` with `{"ingestion_id": "...", "status": "running"}`.
+  - Start ingestion in a background thread and return an `ingestion_id`.
 
-### Ingestion Status
+### Ingestion status
 
 - **GET** `/status/<ingestion_id>`
-  - Returns the current status of an async ingestion run.
-  - **Response**: Status (`running`, `completed`, `failed`), along with the ingestion result and optional Neo4j sync outcome when completed.
 
-### Ingestion History
+### Ingestion history
 
 - **GET** `/history?limit=20`
-  - Lists recent manifest-backed local ingestion runs from the app-owned manifest directory.
-  - **Response**: recent ingestion result records including source path, scanned/ingested/rejected counts, chunk/index counts, rejected-file reasons, and manifest path.
 
 ---
 
-## 8. Location Routes (`/locations`)
+## 9. Location Routes (`/locations`)
 
-Manage geospatial context and hierarchy. Current supported prefix: `/api/locations*`.
+Manage geospatial context and hierarchy.
 
-### List & Filter Locations
+Current supported prefix: `/api/locations*`.
+
+Representative routes:
+
 - **GET** `/locations`
-  - List and filter locations.
-  - **Query Params**:
-    - `type`: Filter by location type (e.g., 'office', 'region').
-    - `parent_id`: Filter by parent location ID.
-    - `search`: Name search.
-    - `lat`, `lng`, `radius`: Proximity filtering.
-
-### Get Hierarchy
 - **GET** `/locations/hierarchy`
-  - Get hierarchical tree structure of locations.
-  - **Query Params**: `root_uid` (optional)
-
-### Find Nearest
 - **GET** `/locations/nearest`
-  - Find locations nearest to coordinates.
-  - **Required Params**: `lat`, `lng`
-  - **Optional Params**: `radius`, `limit`, `type`
-
-### CRUD Operations
-- **POST** `/locations`: Create a new location.
-- **GET** `/locations/<uid>`: Get specific location.
-- **PUT** `/locations/<uid>`: Update location.
+- **POST** `/locations`
+- **GET** `/locations/<uid>`
+- **PUT** `/locations/<uid>`
 
 ---
 
-## 9. MCP Routes (`/mcp`)
+## 10. MCP Routes (`/mcp`)
 
-Model Context Protocol management. Primary prefix: `/api/v1/mcp`; legacy alias: `/api/mcp` with deprecation headers.
+Model Context Protocol management.
 
-### List Tools
+Primary prefix: `/api/v1/mcp`.
+Legacy alias: `/api/mcp` with deprecation headers.
+
+Representative capabilities:
+
+1. MCP connector registry.
+2. OAuth token management.
+3. MCP server configuration.
+4. MCP analytics per connector/server.
+5. Tool listing and execution metadata.
+
+Representative route:
 
 - **GET** `/servers/<server_id>/tools`
   - List tools exposed by a specific MCP server.
 
 ---
 
-## 10. Compliance & Regulatory Routes (`/compliance`)
+## 11. Compliance, Privacy, GDPR, and Retention Routes
 
-Enterprise compliance and auditing. Primary prefix: `/api/v1/compliance`; legacy alias: `/api/compliance` with deprecation headers.
+Primary prefixes include:
 
-### Audit Export
+1. `/api/v1/compliance/*`
+2. `/api/v1/gdpr/*`
+3. `/api/v1/privacy/*`
+4. `/api/v1/retention/*`
+
+Legacy alias:
+
+- `/api/compliance/*` -> `/api/v1/compliance/*`
+
+Representative capabilities:
+
+- audit export;
+- privacy settings;
+- GDPR request handling;
+- retention policy management;
+- compliance status surfaces;
+- audit log extraction.
+
+Representative route:
 
 - **GET** `/audit/export?days=30`
-  - Export system logs to CSV for compliance audits.
+  - Export system logs for compliance review where enabled.
 
 ---
 
-## 11. Simulation Routes (`/simulations`)
+## 12. Simulation Routes (`/simulations`)
 
-Scenario simulation and reasoning control. Primary prefix: `/api/v1/simulations`; legacy alias: `/api/simulations` with deprecation headers.
+Scenario simulation and reasoning control.
 
-### Start Simulation
+Primary prefix: `/api/v1/simulations`.
+Legacy alias: `/api/simulations` with deprecation headers.
+
+Representative routes:
 
 - **POST** `/simulations`
   - Create a new simulation session.
+- **GET** `/simulations`
+  - List simulation sessions where enabled.
+- **POST** `/simulation/run`
+  - Run a simulation path where supported by canonical route wiring.
 
 ---
 
-## 12. Admin & System Routes
+## 13. Admin and System Routes
 
 Operational/admin namespaces that intentionally remain unversioned in the current contract:
 
@@ -474,15 +658,96 @@ Operational/admin namespaces that intentionally remain unversioned in the curren
 5. `/api/honeycomb/*`
 6. `/api/locations*`
 
-### Health Check
+Representative admin capabilities:
 
-- **GET** `/health`
-  - System status: database connectivity and session secret configuration. Also see `/live` (liveness) and `/ready` (readiness).
-- **GET** `/live` — Liveness probe: confirms the process is running.
-- **GET** `/ready` — Readiness probe: confirms database is reachable and `SESSION_SECRET` is set.
-- **GET** `/metrics` — Prometheus-format metrics (uptime, request counts, database state, LLM latency, tenant RLS).
+- provider configuration;
+- user and role management;
+- compliance dashboard;
+- MCP server management;
+- audit export;
+- system configuration and status.
 
-### Provider Management
+Representative route:
 
 - **GET** `/api/admin/providers`
   - List configured LLM providers and their statuses.
+
+---
+
+## 14. Operational health, readiness, and metrics
+
+### Health check
+
+- **GET** `/health`
+  - System status such as database connectivity and session secret configuration.
+
+### Liveness
+
+- **GET** `/live`
+  - Confirms the process is running.
+
+### Readiness
+
+- **GET** `/ready`
+  - Confirms required startup dependencies are ready.
+
+### Metrics
+
+- **GET** `/metrics`
+  - Prometheus-format metrics including uptime, request counters, database state, LLM latency, tenant RLS, and DMRF observability where available.
+
+---
+
+## 15. Trace export integrity
+
+Trace exports are protected by `backend/security/export_integrity.py`.
+
+Export document structure:
+
+```json
+{
+  "manifest": {
+    "exported_at": "2026-05-30T00:00:00Z",
+    "exported_by": "user-or-system",
+    "version": "1.1",
+    "hash_algorithm": "sha256",
+    "bundle_hash": "...",
+    "section_hashes": {},
+    "signature_algorithm": "hmac-sha256-or-none",
+    "encrypted": false
+  },
+  "bundle": {}
+}
+```
+
+Optional encrypted exports return `payload_encrypted` and an envelope hash/signature.
+
+---
+
+## 16. Reviewer verification path
+
+A technical reviewer should validate this document against these files:
+
+1. `app.py` — route registration, middleware, health, metrics, security envelope.
+2. `backend/dmrf/orchestrator.py` — DMRF control-plane lifecycle.
+3. `backend/truth_engine/api.py` — Truth Engine API surface.
+4. `backend/truth_engine/truth_gate/gateway.py` — TruthGate behavior.
+5. `backend/truth_engine/truth_core/engine.py` — TruthCore sessions and workflows.
+6. `backend/truth_engine/truth_memory/manager.py` — audit, artifacts, metrics, explainability.
+7. `backend/truth_engine/truth_link/bus.py` — event bus and streaming.
+8. `backend/security/desktop_local_auth.py` — local desktop auth.
+9. `backend/security/export_integrity.py` — trace export integrity.
+10. `backend/storage/` — SQL, graph, vector, object, and memory storage surfaces.
+11. `frontend/lib/api/` — frontend API clients and CSRF handling.
+12. `tests/contract/` — canonical API contract tests.
+13. `.github/workflows/ci.yml` — CI enforcement of contract, parity, security, and readiness gates.
+
+## Change notes for v2.6.0
+
+1. Added explicit document metadata table with version and update date.
+2. Updated API architecture summary for current DMRF, Truth Engine, local-first, trace/export, and MCP architecture.
+3. Added DMRF control-plane section.
+4. Updated Truth Engine section to reflect TruthGate, TruthCore, TruthMemory, and TruthLink route families.
+5. Updated trace export integrity section.
+6. Added reviewer verification path tied to actual implementation files.
+7. Reframed stale wrapper-style language to current governed reasoning lifecycle.
