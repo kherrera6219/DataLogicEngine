@@ -1,6 +1,10 @@
 {
-  "version": "2026.05.29.5",
-  "updated_at": "2026-05-29",
+  "version": "2026.05.30.1",
+  "updated_at": "2026-05-30",
+  "document_version": "v2.6.0",
   "owner": "Platform Engineering",
-  "policy": "docs/DOCUMENTATION_VERSIONING.md"
+  "policy": "docs/DOCUMENTATION_VERSIONING.md",
+  "coverage_matrix": "docs/DOCUMENTATION_COVERAGE_MATRIX.md",
+  "baseline": "docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md",
+  "status": "active"
 }
