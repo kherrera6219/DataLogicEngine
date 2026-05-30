@@ -480,11 +480,11 @@ export function DatabaseSettings() {
                       ['Chroma', desktopMetrics.chroma],
                       ['Objects', desktopMetrics.object_store],
                     ].map(([label, metric]) => {
-                      const data = metric as Record<string, unknown>;
+                      const data = (metric ?? {}) as Record<string, unknown>;
                       return (
                         <div key={label as string} className="rounded-md border p-3">
                           <div className="text-xs text-muted-foreground uppercase">{label as string}</div>
-                          <div className="text-lg font-semibold">{formatBytes(data.size_bytes)}</div>
+                          <div className="text-lg font-semibold">{formatBytes(data?.size_bytes)}</div>
                           {'tables' in data && (
                             <div className="text-xs text-muted-foreground">
                               {String(data.tables)} tables, {String(data.rows)} rows
@@ -538,7 +538,7 @@ export function DatabaseSettings() {
                 <div className="rounded-md border p-3 text-sm">
                   <div className="font-medium">Last backup</div>
                   <div className="text-xs text-muted-foreground break-all">{lastBackup.artifact_path}</div>
-                  <div className="text-xs text-muted-foreground">{formatBytes(lastBackup.size_bytes)}</div>
+                  <div className="text-xs text-muted-foreground">{formatBytes(lastBackup?.size_bytes)}</div>
                 </div>
               )}
             </CardContent>

@@ -29,7 +29,7 @@ win:
   target:
     - nsis
   icon: public/icon.png
-  verifyUpdateCodeSignature: true
+  verifyUpdateCodeSignature: false
 nsis:
   oneClick: false
   perMachine: true

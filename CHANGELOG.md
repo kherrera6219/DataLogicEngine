@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **LLM Gateway — "No active providers found" in desktop mode**: `_get_eligible_providers()` in `backend/llm_gateway/gateway.py` queried `LLMProvider.query` outside a Flask application context when invoked from async coroutines (Electron-spawned backend), raising "Working outside of application context", silently falling back to env-only provider discovery, and ultimately failing every chat with "No active providers found". The DB query is now wrapped in an explicit `app.app_context()` push obtained via `current_app._get_current_object()`.
+- **Desktop API keys not forwarded to backend**: Electron `startBackend()` in `frontend/electron/main.ts` spawned the Python backend without forwarding API keys from `.env`. Provider keys (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, etc.) are now parsed from `.env` and merged into the backend process environment (with inherited `process.env` taking precedence).
+- **Settings page crash — `Cannot read properties of undefined (reading 'size_bytes')`**: `DatabaseSettings.tsx` assumed every storage backend metric object was defined. When a backend (Neo4j/Chroma/object store) is not running in local SQLite desktop mode, the metric is `undefined` and the component crashed the whole Settings route. Hardened with `(metric ?? {})` and optional chaining on `data?.size_bytes` / `lastBackup?.size_bytes`; absent backends now render "0 B / Not created" instead of crashing.
+
+### Build / Tooling
+- **electron-builder v26 npm collector failure on Windows + NVM**: `app-builder-lib`'s `NpmNodeModulesCollector` failed with "No JSON content found in output" / `MODULE_NOT_FOUND` because `npm` was not resolvable in the subprocess `PATH` (NVM-for-Windows layout) and the `.cmd` → `.bat` → `cmd.exe` shell wrapper mangled paths containing spaces. Resolved by pointing the collector's npm path cache to a space-free `.cmd` shim that invokes `node.exe npm-runner.js` with full absolute paths; `npm-runner.js` rewrites `process.argv[1]` so npm-cli forwards `list --json` arguments correctly.
+- **Unsigned local builds**: `electron-builder.yml` now sets `verifyUpdateCodeSignature: false` so unsigned developer/local NSIS builds complete without a provisioned code-signing certificate.
+
 ### Security
 - Mitigated Dependabot alert 389 / CVE-2026-45829 by pinning `chromadb` to `0.5.23`, outside the vulnerable `>=1.0.0, <=1.5.9` range while no patched 1.x release is available.
 

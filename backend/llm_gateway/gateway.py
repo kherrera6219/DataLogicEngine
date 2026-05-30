@@ -989,16 +989,31 @@ class LLMGateway:
         
         providers = []
         
-        # Try to get providers from database
+        # Try to get providers from database.
+        # Must push an app context because this async method may be called from
+        # outside the Flask request lifecycle (Electron spawn, async coroutines).
         try:
+            from flask import current_app as _cur_app
+            _app = _cur_app._get_current_object()
+        except RuntimeError:
+            _app = None
+
+        def _query_db():
             if preferred_name:
-                query = LLMProvider.query.filter(
+                q = LLMProvider.query.filter(
                     (LLMProvider.name == preferred_name) | (LLMProvider.provider_type == preferred_name),
                     LLMProvider.is_active
                 )
-                providers = query.all()
+                return q.all()
             else:
-                providers = LLMProvider.query.filter_by(is_active=True).order_by(LLMProvider.priority).all()
+                return LLMProvider.query.filter_by(is_active=True).order_by(LLMProvider.priority).all()
+
+        try:
+            if _app is not None:
+                with _app.app_context():
+                    providers = _query_db()
+            else:
+                providers = _query_db()
         except Exception as e:
             logger.warning(f"Failed to query providers from DB: {e}")
             providers = []

@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from backend.bootstrap_compat import apply_runtime_compatibility_patches
 
 # Load environment variables from .env file BEFORE any other imports
-load_dotenv()
+load_dotenv(override=False)  # override=False: Electron env vars take priority; .env fills only missing vars
 apply_runtime_compatibility_patches()
 
 from flask import Flask, render_template, request, redirect, flash, jsonify, current_app, Response, g

@@ -103,3 +103,12 @@ replit.nix
 # Local agent/worktree cache
 .claude/
 API KEY/key.txt
+
+# Local dev helpers (machine-specific, not for commit)
+/g.bat
+/cleanup.bat
+/ignored.txt
+
+/.gitout.txt
+/commit_msg.txt
+/refcheck.txt

@@ -212,6 +212,59 @@ This ensures:
 2. Service wrappers are refreshed:
    `deploy/windows/DataLogic_Backend.exe`, `deploy/windows/DataLogic_Frontend.exe`.
 
+## Troubleshooting (Desktop)
+
+### Chat fails with "No active providers found" even with a saved API key
+
+The LLM gateway resolves providers from the local database. When the backend is
+launched by the Electron process, the provider lookup runs inside an async
+coroutine. Earlier builds queried the database outside a Flask application
+context, which raised "Working outside of application context", was silently
+swallowed, and fell back to environment-only discovery. If no provider key was
+present in the process environment, every chat failed with
+"No active providers found".
+
+Fixed in `backend/llm_gateway/gateway.py` by pushing an explicit
+`app.app_context()` before the provider query. If you still see this:
+
+1. Open Settings -> AI Providers and confirm at least one provider is listed and active.
+2. Confirm the key was saved to the same database the running app uses
+   (desktop uses the runtime-root SQLite file, not `instance/`).
+3. As a fallback, set the key in `.env` (`OPENAI_API_KEY` / `ANTHROPIC_API_KEY`
+   / `GEMINI_API_KEY`); Electron now forwards `.env` keys into the backend
+   process environment.
+
+### Settings page shows "Module Error ... reading 'size_bytes'"
+
+This is a UI guard issue, not a database fault. In local SQLite mode the
+Neo4j/Chroma/object-store backends are typically not running, so their storage
+metric objects are `undefined`. The Settings page now renders "0 B / Not created"
+for absent backends instead of crashing. If you see this on an older build,
+rebuild the frontend.
+
+### electron-builder fails: "No JSON content found in output" / MODULE_NOT_FOUND
+
+On Windows with NVM-for-Windows, `npm` may not be resolvable in the
+electron-builder subprocess PATH, and its `.cmd` -> `.bat` -> `cmd.exe` wrapper
+chain mangles paths that contain spaces. The repo includes a durable fix:
+
+- `frontend/scripts/patch-electron-builder.js` generates a space-free `.cmd`
+  shim that runs `node.exe` against npm-cli with absolute paths and patches the
+  app-builder-lib npm path cache.
+- It runs automatically via the `postinstall` hook and before `electron:dist`.
+
+If a build still fails here, run the patch manually then rebuild:
+
+```powershell
+cd frontend
+npm run fix:eb
+npm run electron:dist
+```
+
+Unsigned local builds are supported (`verifyUpdateCodeSignature: false` in
+`frontend/electron-builder.yml`); a trusted certificate is only required for
+signed public release builds.
+
 ## Known Limitations
 
 1. Manual application-readiness evidence remains open for NVDA validation; automated WCAG, keyboard navigation, failure-mode, and export/delete evidence is tracked in `reports/app-readiness/`.
@@ -229,6 +282,6 @@ This ensures:
 ## Document Control
 
 1. Owner: Platform Engineering
-2. Last updated: 2026-05-23
+2. Last updated: 2026-05-30
 3. Status: Active
 4. Review cadence: Every 30 days

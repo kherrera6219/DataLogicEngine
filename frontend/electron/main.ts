@@ -661,8 +661,26 @@ function startBackend() {
   const sessionSecretFile = loadOrCreatePlainSecretFile('SESSION_SECRET');
   const encryptionKekSecretFile = loadOrCreatePlainSecretFile('ENCRYPTION_KEK_SECRET');
   const encryptionKekSecret = fs.readFileSync(encryptionKekSecretFile, 'utf8').trim();
-  const env = { 
-    ...process.env, 
+  // Read API keys from .env so they reach the backend even when Electron's
+  // process.env doesn't carry them (avoids "No active providers found").
+  const dotenvPath = path.join(rootDir, '.env');
+  const dotenvKeys: Record<string, string> = {};
+  if (fs.existsSync(dotenvPath)) {
+    const lines = fs.readFileSync(dotenvPath, 'utf8').split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eqIdx = trimmed.indexOf('=');
+      if (eqIdx === -1) continue;
+      const k = trimmed.slice(0, eqIdx).trim();
+      const v = trimmed.slice(eqIdx + 1).trim();
+      if (k) dotenvKeys[k] = v;
+    }
+  }
+
+  const env = {
+    ...dotenvKeys,       // .env values first (lowest priority)
+    ...process.env,      // Electron inherited env overrides .env
     PORT: '5000', 
     FLASK_ENV: isDev ? 'development' : 'production',
     IS_DESKTOP_APP: 'true',
