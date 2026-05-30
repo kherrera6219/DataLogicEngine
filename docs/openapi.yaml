@@ -134,6 +134,176 @@ paths:
               schema:
                 $ref: "#/components/schemas/StandardResponse"
 
+  /settings/ai:
+    get:
+      summary: Get user AI preferences
+      tags:
+        - Settings
+      responses:
+        "200":
+          description: Active AI preference configurations
+        "401":
+          description: Unauthorized
+    post:
+      summary: Update user AI preferences
+      tags:
+        - Settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                preferred_provider:
+                  type: string
+                  enum: [auto, openai, azure, anthropic, google]
+                preferred_model:
+                  type: string
+                ai_processing_enabled:
+                  type: boolean
+                store_chat_history:
+                  type: boolean
+      responses:
+        "200":
+          description: Settings updated successfully
+        "400":
+          description: Invalid provider selection
+        "401":
+          description: Unauthorized
+
+  /search/global:
+    get:
+      summary: Cross-entity global search
+      tags:
+        - Search
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Search matches by category
+        "400":
+          description: Search query required
+
+  /search/suggest:
+    get:
+      summary: Get search suggestions (autocomplete)
+      tags:
+        - Search
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 5
+      responses:
+        "200":
+          description: Autocomplete options list
+
+  /ingestion/supported:
+    get:
+      summary: Get supported raw file extensions
+      tags:
+        - Ingestion
+      responses:
+        "200":
+          description: List of supported extensions
+
+  /ingestion/local:
+    post:
+      summary: Ingest raw documents synchronously
+      tags:
+        - Ingestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  type: string
+              required:
+                - path
+      responses:
+        "200":
+          description: Ingestion completed successfully
+        "400":
+          description: Invalid path or extraction error
+
+  /ingestion/local/async:
+    post:
+      summary: Ingest raw documents in background
+      tags:
+        - Ingestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  type: string
+              required:
+                - path
+      responses:
+        "202":
+          description: Ingestion initiated asynchronously
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ingestion_id:
+                    type: string
+                  status:
+                    type: string
+
+  /ingestion/status/{ingestion_id}:
+    get:
+      summary: Get background ingestion status
+      tags:
+        - Ingestion
+      parameters:
+        - name: ingestion_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Current background ingestion task status
+
+  /trace/runs/{run_id}/bundle:
+    get:
+      summary: Get complete aggregated trace bundle
+      tags:
+        - Tracing
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Complete trace bundle payload (runs, stages, evidence, KAs, debate, metrics)
+
 schemas:
   StandardResponse:
     type: object
