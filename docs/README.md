@@ -43,7 +43,7 @@ Historical PDFs, old release notes, wireframes, and research spikes are preserve
 
 ## Platform Status
 
-**Current Version:** 4.1.22 | **As of:** May 25, 2026
+**Current Version:** 4.1.22 | **As of:** May 29, 2026
 
 DataLogicEngine is currently in application-readiness cleanup and release-preparation status. The local-first Windows/Electron application, web console, backend API, AI gateway, graph surfaces, storage controls, MCP administration, privacy controls, SQL historical reasoning calibration, and core governance evidence are implemented and actively documented.
 
@@ -80,6 +80,11 @@ DataLogicEngine is currently in application-readiness cleanup and release-prepar
 | UI placeholder audit evidence | Operational |
 | Local release-governance command evidence | Operational |
 | DB-P SQL historical calibration: L8 TraceRun thresholds, L9 session baselines, KAExecution timing | Operational |
+| **Local-first binary document ingestion (PDF/DOCX)** | Operational (via embedded `pypdf` and `python-docx` extractors) |
+| **Background async ingestion queue + Neo4j sync** | Operational (thread-safe status polling and Settings toggle) |
+| **Unified Trace Viewer integration** | Operational (inline trace panels, real-time socket streams, runs explorer) |
+| **Markdown CI Linter & link case-sensitivity checks** | Operational (verifying doc reference cases and link health in CI) |
+| **Portable datastores Windows runbook mapping** | Operational (PostgreSQL, Redis, Neo4j, ChromaDB, filesystem object-store) |
 
 ### In Progress
 
@@ -90,7 +95,6 @@ DataLogicEngine is currently in application-readiness cleanup and release-prepar
 | Release signing | Release signing workflow exists, but trusted production certificate provisioning and signed artifact validation remain external release tasks. |
 | Release approval evidence | CI/security scan review, code-owner approval, rollback plan, and disaster recovery review remain release-ticket tasks. |
 | Staging and connector validation | Provider-backed staging validation and production connector checks require real external systems. |
-| Phase D prerequisite | DSQP technical disclosure must be written before implementing Phase D protocol code. |
 
 ---
 

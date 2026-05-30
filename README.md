@@ -13,14 +13,14 @@ DataLogicEngine is a full-stack platform for building traceable AI systems over 
 
 ## Current Status
 
-As of May 23, 2026, the repository is in application-readiness cleanup and release-preparation status. The local-first Windows/Electron application, web console, backend API, AI gateway, graph surfaces, storage controls, MCP administration, privacy controls, and core governance evidence are implemented and actively documented.
+As of May 29, 2026, the repository has successfully completed and validated its core local-first and tracing milestones. Implemented core capabilities now include **local-first binary document ingestion (PDF/DOCX)**, **background async ingestion queues with Neo4j sync**, and **unified Trace Viewer integration** (featuring inline trace panels, real-time socket streams, debaters, and runs explorers). We also integrated **automated Markdown CI link/casing validation** and **expanded local database deployment mappings** for the portable stack.
 
-Completed readiness evidence includes authenticated WCAG scans, keyboard navigation checks, failure-mode tests, privacy export/delete tests, UI placeholder audit evidence, production code-review remediation, strict runtime precheck evidence, local release-governance command output, and the public README architecture asset. The canonical planning source is [`TODO.md`](TODO.md).
+Completed readiness evidence includes authenticated WCAG scans, keyboard navigation checks, failure-mode tests, privacy export/delete tests, UI placeholder audit evidence, production code-review remediation, strict runtime precheck evidence, local release-governance command output, and the public README architecture asset. The canonical backlog and planning source is [`TODO.md`](TODO.md).
 
 Release blockers that still require manual or external execution:
 
 - NVDA screen reader validation on Windows.
-- Trusted production code-signing certificate provisioning and signed installer artifact validation.
+- Trusted production code-signing certificate provisioning and signed installer artifact validation in CI.
 - CI/security scan review, code-owner approval, rollback plan, and disaster recovery review for the release ticket.
 - Provider-backed staging validation and production connector validation against real external systems.
 
