@@ -1,21 +1,49 @@
 # DataLogicEngine Developer Guide
 
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Status | Active |
+| Owner | Developer Experience |
+| Review cadence | Every 30 days |
+
 ## Purpose
 
-Developer onboarding and daily engineering workflow.
+Provide the developer onboarding path and daily engineering workflow for DataLogicEngine.
+
+This version aligns onboarding with the current local-first architecture, DMRF control plane, Truth Engine v7.3, canonical `/api/v1/*` route policy, multi-store data architecture, testing/release gates, and versioned documentation standard.
+
+## Audience
+
+1. New contributors
+2. Backend engineers
+3. Frontend engineers
+4. QA/release engineers
+5. AI architecture reviewers
+6. Technical judges inspecting the repository
 
 ## Prerequisites
 
-1. Python 3.11+
-2. Node.js 24+
-3. Windows PowerShell (for local run scripts on Windows)
-4. At least one provider API key for end-to-end feature testing
+Required:
 
-Optional local services:
+1. Python `3.11`.
+2. Node.js `24`.
+3. npm compatible with the checked-in `frontend/package-lock.json`.
+4. Windows PowerShell for Windows local stack and packaging scripts.
+5. Git with hooks support.
 
-1. Docker Desktop (for PostgreSQL, Redis, Neo4j, MinIO local stack)
+Optional:
 
-## Initial Setup
+1. Docker Desktop for container/build verification.
+2. Provider API key for end-to-end LLM provider testing.
+3. Local data services where testing full storage behavior.
+
+Provider keys are not required for most deterministic unit/contract/parity tests.
+
+## Initial setup
 
 ```powershell
 git clone https://github.com/kherrera6219/DataLogicEngine.git
@@ -27,28 +55,70 @@ python -m venv .venv
 
 Copy-Item .env.template .env
 git config core.hooksPath .githooks
+
 cd frontend
-npm install
+npm ci
 cd ..
 ```
 
-Verify local readiness before booting services:
+Run readiness checks before starting services:
 
 ```powershell
 .\.venv\Scripts\python.exe .\scripts\dev_doctor.py --skip-ports
+python .\scripts\runtime_precheck.py --strict --skip-ports --allow-env-from-process
+python .\scripts\verify_lockfiles.py
+python .\scripts\verify_environment_parity.py --strict
 ```
+
+## Required environment values
 
 Set in `.env`:
 
-1. `SESSION_SECRET` — required for persistent sessions. If omitted in development the app generates an ephemeral secret and logs a warning (sessions reset on every restart). **Required and enforced at startup in production** — the app will refuse to start without it. Generate a value with:
+1. `SESSION_SECRET` — required for persistent sessions. Development may generate an ephemeral secret, but production refuses unsafe startup. Generate a value with:
    ```powershell
    python scripts/generate_secrets.py
    ```
-2. At least one provider key (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`/`GOOGLE_API_KEY`)
+2. Provider keys only when testing provider-backed flows:
+   - `OPENAI_API_KEY`
+   - `ANTHROPIC_API_KEY`
+   - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
+3. Runtime mode/storage values only when overriding defaults. The current supported data modes are local, VM, and auto internal service modes.
 
-## Local Run Modes
+Do not carry `AUTO_CREATE_SCHEMA=true` into shared or production environments.
 
-### Fast local mode (API keys + internet)
+## Architecture orientation for developers
+
+Read these first:
+
+1. `docs/ARCHITECTURE.md`
+2. `docs/API.md`
+3. `docs/DATABASE_SCHEMA.md`
+4. `docs/TESTING.md`
+5. `docs/diagrams/12_end_to_end_request_lifecycle.md`
+6. `docs/diagrams/09_dmrf_control_plane_deep_dive.md`
+7. `docs/diagrams/05_truth_engine_architecture.md`
+8. `docs/diagrams/07_data_storage_and_memory_architecture.md`
+
+The current request lifecycle is:
+
+```text
+frontend prompt
+  -> Flask API/security envelope
+  -> DMRF control plane
+  -> TruthGate
+  -> tier classification
+  -> 17-axis routing
+  -> DSQP persona construction
+  -> TruthCore workflow planning
+  -> model/tool execution when required
+  -> evidence/convergence policy
+  -> memory/audit/artifact persistence
+  -> trace review/export
+```
+
+## Local run modes
+
+### Fast local mode
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
@@ -60,120 +130,232 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\start_local_stack.ps1 -WithDataServices
 ```
 
-Stop:
+### Stop local stack
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\windows\stop_local_stack.ps1
 ```
 
-## Build and Packaging
+## Build and packaging
 
-Frontend build:
+### Frontend build
 
 ```powershell
 npm --prefix frontend run build
 ```
 
-Electron compile:
+### Electron compile
 
 ```powershell
 npm --prefix frontend run electron:build
 ```
 
-Desktop installer:
+### Desktop installer
 
 ```powershell
 npm --prefix frontend run electron:dist
 ```
 
-## Testing
+### Packaging smoke and NSIS governance
 
-Bootstrap smoke check:
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+```
+
+## Daily testing workflow
+
+### Bootstrap smoke check
 
 ```powershell
 .\.venv\Scripts\python.exe .\scripts\test_smoke.py
 ```
 
-Developer environment doctor:
+### Developer environment doctor
 
 ```powershell
 .\.venv\Scripts\python.exe .\scripts\dev_doctor.py --skip-ports
 ```
 
-Backend suite:
+### Backend suite
 
 ```powershell
-python run_test_suite.py
+.\.venv\Scripts\python.exe -m pytest tests --maxfail=20
 ```
 
-Frontend unit tests:
+### Backend contract, parity, and security sweeps
 
 ```powershell
+.\.venv\Scripts\python.exe -m pytest -q --no-cov tests\contract\test_api_contract.py
+.\.venv\Scripts\python.exe -m pytest -q --no-cov tests\parity\test_local_mode_parity.py
+.\.venv\Scripts\python.exe -m pytest -q --no-cov tests\security\test_security_headers.py tests\security\test_request_limits.py
+```
+
+### Frontend tests
+
+```powershell
+npm --prefix frontend run lint
+npm --prefix frontend run typecheck
 npm --prefix frontend test
+npm --prefix frontend run build
 ```
 
-Route policy smoke:
+### Frontend E2E and visual regression
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\test_frontend_route_policy.ps1 -FrontendPort 3000
+cd frontend
+npm run test:e2e -- tests/e2e/route-sidebar-smoke.spec.ts
+npm run test:e2e:visual
+cd ..
 ```
 
-Provider/model validation:
+### Provider/model validation
 
 ```powershell
 .venv\Scripts\python.exe .\scripts\verify_api_keys.py
 ```
 
-Local data plane validation:
+### Local data plane validation
 
 ```powershell
 .venv\Scripts\python.exe .\scripts\verify_local_data_stack.py
+python .\scripts\validate_schema_parity.py --report reports\schema_parity_report_local.json
 ```
 
-Docs reference validation:
+### Documentation reference validation
 
 ```powershell
 .venv\Scripts\python.exe .\scripts\verify_docs_references.py
 ```
 
-## Repository Structure (High Level)
+### Governance checks
+
+```powershell
+python .\scripts\verify_environment_parity.py --strict --json-report reports\environment_parity_report_local.json
+python .\scripts\verify_lockfiles.py --json-report reports\lockfile_governance_report_local.json
+python .\scripts\dev\run_precommit_checks.py
+```
+
+## Repository structure
 
 ```text
 DataLogicEngine/
-├── backend/          # Backend services and orchestration
-├── core/             # Core logic and frameworks
-├── frontend/         # Next.js UI + Electron runtime
-├── routes/           # API route modules
-├── scripts/          # Local ops and validation scripts
-├── tests/            # Automated tests
-└── docs/             # Active and historical documentation
+├── app.py                 # Flask app assembly, middleware, route registration
+├── backend/               # Backend services, DMRF, Truth Engine, storage, security, APIs
+├── core/                  # Core axes, FROST, knowledge framework primitives
+├── frontend/              # Next.js UI and Electron runtime
+├── routes/                # Canonical and compatibility route modules
+├── scripts/               # Local ops, validation, packaging, governance scripts
+├── tests/                 # Backend tests
+├── docs/                  # Active docs, diagrams, ADRs, archived material
+├── sdk/                   # SDKs
+├── models.py              # SQLAlchemy model layer
+└── .github/workflows/     # CI, deploy, and release signing workflows
 ```
 
-## Documentation Maintenance
+## Important backend areas
 
-Regenerate inventory and generated structure docs after major repository changes:
+| Area | Path | Purpose |
+|---|---|---|
+| App assembly | `app.py` | Flask app, middleware, route registration, health/metrics. |
+| DMRF | `backend/dmrf/` | AI control plane. |
+| Truth Engine | `backend/truth_engine/` | TruthGate, TruthCore, TruthMemory, TruthLink. |
+| DSQP | `backend/dsqp/` | Deterministic seven-part personas for axes 8-11. |
+| Axes | `core/axes/` | 17-axis model and Axis 17 FROST mode. |
+| Storage | `backend/storage/` | connection manager, graph, vector, object, USKD memory graph. |
+| Memory | `backend/memory/` | UnifiedMemory structured reasoning memory. |
+| Security | `backend/security/` | desktop auth, DPAPI, encryption, export integrity, guardrails. |
+| LLM Gateway | `backend/llm_gateway/` | provider routing and model access. |
+| Tracing | `backend/tracing/` | trace/run surfaces. |
+
+## Important frontend areas
+
+| Area | Path | Purpose |
+|---|---|---|
+| Root layout | `frontend/app/layout.tsx` | Provider stack, sidebar, nav, disclosure, desktop status. |
+| Chat | `frontend/app/chat/`, `frontend/components/Chat/` | Enterprise AI interaction surface. |
+| Trace | `frontend/app/runs/`, `frontend/lib/api/trace.ts` | Trace Explorer and run review/export. |
+| Graph | `frontend/app/graph/`, `frontend/app/knowledge/` | Knowledge graph and node/edge review. |
+| Truth monitor | `frontend/app/truth-engine/` | Truth Engine status surface. |
+| MCP hub | `frontend/app/mcp/`, `frontend/components/mcp/` | Connector/server management. |
+| Admin | `frontend/app/admin/` | Admin/compliance/provider/user management. |
+| Runtime policy | `frontend/lib/runtime/policy.ts` | local/hybrid/cloud runtime behavior. |
+| Electron | `frontend/electron/` | desktop shell and safe IPC bridge. |
+
+## API development rules
+
+1. New application routes should use canonical `/api/v1/*` paths.
+2. Legacy `/api/*` aliases are compatibility-only and must emit transition/deprecation headers where applicable.
+3. Canonical API auth failures must return JSON-native `401`, not browser redirects.
+4. Malformed canonical API requests should return deterministic validation errors.
+5. Route changes require contract tests.
+6. High-risk route changes require integration and security regression tests.
+7. Update `docs/API.md` when public route behavior changes.
+
+## Data development rules
+
+1. Keep SQL schema changes migration-controlled.
+2. Do not use `AUTO_CREATE_SCHEMA=true` outside disposable local workflows.
+3. Run schema parity validation after model/migration changes.
+4. Use app-owned storage modes unless architecture explicitly approves a different runtime model.
+5. Object-store keys must not allow absolute paths, null bytes, or traversal.
+6. ChromaDB/Neo4j/USKD/UnifiedMemory changes should update `docs/DATABASE_SCHEMA.md` when behavior changes.
+
+## Documentation maintenance
+
+Active documents must include:
+
+```markdown
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | vX.Y.Z |
+| Last updated | YYYY-MM-DD |
+| Status | Active |
+| Owner | Team Name |
+| Review cadence | Every N days |
+```
+
+After major repository changes, regenerate inventory/generated structure docs when appropriate:
 
 ```powershell
 .venv\Scripts\python.exe .\scripts\generate_docs.py
 ```
 
+Then validate references:
+
+```powershell
+.venv\Scripts\python.exe .\scripts\verify_docs_references.py
+```
+
 ## Local workflow notes
 
-1. `/api/v1/*` is the supported REST surface for application integrations; older `/api/*` aliases are compatibility-only.
-2. `AUTO_CREATE_SCHEMA=true` is a disposable local-only escape hatch and must not be carried into shared or production environments.
-3. Run `.\.venv\Scripts\python.exe .\scripts\dev_doctor.py --skip-ports` before escalating local setup issues or handoff problems.
+1. `/api/v1/*` is the supported REST surface for application integrations.
+2. Older `/api/*` aliases are compatibility-only.
+3. `AUTO_CREATE_SCHEMA=true` is local-only.
+4. Run `dev_doctor` before escalating local setup issues.
+5. Keep Python/Node versions aligned with CI.
+6. Prefer deterministic tests without external network calls unless specifically validating provider integration.
+7. Update docs and diagrams when code changes architecture, routes, storage, security, or release behavior.
 
-## Related Documents
+## Related documents
 
-1. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
-2. `docs/TESTING.md`
-3. `docs/ARCHITECTURE.md`
-4. `docs/DEPLOYMENT.md`
-5. `docs/CONTRIBUTING.md`
+1. `docs/ARCHITECTURE.md`
+2. `docs/API.md`
+3. `docs/DATABASE_SCHEMA.md`
+4. `docs/TESTING.md`
+5. `docs/DEPLOYMENT.md`
+6. `docs/PRODUCTION_READINESS.md`
+7. `docs/WINDOWS_11_LOCAL_RUNBOOK.md`
+8. `docs/ENGINEER_ONBOARDING.md`
 
-## Document Control
+## Change notes for v2.6.0
 
-1. Owner: Developer Experience
-2. Last updated: 2026-05-22
-3. Status: Active
-4. Review cadence: Every 30 days
+1. Added document metadata with explicit version and update date.
+2. Updated setup to use `npm ci` and current readiness checks.
+3. Added architecture orientation for DMRF, Truth Engine, 17-axis, DSQP, memory, and trace/export lifecycle.
+4. Added current backend/frontend area maps.
+5. Added API and data development rules.
+6. Expanded daily testing workflow to include contract, parity, security, schema, docs, environment, lockfile, packaging, and governance checks.
+7. Added documentation metadata standard for future document updates.
