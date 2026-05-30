@@ -1,65 +1,216 @@
 # Privacy Policy
 
-**Effective Date:** January 16, 2026
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Effective date | 2026-05-30 |
+| Status | Active |
+| Owner | Privacy + Security Engineering |
+| Review cadence | Every 60 days |
 
 ## 1. Introduction
 
-DataLogicEngine is a local-first knowledge graph workspace for governed AI reasoning. This Privacy Policy explains how the App collects, uses, and discloses information across the current **Local-First Desktop** build and the same Windows application running inside a Windows virtual machine.
+DataLogicEngine is a local-first knowledge graph workspace for governed AI reasoning. This Privacy Policy explains how the application collects, uses, stores, exports, deletes, and protects information across the current Local-First Desktop build, the same Windows application running inside a Windows virtual machine, and controlled web/cloud deployments where configured.
 
-## 2. Information We Collect
+This policy is written for the current architecture: local-first storage, configurable AI providers, DMRF/Truth Engine traces, privacy controls, user export/delete flows, and trace/export integrity.
 
-The App collects the following types of information:
+## 2. Deployment modes and data residency
 
-- **Local Identity Information**: Windows account identity metadata used to create the local desktop or Windows VM user profile.
-- **Usage Data**: Logs of application usage, including timestamps and feature interactions, for security auditing and performance monitoring.
-- **Content Data**: The text queries, documents, and data sources you explicitly upload or input into the App for processing ("User Content").
-- **Technical Data**: IP address, device type, and operating system information required for secure connection and session management.
+Data handling depends on deployment mode.
 
-## 3. How We Use Information
+| Mode | Description | Data residency |
+|---|---|---|
+| Local-first desktop | Windows 11 desktop/Electron application with loopback backend and app-owned local stores. | Application data is stored on the local machine unless the user/configuration sends selected content to configured AI providers or connectors. |
+| Windows VM | Same Windows app stack running inside a Windows VM. | Application databases remain internal to the installed app stack on the VM. |
+| Controlled web/cloud | Hosted deployment where explicitly configured. | Data residency depends on the deployment architecture, configured database/storage services, provider settings, and organizational policy. |
 
-We use your information exclusively for the following purposes:
+The default local-first architecture does not require externally hosted PostgreSQL, Redis, Neo4j, ChromaDB, vector database, or object-store services as runtime database sources.
 
-- To provide the core functionality of the App (knowledge synthesis and reasoning).
-- To authenticate your local Windows identity.
-- To prevent fraud, abuse, and security threats (e.g., adversarial prompt detection).
-- To comply with legal obligations and enforce our Terms of Service.
+## 3. Information we collect or store
 
-## 4. Deployment Modes & Data residency
+Depending on enabled features, DataLogicEngine may collect or store:
 
-The App supports two primary deployment architectures:
+1. **Local identity information** — local Windows profile/session metadata used for local desktop behavior.
+2. **Account/session information** — usernames, email address, role, MFA state, session metadata, API keys/tokens where enabled.
+3. **User content** — prompts, chat messages, uploaded documents, local corpus data, notes, project data, and knowledge records you explicitly input or ingest.
+4. **AI processing context** — selected prompt context, retrieved evidence, graph context, DSQP persona metadata, model/provider metadata, and trace/run metadata.
+5. **Trace and audit data** — DMRF steps, TruthGate decisions, TruthCore workflow state, evidence, claims, policy decisions, memory events, export records, and audit logs.
+6. **Technical data** — timestamps, device/runtime information, application logs, route metrics, error reports, health/readiness/metrics data, and local storage status.
+7. **Provider/connector configuration** — AI provider configuration, MCP connector/server configuration, scopes, and credentials where configured.
+8. **Privacy preference data** — AI processing preferences, history/storage preferences, notification preferences, export/delete requests, consent records where enabled.
 
-### 4.1. Windows VM Mode
-In this mode, the same Windows application runs inside a Windows virtual machine.
-- **Data Residency**: Application databases remain internal to the installed app stack on the VM.
-- **Database Sources**: The App does not use externally hosted PostgreSQL, Redis, Neo4j, ChromaDB, vector, or object-store services as runtime database sources.
+## 4. How we use information
 
-### 4.2. Local-First Desktop Mode
-In this mode, the App runs as a standalone service on your Windows 11 machine.
-- **Data Residency**: Your local data (chat history, profiles, local documents) stays on your machine and is never sent to our servers.
-- **Local Identity**: Uses Windows Security Identifier (SID) for zero-config local authentication.
+DataLogicEngine uses information to:
 
-## 5. Cloud Processing & Third Parties
+1. provide local-first AI reasoning, knowledge graph, trace, and memory features;
+2. authenticate and authorize users or local desktop sessions;
+3. execute configured AI provider or MCP connector requests;
+4. build traces, evidence, claims, personas, and audit records;
+5. support export/delete/privacy workflows;
+6. prevent abuse, fraud, prompt injection, unauthorized access, and security threats;
+7. monitor health, performance, reliability, and release readiness;
+8. comply with legal, security, audit, and operational obligations where applicable.
 
-Regardless of deployment mode, to provide advanced reasoning, the App may use cloud-based AI providers.
+## 5. Local-first storage
 
-- **Intelligence Providers**: OpenAI, Anthropic, Google Gemini / Vertex AI, and Microsoft Azure OpenAI, depending on which provider credentials and endpoints you configure.
-- **Data Usage**: Prompts, selected context, and provider/model metadata needed to complete the request may be sent to the configured provider. Provider retention, training, regional handling, and logging are governed by the provider account, contract, and API settings you use.
-- **Opt-out**: You can disable AI processing or choose a configured provider in `Settings > AI Models`.
+In local-first desktop mode, application data is stored in local app-owned stores such as:
 
-## 6. Data Retention
+```text
+databases/postgresql/
+databases/redis/
+databases/neo4j/
+databases/chroma/
+databases/objects/
+databases/memory/memory_graph.json
+```
 
-- **Session Data**: Chat history and uploaded data are retained until you explicitly delete them or request account deletion.
-- **Audit Logs**: Security logs are retained for 90 days for forensic purposes.
+Depending on configuration, local storage can include:
 
-## 7. Your Rights
+1. SQL records;
+2. graph records;
+3. vector embeddings;
+4. local object-store artifacts;
+5. UnifiedMemory JSON persistence;
+6. TruthMemory audit/explainability records;
+7. trace export bundles and manifests.
 
-You have the following rights regarding your data:
+Local-first does not mean no data ever leaves the machine. Data can leave the machine when a user or deployment configures cloud AI providers, MCP connectors, external APIs, web/cloud deployment, or export/share workflows.
 
-- **Access/Export**: You can download a full JSON archive of your data via the `Settings > Privacy` menu.
-- **Deletion**: You can request permanent account deletion via the `Settings > Privacy` menu. Upon request, your data will be scheduled for deletion within 30 days.
-- **AI Controls**: You can opt out of AI history storage and select your preferred AI provider in `Settings > AI Models`.
+## 6. Cloud AI providers and third parties
 
-## 8. Contact Us
+To provide advanced reasoning, DataLogicEngine may send selected prompts, context, provider/model metadata, and tool inputs to configured AI providers.
 
-If you have any questions about this Privacy Policy, please contact us at:
+Potential providers include:
+
+1. OpenAI;
+2. Anthropic;
+3. Google Gemini / Vertex AI;
+4. Microsoft Azure OpenAI;
+5. locally configured or future local/offline model providers where supported.
+
+Data handling by these providers is governed by the provider account, API terms, regional settings, retention settings, enterprise agreement, and user/deployment configuration.
+
+You can control provider behavior through application settings where available, including AI model/provider selection and AI processing preferences.
+
+## 7. MCP connectors and external tools
+
+If MCP connectors or external tools are configured, DataLogicEngine may send selected request data, tool inputs, scopes, metadata, or retrieved context to those connected services.
+
+Connector data handling depends on:
+
+1. the connector being used;
+2. the tool input/output schema;
+3. OAuth/API-token scopes;
+4. tenant/user configuration;
+5. the external service's own privacy and retention rules.
+
+MCP connector usage should be governed by connector scope controls, audit logs, and admin configuration.
+
+## 8. Trace, audit, and export data
+
+DataLogicEngine creates trace and audit records to support explainability, debugging, compliance, and security.
+
+Trace data may include:
+
+1. run IDs and correlation IDs;
+2. user/session/tenant context;
+3. DMRF steps;
+4. TruthGate decisions;
+5. evidence and claim records;
+6. persona/DSQP metadata;
+7. policy decisions;
+8. memory events;
+9. artifacts and export manifests.
+
+Trace exports may include section hashes, bundle hashes, optional HMAC signatures, optional encrypted payloads, and manifest metadata. Export integrity is designed to help users, reviewers, and auditors verify that an exported trace bundle has not been modified.
+
+## 9. Data protection
+
+Current protection measures include:
+
+1. local-first storage by default for desktop/VM mode;
+2. local filesystem permissions and ACLs where applicable;
+3. desktop local-auth controls for loopback/Electron runtime;
+4. Windows DPAPI helper for local protected data where available;
+5. field-level encryption where implemented by the application model/service layer;
+6. CSRF, CORS, trusted-host, rate-limit, and session controls for API routes;
+7. TruthGate and DMRF injection defense for governed AI flows;
+8. export integrity hashing/signing/encryption options;
+9. signed release workflow for public Windows distribution.
+
+Implementation note: some target-state documentation references AES-256-GCM. Current implementation includes Fernet-based encryption behavior and Windows DPAPI helper. Treat AES-256-GCM as a target-state standard unless the code is upgraded.
+
+## 10. Data retention
+
+Retention depends on deployment configuration and enabled features.
+
+Default guidance:
+
+1. **Chat and user content** — retained until deleted by the user/admin or removed by configured retention policy.
+2. **Local documents and ingested content** — retained locally until deleted or purged by the user/admin.
+3. **Trace and audit data** — retained according to audit/security policy; older guidance used 90 days for security logs.
+4. **Export bundles** — retained wherever the user/admin saves them; exported files may remain outside the application after download.
+5. **Provider data** — governed by the configured provider's own retention and API policy.
+6. **Connector data** — governed by connector/service policy and local audit settings.
+
+Administrators should configure and document retention policies for production or shared deployments.
+
+## 11. Your rights and controls
+
+Where enabled, users can:
+
+1. access/export data through `Settings > Privacy`;
+2. request deletion through `Settings > Privacy`;
+3. control AI processing preferences;
+4. select preferred AI provider/model where enabled;
+5. disable or limit AI history/storage where supported;
+6. manage notification preferences;
+7. remove local data through uninstall options such as `-KeepData` or `-DeleteData` for Windows desktop uninstall flows.
+
+Deletion may require up to 30 days depending on deployment policy, backup/retention configuration, and legal/security obligations.
+
+## 12. Security and incident response
+
+Privacy incidents may include:
+
+1. PII leakage in response, logs, traces, exports, or notifications;
+2. unauthorized access to user data;
+3. cross-tenant data exposure;
+4. connector over-sharing;
+5. provider misconfiguration;
+6. export integrity failure;
+7. local storage permission failure.
+
+Incident procedures are defined in `docs/OPERATIONAL_RUNBOOKS.md`.
+
+## 13. Children's data
+
+DataLogicEngine is intended for professional, enterprise, technical, and local-user workflows. It is not designed for use by children.
+
+## 14. Changes to this policy
+
+This policy should be updated whenever data collection, AI provider behavior, connector behavior, trace/export behavior, retention policy, or deployment mode materially changes.
+
+Active privacy documents must include document version and update date metadata.
+
+## 15. Contact
+
+Privacy questions or requests should be sent to:
+
+```text
 privacy@datalogicengine.com
+```
+
+Use this contact only when the mailbox is operational for the project or deployment. Otherwise, use the administrator/contact process defined for the deployment.
+
+## Change notes for v2.6.0
+
+1. Added document metadata with explicit version and update date.
+2. Updated policy for local-first desktop, Windows VM, and controlled web/cloud deployment modes.
+3. Added AI provider, MCP connector, trace/audit/export, local storage, and privacy preference sections.
+4. Added current data-protection controls and implementation caveat for Fernet/DPAPI versus AES-256-GCM target-state language.
+5. Added retention, user controls, and incident-response alignment with current architecture.
