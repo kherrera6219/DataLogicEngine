@@ -1,6 +1,6 @@
 # DataLogicEngine
 
-Enterprise AI orchestration, governed LLM routing, and knowledge graph reasoning in one deployable platform.
+Local-first governed AI orchestration, traceable reasoning, and enterprise knowledge workflows in one deployable platform.
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -9,20 +9,24 @@ Enterprise AI orchestration, governed LLM routing, and knowledge graph reasoning
 [![Node](https://img.shields.io/badge/node-24%2B-339933)](frontend/package.json)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue)](LICENSE)
 
-DataLogicEngine is a full-stack platform for building traceable AI systems over structured enterprise knowledge. It combines a Flask API, Next.js console, LLM gateway, 17-axis knowledge graph model, audit controls, and Windows/Electron packaging for local-first deployments.
+DataLogicEngine is a full-stack platform for building inspectable AI systems over structured enterprise knowledge. It combines a Windows/Electron local-first runtime, Next.js console, Flask API/security envelope, DMRF governed AI control plane, Truth Engine, 17-axis routing, DSQP persona construction, MCP connector governance, trace/export review, and multi-store memory architecture.
 
-## Current Status
+## Current status
 
-As of May 29, 2026, the repository has successfully completed and validated its core local-first and tracing milestones. Implemented core capabilities now include **local-first binary document ingestion (PDF/DOCX)**, **background async ingestion queues with Neo4j sync**, and **unified Trace Viewer integration** (featuring inline trace panels, real-time socket streams, debaters, and runs explorers). We also integrated **automated Markdown CI link/casing validation** and **expanded local database deployment mappings** for the portable stack.
+As of 2026-05-30, the active documentation set has been modernized around the current platform architecture:
 
-Completed readiness evidence includes authenticated WCAG scans, keyboard navigation checks, failure-mode tests, privacy export/delete tests, UI placeholder audit evidence, production code-review remediation, strict runtime precheck evidence, local release-governance command output, and the public README architecture asset. The canonical backlog and planning source is [`TODO.md`](TODO.md).
+1. local-first Windows desktop and controlled web/cloud modes;
+2. DMRF as the governed AI lifecycle control plane;
+3. Truth Engine for policy, reasoning, memory, and event flow;
+4. 17-axis routing and DSQP structured persona construction;
+5. Trace Explorer and export integrity;
+6. MCP connector scope and contract governance;
+7. multi-store data and memory architecture;
+8. release, security, privacy, and documentation governance.
 
-Release blockers that still require manual or external execution:
+The canonical backlog and planning source is [`TODO.md`](TODO.md).
 
-- NVDA screen reader validation on Windows.
-- Trusted production code-signing certificate provisioning and signed installer artifact validation in CI.
-- CI/security scan review, code-owner approval, rollback plan, and disaster recovery review for the release ticket.
-- Provider-backed staging validation and production connector validation against real external systems.
+Known release caveats are tracked in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) and [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md). Current caveats may include trusted production code-signing, signed installer validation, provider-backed staging validation, external connector validation, manual accessibility evidence, and final release approval evidence.
 
 ## Quickstart
 
@@ -38,7 +42,7 @@ docker compose up --build
 Open:
 
 | Service | URL |
-| --- | --- |
+|---|---|
 | Web console | `http://localhost:3000` |
 | Backend API | `http://localhost:5000` |
 | Health probe | `http://localhost:5000/health` |
@@ -51,33 +55,21 @@ Minimal API call:
 curl http://localhost:5000/health
 ```
 
-## Contents
-
-- [Why DataLogicEngine](#why-datalogicengine)
-- [Architecture](#architecture)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [API Examples](#api-examples)
-- [Deployment](#deployment)
-- [Security and Compliance](#security-and-compliance)
-- [Observability](#observability)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [License](#license)
-- [Repository Metadata](#repository-metadata)
-
 ## Why DataLogicEngine
 
-DataLogicEngine is designed for teams that need AI workflows to be explainable, inspectable, and operable in regulated environments.
+DataLogicEngine is designed for teams that need AI workflows to be explainable, inspectable, and operable in regulated or high-accountability environments.
 
 | Capability | What it provides |
-| --- | --- |
-| LLM gateway | Multi-provider routing for OpenAI, Anthropic, Azure OpenAI, Google, and Gemini-style providers with retries, circuit-breaker behavior, cost tracking, and audit metadata. |
-| Knowledge graph | Structured graph model with sectors, domains, pillars, knowledge nodes, edges, and 17-axis reasoning support. |
-| Traceable reasoning | Runs, traces, stage timing, persona context, and evidence references for audit reconstruction. |
-| Governance | RBAC, MFA support, CSRF controls, CORS policy enforcement, prompt-injection checks, request limits, and immutable audit patterns. |
-| Local-first distribution | Browser deployment plus Electron/NSIS Windows packaging for workstation and constrained-network scenarios. |
-| Production operations | Docker Compose, cloud Dockerfile, health/readiness probes, metrics endpoint, Sentry integration, and CI/security workflows. |
+|---|---|
+| Local-first runtime | Windows/Electron desktop operation with loopback/local trust controls and app-owned local services. |
+| DMRF control plane | Governed AI request lifecycle with injection defense, tiering, routing, evidence, convergence, memory, and trace hooks. |
+| Truth Engine | TruthGate, TruthCore, TruthMemory, and TruthLink components for policy, reasoning, audit, memory, and events. |
+| 17-axis routing | Structured coordinate/risk/context routing for knowledge workflows. |
+| DSQP | Deterministic structured persona construction for Knowledge, Sector, Regulatory, and Compliance expert perspectives. |
+| Traceability | Runs, stages, evidence, claims, policy decisions, personas, hashes, and export manifests for review. |
+| MCP governance | Connector registration, scope enforcement, contract validation, metrics, and audit path. |
+| Multi-store memory | SQLAlchemy DB, Redis, Neo4j, ChromaDB, object storage, USKD graph, UnifiedMemory, and TruthMemory. |
+| Release governance | CI, tests, schema parity, runtime precheck, docs validation, packaging smoke, signing checks, and release checklist evidence. |
 
 ## Architecture
 
@@ -85,44 +77,45 @@ DataLogicEngine is designed for teams that need AI workflows to be explainable, 
 
 ```mermaid
 flowchart LR
-  Client["Web console / API client"] --> Frontend["Next.js frontend"]
-  Frontend --> API["Flask API"]
-  API --> Auth["Auth, RBAC, CSRF, rate limits"]
-  API --> Gateway["LLM Gateway"]
-  API --> Graph["Knowledge Graph APIs"]
-  API --> Truth["Truth Engine and tracing"]
-  Gateway --> Providers["OpenAI / Anthropic / Azure / Google"]
-  Graph --> Postgres["PostgreSQL"]
-  Graph --> Neo4j["Neo4j"]
-  API --> Redis["Redis cache and rate limit storage"]
-  API --> ObjectStore["S3-compatible object storage"]
-  API --> Metrics["/health /ready /metrics"]
+    User[User / Analyst] --> UI[Next.js / Electron UI]
+    UI --> API[Flask API / Security Envelope]
+    API --> DMRF[DMRF Control Plane]
+    DMRF --> Gate[InjectionDefense + TruthGate]
+    Gate --> Route[TierClassifier + 17-Axis Router]
+    Route --> DSQP[DSQP Persona Builder]
+    DSQP --> Core[TruthCore]
+    Core --> Provider[LLM Gateway / AI Providers]
+    Core --> MCP[MCP Connectors]
+    Core --> Data[(SQL / Redis / Neo4j / Chroma / Object Store / Memory)]
+    Core --> Trace[Trace Explorer / Export Integrity]
+    API --> Ops[/health /ready /metrics]
 ```
 
-### Runtime Components
+### Runtime components
 
 | Layer | Components | Notes |
-| --- | --- | --- |
-| Frontend | Next.js 16, React 18, Electron 40 | Web console, desktop shell, graph visualization, admin surfaces. |
-| Backend | Flask 3.1, SQLAlchemy, Socket.IO | API routing, auth, gateway orchestration, audit, tracing. |
-| Data | PostgreSQL, Neo4j, Redis, MinIO | Relational state, graph state, cache/rate limits, object storage. |
-| AI | OpenAI, Anthropic, Azure OpenAI, Google/Gemini clients | Provider keys are resolved at runtime from environment or configured provider records. |
-| Quality | Pytest, Ruff, Vitest, Playwright, GitHub Actions | CI includes backend, frontend, governance, security, deploy, and Windows packaging checks. |
+|---|---|---|
+| Frontend | Next.js, React, Electron | Web console, desktop shell, trace/runs, graph, admin, settings, MCP surfaces. |
+| Backend | Flask, SQLAlchemy, route modules | API routing, auth/security envelope, governance lifecycle, storage, tracing. |
+| Control plane | DMRF, Truth Engine, 17-axis router, DSQP | AI lifecycle governance and reasoning workflow. |
+| Data/memory | SQL, Redis, Neo4j, ChromaDB, object store, USKD, UnifiedMemory, TruthMemory | Multi-store persistence and memory. |
+| Integration | LLM Gateway, MCP server | Provider/model calls and external tool execution where configured. |
+| Quality/release | Pytest, frontend tests, GitHub Actions, governance scripts, Windows packaging checks | Validation and release evidence. |
 
 ## Installation
 
 ### Prerequisites
 
 | Tool | Version | Purpose |
-| --- | --- | --- |
-| Python | 3.11+ | Backend runtime and tests |
-| Node.js | 24+ | Frontend and Electron tooling |
-| Docker | Current stable | Local full-stack development |
-| PostgreSQL | 15+ | Production relational store |
-| Redis | 7+ | Cache, rate limiting, async support |
-| Neo4j | 5+ | Knowledge graph storage |
+|---|---|---|
+| Python | 3.11+ | Backend runtime and tests. |
+| Node.js | 24+ | Frontend and Electron tooling. |
+| Docker | Current stable | Local full-stack development. |
+| PostgreSQL | 15+ | Relational store where configured. |
+| Redis | 7+ | Cache, rate limiting, async support where configured. |
+| Neo4j | 5+ | Graph storage where configured. |
 
-### Backend Development
+### Backend development
 
 ```bash
 python -m venv .venv
@@ -144,7 +137,7 @@ cp .env.template .env
 python app.py
 ```
 
-### Frontend Development
+### Frontend development
 
 ```bash
 cd frontend
@@ -152,368 +145,61 @@ npm ci
 npm run dev
 ```
 
-### Local Mode (no Docker, no cloud databases)
+## Validation
 
-For workstation development without Docker, the setup script downloads and installs portable PostgreSQL, Redis, and Neo4j binaries locally and the app manages their lifecycle automatically:
-
-```bash
-# Install portable database binaries (one-time)
-python scripts/setup_local_databases.py --all
-
-# Seed Neo4j with UKG pillar taxonomy
-python scripts/seed_neo4j.py
-
-# Run database migrations
-flask db upgrade
-
-# Start the backend (databases auto-start on app launch)
-python app.py
-```
-
-Verify all services are reachable:
+Common checks:
 
 ```bash
-python scripts/setup_local_databases.py --verify
+python scripts/verify_docs_references.py
+python scripts/verify_environment_parity.py --strict
+python scripts/verify_lockfiles.py
+python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process
 ```
 
-### Desktop Build
+Backend tests:
 
 ```bash
-npm --prefix frontend run electron:dist
+python -m pytest tests --maxfail=20
 ```
 
-Installer artifacts are copied to the repository root as a single canonical setup executable:
-
-- `DataLogicEngine Setup Latest.exe`
-- matching `.sha256` and `.blockmap` files
-
-## Configuration
-
-Copy `.env.template` to `.env` and set values for your deployment target.
-
-### Required Production Variables
-
-| Variable | Required | Description |
-| --- | --- | --- |
-| `FLASK_ENV` | Yes | Use `production` for deployed environments. |
-| `SECRET_KEY` | Yes | Flask session secret. Generate a unique 64+ character value. |
-| `JWT_SECRET_KEY` | Yes | JWT signing secret. Generate a unique 64+ character value. |
-| `SESSION_SECRET` | Yes | Session signing secret used by runtime checks. |
-| `DATABASE_URL` | Yes | SQLAlchemy database URL. PostgreSQL is recommended for production. |
-| `CORS_ORIGINS` | Yes | Comma-separated allowed browser origins. Do not use `*` in production. |
-| `ADMIN_USERNAME` | Initial setup | Initial administrative username. |
-| `ADMIN_PASSWORD` | Initial setup | Strong initial password. Rotate after first login. |
-| `ADMIN_EMAIL` | Initial setup | Initial administrator email. |
-
-### Provider and Integration Variables
-
-| Variable | Description |
-| --- | --- |
-| `OPENAI_API_KEY` | OpenAI provider key. |
-| `ANTHROPIC_API_KEY` | Anthropic provider key. |
-| `AZURE_OPENAI_ENDPOINT` | Azure OpenAI endpoint URL. |
-| `AZURE_OPENAI_API_KEY` | Azure OpenAI provider key. |
-| `GOOGLE_API_KEY` / `GEMINI_API_KEY` | Google/Gemini provider key. |
-| `SENTRY_DSN` | Enables crash reporting when configured. |
-| `SENTRY_TRACES_SAMPLE_RATE` | Distributed trace sampling rate. Default: `0.1`. |
-| `SENTRY_PROFILES_SAMPLE_RATE` | Profiling sample rate. Default: `0.1`. |
-
-### Data Services
-
-| Variable | Default / Example | Description |
-| --- | --- | --- |
-| `REDIS_URL` | `redis://localhost:6379/0` | Cache and runtime coordination. |
-| `RATELIMIT_STORAGE_URI` | `redis://localhost:6379` | Flask-Limiter storage backend. |
-| `NEO4J_URI` | `bolt://localhost:7687` | Neo4j Bolt endpoint. |
-| `NEO4J_HTTP_PORT` | `7474` | Host port for the Neo4j browser when using Docker Compose. |
-| `NEO4J_LOCAL_PORT` | `7687` | Host Bolt port for the Neo4j Docker Compose service. |
-| `NEO4J_USER` | `neo4j` | Neo4j username. |
-| `NEO4J_PASSWORD` | unset | Neo4j password. |
-| `OBJECT_ENDPOINT_URL` | `http://localhost:9000` | S3-compatible object storage endpoint. |
-| `OBJECT_ACCESS_KEY` | unset | Object storage access key. |
-| `OBJECT_SECRET_KEY` | unset | Object storage secret key. |
-| `OBJECT_BUCKET` | `datalogic` | Object storage bucket. |
-
-## API Examples
-
-Base URLs:
-
-| Environment | Base URL |
-| --- | --- |
-| Local backend | `http://localhost:5000` |
-| Versioned API | `http://localhost:5000/api/v1` |
-| Production | `https://your-domain.example/api/v1` |
-
-### Health and Readiness
+Frontend checks:
 
 ```bash
-curl http://localhost:5000/health
-curl http://localhost:5000/live
-curl http://localhost:5000/ready
+cd frontend
+npm run lint
+npm run typecheck
+npm test
 ```
 
-### Authentication
+Windows packaging checks:
 
-```bash
-curl -X POST http://localhost:5000/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "operator@example.com",
-    "password": "replace-with-a-secret"
-  }'
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
 ```
 
-API key authentication is also supported for programmatic access. Generate a key via the admin interface and include it as `X-API-Key`:
+## Documentation
 
-```bash
-export UKG_KEY="ukg_<prefix>_<secret>"
-curl -H "X-API-Key: $UKG_KEY" http://localhost:5000/api/v1/gateway/chat ...
-```
+Start with the documentation portal:
 
-### LLM Gateway Request
+1. [`docs/README.md`](docs/README.md)
+2. [`docs/PRODUCT_OVERVIEW.md`](docs/PRODUCT_OVERVIEW.md)
+3. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+4. [`docs/ARCHITECTURE_MAP.md`](docs/ARCHITECTURE_MAP.md)
+5. [`docs/WORKFLOW.md`](docs/WORKFLOW.md)
+6. [`docs/DATA_FLOW_DIAGRAMS.md`](docs/DATA_FLOW_DIAGRAMS.md)
+7. [`docs/DECISION_LOGIC.md`](docs/DECISION_LOGIC.md)
+8. [`docs/SECURITY.md`](docs/SECURITY.md)
+9. [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md)
 
-```bash
-curl -X POST http://localhost:5000/api/v1/gateway/chat \
-  -H "X-API-Key: $UKG_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "messages": [
-      {
-        "role": "user",
-        "content": "Summarize the compliance impact of this control change."
-      }
-    ],
-    "model": "gpt-5.5",
-    "tier": "2"
-  }'
-```
+Historical material under `docs/archive/` is reference-only and should be validated against current active docs before use.
 
-Tier 2+ responses include a verifiable audit footer:
+## Security
 
-```
-[UKG Audit Trace]
-Tier: 2
-Active Axes: ...
-Personas Invoked: ...
-Confidence: 0.395
-Refinement Steps Executed: ...
-Compliance Flags: ...
-Key Assumption to Verify: ...
-What Changes if Wrong: ...
-```
+Report vulnerabilities privately. See [`SECURITY.md`](SECURITY.md).
 
-Every Tier 2+ run also writes a `TruthAuditEvent` row with a SHA-256 hash-chain receipt for EU AI Act Article 53 compliance.
-
-### Knowledge Graph Query
-
-```bash
-curl -H "X-API-Key: $UKG_KEY" \
-  http://localhost:5000/api/v1/knowledge-nodes
-```
-
-### Knowledge Algorithm Execution
-
-```bash
-curl -X POST http://localhost:5000/api/v1/ka/algorithms/KA-001/execute \
-  -H "X-API-Key: $UKG_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "input": {
-      "claim": "New customer data must remain in-region.",
-      "jurisdiction": "US"
-    }
-  }'
-```
-
-### Standard Response Shape
-
-```json
-{
-  "success": true,
-  "data": {},
-  "error": null,
-  "timestamp": "2026-01-11T19:35:00Z"
-}
-```
-
-## Deployment
-
-### Docker Compose
-
-Use Docker Compose for local integration testing or single-host evaluation:
-
-```bash
-cp .env.template .env
-docker compose up --build -d
-docker compose ps
-```
-
-### Cloud Container
-
-`Dockerfile.cloud` builds the frontend and backend into a single runtime image:
-
-```bash
-docker build -f Dockerfile.cloud -t datalogicengine:latest .
-docker run --env-file .env -p 5000:5000 -p 3000:3000 datalogicengine:latest
-```
-
-### Production Checklist
-
-- Set `FLASK_ENV=production`.
-- Use PostgreSQL, Redis, Neo4j, and S3-compatible object storage outside the app container.
-- Set unique secrets for `SECRET_KEY`, `JWT_SECRET_KEY`, and `SESSION_SECRET`.
-- Configure exact `CORS_ORIGINS`.
-- Run database migrations instead of enabling `AUTO_CREATE_SCHEMA`.
-- Terminate TLS at a trusted reverse proxy or platform load balancer.
-- Enable Sentry or equivalent crash reporting.
-- Confirm `/health`, `/ready`, and `/metrics` are monitored.
-- Review [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md), [`docs/OPERATIONAL_RUNBOOKS.md`](docs/OPERATIONAL_RUNBOOKS.md), and [`deploy/DEPLOYMENT_CHECKLIST.md`](deploy/DEPLOYMENT_CHECKLIST.md).
-
-## Security and Compliance
-
-DataLogicEngine includes security controls intended for enterprise deployments, but each deployment must still be threat-modeled and configured for its environment.
-
-| Area | Built-in Support |
-| --- | --- |
-| Authentication | Session auth, JWT flows, MFA routes, SSO/OIDC integration hooks, desktop challenge flow. |
-| Authorization | RBAC utilities, admin route controls, tenant-aware patterns. |
-| Request security | CSRF, request size limits, CORS enforcement, rate limiting, SSRF allowlisting utilities. |
-| Data protection | Secret resolution controls, encryption manager, PII redaction utilities, audit logging. |
-| AI governance | Prompt-injection checks, provider usage tracking, trace IDs, policy/gateway hooks. |
-| Supply chain | GitHub Actions security workflow, Bandit, npm audit, pip-audit, SBOM-oriented workflow steps. |
-| Release governance | Windows installer governance, signing workflows, integrity reporting, release checklist. |
-
-Security references:
-
-- [`SECURITY.md`](SECURITY.md)
-- [`docs/SECURITY.md`](docs/SECURITY.md)
-- [`docs/AI_MANAGEMENT_SYSTEM_42001.md`](docs/AI_MANAGEMENT_SYSTEM_42001.md)
-- [`docs/SDLC_SSDF_MAPPING.md`](docs/SDLC_SSDF_MAPPING.md)
-- [`docs/SLSA_LEVEL_3_ATTESTATION.md`](docs/SLSA_LEVEL_3_ATTESTATION.md)
-
-Do not report vulnerabilities in public issues. Follow the private reporting process in [`SECURITY.md`](SECURITY.md).
-
-## Observability
-
-| Signal | Location |
-| --- | --- |
-| Liveness | `GET /live` |
-| Readiness | `GET /ready` |
-| Health summary | `GET /health` |
-| Runtime metrics | `GET /metrics` |
-| API docs | `GET /api/docs` |
-| Gateway provider usage | LLM gateway usage models and admin routes |
-| Crash reporting | `SENTRY_DSN`, `SENTRY_TRACES_SAMPLE_RATE`, `SENTRY_PROFILES_SAMPLE_RATE` |
-| Run tracing | `/api/v1/trace/*` and run-oriented UI routes |
-
-Current local evidence:
-
-- [`reports/app-readiness/a11y-ci-report.json`](reports/app-readiness/a11y-ci-report.json)
-- [`reports/app-readiness/keyboard-navigation-report.json`](reports/app-readiness/keyboard-navigation-report.json)
-- [`reports/app-readiness/playwright-app-readiness-report.json`](reports/app-readiness/playwright-app-readiness-report.json)
-- [`reports/app-readiness/ui-placeholder-audit.md`](reports/app-readiness/ui-placeholder-audit.md)
-- [`reports/release-readiness/local-release-evidence-2026-05-23.md`](reports/release-readiness/local-release-evidence-2026-05-23.md)
-
-Recommended production integrations:
-
-- Prometheus-compatible scraping for `/metrics`.
-- Sentry or an equivalent error and performance backend.
-- Centralized JSON logs via `python-json-logger` and platform log shipping.
-- Alerting on readiness failures, provider error spikes, token cost anomalies, and authentication failures.
-
-## Testing
-
-```bash
-# Backend
-python -m pytest tests/
-python -m pytest tests/ --cov=backend --cov=models --cov-report=html --cov-report=term-missing --cov-report=json --cov-fail-under=70
-python -m ruff check .
-python -m pip_audit -r requirements.txt --desc
-
-# Frontend
-npm --prefix frontend ci
-npm --prefix frontend run lint
-npm --prefix frontend run typecheck
-npm --prefix frontend run test
-npm --prefix frontend audit --audit-level=high
-```
-
-Current CI runs:
-
-- Backend tests and dependency audit
-- Frontend lint, typecheck, tests, and build
-- Security scan workflow
-- Deploy build and test workflow
-- Windows packaging smoke test
-- Governance and release checklist workflows
-
-Latest validation snapshot, 2026-05-28:
-
-- Dependency alerts were remediated for the Python and frontend lockfiles; `npm --prefix frontend audit --audit-level=moderate` reports zero vulnerabilities and the GitHub Dependabot open-alert query returns no open alerts.
-- Backend CI regressions from the Deploy build were corrected and validated locally with `python -m pytest -q` (`1717 passed, 21 skipped`).
-- Commit `edbf0127` is pushed to `main`; GitHub Security Scan completed successfully for that commit, with CI/CD and Deploy rerunning on the same head.
-
-## Roadmap
-
-The canonical roadmap, future items, and backlog are consolidated in [`TODO.md`](TODO.md). Keep new planning items there instead of duplicating roadmap tables across README or docs pages.
-
-### Recently Completed
-
-- **Local stack QC (2026-05-15)** — All five internal databases (PostgreSQL, Neo4j, Redis, ChromaDB, object storage) wired and validated in local mode. End-to-end Tier 2 gateway query returns `[UKG Audit Trace]` footer with F-CONF-01 confidence score and SHA-256 hash-chain `TruthAuditEvent` receipt.
-- **AuditBundle service layer** — `TruthMemoryCommitService` seals each Tier 2+ `TraceRun` into the immutable audit chain (EU AI Act Article 53 alignment).
-- **F-CONF-01 confidence calculator** — Canonical formula weighing evidence quality, KA consensus, persona agreement, and TruthGate pass/fail replaces raw LLM output probability.
-- **Portable database lifecycle manager** — `DatabaseLifecycleManager` starts and stops PostgreSQL, Redis, and Neo4j child processes automatically for workstation deployments.
-- **Application readiness evidence (2026-05-23)** — Manifest shortcuts, PWA icons, documentation banner, conservative app copy, external AI provider disclosures, privacy controls, notification preferences, internal storage configuration, MCP server administration surfaces, authenticated a11y scans, keyboard navigation checks, failure-mode tests, and export/delete tests are present; manual NVDA checks and signed release validation remain open.
-
-See [`TODO.md`](TODO.md) for the canonical open work list and [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) for release readiness gates.
-
-## Contributing
-
-Contributions are welcome when they align with the project license and governance model.
-
-1. Read [`CONTRIBUTING.md`](CONTRIBUTING.md).
-2. Read [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
-3. Create an issue for non-trivial changes before implementation.
-4. Run backend and frontend checks locally.
-5. Submit a pull request using the repository template.
-
-Development references:
-
-- [`DEVELOPMENT.md`](DEVELOPMENT.md)
-- [`TESTING.md`](TESTING.md)
-- [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md)
-- [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)
+Security architecture details are documented in [`docs/SECURITY.md`](docs/SECURITY.md). Security/compliance mapping documents are evidence-guided references and should not be treated as formal certification claims unless a separate attestation is provided.
 
 ## License
 
-DataLogicEngine is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).
-
-Personal, research, and educational use are permitted under the license terms. Commercial use, production deployment in a business environment, or integration into a paid product requires a separate commercial license. See [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md).
-
-## Repository Metadata
-
-### Existing Supporting Files
-
-| File | Status |
-| --- | --- |
-| `LICENSE` | Present |
-| `COMMERCIAL_LICENSE.md` | Present |
-| `SECURITY.md` | Present |
-| `CONTRIBUTING.md` | Present |
-| `CODE_OF_CONDUCT.md` | Present |
-| `SUPPORT.md` | Present |
-| `CHANGELOG.md` | Present |
-| `.github/CODEOWNERS` | Present |
-| `.github/pull_request_template.md` | Present |
-| `.github/ISSUE_TEMPLATE/*` | Present |
-| `.env.template` | Present |
-| `Dockerfile.cloud` and `docker-compose.yml` | Present |
-| `docs/assets/readme/architecture-overview.svg` | Present |
-
-### Recommended Additions
-
-| Recommendation | Purpose |
-| --- | --- |
-| `.github/FUNDING.yml` | Optional sponsorship metadata if the project accepts funding. |
-| `CITATION.cff` | Citation metadata for research and academic users. |
-| GitHub repository topics | Suggested: `ai`, `llm`, `knowledge-graph`, `flask`, `nextjs`, `governance`, `compliance`, `enterprise-ai`. |
+This project is licensed under the PolyForm Noncommercial License. See [`LICENSE`](LICENSE).
