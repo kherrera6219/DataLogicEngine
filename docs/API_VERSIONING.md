@@ -1,129 +1,206 @@
 # API Versioning Strategy
 
-**Last Updated:** 2026-03-31
-**Status:** Active
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Status | Active |
+| Owner | Platform Architecture + API Governance |
+| Review cadence | Every 60 days |
+
+## Purpose
+
+Define how DataLogicEngine versions application APIs, manages compatibility aliases, communicates deprecation, and validates route behavior.
+
+This version aligns with the current API architecture: canonical `/api/v1/*` application routes, supported operational namespaces, legacy compatibility aliases, JSON-native auth failures, route contract tests, and release-governed deprecation behavior.
+
+## Related documents
+
+1. `docs/API.md`
+2. `docs/ARCHITECTURE.md`
+3. `docs/TESTING.md`
+4. `docs/RELEASE_CHECKLIST.md`
+5. `docs/PRODUCTION_READINESS.md`
+6. `tests/contract/`
 
 ---
 
-## Overview
+## Current API version
 
-DataLogicEngine uses **URL path versioning** for primary application APIs and explicit namespace governance for operational and compatibility routes.
+The current primary application API version is:
 
----
+```text
+v1
+```
 
-## Current Version
+Canonical application endpoints use:
 
-**v1** - Primary application endpoints are prefixed with `/api/v1/`
+```text
+/api/v1/*
+```
 
 Examples:
-- `/api/v1/auth/login`
-- `/api/v1/simulations`
-- `/api/v1/truth/health`
 
-Canonical unversioned namespaces that are still supported in the current contract:
-
-1. `/api/admin/*`
-2. `/api/contextual/*`
-3. `/api/honeycomb/*`
-4. `/api/locations*`
-5. `/api/methods*`
-6. `/api/search/*`
-7. `/api/docs`
-
-Compatibility aliases that remain active with deprecation headers:
-
-1. `/api/compliance/*` -> `/api/v1/compliance/*`
-2. `/api/ka/*` -> `/api/v1/ka/*`
-3. `/api/mcp/*` -> `/api/v1/mcp/*`
-4. `/api/persona/*` -> `/api/v1/persona/*`
-5. `/api/pillar/*` -> `/api/v1/pillar/*`
-6. `/api/simulations/*` -> `/api/v1/simulations/*`
-7. `/api/truth/*` -> `/api/v1/truth/*`
-8. `/api/ukg/*` -> `/api/v1/*`
+1. `/api/v1/auth/login`
+2. `/api/v1/simulations`
+3. `/api/v1/truth/health`
+4. `/api/v1/trace/runs`
+5. `/api/v1/privacy/*`
+6. `/api/v1/storage/*`
 
 ---
 
-## Versioning Rules
+## Route families
 
-### When to Increment Version
+### Canonical application routes
 
-**Major version bump (v1 → v2):**
-- Breaking changes to request/response schema
-- Removal of endpoints
-- Changes to authentication mechanism
-- Incompatible behavioral changes
+New application integrations should use `/api/v1/*`.
 
-**No version bump required:**
-- Adding new optional fields
-- Adding new endpoints
-- Bug fixes
-- Performance improvements
-- Deprecation notices (without removal)
+Rules:
 
-### Deprecation Policy
+1. Auth failures must return JSON-native `401` or `403` responses.
+2. Malformed requests should return deterministic validation errors.
+3. Route behavior should be covered by contract or integration tests.
+4. Public API changes must update `docs/API.md` and contract tests.
 
-1. Announce deprecation at least **3 months** before removal
-2. Add `Deprecation` header to affected endpoints
-3. Add `Sunset` and `Link: rel="successor-version"` headers
-4. Document migration path in changelog
-5. Remove in next major version
+### Supported operational namespaces
+
+Some operational or documentation namespaces may remain unversioned when they are not primary application integration contracts.
+
+Examples include:
+
+1. `/health`
+2. `/live`
+3. `/ready`
+4. `/metrics`
+5. `/api/docs`
+
+Operational namespaces should be documented clearly and tested for expected behavior.
+
+### Compatibility aliases
+
+Compatibility aliases exist to support older clients and migration coverage. They are not the preferred integration path.
+
+Representative compatibility aliases:
+
+| Compatibility alias | Successor route family |
+|---|---|
+| `/api/compliance/*` | `/api/v1/compliance/*` |
+| `/api/ka/*` | `/api/v1/ka/*` |
+| `/api/mcp/*` | `/api/v1/mcp/*` |
+| `/api/persona/*` | `/api/v1/persona/*` |
+| `/api/pillar/*` | `/api/v1/pillar/*` |
+| `/api/simulations/*` | `/api/v1/simulations/*` |
+| `/api/truth/*` | `/api/v1/truth/*` |
+| `/api/ukg/*` | `/api/v1/*` successor where implemented |
+
+Compatibility aliases should emit deprecation/successor metadata where implemented.
 
 ---
 
-## Version Header
+## Versioning rules
 
-Clients can request specific API behavior using headers:
+### Major version bump required
+
+A new major version such as `/api/v2/*` is required for:
+
+1. breaking request schema changes;
+2. breaking response schema changes;
+3. endpoint removal;
+4. incompatible authentication behavior changes;
+5. incompatible status-code semantics;
+6. removal of fields that clients may depend on;
+7. behavioral changes that existing clients cannot safely ignore.
+
+### No major version bump required
+
+A major version bump is usually not required for:
+
+1. adding optional fields;
+2. adding new endpoints;
+3. adding new optional query parameters;
+4. bug fixes that restore documented behavior;
+5. performance improvements;
+6. adding deprecation headers without removing behavior;
+7. adding stricter tests for already documented behavior.
+
+---
+
+## Deprecation policy
+
+Before removing or breaking an existing route:
+
+1. Document deprecation in `docs/API.md` and changelog/release notes.
+2. Add deprecation headers where practical.
+3. Add a `Sunset` header when a removal date is known.
+4. Add `Link: <successor>; rel="successor-version"` where a successor exists.
+5. Maintain compatibility for at least one release cycle unless a security issue requires faster removal.
+6. Add or update tests proving both canonical and deprecated behaviors.
+7. Record removal in the release checklist.
+
+Example headers:
+
+```http
+Deprecation: true
+Sunset: Wed, 30 Sep 2026 00:00:00 GMT
+Link: </api/v1/simulations>; rel="successor-version"
+```
+
+---
+
+## Version header
+
+Clients may send a version hint:
 
 ```http
 Accept: application/json
-X-API-Version: 2026-01-12
+X-API-Version: 2026-05-30
 ```
 
-The `X-API-Version` header is optional and can be used for minor behavioral variations within a major version.
+The route path remains authoritative. `X-API-Version` is a behavior hint and trace/debug signal unless a route explicitly documents header-based behavior.
 
 ---
 
-## Client Recommendations
+## Contract testing requirements
 
-### Best Practices
+Route/version changes require test updates.
 
-1. **Prefer versioned application URLs** (`/api/v1/` not legacy `/api/` aliases)
-2. **Handle unknown fields gracefully** - APIs may add new fields
-3. **Check for deprecation headers** in responses
-4. **Treat unversioned `/api/admin`, `/api/search`, `/api/contextual`, `/api/methods`, `/api/honeycomb`, and `/api/locations` as explicit namespace exceptions, not as versionless replacements for `/api/v1/*`**
-5. **Subscribe to changelog** for updates
+Relevant test areas:
 
-### SDK Versioning
+1. `tests/contract/`
+2. `tests/integration/`
+3. `tests/integration_routes/`
+4. `tests/security/`
+5. `tests/parity/`
 
-The Python SDK (`sdk/python/`) follows semantic versioning:
-- SDK 1.x.x → API v1
-- SDK 2.x.x → API v2
+Required checks for canonical `/api/v1/*` changes:
 
----
-
-## Migration Guide Template
-
-When v2 is released, migration guides will follow this format:
-
-```markdown
-## Migrating from v1 to v2
-
-### Breaking Changes
-- [List of breaking changes]
-
-### Deprecated Endpoints
-| v1 Endpoint | v2 Replacement |
-|-------------|----------------|
-| /api/v1/old | /api/v2/new    |
-
-### Timeline
-- v2 Release: [Date]
-- v1 Deprecation: [Date]
-- v1 Removal: [Date]
-```
+1. unauthenticated behavior;
+2. malformed request behavior;
+3. happy-path status and response shape;
+4. role/admin behavior where applicable;
+5. deprecation headers for compatibility aliases;
+6. no browser-style redirects for canonical API auth failures.
 
 ---
 
-## Contact
+## Release governance
 
-For API questions or version negotiation, contact the platform team or open an issue in the repository.
+API versioning changes must be reflected in:
+
+1. `docs/API.md`;
+2. this document;
+3. `docs/RELEASE_CHECKLIST.md` if release-impacting;
+4. contract/integration/security tests;
+5. changelog/release notes;
+6. client migration guidance when applicable.
+
+## Change notes for v2.6.0
+
+1. Added document metadata with explicit version and update date.
+2. Clarified canonical `/api/v1/*` application route policy.
+3. Added operational namespace and compatibility alias sections.
+4. Added JSON-native API auth behavior guidance.
+5. Added contract testing and release governance requirements.
