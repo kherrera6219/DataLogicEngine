@@ -1,8 +1,18 @@
 # DataLogicEngine Documentation Standards
 
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Status | Active |
+| Owner | Platform Engineering |
+| Review cadence | Every 30 days |
+
 ## Purpose
 
-Define production-grade documentation requirements for DataLogicEngine and establish consistent quality gates for AI system documentation.
+Define production-grade documentation requirements for DataLogicEngine and establish consistent quality gates for AI system, local-first desktop, security, privacy, operations, and release documentation.
 
 ## Audience
 
@@ -11,130 +21,171 @@ Define production-grade documentation requirements for DataLogicEngine and estab
 3. Security and compliance reviewers
 4. Operations and support engineers
 5. Release managers
+6. Technical judges and external evaluators
 
 ## Scope
 
 This standard applies to:
 
-1. `README.md`
-2. Active documents under `docs/`
-3. Operational runbooks referenced by CI/CD and production support
+1. `README.md`;
+2. active source-of-truth documents under `docs/`;
+3. operational runbooks referenced by CI/CD, release, desktop packaging, or support workflows;
+4. active diagrams in `docs/diagrams/`;
+5. governance and compliance mapping documents.
 
-This standard does not apply to:
+This standard does not apply as a strict source-of-truth requirement to:
 
-1. `docs/archive/whitepapers/` research narratives
-2. Auto-generated outputs (`docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`)
+1. archived whitepapers;
+2. historical research notes;
+3. generated inventory files;
+4. exploratory drafts explicitly marked as historical or archive.
 
-## External baseline references
+Archived documents may be used as inputs for future combined papers, but active docs remain the operational source of truth.
 
-The requirements below are aligned to official production guidance:
+---
 
-1. OpenAI Platform docs:
-   https://platform.openai.com/docs/guides/production-best-practices
-2. OpenAI safety best practices:
-   https://platform.openai.com/docs/guides/safety-best-practices
-3. Microsoft Responsible AI resources:
-   https://learn.microsoft.com/azure/ai-foundry/responsible-ai/
-4. Microsoft Well-Architected Framework:
-   https://learn.microsoft.com/azure/well-architected/
-5. AWS Well-Architected Machine Learning Lens:
-   https://docs.aws.amazon.com/wellarchitected/latest/machine-learning-lens/
-6. AWS Generative AI Lens:
-   https://docs.aws.amazon.com/wellarchitected/latest/generative-ai-lens/
-7. NVIDIA AI Enterprise docs:
-   https://docs.nvidia.com/ai-enterprise/
-8. NVIDIA NeMo Guardrails documentation:
-   https://docs.nvidia.com/nemo/guardrails/latest/
+## Required metadata model
 
-## Production repository baseline
+Every active source-of-truth markdown document should include a metadata table near the top:
 
-Production repositories should maintain, at minimum, these source-of-truth artifacts:
+```markdown
+## Document metadata
 
-1. Product and setup entry points:
-   `README.md`, `docs/PRODUCT_OVERVIEW.md`, `docs/USER_GUIDE.md`
-2. Secure contribution and support:
-   `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`
-3. Architecture and API contracts:
-   `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_MAP.md`, `docs/API.md`, `docs/openapi.yaml`
-4. Operations and incident handling:
-   `docs/DEPLOYMENT.md`, `docs/OPERATIONAL_RUNBOOKS.md`, `docs/PRODUCTION_READINESS.md`
-5. Engineering quality and release controls:
-   `docs/TESTING.md`, `docs/RELEASE_CHECKLIST.md`, `CHANGELOG.md`
-6. Governance and traceability:
-   `docs/SDLC_SSDF_MAPPING.md`, `docs/AI_MANAGEMENT_SYSTEM_42001.md`, `docs/adr/*`
+| Field | Value |
+|---|---|
+| Document version | vX.Y.Z |
+| Last updated | YYYY-MM-DD |
+| Status | Active |
+| Owner | <team/persona> |
+| Review cadence | Every N days |
+```
 
-## Required section model for active documents
+Additional fields such as `Audience`, `Effective date`, or `Status: Roadmap` may be added when useful.
 
-Each active document must include these sections or direct equivalents:
+---
 
-1. `Purpose`
-2. `Audience`
-3. `Prerequisites` (for operational docs)
-4. `Procedure` or `Reference`
-5. `Validation` (commands/checks)
-6. `Troubleshooting` or `Known limitations`
-7. `Related documents`
-8. `Document control`
+## Required active-document sections
+
+Each active document should include these sections or direct equivalents:
+
+1. Purpose;
+2. Audience or intended reviewer;
+3. Scope or applicability;
+4. Current architecture/behavior/procedure;
+5. Validation, evidence, or reviewer path;
+6. Known caveats/limitations where relevant;
+7. Related documents;
+8. Change notes for the current version.
+
+Operational documents should also include:
+
+1. prerequisites;
+2. commands/procedures;
+3. expected outputs or success criteria;
+4. troubleshooting;
+5. rollback or recovery where relevant.
+
+---
 
 ## AI application-specific requirements
 
-Every production AI application area must document:
+AI-related docs must cover:
 
-1. Model and provider policy:
-   allowlist, routing policy, fallback behavior, timeout/retry policy
-2. Prompt and guardrail governance:
-   prompt versioning, moderation/injection protections, blocked behaviors
-3. Output safety and classification:
-   output categories, confidence/risk handling, escalation criteria
-4. Data handling controls:
-   classification, retention/deletion, export rules, redaction requirements
-5. Observability:
-   metrics, logs, correlation IDs, latency/cost dashboards, alert thresholds
-6. Recovery and incident response:
-   failure modes, rollback steps, support-bundle workflow, evidence capture path
+1. model/provider behavior and configuration;
+2. DMRF or governance lifecycle impact;
+3. TruthGate/TruthCore/TruthMemory/TruthLink impact where applicable;
+4. 17-axis and DSQP impact where applicable;
+5. prompt injection or unsafe-input handling where applicable;
+6. evidence, claims, traceability, or export behavior;
+7. privacy and data movement implications;
+8. failure/fallback behavior;
+9. human review/escalation where applicable;
+10. limitations and uncertainty.
+
+---
+
+## Evidence-driven documentation rules
+
+1. Distinguish implemented behavior from target-state roadmap.
+2. Do not claim certifications, attestations, or benchmark conformance without evidence.
+3. Do not claim SLSA, SBOM, Sigstore, Rekor, CodeQL, DAST, or scanner coverage unless workflow artifacts prove it.
+4. Do not state local-first means air-gapped.
+5. Do not state desktop local-auth is valid as a cloud/web trust boundary.
+6. Tie API claims to route behavior and tests.
+7. Tie release claims to checklist evidence.
+8. Tie security claims to implementation paths, tests, or runbooks.
+9. Mark archived/exploratory material clearly as historical/reference.
+10. Avoid duplicating backlog lists; use root `TODO.md` for active follow-up items.
+
+---
 
 ## Writing and structure rules
 
-1. Use clear and direct language with active voice.
-2. Keep headings task-oriented and scannable.
-3. Use numbered procedures for operational steps.
-4. Place prerequisites before commands.
-5. Use copy-ready command blocks with expected outputs where practical.
-6. Use precise file paths, route names, env var names, and API endpoints.
-7. Use explicit dates (`YYYY-MM-DD`) for releases, reviews, and policy changes.
-8. Avoid duplicate or contradictory instructions across documents.
+1. Use direct, active language.
+2. Use explicit dates in `YYYY-MM-DD` format.
+3. Use copy-ready command blocks.
+4. Use precise file paths, route names, env vars, and API endpoints.
+5. Prefer tables for mappings and matrices.
+6. Use diagrams only when they clarify actual implementation.
+7. Avoid vague phrases such as "enterprise-grade" unless supported by specific evidence.
+8. Keep claims testable and reviewable.
+9. Add caveats when implementation is partial.
+10. Keep archived/historical context separate from operational instructions.
+
+---
 
 ## Diagram and architecture map rules
 
-1. Architecture maps must separate trust boundaries and data boundaries.
-2. Diagrams must identify mode-specific paths (`local`, `cloud`, `desktop`).
-3. Every diagram must map to real code paths or services.
-4. Add a validation section that points to test/health checks for each critical flow.
+1. Diagrams must map to real code paths, runtime services, or documented control points.
+2. Diagrams must distinguish local desktop, Windows VM, and web/cloud paths where relevant.
+3. Trust boundaries must be explicit for security/data-flow diagrams.
+4. Provider and connector data movement must be visible where relevant.
+5. Trace/export/privacy flows must identify whether data leaves the local application boundary.
+6. Active diagrams should be referenced by `docs/ARCHITECTURE_MAP.md` or related source-of-truth docs.
+
+---
 
 ## Documentation quality gates
 
-Before merge:
+Before merge or release:
 
-1. Validate document references:
-   `python scripts/verify_docs_references.py`
-2. Regenerate inventory and structure outputs when file layout changes:
-   `python scripts/generate_docs.py`
-3. Confirm environment and lockfile governance checks:
-   `python scripts/verify_environment_parity.py`
-   `python scripts/verify_lockfiles.py`
-4. Ensure `docs/README.md` and `docs/DOCUMENTATION_COVERAGE_MATRIX.md` include new active docs.
+```powershell
+python scripts/verify_docs_references.py
+python scripts/generate_docs.py
+python scripts/verify_environment_parity.py --strict
+python scripts/verify_lockfiles.py
+python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process
+```
+
+When docs reference schema/data behavior:
+
+```powershell
+python scripts/validate_schema_parity.py
+```
+
+When docs reference Windows packaging/release behavior:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+```
+
+---
 
 ## Lifecycle management
 
-1. Active docs must be reviewed at the cadence declared in the document control block.
-2. Deprecated planning docs must have actionable items folded into root `TODO.md` before removal.
-3. Release-impacting changes must update:
-   `README.md`, `docs/DEPLOYMENT.md`, `docs/SECURITY.md`, `docs/PRODUCTION_READINESS.md`
-4. Documentation version metadata must be updated in `docs/DOCS_VERSION.json`.
+1. Active docs must be reviewed at the cadence declared in their metadata.
+2. `docs/DOCUMENTATION_COVERAGE_MATRIX.md` must list active source-of-truth docs.
+3. `docs/DOCUMENTATION_VERSIONING.md` defines version rules.
+4. `docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md` defines the production documentation baseline.
+5. `docs/archive/*` remains historical/reference unless promoted into active docs.
+6. Release-impacting changes must update relevant active docs and release checklist evidence.
+7. Documentation version metadata must be updated when source-of-truth docs change.
 
-## Document control
+## Change notes for v2.6.0
 
-1. Owner: Platform Engineering
-2. Last updated: 2026-02-16
-3. Status: Active
-4. Review cadence: Every 30 days
+1. Added document metadata with explicit version and update date.
+2. Added required metadata model.
+3. Updated standards for DMRF, Truth Engine, local-first, privacy, release, and evidence-driven documentation.
+4. Added stronger rules against unsupported compliance/security claims.
+5. Added diagram/data-flow rules and current quality gates.
