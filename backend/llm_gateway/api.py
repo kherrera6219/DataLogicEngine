@@ -897,12 +897,51 @@ def test_provider(provider_id):
             loop.close()
             raise exc
 
-    except Exception:
+    except Exception as exc:
         logger.error("Provider test failed for %s", provider_id, exc_info=True)
+        # Classify the failure so the UI can show an actionable message
+        # (e.g. "invalid API key") instead of a generic error.
+        raw = str(exc).lower()
+        if any(m in raw for m in ("401", "invalid api key", "invalid_api_key",
+                                  "incorrect api key", "unauthorized", "authentication",
+                                  "api key not valid", "permission denied", "403", "forbidden")):
+            return jsonify({
+                'success': False,
+                'status': 'invalid_api_key',
+                'error': 'Invalid API key',
+                'detail': 'The saved API key was rejected by the provider. Update the key and try again.',
+                'code': 'INVALID_API_KEY',
+            }), 401
+        if any(m in raw for m in ("429", "rate limit", "quota", "insufficient_quota", "billing")):
+            return jsonify({
+                'success': False,
+                'status': 'rate_limited',
+                'error': 'Rate limited or quota exceeded',
+                'detail': 'The provider rejected the request due to rate limits or quota. Check your plan/billing.',
+                'code': 'RATE_LIMITED',
+            }), 429
+        if any(m in raw for m in ("model", "not found", "does not exist", "unsupported")):
+            return jsonify({
+                'success': False,
+                'status': 'invalid_model',
+                'error': 'Model unavailable',
+                'detail': 'The configured model is not available for this key/provider.',
+                'code': 'INVALID_MODEL',
+            }), 422
+        if any(m in raw for m in ("timeout", "timed out", "connection", "network",
+                                  "unreachable", "getaddrinfo", "ssl")):
+            return jsonify({
+                'success': False,
+                'status': 'network_error',
+                'error': 'Network error reaching provider',
+                'detail': 'Could not reach the provider endpoint. Check your internet connection.',
+                'code': 'NETWORK_ERROR',
+            }), 504
         return jsonify({
             'success': False,
             'status': 'error',
             'error': 'Provider connectivity check failed',
+            'detail': 'The provider test failed for an unexpected reason. See logs for details.',
             'code': 'PROVIDER_TEST_FAILED',
         }), 502
 

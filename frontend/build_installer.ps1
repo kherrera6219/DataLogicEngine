@@ -32,13 +32,44 @@ try {
         $env:CSC_SKIP = "true"
     }
 
-    # 2. Re-trigger Next.js Build (Ensure up to date)
+    # 2. Rebuild the Python backend (PyInstaller) so the packaged app always
+    #    ships the current backend code. Skipping this caused the installer to
+    #    bundle a stale backend (missing endpoints, inactive fixes).
+    Write-Host "Rebuilding Python backend (PyInstaller)..." -ForegroundColor Cyan
+    $RepoRoot = "c:\software\DataLogicEngine"
+    $BackendPy = $null
+    foreach ($cand in @("$RepoRoot\.venv311\Scripts\python.exe", "$RepoRoot\.venv\Scripts\python.exe")) {
+        if (Test-Path $cand) { $BackendPy = $cand; break }
+    }
+    if (-not $BackendPy) {
+        Write-Host "WARNING: No project venv python found; skipping backend rebuild." -ForegroundColor Yellow
+    }
+    else {
+        Push-Location $RepoRoot
+        try {
+            & $BackendPy scripts\build_backend.py
+            if ($LASTEXITCODE -ne 0) { throw "Backend build failed (exit $LASTEXITCODE)" }
+            if (-not (Test-Path "$RepoRoot\dist\DataLogic_Backend\DataLogic_Backend.exe")) {
+                throw "Backend executable not produced"
+            }
+            Write-Host "Backend rebuilt successfully." -ForegroundColor Green
+        }
+        finally {
+            Pop-Location
+        }
+    }
+
+    # 3. Re-trigger Next.js Build (Ensure up to date)
     Write-Host "Running Next.js production build..." -ForegroundColor Cyan
     npm run build
 
-    # 3. Compiling Electron Main Process
+    # 4. Compiling Electron Main Process
     Write-Host "Compiling Electron source..." -ForegroundColor Cyan
     npm run electron:build
+
+    # 4b. Re-apply electron-builder npm-collector patch (Windows + NVM)
+    Write-Host "Applying electron-builder npm-collector patch..." -ForegroundColor Cyan
+    npm run fix:eb
 
     # 4. Packaging with electron-builder
     Write-Host "Running electron-builder for NSIS distribution..." -ForegroundColor Green
