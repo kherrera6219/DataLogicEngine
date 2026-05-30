@@ -11,35 +11,35 @@ Enterprise AI orchestration, governed LLM routing, and knowledge graph reasoning
 
 DataLogicEngine (DLE) is a local-first Enterprise AI Platform built around the Universal Knowledge Graph (UKG).
 
-Unlike traditional AI applications that operate as black boxes, DLE provides explainable reasoning, multi-agent orchestration, GraphRAG retrieval, governance controls, and complete audit traceability through a 17-Axis Knowledge Framework, 10-Layer Truth Engine, and 12-Step Refinement Workflow.
+Unlike traditional AI applications that operate as black boxes, DLE provides explainable reasoning, multi-agent orchestration, GraphRAG retrieval, governance controls, and complete audit traceability.
 
-Designed for enterprise, government, compliance, cybersecurity, acquisition, and research environments, every AI decision can be traced through evidence sources, personas, reasoning stages, validation gates, policies, and immutable audit records.
+Designed for enterprise, government, compliance, cybersecurity, acquisition, and research environments, every AI decision can be traced through evidence sources, personas, reasoning stages, validation checkpoints, and immutable audit records compliant with EU AI Act Article 53.
 
 Current Status: Feature Complete (Local-First Edition)
 
 Major Systems Completed:
 
-Universal Knowledge Graph (UKG)
-17-Axis Knowledge Framework
-10-Layer Truth Engine
-12-Step Refinement Workflow
-Knowledge Algorithm Framework (120+ KAs)
-Multi-Agent Orchestration
-GraphRAG Integration
-Knowledge Ingestion Pipeline
-Trace Viewer
-MCP Integration Framework
-Local Database Lifecycle Management
-Enterprise Audit & Governance Framework
+- Universal Knowledge Graph (UKG)
+- 17-Axis Knowledge Framework
+- 10-Layer Truth Engine
+- 12-Step Refinement Workflow
+- Knowledge Algorithm Framework (120+ KAs)
+- Multi-Agent Orchestration
+- GraphRAG Integration
+- Knowledge Ingestion Pipeline
+- Trace Viewer
+- MCP Integration Framework
+- Local Database Lifecycle Management
+- Enterprise Audit & Governance Framework
 
 Current Focus:
 
-Accessibility validation (NVDA)
-Production code signing
-Release evidence package
-Public architecture assets
-Expanded integration benchmarks
-Public release readiness
+- Accessibility validation (NVDA)
+- Production code signing
+- Release evidence package
+- Public architecture assets
+- Expanded integration benchmarks
+- Public release readiness
 
 What Makes DataLogicEngine Different?
 
@@ -48,91 +48,101 @@ Most AI applications answer questions.
 DataLogicEngine explains how answers were produced.
 
 Core Differentiators
-Universal Knowledge Graph (UKG)
 
-A structured knowledge system designed to organize information, expertise, regulations, compliance requirements, risk factors, locations, time contexts, and reasoning workflows into a unified framework.
+**Universal Knowledge Graph (UKG)**
 
-17-Axis Knowledge Framework
+A structured knowledge system designed to organize information, expertise, regulations, compliance requirements, risk factors, locations, time contexts, and reasoning workflows into a unified framework accessible to human operators and AI agents.
 
-A multidimensional coordinate system that maps every request across knowledge domains, industries, regulatory frameworks, compliance requirements, expertise models, geography, temporal context, risk, ethics, and execution modes.
+**17-Axis Knowledge Framework**
 
-10-Layer Truth Engine
+A multidimensional coordinate system that maps every request across knowledge domains, industries, regulatory frameworks, compliance requirements, expertise models, geography, temporal context, risk profiles, and governance policies.
+
+**10-Layer Truth Engine**
 
 A progressive reasoning architecture that combines retrieval, validation, simulation, planning, trust analysis, safety controls, and audit generation into a governed AI workflow.
 
-12-Step Refinement Workflow
+**12-Step Refinement Workflow**
 
 A structured reasoning improvement pipeline that continuously validates, refines, audits, and strengthens outputs before release.
 
-Knowledge Algorithm Framework
+**Knowledge Algorithm Framework**
 
-More than 120 specialized Knowledge Algorithms (KAs) provide modular capabilities for planning, validation, compliance analysis, contradiction detection, risk assessment, reasoning control, governance, and traceability.
+More than 120 specialized Knowledge Algorithms (KAs) provide modular capabilities for planning, validation, compliance analysis, contradiction detection, risk assessment, reasoning control, governance policy enforcement, and audit trace generation.
 
-Explainable AI
+**Explainable AI**
 
 Every response can be traced through:
 
-Evidence sources
-Personas
-Knowledge Algorithms
-Validation checkpoints
-Refinement stages
-Governance policies
-Audit records
-Local-First Architecture
+- Evidence sources
+- Personas
+- Knowledge Algorithms
+- Validation checkpoints
+- Refinement stages
+- Governance policies
+- Audit records
+
+**Local-First Architecture**
 
 Supports disconnected, air-gapped, enterprise, government, and workstation deployments without requiring external cloud infrastructure.
 
-Model Context Protocol (MCP)
+**Model Context Protocol (MCP)**
 
 Native MCP support enables integration with tools, resources, external agent systems, subscriptions, and dynamic plugin architectures.
 
 
 Roadmap
 
-Release Readiness:
+**Release Readiness:**
 
-Complete NVDA accessibility validation
-Production code-signing pipeline
-Final release evidence package
-Public architecture diagrams and assets
-Expanded integration and performance benchmarking
+- Complete NVDA accessibility validation
+- Production code-signing pipeline
+- Final release evidence package
+- Public architecture diagrams and assets
+- Expanded integration and performance benchmarking
 
-Enterprise Enhancements:
+**Enterprise Enhancements:**
 
-Advanced policy-as-code governance
-Expanded multi-tenant controls
-Enhanced cost and usage analytics
-Human feedback and review workflows
-Advanced persona orchestration strategies
+- Advanced policy-as-code governance
+- Expanded multi-tenant controls
+- Enhanced cost and usage analytics
+- Human feedback and review workflows
+- Advanced persona orchestration strategies
 
-Platform Evolution:
+**Platform Evolution:**
 
-Local SLM optimization for lower reasoning tiers
-Expanded GraphRAG retrieval capabilities
-Enterprise deployment automation
-Additional knowledge ingestion connectors
-Advanced knowledge graph learning and adaptation
+- Local SLM optimization for lower reasoning tiers
+- Expanded GraphRAG retrieval capabilities
+- Enterprise deployment automation
+- Additional knowledge ingestion connectors
+- Advanced knowledge graph learning and adaptation
 
-Recently Completed:
+**Recently Completed:**
 
-Local-first database lifecycle management
-GraphRAG integration
-Trace Viewer implementation
-PDF and DOCX ingestion support
-Async ingestion workflows
-SQL to Neo4j synchronization
-Advanced MCP integration framework
-Real-time trace streaming
-Automated documentation validation
-Portable workstation deployment stack
-Enterprise audit traceability framework
-Knowledge Algorithm expansion and validation
-Truth Engine release readiness improvements
+- ✅ Local-first database lifecycle management
+- ✅ GraphRAG integration
+- ✅ Trace Viewer implementation
+- ✅ PDF and DOCX ingestion support
+- ✅ Async ingestion workflows
+- ✅ SQL to Neo4j synchronization
+- ✅ Advanced MCP integration framework
+- ✅ Real-time trace streaming
+- ✅ Automated documentation validation
+- ✅ Portable workstation deployment stack
+- ✅ Enterprise audit traceability framework
+- ✅ Knowledge Algorithm expansion and validation
+- ✅ Truth Engine release readiness improvements
 
-See TODO.md for the canonical backlog and release-readiness work item
+See [`TODO.md`](TODO.md) for the canonical backlog and release-readiness work items.
 
 > Recommended architecture asset path: `docs/assets/readme/architecture-overview.png`. Add a dark-mode-safe PNG/SVG export when publishing visual docs.
+
+## Quick Links
+
+- 🚀 **Quick Start**: [Installation & Docker Compose](#quickstart)
+- 🔒 **Report Security Issues**: See [`SECURITY.md`](SECURITY.md) for responsible disclosure
+- ❓ **Ask Questions**: Open a [GitHub Discussion](https://github.com/kherrera6219/DataLogicEngine/discussions)
+- 📚 **Need Help?**: See [Getting Help](#getting-help)
+- 🚢 **Deploy to Production**: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 
 ## Quickstart
 
@@ -171,7 +181,9 @@ curl http://localhost:5000/health
 - [Deployment](#deployment)
 - [Security and Compliance](#security-and-compliance)
 - [Observability](#observability)
+- [Testing](#testing)
 - [Roadmap](#roadmap)
+- [Getting Help](#getting-help)
 - [Contributing](#contributing)
 - [License](#license)
 - [Repository Metadata](#repository-metadata)
@@ -213,7 +225,7 @@ flowchart LR
 | --- | --- | --- |
 | Frontend | Next.js 16, React 18, Electron 40 | Web console, desktop shell, graph visualization, admin surfaces. |
 | Backend | Flask 3.1, SQLAlchemy, Socket.IO | API routing, auth, gateway orchestration, audit, tracing. |
-| Data | PostgreSQL, Neo4j, Redis, MinIO | Relational state, graph state, cache/rate limits, object storage. |
+| Data | PostgreSQL 15+, Neo4j 5+, Redis 7+, MinIO | Relational state, graph state, cache/rate limits, object storage. |
 | AI | OpenAI, Anthropic, Azure OpenAI, Google/Gemini clients | Provider keys are resolved at runtime from environment or configured provider records. |
 | Quality | Pytest, Ruff, Vitest, Playwright, GitHub Actions | CI includes backend, frontend, governance, security, deploy, and Windows packaging checks. |
 
@@ -232,16 +244,18 @@ flowchart LR
 
 ### Backend Development
 
+**Windows:**
+
 ```bash
 python -m venv .venv
-.venv\Scripts\activate  # Windows
+.venv\Scripts\activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 copy .env.template .env
 python app.py
 ```
 
-On macOS/Linux:
+**macOS/Linux:**
 
 ```bash
 python -m venv .venv
@@ -332,7 +346,7 @@ Copy `.env.template` to `.env` and set values for your deployment target.
 | --- | --- | --- |
 | `REDIS_URL` | `redis://localhost:6379/0` | Cache and runtime coordination. |
 | `RATELIMIT_STORAGE_URI` | `redis://localhost:6379` | Flask-Limiter storage backend. |
-| `NEO4J_URI` | `bolt://localhost:7687` | Neo4j Bolt endpoint. |
+| `NEO4J_URI` | `bolt://localhost:7687` | Neo4j Bolt endpoint. Standard Neo4j Bolt port. |
 | `NEO4J_USER` | `neo4j` | Neo4j username. |
 | `NEO4J_PASSWORD` | unset | Neo4j password. |
 | `OBJECT_ENDPOINT_URL` | `http://localhost:9000` | S3-compatible object storage endpoint. |
@@ -497,6 +511,8 @@ Security references:
 - [`docs/SDLC_SSDF_MAPPING.md`](docs/SDLC_SSDF_MAPPING.md)
 - [`docs/SLSA_LEVEL_3_ATTESTATION.md`](docs/SLSA_LEVEL_3_ATTESTATION.md)
 
+**🔒 Report Security Issues Privately:**
+
 Do not report vulnerabilities in public issues. Follow the private reporting process in [`SECURITY.md`](SECURITY.md).
 
 ## Observability
@@ -536,14 +552,14 @@ npm --prefix frontend run test
 npm --prefix frontend audit --audit-level=high
 ```
 
-Current CI runs:
+### Current CI Runs
 
-- Backend tests and dependency audit
-- Frontend lint, typecheck, tests, and build
-- Security scan workflow
-- Deploy build and test workflow
-- Windows packaging smoke test
-- Governance and release checklist workflows
+- ✅ Backend tests and dependency audit
+- ✅ Frontend lint, typecheck, tests, and build
+- ✅ Security scan workflow
+- ✅ Deploy build and test workflow
+- ✅ Windows packaging smoke test
+- ✅ Governance and release checklist workflows
 
 ## Roadmap
 
@@ -556,15 +572,22 @@ Current CI runs:
 | Mid term | Publish signed release artifacts with checksums and provenance metadata. |
 | Long term | Harden multi-tenant operations, cost controls, recursive persona evaluation, human feedback loops, and policy-as-code governance for larger deployments. |
 
-### Recently Completed
+## Getting Help
 
-- **Local stack QC (2026-05-15)** — All five internal databases (PostgreSQL, Neo4j, Redis, ChromaDB, object storage) wired and validated in local mode. End-to-end Tier 2 gateway query returns `[UKG Audit Trace]` footer with F-CONF-01 confidence score and SHA-256 hash-chain `TruthAuditEvent` receipt.
-- **AuditBundle service layer** — `TruthMemoryCommitService` seals each Tier 2+ `TraceRun` into the immutable audit chain (EU AI Act Article 53 alignment).
-- **F-CONF-01 confidence calculator** — Canonical formula weighing evidence quality, KA consensus, persona agreement, and TruthGate pass/fail replaces raw LLM output probability.
-- **Portable database lifecycle manager** — `DatabaseLifecycleManager` starts and stops PostgreSQL, Redis, and Neo4j child processes automatically for workstation deployments.
-- **Application assets and release metadata (2026-05-22)** — Manifest screenshots, PWA icons, documentation banner, conservative app copy, cloud AI disclosures, privacy controls, notification preferences, storage cloud configuration, and MCP server administration surfaces are present; release evidence and production code signing remain open.
+### Documentation
 
-See [`TODO.md`](TODO.md) for the canonical open work list and [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) for release readiness gates.
+- **Setup & Configuration**: [`DEVELOPMENT.md`](DEVELOPMENT.md), [`.env.template`](.env.template)
+- **Deployment**: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md), [`docs/OPERATIONAL_RUNBOOKS.md`](docs/OPERATIONAL_RUNBOOKS.md)
+- **Testing**: [`TESTING.md`](TESTING.md)
+- **Development Guide**: [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md), [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)
+- **Support**: [`SUPPORT.md`](SUPPORT.md)
+
+### Community & Support
+
+- **Questions**: Open a [GitHub Discussion](https://github.com/kherrera6219/DataLogicEngine/discussions)
+- **Bug Reports**: [Create an issue](https://github.com/kherrera6219/DataLogicEngine/issues) with steps to reproduce
+- **Security Issues**: See [`SECURITY.md`](SECURITY.md) for responsible disclosure
+- **API Documentation**: Swagger UI at `http://localhost:5000/api/docs` (when running locally)
 
 ## Contributing
 
@@ -587,7 +610,7 @@ Development references:
 
 DataLogicEngine is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).
 
-Personal, research, and educational use are permitted under the license terms. Commercial use, production deployment in a business environment, or integration into a paid product requires a separate commercial license. See [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md).
+Personal, research, and educational use are permitted under the license terms. Commercial use, production deployment in a business environment, or integration into a paid product requires a separate commercial license. See [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) for details.
 
 ## Repository Metadata
 
