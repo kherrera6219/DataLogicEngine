@@ -87,6 +87,51 @@ Model Context Protocol (MCP)
 
 Native MCP support enables integration with tools, resources, external agent systems, subscriptions, and dynamic plugin architectures.
 
+
+Roadmap
+
+Release Readiness:
+
+Complete NVDA accessibility validation
+Production code-signing pipeline
+Final release evidence package
+Public architecture diagrams and assets
+Expanded integration and performance benchmarking
+
+Enterprise Enhancements:
+
+Advanced policy-as-code governance
+Expanded multi-tenant controls
+Enhanced cost and usage analytics
+Human feedback and review workflows
+Advanced persona orchestration strategies
+
+Platform Evolution:
+
+Local SLM optimization for lower reasoning tiers
+Expanded GraphRAG retrieval capabilities
+Enterprise deployment automation
+Additional knowledge ingestion connectors
+Advanced knowledge graph learning and adaptation
+
+Recently Completed:
+
+Local-first database lifecycle management
+GraphRAG integration
+Trace Viewer implementation
+PDF and DOCX ingestion support
+Async ingestion workflows
+SQL to Neo4j synchronization
+Advanced MCP integration framework
+Real-time trace streaming
+Automated documentation validation
+Portable workstation deployment stack
+Enterprise audit traceability framework
+Knowledge Algorithm expansion and validation
+Truth Engine release readiness improvements
+
+See TODO.md for the canonical backlog and release-readiness work item
+
 > Recommended architecture asset path: `docs/assets/readme/architecture-overview.png`. Add a dark-mode-safe PNG/SVG export when publishing visual docs.
 
 ## Quickstart
