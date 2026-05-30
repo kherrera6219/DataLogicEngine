@@ -175,7 +175,7 @@ Priority order:
 
 - [ ] Tighten public API contracts, reduce legacy route aliases, and improve generated OpenAPI coverage.
 - [x] Keep generated inventory docs (`docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`) refreshed after repository cleanup/refactors.
-- [ ] Expand CI docs enforcement to include markdown linting for active files.
+- [x] Expand CI docs enforcement to include markdown linting for active files.
 - [ ] Keep vendor guidance baseline (`docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md`) reviewed at least monthly.
 - [ ] Expand deployment reference material for Windows VM installation and the internal portable PostgreSQL, Redis, Neo4j, ChromaDB, object-store, and SQLite fallback stack.
 

@@ -984,7 +984,7 @@ This is the first official release of DataLogicEngine, featuring a complete impl
 
 **Known Issues:**
 
-- See [gap_analysis.md](gap_analysis.md) for identified gaps
+- See [TODO.md](TODO.md) for identified gaps and outstanding items
 - Port conflict resolution needed for multi-service deployments
 - Database migration strategy in development
 - Some API endpoints need enhanced authentication
