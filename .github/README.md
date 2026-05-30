@@ -9,7 +9,7 @@ Enterprise AI orchestration, governed LLM routing, and knowledge graph reasoning
 [![Node](https://img.shields.io/badge/node-24%2B-339933)](frontend/package.json)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue)](LICENSE)
 
-DataLogicEngine is a full-stack platform for building traceable AI systems over structured enterprise knowledge. It combines a Flask API, Next.js console, LLM gateway, 17-axis knowledge graph model, audit controls, and Windows/Electron packaging for local-first deployments.
+DataLogicEngine (DLE) is a local-first enterprise AI orchestration platform built around the Universal Knowledge Graph (UKG). The platform combines a 17-Axis Knowledge Framework, 10-Layer Truth Engine, multi-agent reasoning, GraphRAG, MCP integration, knowledge graph analytics, and end-to-end traceability to deliver explainable, governed, and auditable AI workflows. Designed for enterprise, government, compliance, cybersecurity, acquisition, and research environments, DLE provides transparent reasoning, evidence-backed outputs, policy-aware decision support, and complete audit visibility across every stage of execution.
 
 > Recommended architecture asset path: `docs/assets/readme/architecture-overview.png`. Add a dark-mode-safe PNG/SVG export when publishing visual docs.
 
