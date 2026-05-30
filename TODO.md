@@ -78,8 +78,12 @@ Next priority update: 2026-05-29. Phase H, KI local-first text-corpus ingestion,
 6. [x] KI-6a: harden end-to-end KI ingestion validation evidence.
    - Evidence: `scripts/verify_ki_ingestion.py` now writes explicit checks for text extraction/scrubbing, chunking, SQL persistence and metadata, Chroma handoff, citation metadata, source-rendered context, and manifest output to `reports/ki_ingestion_evidence.json`.
    - Validation: `python scripts\verify_ki_ingestion.py`; `python -m ruff check scripts\verify_ki_ingestion.py`.
-7. [ ] KI-6b: add richer PDF/DOCX/binary extractors and standard corpus loaders.
-8. [ ] KI-7: add optional async/background ingestion queue semantics and SQL -> Neo4j sync evidence after ingestion.
+7. [x] KI-6b: add richer PDF/DOCX/binary extractors and standard corpus loaders.
+   - Evidence: `LocalKnowledgeIngestionService` now supports `.pdf` and `.docx` files by delegating to the existing `DocumentProcessor` (pypdf + python-docx). Binary extensions are routed through `_extract_via_document_processor()` while text files continue through the existing UTF-8 fallback path. `SUPPORTED_EXTENSIONS` is the new union set; `SUPPORTED_TEXT_EXTENSIONS` is preserved for backward compatibility. `/api/v1/ingestion/supported` now returns `.pdf` and `.docx` in the extensions list.
+   - Validation: `python -m pytest tests/unit/test_ki_local_ingestion.py` — all 14 tests pass including `test_pdf_file_ingestion_uses_document_processor`, `test_docx_file_ingestion_uses_document_processor`, `test_unsupported_binary_files_are_rejected`, `test_pdf_without_processor_rejects_gracefully`. Ruff clean.
+8. [x] KI-7: add optional async/background ingestion queue semantics and SQL -> Neo4j sync evidence after ingestion.
+   - Evidence: `ingest_path_async()` runs ingestion in a background `threading.Thread` with Flask app context, tracks status via a module-level dict, and optionally calls `scripts.sync_nodes_to_neo4j.sync()` post-ingestion. New routes: `POST /api/v1/ingestion/local/async` (returns 202 with `ingestion_id`), `GET /api/v1/ingestion/status/<ingestion_id>`. Frontend `KnowledgeIngestionSettings` adds async mode toggle with 2s polling and Neo4j sync toggle.
+   - Validation: `test_async_ingestion_returns_id_and_completes`, `test_async_ingestion_status_route`, `test_async_route_starts_and_returns_202`, `test_neo4j_sync_called_on_async_with_flag` — all pass. Ruff clean.
 
 ### Trace Viewer Wiring Phased Update Plan
 

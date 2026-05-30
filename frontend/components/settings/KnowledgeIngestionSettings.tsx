@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { DatabaseZap, FileText, FolderOpen, History, Loader2, RefreshCw, UploadCloud } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { DatabaseZap, FileText, FolderOpen, History, Loader2, RefreshCw, UploadCloud, Zap } from 'lucide-react';
 import { api } from '@/lib/api';
 import type { IngestionResult, IngestionSupportedTypes } from '@/lib/api/types';
+import type { AsyncIngestionStatus } from '@/lib/api/ingestion';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,11 @@ export function KnowledgeIngestionSettings() {
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<IngestionResult | null>(null);
+  const [asyncMode, setAsyncMode] = useState(false);
+  const [syncNeo4j, setSyncNeo4j] = useState(false);
+  const [asyncId, setAsyncId] = useState<string | null>(null);
+  const [asyncStatus, setAsyncStatus] = useState<AsyncIngestionStatus | null>(null);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const extensionLabel = useMemo(
     () => supported?.extensions.join(', ') || '.txt, .md, .csv, .json, .yaml, .log',
@@ -75,25 +81,71 @@ export function KnowledgeIngestionSettings() {
 
     setRunning(true);
     setError(null);
+
+    const payload = {
+      path: trimmedPath,
+      recursive,
+      chunk_size: Math.max(100, chunkSize || 1200),
+      max_file_bytes: Math.max(1, maxFileMb || 10) * 1024 * 1024,
+      source_label: sourceLabel.trim() || undefined,
+    };
+
     try {
-      const result = await api.ingestion.startLocal({
-        path: trimmedPath,
-        recursive,
-        chunk_size: Math.max(100, chunkSize || 1200),
-        max_file_bytes: Math.max(1, maxFileMb || 10) * 1024 * 1024,
-        source_label: sourceLabel.trim() || undefined,
-      });
-      setLastResult(result);
-      setHistory((items) => [result, ...items.filter((item) => item.ingestion_id !== result.ingestion_id)].slice(0, 10));
-      toast(`Ingestion complete: ${formatResultSummary(result)}`, 'success');
+      if (asyncMode) {
+        const response = await api.ingestion.startLocalAsync({ ...payload, sync_neo4j: syncNeo4j });
+        setAsyncId(response.ingestion_id);
+        setAsyncStatus({ status: 'running', source: trimmedPath, started_at: new Date().toISOString() });
+        toast('Async ingestion started — polling for completion.', 'success');
+        // Don't setRunning(false) — the polling effect will handle it.
+      } else {
+        const result = await api.ingestion.startLocal(payload);
+        setLastResult(result);
+        setHistory((items) => [result, ...items.filter((item) => item.ingestion_id !== result.ingestion_id)].slice(0, 10));
+        toast(`Ingestion complete: ${formatResultSummary(result)}`, 'success');
+        setRunning(false);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Local ingestion failed.';
       setError(message);
       toast(message, 'error');
-    } finally {
       setRunning(false);
     }
   };
+
+  // Poll async ingestion status.
+  useEffect(() => {
+    if (!asyncId || asyncStatus?.status !== 'running') {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+      return;
+    }
+    pollingRef.current = setInterval(async () => {
+      try {
+        const status = await api.ingestion.status(asyncId);
+        setAsyncStatus(status);
+        if (status.status !== 'running') {
+          setRunning(false);
+          if (status.status === 'completed' && status.result) {
+            setLastResult(status.result as IngestionResult);
+            toast(`Async ingestion complete: ${formatResultSummary(status.result as IngestionResult)}`, 'success');
+            void loadHistory();
+          } else if (status.status === 'failed') {
+            setError(status.error || 'Async ingestion failed.');
+          }
+        }
+      } catch {
+        // Polling failure is not fatal; retry on next interval.
+      }
+    }, 2000);
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
+  }, [asyncId, asyncStatus?.status, loadHistory, toast]);
 
   return (
     <div className="space-y-6">
@@ -169,6 +221,38 @@ export function KnowledgeIngestionSettings() {
               </div>
               <Switch checked={recursive} onCheckedChange={setRecursive} disabled={running} />
             </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white/60 p-4 dark:border-white/10 dark:bg-black/20">
+              <div className="flex items-center gap-3">
+                <Zap className="h-5 w-5 text-amber-500" />
+                <div>
+                  <div className="text-sm font-medium text-slate-900 dark:text-gray-100">Async mode</div>
+                  <div className="text-xs text-slate-500 dark:text-gray-400">Run ingestion in the background.</div>
+                </div>
+              </div>
+              <Switch checked={asyncMode} onCheckedChange={setAsyncMode} disabled={running} />
+            </div>
+
+            {asyncMode && (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white/60 p-4 dark:border-white/10 dark:bg-black/20">
+                <div className="flex items-center gap-3">
+                  <DatabaseZap className="h-5 w-5 text-emerald-500" />
+                  <div>
+                    <div className="text-sm font-medium text-slate-900 dark:text-gray-100">Sync to Neo4j</div>
+                    <div className="text-xs text-slate-500 dark:text-gray-400">Sync new nodes to the graph database after ingestion.</div>
+                  </div>
+                </div>
+                <Switch checked={syncNeo4j} onCheckedChange={setSyncNeo4j} disabled={running} />
+              </div>
+            )}
+
+            {asyncStatus && asyncStatus.status === 'running' && (
+              <Alert>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <AlertTitle>Async ingestion running</AlertTitle>
+                <AlertDescription>Source: {asyncStatus.source}</AlertDescription>
+              </Alert>
+            )}
 
             {error && (
               <Alert variant="destructive">

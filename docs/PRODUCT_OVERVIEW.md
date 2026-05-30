@@ -37,6 +37,7 @@ DataLogicEngine is a local-first AI orchestration application that combines:
 | Settings: AI model controls | `/settings` (`AI Models`) | Live | Provider/model selection + save/test |
 | Settings: storage operations | `/settings` (`Storage`) | Live | Health, local lifecycle, auto-start preference, and internal storage config persistence are wired; local port fields are display/edit UI only until a broader local-service config flow is needed |
 | Settings: notifications | `/settings` (`Notifications`) | Live | Per-user preferences are loaded and persisted through `/api/v1/user/notifications`; delivery-channel integrations are not separately validated here |
+| Knowledge ingestion | `/api/v1/ingestion/*`, `/settings` (`Knowledge`) | Live | Supports text and binary (PDF/DOCX) async ingestion with optional Neo4j sync and manifest-backed history |
 | Admin dashboard | `/admin` | Live | Role-gated, backend-backed stats/user data |
 | MCP admin registry | `/admin/mcp`, `/admin/mcp/servers` | Live | Stats, list, add, and delete flows are wired for admin users |
 | Connector scope enforcement | MCP tool execution paths | Live | Runtime scope checks added with user/tenant context propagation |

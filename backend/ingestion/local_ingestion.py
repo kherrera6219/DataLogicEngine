@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 import hashlib
@@ -10,6 +11,7 @@ import mimetypes
 import os
 from pathlib import Path
 import re
+import threading
 from typing import Any, Iterable
 from uuid import uuid4
 
@@ -17,7 +19,16 @@ from extensions import db
 from models import KnowledgeGraphNode
 
 
+logger = logging.getLogger(__name__)
+
 SUPPORTED_TEXT_EXTENSIONS = {".txt", ".md", ".markdown", ".csv", ".json", ".yaml", ".yml", ".log"}
+SUPPORTED_BINARY_EXTENSIONS = {".pdf", ".docx"}
+SUPPORTED_EXTENSIONS = SUPPORTED_TEXT_EXTENSIONS | SUPPORTED_BINARY_EXTENSIONS
+
+# Module-level status tracker for async ingestion runs.
+_ASYNC_STATUS: dict[str, dict[str, Any]] = {}
+_ASYNC_STATUS_LOCK = threading.Lock()
+
 PROMPT_INJECTION_PATTERNS = (
     re.compile(r"ignore\s+(all\s+)?previous\s+instructions", re.IGNORECASE),
     re.compile(r"reveal\s+(the\s+)?(system|developer)\s+prompt", re.IGNORECASE),
@@ -72,16 +83,18 @@ class LocalKnowledgeIngestionService:
         self,
         *,
         rag_service: Any | None = None,
+        document_processor: Any | None = None,
         chunk_size: int = 1200,
         max_file_bytes: int = 10 * 1024 * 1024,
         supported_extensions: Iterable[str] | None = None,
     ) -> None:
         self.rag_service = rag_service
+        self.document_processor = document_processor
         self.chunk_size = chunk_size
         self.max_file_bytes = max_file_bytes
         self.supported_extensions = {
             ext.lower() if ext.startswith(".") else f".{ext.lower()}"
-            for ext in (supported_extensions or SUPPORTED_TEXT_EXTENSIONS)
+            for ext in (supported_extensions or SUPPORTED_EXTENSIONS)
         }
 
     def ingest_path(
@@ -230,6 +243,14 @@ class LocalKnowledgeIngestionService:
             return "", "Empty file"
         if size > self.max_file_bytes:
             return "", f"File exceeds max size of {self.max_file_bytes} bytes"
+
+        suffix = file_path.suffix.lower()
+
+        # Delegate binary formats to DocumentProcessor.
+        if suffix in SUPPORTED_BINARY_EXTENSIONS:
+            return self._extract_via_document_processor(file_path, suffix)
+
+        # Text files: read with encoding fallback.
         try:
             return file_path.read_text(encoding="utf-8"), None
         except UnicodeDecodeError:
@@ -239,6 +260,49 @@ class LocalKnowledgeIngestionService:
                 return file_path.read_text(encoding="latin-1"), None
         except OSError as exc:
             return "", f"Cannot read file: {exc}"
+
+    def _extract_via_document_processor(
+        self, file_path: Path, suffix: str,
+    ) -> tuple[str, str | None]:
+        """Extract text from binary documents using DocumentProcessor."""
+        processor = self._get_document_processor()
+        if processor is None:
+            return "", f"No document processor available for {suffix} files"
+
+        mime_map = {
+            ".pdf": "application/pdf",
+            ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        }
+        mime_type = mime_map.get(suffix)
+        if not mime_type:
+            return "", f"Unsupported binary extension: {suffix}"
+
+        try:
+            file_bytes = file_path.read_bytes()
+            result = processor.process_file(file_bytes, file_path.name, mime_type)
+            text = result.get("text", "").strip()
+            if not text:
+                return "", "Document processor returned no text"
+            # Check for library-missing fallback messages.
+            if text.startswith("[") and "requires" in text and "library" in text:
+                return "", text
+            return text, None
+        except ValueError as exc:
+            return "", f"Document processing failed: {exc}"
+        except OSError as exc:
+            return "", f"Cannot read file: {exc}"
+
+    def _get_document_processor(self) -> Any | None:
+        """Lazy-load the global DocumentProcessor instance."""
+        if self.document_processor is not None:
+            return self.document_processor
+        try:
+            from backend.services.document_processor import document_processor
+
+            self.document_processor = document_processor
+            return self.document_processor
+        except Exception:
+            return None
 
     @staticmethod
     def _scrub_text(text: str) -> tuple[str, list[str]]:
@@ -272,3 +336,92 @@ class LocalKnowledgeIngestionService:
         manifest_path = manifest_dir / f"{result.ingestion_id}.json"
         result.manifest_path = str(manifest_path)
         manifest_path.write_text(json.dumps(result.to_dict(), indent=2), encoding="utf-8")
+
+    # ------------------------------------------------------------------
+    # KI-7: Async ingestion with background threading + Neo4j sync
+    # ------------------------------------------------------------------
+
+    def ingest_path_async(
+        self,
+        source_path: str | os.PathLike[str],
+        *,
+        recursive: bool = True,
+        tenant_id: str | None = None,
+        source_label: str | None = None,
+        metadata: dict[str, Any] | None = None,
+        sync_neo4j: bool = False,
+        flask_app: Any | None = None,
+    ) -> str:
+        """Start ingestion in a background thread and return the ingestion_id."""
+        ingestion_id = str(uuid4())
+        with _ASYNC_STATUS_LOCK:
+            _ASYNC_STATUS[ingestion_id] = {
+                "status": "running",
+                "source": str(Path(source_path).expanduser().resolve()),
+                "started_at": datetime.now(UTC).isoformat(),
+                "result": None,
+                "error": None,
+                "neo4j_sync": None,
+            }
+
+        def _run() -> None:
+            try:
+                ctx = flask_app.app_context() if flask_app else None
+                if ctx:
+                    ctx.push()
+                try:
+                    result = self.ingest_path(
+                        source_path,
+                        recursive=recursive,
+                        tenant_id=tenant_id,
+                        source_label=source_label,
+                        metadata=metadata,
+                    )
+                    # Override the auto-generated id with our pre-assigned one for tracking.
+                    result_dict = result.to_dict()
+                    result_dict["ingestion_id"] = ingestion_id
+
+                    neo4j_result = None
+                    if sync_neo4j and result.chunks_created > 0:
+                        neo4j_result = self._sync_to_neo4j()
+
+                    with _ASYNC_STATUS_LOCK:
+                        _ASYNC_STATUS[ingestion_id].update({
+                            "status": "completed",
+                            "completed_at": datetime.now(UTC).isoformat(),
+                            "result": result_dict,
+                            "neo4j_sync": neo4j_result,
+                        })
+                finally:
+                    if ctx:
+                        ctx.pop()
+            except Exception as exc:
+                logger.exception("Async ingestion %s failed", ingestion_id)
+                with _ASYNC_STATUS_LOCK:
+                    _ASYNC_STATUS[ingestion_id].update({
+                        "status": "failed",
+                        "completed_at": datetime.now(UTC).isoformat(),
+                        "error": str(exc),
+                    })
+
+        thread = threading.Thread(target=_run, name=f"ki-ingest-{ingestion_id[:8]}", daemon=True)
+        thread.start()
+        return ingestion_id
+
+    @staticmethod
+    def get_async_status(ingestion_id: str) -> dict[str, Any] | None:
+        """Return the status dict for an async ingestion run, or None."""
+        with _ASYNC_STATUS_LOCK:
+            entry = _ASYNC_STATUS.get(ingestion_id)
+            return dict(entry) if entry else None
+
+    @staticmethod
+    def _sync_to_neo4j() -> dict[str, Any] | None:
+        """Run idempotent SQL→Neo4j sync after ingestion."""
+        try:
+            from scripts.sync_nodes_to_neo4j import sync
+
+            return sync()
+        except Exception as exc:
+            logger.warning("Post-ingestion Neo4j sync failed: %s", exc)
+            return {"error": str(exc)}

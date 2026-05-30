@@ -359,12 +359,12 @@ Local-first corpus ingestion. Prefix: `/api/v1/ingestion`.
 ### Supported Local Types
 
 - **GET** `/supported`
-  - Returns supported local file extensions and default ingestion limits for the current build.
+  - Returns supported local file extensions (text and binary formats like `.pdf`, `.docx`) and default ingestion limits for the current build.
 
 ### Local File Or Folder Ingestion
 
 - **POST** `/local`
-  - Ingest supported local text files into chunk-level SQL `KnowledgeGraphNode` rows and Chroma `knowledge_nodes`.
+  - Ingest supported local files (text and binary) into chunk-level SQL `KnowledgeGraphNode` rows and Chroma `knowledge_nodes`.
   - **Body**:
     ```json
     {
@@ -377,6 +377,19 @@ Local-first corpus ingestion. Prefix: `/api/v1/ingestion`.
     ```
   - **Response**: ingestion id, scanned/ingested/rejected file counts, created/indexed chunk counts, rejected-file reasons, chunk source hashes, and manifest path.
   - **Security**: outside desktop mode, paths must stay under `DATALOGIC_INGESTION_ROOT` or the process working directory.
+
+### Async Local Ingestion
+
+- **POST** `/local/async`
+  - Starts an ingestion job in a background thread and returns an `ingestion_id` immediately. Supports optional Neo4j sync.
+  - **Body**: Same as `/local`, with an additional optional `"sync_neo4j": true` boolean.
+  - **Response**: `202 Accepted` with `{"ingestion_id": "...", "status": "running"}`.
+
+### Ingestion Status
+
+- **GET** `/status/<ingestion_id>`
+  - Returns the current status of an async ingestion run.
+  - **Response**: Status (`running`, `completed`, `failed`), along with the ingestion result and optional Neo4j sync outcome when completed.
 
 ### Ingestion History
 
