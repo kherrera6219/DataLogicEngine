@@ -1,117 +1,193 @@
 # DataLogicEngine Architecture Map
 
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Status | Active |
+| Owner | Platform Architecture |
+| Review cadence | Every 30 days |
+
 ## Purpose
 
-Provide an implementation-mapped architecture view of DataLogicEngine that links runtime components to repository paths, trust boundaries, and operational controls.
+Provide an implementation-mapped architecture view of DataLogicEngine that links runtime components to repository paths, diagrams, trust boundaries, validation gates, and operational controls.
+
+This map is the fastest way for a new reviewer to move from high-level product understanding to actual code and evidence.
 
 ## Audience
 
 1. Platform architects
 2. Backend and frontend engineers
 3. Security engineers
-4. SRE and support teams
+4. SRE/support teams
+5. Technical judges and external reviewers
+
+---
 
 ## System context map
 
 ```mermaid
 flowchart LR
-    user[User]
-    desktop[Windows Desktop Shell<br/>Electron]
-    browser[Browser UI<br/>Next.js]
-    api[Backend API Gateway<br/>Flask]
-    ai[AI Provider Layer<br/>OpenAI/Anthropic/Gemini]
-    data[(SQLite/Postgres/Redis/Neo4j/Object Store)]
-    connectors[External Connectors<br/>MCP/Jira/Salesforce/etc]
-    metrics[Metrics and Logs]
+    user[User / Analyst / Admin]
+    desktop[Windows Desktop Shell\nElectron]
+    browser[Browser UI\nNext.js]
+    api[Flask API / Security Envelope]
+    dmrf[DMRF Control Plane]
+    truth[Truth Engine\nTruthGate / TruthCore / TruthMemory / TruthLink]
+    data[(SQL / Redis / Neo4j / Chroma / Object Store / Memory)]
+    providers[AI Providers\nOpenAI / Anthropic / Gemini / Azure]
+    connectors[MCP Connectors / Tools]
+    traces[Trace Explorer / Export Integrity]
+    ops[Metrics / Logs / Runbooks / CI]
 
     user --> desktop
     user --> browser
     desktop --> api
     browser --> api
-    api --> ai
-    api --> data
-    api --> connectors
-    api --> metrics
+    api --> dmrf
+    dmrf --> truth
+    truth --> providers
+    truth --> connectors
+    truth --> data
+    truth --> traces
+    api --> ops
+    data --> ops
+    traces --> ops
 ```
+
+---
 
 ## Runtime mode map
 
 ```mermaid
 flowchart TD
-    start[Runtime Start]
-    mode{Mode}
-    local[Local/Desktop Mode]
-    cloud[Cloud/Hybrid Mode]
-    auth_local[Localhost auth secret + desktop gating]
-    auth_cloud[Session auth + tenant context + CSRF]
-    stores_local[Local stores<br/>SQLite + optional local services]
-    stores_cloud[Managed stores<br/>Postgres/Redis/Object/Graph]
-    shared[Shared controls<br/>validation, logging, guardrails, metrics]
+    start[Runtime start]
+    mode{Runtime mode}
+    desktop[Local-first desktop]
+    vm[Windows VM]
+    cloud[Controlled web/cloud]
+
+    authDesktop[Desktop local auth\nloopback + Electron + nonce/HMAC]
+    authWeb[Web/session auth\nCSRF + CORS + trusted hosts]
+
+    storesLocal[App-owned local services\nSQLite/Postgres/Redis/Neo4j/Chroma/Object/Memory]
+    storesVm[Same app-owned stack\nrunning inside VM]
+    storesCloud[Explicitly approved cloud storage\nnot default local/VM behavior]
+
+    shared[Shared controls\nruntime precheck / logging / metrics / tests / release gates]
 
     start --> mode
-    mode --> local
+    mode --> desktop
+    mode --> vm
     mode --> cloud
-    local --> auth_local
-    local --> stores_local
-    cloud --> auth_cloud
-    cloud --> stores_cloud
-    auth_local --> shared
-    auth_cloud --> shared
-    stores_local --> shared
-    stores_cloud --> shared
+    desktop --> authDesktop
+    vm --> authDesktop
+    cloud --> authWeb
+    desktop --> storesLocal
+    vm --> storesVm
+    cloud --> storesCloud
+    authDesktop --> shared
+    authWeb --> shared
+    storesLocal --> shared
+    storesVm --> shared
+    storesCloud --> shared
 ```
+
+---
 
 ## Repository architecture map
 
 | Layer | Primary paths | Responsibility |
 |---|---|---|
-| Desktop shell | `frontend/electron/`, `frontend/build_installer.ps1`, `scripts/windows/` | Electron runtime, installer/update controls, desktop IPC boundary |
-| Frontend application | `frontend/app/`, `frontend/components/`, `frontend/lib/`, `frontend/middleware.ts` | UI routes, client state, route guards, UX and telemetry hooks |
-| API and orchestration | `app.py`, `backend/`, `routes/` | API gateway, auth/session, AI orchestration, connector routing |
-| Middleware and policy | `backend/middleware/`, `backend/security/` | correlation ID, limits, headers, CSP, error normalization |
-| AI governance | `backend/llm_gateway/`, `backend/truth_engine/`, `backend/model_context/` | model routing, guardrails, prompt controls, usage tracking |
-| Connector framework | `backend/mcp_server/`, `backend/services/`, `backend/api_gateway/` | connector auth, contract validation, SSRF controls, evidence capture |
-| Data layer | `models.py`, `backend/storage/`, `backend/repositories/`, `migrations/` | schema governance, retention/deletion, backups, export packaging |
-| Observability and ops | `backend/logging_config.py`, `scripts/`, `.github/workflows/` | structured logging, metrics, startup validation, CI/CD gates |
-| Governance docs | `docs/`, `docs/adr/` | policies, standards, runbooks, decisions, release controls |
+| Desktop shell | `frontend/electron/`, `frontend/build_installer.ps1`, `scripts/windows/` | Electron runtime, installer/update controls, desktop IPC boundary, packaging smoke. |
+| Frontend application | `frontend/app/`, `frontend/components/`, `frontend/lib/` | UI routes, product shell, Trace Explorer, settings, graph, MCP, admin, API clients. |
+| Runtime policy | `frontend/lib/runtime/policy.ts`, `frontend/contexts/AuthContext.tsx` | local/hybrid/cloud runtime behavior and desktop auto-login. |
+| API and app assembly | `app.py`, `routes/`, `backend/routes/` | Flask app, middleware, route registration, canonical and compatibility APIs. |
+| Security | `backend/security/`, `backend/auth/` | desktop auth, DPAPI, encryption, export integrity, tenant RLS, API decorators. |
+| DMRF | `backend/dmrf/` | governed AI request lifecycle and control plane. |
+| Truth Engine | `backend/truth_engine/` | TruthGate, TruthCore, TruthMemory, TruthLink. |
+| DSQP | `backend/dsqp/` | deterministic structured expert/persona construction. |
+| 17-axis / FROST | `core/axes/`, `backend/dmrf/router.py` | coordinate/risk/trust/FROST routing context. |
+| LLM Gateway | `backend/llm_gateway/` | provider routing, model access, latency/usage behavior. |
+| MCP / connectors | `backend/mcp_server/`, `backend/routes/mcp_routes.py`, `frontend/components/mcp/` | connector auth, scopes, contract validation, registry/admin UI. |
+| Data and memory | `models.py`, `backend/storage/`, `backend/memory/`, `migrations/` | SQL, Redis, Neo4j, ChromaDB, object store, USKD, UnifiedMemory, schema governance. |
+| Trace/export | `backend/tracing/`, `backend/security/export_integrity.py`, `frontend/app/runs/` | traces, evidence, claims, personas, export manifests and integrity. |
+| Observability and ops | `backend/logging_config.py`, `scripts/`, `.github/workflows/` | logging, metrics, startup validation, CI/deploy/signing gates. |
+| Governance docs | `docs/`, `docs/diagrams/`, `docs/adr/` | architecture, security, testing, runbooks, release, compliance, product docs. |
+
+---
 
 ## Request lifecycle map
 
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant FE as Frontend/Electron
+    participant FE as Frontend / Electron
     participant API as Flask API
-    participant MW as Middleware Stack
-    participant GOV as AI Governance Layer
-    participant EXT as Connector/Model Provider
-    participant DB as Data Stores
-    participant OBS as Metrics/Audit
+    participant SEC as Security Envelope
+    participant DMRF as DMRF
+    participant TG as TruthGate
+    participant AX as 17-Axis Router
+    participant DSQP as DSQP
+    participant TC as TruthCore
+    participant EXT as Model / Tool Provider
+    participant MEM as Data + Memory Stores
+    participant TRACE as Trace / Export
+    participant OBS as Metrics / Audit
 
-    U->>FE: Submit request
-    FE->>API: HTTP request (mode-aware)
-    API->>MW: Correlation ID, auth, validation, limits
-    MW->>GOV: Prompt/routing/guardrail policies
-    GOV->>EXT: Model or connector invocation
-    EXT-->>GOV: Response payload
-    GOV->>DB: Persist traces/audit/outputs
-    GOV->>OBS: Emit usage, latency, error metrics
+    U->>FE: Submit prompt/action
+    FE->>API: Mode-aware HTTP request
+    API->>SEC: Auth, CSRF, CORS, rate limits, validation
+    SEC->>DMRF: Governed request
+    DMRF->>TG: Security/trust/budget/compliance gate
+    TG-->>DMRF: allow / block / warnings
+    DMRF->>AX: Tier and 17-axis routing
+    DMRF->>DSQP: Persona construction where needed
+    DMRF->>TC: Workflow plan and execution
+    TC->>EXT: Model/tool invocation where required
+    EXT-->>TC: Response/tool output
+    TC->>MEM: Persist memory/audit/artifacts
+    TC->>TRACE: Persist trace/evidence/claims/policy data
+    TC->>OBS: Emit metrics/events
     API-->>FE: Normalized response
-    FE-->>U: Rendered result + errors handled
+    FE-->>U: Answer + trace/review affordances
 ```
+
+---
+
+## Diagram navigation map
+
+| Diagram | Use |
+|---|---|
+| `docs/diagrams/01_master_system_architecture.md` | top-level platform architecture. |
+| `docs/diagrams/02_research_to_code_traceability.md` | research-to-implementation traceability. |
+| `docs/diagrams/03_ai_reasoning_sequence.md` | AI reasoning sequence. |
+| `docs/diagrams/04_17_axis_coordinate_model.md` | 17-axis coordinate model. |
+| `docs/diagrams/05_truth_engine_architecture.md` | Truth Engine components. |
+| `docs/diagrams/06_local_first_security_model.md` | desktop/local security. |
+| `docs/diagrams/07_data_storage_and_memory_architecture.md` | data and memory architecture. |
+| `docs/diagrams/08_testing_validation_and_release_governance.md` | validation and release governance. |
+| `docs/diagrams/09_dmrf_control_plane_deep_dive.md` | DMRF internals. |
+| `docs/diagrams/10_dsqp_persona_construction_architecture.md` | DSQP persona construction. |
+| `docs/diagrams/11_frontend_product_surface_and_trace_review_map.md` | frontend/product surfaces. |
+| `docs/diagrams/12_end_to_end_request_lifecycle.md` | complete request lifecycle. |
+
+---
 
 ## Trust boundaries
 
-1. Client boundary:
-   renderer/browser is untrusted input surface.
-2. API boundary:
-   all inbound requests pass centralized validation, auth, and rate/resource controls.
-3. External boundary:
-   AI providers and connectors are treated as untrusted dependencies with timeout/retry/contract checks.
-4. Data boundary:
-   write paths require schema checks, retention policy alignment, and audit logging.
-5. Operations boundary:
-   diagnostics and export artifacts require redaction and integrity protection.
+1. **Client boundary** — renderer/browser input is untrusted.
+2. **Desktop boundary** — desktop local-auth is only valid in local/Electron/loopback context.
+3. **API boundary** — inbound requests pass centralized auth, validation, CSRF/CORS, rate/resource controls.
+4. **AI boundary** — providers/tools/connectors are untrusted dependencies with timeout, contract, and policy controls.
+5. **Data boundary** — write paths require schema, tenant, retention, and audit controls.
+6. **Trace/export boundary** — evidence bundles require integrity metadata and redaction where needed.
+7. **Operations boundary** — diagnostics/support bundles require sanitization.
+8. **Release boundary** — public desktop distribution requires packaging smoke and trusted signature evidence.
+
+---
 
 ## Validation matrix
 
@@ -120,26 +196,62 @@ sequenceDiagram
 | Documentation cross-links | `python scripts/verify_docs_references.py` |
 | Runtime startup controls | `python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process` |
 | Schema parity | `python scripts/validate_schema_parity.py` |
-| Installer integrity | `python scripts/verify_installer_integrity.py --require-artifacts` |
-| Windows packaging checks | `powershell -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1` |
-| Environment parity | `python scripts/verify_environment_parity.py` |
-| Lockfile integrity | `python scripts/verify_lockfiles.py` |
+| Environment parity | `python scripts/verify_environment_parity.py --strict` |
+| Lockfile governance | `python scripts/verify_lockfiles.py` |
+| Release governance | `python scripts/verify_release_governance.py` |
+| Backend tests | `python -m pytest tests --maxfail=20` |
+| API contracts | `python -m pytest -q --no-cov tests\contract` |
+| Security regressions | `python -m pytest -q --no-cov tests\security` |
+| Local-mode parity | `python -m pytest -q --no-cov tests\parity` |
+| Frontend validation | `npm --prefix frontend run lint && npm --prefix frontend run typecheck && npm --prefix frontend test` |
+| Windows packaging checks | `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path` |
+| NSIS governance | `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path` |
+| Signed installer verification | `powershell -ExecutionPolicy Bypass -File .\scripts\windows\verify_installer_signature.ps1 -RequireArtifacts -CheckRevocation` |
+
+---
 
 ## Startup notes
 
 1. Canonical Flask bootstrap lives in `app.py`.
-2. App-level blueprint wiring is centralized in `app.py::_register_application_routes()`.
-3. Startup schema creation is opt-in via `AUTO_CREATE_SCHEMA=true`; the default path is migration-first.
-4. `main.py` and `wsgi.py` share runtime compatibility patches through `backend/bootstrap_compat.py`.
-5. Production startup rejects `AUTO_CREATE_SCHEMA=true`; deployment prechecks should catch this before boot.
-6. Canonical application integrations should use `/api/v1/*`; compatibility aliases under `/api/compliance/*`, `/api/ka/*`, `/api/mcp/*`, `/api/persona/*`, `/api/pillar/*`, `/api/simulations/*`, `/api/truth/*`, and `/api/ukg/*` emit deprecation headers with successor routes.
+2. App-level blueprint wiring is centralized in app startup/registration logic.
+3. Startup schema creation is opt-in via `AUTO_CREATE_SCHEMA=true`; default release path is migration-first.
+4. Production startup rejects `AUTO_CREATE_SCHEMA=true`.
+5. Canonical application integrations should use `/api/v1/*`.
+6. Compatibility aliases remain transitional and should emit deprecation/successor route headers where implemented.
+7. Desktop runtime uses local/Electron/loopback policy; cloud mode must not rely on desktop trust.
+8. Local/VM storage modes use app-owned internal services by default.
+
+---
+
+## Source-of-truth document map
+
+| Question | Read first |
+|---|---|
+| What is the product? | `docs/PRODUCT_OVERVIEW.md` |
+| How does the system work? | `docs/ARCHITECTURE.md` |
+| What APIs exist? | `docs/API.md` |
+| How is data stored? | `docs/DATABASE_SCHEMA.md` |
+| How is it secured? | `docs/SECURITY.md` |
+| How is it tested? | `docs/TESTING.md` |
+| How is it deployed? | `docs/DEPLOYMENT.md` |
+| Is it production-ready? | `docs/PRODUCTION_READINESS.md` |
+| How is it operated? | `docs/OPERATIONAL_RUNBOOKS.md` |
+| How is it released? | `docs/RELEASE_CHECKLIST.md` |
+| How does Windows local mode work? | `docs/WINDOWS_11_LOCAL_RUNBOOK.md` |
+| What should users do first? | `docs/USER_GUIDE.md` |
+| How should engineers onboard? | `docs/ENGINEER_ONBOARDING.md` |
+
+---
 
 ## Known limitations
 
-1. Some `Settings` and `MCP admin` UI actions remain partially wired; see `docs/PRODUCT_OVERVIEW.md`.
-2. External connector coverage depends on configured credentials and environment readiness.
-3. Architecture details in `docs/archive/whitepapers/` may include exploratory content that is not operational source-of-truth.
-4. Some compatibility aliases remain active for migration coverage, but they are explicitly marked as transitional in response headers and API/versioning docs.
+1. External connector coverage depends on configured credentials and environment readiness.
+2. Architecture details in `docs/archive/whitepapers/` may include exploratory content that is not operational source of truth.
+3. Compatibility aliases remain active for migration coverage but should not be treated as the preferred integration path.
+4. Signed public Windows distribution still requires trusted certificate workflow evidence.
+5. Manual accessibility evidence remains required before final production distribution claims.
+
+---
 
 ## Related documents
 
@@ -150,10 +262,13 @@ sequenceDiagram
 5. `docs/DEPLOYMENT.md`
 6. `docs/PRODUCTION_READINESS.md`
 7. `docs/FILE_STRUCTURE.md`
+8. `docs/PRODUCT_OVERVIEW.md`
+9. `docs/ENGINEER_ONBOARDING.md`
 
-## Document control
+## Change notes for v2.6.0
 
-1. Owner: Platform Architecture
-2. Last updated: 2026-03-31
-3. Status: Active
-4. Review cadence: Every 30 days
+1. Added document metadata with explicit version and update date.
+2. Updated system context, runtime mode, repository, and request lifecycle maps for DMRF, Truth Engine, DSQP, local-first, trace/export, and multi-store architecture.
+3. Added diagram navigation map and source-of-truth document map.
+4. Expanded trust boundaries and validation matrix.
+5. Updated limitations to distinguish source-of-truth docs from archived/exploratory material.
