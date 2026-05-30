@@ -1,119 +1,156 @@
 # Application File Structure
 
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Status | Active |
+| Owner | Platform Engineering |
+| Review cadence | Every 30 days |
+
 ## Purpose
 
-Define repository layout, naming conventions, and inventory generation standards for DataLogicEngine.
+Define repository layout, ownership boundaries, naming conventions, inventory generation standards, and reviewer navigation guidance for DataLogicEngine.
 
 ## Audience
 
-1. Developers and reviewers
+1. Engineers and contributors
 2. Architecture and platform teams
 3. Release engineers
-4. Security and compliance auditors
+4. Security reviewers
+5. Technical judges and evaluators
 
-## Repository layout (top level)
+---
+
+## Repository layout (high level)
 
 ```text
 DataLogicEngine/
-├── backend/          # Backend services, middleware, security, AI orchestration
-├── core/             # Core engine and domain abstractions
-├── frontend/         # Next.js app, component system, Electron desktop runtime
-├── routes/           # API route handlers and endpoint wiring
-├── scripts/          # Verification, generation, packaging, and runbook automation
-├── tests/            # Unit, integration, security, and end-to-end tests
-├── docs/             # Source-of-truth docs, standards, runbooks, ADRs
-├── deploy/           # Deployment and platform assets
-└── sdk/              # SDK and external integration helpers
+├── backend/           # DMRF, Truth Engine, security, storage, APIs
+├── core/              # 17-axis, FROST, domain abstractions
+├── frontend/          # Next.js UI and Electron desktop runtime
+├── routes/            # Route wiring and compatibility surfaces
+├── scripts/           # Validation, generation, packaging, governance
+├── tests/             # Unit, integration, security, parity, E2E
+├── docs/              # Active docs, diagrams, ADRs, standards
+├── deploy/            # Deployment and platform assets
+├── migrations/        # Database migrations
+├── .github/workflows/ # CI, deployment, release automation
+├── app.py             # Flask application assembly
+├── models.py          # SQLAlchemy model layer
+└── main.py            # Application entry point
 ```
+
+---
+
+## Architecture ownership map
+
+| Area | Primary paths |
+|---|---|
+| Frontend product surfaces | `frontend/app/`, `frontend/components/` |
+| Electron desktop runtime | `frontend/electron/` |
+| Runtime policy | `frontend/lib/runtime/` |
+| API/security envelope | `app.py`, `backend/auth/`, `backend/security/` |
+| DMRF | `backend/dmrf/` |
+| Truth Engine | `backend/truth_engine/` |
+| DSQP | `backend/dsqp/` |
+| LLM Gateway | `backend/llm_gateway/` |
+| MCP/connectors | `backend/mcp_server/` |
+| Data and memory | `backend/storage/`, `backend/memory/`, `models.py` |
+| Tests | `tests/` |
+| Documentation | `docs/`, `docs/diagrams/` |
+| Release governance | `scripts/`, `.github/workflows/` |
+
+---
 
 ## Naming conventions
 
-### Backend (Python/Flask)
+### Python
 
-1. Modules/files: `snake_case.py`
-2. Classes: `PascalCase`
-3. Functions/variables: `snake_case`
-4. Constants: `UPPER_SNAKE_CASE`
+- Files/modules: `snake_case.py`
+- Classes: `PascalCase`
+- Functions/variables: `snake_case`
+- Constants: `UPPER_SNAKE_CASE`
 
-### Frontend (Next.js/React/TypeScript)
+### TypeScript/React
 
-1. Routes/directories: App Router folders (`app/<route>/page.tsx`)
-2. Components: `PascalCase.tsx`
-3. Hooks/utilities: `camelCase` (`useX.ts`, `utils.ts`)
-4. API clients: `frontend/lib/api/*`
+- Components: `PascalCase.tsx`
+- Hooks: `useX.ts`
+- Utilities: descriptive lower/camel case
+- Routes: Next.js App Router folders
 
-### Scripts and automation
+### Scripts
 
-1. Python verification scripts: `verify_<area>.py`
-2. Windows operations scripts: verb-first PowerShell names (`start_*.ps1`, `verify_*.ps1`)
-3. Generated artifacts: explicitly named in `docs/` and not hand-edited
+- Validation: `verify_<area>.py`
+- Generation: `generate_<area>.py`
+- Windows operations: verb-first PowerShell (`start_*`, `stop_*`, `verify_*`)
 
-## High-value subtrees
+---
 
-### `frontend/`
+## Reviewer navigation path
 
-1. `app/` route pages and app-router segments
-2. `components/` UI components and feature composition
-3. `electron/` desktop process and IPC bridge code
-4. `lib/` API and shared utilities
-5. `tests/` unit and E2E coverage
+If you are new to the repository, inspect in this order:
 
-### `backend/` and `routes/`
+1. `docs/PRODUCT_OVERVIEW.md`
+2. `docs/ARCHITECTURE.md`
+3. `docs/ARCHITECTURE_MAP.md`
+4. `docs/diagrams/12_end_to_end_request_lifecycle.md`
+5. `app.py`
+6. `backend/dmrf/orchestrator.py`
+7. `backend/truth_engine/api.py`
+8. `frontend/app/layout.tsx`
+9. `.github/workflows/ci.yml`
 
-1. API gateway/auth/storage/simulation/tracing services
-2. Middleware for security headers, limits, request correlation, and runtime policy
-3. AI governance and model routing layers
-4. Connector and MCP service paths
+---
 
-### `scripts/windows/`
+## Generated inventory artifacts
 
-1. `start_local_stack.ps1`
-2. `stop_local_stack.ps1`
-3. `run_packaging_smoke.ps1`
-4. `verify_nsis_governance.ps1`
-5. `verify_installer_signature.ps1`
+1. `docs/FILE_INVENTORY.csv`
+2. `docs/GENERATED_STRUCTURE.md`
+3. `docs/ARCHITECTURE_MAP.md`
 
-## Generated inventory and structure artifacts
+These artifacts help reviewers navigate a repository containing thousands of files and generated assets.
 
-1. Full file inventory:
-   `docs/FILE_INVENTORY.csv`
-2. Generated structure summary:
-   `docs/GENERATED_STRUCTURE.md`
-3. Architecture implementation map:
-   `docs/ARCHITECTURE_MAP.md`
+---
 
 ## Generation procedure
-
-Run from repository root:
 
 ```powershell
 .venv\Scripts\python.exe .\scripts\generate_docs.py
 ```
 
-This updates:
+Expected outputs:
 
 1. `docs/FILE_INVENTORY.csv`
 2. `docs/GENERATED_STRUCTURE.md`
 
+---
+
 ## Validation
 
-1. Verify cross-document references:
-   `python scripts/verify_docs_references.py`
-2. Verify environment parity:
-   `python scripts/verify_environment_parity.py`
-3. Verify lockfile governance:
-   `python scripts/verify_lockfiles.py`
+```powershell
+python scripts/verify_docs_references.py
+python scripts/verify_environment_parity.py --strict
+python scripts/verify_lockfiles.py
+python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process
+```
+
+---
 
 ## Related documents
 
 1. `docs/ARCHITECTURE_MAP.md`
-2. `docs/DOCUMENTATION_STANDARDS.md`
-3. `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
-4. `docs/README.md`
+2. `docs/ENGINEER_ONBOARDING.md`
+3. `docs/DOCUMENTATION_STANDARDS.md`
+4. `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
+5. `docs/PRODUCT_OVERVIEW.md`
 
-## Document control
+## Change notes for v2.6.0
 
-1. Owner: Platform Engineering
-2. Last updated: 2026-02-16
-3. Status: Active
-4. Review cadence: Every 30 days
+1. Added document metadata with explicit version and update date.
+2. Updated repository structure around DMRF, Truth Engine, DSQP, Electron, and governance workflows.
+3. Added architecture ownership map.
+4. Added reviewer navigation path.
+5. Updated validation and generation guidance.
