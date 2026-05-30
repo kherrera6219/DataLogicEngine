@@ -10,7 +10,7 @@ Run DataLogicEngine locally on Windows 11 with:
 
 Default path uses SQLite/in-memory fallbacks. PostgreSQL/Redis/Neo4j/object services are optional.
 
-## Current State (May 22, 2026)
+## Current State (May 30, 2026)
 
 1. Local startup scripts are functional.
 2. Core frontend routes are reachable.
@@ -20,6 +20,8 @@ Default path uses SQLite/in-memory fallbacks. PostgreSQL/Redis/Neo4j/object serv
 6. Startup script now auto-resolves backend/frontend port conflicts by default.
 7. Desktop runtime now stores install secret using OS-protected encryption when available and writes local runtime logs under user data.
 8. Silent install and retention-aware silent uninstall controls are available for enterprise deployments.
+9. The installer build now rebuilds the PyInstaller backend before packaging (`frontend/build_installer.ps1`), so the shipped backend always matches source. Previously the bundled backend could be stale, producing `404`s for `/gateway/dsqp-persona-profiles` and `/gateway/network-status` and keeping backend fixes inactive. See `HANDOFF.md`.
+10. Provider test (`backend/llm_gateway/api.py`) returns specific failure reasons: `invalid_api_key`, `rate_limited`, `invalid_model`, `network_error`.
 
 ## Prerequisites
 
