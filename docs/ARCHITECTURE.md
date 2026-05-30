@@ -1,923 +1,532 @@
-# Universal Knowledge Graph (UKG) system architecture
+# Universal Knowledge Graph (UKG) System Architecture
+
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Status | Active |
+| Owner | Platform Architecture |
+| Review cadence | Every 60 days |
 
 ## Purpose
 
-Define the logical and runtime architecture of DataLogicEngine for engineering, security, and operations stakeholders.
+Define the current logical and runtime architecture of DataLogicEngine for engineering, security, operations, and technical-review stakeholders.
+
+This version reflects the current code-backed architecture: local-first runtime modes, DMRF control plane, 17-axis routing, DSQP persona construction, Truth Engine v7.3, multi-store memory, frontend trace review, and release-governed validation.
 
 ## Audience
 
 1. Platform engineers
 2. Security engineers
-3. SRE/operations
+3. SRE/operations teams
 4. Technical architects
-
-## Document control
-
-1. Owner: Platform Architecture
-2. Last updated: 2026-05-25
-3. Status: Active
-4. Review cadence: Every 60 days
+5. QA/release engineers
+6. Technical judges and external reviewers
 
 ## Related documents
 
 1. `docs/API.md`
-2. `docs/SECURITY.md`
-3. `docs/DEPLOYMENT.md`
-4. `docs/PRODUCTION_READINESS.md`
-5. `docs/ARCHITECTURE_MAP.md`
+2. `docs/DEPLOYMENT.md`
+3. `docs/PRODUCTION_READINESS.md`
+4. `docs/TESTING.md`
+5. `docs/diagrams/01_master_system_architecture.md`
+6. `docs/diagrams/04_17_axis_coordinate_model.md`
+7. `docs/diagrams/05_truth_engine_architecture.md`
+8. `docs/diagrams/09_dmrf_control_plane_deep_dive.md`
+9. `docs/diagrams/12_end_to_end_request_lifecycle.md`
 
-## Overview
+## Architecture overview
 
-The Universal Knowledge Graph (UKG) System employs a **hardened middleware architecture** designed for high-availability, consistent reasoning, and enterprise-grade security.
+DataLogicEngine is a local-first AI governance and knowledge-reasoning platform. It is not centered on a single LLM call. The architecture is built around a governed request lifecycle:
 
-### 2026-03-24 Architecture Hardening Delta
+```text
+User prompt
+  -> frontend/API security envelope
+  -> DMRF control plane
+  -> TruthGate
+  -> tier classification
+  -> 17-axis routing
+  -> DSQP persona construction
+  -> TruthCore workflow planning/execution
+  -> model/tool execution when required
+  -> evidence freshness and convergence policy
+  -> memory/audit/artifact persistence
+  -> trace review and integrity-protected export
+```
 
-This architecture baseline includes the following newly enforced controls:
+The major architecture planes are:
 
-1. **Gateway object-level authorization**
-   - Session message retrieval now enforces ownership against authenticated identity.
-2. **Fail-closed frontend edge**
-   - Next.js proxy middleware now fails with service-unavailable on middleware exceptions.
-3. **RAG safety/reliability controls**
-   - Production no longer silently accepts synthetic/mock embeddings during provider outages.
-   - Retrieval context filtering now excludes suspicious prompt-injection style chunks and low-score chunks.
-4. **Replay defense resilience**
-   - Request signing nonce state supports Redis-backed persistence for multi-worker deployments.
-5. **Upload trust boundary hardening**
-   - Upload pipeline validates binary signatures against declared MIME type.
-
-### 2026-05-25 SQL Historical Reasoning Delta
-
-The local-first reasoning path now includes DB-P historical calibration:
-
-1. **L8 threshold calibration**
-   - `TrustValidationGateway._get_threshold()` keeps Axis 14 override precedence, then reads 90-day `TraceRun.confidence` history by risk domain before falling back to static thresholds.
-2. **TruthSession input embeddings**
-   - `TruthCoreEngine.create_session()` stores a deterministic local query embedding in `truth_sessions.input_embedding` for SQLite/PostgreSQL-compatible historical comparisons.
-3. **L9 historical drift baseline**
-   - `MetaReasoningController` returns `db_similar_sessions` from recent `TruthSession` embeddings and incorporates the historical confidence baseline into drift detection.
-4. **KA execution timing**
-   - `KAMasterController` writes `KAExecution` timing rows when the local database is available, and `KA-036` reads p95 latency from the last 100 executions for complexity estimation.
-
-- **Frontend**: Next.js 16.1 App Router (React 18.3)
-  - _Role_: User Interface, Visualization, State Management, Real-time Updates
-- **Backend**: Flask 3.1 (Python 3.11+)
-  - _Role_: API Gateway, Knowledge Engine, MCP Server, LLM Gateway, Truth Engine
-- **Database**: PostgreSQL 15+ with SQLAlchemy 2.0
-  - _Role_: Persistent storage for 40+ tables including users, knowledge graph, traces, audit logs
-- **Cache/Queue**: Redis 5+
-  - _Role_: Caching, rate limiting, session storage (hardened), Celery task queue
-- **Security Layer**: Enterprise Managers
-  - _RBACManager_: Granular permission enforcement
-  - _EncryptionManager_: Field-level AES-256 protection
-  - _MFAManager_: TOTP-based identity verification
-
----
+1. **Experience plane** — Next.js/Electron frontend, dashboard, chat, graph, runs/trace explorer, Truth Engine monitor, MCP hub, admin, privacy/disclosures.
+2. **API/security plane** — Flask API, sessions, CSRF, CORS, trusted hosts, rate limits, desktop local auth, middleware, operational health.
+3. **AI control plane** — DMRF orchestration, injection defense, tiering, 17-axis routing, DSQP, Truth Engine integration, convergence policy, observability.
+4. **Truth Engine plane** — TruthGate, TruthCore, TruthMemory, TruthLink.
+5. **Data and memory plane** — SQL, Redis, Neo4j, ChromaDB, local object store, USKD NetworkX graph, UnifiedMemory, TruthMemory.
+6. **Governance plane** — tests, CI, release gates, trace export integrity, docs/versioning, compliance and audit controls.
 
 ## High-level component map
 
 ```mermaid
-graph TD
-    Client[Enterprise App] -->|HTTPS| API[Hardened API Gateway]
+flowchart TD
+    User[User / Judge / Operator]
+    FE[Next.js + Electron Frontend]
+    API[Flask API and Security Envelope]
+    DMRF[DMRF Control Plane]
+    Truth[Truth Engine v7.3]
+    LLM[LLM Gateway / MCP Tools]
+    Data[Data and Memory Stores]
+    Trace[Trace Explorer and Export Integrity]
+    Ops[Testing / CI / Release Governance]
 
-    subgraph "Middleware Stack"
-        API -->|Middleware| AUTH[SSO/OIDC Mapping]
-        API -->|Middleware| TM[Correlation/Trace Engine]
-        API -->|Middleware| SEC[Security: PII/Injection Shield]
+    User --> FE
+    FE --> API
+    API --> DMRF
+    DMRF --> Truth
+    Truth --> LLM
+    DMRF --> Data
+    Truth --> Data
+    LLM --> Data
+    Data --> Trace
+    DMRF --> Trace
+    Truth --> Trace
+    Ops --> API
+    Ops --> FE
+    Ops --> Data
+
+    subgraph Frontend
+        Dashboard[/dashboard]
+        Chat[/chat]
+        Runs[/runs]
+        Graph[/graph + /knowledge]
+        Monitor[/truth-engine]
+        MCP[/mcp]
+        Admin[/admin]
     end
 
-    subgraph "Knowledge Processing"
-        SEC -->|Logic| UKG[17-Axis Pipeline]
-        UKG -->|Retrieval| DB[(PostgreSQL)]
-        UKG -->|Engines| ENG[Simulation & QuadPersona]
-        UKG -->|Tools| MCP[MCP Server: Salesforce/Jira]
+    FE --> Dashboard
+    FE --> Chat
+    FE --> Runs
+    FE --> Graph
+    FE --> Monitor
+    FE --> MCP
+    FE --> Admin
+
+    subgraph DMRFSteps[DMRF Execution]
+        Inject[InjectionDefense]
+        Gate[TruthGate Adapter]
+        Tier[TierClassifier]
+        Axis[17-Axis Router]
+        DSQP[DSQP Personas]
+        Plan[TruthCore Plan]
+        Conv[Evidence + Convergence]
+        Frost[FROST Snapshots]
     end
 
-    UKG -->|Multimodal| SVC[Audio/Video/Doc Services]
-    UKG -->|Grounded| LLM[LLM Gateway]
-    LLM -->|Request| PROVIDER[OpenAI / Azure / Anthropic]
-    TM -->|Audit| BC[TruthLink Blockchain]
+    DMRF --> Inject --> Gate --> Tier --> Axis --> DSQP --> Plan --> Conv
+    DMRF -. every step .-> Frost
+
+    subgraph TruthModules[Truth Engine Modules]
+        TruthGate[TruthGate]
+        TruthCore[TruthCore]
+        TruthMemory[TruthMemory]
+        TruthLink[TruthLink]
+    end
+
+    Truth --> TruthGate
+    Truth --> TruthCore
+    Truth --> TruthMemory
+    Truth --> TruthLink
+
+    subgraph Stores[Storage]
+        SQL[SQLAlchemy / PostgreSQL or SQLite]
+        Redis[Redis]
+        Neo4j[Neo4j]
+        Chroma[ChromaDB]
+        ObjectStore[Local Object Store]
+        USKD[USKD NetworkX Graph]
+        UnifiedMemory[UnifiedMemoryService]
+    end
+
+    Data --> SQL
+    Data --> Redis
+    Data --> Neo4j
+    Data --> Chroma
+    Data --> ObjectStore
+    Data --> USKD
+    Data --> UnifiedMemory
 ```
 
----
+## Core runtime stack
 
-## Enterprise hardening features
+| Layer | Current implementation | Role |
+|---|---|---|
+| Frontend | Next.js App Router, React, TypeScript, Tailwind, Shadcn/Radix, Electron optional shell | Product UI, trace review, graph views, chat, admin, MCP, disclosures. |
+| Backend | Flask 3.x, Python 3.11+, blueprints, SQLAlchemy | API gateway, security envelope, route registry, service orchestration. |
+| Control plane | `backend/dmrf/` | Governed AI lifecycle orchestration. |
+| Truth Engine | `backend/truth_engine/` | Security gate, workflow engine, memory/audit, event bus. |
+| Persona engine | `backend/dsqp/` | Deterministic/offline seven-component personas for axes 8-11. |
+| Knowledge axes | `core/axes/`, `backend/dmrf/router.py` | 17-axis coordinate routing and FROST mode selection. |
+| Model access | `backend/llm_gateway/`, MCP server modules | Provider routing, model/tool execution, connector integration. |
+| Relational store | SQLAlchemy with SQLite/PostgreSQL paths | Users, sessions, traces, artifacts, graph rows, audit records. |
+| Graph store | Neo4j + USKD NetworkX memory graph | Durable and RAM-resident graph reasoning context. |
+| Vector store | ChromaDB PersistentClient | Local embeddings and semantic search. |
+| Object store | Local filesystem object store | Deliverables, graphs, eval data, audit logs, trace exports. |
+| Cache/queue | Redis where available | Session/cache/rate-limit/streams/queue behavior. |
+| Governance | GitHub Actions, pytest, Vitest, Playwright, packaging smoke, release checks | Validation and release safety. |
 
-Built with a modern stack including **Next.js 16.1**, **React 18.3**, and **Flask 3.1**, the system implements multiple layers of enterprise security and resilience.
+## 2026-05-30 architecture baseline
 
-### 1. Resilience: Circuit Breaker & Failover
+The current architecture baseline is defined by these code-backed subsystems:
 
-The `LLM Gateway` implements a **Circuit Breaker** pattern. If a provider (e.g., OpenAI) returns sequential errors, the circuit opens, and the gateway automatically reroutes traffic to the next highest priority provider (e.g., Anthropic).
+1. **DMRF control plane** — `backend/dmrf/orchestrator.py` coordinates injection defense, TruthGate, tiering, 17-axis routing, DSQP, TruthCore planning, evidence/convergence, memory, tracking, TruthLink, and observability.
+2. **17-axis model** — `core/axes/` and `backend/dmrf/router.py` convert user context into an `AxisVector` with active axes, confidence, FROST depth, and Truth Engine mode.
+3. **Axis 17 FROST mode selector** — `core/axes/axis17_frost_mode.py` maps reasoning tier to FROST layer depth and TruthCore mode.
+4. **DSQP persona construction** — `backend/dsqp/` creates deterministic seven-part personas for axes 8-11 and persists deliverables to object storage when available.
+5. **Truth Engine v7.3** — `backend/truth_engine/` exposes TruthGate, TruthCore, TruthMemory, and TruthLink through API and DMRF adapters.
+6. **Multi-store memory** — Neo4j/SQL graph, USKD NetworkX graph, ChromaDB vectors, UnifiedMemory structured graph, TruthMemory audit memory, and local object store all serve distinct roles.
+7. **Local-first runtime** — desktop/local/hybrid behavior uses loopback auth, per-install secret, nonce/HMAC signatures, DPAPI helper, and app-owned storage services.
+8. **Frontend review surface** — `/chat`, `/runs`, `/graph`, `/knowledge`, `/truth-engine`, `/mcp`, `/admin`, and disclosure pages expose system operation to users and reviewers.
+9. **Testing/release governance** — CI validates backend, frontend, contract, parity, security, packaging, environment, lockfile, Docker, and release governance gates.
 
-- **Recovery**: Circuits enter "Half-Open" state after a timeout to test provider health.
-- **Failover**: Sequential provider attempt logic ensures near 100% availability for reasoning tasks.
+## DMRF control plane
 
-### 2. Multi-Tenancy: Data Isolation
+DMRF is the operational brain of the AI architecture.
 
-Data isolation is enforced at the core database manager level. Every request carries a `tenant_id` context (mapped from SSO claims).
+Runtime order:
 
-- **Isolation**: SQL queries are automatically filtered by `tenant_id`.
-- **Graph Safety**: Graph traversals are scoped to the requesting tenant's nodes and edges.
-
-### 3. Observability: End-to-End Tracing
-
-Using a unified **Correlation ID**, the system links the initial HTTP request to the deep Knowledge Algorithm execution steps in the UKG SDK.
-
-- **Audit Chain**: Every execution culminates in a hash-chained audit record.
-- **Trace Explorer**: Admins can view the full reasoning path, including which evidence was used for which claim.
-
-```typescript
-rewrites: async () => [
-  {
-    source: '/api/:path*',
-    destination: 'http://localhost:5000/api/:path*',
-  },
-],
+```text
+DMRFResult creation
+  -> InjectionDefense.detect()
+  -> TruthGateDMRFAdapter.evaluate()
+  -> DMRFTierClassifier.classify()
+  -> DMRFRouter.route()
+  -> DSQPOrchestrator.construct_all_sync()
+  -> TruthCoreDMRFAdapter.workflow_steps()
+  -> EvidenceModel.score()
+  -> ConvergencePolicy.should_refine()
+  -> TruthMemoryDMRFAdapter.persist()
+  -> DMRFMLflowTracker.record()
+  -> TruthLinkDMRFAdapter.publish()
+  -> DMRFObservability.record()
 ```
 
-This enables:
-
-- Seamless API communication without CORS issues
-- Session cookie sharing
-- Simplified deployment architecture
-
----
-
-## 🧠 17-Axis Knowledge Framework
-
-A robust **Flask 3.1** application serving as the central nervous system, deployed with **Gunicorn** (4 workers, 2 threads each).
-
-1.  **Sectors**: Vertical industry (Healthcare, Finance, etc.)
-2.  **Domains**: Technical areas (Compliance, Security, etc.)
-3.  **Tiers**: Priority and complexity scoring.
-4.  **Layers**: Reasoning depth (L1 Hygiene to L10 Completion).
-5.  **Coordinates**: A compact 17-part vector representing the precise context of a query.
-
-This coordinate system allows the engine to retrieve exactly the right "slice" of knowledge for any query, significantly outperforming traditional RAG.
-
----
-
-## 🧪 Deployment Patterns
-
-- **Desktop Deployment**: Electron app, bundled Flask backend, and app-owned internal databases.
-- **Windows VM Deployment**: Same Windows app stack running inside a Windows virtual machine.
-- **Data Persistence**: App-owned PostgreSQL/SQLite, Redis, Neo4j, ChromaDB, and object storage. Externally hosted database sources are not part of the supported runtime model.
-
----
-
-## 🖥️ Desktop & Local-First Architecture (Windows 11)
-
-In v2.4.0, the system introduced first-class support for **Local-First** desktop execution on Windows 11.
-
-### 1. Multi-Mode Execution Layer
-The system can operate in two primary modes defined by environment variables:
-- **Desktop**: Uses app-owned internal database services. Data residency is strictly on the local machine.
-- **Windows VM**: Uses the same app-owned internal database services inside the VM.
-
-### 2. Service Orchestration (Windows)
-For local Windows bring-up, the supported workflow uses `scripts/windows/start_local_stack.ps1` and `scripts/windows/stop_local_stack.ps1`.
-- **Backend Runtime**: Flask backend on `127.0.0.1:5000` (SQLite fallback supported).
-- **Frontend Runtime**: Next.js on `127.0.0.1:3000`.
-- **Optional Service Wrapper**: WinSW XML definitions (`DataLogic_Backend.xml`, `DataLogic_Frontend.xml`) are retained for service-based deployments.
-
-### 3. Native Identity & Security
-- **Identity Integrity**: Validated user recognition via Windows Security Identifier (SID) with standard format enforcement, ensuring that local data residency is tied to a verified profile.
-- **DPAPI Secret Storage**: Sensitive LLM API keys are encrypted using the **Windows Data Protection API (DPAPI)** with externalizable entropy (UKG_DPAPI_ENTROPY), ensuring secrets are tied strictly to the user and machine.
-
-### 4. Local Data Paths
-The application respects Windows standards for data residency:
-- **Data Directory**: `C:\ProgramData\DataLogicEngine` (Configurable via `UKG_DATA_DIR`).
-- **Log Residency**: All service logs are stored in the local data directory under `/logs`.
-
-### 5. Distributable Packaging (Setup.exe)
-The current default installer path is **Electron Builder (NSIS)** (`frontend/build_installer.ps1`).
-- **Primary Build**: Packages desktop artifacts via `electron-builder`.
-- **Windows Script Integration**: Uses modular PowerShell scripts for setup/diagnostics.
-- **Optional WiX/WinSW Path**: WiX manifests remain available under `deploy/windows/` for service-based packaging workflows.
-- **WiX Asset Prep**: Run `scripts/windows/prepare_wix_assets.ps1` before WiX packaging to fetch required WinSW assets.
-
----
-
-## 🧠 Unified Knowledge Algorithm (KA) Infrastructure
-
-
-The system employs a unified infrastructure for managing and executing **Knowledge Algorithms (KAs)**. These algorithms (KA-001 to KA-116, L9-KA-001 to 007) are implemented as modern Python modules that inherit from a standard base class and register themselves via a central registry.
-
-- **KAMasterController**: Discovered and managed from `knowledge_algorithms/`, this controller orchestrates KA discovery, performance tracing, and resilient execution.
-- **Enterprise Base Class**: All 123 algorithms (KA-001 to L9-KA-007) inherit from a hardened base class with Pydantic validation and `_fallback_logic` hooks.
-- **Resilient Execution**: Multi-tier error handling with structured error codes (E400-E500) and graceful degradation support.
-- **Registry System**: Unified discoverability via `knowledge_algorithms/ka_registry.yaml`.
-
-#### 1. LLM Gateway (`backend/llm_gateway/`)
-
-**Purpose**: Universal adapter for multiple LLM providers with UKG context injection
-
-- **Providers Supported**: OpenAI, Azure OpenAI, Anthropic, Google Vertex AI
-- **Features**:
-  - Encrypted API key storage (Fernet)
-  - Automatic provider failover
-  - Circuit breaker pattern
-  - Rate limiting (RPM/TPM)
-  - Request/response streaming
-  - Usage tracking and analytics
-
-**Key Files**:
-
-- `api.py` - REST endpoints (`/api/v1/gateway/chat`, `/api/v1/gateway/stream`)
-- `gateway.py` - Core routing logic
-- `providers.py` - Provider adapters
-- `models.py` - LLMProvider, LLMProviderUsage database models
-
-#### 2. Truth Engine (`backend/truth_engine/`)
-
-**Purpose**: 5-tier reasoning framework with compliance and audit trails
-
-**Processing Layers (L1-L10)**:
-
-1. **L1: Context Initialization** - Parses query into `Coord17Intent`, resolves coordinates, and sets guardrails.
-2. **L2: USKD Materialization** - Materializes a bounded subgraph (the "mini-world") from the UKG into working memory.
-3. **L3: Controlled Expansion** - Agentic enrichment layer that fills knowledge gaps using specialized KAs.
-4. **L4: POV Overlays** - Adds stakeholder constraints and interpretive weighting without factual mutation.
-5. **L5: Quad Persona Projections** - Parallel multi-persona debate with conflict detection and synthesis.
-6. **L6: Validation & Scoring** - High-fidelity confidence weighting and risk driver mapping.
-7. **L7: Scenario Simulation** - Nested forks (Baseline/Stress/Optimistic) to test outcome robustness.
-8. **L8: Consistency Verification** - Cross-checks claims against constraints with recursive refinement triggers.
-9. **L9: Strategic Alignment** - Aligns the validated state with enterprise strategy and roadmaps.
-10. **L10: Final Emergence & Safety Gate** - The final release authority. Dual-lane architecture: **Lane A (Response Gate)** for real-time safety/emergence audit; **Lane B (Knowledge Commit)** for authorized persistence of new learning into long-term memory.
-
-**Components**:
-
-- `truth_core/` - Core reasoning logic
-- `truth_gate/` - Policy enforcement and access control
-- `truth_link/` - Evidence linking and citation
-- `truth_memory/` - Structured memory management
-- `api.py` - Session management endpoints
-
-**Features**:
-
-- Budget tracking (token/cost limits)
-- Immutable audit trail with hash chains (EU AI Act Article 53 compliant)
-- Confidence and safety scoring
-- Persona-based reasoning
-- Workflow step tracking
-
-#### 4. MCP Server (`backend/mcp_server/`)
-
-**Purpose**: Model Context Protocol implementation for LLM agent integration
-
-**Components**:
-
-- `router.py` - MCP JSON-RPC router (25 KB)
-- `registry.py` - Decorator-based tool registry
-- `tools/` - Salesforce, Jira, and KA tool implementations
-
-**Exposes**:
-
-- **Resources**: Knowledge graph stats, pillars, algorithms
-- **Tools**: 116 Knowledge Algorithms + CRM/Jira connectors
-- **Prompts**: Expert persona templates, regulatory analysis templates
-
-#### 5. Multimodal Services (`backend/services/`)
-
-**Purpose**: High-fidelity media processing services
-
-- `document_processor.py`: PDF/OCR/Docx extraction
-- `audio_service.py`: Real-time STT (Whisper) and TTS synthesis
-- `video_service.py`: Keyframe extraction and Vision LLM (GPT-4o) analysis
-
-**Database Models**:
-
-- `MCPServer` - Server configurations
-- `MCPResource` - Resource definitions
-- `MCPTool` - Tool specifications
-- `MCPPrompt` - Prompt templates
-
-#### 5. Authentication & Authorization (`backend/auth/`)
-
-**Purpose**: Enterprise-grade authentication and access control
-
-**Authentication Methods**:
-
-- Session-based (Flask-Login)
-- SSO/OIDC (Azure AD via Authlib)
-- API Keys with encryption
-- OAuth (Replit, etc.)
-- JWT tokens
-
-**Security Features**:
-
-- Password policy (min 12 chars, complexity)
-- Password history tracking
-- 2FA support (TOTP via PyOTP)
-- API key rate limiting
-- Session timeout
-
-**Database Models**:
-
-- `User` - Core users with tenant_id
-- `APIKey` - API credentials
-- `OAuthAccount` - OAuth linkages
-- `PasswordHistory` - Audit trail
-
-#### 6. Security & Audit (`backend/security/`)
-
-**Purpose**: Enterprise security hardening and compliance
-
-**Features**:
-
-- Security headers (CSP, HSTS, X-Frame-Options)
-- SIEM audit logging (Syslog, CSV export)
-- API request auditing
-- Compliance reporting (SOC2, GDPR, HIPAA)
-
-**Audit Logger**:
-
-- Records all API requests
-- User action tracking
-- Export to SIEM systems
-- Configurable retention policies
-
-#### 7. Middleware (`backend/middleware/`)
-
-**Purpose**: Cross-cutting concerns for all requests
-
-- `correlation_id.py` - Distributed tracing (X-Request-ID)
-- `request_limits.py` - Max content length enforcement
-- `timeout.py` - Request timeout handling
-- `security_headers.py` - HTTP security headers
-
-### Data Storage
-
-#### PostgreSQL (40+ Tables)
-
-Organized by domain:
-
-1. **User & Access Control**
-
-   - users, api_keys, oauth_accounts, password_history
-
-2. **Knowledge Graph**
-
-   - kg_nodes, kg_edges (legacy)
-   - ukg_nodes, ukg_edges (modern with tenant isolation)
-
-3. **Chat & Sessions**
-
-   - chats, messages, ukg_sessions, memory_entries
-
-4. **Tracing**
-
-   - trace_runs, trace_stages, trace_evidence, trace_claims, etc.
-
-5. **Truth Engine**
-
-   - truth_sessions, truth_audit_events, truth_artifacts, truth_budgets
-
-6. **MCP**
-
-   - mcp_servers, mcp_resources, mcp_tools, mcp_prompts
-
-7. **LLM Gateway**
-
-   - llm_providers, llm_provider_usage, external_api_keys
-
-8. **Compliance**
-
-   - audit_logs, compliance_events, policy_records
-
-9. **Simulations**
-
-   - simulation_sessions, simulation_steps, simulation_outcomes
-
-10. **Knowledge Algorithms**
-    - knowledge_algorithms, ka_executions
-
-**Key Features**:
-
-- All tables have `tenant_id` for multi-tenancy
-- UTC timestamps (created_at, updated_at)
-- Foreign key relationships with cascading
-- Indexes on frequently queried columns
-- JSON columns for flexible attributes
-
-#### Redis
-
-- **Caching**: Knowledge graph query results
-- **Rate Limiting**: Flask-Limiter backend
-- **Session Storage**: User sessions
-- **Celery Broker**: Task queue messages
-
----
-
-## 3. 17-Axis Knowledge Framework (`core/axes/`)
-
-The data model organizes information across 17 dimensions for multi-dimensional knowledge contextualization:
-
-### The 17 Axes
-
-1. **Axis 1 - Pillar**: Top-level knowledge domain (FAR, DFARS, CFR)
-2. **Axis 2 - Sector**: Industry sectors and market areas (NAICS, SIC)
-3. **Axis 3 - Honeycomb**: Cross-domain semantic bridges and intra-expansion
-4. **Axis 4 - Branch**: Knowledge sub-hierarchies and Methods
-5. **Axis 5 - Node**: Atomic knowledge nodes and specific Tools
-6. **Axis 6 - Octopus**: Regulatory hub (one-to-many authority mapping)
-7. **Axis 7 - Spiderweb**: Compliance mesh (many-to-many framework overlap)
-8. **Axis 8 - Knowledge Expert**: SME persona (theoretical/technical)
-9. **Axis 9 - Sector Expert**: Practitioner persona (industry implementation)
-10. **Axis 10 - Regulatory Expert**: Regulatory strategist persona (octopus-driven)
-11. **Axis 11 - Compliance Expert**: Compliance/audit persona (spiderweb-driven)
-12. **Axis 12 - Location**: Geospatial context (country, region, jurisdiction) with hierarchical parent-child relationships and proximity-based retrieval.
-13. **Axis 13 - Temporal**: Time context (effective date, version, validity)
-14. **Axis 14 - Risk & Confidence**: Probability vectors and trust scores
-15. **Axis 15 - Federated Intelligence**: Federated knowledge sharing and distributed state
-16. **Axis 16 - Arrows of Time**: Causality chains and temporal vectors
-17. **Axis 17 - Observability**: Audit trails and performance markers
-
-### Implementation
-
-Each axis is implemented as a comprehensive module (30+ KB each) in `core/axes/`:
-
-- `axis_system.py` - Framework orchestrator
-- `axis1_identity.py` - Identity context resolver
-- `axis2_sector.py` - Sector specialization mapping
-- `axis3_domain.py` - Domain expertise mapping
-- `axis6_regulatory.py` - Regulatory framework resolver
-- `axis7_compliance.py` - Compliance obligation mapping
-- `axis12_location.py` - Geolocation resolver and hierarchy manager
-- `axis13_time.py` - Temporal context resolver
-- `axis17_observability.py` - Tracing and metrics
-
-### Usage
-
-When a query is processed:
-
-1. Query is parsed and mapped to relevant axes
-2. Each axis contributes contextual dimensions
-3. Knowledge retrieval is filtered by axis coordinates
-4. Results are contextualized based on axis intersection
-5. This ensures domain-specific, compliant, and accurate responses
-
-**Example**:
-
-- Query: "What are AI compliance requirements in healthcare?"
-- Axis 2 (Sector): Healthcare
-- Axis 3 (Domain): AI
-- Axis 6 (Regulatory): HIPAA, FDA
-- Axis 7 (Compliance): Healthcare AI regulations
-- Result: Targeted retrieval of healthcare AI compliance knowledge
-
----
-
-## 4. Routes & API Structure (`/routes`)
-
-All API routes return standardized JSON responses:
-
-```json
-{
-  "success": true,
-  "data": {},
-  "error": null,
-  "timestamp": "2026-01-09T00:00:00Z"
-}
+Every DMRF step is recorded as a `DMRFStep` and passed through the FROST snapshot bridge. This creates a step-level trace instead of only retaining input/output pairs.
+
+Key files:
+
+- `backend/dmrf/orchestrator.py`
+- `backend/dmrf/models.py`
+- `backend/dmrf/injection_defense.py`
+- `backend/dmrf/tier_classifier.py`
+- `backend/dmrf/router.py`
+- `backend/dmrf/evidence_model.py`
+- `backend/dmrf/convergence_policy.py`
+- `backend/dmrf/frost_bridge.py`
+- `backend/dmrf/truth_integration/`
+
+## 17-axis knowledge framework
+
+The 17-axis model converts natural-language requests into explicit routing coordinates.
+
+Axis groups:
+
+1. Axes 1-7 — knowledge context: domain, sector, semantic bridges, branch, nodes, regulatory aggregation, compliance mesh.
+2. Axes 8-11 — expert personas: knowledge, sector, regulatory, compliance.
+3. Axes 12-13 — location/jurisdiction and time/version context.
+4. Axes 14-16 — lifecycle, risk/threat, ethics/trust/criticality.
+5. Axis 17 — FROST mode selector: tier to FROST depth and TruthCore mode.
+
+Axis 17 currently maps:
+
+| Tier | FROST depth | TruthCore mode |
+|---|---:|---|
+| `trivial` | 2 | `direct` |
+| `moderate` | 4 | `standard` |
+| `high_stakes` | 7 | `regulatory_strict` |
+| `extreme` | 10 | `full_refinement` |
+| `autonomous` | 10 | `governed_agentic` |
+
+Key files:
+
+- `core/axes/axis_system.py`
+- `core/axes/axis17_frost_mode.py`
+- `core/axes/axis15_risk_threat.py`
+- `core/axes/axis16_ethics_trust.py`
+- `backend/dmrf/router.py`
+
+## DSQP persona architecture
+
+DSQP constructs persona axes 8-11 as structured profiles rather than simple role prompts.
+
+Each DSQP persona contains seven components:
+
+1. `job_role`
+2. `education`
+3. `certifications`
+4. `skills`
+5. `training`
+6. `career_path`
+7. `related_jobs`
+
+The current implementation is deterministic and offline-capable. Future LLM-assisted construction can replace internal answer generation without changing the output contract.
+
+Key files:
+
+- `backend/dsqp/dsqp_chain.py`
+- `backend/dsqp/dsqp_orchestrator.py`
+- `backend/dsqp/dsqp_validator.py`
+- `backend/dsqp/dsqp_registry.py`
+- `backend/dsqp/templates/`
+
+## Truth Engine architecture
+
+Truth Engine is a four-module subsystem:
+
+| Module | Role |
+|---|---|
+| TruthGate | Request gate for security, budget, priority, compliance, and trust checks. |
+| TruthCore | Tiered reasoning/session engine with workflow steps. |
+| TruthMemory | Audit, cache, metrics, artifact, explainability, and MLflow-style tracking layer. |
+| TruthLink | Event bus with priority queue, optional Redis streams, SSE, and dead-letter handling. |
+
+TruthCore workflow steps include:
+
+```text
+intent_parsing
+hybrid_retrieval
+deep_research
+pov_expansion
+multi_persona_reasoning
+quant_validation
+agi_planning
+trust_validation
+meta_reasoning
+final_safety_gate
+memory_patch
 ```
 
-### Route Blueprints
+Key files:
 
-1. **auth_routes.py** - Authentication endpoints
+- `backend/truth_engine/api.py`
+- `backend/truth_engine/truth_gate/gateway.py`
+- `backend/truth_engine/truth_core/engine.py`
+- `backend/truth_engine/truth_memory/manager.py`
+- `backend/truth_engine/truth_link/bus.py`
 
-   - `POST /api/v1/auth/login` - Username/password login
-   - `POST /api/v1/auth/register` - User registration
-   - `GET /api/v1/auth/login/sso` - SSO/OIDC login
-   - `POST /api/v1/auth/logout` - Logout
-   - `GET /api/v1/auth/check` - Session status
+## Data, storage, and memory architecture
 
-2. **admin_routes.py** - Admin operations (admin only)
+The platform uses a multi-store architecture with clear separation of responsibilities.
 
-   - `GET /api/v1/admin/users` - List users
-   - `POST /api/v1/admin/users/:id/promote` - Promote to admin
-   - `GET /api/v1/admin/providers` - List LLM providers
-   - `POST /api/v1/admin/providers` - Add provider
+| Store | Role |
+|---|---|
+| SQLAlchemy database | Durable application state, users, sessions, traces, graph rows, artifacts, audit records. |
+| Redis | Cache, sessions, rate limits, queues, TruthLink streams where enabled. |
+| Neo4j | Durable graph store for knowledge graph relationships. |
+| USKD NetworkX graph | RAM-resident graph for fast reasoning traversal. |
+| ChromaDB | Local vector/embedding storage. |
+| Local object store | Deliverables, graphs, audit logs, simulation artifacts, eval data, trace exports. |
+| UnifiedMemoryService | Structured reasoning memory graph persisted to JSON. |
+| TruthMemory | Audit/explainability memory for Truth Engine and DMRF sessions. |
 
-3. **knowledge_routes.py** - Knowledge graph operations
+Current storage mode is local/app-owned by default. `backend/storage/connection_manager.py` treats `local`, `vm`, and `auto` as supported modes and deprecates external cloud database mode in favor of internal app-owned storage services.
 
-   - `GET /api/v1/knowledge/nodes` - List nodes
-   - `POST /api/v1/knowledge/nodes` - Create node
-   - `GET /api/v1/knowledge/edges` - List edges
-   - `POST /api/v1/knowledge/edges` - Create edge
-   - `GET /api/v1/knowledge/query` - Query graph
+Key files:
 
-4. **mcp_routes.py** - MCP operations (18 KB)
+- `backend/storage/connection_manager.py`
+- `backend/storage/object_store.py`
+- `backend/storage/vector_store.py`
+- `backend/storage/graph_store.py`
+- `backend/storage/uskd_memory_graph.py`
+- `backend/memory/unified_memory_service.py`
+- `backend/truth_engine/truth_memory/manager.py`
 
-   - `GET /api/v1/mcp/servers` - List MCP servers
-   - `POST /api/v1/mcp/servers` - Create server
-   - `POST /api/v1/mcp/servers/:id/initialize` - Initialize server
-   - `GET /api/v1/mcp/tools` - List tools
-   - `POST /api/v1/mcp/tools/:id/call` - Execute tool
+## Frontend product architecture
 
-5. **ka_routes.py** - Knowledge Algorithm routes (19 KB)
+The frontend is a Next.js App Router application with an optional Electron desktop shell.
 
-   - `GET /api/v1/ka/algorithms` - List algorithms
-   - `GET /api/v1/ka/algorithms/:id` - Get algorithm details
-   - `POST /api/v1/ka/execute` - Execute algorithm
+Primary product surfaces:
 
-6. **compliance_routes.py** - Compliance operations (9 KB)
+1. `/dashboard` — system overview.
+2. `/chat` — Enterprise AI interface.
+3. `/runs` and `/runs/view` — Trace Explorer and run detail review.
+4. `/graph` and `/knowledge` — graph and knowledge-node inspection.
+5. `/truth-engine` — Truth Engine monitor.
+6. `/mcp` — MCP connector hub.
+7. `/projects` — project management.
+8. `/admin` — governance, compliance, provider, and user management.
+9. `/settings`, `/settings/privacy`, `/legal/privacy`, `/about/cloud-services`, `/about/ai-limitations` — configuration and transparency surfaces.
 
-   - `GET /api/v1/compliance/audit-logs` - Get audit logs
-   - `GET /api/v1/compliance/standards` - List compliance standards
-   - `GET /api/v1/compliance/audit/export` - Export audit logs (CSV/JSON)
+Root provider stack:
 
-7. **simulation_routes.py** - Simulation operations
-   - `POST /api/v1/simulation/start` - Start simulation
-   - `GET /api/v1/simulation/:id` - Get simulation results
-   - `POST /api/v1/simulation/:id/step` - Execute next step
-
----
-
-## 5. Enterprise Features
-
-### Multi-Tenancy Architecture
-
-**Tenant Isolation**:
-
-- All 40+ database tables include `tenant_id` column
-- Automatic filtering via SQLAlchemy query filters
-- User tenant derived from SSO token or user.tenant_id
-- Request context stores `g.tenant_id` for all operations
-
-**Data Isolation**:
-
-- Knowledge graph nodes/edges isolated per tenant
-- Chat sessions and messages isolated
-- Trace runs isolated
-- Audit logs isolated
-- API keys scoped to tenant
-
-**Benefits**:
-
-- GDPR Article 5 data minimization compliance
-- SOC2 logical isolation requirement
-- Prevents cross-tenant data leakage
-- Supports SaaS deployment model
-
-### Security Architecture
-
-**Layers of Security**:
-
-1. **Network**: HTTPS enforcement, TLS 1.3
-2. **Application**:
-   - CSRF protection (Flask-WTF)
-   - XSS prevention (CSP headers)
-   - SQL injection prevention (SQLAlchemy parameterized queries)
-   - Input validation (Marshmallow, Pydantic)
-3. **Authentication**: Multiple methods (session, SSO, API keys, OAuth)
-4. **Authorization**: Role-based access control (RBAC)
-5. **Data**: Encryption at rest (database), encryption in transit (TLS)
-6. **API Keys**: Fernet encryption for stored keys
-
-**Security Headers**:
-
-- Content-Security-Policy (CSP)
-- HTTP Strict Transport Security (HSTS)
-- X-Frame-Options: DENY
-- X-Content-Type-Options: nosniff
-- Referrer-Policy: strict-origin-when-cross-origin
-- SameSite cookies: Strict
-
-### Compliance & Audit
-
-**Compliance Standards**:
-
-- **EU AI Act**: Article 53 audit trail with hash chains
-- **SOC2**: Evidence collection, audit logging, encryption
-- **GDPR**: Data minimization, right to be forgotten, consent management
-- **HIPAA**: Audit trails, encryption, access controls
-
-**Audit Trail**:
-
-- Every API request logged (user, endpoint, status, timestamp)
-- Truth Engine immutable audit events with hash chain
-- Trace runs capture full execution path
-- SIEM integration via Syslog
-- Export to CSV/JSON for compliance reporting
-
-### High Availability & Reliability
-
-**Connection Pooling**:
-
-- PostgreSQL: pool_size=20, max_overflow=30
-- Redis: Connection pooling enabled
-
-**Circuit Breakers**:
-
-- LLM Gateway implements circuit breaker pattern
-- Prevents cascade failures
-- Automatic recovery
-
-**Failover**:
-
-- Multiple LLM providers with automatic failover
-- Health checks for all services
-- Graceful degradation (falls back to standard LLM if UKG unavailable)
-
-**Monitoring**:
-
-- Sentry error tracking
-- Distributed tracing (correlation IDs)
-- Health endpoint (`/health`) for load balancers
-- Performance metrics (trace timing, LLM usage)
-
-### Scalability
-
-**Horizontal Scaling**:
-
-- Stateless backend (Gunicorn workers)
-- Session storage in Redis (shared state)
-- Database connection pooling
-
-**Asynchronous Processing**:
-
-- Celery for background tasks
-- Redis as task queue broker
-- Long-running operations offloaded
-
-**Caching**:
-
-- Redis caching for knowledge graph queries
-- SWR caching on frontend
-- HTTP caching headers
-
-**Rate Limiting**:
-
-- Per-user limits
-- Per-API-key limits
-- Per-endpoint limits
-- Redis-backed for distributed rate limiting
-
----
-
-## 6. Deployment Architecture
-
-### Local Development
-
-**Terminal 1 - Backend**:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-flask db upgrade
-python backend/seed_data.py
-python main.py  # Runs on :5000
+```text
+FeatureFlagProvider
+  ClientErrorBootstrap
+  ThemeProvider
+    SWRConfig
+      AuthProvider
+        AppInitializer
+          ToastProvider
+            ApiErrorBoundary
+              AppSidebar
+              CloudDisclosureBanner
+              NavBar
+              main content
+              DesktopStatus
 ```
 
-`AUTO_CREATE_SCHEMA=true` can be used for disposable local environments, but the canonical startup path now assumes migrations are applied before the app boots.
+Key files:
 
-**Terminal 2 - Frontend**:
+- `frontend/app/layout.tsx`
+- `frontend/components/layout/AppSidebar.tsx`
+- `frontend/contexts/AuthContext.tsx`
+- `frontend/lib/api/`
+- `frontend/electron/`
 
-```bash
-cd frontend
-npm install
-npm run dev  # Runs on :3000
-```
+## Local-first and desktop architecture
 
-### Docker Compose
+The local-first architecture supports:
 
-```yaml
-services:
-  backend:
-    build: .
-    ports: ["5000:5000"]
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/ukg_db
-      - REDIS_URL=redis://redis:6379/0
-      - NEO4J_URI=bolt://neo4j:7687
-      - OBJECT_ENDPOINT_URL=http://minio:9000
-    depends_on: [db, redis, neo4j, minio]
-    command: gunicorn -w 4 -b 0.0.0.0:5000 app:app
+1. Electron desktop runtime.
+2. Flask backend on loopback.
+3. Next.js frontend or exported Electron frontend.
+4. App-owned internal databases and stores.
+5. Desktop local auth using per-install secret, nonce challenge, HMAC signatures, and timestamp skew checks.
+6. Windows DPAPI helper for local protected data.
+7. Local trace export hashing/signing/encryption options.
+8. Windows packaging smoke and NSIS governance checks.
 
-  frontend:
-    build: ./frontend
-    ports: ["3000:3000"]
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
-    depends_on: [backend]
+Supported deployment patterns:
 
-  db:
-    image: postgres:15-alpine
-    volumes: ["postgres_data:/var/lib/postgresql/data"]
+- desktop deployment;
+- Windows VM deployment using the same app-owned stack;
+- controlled web/cloud deployment where configured.
 
-  redis:
-    image: redis:7-alpine
+Key files:
 
-  neo4j:
-    image: neo4j:5
-    ports: ["7687:7687", "7474:7474"]
-    environment:
-      - NEO4J_AUTH=neo4j/neo4jpassword
+- `backend/security/desktop_local_auth.py`
+- `backend/security/dpapi_store.py`
+- `backend/security/encryption_manager.py`
+- `backend/security/export_integrity.py`
+- `frontend/lib/runtime/policy.ts`
+- `scripts/windows/`
 
-  minio:
-    image: minio/minio
-    ports: ["9000:9000", "9001:9001"]
-    environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin123
-    command: server /data --console-address ":9001"
-```
+Implementation caveat: the target security standard references AES-256-GCM, while the current `EncryptionManager` implementation uses Fernet and records `Fernet-AES-128-CBC` in the key registry. DPAPI uses Windows platform crypto through `win32crypt`. Treat AES-256-GCM as a target-state standard unless code is updated.
 
-### Windows VM (Production)
+## API and route architecture
 
-**Components**:
+Canonical APIs live under `/api/v1/*`. Legacy aliases remain only for transition coverage and emit deprecation headers.
 
-- Same Electron/Flask application package as desktop.
-- App-owned PostgreSQL/SQLite database path.
-- App-owned Redis, Neo4j, ChromaDB, and object storage under local VM directories.
-- Local health checks and release smoke validation inside the VM.
+Major API families:
 
-**Features**:
+1. `/api/v1/auth/*`
+2. `/api/v1/gateway/*`
+3. `/api/v1/truth/*`
+4. `/api/v1/trace/*`
+5. `/api/v1/ka/*`
+6. `/api/v1/mcp/*`
+7. `/api/v1/compliance/*`
+8. `/api/v1/privacy/*`
+9. `/api/v1/gdpr/*`
+10. `/api/v1/retention/*`
+11. `/api/v1/storage/*`
+12. `/api/v1/simulations/*`
+13. `/api/v1/ingestion/*`
+14. `/api/v1/{pillars,sectors,domains,knowledge,nodes,edges}`
 
-- Same internal database source model as desktop.
-- VM-local service supervision and restart validation.
-- Local backup/archive directories under app-owned storage.
-- No externally hosted application databases.
+See `docs/API.md` for endpoint-level guidance.
 
-### Unsupported Application Database Targets
+## Security architecture
 
-- Kubernetes StatefulSets as the production database layer.
-- Managed PostgreSQL, Redis, Neo4j, vector databases, or object stores as application database sources.
+Security controls include:
 
----
+1. session hardening;
+2. CSRF and origin checks;
+3. CORS allowlist;
+4. trusted-host validation;
+5. rate limiting;
+6. desktop loopback authentication;
+7. DPAPI local protection helper;
+8. field-level encryption manager;
+9. export integrity hashing/signing/encryption;
+10. TruthGate input sanitization, budget checks, and compliance markers;
+11. injection defense in DMRF;
+12. role/admin gating in the frontend;
+13. contract-tested JSON error behavior for canonical API routes.
 
-## 7. Data Flow Architecture
+## Observability and traceability
 
-### Chat Request Flow
+Observability surfaces include:
 
-```
-1. User sends message via frontend
-   ↓
-2. Frontend → /api/v1/gateway/chat
-   ↓
-3. API Gateway authenticates & validates
-   ↓
-4. Routes to LLM Gateway
-   ↓
-5. LLM Gateway:
-   a. Resolves query to 17-Axis coordinates
-   b. Retrieves knowledge from graph
-   c. Runs simulations if needed
-   d. Injects MCP tools for agents
-   e. Calls LLM provider (OpenAI/Anthropic/etc.)
-   f. Applies circuit breakers & fallbacks
-   ↓
-6. Response flows back through:
-   a. Truth Engine (validation, scoring)
-   b. Tracing system (audit trail creation)
-   c. Compliance checks
-   ↓
-7. Response + Trace ID returned to frontend
-   ↓
-8. Frontend displays answer with audit link
-   ↓
-9. All steps logged to audit trail
-```
+- correlation IDs;
+- `/metrics` Prometheus output;
+- DMRF tier counters and FROST depth metrics;
+- Truth Engine status/stats endpoints;
+- Trace Explorer;
+- TruthMemory audit and explainability data;
+- TruthLink events and SSE;
+- CI-generated reports;
+- runtime precheck and readiness reports.
 
-### Trace Storage Flow
+Trace exports can include section hashes, bundle hash, optional HMAC signatures, optional encryption, and manifest metadata.
 
-```
-1. TraceRun created (UUID)
-   ↓
-2. Each execution stage:
-   a. TraceStage recorded (timing, status)
-   b. Evidence collected → TraceEvidence
-   c. Claims extracted → TraceClaim
-   d. Persona usage → TracePersona
-   e. KA invocations → TraceKAInvocation
-   f. Policy decisions → TracePolicyDecision
-   ↓
-3. Final scores calculated:
-   - Confidence
-   - Entropy
-   - Bias risk
-   ↓
-4. Trace marked complete
-   ↓
-5. Available via /api/v1/trace/runs/:id
-```
+## Testing and release governance
 
-### Multi-Tenant Request Flow
+The current validation architecture includes:
 
-```
-1. Request arrives with auth
-   ↓
-2. User authenticated (session/SSO/API key)
-   ↓
-3. Tenant ID extracted:
-   - From user.tenant_id
-   - From SSO token ('tid' claim)
-   - From API key tenant association
-   ↓
-4. tenant_id stored in g.tenant_id
-   ↓
-5. All database queries automatically filter:
-   WHERE tenant_id = {current_tenant}
-   ↓
-6. Response contains only tenant's data
-   ↓
-7. Audit log records tenant context
-```
+1. Python/pytest unit and integration tests.
+2. API contract tests.
+3. Local-mode parity tests.
+4. Security regression tests.
+5. Truth Engine, KA, axes, compliance, simulation, and Windows tests.
+6. Frontend Vitest, Playwright E2E, visual regression, accessibility sweep, lint, typecheck, and build.
+7. Windows packaging smoke tests.
+8. NSIS governance checks.
+9. Environment parity and lockfile governance.
+10. Docker image build verification.
+11. Release checklist and branch protection policies.
 
----
+`docs/TESTING.md` records the quality baseline and required release gates.
 
-## 8. Performance Considerations
+## Reviewer architecture path
 
-### Database Optimization
+A technical reviewer should inspect these diagrams first:
 
-- Indexes on tenant_id, user_id, status, created_at
-- Connection pooling (pool_size=20, max_overflow=30)
-- Query optimization with SQLAlchemy eager loading
-- JSON columns for flexible attributes
+1. `docs/diagrams/12_end_to_end_request_lifecycle.md`
+2. `docs/diagrams/09_dmrf_control_plane_deep_dive.md`
+3. `docs/diagrams/05_truth_engine_architecture.md`
+4. `docs/diagrams/04_17_axis_coordinate_model.md`
+5. `docs/diagrams/10_dsqp_persona_construction_architecture.md`
+6. `docs/diagrams/07_data_storage_and_memory_architecture.md`
+7. `docs/diagrams/06_local_first_security_model.md`
+8. `docs/diagrams/11_frontend_product_surface_and_trace_review_map.md`
+9. `docs/diagrams/08_testing_validation_and_release_governance.md`
 
-### Caching Strategy
+Then inspect these implementation files:
 
-- Redis caching for knowledge graph queries
-- SWR caching on frontend (stale-while-revalidate)
-- HTTP caching headers for static assets
-- Session caching in Redis
+1. `app.py`
+2. `backend/dmrf/orchestrator.py`
+3. `backend/dmrf/router.py`
+4. `backend/dsqp/dsqp_chain.py`
+5. `backend/truth_engine/api.py`
+6. `backend/truth_engine/truth_core/engine.py`
+7. `backend/truth_engine/truth_gate/gateway.py`
+8. `backend/truth_engine/truth_memory/manager.py`
+9. `backend/truth_engine/truth_link/bus.py`
+10. `backend/storage/connection_manager.py`
+11. `backend/storage/uskd_memory_graph.py`
+12. `backend/memory/unified_memory_service.py`
+13. `frontend/app/layout.tsx`
+14. `frontend/components/layout/AppSidebar.tsx`
+15. `.github/workflows/ci.yml`
 
-### API Performance
+## Change notes for v2.6.0
 
-- Rate limiting to prevent abuse
-- Request timeout enforcement (120s default)
-- Compression (gzip) enabled
-- Streaming responses for long operations
-
-### LLM Gateway Optimization
-
-- Provider response caching
-- Circuit breakers to fail fast
-- Automatic provider fallback
-- Token usage tracking and limits
-
----
-
-## 9. Technology Summary
-
-| Layer | Technology | Version |
-|-------|-----------|---------|
-| Frontend Framework | Next.js | 16.1 |
-| UI Library | React | 18.3 |
-| Frontend Language | TypeScript | 5 |
-| Styling | Tailwind CSS | 4 |
-| Desktop Shell | Electron | 40 |
-| Backend Framework | Flask | 3.1.2 |
-| Backend Language | Python | 3.11+ |
-| ORM | SQLAlchemy | 2.0 |
-| Database | PostgreSQL | 15+ |
-| Cache / Queue | Redis | 7 |
-| Graph DB | Neo4j | 5 |
-| Object Storage | MinIO | latest |
-| Task Queue | Celery | 5.6 |
-| Frontend Tests | Vitest | 4 |
-| E2E Tests | Playwright | 1.58 |
-| Backend Tests | pytest | 9 |
-
-**Key backend modules**:
-
-```
-backend/
-  ukg_api.py              # Main UKG API
-  mcp_server/             # MCP JSON-RPC server
-    router.py             # Request router
-    registry.py           # Tool registry
-    tools/                # Salesforce/Jira connectors
-  services/               # Multimodal services
-    document_processor.py
-    audio_service.py
-    video_service.py
-  security/               # Hardening modules
-    pii_redaction.py
-    prompt_injection_shield.py
-    rbac.py
-    ai_guardrail.py
-```
-
----
-
-## 11. Maintenance & Support
-
-- **Bug Tracking**: Sentry.io integration
-- **Documentation**: README.md, docs/ directory
-- **Support**: support@datalogicengine.com
-
----
-
-## 12. Shipped & In Progress
-
-Already implemented in the current codebase:
-
-- WebSocket support (`backend/websocket.py`, initialized via `init_socketio(app)`)
-- GraphQL API endpoint (`/graphql`, registered via `backend/graphql_schema.py`)
-- Advanced graph visualization — 3D (`react-force-graph-3d` in `frontend/`)
-- Windows VM internal-stack deployment validation
-- Advanced analytics dashboard (`backend/routes/analytics_routes.py`)
-
-Active backlog is consolidated in the root `TODO.md`. Historical mobile research is retained in `docs/archive/research/REACT_NATIVE_RESEARCH.md`, but mobile, local SLM routing, and i18n remain future items only if they are selected in the canonical backlog.
+1. Added document metadata with explicit version and update date.
+2. Reframed architecture around the current DMRF control plane rather than older generic middleware language.
+3. Added current 17-axis, Axis 17/FROST, and DSQP persona architecture.
+4. Updated Truth Engine description to the current TruthGate, TruthCore, TruthMemory, and TruthLink modules.
+5. Added multi-store memory architecture covering SQL, Redis, Neo4j, USKD, ChromaDB, object store, UnifiedMemory, and TruthMemory.
+6. Added frontend product surface and trace-review architecture.
+7. Added local-first/desktop architecture with implementation caveat for current encryption versus target-state AES-256-GCM.
+8. Added security, observability, testing, and reviewer verification paths tied to implementation files and the new diagram set.
