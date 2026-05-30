@@ -1,8 +1,22 @@
 # AI Production Documentation Baseline
 
+## Document metadata
+
+| Field | Value |
+|---|---|
+| Document version | v2.6.0 |
+| Last updated | 2026-05-30 |
+| Status | Active |
+| Owner | Platform Engineering + Documentation Governance |
+| Review cadence | Every 30 days |
+
 ## Purpose
 
-Capture production documentation expectations for AI applications by aligning DataLogicEngine documentation against current OpenAI, Microsoft, NVIDIA, and AWS guidance and repository practices.
+Define the production documentation baseline for DataLogicEngine as an AI governance, local-first, and knowledge-reasoning platform.
+
+This baseline summarizes the current documentation set after modernization across architecture, API, security, privacy, testing, deployment, release, operations, product, engineering onboarding, ISO-style AI management mapping, SSDF mapping, and supply-chain roadmap documents.
+
+This document is not a certification claim. It is a documentation control artifact that identifies source-of-truth documents, expected evidence, and remaining caveats.
 
 ## Audience
 
@@ -10,91 +24,173 @@ Capture production documentation expectations for AI applications by aligning Da
 2. Security and compliance teams
 3. Platform and release engineers
 4. Documentation owners
+5. Technical judges, sponsors, and enterprise reviewers
 
-## External guidance reviewed
+---
 
-### Platform and safety guidance
+## Current product documentation posture
 
-1. OpenAI Production Best Practices:
-   https://platform.openai.com/docs/guides/production-best-practices
-2. OpenAI Safety Best Practices:
-   https://platform.openai.com/docs/guides/safety-best-practices
-3. Microsoft Responsible AI:
-   https://learn.microsoft.com/azure/ai-foundry/responsible-ai/
-4. Microsoft Well-Architected Framework:
-   https://learn.microsoft.com/azure/well-architected/
-5. AWS Well-Architected ML Lens:
-   https://docs.aws.amazon.com/wellarchitected/latest/machine-learning-lens/
-6. AWS Generative AI Lens:
-   https://docs.aws.amazon.com/wellarchitected/latest/generative-ai-lens/
-7. NVIDIA AI Enterprise documentation:
-   https://docs.nvidia.com/ai-enterprise/
-8. NVIDIA NeMo Guardrails documentation:
-   https://docs.nvidia.com/nemo/guardrails/latest/
+DataLogicEngine documentation now describes the platform as:
 
-### Production repository documentation patterns sampled
+1. a local-first Windows/Electron application;
+2. a controlled web/cloud-capable application where configured;
+3. a governed AI lifecycle platform;
+4. a DMRF control-plane implementation;
+5. a Truth Engine v7.3 implementation;
+6. a 17-axis routing and DSQP persona-construction system;
+7. a trace/evidence/export review platform;
+8. a multi-store data and memory architecture;
+9. a release-governed desktop packaging and production readiness system.
 
-1. OpenAI Python SDK repository:
-   https://github.com/openai/openai-python
-2. Microsoft Semantic Kernel repository:
-   https://github.com/microsoft/semantic-kernel
-3. NVIDIA NeMo Guardrails repository:
-   https://github.com/NVIDIA/NeMo-Guardrails
-4. AWS Bedrock Samples repository:
-   https://github.com/aws-samples/amazon-bedrock-samples
+The documentation no longer treats the product as a generic LLM chat wrapper or only as an early UKG concept.
 
-## Cross-vendor baseline requirements
+---
 
-The sampled guidance and repositories consistently emphasize:
+## Source-of-truth documentation map
 
-1. Clear setup and quickstart documentation with versioned prerequisites.
-2. Explicit security disclosure and vulnerability reporting guidance.
-3. Contribution governance (`CONTRIBUTING`, code of conduct, branch/review policy).
-4. API and contract documentation with machine-readable schemas.
-5. Operational runbooks for reliability, observability, and incident response.
-6. AI safety governance: moderation/guardrails, evaluation policy, and monitoring.
-7. Release traceability via changelog, release notes, and validation gates.
-
-## DataLogicEngine baseline coverage
-
-| Baseline requirement | DataLogicEngine source-of-truth | Current status |
+| Area | Source-of-truth documents | Status |
 |---|---|---|
-| Project entrypoint and setup | `README.md`, `docs/README.md`, `docs/DEVELOPER_GUIDE.md` | Implemented |
-| Security policy and controls | `SECURITY.md`, `docs/SECURITY.md` | Implemented |
-| Contribution and engineering workflow | `CONTRIBUTING.md`, `docs/CONTRIBUTING.md` | Implemented |
-| Architecture references | `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_MAP.md` | Implemented |
-| API reference and schema | `docs/API.md`, `docs/openapi.yaml` | Implemented |
-| Operations and readiness | `docs/DEPLOYMENT.md`, `docs/PRODUCTION_READINESS.md`, `docs/OPERATIONAL_RUNBOOKS.md` | Implemented |
-| Testing and quality gates | `docs/TESTING.md`, `.github/workflows/` | Implemented |
-| Governance and decisions | `docs/adr/`, `docs/BRANCH_PROTECTION_POLICY.md`, `docs/RELEASE_CHECKLIST.md` | Implemented |
-| File inventory and structure visibility | `docs/FILE_INVENTORY.csv`, `docs/GENERATED_STRUCTURE.md`, `docs/FILE_STRUCTURE.md` | Implemented |
+| Product overview | `docs/PRODUCT_OVERVIEW.md` | Updated to v2.6.0 |
+| Product UX/design | `docs/PRODUCT_DESIGN.md` | Updated to v2.6.0 |
+| User operation | `docs/USER_GUIDE.md` | Updated to v2.6.0 |
+| Engineer onboarding | `docs/ENGINEER_ONBOARDING.md` | Updated to v2.6.0 |
+| Architecture | `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_MAP.md`, `docs/diagrams/` | Updated to v2.6.0 |
+| API | `docs/API.md`, `docs/API_VERSIONING.md`, `docs/openapi.yaml` | Updated to v2.6.0 where applicable |
+| Workflow | `docs/WORKFLOW.md` | Updated to v2.6.0 |
+| Data architecture | `docs/DATABASE_SCHEMA.md` | Updated to v2.6.0 |
+| Security | `docs/SECURITY.md`, `SECURITY.md` | Updated to v2.6.0 where applicable |
+| Privacy | `docs/PRIVACY_POLICY.md` | Updated to v2.6.0 |
+| HTTPS/TLS | `docs/SSL_CONFIGURATION.md` | Updated to v2.6.0 |
+| Testing | `docs/TESTING.md` | Updated to v2.6.0 |
+| Deployment | `docs/DEPLOYMENT.md` | Updated to v2.6.0 |
+| Windows local operations | `docs/WINDOWS_11_LOCAL_RUNBOOK.md` | Updated to v2.6.0 |
+| Operations | `docs/OPERATIONAL_RUNBOOKS.md` | Updated to v2.6.0 |
+| Release governance | `docs/RELEASE_CHECKLIST.md` | Updated to v2.6.0 |
+| Production readiness | `docs/PRODUCTION_READINESS.md` | Updated to v2.6.0 |
+| Secure SDLC | `docs/SDLC_SSDF_MAPPING.md` | Updated to v2.6.0 |
+| AI management mapping | `docs/AI_MANAGEMENT_SYSTEM_42001.md` | Updated to v2.6.0 |
+| Supply chain roadmap | `docs/SLSA_LEVEL_3_ATTESTATION.md` | Updated to v2.6.0 roadmap/current-state format |
+| Documentation standards | `docs/DOCUMENTATION_STANDARDS.md`, `docs/DOCUMENTATION_VERSIONING.md`, `docs/DOCUMENTATION_COVERAGE_MATRIX.md` | Active governance references |
 
-## Required operating practices
+---
 
-1. Update source-of-truth docs during each release, not post-release.
-2. Keep architecture maps synchronized with runtime mode and trust boundary changes.
-3. Keep inventory artifacts regenerated after structural changes.
-4. Keep AI governance docs aligned with implemented guardrails and model routing logic.
-5. Enforce doc validation in CI for link integrity and governance scripts.
+## Cross-vendor baseline expectations
+
+Production AI platform documentation should cover:
+
+1. clear setup and quickstart guidance;
+2. product overview and user workflows;
+3. architecture and request lifecycle;
+4. API contract and versioning guidance;
+5. security controls and vulnerability reporting;
+6. privacy, data residency, export, and deletion behavior;
+7. AI safety, governance, traceability, and limitations;
+8. data architecture, storage, retention, and audit behavior;
+9. testing and release gates;
+10. operational runbooks and incident response;
+11. supply-chain and artifact integrity guidance;
+12. production readiness status and caveats.
+
+DataLogicEngine now has active documentation coverage for each area.
+
+---
+
+## Baseline coverage matrix
+
+| Baseline requirement | DataLogicEngine coverage | Evidence |
+|---|---|---|
+| Setup and local run | Implemented | `README.md`, `docs/DEVELOPER_GUIDE.md`, `docs/WINDOWS_11_LOCAL_RUNBOOK.md` |
+| Product explanation | Implemented | `docs/PRODUCT_OVERVIEW.md`, `docs/PRODUCT_DESIGN.md`, `docs/USER_GUIDE.md` |
+| Architecture | Implemented | `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_MAP.md`, `docs/diagrams/` |
+| Request workflow | Implemented | `docs/WORKFLOW.md`, `docs/diagrams/12_end_to_end_request_lifecycle.md` |
+| API documentation | Implemented | `docs/API.md`, `docs/API_VERSIONING.md`, `docs/openapi.yaml` |
+| AI governance | Implemented through architecture/control docs | `docs/AI_MANAGEMENT_SYSTEM_42001.md`, `docs/SDLC_SSDF_MAPPING.md`, `docs/SECURITY.md` |
+| Security | Implemented | `docs/SECURITY.md`, `SECURITY.md`, `tests/security/` |
+| Privacy | Implemented | `docs/PRIVACY_POLICY.md`, privacy/settings routes |
+| Data/storage | Implemented | `docs/DATABASE_SCHEMA.md`, `backend/storage/`, `backend/memory/` |
+| Testing/quality | Implemented | `docs/TESTING.md`, `.github/workflows/ci.yml` |
+| Deployment | Implemented | `docs/DEPLOYMENT.md`, deploy workflow |
+| Local desktop operations | Implemented | `docs/WINDOWS_11_LOCAL_RUNBOOK.md`, `scripts/windows/` |
+| Operations/incident response | Implemented | `docs/OPERATIONAL_RUNBOOKS.md`, support bundle script |
+| Release readiness | Implemented | `docs/RELEASE_CHECKLIST.md`, `docs/PRODUCTION_READINESS.md` |
+| Supply chain | Partial / roadmap | `docs/SLSA_LEVEL_3_ATTESTATION.md`, signing workflow, release checklist |
+| Documentation governance | Implemented | docs standards/versioning/coverage matrix and docs validation script |
+
+---
+
+## Evidence-driven documentation rules
+
+Documentation should follow these rules:
+
+1. Do not claim certification unless certification evidence exists.
+2. Do not claim SLSA Level 3, SBOM, Sigstore, Rekor, CodeQL, DAST, or similar controls unless workflow artifacts prove them.
+3. Distinguish current implementation from target-state roadmap.
+4. Treat archived whitepapers as exploratory unless an active source-of-truth document adopts the claim.
+5. Update docs and diagrams when architecture changes.
+6. Keep version/date metadata in active docs.
+7. Avoid saying local-first means air-gapped.
+8. Avoid saying desktop local-auth is valid for cloud/web trust boundaries.
+9. Tie release claims to release checklist evidence.
+10. Tie API claims to contract tests and current route behavior.
+
+---
 
 ## Validation checklist
 
-1. `python scripts/verify_docs_references.py`
-2. `python scripts/generate_docs.py`
-3. `python scripts/verify_environment_parity.py`
-4. `python scripts/verify_lockfiles.py`
+Run documentation and governance checks:
 
-## Related documents
+```powershell
+python scripts/verify_docs_references.py
+python scripts/generate_docs.py
+python scripts/verify_environment_parity.py --strict
+python scripts/verify_lockfiles.py
+python scripts/runtime_precheck.py --strict --skip-ports --allow-env-from-process
+python scripts/verify_release_governance.py
+```
 
-1. `docs/DOCUMENTATION_STANDARDS.md`
-2. `docs/DOCUMENTATION_COVERAGE_MATRIX.md`
-3. `docs/ARCHITECTURE_MAP.md`
-4. `docs/FILE_STRUCTURE.md`
-5. `docs/PRODUCTION_READINESS.md`
+When docs reference schema/data behavior, also run:
 
-## Document control
+```powershell
+python scripts/validate_schema_parity.py
+```
 
-1. Owner: Platform Engineering
-2. Last updated: 2026-02-16
-3. Status: Active
-4. Review cadence: Every 30 days
+When docs reference Windows packaging/release behavior, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsis_governance.ps1 -RepoRoot (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
+```
+
+---
+
+## Production documentation caveats
+
+Current caveats:
+
+1. This document is a documentation baseline, not a certification or compliance attestation.
+2. SLSA Level 3 remains a roadmap/current-state supply-chain document unless formal SLSA evidence is generated and verified.
+3. Public Windows distribution still requires trusted signing credentials and signed artifact verification evidence.
+4. Manual accessibility evidence remains required before final production distribution claims.
+5. Provider-backed flows require configured provider credentials and network access.
+6. Some target-state encryption language, such as AES-256-GCM, exceeds the current Fernet/DPAPI implementation and should be tracked separately unless upgraded.
+7. Archived whitepapers may contain exploratory or historical architecture that is not current source of truth.
+
+---
+
+## Operating practices
+
+1. Update active docs during the same change that modifies architecture, security, API, storage, deployment, or release behavior.
+2. Regenerate documentation inventory/structure when repository structure changes.
+3. Keep architecture diagrams synchronized with implementation.
+4. Keep `docs/DOCS_VERSION.json` updated when required by release governance.
+5. Keep release checklist evidence attached to tagged releases.
+6. Move obsolete conceptual documents to archive or mark them as historical.
+7. Use active docs as source of truth for judges, sponsors, enterprise reviewers, and new engineers.
+
+## Change notes for v2.6.0
+
+1. Added document metadata with explicit version and update date.
+2. Reframed the baseline around the current documentation modernization state.
+3. Added source-of-truth documentation map and baseline coverage matrix.
+4. Added evidence-driven documentation rules and caveats.
+5. Added validation commands and operating practices.
