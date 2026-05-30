@@ -813,3 +813,111 @@ def mcp_console():
     except Exception as e:
         logger.error(f"MCP console error: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@mcp_bp.route('/config', methods=['GET'])
+@login_required
+@api_admin_required
+def get_external_config():
+    """Retrieve external MCP servers configuration"""
+    try:
+        manager = get_mcp_manager()
+        config = manager.load_external_config()
+        return jsonify({
+            'success': True,
+            'config': config,
+            'active_servers': list(manager.external_clients.keys())
+        }), 200
+    except Exception as e:
+        logger.error(f"Error getting external config: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@mcp_bp.route('/config', methods=['POST'])
+@login_required
+@api_admin_required
+def update_external_config():
+    """Update external MCP servers configuration and dynamically hot-reload"""
+    try:
+        data = request.get_json() or {}
+        new_config = data.get("config", {})
+        
+        import os
+        import json
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        config_path = os.path.join(base_dir, 'config', 'mcp_servers.json')
+        
+        # Save config
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump({"mcpServers": new_config}, f, indent=2)
+            
+        # Hot-reload all external servers
+        manager = get_mcp_manager()
+        run_async(manager.start_external_servers())
+        
+        return jsonify({
+            'success': True,
+            'message': 'Configuration updated and dynamic servers reloaded',
+            'active_servers': list(manager.external_clients.keys())
+        }), 200
+    except Exception as e:
+        logger.error(f"Error updating external config: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@mcp_bp.route('/servers/<name>/start', methods=['POST'])
+@login_required
+@api_admin_required
+def start_dynamic_server(name):
+    """Start a specific configured dynamic MCP server"""
+    try:
+        manager = get_mcp_manager()
+        manager.load_external_config()
+        
+        if name not in manager.external_configs:
+            return jsonify({'success': False, 'error': f"Server configuration '{name}' not found"}), 404
+            
+        if name in manager.external_clients:
+            return jsonify({'success': True, 'message': f"Server '{name}' is already running"}), 200
+            
+        config = manager.external_configs[name]
+        command = [config["command"]] + config.get("args", [])
+        env = config.get("env", {})
+        
+        client = manager.create_client(name=f"ExternalClient-{name}")
+        run_async(client.connect_via_stdio(command, env))
+        manager.external_clients[name] = client
+        manager.client_connections[client.client_id] = f"external-{name}"
+        
+        return jsonify({
+            'success': True,
+            'message': f"Dynamic server '{name}' started successfully",
+            'server': client.get_client_info()
+        }), 200
+    except Exception as e:
+        logger.error(f"Error starting dynamic server {name}: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@mcp_bp.route('/servers/<name>/stop', methods=['POST'])
+@login_required
+@api_admin_required
+def stop_dynamic_server(name):
+    """Stop a specific active dynamic MCP server"""
+    try:
+        manager = get_mcp_manager()
+        
+        if name not in manager.external_clients:
+            return jsonify({'success': False, 'error': f"Dynamic server '{name}' is not running"}), 404
+            
+        client = manager.external_clients.pop(name)
+        client.disconnect()
+        manager.remove_client(client.client_id)
+        
+        return jsonify({
+            'success': True,
+            'message': f"Dynamic server '{name}' stopped successfully"
+        }), 200
+    except Exception as e:
+        logger.error(f"Error stopping dynamic server {name}: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500

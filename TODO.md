@@ -195,10 +195,10 @@ Priority order:
 ### MCP And Connector Roadmap
 
 - [x] Reconcile `docs/MCP_INTEGRATION.md` future items against implemented connector/OAuth/metrics work and close stale entries.
-- [ ] Add MCP sampling support for LLM completions if still required.
-- [ ] Add advanced MCP resource subscriptions and real-time update notifications.
-- [ ] Add external/remote MCP server connection management.
-- [ ] Add dynamic MCP plugin discovery and loading.
+- [x] Add MCP sampling support for LLM completions if still required.
+- [x] Add advanced MCP resource subscriptions and real-time update notifications.
+- [x] Add external/remote MCP server connection management.
+- [x] Add dynamic MCP plugin discovery and loading.
 - [ ] Validate production connector operation against real external systems.
 
 ### Long-Term Research And Platform Roadmap

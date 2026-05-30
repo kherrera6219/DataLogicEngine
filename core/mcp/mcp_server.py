@@ -21,7 +21,8 @@ from backend.mcp_server.scope_enforcement import enforce_scopes, parse_execution
 from .mcp_protocol import (
     MCPResource, MCPTool, MCPPrompt,
     MCPServerInfo, MCPCapabilities, MCPMethod,
-    MCPRequestHandler, MCPError, MCPErrorCode
+    MCPRequestHandler, MCPError, MCPErrorCode,
+    MCPMessage
 )
 
 
@@ -50,6 +51,7 @@ class MCPServer(MCPRequestHandler):
         self.server_id = str(uuid.uuid4())
         self.initialized = False
         self.client_info = None
+        self.client_callback = None
 
         # Resource, tool, and prompt registries
         self.resources: Dict[str, MCPResource] = {}
@@ -89,6 +91,27 @@ class MCPServer(MCPRequestHandler):
         self.register_handler(MCPMethod.TOOLS_CALL.value, self._handle_tools_call)
         self.register_handler(MCPMethod.PROMPTS_LIST.value, self._handle_prompts_list)
         self.register_handler(MCPMethod.PROMPTS_GET.value, self._handle_prompts_get)
+
+    def register_client_callback(self, callback: Callable):
+        """Register a callback to send requests/notifications to the client"""
+        self.client_callback = callback
+
+    async def sample_completions(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Request model completions from the connected client (sampling)"""
+        if not self.client_callback:
+            raise MCPError(MCPErrorCode.INTERNAL_ERROR, "No client callback registered for sampling")
+
+        message = MCPMessage(
+            method=MCPMethod.SAMPLING_CREATE_MESSAGE.value,
+            params=params
+        )
+        response = await self.client_callback(message)
+        if response.error:
+            raise MCPError(
+                response.error.get("code", MCPErrorCode.INTERNAL_ERROR),
+                response.error.get("message", "Sampling failed")
+            )
+        return response.result
 
     async def _handle_initialize(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Handle initialization request"""
@@ -164,7 +187,7 @@ class MCPServer(MCPRequestHandler):
         if uri not in self.resources:
             raise MCPError(MCPErrorCode.RESOURCE_NOT_FOUND, f"Resource not found: {uri}")
 
-        # Track subscription (in production, you'd track by client/session)
+        # Track subscription
         if uri not in self.resource_subscriptions:
             self.resource_subscriptions[uri] = []
 
@@ -248,16 +271,15 @@ class MCPServer(MCPRequestHandler):
 
             # Audit Log (Enterprise)
             try:
-                # Lazy import to avoid circular dependency
                 from extensions import audit_logger
                 if audit_logger:
                     audit_logger.log_event(
                         event_type='mcp_tool_execution',
-                        user_id='system', # Context is often system for internal calls, or need to pass context
+                        user_id='system',
                         details={
                             'server': self.name,
                             'tool': tool_name,
-                            'arguments': str(arguments), # Stringify to avoid recursion/size issues
+                            'arguments': str(arguments),
                             'status': 'success'
                         },
                         ip_address='127.0.0.1'
@@ -403,8 +425,24 @@ class MCPServer(MCPRequestHandler):
     async def notify_resource_updated(self, uri: str):
         """Notify subscribers that a resource has been updated"""
         if uri in self.resource_subscriptions:
-            # In a full implementation, this would send notifications to subscribed clients
             logger.info(f"Resource updated notification: {uri}")
+            # Dynamic notifications support
+            if self.client_callback:
+                try:
+                    notification = MCPMessage(
+                        method=MCPMethod.RESOURCES_UPDATED.value,
+                        params={"uri": uri}
+                    )
+                    await self.client_callback(notification)
+                except Exception as e:
+                    logger.warning(f"Failed to send JSON-RPC update notification for {uri}: {e}")
+
+        # Also trigger the global SSE subscription manager
+        try:
+            from backend.mcp_server.subscriptions import subscription_manager
+            subscription_manager.notify(uri, {"updated": True})
+        except Exception as e:
+            logger.warning(f"Failed to notify global subscription_manager: {e}")
 
     def get_server_info(self) -> Dict[str, Any]:
         """Get server information"""

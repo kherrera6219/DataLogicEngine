@@ -34,6 +34,10 @@ class MCPManager:
         self.clients: Dict[str, MCPClient] = {}
         self.client_connections: Dict[str, str] = {}  # client_id -> server_id
 
+        # External dynamic servers configuration and clients
+        self.external_configs: Dict[str, Dict[str, Any]] = {}
+        self.external_clients: Dict[str, MCPClient] = {}
+
         # Statistics
         self.stats = {
             "servers_created": 0,
@@ -109,6 +113,7 @@ class MCPManager:
         if not server:
             raise MCPError(MCPErrorCode.INTERNAL_ERROR, f"Server not found: {server_id}")
 
+        server.register_client_callback(client.handle_request)
         result = await client.initialize(server)
         self.client_connections[client_id] = server_id
 
@@ -144,6 +149,59 @@ class MCPManager:
             self.disconnect_client(client_id)
             del self.clients[client_id]
             logger.info(f"Removed client: {client_id}")
+
+    def load_external_config(self) -> Dict[str, Any]:
+        """Load external MCP server configurations from config/mcp_servers.json"""
+        import os
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        config_path = os.path.join(base_dir, 'config', 'mcp_servers.json')
+        
+        if not os.path.exists(config_path):
+            logger.warning(f"External MCP server config not found at {config_path}")
+            self.external_configs = {}
+            return {}
+
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                self.external_configs = data.get("mcpServers", {})
+                logger.info(f"Loaded {len(self.external_configs)} external MCP server configuration(s)")
+                return self.external_configs
+        except Exception as e:
+            logger.error(f"Failed to load external MCP server config: {e}")
+            self.external_configs = {}
+            return {}
+
+    async def start_external_servers(self):
+        """Spawn and connect to configured external stdio MCP servers"""
+        # First ensure clean slate
+        await self.stop_external_servers()
+        
+        self.load_external_config()
+        
+        for name, config in self.external_configs.items():
+            command = [config["command"]] + config.get("args", [])
+            env = config.get("env", {})
+            client = self.create_client(name=f"ExternalClient-{name}")
+            try:
+                await client.connect_via_stdio(command, env)
+                self.external_clients[name] = client
+                # Map client_id -> external pseudo-server
+                self.client_connections[client.client_id] = f"external-{name}"
+                logger.info(f"Dynamically started external MCP server: {name}")
+            except Exception as e:
+                logger.error(f"Failed to start dynamic external server '{name}': {e}")
+
+    async def stop_external_servers(self):
+        """Clean up and disconnect all spawned external MCP servers"""
+        for name, client in list(self.external_clients.items()):
+            try:
+                client.disconnect()
+                self.remove_client(client.client_id)
+            except Exception as e:
+                logger.error(f"Error stopping external client '{name}': {e}")
+        self.external_clients.clear()
+        logger.info("Cleared all active external MCP server processes")
 
     def get_stats(self) -> Dict[str, Any]:
         """Get manager statistics"""
