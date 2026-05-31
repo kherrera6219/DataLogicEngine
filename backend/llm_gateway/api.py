@@ -880,7 +880,9 @@ def test_provider(provider_id):
             response = loop.run_until_complete(adapter.complete(
                 messages=[{"role": "user", "content": "Hello, are you online?"}],
                 model=provider.model_id or "default",
-                max_tokens=5
+                # OpenAI's Responses API requires max_output_tokens >= 16; keep a
+                # small but valid budget for this liveness probe.
+                max_tokens=16
             ))
             duration = (datetime.now() - start_time).total_seconds() * 1000
             loop.close()

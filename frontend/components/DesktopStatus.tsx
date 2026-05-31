@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Terminal, Shield, CheckCircle, XCircle, Loader2, Database, Users, Wifi, Cpu } from 'lucide-react';
+import { Terminal, Shield, CheckCircle, XCircle, Loader2, Database, Users, Wifi, Cpu, Minus } from 'lucide-react';
+import { getLocalStorageItem, setLocalStorageItem } from '@/lib/state/storage';
+
+const COLLAPSE_STORAGE_KEY = 'desktopEngine.collapsed';
 
 interface DSQPPersonaProfile {
   axis: number;
@@ -20,6 +23,19 @@ const DesktopStatus = () => {
   const [dsqpProfiles, setDsqpProfiles] = useState<DSQPPersonaProfile[]>([]);
   const [networkState, setNetworkState] = useState<string>('checking');
   const [localModel, setLocalModel] = useState<string | null>(null);
+  // Restore the user's minimize preference (read during initial client render so
+  // the panel never blocks the screen on load).
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return getLocalStorageItem(COLLAPSE_STORAGE_KEY) === '1';
+    }
+    return false;
+  });
+
+  const updateCollapsed = (next: boolean) => {
+    setCollapsed(next);
+    setLocalStorageItem(COLLAPSE_STORAGE_KEY, next ? '1' : '0');
+  };
 
   useEffect(() => {
     const electronApi = typeof window !== 'undefined' ? window.electronAPI : undefined;
@@ -67,8 +83,27 @@ const DesktopStatus = () => {
 
   if (!isDesktop) return null;
 
+  const statusDotClass =
+    status === 'running' ? 'bg-emerald-400' : status === 'checking' ? 'bg-amber-400' : 'bg-rose-400';
+
+  // Collapsed: a small pill in the corner so it never blocks the screen.
+  if (collapsed) {
+    return (
+      <button
+        type="button"
+        onClick={() => updateCollapsed(false)}
+        className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900/90 px-3 py-2 text-slate-200 shadow-2xl backdrop-blur transition-colors hover:bg-slate-800"
+        title="Show Desktop Engine status"
+        aria-label="Show Desktop Engine status"
+      >
+        <Shield className="h-4 w-4 text-indigo-400" />
+        <span className={`h-2 w-2 rounded-full ${statusDotClass}`} />
+      </button>
+    );
+  }
+
   return (
-    <div 
+    <div
       className="fixed bottom-4 right-4 z-50 max-w-sm bg-slate-900/90 backdrop-blur border border-slate-700 rounded-lg p-4 shadow-2xl text-slate-200"
       role="status"
       aria-live="polite"
@@ -94,6 +129,15 @@ const DesktopStatus = () => {
               <XCircle className="w-3 h-3" /> Offline
             </span>
           )}
+          <button
+            type="button"
+            onClick={() => updateCollapsed(true)}
+            className="ml-1 rounded p-0.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
+            title="Minimize Desktop Engine panel"
+            aria-label="Minimize Desktop Engine panel"
+          >
+            <Minus className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
 
