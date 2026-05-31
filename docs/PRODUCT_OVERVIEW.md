@@ -24,7 +24,11 @@ Describe what DataLogicEngine is, what it does, which capabilities are currently
 
 ## What DataLogicEngine is
 
-DataLogicEngine is a local-first AI governance and knowledge-reasoning platform.
+DataLogicEngine is a licensed, local-first Windows AI gateway and governed reasoning runtime.
+
+It is intended to run on the user's own Windows system or on a user-controlled Windows VM. The user or organization brings their own AI provider accounts, API keys, connector credentials, storage location, and operating policy.
+
+DataLogicEngine is not intended to be operated as a conventional multi-tenant SaaS where the project owner hosts customer data, manages customer API spend, or centrally secures customer workspaces.
 
 It combines:
 
@@ -42,7 +46,8 @@ It combines:
 The product is not simply a chat wrapper around an LLM. Its core lifecycle is:
 
 ```text
-prompt
+application / chatbot / agent
+  -> DataLogicEngine API gateway
   -> security/API envelope
   -> DMRF
   -> TruthGate
@@ -54,15 +59,35 @@ prompt
   -> evidence/convergence
   -> memory/audit
   -> trace review/export
+  -> API response
 ```
+
+## Licensing and operating model
+
+The intended commercial model is licensed software, not managed SaaS operations.
+
+| Responsibility | Intended owner |
+|---|---|
+| Software license | DataLogicEngine vendor/project owner |
+| Installation target | User/customer system or user-controlled Windows VM |
+| AI provider account | User/customer |
+| API keys and provider spend | User/customer |
+| Local data, traces, memory, documents, exports | User/customer environment |
+| Backups and retention | User/customer/operator |
+| Provider terms, regional settings, and retention settings | User/customer/provider contract |
+| Connector credentials and external service permissions | User/customer |
+| Central hosting of customer data | Not the default product model |
+| Central management of customer API bills | Not the default product model |
+
+This model is designed to reduce vendor custody of customer data and avoid the vendor becoming the operator of customer API usage.
 
 ## Deployment modes
 
 | Mode | Description | Status |
 |---|---|---|
-| Local-first desktop | Windows Electron runtime with loopback backend, desktop local-auth, local storage, and optional provider keys. | Primary target |
-| Windows VM | Same Windows app stack running inside a VM with app-owned internal services. | Supported |
-| Controlled web/cloud | Hosted deployment with hardened session/CORS/CSRF/trusted-host rules and no desktop trust assumptions. | Conditional |
+| Local-first desktop | Windows Electron runtime with loopback backend, desktop local-auth, local storage, and user-provided provider keys. | Primary target |
+| Windows VM gateway | Same Windows app stack running inside a user-controlled Windows VM as API-in/API-out middleware between applications/agents/chatbots and AI providers/tools. | Supported |
+| Controlled web/cloud | Hosted deployment where explicitly configured by the operator. This is not the default managed SaaS model. | Conditional |
 
 ## Product surfaces
 
@@ -120,6 +145,8 @@ Current data architecture includes:
 
 Local-first does not mean air-gapped. AI provider or MCP connector calls may transmit selected prompts/context/tool inputs depending on configuration.
 
+The key operating distinction is that these calls are made using user/customer-controlled provider accounts and keys. Provider billing, retention, terms, and regional settings are governed by the user's provider account and contract.
+
 ## Security and governance model
 
 Product-level security and governance include:
@@ -143,8 +170,10 @@ Current high-level caveats:
 
 1. signed public Windows distribution requires trusted certificate workflow completion;
 2. manual accessibility evidence remains required before final production distribution;
-3. provider-backed flows require valid configured provider credentials and network access;
-4. AES-256-GCM remains target-state language where current encryption implementation is Fernet/DPAPI-based.
+3. provider-backed flows require valid user/customer-configured provider credentials and network access;
+4. API spend controls are user/customer/provider-account responsibilities, not centrally managed by the project owner;
+5. backups, local data retention, and endpoint security are operator responsibilities in local-first and Windows VM modes;
+6. AES-256-GCM remains target-state language where current encryption implementation is Fernet/DPAPI-based.
 
 ## Validation commands
 
@@ -181,7 +210,8 @@ A product reviewer should inspect:
 4. `docs/ARCHITECTURE.md`
 5. `docs/API.md`
 6. `docs/SECURITY.md`
-7. `docs/PRODUCTION_READINESS.md`
+7. `docs/PRIVACY_POLICY.md`
+8. `docs/PRODUCTION_READINESS.md`
 
 ## Change notes for v2.6.0
 
@@ -191,3 +221,4 @@ A product reviewer should inspect:
 4. Updated capability status to reflect current architecture.
 5. Added security/governance model and reviewer path.
 6. Added current caveats aligned with production readiness and security docs.
+7. Clarified licensed local-first/BYOK operating model and user/customer responsibility for provider spend, API keys, local data, backups, and retention.
