@@ -27,6 +27,12 @@ from backend.knowledge_algorithms.ka_70_counterfactual_scenario_simulator import
 )
 from backend.knowledge_algorithms.ka_77_data_enrichment import KA077DataEnrichment, KA077EnrichmentInput
 from backend.knowledge_algorithms.ka_79_data_retrieval import KA079DataRetrieval, KA079RetrievalInput
+from backend.knowledge_algorithms.ka_80_cache_management import KA080CacheInput, KA080CacheManagement
+from backend.knowledge_algorithms.ka_81_model_training import KA081ModelTraining, KA081TrainingInput
+from backend.knowledge_algorithms.ka_82_model_evaluation import KA082EvaluationInput, KA082ModelEvaluation
+from backend.knowledge_algorithms.ka_83_model_deployment import KA083DeploymentInput, KA083ModelDeployment
+from backend.knowledge_algorithms.ka_86_hyperparameter_tuning import KA086HyperparameterTuning, KA086TuningInput
+from backend.knowledge_algorithms.ka_88_ab_testing import KA088ABInput, KA088ABTesting
 from backend.knowledge_algorithms.ka_106_fault_tolerance import KA106FaultInput, KA106FaultTolerance
 from backend.knowledge_algorithms.ka_109_system_health import KA109HealthInput, KA109SystemHealth
 from backend.knowledge_algorithms.ka_111_api_gateway import KA111APIGateway, KA111Input
@@ -376,6 +382,99 @@ def test_ka079_retrieves_ranked_local_records_with_filters():
     assert result["output"]["local_only"] is True
 
 
+def test_ka080_reports_cache_stats_and_operation_plan():
+    result = KA080CacheManagement({}).run(
+        KA080CacheInput(
+            key="user:1",
+            operation="get",
+            cache_state={
+                "entries": {
+                    "user:1": {"value": "alice", "hits": 9, "misses": 1},
+                    "user:2": {"value": "bob", "hits": 1, "misses": 4, "stale": True},
+                }
+            },
+        )
+    )
+
+    assert result["success"] is True
+    assert result["output"]["operation_result"] == "HIT"
+    assert result["output"]["stats"]["hit_ratio"] == 0.6667
+    assert result["output"]["consistency_status"] == "STALE_ENTRIES_PRESENT"
+
+
+def test_ka081_creates_deterministic_training_plan():
+    ka = KA081ModelTraining({})
+    first = ka.run(KA081TrainingInput(dataset_id="ds1", model_name="m1", training_samples=2000, epochs=3))
+    second = ka.run(KA081TrainingInput(dataset_id="ds1", model_name="m1", training_samples=2000, epochs=3))
+
+    assert first["success"] is True
+    assert first["output"]["job_id"] == second["output"]["job_id"]
+    assert first["output"]["epochs_run"] == 3
+    assert first["output"]["final_metrics"]["accuracy"] > first["output"]["training_history"][0]["accuracy"]
+
+
+def test_ka082_calculates_evaluation_metrics_from_labels():
+    result = KA082ModelEvaluation({}).run(
+        KA082EvaluationInput(model_id="m1", test_set="eval", predictions=[1, 0, 1, 1], labels=[1, 0, 0, 1])
+    )
+
+    assert result["success"] is True
+    assert result["output"]["metrics"]["accuracy"] == 0.75
+    assert result["output"]["metrics"]["precision"] == 0.6667
+    assert result["output"]["sample_count"] == 4
+
+
+def test_ka083_deployment_recommends_rollback_on_unhealthy_signal():
+    result = KA083ModelDeployment({}).run(
+        KA083DeploymentInput(
+            version="v2.0.0",
+            env="production",
+            current_version="v1.9.0",
+            health_signals={"failures_per_hour": 8, "p95_latency_ms": 1200},
+        )
+    )
+
+    assert result["success"] is False
+    assert result["output"]["status"] == "ROLLBACK_RECOMMENDED"
+    assert result["output"]["rollback_plan"]["target_version"] == "v1.9.0"
+
+
+def test_ka086_tunes_hyperparameters_deterministically():
+    ka = KA086HyperparameterTuning({})
+    payload = KA086TuningInput(
+        model_type="classifier",
+        max_trials=3,
+        parameter_space={"learning_rate": [1e-5, 5e-5], "batch_size": [16, 32]},
+    )
+    first = ka.run(payload)
+    second = ka.run(payload)
+
+    assert first["success"] is True
+    assert first["output"]["trials_run"] == 3
+    assert first["output"]["best_params"] == second["output"]["best_params"]
+    assert first["output"]["best_score"] == second["output"]["best_score"]
+
+
+def test_ka088_assigns_ab_variant_with_stable_hash_and_metrics():
+    ka = KA088ABTesting({})
+    result = ka.run(
+        KA088ABInput(
+            request_id="req-1",
+            subject_id="user-42",
+            experiment_metrics={
+                "control": {"n": 1200, "conversions": 120},
+                "variant_a": {"n": 1200, "conversions": 180},
+            },
+        )
+    )
+    repeat = ka.run(KA088ABInput(request_id="req-2", subject_id="user-42"))
+
+    assert result["success"] is True
+    assert result["output"]["assigned_variant"] == repeat["output"]["assigned_variant"]
+    assert result["output"]["analysis"]["sufficient_data"] is True
+    assert result["output"]["analysis"]["lift"] == 0.05
+
+
 def test_ka106_uses_deterministic_circuit_breaker_policy():
     ka = KA106FaultTolerance({})
 
@@ -459,6 +558,12 @@ def test_ka_master_routes_reasoning_nlp_intents(monkeypatch):
         "KA-049": {"metadata": {"Implementation": "unused"}},
         "KA-066": {"metadata": {"Implementation": "unused"}},
         "KA-070": {"metadata": {"Implementation": "unused"}},
+        "KA-080": {"metadata": {"Implementation": "unused"}},
+        "KA-081": {"metadata": {"Implementation": "unused"}},
+        "KA-082": {"metadata": {"Implementation": "unused"}},
+        "KA-083": {"metadata": {"Implementation": "unused"}},
+        "KA-086": {"metadata": {"Implementation": "unused"}},
+        "KA-088": {"metadata": {"Implementation": "unused"}},
     }
 
     monkeypatch.setattr(controller, "execute_algorithm", lambda ka_id, payload: {"success": True, "output": payload})
@@ -472,6 +577,12 @@ def test_ka_master_routes_reasoning_nlp_intents(monkeypatch):
         ("Why did retrieval fail", ["KA-004", "KA-005", "KA-041"]),
         ("Build causal graph relationship", ["KA-004", "KA-005", "KA-066"]),
         ("What if retry attempts increase", ["KA-004", "KA-005", "KA-042", "KA-070"]),
+        ("Evict cache key", ["KA-004", "KA-005", "KA-080"]),
+        ("Start model training job", ["KA-004", "KA-005", "KA-081"]),
+        ("Evaluate model performance metrics", ["KA-004", "KA-005", "KA-082"]),
+        ("Deploy model canary", ["KA-004", "KA-005", "KA-083"]),
+        ("Run hyperparameter search", ["KA-004", "KA-005", "KA-086"]),
+        ("Assign experiment variant", ["KA-004", "KA-005", "KA-088"]),
         ("Map concept analogy", ["KA-004", "KA-005", "KA-044"]),
         ("Find recurring pattern", ["KA-004", "KA-005", "KA-045"]),
         ("Analyze trend direction", ["KA-004", "KA-005", "KA-046"]),

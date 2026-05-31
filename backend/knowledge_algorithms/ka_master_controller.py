@@ -302,6 +302,75 @@ class KAMasterController(KnowledgeAlgorithm):
             )
         elif any(term in lower for term in ("relation", "relationship", "predicate")):
             flow.append(("KA-049", {"text": data.get("text", query_text), "entities": data.get("entities", [])}))
+        elif any(term in lower for term in ("cache", "evict", "ttl")):
+            flow.append(
+                (
+                    "KA-080",
+                    {
+                        "key": data.get("key", "*"),
+                        "operation": data.get("operation", "stats"),
+                        "cache_state": data.get("cache_state", {}),
+                    },
+                )
+            )
+        elif any(term in lower for term in ("train model", "model training", "training job")):
+            flow.append(
+                (
+                    "KA-081",
+                    {
+                        "dataset_id": data.get("dataset_id", "ds_default"),
+                        "model_name": data.get("model_name", "local_model"),
+                        "training_samples": data.get("training_samples"),
+                        "hyperparameters": data.get("hyperparameters", {}),
+                    },
+                )
+            )
+        elif any(term in lower for term in ("evaluate model", "model evaluation", "performance metrics")):
+            flow.append(
+                (
+                    "KA-082",
+                    {
+                        "model_id": data.get("model_id", "latest"),
+                        "test_set": data.get("test_set", "eval_v1"),
+                        "predictions": data.get("predictions", []),
+                        "labels": data.get("labels", []),
+                    },
+                )
+            )
+        elif any(term in lower for term in ("deploy model", "model deployment", "canary")):
+            flow.append(
+                (
+                    "KA-083",
+                    {
+                        "version": data.get("version", "v1.0.0"),
+                        "env": data.get("env", "staging"),
+                        "health_signals": data.get("health_signals", {}),
+                        "current_version": data.get("current_version"),
+                    },
+                )
+            )
+        elif any(term in lower for term in ("hyperparameter", "tune model", "parameter search")):
+            flow.append(
+                (
+                    "KA-086",
+                    {
+                        "model_type": data.get("model_type", "transformer"),
+                        "max_trials": data.get("max_trials"),
+                        "parameter_space": data.get("parameter_space", {}),
+                    },
+                )
+            )
+        elif any(term in lower for term in ("ab test", "a/b test", "experiment variant", "traffic split")):
+            flow.append(
+                (
+                    "KA-088",
+                    {
+                        "request_id": data.get("request_id", query_text),
+                        "subject_id": data.get("subject_id"),
+                        "experiment_metrics": data.get("experiment_metrics", {}),
+                    },
+                )
+            )
         elif any(term in lower for term in ("entity", "extract", "name", "email", "regulation")):
             flow.append(("KA-048", {"text": query_text}))
         elif any(term in lower for term in ("anomaly", "outlier", "spike")):
