@@ -193,7 +193,11 @@ if ($Mode -eq "installer") {
     }
     finally {
         if (Test-Path -LiteralPath $tempRoot) {
-            Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
+            try {
+                Remove-Item -LiteralPath $tempRoot -Recurse -Force
+            } catch {
+                # Ignore folder cleanup errors
+            }
         }
     }
 }
