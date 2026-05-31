@@ -157,7 +157,7 @@ class NetworkState:
 
     @staticmethod
     def _configured_providers() -> list[str]:
-        providers = []
+        providers: list[str] = []
         env_map = {
             "openai": "OPENAI_API_KEY",
             "anthropic": "ANTHROPIC_API_KEY",
@@ -167,9 +167,48 @@ class NetworkState:
         for provider, env_name in env_map.items():
             if os.environ.get(env_name):
                 providers.append(provider)
+
+        # Also count providers configured in the database (keys saved through the
+        # Settings UI). Without this the desktop app reports OFFLINE even after a
+        # user saves an API key, because no matching *_API_KEY env var is present.
+        for provider_type in NetworkState._db_configured_provider_types():
+            if provider_type not in providers:
+                providers.append(provider_type)
+
         if os.environ.get("LOCAL_SLM_ENDPOINT") or os.environ.get("OLLAMA_BASE_URL"):
             providers.append("local_slm")
         return providers
+
+    @staticmethod
+    def _db_configured_provider_types() -> list[str]:
+        """Active LLM provider types that have a stored API key, from the DB.
+
+        Best-effort and context-safe: may be called outside a Flask request, so it
+        pushes an app context when one is available and never raises.
+        """
+        def _query() -> list[str]:
+            rows = LLMProvider.query.filter_by(is_active=True).all()
+            types: list[str] = []
+            for row in rows:
+                if getattr(row, "api_key_encrypted", None):
+                    provider_type = str(getattr(row, "provider_type", "") or "").strip().lower()
+                    if provider_type and provider_type not in types:
+                        types.append(provider_type)
+            return types
+
+        try:
+            from flask import current_app as _cur_app
+            try:
+                app = _cur_app._get_current_object()
+            except RuntimeError:
+                app = None
+            if app is not None:
+                with app.app_context():
+                    return _query()
+            return _query()
+        except Exception as exc:  # pragma: no cover - defensive, status path only
+            logger.debug("DB provider status lookup failed: %s", exc)
+            return []
 
     @staticmethod
     def _tcp_reachable(host: str, port: int) -> bool:

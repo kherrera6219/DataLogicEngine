@@ -1,12 +1,23 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+import os
+import sys
+
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules, copy_metadata
 
 block_cipher = None
 
+# The gateway imports `ukg_sdk` (provider HTTP clients, overlay, KA executor) from
+# the in-repo SDK at sdk/UKG_Python_SDK via a runtime sys.path insert. That path
+# does not exist in the frozen app, so the package must be analyzed and collected
+# here. Put it on sys.path so collect_submodules/collect_data_files resolve it.
+_SDK_PATH = os.path.abspath(os.path.join('sdk', 'UKG_Python_SDK'))
+if _SDK_PATH not in sys.path:
+    sys.path.insert(0, _SDK_PATH)
+
 a = Analysis(
     ['main.py'],
-    pathex=[],
+    pathex=[_SDK_PATH],
     binaries=[],
     datas=[
         ('backend', 'backend'),
@@ -19,7 +30,7 @@ a = Analysis(
         ('models.py', '.'),
         ('core/data', 'core/data'),
         ('backend/dsqp/templates', 'backend/dsqp/templates'),
-    ] + collect_data_files('rfc3987_syntax'),
+    ] + collect_data_files('rfc3987_syntax') + collect_data_files('ukg_sdk') + copy_metadata('tiktoken'),
     hiddenimports=[
         'flask',
         'flask_sqlalchemy',
@@ -61,13 +72,18 @@ a = Analysis(
         'docx',
         'openai',
         'tiktoken',
+        # tiktoken registers encodings (e.g. cl100k_base) through the tiktoken_ext
+        # namespace-package plugin mechanism, which PyInstaller does not auto-detect.
+        # Without these the frozen app raises "Unknown encoding cl100k_base".
+        'tiktoken_ext',
+        'tiktoken_ext.openai_public',
         'langchain_openai',
         'langchain_community',
         'sentence_transformers',
         'transformers',
         'torch',
         'dotenv',
-    ] + collect_submodules('chromadb') + collect_submodules('sentence_transformers') + collect_submodules('backend.desktop') + collect_submodules('backend.ingestion') + collect_submodules('backend.dsqp') + collect_submodules('backend.dmrf') + collect_submodules('backend.knowledge_algorithms.l10'),
+    ] + collect_submodules('chromadb') + collect_submodules('sentence_transformers') + collect_submodules('ukg_sdk') + collect_submodules('backend.desktop') + collect_submodules('backend.ingestion') + collect_submodules('backend.dsqp') + collect_submodules('backend.dmrf') + collect_submodules('backend.knowledge_algorithms.l10'),
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

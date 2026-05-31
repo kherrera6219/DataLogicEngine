@@ -50,6 +50,25 @@ def test_network_state_reports_desktop_degraded_with_remote_only(monkeypatch):
     assert status["active_provider"] == "openai"
 
 
+def test_network_state_includes_db_configured_providers(monkeypatch):
+    """A provider saved through Settings (DB) should make the app report ONLINE
+    even when no matching *_API_KEY environment variable is present."""
+    NetworkState._last_checked = None
+    NetworkState._last_result = {}
+    for env_name in ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_API_KEY", "AZURE_OPENAI_API_KEY"]:
+        monkeypatch.delenv(env_name, raising=False)
+    monkeypatch.delenv("LOCAL_SLM_ENDPOINT", raising=False)
+    monkeypatch.delenv("OLLAMA_BASE_URL", raising=False)
+    monkeypatch.setattr(NetworkState, "_tcp_reachable", staticmethod(lambda host, port: False))
+    monkeypatch.setattr(NetworkState, "_db_configured_provider_types", staticmethod(lambda: ["openai"]))
+
+    status = NetworkState.check(force=True)
+
+    assert status["state"] == "ONLINE"
+    assert "openai" in status["details"]["configured_providers"]
+    assert status["active_provider"] == "openai"
+
+
 def test_desktop_runtime_flags_persist(tmp_path, monkeypatch):
     settings_path = tmp_path / "settings.json"
     monkeypatch.setenv("DATALOGIC_STORAGE_SETTINGS_PATH", str(settings_path))
