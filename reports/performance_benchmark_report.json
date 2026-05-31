@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-31T03:25:45Z",
+  "timestamp": "2026-05-31T03:43:16Z",
   "iterations_default": 50,
   "thresholds": {
     "coordinate_resolution": 100,
@@ -18,90 +18,90 @@
       "mean_ms": 0.005,
       "median_ms": 0.004,
       "p95_ms": 0.009,
-      "p99_ms": 0.022,
+      "p99_ms": 0.021,
       "min_ms": 0.004,
-      "max_ms": 0.022,
+      "max_ms": 0.021,
       "stdev_ms": 0.003
     },
     "truth_cache_operations": {
       "iterations": 50,
       "mean_ms": 0.001,
       "median_ms": 0.001,
-      "p95_ms": 0.004,
-      "p99_ms": 0.014,
+      "p95_ms": 0.002,
+      "p99_ms": 0.005,
       "min_ms": 0.0,
-      "max_ms": 0.014,
-      "stdev_ms": 0.002
+      "max_ms": 0.005,
+      "stdev_ms": 0.001
     },
     "ka_master_dispatch": {
       "iterations": 50,
-      "mean_ms": 7.475,
-      "median_ms": 1.608,
-      "p95_ms": 2.398,
-      "p99_ms": 292.076,
-      "min_ms": 1.406,
-      "max_ms": 292.076,
-      "stdev_ms": 41.071
+      "mean_ms": 7.252,
+      "median_ms": 1.587,
+      "p95_ms": 3.149,
+      "p99_ms": 276.341,
+      "min_ms": 1.378,
+      "max_ms": 276.341,
+      "stdev_ms": 38.843
     },
     "dsqp_construction": {
       "iterations": 20,
-      "mean_ms": 6.736,
-      "median_ms": 6.108,
-      "p95_ms": 10.608,
-      "p99_ms": 10.608,
-      "min_ms": 4.58,
-      "max_ms": 10.608,
-      "stdev_ms": 1.919
+      "mean_ms": 6.496,
+      "median_ms": 5.532,
+      "p95_ms": 24.345,
+      "p99_ms": 24.345,
+      "min_ms": 4.545,
+      "max_ms": 24.345,
+      "stdev_ms": 4.255
     },
     "dmrf_routing": {
       "iterations": 50,
-      "mean_ms": 0.018,
+      "mean_ms": 0.017,
       "median_ms": 0.005,
-      "p95_ms": 0.012,
-      "p99_ms": 0.617,
+      "p95_ms": 0.013,
+      "p99_ms": 0.597,
       "min_ms": 0.004,
-      "max_ms": 0.617,
-      "stdev_ms": 0.087
+      "max_ms": 0.597,
+      "stdev_ms": 0.084
     },
     "confidence_calculator": {
       "iterations": 50,
       "mean_ms": 0.002,
       "median_ms": 0.001,
       "p95_ms": 0.003,
-      "p99_ms": 0.011,
+      "p99_ms": 0.009,
       "min_ms": 0.001,
-      "max_ms": 0.011,
+      "max_ms": 0.009,
       "stdev_ms": 0.001
     },
     "injection_defense": {
       "iterations": 50,
-      "mean_ms": 0.006,
+      "mean_ms": 0.005,
       "median_ms": 0.002,
-      "p95_ms": 0.005,
-      "p99_ms": 0.179,
+      "p95_ms": 0.004,
+      "p99_ms": 0.175,
       "min_ms": 0.001,
-      "max_ms": 0.179,
+      "max_ms": 0.175,
       "stdev_ms": 0.025
     },
     "pii_guard": {
       "iterations": 50,
       "mean_ms": 0.07,
-      "median_ms": 0.06,
-      "p95_ms": 0.078,
-      "p99_ms": 0.415,
-      "min_ms": 0.058,
-      "max_ms": 0.415,
-      "stdev_ms": 0.05
+      "median_ms": 0.061,
+      "p95_ms": 0.091,
+      "p99_ms": 0.388,
+      "min_ms": 0.057,
+      "max_ms": 0.388,
+      "stdev_ms": 0.047
     },
     "health_endpoint": {
       "iterations": 50,
-      "mean_ms": 111.932,
-      "median_ms": 109.151,
-      "p95_ms": 127.979,
-      "p99_ms": 136.439,
-      "min_ms": 101.344,
-      "max_ms": 136.439,
-      "stdev_ms": 8.085
+      "mean_ms": 111.278,
+      "median_ms": 106.055,
+      "p95_ms": 134.262,
+      "p99_ms": 166.07,
+      "min_ms": 99.604,
+      "max_ms": 166.07,
+      "stdev_ms": 12.745
     },
     "flask_app_context": {
       "iterations": 20,
@@ -109,7 +109,7 @@
       "median_ms": 0.003,
       "p95_ms": 0.008,
       "p99_ms": 0.008,
-      "min_ms": 0.002,
+      "min_ms": 0.003,
       "max_ms": 0.008,
       "stdev_ms": 0.001
     }

@@ -594,3 +594,36 @@ def test_ka_master_routes_reasoning_nlp_intents(monkeypatch):
         result = controller.run({"data": {"query": query}})
         assert result["success"] is True
         assert result["output"]["orchestrated_flow"] == expected_flow
+
+
+def test_ka006_dynamic_intent_compliance():
+    from backend.knowledge_algorithms.ka_06_deep_planning import KA006DeepPlanning, KA006Input
+    ka = KA006DeepPlanning({})
+    
+    result = ka.run(KA006Input(problem="Verify HIPAA and GDPR compliance audits", requested_depth=1))
+    assert result["success"] is True
+    step_ids = [s["id"] for s in result["output"]["plan_steps"]]
+    assert "s2_reg" in step_ids
+    assert "s2_pii" in step_ids
+    assert "s_synthesis" in step_ids
+    synthesis = next(s for s in result["output"]["plan_steps"] if s["id"] == "s_synthesis")
+    assert "s2_reg" in synthesis["depends_on"]
+    assert "s2_pii" in synthesis["depends_on"]
+    assert result["output"]["complexity_estimate"] > 0.4
+
+
+def test_ka006_dynamic_intent_security_depth():
+    from backend.knowledge_algorithms.ka_06_deep_planning import KA006DeepPlanning, KA006Input
+    ka = KA006DeepPlanning({})
+    
+    result = ka.run(KA006Input(problem="Scan for adversarial bypass attempts", requested_depth=2))
+    assert result["success"] is True
+    step_ids = [s["id"] for s in result["output"]["plan_steps"]]
+    assert "s4_shield" in step_ids
+    assert "s4_inject" in step_ids
+    
+    shield = next(s for s in result["output"]["plan_steps"] if s["id"] == "s4_shield")
+    assert "sub_steps" in shield
+    assert shield["sub_steps"][0]["id"] == "s4_shield_sub1"
+    assert result["output"]["complexity_estimate"] > 0.6
+
