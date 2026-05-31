@@ -1,6 +1,6 @@
 # DataLogicEngine
 
-Local-first governed AI orchestration, traceable reasoning, and enterprise knowledge workflows in one deployable platform.
+> **Licensed local-first Windows AI gateway and governed reasoning runtime for applications, agents, chatbots, and enterprise knowledge workflows.**
 
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
@@ -9,28 +9,129 @@ Local-first governed AI orchestration, traceable reasoning, and enterprise knowl
 [![Node](https://img.shields.io/badge/node-24%2B-339933)](frontend/package.json)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue)](LICENSE)
 
-DataLogicEngine is a full-stack platform for building inspectable AI systems over structured enterprise knowledge. It combines a Windows/Electron local-first runtime, Next.js console, Flask API/security envelope, DMRF governed AI control plane, Truth Engine, 17-axis routing, DSQP persona construction, MCP connector governance, trace/export review, and multi-store memory architecture.
+DataLogicEngine sits between your application and AI providers as an **API-in/API-out governed AI control plane**. It is designed to run on a user's own Windows machine or a user-controlled Windows VM, using the user's own provider accounts, API keys, data stores, retention policies, and operating environment.
 
-## Current status
+It is **not** intended to be a conventional vendor-hosted multi-tenant SaaS where the project owner centrally hosts customer data or manages customer API spend.
 
-As of 2026-05-30, the active documentation set has been modernized around the current platform architecture:
+```text
+Application / Agent / Chatbot
+        ↓ API request
+DataLogicEngine
+        ↓ DMRF + Truth Engine + DSQP + Trace + Policy
+AI Providers / MCP Tools / Local Knowledge Stores
+        ↓ governed response
+Application / Agent / Chatbot
+```
 
-1. local-first Windows desktop and controlled web/cloud modes;
-2. DMRF as the governed AI lifecycle control plane;
-3. Truth Engine for policy, reasoning, memory, and event flow;
-4. 17-axis routing and DSQP structured persona construction;
-5. Trace Explorer and export integrity;
-6. MCP connector scope and contract governance;
-7. multi-store data and memory architecture;
-8. release, security, privacy, and documentation governance.
+---
 
-The canonical backlog and planning source is [`TODO.md`](TODO.md).
+## What it is
 
-Known release caveats are tracked in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) and [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md). Current caveats may include trusted production code-signing, signed installer validation, provider-backed staging validation, external connector validation, manual accessibility evidence, and final release approval evidence.
+DataLogicEngine combines:
+
+| Capability | Purpose |
+|---|---|
+| **Local-first Windows runtime** | Run on a workstation or user-controlled Windows VM. |
+| **API gateway mode** | Accept requests from applications, agents, or chatbots and return governed responses. |
+| **BYOK provider model** | Users bring their own OpenAI/Anthropic/Gemini/Azure/local provider keys and own their API spend. |
+| **DMRF control plane** | Injection defense, tiering, routing, evidence, convergence, memory, and trace hooks. |
+| **Truth Engine** | TruthGate, TruthCore, TruthMemory, and TruthLink for policy, reasoning, memory, and events. |
+| **17-axis routing** | Structured coordinate/risk/context routing for knowledge workflows. |
+| **DSQP personas** | Deterministic structured persona construction for Knowledge, Sector, Regulatory, and Compliance expert perspectives. |
+| **Trace Explorer** | Runs, stages, evidence, claims, personas, hashes, manifests, and export review. |
+| **MCP governance** | Connector scope enforcement, contract validation, telemetry, and audit path. |
+| **Multi-store memory** | SQLAlchemy DB, Redis, Neo4j, ChromaDB, object storage, USKD, UnifiedMemory, and TruthMemory. |
+
+---
+
+## Why it matters
+
+Most AI applications connect directly to a model provider.
+
+DataLogicEngine adds a governed middle layer:
+
+```text
+Before
+App → AI Provider
+
+After
+App → DataLogicEngine → Policy / Routing / Evidence / Memory / Trace → AI Provider or Tool
+```
+
+That gives builders and operators a place to manage:
+
+- prompt-injection and policy gates;
+- provider and model routing;
+- reasoning traceability;
+- evidence and claim review;
+- tool/connector scope enforcement;
+- local data and memory ownership;
+- export integrity and audit evidence;
+- release and documentation governance.
+
+---
+
+## Deployment model
+
+| Mode | Description | Default data posture |
+|---|---|---|
+| **Windows desktop** | Electron + local Flask backend on the user's Windows machine. | Data remains in local app-owned stores unless the user sends selected context to configured providers/tools. |
+| **Windows VM gateway** | Same stack running on a user-controlled Windows VM as API-in/API-out middleware. | Data remains inside the operator-controlled VM environment. |
+| **Controlled web/cloud** | Explicitly configured hosted/internal deployment. | Operator-defined; not the default managed SaaS model. |
+
+### Responsibility model
+
+| Responsibility | Intended owner |
+|---|---|
+| Software license | DataLogicEngine vendor/project owner |
+| Installation target | User/customer/operator |
+| Provider accounts and API keys | User/customer/operator |
+| Provider API spend | User/customer/operator |
+| Local documents, traces, memory, exports | User/customer/operator environment |
+| Backups and retention | User/customer/operator |
+| Connector credentials and external service permissions | User/customer/operator |
+| Central hosting of customer data | Not the default model |
+| Central management of customer API bills | Not the default model |
+
+---
+
+## Architecture
+
+![DataLogicEngine architecture overview](docs/assets/readme/architecture-overview.svg)
+
+```mermaid
+flowchart LR
+    Input[Application / Agent / Chatbot] --> API[Flask API / Security Envelope]
+    API --> DMRF[DMRF Control Plane]
+    DMRF --> Gate[InjectionDefense + TruthGate]
+    Gate --> Route[TierClassifier + 17-Axis Router]
+    Route --> Persona[DSQP Persona Builder]
+    Persona --> Core[TruthCore]
+    Core --> Providers[LLM Gateway / AI Providers]
+    Core --> MCP[MCP Tools / Connectors]
+    Core --> Memory[(Local Data + Memory Stores)]
+    Core --> Trace[Trace Explorer / Export Integrity]
+    Trace --> Output[Governed API Response]
+    Providers --> Output
+    MCP --> Output
+```
+
+### Runtime components
+
+| Layer | Components |
+|---|---|
+| Product surface | Next.js, React, Electron, dashboard, chat, trace explorer, graph, settings, admin, MCP hub. |
+| Backend/API | Flask, route modules, canonical `/api/v1/*`, auth/session/security envelope. |
+| AI control plane | DMRF, InjectionDefense, TruthGate, TierClassifier, 17-axis router, DSQP, TruthCore. |
+| Integrations | LLM Gateway, provider adapters, MCP server/connectors. |
+| Data and memory | SQLAlchemy DB, Redis, Neo4j, ChromaDB, object store, USKD graph, UnifiedMemory, TruthMemory. |
+| Evidence/release | Run traces, export manifests, hashes/HMAC, CI, tests, packaging smoke, release checklist. |
+
+---
 
 ## Quickstart
 
-Run the full local stack with Docker:
+Run the local development stack with Docker:
 
 ```bash
 git clone https://github.com/kherrera6219/DataLogicEngine.git
@@ -49,60 +150,15 @@ Open:
 | Metrics | `http://localhost:5000/metrics` |
 | Swagger UI | `http://localhost:5000/api/docs` |
 
-Minimal API call:
+Minimal health check:
 
 ```bash
 curl http://localhost:5000/health
 ```
 
-## Why DataLogicEngine
+---
 
-DataLogicEngine is designed for teams that need AI workflows to be explainable, inspectable, and operable in regulated or high-accountability environments.
-
-| Capability | What it provides |
-|---|---|
-| Local-first runtime | Windows/Electron desktop operation with loopback/local trust controls and app-owned local services. |
-| DMRF control plane | Governed AI request lifecycle with injection defense, tiering, routing, evidence, convergence, memory, and trace hooks. |
-| Truth Engine | TruthGate, TruthCore, TruthMemory, and TruthLink components for policy, reasoning, audit, memory, and events. |
-| 17-axis routing | Structured coordinate/risk/context routing for knowledge workflows. |
-| DSQP | Deterministic structured persona construction for Knowledge, Sector, Regulatory, and Compliance expert perspectives. |
-| Traceability | Runs, stages, evidence, claims, policy decisions, personas, hashes, and export manifests for review. |
-| MCP governance | Connector registration, scope enforcement, contract validation, metrics, and audit path. |
-| Multi-store memory | SQLAlchemy DB, Redis, Neo4j, ChromaDB, object storage, USKD graph, UnifiedMemory, and TruthMemory. |
-| Release governance | CI, tests, schema parity, runtime precheck, docs validation, packaging smoke, signing checks, and release checklist evidence. |
-
-## Architecture
-
-![DataLogicEngine architecture overview](docs/assets/readme/architecture-overview.svg)
-
-```mermaid
-flowchart LR
-    User[User / Analyst] --> UI[Next.js / Electron UI]
-    UI --> API[Flask API / Security Envelope]
-    API --> DMRF[DMRF Control Plane]
-    DMRF --> Gate[InjectionDefense + TruthGate]
-    Gate --> Route[TierClassifier + 17-Axis Router]
-    Route --> DSQP[DSQP Persona Builder]
-    DSQP --> Core[TruthCore]
-    Core --> Provider[LLM Gateway / AI Providers]
-    Core --> MCP[MCP Connectors]
-    Core --> Data[(SQL / Redis / Neo4j / Chroma / Object Store / Memory)]
-    Core --> Trace[Trace Explorer / Export Integrity]
-    API --> Ops[/health /ready /metrics]
-```
-
-### Runtime components
-
-| Layer | Components | Notes |
-|---|---|---|
-| Frontend | Next.js, React, Electron | Web console, desktop shell, trace/runs, graph, admin, settings, MCP surfaces. |
-| Backend | Flask, SQLAlchemy, route modules | API routing, auth/security envelope, governance lifecycle, storage, tracing. |
-| Control plane | DMRF, Truth Engine, 17-axis router, DSQP | AI lifecycle governance and reasoning workflow. |
-| Data/memory | SQL, Redis, Neo4j, ChromaDB, object store, USKD, UnifiedMemory, TruthMemory | Multi-store persistence and memory. |
-| Integration | LLM Gateway, MCP server | Provider/model calls and external tool execution where configured. |
-| Quality/release | Pytest, frontend tests, GitHub Actions, governance scripts, Windows packaging checks | Validation and release evidence. |
-
-## Installation
+## Local development
 
 ### Prerequisites
 
@@ -112,32 +168,29 @@ flowchart LR
 | Node.js | 24+ | Frontend and Electron tooling. |
 | Docker | Current stable | Local full-stack development. |
 | PostgreSQL | 15+ | Relational store where configured. |
-| Redis | 7+ | Cache, rate limiting, async support where configured. |
+| Redis | 7+ | Cache, sessions, rate limiting, async support where configured. |
 | Neo4j | 5+ | Graph storage where configured. |
 
-### Backend development
+### Backend
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate  # Windows
+.venv\Scripts\activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 copy .env.template .env
 python app.py
 ```
 
-On macOS/Linux:
+macOS/Linux activation alternative:
 
 ```bash
-python -m venv .venv
 source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
 cp .env.template .env
 python app.py
 ```
 
-### Frontend development
+### Frontend
 
 ```bash
 cd frontend
@@ -145,9 +198,11 @@ npm ci
 npm run dev
 ```
 
+---
+
 ## Validation
 
-Common checks:
+Common governance checks:
 
 ```bash
 python scripts/verify_docs_references.py
@@ -178,27 +233,79 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\verify_nsi
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
 ```
 
-## Documentation
+---
 
-Start with the documentation portal:
+## Reviewer path
 
-1. [`docs/README.md`](docs/README.md)
-2. [`docs/PRODUCT_OVERVIEW.md`](docs/PRODUCT_OVERVIEW.md)
+Start here if you are evaluating the project for employment, sponsorship, contest judging, architecture review, or acquisition-style due diligence:
+
+1. [`docs/PRODUCT_OVERVIEW.md`](docs/PRODUCT_OVERVIEW.md)
+2. [`docs/README.md`](docs/README.md)
 3. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 4. [`docs/ARCHITECTURE_MAP.md`](docs/ARCHITECTURE_MAP.md)
 5. [`docs/WORKFLOW.md`](docs/WORKFLOW.md)
 6. [`docs/DATA_FLOW_DIAGRAMS.md`](docs/DATA_FLOW_DIAGRAMS.md)
 7. [`docs/DECISION_LOGIC.md`](docs/DECISION_LOGIC.md)
-8. [`docs/SECURITY.md`](docs/SECURITY.md)
-9. [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md)
+8. [`docs/PROCESS_MAP.md`](docs/PROCESS_MAP.md)
+9. [`docs/SEQUENCE_DIAGRAMS.md`](docs/SEQUENCE_DIAGRAMS.md)
+10. [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md)
 
-Historical material under `docs/archive/` is reference-only and should be validated against current active docs before use.
+High-value implementation paths:
 
-## Security
+| Area | Path |
+|---|---|
+| DMRF | `backend/dmrf/` |
+| Truth Engine | `backend/truth_engine/` |
+| DSQP | `backend/dsqp/` |
+| MCP | `backend/mcp_server/` |
+| API/security | `app.py`, `routes/`, `backend/security/`, `backend/auth/` |
+| Frontend product surface | `frontend/app/`, `frontend/components/` |
+| Tests | `tests/` |
+| CI/release | `.github/workflows/`, `scripts/` |
+
+---
+
+## Documentation
+
+The active documentation portal is [`docs/README.md`](docs/README.md).
+
+Historical material under `docs/archive/` is reference-only. Active source-of-truth documents under `docs/` govern implementation and release decisions.
+
+Generated inventory files should be refreshed with:
+
+```bash
+python scripts/generate_docs.py
+```
+
+---
+
+## Security and privacy
 
 Report vulnerabilities privately. See [`SECURITY.md`](SECURITY.md).
 
-Security architecture details are documented in [`docs/SECURITY.md`](docs/SECURITY.md). Security/compliance mapping documents are evidence-guided references and should not be treated as formal certification claims unless a separate attestation is provided.
+Security and privacy details:
+
+- [`docs/SECURITY.md`](docs/SECURITY.md)
+- [`docs/PRIVACY_POLICY.md`](docs/PRIVACY_POLICY.md)
+- [`docs/SSL_CONFIGURATION.md`](docs/SSL_CONFIGURATION.md)
+- [`docs/SLSA_LEVEL_3_ATTESTATION.md`](docs/SLSA_LEVEL_3_ATTESTATION.md)
+- [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md)
+
+Security/compliance mapping documents are evidence-guided references. They should not be treated as formal certification claims unless a separate signed/validated attestation is provided.
+
+---
+
+## Current release posture
+
+Known release caveats are tracked in:
+
+- [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md)
+- [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md)
+- [`TODO.md`](TODO.md)
+
+Current caveats may include trusted production code-signing, signed installer validation, provider-backed staging validation, external connector validation, manual accessibility evidence, and final release approval evidence.
+
+---
 
 ## License
 
