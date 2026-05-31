@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Plus, Search, Calendar, 
-  Settings, Mic, Paperclip, Zap, ArrowRight 
+import {
+  Plus, Search, Calendar,
+  Settings, Mic, Paperclip, Zap, ArrowRight, Target, Bot, User
 } from "lucide-react";
 import { ChatMessage, TracePipeline } from './types';
 import { ApiChatMessage, ChatSession } from '@/lib/api/chat';
@@ -399,7 +399,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
          {/* Header */}
          <div className="h-14 border-b border-white/5 flex items-center justify-between px-6 fluent-acrylic sticky top-0 z-30">
             <h1 className="font-bold text-sm tracking-wide flex items-center gap-2 text-slate-900 dark:text-gray-100" data-testid="app-header">
-               ðŸŽ¯ UKG Enterprise AI Assistant
+               <Target className="h-4 w-4 text-blue-500" /> UKG Enterprise AI Assistant
             </h1>
             <div className="flex items-center gap-3">
                <span className="text-xs text-slate-600 dark:text-gray-400">
@@ -419,7 +419,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
             {messages.map((msg) => (
                 <div key={msg.id} data-testid="message-item" className={`flex gap-4 animate-in ...`}>
                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${msg.role === 'assistant' ? 'bg-blue-600' : 'bg-slate-200 dark:bg-[#2a2a2a] border border-slate-300/70 dark:border-white/10'}`}>
-                      {msg.role === 'assistant' ? 'ðŸ¤–' : 'ðŸ‘¤'}
+                      {msg.role === 'assistant' ? <Bot className="h-4 w-4 text-white" /> : <User className="h-4 w-4 text-slate-600 dark:text-gray-300" />}
                    </div>
                    <div className="flex-1 space-y-2">
                       <div className="flex items-center justify-between">

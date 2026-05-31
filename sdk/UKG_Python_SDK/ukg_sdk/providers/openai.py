@@ -45,37 +45,45 @@ class OpenAIProvider(LLMProvider):
     )
     async def complete(self, *, messages: List[Dict[str, str]], model: str, temperature: float = 0.7, max_tokens: int = 1024) -> LLMResponse:
         """
-        Generate completion using OpenAI Responses API (GPT-5.2 Standard).
+        Generate completion using the OpenAI Responses API (GPT-5.5).
+
+        GPT-5.x are reasoning models: they reject a custom ``temperature`` and
+        count reasoning tokens against ``max_output_tokens``, so the budget must
+        leave room for both reasoning and the visible answer.
         """
-        # Keep explicit model IDs unchanged; only normalize generic aliases.
+        # Normalize generic aliases to the standard model; keep explicit IDs.
         alias_map = {
-            "gpt-5": "gpt-5.2",
-            "gpt-5-latest": "gpt-5.2",
-            "gpt-5-chat": "gpt-5.2-chat-latest",
+            "gpt-5": "gpt-5.5",
+            "gpt-5-latest": "gpt-5.5",
+            "gpt-5-chat": "gpt-5.5",
         }
-        target_model = alias_map.get(model, model or "gpt-5.2")
-        
-        # Construct input for Responses API
-        # It accepts string or list of messages
-        input_payload = messages # Pass the list directly as chat-style input
+        target_model = alias_map.get(model, model or "gpt-5.5")
+
+        # Construct input for Responses API (accepts a list of chat-style messages).
+        input_payload = messages
 
         try:
-            # Use new 2026 pattern: client.responses.create
-            # Note: The synchronous client is wrapped in async context in older frameworks, 
-            # but standard OpenAI v1+ client is sync by default unless AsyncOpenAI used.
-            # For this provider base which is async, we should use AsyncOpenAI ideally.
-            # But to match the user's snippets exact style first:
-            
-            # Use Async Client if possible, else wrap
             from openai import AsyncOpenAI
             async_client = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url, timeout=self.timeout_s)
-            
-            response = await async_client.responses.create(
-                model=target_model,
-                input=input_payload,
-                max_output_tokens=max_tokens,
-                temperature=temperature
-            )
+
+            # Reasoning models (gpt-5.x / o-series) reserve part of the budget for
+            # reasoning, so floor the output budget; the Responses API also
+            # requires max_output_tokens >= 16.
+            is_reasoning = target_model.lower().startswith(("gpt-5", "o1", "o3", "o4"))
+            output_budget = max(int(max_tokens) if max_tokens else 0, 1024 if is_reasoning else 16)
+
+            request_kwargs: Dict = {
+                "model": target_model,
+                "input": input_payload,
+                "max_output_tokens": output_budget,
+            }
+            if is_reasoning:
+                # gpt-5.x do not accept a custom temperature; use reasoning effort.
+                request_kwargs["reasoning"] = {"effort": "medium"}
+            else:
+                request_kwargs["temperature"] = temperature
+
+            response = await async_client.responses.create(**request_kwargs)
             
             text = response.output_text
             

@@ -214,7 +214,7 @@ export function LiveTracePanel() {
         {loading && <div className="text-xs text-slate-500 dark:text-gray-500">Loading trace telemetry...</div>}
         {!loading && error && (
           <div className="text-xs text-red-600 dark:text-red-400 border border-red-500/20 rounded-md p-2">
-            {error}
+            {typeof error === 'string' ? error : 'Failed to load trace telemetry'}
           </div>
         )}
         {!loading && !error && !currentRun && (

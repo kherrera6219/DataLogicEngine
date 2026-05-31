@@ -30,10 +30,10 @@ interface SaveKeyResponse {
 }
 
 const MODEL_LIBRARY: Record<string, string[]> = {
-  openai: ['gpt-5.5', 'gpt-5.4', 'gpt-5.4-mini'],
+  openai: ['gpt-5.5'],
   anthropic: ['claude-opus-4-7', 'claude-sonnet-4-6', 'claude-haiku-4-5'],
   google: ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3-flash-preview'],
-  azure: ['gpt-5.5', 'gpt-5.4'],
+  azure: ['gpt-5.5'],
 };
 
 function formatError(error: unknown): string {

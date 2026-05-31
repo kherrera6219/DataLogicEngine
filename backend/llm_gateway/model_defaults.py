@@ -4,12 +4,13 @@ OPENAI_LATEST_MODEL = "gpt-5.5"
 ANTHROPIC_LATEST_MODEL = "claude-opus-4-7"
 GOOGLE_LATEST_MODEL = "gemini-3.5-flash"
 
+# Standardized on a single OpenAI model: gpt-5.5 is the only OpenAI model used.
 OPENAI_PRO_MODEL = "gpt-5.5"
 OPENAI_STANDARD_MODEL = "gpt-5.5"
-OPENAI_FAST_MODEL = "gpt-5.4-mini"
-OPENAI_NANO_MODEL = "gpt-5.4-nano"
+OPENAI_FAST_MODEL = "gpt-5.5"
+OPENAI_NANO_MODEL = "gpt-5.5"
 OPENAI_LONG_CONTEXT_MODEL = "gpt-5.5"
-OPENAI_RESEARCH_MODEL = "o3-deep-research"
+OPENAI_RESEARCH_MODEL = "gpt-5.5"
 
 GOOGLE_PRIMARY_MODEL = GOOGLE_LATEST_MODEL
 GOOGLE_FAST_MODEL = "gemini-3-flash-preview"
