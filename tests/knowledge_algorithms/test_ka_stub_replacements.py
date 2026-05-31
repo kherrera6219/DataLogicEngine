@@ -2,9 +2,21 @@ from backend.knowledge_algorithms.ka_11_analytical_modeling import KA011Analytic
 from backend.knowledge_algorithms.ka_33_reserved_expansion_slot import KA033ExtensionSlot, KA033Input
 from backend.knowledge_algorithms.ka_37_resource_allocator import KA037Input, KA037ResourceAllocator
 from backend.knowledge_algorithms.ka_39_anomaly_detection import KA039AnomalyDetection, KA039Input
+from backend.knowledge_algorithms.ka_40_hypothesis_generation import KA040HypothesisGeneration, KA040Input
+from backend.knowledge_algorithms.ka_41_abductive_reasoning import KA041AbductiveReasoning, KA041Input
+from backend.knowledge_algorithms.ka_42_counterfactual_simulator import KA042CounterfactualSimulator, KA042Input
 from backend.knowledge_algorithms.ka_43_causal_inference import KA043CausalInference, KA043Input
+from backend.knowledge_algorithms.ka_44_analogical_mapping import KA044AnalogicalMapping, KA044Input
+from backend.knowledge_algorithms.ka_45_pattern_recognition import KA045Input, KA045PatternRecognition
+from backend.knowledge_algorithms.ka_46_trend_analysis import KA046Input, KA046TrendAnalysis
+from backend.knowledge_algorithms.ka_47_sentiment_analysis import KA047Input, KA047SentimentAnalysis
 from backend.knowledge_algorithms.ka_48_entity_extraction import KA048EntityExtraction, KA048Input
+from backend.knowledge_algorithms.ka_49_relation_extraction import KA049Input, KA049RelationExtraction
 from backend.knowledge_algorithms.ka_50_summarization import KA050Input, KA050Summarization
+from backend.knowledge_algorithms.ka_70_counterfactual_scenario_simulator import (
+    KA070CounterfactualScenarioSimulator,
+    KA070ScenarioInput,
+)
 from backend.knowledge_algorithms.ka_77_data_enrichment import KA077DataEnrichment, KA077EnrichmentInput
 from backend.knowledge_algorithms.ka_79_data_retrieval import KA079DataRetrieval, KA079RetrievalInput
 from backend.knowledge_algorithms.ka_106_fault_tolerance import KA106FaultInput, KA106FaultTolerance
@@ -84,6 +96,97 @@ def test_ka043_ranks_causes_from_evidence_and_mechanism():
     assert "implementation stubbed" not in str(result["output"]).lower()
 
 
+def test_ka040_generates_testable_hypotheses_from_variables():
+    result = KA040HypothesisGeneration({}).run(
+        KA040Input(
+            observation="Audit errors increased after payroll file changes",
+            variables=["payroll_file_format", "validation_rules"],
+            constraints=["local_only"],
+        )
+    )
+
+    assert result["success"] is True
+    assert result["output"]["hypothesis_count"] == 2
+    assert result["output"]["hypotheses"][0]["test"]
+    assert result["output"]["method"] == "variable_signal_hypothesis_generation"
+
+
+def test_ka041_ranks_best_abductive_explanation_from_evidence():
+    result = KA041AbductiveReasoning({}).run(
+        KA041Input(
+            observation="Local retrieval latency increased",
+            explanations=[
+                {"hypothesis": "Cache miss spike", "rationale": "cache misses cause latency", "prior": 0.7},
+                {"hypothesis": "UI color change", "rationale": "cosmetic update", "prior": 0.2},
+            ],
+            evidence=["Metrics show cache miss spike before latency increased."],
+        )
+    )
+
+    assert result["success"] is True
+    assert result["output"]["best_explanation"]["hypothesis"] == "Cache miss spike"
+    assert result["output"]["best_explanation"]["signals"]["evidence_mentions"] == 1.0
+
+
+def test_ka042_projects_counterfactual_state_with_dependencies():
+    result = KA042CounterfactualSimulator({}).run(
+        KA042Input(
+            scenario="increase retry attempts",
+            baseline={"retry_attempts": 2, "latency": 100},
+            change={"retry_attempts": 4},
+            relationships={"retry_attempts": {"latency": 0.5}},
+        )
+    )
+
+    assert result["success"] is True
+    assert result["output"]["projected_state"]["retry_attempts"] == 4
+    assert result["output"]["projected_state"]["latency"] == 101.0
+    assert result["output"]["divergence_score"] > 0
+
+
+def test_ka044_scores_structural_analogies():
+    result = KA044AnalogicalMapping({}).run(
+        KA044Input(
+            source={"name": "API Gateway", "attributes": {"role": "routing", "boundary": "external"}},
+            target_domain="service mesh",
+            target_candidates=[
+                {"name": "Sidecar proxy", "attributes": {"role": "routing", "boundary": "internal"}},
+                {"name": "Data warehouse", "attributes": {"role": "storage"}},
+            ],
+        )
+    )
+
+    assert result["success"] is True
+    assert result["output"]["mappings"][0]["target"] == "Sidecar proxy"
+    assert result["output"]["strength"] in {"medium", "strong"}
+
+
+def test_ka045_detects_repeated_sequences_and_monotonic_runs():
+    result = KA045PatternRecognition({}).run(KA045Input(stream=[1, 2, 3, 1, 2, 3, 4], window_size=3))
+
+    assert result["success"] is True
+    assert any(pattern["type"] == "repeated_sequence" for pattern in result["output"]["patterns"])
+    assert any(pattern["type"] == "monotonic_run" for pattern in result["output"]["patterns"])
+
+
+def test_ka046_analyzes_linear_trend_strength():
+    result = KA046TrendAnalysis({}).run(KA046Input(time_series=[10, 12, 15, 19, 24]))
+
+    assert result["success"] is True
+    assert result["output"]["trend"] == "upward"
+    assert result["output"]["slope"] > 0
+    assert result["output"]["points_analyzed"] == 5
+
+
+def test_ka047_scores_sentiment_with_negation():
+    result = KA047SentimentAnalysis({}).run(KA047Input(text="The release is not bad and the system is stable and reliable."))
+
+    assert result["success"] is True
+    assert result["output"]["sentiment"] == "positive"
+    assert result["output"]["score"] > 0
+    assert any(hit["token"] == "bad" and hit["polarity"] == 1 for hit in result["output"]["evidence"])
+
+
 def test_ka048_extracts_typed_entities():
     text = "NIST 800-53 review for Acme Corporation costs $12,500 on 2026-05-30. Email admin@example.com."
     result = KA048EntityExtraction({}).run(KA048Input(text=text))
@@ -94,6 +197,19 @@ def test_ka048_extracts_typed_entities():
     assert any(entity["type"] == "MONEY" and "12,500" in entity["text"] for entity in entities)
     assert any(entity["type"] == "DATE" and entity["text"] == "2026-05-30" for entity in entities)
     assert any(entity["type"] == "EMAIL" and entity["text"] == "admin@example.com" for entity in entities)
+
+
+def test_ka049_extracts_pattern_and_proximity_relations():
+    result = KA049RelationExtraction({}).run(
+        KA049Input(
+            text="Alice works for Acme Corp. Acme Corp complies with HIPAA.",
+            entities=["Alice", "Acme Corp", "HIPAA"],
+        )
+    )
+
+    assert result["success"] is True
+    assert any(relation["predicate"] == "works_for" for relation in result["output"]["relations"])
+    assert any(relation["predicate"] == "complies_with" for relation in result["output"]["relations"])
 
 
 def test_ka050_extractively_summarizes_important_sentences():
@@ -109,6 +225,20 @@ def test_ka050_extractively_summarizes_important_sentences():
     assert "Backups are validated daily" in result["output"]["summary"]
     assert result["output"]["compression_ratio"] < 1
     assert result["output"]["method"] == "extractive_frequency_rank"
+
+
+def test_ka070_simulates_graph_counterfactual_ripple_effects():
+    result = KA070CounterfactualScenarioSimulator({}).run(
+        KA070ScenarioInput(
+            hypotheticals=[{"node_id": "policy", "new_value": "strict"}],
+            graph={"policy": {"workflow": 0.7}, "workflow": {"sla": 0.5}},
+        )
+    )
+
+    assert result["success"] is True
+    assert result["output"]["simulated_outcomes"][0]["changed_node"] == "policy"
+    assert result["output"]["simulated_outcomes"][0]["downstream_impacts"][0]["node"] == "workflow"
+    assert result["output"]["aggregate_divergence"] > 0
 
 
 def test_ka077_enriches_records_locally():
@@ -216,3 +346,38 @@ def test_ka_master_dispatches_selected_flow(monkeypatch):
     assert result["output"]["orchestrated_flow"] == ["KA-004", "KA-005", "KA-048"]
     assert [ka_id for ka_id, _payload in calls] == ["KA-004", "KA-005", "KA-048"]
     assert result["output"]["system_state"] == "NOMINAL"
+
+
+def test_ka_master_routes_reasoning_nlp_intents(monkeypatch):
+    controller = KAMasterController({})
+    controller.algorithms = {
+        "KA-004": {"metadata": {"Implementation": "unused"}},
+        "KA-005": {"metadata": {"Implementation": "unused"}},
+        "KA-040": {"metadata": {"Implementation": "unused"}},
+        "KA-041": {"metadata": {"Implementation": "unused"}},
+        "KA-042": {"metadata": {"Implementation": "unused"}},
+        "KA-044": {"metadata": {"Implementation": "unused"}},
+        "KA-045": {"metadata": {"Implementation": "unused"}},
+        "KA-046": {"metadata": {"Implementation": "unused"}},
+        "KA-047": {"metadata": {"Implementation": "unused"}},
+        "KA-049": {"metadata": {"Implementation": "unused"}},
+        "KA-070": {"metadata": {"Implementation": "unused"}},
+    }
+
+    monkeypatch.setattr(controller, "execute_algorithm", lambda ka_id, payload: {"success": True, "output": payload})
+
+    cases = [
+        ("Generate hypotheses for latency spike", ["KA-004", "KA-005", "KA-040"]),
+        ("Why did retrieval fail", ["KA-004", "KA-005", "KA-041"]),
+        ("What if retry attempts increase", ["KA-004", "KA-005", "KA-042", "KA-070"]),
+        ("Map concept analogy", ["KA-004", "KA-005", "KA-044"]),
+        ("Find recurring pattern", ["KA-004", "KA-005", "KA-045"]),
+        ("Analyze trend direction", ["KA-004", "KA-005", "KA-046"]),
+        ("Analyze sentiment tone", ["KA-004", "KA-005", "KA-047"]),
+        ("Extract relationship predicate", ["KA-004", "KA-005", "KA-049"]),
+    ]
+
+    for query, expected_flow in cases:
+        result = controller.run({"data": {"query": query}})
+        assert result["success"] is True
+        assert result["output"]["orchestrated_flow"] == expected_flow

@@ -231,10 +231,73 @@ class KAMasterController(KnowledgeAlgorithm):
         ]
         if any(term in lower for term in ("health", "status", "liveness", "readiness")):
             flow.append(("KA-109", {"check_mode": data.get("check_mode", "standard")}))
+        elif any(term in lower for term in ("hypothesis", "hypotheses", "possible cause")):
+            flow.append(
+                (
+                    "KA-040",
+                    {
+                        "observation": data.get("observation", query_text),
+                        "context": data.get("context", {}),
+                        "variables": data.get("variables", []),
+                    },
+                )
+            )
+        elif any(term in lower for term in ("relation", "relationship", "predicate")):
+            flow.append(("KA-049", {"text": data.get("text", query_text), "entities": data.get("entities", [])}))
         elif any(term in lower for term in ("entity", "extract", "name", "email", "regulation")):
             flow.append(("KA-048", {"text": query_text}))
         elif any(term in lower for term in ("anomaly", "outlier", "spike")):
             flow.append(("KA-039", {"data": data.get("data", []), "method": data.get("method", "zscore")}))
+        elif any(term in lower for term in ("why", "explain", "best explanation", "abductive")):
+            flow.append(
+                (
+                    "KA-041",
+                    {
+                        "query": query_text,
+                        "observation": data.get("observation", query_text),
+                        "rules": data.get("rules", []),
+                        "evidence": data.get("evidence", []),
+                    },
+                )
+            )
+        elif any(term in lower for term in ("counterfactual", "what if", "what-if")):
+            flow.extend(
+                [
+                    (
+                        "KA-042",
+                        {
+                            "scenario": data.get("scenario", query_text),
+                            "change": data.get("change", {}),
+                            "baseline": data.get("baseline", {}),
+                            "relationships": data.get("relationships", {}),
+                        },
+                    ),
+                    (
+                        "KA-070",
+                        {
+                            "hypotheticals": data.get("hypotheticals", []),
+                            "graph": data.get("graph", {}),
+                        },
+                    ),
+                ]
+            )
+        elif any(term in lower for term in ("analogy", "analogical", "map concept")):
+            flow.append(
+                (
+                    "KA-044",
+                    {
+                        "source": data.get("source", query_text),
+                        "target_domain": data.get("target_domain", ""),
+                        "target_candidates": data.get("target_candidates", []),
+                    },
+                )
+            )
+        elif any(term in lower for term in ("pattern", "recurring", "sequence")):
+            flow.append(("KA-045", {"stream": data.get("stream", data.get("data", []))}))
+        elif any(term in lower for term in ("trend", "trajectory", "forecast direction")):
+            flow.append(("KA-046", {"time_series": data.get("time_series", data.get("data", []))}))
+        elif any(term in lower for term in ("sentiment", "tone", "emotion")):
+            flow.append(("KA-047", {"text": data.get("text", query_text)}))
         elif any(term in lower for term in ("model", "statistical", "bayesian", "structural")):
             flow.append(
                 (

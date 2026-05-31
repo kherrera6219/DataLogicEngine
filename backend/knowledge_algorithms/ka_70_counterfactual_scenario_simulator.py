@@ -1,20 +1,23 @@
 """
 KA-070: Counterfactual Scenario Simulator
-Purpose: Simulate "what-if" scenarios by perturbing knowledge nodes and observing the downstream ripple effects without committing changes to the main KB.
+Purpose: Simulate what-if scenarios by perturbing knowledge nodes and observing downstream ripple effects.
 """
-import logging
 import json
+import logging
 import os
-from typing import Dict, Any, List
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from typing import Any, Dict, List
 
-from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
 
 class KA070ScenarioInput(BaseModel):
-    hypotheticals: List[Dict[str, Any]] = Field(default_factory=list, description="Hypothetical changes to knowledge nodes for simulation")
+    model_config = ConfigDict(extra="allow")
+    hypotheticals: List[Dict[str, Any]] = Field(default_factory=list, description="Hypothetical changes to knowledge nodes")
+    graph: Dict[str, Any] = Field(default_factory=dict)
+
 
 class KA070CounterfactualScenarioSimulator(KnowledgeAlgorithm):
     """
@@ -40,24 +43,63 @@ class KA070CounterfactualScenarioSimulator(KnowledgeAlgorithm):
     def _run_logic(self, input_data: KA070ScenarioInput) -> Dict[str, Any]:
         hypothetical_changes = input_data.hypotheticals
         self.log_execution_step("Simulating Counterfactual Scenarios", {"change_count": len(hypothetical_changes)})
-        
-        simulation_depth = self.config.get("simulation_depth", 3)
-        divergent_states = []
-        for change in hypothetical_changes:
-             nid = change.get("node_id")
-             val = change.get("new_value")
-             divergent_states.append({
-                 "changed_node": nid,
-                 "hypothetical_value": val,
-                 "downstream_impacts": [{"node": f"impacted_by_{nid}", "observed_divergence": 0.45}],
-                 "stability_risk": "low" if len(hypothetical_changes) < simulation_depth else "medium"
-             })
-             
+
+        graph = input_data.graph or {}
+        depth = self._safe_int(self.config.get("simulation_depth", 3), 3)
+        threshold = float(self.config.get("divergence_threshold", 0.4))
+        outcomes = [self._simulate_change(change, graph, depth, threshold) for change in hypothetical_changes]
+        aggregate = sum(item["aggregate_divergence"] for item in outcomes) / len(outcomes) if outcomes else 0.0
         return {
             "success": True,
-            "simulated_outcomes": divergent_states,
-            "divergence_threshold_applied": self.config.get("divergence_threshold", 0.4)
+            "simulated_outcomes": outcomes,
+            "divergence_threshold_applied": threshold,
+            "aggregate_divergence": round(aggregate, 4),
+            "risk_level": "high" if aggregate >= threshold else "medium" if aggregate >= threshold / 2 else "low",
         }
+
+    def _simulate_change(self, change: Dict[str, Any], graph: Dict[str, Any], depth: int, threshold: float) -> Dict[str, Any]:
+        node_id = str(change.get("node_id") or change.get("id") or change.get("field") or "unknown")
+        new_value = change.get("new_value", change.get("value"))
+        visited = {node_id}
+        frontier = [(node_id, 1.0)]
+        impacts = []
+        for level in range(1, depth + 1):
+            next_frontier = []
+            for node, strength in frontier:
+                for target, weight in self._neighbors(node, graph).items():
+                    if target in visited:
+                        continue
+                    visited.add(target)
+                    divergence = round(strength * weight, 4)
+                    impacts.append({"node": target, "depth": level, "observed_divergence": divergence})
+                    if divergence >= threshold / 2:
+                        next_frontier.append((target, divergence))
+            frontier = next_frontier
+        aggregate = sum(item["observed_divergence"] for item in impacts)
+        return {
+            "changed_node": node_id,
+            "hypothetical_value": new_value,
+            "downstream_impacts": impacts,
+            "aggregate_divergence": round(aggregate, 4),
+            "stability_risk": "high" if aggregate >= threshold else "medium" if aggregate > 0 else "low",
+        }
+
+    @staticmethod
+    def _neighbors(node_id: str, graph: Dict[str, Any]) -> Dict[str, float]:
+        raw = graph.get(node_id, {}) if isinstance(graph, dict) else {}
+        if isinstance(raw, dict):
+            return {str(target): float(weight) for target, weight in raw.items() if isinstance(weight, (int, float))}
+        if isinstance(raw, list):
+            return {str(target): 0.5 for target in raw}
+        return {}
+
+    @staticmethod
+    def _safe_int(value: Any, default: int) -> int:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return default
+
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:
