@@ -5,6 +5,7 @@ Purpose: Augment data records with external metadata, geocoding, and context usi
 import logging
 import json
 import os
+import hashlib
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
@@ -42,6 +43,7 @@ class KA077DataEnrichment(KnowledgeAlgorithm):
         self.log_execution_step("Enriching Records", {"record_count": len(records)})
         
         providers = self.config.get("external_providers", [])
+        enrichment_fields = self.config.get("enrichment_fields", [])
         enriched_results = []
         
         for record in records:
@@ -49,9 +51,19 @@ class KA077DataEnrichment(KnowledgeAlgorithm):
                 continue
             
             enriched = record.copy()
-            if "location" in enriched:
-                enriched["geo_coords"] = [45.0, -93.0]
-                enriched["enrichment_source"] = providers[0] if providers else "internal"
+            enrichment_sources = []
+            if "location" in enriched and "location_coords" in enrichment_fields:
+                enriched["geo_coords"] = self._deterministic_coordinates(str(enriched["location"]))
+                enrichment_sources.append("local_geocode_hash")
+            if "company" in enriched or "organization" in enriched:
+                enriched["industry"] = self._infer_industry(enriched)
+                enrichment_sources.append("local_industry_rules")
+            text = " ".join(str(value) for value in enriched.values())
+            topics = self._infer_topics(text)
+            if topics:
+                enriched["entity_topics"] = topics
+                enrichment_sources.append("local_topic_rules")
+            enriched["enrichment_sources"] = enrichment_sources or ["none"]
             
             enriched_results.append(enriched)
             
@@ -59,8 +71,51 @@ class KA077DataEnrichment(KnowledgeAlgorithm):
             "success": True,
             "records_enriched": len(enriched_results),
             "providers_used": providers,
-            "enrichment_summary": "Added geolocation and industry metadata stub"
+            "enriched_records": enriched_results,
+            "enrichment_summary": {
+                "fields": enrichment_fields,
+                "local_only": True,
+                "records_with_enrichment": sum(
+                    1 for record in enriched_results if record.get("enrichment_sources") != ["none"]
+                ),
+            },
         }
+
+    @staticmethod
+    def _deterministic_coordinates(location: str) -> List[float]:
+        digest = hashlib.sha256(location.lower().encode("utf-8")).hexdigest()
+        lat_seed = int(digest[:8], 16) / 0xFFFFFFFF
+        lon_seed = int(digest[8:16], 16) / 0xFFFFFFFF
+        return [round((lat_seed * 180) - 90, 6), round((lon_seed * 360) - 180, 6)]
+
+    @staticmethod
+    def _infer_industry(record: Dict[str, Any]) -> str:
+        text = " ".join(str(value).lower() for value in record.values())
+        rules = {
+            "healthcare": ("health", "hospital", "patient", "hipaa", "medical"),
+            "finance": ("bank", "payment", "sox", "audit", "financial"),
+            "defense": ("far", "dfars", "contract", "acquisition", "defense"),
+            "technology": ("software", "cloud", "api", "data", "ai"),
+        }
+        for industry, terms in rules.items():
+            if any(term in text for term in terms):
+                return industry
+        return "general"
+
+    @staticmethod
+    def _infer_topics(text: str) -> List[str]:
+        lowered = text.lower()
+        topics = []
+        rules = {
+            "compliance": ("compliance", "audit", "control", "regulation"),
+            "privacy": ("privacy", "patient", "pii", "hipaa"),
+            "security": ("security", "risk", "threat", "vulnerability"),
+            "procurement": ("far", "dfars", "contract", "solicitation"),
+        }
+        for topic, terms in rules.items():
+            if any(term in lowered for term in terms):
+                topics.append(topic)
+        return topics
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

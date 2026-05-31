@@ -5,6 +5,9 @@ Purpose: Continuously monitor system liveness and readiness, aggregating health 
 import logging
 import json
 import os
+import shutil
+import time
+from pathlib import Path
 from typing import Dict, Any
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
@@ -41,14 +44,66 @@ class KA109SystemHealth(KnowledgeAlgorithm):
         self.log_execution_step("Aggregating System Health", {"mode": input_data.check_mode})
         
         endpoints = self.config.get("health_endpoints", ["db_svc", "mcp_gateway", "ka_master"])
-        health_report = {ep: "OK" for ep in endpoints}
+        component_health = {
+            "python_runtime": self._check_python_runtime(),
+            "filesystem": self._check_filesystem(),
+            "ka_registry": self._check_ka_registry(),
+        }
+        if input_data.check_mode in {"deep", "readiness"}:
+            component_health["disk_space"] = self._check_disk_space()
+        for endpoint in endpoints:
+            component_health[f"configured_endpoint:{endpoint}"] = {
+                "status": "configured",
+                "detail": "Endpoint is configured for external health polling; KA-109 local check does not perform network calls.",
+            }
+        unhealthy = {
+            name: status
+            for name, status in component_health.items()
+            if status.get("status") not in {"ok", "configured"}
+        }
+        overall_status = "HEALTHY" if not unhealthy else "DEGRADED"
         
         return {
             "success": True,
-            "overall_status": "HEALTHY",
-            "sub_component_health": health_report,
-            "liveness_verified": True,
-            "uptime_seconds": 3600 # Stub
+            "overall_status": overall_status,
+            "sub_component_health": component_health,
+            "liveness_verified": component_health["python_runtime"]["status"] == "ok",
+            "readiness_verified": not unhealthy,
+            "uptime_seconds": round(time.monotonic(), 3),
+        }
+
+    @staticmethod
+    def _check_python_runtime() -> Dict[str, Any]:
+        return {"status": "ok", "detail": "Python runtime responsive"}
+
+    @staticmethod
+    def _check_filesystem() -> Dict[str, Any]:
+        cwd = Path.cwd()
+        return {
+            "status": "ok" if cwd.exists() and os.access(cwd, os.R_OK) else "degraded",
+            "path": str(cwd),
+            "readable": os.access(cwd, os.R_OK),
+            "writable": os.access(cwd, os.W_OK),
+        }
+
+    @staticmethod
+    def _check_ka_registry() -> Dict[str, Any]:
+        registry = Path(__file__).with_name("ka_registry.yaml")
+        return {
+            "status": "ok" if registry.exists() else "degraded",
+            "path": str(registry),
+            "exists": registry.exists(),
+        }
+
+    @staticmethod
+    def _check_disk_space() -> Dict[str, Any]:
+        usage = shutil.disk_usage(Path.cwd())
+        free_ratio = usage.free / usage.total if usage.total else 0
+        return {
+            "status": "ok" if free_ratio >= 0.05 else "degraded",
+            "free_bytes": usage.free,
+            "total_bytes": usage.total,
+            "free_ratio": round(free_ratio, 4),
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

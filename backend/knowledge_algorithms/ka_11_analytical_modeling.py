@@ -6,6 +6,7 @@ import logging
 import json
 import os
 import statistics
+from collections import Counter
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
@@ -50,22 +51,77 @@ class KA011AnalyticalModeling(KnowledgeAlgorithm):
              
         nums = [x for x in data if isinstance(x, (int, float))]
         
-        results = {}
         if model_type == "statistical" and nums:
             results = {
                 "mean": statistics.mean(nums),
                 "median": statistics.median(nums),
                 "stdev": statistics.stdev(nums) if len(nums) > 1 else 0.0,
-                "count": len(nums)
+                "variance": statistics.variance(nums) if len(nums) > 1 else 0.0,
+                "min": min(nums),
+                "max": max(nums),
+                "count": len(nums),
             }
+        elif model_type == "structural":
+            results = self._structural_summary(data)
+        elif model_type == "bayesian" and nums:
+            results = self._bayesian_summary(nums)
         else:
-            results = {"msg": f"Model type {model_type} implementation stubbed"}
+            supported = self.config.get("supported_types", ["statistical", "structural", "bayesian"])
+            return {
+                "success": False,
+                "model_type": model_type,
+                "supported_types": supported,
+                "error": f"Unsupported model type or incompatible data: {model_type}",
+            }
             
         return {
             "success": True,
             "model_type": model_type,
             "results": results,
             "confidence_adjustment": self.config.get("confidence_boost", 0.0)
+        }
+
+    @staticmethod
+    def _structural_summary(data: List[Any]) -> Dict[str, Any]:
+        type_counts = Counter(type(item).__name__ for item in data)
+        dict_keys: Counter[str] = Counter()
+        list_lengths = []
+        scalar_count = 0
+        for item in data:
+            if isinstance(item, dict):
+                dict_keys.update(str(key) for key in item)
+            elif isinstance(item, (list, tuple, set)):
+                list_lengths.append(len(item))
+            else:
+                scalar_count += 1
+        return {
+            "record_count": len(data),
+            "type_counts": dict(type_counts),
+            "common_fields": [key for key, _count in dict_keys.most_common(10)],
+            "field_frequency": dict(dict_keys),
+            "nested_collection_count": len(list_lengths),
+            "average_nested_length": statistics.mean(list_lengths) if list_lengths else 0.0,
+            "scalar_count": scalar_count,
+        }
+
+    @staticmethod
+    def _bayesian_summary(nums: List[float]) -> Dict[str, Any]:
+        prior_mean = 0.0
+        prior_strength = 2.0
+        sample_mean = statistics.mean(nums)
+        posterior_mean = ((prior_strength * prior_mean) + (len(nums) * sample_mean)) / (prior_strength + len(nums))
+        sample_stdev = statistics.stdev(nums) if len(nums) > 1 else 0.0
+        credible_half_width = 1.96 * (sample_stdev / (len(nums) ** 0.5)) if len(nums) > 1 else 0.0
+        return {
+            "prior_mean": prior_mean,
+            "prior_strength": prior_strength,
+            "sample_mean": sample_mean,
+            "posterior_mean": posterior_mean,
+            "credible_interval_95": [
+                posterior_mean - credible_half_width,
+                posterior_mean + credible_half_width,
+            ],
+            "sample_count": len(nums),
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

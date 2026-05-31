@@ -29,7 +29,7 @@ class KAMasterController(KnowledgeAlgorithm):
     def __init__(self, context: Dict[str, Any] = None):
         super().__init__(context or {}, None, None, None)
         self.ka_id = "KA-Master"
-        self.llm_gateway = None # Placeholder for real gateway integration
+        self.llm_gateway = (context or {}).get("llm_gateway") if isinstance(context, dict) else None
         self._registry_path = os.path.join(os.path.dirname(__file__), "ka_registry.yaml")
         self.algorithms = self._load_registry()
 
@@ -188,17 +188,80 @@ class KAMasterController(KnowledgeAlgorithm):
         """High-level query orchestration."""
         data = input_data.data if hasattr(input_data, "data") else {}
         query = data.get("query", "status_check")
-        
-        # In a real system, this would call execute_algorithm multiple times
-        executed_flow = ["KA-111", "KA-113", "KA-066", "KA-056", "KA-093"]
+        flow = self._select_flow(query, data)
+        step_results = []
+        for ka_id, payload in flow:
+            try:
+                result = self.execute_algorithm(ka_id, payload)
+                step_results.append(
+                    {
+                        "ka_id": ka_id,
+                        "success": bool(result.get("success", True)),
+                        "result": self._json_safe(result),
+                    }
+                )
+            except Exception as exc:
+                step_results.append(
+                    {
+                        "ka_id": ka_id,
+                        "success": False,
+                        "error": str(exc),
+                    }
+                )
+        successful = [step for step in step_results if step["success"]]
+        failed = [step for step in step_results if not step["success"]]
+        system_state = "NOMINAL" if not failed else "DEGRADED"
         
         return {
-            "success": True,
-            "orchestrated_flow": executed_flow,
-            "system_state": "NOMINAL",
+            "success": bool(successful),
+            "orchestrated_flow": [ka_id for ka_id, _payload in flow],
+            "step_results": step_results,
+            "system_state": system_state,
             "active_kas": len(self.algorithms),
-            "final_conclusion": f"Resolved query '{query}' via {len(executed_flow)} specialized KAs."
+            "final_conclusion": self._summarize_flow(query, successful, failed),
         }
+
+    def _select_flow(self, query: str, data: Dict[str, Any]) -> list[tuple[str, Dict[str, Any]]]:
+        """Choose a bounded local KA chain for the current request."""
+        query_text = str(query or "")
+        lower = query_text.lower()
+        flow: list[tuple[str, Dict[str, Any]]] = [
+            ("KA-004", {"query": query_text}),
+            ("KA-005", {"query": query_text}),
+        ]
+        if any(term in lower for term in ("health", "status", "liveness", "readiness")):
+            flow.append(("KA-109", {"check_mode": data.get("check_mode", "standard")}))
+        elif any(term in lower for term in ("entity", "extract", "name", "email", "regulation")):
+            flow.append(("KA-048", {"text": query_text}))
+        elif any(term in lower for term in ("anomaly", "outlier", "spike")):
+            flow.append(("KA-039", {"data": data.get("data", []), "method": data.get("method", "zscore")}))
+        elif any(term in lower for term in ("model", "statistical", "bayesian", "structural")):
+            flow.append(
+                (
+                    "KA-011",
+                    {
+                        "data": data.get("data", []),
+                        "model_type": data.get("model_type", "statistical"),
+                    },
+                )
+            )
+        else:
+            flow.extend(
+                [
+                    ("KA-113", {"query": query_text}),
+                    ("KA-001", {"query": query_text}),
+                    ("KA-019", {"findings": data.get("findings", []) or [{"content": query_text}]}),
+                ]
+            )
+        return [(ka_id, payload) for ka_id, payload in flow if ka_id in self.algorithms]
+
+    @staticmethod
+    def _summarize_flow(query: str, successful: list[Dict[str, Any]], failed: list[Dict[str, Any]]) -> str:
+        if not successful:
+            return f"Could not resolve query '{query}' because all selected KAs failed."
+        if failed:
+            return f"Resolved query '{query}' with {len(successful)} KA step(s); {len(failed)} step(s) degraded."
+        return f"Resolved query '{query}' via {len(successful)} selected KA step(s)."
 
     def _fallback_logic(self, input_data: BaseModel, error: Exception) -> Dict[str, Any]:
         """Master-level fallback for orchestration failures."""
