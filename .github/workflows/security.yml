@@ -50,6 +50,12 @@ jobs:
         node-version: '24'
 
     - name: Run npm audit
+      env:
+        # npm audit only needs the dependency tree, not the binaries. Skipping
+        # the electron/chromedriver postinstall downloads keeps this job from
+        # flaking on transient CDN errors (e.g. HTTP 502 from electron install.js).
+        ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+        CHROMEDRIVER_SKIP_DOWNLOAD: true
       run: |
         cd frontend
         npm ci

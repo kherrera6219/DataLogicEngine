@@ -15,6 +15,10 @@ vi.mock('@/lib/api', () => ({
       getStages: getStagesMock,
     },
   },
+  // The component also imports `request` for /trace/live-progress and
+  // /trace/ka-execution-feed. Without it the named export is undefined and the
+  // component's catch block silently drops to the empty state.
+  request: vi.fn().mockResolvedValue(null),
 }));
 
 // Mock UI components
