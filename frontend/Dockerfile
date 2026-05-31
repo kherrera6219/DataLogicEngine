@@ -7,6 +7,10 @@ RUN npm install -g npm@${NPM_VERSION} && npm cache clean --force
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
+# The npm "postinstall" runs scripts/patch-electron-builder.mjs (a no-op off
+# Windows), so the scripts dir must exist before `npm ci` or the install fails
+# with "Cannot find module .../patch-electron-builder.mjs".
+COPY scripts ./scripts
 RUN npm ci
 
 # Rebuild the source code only when needed
