@@ -1,5 +1,12 @@
 from backend.knowledge_algorithms.ka_11_analytical_modeling import KA011AnalyticalModeling, KA011Input
+from backend.knowledge_algorithms.ka_31_algorithm_selection_engine import KA031AlgorithmSelectionEngine, KA031Input
+from backend.knowledge_algorithms.ka_32_simulation_orchestration_controller import (
+    KA032Input,
+    KA032SimulationOrchestrationController,
+)
 from backend.knowledge_algorithms.ka_33_reserved_expansion_slot import KA033ExtensionSlot, KA033Input
+from backend.knowledge_algorithms.ka_34_adversarial_reasoning import KA034AdversarialReasoning, KA034Input
+from backend.knowledge_algorithms.ka_35_bayesian_gap_imputation import KA035BayesianGapImputation, KA035Input
 from backend.knowledge_algorithms.ka_37_resource_allocator import KA037Input, KA037ResourceAllocator
 from backend.knowledge_algorithms.ka_39_anomaly_detection import KA039AnomalyDetection, KA039Input
 from backend.knowledge_algorithms.ka_40_hypothesis_generation import KA040HypothesisGeneration, KA040Input
@@ -13,6 +20,7 @@ from backend.knowledge_algorithms.ka_47_sentiment_analysis import KA047Input, KA
 from backend.knowledge_algorithms.ka_48_entity_extraction import KA048EntityExtraction, KA048Input
 from backend.knowledge_algorithms.ka_49_relation_extraction import KA049Input, KA049RelationExtraction
 from backend.knowledge_algorithms.ka_50_summarization import KA050Input, KA050Summarization
+from backend.knowledge_algorithms.ka_66_causal_inference_engine import KA066CausalInferenceEngine, KA066CausalInput
 from backend.knowledge_algorithms.ka_70_counterfactual_scenario_simulator import (
     KA070CounterfactualScenarioSimulator,
     KA070ScenarioInput,
@@ -48,6 +56,39 @@ def test_ka033_extension_slot_summarizes_payload():
     assert result["output"]["result_payload"]["summary"]["empty_fields"] == ["empty"]
 
 
+def test_ka031_selects_policy_aware_pipeline():
+    result = KA031AlgorithmSelectionEngine({}).run(
+        KA031Input(
+            query="security adversarial local-first pipeline",
+            policy_flags=["safety_critical", "local_first"],
+            budget={"max_kas": 5},
+        )
+    )
+
+    assert result["success"] is True
+    assert "KA-034" in result["output"]["selected_pipeline"]
+    assert len(result["output"]["selected_pipeline"]) <= 5
+    assert result["output"]["ranked_candidates"][0]["score"] >= result["output"]["ranked_candidates"][-1]["score"]
+
+
+def test_ka032_orchestrates_dependencies_and_checkpoints():
+    result = KA032SimulationOrchestrationController({}).run(
+        KA032Input(
+            pipeline=[
+                {"ka_id": "KA-001"},
+                {"ka_id": "KA-040", "depends_on": ["step_1"]},
+                {"ka_id": "KA-041", "depends_on": ["missing_step"]},
+            ],
+            exit_criteria={"min_completed": 2, "max_failures": 0},
+        )
+    )
+
+    assert result["success"] is True
+    assert result["output"]["execution_schedule"][0]["status"] == "READY"
+    assert result["output"]["execution_schedule"][2]["status"] == "SKIPPED_BLOCKED"
+    assert result["output"]["checkpoints_captured"] == 3
+
+
 def test_ka039_detects_numeric_outlier_with_zscore():
     result = KA039AnomalyDetection({}).run(KA039Input(data=[10, 11, 12, 10, 100], threshold=1.5))
 
@@ -55,6 +96,39 @@ def test_ka039_detects_numeric_outlier_with_zscore():
     assert result["output"]["count"] == 1
     assert result["output"]["anomalies"][0]["value"] == 100
     assert result["output"]["baseline"]["count"] == 5
+
+
+def test_ka034_scores_adversarial_assumption_risk_deterministically():
+    result = KA034AdversarialReasoning({}).run(
+        KA034Input(
+            scenario="The system must always trust retrieved context.",
+            assumptions=["Retrieved context is always correct"],
+            evidence=["Local provenance check is missing."],
+        )
+    )
+
+    assert result["success"] is True
+    attack = result["output"]["attacks_simulated"][0]
+    assert attack["vulnerability_found"] is True
+    assert attack["threat_type"] in {"logical_injection", "context_poisoning"}
+    assert result["output"]["mitigation_plan"]
+
+
+def test_ka035_imputes_reproducible_bayesian_posterior():
+    result = KA035BayesianGapImputation({}).run(
+        KA035Input(
+            gaps=["coverage"],
+            priors={"coverage": 0.4},
+            observations={"coverage": [0.8, 0.9]},
+            evidence_weights={"coverage": 0.75},
+        )
+    )
+
+    assert result["success"] is True
+    imputed = result["output"]["imputed_data"]["coverage"]
+    assert imputed["value"] == 0.7375
+    assert imputed["confidence"] > 0.8
+    assert imputed["method"] == "posterior_weighted_mean"
 
 
 def test_ka037_allocates_resources_from_workload_shape():
@@ -227,6 +301,24 @@ def test_ka050_extractively_summarizes_important_sentences():
     assert result["output"]["method"] == "extractive_frequency_rank"
 
 
+def test_ka066_builds_thresholded_causal_graph_fragment():
+    result = KA066CausalInferenceEngine({}).run(
+        KA066CausalInput(
+            events=[
+                {"id": "deploy", "timestamp": 1},
+                {"id": "latency_spike", "timestamp": 2},
+            ],
+            dependencies=[{"source": "deploy", "target": "latency_spike", "weight": 0.9}],
+        )
+    )
+
+    assert result["success"] is True
+    claim = result["output"]["causal_graph_fragment"][0]
+    assert claim["cause"] == "deploy"
+    assert claim["effect"] == "latency_spike"
+    assert claim["confidence"] >= result["output"]["threshold"]
+
+
 def test_ka070_simulates_graph_counterfactual_ripple_effects():
     result = KA070CounterfactualScenarioSimulator({}).run(
         KA070ScenarioInput(
@@ -353,6 +445,10 @@ def test_ka_master_routes_reasoning_nlp_intents(monkeypatch):
     controller.algorithms = {
         "KA-004": {"metadata": {"Implementation": "unused"}},
         "KA-005": {"metadata": {"Implementation": "unused"}},
+        "KA-031": {"metadata": {"Implementation": "unused"}},
+        "KA-032": {"metadata": {"Implementation": "unused"}},
+        "KA-034": {"metadata": {"Implementation": "unused"}},
+        "KA-035": {"metadata": {"Implementation": "unused"}},
         "KA-040": {"metadata": {"Implementation": "unused"}},
         "KA-041": {"metadata": {"Implementation": "unused"}},
         "KA-042": {"metadata": {"Implementation": "unused"}},
@@ -361,14 +457,20 @@ def test_ka_master_routes_reasoning_nlp_intents(monkeypatch):
         "KA-046": {"metadata": {"Implementation": "unused"}},
         "KA-047": {"metadata": {"Implementation": "unused"}},
         "KA-049": {"metadata": {"Implementation": "unused"}},
+        "KA-066": {"metadata": {"Implementation": "unused"}},
         "KA-070": {"metadata": {"Implementation": "unused"}},
     }
 
     monkeypatch.setattr(controller, "execute_algorithm", lambda ka_id, payload: {"success": True, "output": payload})
 
     cases = [
+        ("Select pipeline for local work", ["KA-004", "KA-005", "KA-031"]),
+        ("Orchestrate execution schedule", ["KA-004", "KA-005", "KA-032"]),
+        ("Run adversarial robustness stress test", ["KA-004", "KA-005", "KA-034"]),
+        ("Impute missing value gap", ["KA-004", "KA-005", "KA-035"]),
         ("Generate hypotheses for latency spike", ["KA-004", "KA-005", "KA-040"]),
         ("Why did retrieval fail", ["KA-004", "KA-005", "KA-041"]),
+        ("Build causal graph relationship", ["KA-004", "KA-005", "KA-066"]),
         ("What if retry attempts increase", ["KA-004", "KA-005", "KA-042", "KA-070"]),
         ("Map concept analogy", ["KA-004", "KA-005", "KA-044"]),
         ("Find recurring pattern", ["KA-004", "KA-005", "KA-045"]),

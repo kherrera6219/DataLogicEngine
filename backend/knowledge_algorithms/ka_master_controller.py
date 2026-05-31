@@ -231,6 +231,53 @@ class KAMasterController(KnowledgeAlgorithm):
         ]
         if any(term in lower for term in ("health", "status", "liveness", "readiness")):
             flow.append(("KA-109", {"check_mode": data.get("check_mode", "standard")}))
+        elif any(term in lower for term in ("select pipeline", "algorithm selection", "choose ka", "ka pipeline")):
+            flow.append(
+                (
+                    "KA-031",
+                    {
+                        "query": query_text,
+                        "query_class": data.get("query_class", "GENERAL"),
+                        "complexity_tier": data.get("complexity_tier", "standard"),
+                        "policy_flags": data.get("policy_flags", []),
+                        "budget": data.get("budget", {}),
+                    },
+                )
+            )
+        elif any(term in lower for term in ("orchestrate", "execution schedule", "simulate pipeline", "checkpoint")):
+            flow.append(
+                (
+                    "KA-032",
+                    {
+                        "pipeline": data.get("pipeline", []),
+                        "simulation_state": data.get("simulation_state", {}),
+                        "exit_criteria": data.get("exit_criteria", {}),
+                    },
+                )
+            )
+        elif any(term in lower for term in ("adversarial", "attack assumption", "stress test", "robustness")):
+            flow.append(
+                (
+                    "KA-034",
+                    {
+                        "scenario": data.get("scenario", query_text),
+                        "assumptions": data.get("assumptions", []),
+                        "evidence": data.get("evidence", []),
+                    },
+                )
+            )
+        elif any(term in lower for term in ("impute", "gap", "missing value", "bayesian gap")):
+            flow.append(
+                (
+                    "KA-035",
+                    {
+                        "gaps": data.get("gaps", []),
+                        "priors": data.get("priors", {}),
+                        "observations": data.get("observations", {}),
+                        "evidence_weights": data.get("evidence_weights", {}),
+                    },
+                )
+            )
         elif any(term in lower for term in ("hypothesis", "hypotheses", "possible cause")):
             flow.append(
                 (
@@ -239,6 +286,17 @@ class KAMasterController(KnowledgeAlgorithm):
                         "observation": data.get("observation", query_text),
                         "context": data.get("context", {}),
                         "variables": data.get("variables", []),
+                    },
+                )
+            )
+        elif any(term in lower for term in ("causal graph", "causal inference engine", "causal relationship")):
+            flow.append(
+                (
+                    "KA-066",
+                    {
+                        "events": data.get("events", []),
+                        "dependencies": data.get("dependencies", []),
+                        "confounders": data.get("confounders", []),
                     },
                 )
             )

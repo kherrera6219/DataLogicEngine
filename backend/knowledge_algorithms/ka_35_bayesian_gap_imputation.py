@@ -2,21 +2,25 @@
 KA-035: Bayesian Gap Imputation
 Purpose: Probabilistically fill missing data gaps using uncertainty bounds and Bayesian priors.
 """
-import logging
 import json
+import logging
 import os
-import random
-from typing import Dict, Any, List
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+import statistics
+from typing import Any, Dict, List
 
-from pydantic import BaseModel, Field
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
 
 class KA035Input(BaseModel):
+    model_config = ConfigDict(extra="allow")
     gaps: List[str] = Field(default_factory=list, description="Gaps to impute")
     priors: Dict[str, float] = Field(default_factory=dict, description="Prior values for gaps")
+    observations: Dict[str, List[float]] = Field(default_factory=dict)
+    evidence_weights: Dict[str, float] = Field(default_factory=dict)
+
 
 class KA035BayesianGapImputation(KnowledgeAlgorithm):
     """
@@ -40,26 +44,47 @@ class KA035BayesianGapImputation(KnowledgeAlgorithm):
             return {}
 
     def _run_logic(self, input_data: KA035Input) -> Dict[str, Any]:
-        gaps = input_data.gaps
-        priors = input_data.priors
+        gaps = input_data.gaps or sorted(set(input_data.priors) | set(input_data.observations))
         self.log_execution_step("Imputing Gaps", {"gap_count": len(gaps)})
-        
-        imputed_values = {}
-        sigma = self.config.get("uncertainty_sigma", 0.2)
-        for gap in gaps:
-            prior_val = priors.get(gap, 0.5)
-            imputed_val = prior_val + random.uniform(-sigma, sigma)
-            imputed_values[gap] = {
-                "value": max(0.0, min(1.0, imputed_val)),
-                "confidence": 1.0 - sigma,
-                "method": self.config.get("imputation_method", "bayesian")
-            }
-            
+
+        sigma = float(self.config.get("uncertainty_sigma", 0.2))
+        imputed_values = {
+            gap: self._posterior_for_gap(gap, input_data.priors, input_data.observations, input_data.evidence_weights, sigma)
+            for gap in gaps
+        }
+        overall_uncertainty = statistics.mean(item["uncertainty"] for item in imputed_values.values()) if imputed_values else sigma
         return {
             "success": True,
             "imputed_data": imputed_values,
-            "overall_uncertainty": sigma
+            "overall_uncertainty": round(overall_uncertainty, 4),
+            "method": self.config.get("imputation_method", "bayesian_posterior_mean"),
         }
+
+    @staticmethod
+    def _posterior_for_gap(
+        gap: str,
+        priors: Dict[str, float],
+        observations: Dict[str, List[float]],
+        evidence_weights: Dict[str, float],
+        sigma: float,
+    ) -> Dict[str, Any]:
+        prior = float(priors.get(gap, 0.5))
+        observed = [float(value) for value in observations.get(gap, []) if isinstance(value, (int, float))]
+        evidence_mean = statistics.mean(observed) if observed else prior
+        weight = max(0.0, min(1.0, float(evidence_weights.get(gap, len(observed) / max(1, len(observed) + 2)))))
+        posterior = prior * (1 - weight) + evidence_mean * weight
+        posterior = max(0.0, min(1.0, posterior))
+        uncertainty = max(0.01, sigma * (1 - min(0.8, weight * 0.8)))
+        return {
+            "value": round(posterior, 4),
+            "confidence": round(max(0.0, min(1.0, 1.0 - uncertainty)), 4),
+            "uncertainty": round(uncertainty, 4),
+            "prior": round(prior, 4),
+            "evidence_mean": round(evidence_mean, 4),
+            "evidence_count": len(observed),
+            "method": "posterior_weighted_mean",
+        }
+
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:
