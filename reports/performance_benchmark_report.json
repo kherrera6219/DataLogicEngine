@@ -1,0 +1,119 @@
+{
+  "timestamp": "2026-05-31T03:25:45Z",
+  "iterations_default": 50,
+  "thresholds": {
+    "coordinate_resolution": 100,
+    "truth_cache_operations": 5,
+    "ka_master_dispatch": 200,
+    "dsqp_construction": 500,
+    "dmrf_routing": 50,
+    "confidence_calculator": 5,
+    "injection_defense": 10,
+    "health_endpoint": 200,
+    "flask_app_context": 100
+  },
+  "results": {
+    "coordinate_resolution": {
+      "iterations": 50,
+      "mean_ms": 0.005,
+      "median_ms": 0.004,
+      "p95_ms": 0.009,
+      "p99_ms": 0.022,
+      "min_ms": 0.004,
+      "max_ms": 0.022,
+      "stdev_ms": 0.003
+    },
+    "truth_cache_operations": {
+      "iterations": 50,
+      "mean_ms": 0.001,
+      "median_ms": 0.001,
+      "p95_ms": 0.004,
+      "p99_ms": 0.014,
+      "min_ms": 0.0,
+      "max_ms": 0.014,
+      "stdev_ms": 0.002
+    },
+    "ka_master_dispatch": {
+      "iterations": 50,
+      "mean_ms": 7.475,
+      "median_ms": 1.608,
+      "p95_ms": 2.398,
+      "p99_ms": 292.076,
+      "min_ms": 1.406,
+      "max_ms": 292.076,
+      "stdev_ms": 41.071
+    },
+    "dsqp_construction": {
+      "iterations": 20,
+      "mean_ms": 6.736,
+      "median_ms": 6.108,
+      "p95_ms": 10.608,
+      "p99_ms": 10.608,
+      "min_ms": 4.58,
+      "max_ms": 10.608,
+      "stdev_ms": 1.919
+    },
+    "dmrf_routing": {
+      "iterations": 50,
+      "mean_ms": 0.018,
+      "median_ms": 0.005,
+      "p95_ms": 0.012,
+      "p99_ms": 0.617,
+      "min_ms": 0.004,
+      "max_ms": 0.617,
+      "stdev_ms": 0.087
+    },
+    "confidence_calculator": {
+      "iterations": 50,
+      "mean_ms": 0.002,
+      "median_ms": 0.001,
+      "p95_ms": 0.003,
+      "p99_ms": 0.011,
+      "min_ms": 0.001,
+      "max_ms": 0.011,
+      "stdev_ms": 0.001
+    },
+    "injection_defense": {
+      "iterations": 50,
+      "mean_ms": 0.006,
+      "median_ms": 0.002,
+      "p95_ms": 0.005,
+      "p99_ms": 0.179,
+      "min_ms": 0.001,
+      "max_ms": 0.179,
+      "stdev_ms": 0.025
+    },
+    "pii_guard": {
+      "iterations": 50,
+      "mean_ms": 0.07,
+      "median_ms": 0.06,
+      "p95_ms": 0.078,
+      "p99_ms": 0.415,
+      "min_ms": 0.058,
+      "max_ms": 0.415,
+      "stdev_ms": 0.05
+    },
+    "health_endpoint": {
+      "iterations": 50,
+      "mean_ms": 111.932,
+      "median_ms": 109.151,
+      "p95_ms": 127.979,
+      "p99_ms": 136.439,
+      "min_ms": 101.344,
+      "max_ms": 136.439,
+      "stdev_ms": 8.085
+    },
+    "flask_app_context": {
+      "iterations": 20,
+      "mean_ms": 0.003,
+      "median_ms": 0.003,
+      "p95_ms": 0.008,
+      "p99_ms": 0.008,
+      "min_ms": 0.002,
+      "max_ms": 0.008,
+      "stdev_ms": 0.001
+    }
+  },
+  "warnings": [],
+  "status": "pass"
+}

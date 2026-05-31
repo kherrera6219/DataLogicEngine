@@ -8,6 +8,7 @@ from models import Location, db
 import logging
 import uuid
 from datetime import datetime, UTC
+from backend.auth.api_decorators import api_session_login_required
 try:
     from geopy.distance import geodesic
 except ImportError:
@@ -25,6 +26,7 @@ location_api = Blueprint('location_api', __name__)
 logger = logging.getLogger(__name__)
 
 @location_api.route('/api/locations', methods=['GET'])
+@api_session_login_required
 def get_locations():
     """Get locations based on query parameters"""
     try:
@@ -88,6 +90,7 @@ def get_locations():
         }), 500
 
 @location_api.route('/api/locations/<uid>', methods=['GET'])
+@api_session_login_required
 def get_location(uid):
     """Get a specific location by UID"""
     try:
@@ -128,6 +131,7 @@ def get_location(uid):
         }), 500
 
 @location_api.route('/api/locations', methods=['POST'])
+@api_session_login_required
 def create_location():
     """Create a new location"""
     try:
@@ -168,6 +172,7 @@ def create_location():
         }), 500
 
 @location_api.route('/api/locations/<uid>', methods=['PUT'])
+@api_session_login_required
 def update_location(uid):
     """Update an existing location"""
     try:
@@ -218,6 +223,7 @@ def update_location(uid):
         }), 500
 
 @location_api.route('/api/locations/hierarchy', methods=['GET'])
+@api_session_login_required
 def get_location_hierarchy():
     """Get location hierarchy starting from optional root"""
     try:
@@ -275,6 +281,7 @@ def _build_location_hierarchy(location):
     return result
 
 @location_api.route('/api/locations/nearest', methods=['GET'])
+@api_session_login_required
 def find_nearest_locations():
     """Find locations nearest to specified coordinates"""
     try:
