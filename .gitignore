@@ -60,6 +60,7 @@ docs/archive/legacy_assets/
 
 # Logs
 *.log
+*.log.[0-9]*
 logs/
 frontend/build_log*.txt
 frontend/build_output.txt

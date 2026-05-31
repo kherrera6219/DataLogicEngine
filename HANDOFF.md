@@ -141,12 +141,22 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
 - Consider surfacing the new `test_provider` status codes in the Settings UI so
   an invalid key shows "Invalid API key" inline (`ApiOverlayConfig.tsx`).
 
-## 9. CI Status (2026-05-30 evening)
+## 9. CI Status (2026-05-30 night)
 
-All five previously-failing checks were fixed and pushed to `main` (commits
-`01db1724`, `b1e48c97`): Code Security Scan, Dependency Security Scan, CI/CD
-`backend-test`, CI/CD `frontend-build`, and Deploy `Build and Test`. Root cause
-of the dependency-scan failure was a stale `chromadb==0.5.23` pin that locked the
-transitive `transformers` onto a vulnerable build; aligned to the validated
-`chromadb==1.4.1`, resolving to CVE-free `transformers 5.9.0`. See `TODO.md` →
-"CI And Security Evidence" for details.
+All five originally-failing checks were fixed and pushed to `main`, along with
+the chain of jobs that fixing them unmasked (frontend unit tests behind the
+typecheck gate; docker-build jobs gated on upstream success). Final result:
+**Security Scan, Deploy, and CI/CD Pipeline all green.**
+
+Highlights (full detail in `TODO.md` → "CI And Security Evidence"):
+- Dependency scan: the stale `chromadb==0.5.23` pin locked `transformers` onto a
+  vulnerable build; bumping `transformers` then exposed that `chromadb 1.x` is in
+  the pre-auth CVE range `GHSA-f4j7-r4q5-qw2c` (server-mode only; not reachable
+  via the embedded `PersistentClient`). Final pin `chromadb==0.6.3` clears both —
+  it is `<1.0.0` and still allows CVE-free `transformers 5.9.0`.
+- Bandit B608 `# nosec` on the `sqlite_master` row-count query.
+- Frontend typecheck + `LiveTracePanel` unit-test mock fix.
+- `verify_docs_references.py` no longer flags absolute API routes (`/api/v1/*`);
+  fixed a broken diagram reference in `docs/README.md`.
+- npm-audit job deflaked (skip electron binary download).
+- Both Dockerfiles copy `frontend/scripts` before `npm ci` (postinstall fix).
