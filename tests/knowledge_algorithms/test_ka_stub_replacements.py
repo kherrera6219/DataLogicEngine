@@ -627,3 +627,131 @@ def test_ka006_dynamic_intent_security_depth():
     assert shield["sub_steps"][0]["id"] == "s4_shield_sub1"
     assert result["output"]["complexity_estimate"] > 0.6
 
+
+def test_ka101_environment_management():
+    from backend.knowledge_algorithms.ka_101_environment_management import KA101EnvironmentManagement, KA101EnvInput
+    import platform
+    ka = KA101EnvironmentManagement({})
+    result = ka.run(KA101EnvInput(env="production"))
+    assert result["success"] is True
+    assert result["output"]["resolved_env"] == "production"
+    assert result["output"]["os_platform"] == platform.system()
+    assert "provider_active" in result["output"]
+    assert len(result["output"]["config_checksum"]) == 8
+
+
+def test_ka104_load_balancing():
+    from backend.knowledge_algorithms.ka_104_load_balancing import KA104LoadBalancing, KA104LBInput
+    ka = KA104LoadBalancing({})
+    nodes = [
+        {"id": "node_a", "weight": 5, "active_connections": 10},
+        {"id": "node_b", "weight": 10, "active_connections": 2}
+    ]
+    # Under least_connections, it must choose node_b (2 connections < 10)
+    result_lc = ka.run(KA104LBInput(batch_size=10, active_nodes=nodes))
+    assert result_lc["success"] is True
+    assert result_lc["output"]["target_node"] == "node_b"
+    
+    # Under weighted_round_robin, it must choose node_a (weight 5 with active node override config if mocked)
+    ka.config["algorithm"] = "weighted_round_robin"
+    result_wrr = ka.run(KA104LBInput(batch_size=10, active_nodes=nodes))
+    assert result_wrr["success"] is True
+    assert result_wrr["output"]["target_node"] == "node_b" # node_b has max weight 10
+
+
+def test_ka110_integration_bus(monkeypatch):
+    from backend.knowledge_algorithms.ka_110_integration_bus import KA110IntegrationBus, KA110BusInput
+    ka = KA110IntegrationBus({})
+    result = ka.run(KA110BusInput(message={"status": "OK"}, topic="health_reports"))
+    assert result["success"] is True
+    assert result["output"]["published_to"] == "health_reports"
+    assert result["output"]["routing_status"] == "local_memory"
+    
+    # Check redis toggle
+    monkeypatch.setenv("USE_REDIS", "True")
+    result_redis = ka.run(KA110BusInput(message={"status": "OK"}, topic="health_reports"))
+    assert result_redis["success"] is True
+    assert result_redis["output"]["routing_status"] == "redis_published"
+
+
+def test_ka095_alerting():
+    from backend.knowledge_algorithms.ka_95_alerting import KA095Alerting, KA095AlertInput
+    ka = KA095Alerting({})
+    # Fresh alert trigger
+    result = ka.run(KA095AlertInput(event="disk_full", level="critical", recent_events=[]))
+    assert result["success"] is True
+    assert result["output"]["alert_triggered"] is True
+    assert result["output"]["escalation_policy"] == "ops_on_call"
+    
+    # Deduplicated alert
+    result_dedupe = ka.run(KA095AlertInput(event="disk_full", level="critical", recent_events=["disk_full"]))
+    assert result_dedupe["success"] is True
+    assert result_dedupe["output"]["alert_triggered"] is False
+    assert result_dedupe["output"]["deduplicated"] is True
+
+
+def test_ka097_auditing():
+    from backend.knowledge_algorithms.ka_97_auditing import KA097Auditing, KA097AuditInput
+    ka = KA097Auditing({})
+    event = {"type": "user_login", "user": "alice", "severity": "critical"}
+    result = ka.run(KA097AuditInput(event_data=event))
+    assert result["success"] is True
+    assert "signature" in result["output"]
+    assert result["output"]["blockchain_anchored"] is True
+    assert "prov:wasGeneratedBy" in result["output"]["prov_metadata"]
+
+
+def test_ka099_debugging():
+    from backend.knowledge_algorithms.ka_99_debugging import KA099Debugging, KA099DebugInput
+    ka = KA099Debugging({})
+    
+    # Test frame inspection and redaction
+    secret_token = "SUPER_SECRET_12345"
+    normal_var = "friendly_data"
+    assert secret_token is not None
+    assert normal_var is not None
+    
+    result = ka.run(KA099DebugInput(error_context="unit_test_failure"))
+    assert result["success"] is True
+    snapshot = result["output"]["snapshot"]
+    assert "traceback" in snapshot
+    assert "locals" in snapshot
+    
+    # Verify that secret_token was redacted, if captured in frames
+    locals_captured = snapshot["locals"]
+    if "secret_token" in locals_captured:
+        assert locals_captured["secret_token"] == "[REDACTED]"
+    
+    # Verify system metrics
+    assert "system_metrics" in snapshot
+    metrics = snapshot["system_metrics"]
+    assert metrics["pid"] > 0
+    assert "python_version" in metrics
+
+
+def test_ka069_cultural_context_adapter():
+    from backend.knowledge_algorithms.ka_69_cultural_context_adapter import KA069CulturalContextAdapter, KA069Input
+    ka = KA069CulturalContextAdapter({})
+    
+    # Test EU compliance text framing and comma-separated float numbers
+    result_eu = ka.run(KA069Input(
+        culture="regional_eu",
+        text="Processing transaction data.",
+        numeric_values={"rate": 1234.56}
+    ))
+    assert result_eu["success"] is True
+    assert result_eu["output"]["applied_framing"] == "privacy_first"
+    assert "compliance" in result_eu["output"]["adapted_text"].lower()
+    assert result_eu["output"]["localized_numerics"]["rate"] == "1.234,56"
+    
+    # Test ASIA respectful framing and rounded numbers
+    result_asia = ka.run(KA069Input(
+        culture="regional_asia",
+        text="Processing transaction data.",
+        numeric_values={"rate": 1234.56}
+    ))
+    assert result_asia["success"] is True
+    assert "respect" in result_asia["output"]["phrasing_prefix"].lower()
+    assert result_asia["output"]["localized_numerics"]["rate"] == "1,235"
+
+

@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 class KA101EnvInput(BaseModel):
     env: str = Field("dev", description="The target environment (e.g., dev, staging, prod)")
 
+
 class KA101EnvironmentManagement(KnowledgeAlgorithm):
     """
     KA-101: System environment and provider configuration engine for orchestration.
@@ -42,15 +43,33 @@ class KA101EnvironmentManagement(KnowledgeAlgorithm):
         target_env = input_data.env
         self.log_execution_step("Resolving Env Config", {"target": target_env})
         
-        env_vars = self.config.get("env_variables", {"LOG_LEVEL": "INFO"})
+        # Dynamically load from process environment and config file
+        env_vars = dict(os.environ)
+        # Filter down to non-sensitive prefixes to avoid leaks
+        safe_vars = {k: v for k, v in env_vars.items() if any(k.startswith(p) for p in ["FLASK_", "DATABASE_", "SESSION_", "USE_"])}
         
+        # Load local configuration rules
+        default_vars = self.config.get("env_variables", {"LOG_LEVEL": "INFO"})
+        merged_vars = {**default_vars, **safe_vars}
+        
+        # Detect active platform provider dynamically
+        import platform
+        sys_platform = platform.system()
+        
+        provider = "WindowsLocal" if sys_platform == "Windows" else "UnixLocal"
+        if "KUBERNETES_SERVICE_HOST" in os.environ:
+            provider = "Kubernetes"
+            
         return {
             "success": True,
             "resolved_env": target_env,
-            "provider_active": "Kubernetes",
-            "config_checksum": hashlib.sha256(json.dumps(env_vars, sort_keys=True).encode()).hexdigest()[:8],
-            "injected_vars_count": len(env_vars)
+            "provider_active": provider,
+            "os_platform": sys_platform,
+            "config_checksum": hashlib.sha256(json.dumps(merged_vars, sort_keys=True).encode()).hexdigest()[:8],
+            "injected_vars_count": len(merged_vars),
+            "vars_resolved": list(merged_vars.keys())
         }
+
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

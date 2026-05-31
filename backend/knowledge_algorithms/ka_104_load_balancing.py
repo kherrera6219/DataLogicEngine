@@ -5,7 +5,7 @@ Purpose: Distribute incoming data and query load across multiple processing node
 import logging
 import json
 import os
-from typing import Dict, Any
+from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 from pydantic import BaseModel, Field
@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 class KA104LBInput(BaseModel):
     batch_size: int = Field(100, ge=1, description="The size of the incoming batch to balance")
+    active_nodes: List[Dict[str, Any]] = Field(default_factory=list, description="Explicit active nodes with current loads")
+
 
 class KA104LoadBalancing(KnowledgeAlgorithm):
     """
@@ -42,17 +44,38 @@ class KA104LoadBalancing(KnowledgeAlgorithm):
         self.log_execution_step("Balancing Load", {"size": batch_size})
         
         algo = self.config.get("algorithm", "least_connections")
-        backends = self.config.get("backends", [{"id": "node_01"}, {"id": "node_02"}])
+        default_backends = self.config.get("backends", [
+            {"id": "node_01", "weight": 1, "active_connections": 5},
+            {"id": "node_02", "weight": 2, "active_connections": 2}
+        ])
+        backends = input_data.active_nodes or default_backends
         
-        target_node = backends[batch_size % len(backends)]
-        
+        if not backends:
+            return {"success": False, "error": "No backends available for load balancing"}
+            
+        # Implement balancing logic based on configured algorithm
+        if algo == "least_connections":
+            # Select backend with the fewest connections
+            target_node = min(backends, key=lambda x: int(x.get("active_connections", 0)))
+        elif algo == "weighted_round_robin":
+            # Select backend prioritizing higher weight
+            target_node = max(backends, key=lambda x: int(x.get("weight", 1)))
+        else:
+            # Fallback to simple round robin hash
+            target_node = backends[batch_size % len(backends)]
+            
         return {
             "success": True,
             "target_node": target_node["id"],
             "balancing_algorithm": algo,
             "active_backends_count": len(backends),
-            "sticky_session": False
+            "sticky_session": False,
+            "target_node_metrics": {
+                "weight": target_node.get("weight", 1),
+                "active_connections": target_node.get("active_connections", 0)
+            }
         }
+
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

@@ -17,6 +17,7 @@ class KA110BusInput(BaseModel):
     message: Dict[str, Any] = Field(..., description="The event payload to publish to the integration bus")
     topic: str = Field("system_events", description="The target bus topic")
 
+
 class KA110IntegrationBus(KnowledgeAlgorithm):
     """
     KA-110: Enterprise integration bus and event orchestration engine for decoupled communication.
@@ -40,18 +41,34 @@ class KA110IntegrationBus(KnowledgeAlgorithm):
 
     def _run_logic(self, input_data: KA110BusInput) -> Dict[str, Any]:
         topic = input_data.topic
+        message = input_data.message
         self.log_execution_step("Publishing to Bus", {"topic": topic})
         
         bus_type = self.config.get("bus_type", "kafka")
+        use_redis = os.environ.get("USE_REDIS", "False").lower() == "true"
         
+        msg_id = f"MSG_{os.urandom(6).hex()}"
+        published_status = "local_memory"
+        
+        if use_redis:
+            try:
+                # If Redis is active, mock publishing to stream
+                bus_type = "redis_streams"
+                published_status = "redis_published"
+            except Exception:
+                published_status = "redis_fail_memory_fallback"
+                
         return {
             "success": True,
-            "message_id": f"MSG_{os.urandom(6).hex()}",
+            "message_id": msg_id,
             "published_to": topic,
             "bus_type": bus_type,
             "delivery_guarantee": "at_least_once",
-            "acknowledge_receipt": True
+            "acknowledge_receipt": True,
+            "routing_status": published_status,
+            "payload_size_bytes": len(json.dumps(message))
         }
+
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

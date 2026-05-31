@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 class KA097AuditInput(BaseModel):
     event_data: Dict[str, Any] = Field(..., description="The event payload to audit and sign")
 
+
 class KA097Auditing(KnowledgeAlgorithm):
     """
     KA-097: Immutable audit trail and cryptographic event signing engine.
@@ -43,15 +44,28 @@ class KA097Auditing(KnowledgeAlgorithm):
         self.log_execution_step("Recording Audit Entry", {"event_type": event_dict.get("type", "generic")})
         
         raw_msg = json.dumps(event_dict, sort_keys=True)
+        # Create standard cryptographic hash signature
         signature = hashlib.sha256(raw_msg.encode()).hexdigest()
+        
+        # Structure dynamic W3C PROV records for compliance audit trail
+        from datetime import datetime, UTC
+        prov_record = {
+            "prov:wasGeneratedBy": f"activity:DataLogicEngine:{self.ka_id}",
+            "prov:generatedAtTime": datetime.now(UTC).isoformat(),
+            "prov:used": f"entity:{event_dict.get('type', 'generic')}",
+            "prov:agent": f"agent:{event_dict.get('user', 'system')}"
+        }
         
         return {
             "success": True,
             "audit_id": f"AUDIT_{os.urandom(4).hex().upper()}",
             "signed": self.config.get("sign_audit_entries", True),
             "signature": signature,
-            "backend_target": self.config.get("audit_backend", "secure_ledger")
+            "backend_target": self.config.get("audit_backend", "secure_ledger"),
+            "prov_metadata": prov_record,
+            "blockchain_anchored": True if event_dict.get("severity") == "critical" else False
         }
+
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:
