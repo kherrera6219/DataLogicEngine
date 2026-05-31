@@ -135,7 +135,18 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
 ## 8. Open / Next
 
 - Confirm end-to-end chat success on the freshly installed build (user to verify).
-- `anthropic` package not installed in `.venv311`; add it if Anthropic provider
-  is needed in the bundled backend.
+- ~~`anthropic` package not installed in `.venv311`~~ — **resolved (non-issue):**
+  the Anthropic provider (`sdk/UKG_Python_SDK/ukg_sdk/providers/anthropic.py`)
+  calls the Messages API over raw `httpx` and needs no `anthropic` SDK package.
 - Consider surfacing the new `test_provider` status codes in the Settings UI so
-  an invalid key shows "Invalid API key" inline.
+  an invalid key shows "Invalid API key" inline (`ApiOverlayConfig.tsx`).
+
+## 9. CI Status (2026-05-30 evening)
+
+All five previously-failing checks were fixed and pushed to `main` (commits
+`01db1724`, `b1e48c97`): Code Security Scan, Dependency Security Scan, CI/CD
+`backend-test`, CI/CD `frontend-build`, and Deploy `Build and Test`. Root cause
+of the dependency-scan failure was a stale `chromadb==0.5.23` pin that locked the
+transitive `transformers` onto a vulnerable build; aligned to the validated
+`chromadb==1.4.1`, resolving to CVE-free `transformers 5.9.0`. See `TODO.md` →
+"CI And Security Evidence" for details.

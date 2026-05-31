@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-05-29
+**Last updated:** 2026-05-30
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -112,7 +112,15 @@ Live-code baseline:
 
 ### CI And Security Evidence
 
-Latest update: 2026-05-28
+Latest update: 2026-05-30
+
+- CI red-to-green remediation (commits `01db1724`, `b1e48c97` on `main`): fixed all five failing checks — Code Security Scan, Dependency Security Scan, CI/CD `backend-test`, CI/CD `frontend-build`, and Deploy `Build and Test`.
+  - Dependency CVEs: `requirements.txt` pinned the stale `chromadb==0.5.23` (metadata caps `tokenizers<=0.20.3`), which locked the transitive `transformers` onto the vulnerable `4.46.3`. Aligned the pin to the validated/installed `chromadb==1.4.1` and added `transformers>=5.0.0`; the tree now resolves to `transformers 5.9.0` / `tokenizers 0.22.2` (CVE-free). Verified by `pip install --dry-run -r requirements.txt`, backend smoke, and 16 chroma/vector/DB-C tests passing against chromadb 1.4.1.
+  - Bandit delta gate: `backend/routes/storage_routes.py` row-count query annotated `# nosec B608` (table names come from `sqlite_master`, never user input). Delta gate exits 0.
+  - Frontend typecheck: repaired type drift in five test files (`MessageBubble`, `CommandBar`, `DesktopStatus`, `McpIntegrationExamples`, `McpServerConfig`) against updated production interfaces — notably adding the eleven new `ElectronAPI` methods to the `DesktopStatus` mock. `tsc --noEmit` exits 0.
+- Anthropic provider package: the prior handoff note to add the `anthropic` package is closed as a non-issue — `sdk/UKG_Python_SDK/ukg_sdk/providers/anthropic.py` calls the Messages API over raw `httpx` with no SDK dependency.
+
+Previous update: 2026-05-28
 
 - Security/dependency remediation: frontend `tmp` transitive dependency is pinned through npm overrides, Python lockfile `idna` is updated, `npm --prefix frontend audit --audit-level=moderate` reports zero vulnerabilities, and GitHub Dependabot open-alert query returns no open alerts.
 - Deploy/CI remediation: strict runtime precheck accepts explicit in-memory SQLite for disposable CI/runtime checks; KA-116 bulk-contract input coercion accepts scalar claims; TruthGate OPA policy respects Axis 14 threshold overrides; DRL convergence no longer overwrites a recovered refinement confidence when refinement steps fail; expanded persona pod outputs expose lane-level pod summaries; SQLite DMRF audit tests disable foreign-key checks while dropping cyclic test tables.
