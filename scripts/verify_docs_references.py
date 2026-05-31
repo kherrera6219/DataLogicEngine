@@ -102,6 +102,11 @@ def collect_backtick_refs(lines: list[str]) -> list[tuple[int, str]]:
                 continue
             # Filter for docs or index file patterns
             if ref.endswith("/*"):
+                # Only relative repo paths are directory-wildcard references.
+                # Absolute, "/"-rooted strings are API routes/URLs (e.g.
+                # `/api/v1/*`), not repository directories, so skip them.
+                if ref.startswith("/"):
+                    continue
                 refs.append((line_idx, ref))
                 continue
             if ref.startswith("docs/") or ref in {

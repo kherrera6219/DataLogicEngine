@@ -112,7 +112,7 @@ Current active architecture diagrams are maintained under `docs/diagrams/`.
 
 Recommended read order:
 
-1. `docs/diagrams/01_master_system_architecture.md`
+1. `docs/ARCHITECTURE_MAP.md`
 2. `docs/diagrams/12_end_to_end_request_lifecycle.md`
 3. `docs/diagrams/09_dmrf_control_plane_deep_dive.md`
 4. `docs/diagrams/05_truth_engine_architecture.md`
