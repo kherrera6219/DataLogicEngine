@@ -10,7 +10,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('@/components/ui/breadcrumbs', () => ({
-  Breadcrumbs: ({ items }) => <div>{items.map(i => i.label).join(' > ')}</div>
+  Breadcrumbs: ({ items }: { items: Array<{ label: string }> }) => <div>{items.map((i) => i.label).join(' > ')}</div>
 }));
 
 // Mock Lucide icons to avoid "render children" issues if any

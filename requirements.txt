@@ -59,6 +59,7 @@ requests==2.33.0
 chromadb==0.5.23
 llama-index==0.14.13
 sentence-transformers==5.2.2
+transformers>=5.0.0
 langchain==1.2.9
 langgraph==1.0.10
 

@@ -5,7 +5,7 @@ import { McpServerConfig } from './McpServerConfig';
 
 // Mock Lucide icons
 vi.mock('lucide-react', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = await importOriginal<typeof import('lucide-react')>();
   return {
     ...actual,
     Settings: () => <span data-testid="icon-settings" />,

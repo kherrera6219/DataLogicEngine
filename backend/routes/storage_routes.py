@@ -73,7 +73,7 @@ def _sqlite_metrics() -> dict:
             ]
             metrics["tables"] = len(table_names)
             metrics["rows"] = sum(
-                int(conn.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0])
+                int(conn.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0])  # nosec B608 – names from sqlite_master, not user input
                 for table in table_names
             )
     except Exception as exc:

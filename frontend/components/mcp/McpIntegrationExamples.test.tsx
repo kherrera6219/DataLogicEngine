@@ -5,17 +5,17 @@ import { McpIntegrationExamples } from './McpIntegrationExamples';
 
 // Mock UI components
 vi.mock('@/components/ui/tabs', () => ({
-  Tabs: ({ children, value, onValueChange }) => <div data-testid="tabs" data-value={value} onClick={() => onValueChange('ts')}>{children}</div>,
-  TabsList: ({ children }) => <div>{children}</div>,
-  TabsTrigger: ({ children, value }) => <button data-testid={`tab-${value}`}>{children}</button>,
-  TabsContent: ({ children, value }) => <div data-testid={`content-${value}`}>{children}</div>
+  Tabs: ({ children, value, onValueChange }: { children: React.ReactNode; value: string; onValueChange: (v: string) => void }) => <div data-testid="tabs" data-value={value} onClick={() => onValueChange('ts')}>{children}</div>,
+  TabsList: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  TabsTrigger: ({ children, value }: { children: React.ReactNode; value: string }) => <button data-testid={`tab-${value}`}>{children}</button>,
+  TabsContent: ({ children, value }: { children: React.ReactNode; value: string }) => <div data-testid={`content-${value}`}>{children}</div>
 }));
 
 vi.mock('@/components/ui/card', () => ({
-  Card: ({ children }) => <div>{children}</div>,
-  CardHeader: ({ children }) => <div>{children}</div>,
-  CardTitle: ({ children }) => <div>{children}</div>,
-  CardContent: ({ children }) => <div>{children}</div>
+  Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CardHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CardTitle: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CardContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
 }));
 
 // Mock clipboard

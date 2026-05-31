@@ -4,39 +4,40 @@ import { render, screen, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import DesktopStatus from './DesktopStatus';
 
-// Mock types for window.electronAPI
-interface ElectronLogHandler {
-  (log: string): void;
-}
+type ElectronLogHandler = (log: string) => void;
 
-interface MockElectronAPI {
-  getBackendStatus: () => Promise<string>;
-  getDbStatus: () => Promise<{ status: string; chroma_collections: Record<string, number>; redis_ping_ms: number | null }>;
-  quadAnalysisStatus: () => Promise<{ pod_count: number; collective_confidence: number; mode: string }>;
-  dsqpPersonaProfiles: () => Promise<{ success: boolean; profiles: Array<{ axis: number; persona_type: string; name: string; coverage_score: number; job_role: string; skills: string[]; chain_steps: number }>; partial: boolean; failures: Record<string, string> }>;
-  getNetworkStatus: () => Promise<{ state: string; last_checked: string; active_provider: string | null }>;
-  getLocalModelStatus: () => Promise<{ ollama_available: boolean; models_installed: string[]; active_model: string | null }>;
-  onBackendLog: (callback: ElectronLogHandler) => () => void;
-}
-
-declare global {
-  interface Window {
-    electronAPI?: MockElectronAPI;
-  }
-}
+const idleUpdateState = {
+  enabled: false,
+  status: 'idle' as const,
+  lastCheckAt: null,
+  currentVersion: '0.0.0',
+  availableVersion: null,
+  message: '',
+};
 
 describe('DesktopStatus', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     // Default mock implementation
     window.electronAPI = {
+      ping: vi.fn().mockResolvedValue('pong'),
       getBackendStatus: vi.fn().mockResolvedValue('checking'),
-      getDbStatus: vi.fn().mockResolvedValue({ status: 'managed', chroma_collections: {}, redis_ping_ms: null }),
+      getDbStatus: vi.fn().mockResolvedValue({ status: 'managed', chroma_collections: {}, redis_ping_ms: null, object_store_buckets: {}, memory_vertices: 0, memory_edges: 0, last_recall_timestamp: null }),
       quadAnalysisStatus: vi.fn().mockResolvedValue({ pod_count: 0, collective_confidence: 0, mode: 'idle' }),
+      dmrfStatus: vi.fn().mockResolvedValue({ status: 'idle', tier: null, frost_depth: null, run_id: null, tier_counts: {} }),
       dsqpPersonaProfiles: vi.fn().mockResolvedValue({ success: true, profiles: [], partial: false, failures: {} }),
       getNetworkStatus: vi.fn().mockResolvedValue({ state: 'ONLINE', last_checked: '2026-05-28T00:00:00Z', active_provider: 'openai' }),
       getLocalModelStatus: vi.fn().mockResolvedValue({ ollama_available: false, models_installed: [], active_model: null }),
+      getReasoningLayerProgress: vi.fn().mockResolvedValue({ active_run_id: null, status: 'idle', current_layer: null, layer_name: null, kas_running: [], confidence_so_far: null, persona_confidences: [], frost_snapshot_count: 0, updated_at: new Date().toISOString() }),
+      getKAExecutionFeed: vi.fn().mockResolvedValue({ items: [], limit: 20, updated_at: new Date().toISOString() }),
+      getDesktopStorageMetrics: vi.fn().mockResolvedValue(null),
+      chooseBackupFolder: vi.fn().mockResolvedValue(null),
+      runDatabaseBackup: vi.fn().mockResolvedValue({ artifact_path: '', size_bytes: 0, manifest: {} }),
+      getUpdateState: vi.fn().mockResolvedValue(idleUpdateState),
+      checkForUpdates: vi.fn().mockResolvedValue(idleUpdateState),
+      downloadUpdate: vi.fn().mockResolvedValue(idleUpdateState),
       onBackendLog: vi.fn(() => () => undefined),
+      onBackendError: vi.fn(() => () => undefined),
     };
   });
 

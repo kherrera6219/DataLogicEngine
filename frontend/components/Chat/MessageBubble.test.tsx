@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { MessageBubble } from './MessageBubble';
-import { Message } from '@/lib/api';
+import { ChatMessage } from './types';
 
 // Mock copy button since it might have browser deps
 vi.mock('@/components/ui/copy-button', () => ({
@@ -39,7 +39,7 @@ describe('MessageBubble', () => {
       content: 'Hello AI',
       timestamp: new Date().toISOString()
     };
-    render(<MessageBubble message={message as Message} />);
+    render(<MessageBubble message={message as ChatMessage} />);
     expect(screen.getByText('Hello AI')).toBeInTheDocument();
     // User avatar check (indirectly via class or icon existence, difficult to test exact icon without more mocks, but text content is sufficient for now)
   });
@@ -51,7 +51,7 @@ describe('MessageBubble', () => {
       content: 'Hello Human',
       timestamp: new Date().toISOString()
     };
-    render(<MessageBubble message={message as Message} />);
+    render(<MessageBubble message={message as ChatMessage} />);
     expect(screen.getByText('Hello Human')).toBeInTheDocument();
   });
 
@@ -62,7 +62,7 @@ describe('MessageBubble', () => {
       content: 'Thinking...',
       timestamp: new Date().toISOString()
     };
-    render(<MessageBubble message={message as Message} isThinking={true} />);
+    render(<MessageBubble message={message as ChatMessage} isThinking={true} />);
     expect(screen.getByText('Reasoning Logic active')).toBeInTheDocument();
   });
 
@@ -80,7 +80,7 @@ describe('MessageBubble', () => {
       },
     };
 
-    render(<MessageBubble message={message as Message} />);
+    render(<MessageBubble message={message as ChatMessage} />);
     expect(screen.getByText('Reasoning Trace')).toBeInTheDocument();
 
     fireEvent.click(screen.getByText('Reasoning Trace'));
