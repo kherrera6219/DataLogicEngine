@@ -63,9 +63,6 @@ class OpenAIProvider(LLMProvider):
         input_payload = messages
 
         try:
-            from openai import AsyncOpenAI
-            async_client = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url, timeout=self.timeout_s)
-
             # Reasoning models (gpt-5.x / o-series) reserve part of the budget for
             # reasoning, so floor the output budget; the Responses API also
             # requires max_output_tokens >= 16.
@@ -83,7 +80,11 @@ class OpenAIProvider(LLMProvider):
             else:
                 request_kwargs["temperature"] = temperature
 
-            response = await async_client.responses.create(**request_kwargs)
+            # Use the SYNCHRONOUS client (initialized in __init__), not AsyncOpenAI.
+            # The backend runs under eventlet (Flask-SocketIO); the asyncio-based
+            # async client hangs there, whereas eventlet makes the sync client's
+            # blocking I/O cooperative. Validated under eventlet monkey-patching.
+            response = self.client.responses.create(**request_kwargs)
             
             text = response.output_text
             
