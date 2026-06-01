@@ -1,11 +1,17 @@
 # DataLogicEngine — Session Handoff
 
-_Last updated: 2026-05-30 (afternoon session)_
+_Last updated: 2026-05-31 (desktop chat enablement session)_
 
 This document captures the current working state of the DataLogicEngine desktop
 app, the issues fixed in recent sessions, the build/deploy process, and the
 known-good verification steps. It is the primary handoff reference; the
 `docs/WINDOWS_11_LOCAL_RUNBOOK.md` has the detailed local-run instructions.
+
+> **Latest session (2026-05-31): end-to-end Enterprise AI chat enabled.** The
+> full root-cause chain for "chat falls to the offline queue" was found and
+> fixed; OpenAI standardized on gpt-5.5; several desktop UI glitches fixed; and a
+> large in-progress modularization refactor was reverted to keep `main` green.
+> Full detail in [Section 10](#10-desktop-chat-enablement-2026-05-31).
 
 ---
 
@@ -134,12 +140,22 @@ Before packaging, ensure no `DataLogic_Backend.exe` process is running and that
 
 ## 8. Open / Next
 
-- Confirm end-to-end chat success on the freshly installed build (user to verify).
+- ~~Confirm end-to-end chat success~~ — **root cause fixed (Section 10);** chat
+  returns real gpt-5.5 replies through the gateway. The latest installer
+  (`DataLogicEngine Setup Latest.exe` at repo root) carries the fix; reinstall to
+  pick it up.
 - ~~`anthropic` package not installed in `.venv311`~~ — **resolved (non-issue):**
   the Anthropic provider (`sdk/UKG_Python_SDK/ukg_sdk/providers/anthropic.py`)
   calls the Messages API over raw `httpx` and needs no `anthropic` SDK package.
 - Consider surfacing the new `test_provider` status codes in the Settings UI so
   an invalid key shows "Invalid API key" inline (`ApiOverlayConfig.tsx`).
+- **Known minor:** `RAG context retrieval failed: Access is denied ... llama_index`
+  in the installed app — llama_index touches a path under read-only Program Files.
+  It is caught (non-fatal; chat works without RAG context). Move the RAG/index
+  working dir to the per-user runtime dir if RAG context is needed in chat.
+- The Google/Gemini and Anthropic SDK providers still use async `httpx`; if those
+  become the active chat provider, apply the same sync-call pattern used for
+  OpenAI (Section 10) to avoid the Flask `async_to_sync` event-loop issue.
 
 ## 9. CI Status (2026-05-30 night)
 
@@ -160,3 +176,67 @@ Highlights (full detail in `TODO.md` → "CI And Security Evidence"):
   fixed a broken diagram reference in `docs/README.md`.
 - npm-audit job deflaked (skip electron binary download).
 - Both Dockerfiles copy `frontend/scripts` before `npm ci` (postinstall fix).
+
+## 10. Desktop Chat Enablement (2026-05-31)
+
+End-to-end Enterprise AI chat was failing ("The local desktop queue saved this
+request for replay…"). The root cause was a chain of three independent problems,
+all now fixed and committed to `main`:
+
+1. **`ukg_sdk` not packaged** (`backend.spec`). The gateway imports its provider
+   HTTP clients / overlay from the in-repo SDK via a runtime `sys.path` insert
+   that does not exist in the frozen app. The bundled backend logged
+   `No module named 'ukg_sdk'`, so `_create_sdk_provider()` returned `None` and
+   every request went to the offline queue. Fix: add `sdk/UKG_Python_SDK` to
+   `pathex` + `collect_submodules('ukg_sdk')` + `collect_data_files('ukg_sdk')`.
+   Also bundled `tiktoken_ext.openai_public` (the `cl100k_base` plugin) so RAG
+   token counting stops raising `Unknown encoding cl100k_base`.
+
+2. **gpt-5.5 called incorrectly.** gpt-5.5 is a *reasoning* model: it rejects a
+   custom `temperature` and counts reasoning tokens against `max_output_tokens`.
+   The provider sent `temperature` and a tiny `max_output_tokens` (the Test Model
+   probe sent `5`, below the Responses-API minimum of 16). Fix
+   (`ukg_sdk/providers/openai.py`): drop `temperature` for gpt-5.x/o-series, send
+   `reasoning={"effort": "medium"}`, and floor `max_output_tokens` to 1024 for
+   reasoning models. OpenAI standardized to a **single model, `gpt-5.5`**
+   (`model_defaults.py`, `AiModelSettings.tsx`).
+
+3. **Async client vs. Flask's event loop** (the subtle one). Test Model (a single
+   isolated call) worked, but the chat runs the multi-step `UKGOverlay` pipeline,
+   and Flask runs `async def` views via `asgiref.async_to_sync` on a reused
+   thread-local loop. Creating a fresh `AsyncOpenAI` (asyncio/httpx) client per
+   call across those steps mismanaged the client lifecycle ("Event loop is
+   closed") and every attempt failed. Fix: call the **synchronous** OpenAI client
+   (`self.client.responses.create`) — a blocking call has no loop-bound resources
+   to mismanage. Validated against the live key: direct call, full
+   `UKGOverlay.run`, and two sequential requests via `async_to_sync` all return
+   real answers. (Note: the backend does **not** use eventlet — it is not bundled
+   and nothing calls `monkey_patch()`; the issue was purely `async_to_sync`.)
+
+**Desktop UI fixes (same session):**
+- `ChatInterface.tsx`: replaced mojibaked emoji in the header/avatars (rendered
+  as `ðŸŽ¯`/`ðŸ¤–`) with lucide icons (`Target`/`Bot`/`User`).
+- `LiveTracePanel.tsx`: error display defensively coerced to a string so it can
+  never render `[object Object]`.
+- `DesktopStatus.tsx`: the Desktop Engine status panel is now **minimizable** — a
+  header `−` collapses it to a small corner pill (click to reopen); the
+  preference persists via `lib/state/storage`.
+- `NetworkState._configured_providers()` (`gateway.py`): counts active DB
+  providers with a saved key, not just `*_API_KEY` env vars, so the desktop
+  status reports ONLINE/DEGRADED (not OFFLINE) after a key is saved in Settings.
+  (Saving a key never overwrote the other provider — the DB stores one row per
+  provider; the moving "Default" badge is just the `is_default` flag.)
+
+**Refactor reverted.** A large, unpushed, in-progress modularization (splitting
+`models.py`/routes/`app.py`/tracing into packages) had broken ~19 tests and the
+security_scan suite. Since it was local-only, delivered no functional value, and
+the chat fix is independent of it, it was reverted with
+`git reset --hard origin/main` (recoverable via reflog at `f9c427fc`). All KA
+upgrades and the chat fixes are preserved on `main`.
+
+**Verification after installing the latest build:** launch → Enterprise AI → send
+"hello" → expect a real gpt-5.5 reply (not the offline-queue message). The
+runtime log should show **no** `No module named 'ukg_sdk'` and **no**
+`Provider attempt exception`. `network-status` should report
+`configured_providers: ["openai", …]` with `state: DEGRADED` (expected on desktop
+with no local model) rather than `OFFLINE`.
