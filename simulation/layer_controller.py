@@ -13,9 +13,9 @@ from typing import Dict, List, Optional
 from simulation.layer1_planning import Layer1PlanningEngine
 from simulation.layer2_retrieval import Layer2RetrievalEngine
 from simulation.layer3_agent_engine import Layer3AgentEngine
-from simulation.pov_engine import POVEngine
+from core.simulation.pov_engine import POVEngine
 from simulation.layer5_integration import Layer5IntegrationEngine
-from simulation.layer7_agi_system import AGISimulationEngine
+from core.simulation.layer7_agi_system import AGISimulationEngine
 
 class LayerController:
     """

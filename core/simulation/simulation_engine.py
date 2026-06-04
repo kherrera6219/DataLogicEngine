@@ -117,7 +117,7 @@ class SimulationEngine:
         self.layer7_engine = None
         if self.agi_simulation_enabled:
             try:
-                from simulation.layer7_agi_system import AGISimulationEngine
+                from core.simulation.layer7_agi_system import AGISimulationEngine
                 self.layer7_engine = AGISimulationEngine(
                     config=self.layer_config.get('layer7', {}),
                     system_manager=None  # Will be set later if system manager is provided
