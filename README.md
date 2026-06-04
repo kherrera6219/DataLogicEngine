@@ -226,6 +226,17 @@ npm run typecheck
 npm test
 ```
 
+### CI recovery status
+
+Recent push failures in `Deploy / Build and Test` and `CI/CD Pipeline / backend-test` were traced to a pytest environment leak that forced desktop runtime mode across unrelated backend tests. The suite now keeps desktop mode scoped to desktop-specific tests, and the CI dependency security alerts were remediated.
+
+Current validation evidence:
+
+- Backend CI-equivalent test command: `python -m pytest tests/ --no-cov -q` passed with `1823 passed, 21 skipped`.
+- Frontend validation passed with `npm run lint`, `npm run typecheck`, and `npm test` (`234 passed`).
+- Dependency security checks passed locally: `pip-audit -r requirements.txt --desc` reported no known vulnerabilities, and `npm audit --audit-level=moderate` reported no vulnerabilities.
+- GitHub `Security Scan` is passing again on `main` after the dependency updates.
+
 Windows packaging checks:
 
 ```powershell
