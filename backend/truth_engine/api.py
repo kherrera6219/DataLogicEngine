@@ -4,6 +4,7 @@ Truth Engine API Blueprints
 Provides REST API endpoints for Truth Engine v7.3 modules.
 """
 
+import inspect
 import logging
 from typing import Optional, TYPE_CHECKING
 from flask import Blueprint, request, jsonify, Response, stream_with_context
@@ -24,47 +25,51 @@ _truth_gate: Optional['TruthGateGateway'] = None  # type: ignore
 _truth_memory: Optional['TruthMemoryManager'] = None  # type: ignore
 _truth_link: Optional['TruthLinkBus'] = None  # type: ignore
 
-def get_truth_core_engine() -> 'TruthCoreEngine': # type: ignore
+
+def get_truth_core_engine() -> 'TruthCoreEngine':  # type: ignore
     """Access the TruthCoreEngine singleton."""
     _lazy_init_truth_engine()
-    return _truth_core # type: ignore
+    return _truth_core  # type: ignore
 
-def get_truth_gate() -> 'TruthGateGateway': # type: ignore
+
+def get_truth_gate() -> 'TruthGateGateway':  # type: ignore
     """Access the TruthGateGateway singleton."""
     _lazy_init_truth_engine()
-    return _truth_gate # type: ignore
+    return _truth_gate  # type: ignore
 
-def get_truth_memory() -> 'TruthMemoryManager': # type: ignore
+
+def get_truth_memory() -> 'TruthMemoryManager':  # type: ignore
     """Access the TruthMemoryManager singleton."""
     _lazy_init_truth_engine()
-    return _truth_memory # type: ignore
+    return _truth_memory  # type: ignore
 
-def get_truth_link() -> 'TruthLinkBus': # type: ignore
+
+def get_truth_link() -> 'TruthLinkBus':  # type: ignore
     """Access the TruthLinkBus singleton."""
     _lazy_init_truth_engine()
-    return _truth_link # type: ignore
+    return _truth_link  # type: ignore
 
 
 def init_truth_engine(db_session):
     """Initialize Truth Engine components with database session."""
     global _truth_core, _truth_gate, _truth_memory, _truth_link
-    
+
     from backend.truth_engine.truth_core.engine import TruthCoreEngine
     from backend.truth_engine.truth_gate.gateway import TruthGateGateway
     from backend.truth_engine.truth_memory.manager import TruthMemoryManager
     from backend.truth_engine.truth_link.bus import TruthLinkBus
-    
+
     simulation_engine = None
     try:
         from core.simulation.legacy_simulation_engine import create_simulation_engine
         simulation_engine = create_simulation_engine()
         logger.info("SimulationEngine created for TruthCore integration")
     except Exception as e:
-        logger.warning(f"Could not create SimulationEngine: {e}")
-    
+        logger.warning("Could not create SimulationEngine: %s", e)
+
     from backend.knowledge_algorithms.ka_master_controller import get_controller
     ka_controller = get_controller()
-    
+
     _truth_core = TruthCoreEngine(
         db_session=db_session,
         simulation_engine=simulation_engine,
@@ -73,43 +78,56 @@ def init_truth_engine(db_session):
     _truth_gate = TruthGateGateway(db_session=db_session)
     _truth_memory = TruthMemoryManager(db_session=db_session)
     _truth_link = TruthLinkBus(db_session=db_session)
-    
+
     logger.info("Truth Engine components initialized")
 
 
 def _lazy_init_truth_engine():
-    """Lazy initialization of Truth Engine on first use."""
+    """Lazy initialization of Truth Engine on first use.
+
+    This is called from inside active Flask request/app contexts only
+    (either via the require_truth_engine decorator or directly from a route).
+    Do NOT push a new app_context here — one is already active, and pushing
+    another would create an orphaned db.session that is torn down before the
+    request ends.
+    """
     global _truth_core, _truth_gate, _truth_memory, _truth_link
-    
+
     if _truth_core is not None:
         return  # Already initialized
-    
-    from flask import current_app
+
     from extensions import db
-    
-    with current_app.app_context():
-        init_truth_engine(db.session)
+    init_truth_engine(db.session)
 
 
 def require_truth_engine(f):
-    """Decorator to ensure Truth Engine is initialized (lazy loading)."""
-    import inspect
+    """Decorator to ensure Truth Engine is initialized (lazy loading).
+
+    Returns an async wrapper for async view functions and a sync wrapper for
+    sync view functions. Flask's WSGI runner does not await coroutines, so
+    wrapping a sync view in `async def` would return a coroutine object
+    instead of a Response and cause a 500 on every call.
+    """
     @wraps(f)
-    async def decorated(*args, **kwargs):
-        # Lazy initialize on first request
+    async def async_decorated(*args, **kwargs):
         _lazy_init_truth_engine()
         if not all([_truth_core, _truth_gate, _truth_memory, _truth_link]):
             return jsonify({'error': 'Truth Engine initialization failed'}), 503
-        
-        if inspect.iscoroutinefunction(f):
-            return await f(*args, **kwargs)
+        return await f(*args, **kwargs)
+
+    @wraps(f)
+    def sync_decorated(*args, **kwargs):
+        _lazy_init_truth_engine()
+        if not all([_truth_core, _truth_gate, _truth_memory, _truth_link]):
+            return jsonify({'error': 'Truth Engine initialization failed'}), 503
         return f(*args, **kwargs)
-    return decorated
+
+    return async_decorated if inspect.iscoroutinefunction(f) else sync_decorated
 
 
 def get_truth_engine_status():
     """Get the current status of all Truth Engine components.
-    
+
     Returns:
         dict: Status information for TruthCore, TruthGate, TruthMemory, TruthLink
     """
@@ -135,35 +153,35 @@ def get_truth_engine_status():
             'initialized': _truth_link is not None
         }
     }
-    
+
     if _truth_core:
         try:
             core_stats = _truth_core.get_stats() if hasattr(_truth_core, 'get_stats') else {}
             status['truthcore'].update(core_stats)
         except Exception as e:
-            logger.warning(f"Error getting TruthCore stats: {e}")
-    
+            logger.warning("Error getting TruthCore stats: %s", e)
+
     if _truth_gate:
         try:
             gate_stats = _truth_gate.get_stats() if hasattr(_truth_gate, 'get_stats') else {}
             status['truthgate'].update(gate_stats)
         except Exception as e:
-            logger.warning(f"Error getting TruthGate stats: {e}")
-    
+            logger.warning("Error getting TruthGate stats: %s", e)
+
     if _truth_memory:
         try:
             memory_stats = _truth_memory.get_stats() if hasattr(_truth_memory, 'get_stats') else {}
             status['truthmemory'].update(memory_stats)
         except Exception as e:
-            logger.warning(f"Error getting TruthMemory stats: {e}")
-    
+            logger.warning("Error getting TruthMemory stats: %s", e)
+
     if _truth_link:
         try:
             link_stats = _truth_link.get_stats() if hasattr(_truth_link, 'get_stats') else {}
             status['truthlink'].update(link_stats)
         except Exception as e:
-            logger.warning(f"Error getting TruthLink stats: {e}")
-    
+            logger.warning("Error getting TruthLink stats: %s", e)
+
     return status
 
 
@@ -185,18 +203,17 @@ def health():
 @truth_api.route('/core/session', methods=['POST'])
 @require_truth_engine
 async def create_session():
-
     """Create a new TruthCore processing session."""
     data = request.get_json() or {}
-    
+
     query = data.get('query')
     if not query:
         return jsonify({'error': 'Query is required'}), 400
-    
+
     user_id = data.get('user_id')
     tenant_id = data.get('tenant_id')
     context = data.get('context', {})
-    
+
     gate_result = _truth_gate.evaluate({
         'query': query,
         'tenant_id': tenant_id,
@@ -207,49 +224,46 @@ async def create_session():
             'error': gate_result.get('block_reason', 'Request blocked'),
             'security_flags': gate_result.get('security_flags', [])
         }), 403
-    
+
     session = await _truth_core.create_session(
         query=gate_result.get('sanitized_query', query),
         user_id=user_id,
         tenant_id=tenant_id,
         context=context
     )
-    
+
     _truth_link.publish(
         source_module='truth_core',
         message_type='session_created',
         payload={'session_id': session['session_id'], 'tier': session['tier']},
         session_id=session['session_id']
     )
-    
-    return jsonify(session), 201
 
+    return jsonify(session), 201
 
 
 @truth_api.route('/core/session/<session_id>/process', methods=['POST'])
 @require_truth_engine
 async def process_session(session_id):
-
     """Process a TruthCore session."""
     try:
         result = await _truth_core.process(session_id)
-        
+
         _truth_memory.record_session(result)
-        
+
         _truth_link.publish(
             source_module='truth_core',
             message_type='session_completed',
             payload={'session_id': session_id, 'status': result['status']},
             session_id=session_id
         )
-        
-        return jsonify(result)
 
+        return jsonify(result)
 
     except ValueError as e:
         return jsonify({'error': str(e)}), 404
     except Exception as e:
-        logger.error(f"Processing failed: {e}")
+        logger.error("Processing failed: %s", e)
         return jsonify({'error': 'Processing failed'}), 500
 
 
@@ -295,7 +309,7 @@ def get_budget(tenant_id):
         budget = _truth_gate.budget_manager.get_budget(tenant_id)
         return jsonify(budget)
     except Exception as e:
-        logger.error(f"Failed to get budget: {e}")
+        logger.error("Failed to get budget: %s", e)
         return jsonify({'error': 'Failed to retrieve budget'}), 500
 
 
@@ -309,7 +323,7 @@ def reset_budget(tenant_id):
         result = _truth_gate.budget_manager.reset_budget(tenant_id, new_limit)
         return jsonify(result)
     except Exception as e:
-        logger.error(f"Failed to reset budget: {e}")
+        logger.error("Failed to reset budget: %s", e)
         return jsonify({'error': 'Failed to reset budget'}), 500
 
 
@@ -337,14 +351,14 @@ def get_artifacts(session_id):
 def store_artifact(session_id):
     """Store an artifact for a session."""
     data = request.get_json() or {}
-    
+
     artifact_type = data.get('type')
     content = data.get('content')
     metadata = data.get('metadata')
-    
+
     if not artifact_type or content is None:
         return jsonify({'error': 'Type and content are required'}), 400
-    
+
     artifact = _truth_memory.store_artifact(session_id, artifact_type, content, metadata)
     return jsonify(artifact), 201
 
@@ -371,7 +385,7 @@ def get_metrics(metric_name):
     tier = request.args.get('tier')
     metrics = _truth_memory.metrics.get_metric(metric_name, tier=tier)
     aggregate = _truth_memory.metrics.get_aggregate(metric_name)
-    
+
     return jsonify({
         'metric_name': metric_name,
         'values': metrics[:100],
@@ -384,17 +398,17 @@ def get_metrics(metric_name):
 def publish_message():
     """Publish a message to the event bus."""
     data = request.get_json() or {}
-    
+
     source_module = data.get('source_module', 'api')
     message_type = data.get('message_type')
     payload = data.get('payload', {})
     target_module = data.get('target_module')
     priority = data.get('priority', 1)
     session_id = data.get('session_id')
-    
+
     if not message_type:
         return jsonify({'error': 'Message type is required'}), 400
-    
+
     message = _truth_link.publish(
         source_module=source_module,
         message_type=message_type,
@@ -403,7 +417,7 @@ def publish_message():
         priority=priority,
         session_id=session_id
     )
-    
+
     return jsonify(message), 201
 
 
@@ -442,9 +456,9 @@ def stream_events(client_id):
         except GeneratorExit:
             _truth_link.sse_transport.unregister_client(client_id)
         except Exception as e:
-            logger.error(f"SSE stream error: {e}")
+            logger.error("SSE stream error: %s", e)
             _truth_link.sse_transport.unregister_client(client_id)
-    
+
     return Response(
         stream_with_context(generate()),
         mimetype='text/event-stream',
@@ -465,7 +479,7 @@ def compliance_report():
         report = _truth_gate.compliance_enforcer.get_compliance_report(tenant_id)
         return jsonify(report)
     except Exception as e:
-        logger.error(f"Failed to generate compliance report: {e}")
+        logger.error("Failed to generate compliance report: %s", e)
         return jsonify({'error': 'Failed to generate compliance report'}), 500
 
 
@@ -477,5 +491,5 @@ def audit_trail(session_id):
         trail = _truth_gate.compliance_enforcer.get_audit_trail(session_id)
         return jsonify({'session_id': session_id, 'audit_trail': trail})
     except Exception as e:
-        logger.error(f"Failed to get audit trail: {e}")
+        logger.error("Failed to get audit trail: %s", e)
         return jsonify({'error': 'Failed to get audit trail'}), 500
