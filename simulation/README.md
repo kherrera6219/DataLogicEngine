@@ -13,6 +13,8 @@ Current migration status:
   `core.simulation.layer9_recursive_agi`.
 - Legacy Layer 2 knowledge graph/simulator APIs moved to
   `core.simulation.layer2_legacy_knowledge`.
+- Enterprise POV policy, delta normalization, viewpoint registry, and
+  enterprise POV orchestration moved to `core.simulation`.
 - Layer 7 AGI simulation is sourced from `core.simulation.layer7_agi_system`;
   the root module is a compatibility wrapper.
 - `layer2_knowledge.py` is now a compatibility wrapper. The legacy Layer 2
