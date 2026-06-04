@@ -1,4 +1,4 @@
-# UKG SDK (Python) — v0.3.1
+# UKG SDK (Python) — v0.5.0
 
 This SDK is the **public API overlay** for the UKG/USKD system:
 
@@ -11,7 +11,7 @@ This SDK is the **public API overlay** for the UKG/USKD system:
   - workflow v2.5 (Truth17 + TruthEngine)
   - TruthEngine v7.3 config tree
   - registries (KA 1–114, AXIS2, PL1–107)
-  - OpenAPI v3.2 spec
+  - OpenAPI v3.1/3.2 reference specs
 
 ## Install (local)
 
@@ -44,6 +44,6 @@ asyncio.run(main())
 
 - `docs/API_REFERENCE.md` — developer API reference
 
-## Included Specs (Full Source Documents)
+## Included Data And Reference Specs
 
-The SDK bundle includes the original source documents (PDF/DOCM/XLSX) under `docs/specs/` so you can ship the **complete** reference material alongside the executable overlay.
+The installable SDK package includes runtime data under `ukg_sdk/data/`, including workflow, TruthEngine, registry, taxonomy, DSQP template, and OpenAPI reference files. The repository also keeps original reference spreadsheets under `docs/specs/` for maintainers; those documents are not package data in the default wheel.

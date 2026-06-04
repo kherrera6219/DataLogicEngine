@@ -38,3 +38,22 @@ class TestWorkflowRunner:
         assert isinstance(result, WorkflowResult)
         assert result.tier == "TRIVIAL"
         assert result.answer["recommended_pipeline"] == ["KA-001"]
+
+    def test_run_local_stub_supports_default_tier_system_schema(self):
+        workflow = {
+            "tier_system": {
+                "tiers": [
+                    {
+                        "tier": "trivial",
+                        "workflow_steps": ["step1", "step2"],
+                        "ka_pipeline_hint": ["KA-004", "KA-005"],
+                    }
+                ]
+            }
+        }
+        runner = WorkflowRunner(workflow=workflow, truth_engine=TruthEngine())
+
+        result = runner.run_local_stub(query="test", tier=ComplexityTier.trivial)
+
+        assert result.tier == "TRIVIAL"
+        assert result.answer["recommended_pipeline"] == ["KA-004", "KA-005"]

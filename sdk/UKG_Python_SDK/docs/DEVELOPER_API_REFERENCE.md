@@ -1,4 +1,4 @@
-# UKG Python SDK — Developer API Reference (v0.3.1)
+# UKG Python SDK — Developer API Reference (v0.5.0)
 
 This is a **developer-facing** reference for integrating the UKG overlay into an LLM provider and your downstream app.
 
@@ -48,15 +48,15 @@ print(env.data["answer"])
 - `ukg_sdk.providers.azure_openai.AzureOpenAIProvider`
 - `ukg_sdk.providers.anthropic.AnthropicProvider`
 
-Providers expose a unified `generate()` interface and return a normalized response object.
+Providers expose a unified async `complete()` interface and return a normalized `LLMResponse`.
 
 ### Coordinate Resolver
 
-`ukg_sdk.axis17.resolver.Axis17Resolver`
+`ukg_sdk.coordinates17.CoordinateResolver17`
 
-- `resolve(query, metadata) -> Axis17Coordinate`
-- `encode(coord) -> str`  (Nuremberg + SAM.gov convention)
-- `decode(encoded) -> Axis17Coordinate`
+- `resolve(input_data) -> Coordinate`
+- `Coordinate.as_compact_string() -> str`
+- `Coordinate.to_dict() -> dict`
 
 ### Memory Adapters
 
@@ -71,10 +71,10 @@ Adapters implement:
 
 ### KA Registry + Execution Map
 
-- Registry: `ukg_sdk.registry.KARegistry` (loads canonical JSON)
-- Execution map: `ukg_sdk.execution.KAExecutionMap`
+- Registry: `ukg_sdk.ka.registry.KARegistry` (loads canonical JSON)
+- Execution map: `ukg_sdk.ka.executor.KAExecutor`
 
-`KAExecutionMap` binds `KA_ID -> callable` and enforces `Allowed_Layers`, `Risk_Class`, and policy gates.
+`KAExecutor` binds `KA_ID -> callable` and returns normalized `KAExecutionResult` values.
 
 ## Error Model
 

@@ -1,4 +1,4 @@
-# UKG SDK v0.3.1 — Developer API Reference
+# UKG SDK v0.5.0 — Developer API Reference
 
 ## `ukg_sdk.UKGOverlay`
 
@@ -117,8 +117,8 @@ Built-in handlers:
 
 ## 17-axis coordinates (`ukg_sdk.coordinates17`)
 
-- `UKGCoordinate17` — container with `as_compact_string()`
-- `CoordinateResolver17.resolve(meta: dict) -> UKGCoordinate17`
+- `Coordinate` — container with `as_compact_string()` and `to_dict()`
+- `CoordinateResolver17.resolve(input_data: str | dict) -> Coordinate`
 
 ---
 
@@ -174,3 +174,6 @@ class WorkflowRunner:
     def choose_tier(self, complexity_score: float) -> ComplexityTier
     def run_local_stub(self, query: str, tier: ComplexityTier) -> WorkflowResult
 ```
+
+`WorkflowRunner.load_default()` reads the bundled `ukg_sdk/data/workflow.json`,
+including the current `tier_system.tiers` schema.

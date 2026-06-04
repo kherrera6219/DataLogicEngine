@@ -39,8 +39,35 @@ class WorkflowRunner:
         return cls(workflow=wf, truth_engine=te)
 
     def get_tier_policy(self, tier: ComplexityTier) -> Dict[str, Any]:
-        tiers = self.workflow.get("tiers") or self.workflow.get("complexity_tiers") or {}
-        return tiers.get(tier.value) or tiers.get(tier.value.lower()) or {}
+        tiers = self.workflow.get("tiers") or self.workflow.get("complexity_tiers")
+        if isinstance(tiers, dict):
+            policy = tiers.get(tier.value) or tiers.get(tier.value.lower())
+            if policy:
+                return policy
+
+        tier_name = tier.value.lower()
+        if isinstance(tiers, list):
+            for policy in tiers:
+                if not isinstance(policy, dict):
+                    continue
+                candidate = str(policy.get("tier") or policy.get("name") or "").lower()
+                if candidate == tier_name:
+                    return policy
+
+        tier_system = self.workflow.get("tier_system") or {}
+        if isinstance(tier_system, dict):
+            tier_policies = tier_system.get("tiers") or {}
+            if isinstance(tier_policies, dict):
+                return tier_policies.get(tier.value) or tier_policies.get(tier_name) or {}
+            if isinstance(tier_policies, list):
+                for policy in tier_policies:
+                    if not isinstance(policy, dict):
+                        continue
+                    candidate = str(policy.get("tier") or policy.get("name") or "").lower()
+                    if candidate == tier_name:
+                        return policy
+
+        return {}
 
     def choose_tier(self, *, complexity_score: float, stakes: str = "normal") -> ComplexityTier:
         if stakes in {"high", "critical"}:
@@ -70,7 +97,11 @@ class WorkflowRunner:
             answer={
                 "query": query,
                 "tier_policy": tier_policy,
-                "recommended_pipeline": tier_policy.get("pipeline") or tier_policy.get("ka_pipeline"),
+                "recommended_pipeline": (
+                    tier_policy.get("pipeline")
+                    or tier_policy.get("ka_pipeline")
+                    or tier_policy.get("ka_pipeline_hint")
+                ),
                 "notes": [
                     "Local stub only; send this payload to your UKG service (ORCH + KA registry) to execute."
                 ],
