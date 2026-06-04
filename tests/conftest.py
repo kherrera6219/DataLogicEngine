@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Force in-memory storage for tests to avoid Redis dependencies
+os.environ['IS_DESKTOP_APP'] = 'false'
 os.environ['RATELIMIT_STORAGE_URI'] = 'memory://'
 os.environ['REDIS_URL'] = 'redis://localhost:6379/0' # Keep URL but we'll disable it
 os.environ['USE_REDIS'] = 'False'

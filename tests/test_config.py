@@ -12,6 +12,8 @@ def reload_config(monkeypatch, env_value=None, env_overrides=None):
         monkeypatch.setenv("FLASK_ENV", env_value)
 
     env_overrides = env_overrides or {}
+    if "IS_DESKTOP_APP" not in env_overrides:
+        monkeypatch.delenv("IS_DESKTOP_APP", raising=False)
     for key, value in env_overrides.items():
         if value is None:
             monkeypatch.delenv(key, raising=False)

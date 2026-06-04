@@ -51,6 +51,7 @@ export default defineConfig({
       name: 'electron',
       use: {
         ...devices['Desktop Chrome'],
+        channel: process.env.CI ? 'chrome' : undefined,
       },
     },
   ],

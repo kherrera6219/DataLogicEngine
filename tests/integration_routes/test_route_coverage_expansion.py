@@ -22,7 +22,6 @@ os.environ.setdefault("JWT_SECRET_KEY", "test-jwt")
 os.environ.setdefault("OPENAI_API_KEY", "mock-key")
 os.environ.setdefault("USE_REDIS", "False")
 os.environ.setdefault("RATELIMIT_STORAGE_URI", "memory://")
-os.environ.setdefault("IS_DESKTOP_APP", "true")
 
 
 # ---------------------------------------------------------------------------
@@ -196,12 +195,14 @@ class TestStorageRoutes:
         resp = client.get("/api/v1/storage/health")
         assert resp.status_code == 200
 
-    def test_desktop_metrics(self, app, client):
+    def test_desktop_metrics(self, app, client, monkeypatch):
+        monkeypatch.setenv("IS_DESKTOP_APP", "true")
         _login(client, app)
         resp = client.get("/api/v1/storage/desktop-metrics")
         assert resp.status_code in (200, 403)
 
-    def test_desktop_flags(self, app, client):
+    def test_desktop_flags(self, app, client, monkeypatch):
+        monkeypatch.setenv("IS_DESKTOP_APP", "true")
         _login(client, app)
         resp = client.get("/api/v1/storage/desktop-flags")
         assert resp.status_code in (200, 403)
