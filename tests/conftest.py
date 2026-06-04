@@ -128,21 +128,59 @@ def client(app):
     with app.test_client() as test_client:
         yield test_client
 
+def seed_login_session(client, app, *, username='testuser', email=None,
+                       role='user', is_admin=False, sid=None):
+    """Provision a local user (if needed) and seed a Flask-Login session.
+
+    Route-independent test login helper. The app is local-first / desktop-only;
+    the public web ``/register`` and ``/login`` routes were intentionally
+    removed in favour of the desktop auto-login flow, which ends by calling
+    ``flask_login.login_user(user)``. This helper reproduces that end state
+    without depending on removed routes or Windows identity resolution.
+
+    Returns the integer user id.
+    """
+    from models import User
+
+    email = email or f'{username}@local.ukg'
+    sid = sid or f'S-1-5-21-{username.upper()}'
+    with app.app_context():
+        user = User.query.filter_by(username=username).first()
+        if user is None:
+            user = User()
+            user.username = username
+            user.email = email
+            user.set_password('SecureTest789$#@')
+            user.sid = sid
+            user.role = role
+            user.is_admin = is_admin
+            user.active = True
+            db.session.add(user)
+            db.session.commit()
+        user_id = user.id
+
+    with client.session_transaction() as sess:
+        sess['_user_id'] = str(user_id)
+        sess['_fresh'] = True
+    return user_id
+
+
 @pytest.fixture
 def authenticated_client(app, client):
-    """Create authenticated test client."""
-    # Register and login user using JSON data
-    test_pass = 'SecureTest789$#@'
-    client.post('/api/v1/auth/register', json={
-        'username': 'testuser',
-        'email': 'test@example.com',
-        'password': test_pass,
-        'confirm_password': test_pass
-    })
+    """Create an authenticated test client.
 
-    client.post('/api/v1/auth/login', json={
-        'username': 'testuser',
-        'password': test_pass
-    })
+    This app is local-first / desktop-only: the public web ``/register`` and
+    ``/login`` routes were intentionally removed (see commit
+    ``refactor(auth): remove dead web-app auth routes; keep desktop-only
+    endpoints``). The real authentication entry point is the desktop
+    auto-login flow, which resolves a Windows identity, auto-provisions a
+    local ``User``, and then calls ``flask_login.login_user(user)`` to
+    establish a Flask-Login session.
 
+    Rather than depend on removed routes (or on Windows identity resolution,
+    which is unavailable in CI), this fixture reproduces that end state
+    directly via :func:`seed_login_session`. This is route-independent and
+    matches the session a successful desktop auto-login would produce.
+    """
+    seed_login_session(client, app, username='testuser', email='test@example.com')
     return client

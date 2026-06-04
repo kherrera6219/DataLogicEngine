@@ -152,9 +152,13 @@ def test_rag_default_embedding_failover():
         assert emb == [0.1, 0.2]
 
 def test_rag_embedding_total_failover():
-    # Test Layer 4 (Mock fallback)
+    # Test Layer 4 (Mock fallback). The service fails closed in production and
+    # only falls back to a mock embedding when explicitly permitted
+    # (ALLOW_MOCK_EMBEDDINGS=true or a development/testing FLASK_ENV), so enable
+    # that flag here to exercise the development/testing fallback path.
     service = RAGService()
-    with patch.dict(sys.modules, {'openai': None, 'google': None, 'sentence_transformers': None}):
+    with patch.dict(sys.modules, {'openai': None, 'google': None, 'sentence_transformers': None}), \
+         patch.dict('os.environ', {'ALLOW_MOCK_EMBEDDINGS': 'true'}):
         emb = service._default_embedding("test")
         assert len(emb) == 384 # Mock embedding size
 

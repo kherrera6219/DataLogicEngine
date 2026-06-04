@@ -72,12 +72,16 @@ class TestRAGService:
             MockST.assert_called_with('all-MiniLM-L6-v2')
 
     def test_default_embedding_fallback_mock(self, rag_service):
-        # Fail everything
+        # Fail every real provider. The service fails closed in production and
+        # only returns a mock embedding when explicitly permitted
+        # (ALLOW_MOCK_EMBEDDINGS=true or a development/testing FLASK_ENV), so
+        # enable that flag to exercise the development/testing fallback path.
         fake_sentence_transformers = types.ModuleType("sentence_transformers")
         fake_sentence_transformers.SentenceTransformer = MagicMock(side_effect=ImportError)
-        with patch.dict("os.environ", {"OPENAI_API_KEY": "", "GOOGLE_API_KEY": ""}), \
+        with patch.dict("os.environ", {"OPENAI_API_KEY": "", "GOOGLE_API_KEY": "",
+                                       "ALLOW_MOCK_EMBEDDINGS": "true"}), \
              patch.dict(sys.modules, {"sentence_transformers": fake_sentence_transformers}):
-            
+
             result = rag_service._default_embedding("test")
             assert len(result) == 384 # Mock embedding length
 

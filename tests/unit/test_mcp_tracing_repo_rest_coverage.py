@@ -1,11 +1,8 @@
 import asyncio
-import importlib
-import sys
-import types
 import uuid
 from datetime import datetime, UTC
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from flask import Flask
@@ -106,89 +103,10 @@ def test_mcp_router_paths(monkeypatch):
     assert unknown["error"]["code"] == -32601
 
 
-def test_jira_tools_paths(monkeypatch):
-    fake_jira_module = types.SimpleNamespace(JIRA=MagicMock())
-    with patch.dict(sys.modules, {"jira": fake_jira_module}):
-        sys.modules.pop("backend.mcp_server.tools.jira", None)
-        jira_tools = importlib.import_module("backend.mcp_server.tools.jira")
-
-    # Missing credentials
-    monkeypatch.delenv("JIRA_SERVER_URL", raising=False)
-    monkeypatch.delenv("JIRA_USER_EMAIL", raising=False)
-    monkeypatch.delenv("JIRA_API_TOKEN", raising=False)
-    assert jira_tools.get_jira_client() is None
-    assert jira_tools.ticket_create("UKG", "summary")["status"] == "fail"
-    assert jira_tools.status_check("UKG-1")["status"] == "fail"
-
-    # Successful connection and tool calls
-    monkeypatch.setenv("JIRA_SERVER_URL", "https://jira.example.com")
-    monkeypatch.setenv("JIRA_USER_EMAIL", "user@example.com")
-    monkeypatch.setenv("JIRA_API_TOKEN", "token")
-
-    mock_issue = MagicMock()
-    mock_issue.key = "UKG-42"
-    mock_issue.fields.status.name = "In Progress"
-    mock_issue.fields.summary = "Task"
-    mock_issue.fields.assignee = None
-    mock_issue.fields.updated = "2024-01-01T00:00:00"
-
-    mock_client = MagicMock()
-    mock_client.create_issue.return_value = mock_issue
-    mock_client.client_info.return_value = "https://jira.example.com"
-    mock_client.issue.return_value = mock_issue
-
-    with patch.object(jira_tools, "JIRA", return_value=mock_client):
-        created = jira_tools.ticket_create("UKG", "summary", "desc", "Task")
-        assert created["status"] == "created"
-        assert created["key"] == "UKG-42"
-
-        status = jira_tools.status_check("UKG-42")
-        assert status["status"] == "In Progress"
-
-        mock_client.issue.side_effect = RuntimeError("jira down")
-        status_error = jira_tools.status_check("UKG-42")
-        assert status_error["status"] == "error"
-
-
-def test_salesforce_tools_paths(monkeypatch):
-    fake_sf_module = types.SimpleNamespace(Salesforce=MagicMock())
-    with patch.dict(sys.modules, {"simple_salesforce": fake_sf_module}):
-        sys.modules.pop("backend.mcp_server.tools.salesforce", None)
-        sf_tools = importlib.import_module("backend.mcp_server.tools.salesforce")
-
-    monkeypatch.delenv("SALESFORCE_USERNAME", raising=False)
-    monkeypatch.delenv("SALESFORCE_PASSWORD", raising=False)
-    monkeypatch.delenv("SALESFORCE_SECURITY_TOKEN", raising=False)
-    assert sf_tools.get_salesforce_client() is None
-    assert sf_tools.crm_lookup("acme")["status"] == "fail"
-    assert sf_tools.lead_create("A", "B", "C", "a@b.com")["status"] == "fail"
-
-    monkeypatch.setenv("SALESFORCE_USERNAME", "user")
-    monkeypatch.setenv("SALESFORCE_PASSWORD", "pass")
-    monkeypatch.setenv("SALESFORCE_SECURITY_TOKEN", "token")
-    monkeypatch.setenv("SALESFORCE_DOMAIN", "test")
-
-    mock_sf = MagicMock()
-    mock_sf.sf_instance = "instance-1"
-    mock_sf.search.return_value = {"searchRecords": [{"Id": "1"}]}
-    mock_sf.Lead.create.return_value = {"id": "lead-1"}
-
-    with patch.object(sf_tools, "Salesforce", return_value=mock_sf):
-        lookup = sf_tools.crm_lookup("acme")
-        assert lookup["status"] == "success"
-        assert len(lookup["results"]) == 1
-
-        lead = sf_tools.lead_create("Jane", "Doe", "Acme", "jane@example.com")
-        assert lead["status"] == "success"
-        assert lead["lead_id"] == "lead-1"
-
-        mock_sf.search.side_effect = RuntimeError("search fail")
-        lookup_error = sf_tools.crm_lookup("acme")
-        assert lookup_error["status"] == "error"
-
-        mock_sf.Lead.create.side_effect = RuntimeError("lead fail")
-        lead_error = sf_tools.lead_create("Jane", "Doe", "Acme", "jane@example.com")
-        assert lead_error["status"] == "error"
+# NOTE: test_jira_tools_paths and test_salesforce_tools_paths were removed.
+# The Jira and Salesforce MCP connectors are legacy external SaaS
+# integrations that have been removed from this local-first / desktop-only
+# build.
 
 
 def test_trace_logger_paths(monkeypatch):

@@ -19,52 +19,34 @@ from models import User
 
 
 @pytest.fixture
-def admin_client(client):
-    """Create an authenticated admin client."""
-    with app.app_context():
-        # Create admin user
-        admin = User(
-            username='admin_test',
-            email='admin@test.com',
-            password_hash=generate_password_hash('AdminPass123!@#'),
-            is_admin=True,
-            role='admin',
-            active=True
-        )
-        db.session.add(admin)
-        db.session.commit()
+def admin_client(app, client):
+    """Create an authenticated admin client.
 
-    # Login as admin
-    client.post('/api/v1/auth/login', json={
-        'username': 'admin_test',
-        'password': 'AdminPass123!@#'
-    })
+    Auth is seeded directly (route-independent): the public web login route was
+    intentionally removed in favour of the desktop-only auto-login flow.
+    """
+    from tests.conftest import seed_login_session
 
+    seed_login_session(
+        client, app, username='admin_test', email='admin@test.com',
+        role='admin', is_admin=True,
+    )
     return client
 
 
 @pytest.fixture
-def owner_client(client):
-    """Create an authenticated owner client."""
-    with app.app_context():
-        # Create owner user
-        owner = User(
-            username='owner_test',
-            email='owner@test.com',
-            password_hash=generate_password_hash('OwnerPass123!@#'),
-            is_admin=True,
-            role='owner',
-            active=True
-        )
-        db.session.add(owner)
-        db.session.commit()
+def owner_client(app, client):
+    """Create an authenticated owner client.
 
-    # Login as owner
-    client.post('/api/v1/auth/login', json={
-        'username': 'owner_test',
-        'password': 'OwnerPass123!@#'
-    })
+    Auth is seeded directly (route-independent): the public web login route was
+    intentionally removed in favour of the desktop-only auto-login flow.
+    """
+    from tests.conftest import seed_login_session
 
+    seed_login_session(
+        client, app, username='owner_test', email='owner@test.com',
+        role='owner', is_admin=True,
+    )
     return client
 
 

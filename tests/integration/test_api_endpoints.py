@@ -49,128 +49,44 @@ def client():
 
 @pytest.fixture
 def authenticated_client(client):
-    """Create authenticated test client."""
-    # Register and login user using JSON data (as auth routes expect)
-    # Use a password that passes the security policy (no common patterns like "password")
-    test_pass = 'SecureTest789$#@'
-    client.post('/api/v1/auth/register', json={
-        'username': 'testuser',
-        'email': 'test@example.com',
-        'password': test_pass,
-        'confirm_password': test_pass
-    })
+    """Create an authenticated test client.
 
-    client.post('/api/v1/auth/login', json={
-        'username': 'testuser',
-        'password': test_pass
-    })
+    The app is local-first / desktop-only; the public web ``/register`` and
+    ``/login`` routes were intentionally removed in favour of the desktop
+    auto-login flow (which ends by calling ``flask_login.login_user(user)``).
+    This fixture reproduces that end state directly by provisioning a local
+    user and seeding the Flask-Login session, instead of depending on the
+    removed routes.
+    """
+    from models import User
+
+    with app.app_context():
+        user = User.query.filter_by(username='testuser').first()
+        if user is None:
+            user = User()
+            user.username = 'testuser'
+            user.email = 'test@example.com'
+            user.set_password('SecureTest789$#@')
+            user.sid = 'S-1-5-21-TESTUSER'
+            user.role = 'user'
+            user.is_admin = False
+            user.active = True
+            db.session.add(user)
+            db.session.commit()
+        user_id = str(user.id)
+
+    with client.session_transaction() as sess:
+        sess['_user_id'] = user_id
+        sess['_fresh'] = True
 
     return client
 
 
-class TestAuthenticationEndpoints:
-    """Test authentication endpoints."""
-
-    def test_register_new_user(self, client):
-        """Test user registration."""
-        # Use password without common patterns like "password"
-        response = client.post('/api/v1/auth/register', json={
-            'username': 'newuser',
-            'email': 'newuser@example.com',
-            'password': 'SecureNew789$#@',
-            'confirm_password': 'SecureNew789$#@'
-        })
-
-        assert response.status_code == 201
-        body = response.get_json()
-        assert body["success"] is True
-        assert body["message"] == "Registration successful"
-
-    def test_register_duplicate_username(self, client):
-        """Test registration with duplicate username fails."""
-        # First registration - use password without common patterns
-        test_pass = 'UniqueFirst456$#@'
-        client.post('/api/v1/auth/register', json={
-            'username': 'duplicate',
-            'email': 'user1@example.com',
-            'password': test_pass,
-            'confirm_password': test_pass
-        })
-
-        # Second registration with same username
-        test_pass2 = 'UniqueSecond789$#@'
-        response = client.post('/api/v1/auth/register', json={
-            'username': 'duplicate',
-            'email': 'user2@example.com',
-            'password': test_pass2,
-            'confirm_password': test_pass2
-        })
-
-        assert response.status_code == 409
-        body = response.get_json()
-        assert body["success"] is False
-        assert body["error"] == "Username taken"
-
-    def test_login_valid_credentials(self, client):
-        """Test login with valid credentials."""
-        # Register user first - use password without common patterns
-        test_pass = 'LoginValid789$#@'
-        client.post('/api/v1/auth/register', json={
-            'username': 'loginuser',
-            'email': 'login@example.com',
-            'password': test_pass,
-            'confirm_password': test_pass
-        })
-
-        # Login
-        response = client.post('/api/v1/auth/login', json={
-            'username': 'loginuser',
-            'password': test_pass
-        })
-
-        assert response.status_code == 200
-        body = response.get_json()
-        assert body["success"] is True
-        assert body["message"] == "Login successful"
-        assert body["data"]["user"]["username"] == "loginuser"
-
-    def test_login_invalid_credentials(self, client):
-        """Test login with invalid credentials fails."""
-        response = client.post('/api/v1/auth/login', json={
-            'username': 'nonexistent',
-            'password': 'wrongpassword'
-        })
-
-        assert response.status_code == 401
-        body = response.get_json()
-        assert body["success"] is False
-        assert body["error"] == "Invalid username or password"
-
-    def test_logout(self, authenticated_client):
-        """Test logout."""
-        # Logout route uses POST method in API
-        response = authenticated_client.post('/api/v1/auth/logout')
-        assert response.status_code == 200
-        body = response.get_json()
-        assert body["success"] is True
-        assert body["message"] == "Logged out"
-
-    def test_password_policy_enforcement(self, client):
-        """Test weak passwords are handled.
-        
-        The API route now enforces password policy through `User.set_password`.
-        """
-        response = client.post('/api/v1/auth/register', json={
-            'username': 'weakpassuser',
-            'email': 'weak@example.com',
-            'password': 'weak',
-            'confirm_password': 'weak'
-        })
-
-        assert response.status_code == 400
-        body = response.get_json()
-        assert body["success"] is False
-        assert "Password too weak" in body["error"]
+# NOTE: TestAuthenticationEndpoints was removed. The public web register/
+# login/logout routes it exercised were intentionally deleted in favour of
+# the desktop-only auto-login flow (commit "refactor(auth): remove dead
+# web-app auth routes; keep desktop-only endpoints"). Desktop auth is
+# covered by tests/integration_routes/test_desktop_auto_login_security.py.
 
 
 class TestUKGEndpoints:
@@ -447,8 +363,12 @@ class TestErrorHandling:
         assert response.status_code == 404
 
     def test_405_for_wrong_method(self, client):
-        """Test 405 returned for wrong HTTP method."""
-        response = client.delete('/api/v1/auth/login')  # Login doesn't support DELETE
+        """Test 405 returned for wrong HTTP method.
+
+        Uses the desktop challenge endpoint (POST-only) since the public web
+        login route was intentionally removed.
+        """
+        response = client.get('/api/v1/auth/desktop/challenge')  # POST-only route
         assert response.status_code == 405
 
     def test_400_for_invalid_json(self, client):

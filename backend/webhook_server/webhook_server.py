@@ -60,7 +60,6 @@ WEBHOOK_SECRETS = {
     "github": os.environ.get("GITHUB_WEBHOOK_SECRET", "github_webhook_secret"),
     "slack": os.environ.get("SLACK_WEBHOOK_SECRET", "slack_webhook_secret"),
     "gitlab": os.environ.get("GITLAB_WEBHOOK_SECRET", "gitlab_webhook_secret"),
-    "jira": os.environ.get("JIRA_WEBHOOK_SECRET", "jira_webhook_secret"),
 }
 
 # Webhook processors registry
@@ -342,23 +341,6 @@ async def process_slack_webhook(data: Dict[str, Any], headers: Dict[str, str]):
     # trigger knowledge updates or user notifications
     
     return {"event_type": event_type, "action": "acknowledged"}
-
-@register_webhook_processor("jira")
-async def process_jira_webhook(data: Dict[str, Any], headers: Dict[str, str]):
-    """Process Jira webhooks"""
-    event_type = data.get("webhookEvent", "")
-    logger.info(f"Processing Jira webhook: {event_type}")
-    
-    # Process Jira events
-    issue_key = data.get("issue", {}).get("key", "")
-    
-    # In a real implementation, update knowledge graph with Jira issue data
-    
-    return {
-        "event_type": event_type,
-        "issue_key": issue_key,
-        "action": "acknowledged"
-    }
 
 # Run the webhook server
 if __name__ == "__main__":

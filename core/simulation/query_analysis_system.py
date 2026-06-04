@@ -332,7 +332,8 @@ class QueryAnalysisSystem:
         profile.regulatory_intensity = min(100, profile.regulatory_intensity)
         
         # 5. Novelty (Axis 17)
-        query_hash = hashlib.md5(query.encode()).hexdigest()[:16]
+        # Non-security hash used only for novelty/dedup tracking.
+        query_hash = hashlib.md5(query.encode(), usedforsecurity=False).hexdigest()[:16]
         if query_hash not in self._query_hashes:
             profile.novelty_score = 30
             self._query_hashes.add(query_hash)

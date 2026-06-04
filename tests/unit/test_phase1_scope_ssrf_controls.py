@@ -17,19 +17,19 @@ def test_registry_connector_scope_enforcement_and_metrics():
     registry = ToolRegistry()
 
     @registry.register(
-        name="jira_status_check",
+        name="github_status_check",
         description="status",
         input_schema={"type": "object", "properties": {}},
-        required_scopes=["mcp:execute", "connector:jira:read"],
-        connector="jira",
+        required_scopes=["mcp:execute", "connector:github:read"],
+        connector="github",
     )
-    def jira_status_check():
+    def github_status_check():
         return {"status": "ok"}
 
     with pytest.raises(ScopeEnforcementError):
         asyncio.run(
             registry.execute_tool(
-                "jira_status_check",
+                "github_status_check",
                 {},
                 context={"scopes": ["mcp:execute"]},
             )
@@ -37,16 +37,16 @@ def test_registry_connector_scope_enforcement_and_metrics():
 
     result = asyncio.run(
         registry.execute_tool(
-            "jira_status_check",
+            "github_status_check",
             {},
-            context={"scopes": ["mcp:execute", "connector:jira:read"]},
+            context={"scopes": ["mcp:execute", "connector:github:read"]},
         )
     )
     assert result["status"] == "ok"
 
     metrics = connector_metrics_snapshot()
-    assert metrics["jira"]["calls"] >= 1
-    assert metrics["jira"]["avg_latency_ms"] >= 0
+    assert metrics["github"]["calls"] >= 1
+    assert metrics["github"]["avg_latency_ms"] >= 0
 
 
 def test_scope_enforcement_strict_mode_requires_context(monkeypatch):

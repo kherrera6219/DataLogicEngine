@@ -9,8 +9,6 @@ from threading import Lock
 from typing import Any, Dict, Optional
 
 KNOWN_CONNECTORS = {
-    "salesforce",
-    "jira",
     "github",
     "slack",
     "servicenow",

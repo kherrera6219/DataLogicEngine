@@ -126,7 +126,8 @@ class POVDelta:
     def _compute_hash(self):
         """Compute content hash for deduplication."""
         content = f"{self.delta_type.value}:{self.description}:{self.owner_lane.value}"
-        self.content_hash = hashlib.md5(content.encode()).hexdigest()[:16]
+        # Non-security content fingerprint for deduplication only.
+        self.content_hash = hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()[:16]
     
     def add_evidence(self, evidence: EvidenceRef):
         """Add evidence reference."""

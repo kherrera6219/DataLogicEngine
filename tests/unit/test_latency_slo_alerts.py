@@ -16,14 +16,14 @@ from backend.observability.latency_slo import (
 
 def test_connector_metrics_include_p99_latency():
     reset_connector_metrics()
-    record_connector_execution(tool_name="jira_search", duration_ms=50, success=True)
-    record_connector_execution(tool_name="jira_search", duration_ms=200, success=True)
+    record_connector_execution(tool_name="github_search", duration_ms=50, success=True)
+    record_connector_execution(tool_name="github_search", duration_ms=200, success=True)
 
     snapshot = connector_metrics_snapshot()
-    assert snapshot["jira"]["p99_latency_ms"] >= snapshot["jira"]["p95_latency_ms"]
+    assert snapshot["github"]["p99_latency_ms"] >= snapshot["github"]["p95_latency_ms"]
 
     payload = "\n".join(connector_metrics_prometheus_lines(prefix="datalogicengine"))
-    assert 'datalogicengine_connector_latency_ms_p99{connector="jira"}' in payload
+    assert 'datalogicengine_connector_latency_ms_p99{connector="github"}' in payload
 
 
 def test_latency_slo_evaluation_flags_ai_and_connector_violations(monkeypatch):
@@ -39,15 +39,15 @@ def test_latency_slo_evaluation_flags_ai_and_connector_violations(monkeypatch):
     record_ai_request(provider="openai", duration_ms=120, success=True)
     record_ai_request(provider="openai", duration_ms=220, success=True)
 
-    record_connector_execution(tool_name="jira_search", duration_ms=90, success=True)
-    record_connector_execution(tool_name="jira_search", duration_ms=220, success=True)
+    record_connector_execution(tool_name="github_search", duration_ms=90, success=True)
+    record_connector_execution(tool_name="github_search", duration_ms=220, success=True)
 
     evaluation = evaluate_latency_slos()
     assert evaluation["ai"]["openai"]["p95_violation"] is True
     assert evaluation["ai"]["openai"]["p99_violation"] is True
-    assert evaluation["connectors"]["jira"]["p95_violation"] is True
-    assert evaluation["connectors"]["jira"]["p99_violation"] is True
+    assert evaluation["connectors"]["github"]["p95_violation"] is True
+    assert evaluation["connectors"]["github"]["p99_violation"] is True
 
     lines = "\n".join(latency_slo_prometheus_lines(prefix="datalogicengine"))
     assert 'datalogicengine_ai_latency_slo_violation{provider="openai",percentile="p95"} 1' in lines
-    assert 'datalogicengine_connector_latency_slo_violation{connector="jira",percentile="p99"} 1' in lines
+    assert 'datalogicengine_connector_latency_slo_violation{connector="github",percentile="p99"} 1' in lines

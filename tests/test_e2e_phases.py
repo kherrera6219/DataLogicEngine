@@ -73,15 +73,15 @@ async def run_functional_tests():
         errors.append(f"MCP Router: {e}")
         print(f"  ✗ FAIL: {e}")
     
-    # Test 4: MCP Tools (Salesforce/Jira)
-    print("\n[4/10] Testing MCP Enterprise Tools...")
+    # Test 4: MCP Tools registry
+    # NOTE: The legacy Salesforce/Jira external SaaS connectors have been
+    # removed from this local-first / desktop-only build. This now verifies the
+    # tool registry is queryable rather than asserting specific legacy tools.
+    print("\n[4/10] Testing MCP Tools registry...")
     try:
-        # Import triggers registration
         tools_list = registry.list_tools()
-        tool_names = [t['name'] for t in tools_list]
-        assert "salesforce_crm_lookup" in tool_names
-        assert "jira_ticket_create" in tool_names
-        print(f"  ✓ PASS: {len(tools_list)} MCP tools registered")
+        assert isinstance(tools_list, list)
+        print(f"  ✓ PASS: MCP tool registry queryable ({len(tools_list)} tools registered)")
     except Exception as e:
         errors.append(f"MCP Tools: {e}")
         print(f"  ✗ FAIL: {e}")

@@ -1,8 +1,4 @@
 import asyncio
-import importlib
-import sys
-import types
-from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -68,43 +64,8 @@ def test_ai_latency_metrics_export_percentiles():
     assert 'datalogicengine_ai_requests_total{provider="all"} 3' in lines
 
 
-def test_jira_client_prefers_managed_oauth(monkeypatch):
-    fake_jira_module = types.SimpleNamespace(JIRA=MagicMock())
-    with patch.dict(sys.modules, {"jira": fake_jira_module}):
-        sys.modules.pop("backend.mcp_server.tools.jira", None)
-        jira_tools = importlib.import_module("backend.mcp_server.tools.jira")
-
-    monkeypatch.setenv("JIRA_SERVER_URL", "https://jira.example.com")
-
-    mock_client = MagicMock()
-    with patch.object(jira_tools, "JIRA", return_value=mock_client) as jira_ctor, patch.object(
-        jira_tools,
-        "get_connector_oauth_token",
-        return_value={"access_token": "oauth-token"},
-    ):
-        client = jira_tools.get_jira_client({"user_id": "12"})
-        assert client is mock_client
-        jira_ctor.assert_called_once()
-        assert jira_ctor.call_args.kwargs["token_auth"] == "oauth-token"
-
-
-def test_salesforce_client_prefers_managed_oauth(monkeypatch):
-    fake_sf_module = types.SimpleNamespace(Salesforce=MagicMock())
-    with patch.dict(sys.modules, {"simple_salesforce": fake_sf_module}):
-        sys.modules.pop("backend.mcp_server.tools.salesforce", None)
-        sf_tools = importlib.import_module("backend.mcp_server.tools.salesforce")
-
-    monkeypatch.setenv("SALESFORCE_DOMAIN", "login")
-
-    mock_client = MagicMock()
-    with patch.object(sf_tools, "Salesforce", return_value=mock_client) as sf_ctor, patch.object(
-        sf_tools,
-        "get_connector_oauth_token",
-        return_value={"access_token": "oauth-token", "instance_url": "https://instance.salesforce.com"},
-    ):
-        client = sf_tools.get_salesforce_client({"user_id": "99"})
-        assert client is mock_client
-        sf_ctor.assert_called_once()
-        assert sf_ctor.call_args.kwargs["session_id"] == "oauth-token"
-        assert sf_ctor.call_args.kwargs["instance_url"] == "https://instance.salesforce.com"
-
+# NOTE: test_jira_client_prefers_managed_oauth and
+# test_salesforce_client_prefers_managed_oauth were removed. The Jira and
+# Salesforce MCP connectors are legacy external SaaS integrations removed
+# from this local-first / desktop-only build. Managed-OAuth contract
+# behaviour remains covered by the connector framework tests above.

@@ -66,10 +66,11 @@ def test_canonical_v1_auth_failures_are_json_401s(client):
         ("POST", "/api/v1/persona/query", {"query": "test"}),
         ("GET", "/api/v1/trace/runs", None),
         ("GET", "/api/v1/retention/policies", None),
-        ("POST", "/api/v1/auth/logout", {}),
-        ("POST", "/api/v1/auth/mfa/setup", {}),
-        ("POST", "/api/v1/auth/mfa/confirm", {"token": "123456"}),
-        ("POST", "/api/v1/auth/step-up", {"token": "123456"}),
+        # NOTE: /api/v1/auth/{logout,mfa/setup,mfa/confirm,step-up} were removed
+        # in the desktop-only auth refactor (commit "refactor(auth): remove dead
+        # web-app auth routes; keep desktop-only endpoints"). They no longer
+        # exist, so they are not part of the canonical authenticated-failure
+        # contract. Desktop auth uses /api/v1/auth/desktop/*.
     ]
 
     for method, path, payload in cases:

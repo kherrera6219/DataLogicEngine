@@ -668,21 +668,13 @@ class TestGDPRIntegration:
 
     def test_complete_gdpr_workflow(self, client, app):
         """Test complete GDPR workflow: export, consent, deletion"""
+        # The public web login route was intentionally removed (desktop-only
+        # auto-login). Seed the Flask-Login session directly to match the
+        # session a successful desktop auto-login would produce.
+        from tests.conftest import seed_login_session
+        seed_login_session(client, app, username="gdpruser", email="gdpr@test.com")
+
         with app.app_context():
-            from models import User, db
-
-            # Create user
-            user = User(username="gdpruser", email="gdpr@test.com", role="user")
-            user.set_password("SecurePass123!")
-            db.session.add(user)
-            db.session.commit()
-
-            # Login
-            client.post('/api/v1/auth/login', json={
-                'username': 'gdpruser',
-                'password': 'SecurePass123!'
-            })
-
             # Step 1: Export data
             export_response = client.post('/api/v1/gdpr/export')
             assert export_response.status_code == 200
@@ -702,9 +694,7 @@ class TestGDPRIntegration:
             delete_response = client.post('/api/v1/gdpr/delete')
             assert delete_response.status_code == 200
 
-            # Cleanup
-            db.session.delete(user)
-            db.session.commit()
+        # User cleanup is handled by the per-test schema teardown in conftest.
 
     def test_repeated_export_requests_consistent(self, authenticated_client, app):
         """Test repeated export requests return consistent data"""

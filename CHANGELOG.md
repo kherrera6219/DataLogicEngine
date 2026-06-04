@@ -14,8 +14,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Desktop API keys not forwarded to backend**: Electron `startBackend()` in `frontend/electron/main.ts` spawned the Python backend without forwarding API keys from `.env`. Provider keys (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, etc.) are now parsed from `.env` and merged into the backend process environment (with inherited `process.env` taking precedence).
 - **Settings page crash — `Cannot read properties of undefined (reading 'size_bytes')`**: `DatabaseSettings.tsx` assumed every storage backend metric object was defined. When a backend (Neo4j/Chroma/object store) is not running in local SQLite desktop mode, the metric is `undefined` and the component crashed the whole Settings route. Hardened with `(metric ?? {})` and optional chaining on `data?.size_bytes` / `lastBackup?.size_bytes`; absent backends now render "0 B / Not created" instead of crashing.
 
+### Removed
+- **Legacy external SaaS connectors (Jira, Salesforce)**: removed the
+  `backend/mcp_server/tools/jira.py` and `backend/mcp_server/tools/salesforce.py`
+  MCP connectors, their registrations, the Jira webhook processor in
+  `backend/webhook_server/webhook_server.py`, and the `jira`/`salesforce` entries
+  in `KNOWN_CONNECTORS`. These external SaaS integrations are not part of the
+  local-first / desktop-only product. Connector-specific tests were removed and
+  generic connector-framework tests repointed to the `github` connector label.
+
 ### Changed
 - Replaced explicit KA stub behavior in `KA-011`, `KA-033`, `KA-039`, `KA-048`, `KA-077`, `KA-109`, and `KA-Master` with deterministic local implementations and focused tests.
+- **Test suite aligned to desktop-only auth**: added a route-independent
+  `seed_login_session` helper in `tests/conftest.py` and refactored the
+  `authenticated_client`/admin/owner fixtures and per-file login helpers to seed a
+  Flask-Login session directly (matching the desktop auto-login end state) instead
+  of calling the removed public web `/register` and `/login` routes. Removed the
+  obsolete `TestAuthenticationEndpoints` class and dropped the removed auth
+  endpoints from the canonical-failure route contract.
+- **Bandit MD5 hardening**: marked non-security MD5 content fingerprints with
+  `usedforsecurity=False` in `core/simulation/pov_delta.py`,
+  `core/simulation/query_analysis_system.py`, and
+  `core/simulation/coordinate_system.py`, clearing the high-confidence findings in
+  the Bandit delta gate.
+- **RAG embedding failover tests** now set `ALLOW_MOCK_EMBEDDINGS=true` when
+  exercising the development/testing mock-embedding fallback, matching the
+  fail-closed production behaviour of `RAGService._default_embedding`.
+- **Docs**: corrected stale paths in `docs/MCP_INTEGRATION.md`
+  (`backend/mcp_api.py` -> `routes/mcp_routes.py`,
+  `frontend/src/pages/MCPConsolePage.js` -> `frontend/app/mcp/page.tsx`); added
+  `docs/REPO_AUDIT_LOG.md` recording the 2026-06-04 audit session and the open
+  backlog for future audits.
 - **Layering fix — integrity helpers moved to `core/`**: the pure, dependency-free hashing/HMAC helpers in `backend/security/integrity.py` moved to `core/security/integrity.py`. This removes two `core -> backend` import inversions (`core/simulation/trace_system.py`, `core/system/frost_service.py`), restoring the documented `backend -> core` dependency direction. `backend/security/integrity.py` is now a backwards-compatible re-export shim, so existing `from backend.security.integrity import ...` call sites (e.g. `backend/security/export_integrity.py`) continue to work unchanged. No behavior change.
 
 ### Notes

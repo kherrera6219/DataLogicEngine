@@ -29,22 +29,18 @@ os.environ.setdefault("RATELIMIT_STORAGE_URI", "memory://")
 # ---------------------------------------------------------------------------
 
 def _login(client, app):
-    """Register and log in a test user, returning the user_id."""
-    from models import User
-    from extensions import db
+    """Log in a test user (route-independent), returning the user_id.
 
-    with app.app_context():
-        user = User(username="routeuser", email="route@test.com")
-        user.set_password("SecureRoute!1")
-        db.session.add(user)
-        db.session.commit()
-        user_id = user.id
+    Delegates to the shared :func:`seed_login_session` helper. The app is
+    local-first / desktop-only; the public web ``/login`` and ``/register``
+    routes were intentionally removed, so the session is seeded directly to
+    match a successful desktop auto-login.
+    """
+    from tests.conftest import seed_login_session
 
-    client.post("/api/v1/auth/login", json={
-        "username": "routeuser",
-        "password": "SecureRoute!1",
-    })
-    return user_id
+    return seed_login_session(
+        client, app, username="routeuser", email="route@test.com"
+    )
 
 
 # ====================================================================
@@ -324,7 +320,11 @@ class TestRouteRegistration:
         resp = client.get("/health")
         assert resp.status_code == 200
 
-    def test_api_auth_login_exists(self, client):
+    def test_api_auth_web_login_removed(self, client):
+        # The public web login route was intentionally removed in favour of the
+        # desktop-only auto-login flow (commit "refactor(auth): remove dead
+        # web-app auth routes; keep desktop-only endpoints"). It must NOT be
+        # reachable; the desktop endpoints under /api/v1/auth/desktop/* are the
+        # supported auth entry points.
         resp = client.post("/api/v1/auth/login", json={})
-        # Should return 400 (bad request) not 404 (not found)
-        assert resp.status_code != 404
+        assert resp.status_code == 404

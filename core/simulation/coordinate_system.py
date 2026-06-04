@@ -233,7 +233,8 @@ class AxisCoordinate:
             self.axis12_location.canonical_id if self.axis12_location else "",
             self.axis13_temporal.canonical_id if self.axis13_temporal else "",
         ]
-        return hashlib.md5("|".join(parts).encode()).hexdigest()[:12]
+        # Non-security coordinate fingerprint for identity/dedup only.
+        return hashlib.md5("|".join(parts).encode(), usedforsecurity=False).hexdigest()[:12]
     
     def get_axis(self, axis_number: int) -> Optional[AxisValue]:
         """Get axis value by number."""
