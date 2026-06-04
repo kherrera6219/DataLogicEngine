@@ -16,7 +16,7 @@ from datetime import datetime
 import networkx as nx
 
 from quad_persona.quad_engine import QuadPersonaEngine, QueryState
-from simulation.refinement_workflow import RefinementWorkflow
+from core.simulation.refinement_workflow import RefinementWorkflow
 
 logger = logging.getLogger(__name__)
 

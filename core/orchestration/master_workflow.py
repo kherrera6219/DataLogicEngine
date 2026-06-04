@@ -357,7 +357,7 @@ class MasterWorkflowOrchestrator:
             logger.warning(f"Could not initialize GraphManager: {e}")
         
         try:
-            from simulation.memory_manager import StructuredMemoryManager
+            from core.simulation.memory_manager import StructuredMemoryManager
             memory_manager = StructuredMemoryManager(config=self.config.get('memory', {}))
             logger.info("StructuredMemoryManager initialized for RO")
         except (ImportError, Exception) as e:

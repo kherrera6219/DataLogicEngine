@@ -103,7 +103,7 @@ class SimulationEngine:
         self.layer5_engine = None
         if self.integration_engine_enabled:
             try:
-                from simulation.layer5_integration import Layer5IntegrationEngine
+                from core.simulation.layer5_legacy_integration import Layer5IntegrationEngine
                 self.layer5_engine = Layer5IntegrationEngine(
                     config=self.layer_config.get('layer5', {}),
                     system_manager=None  # Will be set later if system manager is provided
@@ -670,7 +670,7 @@ class SimulationEngine:
             }
             
             # Create or use existing Gatekeeper Agent
-            from simulation.gatekeeper_agent import GatekeeperAgent
+            from core.simulation.gatekeeper_agent import GatekeeperAgent
             gatekeeper = GatekeeperAgent()
             
             # Pass through Gatekeeper to determine layer activation

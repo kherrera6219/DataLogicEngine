@@ -25,7 +25,7 @@ def _get_simulation_engine():
     """Get or create the simulation engine (lazy initialization)."""
     global _simulation_engine
     if _simulation_engine is None:
-        from simulation.simulation_engine import create_simulation_engine
+        from core.simulation.legacy_simulation_engine import create_simulation_engine
         _simulation_engine = create_simulation_engine()
         logger.info("Simulation engine initialized (lazy)")
     return _simulation_engine

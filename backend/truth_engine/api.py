@@ -56,7 +56,7 @@ def init_truth_engine(db_session):
     
     simulation_engine = None
     try:
-        from simulation.simulation_engine import create_simulation_engine
+        from core.simulation.legacy_simulation_engine import create_simulation_engine
         simulation_engine = create_simulation_engine()
         logger.info("SimulationEngine created for TruthCore integration")
     except Exception as e:

@@ -15,6 +15,11 @@ Current migration status:
   `core.simulation.layer2_legacy_knowledge`.
 - Enterprise POV policy, delta normalization, viewpoint registry, and
   enterprise POV orchestration moved to `core.simulation`.
+- Remaining legacy simulation implementations moved to `core.simulation`.
+  Root modules now re-export those implementations for compatibility.
+- Agentic simulation graph helpers moved to `core.simulation.agentic`.
+- The simulation database creation utility moved to
+  `scripts/create_simulation_database.py`.
 - Layer 7 AGI simulation is sourced from `core.simulation.layer7_agi_system`;
   the root module is a compatibility wrapper.
 - `layer2_knowledge.py` is now a compatibility wrapper. The legacy Layer 2

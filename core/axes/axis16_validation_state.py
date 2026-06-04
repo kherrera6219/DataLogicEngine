@@ -7,7 +7,7 @@ and verification status of knowledge elements (Raw -> Certified).
 
 import logging
 from typing import Dict, Any, List
-from simulation.coordinate_system import ValidationState
+from core.simulation.coordinate_system import ValidationState
 
 logger = logging.getLogger(__name__)
 
