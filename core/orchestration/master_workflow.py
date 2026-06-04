@@ -331,12 +331,12 @@ class MasterWorkflowOrchestrator:
         except ImportError as e:
             logger.warning(f"Could not import SimulationEngine: {e}")
         
-        try:
-            from core.persona.quad_persona_engine import QuadPersonaEngine
-            self.quad_persona_engine = QuadPersonaEngine(config=self.config.get('personas', {}))
-            logger.info("QuadPersonaEngine initialized")
-        except ImportError as e:
-            logger.warning(f"Could not import QuadPersonaEngine: {e}")
+        # NOTE: the legacy core.persona stub engine was removed during the
+        # quad_persona consolidation (it was orphaned demo code). The canonical
+        # persona system is backend/dsqp via core.system.PersonaConstructionService.
+        # This orchestrator's optional persona step is left disabled; wire it to
+        # the canonical system if this workflow is ever revived.
+        self.quad_persona_engine = None
         
         try:
             from core.knowledge_algorithm.ka_loader import KALoader
