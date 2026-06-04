@@ -1,4 +1,5 @@
 from functools import wraps
+import logging
 import os
 
 from flask import jsonify, request, g
@@ -9,6 +10,8 @@ from backend.security.desktop_local_auth import (
     get_or_create_install_secret,
     verify_desktop_request_signature,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _is_loopback_request() -> bool:
@@ -29,8 +32,18 @@ def _get_or_create_desktop_user() -> User:
 
     try:
         identity = get_windows_user_identity()
-    except Exception:
+    except Exception as exc:
+        # In production desktop mode, windows_identity raises RuntimeError when the
+        # Windows SID cannot be resolved. Re-raise here so the caller receives a
+        # clean failure rather than silently creating a user from an env-var fallback.
+        if _is_desktop_mode():
+            logger.error("Desktop identity resolution failed in production mode: %s", exc)
+            raise
+        # Dev/test only: use env-var fallback identity.
         username = os.environ.get("USERNAME") or "desktop_user"
+        logger.warning(
+            "Falling back to env-var identity (dev/test only): username=%s", username
+        )
         identity = {
             "username": username,
             "sid": f"desktop-local:{username}",
@@ -109,6 +122,7 @@ def _is_user_active(user: User) -> bool:
     login_flag = bool(getattr(user, 'is_active', True))
     return active_flag and login_flag
 
+
 def check_api_auth():
     """Check if the request is authenticated via session or API key."""
     # 1. Check Session Auth
@@ -121,7 +135,7 @@ def check_api_auth():
     desktop_auth, desktop_user = check_desktop_request_auth()
     if desktop_auth:
         return True, desktop_user
-    
+
     # 3. Check API Key Auth (header only, hashed ExternalAPIKey)
     api_key = _extract_api_key()
     if api_key and api_key.startswith("ukg_"):
@@ -137,8 +151,9 @@ def check_api_auth():
         g.auth_mode = "api_key"
         g.external_api_key = key_record
         return True, user
-            
+
     return False, None
+
 
 def api_login_required(f):
     """Decorator to require authentication via session or API key."""
@@ -153,7 +168,7 @@ def api_login_required(f):
                 'code': 'UNAUTHORIZED'
             }), 401
         return f(*args, **kwargs)
-        
+
     # Manually preserve function attributes to prevent Flask endpoint collisions
     try:
         api_login_required_wrapper.__name__ = f.__name__
@@ -161,12 +176,12 @@ def api_login_required(f):
         api_login_required_wrapper.__module__ = f.__module__
     except (AttributeError, TypeError):
         pass
-        
+
     return api_login_required_wrapper
 
 
 def api_session_login_required(f):
-    """Decorator to require an authenticated Flask session and return JSON on failure."""
+    """Decorator to require an authenticated Flask session or valid desktop auth."""
     @wraps(f)
     def api_session_login_required_wrapper(*args, **kwargs):
         if current_user.is_authenticated:
@@ -180,13 +195,13 @@ def api_session_login_required(f):
             g.auth_mode = "desktop"
             return f(*args, **kwargs)
 
-        if not current_user.is_authenticated:
-            return jsonify({
-                'status': 'error',
-                'success': False,
-                'message': 'Authentication required. Please log in with an active session.',
-                'code': 'UNAUTHORIZED'
-            }), 401
+        # Neither session nor desktop auth succeeded.
+        return jsonify({
+            'status': 'error',
+            'success': False,
+            'message': 'Authentication required. Please log in with an active session.',
+            'code': 'UNAUTHORIZED'
+        }), 401
 
     try:
         api_session_login_required_wrapper.__name__ = f.__name__
@@ -196,6 +211,7 @@ def api_session_login_required(f):
         pass
 
     return api_session_login_required_wrapper
+
 
 def api_admin_required(f):
     """Decorator to require admin privileges via session or API key principal."""
@@ -209,7 +225,7 @@ def api_admin_required(f):
                 'message': 'Authentication required',
                 'code': 'UNAUTHORIZED'
             }), 401
-            
+
         if not getattr(principal, 'is_admin', False):
             return jsonify({
                 'status': 'error',
@@ -218,7 +234,7 @@ def api_admin_required(f):
                 'code': 'FORBIDDEN'
             }), 403
         return f(*args, **kwargs)
-        
+
     # Manually preserve function attributes to prevent Flask endpoint collisions
     try:
         api_admin_required_wrapper.__name__ = f.__name__
@@ -226,5 +242,5 @@ def api_admin_required(f):
         api_admin_required_wrapper.__module__ = f.__module__
     except (AttributeError, TypeError):
         pass
-        
+
     return api_admin_required_wrapper
