@@ -5,7 +5,7 @@ import os
 # Ensure the root directory is in the path
 sys.path.append(os.getcwd())
 
-from simulation.simulation_engine import create_simulation_engine
+from core.simulation.legacy_simulation_engine import create_simulation_engine
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

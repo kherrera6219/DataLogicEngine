@@ -6,7 +6,7 @@ Validates the full derivation chain from L1-L10 and UAE schema enforcement.
 
 import pytest
 from core.system.united_system_manager import UnitedSystemManager
-from simulation.simulation_engine import SimulationEngine
+from core.simulation.legacy_simulation_engine import SimulationEngine
 from core.system.uae_models import UnifiedArtifactEnvelope
 
 @pytest.fixture

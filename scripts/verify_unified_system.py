@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 sys.path.append('c:\\software\\DataLogicEngine')
 
 from core.system.united_system_manager import UnitedSystemManager
-from simulation.layer_controller import LayerController
+from core.simulation.layer_controller import LayerController
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

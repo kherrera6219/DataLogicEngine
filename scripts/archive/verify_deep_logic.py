@@ -15,7 +15,7 @@ logger = logging.getLogger("VerifyDeepLogic")
 
 def verify_refinement_workflow():
     logger.info("=== Verifying Refinement Workflow ===")
-    from simulation.refinement_workflow import create_refinement_workflow
+    from core.simulation.refinement_workflow import create_refinement_workflow
     
     workflow = create_refinement_workflow()
     
@@ -49,7 +49,7 @@ def verify_refinement_workflow():
 
 def verify_layer6():
     logger.info("\n=== Verifying Layer 6 (Neural Analysis) ===")
-    from simulation.layer6_neural_analysis import Layer6NeuralAnalysis
+    from core.simulation.layer6_neural_analysis import Layer6NeuralAnalysis
     
     l6 = Layer6NeuralAnalysis()
     

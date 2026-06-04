@@ -17,8 +17,8 @@ from datetime import datetime
 
 # Import core UKG components
 from core.system.united_system_manager import UnitedSystemManager
-from simulation.gatekeeper_agent import GatekeeperAgent
-from simulation.layer7_agi_system import AGISimulationEngine
+from core.simulation.gatekeeper_agent import GatekeeperAgent
+from core.simulation.layer7_agi_system import AGISimulationEngine
 
 # Configure logging
 logging.basicConfig(

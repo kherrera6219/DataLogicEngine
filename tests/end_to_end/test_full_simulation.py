@@ -7,7 +7,7 @@ sys.path.append(os.getcwd())
 
 import pytest
 from unittest.mock import patch
-from simulation.simulation_engine import create_simulation_engine
+from core.simulation.legacy_simulation_engine import create_simulation_engine
 
 @pytest.fixture
 def mock_quad_engine():

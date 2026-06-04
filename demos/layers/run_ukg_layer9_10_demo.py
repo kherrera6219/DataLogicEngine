@@ -18,11 +18,11 @@ from datetime import datetime
 
 # Import core UKG components
 from core.system.united_system_manager import UnitedSystemManager
-from simulation.gatekeeper_agent import GatekeeperAgent
-from simulation.layer7_agi_system import AGISimulationEngine
-from simulation.layer8_quantum_computer import SimulatedQuantumComputer
-from simulation.layer9_recursive_agi import RecursiveAGICore
-from simulation.layer10_self_awareness import SelfAwarenessEngine
+from core.simulation.gatekeeper_agent import GatekeeperAgent
+from core.simulation.layer7_agi_system import AGISimulationEngine
+from core.simulation.layer8_quantum_computer import SimulatedQuantumComputer
+from core.simulation.layer9_recursive_agi import RecursiveAGICore
+from core.simulation.layer10_self_awareness import SelfAwarenessEngine
 
 # Configure logging
 logging.basicConfig(

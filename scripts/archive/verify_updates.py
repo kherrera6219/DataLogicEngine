@@ -32,7 +32,7 @@ def test_imports():
         print(f"FAIL: AxisSystem error: {e}")
 
     try:
-        from simulation.layer6_neural_analysis import Layer6NeuralAnalysis
+        from core.simulation.layer6_neural_analysis import Layer6NeuralAnalysis
         print("PASS: Layer6NeuralAnalysis imported")
         Layer6NeuralAnalysis()
         print("PASS: Layer6NeuralAnalysis initialized")
@@ -40,7 +40,7 @@ def test_imports():
         print(f"FAIL: Layer6NeuralAnalysis error: {e}")
 
     try:
-        from simulation.refinement_workflow import RefinementWorkflow
+        from core.simulation.refinement_workflow import RefinementWorkflow
         print("PASS: RefinementWorkflow imported")
         rw = RefinementWorkflow()
         steps = rw._define_default_workflow()

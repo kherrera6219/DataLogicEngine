@@ -19,9 +19,9 @@ logging.basicConfig(
 
 # Import UKG components
 from core.system.united_system_manager import UnitedSystemManager
-from simulation.gatekeeper_agent import GatekeeperAgent
-from simulation.refinement_loop_handler import RefinementLoopHandler
-from simulation.pov_engine import POVEngine
+from core.simulation.gatekeeper_agent import GatekeeperAgent
+from core.simulation.refinement_loop_handler import RefinementLoopHandler
+from core.simulation.pov_engine import POVEngine
 
 def format_json(data: Dict) -> str:
     """Format JSON data with indentation for better readability."""

@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 # Ensure we can import from current directory
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from simulation.layer2_knowledge import NestedLayerDatabase, create_layer2_simulator
+from core.simulation.layer2_legacy_knowledge import NestedLayerDatabase, create_layer2_simulator
 
 def print_header(title):
     """Print a formatted header."""
@@ -341,9 +341,9 @@ showing how data flows from Layer 1 to Layer 2.
 
 import os
 import logging
-from simulation.layer1_database import Layer1Database
-from simulation.layer2_knowledge import Layer2KnowledgeGraph
-from simulation.data_generator import generate_sample_data
+from core.simulation.layer1_database import Layer1Database
+from core.simulation.layer2_legacy_knowledge import Layer2KnowledgeGraph
+from core.simulation.data_generator import generate_sample_data
 
 # Configure logging
 logging.basicConfig(

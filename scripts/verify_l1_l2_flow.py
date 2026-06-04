@@ -20,7 +20,7 @@ logger = logging.getLogger("Pipeline-Verify")
 def test_pipeline():
     logger.info("--- Starting Full Pipeline Verification ---")
     
-    from simulation.layer_controller import LayerController
+    from core.simulation.layer_controller import LayerController
     
     ctrl = LayerController()
     

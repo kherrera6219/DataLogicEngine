@@ -7,7 +7,7 @@ from pyinstrument import Profiler
 # Add backend to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
-from simulation.simulation_engine import SimulationEngine
+from core.simulation.legacy_simulation_engine import SimulationEngine
 
 # Mock LLM Gateway to avoid real API costs/latency for profiling logic
 class MockLLMGateway:

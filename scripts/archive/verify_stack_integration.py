@@ -13,7 +13,7 @@ import logging
 sys.path.append(os.getcwd())
 
 from core.system.united_system_manager import UnitedSystemManager
-from simulation.simulation_engine import SimulationEngine
+from core.simulation.legacy_simulation_engine import SimulationEngine
 
 def verify_integration():
     logging.basicConfig(level=logging.INFO)

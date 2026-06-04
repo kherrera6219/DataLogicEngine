@@ -1,7 +1,7 @@
 
 import logging
 import sys
-from simulation.layer5_integration import Layer5IntegrationEngine
+from core.simulation.layer5_legacy_integration import Layer5IntegrationEngine
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

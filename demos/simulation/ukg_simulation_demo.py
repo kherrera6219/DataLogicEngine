@@ -9,7 +9,7 @@ import logging
 import time
 from typing import Dict, Any
 
-from simulation.orchestrator import create_simulation_orchestrator
+from core.simulation.orchestrator import create_simulation_orchestrator
 
 # Configure logging
 logging.basicConfig(

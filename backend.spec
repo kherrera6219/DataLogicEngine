@@ -23,7 +23,6 @@ a = Analysis(
         ('backend', 'backend'),
         ('core', 'core'),
         ('routes', 'routes'),
-        ('simulation', 'simulation'),
         ('static', 'static'),
 
         ('extensions.py', '.'),

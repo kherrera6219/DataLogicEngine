@@ -40,7 +40,7 @@ def run_demo():
     try:
         # Import the orchestrator to bring together all three layers
         logger.info("Importing UKG simulation orchestrator...")
-        from simulation.orchestrator import create_simulation_orchestrator
+        from core.simulation.orchestrator import create_simulation_orchestrator
         
         # Create the full orchestrator
         logger.info("Creating UKG simulation orchestrator...")

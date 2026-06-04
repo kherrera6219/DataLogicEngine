@@ -58,7 +58,7 @@ def test_kas():
 
 def test_engine():
     logger.info("--- Testing Layer 3 Agent Engine ---")
-    from simulation.layer3_agent_engine import Layer3AgentEngine
+    from core.simulation.layer3_agent_engine import Layer3AgentEngine
     
     engine = Layer3AgentEngine({"delay_ms": 10})
     
@@ -76,7 +76,7 @@ def test_engine():
 
 def test_controller():
     logger.info("--- Testing Layer Controller Integration ---")
-    from simulation.layer_controller import LayerController
+    from core.simulation.layer_controller import LayerController
     
     ctrl = LayerController()
     

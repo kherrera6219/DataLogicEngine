@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 # Ensure we can import from current directory
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from simulation.layer1_database import Layer1Database
-from simulation.data_generator import generate_sample_data
+from core.simulation.layer1_database import Layer1Database
+from core.simulation.data_generator import generate_sample_data
 
 def print_header(title):
     """Print a formatted header."""

@@ -3,7 +3,7 @@ End-to-end simulation pipeline tests.
 Tests complete simulation flow from query to final synthesis.
 """
 import pytest
-from simulation.simulation_engine import SimulationEngine
+from core.simulation.legacy_simulation_engine import SimulationEngine
 
 
 class TestE2ESimulationPipeline:

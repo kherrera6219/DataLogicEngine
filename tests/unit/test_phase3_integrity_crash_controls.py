@@ -3,7 +3,7 @@ import importlib
 import pytest
 
 from core.system.frost_service import FROSTService
-from simulation.trace_system import create_tracing_system
+from core.simulation.trace_system import create_tracing_system
 
 
 def test_frost_snapshot_hmac_integrity(monkeypatch):
