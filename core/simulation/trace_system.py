@@ -14,7 +14,7 @@ from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional
 from enum import Enum
 
-from backend.security.integrity import (
+from core.security.integrity import (
     hmac_sha256_hex,
     resolve_hmac_secret,
     sha256_hex,
