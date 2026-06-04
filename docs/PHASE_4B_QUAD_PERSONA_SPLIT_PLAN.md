@@ -4,10 +4,11 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Created | 2026-06-04 |
+| Last updated | 2026-06-04 |
 | Branch | `phase-4b-quad-persona-file-split` |
-| Status | Active execution plan |
+| Status | Split implemented; validation pending CI/local runner |
 | Scope | Mechanical refactor only |
 
 ## Purpose
@@ -17,9 +18,9 @@ subpackages while preserving import compatibility and behavior.
 
 This is deliberately separate from Phase 5. Do **not** fix correctness bugs in
 this branch unless the owner explicitly expands the scope. Known Phase 5 items
-include naive/aware datetime handling, random confidence jitter, salted `hash()`
-embeddings, unreachable confidence threshold, mutable class-level config state,
-and axis 9/10 secondary-influence mapping.
+remain deferred: naive/aware datetime handling, random confidence jitter, salted
+`hash()` embeddings, unreachable confidence threshold, mutable class-level config
+state, and axis 9/10 secondary-influence mapping.
 
 ## Source documents reviewed
 
@@ -76,7 +77,7 @@ from core.persona.quad.mathematical_framework import (
 
 Current import users found by repository search:
 
-- `core/persona/quad/pod_orchestrator.py`
+- `core/persona/quad/pod_orchestrator.py` before split; now internal imports use package submodules.
 - `core/simulation/pov_engine_enterprise.py`
 - `tests/persona/quad/test_persona_scaling.py`
 
@@ -116,11 +117,11 @@ from core.persona.quad.pod_orchestrator import (
 )
 ```
 
-## Target file layout
+## Implemented file layout
 
 ### 1. `mathematical_framework/`
 
-Replace `core/persona/quad/mathematical_framework.py` with a package directory:
+`core/persona/quad/mathematical_framework.py` was replaced by:
 
 ```text
 core/persona/quad/mathematical_framework/
@@ -131,7 +132,7 @@ core/persona/quad/mathematical_framework/
   integration.py
 ```
 
-Planned allocation:
+Allocation:
 
 - `weights.py`
   - `DynamicWeightFunctions`
@@ -147,21 +148,12 @@ Planned allocation:
 - `integration.py`
   - `IntegrationFunction`
   - `QuadPersonaMathematicalSystem`
-
-`mathematical_framework/__init__.py` must re-export every public name listed in
-the compatibility target.
-
-Expected internal dependencies:
-
-- `weights.py` imports `KnowledgePoint` from `.memory_graph`.
-- `integration.py` imports:
-  - `DynamicWeightFunctions`, `KnowledgeSpaceMapper` from `.weights`
-  - `StructuredMemoryGraph` from `.memory_graph`
-  - `DeepRecursiveLearning`, `RefinementWorkflow12Step` from `.refinement`
+- `__init__.py`
+  - Re-exports all legacy public names.
 
 ### 2. `persona_scaling/`
 
-Replace `core/persona/quad/persona_scaling.py` with a package directory:
+`core/persona/quad/persona_scaling.py` was replaced by:
 
 ```text
 core/persona/quad/persona_scaling/
@@ -170,7 +162,7 @@ core/persona/quad/persona_scaling/
   sufficiency.py
 ```
 
-Planned allocation:
+Allocation:
 
 - `profiles.py`
   - `DEFENSE_SUBSYSTEM_PROFILES`
@@ -182,21 +174,12 @@ Planned allocation:
   - `SubsystemDetector`
   - `PersonaSufficiencyTool`
   - `create_sufficiency_tool`
-
-`persona_scaling/__init__.py` must re-export every public name listed in the
-compatibility target.
-
-Expected internal dependencies:
-
-- `profiles.py` imports `SubsystemProfile` from `core.persona.quad.pod_models`.
-- `sufficiency.py` imports:
-  - `SufficiencySignals`, `ExpansionPlan`, `ScalingDecision`, `SubsystemProfile`
-    from `core.persona.quad.pod_models`
-  - profile dictionaries from `.profiles`
+- `__init__.py`
+  - Re-exports all legacy public names.
 
 ### 3. `pod_orchestrator/`
 
-Replace `core/persona/quad/pod_orchestrator.py` with a package directory:
+`core/persona/quad/pod_orchestrator.py` was replaced by:
 
 ```text
 core/persona/quad/pod_orchestrator/
@@ -206,7 +189,7 @@ core/persona/quad/pod_orchestrator/
   orchestrator.py
 ```
 
-Planned allocation:
+Allocation:
 
 - `builder.py`
   - `PersonaBuilder`
@@ -216,136 +199,61 @@ Planned allocation:
 - `orchestrator.py`
   - `PodOrchestrator`
   - `create_pod_orchestrator`
-
-`pod_orchestrator/__init__.py` must re-export every public name listed in the
-compatibility target.
-
-Expected internal dependencies:
-
-- `builder.py` imports:
-  - `PodType`, `ExpandedPersona` from `core.persona.quad.pod_models`
-  - profile dictionaries from `core.persona.quad.persona_scaling`
-- `synthesis.py` imports:
-  - `PodType`, `ExpandedPersona`, `PodState`, `CrossPodConflict` from
-    `core.persona.quad.pod_models`
-- `orchestrator.py` imports:
-  - `PersonaBuilder` from `.builder`
-  - `PodSynthesizer`, `CrossPodDeconfliction` from `.synthesis`
-  - required pod models from `core.persona.quad.pod_models`
+- `__init__.py`
+  - Re-exports all legacy public names.
 
 ## Circular import watchlist
 
-The highest-risk circular path is:
+The highest-risk circular path remains:
 
 ```text
 pod_orchestrator.builder
-  -> persona_scaling profiles
+  -> persona_scaling.profiles
   -> pod_models
 ```
 
-This should be safe because `persona_scaling.profiles` should not import
-`pod_orchestrator`. If a circular import appears, prefer narrowing imports to
-specific submodules (`persona_scaling.profiles`) instead of broad package imports.
+Mitigation implemented:
 
-Avoid importing `PodOrchestrator` from `core.persona.quad.pod_orchestrator` inside
-`persona_scaling`.
+- `pod_orchestrator.builder` imports profile registries directly from
+  `core.persona.quad.persona_scaling.profiles`, not from the broader compatibility
+  package.
+- `persona_scaling.profiles` imports only `SubsystemProfile` from `pod_models`.
+- `persona_scaling.sufficiency` imports profile dictionaries from `.profiles` and
+  does not import `pod_orchestrator`.
 
-## Test plan
+## Added test coverage
 
-### Focused import smoke test
-
-Add a new test file, for example:
+Added:
 
 ```text
 tests/persona/quad/test_phase4b_import_compatibility.py
 ```
 
-Required assertions:
+Coverage added:
 
-```python
-def test_mathematical_framework_compat_exports():
-    from core.persona.quad.mathematical_framework import (
-        DynamicWeightFunctions,
-        KnowledgePoint,
-        MemoryVertex,
-        MemoryEdge,
-        StructuredMemoryGraph,
-        KnowledgeSpaceMapper,
-        DeepRecursiveLearning,
-        RefinementWorkflow12Step,
-        IntegrationFunction,
-        QuadPersonaMathematicalSystem,
-    )
+- Legacy `core.persona.quad.mathematical_framework` exports.
+- Legacy `core.persona.quad.persona_scaling` exports.
+- Legacy `core.persona.quad.pod_orchestrator` exports.
+- Factory/constructor smoke checks for:
+  - `create_sufficiency_tool()`
+  - `create_pod_orchestrator()`
+  - `QuadPersonaMathematicalSystem()`
 
+## Required validation commands
 
-def test_persona_scaling_compat_exports():
-    from core.persona.quad.persona_scaling import (
-        DEFENSE_SUBSYSTEM_PROFILES,
-        SECTOR_SUBSYSTEM_PROFILES,
-        REGULATORY_PROFILES,
-        COMPLIANCE_PROFILES,
-        HighAssuranceDetector,
-        SubsystemDetector,
-        PersonaSufficiencyTool,
-        create_sufficiency_tool,
-    )
-
-
-def test_pod_orchestrator_compat_exports():
-    from core.persona.quad.pod_orchestrator import (
-        PersonaBuilder,
-        PodSynthesizer,
-        CrossPodDeconfliction,
-        PodOrchestrator,
-        create_pod_orchestrator,
-    )
-```
-
-Also include a light instantiation test:
-
-```python
-def test_phase4b_factories_still_construct():
-    from core.persona.quad.persona_scaling import create_sufficiency_tool
-    from core.persona.quad.pod_orchestrator import create_pod_orchestrator
-    from core.persona.quad.mathematical_framework import QuadPersonaMathematicalSystem
-
-    assert create_sufficiency_tool() is not None
-    assert create_pod_orchestrator() is not None
-    assert QuadPersonaMathematicalSystem() is not None
-```
-
-### Focused existing tests
-
-Run:
+Focused tests:
 
 ```bash
 python -m pytest -q --no-cov tests/persona/quad/test_persona_scaling.py tests/persona/quad/test_phase4b_import_compatibility.py
 ```
 
-### Handoff Group A
-
-Run the Group A tests from `docs/HANDOFF_quad_persona.md`:
+Handoff Group A:
 
 ```bash
 python -m pytest -q --no-cov tests/persona/quad/ tests/unit/test_phase5_phase_c.py tests/unit/test_phase_d_dsqp.py tests/benchmarks/test_dsqp_benchmark.py
 ```
 
-### Import users
-
-Run tests or import checks covering current import users:
-
-```bash
-python -m pytest -q --no-cov \
-  tests/persona/quad/ \
-  tests/unit/test_phase5_phase_c.py
-```
-
-If test files exist for the gateway/truth/memory callers, add them to the local
-validation command after discovering the correct targeted tests.
-
-### Static checks
-
-Run:
+Static checks:
 
 ```bash
 ruff check core/persona/quad tests/persona/quad
@@ -361,46 +269,74 @@ bandit -r backend/ core/ -ll -ii
 python scripts/verify_docs_references.py
 ```
 
-## Execution steps
+## Execution checklist
 
-1. Create/commit this plan.
-2. Convert `mathematical_framework.py` into the package layout.
-3. Add `mathematical_framework/__init__.py` compatibility re-exports.
-4. Run the focused mathematical framework import smoke locally if available.
-5. Convert `persona_scaling.py` into the package layout.
-6. Add `persona_scaling/__init__.py` compatibility re-exports.
-7. Convert `pod_orchestrator.py` into the package layout.
-8. Add `pod_orchestrator/__init__.py` compatibility re-exports.
-9. Add focused import compatibility tests.
-10. Run focused tests.
-11. Fix import wrapper breakage only.
-12. Update this plan's "Post-move findings" section with anything discovered.
-13. Run the broader Group A tests.
-14. Open a draft PR and do not merge until CI is green.
+- [x] Create/commit this plan.
+- [x] Convert `mathematical_framework.py` into the package layout.
+- [x] Add `mathematical_framework/__init__.py` compatibility re-exports.
+- [x] Convert `persona_scaling.py` into the package layout.
+- [x] Add `persona_scaling/__init__.py` compatibility re-exports.
+- [x] Convert `pod_orchestrator.py` into the package layout.
+- [x] Add `pod_orchestrator/__init__.py` compatibility re-exports.
+- [x] Add focused import compatibility tests.
+- [ ] Run focused tests.
+- [ ] Run broader Group A tests.
+- [ ] Run static checks.
+- [ ] Open draft PR.
+- [ ] Confirm CI before merge.
 
 ## Post-move findings
 
-Update this section after the move.
+### Finding 1 — File-to-package import compatibility is the main breakage risk
 
-Template:
+- Discovered during: split planning and repository import search.
+- Impact: Existing callers import from `core.persona.quad.mathematical_framework`,
+  `core.persona.quad.persona_scaling`, and `core.persona.quad.pod_orchestrator`.
+  Replacing `.py` modules with directories would break callers unless package
+  `__init__.py` files re-export the same names.
+- Action added to plan: Added compatibility `__init__.py` wrappers and dedicated
+  import-smoke tests.
+- Status: Done; requires test execution/CI confirmation.
 
-```markdown
-### Finding N — <short title>
+### Finding 2 — Avoid broad package imports in internal split modules
 
-- Discovered during: <split/import/test/static check>
-- Impact: <what would break>
-- Action added to plan: <wrapper/test/import update>
-- Status: <open/done/deferred>
-```
+- Discovered during: circular import watchlist review.
+- Impact: `pod_orchestrator.builder` needs profile registries from persona scaling.
+  Importing from the broad compatibility package could create future circular risk.
+- Action added to plan: `pod_orchestrator.builder` imports from
+  `persona_scaling.profiles` directly.
+- Status: Done; requires import-smoke validation.
+
+### Finding 3 — Phase 5 correctness bugs remain visible and intentionally deferred
+
+- Discovered during: code review while splitting.
+- Impact: `MemoryVertex` still uses naive `datetime.utcnow`, pod confidence still
+  uses random jitter, and `QuadPersonaMathematicalSystem._embed_query` still uses
+  salted Python `hash()`. These are correctness/auditability issues but are Phase 5,
+  not Phase 4b.
+- Action added to plan: No behavior fix included; document as deferred so the
+  Phase 4b PR stays mechanical.
+- Status: Deferred to Phase 5.
+
+### Finding 4 — Local sandbox could not clone GitHub for test execution
+
+- Discovered during: attempted local validation.
+- Impact: The connected GitHub tool can write/read repo files, but the execution
+  sandbox could not resolve `github.com`, so local pytest/ruff could not be run from
+  a cloned checkout here.
+- Action added to plan: Open draft PR and rely on GitHub CI/local Windows runner for
+  validation commands listed above.
+- Status: Open until CI/local validation runs.
 
 ## Definition of done
 
-- Three oversized files are replaced by package directories.
-- Existing public import paths continue to work.
-- Import compatibility tests exist and pass.
-- Existing persona scaling tests pass.
-- Group A tests pass or any failure is documented with root cause.
-- `ruff check` passes for changed files.
-- Docs reference validation passes.
-- No Phase 5 behavior changes are included.
-- Draft PR summarizes import compatibility and validation evidence.
+- [x] Three oversized files are replaced by package directories.
+- [x] Existing public import paths have compatibility re-export wrappers.
+- [x] Import compatibility tests exist.
+- [ ] Import compatibility tests pass.
+- [ ] Existing persona scaling tests pass.
+- [ ] Group A tests pass or any failure is documented with root cause.
+- [ ] `ruff check` passes for changed files.
+- [ ] Docs reference validation passes.
+- [ ] No Phase 5 behavior changes are included.
+- [ ] Draft PR summarizes import compatibility and validation evidence.
