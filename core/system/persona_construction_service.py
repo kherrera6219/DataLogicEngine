@@ -12,7 +12,7 @@ import json
 import hashlib
 import os
 from typing import Dict, Any, Optional
-from quad_persona.quad_engine import PersonaProfile
+from quad_persona.models import PersonaProfile
 
 class PersonaConstructionService:
     """

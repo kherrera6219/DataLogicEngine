@@ -10,7 +10,7 @@ import uuid
 from typing import Any, Dict, Optional, Tuple
 
 from quad_persona.persona_loader import PersonaLoader
-from quad_persona.quad_engine import PersonaProfile
+from quad_persona.models import PersonaProfile
 
 PERSONA_TYPE_TO_AXIS = {
     "knowledge": 8,
