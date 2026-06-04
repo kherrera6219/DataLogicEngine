@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 # Ensure we can import from parent directory
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from simulation.layer2_knowledge import NestedLayerDatabase
+from core.simulation.layer2_legacy_knowledge import NestedLayerDatabase
 
 def create_initial_data(db: NestedLayerDatabase) -> Dict[str, int]:
     """

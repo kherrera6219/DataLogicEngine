@@ -9,7 +9,7 @@ import logging
 from typing import Dict, Any, Optional
 
 from simulation.layer1_entry import create_simulation_entry_controller
-from simulation.layer2_knowledge import create_layer2_simulator
+from core.simulation.layer2_legacy_knowledge import create_layer2_simulator
 from simulation.layer3_agents import create_layer3_simulator
 
 logger = logging.getLogger(__name__)

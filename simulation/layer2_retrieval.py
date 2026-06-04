@@ -12,7 +12,7 @@ from quad_persona.quad_models import (
     EvidencePack, EvidenceItem, Coord17Intent, RetrievalPlan, Coord17Bindings
 )
 # Reuse the existing simulated db logic but wrapped in dynamic retrieval
-from simulation.layer2_knowledge import NestedLayerDatabase
+from core.simulation.layer2_legacy_knowledge import NestedLayerDatabase
 
 logger = logging.getLogger(__name__)
 

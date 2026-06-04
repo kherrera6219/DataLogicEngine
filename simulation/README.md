@@ -11,11 +11,14 @@ Current migration status:
   `core.simulation.layer8_quantum_computer`.
 - Legacy Layer 9 recursive AGI simulation moved to
   `core.simulation.layer9_recursive_agi`.
+- Legacy Layer 2 knowledge graph/simulator APIs moved to
+  `core.simulation.layer2_legacy_knowledge`.
 - Layer 7 AGI simulation is sourced from `core.simulation.layer7_agi_system`;
   the root module is a compatibility wrapper.
-- `layer2_knowledge.py` remains in this package for now because it mixes graph
-  models, YAML/file loading, Quad Persona orchestration, and legacy demo APIs.
-  It should be split before being moved into core modules.
+- `layer2_knowledge.py` is now a compatibility wrapper. The legacy Layer 2
+  implementation still mixes graph models, YAML/file loading, Quad Persona
+  orchestration, and legacy demo APIs; split those concerns before merging it
+  with the modern `core.simulation.layer2_knowledge.Layer2KnowledgeEngine`.
 
 Do not add new runtime implementation code here. New simulation domain code
 should go under `core/simulation`; backend HTTP/API adapters should stay under
