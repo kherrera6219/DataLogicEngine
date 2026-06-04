@@ -156,9 +156,68 @@ low-risk and reviewable.
   `backend/auth/dpapi_store.py`, now `backend/security/dpapi_store.py`) were left
   untouched by design.
 
+## Session — 2026-06-04 (quad_persona consolidation)
+
+### Context
+
+The repository contained FIVE `QuadPersonaEngine` definitions across FOUR locations
+plus the documented canonical DSQP system. Audit (see the shared
+`quad_persona_*` reports) graded them:
+
+- `backend/dsqp/` — REAL, canonical, live (DMRF/TruthCore). **Source of truth.**
+- `core/system/PersonaConstructionService` — REAL, live, uses DSQP.
+- `backend/quad_persona/quad_engine.py` — PARTIAL/STUB (broken `get_llm_gateway`
+  import); only reachable via gateway `mode=="quad"`.
+- `core/persona/quad_persona_engine.py` (+ chain) — STUB/DEMO, orphaned.
+- root `quad_persona/quad_engine.py` — DUPLICATE: two concatenated engines, one
+  shadowing the other; the factory raised TypeError. Its math/pod/models LIBRARY
+  is REAL and used by 13 importers.
+
+### Changes landed (Phases 1-3)
+
+1. **Phase 1 — stabilized live crash.** `backend/persona_api.py:/direct-query`
+   called the broken root factory (always HTTP 500). Repointed it to
+   `backend/dsqp.DSQPOrchestrator.construct_all_sync`. Added a strict regression
+   test asserting a real 200 with DSQP profiles for axes 8-11.
+2. **Phase 2 — de-duplicated the root engine.** Extracted `PersonaProfile` +
+   `QueryState` to `quad_persona/models.py`; reduced `quad_engine.py` from 1703 to
+   ~290 lines (single live engine + experts); added a correct no-arg
+   `create_quad_persona_engine`; cleaned `__init__.py` with explicit `__all__` and a
+   `QuadEngine` back-compat alias (fixed the broken demo import). Repointed
+   `PersonaProfile` importers to `quad_persona.models`.
+3. **Phase 3 — removed orphaned `core/persona/` stub package** (and the dead lazy
+   import in `core/orchestration/master_workflow.py`). No live importer; no test
+   dependency.
+
+### Verification
+
+- Full suite: **1807 passed / 27 skipped** (one new regression test).
+- `ruff check .` clean; Bandit 0 high-severity in `backend/ core/ quad_persona/`;
+  `scripts/verify_docs_references.py` 0 errors.
+
+### Open items (future phases)
+
+- **Phase 4 (planned):** relocate the surviving root `quad_persona/` math/pod/models
+  LIBRARY to `core/persona/quad/` with re-export shims, and split the oversized
+  files (`mathematical_framework.py` -> package; `persona_scaling.py`,
+  `pod_orchestrator.py`).
+- **Phase 5 (planned):** fix the library correctness bugs documented in the
+  `quad_persona_audit.md` (naive/aware datetime; `random.uniform` in confidence;
+  hash-seeded embeddings; unreachable 0.995 threshold; mutable class-level
+  thresholds; axis 9/10 mislabel).
+- **Phase 6 (decision):** `backend/quad_persona/quad_engine.py` imports a
+  non-existent `get_llm_gateway` from a non-existent top-level `llm_gateway`
+  package; every "real LLM" path fails at runtime and is masked by a monkeypatched
+  test. Either wire it to the real `backend.llm_gateway` API (and add a
+  non-monkeypatched test) or stop labeling it production.
+
 ## Change notes for v2.6.0
 
 - 2026-06-04: Initial audit log created. Recorded the 2026-06-04 session
   (layering fix, desktop-only auth test alignment, legacy connector removal,
   Bandit MD5 hardening, RAG test fixes, MCP doc path corrections) and the open
   items backlog for future audits.
+- 2026-06-04: Recorded the quad_persona consolidation session (Phases 1-3:
+  stabilize the /direct-query crash via canonical DSQP, de-duplicate the root
+  engine + extract models, remove the orphaned core/persona stub) and the planned
+  Phases 4-6 backlog.
