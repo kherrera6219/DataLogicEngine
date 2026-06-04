@@ -99,13 +99,15 @@ def direct_query():
     context = data.get('context', {})
     
     try:
-        # Create a new quad persona engine for this request (lazy import)
-        from quad_persona.quad_engine import create_quad_persona_engine
-        engine = create_quad_persona_engine()
-        
-        # Process the query directly
-        result = engine.process_query(query, context)
-        
+        # Construct the four axes-8–11 expert personas directly via the
+        # canonical DSQP system (deterministic, offline-capable). This replaces
+        # the legacy root quad_persona engine/factory, which was a duplicate,
+        # shadowed implementation that raised TypeError on construction.
+        from backend.dsqp import DSQPOrchestrator
+
+        orchestrator = DSQPOrchestrator()
+        result = orchestrator.construct_all_sync(query, context=context)
+
         return jsonify({
             'query': query,
             'response': result,

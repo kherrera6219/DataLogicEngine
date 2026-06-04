@@ -307,6 +307,29 @@ class TestPersonaEndpoints:
             data = response.get_json()
             assert isinstance(data, (list, dict))
 
+    def test_direct_query_builds_dsqp_personas(self, authenticated_client):
+        """Regression: /direct-query must return a real result, not a 500.
+
+        Previously this endpoint called the root quad_persona factory, whose
+        engine raised ``TypeError`` on construction, so every request 500'd.
+        It now routes to the canonical DSQP orchestrator, which constructs the
+        four axes-8–11 expert personas deterministically. This test asserts a
+        genuine 200 with DSQP profiles (it would have caught the original crash).
+        """
+        response = authenticated_client.post('/api/v1/persona/direct-query', json={
+            'query': 'What are HIPAA requirements for storing PHI in the cloud?',
+            'context': {'domain': 'healthcare'},
+        })
+
+        assert response.status_code == 200, response.get_data(as_text=True)
+        data = response.get_json()
+        assert data['query']
+        result = data['response']
+        # DSQP returns the four persona axes 8-11 under 'profiles'.
+        assert 'profiles' in result
+        assert set(result['profiles'].keys()) == {'8', '9', '10', '11'}
+        assert result['partial'] is False
+
 
 class TestSecurityHeaders:
     """Test security headers are present."""
