@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Created | 2026-06-04 |
 | Last updated | 2026-06-04 |
 | Branch | `phase-4b-quad-persona-file-split` |
@@ -223,7 +223,7 @@ Mitigation implemented:
 
 ## Added test coverage
 
-Added:
+Added/expanded:
 
 ```text
 tests/persona/quad/test_phase4b_import_compatibility.py
@@ -234,10 +234,26 @@ Coverage added:
 - Legacy `core.persona.quad.mathematical_framework` exports.
 - Legacy `core.persona.quad.persona_scaling` exports.
 - Legacy `core.persona.quad.pod_orchestrator` exports.
+- Direct imports for every new submodule location:
+  - `mathematical_framework.weights`
+  - `mathematical_framework.memory_graph`
+  - `mathematical_framework.refinement`
+  - `mathematical_framework.integration`
+  - `persona_scaling.profiles`
+  - `persona_scaling.sufficiency`
+  - `pod_orchestrator.builder`
+  - `pod_orchestrator.synthesis`
+  - `pod_orchestrator.orchestrator`
+- Compatibility exports point to the expected new module locations through
+  `__module__` assertions.
 - Factory/constructor smoke checks for:
   - `create_sufficiency_tool()`
   - `create_pod_orchestrator()`
   - `QuadPersonaMathematicalSystem()`
+- Light runtime wiring check:
+  - `PersonaSufficiencyTool.evaluate(...)` creates an expanded decision.
+  - `PodOrchestrator.orchestrate(...)` consumes that decision and completes an
+    expanded-pod flow.
 
 ## Required validation commands
 
@@ -279,10 +295,12 @@ python scripts/verify_docs_references.py
 - [x] Convert `pod_orchestrator.py` into the package layout.
 - [x] Add `pod_orchestrator/__init__.py` compatibility re-exports.
 - [x] Add focused import compatibility tests.
+- [x] Add direct submodule location tests.
+- [x] Add light sufficiency-to-orchestrator wiring test.
 - [ ] Run focused tests.
 - [ ] Run broader Group A tests.
 - [ ] Run static checks.
-- [ ] Open draft PR.
+- [x] Open draft PR.
 - [ ] Confirm CI before merge.
 
 ## Post-move findings
@@ -328,15 +346,29 @@ python scripts/verify_docs_references.py
   validation commands listed above.
 - Status: Open until CI/local validation runs.
 
+### Finding 5 — Import smoke alone is insufficient
+
+- Discovered during: owner review question after first draft PR.
+- Impact: A pure import smoke test can prove wrappers exist but not that the new
+  submodule locations are importable directly or that the sufficiency-to-pod path is
+  still wired in a usable way.
+- Action added to plan: Expanded `test_phase4b_import_compatibility.py` with direct
+  submodule imports, `__module__` location assertions, and a light runtime wiring
+  check from `create_sufficiency_tool().evaluate(...)` to
+  `create_pod_orchestrator().orchestrate(...)`.
+- Status: Done; requires test execution/CI confirmation.
+
 ## Definition of done
 
 - [x] Three oversized files are replaced by package directories.
 - [x] Existing public import paths have compatibility re-export wrappers.
 - [x] Import compatibility tests exist.
+- [x] Direct new-location tests exist.
+- [x] Light sufficiency-to-orchestrator wiring test exists.
 - [ ] Import compatibility tests pass.
 - [ ] Existing persona scaling tests pass.
 - [ ] Group A tests pass or any failure is documented with root cause.
 - [ ] `ruff check` passes for changed files.
 - [ ] Docs reference validation passes.
 - [ ] No Phase 5 behavior changes are included.
-- [ ] Draft PR summarizes import compatibility and validation evidence.
+- [x] Draft PR summarizes import compatibility and validation evidence.
