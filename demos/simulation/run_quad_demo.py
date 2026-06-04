@@ -14,7 +14,7 @@ def run_demo_with_preset():
     """Run the Quad Persona demo with preset inputs."""
     try:
         # Import quad persona components
-        from quad_persona.quad_engine import create_quad_persona_engine
+        from core.persona.quad.quad_engine import create_quad_persona_engine
         from core.simulation.legacy_simulation_engine import create_simulation_engine
         
         print("\n===== Universal Knowledge Graph - Quad Persona Simulation Demo =====\n")

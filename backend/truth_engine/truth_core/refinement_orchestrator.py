@@ -102,7 +102,7 @@ class RefinementOrchestrator:
     def _run_drl_convergence(self, current_response: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         """Run quad DeepRecursiveLearning convergence on a deterministic content vector."""
         import numpy as np
-        from quad_persona.mathematical_framework import DeepRecursiveLearning
+        from core.persona.quad.mathematical_framework import DeepRecursiveLearning
 
         content = str(current_response.get('content', ''))
         digest = hashlib.sha256(content.encode()).digest()

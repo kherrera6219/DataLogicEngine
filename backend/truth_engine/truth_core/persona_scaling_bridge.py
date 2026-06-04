@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from quad_persona.pod_models import ExpansionPlan, ScalingDecision, SufficiencySignals
+from core.persona.quad.pod_models import ExpansionPlan, ScalingDecision, SufficiencySignals
 
 
 def scaling_decision_from_sufficiency(sufficiency: dict[str, Any]) -> ScalingDecision:

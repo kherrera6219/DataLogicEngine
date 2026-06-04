@@ -9,7 +9,7 @@ Orchestrates the 3-Tier Deep Research process:
 import logging
 from typing import Dict, Any
 
-from quad_persona.quad_models import EvidencePack, EvidenceItem
+from core.persona.quad.quad_models import EvidencePack, EvidenceItem
 # Import KA implementations directly or via Registry
 from backend.knowledge_algorithms.ka_claim_extraction import KAClaimExtraction
 from backend.knowledge_algorithms.ka_29_online_validation import KAResearch

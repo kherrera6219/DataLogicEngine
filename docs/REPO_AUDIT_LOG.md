@@ -195,12 +195,26 @@ plus the documented canonical DSQP system. Audit (see the shared
 - `ruff check .` clean; Bandit 0 high-severity in `backend/ core/ quad_persona/`;
   `scripts/verify_docs_references.py` 0 errors.
 
+### Phase 4 landed (relocation)
+
+- Relocated the surviving root `quad_persona/` LIBRARY to `core/persona/quad/`
+  (its documented domain home), preserving git history via `git mv`. Internal
+  cross-imports rewritten to `core.persona.quad.*`; the 19 external import sites
+  (backend/core/scripts/demos/tests) migrated to the new path; the persona test
+  dir moved to `tests/persona/quad/`. Since no external/SDK consumer referenced
+  the old path, the temporary shim package was removed in the same change (no
+  deprecated dead code left behind). Full suite 1807 passed / 27 skipped.
+- **Deferred (Phase 4b):** splitting the oversized library files
+  (`mathematical_framework.py` -> sub-package; `persona_scaling.py`,
+  `pod_orchestrator.py`) into smaller modules. The files are now in the correct
+  home and fully green; the split is a pure internal reorg best done as its own
+  reviewable PR.
+
 ### Open items (future phases)
 
-- **Phase 4 (planned):** relocate the surviving root `quad_persona/` math/pod/models
-  LIBRARY to `core/persona/quad/` with re-export shims, and split the oversized
-  files (`mathematical_framework.py` -> package; `persona_scaling.py`,
-  `pod_orchestrator.py`).
+- **Phase 4b (planned):** split the oversized `core/persona/quad/` files
+  (`mathematical_framework.py` -> package; `persona_scaling.py`,
+  `pod_orchestrator.py`) with re-export `__init__`s.
 - **Phase 5 (planned):** fix the library correctness bugs documented in the
   `quad_persona_audit.md` (naive/aware datetime; `random.uniform` in confidence;
   hash-seeded embeddings; unreachable 0.995 threshold; mutable class-level

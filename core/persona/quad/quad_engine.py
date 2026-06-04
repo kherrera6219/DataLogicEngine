@@ -20,7 +20,7 @@ import logging
 import uuid
 from typing import Dict
 
-from quad_persona.models import PersonaProfile, QueryState
+from core.persona.quad.models import PersonaProfile, QueryState
 
 logger = logging.getLogger(__name__)
 

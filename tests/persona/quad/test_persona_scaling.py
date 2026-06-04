@@ -8,7 +8,7 @@ import pytest
 import uuid
 
 # Import the modules to test
-from quad_persona.pod_models import (
+from core.persona.quad.pod_models import (
     PodType,
     ExpandedPersona,
     SufficiencySignals,
@@ -17,12 +17,12 @@ from quad_persona.pod_models import (
     PodState,
     CrossPodConflict
 )
-from quad_persona.persona_scaling import (
+from core.persona.quad.persona_scaling import (
     PersonaSufficiencyTool,
     HighAssuranceDetector,
     SubsystemDetector
 )
-from quad_persona.pod_orchestrator import (
+from core.persona.quad.pod_orchestrator import (
     PodOrchestrator,
     PersonaBuilder,
     CrossPodDeconfliction

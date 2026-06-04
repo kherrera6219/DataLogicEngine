@@ -8,7 +8,7 @@ Replaces the legacy 'Layer 2 Knowledge Simulator' (static graph).
 import logging
 from typing import Dict, Any, List
 
-from quad_persona.quad_models import (
+from core.persona.quad.quad_models import (
     EvidencePack, EvidenceItem, Coord17Intent, RetrievalPlan, Coord17Bindings
 )
 # Reuse the existing simulated db logic but wrapped in dynamic retrieval

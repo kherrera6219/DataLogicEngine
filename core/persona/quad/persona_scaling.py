@@ -12,7 +12,7 @@ applies threshold-based decision logic to determine expansion requirements.
 import logging
 from typing import Dict, List, Any
 
-from quad_persona.pod_models import (
+from core.persona.quad.pod_models import (
     SufficiencySignals,
     ExpansionPlan,
     ScalingDecision,

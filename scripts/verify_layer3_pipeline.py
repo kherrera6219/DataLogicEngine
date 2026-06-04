@@ -18,7 +18,7 @@ logger = logging.getLogger("L3-Verify")
 
 def test_models():
     logger.info("--- Testing Models ---")
-    from quad_persona.quad_models import EvidenceItem, EvidencePack
+    from core.persona.quad.quad_models import EvidenceItem, EvidencePack
     
     item = EvidenceItem(content="Test Fact", source_uri="http://example.com")
     pack = EvidencePack()

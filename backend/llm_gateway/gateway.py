@@ -1380,7 +1380,7 @@ class LLMGateway:
                 scaling_decision_from_sufficiency,
             )
             from backend.truth_engine.truth_core.persona_sufficiency import PersonaSufficiencyTool
-            from quad_persona.pod_orchestrator import create_pod_orchestrator
+            from core.persona.quad.pod_orchestrator import create_pod_orchestrator
             engine = create_quad_persona_engine()
             
             # Run the concurrent analysis

@@ -8,7 +8,7 @@ import logging
 from typing import Dict, Any, List
 from datetime import datetime
 
-from quad_persona.quad_models import Coord17Intent, ProblemSpec, TierPlan
+from core.persona.quad.quad_models import Coord17Intent, ProblemSpec, TierPlan
 from core.simulation.query_analysis_system import QueryAnalysisSystem
 
 logger = logging.getLogger(__name__)

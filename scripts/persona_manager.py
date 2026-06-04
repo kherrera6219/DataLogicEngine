@@ -9,8 +9,8 @@ import sys
 import uuid
 from typing import Any, Dict, Optional, Tuple
 
-from quad_persona.persona_loader import PersonaLoader
-from quad_persona.models import PersonaProfile
+from core.persona.quad.persona_loader import PersonaLoader
+from core.persona.quad.models import PersonaProfile
 
 PERSONA_TYPE_TO_AXIS = {
     "knowledge": 8,

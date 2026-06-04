@@ -14,7 +14,7 @@ from datetime import datetime, UTC
 from typing import Dict, List, Any, Optional, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from quad_persona.pod_models import (
+from core.persona.quad.pod_models import (
     PodType,
     ExpandedPersona,
     PodState,
@@ -23,7 +23,7 @@ from quad_persona.pod_models import (
     ExpansionPlan,
     ScalingOrchestrationState
 )
-from quad_persona.persona_scaling import (
+from core.persona.quad.persona_scaling import (
     DEFENSE_SUBSYSTEM_PROFILES,
     SECTOR_SUBSYSTEM_PROFILES,
     REGULATORY_PROFILES,

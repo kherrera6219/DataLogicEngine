@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Import quad persona components
-from quad_persona.quad_engine import create_quad_persona_engine
+from core.persona.quad.quad_engine import create_quad_persona_engine
 from core.simulation.legacy_simulation_engine import create_simulation_engine
 
 def run_quad_persona_demo():

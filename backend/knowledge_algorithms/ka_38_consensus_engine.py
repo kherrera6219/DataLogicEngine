@@ -10,7 +10,7 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 # Attempt to import mathematical framework for dynamic weights
 try:
-    from quad_persona.mathematical_framework import DynamicWeightFunctions
+    from core.persona.quad.mathematical_framework import DynamicWeightFunctions
     MATH_AVAILABLE = True
 except ImportError:
     MATH_AVAILABLE = False

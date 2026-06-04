@@ -11,7 +11,7 @@ import os
 from typing import Dict, List, Any, Optional
 import uuid
 
-from quad_persona.models import PersonaProfile
+from core.persona.quad.models import PersonaProfile
 
 logger = logging.getLogger(__name__)
 

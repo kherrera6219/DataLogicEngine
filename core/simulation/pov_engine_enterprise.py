@@ -47,8 +47,8 @@ from core.simulation.pov_delta import (
 
 # Persona Scaling integration (lazy import to avoid circular deps)
 try:
-    from quad_persona.persona_scaling import PersonaSufficiencyTool
-    from quad_persona.pod_orchestrator import PodOrchestrator
+    from core.persona.quad.persona_scaling import PersonaSufficiencyTool
+    from core.persona.quad.pod_orchestrator import PodOrchestrator
     PERSONA_SCALING_AVAILABLE = True
 except ImportError:
     PERSONA_SCALING_AVAILABLE = False

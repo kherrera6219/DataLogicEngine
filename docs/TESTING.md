@@ -166,7 +166,7 @@ tests/
   contract/               # OpenAPI and canonical API contract tests
   performance/            # Load and latency tests
   axes/                   # 17-axis system tests
-  quad_persona/           # Quad-persona engine tests
+  persona/quad/           # Quad-persona library tests (pod scaling, orchestration)
   windows/                # Windows-specific and desktop-mode tests
   utils/                  # Test utilities and helpers
 frontend/

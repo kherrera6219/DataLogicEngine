@@ -15,7 +15,7 @@ from typing import Any
 import numpy as np
 
 from backend.truth_engine.truth_core.historical_embeddings import text_to_embedding
-from quad_persona.mathematical_framework import MemoryEdge, MemoryVertex, StructuredMemoryGraph
+from core.persona.quad.mathematical_framework import MemoryEdge, MemoryVertex, StructuredMemoryGraph
 
 logger = logging.getLogger(__name__)
 

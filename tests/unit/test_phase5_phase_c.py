@@ -8,7 +8,7 @@ from backend.llm_gateway.gateway import LLMGateway
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
 from backend.truth_engine.truth_core.personas import PersonaEnhancer
 from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator
-from quad_persona.mathematical_framework import DynamicWeightFunctions
+from core.persona.quad.mathematical_framework import DynamicWeightFunctions
 
 
 class FakeQuadEngine:

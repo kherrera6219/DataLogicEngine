@@ -578,7 +578,7 @@ class TruthCoreEngine:
                     if sufficiency['mode'] == 'expanded_committee':
                         logger.info(f"SUFFICIENCY TRIGGER: Expanding committee. Reasons: {sufficiency['reasons']}")
                         try:
-                            from quad_persona.pod_orchestrator import create_pod_orchestrator
+                            from core.persona.quad.pod_orchestrator import create_pod_orchestrator
 
                             scaling_decision = scaling_decision_from_sufficiency(sufficiency)
                             orchestration_state = create_pod_orchestrator().orchestrate(

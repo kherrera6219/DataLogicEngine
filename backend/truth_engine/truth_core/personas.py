@@ -10,7 +10,7 @@ from typing import Dict, Any, List
 from datetime import datetime, UTC
 
 from backend.knowledge_algorithms.ka_master_controller import get_controller
-from quad_persona.mathematical_framework import IntegrationFunction
+from core.persona.quad.mathematical_framework import IntegrationFunction
 
 logger = logging.getLogger(__name__)
 
