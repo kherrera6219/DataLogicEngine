@@ -24,6 +24,7 @@ a = Analysis(
         ('core', 'core'),
         ('routes', 'routes'),
         ('simulation', 'simulation'),
+        ('static', 'static'),
 
         ('extensions.py', '.'),
         ('models.py', '.'),
