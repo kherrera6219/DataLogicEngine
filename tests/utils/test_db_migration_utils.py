@@ -6,7 +6,7 @@ from flask import Flask
 from sqlalchemy import text
 
 from extensions import db
-from utils import db_migration
+from backend.utils import db_migration
 
 
 @pytest.fixture

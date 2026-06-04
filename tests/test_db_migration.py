@@ -1,7 +1,7 @@
 from flask import Flask
 
 from extensions import db
-from utils import db_migration
+from backend.utils import db_migration
 
 
 def create_test_app():
