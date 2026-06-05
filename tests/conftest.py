@@ -23,6 +23,7 @@ if str(ROOT_DIR) not in sys.path:
 TEST_DB_PATH = ROOT_DIR / "test_suite.sqlite3"
 
 import pytest
+from flask import has_app_context
 from app import app as flask_app, db
 from extensions import limiter, login_manager
 from sqlalchemy.engine import Engine
@@ -128,41 +129,106 @@ def client(app):
     with app.test_client() as test_client:
         yield test_client
 
+
+def create_test_user(
+    *,
+    username="testuser",
+    email="test@example.com",
+    password="SecureTest789$#@",
+    role="user",
+    is_admin=False,
+    active=True,
+    sid=None,
+):
+    """Create or update a local test user and return its database id."""
+    if not has_app_context():
+        with flask_app.app_context():
+            return create_test_user(
+                username=username,
+                email=email,
+                password=password,
+                role=role,
+                is_admin=is_admin,
+                active=active,
+                sid=sid,
+            )
+
+    from models import User
+
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        user = User()
+        user.username = username
+        db.session.add(user)
+
+    # Test fixtures should not depend on field-encryption audit side effects.
+    user._email = email
+    user.role = role
+    user.is_admin = is_admin
+    user.active = active
+    user.sid = sid
+    if password:
+        from werkzeug.security import generate_password_hash
+
+        user.password_hash = generate_password_hash(password)
+
+    db.session.commit()
+    return user.id
+
+
+def authenticate_client_session(client, user_id):
+    """Mark a Flask test client as logged in via Flask-Login session keys."""
+    with client.session_transaction() as session:
+        session["_user_id"] = str(user_id)
+        session["_fresh"] = True
+    return client
+
+
 def seed_login_session(client, app, *, username='testuser', email=None,
                        role='user', is_admin=False, sid=None):
-    """Provision a local user (if needed) and seed a Flask-Login session.
+    """Provision a local user and seed a Flask-Login session.
 
     Route-independent test login helper. The app is local-first / desktop-only;
     the public web ``/register`` and ``/login`` routes were intentionally
     removed in favour of the desktop auto-login flow, which ends by calling
     ``flask_login.login_user(user)``. This helper reproduces that end state
     without depending on removed routes or Windows identity resolution.
-
-    Returns the integer user id.
     """
-    from models import User
-
     email = email or f'{username}@local.ukg'
     sid = sid or f'S-1-5-21-{username.upper()}'
     with app.app_context():
-        user = User.query.filter_by(username=username).first()
-        if user is None:
-            user = User()
-            user.username = username
-            user.email = email
-            user.set_password('SecureTest789$#@')
-            user.sid = sid
-            user.role = role
-            user.is_admin = is_admin
-            user.active = True
-            db.session.add(user)
-            db.session.commit()
-        user_id = user.id
-
-    with client.session_transaction() as sess:
-        sess['_user_id'] = str(user_id)
-        sess['_fresh'] = True
+        user_id = create_test_user(
+            username=username,
+            email=email,
+            password='SecureTest789$#@',
+            role=role,
+            is_admin=is_admin,
+            sid=sid,
+        )
+    authenticate_client_session(client, user_id)
     return user_id
+
+
+def login_test_client(
+    client,
+    *,
+    username="testuser",
+    email="test@example.com",
+    password="SecureTest789$#@",
+    role="user",
+    is_admin=False,
+    active=True,
+):
+    """Create a test user and authenticate the client without legacy web auth routes."""
+    user_id = create_test_user(
+        username=username,
+        email=email,
+        password=password,
+        role=role,
+        is_admin=is_admin,
+        active=active,
+    )
+    return authenticate_client_session(client, user_id)
 
 
 @pytest.fixture

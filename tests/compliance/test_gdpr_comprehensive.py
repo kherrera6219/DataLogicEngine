@@ -14,6 +14,9 @@ import pytest
 import json
 from unittest.mock import patch
 from datetime import datetime, timedelta, UTC
+from werkzeug.security import generate_password_hash
+
+from conftest import authenticate_client_session
 
 
 class TestGDPRDataExport:
@@ -146,37 +149,36 @@ class TestGDPRDataExport:
             db.session.commit()
             # ...
 
-            user1 = User(username="user1", email="user1@test.com", role="user")
-            user1.set_password("SecurePass123!")
-            user2 = User(username="user2", email="user2@test.com", role="user")
-            user2.set_password("SecurePass123!")
+            user1 = User(username="user1", _email="user1@test.com", role="user", password_hash=generate_password_hash("SecurePass123!"))
+            user2 = User(username="user2", _email="user2@test.com", role="user", password_hash=generate_password_hash("SecurePass123!"))
 
             db.session.add_all([user1, user2])
             db.session.commit()
+            user1_id = user1.id
+            user2_id = user2.id
 
-            # Login as user1
-            client.post('/api/v1/auth/login', json={
-                'username': 'user1',
-                'password': 'SecurePass123!'
-            })
+        authenticate_client_session(client, user1_id)
 
-            # Export data
-            response = client.post('/api/v1/gdpr/export')
+        # Export data
+        response = client.post('/api/v1/gdpr/export')
 
-            if response.status_code == 200:
-                data = response.get_data()
-                if data:
-                    try:
-                        export_data = json.loads(data)
-                        # Should only contain user1's data
-                        assert export_data['user_profile']['username'] == 'user1'
-                        assert export_data['user_profile']['email'] == 'user1@test.com'
-                    except json.JSONDecodeError:
-                        pass
+        if response.status_code == 200:
+            data = response.get_data()
+            if data:
+                try:
+                    export_data = json.loads(data)
+                    # Should only contain user1's data
+                    assert export_data['user_profile']['username'] == 'user1'
+                    assert export_data['user_profile']['email'] == 'user1@test.com'
+                except json.JSONDecodeError:
+                    pass
 
+        with app.app_context():
             # Cleanup
-            db.session.delete(user1)
-            db.session.delete(user2)
+            for user_id in (user1_id, user2_id):
+                user = db.session.get(User, user_id)
+                if user is not None:
+                    db.session.delete(user)
             db.session.commit()
 
     def test_multiple_exports_allowed(self, authenticated_client, app):
@@ -585,36 +587,35 @@ class TestGDPRComplianceRequirements:
             from models import User, db
 
             # Create two users
-            user1 = User(username="privacy1", email="privacy1@test.com", role="user")
-            user1.set_password("SecurePass123!")
-            user2 = User(username="privacy2", email="privacy2@test.com", role="user")
-            user2.set_password("SecurePass123!")
+            user1 = User(username="privacy1", _email="privacy1@test.com", role="user", password_hash=generate_password_hash("SecurePass123!"))
+            user2 = User(username="privacy2", _email="privacy2@test.com", role="user", password_hash=generate_password_hash("SecurePass123!"))
 
             db.session.add_all([user1, user2])
             db.session.commit()
+            user1_id = user1.id
+            user2_id = user2.id
 
-            # Login as user1
-            client.post('/api/v1/auth/login', json={
-                'username': 'privacy1',
-                'password': 'SecurePass123!'
-            })
+        authenticate_client_session(client, user1_id)
 
-            # Try to export data
-            response = client.post('/api/v1/gdpr/export')
+        # Try to export data
+        response = client.post('/api/v1/gdpr/export')
 
-            if response.status_code == 200:
-                data = response.get_data()
-                if data:
-                    try:
-                        export_data = json.loads(data)
-                        # Should only see user1's data
-                        assert export_data['user_profile']['username'] == 'privacy1'
-                    except json.JSONDecodeError:
-                        pass
+        if response.status_code == 200:
+            data = response.get_data()
+            if data:
+                try:
+                    export_data = json.loads(data)
+                    # Should only see user1's data
+                    assert export_data['user_profile']['username'] == 'privacy1'
+                except json.JSONDecodeError:
+                    pass
 
+        with app.app_context():
             # Cleanup
-            db.session.delete(user1)
-            db.session.delete(user2)
+            for user_id in (user1_id, user2_id):
+                user = db.session.get(User, user_id)
+                if user is not None:
+                    db.session.delete(user)
             db.session.commit()
 
     def test_deletion_grace_period_length(self, authenticated_client, app):
@@ -679,20 +680,20 @@ class TestGDPRIntegration:
             export_response = client.post('/api/v1/gdpr/export')
             assert export_response.status_code == 200
 
-            # Step 2: Check consent
-            consent_response = client.get('/api/v1/gdpr/consent')
-            assert consent_response.status_code == 200
+        # Step 2: Check consent
+        consent_response = client.get('/api/v1/gdpr/consent')
+        assert consent_response.status_code == 200
 
-            # Step 3: Update consent
-            update_response = client.post(
-                '/api/v1/gdpr/consent',
-                json={'analytics': False}
-            )
-            assert update_response.status_code == 200
+        # Step 3: Update consent
+        update_response = client.post(
+            '/api/v1/gdpr/consent',
+            json={'analytics': False}
+        )
+        assert update_response.status_code == 200
 
-            # Step 4: Request deletion
-            delete_response = client.post('/api/v1/gdpr/delete')
-            assert delete_response.status_code == 200
+        # Step 4: Request deletion
+        delete_response = client.post('/api/v1/gdpr/delete')
+        assert delete_response.status_code == 200
 
         # User cleanup is handled by the per-test schema teardown in conftest.
 

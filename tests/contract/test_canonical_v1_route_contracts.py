@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 
 import pytest
+from werkzeug.security import generate_password_hash
 
 from app import app as flask_app, db
 from extensions import limiter
@@ -24,8 +25,12 @@ def app():
             SimulationSession.query.delete()
             user = User.query.filter_by(username="testuser").first()
             if user is None:
-                user = User(username="testuser", email="test@example.com", role="user")
-                user.set_password("SecureTest789$#@")
+                user = User(
+                    username="testuser",
+                    _email="test@example.com",
+                    role="user",
+                    password_hash=generate_password_hash("SecureTest789$#@"),
+                )
                 db.session.add(user)
             db.session.commit()
         except Exception:

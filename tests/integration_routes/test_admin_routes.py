@@ -12,9 +12,9 @@ Tests cover:
 """
 
 import pytest
-from werkzeug.security import generate_password_hash
 
 from app import app, db
+from conftest import create_test_user
 from models import User
 
 
@@ -56,17 +56,13 @@ def sample_users(client):
     with app.app_context():
         users = []
         for i in range(5):
-            user = User(
+            users.append(create_test_user(
                 username=f'testuser_{i}',
                 email=f'test{i}@example.com',
-                password_hash=generate_password_hash('TestPass123!@#'),
+                password='TestPass123!@#',
                 role='user',
-                active=True
-            )
-            db.session.add(user)
-            users.append(user)
-        db.session.commit()
-        return [u.id for u in users]
+            ))
+        return users
 
 
 class TestAdminDashboard:

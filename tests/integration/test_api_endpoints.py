@@ -58,27 +58,9 @@ def authenticated_client(client):
     user and seeding the Flask-Login session, instead of depending on the
     removed routes.
     """
-    from models import User
+    from tests.conftest import seed_login_session
 
-    with app.app_context():
-        user = User.query.filter_by(username='testuser').first()
-        if user is None:
-            user = User()
-            user.username = 'testuser'
-            user.email = 'test@example.com'
-            user.set_password('SecureTest789$#@')
-            user.sid = 'S-1-5-21-TESTUSER'
-            user.role = 'user'
-            user.is_admin = False
-            user.active = True
-            db.session.add(user)
-            db.session.commit()
-        user_id = str(user.id)
-
-    with client.session_transaction() as sess:
-        sess['_user_id'] = user_id
-        sess['_fresh'] = True
-
+    seed_login_session(client, app, username='testuser', email='test@example.com')
     return client
 
 
@@ -373,8 +355,9 @@ class TestRateLimiting:
             responses.append(response.status_code)
 
         # Should eventually hit rate limit (429) or all return 200/400/401
-        # Since we disabled rate limiting in the fixture, we expect 200/400/401
-        assert 429 in responses or all(r in [200, 400, 401, 403, 404] for r in responses)
+        # Since web login has been removed and rate limiting is disabled in the fixture,
+        # this route should consistently stay on the removed-route contract.
+        assert all(r == 404 for r in responses)
 
 
 class TestErrorHandling:

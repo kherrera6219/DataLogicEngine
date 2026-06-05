@@ -62,9 +62,10 @@ class User(db.Model, UserMixin):
         if not self._email:
             return None
         from extensions import encryption_manager
+        from cryptography.fernet import InvalidToken
         try:
             return encryption_manager.decrypt(self._email, field_name='email')
-        except (ValueError, TypeError) as e:
+        except (InvalidToken, ValueError, TypeError) as e:
             # Fallback for if it's not encrypted yet (during migration)
             logger.debug(f"Email decryption fallback for user {self.id}: {e}")
             return self._email

@@ -328,3 +328,10 @@ class TestRouteRegistration:
         # supported auth entry points.
         resp = client.post("/api/v1/auth/login", json={})
         assert resp.status_code == 404
+
+    def test_desktop_auth_routes_exist(self, client):
+        challenge = client.get("/api/v1/auth/desktop/challenge")
+        csrf = client.get("/api/v1/auth/csrf-token")
+
+        assert challenge.status_code == 405
+        assert csrf.status_code == 200
