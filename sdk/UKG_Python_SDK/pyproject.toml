@@ -19,14 +19,14 @@ postgres = [
   "asyncpg>=0.29,<1",
 ]
 redis = [
-  "redis>=5,<6",
+  "redis>=5,<9",
 ]
 registries = [
-  "pandas>=2.2,<3",
+  "pandas>=2.2,<4",
   "openpyxl>=3.1,<4",
 ]
 dev = [
-  "pytest>=8,<9",
+  "pytest>=8,<10",
   "ruff>=0.6,<1",
 ]
 
