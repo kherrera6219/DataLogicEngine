@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const data = await api.auth.check();
       if (data?.user) {
@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const login = async (credentials: LoginCredentials) => {
     try {
@@ -124,8 +124,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    checkAuth();
-  }, []);
+    let cancelled = false;
+    async function init() {
+      await checkAuth();
+      if (cancelled) return;
+    }
+    void init();
+    return () => { cancelled = true; };
+  }, [checkAuth]);
 
   // Protected Route Logic + Desktop Auto-Redirect
   useEffect(() => {

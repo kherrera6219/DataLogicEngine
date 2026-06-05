@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { cn } from "@/lib/utils";
@@ -111,12 +111,10 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     fetchSessions();
   }, []);
 
-  // Auto-select first session when sessions are loaded
-  useEffect(() => {
-    if (sessions.length > 0 && !currentSessionId) {
-      setCurrentSessionId(sessions[0].id);
-    }
-  }, [sessions, currentSessionId]);
+  // Auto-select first session when sessions are loaded (render-time derivation).
+  if (sessions.length > 0 && !currentSessionId) {
+    setCurrentSessionId(sessions[0].id);
+  }
 
   // Hydrate history when session changes
   useEffect(() => {

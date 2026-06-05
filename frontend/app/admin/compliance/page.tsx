@@ -109,8 +109,8 @@ export default function ComplianceDashboard() {
              ) : (
                  <div className="space-y-2">
                     {(standards as Record<string, unknown>[]) && (standards as Record<string, unknown>[]).length > 0 ? (
-                        (standards as Record<string, unknown>[]).map((child: Record<string, unknown>) => (
-                            <div key={(child.uid as string) || Math.random()} className="flex justify-between items-center p-2 rounded-md border">
+                        (standards as Record<string, unknown>[]).map((child: Record<string, unknown>, idx: number) => (
+                            <div key={(child.uid as string) || `fallback-${idx}`} className="flex justify-between items-center p-2 rounded-md border">
                                <span className="font-medium">{(child.name || child.id) as string}</span>
                                <Badge variant="outline">Active</Badge>
                             </div>

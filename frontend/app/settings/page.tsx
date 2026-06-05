@@ -127,9 +127,14 @@ export default function SettingsPage() {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'notifications') {
-      void fetchNotifPrefs();
+    if (activeTab !== 'notifications') return;
+    let cancelled = false;
+    async function load() {
+      await fetchNotifPrefs();
+      if (cancelled) return;
     }
+    void load();
+    return () => { cancelled = true; };
   }, [activeTab, fetchNotifPrefs]);
 
   return (

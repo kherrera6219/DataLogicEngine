@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
+| Document version | v2.7.0 |
 | Last updated | 2026-06-04 |
 | Status | Active — in progress |
 | Owner | Platform Architecture |
@@ -13,8 +13,8 @@
 ## Purpose
 
 Single handoff for the quad-persona consolidation so any contributor (or a future
-session / Codex) can resume with full context. Phases 1–4 are merged to `main`;
-Phases 4b, 5, and 6 remain. Companion reports (shared with the user, also in the
+session / Codex) can resume with full context. Phases 1–4b are merged to `main`;
+Phases 5 and 6 remain. Companion reports (shared with the user, also in the
 audit trail): `quad_persona_audit.md`, `quad_persona_provider_report.md`,
 `quad_persona_consolidation_report.md`, `assess_core_persona.md`,
 `assess_dsqp_backend.md`, `quad_persona_master_audit_plan.md`. Running log:
@@ -22,7 +22,7 @@ audit trail): `quad_persona_audit.md`, `quad_persona_provider_report.md`,
 
 ---
 
-## Current state (after Phase 4, `main` @ 4898eb2e)
+## Current state (after Phase 4b, `main` @ 289776b6)
 
 **Canonical persona system (source of truth):**
 - `backend/dsqp/` — REAL, deterministic seven-component persona construction for
@@ -31,10 +31,11 @@ audit trail): `quad_persona_audit.md`, `quad_persona_provider_report.md`,
 
 **Shared quad-persona library (relocated, REAL, load-bearing):**
 - `core/persona/quad/` — `models.py`, `quad_models.py`, `pod_models.py`,
-  `persona_scaling.py`, `pod_orchestrator.py`, `mathematical_framework.py`,
   `axis_role_mapper.py`, `persona_loader.py`, `quad_engine.py`,
-  `config/quad_config.yaml`. Imported by ~19 sites in `backend/`, `core/`,
-  `scripts/`, `demos/`. Tests at `tests/persona/quad/`.
+  `config/quad_config.yaml`, and the split subpackages
+  `mathematical_framework/`, `persona_scaling/`, and `pod_orchestrator/`.
+  Imported by sites in `backend/`, `core/`, `scripts/`, `demos/`, and tests.
+  Tests live at `tests/persona/quad/`.
 
 **Removed:** the top-level `quad_persona/` package (relocated), the broken
 `create_quad_persona_engine` crash path on `/direct-query`, the duplicate/shadowed
@@ -53,38 +54,47 @@ root engine, and the orphaned `core/persona/` stub package.
 | 2 | `7398f0a6` | De-duplicate root engine; extract models; 1703→~290 lines; fix factory |
 | 3 | `6c21774b` | Remove orphaned `core/persona/` stub package |
 | 4 | `4898eb2e` | Relocate library to `core/persona/quad/`; migrate imports; move tests |
+| 4b | `289776b6` | Split oversized quad-persona files into subpackages; preserve compatibility exports; add Phase 4b tests |
 
 ---
 
+## Completed Phase 4b
+
+Phase 4b is complete in the current checkout. The three oversized files were
+replaced by package directories with compatibility `__init__.py` re-exports, so
+existing public import paths still work while direct submodule imports are
+available.
+
+| Former file | Current package layout |
+|---|---|
+| `mathematical_framework.py` | `mathematical_framework/weights.py`, `memory_graph.py`, `refinement.py`, `integration.py`, plus compatibility exports in `mathematical_framework/__init__.py` |
+| `persona_scaling.py` | `persona_scaling/profiles.py`, `sufficiency.py`, plus compatibility exports in `persona_scaling/__init__.py` |
+| `pod_orchestrator.py` | `pod_orchestrator/builder.py`, `synthesis.py`, `orchestrator.py`, plus compatibility exports in `pod_orchestrator/__init__.py` |
+
+Validation completed on Windows local checkout:
+
+- `python -m pytest -q --no-cov tests/persona/quad/test_persona_scaling.py tests/persona/quad/test_phase4b_import_compatibility.py` — 35 passed.
+- `python -m pytest -q --no-cov tests/persona/quad/ tests/unit/test_phase5_phase_c.py tests/unit/test_phase_d_dsqp.py tests/benchmarks/test_dsqp_benchmark.py` — 46 passed.
+- `python -m ruff check core/persona/quad tests/persona/quad` — clean.
+- `python -m ruff check .` — clean.
+- `python scripts/verify_docs_references.py` — 0 errors.
+- `python -m pytest tests/ --no-cov` — 1821 passed, 21 skipped.
+
+`bandit -r backend/ core/ -ll -ii` could not be rerun in this shell session
+because PowerShell intermittently failed before process startup; the previous
+Phase 4 gate recorded 0 high-severity Bandit issues.
+
 ## Remaining work
-
-### Phase 4b — Split the oversized library files (mechanical, low-risk)
-
-All three now live in `core/persona/quad/`. Split each into a sub-package with a
-re-export `__init__.py` so importers don't change.
-
-| File | Lines | Proposed split |
-|---|---|---|
-| `mathematical_framework.py` | 840 | `mathematical_framework/` → `weights.py` (DynamicWeightFunctions, KnowledgeSpaceMapper), `memory_graph.py` (KnowledgePoint, MemoryVertex, MemoryEdge, StructuredMemoryGraph), `refinement.py` (DeepRecursiveLearning, RefinementWorkflow12Step), `integration.py` (IntegrationFunction, QuadPersonaMathematicalSystem) |
-| `persona_scaling.py` | 783 | `profiles.py` (hardcoded profile dicts) + `sufficiency.py` (HighAssuranceDetector, SubsystemDetector, PersonaSufficiencyTool) |
-| `pod_orchestrator.py` | 752 | `builder.py` (PersonaBuilder) + `synthesis.py` (PodSynthesizer, CrossPodDeconfliction) + `orchestrator.py` (PodOrchestrator) |
-
-The `__init__.py` of each must re-export the public names consumers import
-(`DynamicWeightFunctions`, `MemoryEdge/Vertex`, `StructuredMemoryGraph`,
-`IntegrationFunction`, `DeepRecursiveLearning`, `PersonaSufficiencyTool`,
-`create_pod_orchestrator`, `PodOrchestrator`, etc.). Verify with the import smoke
-test pattern used in Phase 4.
-**Tests:** `tests/persona/quad/test_persona_scaling.py` (34 tests) must stay green.
 
 ### Phase 5 — Fix library correctness bugs (verified line numbers on `main`)
 
 | Bug | Location | Fix |
 |---|---|---|
-| Naive vs aware datetime → `TypeError` on memory age | `mathematical_framework.py:94,97` (`field(default_factory=datetime.utcnow)`) subtracted at `:432` (`datetime.now(UTC) - memory.timestamp`) | Make `timestamp`/`last_accessed` timezone-aware: `default_factory=lambda: datetime.now(UTC)` |
-| Non-deterministic confidence in an auditable system | `pod_orchestrator.py:663-664` (`import random; variation = random.uniform(-0.05, 0.05)`) | Remove the random jitter; derive variation deterministically or drop it |
-| Non-reproducible embeddings (salted `hash()`) | `mathematical_framework.py:818` (`np.random.seed(hash(text) % (2**32))`) | Seed from a stable hash, e.g. `int(hashlib.sha256(text.encode()).hexdigest()[:8], 16)` |
-| Unreachable convergence threshold | `mathematical_framework.py:619` (`CONFIDENCE_THRESHOLD = 0.995`); conflicts with `config/quad_config.yaml` (`0.7`) | Lower to a reachable value and/or source it from config |
-| Mutable class-level state clobbered per instance | `persona_scaling.py:429,445` (`THRESHOLDS`/`POD_CAPS` class dicts) mutated at `:458,461` via `.update()` in `__init__` | Deep-copy into instance attributes before updating |
+| Naive vs aware datetime → `TypeError` on memory age | `mathematical_framework/memory_graph.py:74,77` (`field(default_factory=datetime.utcnow)`) subtracted at `:189` (`datetime.now(UTC) - memory.timestamp`) | Make `timestamp`/`last_accessed` timezone-aware: `default_factory=lambda: datetime.now(UTC)` |
+| Non-deterministic confidence in an auditable system | `pod_orchestrator/orchestrator.py:205` (`random.uniform(-0.05, 0.05)`) | Remove the random jitter; derive variation deterministically or drop it |
+| Non-reproducible embeddings (salted `hash()`) | `mathematical_framework/integration.py:146` (`np.random.seed(hash(text) % (2**32))`) | Seed from a stable hash, e.g. `int(hashlib.sha256(text.encode()).hexdigest()[:8], 16)` |
+| Unreachable convergence threshold | `mathematical_framework/refinement.py:105` (`CONFIDENCE_THRESHOLD = 0.995`); conflicts with `config/quad_config.yaml` (`0.7`) | Lower to a reachable value and/or source it from config |
+| Mutable class-level state clobbered per instance | `persona_scaling/sufficiency.py:119,134` (`THRESHOLDS`/`POD_CAPS` class dicts) mutated at `:146,149` via `.update()` in `__init__` | Deep-copy into instance attributes before updating |
 | Axis 9/10 secondary-influence mislabel | `axis_role_mapper.py:228-239`: primary map says 9=sector, 10=regulatory (`:30-31`), but secondary code writes `axis_vector[10]="Value"` for sector and `axis_vector[9]="Risk"` for regulatory | Reconcile to one axis scheme; fix the secondary indices/comments |
 
 **Tests:** add focused regression tests for each (datetime decay path, threshold
@@ -130,8 +140,14 @@ The sandbox needs these pip installs that aren't auto-present (CI installs from
 `requirements.txt`): `neo4j chromadb bleach user_agents web3` (and `ruff`,
 `bandit[toml]` for the gates). Run with `PYTHONPATH=/home/user/workspace/DataLogicEngine`.
 
+## Change notes for v2.7.0
+
+- 2026-06-04: Updated handoff after live-code review confirmed Phase 4b is
+  implemented and locally validated. Remaining work is now Phase 5 correctness
+  bugs and the Phase 6 `backend/quad_persona` decision.
+
 ## Change notes for v2.6.0
 
 - 2026-06-04: Handoff created after merging Phases 1–4. Documented current state,
-  the remaining Phase 4b/5/6 work with verified line numbers, the per-phase gate,
-  and sandbox environment notes.
+  the Phase 4b/5/6 backlog with verified line numbers, the per-phase gate, and
+  sandbox environment notes.

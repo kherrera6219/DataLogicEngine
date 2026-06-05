@@ -49,13 +49,18 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
     const [firstName = user.username, ...rest] = user.username.split(/\s+/);
-    setForm({
-      firstName,
-      lastName: rest.join(' '),
-      email: user.email || '',
-      role: user.role || (user.is_admin ? 'admin' : 'user'),
-    });
+    setTimeout(() => {
+      if (cancelled) return;
+      setForm({
+        firstName,
+        lastName: rest.join(' '),
+        email: user.email || '',
+        role: user.role || (user.is_admin ? 'admin' : 'user'),
+      });
+    }, 0);
+    return () => { cancelled = true; };
   }, [user]);
 
   useEffect(() => {

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
+| Document version | v2.7.0 |
 | Last updated | 2026-06-04 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -204,17 +204,26 @@ plus the documented canonical DSQP system. Audit (see the shared
   dir moved to `tests/persona/quad/`. Since no external/SDK consumer referenced
   the old path, the temporary shim package was removed in the same change (no
   deprecated dead code left behind). Full suite 1807 passed / 27 skipped.
-- **Deferred (Phase 4b):** splitting the oversized library files
-  (`mathematical_framework.py` -> sub-package; `persona_scaling.py`,
-  `pod_orchestrator.py`) into smaller modules. The files are now in the correct
-  home and fully green; the split is a pure internal reorg best done as its own
-  reviewable PR.
+
+### Phase 4b landed (file split)
+
+- Split the oversized quad-persona library files now housed under
+  `core/persona/quad/` into package directories:
+  `mathematical_framework/`, `persona_scaling/`, and `pod_orchestrator/`.
+- Added compatibility `__init__.py` re-exports so existing imports from
+  `core.persona.quad.mathematical_framework`,
+  `core.persona.quad.persona_scaling`, and
+  `core.persona.quad.pod_orchestrator` continue to work.
+- Added `tests/persona/quad/test_phase4b_import_compatibility.py` for legacy
+  exports, direct submodule imports, `__module__` locations, factory smoke, and a
+  light sufficiency-to-orchestrator wiring path.
+- Local validation after live-code review: focused Phase 4b tests 35 passed,
+  handoff Group A 46 passed, `ruff check core/persona/quad tests/persona/quad`
+  clean, `ruff check .` clean, docs reference validation 0 errors, and full
+  `python -m pytest tests/ --no-cov` 1821 passed / 21 skipped.
 
 ### Open items (future phases)
 
-- **Phase 4b (planned):** split the oversized `core/persona/quad/` files
-  (`mathematical_framework.py` -> package; `persona_scaling.py`,
-  `pod_orchestrator.py`) with re-export `__init__`s.
 - **Phase 5 (planned):** fix the library correctness bugs documented in the
   `quad_persona_audit.md` (naive/aware datetime; `random.uniform` in confidence;
   hash-seeded embeddings; unreachable 0.995 threshold; mutable class-level
@@ -224,6 +233,12 @@ plus the documented canonical DSQP system. Audit (see the shared
   package; every "real LLM" path fails at runtime and is masked by a monkeypatched
   test. Either wire it to the real `backend.llm_gateway` API (and add a
   non-monkeypatched test) or stop labeling it production.
+
+## Change notes for v2.7.0
+
+- 2026-06-04: Updated the quad-persona audit record after live-code review
+  confirmed Phase 4b is implemented and locally validated. Phase 5 and Phase 6
+  remain open.
 
 ## Change notes for v2.6.0
 

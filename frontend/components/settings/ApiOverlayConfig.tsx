@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Card, CardContent, CardHeader, CardTitle
 } from "@/components/ui/card";
@@ -178,22 +178,38 @@ export function ApiOverlayConfig() {
     return Array.from(new Set([...fromProvider, ...defaults]));
   }, [provider, providers]);
 
-  useEffect(() => {
-    if (!modelOptions.length) return;
-    if (!modelOptions.includes(model)) {
-      setModel(modelOptions[0]);
-    }
+  // Sync model to available options during render instead of via effect.
+  const effectiveModel = useMemo(() => {
+    if (!modelOptions.length) return model;
+    return modelOptions.includes(model) ? model : modelOptions[0];
   }, [model, modelOptions]);
 
-  useEffect(() => {
+  // Keep model state in sync when effectiveModel diverges.
+  if (effectiveModel !== model) {
+    setModel(effectiveModel);
+  }
+
+  // Derive selectedProviderId from provider + providers list (no effect needed).
+  const derivedProviderId = useMemo(() => {
     const normalized = provider.toLowerCase();
     const matchingProvider = providers.find(
       (entry) => (entry.type || entry.name || '').toLowerCase() === normalized
     );
-    setSelectedProviderId(matchingProvider?.id || null);
+    return matchingProvider?.id || null;
   }, [provider, providers]);
 
+  // Keep selectedProviderId in sync when the derivation changes.
+  if (derivedProviderId !== selectedProviderId) {
+    setSelectedProviderId(derivedProviderId);
+  }
+
+  // Reset save/connection status when inputs change.
+  const isInitialMount = useRef(true);
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     setSaveStatus('idle');
     setConnectionStatus('idle');
   }, [apiKey, model, provider]);

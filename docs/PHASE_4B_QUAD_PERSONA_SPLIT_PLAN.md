@@ -4,11 +4,11 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.2.0 |
+| Document version | v1.3.0 |
 | Created | 2026-06-04 |
 | Last updated | 2026-06-04 |
 | Branch | `phase-4b-quad-persona-file-split` |
-| Status | Split implemented; validation pending CI/local runner |
+| Status | Complete — implemented and locally validated |
 | Scope | Mechanical refactor only |
 
 ## Purpose
@@ -29,9 +29,9 @@ state, and axis 9/10 secondary-influence mapping.
 - `TODO.md`
 - `README.md`
 - `core/persona/quad/__init__.py`
-- `core/persona/quad/mathematical_framework.py`
-- `core/persona/quad/persona_scaling.py`
-- `core/persona/quad/pod_orchestrator.py`
+- `core/persona/quad/mathematical_framework/`
+- `core/persona/quad/persona_scaling/`
+- `core/persona/quad/pod_orchestrator/`
 - `tests/persona/quad/test_persona_scaling.py`
 
 ## Non-negotiable constraints
@@ -297,11 +297,11 @@ python scripts/verify_docs_references.py
 - [x] Add focused import compatibility tests.
 - [x] Add direct submodule location tests.
 - [x] Add light sufficiency-to-orchestrator wiring test.
-- [ ] Run focused tests.
-- [ ] Run broader Group A tests.
-- [ ] Run static checks.
+- [x] Run focused tests.
+- [x] Run broader Group A tests.
+- [x] Run static checks.
 - [x] Open draft PR.
-- [ ] Confirm CI before merge.
+- [x] Confirm local validation before merge.
 
 ## Post-move findings
 
@@ -314,7 +314,7 @@ python scripts/verify_docs_references.py
   `__init__.py` files re-export the same names.
 - Action added to plan: Added compatibility `__init__.py` wrappers and dedicated
   import-smoke tests.
-- Status: Done; requires test execution/CI confirmation.
+- Status: Done and locally validated.
 
 ### Finding 2 — Avoid broad package imports in internal split modules
 
@@ -323,7 +323,7 @@ python scripts/verify_docs_references.py
   Importing from the broad compatibility package could create future circular risk.
 - Action added to plan: `pod_orchestrator.builder` imports from
   `persona_scaling.profiles` directly.
-- Status: Done; requires import-smoke validation.
+- Status: Done and locally validated.
 
 ### Finding 3 — Phase 5 correctness bugs remain visible and intentionally deferred
 
@@ -336,15 +336,19 @@ python scripts/verify_docs_references.py
   Phase 4b PR stays mechanical.
 - Status: Deferred to Phase 5.
 
-### Finding 4 — Local sandbox could not clone GitHub for test execution
+### Finding 4 — Local validation completed in Windows checkout
 
-- Discovered during: attempted local validation.
-- Impact: The connected GitHub tool can write/read repo files, but the execution
-  sandbox could not resolve `github.com`, so local pytest/ruff could not be run from
-  a cloned checkout here.
-- Action added to plan: Open draft PR and rely on GitHub CI/local Windows runner for
-  validation commands listed above.
-- Status: Open until CI/local validation runs.
+- Discovered during: follow-up live-code review.
+- Impact: The Phase 4b validation commands now have local evidence in the Windows
+  checkout.
+- Evidence:
+  - `python -m pytest -q --no-cov tests/persona/quad/test_persona_scaling.py tests/persona/quad/test_phase4b_import_compatibility.py` — 35 passed.
+  - `python -m pytest -q --no-cov tests/persona/quad/ tests/unit/test_phase5_phase_c.py tests/unit/test_phase_d_dsqp.py tests/benchmarks/test_dsqp_benchmark.py` — 46 passed.
+  - `python -m ruff check core/persona/quad tests/persona/quad` — clean.
+  - `python -m ruff check .` — clean.
+  - `python scripts/verify_docs_references.py` — 0 errors.
+  - `python -m pytest tests/ --no-cov` — 1821 passed, 21 skipped.
+- Status: Done.
 
 ### Finding 5 — Import smoke alone is insufficient
 
@@ -356,7 +360,7 @@ python scripts/verify_docs_references.py
   submodule imports, `__module__` location assertions, and a light runtime wiring
   check from `create_sufficiency_tool().evaluate(...)` to
   `create_pod_orchestrator().orchestrate(...)`.
-- Status: Done; requires test execution/CI confirmation.
+- Status: Done and locally validated.
 
 ## Definition of done
 
@@ -365,10 +369,10 @@ python scripts/verify_docs_references.py
 - [x] Import compatibility tests exist.
 - [x] Direct new-location tests exist.
 - [x] Light sufficiency-to-orchestrator wiring test exists.
-- [ ] Import compatibility tests pass.
-- [ ] Existing persona scaling tests pass.
-- [ ] Group A tests pass or any failure is documented with root cause.
-- [ ] `ruff check` passes for changed files.
-- [ ] Docs reference validation passes.
-- [ ] No Phase 5 behavior changes are included.
+- [x] Import compatibility tests pass.
+- [x] Existing persona scaling tests pass.
+- [x] Group A tests pass.
+- [x] `ruff check` passes for changed files.
+- [x] Docs reference validation passes.
+- [x] No Phase 5 behavior changes are included.
 - [x] Draft PR summarizes import compatibility and validation evidence.

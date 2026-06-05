@@ -35,7 +35,13 @@ export function McpHub() {
   }, []);
 
   useEffect(() => {
-    void loadStats();
+    let cancelled = false;
+    async function init() {
+      await loadStats();
+      if (cancelled) return;
+    }
+    void init();
+    return () => { cancelled = true; };
   }, [loadStats]);
 
   return (

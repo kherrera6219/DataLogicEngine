@@ -69,7 +69,13 @@ export function KnowledgeIngestionSettings() {
   }, []);
 
   useEffect(() => {
-    void loadHistory();
+    let cancelled = false;
+    async function init() {
+      await loadHistory();
+      if (cancelled) return;
+    }
+    void init();
+    return () => { cancelled = true; };
   }, [loadHistory]);
 
   const startIngestion = async () => {

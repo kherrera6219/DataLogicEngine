@@ -20,10 +20,6 @@ export default function MCPDashboard() {
   const [consoleSending, setConsoleSending] = useState(false);
   const consoleEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
   const fetchStats = async () => {
     try {
       setLoading(true);
@@ -36,6 +32,16 @@ export default function MCPDashboard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    let cancelled = false;
+    async function init() {
+      await fetchStats();
+      if (cancelled) return;
+    }
+    void init();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleConsoleSend = async () => {
     const cmd = consoleInput.trim();

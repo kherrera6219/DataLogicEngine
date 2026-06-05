@@ -91,7 +91,13 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (isLoading || !isAdmin) return;
-    void loadAdminData();
+    let cancelled = false;
+    async function init() {
+      await loadAdminData();
+      if (cancelled) return;
+    }
+    void init();
+    return () => { cancelled = true; };
   }, [isAdmin, isLoading, loadAdminData]);
 
   const filteredUsers = useMemo(() => {

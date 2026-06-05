@@ -49,19 +49,23 @@ function SidebarItem({ icon: Icon, label, href, isActive, isCollapsed }: Sidebar
 export function AppSidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
-
-  React.useEffect(() => {
-    const stored = getLocalStorageItem('ukg.sidebar.collapsed');
-    if (stored === 'true' || stored === 'false') {
-      setIsCollapsed(stored === 'true');
+  
+  const [isCollapsed, setIsCollapsed] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = getLocalStorageItem('ukg.sidebar.collapsed');
+      if (stored === 'true' || stored === 'false') {
+        return stored === 'true';
+      }
     }
-  }, []);
+    return false;
+  });
 
   const toggleSidebar = React.useCallback(() => {
     setIsCollapsed((prev) => {
       const next = !prev;
-      setLocalStorageItem('ukg.sidebar.collapsed', String(next));
+      if (typeof window !== 'undefined') {
+        setLocalStorageItem('ukg.sidebar.collapsed', String(next));
+      }
       return next;
     });
   }, []);

@@ -201,13 +201,24 @@ export function DatabaseSettings() {
   }, [toast]);
 
   useEffect(() => {
-    void fetchHealth();
+    let cancelled = false;
+    async function init() {
+      await fetchHealth();
+      if (cancelled) return;
+    }
+    void init();
+    return () => { cancelled = true; };
   }, [fetchHealth]);
 
   useEffect(() => {
-    if (activeTab === 'cloud') {
-      void fetchCloudConfig();
+    if (activeTab !== 'cloud') return;
+    let cancelled = false;
+    async function load() {
+      await fetchCloudConfig();
+      if (cancelled) return;
     }
+    void load();
+    return () => { cancelled = true; };
   }, [activeTab, fetchCloudConfig]);
 
   const handleRefresh = () => {

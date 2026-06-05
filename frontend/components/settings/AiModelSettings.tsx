@@ -147,12 +147,10 @@ export function AiModelSettings() {
     return Array.from(new Set([...fromProvider, ...defaults]));
   }, [provider, providers]);
 
-  useEffect(() => {
-    if (!modelOptions.length) return;
-    if (!modelOptions.includes(model)) {
-      setModel(modelOptions[0]);
-    }
-  }, [modelOptions, model]);
+  // Sync model to available options during render instead of via effect.
+  if (modelOptions.length && !modelOptions.includes(model)) {
+    setModel(modelOptions[0]);
+  }
 
   const upsertProvider = (providerType: string, providerId: string | null) => {
     setProviders((previous) => {

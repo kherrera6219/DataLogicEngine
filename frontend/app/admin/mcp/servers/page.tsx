@@ -27,10 +27,6 @@ export default function MCPServersPage() {
   const [addDescription, setAddDescription] = useState('');
   const [adding, setAdding] = useState(false);
 
-  useEffect(() => {
-    fetchServers();
-  }, []);
-
   const fetchServers = async () => {
     try {
       setLoading(true);
@@ -43,6 +39,16 @@ export default function MCPServersPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    let cancelled = false;
+    async function init() {
+      await fetchServers();
+      if (cancelled) return;
+    }
+    void init();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this server?')) return;
