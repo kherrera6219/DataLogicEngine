@@ -1,7 +1,6 @@
 """Main orchestration flow for expanded persona pods."""
 
 import logging
-import random
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import UTC, datetime
@@ -202,7 +201,9 @@ class PodOrchestrator:
         if persona.subsystem_profile:
             base_confidence += 0.05
 
-        variation = random.uniform(-0.05, 0.05)
+        signal = f"{persona.persona_id}|{persona.pod_type.value}|{query}|{context.get('query_id', '')}"
+        bucket = uuid.uuid5(uuid.NAMESPACE_URL, signal).int % 101
+        variation = (bucket / 1000.0) - 0.05
 
         return min(0.99, max(0.5, base_confidence + variation))
 

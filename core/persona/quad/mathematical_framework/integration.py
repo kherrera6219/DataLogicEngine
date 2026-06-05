@@ -1,5 +1,6 @@
 """Integration layer for the Quad Persona mathematical framework."""
 
+import hashlib
 from datetime import UTC, datetime
 from typing import Any, Dict, List, Tuple
 
@@ -143,8 +144,9 @@ class QuadPersonaMathematicalSystem:
 
     def _embed_query(self, text: str) -> np.ndarray:
         """Simple embedding for demonstration."""
-        np.random.seed(hash(text) % (2**32))
-        return np.random.randn(13)
+        seed = int(hashlib.sha256(text.encode("utf-8")).hexdigest()[:8], 16)
+        rng = np.random.default_rng(seed)
+        return rng.standard_normal(13)
 
     def _process_personas(
         self,

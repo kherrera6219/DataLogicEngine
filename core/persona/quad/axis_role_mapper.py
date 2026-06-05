@@ -226,15 +226,15 @@ class AxisRoleMapper:
             axis_vector[4] = 0.4  # Some influence on Methods
             
         elif persona.persona_type == "sector":  # Axis 9
-            # Sector Expert has influence on Sectors (Axis 2) and Value (Axis 10)
+            # Sector Expert has influence on Sectors (Axis 2) and Sector Expert axis (Axis 9)
             axis_vector[2] = 0.9  # Very strong influence on Sectors
-            axis_vector[10] = 0.5  # Moderate influence on Value
+            axis_vector[9] = max(axis_vector[9], 0.5)  # Moderate secondary sector influence
             axis_vector[5] = 0.3  # Some influence on Temporal context (industry trends)
             
         elif persona.persona_type == "regulatory":  # Axis 10
-            # Regulatory Expert has influence on Regulatory (Axis 6) and Risk (Axis 9)
+            # Regulatory Expert has influence on Regulatory hubs (Axis 6) and Regulatory Expert axis (Axis 10)
             axis_vector[6] = 0.9  # Very strong influence on Regulatory
-            axis_vector[9] = 0.7  # Strong influence on Risk
+            axis_vector[10] = max(axis_vector[10], 0.7)  # Strong secondary regulatory influence
             axis_vector[12] = 0.4  # Some influence on Location (jurisdictions)
             
         elif persona.persona_type == "compliance":  # Axis 11

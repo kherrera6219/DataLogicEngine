@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
+| Document version | v2.8.0 |
 | Last updated | 2026-06-04 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -222,17 +222,33 @@ plus the documented canonical DSQP system. Audit (see the shared
   clean, `ruff check .` clean, docs reference validation 0 errors, and full
   `python -m pytest tests/ --no-cov` 1821 passed / 21 skipped.
 
+### Phase 5 landed (library correctness)
+
+- Fixed the quad-persona library correctness bugs identified after the Phase 4b
+  split:
+  - timezone-aware `MemoryVertex` timestamps in `mathematical_framework/memory_graph.py`;
+  - deterministic persona-confidence variation in `pod_orchestrator/orchestrator.py`;
+  - stable SHA-256-based embedding seeds in `mathematical_framework/integration.py`;
+  - reachable/configurable refinement threshold in `mathematical_framework/refinement.py`;
+  - instance-isolated sufficiency thresholds and pod caps in `persona_scaling/sufficiency.py`;
+  - aligned Axis 9/10 secondary influence in `axis_role_mapper.py`.
+- Added `tests/persona/quad/test_phase5_correctness.py` covering each fix.
+- Local validation after live-code review: focused Phase 5 + quad tests 41
+  passed, handoff Group A 52 passed, and `ruff check core/persona/quad
+  tests/persona/quad/test_phase5_correctness.py` clean.
+
 ### Open items (future phases)
 
-- **Phase 5 (planned):** fix the library correctness bugs documented in the
-  `quad_persona_audit.md` (naive/aware datetime; `random.uniform` in confidence;
-  hash-seeded embeddings; unreachable 0.995 threshold; mutable class-level
-  thresholds; axis 9/10 mislabel).
 - **Phase 6 (decision):** `backend/quad_persona/quad_engine.py` imports a
   non-existent `get_llm_gateway` from a non-existent top-level `llm_gateway`
   package; every "real LLM" path fails at runtime and is masked by a monkeypatched
   test. Either wire it to the real `backend.llm_gateway` API (and add a
   non-monkeypatched test) or stop labeling it production.
+
+## Change notes for v2.8.0
+
+- 2026-06-04: Recorded Phase 5 quad-persona correctness fixes and validation.
+  Phase 6 remains open.
 
 ## Change notes for v2.7.0
 

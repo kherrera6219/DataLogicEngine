@@ -1,6 +1,7 @@
 """Persona sufficiency decision logic for quad-persona expansion."""
 
 import logging
+from copy import deepcopy
 from typing import Any, Dict, List
 
 from core.persona.quad.pod_models import (
@@ -141,12 +142,14 @@ class PersonaSufficiencyTool:
     def __init__(self, config: Dict[str, Any] = None):
         """Initialize the sufficiency tool."""
         self.config = config or {}
+        self.thresholds = deepcopy(self.THRESHOLDS)
+        self.pod_caps = deepcopy(self.POD_CAPS)
 
         if "thresholds" in self.config:
-            self.THRESHOLDS.update(self.config["thresholds"])
+            self.thresholds.update(deepcopy(self.config["thresholds"]))
 
         if "pod_caps" in self.config:
-            self.POD_CAPS.update(self.config["pod_caps"])
+            self.pod_caps.update(deepcopy(self.config["pod_caps"]))
 
         logger.info("PersonaSufficiencyTool initialized")
 
@@ -173,7 +176,7 @@ class PersonaSufficiencyTool:
         )
 
         threshold_mode = "high_assurance" if signals.is_high_assurance else "standard"
-        thresholds = self.THRESHOLDS[threshold_mode]
+        thresholds = self.thresholds[threshold_mode]
         should_expand = signals.exceeds_thresholds(thresholds)
 
         if not should_expand:
@@ -343,19 +346,19 @@ class PersonaSufficiencyTool:
 
         plan.spawn_counts["knowledge"] = min(
             len(detected_subsystems.get("knowledge", [])),
-            self.POD_CAPS["knowledge_max"],
+            self.pod_caps["knowledge_max"],
         )
         plan.spawn_counts["sector"] = min(
             len(detected_subsystems.get("sector", [])),
-            self.POD_CAPS["sector_max"],
+            self.pod_caps["sector_max"],
         )
         plan.spawn_counts["regulatory"] = min(
             len(detected_subsystems.get("regulatory", [])),
-            self.POD_CAPS["regulatory_max"],
+            self.pod_caps["regulatory_max"],
         )
         plan.spawn_counts["compliance"] = min(
             len(detected_subsystems.get("compliance", [])),
-            self.POD_CAPS["compliance_max"],
+            self.pod_caps["compliance_max"],
         )
 
         if signals.complexity_score > 70:

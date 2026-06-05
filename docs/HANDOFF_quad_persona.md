@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
+| Document version | v2.8.0 |
 | Last updated | 2026-06-04 |
 | Status | Active — in progress |
 | Owner | Platform Architecture |
@@ -14,7 +14,7 @@
 
 Single handoff for the quad-persona consolidation so any contributor (or a future
 session / Codex) can resume with full context. Phases 1–4b are merged to `main`;
-Phases 5 and 6 remain. Companion reports (shared with the user, also in the
+Phase 5 is complete in the current checkout; Phase 6 remains. Companion reports (shared with the user, also in the
 audit trail): `quad_persona_audit.md`, `quad_persona_provider_report.md`,
 `quad_persona_consolidation_report.md`, `assess_core_persona.md`,
 `assess_dsqp_backend.md`, `quad_persona_master_audit_plan.md`. Running log:
@@ -22,7 +22,7 @@ audit trail): `quad_persona_audit.md`, `quad_persona_provider_report.md`,
 
 ---
 
-## Current state (after Phase 4b, `main` @ 289776b6)
+## Current state (after Phase 5, local validation)
 
 **Canonical persona system (source of truth):**
 - `backend/dsqp/` — REAL, deterministic seven-component persona construction for
@@ -55,6 +55,7 @@ root engine, and the orphaned `core/persona/` stub package.
 | 3 | `6c21774b` | Remove orphaned `core/persona/` stub package |
 | 4 | `4898eb2e` | Relocate library to `core/persona/quad/`; migrate imports; move tests |
 | 4b | `289776b6` | Split oversized quad-persona files into subpackages; preserve compatibility exports; add Phase 4b tests |
+| 5 | pending commit | Fix quad-persona library correctness bugs; add Phase 5 regression tests |
 
 ---
 
@@ -84,22 +85,28 @@ Validation completed on Windows local checkout:
 because PowerShell intermittently failed before process startup; the previous
 Phase 4 gate recorded 0 high-severity Bandit issues.
 
-## Remaining work
+## Completed Phase 5
 
-### Phase 5 — Fix library correctness bugs (verified line numbers on `main`)
+Phase 5 is complete in the current checkout. The quad-persona library correctness
+bugs were fixed in the split modules and covered by
+`tests/persona/quad/test_phase5_correctness.py`.
 
-| Bug | Location | Fix |
+| Bug | Fixed location | Resolution |
 |---|---|---|
-| Naive vs aware datetime → `TypeError` on memory age | `mathematical_framework/memory_graph.py:74,77` (`field(default_factory=datetime.utcnow)`) subtracted at `:189` (`datetime.now(UTC) - memory.timestamp`) | Make `timestamp`/`last_accessed` timezone-aware: `default_factory=lambda: datetime.now(UTC)` |
-| Non-deterministic confidence in an auditable system | `pod_orchestrator/orchestrator.py:205` (`random.uniform(-0.05, 0.05)`) | Remove the random jitter; derive variation deterministically or drop it |
-| Non-reproducible embeddings (salted `hash()`) | `mathematical_framework/integration.py:146` (`np.random.seed(hash(text) % (2**32))`) | Seed from a stable hash, e.g. `int(hashlib.sha256(text.encode()).hexdigest()[:8], 16)` |
-| Unreachable convergence threshold | `mathematical_framework/refinement.py:105` (`CONFIDENCE_THRESHOLD = 0.995`); conflicts with `config/quad_config.yaml` (`0.7`) | Lower to a reachable value and/or source it from config |
-| Mutable class-level state clobbered per instance | `persona_scaling/sufficiency.py:119,134` (`THRESHOLDS`/`POD_CAPS` class dicts) mutated at `:146,149` via `.update()` in `__init__` | Deep-copy into instance attributes before updating |
-| Axis 9/10 secondary-influence mislabel | `axis_role_mapper.py:228-239`: primary map says 9=sector, 10=regulatory (`:30-31`), but secondary code writes `axis_vector[10]="Value"` for sector and `axis_vector[9]="Risk"` for regulatory | Reconcile to one axis scheme; fix the secondary indices/comments |
+| Naive vs aware datetime → `TypeError` on memory age | `mathematical_framework/memory_graph.py` | `MemoryVertex.timestamp` and `last_accessed` now default to timezone-aware `datetime.now(UTC)`. |
+| Non-deterministic confidence in an auditable system | `pod_orchestrator/orchestrator.py` | Random jitter was replaced with deterministic UUIDv5-derived variation from persona/query/context signals. |
+| Non-reproducible embeddings from salted `hash()` | `mathematical_framework/integration.py` | Embedding seeds now come from stable SHA-256 text hashes and `np.random.default_rng`. |
+| Unreachable convergence threshold | `mathematical_framework/refinement.py` | The default threshold is now reachable (`0.95`) and constructor-configurable; threshold checks return native bools. |
+| Mutable class-level state clobbered per instance | `persona_scaling/sufficiency.py` | Runtime threshold and pod-cap overrides are deep-copied into instance attributes before mutation. |
+| Axis 9/10 secondary-influence mislabel | `axis_role_mapper.py` | Sector and regulatory secondary influence now stays aligned with Axis 9 and Axis 10 respectively. |
 
-**Tests:** add focused regression tests for each (datetime decay path, threshold
-reachability, deterministic embedding, axis vector mapping, threshold isolation).
-None of these have direct unit tests today.
+Validation completed on Windows local checkout:
+
+- `python -m pytest -q --no-cov tests/persona/quad/test_phase5_correctness.py tests/persona/quad/test_persona_scaling.py tests/persona/quad/test_phase4b_import_compatibility.py` — 41 passed.
+- `python -m pytest -q --no-cov tests/persona/quad/ tests/unit/test_phase5_phase_c.py tests/unit/test_phase_d_dsqp.py tests/benchmarks/test_dsqp_benchmark.py` — 52 passed.
+- `python -m ruff check core/persona/quad tests/persona/quad/test_phase5_correctness.py` — clean.
+
+## Remaining work
 
 ### Phase 6 — Decision: `backend/quad_persona` broken LLM wiring
 
@@ -140,11 +147,17 @@ The sandbox needs these pip installs that aren't auto-present (CI installs from
 `requirements.txt`): `neo4j chromadb bleach user_agents web3` (and `ruff`,
 `bandit[toml]` for the gates). Run with `PYTHONPATH=/home/user/workspace/DataLogicEngine`.
 
+## Change notes for v2.8.0
+
+- 2026-06-04: Updated handoff after Phase 5 correctness fixes and focused
+  regression tests landed locally. Remaining quad-persona consolidation work is
+  the Phase 6 `backend/quad_persona` decision.
+
 ## Change notes for v2.7.0
 
 - 2026-06-04: Updated handoff after live-code review confirmed Phase 4b is
-  implemented and locally validated. Remaining work is now Phase 5 correctness
-  bugs and the Phase 6 `backend/quad_persona` decision.
+  implemented and locally validated. At that point, Phase 5 correctness bugs and
+  the Phase 6 `backend/quad_persona` decision remained.
 
 ## Change notes for v2.6.0
 

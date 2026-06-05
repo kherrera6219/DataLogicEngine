@@ -102,10 +102,15 @@ class RefinementWorkflow12Step:
         ("optimize", "Final Optimization"),
     ]
 
-    CONFIDENCE_THRESHOLD = 0.995
+    DEFAULT_CONFIDENCE_THRESHOLD = 0.95
 
-    def __init__(self):
+    def __init__(self, confidence_threshold: float | None = None):
         self.step_results = []
+        self.confidence_threshold = (
+            self.DEFAULT_CONFIDENCE_THRESHOLD
+            if confidence_threshold is None
+            else confidence_threshold
+        )
         self.step_functions = {
             "tot": self._tree_of_thought,
             "aot": self._algorithm_of_thought,
@@ -150,7 +155,7 @@ class RefinementWorkflow12Step:
 
     def confidence_threshold_met(self, confidence: float) -> bool:
         """Confidence Threshold Function CT(x)."""
-        return confidence >= self.CONFIDENCE_THRESHOLD
+        return bool(confidence >= self.confidence_threshold)
 
     def _tree_of_thought(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
         """f_1: Tree of Thought expansion."""

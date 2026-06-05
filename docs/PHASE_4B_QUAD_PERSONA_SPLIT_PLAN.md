@@ -325,7 +325,7 @@ python scripts/verify_docs_references.py
   `persona_scaling.profiles` directly.
 - Status: Done and locally validated.
 
-### Finding 3 — Phase 5 correctness bugs remain visible and intentionally deferred
+### Finding 3 — Phase 5 correctness bugs were intentionally deferred from Phase 4b
 
 - Discovered during: code review while splitting.
 - Impact: `MemoryVertex` still uses naive `datetime.utcnow`, pod confidence still
@@ -334,7 +334,7 @@ python scripts/verify_docs_references.py
   not Phase 4b.
 - Action added to plan: No behavior fix included; document as deferred so the
   Phase 4b PR stays mechanical.
-- Status: Deferred to Phase 5.
+- Status: Closed by the follow-on Phase 5 correctness pass.
 
 ### Finding 4 — Local validation completed in Windows checkout
 

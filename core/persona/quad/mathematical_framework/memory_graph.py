@@ -71,10 +71,10 @@ class MemoryVertex:
     vertex_id: str
     content: str
     embedding: Optional[np.ndarray] = None
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     importance: float = 1.0
     access_count: int = 0
-    last_accessed: datetime = field(default_factory=datetime.utcnow)
+    last_accessed: datetime = field(default_factory=lambda: datetime.now(UTC))
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
