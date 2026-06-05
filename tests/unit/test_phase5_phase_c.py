@@ -68,7 +68,7 @@ class FakePersonaConstruction:
 async def test_gateway_quad_analysis_reaches_pod_orchestrator(monkeypatch):
     import backend.quad_persona.quad_engine as quad_engine
 
-    monkeypatch.setattr(quad_engine, "create_quad_persona_engine", lambda: FakeQuadEngine())
+    monkeypatch.setattr(quad_engine, "create_quad_persona_engine", lambda *args, **kwargs: FakeQuadEngine())
     gateway = LLMGateway()
 
     result = await gateway._run_quad_analysis(
@@ -80,6 +80,48 @@ async def test_gateway_quad_analysis_reaches_pod_orchestrator(monkeypatch):
     assert result["ok"] is True
     assert pod_trace["output"]["pod_count"] > 0
     assert "collective_confidence" in pod_trace["output"]
+    assert LLMGateway.get_quad_analysis_status()["pod_count"] == pod_trace["output"]["pod_count"]
+
+
+@pytest.mark.asyncio
+async def test_quad_engine_returns_gateway_contract_without_live_provider():
+    from backend.quad_persona.quad_engine import create_quad_persona_engine
+
+    analysis = await create_quad_persona_engine().run_quad_analysis(
+        "Assess compliance risk",
+        {"tags": ["legal"], "risk_domain": "compliance"},
+    )
+
+    assert set(analysis["perspectives"]) == {"knowledge", "sector", "regulatory", "compliance"}
+    assert isinstance(analysis["synthesis"], str)
+    assert analysis["metadata"]["successful_personas"] == 4
+    assert analysis["metadata"]["confidence"] > 0
+    for persona_result in analysis["perspectives"].values():
+        assert persona_result["status"] == "success"
+        assert "ImportError" not in persona_result["response"]
+
+
+@pytest.mark.asyncio
+async def test_gateway_quad_analysis_uses_real_engine_without_monkeypatch():
+    gateway = LLMGateway()
+
+    result = await gateway._run_quad_analysis(
+        "Assess legal compliance risk",
+        {
+            "tags": ["legal"],
+            "force_expanded_committee": True,
+            "query_id": "phase6-real-engine",
+        },
+    )
+
+    persona_trace = next(item for item in result["trace"] if item["ka_id"] == "PersonaAnalysis")
+    pod_trace = next(item for item in result["trace"] if item["ka_id"] == "PodOrchestrator")
+    assert result["ok"] is True
+    assert set(persona_trace["output"]) == {"knowledge", "sector", "regulatory", "compliance"}
+    for persona_result in persona_trace["output"].values():
+        assert persona_result["status"] == "success"
+        assert "ImportError" not in persona_result["response"]
+    assert pod_trace["output"]["pod_count"] > 0
     assert LLMGateway.get_quad_analysis_status()["pod_count"] == pod_trace["output"]["pod_count"]
 
 

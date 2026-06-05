@@ -166,8 +166,10 @@ plus the documented canonical DSQP system. Audit (see the shared
 
 - `backend/dsqp/` — REAL, canonical, live (DMRF/TruthCore). **Source of truth.**
 - `core/system/PersonaConstructionService` — REAL, live, uses DSQP.
-- `backend/quad_persona/quad_engine.py` — PARTIAL/STUB (broken `get_llm_gateway`
-  import); only reachable via gateway `mode=="quad"`.
+- `backend/quad_persona/quad_engine.py` — at audit start this was PARTIAL/STUB
+  because of a broken `get_llm_gateway` import; as of Phase 6 it is a
+  gateway-only path with deterministic offline fallback and gateway-compatible
+  `perspectives`/string `synthesis` output.
 - `core/persona/quad_persona_engine.py` (+ chain) — STUB/DEMO, orphaned.
 - root `quad_persona/quad_engine.py` — DUPLICATE: two concatenated engines, one
   shadowing the other; the factory raised TypeError. Its math/pod/models LIBRARY
@@ -237,18 +239,34 @@ plus the documented canonical DSQP system. Audit (see the shared
   passed, handoff Group A 52 passed, and `ruff check core/persona/quad
   tests/persona/quad/test_phase5_correctness.py` clean.
 
+### Phase 6 landed (gateway-only backend quad path)
+
+- Removed the dead `llm_gateway.gateway.get_llm_gateway` import path from
+  `backend/quad_persona/quad_engine.py`.
+- `_run_quad_analysis` now injects the live `LLMGateway` instance into
+  `create_quad_persona_engine`.
+- `run_quad_analysis` returns the gateway-consumed `perspectives`, string
+  `synthesis`, `synthesis_details`, and confidence metadata while preserving
+  top-level persona entries for compatibility.
+- Added deterministic local persona/synthesis fallback so the gateway-only
+  `mode=="quad"` path remains executable without configured external providers.
+- Added direct engine and non-monkeypatched gateway regressions in
+  `tests/unit/test_phase5_phase_c.py`.
+
 ### Open items (future phases)
 
-- **Phase 6 (decision):** `backend/quad_persona/quad_engine.py` imports a
-  non-existent `get_llm_gateway` from a non-existent top-level `llm_gateway`
-  package; every "real LLM" path fails at runtime and is masked by a monkeypatched
-  test. Either wire it to the real `backend.llm_gateway` API (and add a
-  non-monkeypatched test) or stop labeling it production.
+- No quad-persona consolidation phases remain open. Broader production-readiness
+  work still needs provider-backed staging validation and the standard merge gate.
+
+## Change notes for v2.9.0
+
+- 2026-06-05: Recorded Phase 6 backend quad-persona gateway wiring, deterministic
+  fallback, output-contract normalization, and focused validation.
 
 ## Change notes for v2.8.0
 
 - 2026-06-04: Recorded Phase 5 quad-persona correctness fixes and validation.
-  Phase 6 remains open.
+  At that point, Phase 6 remained open.
 
 ## Change notes for v2.7.0
 

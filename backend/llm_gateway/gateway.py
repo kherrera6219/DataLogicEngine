@@ -1381,7 +1381,7 @@ class LLMGateway:
             )
             from backend.truth_engine.truth_core.persona_sufficiency import PersonaSufficiencyTool
             from core.persona.quad.pod_orchestrator import create_pod_orchestrator
-            engine = create_quad_persona_engine()
+            engine = create_quad_persona_engine(llm_gateway=self)
             
             # Run the concurrent analysis
             analysis = await engine.run_quad_analysis(query, context)
@@ -1411,7 +1411,10 @@ class LLMGateway:
             )
             pod_summary = orchestration_summary(orchestration_state)
             self.__class__._last_quad_analysis_status = pod_summary
-            answer = orchestration_state.final_synthesis or analysis.get("synthesis", "Failed to synthesize persona perspectives.")
+            analysis_synthesis = analysis.get("synthesis", "Failed to synthesize persona perspectives.")
+            if isinstance(analysis_synthesis, dict):
+                analysis_synthesis = analysis_synthesis.get("summary", "Failed to synthesize persona perspectives.")
+            answer = orchestration_state.final_synthesis or analysis_synthesis
             
             return {
                 "ok": True,
