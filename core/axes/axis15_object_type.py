@@ -7,7 +7,7 @@ of knowledge elements (e.g., statute, regulation, control, claim).
 
 import logging
 from typing import Dict, Any
-from core.simulation.coordinate_system import ObjectType
+from core.coordinate_system import ObjectType
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ and access control policies for knowledge elements.
 
 import logging
 from typing import Dict, Any
-from core.simulation.coordinate_system import SecurityClassification
+from core.coordinate_system import SecurityClassification
 
 logger = logging.getLogger(__name__)
 
