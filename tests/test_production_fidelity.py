@@ -1,6 +1,6 @@
 import pytest
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
-from backend.truth_engine.truth_core.persona_sufficiency import PersonaSufficiencyTool
+from backend.truth_engine.truth_core.persona_sufficiency import GatewayPersonaSufficiencyTool as PersonaSufficiencyTool
 
 from backend.knowledge_algorithms.ka_master_controller import get_controller
 

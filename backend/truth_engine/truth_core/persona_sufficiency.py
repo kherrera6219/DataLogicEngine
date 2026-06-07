@@ -8,10 +8,17 @@ class SufficiencyMode(Enum):
     QUAD_ONLY = "quad_only"
     EXPANDED_COMMITTEE = "expanded_committee"
 
-class PersonaSufficiencyTool:
+class GatewayPersonaSufficiencyTool:
     """
-    Decides per-query whether the base 4 personas are sufficient or if more specialists are needed.
-    Implements a scoring gate based on:
+    Gateway-path sufficiency gate: decides per-query whether the base 4 personas
+    are sufficient or if more specialists are needed.
+
+    Distinct from core.persona.quad.persona_scaling.sufficiency.PersonaSufficiencyTool
+    (the Phase 5 canonical). This class uses a lighter dict-based API and is called
+    directly by the LLM gateway and truth_core engine. Full API migration to the
+    core canonical is deferred to Sprint 2 (requires coordinated caller updates).
+
+    Scoring gates:
     1. Complexity Score (Pillars/Sectors activated)
     2. Stake/Assurance Score (Defense, Safety Critical)
     3. Conflict Score (Disagreement level)

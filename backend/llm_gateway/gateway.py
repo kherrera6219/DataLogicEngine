@@ -1379,7 +1379,7 @@ class LLMGateway:
                 orchestration_summary,
                 scaling_decision_from_sufficiency,
             )
-            from backend.truth_engine.truth_core.persona_sufficiency import PersonaSufficiencyTool
+            from backend.truth_engine.truth_core.persona_sufficiency import GatewayPersonaSufficiencyTool as PersonaSufficiencyTool
             from core.persona.quad.pod_orchestrator import create_pod_orchestrator
             engine = create_quad_persona_engine(llm_gateway=self)
             
