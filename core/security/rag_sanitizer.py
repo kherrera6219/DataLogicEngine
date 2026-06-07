@@ -1,12 +1,17 @@
+"""
+RAG Sanitizer — Layer 3 Defense: The Sieve.
+
+Sanitizes external content retrieved via RAG to prevent Indirect Prompt Injection.
+Pure domain logic; no Flask/DB dependencies.
+"""
 import re
 
 
 class RAGSanitizer:
     """
-    Layer 3 Defense: The Sieve.
     Sanitizes external content (RAG/docs) to prevent Indirect Prompt Injection.
     """
-    
+
     # Patterns that look like instructions rather than data
     INJECTION_PATTERNS = [
         r"(?i)ignore (all|previous) instructions",
@@ -18,24 +23,18 @@ class RAGSanitizer:
     ]
 
     def sanitize_content(self, text: str) -> str:
-        """
-        Cleanses text of imperative commands and enforces structural isolation.
-        """
+        """Cleanses text of imperative commands and enforces structural isolation."""
         if not text:
             return ""
 
         clean_text = text
-        
-        # 1. Strip known injection command patterns
+
         for pattern in self.INJECTION_PATTERNS:
-            # Replace with [REDACTED_COMMAND] to alert the model it was modified
             clean_text = re.sub(pattern, "[DATA_SANITIZED: Suspicious Command Removed]", clean_text)
-            
-        # 2. Structural Isolation (Escape delimiters that might be used by the System Prompt)
-        # Assuming System uses '### ' or '```' as delimiters
+
         clean_text = clean_text.replace("### System", "System")
         clean_text = clean_text.replace("### User", "User")
-        
+
         return clean_text
 
     def format_for_context(self, text: str, source_id: str) -> str:
