@@ -189,9 +189,9 @@ class TruthMemoryCommitService:
         merkle_root: Optional[str] = None,
         anchor: Optional[dict] = None,
     ) -> str:
-        from backend.truth_engine.truth_memory.audit import AuditLogger
+        from backend.truth_engine.truth_memory.audit import TruthAuditRecorder
 
-        audit = AuditLogger(db_session=db_session)
+        audit = TruthAuditRecorder(db_session=db_session)
         session_id = None  # truth_audit_events.session_id FK → truth_sessions; no truth session in this flow
         event_data = {
             "evidence_pack_hash": evidence_pack_hash,

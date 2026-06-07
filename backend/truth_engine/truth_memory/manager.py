@@ -9,7 +9,7 @@ import os
 from datetime import datetime, UTC
 from typing import Dict, Any, Optional
 
-from backend.truth_engine.truth_memory.audit import AuditLogger
+from backend.truth_engine.truth_memory.audit import TruthAuditRecorder
 from backend.truth_engine.truth_memory.cache import TruthCache
 from backend.truth_engine.truth_memory.metrics import MetricsTracker
 from backend.truth_engine.truth_memory.mlflow_tracker import TruthMemoryMLflowTracker
@@ -31,7 +31,7 @@ class TruthMemoryManager:
     def __init__(self, db_session=None, cache_backend: str = None):
         """Initialize TruthMemory with components."""
         self.db_session = db_session
-        self.audit_logger = AuditLogger(db_session)
+        self.audit_logger = TruthAuditRecorder(db_session)
         if cache_backend is None:
             cache_backend = 'redis' if os.environ.get("USE_REDIS", "false").lower() in {"1", "true", "yes", "on"} else 'memory'
         self.cache = TruthCache(backend=cache_backend)

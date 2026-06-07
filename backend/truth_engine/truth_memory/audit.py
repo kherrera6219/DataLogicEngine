@@ -1,7 +1,11 @@
 """
-TruthMemory Audit Logger
+TruthMemory Audit Recorder
 
-SHA-256 hash chain-based immutable audit logging.
+SHA-256 hash chain-based immutable audit logging for the TruthMemory reasoning
+trace system. Records reasoning-level events (steps, confidence, provenance).
+
+DISTINCT FROM backend/security/audit_logger.py (AuditLogger), which is the
+SOC 2 security-level event logger with retention, export, and compliance hooks.
 """
 
 import logging
@@ -14,12 +18,14 @@ from typing import Dict, Any, List
 logger = logging.getLogger(__name__)
 
 
-class AuditLogger:
+class TruthAuditRecorder:
     """
-    Immutable audit logger with hash chains.
-    
-    Each event is linked to the previous via SHA-256 hash,
-    creating a blockchain-like immutable audit trail.
+    Immutable reasoning-trace recorder with hash chains.
+
+    Each event is linked to the previous via SHA-256 hash, creating a
+    blockchain-like immutable audit trail of the truth engine's reasoning steps.
+
+    For security-level SOC 2 audit events, see backend/security/audit_logger.py.
     """
 
     def __init__(self, db_session=None, retention_years: int = 7):

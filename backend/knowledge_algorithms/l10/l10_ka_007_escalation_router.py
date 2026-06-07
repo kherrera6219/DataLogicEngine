@@ -33,10 +33,10 @@ def run(inputs: dict[str, Any]) -> dict[str, Any]:
 
 def _write_optional_audit(ticket: dict[str, Any], inputs: dict[str, Any]) -> None:
     try:
-        from backend.truth_engine.truth_memory.audit import AuditLogger
+        from backend.truth_engine.truth_memory.audit import TruthAuditRecorder
         from extensions import db
 
-        AuditLogger(db_session=db.session).log_event(
+        TruthAuditRecorder(db_session=db.session).log_event(
             session_id=inputs.get("session_id"),
             event_type="l10_human_escalation",
             event_data=ticket,

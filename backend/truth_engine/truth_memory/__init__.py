@@ -9,8 +9,8 @@ Provides:
 """
 
 from backend.truth_engine.truth_memory.manager import TruthMemoryManager
-from backend.truth_engine.truth_memory.audit import AuditLogger
+from backend.truth_engine.truth_memory.audit import TruthAuditRecorder
 from backend.truth_engine.truth_memory.cache import TruthCache
 from backend.truth_engine.truth_memory.metrics import MetricsTracker
 
-__all__ = ["TruthMemoryManager", "AuditLogger", "TruthCache", "MetricsTracker"]
+__all__ = ["TruthMemoryManager", "TruthAuditRecorder", "TruthCache", "MetricsTracker"]
