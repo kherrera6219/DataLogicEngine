@@ -1,16 +1,21 @@
 """
-12-Step Refinement Workflow Orchestrator
+12-Step Refinement Workflow Orchestrator — system-layer scaffold.
 
-This module implements the post-processing QA loop for the UKG system.
-It orchestrates 12 specific refinement steps (AoT, ToT, Gap Analysis, etc.)
-to converge on high-confidence answers (target ≥ 0.995).
+Used by UnitedSystemManager as the system-level coordinator. The live
+gateway pipeline uses backend.truth_engine.truth_core.refinement_orchestrator
+(RefinementOrchestrator) which has a different, async constructor. This class
+is intentionally distinct: it is the synchronous system-layer variant.
+
+Deletion deferred to Sprint 2 (LY-* inversion pass), at which point
+UnitedSystemManager will be updated to inject via interface rather than
+importing this directly.
 """
 
 import logging
 from typing import Dict, Any
 from core.system.uae_models import UnifiedArtifactEnvelope
 
-class RefinementOrchestrator:
+class SystemRefinementOrchestrator:
     """
     12-Step Refinement Orchestrator
     

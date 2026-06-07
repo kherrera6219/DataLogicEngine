@@ -12,7 +12,7 @@ from core.system.unified_identity_service import UnifiedIdentityService
 from core.system.unified_numbering_service import UnifiedNumberingService
 from core.system.code_crosswalk_service import CodeCrosswalkService
 from core.system.trace_service import TraceProvenanceService
-from core.system.refinement_orchestrator import RefinementOrchestrator
+from core.system.refinement_orchestrator import SystemRefinementOrchestrator
 from core.system.unified_mapping_system import UnifiedMappingSystem
 from core.system.persona_construction_service import PersonaConstructionService
 
@@ -173,7 +173,7 @@ class UnitedSystemManager:
         self.register_component("mapping", self.mapping)
         
         # 6. Refinement Orchestrator
-        self.refinement = RefinementOrchestrator(
+        self.refinement = SystemRefinementOrchestrator(
             ka_controller=self.get_component("ka_controller"),
             frost=self.frost,
             trace=self.trace
