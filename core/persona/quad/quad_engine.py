@@ -14,6 +14,9 @@ keeps the single live engine and its expert hierarchy.
 The canonical, documented persona engine for production is ``backend/dsqp/``
 (see docs/ARCHITECTURE.md); this engine is retained for the legacy simulation
 path (core/simulation/layer2_legacy_knowledge.py) and demos.
+
+DISTINCT FROM backend/quad_persona/quad_engine.py, which is the gateway-only
+async LLM-routing version (mode="quad"). The two coexist intentionally.
 """
 
 import logging

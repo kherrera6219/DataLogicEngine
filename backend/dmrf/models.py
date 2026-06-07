@@ -1,4 +1,13 @@
-"""Data models for the DMRF control plane."""
+"""
+backend/dmrf/models.py — DMRF control-plane data models.
+
+Defines result and routing models for the Dynamic Multi-Route Framework (DMRF)
+pipeline: route decisions, scoring, and dispatch results.
+
+DISTINCT FROM core/persona/quad/models.py, which defines quad persona data
+models (personas, confidence vectors, pod scaling) for axes 8-11. The two share
+no classes; the filename overlap is coincidental.
+"""
 
 from __future__ import annotations
 

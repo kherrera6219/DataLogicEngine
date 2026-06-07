@@ -1,5 +1,5 @@
 """
-Universal Knowledge Graph (UKG) System - Quad Persona Data Models
+core/persona/quad/models.py — Quad Persona Data Models
 
 Shared, dependency-free data structures for the quad-persona subsystem
 (axes 8-11: knowledge, sector, regulatory, compliance).
@@ -7,6 +7,9 @@ Shared, dependency-free data structures for the quad-persona subsystem
 Extracted from the legacy ``quad_engine.py`` (which previously defined these
 inline alongside a duplicated, shadowed engine). Keeping them here lets
 consumers import the data model without pulling in any engine implementation.
+
+DISTINCT FROM backend/dmrf/models.py, which defines DMRF routing and result
+models. The two share no classes; the filename overlap is coincidental.
 """
 
 import logging

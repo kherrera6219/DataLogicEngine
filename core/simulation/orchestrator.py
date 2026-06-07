@@ -1,8 +1,12 @@
 """
-Universal Knowledge Graph (UKG) System - Simulation Orchestrator
+core/simulation/orchestrator.py — Simulation-layer orchestrator.
 
-This module provides the orchestration layer that connects all three layers of the
-Nested Layered In-Memory Simulation Management System.
+Provides the orchestration layer that connects all three layers of the Nested
+Layered In-Memory Simulation Management System (FROST, graph, memory).
+
+DISTINCT FROM backend/dmrf/orchestrator.py, which is the DMRF request-routing
+control plane. The two handle completely different domains; the filename overlap
+is coincidental.
 """
 
 import logging

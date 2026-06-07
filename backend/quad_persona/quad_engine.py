@@ -1,9 +1,14 @@
 """
-Quad Persona Engine
--------------------
-Runs concurrent analysis using 4 expert personas through an optional LLM gateway.
-When no provider is available, the engine uses deterministic local responses so
-the quad-persona path remains executable in desktop and test environments.
+backend/quad_persona/quad_engine.py — Gateway-path Quad Persona Engine
+-----------------------------------------------------------------------
+Runs concurrent analysis using 4 expert personas through the LLM gateway.
+This is the *backend gateway layer* entry point: it handles async LLM routing,
+request lifecycle, and mode="quad" dispatch.
+
+DISTINCT FROM core/persona/quad/quad_engine.py, which is the *shared library*
+version with deterministic local fallback and no gateway dependency. The two
+files coexist intentionally — do not merge them. The backend version is what
+the gateway calls; the core version is imported by tests and the simulation path.
 """
 
 import asyncio

@@ -1,4 +1,14 @@
-"""DMRF Python control-plane orchestrator."""
+"""
+backend/dmrf/orchestrator.py — DMRF control-plane orchestrator.
+
+Routes incoming requests through the Dynamic Multi-Route Framework (DMRF):
+selects the appropriate processing chain (truth engine, simulation, DSQP, etc.)
+based on query classification scores.
+
+DISTINCT FROM core/simulation/orchestrator.py, which orchestrates the three
+in-memory simulation layers (FROST, graph, memory). The two handle completely
+different domains; the filename overlap is coincidental.
+"""
 
 from __future__ import annotations
 
