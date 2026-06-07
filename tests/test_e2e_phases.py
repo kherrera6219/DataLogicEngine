@@ -9,7 +9,7 @@ from datetime import datetime, UTC, timedelta
 
 sys.path.append(os.getcwd())
 
-from backend.simulation.simulation_engine import create_simulation_engine
+from backend.simulation.multi_agent_engine import create_multi_agent_simulation_engine as create_simulation_engine
 from backend.quad_persona.quad_engine import create_quad_persona_engine
 from backend.mcp_server.router import MCPRouter
 from backend.mcp_server.registry import registry

@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from backend.simulation.simulation_engine import SimulationEngine, create_simulation_engine
+from backend.simulation.multi_agent_engine import MultiAgentSimulationEngine as SimulationEngine, create_multi_agent_simulation_engine as create_simulation_engine
 
 
 def test_create_simulation_engine_factory():

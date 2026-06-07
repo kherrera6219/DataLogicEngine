@@ -1,8 +1,14 @@
 """
-Simulation Engine - PRODUCTION VERSION
---------------------------------------
-The Core Intelligence engine responsible for running multi-agent counterfactual simulations
-using real LLM calls through the existing gateway.
+Multi-Agent Simulation Engine
+
+Gateway-path multi-agent counterfactual simulation using real LLM calls.
+This is the backend-layer engine for running adversarial multi-persona
+debates and synthesizing conclusions through the LLM gateway.
+
+Distinct from core/simulation/simulation_engine.py, which is the full
+FROST 10-layer simulation engine used by the live reasoning pipeline.
+This engine handles the narrower use case: user-triggered simulation
+routes that run an adversarial debate via LLM.
 """
 
 import logging
@@ -59,10 +65,14 @@ class SimulationResult:
             'metadata': self.metadata
         }
 
-class SimulationEngine:
+class MultiAgentSimulationEngine:
     """
-    Orchestrates the 10-Layer Simulation Logic using real LLM calls.
-    
+    Orchestrates multi-agent counterfactual simulations using real LLM gateway calls.
+
+    Runs an adversarial multi-persona debate loop and synthesizes a conclusion.
+    Not the same as the FROST 10-layer engine in core/simulation/simulation_engine.py —
+    this engine handles user-triggered simulation routes only.
+
     Architecture:
     1. Scenario Contextualization (Axis Mapping)
     2. Persona Selection (Quad/Hexa configurations)
@@ -78,47 +88,40 @@ class SimulationEngine:
 
     def __init__(self, llm_gateway=None, max_concurrent_simulations: int = 100):
         self.logger = logging.getLogger(__name__)
-        self.llm_gateway = llm_gateway  # Inject LLM gateway
+        self.llm_gateway = llm_gateway
         self.active_simulations = {}
         self.max_concurrent_simulations = max_concurrent_simulations
         self.simulation_count = 0
-        self.logger.info(f"SimulationEngine v2.0 initialized (PRODUCTION MODE, max concurrent: {max_concurrent_simulations}).")
+        self.logger.info(f"MultiAgentSimulationEngine v2.0 initialized (PRODUCTION MODE, max concurrent: {max_concurrent_simulations}).")
 
     def create_simulation(self, query: str, context: Dict[str, Any]) -> str:
         """
         Initialize a new simulation session with input validation and rate limiting.
-        
-        Args:
-            query: User query string (max 10000 chars)
-            context: Context dictionary
-            
+
         Returns:
             Simulation ID
-            
+
         Raises:
             ValueError: If input validation fails
             RuntimeError: If rate limit exceeded
         """
-        # Input validation
         if not query or not isinstance(query, str):
             raise ValueError("Query must be a non-empty string")
-        
+
         if len(query) > 10000:
             raise ValueError("Query exceeds maximum length of 10000 characters")
-        
+
         if not isinstance(context, dict):
             raise ValueError("Context must be a dictionary")
-        
-        # Rate limiting check
+
         if len(self.active_simulations) >= self.max_concurrent_simulations:
             raise RuntimeError(
                 f"Maximum concurrent simulations ({self.max_concurrent_simulations}) reached. "
                 "Please wait for existing simulations to complete."
             )
-        
-        # Sanitize query (remove potential injection attempts)
+
         sanitized_query = query.strip()
-        
+
         try:
             sim_id = str(uuid.uuid4())
             self.active_simulations[sim_id] = {
@@ -135,23 +138,12 @@ class SimulationEngine:
             self.logger.error(f"Failed to create simulation: {e}")
             raise RuntimeError(f"Simulation creation failed: {e}")
 
-
     async def _call_llm(self, prompt: str, persona: str = "default") -> str:
-        """
-        Call LLM through the gateway.
-        
-        Args:
-            prompt: The prompt to send
-            persona: Persona name for context
-            
-        Returns:
-            LLM response text
-        """
+        """Call LLM through the gateway."""
         try:
             gateway = self.llm_gateway
             if gateway is None:
                 from backend.llm_gateway.gateway import get_gateway
-
                 gateway = get_gateway()
 
             if not hasattr(gateway, "process"):
@@ -170,7 +162,7 @@ class SimulationEngine:
                     temperature=0.7,
                     max_tokens=500,
                     meta={
-                        "source": "simulation_engine",
+                        "source": "multi_agent_simulation_engine",
                         "persona": persona,
                     },
                 )
@@ -199,83 +191,65 @@ class SimulationEngine:
 
     async def run_simulation(self, simulation_id: str, depth: str = "standard", timeout: int = 300) -> Dict[str, Any]:
         """
-        Execute the simulation loop with REAL LLM calls.
-        
-        Args:
-            simulation_id: The ID of the session.
-            depth: "quick", "standard", or "deep" (determines turns).
-            timeout: Maximum execution time in seconds (default: 300)
-        
-        Returns:
-            Simulation result dictionary
-            
+        Execute the simulation loop with real LLM calls.
+
         Raises:
             ValueError: If simulation not found or invalid depth
             asyncio.TimeoutError: If simulation exceeds timeout
         """
-        # Validation
         if simulation_id not in self.active_simulations:
             raise ValueError(f"Simulation {simulation_id} not found.")
-        
+
         if depth not in ["quick", "standard", "deep"]:
             raise ValueError(f"Invalid depth '{depth}'. Must be 'quick', 'standard', or 'deep'.")
 
         sim_data = self.active_simulations[simulation_id]
         result = SimulationResult(simulation_id)
         result.status = "running"
-        
+
         try:
-            # Wrap execution in timeout
             async with asyncio.timeout(timeout):
                 query = sim_data['query']
-                
-                # Step 1: Contextualize using LLM
+
                 context_prompt = f"Analyze this query and identify relevant knowledge domains: {query}"
                 context_analysis = await self._call_llm(context_prompt, "Orchestrator")
                 result.add_event(SimulationEvent(1, "Orchestrator", "CONTEXTUALIZE", context_analysis, 0.9))
 
-                # Step 2: Persona Selection
                 personas = ["Knowledge_Expert", "Regulatory_Advisor", "Sector_Specialist"]
                 result.add_event(SimulationEvent(2, "Orchestrator", "SELECT_AGENTS", f"Selected: {personas}", 0.9))
                 result.metadata['personas'] = personas
 
-                # Step 3-6: Multi-turn Adversarial Debate with REAL LLM
                 turns = 2 if depth == "quick" else (3 if depth == "standard" else 5)
                 debate_history = []
-                
+
                 for i in range(turns):
                     agent = personas[i % len(personas)]
-                    
-                    # Build debate context
                     history_context = "\n".join([f"{e.agent}: {e.content}" for e in result.events[-3:]])
                     debate_prompt = f"""Previous discussion:
 {history_context}
 
 As {agent}, provide your expert perspective on: {query}
 Consider the previous arguments and either support, refute, or extend them."""
-                    
+
                     argument = await self._call_llm(debate_prompt, agent)
                     debate_history.append(argument)
-                    
-                    # Calculate impact score based on argument length and turn
+
                     impact_score = min(0.95, 0.7 + (len(argument) / 1000) + (i * 0.05))
                     result.add_event(SimulationEvent(3+i, agent, "ARGUE", argument, impact_score))
 
-                # Step 7: Synthesis using LLM
                 synthesis_prompt = f"""Based on this multi-expert debate about '{query}':
 
 {chr(10).join([f'{i+1}. {arg}' for i, arg in enumerate(debate_history)])}
 
 Provide a synthesized conclusion that integrates all perspectives."""
-                
+
                 synthesis = await self._call_llm(synthesis_prompt, "Synthesizer")
                 result.final_conclusion = synthesis
                 result.consensus_reached = True
-                
-                # Calculate confidence based on debate quality
+
                 result.confidence_score = min(0.95, 0.75 + (len(debate_history) * 0.05))
                 result.status = "completed"
-                
+
                 self.logger.info(f"Simulation {simulation_id} completed successfully with {turns} LLM calls.")
                 return result.to_dict()
 
@@ -291,23 +265,18 @@ Provide a synthesized conclusion that integrates all perspectives."""
             result.metadata['error_type'] = type(e).__name__
             return result.to_dict()
         finally:
-            # Cleanup: Remove from active simulations after completion
             if simulation_id in self.active_simulations:
                 del self.active_simulations[simulation_id]
                 self.logger.debug(f"Cleaned up simulation {simulation_id}")
 
     def process_query(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Synchronous wrapper for the API endpoint to run a standard simulation.
-        """
+        """Synchronous wrapper for API endpoints."""
         import asyncio
-        
+
         sim_id = self.create_simulation(query, context)
-        
-        # Check if event loop is already running
+
         try:
             asyncio.get_running_loop()
-            # If we're already in an async context, create a task
             import concurrent.futures
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future = executor.submit(
@@ -316,10 +285,9 @@ Provide a synthesized conclusion that integrates all perspectives."""
                 )
                 return future.result()
         except RuntimeError:
-            # No event loop running, safe to use asyncio.run
             return asyncio.run(self.run_simulation(sim_id, depth="standard"))
 
 
-def create_simulation_engine(llm_gateway=None):
-    """Factory function to create the engine instance."""
-    return SimulationEngine(llm_gateway=llm_gateway)
+def create_multi_agent_simulation_engine(llm_gateway=None) -> MultiAgentSimulationEngine:
+    """Factory function to create a MultiAgentSimulationEngine instance."""
+    return MultiAgentSimulationEngine(llm_gateway=llm_gateway)

@@ -22,8 +22,8 @@ simulation_bp = Blueprint('simulation_api', __name__, url_prefix='/api/v1')
 logger = logging.getLogger(__name__)
 
 # Initialize production engine
-from backend.simulation.simulation_engine import create_simulation_engine
-engine = create_simulation_engine()
+from backend.simulation.multi_agent_engine import create_multi_agent_simulation_engine
+engine = create_multi_agent_simulation_engine()
 
 def error_response(message, status_code=400):
     return jsonify({"error": message, "success": False}), status_code
