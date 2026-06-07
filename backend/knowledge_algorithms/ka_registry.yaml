@@ -115,6 +115,7 @@ ka_registry:
   "KA-114": "backend.knowledge_algorithms.ka_114_federated_outbox.run"
   "KA-115": "backend.knowledge_algorithms.ka_115_federated_inbox.run"
   "KA-116": "backend.knowledge_algorithms.ka_116_entropy_detection.run"
+  "KA-117": "backend.knowledge_algorithms.ka_117_knowledge_integrity_validator.run"
 
   # Layer 10 KA Suite
   "L10-KA-001": "backend.knowledge_algorithms.l10.l10_ka_001_entropy_scorer.run"

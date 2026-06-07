@@ -11,7 +11,7 @@ class FakeKnowledgeAlgorithm:
     def log_execution_step(self, *args, **kwargs):
         pass
 
-class TestKA050EdgeCases:
+class TestKA117EdgeCases:
     @pytest.fixture
     def mock_dependencies(self):
         """
@@ -40,7 +40,7 @@ class TestKA050EdgeCases:
         """
         with patch.dict(sys.modules, mock_dependencies):
             # If it was already imported by another test (unlikely given the unique name, but possible), reload it
-            module_name = 'backend.knowledge_algorithms.ka_50_knowledge_integrity_validator'
+            module_name = 'backend.knowledge_algorithms.ka_117_knowledge_integrity_validator'
             if module_name in sys.modules:
                 del sys.modules[module_name]
             
@@ -59,9 +59,9 @@ class TestKA050EdgeCases:
 
     def test_load_config_failure(self, ka_module, empty_context):
         """Test graceful failure when config cannot be loaded."""
-        KA050Validator = ka_module.KA050KnowledgeIntegrityValidator
+        KA050Validator = ka_module.KA117KnowledgeIntegrityValidator
         
-        with patch('backend.knowledge_algorithms.ka_50_knowledge_integrity_validator.os.path.exists', return_value=True), \
+        with patch('backend.knowledge_algorithms.ka_117_knowledge_integrity_validator.os.path.exists', return_value=True), \
              patch('builtins.open', side_effect=OSError("Read error")):
             
             algo = KA050Validator(empty_context)
@@ -69,11 +69,11 @@ class TestKA050EdgeCases:
 
     def test_dangling_edge_detection(self, ka_module, empty_context):
         """Test detection of edges pointing to missing nodes."""
-        KA050Validator = ka_module.KA050KnowledgeIntegrityValidator
-        KA050Input = ka_module.KA050Input
+        KA050Validator = ka_module.KA117KnowledgeIntegrityValidator
+        KA117Input = ka_module.KA117Input
         
         algo = KA050Validator(empty_context)
-        input_data = KA050Input(snapshot={
+        input_data = KA117Input(snapshot={
             "nodes": [{"id": "n1", "confidence": 1.0}],
             "edges": [{"source": "n1", "target": "missing_node"}]
         })
@@ -85,12 +85,12 @@ class TestKA050EdgeCases:
 
     def test_low_confidence_detection(self, ka_module, empty_context):
         """Test detection of low confidence nodes."""
-        KA050Validator = ka_module.KA050KnowledgeIntegrityValidator
-        KA050Input = ka_module.KA050Input
+        KA050Validator = ka_module.KA117KnowledgeIntegrityValidator
+        KA117Input = ka_module.KA117Input
         
         algo = KA050Validator(empty_context)
         # Assuming default min_conf is 0.3
-        input_data = KA050Input(snapshot={
+        input_data = KA117Input(snapshot={
             "nodes": [{"id": "weak_node", "confidence": 0.1}],
             "edges": []
         })
@@ -100,13 +100,13 @@ class TestKA050EdgeCases:
 
     def test_quarantine_logic(self, ka_module, empty_context):
         """Test quarantine status based on config."""
-        KA050Validator = ka_module.KA050KnowledgeIntegrityValidator
-        KA050Input = ka_module.KA050Input
+        KA050Validator = ka_module.KA117KnowledgeIntegrityValidator
+        KA117Input = ka_module.KA117Input
         
         algo = KA050Validator(empty_context)
         algo.config["quarantine_on_failure"] = True
         
-        input_data = KA050Input(snapshot={
+        input_data = KA117Input(snapshot={
              "nodes": [{"id": "n1", "confidence": 0.1}], # Force failure
              "edges": []
         })
@@ -115,7 +115,7 @@ class TestKA050EdgeCases:
         assert result["status"] == "QUARANTINED"
 
         # Test valid case
-        input_data_valid = KA050Input(snapshot={
+        input_data_valid = KA117Input(snapshot={
              "nodes": [{"id": "n1", "confidence": 0.9}], 
              "edges": []
         })
@@ -126,7 +126,7 @@ class TestKA050EdgeCases:
         """Test top-level run function captures exceptions."""
         run_func = ka_module.run
         
-        with patch('backend.knowledge_algorithms.ka_50_knowledge_integrity_validator.KA050KnowledgeIntegrityValidator') as MockClass:
+        with patch('backend.knowledge_algorithms.ka_117_knowledge_integrity_validator.KA117KnowledgeIntegrityValidator') as MockClass:
             MockClass.side_effect = Exception("Critical Init Failure")
             
             result = run_func(context=empty_context)
@@ -135,9 +135,9 @@ class TestKA050EdgeCases:
 
     def test_load_config_missing(self, ka_module, empty_context):
         """Test config loading when file does not exist."""
-        KA050Validator = ka_module.KA050KnowledgeIntegrityValidator
+        KA050Validator = ka_module.KA117KnowledgeIntegrityValidator
         
-        with patch('backend.knowledge_algorithms.ka_50_knowledge_integrity_validator.os.path.exists', return_value=False):
+        with patch('backend.knowledge_algorithms.ka_117_knowledge_integrity_validator.os.path.exists', return_value=False):
             algo = KA050Validator(empty_context)
             assert algo.config == {}
 
@@ -146,7 +146,7 @@ class TestKA050EdgeCases:
         run_func = ka_module.run
         
         # We need to mock the instance method run, NOT the module-level run
-        with patch('backend.knowledge_algorithms.ka_50_knowledge_integrity_validator.KA050KnowledgeIntegrityValidator') as MockClass:
+        with patch('backend.knowledge_algorithms.ka_117_knowledge_integrity_validator.KA117KnowledgeIntegrityValidator') as MockClass:
             mock_instance = MockClass.return_value
             mock_instance.run.return_value = {"success": True}
             
