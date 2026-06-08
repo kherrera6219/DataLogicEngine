@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-06-07
+**Last updated:** 2026-06-07 (routes audit session)
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -50,7 +50,7 @@ Quad-persona consolidation update: 2026-06-05. Phases 4b, 5, and 6 are implement
 
 KA production-depth update: 2026-06-08. First model-ops KA batch is implemented and locally validated. `KA-084`, `KA-087`, `KA-089`, and `KA-090` now derive monitoring, versioning, pruning, and quantization outputs from supplied metrics/artifact/model metadata instead of canned placeholder values, and their constructor config overrides work with file-backed defaults. Continue the broader KA production-depth review with the remaining thin heuristic KAs.
 
-Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Sprint 1 eliminated duplicate class names, module name collisions, and misplaced files. Sprint 2 resolved all core→backend import inversions (`find_core_backend_inversions.py` reports 0 lines; `# inversion:ok` policy documented in `REPO_AUDIT_LOG.md`). Sprint 3 replaced all 5 stub `_check_*` compliance methods with real SOC 2 Type 2 runtime checks (SC-1 through SC-5) plus 25 unit tests. Full suite: 1855 passed / 21 skipped / 0 failures.
+Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Routes audit completed 2026-06-07: 22 route files reviewed across `routes/` and `backend/routes/`; 20 issues identified; RT-1 through RT-18 sprint tasks defined. Sprint 1 eliminated duplicate class names, module name collisions, and misplaced files. Sprint 2 resolved all core→backend import inversions (`find_core_backend_inversions.py` reports 0 lines; `# inversion:ok` policy documented in `REPO_AUDIT_LOG.md`). Sprint 3 replaced all 5 stub `_check_*` compliance methods with real SOC 2 Type 2 runtime checks (SC-1 through SC-5) plus 25 unit tests. Full suite: 1855 passed / 21 skipped / 0 failures.
 
 | Remaining phase | Live-code validation | Status |
 | --- | --- | --- |
@@ -108,6 +108,15 @@ Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Sprint 1 
     - Evidence: `backend/security/compliance_manager.py` — all 5 `_check_*` methods replaced with real SOC 2 Type 2 runtime checks. SC-1: `ENCRYPTION_KEK_SECRET` set/not-dev + key rotation via `get_encryption_manager().get_key_status()` + audit dir probe. SC-2: `db.engine.connect()` / `SELECT 1` + violation spike guard. SC-3: Alembic Python API migration-at-head + `TruthAuditRecorder.verify_chain()` hash chain. SC-4: key not dev/weak + PII regex scan of last 200 audit log lines. SC-5: route file presence check for `/export`, `/delete`, `ai_processing_enabled`. `_apply_check_result()` helper eliminates duplicate state-mutation. Module-level `try/except` imports make all dependencies patchable by unit tests.
     - Test file: `tests/security/test_compliance_manager_coverage.py` — 25 tests covering happy-path and non-compliant branches for each of SC-1 through SC-5.
     - Validation: `python -m pytest tests/security/test_compliance_manager_coverage.py -v --no-cov` → 25 passed / 0 failures; `python -m pytest tests --no-cov -q` → 1855 passed / 21 skipped / 0 failures; `ruff check .` → clean.
+
+14. [x] REPO-AUDIT-DUPS: duplicate class/file audit and sprint plan produced.
+    - Evidence: `scripts/audit_duplicates.py` and `scripts/audit_deep.py` scanned live code and found 8 module name collisions, 17 duplicate class names, 2 cross-tree factory function duplicates, and 2 misplaced files in `backend/core/`. Full findings in `docs/audits/DataLogicEngine_Audit_Sprint_Plan_v2.md`. Note: Audit Sprints 1–3 already completed the execution of most findings from this audit; see AUDIT-SPRINT-1 through AUDIT-SPRINT-3 above.
+    - Audit file: `docs/audits/DataLogicEngine_Audit_Sprint_Plan_v2.md`
+15. [x] REPO-AUDIT-ROUTES: full routes audit — `routes/` and `backend/routes/` (all 22 route files).
+    - Evidence: live read of all 22 route files. 20 issues found including 2 functional bugs (RT-1: 4 duplicate function names in multimodal_routes causing wrong handler dispatch; RT-2: unauthenticated `/search/suggest`), 5 unregistered blueprints (settings, analytics, retention, gdpr, privacy — all endpoints unreachable), and 3 overlapping user-data deletion implementations.
+    - Sprint tasks: RT-1 through RT-18 — see `docs/audits/DataLogicEngine_Routes_Audit.md` for full task list and exit gates.
+    - Audit file: `docs/audits/DataLogicEngine_Routes_Audit.md`
+    - Status: Audit complete, sprint execution pending.
 
 ### Trace Viewer Wiring Phased Update Plan
 
