@@ -2,10 +2,10 @@
 Notification Preferences Routes
 
 Provides endpoints for getting and saving per-user notification settings.
+Backed by the UserNotificationPreference SQL table (one row per user).
 """
 
 import logging
-import threading
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 
@@ -13,38 +13,49 @@ logger = logging.getLogger(__name__)
 
 notification_bp = Blueprint('notifications', __name__, url_prefix='/api/v1/user/notifications')
 
-# File-backed storage has a read-modify-write race condition under concurrent
-# requests. This lock serialises access until preferences move to the DB.
-# TODO: migrate notification_prefs to a UserNotificationPreference SQL table.
-_prefs_lock = threading.Lock()
+# Valid values for digest_frequency.
+_DIGEST_FREQUENCIES = {'none', 'daily', 'weekly'}
 
-# Default preferences applied when a user has no stored prefs.
-_DEFAULTS: dict = {
-    'email_on_run_complete': True,
-    'email_on_run_failed': True,
-    'email_on_simulation_complete': False,
-    'inapp_run_complete': True,
-    'inapp_run_failed': True,
-    'inapp_simulation_complete': True,
-    'inapp_system_alerts': True,
-    'digest_frequency': 'none',  # none | daily | weekly
-}
+# Keys accepted in PATCH/POST body — must match UserNotificationPreference columns.
+_BOOL_KEYS = (
+    'email_on_run_complete',
+    'email_on_run_failed',
+    'email_on_simulation_complete',
+    'inapp_run_complete',
+    'inapp_run_failed',
+    'inapp_simulation_complete',
+    'inapp_system_alerts',
+)
 
 
-def _get_user_prefs() -> dict:
-    """Read notification prefs from runtime settings for the current user."""
-    from backend.storage.runtime_settings import load_storage_settings
-    settings = load_storage_settings()
-    all_prefs = settings.get('notification_prefs', {})
-    user_prefs = all_prefs.get(str(current_user.id), {})
-    return {**_DEFAULTS, **user_prefs}
+def _get_or_create_prefs():
+    """Return the UserNotificationPreference row for the current user, creating
+    it with defaults if it does not yet exist."""
+    from models import UserNotificationPreference
+    from extensions import db
+
+    prefs = UserNotificationPreference.query.filter_by(user_id=current_user.id).first()
+    if prefs is None:
+        prefs = UserNotificationPreference(user_id=current_user.id)
+        db.session.add(prefs)
+        db.session.flush()   # assign PK; caller owns the commit
+    return prefs
 
 
 @notification_bp.route('', methods=['GET'])
 @login_required
 def get_notification_prefs():
     """Return the current user's notification preferences."""
-    return jsonify({'success': True, 'preferences': _get_user_prefs()})
+    try:
+        from extensions import db
+        prefs = _get_or_create_prefs()
+        db.session.commit()
+        return jsonify({'success': True, 'preferences': prefs.to_dict()})
+    except Exception as e:
+        from extensions import db
+        db.session.rollback()
+        logger.error("Failed to load notification prefs for user %s: %s", current_user.id, e)
+        return jsonify({'success': False, 'error': 'Failed to load preferences'}), 500
 
 
 @notification_bp.route('', methods=['POST'])
@@ -53,21 +64,33 @@ def save_notification_prefs():
     """Persist notification preference updates for the current user."""
     data = request.get_json() or {}
 
-    # Only allow known keys through.
-    patch = {k: data[k] for k in _DEFAULTS if k in data}
+    # Validate digest_frequency if provided.
+    if 'digest_frequency' in data and data['digest_frequency'] not in _DIGEST_FREQUENCIES:
+        return jsonify({
+            'success': False,
+            'error': f"digest_frequency must be one of: {', '.join(sorted(_DIGEST_FREQUENCIES))}",
+        }), 400
 
     try:
-        from backend.storage.runtime_settings import load_storage_settings, save_storage_settings
-        with _prefs_lock:
-            settings = load_storage_settings()
-            all_prefs = settings.get('notification_prefs', {})
-            user_prefs = dict(all_prefs.get(str(current_user.id), {}))
-            user_prefs.update(patch)
-            all_prefs[str(current_user.id)] = user_prefs
-            settings['notification_prefs'] = all_prefs
-            save_storage_settings(settings)
+        from extensions import db
+        prefs = _get_or_create_prefs()
 
-        return jsonify({'success': True, 'preferences': {**_DEFAULTS, **user_prefs}})
+        # Apply boolean toggles.
+        for key in _BOOL_KEYS:
+            if key in data:
+                value = data[key]
+                if not isinstance(value, bool):
+                    return jsonify({'success': False, 'error': f"'{key}' must be a boolean"}), 400
+                setattr(prefs, key, value)
+
+        # Apply digest_frequency if provided.
+        if 'digest_frequency' in data:
+            prefs.digest_frequency = data['digest_frequency']
+
+        db.session.commit()
+        return jsonify({'success': True, 'preferences': prefs.to_dict()})
     except Exception as e:
-        logger.error(f"Failed to save notification prefs for user {current_user.id}: {e}")
+        from extensions import db
+        db.session.rollback()
+        logger.error("Failed to save notification prefs for user %s: %s", current_user.id, e)
         return jsonify({'success': False, 'error': 'Failed to save preferences'}), 500

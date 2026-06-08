@@ -2531,6 +2531,50 @@ class MemoryEntry(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
+class UserNotificationPreference(db.Model):
+    """Per-user notification delivery preferences — one row per user."""
+    __tablename__ = 'user_notification_preferences'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey('users.id'),
+        nullable=False, unique=True, index=True,
+    )
+
+    # Email channel
+    email_on_run_complete = db.Column(db.Boolean, nullable=False, default=True)
+    email_on_run_failed = db.Column(db.Boolean, nullable=False, default=True)
+    email_on_simulation_complete = db.Column(db.Boolean, nullable=False, default=False)
+
+    # In-app channel
+    inapp_run_complete = db.Column(db.Boolean, nullable=False, default=True)
+    inapp_run_failed = db.Column(db.Boolean, nullable=False, default=True)
+    inapp_simulation_complete = db.Column(db.Boolean, nullable=False, default=True)
+    inapp_system_alerts = db.Column(db.Boolean, nullable=False, default=True)
+
+    # Digest schedule: none | daily | weekly
+    digest_frequency = db.Column(db.String(20), nullable=False, default='none')
+
+    updated_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+    def to_dict(self) -> dict:
+        return {
+            'email_on_run_complete': self.email_on_run_complete,
+            'email_on_run_failed': self.email_on_run_failed,
+            'email_on_simulation_complete': self.email_on_simulation_complete,
+            'inapp_run_complete': self.inapp_run_complete,
+            'inapp_run_failed': self.inapp_run_failed,
+            'inapp_simulation_complete': self.inapp_simulation_complete,
+            'inapp_system_alerts': self.inapp_system_alerts,
+            'digest_frequency': self.digest_frequency,
+        }
+
+
 class UserAIPreferences(db.Model):
     """Per-user AI processing and privacy preferences."""
     __tablename__ = 'user_ai_preferences'
