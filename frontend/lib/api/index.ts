@@ -8,7 +8,7 @@ import { compliance } from './compliance';
 import { ingestion } from './ingestion';
 import { request } from './client';
 
-export { API_BASE, buildApiUrl, request } from './client';
+export { API_BASE, ApiError, buildApiUrl, request } from './client';
 export * from './types';
 
 export const api = {

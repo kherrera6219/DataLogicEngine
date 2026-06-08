@@ -16,7 +16,7 @@ import {
 import {
   BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell
 } from 'recharts';
-import { api, buildApiUrl, request } from '@/lib/api';
+import { api, ApiError, buildApiUrl, request } from '@/lib/api';
 
 interface TestResult {
   confidence: number;
@@ -95,6 +95,26 @@ function formatRequestError(error: unknown): string {
     return error.message;
   }
   return String(error);
+}
+
+/** Maps HTTP status codes from the provider-test endpoint to user-actionable labels. */
+function mapProviderTestError(error: unknown): string {
+  if (error instanceof ApiError) {
+    const detail = error.message;
+    switch (error.status) {
+      case 401:
+        return `Invalid API key — ${detail}`;
+      case 429:
+        return `Rate limited — ${detail}`;
+      case 422:
+        return `Invalid model — ${detail}`;
+      case 504:
+        return `Network error — ${detail}`;
+      default:
+        return detail;
+    }
+  }
+  return formatRequestError(error);
 }
 
 export function ApiOverlayConfig() {
@@ -299,7 +319,7 @@ export function ApiOverlayConfig() {
       toast(result.message || "Provider connection successful.", "success");
     } catch (error) {
       setConnectionStatus('error');
-      toast(`Provider test failed: ${formatRequestError(error)}`, "error");
+      toast(mapProviderTestError(error), "error");
     }
   };
 

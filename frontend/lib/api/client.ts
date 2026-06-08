@@ -3,6 +3,18 @@ import { reportClientError } from '@/lib/telemetry/client-errors';
 import { shouldUseDesktopSessionFlow } from '@/lib/runtime/policy';
 import { removeLocalStorageItem } from '@/lib/state/storage';
 
+/**
+ * HTTP error thrown by `request()` for non-OK responses.
+ * Carries the raw HTTP `status` code so callers can map it to actionable
+ * messages (e.g. 401 → "Invalid API key" on the provider-test endpoint).
+ */
+export class ApiError extends Error {
+  constructor(message: string, public readonly status: number) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 const DEFAULT_API_BASE = 'http://localhost:5000/api/v1';
 export const API_BASE = (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_BASE).replace(/\/$/, '');
 const CSRF_TOKEN_ENDPOINT = '/auth/csrf-token';
@@ -302,7 +314,12 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
     const sessionAuthFailure =
       response.status === 401 ||
       (response.status === 403 && endpoint.includes('/auth/check'));
-    if (sessionAuthFailure) {
+    // Provider-test 401 means the *provider's* API key is invalid, not that
+    // the DataLogicEngine session has expired. Skip the redirect so the caller
+    // receives an ApiError with status 401 and can show an actionable message.
+    const isProviderTest =
+      /\/gateway\/providers\/[^/]+\/test/.test(endpoint);
+    if (sessionAuthFailure && !isProviderTest) {
       if (desktopRuntime && !endpoint.includes('/auth/desktop/auto-login')) {
         const recovered = await tryDesktopAutoLogin().catch(() => false);
         if (recovered) {
@@ -329,7 +346,7 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
 
     if (!response.ok) {
       const message = await parseErrorMessage(response);
-      throw new Error(message);
+      throw new ApiError(message, response.status);
     }
 
     return parseResponse<T>(response);
