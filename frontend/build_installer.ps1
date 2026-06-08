@@ -60,8 +60,14 @@ try {
     }
 
     # 3. Re-trigger Next.js Build (Ensure up to date)
-    Write-Host "Running Next.js production build..." -ForegroundColor Cyan
+    # IMPORTANT: BUILD_MODE=electron must be set so next.config.ts switches to
+    # output:'export' and writes to out/ (the directory electron-builder bundles).
+    # Without this env var Next.js builds standalone mode to .next/ which is
+    # never packaged, and the installer silently ships stale out/ code.
+    Write-Host "Running Next.js production build (electron export mode)..." -ForegroundColor Cyan
+    $env:BUILD_MODE = "electron"
     npm run build
+    $env:BUILD_MODE = ""
 
     # 4. Compiling Electron Main Process
     Write-Host "Compiling Electron source..." -ForegroundColor Cyan
