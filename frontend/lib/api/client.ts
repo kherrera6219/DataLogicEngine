@@ -7,10 +7,33 @@ import { removeLocalStorageItem } from '@/lib/state/storage';
  * HTTP error thrown by `request()` for non-OK responses.
  * Carries the raw HTTP `status` code so callers can map it to actionable
  * messages (e.g. 401 → "Invalid API key" on the provider-test endpoint).
+ *
+ * `message` is typed as `unknown` so that structural error payloads passed
+ * from `parseErrorMessage` can never silently coerce to "[object Object]"
+ * via the Error constructor's implicit toString(). The constructor guarantees
+ * the stored message is always a human-readable string.
  */
 export class ApiError extends Error {
-  constructor(message: string, public readonly status: number) {
-    super(message);
+  constructor(message: unknown, public readonly status: number) {
+    let safeMsg: string;
+    if (typeof message === 'string') {
+      safeMsg = message;
+    } else if (message !== null && typeof message === 'object') {
+      // Structured payload: prefer .message, fall back to .detail, then JSON
+      const m = message as Record<string, unknown>;
+      if (typeof m.message === 'string' && m.message) {
+        safeMsg = m.message;
+      } else if (typeof m.detail === 'string' && m.detail) {
+        safeMsg = m.detail;
+      } else if (typeof m.msg === 'string' && m.msg) {
+        safeMsg = m.msg;
+      } else {
+        safeMsg = JSON.stringify(message);
+      }
+    } else {
+      safeMsg = String(message ?? 'Request failed');
+    }
+    super(safeMsg);
     this.name = 'ApiError';
   }
 }
@@ -248,7 +271,15 @@ async function parseErrorMessage(response: Response): Promise<string> {
           if (typeof nestedErr.code === 'string' && nestedErr.code) return nestedErr.code;
         }
       }
-      if (errorData.detail) return errorData.detail;
+      // `detail` can be a string, or an array of Pydantic/validation error objects
+      // [{loc, msg, type}]. Guard against returning a non-string value.
+      if (typeof errorData.detail === 'string' && errorData.detail) return errorData.detail;
+      if (Array.isArray(errorData.detail) && errorData.detail.length > 0) {
+        const firstItem = errorData.detail[0] as Record<string, unknown>;
+        if (typeof firstItem.msg === 'string') return firstItem.msg;
+        if (typeof firstItem.message === 'string') return firstItem.message;
+        return 'Validation error';
+      }
       if (typeof errorData.details === 'string') return errorData.details;
     }
   }
