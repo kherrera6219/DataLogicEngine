@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 from app import db
 from models import SimulationSession, User
-import routes.simulation_routes as simulation_routes_module
+import backend.routes.simulation_routes as simulation_routes_module
 
 
 class _GatewayOk:

@@ -22,7 +22,6 @@ a = Analysis(
     datas=[
         ('backend', 'backend'),
         ('core', 'core'),
-        ('routes', 'routes'),
         ('static', 'static'),
 
         ('extensions.py', '.'),

@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash
 
 from app import app as flask_app, db
 from extensions import limiter
-from routes import simulation_routes as simulation_routes_module
+from backend.routes import simulation_routes as simulation_routes_module
 
 
 @pytest.fixture

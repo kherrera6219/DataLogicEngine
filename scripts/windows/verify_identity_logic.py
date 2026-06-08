@@ -16,7 +16,7 @@ os.environ["UKG_KEY_DIR"] = TEST_KEY_DIR
 from flask import Flask
 from extensions import db, login_manager
 from models import User, AuditLog
-from routes.auth_routes import auth_bp
+from backend.routes.auth_routes import auth_bp
 
 class TestIdentityIsolation(unittest.TestCase):
     def setUp(self):

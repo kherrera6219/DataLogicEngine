@@ -49,16 +49,16 @@ def create_legacy_app():
     )
     
     # Register blueprints
-    from routes.auth_routes import auth_bp
+    from backend.routes.auth_routes import auth_bp
     from .chat import chat_bp
     from .admin import admin_bp
     from .ukg_api import ukg_api as ukg_bp
-    from routes.user_data_routes import user_data_bp
+    from backend.routes.user_data_routes import user_data_bp
     from .routes.settings_routes import settings_bp
     from .routes.location_routes import location_api as location_bp
-    from routes.admin_routes import admin_bp as routes_admin_bp
-    from routes.api_routes import api_bp
-    from routes.ka_routes import ka_bp
+    from backend.routes.admin_routes import admin_bp as routes_admin_bp
+    from backend.routes.api_routes import api_bp
+    from backend.routes.ka_routes import ka_bp
     from .truth_engine.api import truth_api
     from .tracing.api import trace_bp
     

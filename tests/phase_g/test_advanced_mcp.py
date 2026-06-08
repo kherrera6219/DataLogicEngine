@@ -154,7 +154,7 @@ def test_mcp_routes_admin_endpoints(monkeypatch):
     app.config["TESTING"] = True
     
     # Mock Blueprint imports and routing decorators
-    from routes.mcp_routes import mcp_bp
+    from backend.routes.mcp_routes import mcp_bp
     app.register_blueprint(mcp_bp, url_prefix="/api/mcp")
     
     manager = MCPManager()
@@ -164,11 +164,11 @@ def test_mcp_routes_admin_endpoints(monkeypatch):
     # Mock load_external_config to return the mock configuration
     manager.load_external_config = MagicMock(return_value=manager.external_configs)
     
-    with patch("routes.mcp_routes.get_mcp_manager", return_value=manager), \
+    with patch("backend.routes.mcp_routes.get_mcp_manager", return_value=manager), \
          patch("flask_login.utils._get_user", return_value=MagicMock(is_authenticated=True, is_admin=True)):
         
-        with patch("routes.mcp_routes.login_required", lambda f: f), \
-             patch("routes.mcp_routes.api_admin_required", lambda f: f):
+        with patch("backend.routes.mcp_routes.login_required", lambda f: f), \
+             patch("backend.routes.mcp_routes.api_admin_required", lambda f: f):
             
             # Re-register blueprint without authenticators for testing
             test_app = Flask(__name__)

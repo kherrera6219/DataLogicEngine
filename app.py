@@ -789,7 +789,7 @@ def _register_application_routes() -> None:
     except ImportError as e:
         logger.warning(f"Could not register Privacy API: {e}")
 
-    from routes import register_routes
+    from backend.routes import register_routes
 
     register_routes(app)
 

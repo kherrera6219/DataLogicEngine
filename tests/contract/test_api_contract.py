@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import os
 from pathlib import Path
 
@@ -9,7 +8,7 @@ import pytest
 from app import app
 
 ROOT = Path(__file__).resolve().parents[2]
-STATIC_OPENAPI_PATH = ROOT / "static" / "swagger.json"
+STATIC_OPENAPI_PATH = ROOT / "backend" / "api" / "specs" / "ukg_api_v3_2.yaml"
 
 try:
     import schemathesis
@@ -22,7 +21,12 @@ except ImportError:
 
 def _load_static_openapi() -> dict:
     assert STATIC_OPENAPI_PATH.exists(), f"OpenAPI spec not found at {STATIC_OPENAPI_PATH}"
-    payload = json.loads(STATIC_OPENAPI_PATH.read_text(encoding="utf-8"))
+    try:
+        import yaml  # type: ignore[import-untyped]
+        payload = yaml.safe_load(STATIC_OPENAPI_PATH.read_text(encoding="utf-8"))
+    except ImportError:
+        import json
+        payload = json.loads(STATIC_OPENAPI_PATH.read_text(encoding="utf-8"))
     assert isinstance(payload, dict), "OpenAPI payload must be an object"
     return payload
 
@@ -34,27 +38,20 @@ def test_openapi_spec_has_required_core_contracts() -> None:
     assert isinstance(spec.get("paths"), dict), "OpenAPI paths must be present"
 
     paths = spec["paths"]
-    for required_path in ("/gateway/chat", "/simulations", "/health"):
+    for required_path in ("/enhance", "/health", "/compliance/check"):
         assert required_path in paths, f"Missing required API path contract: {required_path}"
 
-    gateway_post = paths["/gateway/chat"].get("post") or {}
-    request_body = gateway_post.get("requestBody") or {}
-    assert request_body.get("required") is True, "Gateway chat request body must be required"
-
-    schema = (
-        request_body.get("content", {})
-        .get("application/json", {})
-        .get("schema", {})
-    )
-    properties = schema.get("properties", {})
-    assert "messages" in properties, "Gateway chat schema must include `messages`"
-    assert "model" in properties, "Gateway chat schema must include `model`"
+    # Verify /enhance (the primary query entry point) documents a POST operation
+    enhance_post = paths["/enhance"].get("post") or {}
+    assert enhance_post, "Canonical spec must document POST /enhance"
+    request_body = enhance_post.get("requestBody") or {}
+    assert request_body.get("required") is True, "Enhance request body must be required"
 
 
 @pytest.mark.parametrize(
     ("method", "path", "payload", "expected_statuses"),
     [
-        ("GET", "/static/swagger.json", None, {200}),
+        # /static/swagger.json removed � canonical spec is backend/api/specs/ukg_api_v3_2.yaml
         ("GET", "/live", None, {200}),
         ("GET", "/ready", None, {200, 503}),
         ("GET", "/metrics", None, {200}),
@@ -81,7 +78,7 @@ def test_runtime_api_contract_smoke(
 
 
 if SCHEMATHESIS_INSTALLED:
-    _SCHEMATHESIS_SCHEMA = schemathesis.from_wsgi("/static/swagger.json", app)
+    _SCHEMATHESIS_SCHEMA = schemathesis.from_wsgi(str(STATIC_OPENAPI_PATH), app)
 
     @_SCHEMATHESIS_SCHEMA.parametrize()
     def test_api_contract_property_fuzz(case) -> None:  # type: ignore[no-untyped-def]

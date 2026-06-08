@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ukg-operator-sa
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ukg-operator-role
+rules:
+  # Framework: read-only access to some cluster-infra
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list", "watch"]
+  # Framework: read-write access to events
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+  # Framework: read-write access to the CRDs
+- apiGroups: ["ukg.datalogic.io"]
+  resources: ["ukgnodes", "mcpservers"]
+  verbs: ["get", "list", "watch", "patch", "update"]
+- apiGroups: ["ukg.datalogic.io"]
+  resources: ["ukgnodes/status", "mcpservers/status"]
+  verbs: ["patch", "update"]
+  # Application: manage deployments
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ukg-operator-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: ukg-operator-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: ukg-operator-role
+  apiGroup: rbac.authorization.k8s.io
