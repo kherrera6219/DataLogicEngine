@@ -19,7 +19,7 @@ from backend.truth_engine.truth_core.persona_scaling_bridge import (
     orchestration_summary,
     scaling_decision_from_sufficiency,
 )
-from backend.truth_engine.truth_core.persona_sufficiency import GatewayPersonaSufficiencyTool as PersonaSufficiencyTool
+from core.persona.quad.persona_scaling.sufficiency import GatewayPersonaSufficiencyTool as PersonaSufficiencyTool
 from backend.truth_engine.truth_core.refinement_orchestrator import RefinementOrchestrator
 from backend.truth_engine.truth_core.historical_embeddings import serialize_embedding
 from backend.llm_gateway.model_defaults import (

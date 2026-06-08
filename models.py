@@ -995,7 +995,7 @@ class TraceRun(db.Model):
 
     # AuditBundle fields (spec Section 12.1)
     tier = db.Column(db.String(10), nullable=True)  # 1, 2, 3
-    coordinate17_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_axis_vectors.vector_id'), nullable=True)
+    coordinate17_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trace_axis_vectors.vector_id', use_alter=True, name='fk_trace_runs_axis_vector'), nullable=True)
     evidence_pack_hash = db.Column(db.String(64), nullable=True)  # SHA-256 of sealed evidence set
     layers_executed = db.Column(JSONB, nullable=True)  # list of layer indices that fired
     refinement_cycles = db.Column(db.Integer, default=0)

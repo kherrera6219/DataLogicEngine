@@ -1,14 +1,17 @@
 """
-12-Step Refinement Workflow Orchestrator — system-layer scaffold.
+12-Step Refinement Workflow Orchestrator — synchronous system-layer variant.
 
 Used by UnitedSystemManager as the system-level coordinator. The live
 gateway pipeline uses backend.truth_engine.truth_core.refinement_orchestrator
 (RefinementOrchestrator) which has a different, async constructor. This class
-is intentionally distinct: it is the synchronous system-layer variant.
+is intentionally distinct and permanently retained as the synchronous
+system-layer orchestrator.
 
-Deletion deferred to Sprint 2 (LY-* inversion pass), at which point
-UnitedSystemManager will be updated to inject via interface rather than
-importing this directly.
+DUP-2 resolved (Sprint 1 / Sprint 5): The original name collision (both this
+module and the gateway module were called RefinementOrchestrator) was fixed
+in Sprint 1 by renaming this class to SystemRefinementOrchestrator. This
+class is NOT a duplicate of the async gateway orchestrator — it serves a
+distinct synchronous role in the core system layer. No deletion warranted.
 """
 
 import logging

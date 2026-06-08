@@ -1,6 +1,6 @@
 import pytest
 from backend.truth_engine.truth_core.engine import TruthCoreEngine
-from backend.truth_engine.truth_core.persona_sufficiency import GatewayPersonaSufficiencyTool as PersonaSufficiencyTool, SufficiencyMode
+from core.persona.quad.persona_scaling.sufficiency import GatewayPersonaSufficiencyTool as PersonaSufficiencyTool, SufficiencyMode
 
 class MockKAController:
     def __init__(self):

@@ -90,17 +90,18 @@ for path, label in [
     out.append(f"    Lines: {len(ls)}  |  Importers: {n}")
     out.append(f"    Importers: {who[:8]}")
 
-# ── 4. PersonaSufficiencyTool ─────────────────────────────────────────────────
-out.append("\n### D. PersonaSufficiencyTool  (2 definitions)")
+# ── 4. PersonaSufficiencyTool / GatewayPersonaSufficiencyTool ────────────────
+# DUP-5 resolved (Sprint 5): backend copy deleted; both classes now live in
+# core.persona.quad.persona_scaling.sufficiency.
+out.append("\n### D. PersonaSufficiencyTool / GatewayPersonaSufficiencyTool  (consolidated — DUP-5 resolved)")
 for path, label in [
-    (r"backend\truth_engine\truth_core\persona_sufficiency.py",   "BACKEND/truth_core"),
-    (r"core\persona\quad\persona_scaling\sufficiency.py",          "CORE/persona/quad"),
+    (r"core\persona\quad\persona_scaling\sufficiency.py", "CORE/persona/quad (canonical)"),
 ]:
     full = os.path.join(ROOT, path)
     if not os.path.exists(full):
         continue
     ls = lines(full)
-    n, who = count_importers("persona_sufficiency")
+    n, who = count_importers("persona_scaling.sufficiency")
     out.append(f"  [{label}] {rel(full)}")
     out.append(f"    Lines: {len(ls)}")
     out.append(f"    Importers: {who[:5]}")
