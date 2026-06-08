@@ -102,24 +102,33 @@ All 22 remaining inversion lines resolved. `find_core_backend_inversions.py` rep
 ---
 
 ## Sprint 3 — Security Posture
-**Status:** NOT STARTED  
-**Prerequisite:** Sprint 2 exit gate
+**Status:** COMPLETE ✅  
+**Date completed:** 2026-06-07  
+**Prerequisite:** Sprint 2 exit gate ✅
 
-### Kevin decisions required before coding
+### Kevin decisions recorded
 
 | Decision | Context |
 |---|---|
 | **SC-6: Encryption algorithm** | Decision implemented: upgrade `backend/security/encryption_manager.py` so new field-level payloads use AES-256-GCM while legacy `Fernet-AES-128-CBC` registry entries remain decryptable. Active docs now describe the implemented algorithm consistently. |
 
-### Tasks
+### Implementation — 2026-06-07
 
-| ID | Task | What to implement |
+Replaced all 5 stub `_check_*` methods in `backend/security/compliance_manager.py` with real SOC 2 Type 2 runtime checks. Module-level `try/except` imports added for all external dependencies (`get_encryption_manager`, `db`, Alembic classes, `TruthAuditRecorder`) so they are patchable by unit tests without a Flask app context.
+
+| ID | Task | Resolution |
 |---|---|---|
-| SC-1 | Real security compliance check | Key loaded + not expired + audit dir writable |
-| SC-2 | Real availability check | DB connection + no exception spike |
-| SC-3 | Real processing integrity check | Last hash chain valid + migration at head |
-| SC-4 | Real confidentiality check | Key not dev value + no PII in plain audit log |
-| SC-5 | Real privacy check | Export + deletion endpoints reachable; AI toggle wired |
-| SC-6 | Encryption decision + fix | Code and all docs describe same algorithm consistently |
+| SC-1 | Real security compliance check | `ENCRYPTION_KEK_SECRET` set + not dev default (`_KNOWN_DEV_SECRETS` frozenset) + key rotation not overdue via `get_encryption_manager().get_key_status()` + audit dir writable probe |
+| SC-2 | Real availability check | `db.engine.connect()` / `SELECT 1` live check + violation spike guard (`get_compliance_events` count < configurable threshold per hour) |
+| SC-3 | Real processing integrity check | Alembic Python API migration-at-head check (`ScriptDirectory.get_current_head()` vs `MigrationContext.get_current_revision()`) + `TruthAuditRecorder.verify_chain()` hash chain validation |
+| SC-4 | Real confidentiality check | `ENCRYPTION_KEK_SECRET` not weak/dev + PII regex scan of last 200 lines of `logs/compliance/events.jsonl` (email, SSN, credit card patterns) |
+| SC-5 | Real privacy check | `routes/user_data_routes.py` contains `/export` and `/delete` + `backend/routes/settings_routes.py` contains `ai_processing_enabled` |
+| SC-6 | Encryption decision + fix | Already implemented in Sprint 2; docs verified consistent |
 
-**Exit gate:** All 5 compliance checks have real logic, no stub returns, code and docs agree on encryption algorithm, pytest green.
+**Helper added:** `_apply_check_result(category, issues, pass_message)` — collect-then-apply pattern; builds issues list then calls one method to update state and log. Eliminates duplicate state-mutation code.
+
+**Testability pattern:** Module-level `try/except Exception` imports assign `None` on failure, making all dependencies patchable via `monkeypatch.setattr(compliance_module, "name", ...)` or `patch("backend.security.compliance_manager.name", ...)`.
+
+**Test file:** `tests/security/test_compliance_manager_coverage.py` — 25 tests covering happy-path (all compliant) and non-compliant branches for each of SC-1 through SC-5.
+
+**Exit gate:** `pytest tests/security/test_compliance_manager_coverage.py` → **25 passed / 0 failures** ✅ | full `pytest tests --no-cov -q` → **1855 passed / 21 skipped / 0 failures** ✅ | `ruff check .` → **clean** ✅

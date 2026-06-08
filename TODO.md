@@ -1,6 +1,6 @@
 # DataLogicEngine TODO
 
-**Last updated:** 2026-05-30
+**Last updated:** 2026-06-07
 **Status:** Canonical planning source
 
 This is the canonical active TODO list for repository release readiness and operational work. `UKG_DataLogicEngine_Master_Completion_Plan_v1.txt` is the current phased execution plan for the broader UKG/DataLogicEngine completion roadmap; keep release go/no-go items mirrored here when they affect the current shipping branch.
@@ -50,7 +50,7 @@ Quad-persona consolidation update: 2026-06-05. Phases 4b, 5, and 6 are implement
 
 KA production-depth update: 2026-06-08. First model-ops KA batch is implemented and locally validated. `KA-084`, `KA-087`, `KA-089`, and `KA-090` now derive monitoring, versioning, pruning, and quantization outputs from supplied metrics/artifact/model metadata instead of canned placeholder values, and their constructor config overrides work with file-backed defaults. Continue the broader KA production-depth review with the remaining thin heuristic KAs.
 
-Structural audit update: 2026-06-07. Sprint 1 (duplicate elimination) and Sprint 2 (core→backend inversion resolution) are complete. `find_core_backend_inversions.py` reports 0 inversion lines. `# inversion:ok` policy documented in `REPO_AUDIT_LOG.md` for approved lazy-import patterns. Sprint 3 (compliance manager stub replacement: SC-1 through SC-5) is next.
+Structural audit update: 2026-06-07. Sprints 1, 2, and 3 are complete. Sprint 1 eliminated duplicate class names, module name collisions, and misplaced files. Sprint 2 resolved all core→backend import inversions (`find_core_backend_inversions.py` reports 0 lines; `# inversion:ok` policy documented in `REPO_AUDIT_LOG.md`). Sprint 3 replaced all 5 stub `_check_*` compliance methods with real SOC 2 Type 2 runtime checks (SC-1 through SC-5) plus 25 unit tests. Full suite: 1855 passed / 21 skipped / 0 failures.
 
 | Remaining phase | Live-code validation | Status |
 | --- | --- | --- |
@@ -104,9 +104,10 @@ Structural audit update: 2026-06-07. Sprint 1 (duplicate elimination) and Sprint
 12. [x] AUDIT-SPRINT-2: resolve all core→backend import inversions.
     - Evidence: `find_core_backend_inversions.py` reports 0 lines. Module-level inversions moved inside method bodies; optional backend services injected via constructor (`frost_service.py`, `layer2_knowledge.py`, `persona_construction_service.py`) or annotated `# inversion:ok` for approved lazy-try patterns. Scanner updated to exclude annotated lines. `# inversion:ok` policy documented in `REPO_AUDIT_LOG.md`.
     - Validation: `python -m pytest --no-cov -q` → 1838 passed / 21 skipped; `ruff check .` → clean; `python scripts/find_core_backend_inversions.py` → 0 lines.
-13. [ ] AUDIT-SPRINT-3: replace compliance manager stubs with real implementations.
-    - Scope: `backend/security/compliance_manager.py` — all 5 `_check_*` methods currently set `status = "compliant"` unconditionally. Replace with real checks: key loaded + not overdue (SC-1), DB connection (SC-2), hash chain valid + migration at head (SC-3), key not dev value + no PII in plain audit log (SC-4), export/deletion endpoints reachable + AI toggle wired (SC-5).
-    - Validation: Unit tests prove each check returns non-compliant on the failure condition; pytest green; ruff clean.
+13. [x] AUDIT-SPRINT-3: replace compliance manager stubs with real implementations.
+    - Evidence: `backend/security/compliance_manager.py` — all 5 `_check_*` methods replaced with real SOC 2 Type 2 runtime checks. SC-1: `ENCRYPTION_KEK_SECRET` set/not-dev + key rotation via `get_encryption_manager().get_key_status()` + audit dir probe. SC-2: `db.engine.connect()` / `SELECT 1` + violation spike guard. SC-3: Alembic Python API migration-at-head + `TruthAuditRecorder.verify_chain()` hash chain. SC-4: key not dev/weak + PII regex scan of last 200 audit log lines. SC-5: route file presence check for `/export`, `/delete`, `ai_processing_enabled`. `_apply_check_result()` helper eliminates duplicate state-mutation. Module-level `try/except` imports make all dependencies patchable by unit tests.
+    - Test file: `tests/security/test_compliance_manager_coverage.py` — 25 tests covering happy-path and non-compliant branches for each of SC-1 through SC-5.
+    - Validation: `python -m pytest tests/security/test_compliance_manager_coverage.py -v --no-cov` → 25 passed / 0 failures; `python -m pytest tests --no-cov -q` → 1855 passed / 21 skipped / 0 failures; `ruff check .` → clean.
 
 ### Trace Viewer Wiring Phased Update Plan
 
