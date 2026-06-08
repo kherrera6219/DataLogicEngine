@@ -229,13 +229,25 @@ async function parseErrorMessage(response: Response): Promise<string> {
   if (typeof response.json === 'function') {
     const errorData = await response.json().catch(() => null) as {
       message?: string;
-      error?: string;
+      // Backend uses the envelope shape { error: { code, message } } for non-OK
+      // responses. Typed as `unknown` so the runtime value is not assumed to be
+      // a string — callers that pass objects would otherwise produce "[object Object]"
+      // via the Error constructor's implicit toString().
+      error?: unknown;
       detail?: string;
       details?: unknown;
     } | null;
     if (errorData) {
-      if (errorData.message) return errorData.message;
-      if (errorData.error) return errorData.error;
+      if (typeof errorData.message === 'string' && errorData.message) return errorData.message;
+      // Envelope shape: { "error": { "code": "...", "message": "..." } }
+      if (errorData.error !== null && errorData.error !== undefined) {
+        if (typeof errorData.error === 'string') return errorData.error;
+        if (typeof errorData.error === 'object') {
+          const nestedErr = errorData.error as { message?: unknown; code?: unknown };
+          if (typeof nestedErr.message === 'string' && nestedErr.message) return nestedErr.message;
+          if (typeof nestedErr.code === 'string' && nestedErr.code) return nestedErr.code;
+        }
+      }
       if (errorData.detail) return errorData.detail;
       if (typeof errorData.details === 'string') return errorData.details;
     }
