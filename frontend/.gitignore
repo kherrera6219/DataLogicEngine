@@ -26,6 +26,9 @@
 .DS_Store
 *.pem
 
+# local runtime data (encryption keys, security material — never commit)
+/data/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
