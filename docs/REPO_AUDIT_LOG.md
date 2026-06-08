@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.8.0 |
-| Last updated | 2026-06-04 |
+| Document version | v3.0.0 |
+| Last updated | 2026-06-07 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Per audit session |
@@ -20,6 +20,83 @@ The audit philosophy is **local-first / desktop-only**: the product is a license
 BYOK Windows desktop application (not multi-tenant SaaS). Code, tests, and docs are
 expected to reflect that. Legacy web-app and external-SaaS assumptions are removed
 when found.
+
+---
+
+## Session — 2026-06-07
+
+### Scope
+
+Routes security + quality audit (Sprint 4, RT-1..RT-18), notification
+preferences SQL migration, memory file updates, and documentation refresh.
+
+### Changes landed
+
+#### 1. Sprint 3 — SOC 2 compliance checks (commit `543c61cc`, prior session)
+
+- `backend/security/compliance_manager.py` — replaced stub pass-throughs with
+  real implementations for SC-1 (encryption-at-rest verification), SC-2 (audit
+  log presence check), SC-3 (RBAC access control check), SC-4 (data retention
+  policy check), SC-5 (incident response readiness check).
+- All five checks query live DB state / config rather than returning hardcoded
+  `True`. Exit gate: 1853 passed, 21 skipped.
+
+#### 2. Routes migration (commit `df29906b`, prior session)
+
+- Consolidated all Flask blueprints into `backend/routes/`; deleted the legacy
+  root-level `routes/` directory and its `__pycache__`.
+- `backend/routes/__init__.py` → `register_routes(app)` is now the single
+  registration entry point.
+- Exception: `analytics_bp`, `gdpr_bp`, `retention_bp`, `privacy_bp` are
+  registered directly by `app.py` after `register_routes()` returns — they must
+  not be added to `__init__.py` (causes `ValueError: already registered`).
+- Updated all cross-file imports; cleaned stale `__pycache__` trees.
+
+#### 3. Sprint 4 — Routes audit RT-1..RT-18 (commit `0eb2b0bb`)
+
+Full resolution of all items from `docs/audits/DataLogicEngine_Routes_Audit.md`:
+
+| ID | Issue | Resolution |
+|----|-------|-----------|
+| RT-2 | Unauthenticated `/suggest` | `@login_required` added to `search_routes.py` |
+| RT-3 | `settings_bp` not registered | Registered in `backend/routes/__init__.py` |
+| RT-5 | Retention health unauthenticated | `@api_admin_required` added |
+| RT-6 | GDPR/privacy deletion overlap | `user_data_routes.py` cascade-deletes `ChatSession`, `ChatMessage`, `KnowledgeGraphNode` |
+| RT-7 | `ka_routes` import-time controller init | Lazy init (`_controller` / `_get_controller()`) |
+| RT-8 | `simulation_routes` engine init | Kept eager — tests monkeypatch the public module-level name |
+| RT-9 | Compliance crash on None AXIS_SYSTEM | `_get_compliance_manager()` helper; endpoints return 503 |
+| RT-11 | Location routes URL prefix collision | `url_prefix='/api/v1/locations'` on Blueprint |
+| RT-12 | Feature flags URL namespace | Normalised to `/api/v1/admin/feature-flags` |
+| RT-13 | `mcp_routes` brittle path | `Path(current_app.root_path).parent / 'config' / 'mcp_servers.json'` |
+| RT-14 | Notification prefs file-backed (partial) | Threading lock added; full SQL migration in item 4 |
+| RT-15 | Auth decorator policy undocumented | `docs/AUTH_DECORATORS.md` created |
+| RT-16 | `transfer_ownership` no RBAC | `@require_permission(Permission.SYSTEM_ADMIN)` added |
+| RT-17/18 | Local response helpers | Replaced with `backend.utils.responses` imports |
+
+Exit gate: 1854 passed, 21 skipped.
+
+#### 4. Notification preferences SQL migration (commit `cc01c15b`)
+
+- **`models.py`** — new `UserNotificationPreference` table: one row per user
+  (`unique=True` on `user_id`), 7 explicit `Boolean` columns,
+  `digest_frequency String(20)`. Modeled after `UserAIPreferences`.
+- **`backend/routes/notification_routes.py`** — completely rewritten:
+  get-or-create DB row, no file I/O, no threading lock, no `runtime_settings`
+  dependency. POST validates `digest_frequency` and boolean types (400 on bad
+  input). Removed: `threading.Lock`, `load_storage_settings`,
+  `save_storage_settings`.
+- **`tests/integration_routes/test_notification_routes.py`** (new) — 11 tests
+  covering auth guards, defaults, idempotent double-GET, persistence,
+  partial-update safety, and validation paths.
+- Exit gate: 1865 passed, 21 skipped, 0 failed.
+
+### Open items (as of 2026-06-07)
+
+- **Settings UI test_provider status codes** — map 401/429/422 to human-readable
+  messages in `ApiOverlayConfig.tsx`.
+- **`trace_axis_vectors` / `trace_runs` FK cycle** — SQLAlchemy teardown warning;
+  resolve with `use_alter=True`.
+- **End-to-end chat verification** on fresh installed build (carried from Sprint 3).
 
 ---
 

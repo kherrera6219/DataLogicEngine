@@ -3,6 +3,38 @@
 
 ---
 
+## Resolution Status (updated 2026-06-07)
+
+All RT items in the sprint plan below have been completed and merged to `main`.
+Commits: `df29906b` (migration), `0eb2b0bb` (Sprint 4 audit), `cc01c15b` (notification DB).
+
+| ID | Status | Commit | Notes |
+|----|--------|--------|-------|
+| RT-1 | ✅ DONE | `df29906b` | Duplicate `process_document` handlers renamed in `multimodal_routes.py` |
+| RT-2 | ✅ DONE | `0eb2b0bb` | `@login_required` on `/suggest` |
+| RT-3 | ✅ DONE | `0eb2b0bb` | `settings_bp` registered; `analytics_bp`/`gdpr_bp`/`retention_bp`/`privacy_bp` registered by `app.py` |
+| RT-4 | ✅ DONE | `df29906b` | `analytics_bp` registered via `app.py` |
+| RT-5 | ✅ DONE | `0eb2b0bb` | `@api_admin_required` on retention `/health` |
+| RT-6 | ✅ DONE | `0eb2b0bb` | `user_data_routes.py` cascade-deletes `ChatSession`, `ChatMessage`, `KnowledgeGraphNode` |
+| RT-7 | ✅ DONE | `0eb2b0bb` | `_controller` / `_get_controller()` lazy init in `ka_routes.py` |
+| RT-8 | ✅ DONE | `0eb2b0bb` | Eager init kept — tests monkeypatch `engine` as public module attr |
+| RT-9 | ✅ DONE | `0eb2b0bb` | `_get_compliance_manager()` guard; 503 on None AXIS_SYSTEM |
+| RT-10 | ✅ DONE | `cc01c15b` | `UserNotificationPreference` SQL table; no more file-backed prefs |
+| RT-11 | ✅ DONE | `0eb2b0bb` | Blueprint `url_prefix='/api/v1/locations'`; all tests updated |
+| RT-12 | ✅ DONE | `0eb2b0bb` | Feature flag admin paths → `/api/v1/admin/feature-flags` |
+| RT-13 | ✅ DONE | `0eb2b0bb` | `current_app.root_path` replaces 3× `os.path.dirname` in `mcp_routes.py` |
+| RT-14 | ✅ DONE | `cc01c15b` | Full SQL migration (threading lock was partial; now complete) |
+| RT-15 | ✅ DONE | `0eb2b0bb` | `docs/AUTH_DECORATORS.md` created |
+| RT-16 | ✅ DONE | `0eb2b0bb` | `@require_permission(Permission.SYSTEM_ADMIN)` on `transfer_ownership` |
+| RT-17 | ✅ DONE | `0eb2b0bb` | Local response helpers removed from `knowledge_routes.py` |
+| RT-18 | ✅ DONE | `0eb2b0bb` | Local response helpers removed from `simulation_routes.py` |
+
+**All 18 items closed. No open RT items remain.**
+
+---
+
+---
+
 ## Inventory
 
 Two separate route directories exist. Both are in active use.

@@ -182,9 +182,35 @@ erDiagram
         string ip_address
     }
 
+    user_ai_preferences {
+        int id PK
+        int user_id FK "unique"
+        string preferred_provider
+        string preferred_model
+        bool ai_processing_enabled
+        bool store_chat_history
+        datetime updated_at
+    }
+
+    user_notification_preferences {
+        int id PK
+        int user_id FK "unique"
+        bool email_on_run_complete
+        bool email_on_run_failed
+        bool email_on_simulation_complete
+        bool inapp_run_complete
+        bool inapp_run_failed
+        bool inapp_simulation_complete
+        bool inapp_system_alerts
+        string digest_frequency "none|daily|weekly"
+        datetime updated_at
+    }
+
     users ||--o{ api_keys : has
     users ||--o{ oauth_accounts : linked_to
     users ||--o{ audit_logs : generates
+    users ||--|| user_ai_preferences : configures
+    users ||--|| user_notification_preferences : configures
 ```
 
 ### Trace and audit domain
@@ -652,6 +678,17 @@ A technical reviewer should inspect these files in order:
 12. `backend/security/export_integrity.py` — trace export integrity.
 13. `scripts/validate_schema_parity.py` — schema parity validation.
 14. `.github/workflows/ci.yml` — CI enforcement of schema, test, and release gates.
+
+## Change notes for v3.0.0
+
+1. Added `user_notification_preferences` table to the core identity domain ER diagram.
+   One row per user (`user_id` unique FK); 7 boolean notification toggles; `digest_frequency`
+   enum (`none | daily | weekly`). Replaces the file-backed `runtime_settings` JSON store
+   that was introduced as a placeholder. Commit `cc01c15b`.
+2. Added `user_ai_preferences` table to the core identity domain ER diagram (was implemented
+   but missing from the schema doc).
+3. Added ER relationships: `users ||--|| user_ai_preferences` and
+   `users ||--|| user_notification_preferences`.
 
 ## Change notes for v2.6.0
 

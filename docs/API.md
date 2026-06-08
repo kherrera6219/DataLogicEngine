@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v3.0.0 |
+| Last updated | 2026-06-07 |
 | Status | Active |
 | Owner | API Platform Team |
 | Review cadence | Every 30 days |
@@ -647,16 +647,53 @@ Representative routes:
 
 ---
 
-## 13. Admin and System Routes
+## 13. User Preference Routes
 
-Operational/admin namespaces that intentionally remain unversioned in the current contract:
+Per-user preferences stored in the database (one row per user).
 
-1. `/api/admin/*`
+### Notification preferences
+
+Prefix: `/api/v1/user/notifications`
+
+- **GET** `/api/v1/user/notifications`
+  - Returns the current user's notification preferences. Creates a default row
+    on first access. Authentication required.
+  - Response: `{ "success": true, "preferences": { ... } }`
+
+- **POST** `/api/v1/user/notifications`
+  - Updates one or more notification preferences. Unknown keys are ignored.
+    Authentication required.
+  - Body (all fields optional):
+
+    ```json
+    {
+      "email_on_run_complete": true,
+      "email_on_run_failed": true,
+      "email_on_simulation_complete": false,
+      "inapp_run_complete": true,
+      "inapp_run_failed": true,
+      "inapp_simulation_complete": true,
+      "inapp_system_alerts": true,
+      "digest_frequency": "none"
+    }
+    ```
+
+  - `digest_frequency` must be one of `none`, `daily`, or `weekly` — returns 400 otherwise.
+  - Boolean fields must be `true`/`false` (not strings) — returns 400 otherwise.
+  - Response: `{ "success": true, "preferences": { ... } }` with updated values.
+
+---
+
+## 14. Admin and System Routes
+
+Operational/admin namespaces:
+
+1. `/api/v1/admin/*`
 2. `/api/search/*`
 3. `/api/contextual/*`
 4. `/api/methods*`
 5. `/api/honeycomb/*`
-6. `/api/locations*`
+6. `/api/v1/locations/*` (migrated from `/api/locations*` in Sprint 4)
 
 Representative admin capabilities:
 
@@ -674,7 +711,7 @@ Representative route:
 
 ---
 
-## 14. Operational health, readiness, and metrics
+## 15. Operational health, readiness, and metrics
 
 ### Health check
 
@@ -698,7 +735,7 @@ Representative route:
 
 ---
 
-## 15. Trace export integrity
+## 16. Trace export integrity
 
 Trace exports are protected by `backend/security/export_integrity.py`.
 
@@ -724,7 +761,7 @@ Optional encrypted exports return `payload_encrypted` and an envelope hash/signa
 
 ---
 
-## 16. Reviewer verification path
+## 17. Reviewer verification path
 
 A technical reviewer should validate this document against these files:
 
@@ -741,6 +778,16 @@ A technical reviewer should validate this document against these files:
 11. `frontend/lib/api/` — frontend API clients and CSRF handling.
 12. `tests/contract/` — canonical API contract tests.
 13. `.github/workflows/ci.yml` — CI enforcement of contract, parity, security, and readiness gates.
+
+## Change notes for v3.0.0
+
+1. Added Section 13 — User Preference Routes — documenting `GET` and `POST`
+   `/api/v1/user/notifications` with request/response shapes and validation rules.
+2. Updated Section 14 (formerly 13) Admin and System Routes: corrected
+   `/api/locations*` → `/api/v1/locations/*` to reflect the Sprint 4 URL prefix
+   migration; corrected `/api/admin/*` → `/api/v1/admin/*`.
+3. Renumbered Sections 14→15 (health), 15→16 (trace export), 16→17 (reviewer path).
+4. Updated document version to v3.0.0 and last-updated date.
 
 ## Change notes for v2.6.0
 
