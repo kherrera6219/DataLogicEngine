@@ -503,7 +503,7 @@ class MCPClient(MCPRequestHandler):
     async def _handle_sampling_create_message(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Handle sampling createMessage request from server"""
         try:
-            from backend.mcp_server.sampling import sampling_service
+            from backend.mcp_server.sampling import sampling_service  # inversion:ok — lazy optional sampling backend
             return await sampling_service.create_message(params)
         except Exception as e:
             logger.error(f"Sampling createMessage failed: {e}")

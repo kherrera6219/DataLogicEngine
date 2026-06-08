@@ -29,16 +29,20 @@ class Layer2KnowledgeEngine:
     - Broaden context with relevant information branches
     """
     
-    def __init__(self, config: Optional[Dict] = None, graph_manager=None):
+    def __init__(self, config: Optional[Dict] = None, graph_manager=None, memory_graph_getter=None):
         """
         Initialize Layer 2 Knowledge Engine.
-        
+
         Args:
             config: Optional configuration dictionary
             graph_manager: Optional graph manager for knowledge traversal
+            memory_graph_getter: Optional callable returning a UnifiedMemoryGraph instance.
+                When provided, used instead of the lazy backend import in
+                ``_find_live_graph_links``.
         """
         self.config = config or {}
         self.graph_manager = graph_manager
+        self._memory_graph_getter = memory_graph_getter
         
         self.expansion_depth = self.config.get('expansion_depth', 3)
         self.max_nodes_per_axis = self.config.get('max_nodes_per_axis', 10)
@@ -256,7 +260,10 @@ class Layer2KnowledgeEngine:
     def _find_live_graph_links(self, primary_pillar: str, matched_pillars: List[str]) -> List[Dict[str, Any]]:
         """Prefer the live USKD memory graph when it has relevant anchors."""
         try:
-            from backend.storage import get_uskd_memory_graph
+            if self._memory_graph_getter is not None:
+                get_uskd_memory_graph = self._memory_graph_getter
+            else:
+                from backend.storage import get_uskd_memory_graph  # inversion:ok — injected or lazy optional graph
 
             graph = get_uskd_memory_graph()
             anchors = []

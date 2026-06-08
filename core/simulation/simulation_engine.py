@@ -42,9 +42,9 @@ class SimulationEngine:
         
         # Phase 2 Infrastructure
         try:
-            from backend.knowledge_algorithm.axis_mapper import AxisMapper
-            from backend.knowledge_algorithm.truth_engine import TruthEngine
-            from backend.knowledge_algorithm.workflow_loader import WorkflowLoader
+            from backend.knowledge_algorithm.axis_mapper import AxisMapper  # inversion:ok — lazy optional Phase 2 infrastructure
+            from backend.knowledge_algorithm.truth_engine import TruthEngine  # inversion:ok
+            from backend.knowledge_algorithm.workflow_loader import WorkflowLoader  # inversion:ok
             
             self.axis_mapper = AxisMapper()
             self.truth_engine = TruthEngine()

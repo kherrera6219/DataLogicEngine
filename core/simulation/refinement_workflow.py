@@ -8,9 +8,6 @@ incorporating accurate steps like Algorithm of Thought (AoT) and Tree of Thought
 import logging
 from datetime import datetime
 from typing import Dict, List, Any
-from backend.knowledge_algorithm.registry import KARegistry
-from backend.knowledge_algorithm.base import KAResult
-from backend.knowledge_algorithm.context import create_default_context
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +16,17 @@ class RefinementWorkflow:
     Implements the 12-Step Refinement Workflow as defined in the UKG White Paper.
     Uses Class-based Knowledge Algorithms (KAs).
     """
-    
+
     def __init__(self, config=None):
         self.config = config or {}
+        # Lazy imports: simulation workflow depends on backend KA infrastructure.
+        # Deferred to instantiation time so the module is importable without the
+        # backend stack — consistent with the core->backend lazy-import pattern.
+        from backend.knowledge_algorithm.registry import KARegistry  # inversion:ok — simulation workflow KA dispatch
+        from backend.knowledge_algorithm.base import KAResult  # inversion:ok
+        from backend.knowledge_algorithm.context import create_default_context  # inversion:ok
+        self._KARegistry = KARegistry
+        self._KAResult = KAResult
         self.context = create_default_context()
         self.workflow_steps = self._define_default_workflow()
         logger.info("RefinementWorkflow initialized with 12 steps")
@@ -99,7 +104,7 @@ class RefinementWorkflow:
                 # The handlers below need to call KARegistry.execute and parse output.
                 ka_result = handler(state)
                 
-                if isinstance(ka_result, KAResult):
+                if isinstance(ka_result, self._KAResult):
                     # Unpack KAResult
                     step_result["state_updates"] = ka_result.output if isinstance(ka_result.output, dict) else {"output": ka_result.output}
                     step_result["artifacts"] = ka_result.artifacts
@@ -125,51 +130,51 @@ class RefinementWorkflow:
     # Step Handlers
     def _perform_step1_aot(self, state):
         """Algorithm of Thought."""
-        return KARegistry.execute("KA-001", state, self.context)
+        return self._KARegistry.execute("KA-001", state, self.context)
 
     def _perform_step2_tot(self, state):
         """Tree of Thought."""
-        return KARegistry.execute("KA-002", state, self.context)
+        return self._KARegistry.execute("KA-002", state, self.context)
 
     def _perform_step3_data_validation(self, state):
         """Data Validation."""
-        return KARegistry.execute("KA-003", state, self.context)
+        return self._KARegistry.execute("KA-003", state, self.context)
 
     def _perform_step4_deep_thinking(self, state):
         """Deep Thinking."""
-        return KARegistry.execute("KA-017", state, self.context)
+        return self._KARegistry.execute("KA-017", state, self.context)
 
     def _perform_step5_evidence_reasoning(self, state):
         """Evidence-Based Reasoning."""
-        return KARegistry.execute("KA-005", state, self.context)
+        return self._KARegistry.execute("KA-005", state, self.context)
 
     def _perform_step6_self_reflection(self, state):
         """Self-Reflection."""
-        return KARegistry.execute("KA-006", state, self.context)
+        return self._KARegistry.execute("KA-006", state, self.context)
 
     def _perform_step7_cross_reference(self, state):
         """Cross-Reference."""
-        return KARegistry.execute("KA-004", state, self.context)
+        return self._KARegistry.execute("KA-004", state, self.context)
 
     def _perform_step8_logic_check(self, state):
         """Logic & Consistency."""
-        return KARegistry.execute("KA-025", state, self.context)
+        return self._KARegistry.execute("KA-025", state, self.context)
 
     def _perform_step9_ethical_audit(self, state):
         """Ethical Audit."""
-        return KARegistry.execute("KA-030", state, self.context)
+        return self._KARegistry.execute("KA-030", state, self.context)
 
     def _perform_step10_regulatory(self, state):
         """Regulatory Check."""
-        return KARegistry.execute("KA-007", state, self.context)
+        return self._KARegistry.execute("KA-007", state, self.context)
 
     def _perform_step11_security(self, state):
         """Security Validation."""
-        return KARegistry.execute("KA-111", state, self.context)
+        return self._KARegistry.execute("KA-111", state, self.context)
 
     def _perform_step12_final_synthesis(self, state):
         """Final Synthesis."""
-        ka_result = KARegistry.execute("KA-007", state, self.context)
+        ka_result = self._KARegistry.execute("KA-007", state, self.context)
         
         # Boost confidence logic adapted for KAResult
         current_conf = state.get("confidence", 0.5)

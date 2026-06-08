@@ -250,7 +250,7 @@ class KAEngine:
             # Load KA class if not already loaded
             if not ka_info.get('instance'):
                 # Try KARegistry first (modern class-based system)
-                from backend.knowledge_algorithm.registry import KARegistry
+                from backend.knowledge_algorithm.registry import KARegistry  # inversion:ok — lazy optional KA class registry lookup
                 ka_class = KARegistry.get_ka(ka_id)
                 
                 if ka_class:
@@ -273,7 +273,7 @@ class KAEngine:
                 merged_params.update(params)
             
             # Execute the algorithm (Standardized signature: state, context)
-            from backend.knowledge_algorithm.context import create_default_context
+            from backend.knowledge_algorithm.context import create_default_context  # inversion:ok — lazy optional KA execution context
             engine_context = create_default_context()
             
             # If the instance has a modern execute(state, context) signature

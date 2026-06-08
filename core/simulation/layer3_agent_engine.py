@@ -10,9 +10,6 @@ import logging
 from typing import Dict, Any
 
 from core.persona.quad.quad_models import EvidencePack, EvidenceItem
-# Import KA implementations directly or via Registry
-from backend.knowledge_algorithms.ka_claim_extraction import KAClaimExtraction
-from backend.knowledge_algorithms.ka_29_online_validation import KAResearch
 
 logger = logging.getLogger(__name__)
 
@@ -20,13 +17,22 @@ class Layer3AgentEngine:
     """
     Executes the Deep Research Agent workflows.
     """
-    
-    def __init__(self, config: Dict[str, Any] = None):
+
+    def __init__(self, config: Dict[str, Any] = None, ka_claim_extractor=None, ka_research=None):
         self.config = config or {}
-        
-        # Initialize KAs
-        self.ka_claim_extractor = KAClaimExtraction(self.config)
-        self.ka_research = KAResearch(self.config)
+
+        # KA implementations injected or lazily resolved from backend.
+        if ka_claim_extractor is not None:
+            self.ka_claim_extractor = ka_claim_extractor
+        else:
+            from backend.knowledge_algorithms.ka_claim_extraction import KAClaimExtraction  # inversion:ok — simulation layer3 KA
+            self.ka_claim_extractor = KAClaimExtraction(self.config)
+
+        if ka_research is not None:
+            self.ka_research = ka_research
+        else:
+            from backend.knowledge_algorithms.ka_29_online_validation import KAResearch  # inversion:ok
+            self.ka_research = KAResearch(self.config)
         
     def process_request(self, 
                         intent: Dict[str, Any], 

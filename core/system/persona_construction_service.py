@@ -25,12 +25,14 @@ class PersonaConstructionService:
     4. Integration with Axis 1 (Pillar) and Axis 2 (Sector) for deep role context.
     """
     
-    def __init__(self, uids=None, uns=None, mapping=None):
+    def __init__(self, uids=None, uns=None, mapping=None, rag_service_getter=None):
         self.logger = logging.getLogger(__name__)
         self.uids = uids
         self.uns = uns
         self.mapping = mapping
         self._persona_cache: Dict[str, PersonaProfile] = {}
+        # Optional RAG service accessor — injected for testability, lazy-fallback otherwise.
+        self._rag_service_getter = rag_service_getter
         
         # Mapping from Axis Number to Persona Type
         self.axis_to_type = {
@@ -124,12 +126,18 @@ class PersonaConstructionService:
         digest = hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()[:24]
         return f"persona:{axis_number}:{digest}"
 
+    # Collection name constant — avoids importing RAGService just for this value.
+    _COLLECTION_PERSONA_PROFILES = "persona_profiles"
+
     def _load_cached_persona(self, cache_key: str) -> Optional[PersonaProfile]:
         try:
-            from backend.services.rag_service import RAGService, get_rag_service
+            if self._rag_service_getter is not None:
+                get_rag_service = self._rag_service_getter
+            else:
+                from backend.services.rag_service import get_rag_service  # inversion:ok — injected or lazy optional RAG cache
 
             results = get_rag_service().search_collection(
-                RAGService.COLLECTION_PERSONA_PROFILES,
+                self._COLLECTION_PERSONA_PROFILES,
                 cache_key,
                 k=1,
                 filters={"cache_key": cache_key},
@@ -150,10 +158,13 @@ class PersonaConstructionService:
         coordinate_path: str,
     ) -> None:
         try:
-            from backend.services.rag_service import RAGService, get_rag_service
+            if self._rag_service_getter is not None:
+                get_rag_service = self._rag_service_getter
+            else:
+                from backend.services.rag_service import get_rag_service  # inversion:ok — injected or lazy optional RAG cache
 
             get_rag_service().ingest_text(
-                RAGService.COLLECTION_PERSONA_PROFILES,
+                self._COLLECTION_PERSONA_PROFILES,
                 cache_key,
                 json.dumps(profile.to_dict(), sort_keys=True, default=str),
                 {
@@ -182,7 +193,7 @@ class PersonaConstructionService:
             return False
 
         try:
-            from backend.dsqp import DSQPChain, DSQPValidator
+            from backend.dsqp import DSQPChain, DSQPValidator  # inversion:ok — lazy optional DSQP chain
 
             query = str(
                 request_context.get("query")

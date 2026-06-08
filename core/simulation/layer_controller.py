@@ -65,7 +65,7 @@ class LayerController:
             # Initialize KA Master Controller
             if not getattr(self, 'ka_controller', None):
                 try:
-                    from backend.knowledge_algorithms.ka_master_controller import KAMasterController
+                    from backend.knowledge_algorithms.ka_master_controller import KAMasterController  # inversion:ok — lazy optional KA controller init
                     self.ka_controller = KAMasterController()
                     logging.info(f"[{datetime.now()}] KA Master Controller initialized")
                 except ImportError:

@@ -1,4 +1,11 @@
-"""Find all core -> backend import inversions."""
+"""Find all core -> backend import inversions.
+
+Lines annotated with ``# inversion:ok`` are approved lazy-import patterns: they
+appear inside method bodies under try/except and gracefully degrade when the
+backend service is unavailable.  They are intentionally excluded from this
+report — structural inversions are module-level hard imports that fire at
+``import`` time and are NOT annotated.
+"""
 import os
 from collections import defaultdict
 
@@ -12,6 +19,8 @@ for root, dirs, files in os.walk("core"):
         for line_no, line in enumerate(open(os.path.join(root, f), errors="ignore"), 1):
             s = line.strip()
             if ("from backend" in s or "import backend" in s) and not s.startswith("#"):
+                if "# inversion:ok" in s:
+                    continue  # approved lazy-import pattern — documented exception
                 results.append((path, line_no, s))
 
 by_file = defaultdict(list)

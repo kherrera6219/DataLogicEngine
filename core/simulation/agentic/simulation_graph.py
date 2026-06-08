@@ -2,16 +2,19 @@ import logging
 from typing import Dict, Any
 from langgraph.graph import StateGraph, END
 from .graph_state import UKGState
-from backend.storage.graph_store import get_graph_store
 
 logger = logging.getLogger(__name__)
 
 def initialize_node(state: UKGState) -> Dict[str, Any]:
     """Node: Initialize context and retrieve USKD materialization."""
     logger.info(f"[Init] Query: {state['query']}")
-    
+
     # Simulate DB retrieval for now
-    get_graph_store()
+    try:
+        from backend.storage.graph_store import get_graph_store  # inversion:ok — optional Neo4j opt-in
+        get_graph_store()
+    except Exception:
+        pass
     # In a real implementation, we would query Neo4j here
     # gs.run_query("MATCH (n) ...")
     

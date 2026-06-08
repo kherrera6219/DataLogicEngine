@@ -31,21 +31,31 @@ class DateTimeEncoder(json.JSONEncoder):
 class FROSTService:
     """
     FROST Service
-    
+
     Responsibilities:
     1. Capture immutable snapshots of the system state.
     2. compute deltas between snapshots.
     3. Branch and merge states for parallel reasoning.
     4. Provide transactional integrity for nested simulations.
+
+    Optional backend services are accepted via constructor so callers (and tests) can
+    inject them directly, removing the need for lazy backend imports in method bodies.
+    When not provided, each method attempts the lazy import as a fallback.
     """
-    
-    def __init__(self):
+
+    def __init__(
+        self,
+        object_store_getter: Optional[Any] = None,
+        memory_service_getter: Optional[Any] = None,
+    ):
         self.logger = logging.getLogger(__name__)
-        
+        self._object_store_getter = object_store_getter
+        self._memory_service_getter = memory_service_getter
+
         # In-memory store of snapshots: snapshot_id -> state_dict
         self.snapshots: Dict[str, Dict[str, Any]] = {}
         self.snapshot_metadata: Dict[str, Dict[str, Any]] = {}
-        
+
         # Delta store: target_id -> {base_id, delta}
         self.deltas: Dict[str, Dict[str, Any]] = {}
         
@@ -97,7 +107,10 @@ class FROSTService:
     def _persist_snapshot_object(self, snapshot_id: str, state: Dict[str, Any]) -> None:
         """Persist snapshot artifacts to the app-owned object store when available."""
         try:
-            from backend.storage import get_object_store
+            if self._object_store_getter is not None:
+                get_object_store = self._object_store_getter
+            else:
+                from backend.storage import get_object_store  # inversion:ok — injected or lazy optional storage
 
             key = f"{snapshot_id}.json"
             bundle = {
@@ -227,7 +240,10 @@ class FROSTService:
     def rollback_memory_branch(self, branch_name: str) -> bool:
         """Restore the UnifiedMemoryService checkpoint captured for a branch."""
         try:
-            from backend.memory import get_unified_memory_service
+            if self._memory_service_getter is not None:
+                get_unified_memory_service = self._memory_service_getter
+            else:
+                from backend.memory import get_unified_memory_service  # inversion:ok — injected or lazy optional memory service
 
             return get_unified_memory_service().restore(f"frost_branch:{branch_name}")
         except Exception as exc:  # pylint: disable=broad-except
@@ -236,7 +252,10 @@ class FROSTService:
 
     def _checkpoint_memory_graph(self, branch_name: str) -> None:
         try:
-            from backend.memory import get_unified_memory_service
+            if self._memory_service_getter is not None:
+                get_unified_memory_service = self._memory_service_getter
+            else:
+                from backend.memory import get_unified_memory_service  # inversion:ok — injected or lazy optional memory service
 
             get_unified_memory_service().checkpoint(f"frost_branch:{branch_name}")
         except Exception as exc:  # pylint: disable=broad-except

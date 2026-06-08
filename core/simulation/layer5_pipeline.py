@@ -168,7 +168,7 @@ def persona_runner_node(state: Layer5State) -> Layer5State:
     # Import KA-20 on demand to avoid circular deps at top level if any
     # Import KA-012 (Persona Simulation) instead of deprecated KA-20
     try:
-        from backend.knowledge_algorithms.ka_12_persona_simulation import KA012PersonaSimulation
+        from backend.knowledge_algorithms.ka_12_persona_simulation import KA012PersonaSimulation  # inversion:ok — lazy optional persona simulation KA
         # KA012 requires context dict in constructor
         ka_engine = KA012PersonaSimulation({}) 
         ka_available = True

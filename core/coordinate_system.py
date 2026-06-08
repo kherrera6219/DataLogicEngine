@@ -896,7 +896,7 @@ class CrosswalkTraversal:
     def _get_octopus_connections(self, hub_id: int) -> List[Dict[str, Any]]:
         """Get octopus hub connections from Neo4j with static fallback."""
         try:
-            from backend.storage import get_graph_store
+            from backend.storage import get_graph_store  # inversion:ok — optional Neo4j octopus traversal with static fallback
 
             rows = get_graph_store().cached_run_query(
                 """
