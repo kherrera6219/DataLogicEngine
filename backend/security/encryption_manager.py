@@ -263,6 +263,18 @@ class EncryptionManager:
 
         return Fernet(dek).decrypt(encrypted).decode()
 
+    def _decrypt_legacy_unversioned(self, encrypted: bytes, original_error: Exception) -> str:
+        """Decrypt old unversioned Fernet payloads after the AES-GCM migration."""
+        for key_entry in reversed(self.dek_registry.get("keys", [])):
+            try:
+                version = int(key_entry["version"])
+                dek = self._get_dek_by_version(version)
+                return Fernet(dek).decrypt(encrypted).decode()
+            except Exception:
+                continue
+
+        raise original_error
+
     def encrypt(self, data: str, field_name: Optional[str] = None) -> str:
         """
         Encrypt data using current DEK.
@@ -332,7 +344,10 @@ class EncryptionManager:
             encrypted = base64.b64decode(encrypted_data)
             version = self.dek_registry["current_version"] - 1
             algorithm = self._get_algorithm_by_version(version)
-            return self._decrypt_with_dek(encrypted, self._current_dek, algorithm)
+            try:
+                return self._decrypt_with_dek(encrypted, self._current_dek, algorithm)
+            except Exception as exc:
+                return self._decrypt_legacy_unversioned(encrypted, exc)
 
     def encrypt_dict(self, data: Dict[str, Any], fields_to_encrypt: list) -> Dict[str, Any]:
         """
