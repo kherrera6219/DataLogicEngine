@@ -48,6 +48,8 @@ Next priority update: 2026-05-30. Phase H, KI local-first text-corpus ingestion,
 
 Quad-persona consolidation update: 2026-06-05. Phases 4b, 5, and 6 are implemented and locally validated. Phase 5 fixed timezone-aware memory timestamps, deterministic persona confidence, stable text embedding seeds, reachable/configurable refinement thresholds, instance-isolated sufficiency configuration, and Axis 9/10 secondary influence mapping. Phase 6 wires the gateway-only `backend/quad_persona/quad_engine.py` path through `backend.llm_gateway`, adds a deterministic offline fallback, returns the gateway-consumed `perspectives`/string `synthesis` contract, and covers the path with non-monkeypatched regressions.
 
+KA production-depth update: 2026-06-08. First model-ops KA batch is implemented and locally validated. `KA-084`, `KA-087`, `KA-089`, and `KA-090` now derive monitoring, versioning, pruning, and quantization outputs from supplied metrics/artifact/model metadata instead of canned placeholder values, and their constructor config overrides work with file-backed defaults. Continue the broader KA production-depth review with the remaining thin heuristic KAs.
+
 | Remaining phase | Live-code validation | Status |
 | --- | --- | --- |
 | Phase D / DSQP | `docs/ip/dsqp_technical_disclosure.md`, `backend/dsqp/`, local templates, DSQP chain/registry/orchestrator/validator, PersonaConstructionService DSQP fallback, TruthCore L5 context wiring, KA-012 DSQP profiles, SDK `DSQPClient`, PyInstaller template datas, Electron DSQP IPC, desktop persona cards, DSQP benchmark/report, and provider-backed `dsqp_chain` audit evidence are implemented. | Done for D-1..D-12 code/test/evidence scope; broader production packaging smoke remains under release evidence. |
@@ -91,6 +93,9 @@ Quad-persona consolidation update: 2026-06-05. Phases 4b, 5, and 6 are implement
 9. [x] KA-STUB-1: replace explicit KA stubs and add focused tests.
    - Evidence: `KA-011`, `KA-033`, `KA-039`, `KA-048`, `KA-077`, `KA-109`, and `KA-Master` no longer return explicit placeholder/stub behavior.
    - Validation: `python -m pytest -q --no-cov tests\knowledge_algorithms\test_ka_stub_replacements.py tests\knowledge_algorithms\test_ka_master_controller.py tests\knowledge_algorithms\test_ka_logic.py`; focused ruff check passed.
+10. [x] KA-DEPTH-1: upgrade first thin model-ops KA batch.
+   - Evidence: `KA-084` detects absolute and relative metric drift, `KA-087` versions artifacts from semantic version and artifact digest data, `KA-089` computes pruning impact from parameter/importance metadata, and `KA-090` computes quantization size reduction from precision and artifact-size metadata.
+   - Validation: `python -m pytest -q --no-cov tests\knowledge_algorithms`; touched-path ruff check passed.
 
 ### Trace Viewer Wiring Phased Update Plan
 

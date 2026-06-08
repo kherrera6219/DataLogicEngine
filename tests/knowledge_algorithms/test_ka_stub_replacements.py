@@ -31,8 +31,12 @@ from backend.knowledge_algorithms.ka_80_cache_management import KA080CacheInput,
 from backend.knowledge_algorithms.ka_81_model_training import KA081ModelTraining, KA081TrainingInput
 from backend.knowledge_algorithms.ka_82_model_evaluation import KA082EvaluationInput, KA082ModelEvaluation
 from backend.knowledge_algorithms.ka_83_model_deployment import KA083DeploymentInput, KA083ModelDeployment
+from backend.knowledge_algorithms.ka_84_model_monitoring import KA084ModelMonitoring, KA084MonitoringInput
 from backend.knowledge_algorithms.ka_86_hyperparameter_tuning import KA086HyperparameterTuning, KA086TuningInput
+from backend.knowledge_algorithms.ka_87_model_versioning import KA087ModelVersioning, KA087VersioningInput
 from backend.knowledge_algorithms.ka_88_ab_testing import KA088ABInput, KA088ABTesting
+from backend.knowledge_algorithms.ka_89_model_pruning import KA089ModelPruning, KA089PruningInput
+from backend.knowledge_algorithms.ka_90_model_quantization import KA090ModelQuantization, KA090QuantizationInput
 from backend.knowledge_algorithms.ka_106_fault_tolerance import KA106FaultInput, KA106FaultTolerance
 from backend.knowledge_algorithms.ka_109_system_health import KA109HealthInput, KA109SystemHealth
 from backend.knowledge_algorithms.ka_111_api_gateway import KA111APIGateway, KA111Input
@@ -439,6 +443,20 @@ def test_ka083_deployment_recommends_rollback_on_unhealthy_signal():
     assert result["output"]["rollback_plan"]["target_version"] == "v1.9.0"
 
 
+def test_ka084_monitors_relative_metric_drift():
+    result = KA084ModelMonitoring({"drift_thresholds": {"relative_drift_ratio": 0.1}}).run(
+        KA084MonitoringInput(
+            live_metrics={"accuracy": 0.81, "p99_latency": 1200},
+            baseline_metrics={"accuracy": 0.9, "p99_latency": 900},
+        )
+    )
+
+    assert result["success"] is True
+    assert result["output"]["drift_detected"] is True
+    assert "P99_LATENCY_DRIFT" in result["output"]["anomalies"]
+    assert result["output"]["metric_deltas"]["p99_latency"] == 0.3333
+
+
 def test_ka086_tunes_hyperparameters_deterministically():
     ka = KA086HyperparameterTuning({})
     payload = KA086TuningInput(
@@ -453,6 +471,22 @@ def test_ka086_tunes_hyperparameters_deterministically():
     assert first["output"]["trials_run"] == 3
     assert first["output"]["best_params"] == second["output"]["best_params"]
     assert first["output"]["best_score"] == second["output"]["best_score"]
+
+
+def test_ka087_versions_artifact_from_hash_and_current_version():
+    result = KA087ModelVersioning({"artifact_registry_path": "/registry"}).run(
+        KA087VersioningInput(
+            artifact="/models/model.bin",
+            current_version="v2.4.9",
+            artifact_hash="abcdef1234567890",
+        )
+    )
+
+    assert result["success"] is True
+    assert result["output"]["version_assigned"] == "v2.4.10"
+    assert result["output"]["artifact_hash"] == "abcdef1234567890"
+    assert result["output"]["git_commit"] == "abcdef1"
+    assert result["output"]["registry_path"] == "/registry"
 
 
 def test_ka088_assigns_ab_variant_with_stable_hash_and_metrics():
@@ -473,6 +507,41 @@ def test_ka088_assigns_ab_variant_with_stable_hash_and_metrics():
     assert result["output"]["assigned_variant"] == repeat["output"]["assigned_variant"]
     assert result["output"]["analysis"]["sufficient_data"] is True
     assert result["output"]["analysis"]["lift"] == 0.05
+
+
+def test_ka089_prunes_from_parameter_metadata():
+    result = KA089ModelPruning({}).run(
+        KA089PruningInput(
+            model_id="classifier",
+            parameter_count=1000,
+            target_sparsity=0.25,
+            baseline_accuracy=0.92,
+            importance_scores=[0.1, 0.2, 0.8, 0.9],
+        )
+    )
+
+    assert result["success"] is True
+    assert result["output"]["params_before"] == 1000
+    assert result["output"]["params_removed"] == 1
+    assert result["output"]["estimated_accuracy"] == 0.915
+    assert result["output"]["compression_ratio"] == "1.00x"
+
+
+def test_ka090_quantizes_from_size_and_precision_metadata():
+    result = KA090ModelQuantization({}).run(
+        KA090QuantizationInput(
+            model_id="classifier",
+            original_size_mb=512,
+            source_bit_depth=32,
+            target_bit_depth=8,
+            target_format="onnx",
+        )
+    )
+
+    assert result["success"] is True
+    assert result["output"]["quantized_model_path"] == "/models/classifier_int8.onnx"
+    assert result["output"]["quantized_size_mb"] == 128
+    assert result["output"]["reduction_percent"] == "75.0%"
 
 
 def test_ka106_uses_deterministic_circuit_breaker_policy():
@@ -753,5 +822,3 @@ def test_ka069_cultural_context_adapter():
     assert result_asia["success"] is True
     assert "respect" in result_asia["output"]["phrasing_prefix"].lower()
     assert result_asia["output"]["localized_numerics"]["rate"] == "1,235"
-
-
