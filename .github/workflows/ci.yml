@@ -252,10 +252,24 @@ jobs:
         pip install pyinstaller neo4j bleach user-agents web3 fastapi reportlab asgiref python-json-logger simple-salesforce jira eventlet tiktoken langchain-openai langchain-community
         pyinstaller backend.spec
 
+    - name: Cache electron-builder binaries
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.LOCALAPPDATA }}\electron-builder\Cache
+        key: electron-builder-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+        restore-keys: |
+          electron-builder-${{ runner.os }}-
+
     - name: Install frontend dependencies
       run: |
         cd frontend
         npm ci
+      env:
+        # Skip the electron npm package post-install binary download — this job
+        # only needs electron-builder for packaging, not a local Electron runtime.
+        # electron-builder manages its own binary download separately (cached above).
+        ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+        CHROMEDRIVER_SKIP_DOWNLOAD: true
 
     - name: Verify NSIS governance policy
       run: |

@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.0.0 |
-| Last updated | 2026-06-07 |
+| Document version | v3.1.0 |
+| Last updated | 2026-06-08 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Per audit session |
@@ -20,6 +20,59 @@ The audit philosophy is **local-first / desktop-only**: the product is a license
 BYOK Windows desktop application (not multi-tenant SaaS). Code, tests, and docs are
 expected to reflect that. Legacy web-app and external-SaaS assumptions are removed
 when found.
+
+---
+
+## Session — 2026-06-08
+
+### Scope
+
+Chat interface deep audit and full fix (Sprint 5b–5f): LLM Gateway correctness, rate-limit circuit-breaker cascade, Live Trace panel stability, API key encryption verification, frontend error handling, and full Windows installer rebuild.
+
+### Changes landed
+
+#### 1. Sprint 5 — DUP-2/DUP-5 and FK cycle (commit `585d9847`)
+
+- `DUP-2` (`SystemRefinementOrchestrator`): retained by design — two separate subsystems each need their own orchestrator.
+- `DUP-5` (`GatewayPersonaSufficiencyTool`): backend copy consolidated into the canonical module; root duplicate removed.
+- `trace_axis_vectors` / `trace_runs` FK cycle: resolved with `use_alter=True` on the foreign key to break the SQLAlchemy teardown warning.
+
+#### 2. Sprint 5b — ApiError class and provider-test UX (commit `7ebee5ba`)
+
+- **`frontend/lib/api/client.ts`** — new `ApiError` class exported from the base API client; carries the numeric HTTP `status` so callers can branch on 401/429/422/504.
+- **`frontend/components/settings/ApiOverlayConfig.tsx`** — provider-test 401 no longer triggers the session-expired redirect; `mapProviderTestError()` maps status codes to labelled toast messages.
+- Exit gate: 1865 passed, 21 skipped, 0 failed.
+
+#### 3. Sprint 5c — Live Trace panel `[object Object]` fix (commit `79ab902e`)
+
+- **`frontend/lib/api/client.ts`** — `parseErrorMessage()` updated to handle the nested `{ error: { code, message } }` envelope that `backend.utils.responses.error_response` returns (previously fell through to `[object Object]`).
+
+#### 4. Sprint 5e — Live Trace panel transient error on startup (commit `f5092665`)
+
+- **`backend/routes/trace_routes.py`** — `list_runs()` wrapped in `try/except`; returns 200 + empty list on startup race condition instead of 500.
+- **`frontend/components/trace/LiveTrace*`** — per-call `.catch()` on `api.trace.list()` and IPC timeout calls prevents a startup error from aborting panel load.
+
+#### 5. Sprint 5f — Rate-limit circuit-breaker cascade fix (commit `7c27a64c`)
+
+Root cause: 429 rate-limit errors were classified as retryable → 3× retries → `cb.record_failure()` after last retry → after ~2 rate-limited requests (5 failures), circuit OPEN → all providers skipped → offline queue → 202 "queued for replay" to the user.
+
+Five-file fix:
+
+| File | Change |
+|------|--------|
+| `backend/llm_gateway/gateway.py` | Added `_is_rate_limit_error()`; removed 429/rate-limit from `_is_retryable_error()`; conditional `cb.record_failure()` in retry loop and exception handler |
+| `backend/llm_gateway/api.py` | `gateway_chat()` returns `429 {code: "RATE_LIMITED"}` directly before the offline queue check |
+| `models.py` | `LLMProvider.get_api_key()` logs WARNING on Fernet decryption failure (was silent `return None`) |
+| `frontend/lib/api/system_chat.ts` | Removed hardcoded `model: payload.model \|\| 'gpt-5.5'` fallback; backend uses `LLMProvider.model_id` from DB |
+| `frontend/components/Chat/ChatInterface.tsx` | Catches `ApiError` with `status === 429`; displays "rate limited" message instead of queuing |
+
+Exit gate: 1865 passed, 21 skipped, 0 failed.
+
+Full Windows installer rebuilt and stamped 2026-06-08 14:08: PyInstaller backend EXE + Next.js static export + Electron + NSIS.
+
+### Open items (as of 2026-06-08)
+
+- **E2E verify chat on installed build** — Run the 2026-06-08 14:08 installer, install, login, send a chat message. Expected: real response (or clear "rate limited" message), NOT "queued for replay".
 
 ---
 
@@ -90,13 +143,11 @@ Exit gate: 1854 passed, 21 skipped.
   partial-update safety, and validation paths.
 - Exit gate: 1865 passed, 21 skipped, 0 failed.
 
-### Open items (as of 2026-06-07)
+### Open items (as of 2026-06-07) — all resolved in Sprint 5b/5f
 
-- **Settings UI test_provider status codes** — map 401/429/422 to human-readable
-  messages in `ApiOverlayConfig.tsx`.
-- **`trace_axis_vectors` / `trace_runs` FK cycle** — SQLAlchemy teardown warning;
-  resolve with `use_alter=True`.
-- **End-to-end chat verification** on fresh installed build (carried from Sprint 3).
+- ~~**Settings UI test_provider status codes**~~ — **DONE** (`7ebee5ba`). `mapProviderTestError()` in `ApiOverlayConfig.tsx` maps 401/429/422/504 to toasts; `ApiError` class carries `.status`.
+- ~~**`trace_axis_vectors` / `trace_runs` FK cycle**~~ — **FIXED** (`585d9847`). `use_alter=True` resolves SQLAlchemy teardown warning.
+- ~~**End-to-end chat verification**~~ — Chat system fixed in Sprint 5f (`7c27a64c`). E2E test on 2026-06-08 14:08 installer pending (carried to 2026-06-08 open items).
 
 ---
 

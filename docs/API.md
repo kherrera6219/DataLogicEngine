@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.0.0 |
-| Last updated | 2026-06-07 |
+| Document version | v3.1.0 |
+| Last updated | 2026-06-08 |
 | Status | Active |
 | Owner | API Platform Team |
 | Review cadence | Every 30 days |
@@ -279,28 +279,86 @@ Primary prefix: `/api/v1/gateway`.
 ### Chat completion
 
 - **POST** `/chat`
-  - Send chat request with model/provider configuration and optional trace behavior.
+  - Send a chat request. The `provider` and `model` fields are **optional** — when omitted the backend reads the configured `LLMProvider.model_id` from the database.
   - Body:
     ```json
     {
       "messages": [
         {"role": "user", "content": "..."}
       ],
-      "model": "configured-model-name",
+      "run_ukg_pipeline": false,
       "mode": "ukg",
-      "trace_enabled": true
+      "provider": "openai",
+      "model": "gpt-5.5"
     }
     ```
-  - Response includes assistant content and may include run/trace metadata when tracing is enabled.
+    `provider` and `model` may be omitted; the backend falls back to the stored provider record.
+  - **200 OK** — successful response:
+    ```json
+    {
+      "response": "assistant reply text",
+      "run_id": "optional-run-uuid",
+      "provider_used": "openai",
+      "model_used": "gpt-5.5"
+    }
+    ```
+  - **202 Accepted** — request queued to the offline replay queue (only when `OFFLINE_QUEUE_ENABLED=true` and all providers are unavailable):
+    ```json
+    {
+      "queued": true,
+      "run_id": "optional-run-uuid"
+    }
+    ```
+  - **429 Too Many Requests** — provider is rate-limited; the request was NOT queued (Sprint 5f):
+    ```json
+    {
+      "error": "Provider rate limited — please wait a moment and try again.",
+      "code": "RATE_LIMITED",
+      "run_id": null,
+      "provider_used": null,
+      "model_used": null
+    }
+    ```
+    The frontend displays a "rate limited" message and does not retry automatically.
+  - **503 Service Unavailable** — all providers failed and offline queue is disabled.
+
+  Implementation: `backend/llm_gateway/api.py` → `gateway_chat()`.
 
 ### Streaming chat
 
 - **POST** `/stream`
   - Server-Sent Events or streaming response path where supported by the gateway.
 
-### Provider/admin management
+### Provider key management
 
-Administrative provider management is exposed through `/api/admin/*` and gateway admin routes where enabled.
+- **POST** `/keys`
+  - Save (or update) an API key for a provider. Creates or updates the `llm_provider` record.
+  - Body:
+    ```json
+    {
+      "provider": "openai",
+      "key": "sk-...",
+      "model": "gpt-5.5"
+    }
+    ```
+  - The key is stored Fernet-encrypted using a key derived from `SESSION_SECRET`. The session secret is stable across restarts in the packaged app.
+  - **200 OK** — key saved.
+  - **400 Bad Request** — missing provider or key.
+
+- **GET** `/keys`
+  - List configured providers (key values are never returned, only metadata).
+
+### Provider connection test
+
+- **POST** `/providers/{provider_id}/test`
+  - Test connectivity for a stored provider configuration.
+  - **200 OK** — provider connected; may include latency metadata.
+  - **401 Unauthorized** — invalid or expired API key (does NOT trigger session expiry redirect in the frontend).
+  - **422 Unprocessable** — key format invalid.
+  - **429 Too Many Requests** — provider rate-limited.
+  - **504 Gateway Timeout** — provider did not respond in time.
+
+  Implementation: `backend/llm_gateway/api.py`. Frontend: `frontend/components/settings/ApiOverlayConfig.tsx` → `mapProviderTestError()` maps these codes to human-readable toast messages.
 
 ---
 
@@ -778,6 +836,13 @@ A technical reviewer should validate this document against these files:
 11. `frontend/lib/api/` — frontend API clients and CSRF handling.
 12. `tests/contract/` — canonical API contract tests.
 13. `.github/workflows/ci.yml` — CI enforcement of contract, parity, security, and readiness gates.
+
+## Change notes for v3.1.0
+
+1. Expanded Section 2 (LLM Gateway) with full response contract for `POST /chat`: 200, 202 queued, 429 RATE_LIMITED (Sprint 5f), and 503 responses documented.
+2. Added provider key management (`POST /keys`, `GET /keys`) and provider connection test (`POST /providers/{id}/test`) with all error codes and `mapProviderTestError` frontend mapping.
+3. Documented that `provider` and `model` are optional in the chat body — backend reads `LLMProvider.model_id` from DB when not supplied (Sprint 5f hardcoded-model removal).
+4. Updated document version to v3.1.0 and last-updated date to 2026-06-08.
 
 ## Change notes for v3.0.0
 

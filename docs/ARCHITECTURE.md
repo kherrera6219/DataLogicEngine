@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-06-08 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 60 days |
@@ -314,6 +314,76 @@ Key files:
 - `backend/truth_engine/truth_memory/manager.py`
 - `backend/truth_engine/truth_link/bus.py`
 
+## LLM Gateway architecture
+
+The LLM Gateway (`backend/llm_gateway/`) provides multi-provider AI routing with cross-provider failover, circuit breaker protection, and rate-limit-aware error handling.
+
+### Provider routing
+
+`LLMGateway.process()` resolves eligible providers from the `llm_provider` database table (falling back to environment variables), then attempts requests in order with per-attempt retries. The request lifecycle:
+
+```text
+LLMGateway.process()
+  -> _get_eligible_providers()   (DB first, env var fallback)
+  -> for each provider:
+      -> CircuitBreaker.allow_request()?
+      -> provider.chat() / provider.complete()
+      -> on success: return GatewayResponse(ok=True)
+      -> on failure: classify (retryable vs. rate-limit vs. fatal)
+      -> retry loop with backoff (only for retryable non-rate-limit errors)
+  -> if all providers exhausted: _error_response()
+```
+
+### Circuit breaker
+
+The circuit breaker is **class-level** (`LLMGateway._circuit_breakers: dict[str, CircuitBreaker] = {}`), persisting across per-request `LLMGateway()` instantiations within the same process:
+
+- `failure_threshold = 5` — circuit opens after 5 counted failures.
+- `recovery_timeout = 60` — circuit resets after 60 seconds.
+- Rate-limit (429) responses do **not** increment the failure counter — the provider is healthy, just throttled.
+
+### Rate-limit handling (Sprint 5f — `7c27a64c`)
+
+`_is_rate_limit_error(error)` detects the following in the lowercased error string: `"429"`, `"rate limit"`, `"rate_limit"`, `"quota exceeded"`, `"insufficient_quota"`, `"billing"`.
+
+When a rate-limit is detected:
+
+1. The request is **not** retried (no backoff loop).
+2. `cb.record_failure()` is **not** called (circuit state unchanged).
+3. `gateway_chat()` in `api.py` returns `HTTP 429` with `{code: "RATE_LIMITED"}` directly, **before** the offline queue check.
+4. The frontend (`ChatInterface.tsx`) catches `ApiError` with `status === 429` and displays "The AI provider is currently rate limited."
+
+Previously, rate-limit errors cascaded: 429 → retry 3× → circuit failure counter → circuit opens → all providers skipped → offline queue → 202 "queued for replay". This cascade is now prevented.
+
+### API key encryption
+
+Provider API keys are stored Fernet-encrypted in the `llm_provider` SQL table. The encryption key is derived from `SESSION_SECRET`:
+
+```python
+fernet_key = base64.urlsafe_b64encode(hashlib.sha256(SESSION_SECRET.encode()).digest())
+```
+
+`SESSION_SECRET` is **stable across restarts** in the packaged Electron app: `loadOrCreatePlainSecretFile()` in `frontend/electron/main.ts` creates `{userData}/secrets/session_secret.secret` (32-byte hex) once on first run and passes the file **path** as `SESSION_SECRET_FILE` to the backend. If decryption fails (e.g., database migrated without the original secret), `LLMProvider.get_api_key()` logs a WARNING with a re-save instruction rather than silently returning `None`.
+
+### Model selection
+
+The stored `LLMProvider.model_id` (set by the user in Settings → API Configuration) is used by default. The frontend (`frontend/lib/api/system_chat.ts`) only includes `provider`/`model` fields when the caller explicitly supplies them, so the backend always reads from DB. Default models are defined in `backend/llm_gateway/model_defaults.py`:
+
+| Provider | Default model |
+|---|---|
+| OpenAI / Azure | `gpt-5.5` |
+| Anthropic | `claude-opus-4-7` |
+| Google / Gemini | `gemini-3.5-flash` |
+
+### Key files
+
+- `backend/llm_gateway/gateway.py` — `LLMGateway`, `_is_rate_limit_error`, `_is_retryable_error`, circuit breaker
+- `backend/llm_gateway/api.py` — Flask routes, `gateway_chat()` with 429 early-return
+- `backend/llm_gateway/model_defaults.py` — default model IDs per provider
+- `models.py` — `LLMProvider.get_api_key()` / `set_api_key()` Fernet encryption
+
+---
+
 ## Data, storage, and memory architecture
 
 The platform uses a multi-store architecture with clear separation of responsibilities.
@@ -519,6 +589,11 @@ Then inspect these implementation files:
 13. `frontend/app/layout.tsx`
 14. `frontend/components/layout/AppSidebar.tsx`
 15. `.github/workflows/ci.yml`
+
+## Change notes for v2.7.0
+
+1. Added dedicated LLM Gateway architecture section: multi-provider routing, class-level circuit breaker, rate-limit protection (Sprint 5f — commit `7c27a64c`), Fernet API key encryption, and model selection from DB.
+2. Updated document version to v2.7.0 and last-updated date to 2026-06-08.
 
 ## Change notes for v2.6.0
 

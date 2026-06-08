@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-06-08 |
 | Status | Active |
 | Owner | Platform Operations |
 | Review cadence | Every 30 days |
@@ -357,6 +357,14 @@ Recommended status: Conditional; requires cloud-specific security/storage approv
 ```
 
 ---
+
+## Change notes for v2.7.0
+
+1. Updated document version to v2.7.0 and last-updated date to 2026-06-08.
+2. Sprint 5a–5f completed: chat interface deep audit and fix (rate-limit circuit-breaker cascade, Live Trace panel stability, API key encryption, frontend error handling). Test suite: **1865 passed, 21 skipped, 0 failed**.
+3. Windows installer rebuilt and stamped 2026-06-08 14:08. LLM Gateway 429 rate-limit handling now returns directly to the client rather than silently queuing.
+4. Failure-mode item "provider rate limiting" now has explicit, logged, user-visible handling (Sprint 5f).
+5. Remaining release blocker: E2E chat verification on the 2026-06-08 installer with a configured provider key.
 
 ## Change notes for v2.6.0
 
