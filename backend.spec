@@ -22,7 +22,8 @@ a = Analysis(
     datas=[
         ('backend', 'backend'),
         ('core', 'core'),
-        ('static', 'static'),
+        # static/ is produced by the frontend build; skip when absent (CI packaging smoke).
+        *([('static', 'static')] if os.path.isdir('static') else []),
 
         ('extensions.py', '.'),
         ('models.py', '.'),
