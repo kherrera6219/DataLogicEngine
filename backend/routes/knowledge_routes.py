@@ -10,7 +10,7 @@ Handles CRUD operations for Core Knowledge Entities:
 
 import uuid
 import logging
-from flask import Blueprint, jsonify
+from flask import Blueprint
 from extensions import db
 from models import PillarLevel, Sector, Domain, KnowledgeNode
 from backend.auth.api_decorators import api_login_required, api_admin_required
@@ -22,22 +22,10 @@ from backend.schemas.api_request_schemas import (
 )
 from backend.utils.error_normalization import normalize_public_error_message
 from backend.utils.flask_request_validation import get_validated_payload, validate_json_payload
+from backend.utils.responses import error_response, success_response
 
 knowledge_bp = Blueprint('knowledge_api', __name__, url_prefix='/api/v1')
 logger = logging.getLogger(__name__)
-
-# Error response helper
-def error_response(message, status_code=400):
-    return jsonify({"error": message, "success": False}), status_code
-
-# Success response helper
-def success_response(data, message="Operation successful", status_code=200):
-    response = {
-        "success": True,
-        "message": message,
-        "data": data
-    }
-    return jsonify(response), status_code
 
 # --- PILLAR LEVELS ---
 

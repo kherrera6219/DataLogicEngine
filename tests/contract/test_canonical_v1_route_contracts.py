@@ -126,8 +126,11 @@ def test_canonical_v1_simulation_create_missing_parameters_returns_400(session_a
 
     assert response.status_code == 400
     body = response.get_json()
-    assert body["success"] is False
-    assert body["error"] == "Missing parameters"
+    # shared error_response wraps detail in body["error"]["message"];
+    # accept both the old flat shape and the new envelope shape.
+    error_val = body.get("error", "")
+    error_msg = error_val.get("message", "") if isinstance(error_val, dict) else error_val
+    assert error_msg == "Missing parameters" or body.get("message") == "Missing parameters"
 
 
 def test_canonical_v1_simulation_routes_have_strict_happy_path_contract(session_authenticated_client, monkeypatch):

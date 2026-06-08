@@ -93,3 +93,9 @@ def register_routes(app):
         app.register_blueprint(location_api)
     except ImportError:
         logger.warning("Location routes unavailable; skipping registration.")
+
+    # AI settings routes (`/api/v1/settings/*`).
+    # analytics, gdpr, retention, and privacy blueprints are registered directly
+    # by app.py after register_routes() returns — do not re-register them here.
+    from backend.routes.settings_routes import settings_bp
+    app.register_blueprint(settings_bp)

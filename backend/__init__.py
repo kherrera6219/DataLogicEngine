@@ -69,7 +69,7 @@ def create_legacy_app():
     app.register_blueprint(ukg_bp, url_prefix='/api/ukg')
     app.register_blueprint(user_data_bp)
     app.register_blueprint(settings_bp)
-    app.register_blueprint(location_bp, url_prefix='/api/v1/location')
+    app.register_blueprint(location_bp)  # url_prefix='/api/v1/locations' is set on the blueprint
     app.register_blueprint(routes_admin_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(ka_bp, url_prefix='/api/v1/ka')

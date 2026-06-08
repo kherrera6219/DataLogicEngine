@@ -21,11 +21,12 @@ except ImportError:
                 return abs(p1[0]-p2[0])*111 + abs(p1[1]-p2[1])*85
         return Result()
 
-# Create blueprint
-location_api = Blueprint('location_api', __name__)
+# Create blueprint — url_prefix centralises the path, avoiding double-prefix
+# issues and keeping the blueprint consistent with the /api/v1/ convention.
+location_api = Blueprint('location_api', __name__, url_prefix='/api/v1/locations')
 logger = logging.getLogger(__name__)
 
-@location_api.route('/api/locations', methods=['GET'])
+@location_api.route('', methods=['GET'])
 @api_session_login_required
 def get_locations():
     """Get locations based on query parameters"""
@@ -89,7 +90,7 @@ def get_locations():
             "error": str(e)
         }), 500
 
-@location_api.route('/api/locations/<uid>', methods=['GET'])
+@location_api.route('/<uid>', methods=['GET'])
 @api_session_login_required
 def get_location(uid):
     """Get a specific location by UID"""
@@ -130,7 +131,7 @@ def get_location(uid):
             "error": str(e)
         }), 500
 
-@location_api.route('/api/locations', methods=['POST'])
+@location_api.route('', methods=['POST'])
 @api_session_login_required
 def create_location():
     """Create a new location"""
@@ -171,7 +172,7 @@ def create_location():
             "error": str(e)
         }), 500
 
-@location_api.route('/api/locations/<uid>', methods=['PUT'])
+@location_api.route('/<uid>', methods=['PUT'])
 @api_session_login_required
 def update_location(uid):
     """Update an existing location"""
@@ -222,7 +223,7 @@ def update_location(uid):
             "error": str(e)
         }), 500
 
-@location_api.route('/api/locations/hierarchy', methods=['GET'])
+@location_api.route('/hierarchy', methods=['GET'])
 @api_session_login_required
 def get_location_hierarchy():
     """Get location hierarchy starting from optional root"""
@@ -280,7 +281,7 @@ def _build_location_hierarchy(location):
         
     return result
 
-@location_api.route('/api/locations/nearest', methods=['GET'])
+@location_api.route('/nearest', methods=['GET'])
 @api_session_login_required
 def find_nearest_locations():
     """Find locations nearest to specified coordinates"""

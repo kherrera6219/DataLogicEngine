@@ -21,12 +21,13 @@ from backend.utils.error_normalization import normalize_public_error_message
 simulation_bp = Blueprint('simulation_api', __name__, url_prefix='/api/v1')
 logger = logging.getLogger(__name__)
 
-# Initialize production engine
+# Engine is initialized at import time. Tests patch `engine.process_query`
+# directly on this module-level object, so the name must remain public.
 from backend.simulation.multi_agent_engine import create_multi_agent_simulation_engine
+
 engine = create_multi_agent_simulation_engine()
 
-def error_response(message, status_code=400):
-    return jsonify({"error": message, "success": False}), status_code
+from backend.utils.responses import error_response
 
 def success_response(data, message="Operation successful", status_code=200):
     response = {"success": True, "message": message, "data": data}

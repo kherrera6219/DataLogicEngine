@@ -188,6 +188,7 @@ def run_cleanup():
 
 
 @retention_bp.route('/health', methods=['GET'])
+@api_admin_required
 def health_check():
     """Health check for retention service."""
     try:

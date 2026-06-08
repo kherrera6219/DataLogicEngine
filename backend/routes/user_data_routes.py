@@ -16,6 +16,16 @@ import logging
 
 from extensions import db, limiter
 from models import User, SimulationSession
+try:
+    from models import ChatSession, ChatMessage
+    _HAS_CHAT_MODELS = True
+except ImportError:
+    _HAS_CHAT_MODELS = False
+try:
+    from models import KnowledgeGraphNode
+    _HAS_KGN_MODEL = True
+except ImportError:
+    _HAS_KGN_MODEL = False
 from backend.config.settings import settings
 from backend.utils.responses import success_response, error_response, internal_error
 from backend.utils.validation import validate_json_body
@@ -158,8 +168,31 @@ def delete_user_profile() -> Tuple[Response, int]:
         except Exception as e:
             logger.warning(f"Failed to log deletion audit event: {e}")
 
-        # Delete associated data first (maintain referential integrity)
+        # Delete associated data first (maintain referential integrity).
+        # Cover all three deletion surfaces: SimulationSession (primary),
+        # ChatSession + ChatMessage (GDPR portability scope),
+        # and KnowledgeGraphNode (per-tenant ingestion scope).
         deleted_simulations = SimulationSession.query.filter_by(user_id=user_id).delete()
+
+        deleted_chat_messages = 0
+        deleted_chat_sessions = 0
+        if _HAS_CHAT_MODELS:
+            session_ids = [
+                s.id for s in ChatSession.query.filter_by(user_id=user_id).all()
+            ]
+            if session_ids:
+                deleted_chat_messages = ChatMessage.query.filter(
+                    ChatMessage.session_id.in_(session_ids)
+                ).delete(synchronize_session=False)
+            deleted_chat_sessions = ChatSession.query.filter_by(user_id=user_id).delete()
+
+        deleted_kgn = 0
+        if _HAS_KGN_MODEL:
+            tenant_id = getattr(current_user, 'tenant_id', None)
+            if tenant_id:
+                deleted_kgn = KnowledgeGraphNode.query.filter_by(
+                    tenant_id=tenant_id
+                ).delete()
 
         # Delete the user
         user_to_delete = db.session.get(User, user_id)
@@ -170,7 +203,8 @@ def delete_user_profile() -> Tuple[Response, int]:
 
         logger.info(
             f"User {username} (SID: {sid}) has permanently wiped their profile. "
-            f"Deleted {deleted_simulations} simulations."
+            f"Deleted {deleted_simulations} simulations, {deleted_chat_sessions} chat sessions, "
+            f"{deleted_chat_messages} messages, {deleted_kgn} knowledge nodes."
         )
 
         # Final audit entry
@@ -194,7 +228,10 @@ def delete_user_profile() -> Tuple[Response, int]:
         return success_response(
             {
                 "deleted_user_id": user_id,
-                "simulations_deleted": deleted_simulations
+                "simulations_deleted": deleted_simulations,
+                "chat_sessions_deleted": deleted_chat_sessions,
+                "chat_messages_deleted": deleted_chat_messages,
+                "knowledge_nodes_deleted": deleted_kgn,
             },
             "Your profile and associated data have been permanently deleted."
         )

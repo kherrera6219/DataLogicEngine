@@ -20,6 +20,23 @@ from backend.utils.flask_request_validation import get_validated_payload, valida
 
 compliance_bp = Blueprint('compliance_api', __name__, url_prefix='/api/v1/compliance')
 
+
+def _get_compliance_manager():
+    """Return compliance manager (axis 7) or None if not yet initialised."""
+    axis_system = current_app.config.get('AXIS_SYSTEM')
+    if not axis_system or not hasattr(axis_system, 'axis_managers'):
+        return None
+    return axis_system.axis_managers.get(7)
+
+
+def _compliance_unavailable():
+    """Standard 503 response when the compliance manager has not initialised."""
+    return jsonify({
+        'status': 'error',
+        'message': 'Compliance manager not yet initialized',
+        'timestamp': datetime.now().isoformat()
+    }), 503
+
 @compliance_bp.route('/standards', methods=['GET'])
 @api_login_required
 def get_compliance_standards():
@@ -27,15 +44,9 @@ def get_compliance_standards():
     try:
         standard_type = request.args.get('type')
         
-        axis_system = current_app.config.get('AXIS_SYSTEM')
-        compliance_manager = axis_system.axis_managers.get(7)
-        
+        compliance_manager = _get_compliance_manager()
         if not compliance_manager:
-            return jsonify({
-                'status': 'error',
-                'message': 'Compliance manager not initialized',
-                'timestamp': datetime.now().isoformat()
-            }), 500
+            return _compliance_unavailable()
         
         result = compliance_manager.get_compliance_hierarchy(standard_type)
         
@@ -66,15 +77,9 @@ def create_compliance_standard():
         data = payload.model_dump()
         parent_id = data.pop('parent_id', None)
         
-        axis_system = current_app.config.get('AXIS_SYSTEM')
-        compliance_manager = axis_system.axis_managers.get(7)
-        
+        compliance_manager = _get_compliance_manager()
         if not compliance_manager:
-            return jsonify({
-                'status': 'error',
-                'message': 'Compliance manager not initialized',
-                'timestamp': datetime.now().isoformat()
-            }), 500
+            return _compliance_unavailable()
         
         result = compliance_manager.register_compliance_standard(data, parent_id)
         
@@ -168,15 +173,9 @@ def get_sector_compliance(sector_id):
     try:
         standard_type = request.args.get('type')
         
-        axis_system = current_app.config.get('AXIS_SYSTEM')
-        compliance_manager = axis_system.axis_managers.get(7)
-        
+        compliance_manager = _get_compliance_manager()
         if not compliance_manager:
-            return jsonify({
-                'status': 'error',
-                'message': 'Compliance manager not initialized',
-                'timestamp': datetime.now().isoformat()
-            }), 500
+            return _compliance_unavailable()
         
         result = compliance_manager.find_compliance_for_sector(sector_id, standard_type)
         
@@ -209,15 +208,9 @@ def map_regulatory_to_compliance():
         relationship_type = payload.relationship_type
         confidence = payload.confidence
         
-        axis_system = current_app.config.get('AXIS_SYSTEM')
-        compliance_manager = axis_system.axis_managers.get(7)
-        
+        compliance_manager = _get_compliance_manager()
         if not compliance_manager:
-            return jsonify({
-                'status': 'error',
-                'message': 'Compliance manager not initialized',
-                'timestamp': datetime.now().isoformat()
-            }), 500
+            return _compliance_unavailable()
         
         result = compliance_manager.map_regulatory_to_compliance(
             regulatory_uid, compliance_uid, relationship_type, confidence

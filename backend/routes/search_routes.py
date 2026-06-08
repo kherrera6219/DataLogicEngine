@@ -141,6 +141,7 @@ def search_global():
 
 
 @search_api.route('/suggest', methods=['GET'])
+@login_required
 def search_suggest():
     """
     Get search suggestions (autocomplete).

@@ -5,12 +5,18 @@ Provides endpoints for getting and saving per-user notification settings.
 """
 
 import logging
+import threading
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 
 logger = logging.getLogger(__name__)
 
 notification_bp = Blueprint('notifications', __name__, url_prefix='/api/v1/user/notifications')
+
+# File-backed storage has a read-modify-write race condition under concurrent
+# requests. This lock serialises access until preferences move to the DB.
+# TODO: migrate notification_prefs to a UserNotificationPreference SQL table.
+_prefs_lock = threading.Lock()
 
 # Default preferences applied when a user has no stored prefs.
 _DEFAULTS: dict = {
@@ -52,13 +58,14 @@ def save_notification_prefs():
 
     try:
         from backend.storage.runtime_settings import load_storage_settings, save_storage_settings
-        settings = load_storage_settings()
-        all_prefs = settings.get('notification_prefs', {})
-        user_prefs = dict(all_prefs.get(str(current_user.id), {}))
-        user_prefs.update(patch)
-        all_prefs[str(current_user.id)] = user_prefs
-        settings['notification_prefs'] = all_prefs
-        save_storage_settings(settings)
+        with _prefs_lock:
+            settings = load_storage_settings()
+            all_prefs = settings.get('notification_prefs', {})
+            user_prefs = dict(all_prefs.get(str(current_user.id), {}))
+            user_prefs.update(patch)
+            all_prefs[str(current_user.id)] = user_prefs
+            settings['notification_prefs'] = all_prefs
+            save_storage_settings(settings)
 
         return jsonify({'success': True, 'preferences': {**_DEFAULTS, **user_prefs}})
     except Exception as e:

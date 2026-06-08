@@ -256,20 +256,22 @@ class TestPrivacyRoutes:
 # ====================================================================
 
 class TestLocationRoutes:
-    """Integration tests for backend/routes/location_routes.py."""
+    """Integration tests for backend/routes/location_routes.py.
+    Routes now live at /api/v1/locations/* (url_prefix on Blueprint).
+    """
 
     def test_locations_list_requires_auth(self, client):
-        resp = client.get("/api/locations")
+        resp = client.get("/api/v1/locations")
         assert resp.status_code in (401, 302, 403)
 
     def test_locations_list(self, app, client):
         _login(client, app)
-        resp = client.get("/api/locations")
+        resp = client.get("/api/v1/locations")
         assert resp.status_code in (200, 403)
 
     def test_locations_hierarchy(self, app, client):
         _login(client, app)
-        resp = client.get("/api/locations/hierarchy")
+        resp = client.get("/api/v1/locations/hierarchy")
         assert resp.status_code in (200, 403)
 
 

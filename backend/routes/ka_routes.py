@@ -16,8 +16,16 @@ logger = logging.getLogger(__name__)
 
 ka_bp = Blueprint('ka', __name__)
 
-# Initialize Master Controller
-controller = get_controller()
+# Lazy-initialized master controller — avoids import-time DB/config access
+# before the Flask app context is available.
+_controller = None
+
+
+def _get_controller():
+    global _controller
+    if _controller is None:
+        _controller = get_controller()
+    return _controller
 
 
 def parse_list_field(value):
@@ -94,7 +102,7 @@ def _parse_ka_id_param(ka_id):
             num = int(ka_id)
         except (ValueError, TypeError):
             return None, jsonify({'success': False, 'error': f'Invalid algorithm ID: {ka_id}'}), 400
-    return controller._normalize_ka_id(f"KA-{num:03d}"), None
+    return _get_controller()._normalize_ka_id(f"KA-{num:03d}"), None
 
 
 @ka_bp.route('/history', methods=['GET'])
@@ -120,12 +128,12 @@ def get_execution_history():
         }
 
         def _risk_tier(ka_id_norm):
-            info = controller.get_available_algorithms().get(ka_id_norm, {})
+            info = _get_controller().get_available_algorithms().get(ka_id_norm, {})
             rc = (info.get('metadata') or {}).get('Risk_Class', '').lower()
             return risk_tier_map.get(rc, 'read_only')
 
         def _ka_name(ka_id_norm):
-            info = controller.get_available_algorithms().get(ka_id_norm, {})
+            info = _get_controller().get_available_algorithms().get(ka_id_norm, {})
             return (info.get('metadata') or {}).get('KA_Name', ka_id_norm)
 
         def _status(raw):
@@ -165,7 +173,7 @@ def list_algorithms():
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 50, type=int)
 
-        live_registry = controller.get_available_algorithms()
+        live_registry = _get_controller().get_available_algorithms()
         algorithms = [
             format_algorithm(ka.get("metadata", {}))
             for ka in live_registry.values()
@@ -174,7 +182,7 @@ def list_algorithms():
         if not algorithms:
             algorithms = [
                 format_algorithm({"KA_ID": k, "KA_Name": k})
-                for k in controller.algorithms.keys()
+                for k in _get_controller().algorithms.keys()
             ]
 
         if category:
@@ -225,10 +233,10 @@ def get_algorithm(ka_id):
         if err:
             return err
 
-        if ka_id_norm not in controller.algorithms:
+        if ka_id_norm not in _get_controller().algorithms:
             return jsonify({'success': False, 'error': f'Algorithm {ka_id} not found'}), 404
 
-        ka_data = controller.algorithms[ka_id_norm].get("metadata", {})
+        ka_data = _get_controller().algorithms[ka_id_norm].get("metadata", {})
         return jsonify({'success': True, 'algorithm': format_algorithm(ka_data)}), 200
     except Exception as e:
         logger.error("Error getting algorithm: %s", e)
@@ -244,13 +252,13 @@ def execute_algorithm(ka_id):
         if err:
             return err
 
-        if ka_id_norm not in controller.algorithms:
+        if ka_id_norm not in _get_controller().algorithms:
             return jsonify({'success': False, 'error': f'Algorithm {ka_id} not found'}), 404
 
         data = request.get_json() or {}
         input_data = data.get('input', {})
 
-        ka_result = controller.execute_algorithm(ka_id_norm, input_data)
+        ka_result = _get_controller().execute_algorithm(ka_id_norm, input_data)
 
         result = {
             'algorithm_id': ka_id_norm,
@@ -275,7 +283,7 @@ def list_categories():
     """List all KA categories with their algorithms"""
     try:
         categories = {}
-        for ka_id, ka_info in controller.get_available_algorithms().items():
+        for ka_id, ka_info in _get_controller().get_available_algorithms().items():
             ka = ka_info.get("metadata", {})
             cat = ka.get('Category')
             if not cat:
@@ -367,7 +375,7 @@ def list_layers():
     """List all simulation layers and their associated algorithms"""
     try:
         layers = {}
-        for ka_id, ka_info in controller.get_available_algorithms().items():
+        for ka_id, ka_info in _get_controller().get_available_algorithms().items():
             ka = ka_info.get("metadata", {})
             primary = parse_list_field(ka.get('Primary_Layers'))
             allowed = parse_list_field(ka.get('Allowed_Layers'))
@@ -421,8 +429,8 @@ def batch_execute():
 
         results = []
         for ka_id in algorithm_ids:
-            ka_id_norm = controller._normalize_ka_id(ka_id)
-            if ka_id_norm not in controller.algorithms:
+            ka_id_norm = _get_controller()._normalize_ka_id(ka_id)
+            if ka_id_norm not in _get_controller().algorithms:
                 results.append({
                     'ka_id': ka_id,
                     'status': 'error',
@@ -431,8 +439,8 @@ def batch_execute():
                 continue
 
             try:
-                ka_result = controller.execute_algorithm(ka_id_norm, input_data)
-                ka_meta = controller.algorithms[ka_id_norm].get("metadata", {})
+                ka_result = _get_controller().execute_algorithm(ka_id_norm, input_data)
+                ka_meta = _get_controller().algorithms[ka_id_norm].get("metadata", {})
                 results.append({
                     'ka_id': ka_meta.get('KA_ID', ka_id_norm),
                     'name': ka_meta.get('KA_Name'),
@@ -472,7 +480,7 @@ def search_algorithms():
             return jsonify({'success': False, 'error': 'Query must be at least 2 characters'}), 400
 
         results = []
-        for ka_id, ka_info in controller.get_available_algorithms().items():
+        for ka_id, ka_info in _get_controller().get_available_algorithms().items():
             ka = ka_info.get("metadata", {})
             name = (ka.get('KA_Name') or '').lower()
             purpose = (ka.get('Purpose') or '').lower()
@@ -499,17 +507,17 @@ def get_dependencies(ka_id):
         if err:
             return err
 
-        if ka_id_norm not in controller.algorithms:
+        if ka_id_norm not in _get_controller().algorithms:
             return jsonify({'success': False, 'error': f'Algorithm {ka_id} not found'}), 404
 
-        ka_data = controller.algorithms[ka_id_norm].get("metadata", {})
+        ka_data = _get_controller().algorithms[ka_id_norm].get("metadata", {})
         dependencies = parse_list_field(ka_data.get('Dependencies'))
 
         dep_details = []
         for dep in dependencies:
-            dep_id = controller._normalize_ka_id(dep)
-            if dep_id in controller.algorithms:
-                dep_ka = controller.algorithms[dep_id].get("metadata", {})
+            dep_id = _get_controller()._normalize_ka_id(dep)
+            if dep_id in _get_controller().algorithms:
+                dep_ka = _get_controller().algorithms[dep_id].get("metadata", {})
                 dep_details.append({
                     'id': dep_ka.get('KA_ID'),
                     'name': dep_ka.get('KA_Name'),
@@ -519,10 +527,10 @@ def get_dependencies(ka_id):
                 })
 
         dependents = []
-        for other_id, other_info in controller.get_available_algorithms().items():
+        for other_id, other_info in _get_controller().get_available_algorithms().items():
             other_ka = other_info.get("metadata", {})
             other_deps = parse_list_field(other_ka.get('Dependencies'))
-            if ka_id_norm in [controller._normalize_ka_id(d) for d in other_deps]:
+            if ka_id_norm in [_get_controller()._normalize_ka_id(d) for d in other_deps]:
                 dependents.append({
                     'id': other_ka.get('KA_ID'),
                     'name': other_ka.get('KA_Name'),
@@ -548,7 +556,7 @@ def get_dependencies(ka_id):
 def get_stats():
     """Get KA system statistics"""
     try:
-        live_registry = controller.get_available_algorithms()
+        live_registry = _get_controller().get_available_algorithms()
         categories = {}
         risk_classes = {}
         statuses = {}
@@ -594,7 +602,7 @@ def health_check():
     return jsonify({
         'success': True,
         'status': 'healthy',
-        'total_algorithms': len(controller.get_available_algorithms()),
+        'total_algorithms': len(_get_controller().get_available_algorithms()),
         'available': True,
         'version': '2.0.0',
         'registry_source': 'ka_registry.json'

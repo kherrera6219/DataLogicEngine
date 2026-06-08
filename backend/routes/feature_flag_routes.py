@@ -3,8 +3,8 @@ Feature Flag Routes
 
 Runtime endpoints for reading and managing feature flags.
 - GET  /api/v1/feature-flags          — public: returns current flag state for the caller
-- PATCH /api/admin/feature-flags/<key> — admin: toggle a flag value remotely
-- GET  /api/admin/feature-flags/audit  — admin: audit trail for flag changes
+- PATCH /api/v1/admin/feature-flags/<key> — admin: toggle a flag value remotely
+- GET  /api/v1/admin/feature-flags/audit  — admin: audit trail for flag changes
 """
 
 import logging
@@ -53,7 +53,7 @@ def get_feature_flags():
     return jsonify({'success': True, 'flags': result})
 
 
-@feature_flag_bp.route('/api/admin/feature-flags/<string:flag_key>', methods=['PATCH'])
+@feature_flag_bp.route('/api/v1/admin/feature-flags/<string:flag_key>', methods=['PATCH'])
 @login_required
 @_admin_required
 def update_feature_flag(flag_key: str):
@@ -99,7 +99,7 @@ def update_feature_flag(flag_key: str):
     return jsonify({'success': True, 'flag': flag.to_dict()})
 
 
-@feature_flag_bp.route('/api/admin/feature-flags/audit', methods=['GET'])
+@feature_flag_bp.route('/api/v1/admin/feature-flags/audit', methods=['GET'])
 @login_required
 @_admin_required
 def get_feature_flag_audit():

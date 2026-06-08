@@ -110,32 +110,32 @@ def test_location_crud(authenticated_client):
         'latitude': 37.7749,
         'longitude': -122.4194
     }
-    response = authenticated_client.post('/api/locations', json=loc_data)
+    response = authenticated_client.post('/api/v1/locations', json=loc_data)
     assert response.status_code == 201
     uid = response.get_json()['location']['uid']
     
     # 2. Get List
-    response = authenticated_client.get('/api/locations')
+    response = authenticated_client.get('/api/v1/locations')
     assert response.status_code == 200
     assert response.get_json()['count'] >= 1
     
     # 3. Get Specific
-    response = authenticated_client.get(f'/api/locations/{uid}')
+    response = authenticated_client.get(f'/api/v1/locations/{uid}')
     assert response.status_code == 200
     assert response.get_json()['location']['name'] == 'Test HQ'
     
     # 4. Update
-    response = authenticated_client.put(f'/api/locations/{uid}', json={'name': 'Updated HQ'})
+    response = authenticated_client.put(f'/api/v1/locations/{uid}', json={'name': 'Updated HQ'})
     assert response.status_code == 200
     assert response.get_json()['location']['name'] == 'Updated HQ'
 
 def test_location_features_extended(authenticated_client):
     """Test specialized location features like filtering and hierarchy root"""
     # 1. Setup multiple locations
-    p1 = authenticated_client.post('/api/locations', json={'name': 'Region A', 'location_type': 'region'}).get_json()['location']
-    authenticated_client.post('/api/locations', json={'name': 'Region B', 'location_type': 'region'}).get_json()['location']
+    p1 = authenticated_client.post('/api/v1/locations', json={'name': 'Region A', 'location_type': 'region'}).get_json()['location']
+    authenticated_client.post('/api/v1/locations', json={'name': 'Region B', 'location_type': 'region'}).get_json()['location']
     
-    c1 = authenticated_client.post('/api/locations', json={
+    c1 = authenticated_client.post('/api/v1/locations', json={
         'name': 'Office 1', 
         'location_type': 'office', 
         'parent_location_id': p1['id'],
@@ -145,59 +145,59 @@ def test_location_features_extended(authenticated_client):
     
     # 2. Test filtering in get_locations
     # Filter by type
-    res = authenticated_client.get('/api/locations?type=region')
+    res = authenticated_client.get('/api/v1/locations?type=region')
     assert res.status_code == 200
     assert all(loc['location_type'] == 'region' for loc in res.get_json()['locations'])
     
     # Filter by name
-    res = authenticated_client.get('/api/locations?search=Office')
+    res = authenticated_client.get('/api/v1/locations?search=Office')
     assert res.status_code == 200
     assert len(res.get_json()['locations']) >= 1
     
     # Filter by parent
-    res = authenticated_client.get(f'/api/locations?parent_id={p1["id"]}')
+    res = authenticated_client.get(f'/api/v1/locations?parent_id={p1["id"]}')
     assert res.status_code == 200
     assert any(loc['uid'] == c1['uid'] for loc in res.get_json()['locations'])
     
     # Filter by geo (radius filter)
-    res = authenticated_client.get('/api/locations?lat=10.01&lng=10.01&radius=5')
+    res = authenticated_client.get('/api/v1/locations?lat=10.01&lng=10.01&radius=5')
     assert res.status_code == 200
     assert any(loc['uid'] == c1['uid'] for loc in res.get_json()['locations'])
     
     # 3. Test hierarchy
-    res = authenticated_client.get('/api/locations/hierarchy')
+    res = authenticated_client.get('/api/v1/locations/hierarchy')
     assert res.status_code == 200
     assert len(res.get_json()['hierarchies']) >= 2
     
     # 4. Test hierarchy with root_uid
-    res = authenticated_client.get(f'/api/locations/hierarchy?root_uid={p1["uid"]}')
+    res = authenticated_client.get(f'/api/v1/locations/hierarchy?root_uid={p1["uid"]}')
     assert res.status_code == 200
     assert res.get_json()['hierarchy']['uid'] == p1['uid']
     assert len(res.get_json()['hierarchy']['children']) >= 1
     
     # 5. Test hierarchy with invalid root_uid (404)
-    res = authenticated_client.get('/api/locations/hierarchy?root_uid=invalid-uid')
+    res = authenticated_client.get('/api/v1/locations/hierarchy?root_uid=invalid-uid')
     assert res.status_code == 404
     
     # 6. Test nearest with type filter
-    res = authenticated_client.get('/api/locations/nearest?lat=10.0&lng=10.0&type=office')
+    res = authenticated_client.get('/api/v1/locations/nearest?lat=10.0&lng=10.0&type=office')
     assert res.status_code == 200
     assert all(loc['location_type'] == 'office' for loc in res.get_json()['locations'])
 
 def test_location_error_conditions(authenticated_client):
     """Test error conditions for location routes"""
     # 1. GET non-existent
-    res = authenticated_client.get('/api/locations/non-existent-uid')
+    res = authenticated_client.get('/api/v1/locations/non-existent-uid')
     assert res.status_code == 404
     
     # 2. POST missing name
-    res = authenticated_client.post('/api/locations', json={'location_type': 'office'})
+    res = authenticated_client.post('/api/v1/locations', json={'location_type': 'office'})
     assert res.status_code == 400
     
     # 3. PUT non-existent
-    res = authenticated_client.put('/api/locations/non-existent-uid', json={'name': 'New Name'})
+    res = authenticated_client.put('/api/v1/locations/non-existent-uid', json={'name': 'New Name'})
     assert res.status_code == 404
     
     # 4. Nearest missing params
-    res = authenticated_client.get('/api/locations/nearest?lat=10.0') # Missing lng
+    res = authenticated_client.get('/api/v1/locations/nearest?lat=10.0') # Missing lng
     assert res.status_code == 400

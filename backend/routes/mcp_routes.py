@@ -6,7 +6,7 @@ Provides REST API endpoints for managing MCP servers, clients,
 resources, tools, and prompts.
 """
 
-from flask import Blueprint, Response, jsonify, g, request, stream_with_context
+from flask import Blueprint, Response, current_app, jsonify, g, request, stream_with_context
 from flask_login import login_required, current_user
 from datetime import datetime, UTC
 import asyncio
@@ -842,10 +842,9 @@ def update_external_config():
         data = request.get_json() or {}
         new_config = data.get("config", {})
         
-        import os
         import json
-        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        config_path = os.path.join(base_dir, 'config', 'mcp_servers.json')
+        from pathlib import Path
+        config_path = Path(current_app.root_path).parent / 'config' / 'mcp_servers.json'
         
         # Save config
         with open(config_path, 'w', encoding='utf-8') as f:

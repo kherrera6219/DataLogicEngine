@@ -380,6 +380,7 @@ def delete_user(user_id: int) -> Tuple[Response, int]:
 
 @admin_bp.route('/users/transfer-ownership', methods=['POST'])
 @login_required
+@require_permission(Permission.SYSTEM_ADMIN)
 @limiter.limit("1 per hour")  # Very strict limit - ownership transfer is critical
 @validate_json_body(['target_user_id', 'confirm'])
 def transfer_ownership() -> Tuple[Response, int]:
