@@ -14,6 +14,7 @@ Compliance: SOC 2 Type 2, ISO 27001, GDPR, HIPAA
 import os
 import json
 import base64
+import binascii
 import hashlib
 import logging
 from datetime import datetime, timedelta, UTC
@@ -21,7 +22,7 @@ from typing import Optional, Dict, Any
 from enum import Enum
 import secrets
 
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
@@ -273,7 +274,7 @@ class EncryptionManager:
             except Exception:
                 continue
 
-        raise original_error
+        raise InvalidToken from original_error
 
     def encrypt(self, data: str, field_name: Optional[str] = None) -> str:
         """
@@ -341,7 +342,11 @@ class EncryptionManager:
             return decrypted
         else:
             # Legacy format without version (backward compatibility)
-            encrypted = base64.b64decode(encrypted_data)
+            try:
+                encrypted = base64.b64decode(encrypted_data, validate=True)
+            except binascii.Error as exc:
+                raise ValueError("Invalid legacy encrypted payload") from exc
+
             version = self.dek_registry["current_version"] - 1
             algorithm = self._get_algorithm_by_version(version)
             try:

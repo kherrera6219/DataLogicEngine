@@ -1,7 +1,8 @@
 import base64
 from pathlib import Path
 
-from cryptography.fernet import Fernet
+import pytest
+from cryptography.fernet import Fernet, InvalidToken
 
 from backend.security.encryption_manager import (
     AES_256_GCM_ALGORITHM,
@@ -69,3 +70,15 @@ def test_encryption_manager_decrypts_unversioned_legacy_fernet_after_aes_rotatio
         == "legacy-email@example.com"
     )
     assert reloaded.dek_registry["keys"][-1]["algorithm"] == AES_256_GCM_ALGORITHM
+
+
+def test_encryption_manager_preserves_plaintext_migration_errors(tmp_path, monkeypatch):
+    monkeypatch.setenv("ENCRYPTION_KEK_SECRET", "test-secret-for-plaintext-migration")
+
+    manager = EncryptionManager(key_dir=str(tmp_path / "keys"))
+
+    with pytest.raises(ValueError):
+        manager.decrypt("admin@test.com", field_name="email")
+
+    with pytest.raises(InvalidToken):
+        manager.decrypt(base64.b64encode(b"plaintext").decode("utf-8"), field_name="email")
