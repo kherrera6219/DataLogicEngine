@@ -50,6 +50,8 @@ Quad-persona consolidation update: 2026-06-05. Phases 4b, 5, and 6 are implement
 
 KA production-depth update: 2026-06-08. First model-ops KA batch is implemented and locally validated. `KA-084`, `KA-087`, `KA-089`, and `KA-090` now derive monitoring, versioning, pruning, and quantization outputs from supplied metrics/artifact/model metadata instead of canned placeholder values, and their constructor config overrides work with file-backed defaults. Continue the broader KA production-depth review with the remaining thin heuristic KAs.
 
+Structural audit update: 2026-06-07. Sprint 1 (duplicate elimination) and Sprint 2 (core→backend inversion resolution) are complete. `find_core_backend_inversions.py` reports 0 inversion lines. `# inversion:ok` policy documented in `REPO_AUDIT_LOG.md` for approved lazy-import patterns. Sprint 3 (compliance manager stub replacement: SC-1 through SC-5) is next.
+
 | Remaining phase | Live-code validation | Status |
 | --- | --- | --- |
 | Phase D / DSQP | `docs/ip/dsqp_technical_disclosure.md`, `backend/dsqp/`, local templates, DSQP chain/registry/orchestrator/validator, PersonaConstructionService DSQP fallback, TruthCore L5 context wiring, KA-012 DSQP profiles, SDK `DSQPClient`, PyInstaller template datas, Electron DSQP IPC, desktop persona cards, DSQP benchmark/report, and provider-backed `dsqp_chain` audit evidence are implemented. | Done for D-1..D-12 code/test/evidence scope; broader production packaging smoke remains under release evidence. |
@@ -96,6 +98,15 @@ KA production-depth update: 2026-06-08. First model-ops KA batch is implemented 
 10. [x] KA-DEPTH-1: upgrade first thin model-ops KA batch.
    - Evidence: `KA-084` detects absolute and relative metric drift, `KA-087` versions artifacts from semantic version and artifact digest data, `KA-089` computes pruning impact from parameter/importance metadata, and `KA-090` computes quantization size reduction from precision and artifact-size metadata.
    - Validation: `python -m pytest -q --no-cov tests\knowledge_algorithms`; touched-path ruff check passed.
+11. [x] AUDIT-SPRINT-1: eliminate duplicate class names, module name collisions, misplaced files.
+    - Evidence: KA-050 renumbered to KA-117; `SystemRefinementOrchestrator` disambiguated; `MultiAgentSimulationEngine` separated from core simulation engine; governance axis enums ported to canonical `core/coordinate_system.py`; `GatewayPersonaSufficiencyTool` disambiguated; `RAGSanitizer`/`ResilienceRouter` moved from `backend/core/` to `core/`; disambiguating docstrings added to 6 intentional same-name pairs; `TruthAuditRecorder` renamed.
+    - Validation: `python -m pytest --no-cov -q` → 1830 passed / 21 skipped; `ruff check .` → clean.
+12. [x] AUDIT-SPRINT-2: resolve all core→backend import inversions.
+    - Evidence: `find_core_backend_inversions.py` reports 0 lines. Module-level inversions moved inside method bodies; optional backend services injected via constructor (`frost_service.py`, `layer2_knowledge.py`, `persona_construction_service.py`) or annotated `# inversion:ok` for approved lazy-try patterns. Scanner updated to exclude annotated lines. `# inversion:ok` policy documented in `REPO_AUDIT_LOG.md`.
+    - Validation: `python -m pytest --no-cov -q` → 1838 passed / 21 skipped; `ruff check .` → clean; `python scripts/find_core_backend_inversions.py` → 0 lines.
+13. [ ] AUDIT-SPRINT-3: replace compliance manager stubs with real implementations.
+    - Scope: `backend/security/compliance_manager.py` — all 5 `_check_*` methods currently set `status = "compliant"` unconditionally. Replace with real checks: key loaded + not overdue (SC-1), DB connection (SC-2), hash chain valid + migration at head (SC-3), key not dev value + no PII in plain audit log (SC-4), export/deletion endpoints reachable + AI toggle wired (SC-5).
+    - Validation: Unit tests prove each check returns non-compliant on the failure condition; pytest green; ruff clean.
 
 ### Trace Viewer Wiring Phased Update Plan
 
