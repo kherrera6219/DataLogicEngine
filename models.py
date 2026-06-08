@@ -591,7 +591,16 @@ class LLMProvider(db.Model):
                 key = base64.urlsafe_b64encode(hashlib.sha256(secret.encode()).digest())
             f = Fernet(key)
             return f.decrypt(self.api_key_encrypted).decode()
-        except Exception:
+        except Exception as _exc:
+            _log = logging.getLogger(__name__)
+            _log.warning(
+                "LLMProvider(%s, type=%s): failed to decrypt stored API key — "
+                "the key may have been saved with a different SESSION_SECRET. "
+                "Re-save the API key in Settings to fix this. Error: %s",
+                self.id,
+                self.provider_type,
+                _exc,
+            )
             return None
 
     def to_dict(self, include_key: bool = False) -> dict:

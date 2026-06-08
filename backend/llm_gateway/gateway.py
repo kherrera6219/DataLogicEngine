@@ -322,8 +322,30 @@ class LLMGateway:
         return self._positive_int(getattr(provider_record, "max_retries", None), env_default, minimum=1, maximum=10)
 
     @staticmethod
+    def _is_rate_limit_error(error: Optional[str]) -> bool:
+        """Return True when the provider error is a rate-limit / quota signal (HTTP 429).
+
+        Rate limiting is NOT a provider failure — the provider is healthy, just
+        throttling.  Callers use this to skip circuit-breaker accounting and to
+        surface the error directly to the client instead of queuing offline.
+        """
+        if not error:
+            return False
+        lowered = str(error).lower()
+        return any(
+            m in lowered
+            for m in ("429", "rate limit", "rate_limit", "quota exceeded", "insufficient_quota", "billing")
+        )
+
+    @staticmethod
     def _is_retryable_error(error: Optional[str]) -> bool:
-        """Classify retryable failures for provider failover attempts."""
+        """Classify retryable failures for provider failover attempts.
+
+        Rate-limit errors (429) are intentionally excluded: they are handled
+        separately by _is_rate_limit_error and should never be retried with a
+        short backoff (the rate-limit window resets on the provider's side, not
+        after a few milliseconds of sleep).
+        """
         if not error:
             return False
 
@@ -338,6 +360,13 @@ class LLMGateway:
             "not allowed",
             "unsupported model",
             "invalid request",
+            # Rate limiting is handled separately — not retried, not a circuit failure.
+            "429",
+            "rate limit",
+            "rate_limit",
+            "quota exceeded",
+            "insufficient_quota",
+            "billing",
         )
         if any(marker in lowered for marker in non_retryable_markers):
             return False
@@ -345,12 +374,10 @@ class LLMGateway:
         retryable_markers = (
             "timeout",
             "timed out",
-            "429",
             "500",
             "502",
             "503",
             "504",
-            "rate limit",
             "temporar",
             "connection reset",
             "connection aborted",
@@ -381,6 +408,13 @@ class LLMGateway:
                 "not allowed",
                 "no active providers found",
                 "no provider configured",
+                # Rate-limit messages are safe to surface — they help the user
+                # understand why the request was not processed.
+                "rate limit",
+                "rate limited",
+                "rate_limit",
+                "quota exceeded",
+                "insufficient_quota",
             ),
         )
     
@@ -729,23 +763,30 @@ class LLMGateway:
                                               
                         return self._build_response(result, run_id, provider_record, model, latency_ms)
                     
-                    # If provider returned !ok but might be retryable (e.g., 429, 503)
+                    # If provider returned !ok but might be retryable (e.g., 503)
                     last_error = result.get("error", "Unknown provider error")
-                    retryable = bool(result.get("retryable")) or self._is_retryable_error(last_error)
+                    is_rate_limited = self._is_rate_limit_error(last_error)
+                    # Rate-limit (429) is NOT retried — the window won't reset in ms —
+                    # and does NOT count as a circuit-breaker failure.
+                    retryable = not is_rate_limited and (
+                        bool(result.get("retryable")) or self._is_retryable_error(last_error)
+                    )
                     logger.warning(
-                        "Provider %s attempt %s/%s failed: %s (retryable=%s)",
+                        "Provider %s attempt %s/%s failed: %s (retryable=%s, rate_limited=%s)",
                         provider_record.name,
                         attempt + 1,
                         max_retries,
                         last_error,
                         retryable,
+                        is_rate_limited,
                     )
 
                     if attempt < max_retries - 1 and retryable:
                         await self._retry_backoff_sleep(attempt)
                         continue
 
-                    cb.record_failure()
+                    if not is_rate_limited:
+                        cb.record_failure()
                     latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
                     record_ai_request(
                         provider=getattr(provider_record, "provider_type", "unknown"),
@@ -840,21 +881,24 @@ class LLMGateway:
 
                 except Exception as e:
                     last_error = str(e)
-                    retryable = self._is_retryable_error(last_error)
+                    is_rate_limited = self._is_rate_limit_error(last_error)
+                    retryable = not is_rate_limited and self._is_retryable_error(last_error)
                     logger.error(
-                        "Provider %s attempt %s/%s exception: %s (retryable=%s)",
+                        "Provider %s attempt %s/%s exception: %s (retryable=%s, rate_limited=%s)",
                         provider_record.name,
                         attempt + 1,
                         max_retries,
                         e,
                         retryable,
+                        is_rate_limited,
                         exc_info=True,
                     )
                     if attempt < max_retries - 1 and retryable:
                         await self._retry_backoff_sleep(attempt)
                         continue
 
-                    cb.record_failure()
+                    if not is_rate_limited:
+                        cb.record_failure()
                     latency_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
                     record_ai_request(
                         provider=getattr(provider_record, "provider_type", "unknown"),

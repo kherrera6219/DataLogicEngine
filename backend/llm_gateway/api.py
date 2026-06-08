@@ -295,6 +295,20 @@ async def gateway_chat():
             }), 202
         return jsonify({'error': 'No response generated from any provider'}), 503
     if not getattr(response, "ok", True):
+        # Rate-limit errors (429 from the provider) must never be silently queued.
+        # The provider is reachable and the key is valid — the request was simply
+        # throttled.  Return 429 so the client can show an actionable message.
+        error_str = str(response.error or "").lower()
+        _rate_limit_markers = ("rate limit", "rate limited", "rate_limit", "quota exceeded", "insufficient_quota")
+        if any(m in error_str for m in _rate_limit_markers):
+            return jsonify({
+                'error': response.error or "Provider rate limited — please wait a moment and try again.",
+                'code': 'RATE_LIMITED',
+                'run_id': response.run_id,
+                'provider_used': response.provider_used,
+                'model_used': response.model_used,
+            }), 429
+
         if get_offline_queue_enabled():
             queued = enqueue_chat_request(data, reason=_public_gateway_error(response.error, fallback='gateway_failed'))
             return jsonify({

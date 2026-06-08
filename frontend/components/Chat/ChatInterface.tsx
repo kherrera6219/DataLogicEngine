@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { ChatMessage, TracePipeline } from './types';
 import { ApiChatMessage, ChatSession } from '@/lib/api/chat';
-import { api, request } from '@/lib/api';
+import { api, request, ApiError } from '@/lib/api';
 import { socketClient, useSocket } from '@/lib/socket';
 import {
   sanitizeFileName,
@@ -205,6 +205,28 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       setSessions(sessionData.sessions || []);
 
     } catch (error) {
+      reportClientError(error, {
+        module: 'ChatInterface',
+        action: 'sendMessage',
+      });
+
+      // Rate-limit errors from the gateway (HTTP 429) must not be silently
+      // queued offline — the provider is reachable, just throttled.  Show the
+      // user a clear, actionable message instead.
+      if (error instanceof ApiError && error.status === 429) {
+        const rateLimitMsg: ChatMessage = {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: 'The AI provider is currently rate limited. Please wait a moment and try again.',
+          finalAnswer: 'The AI provider is currently rate limited. Please wait a moment and try again.',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        setMessages(prev => [...prev, rateLimitMsg]);
+        setIsLoading(false);
+        return;
+      }
+
+      // For other errors, queue offline and show a generic message.
       await request('/gateway/offline-queue', {
         method: 'POST',
         body: JSON.stringify({
@@ -217,10 +239,6 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           },
         }),
       }).catch(() => undefined);
-      reportClientError(error, {
-        module: 'ChatInterface',
-        action: 'sendMessage',
-      });
       const errorMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
