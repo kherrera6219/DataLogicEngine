@@ -545,7 +545,7 @@ trace bundle
   -> per-section hashes
   -> bundle SHA-256
   -> optional HMAC-SHA256 signature
-  -> optional Fernet-encrypted payload
+  -> optional AES-256-GCM-encrypted payload
   -> manifest/envelope
 ```
 
@@ -585,8 +585,8 @@ Sensitive SQL fields are encrypted through the application encryption layer wher
 Current implementation notes:
 
 1. `backend/security/encryption_manager.py` implements KEK/DEK pattern, PBKDF2-HMAC-SHA256, DEK rotation, versioned encrypted payloads, and audit logging hooks.
-2. The current implementation uses Fernet and records `Fernet-AES-128-CBC` in the registry.
-3. Some documentation and standards refer to AES-256-GCM as the target-state data encryption standard. Treat that as a target unless/until the code is upgraded.
+2. The current implementation writes new encrypted fields with AES-256-GCM and records `AES-256-GCM` in the registry.
+3. Legacy `Fernet-AES-128-CBC` registry entries remain decryptable so pre-upgrade field values can still be read.
 4. `backend/security/dpapi_store.py` provides Windows DPAPI helpers for local protected data.
 
 Example model pattern:
@@ -659,6 +659,6 @@ A technical reviewer should inspect these files in order:
 2. Reframed the document from PostgreSQL-only schema reference to multi-store data architecture reference.
 3. Added storage responsibility map for SQL, Redis, Neo4j, USKD, ChromaDB, object store, UnifiedMemory, and TruthMemory.
 4. Added current graph, vector, object-store, memory, and trace/export architecture sections.
-5. Updated encryption notes to distinguish current Fernet implementation from AES-256-GCM target-state documentation.
+5. Updated encryption notes for the current AES-256-GCM implementation and legacy Fernet decrypt compatibility.
 6. Added schema parity and release validation guidance.
 7. Added reviewer verification path tied to actual implementation files.

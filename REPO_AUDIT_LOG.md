@@ -30,19 +30,38 @@ One entry per sprint. Append; do not overwrite.
 
 **DUP-5 (full migration):** `GatewayPersonaSufficiencyTool.evaluate()` has a different signature from `core.persona.quad.persona_scaling.sufficiency.PersonaSufficiencyTool.evaluate()` — different params, different return type. Full migration requires rewriting callers in `gateway.py` and `truth_core/engine.py` to use `ScalingDecision` return type. Defer to a dedicated task after Sprint 2.
 
-**`core/simulation/refinement_orchestrator.py` (1816 lines):** Three-way collision is now two-way (system scaffold renamed in DUP-2). The 1816-line simulation-era version remains. Decision still needed: merge its logic into the backend canonical or rename its class (e.g. `SimulationRefinementOrchestrator`). Recommend rename first, merge later.
+**`core/simulation/refinement_orchestrator.py` (1816 lines):** Resolved by renaming the simulation-era class to `SimulationRefinementOrchestrator` and updating `core/orchestration/master_workflow.py`. Do not merge this into backend TruthCore during Sprint 2: it is a synchronous QPE/simulation adapter with different dependencies, while `backend.truth_engine.truth_core.refinement_orchestrator.RefinementOrchestrator` is the canonical live gateway path.
 
 ---
 
 ## Sprint 2 — Layering Inversions
-**Status:** NOT STARTED  
+**Status:** IN PROGRESS
 **Prerequisite:** Sprint 1 exit gate passed ✅
 
-### Kevin decisions required before coding
+### Decision implementation — 2026-06-07
+
+- Renamed `core.simulation.refinement_orchestrator.RefinementOrchestrator` to
+  `SimulationRefinementOrchestrator` after live-code review confirmed it is a
+  synchronous QPE/simulation adapter used by `core/orchestration/master_workflow.py`,
+  not the backend TruthCore refinement path.
+- Implemented the LY-6 MCP strategy by moving provider-neutral connector metrics,
+  contract validation, and scope enforcement helpers into `core.mcp`; backend
+  `backend.mcp_server.*` paths now re-export those helpers for compatibility.
+- Removed the direct backend subscription-manager import from `core/mcp/mcp_server.py`
+  and replaced it with an injectable resource-update notifier.
+- Implemented the SC-6 encryption decision: `EncryptionManager` now writes new
+  field-level payloads with AES-256-GCM while preserving legacy
+  `Fernet-AES-128-CBC` decrypt compatibility.
+- Validation: focused refinement tests 24 passed; focused MCP tests 26 passed;
+  focused encryption tests 4 passed; `ruff check .` clean; docs reference
+  validation 0 errors; full `python -m pytest tests --no-cov -q` 1832 passed /
+  21 skipped.
+
+### Kevin decisions recorded
 
 | Decision | Context |
 |---|---|
-| **LY-6: MCP server inversion strategy** | `core/mcp/mcp_server.py` imports 4 symbols from `backend.mcp_server.*`. Option A: move the shared MCP infra code to `core.mcp`. Option B: inject via interface/protocol. Needs Kevin's call on where MCP infra lives long-term. |
+| **LY-6: MCP server inversion strategy** | Decision: transition MCP away from core-hosted server coupling. Keep `core.mcp` focused on provider-neutral protocols/data shapes for LLM API-in/API-out integration with third-party AI apps, and remove direct `core -> backend.mcp_server` imports through adapter/interface boundaries. |
 
 ### Task order
 
@@ -53,7 +72,7 @@ One entry per sprint. Append; do not overwrite.
 | LY-3 | Extract KARegistry + KAContext to `core/` | `core/engine/ka_engine.py` L253/276, `core/simulation/refinement_workflow.py` L11–13, `core/simulation/simulation_engine.py` L45–47 | Create `core/knowledge_algorithm/registry_protocol.py` ABC; backend implements it |
 | LY-4 | Constructor injection — PersonaConstructionService | `core/system/persona_construction_service.py` L129/153/185 | Inject RAGService + DSQPChain via constructor; also enables DUP-2 full deletion |
 | LY-5 | Constructor injection — mcp_client | `core/mcp/mcp_client.py` L506 | Inject sampling adapter at construction |
-| LY-6 | MCP server inversions | `core/mcp/mcp_server.py` L14/15/20/442 | **Kevin decides strategy first** |
+| LY-6 | MCP server inversions | `core/mcp/mcp_server.py` L14/15/20/442 | Implemented provider-neutral helpers under `core.mcp`, converted backend helper paths to compatibility exports, and replaced backend subscription coupling with an injectable notifier |
 | LY-7 | KA base class inversions — layer3/5 | `core/simulation/layer3_agent_engine.py` L14/15, `core/simulation/layer5_pipeline.py` L171 | Confirm move vs lazy import |
 
 **Exit gate:** `python scripts/find_core_backend_inversions.py` reports 0 lines (or documented exceptions) + full pytest green + ruff clean.
@@ -68,7 +87,7 @@ One entry per sprint. Append; do not overwrite.
 
 | Decision | Context |
 |---|---|
-| **SC-6: Encryption algorithm** | `backend/security/encryption_manager.py` uses Fernet (AES-128-CBC + HMAC-SHA256). Docs claim AES-256-GCM. Kevin decides: upgrade implementation or correct docs. |
+| **SC-6: Encryption algorithm** | Decision implemented: upgrade `backend/security/encryption_manager.py` so new field-level payloads use AES-256-GCM while legacy `Fernet-AES-128-CBC` registry entries remain decryptable. Active docs now describe the implemented algorithm consistently. |
 
 ### Tasks
 

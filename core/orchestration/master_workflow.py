@@ -371,17 +371,17 @@ class MasterWorkflowOrchestrator:
             logger.warning(f"Could not initialize UnitedSystemManager: {e}")
         
         try:
-            from core.simulation.refinement_orchestrator import RefinementOrchestrator
-            self.refinement_orchestrator = RefinementOrchestrator(
+            from core.simulation.refinement_orchestrator import SimulationRefinementOrchestrator
+            self.refinement_orchestrator = SimulationRefinementOrchestrator(
                 config=self.config,
                 graph_manager=graph_manager,
                 memory_manager=memory_manager,
                 united_system_manager=united_system_manager,
                 ka_loader=self.ka_loader
             )
-            logger.info("RefinementOrchestrator initialized")
+            logger.info("SimulationRefinementOrchestrator initialized")
         except (ImportError, Exception) as e:
-            logger.warning(f"Could not import RefinementOrchestrator: {e}")
+            logger.warning(f"Could not import SimulationRefinementOrchestrator: {e}")
             self.refinement_orchestrator = None
         
         try:

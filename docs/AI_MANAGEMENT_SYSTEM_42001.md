@@ -305,7 +305,7 @@ Known caveats:
 2. Some management-system procedures may require organizational policies outside the repository.
 3. Manual accessibility evidence is still required before signed production distribution.
 4. Trusted Windows signing credentials and signed artifact validation are required before production installer distribution.
-5. Some security target-state language, such as AES-256-GCM, exceeds the current Fernet-based implementation and should be tracked as a roadmap item unless upgraded.
+5. Field-level encryption now writes AES-256-GCM payloads; legacy Fernet-encrypted values remain decryptable for backward compatibility.
 6. Provider-backed staging tests must be run with configured provider credentials before production release claims.
 
 ---

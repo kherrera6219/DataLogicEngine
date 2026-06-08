@@ -30,7 +30,7 @@ The v1.0 plan did **not** cover duplicate detection or file misplacement. This p
 | `backend/` files with no Flask/DB markers (candidates for `core/`) | 278 | MED — most are correct where they are, ~20 are genuinely misplaced |
 | KA-050 number collision (two completely different KAs with same ID) | 2 files | HIGH — breaks registry |
 | `compliance_manager.py` unconditional "compliant" stub | 1 | SECURITY |
-| `EncryptionManager` code vs docs mismatch (Fernet vs AES-256-GCM) | 1 | SECURITY |
+| `EncryptionManager` code vs docs mismatch (Fernet vs AES-256-GCM) | 1 | RESOLVED — upgraded implementation |
 
 ---
 
@@ -70,7 +70,7 @@ These are the high-priority cases where the same class name exists in multiple l
 **Verdict:**
 - **Canonical = `backend/truth_engine/truth_core/refinement_orchestrator.py`** — this is what the live gateway calls via `truth_core/engine.py`
 - `core/system/refinement_orchestrator.py` — 105-line scaffold, no real implementation, no live importers beyond the importer-count noise. **Remove.**
-- `core/simulation/refinement_orchestrator.py` — 1816-line original with a different constructor signature. Used by the simulation-era path. Decide: merge its logic into the backend canonical, or keep as the simulation-path orchestrator with a distinct class name (e.g. `SimulationRefinementOrchestrator`). Do not leave two classes with the same name.
+- `core/simulation/refinement_orchestrator.py` — 1816-line original with a different constructor signature. Used by the simulation-era path. Deep-dive decision: keep it separate from backend TruthCore and rename the class to `SimulationRefinementOrchestrator`; do not merge it into the backend canonical path during Sprint 2.
 
 ---
 
@@ -215,7 +215,7 @@ All five `_check_*_compliance()` methods unconditionally set `status = "complian
 
 ### EncryptionManager
 
-`backend/security/encryption_manager.py` uses `cryptography.fernet.Fernet` (AES-128-CBC + HMAC-SHA256). Multiple docs claim AES-256-GCM. **Kevin decides:** upgrade the implementation or correct the documentation. Both paths are specified in the task table below.
+`backend/security/encryption_manager.py` now writes new field-level encrypted payloads with AES-256-GCM and keeps legacy `Fernet-AES-128-CBC` key versions decryptable for backward compatibility. Active docs now describe AES-256-GCM as implemented, not target-state.
 
 ---
 
@@ -250,7 +250,7 @@ Fix the duplicate/collision issues that cause real risk: wrong imports, registry
 
 ---
 
-### Sprint 2 — Layering Inversions (4–6 days) — NOT STARTED
+### Sprint 2 — Layering Inversions (4–6 days) — IN PROGRESS
 
 Fix the 26 `core → backend` import lines in dependency order: easiest (lazy import) first, hardest (interface extraction) last.
 
@@ -261,14 +261,14 @@ Fix the 26 `core → backend` import lines in dependency order: easiest (lazy im
 | LY-3 | Extract KARegistry + KAContext to `core/` | `core/engine/ka_engine.py` L253/L276, `core/simulation/refinement_workflow.py` L11–13, `core/simulation/simulation_engine.py` L45–47 | Create `core/knowledge_algorithm/registry_protocol.py` with ABC/Protocol; backend registry implements it | pytest tests/knowledge_algorithms/ passes; ruff clean |
 | LY-4 | Constructor injection — `PersonaConstructionService` | `core/system/persona_construction_service.py` L129/L153/L185 | Inject `RAGService` and `DSQPChain` via constructor params; callers pass concrete instances | pytest tests/unit/test_phase_d_dsqp.py tests/unit/test_phase5_phase_c.py pass |
 | LY-5 | Constructor injection / interface — `mcp_client.py` | `core/mcp/mcp_client.py` L506 | Inject sampling adapter at construction | pytest tests/unit/ -k mcp passes |
-| LY-6 | MCP server inversions — discuss strategy with Kevin | `core/mcp/mcp_server.py` L14/L15/L20/L442 | Option A: move MCP infra shared code to `core.mcp`; Option B: inject via interface. Kevin decides. | Kevin decision recorded in REPO_AUDIT_LOG.md; chosen option implemented; tests pass |
+| LY-6 | MCP server inversions — API-boundary strategy | `core/mcp/mcp_server.py` L14/L15/L20/L442 | Decision implemented: provider-neutral helpers moved to `core.mcp`; backend paths re-export for compatibility; `core/mcp/mcp_server.py` uses injectable resource-update notifier instead of backend subscription import. | Done: focused MCP tests pass; ruff clean |
 | LY-7 | KA base class inversions — layer3/5 | `core/simulation/layer3_agent_engine.py` L14/L15, `core/simulation/layer5_pipeline.py` L171 | Confirm whether `ka_claim_extraction` and `ka_12/29` should move to `core/knowledge_algorithm/` or stay in backend with lazy imports | Tests pass; 0 inversions remaining |
 
 **Sprint 2 Exit Gate:** `python scripts/find_core_backend_inversions.py` reports 0 lines (or only explicitly documented exceptions) + full pytest green + ruff clean.
 
 ---
 
-### Sprint 3 — Security Posture (2–3 days) — NOT STARTED
+### Sprint 3 — Security Posture (2–3 days) — NOT STARTED, SC-6 COMPLETED EARLY
 
 | ID | Task | File | What to implement | Exit Gate |
 |---|---|---|---|---|
@@ -277,7 +277,7 @@ Fix the 26 `core → backend` import lines in dependency order: easiest (lazy im
 | SC-3 | Real processing integrity check | same | Last hash chain valid + migration at head | Unit test: non-compliant on chain break |
 | SC-4 | Real confidentiality check | same | Key not dev value + no PII in plain audit log | Unit test: non-compliant on dev key |
 | SC-5 | Real privacy check | same | Export + deletion endpoints reachable; AI toggle wired | Unit test: compliant on seeded DB |
-| SC-6 | Encryption decision + fix | `backend/security/encryption_manager.py` + `docs/SECURITY.md` + `docs/ARCHITECTURE.md` | **Kevin decides:** upgrade Fernet → AES-256-GCM, or correct docs to say AES-128-CBC. Both paths fully implemented. | Code and all docs describe same algorithm consistently |
+| SC-6 | Encryption upgrade | `backend/security/encryption_manager.py` + `docs/SECURITY.md` + `docs/ARCHITECTURE.md` | Upgrade Fernet → AES-256-GCM for new payloads while retaining legacy Fernet decrypt compatibility. | Done: focused encryption tests pass; code/docs describe the same algorithm consistently |
 
 **Sprint 3 Exit Gate:** All 5 compliance checks have real logic + no stub returns + docs and code agree on encryption algorithm + pytest green.
 
@@ -289,7 +289,7 @@ Fix the 26 `core → backend` import lines in dependency order: easiest (lazy im
 - **One task = one commit.** Each ID above is a single conventional commit (`fix(sim): rename MultiAgentSimulationEngine`, etc.).
 - **No behavior changes in Sprints 1 and 2.** If a proposed fix requires changing business logic, stop and flag it.
 - **KA-050 renumber: check the registry first.** Run `grep "ka_50\|KA-050\|KA_050" ka_registry.yaml` and all route/registry files before picking the new number — do not guess.
-- **Kevin's decisions required before proceeding:** LY-6 (MCP server strategy) and SC-6 (encryption upgrade vs doc correction) must not be coded without a direction.
+- **Kevin's decisions recorded:** LY-6 moves toward a provider-neutral LLM API integration boundary; SC-6 upgrades field encryption to AES-256-GCM with legacy Fernet decrypt compatibility.
 - **Test gate is non-negotiable.** Baseline: 1821 passed, 21 skipped. Any regression stops the sprint.
 
 ---

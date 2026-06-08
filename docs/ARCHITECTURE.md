@@ -411,7 +411,7 @@ Key files:
 - `frontend/lib/runtime/policy.ts`
 - `scripts/windows/`
 
-Implementation caveat: the target security standard references AES-256-GCM, while the current `EncryptionManager` implementation uses Fernet and records `Fernet-AES-128-CBC` in the key registry. DPAPI uses Windows platform crypto through `win32crypt`. Treat AES-256-GCM as a target-state standard unless code is updated.
+Implementation note: the current `EncryptionManager` writes new field-level encrypted payloads with AES-256-GCM and records `AES-256-GCM` in the key registry. Legacy `Fernet-AES-128-CBC` entries remain decryptable for backward compatibility. DPAPI uses Windows platform crypto through `win32crypt`.
 
 ## API and route architecture
 
@@ -528,5 +528,5 @@ Then inspect these implementation files:
 4. Updated Truth Engine description to the current TruthGate, TruthCore, TruthMemory, and TruthLink modules.
 5. Added multi-store memory architecture covering SQL, Redis, Neo4j, USKD, ChromaDB, object store, UnifiedMemory, and TruthMemory.
 6. Added frontend product surface and trace-review architecture.
-7. Added local-first/desktop architecture with implementation caveat for current encryption versus target-state AES-256-GCM.
+7. Added local-first/desktop architecture and updated field-encryption notes for AES-256-GCM with legacy Fernet decrypt compatibility.
 8. Added security, observability, testing, and reviewer verification paths tied to implementation files and the new diagram set.

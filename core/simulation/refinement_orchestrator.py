@@ -1,10 +1,18 @@
+"""Simulation-era refinement engine for the master workflow.
+
+DISTINCT FROM backend.truth_engine.truth_core.refinement_orchestrator:
+this class is the synchronous QPE/simulation refinement adapter used by
+core.orchestration.master_workflow. The backend TruthCore orchestrator is the
+canonical live gateway refinement path.
+"""
+
 import logging
 from datetime import datetime
 from typing import Dict, Any, List
 
-class RefinementOrchestrator:
+class SimulationRefinementOrchestrator:
     """
-    The RefinementOrchestrator (RO) takes the output from the QueryPersonaEngine (QPE)
+    The SimulationRefinementOrchestrator (RO) takes the output from the QueryPersonaEngine (QPE)
     and refines it through a 12-step process to produce a coherent, comprehensive answer.
     
     The 12 steps are:
@@ -42,7 +50,7 @@ class RefinementOrchestrator:
         # Get configuration for Layer 2/RO
         self.ro_config = self.config.get('layer2_qpe_ro', {})
         
-        logging.info(f"[{datetime.now()}] RefinementOrchestrator initialized")
+        logging.info(f"[{datetime.now()}] SimulationRefinementOrchestrator initialized")
     
     def run(self, qpe_output: Dict[str, Any], query_text: str, query_topic_uid: str,
             initial_axis_context_scores: Dict[str, float], active_location_context: List[str],

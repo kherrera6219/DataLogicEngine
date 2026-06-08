@@ -22,11 +22,16 @@ from enum import Enum
 import secrets
 
 from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 
 logger = logging.getLogger(__name__)
+
+AES_256_GCM_ALGORITHM = "AES-256-GCM"
+FERNET_ALGORITHM = "Fernet-AES-128-CBC"
+AES_GCM_NONCE_BYTES = 12
 
 
 class KeyType(Enum):
@@ -139,7 +144,7 @@ class EncryptionManager:
             json.dump(self.dek_registry, f, indent=2)
         os.chmod(self.dek_registry_file, 0o600)
 
-    def _get_current_dek(self) -> Fernet:
+    def _get_current_dek(self) -> bytes:
         """Get or create current DEK."""
         if not self.dek_registry["keys"]:
             # Create first DEK
@@ -162,7 +167,7 @@ class EncryptionManager:
             current_key_entry = self.dek_registry["keys"][-1]
             encrypted_dek = base64.b64decode(current_key_entry["encrypted_key"])
             dek = self._kek.decrypt(encrypted_dek)
-            return Fernet(dek)
+            return dek
         except Exception as e:
             # KEK changed or DEK corrupted - need to regenerate
             logger.warning(f"Failed to decrypt DEK (KEK may have changed): {e}")
@@ -180,15 +185,15 @@ class EncryptionManager:
             
             return self._rotate_dek()
 
-    def _rotate_dek(self) -> Fernet:
+    def _rotate_dek(self) -> bytes:
         """
         Rotate DEK by creating a new version.
 
         Returns:
-            New Fernet instance with rotated DEK
+            New AES-256-GCM DEK bytes.
         """
         # Generate new DEK
-        new_dek = Fernet.generate_key()
+        new_dek = AESGCM.generate_key(bit_length=256)
 
         # Encrypt DEK with KEK
         encrypted_dek = self._kek.encrypt(new_dek)
@@ -199,7 +204,7 @@ class EncryptionManager:
             "version": version,
             "encrypted_key": base64.b64encode(encrypted_dek).decode('utf-8'),
             "created_at": datetime.now(UTC).isoformat(),
-            "algorithm": "Fernet-AES-128-CBC",
+            "algorithm": AES_256_GCM_ALGORITHM,
             "status": "active"
         }
 
@@ -219,17 +224,44 @@ class EncryptionManager:
             "rotation_date": datetime.now(UTC).isoformat()
         })
 
-        return Fernet(new_dek)
+        return new_dek
 
-    def _get_dek_by_version(self, version: int) -> Fernet:
-        """Get DEK by version for decrypting old data."""
+    def _get_dek_entry_by_version(self, version: int) -> Dict[str, Any]:
+        """Get DEK registry entry by version."""
         for key_entry in self.dek_registry["keys"]:
             if key_entry["version"] == version:
-                encrypted_dek = base64.b64decode(key_entry["encrypted_key"])
-                dek = self._kek.decrypt(encrypted_dek)
-                return Fernet(dek)
+                return key_entry
 
         raise ValueError(f"DEK version {version} not found")
+
+    def _get_dek_by_version(self, version: int) -> bytes:
+        """Get DEK by version for decrypting old data."""
+        key_entry = self._get_dek_entry_by_version(version)
+        encrypted_dek = base64.b64decode(key_entry["encrypted_key"])
+        return self._kek.decrypt(encrypted_dek)
+
+    def _get_algorithm_by_version(self, version: int) -> str:
+        """Return the encryption algorithm registered for a DEK version."""
+        key_entry = self._get_dek_entry_by_version(version)
+        return key_entry.get("algorithm", FERNET_ALGORITHM)
+
+    def _encrypt_with_dek(self, data: str, dek: bytes, algorithm: str) -> bytes:
+        """Encrypt text with the selected DEK algorithm."""
+        if algorithm == AES_256_GCM_ALGORITHM:
+            nonce = os.urandom(AES_GCM_NONCE_BYTES)
+            ciphertext = AESGCM(dek).encrypt(nonce, data.encode(), None)
+            return nonce + ciphertext
+
+        return Fernet(dek).encrypt(data.encode())
+
+    def _decrypt_with_dek(self, encrypted: bytes, dek: bytes, algorithm: str) -> str:
+        """Decrypt bytes with the selected DEK algorithm."""
+        if algorithm == AES_256_GCM_ALGORITHM:
+            nonce = encrypted[:AES_GCM_NONCE_BYTES]
+            ciphertext = encrypted[AES_GCM_NONCE_BYTES:]
+            return AESGCM(dek).decrypt(nonce, ciphertext, None).decode()
+
+        return Fernet(dek).decrypt(encrypted).decode()
 
     def encrypt(self, data: str, field_name: Optional[str] = None) -> str:
         """
@@ -247,7 +279,8 @@ class EncryptionManager:
             return data
 
         version = self.dek_registry["current_version"] - 1
-        encrypted = self._current_dek.encrypt(data.encode())
+        algorithm = self._get_algorithm_by_version(version)
+        encrypted = self._encrypt_with_dek(data, self._current_dek, algorithm)
         encrypted_with_version = f"v{version}:{base64.b64encode(encrypted).decode('utf-8')}"
 
         self._log_audit("data_encrypted", {
@@ -284,7 +317,8 @@ class EncryptionManager:
             else:
                 dek = self._get_dek_by_version(version)
 
-            decrypted = dek.decrypt(encrypted).decode()
+            algorithm = self._get_algorithm_by_version(version)
+            decrypted = self._decrypt_with_dek(encrypted, dek, algorithm)
 
             self._log_audit("data_decrypted", {
                 "field": field_name,
@@ -296,7 +330,9 @@ class EncryptionManager:
         else:
             # Legacy format without version (backward compatibility)
             encrypted = base64.b64decode(encrypted_data)
-            return self._current_dek.decrypt(encrypted).decode()
+            version = self.dek_registry["current_version"] - 1
+            algorithm = self._get_algorithm_by_version(version)
+            return self._decrypt_with_dek(encrypted, self._current_dek, algorithm)
 
     def encrypt_dict(self, data: Dict[str, Any], fields_to_encrypt: list) -> Dict[str, Any]:
         """

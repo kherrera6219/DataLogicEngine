@@ -11,13 +11,13 @@ import time
 from typing import Dict, List, Optional, Any, Callable
 import logging
 
-from backend.mcp_server.connector_metrics import infer_connector_id, record_connector_execution
-from backend.mcp_server.contract_validation import (
+from core.mcp.connector_metrics import infer_connector_id, record_connector_execution
+from core.mcp.contract_validation import (
     ContractValidationError,
     validate_tool_arguments,
     validate_tool_result,
 )
-from backend.mcp_server.scope_enforcement import enforce_scopes, parse_execution_context
+from core.mcp.scope_enforcement import enforce_scopes, parse_execution_context
 from .mcp_protocol import (
     MCPResource, MCPTool, MCPPrompt,
     MCPServerInfo, MCPCapabilities, MCPMethod,
@@ -40,12 +40,14 @@ class MCPServer(MCPRequestHandler):
         self,
         name: str,
         version: str = "1.0.0",
-        description: Optional[str] = None
+        description: Optional[str] = None,
+        resource_update_notifier: Optional[Callable[[str, Dict[str, Any]], Any]] = None,
     ):
         super().__init__()
         self.name = name
         self.version = version
         self.description = description or f"DataLogicEngine MCP Server: {name}"
+        self.resource_update_notifier = resource_update_notifier
 
         # Server state
         self.server_id = str(uuid.uuid4())
@@ -437,12 +439,13 @@ class MCPServer(MCPRequestHandler):
                 except Exception as e:
                     logger.warning(f"Failed to send JSON-RPC update notification for {uri}: {e}")
 
-        # Also trigger the global SSE subscription manager
-        try:
-            from backend.mcp_server.subscriptions import subscription_manager
-            subscription_manager.notify(uri, {"updated": True})
-        except Exception as e:
-            logger.warning(f"Failed to notify global subscription_manager: {e}")
+        if self.resource_update_notifier:
+            try:
+                result = self.resource_update_notifier(uri, {"updated": True})
+                if inspect.isawaitable(result):
+                    await result
+            except Exception as e:
+                logger.warning(f"Failed to notify resource_update_notifier: {e}")
 
     def get_server_info(self) -> Dict[str, Any]:
         """Get server information"""

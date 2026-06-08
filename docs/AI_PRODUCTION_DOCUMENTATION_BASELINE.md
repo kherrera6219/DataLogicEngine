@@ -172,7 +172,7 @@ Current caveats:
 3. Public Windows distribution still requires trusted signing credentials and signed artifact verification evidence.
 4. Manual accessibility evidence remains required before final production distribution claims.
 5. Provider-backed flows require configured provider credentials and network access.
-6. Some target-state encryption language, such as AES-256-GCM, exceeds the current Fernet/DPAPI implementation and should be tracked separately unless upgraded.
+6. Field-level encryption now writes AES-256-GCM payloads; legacy Fernet-encrypted values remain decryptable for backward compatibility.
 7. Archived whitepapers may contain exploratory or historical architecture that is not current source of truth.
 
 ---

@@ -237,10 +237,10 @@ Current data protection layers:
 4. trace export hashing/signing/encryption options.
 5. provider/MCP credential storage through encrypted or secure-source paths where configured.
 
-Implementation caveat:
+Implementation notes:
 
-- Current `EncryptionManager` implementation uses Fernet and records `Fernet-AES-128-CBC` in key registry metadata.
-- Some standards/docs refer to AES-256-GCM as target-state encryption. Treat AES-256-GCM as a target unless the code is upgraded.
+- Current `EncryptionManager` writes new field-level encrypted payloads with AES-256-GCM and records `AES-256-GCM` in key registry metadata.
+- Legacy `Fernet-AES-128-CBC` key registry entries remain decryptable for backward compatibility with data encrypted before the AES-256-GCM upgrade.
 - DPAPI protection is platform-provided through Windows `win32crypt` when available.
 
 Relevant implementation:
@@ -459,5 +459,5 @@ A security reviewer should inspect these files in order:
 3. Added desktop local-auth security section.
 4. Added AI safety and governed reasoning security section.
 5. Added multi-store data security, MCP security, trace/export integrity, and release supply-chain security sections.
-6. Added implementation caveat distinguishing current Fernet implementation from AES-256-GCM target-state documentation.
+6. Updated field-encryption notes after `EncryptionManager` was upgraded to AES-256-GCM with legacy Fernet decrypt compatibility.
 7. Added security reviewer verification path tied to actual implementation files.
