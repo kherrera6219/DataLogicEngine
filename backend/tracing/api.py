@@ -255,26 +255,42 @@ def get_ka_execution_feed():
 @api_session_login_required
 def list_runs():
     """List trace runs with filtering."""
+    import logging as _logging
+    _log = _logging.getLogger(__name__)
+
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 20, type=int)
     status = request.args.get('status')
-    
-    query = TraceRun.query.filter_by(user_id=current_user.id)
-    
-    if status:
-        query = query.filter_by(status=status)
-    
-    runs = query.order_by(TraceRun.created_at.desc()).paginate(
-        page=page, per_page=per_page, error_out=False
-    )
-    
-    return jsonify({
-        'runs': [r.to_dict() for r in runs.items],
-        'total': runs.total,
-        'page': page,
-        'per_page': per_page,
-        'pages': runs.pages
-    })
+
+    try:
+        query = TraceRun.query.filter_by(user_id=current_user.id)
+
+        if status:
+            query = query.filter_by(status=status)
+
+        runs = query.order_by(TraceRun.created_at.desc()).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+
+        return jsonify({
+            'runs': [r.to_dict() for r in runs.items],
+            'total': runs.total,
+            'page': page,
+            'per_page': per_page,
+            'pages': runs.pages
+        })
+    except Exception as exc:
+        # Gracefully degrade during startup race or when trace tables aren't
+        # fully migrated yet.  Roll back the broken session so it can be reused
+        # and return an empty run list (HTTP 200) rather than a 500 that would
+        # surface as an error banner in the Live Trace panel.
+        _log.warning("list_runs degraded (startup race or schema mismatch): %s", exc)
+        try:
+            from extensions import db as _db
+            _db.session.rollback()
+        except Exception:
+            pass
+        return jsonify({'runs': [], 'total': 0, 'page': page, 'per_page': per_page, 'pages': 0})
 
 
 @trace_bp.route('/runs/<run_id>', methods=['GET'])

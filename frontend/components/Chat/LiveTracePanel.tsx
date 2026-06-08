@@ -101,7 +101,11 @@ export function LiveTracePanel() {
   const loadTraceData = useCallback(async () => {
     setError(null);
     try {
-      const recentRuns = await api.trace.list(12) as TraceRunRecord[];
+      // Treat transient backend errors (startup race, 500, IPC timeout) as an
+      // empty state rather than surfacing the error banner.  The 15-second poll
+      // will recover automatically once the backend is ready.
+      const recentRuns = await api.trace.list(12)
+        .catch(() => [] as unknown[]) as TraceRunRecord[];
       setRuns(recentRuns || []);
 
       const selectedRun = (recentRuns || []).find((run) => run.status === 'running') || recentRuns?.[0];
@@ -115,15 +119,18 @@ export function LiveTracePanel() {
         .catch(() => ({ stages: [] as TraceStageRecord[] })) as { stages?: TraceStageRecord[] };
       setStages(stagePayload.stages || []);
 
+      // IPC calls use invokeWithTimeout which throws on a 5-second timeout.
+      // Catch those individually so a slow backend start doesn't abort the
+      // whole loadTraceData and blank the panel.
       const progressPayload = window.electronAPI?.getReasoningLayerProgress
-        ? await window.electronAPI.getReasoningLayerProgress()
-        : await request<ReasoningLayerProgress>('/trace/live-progress');
-      setReasoningProgress(progressPayload);
+        ? await window.electronAPI.getReasoningLayerProgress().catch(() => null)
+        : await request<ReasoningLayerProgress>('/trace/live-progress').catch(() => null);
+      setReasoningProgress(progressPayload as ReasoningLayerProgress | null);
 
       const feedPayload = window.electronAPI?.getKAExecutionFeed
-        ? await window.electronAPI.getKAExecutionFeed()
-        : await request<KAExecutionFeed>('/trace/ka-execution-feed?limit=20');
-      setKaFeed(feedPayload);
+        ? await window.electronAPI.getKAExecutionFeed().catch(() => null)
+        : await request<KAExecutionFeed>('/trace/ka-execution-feed?limit=20').catch(() => null);
+      setKaFeed(feedPayload as KAExecutionFeed | null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load trace telemetry');
       setRuns([]);
