@@ -28,26 +28,32 @@ describe('system_chat API', () => {
   });
 
   describe('sendChat', () => {
-    it('sends chat request with defaults', async () => {
+    it('omits provider and model when not supplied so the backend uses its DB config', async () => {
       vi.mocked(apiBase.request).mockResolvedValueOnce({ response: 'hi' });
       const payload = { messages: [{ role: 'user' as const, content: 'hello' }] };
       await sendChat(payload);
-      
+
       expect(apiBase.request).toHaveBeenCalledWith('/gateway/chat', expect.objectContaining({
         method: 'POST',
-        body: expect.stringContaining('"provider":"openai"')
       }));
+
+      // provider and model must NOT be in the body when not supplied by the caller.
+      // The backend reads LLMProvider.model_id from the database in this case (Sprint 5f).
+      const callBody = (vi.mocked(apiBase.request).mock.calls[0][1] as { body: string }).body;
+      expect(callBody).not.toContain('"provider"');
+      expect(callBody).not.toContain('"model"');
+      expect(callBody).toContain('"messages"');
     });
 
-    it('respects provided provider and model', async () => {
+    it('includes provider and model when explicitly supplied by the caller', async () => {
       vi.mocked(apiBase.request).mockResolvedValueOnce({ response: 'hi' });
-      const payload = { 
+      const payload = {
         messages: [{ role: 'user' as const, content: 'hello' }],
         provider: 'anthropic',
         model: 'claude-3'
       };
       await sendChat(payload);
-      
+
       expect(apiBase.request).toHaveBeenCalledWith('/gateway/chat', expect.objectContaining({
         body: expect.stringContaining('"provider":"anthropic"')
       }));
