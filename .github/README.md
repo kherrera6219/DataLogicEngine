@@ -316,15 +316,28 @@ Installer artifacts are copied to the repository root as a single canonical setu
 - `DataLogicEngine Setup Latest.exe`
 - matching `.sha256` and `.blockmap` files
 
-### Local LLM Setup (Ollama)
+### Model Provider Setup
 
-The 6-tier local LLM chain (T0–T3) runs via [Ollama](https://ollama.com). No API key or cloud account is required. All inference happens on-device.
+DataLogicEngine routes queries through a 6-tier escalation chain, but **the full chain is not required**. The app works with any combination of tiers — just one local model, just one cloud provider, a mix of both, or the full chain. Configure only what you have available.
 
-**1. Install Ollama**
+| Tier | Model | Provider | Requires |
+| --- | --- | --- | --- |
+| T0 | `gemma4:latest` | Ollama (local) | Ollama installed + model pulled |
+| T1 | `gemma4:12b` | Ollama (local) | Ollama installed + model pulled |
+| T2 | `qwen3:14b` | Ollama (local) | Ollama installed + model pulled |
+| T3 | `devstral-small-2:latest` | Ollama (local) | Ollama installed + model pulled |
+| T4 | `gemini-3.5-flash` | Google / Gemini | Google API key |
+| T5 | `gpt-5.5` | OpenAI | OpenAI API key |
 
-Download and run the installer for your OS from [ollama.com/download](https://ollama.com/download) (Windows, macOS, and Linux supported). Ollama runs as a background service on `http://localhost:11434` by default.
+#### Local models via Ollama (T0–T3)
 
-**2. Pull the four required models**
+[Ollama](https://ollama.com) runs models on-device with no API key or cloud account required.
+
+**Install Ollama**
+
+Download and run the installer from [ollama.com/download](https://ollama.com/download) (Windows, macOS, and Linux). Ollama starts as a background service on `http://localhost:11434`.
+
+**Pull models** — pull only the tiers you want to use:
 
 ```bash
 ollama pull gemma4:latest            # T0 — ultra-light, ~1s responses
@@ -333,21 +346,34 @@ ollama pull qwen3:14b                # T2 — extended reasoning (thinking model
 ollama pull devstral-small-2:latest  # T3 — code and structured output
 ```
 
-> **Hardware note:** `gemma4:12b` (T1) and `qwen3:14b` (T2) are thinking models that perform best with 8 GB+ VRAM. `gemma4:latest` (T0) and `devstral-small-2:latest` (T3) are more memory-efficient and run well on 4–6 GB VRAM or CPU offload.
+> **Hardware note:** `gemma4:12b` (T1) and `qwen3:14b` (T2) are thinking models and perform best with 8 GB+ VRAM. `gemma4:latest` (T0) and `devstral-small-2:latest` (T3) are lighter and run on 4–6 GB VRAM or CPU offload.
 
-**3. Verify Ollama is running**
+**Verify:**
 
 ```bash
-ollama list
-# Should show all four models above
-
-curl http://localhost:11434
-# Should return: Ollama is running
+ollama list                # shows pulled models
+curl http://localhost:11434  # returns: Ollama is running
 ```
 
-The app auto-detects Ollama at `http://localhost:11434`. Set `OLLAMA_BASE_URL` in `.env` only if Ollama is on a non-default host or port.
+Set `OLLAMA_BASE_URL` in `.env` only if Ollama is on a non-default host or port.
 
-T4 (Gemini Flash 3.5) and T5 (GPT-5.5) are optional cloud tiers that unlock automatically when a Google or OpenAI API key is saved in the app's Settings → AI/Model page.
+#### Cloud providers (T4 and T5, optional)
+
+Cloud tiers are optional and unlock automatically when a key is saved in **Settings → AI/Model**. No restart required.
+
+**T4 — Google Gemini Flash 3.5**
+
+1. Get an API key at [aistudio.google.com](https://aistudio.google.com) (free tier available).
+2. In the app: **Settings → AI/Model → Provider: google → paste key → Save**.
+3. Or set `GOOGLE_API_KEY` (or `GEMINI_API_KEY`) in `.env` before starting the backend.
+
+**T5 — OpenAI GPT-5.5**
+
+1. Get an API key at [platform.openai.com](https://platform.openai.com).
+2. In the app: **Settings → AI/Model → Provider: openai → paste key → Save**.
+3. Or set `OPENAI_API_KEY` in `.env` before starting the backend.
+
+Once a cloud key is saved, the gateway's cloud escalation gate opens and complex queries will route to T4/T5 automatically. The Dashboard **LLM Escalation Chain** card shows which tiers are currently unlocked.
 
 ## Configuration
 
