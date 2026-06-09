@@ -609,13 +609,19 @@ class LLMGateway:
             try:
                 from backend.llm_gateway.complexity_classifier import ComplexityClassifier
                 from backend.llm_gateway.escalation_config import get_tier_config
+                from backend.llm_gateway.tier_availability import find_best_available_tier
                 allow_cloud = self._has_active_cloud_providers()
                 clf_result = ComplexityClassifier().classify(
                     query, allow_cloud_escalation=allow_cloud
                 )
-                tier_cfg = get_tier_config(clf_result.tier)
+                # Graceful cascade: if the classified tier's model isn't pulled,
+                # fall back to the best available tier rather than failing.
+                effective_tier = find_best_available_tier(
+                    clf_result.tier, allow_cloud=allow_cloud
+                )
+                tier_cfg = get_tier_config(effective_tier)
                 if tier_cfg:
-                    request.meta["escalation_tier"] = clf_result.tier
+                    request.meta["escalation_tier"] = effective_tier
                     request.meta["escalation_reason"] = clf_result.reason
                     request.meta["escalation_label"] = tier_cfg.label
                     if tier_cfg.is_cloud:
@@ -626,11 +632,14 @@ class LLMGateway:
                         # Local tier — keep Ollama routing, override the model string.
                         request.meta["ollama_model_override"] = tier_cfg.model
                     logger.info(
-                        "Escalation → tier=%s model=%s reason=%s cloud_allowed=%s",
-                        clf_result.tier,
+                        "Escalation → tier=%s model=%s reason=%s cloud_allowed=%s"
+                        "%s",
+                        effective_tier,
                         tier_cfg.model,
                         clf_result.reason,
                         allow_cloud,
+                        f" (cascaded from T{clf_result.tier})"
+                        if effective_tier != clf_result.tier else "",
                     )
             except Exception as exc:  # noqa: BLE001
                 logger.warning("Escalation classifier failed open: %s", exc)
