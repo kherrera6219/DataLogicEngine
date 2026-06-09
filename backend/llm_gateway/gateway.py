@@ -294,6 +294,39 @@ class LLMGateway:
         return os.environ.get("USE_DMRF", "false").lower() in {"1", "true", "yes", "on"}
 
     @staticmethod
+    def _has_active_cloud_providers() -> bool:
+        """Return True when at least one T4/T5 cloud provider is active in the DB.
+
+        The user's explicit act of saving a Google or OpenAI API key via Settings
+        is the gate for cloud escalation — no separate feature-flag is needed.
+        Both ``is_active=True`` AND a stored ``api_key_encrypted`` are required so
+        that empty stub provider records never accidentally unlock cloud routing.
+        """
+        _CLOUD_TYPES: frozenset[str] = frozenset({"google", "gemini", "openai"})
+
+        def _query() -> bool:
+            rows = LLMProvider.query.filter_by(is_active=True).all()
+            for row in rows:
+                pt = str(getattr(row, "provider_type", "") or "").strip().lower()
+                if pt in _CLOUD_TYPES and getattr(row, "api_key_encrypted", None):
+                    return True
+            return False
+
+        try:
+            from flask import current_app as _cur_app
+            try:
+                app = _cur_app._get_current_object()
+            except RuntimeError:
+                app = None
+            if app is not None:
+                with app.app_context():
+                    return _query()
+            return _query()
+        except Exception as exc:
+            logger.debug("Cloud provider check failed (non-fatal): %s", exc)
+            return False
+
+    @staticmethod
     def _resolve_model(request: GatewayRequest, provider_record: Optional[LLMProvider]) -> str:
         if request.model:
             return str(request.model)
@@ -564,16 +597,22 @@ class LLMGateway:
             except Exception:
                 pass  # Preferences are optional — never block a request on DB failure
 
-        # ── Escalation tier classification (Sprint 6b) ────────────────────
+        # ── Escalation tier classification (Sprint 6b/6c) ───────────────────
         # Select the optimal model tier for this query via heuristic scoring.
         # Runs only when the caller has not pinned a specific provider or model,
-        # AND user preferences have not set one.  Cloud escalation is disabled
-        # by default (cap=T3); enable via policy in Sprint 6c.
+        # AND user preferences have not set one.
+        #
+        # Cloud escalation (T4 = Gemini Flash 3.5, T5 = GPT-5.5) is unlocked
+        # automatically when the user has saved at least one active Google or
+        # OpenAI provider record in Settings.  No manual flag required.
         if not request.provider and not request.model:
             try:
                 from backend.llm_gateway.complexity_classifier import ComplexityClassifier
                 from backend.llm_gateway.escalation_config import get_tier_config
-                clf_result = ComplexityClassifier().classify(query)
+                allow_cloud = self._has_active_cloud_providers()
+                clf_result = ComplexityClassifier().classify(
+                    query, allow_cloud_escalation=allow_cloud
+                )
                 tier_cfg = get_tier_config(clf_result.tier)
                 if tier_cfg:
                     request.meta["escalation_tier"] = clf_result.tier
@@ -587,10 +626,11 @@ class LLMGateway:
                         # Local tier — keep Ollama routing, override the model string.
                         request.meta["ollama_model_override"] = tier_cfg.model
                     logger.info(
-                        "Escalation → tier=%s model=%s reason=%s",
+                        "Escalation → tier=%s model=%s reason=%s cloud_allowed=%s",
                         clf_result.tier,
                         tier_cfg.model,
                         clf_result.reason,
+                        allow_cloud,
                     )
             except Exception as exc:  # noqa: BLE001
                 logger.warning("Escalation classifier failed open: %s", exc)

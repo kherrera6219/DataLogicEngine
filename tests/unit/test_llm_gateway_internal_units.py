@@ -142,6 +142,81 @@ class TestGatewayResponse:
         assert resp.error is None
 
 
+class TestHasActiveCloudProviders:
+    """Unit tests for LLMGateway._has_active_cloud_providers().
+
+    The helper is purely DB-driven: True iff at least one active Google/OpenAI
+    provider record with a stored api_key_encrypted exists.  We patch the
+    gateway module's LLMProvider binding directly so no Flask app context or
+    real database is needed.
+    """
+
+    @staticmethod
+    def _make_provider(provider_type: str, api_key_encrypted=b"enc_key"):
+        p = MagicMock()
+        p.provider_type = provider_type
+        p.api_key_encrypted = api_key_encrypted
+        return p
+
+    def test_returns_false_when_no_active_providers(self):
+        from unittest.mock import patch
+        with patch("backend.llm_gateway.gateway.LLMProvider") as mock_lp:
+            mock_lp.query.filter_by.return_value.all.return_value = []
+            assert LLMGateway._has_active_cloud_providers() is False
+
+    def test_returns_true_for_active_google_provider_with_key(self):
+        from unittest.mock import patch
+        provider = self._make_provider("google")
+        with patch("backend.llm_gateway.gateway.LLMProvider") as mock_lp:
+            mock_lp.query.filter_by.return_value.all.return_value = [provider]
+            assert LLMGateway._has_active_cloud_providers() is True
+
+    def test_returns_true_for_active_openai_provider_with_key(self):
+        from unittest.mock import patch
+        provider = self._make_provider("openai")
+        with patch("backend.llm_gateway.gateway.LLMProvider") as mock_lp:
+            mock_lp.query.filter_by.return_value.all.return_value = [provider]
+            assert LLMGateway._has_active_cloud_providers() is True
+
+    def test_returns_false_when_cloud_provider_has_no_key(self):
+        """A Google record without a stored key must NOT unlock cloud routing."""
+        from unittest.mock import patch
+        provider = self._make_provider("google", api_key_encrypted=None)
+        with patch("backend.llm_gateway.gateway.LLMProvider") as mock_lp:
+            mock_lp.query.filter_by.return_value.all.return_value = [provider]
+            assert LLMGateway._has_active_cloud_providers() is False
+
+    def test_returns_false_for_ollama_only(self):
+        """A local Ollama provider must NOT count as a cloud provider."""
+        from unittest.mock import patch
+        provider = self._make_provider("ollama")
+        with patch("backend.llm_gateway.gateway.LLMProvider") as mock_lp:
+            mock_lp.query.filter_by.return_value.all.return_value = [provider]
+            assert LLMGateway._has_active_cloud_providers() is False
+
+    def test_returns_false_for_local_slm_only(self):
+        from unittest.mock import patch
+        provider = self._make_provider("local_slm")
+        with patch("backend.llm_gateway.gateway.LLMProvider") as mock_lp:
+            mock_lp.query.filter_by.return_value.all.return_value = [provider]
+            assert LLMGateway._has_active_cloud_providers() is False
+
+    def test_returns_false_on_db_exception(self):
+        """A DB error must silently return False — never raise."""
+        from unittest.mock import patch
+        with patch("backend.llm_gateway.gateway.LLMProvider") as mock_lp:
+            mock_lp.query.filter_by.side_effect = Exception("DB unavailable")
+            assert LLMGateway._has_active_cloud_providers() is False
+
+    def test_gemini_provider_type_also_unlocks_cloud(self):
+        """provider_type='gemini' (alternative spelling) must also be recognised."""
+        from unittest.mock import patch
+        provider = self._make_provider("gemini")
+        with patch("backend.llm_gateway.gateway.LLMProvider") as mock_lp:
+            mock_lp.query.filter_by.return_value.all.return_value = [provider]
+            assert LLMGateway._has_active_cloud_providers() is True
+
+
 class TestGatewayStreaming:
     @pytest.mark.asyncio
     async def test_process_stream_emits_chunks_and_done(self):
