@@ -247,6 +247,7 @@ flowchart LR
 | PostgreSQL | 15+ | Production relational store |
 | Redis | 7+ | Cache, rate limiting, async support |
 | Neo4j | 5+ | Knowledge graph storage |
+| [Ollama](https://ollama.com) | Current stable | Local LLM inference — required for T0–T3 chain (no API key needed) |
 
 ### Backend Development
 
@@ -314,6 +315,39 @@ Installer artifacts are copied to the repository root as a single canonical setu
 
 - `DataLogicEngine Setup Latest.exe`
 - matching `.sha256` and `.blockmap` files
+
+### Local LLM Setup (Ollama)
+
+The 6-tier local LLM chain (T0–T3) runs via [Ollama](https://ollama.com). No API key or cloud account is required. All inference happens on-device.
+
+**1. Install Ollama**
+
+Download and run the installer for your OS from [ollama.com/download](https://ollama.com/download) (Windows, macOS, and Linux supported). Ollama runs as a background service on `http://localhost:11434` by default.
+
+**2. Pull the four required models**
+
+```bash
+ollama pull gemma4:latest            # T0 — ultra-light, ~1s responses
+ollama pull gemma4:12b               # T1 — local primary reasoning
+ollama pull qwen3:14b                # T2 — extended reasoning (thinking model)
+ollama pull devstral-small-2:latest  # T3 — code and structured output
+```
+
+> **Hardware note:** `gemma4:12b` (T1) and `qwen3:14b` (T2) are thinking models that perform best with 8 GB+ VRAM. `gemma4:latest` (T0) and `devstral-small-2:latest` (T3) are more memory-efficient and run well on 4–6 GB VRAM or CPU offload.
+
+**3. Verify Ollama is running**
+
+```bash
+ollama list
+# Should show all four models above
+
+curl http://localhost:11434
+# Should return: Ollama is running
+```
+
+The app auto-detects Ollama at `http://localhost:11434`. Set `OLLAMA_BASE_URL` in `.env` only if Ollama is on a non-default host or port.
+
+T4 (Gemini Flash 3.5) and T5 (GPT-5.5) are optional cloud tiers that unlock automatically when a Google or OpenAI API key is saved in the app's Settings → AI/Model page.
 
 ## Configuration
 
