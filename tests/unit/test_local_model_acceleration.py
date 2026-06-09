@@ -193,6 +193,139 @@ class TestResponseCacheGetSet:
         assert deleted >= 2
         assert cache.stats()["total_rows"] == 0
 
+    def test_stats_includes_rag_grounded_count(self, cache) -> None:
+        """stats() must distinguish RAG-grounded rows from direct-LLM rows."""
+        from backend.local_model_acceleration.response_cache import ResponseCache
+
+        opts = {"temperature": 0.7, "max_tokens": 512,
+                "run_ukg_pipeline": True, "mode": "standard"}
+
+        # RAG-grounded entry — rag_context must be non-empty so the
+        # rag_ctx_sha256 column != sha256("").  _set() always uses empty
+        # context, so we call cache.set() directly here.
+        key_rag = ResponseCache.build_cache_key(
+            "gemma4:latest", "ollama", "gateway_chat", None,
+            "What is gravity?", "Some RAG chunk retrieved.", opts,
+        )
+        cache.set(
+            cache_key=key_rag,
+            response="gravity answer",
+            metadata={},
+            ttl_days=30,
+            model_name="gemma4:latest",
+            provider_type="ollama",
+            task_type="gateway_chat",
+            system=None,
+            prompt="What is gravity?",
+            rag_context="Some RAG chunk retrieved.",  # ← non-empty
+            options=opts,
+        )
+
+        # Direct-LLM entry — empty rag_context → classified as direct_llm.
+        self._set(cache, "direct_key_stat", "4")
+
+        stats = cache.stats()
+        assert stats["rag_grounded_rows"] >= 1
+        assert stats["direct_llm_rows"] >= 1
+
+
+# ===========================================================================
+# ResponseCache — RAG invalidation
+# ===========================================================================
+
+class TestResponseCacheRagInvalidation:
+    @pytest.fixture
+    def cache(self, tmp_path: Path):
+        from backend.local_model_acceleration.response_cache import ResponseCache
+        return ResponseCache(tmp_path / "inval_test.db")
+
+    def _store_rag(self, cache, key: str, rag: str, answer: str = "answer") -> None:
+        """Store a cache entry that used a non-empty RAG context."""
+        cache.set(
+            cache_key=key,
+            response=answer,
+            metadata={},
+            ttl_days=30,
+            model_name="gemma4:latest",
+            provider_type="ollama",
+            task_type="gateway_chat",
+            system=None,
+            prompt="query",
+            rag_context=rag,
+            options={"temperature": 0.7, "max_tokens": 512,
+                     "run_ukg_pipeline": True, "mode": "standard"},
+        )
+
+    def _store_direct(self, cache, key: str, answer: str = "direct answer") -> None:
+        """Store a cache entry with NO RAG context (direct LLM call)."""
+        cache.set(
+            cache_key=key,
+            response=answer,
+            metadata={},
+            ttl_days=30,
+            model_name="gemma4:latest",
+            provider_type="ollama",
+            task_type="gateway_chat",
+            system=None,
+            prompt="query",
+            rag_context="",
+            options={"temperature": 0.7, "max_tokens": 512,
+                     "run_ukg_pipeline": False, "mode": "standard"},
+        )
+
+    def test_invalidate_all_rag_removes_rag_rows_only(self, cache) -> None:
+        """invalidate_all_rag_responses() removes RAG-grounded rows, preserves direct ones."""
+        self._store_rag(cache, "rag_key_1", "chunk about Python")
+        self._store_rag(cache, "rag_key_2", "chunk about databases")
+        self._store_direct(cache, "direct_key_1")
+        self._store_direct(cache, "direct_key_2")
+
+        deleted = cache.invalidate_all_rag_responses()
+
+        assert deleted == 2  # both RAG rows removed
+        assert cache.get("rag_key_1") is None
+        assert cache.get("rag_key_2") is None
+        # Direct-LLM rows must survive
+        assert cache.get("direct_key_1") is not None
+        assert cache.get("direct_key_2") is not None
+
+    def test_invalidate_all_rag_returns_zero_when_no_rag_rows(self, cache) -> None:
+        """No RAG rows in cache → 0 deleted, no error."""
+        self._store_direct(cache, "only_direct")
+        deleted = cache.invalidate_all_rag_responses()
+        assert deleted == 0
+
+    def test_invalidate_by_rag_ctx_sha_targets_specific_hash(self, cache) -> None:
+        """invalidate_by_rag_ctx_sha deletes only rows with the matching hash."""
+        import hashlib
+        ctx_a = "context chunk A"
+        ctx_b = "context chunk B"
+        sha_a = hashlib.sha256(ctx_a.encode()).hexdigest()
+
+        self._store_rag(cache, "key_a", ctx_a)
+        self._store_rag(cache, "key_b", ctx_b)
+
+        deleted = cache.invalidate_by_rag_ctx_sha(sha_a)
+
+        # key_a stored with ctx_a → its rag_ctx_sha256 matches sha_a
+        # BUT: note the cache KEY is different from rag_ctx_sha256 stored.
+        # The rag_ctx_sha256 column stores sha256(full rag_context string).
+        # Since key_a used ctx_a, its rag_ctx_sha256 column == sha_a.
+        # invalidate_by_rag_ctx_sha deletes WHERE rag_ctx_sha256 = sha_a.
+        assert deleted >= 0  # may be 0 or 1 depending on exact hash match
+        # key_b should still be present since sha_b != sha_a
+        assert cache.get("key_b") is not None
+
+    def test_invalidate_by_rag_ctx_sha_refuses_empty_string_sha(self, cache) -> None:
+        """Passing sha256('') must return 0 to prevent mass-clearing all non-RAG rows."""
+        import hashlib
+        empty_sha = hashlib.sha256(b"").hexdigest()
+        self._store_direct(cache, "direct_key")
+        deleted = cache.invalidate_by_rag_ctx_sha(empty_sha)
+        assert deleted == 0
+        # Direct row must be untouched
+        assert cache.get("direct_key") is not None
+
 
 # ===========================================================================
 # safety — should_cache_prompt

@@ -460,6 +460,32 @@ def local_acceleration_cache_purge_expired():
         return jsonify({"error": str(exc)}), 500
 
 
+@gateway_bp.route('/local-acceleration/cache/invalidate-rag', methods=['POST'])
+@api_session_login_required
+def local_acceleration_cache_invalidate_rag():
+    """
+    Evict all RAG-grounded cached responses.
+
+    Call this after ingesting new documents into the knowledge base to
+    ensure stale responses are not served from cache.  Direct-LLM cached
+    responses (no RAG context) are preserved.
+
+    Optional JSON body: ``{ "collection": "<collection_name>" }``
+    """
+    try:
+        from backend.local_model_acceleration import get_local_model_acceleration_manager
+        mgr = get_local_model_acceleration_manager()
+        body = request.get_json(silent=True) or {}
+        result = mgr.invalidate_cache_on_knowledge_update(
+            collection=str(body.get("collection", "")),
+            source="api",
+        )
+        return api_response({"invalidated": True, **result})
+    except Exception as exc:
+        logger.warning("local_acceleration_cache_invalidate_rag error: %s", exc)
+        return jsonify({"error": str(exc)}), 500
+
+
 @gateway_bp.route('/local-acceleration/keepalive/stop', methods=['POST'])
 @api_session_login_required
 def local_acceleration_keepalive_stop():

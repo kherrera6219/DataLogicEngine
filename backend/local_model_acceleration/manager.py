@@ -103,6 +103,52 @@ class LocalModelAccelerationManager:
         deleted = self._response_cache.delete_expired()
         return {"deleted_rows": deleted}
 
+    def invalidate_cache_on_knowledge_update(
+        self, collection: str = "", source: str = "unknown"
+    ) -> dict[str, Any]:
+        """
+        Evict all RAG-grounded cached responses after a knowledge-base update.
+
+        Call this from the ingestion pipeline immediately after new documents
+        are successfully written to ChromaDB.  Direct-LLM cached responses
+        (where no RAG context was used) are preserved.
+
+        Parameters
+        ----------
+        collection:
+            The ChromaDB collection name that was updated (logged only —
+            not used for filtering because the cache stores context hashes,
+            not collection names).
+        source:
+            Short string identifying the call site (e.g. ``"ingest_document"``)
+            for log correlation.
+
+        Returns dict with ``deleted_rows`` and ``collection`` keys.
+        """
+        logger.info(
+            "Knowledge-base update detected (source=%s, collection=%r) — "
+            "invalidating RAG-grounded cache entries.",
+            source,
+            collection or "unspecified",
+        )
+        deleted = self._response_cache.invalidate_all_rag_responses()
+        return {"deleted_rows": deleted, "collection": collection}
+
+    def invalidate_cache_for_rag_context(self, rag_ctx_sha256: str) -> dict[str, Any]:
+        """
+        Evict cached responses for a specific RAG context hash.
+
+        Use this when the gateway re-runs retrieval for a prompt, obtains a
+        different context, and needs to replace the stale cache entry.
+
+        Parameters
+        ----------
+        rag_ctx_sha256:
+            Full 64-char SHA-256 hex digest of the RAG context to evict.
+        """
+        deleted = self._response_cache.invalidate_by_rag_ctx_sha(rag_ctx_sha256)
+        return {"deleted_rows": deleted, "rag_ctx_sha256_prefix": rag_ctx_sha256[:12]}
+
     # ------------------------------------------------------------------
     # Core: generate with cache
     # ------------------------------------------------------------------

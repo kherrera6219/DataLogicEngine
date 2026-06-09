@@ -12,6 +12,29 @@ The cache key is a SHA-256 hex digest of the pipe-separated concatenation of:
 Including the RAG-context hash is critical: the same user query submitted
 twice with different knowledge-base chunks retrieved must NOT collide.
 
+Invalidation on knowledge-base updates
+---------------------------------------
+When new documents are ingested into ChromaDB, any cached response that was
+grounded in RAG context may now be stale (the retrieval for the same query
+would return different chunks).  Two targeted invalidation methods are
+provided:
+
+- ``invalidate_all_rag_responses()``  — deletes every row whose
+  ``rag_ctx_sha256`` is *not* the sentinel for "no RAG context" (i.e., the
+  SHA-256 of the empty string).  This is the correct hook for ingestion
+  events: it preserves direct-LLM cached responses while evicting anything
+  that touched the knowledge base.
+
+- ``invalidate_by_rag_ctx_sha(sha256)``  — deletes rows matching a specific
+  ``rag_ctx_sha256`` value.  Used when the gateway re-runs retrieval for a
+  cached prompt, gets a different context, and needs to evict the stale entry
+  before storing the fresh one.
+
+Per-collection invalidation (e.g. "evict only rows that used collection X")
+would require storing the collection name alongside ``rag_ctx_sha256``.  That
+is a Phase 3 enhancement; the current schema intentionally stores only the
+hash.
+
 Thread safety
 -------------
 SQLite in WAL mode allows concurrent readers.  Writes are serialised through
@@ -30,6 +53,10 @@ from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+# SHA-256 of the empty string — used as a sentinel to distinguish "no RAG
+# context used" rows from rows that were grounded in retrieved knowledge.
+_EMPTY_CTX_SHA256: str = hashlib.sha256(b"").hexdigest()
 
 _SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS llm_response_cache (
@@ -226,6 +253,69 @@ class ResponseCache:
             logger.warning("ResponseCache.clear_all error: %s", exc)
             return 0
 
+    def invalidate_all_rag_responses(self) -> int:
+        """
+        Evict every cached response that was grounded in RAG context.
+
+        Called by the knowledge-ingestion pipeline when new documents are added
+        to ChromaDB.  Any cached response whose retrieval context has changed
+        is now potentially stale, so we purge all rows where
+        ``rag_ctx_sha256`` is not the empty-string sentinel.
+
+        Direct-LLM cached responses (``rag_ctx_sha256 == sha256("")``) are
+        NOT touched — they remain valid regardless of knowledge-base changes.
+
+        Returns the number of rows deleted.
+        """
+        try:
+            with self._write_lock, self._connect() as conn:
+                cur = conn.execute(
+                    "DELETE FROM llm_response_cache WHERE rag_ctx_sha256 != ?",
+                    (_EMPTY_CTX_SHA256,),
+                )
+                deleted = cur.rowcount
+            if deleted:
+                logger.info(
+                    "RAG cache invalidation: removed %d stale RAG-grounded "
+                    "response(s) after knowledge-base update.",
+                    deleted,
+                )
+            return deleted
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("ResponseCache.invalidate_all_rag_responses error (non-fatal): %s", exc)
+            return 0
+
+    def invalidate_by_rag_ctx_sha(self, rag_ctx_sha256: str) -> int:
+        """
+        Evict rows that used a specific RAG context hash.
+
+        Useful when the gateway re-runs retrieval for a prompt (e.g. after a
+        freshness policy triggers), receives a different context, and needs to
+        replace the stale cache entry before storing the fresh response.
+
+        Parameters
+        ----------
+        rag_ctx_sha256:
+            The full SHA-256 hex string of the RAG context to invalidate.
+            Must be the 64-character hex digest produced by
+            ``hashlib.sha256(rag_context.encode()).hexdigest()``.
+
+        Returns the number of rows deleted (0 or 1 in practice, since the
+        cache key already encodes the hash).
+        """
+        if not rag_ctx_sha256 or rag_ctx_sha256 == _EMPTY_CTX_SHA256:
+            return 0  # refuse to mass-delete all non-RAG rows by accident
+        try:
+            with self._write_lock, self._connect() as conn:
+                cur = conn.execute(
+                    "DELETE FROM llm_response_cache WHERE rag_ctx_sha256 = ?",
+                    (rag_ctx_sha256,),
+                )
+                return cur.rowcount
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("ResponseCache.invalidate_by_rag_ctx_sha error (non-fatal): %s", exc)
+            return 0
+
     def stats(self) -> dict[str, Any]:
         """Return row counts and size information for monitoring."""
         try:
@@ -238,14 +328,25 @@ class ResponseCache:
                     "WHERE expires_at > strftime('%Y-%m-%dT%H:%M:%SZ', 'now')"
                 ).fetchone()[0]
                 expired = total - active
+                # Distinguish RAG-grounded rows (may become stale on ingestion)
+                # from direct-LLM rows (always valid regardless of KB changes).
+                rag_grounded = conn.execute(
+                    "SELECT COUNT(*) FROM llm_response_cache WHERE rag_ctx_sha256 != ?",
+                    (_EMPTY_CTX_SHA256,),
+                ).fetchone()[0]
             import os
             size_bytes = os.path.getsize(self._db_path) if os.path.exists(self._db_path) else 0
             return {
                 "total_rows": total,
                 "active_rows": active,
                 "expired_rows": expired,
+                "rag_grounded_rows": rag_grounded,
+                "direct_llm_rows": total - rag_grounded,
                 "db_size_bytes": size_bytes,
             }
         except Exception as exc:  # noqa: BLE001
             logger.warning("ResponseCache.stats error: %s", exc)
-            return {"total_rows": 0, "active_rows": 0, "expired_rows": 0, "db_size_bytes": 0}
+            return {
+                "total_rows": 0, "active_rows": 0, "expired_rows": 0,
+                "rag_grounded_rows": 0, "direct_llm_rows": 0, "db_size_bytes": 0,
+            }
