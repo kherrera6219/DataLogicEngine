@@ -2,22 +2,29 @@
 
 import React from 'react';
 import Link from "next/link";
-import { 
-  MessageSquare, Upload, Key, Activity, 
-  ArrowRight, Clock, Settings, BarChart3, Mail, TrendingUp
+import {
+  MessageSquare, Upload, Key, Activity,
+  ArrowRight, Clock, Settings, BarChart3, Mail, TrendingUp, Cpu, Lock, Unlock
 } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-import { api, AnalyticsOverview, Activity as ActivityType } from '@/lib/api';
+import { api, AnalyticsOverview, Activity as ActivityType, request } from '@/lib/api';
 import { useToast } from "@/components/ui/use-toast";
+
+interface DashboardProvider {
+  type: string;
+  has_api_key?: boolean;
+  is_default?: boolean;
+}
 
 export default function DashboardPage() {
   const { toast } = useToast();
   const [overview, setOverview] = React.useState<AnalyticsOverview | null>(null);
   const [activity, setActivity] = React.useState<ActivityType[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [cloudProviders, setCloudProviders] = React.useState<DashboardProvider[]>([]);
 
   React.useEffect(() => {
     async function fetchData() {
@@ -37,6 +44,19 @@ export default function DashboardPage() {
     }
     fetchData();
   }, [toast]);
+
+  // Non-blocking fetch: cloud provider key status for LLM tier card.
+  React.useEffect(() => {
+    request<{ providers?: DashboardProvider[] }>('/gateway/providers')
+      .then((res) => {
+        const cloud = (res.providers || []).filter((p) => {
+          const t = (p.type || '').toLowerCase();
+          return t === 'google' || t === 'gemini' || t === 'openai';
+        });
+        setCloudProviders(cloud);
+      })
+      .catch(() => {}); // non-fatal — tier card degrades gracefully
+  }, []);
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -227,6 +247,56 @@ export default function DashboardPage() {
                       <div className="p-3 text-sm text-gray-400">No activity topics available yet.</div>
                     )}
                  </div>
+
+                 {/* LLM Escalation Tier Status */}
+                 <Card className="bg-[#1a1a1a] border-[#333] shadow-lg">
+                    <CardContent className="p-4">
+                       <div className="flex items-center gap-2 mb-3">
+                          <Cpu className="h-4 w-4 text-violet-400" />
+                          <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">LLM Escalation Chain</span>
+                       </div>
+                       <div className="space-y-1.5">
+                          {[
+                            { tier: 'T0', label: 'ultra-light', model: 'gemma4:latest', cloud: false },
+                            { tier: 'T1', label: 'local-primary', model: 'gemma4:12b', cloud: false },
+                            { tier: 'T2', label: 'reasoning', model: 'qwen3:14b', cloud: false },
+                            { tier: 'T3', label: 'code', model: 'devstral-small-2', cloud: false },
+                            { tier: 'T4', label: 'cloud', model: 'gemini-3.5-flash', cloud: true, providerKey: ['google', 'gemini'] },
+                            { tier: 'T5', label: 'cloud-full', model: 'gpt-5.5', cloud: true, providerKey: ['openai'] },
+                          ].map((t) => {
+                            const unlocked = !t.cloud || cloudProviders.some((p) =>
+                              (t.providerKey ?? []).includes((p.type || '').toLowerCase()) && p.has_api_key
+                            );
+                            return (
+                              <div key={t.tier} className="flex items-center justify-between text-xs px-2 py-1.5 rounded-md bg-black/20 hover:bg-black/30 transition-colors">
+                                 <div className="flex items-center gap-2">
+                                    <span className={`font-mono font-semibold ${t.cloud ? 'text-violet-400' : 'text-green-400'}`}>{t.tier}</span>
+                                    <span className="text-gray-500 font-mono">{t.model}</span>
+                                 </div>
+                                 <div className="flex items-center gap-1.5">
+                                    <span className="text-gray-600">{t.label}</span>
+                                    {t.cloud ? (
+                                      unlocked
+                                        ? <Unlock className="h-3 w-3 text-green-400" />
+                                        : <Lock className="h-3 w-3 text-gray-600" />
+                                    ) : (
+                                      <span className="h-2 w-2 rounded-full bg-green-500 inline-block" />
+                                    )}
+                                 </div>
+                              </div>
+                            );
+                          })}
+                       </div>
+                       <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between">
+                          <span className="text-xs text-gray-600">T4/T5 unlock when a cloud key is saved</span>
+                          <Link href="/settings">
+                             <Button size="sm" variant="ghost" className="h-6 text-xs text-blue-400 hover:text-white px-2 py-0">
+                                <Settings className="h-3 w-3 mr-1" /> Configure
+                             </Button>
+                          </Link>
+                       </div>
+                    </CardContent>
+                 </Card>
 
                  <Card className="bg-gradient-to-br from-blue-900/30 via-indigo-900/10 to-transparent border-blue-500/20 shadow-lg relative overflow-hidden group">
                     <div className="absolute inset-0 bg-blue-500/5 group-hover:bg-blue-500/10 transition-colors"></div>

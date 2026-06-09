@@ -54,6 +54,14 @@ export interface TraceRun {
       entropy: number;
       bias_risk: number;
   };
+  /** Sprint 6b: LLM model used for this run (e.g. "gemma4:latest", "gpt-5.5"). */
+  model_name?: string;
+  /** Sprint 6b: Provider that served this run (e.g. "ollama", "openai"). */
+  provider_used?: string;
+  /** Sprint 6b: Escalation tier index (0=T0 ultra-light … 5=T5 cloud-full). */
+  escalation_tier?: number;
+  /** Sprint 6b: Short tier label shown in UI (e.g. "T1·local-primary"). */
+  escalation_label?: string;
 }
 
 export interface User {

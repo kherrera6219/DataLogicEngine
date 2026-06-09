@@ -321,6 +321,32 @@ function TraceDetailContent() {
                            </div>
                         </>
                      )}
+                     {/* Sprint 6b: escalation tier / model provenance */}
+                     {(trace.escalation_label || trace.model_name || trace.provider_used) && (
+                        <>
+                           <div className="border-t border-white/5 pt-3 mt-1" />
+                           {trace.escalation_label && (
+                              <div className="flex justify-between items-center">
+                                 <span className="text-gray-500">Tier</span>
+                                 <span className="inline-flex items-center text-xs font-mono text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded border border-violet-500/20">
+                                    {trace.escalation_label}
+                                 </span>
+                              </div>
+                           )}
+                           {trace.model_name && (
+                              <div className="flex justify-between">
+                                 <span className="text-gray-500">Model</span>
+                                 <span className="font-mono text-xs">{trace.model_name}</span>
+                              </div>
+                           )}
+                           {trace.provider_used && (
+                              <div className="flex justify-between">
+                                 <span className="text-gray-500">Provider</span>
+                                 <span className="font-medium capitalize">{trace.provider_used}</span>
+                              </div>
+                           )}
+                        </>
+                     )}
                   </CardContent>
                </Card>
             </div>

@@ -50,20 +50,21 @@ export default function TraceRunsPage() {
                         <TableHead>Algorithm (KA)</TableHead>
                         <TableHead>Start Time</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Model / Tier</TableHead>
                         <TableHead className="text-right">Action</TableHead>
                      </TableRow>
                   </TableHeader>
                   <TableBody>
                      {isLoading && (
                         <TableRow>
-                           <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                           <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                               Loading traces...
                            </TableCell>
                         </TableRow>
                      )}
                      {!isLoading && runs.length === 0 && (
                         <TableRow>
-                           <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                           <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                               No traces found.
                            </TableCell>
                         </TableRow>
@@ -77,6 +78,17 @@ export default function TraceRunsPage() {
                               <Badge variant={run.status === 'completed' ? 'success' : run.status === 'failed' ? 'destructive' : 'secondary'}>
                                  {run.status}
                               </Badge>
+                           </TableCell>
+                           <TableCell>
+                              {run.escalation_label ? (
+                                 <span className="inline-flex items-center text-xs font-mono text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded border border-violet-500/20">
+                                    {run.escalation_label}
+                                 </span>
+                              ) : run.model_name ? (
+                                 <span className="text-xs text-muted-foreground font-mono">{run.model_name}</span>
+                              ) : (
+                                 <span className="text-xs text-muted-foreground">—</span>
+                              )}
                            </TableCell>
                            <TableCell className="text-right">
                               <Link href={`/runs/view?id=${run.run_id}`}>
