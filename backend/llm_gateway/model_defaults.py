@@ -4,8 +4,13 @@ OPENAI_LATEST_MODEL = "gpt-5.5"
 ANTHROPIC_LATEST_MODEL = "claude-opus-4-7"
 GOOGLE_LATEST_MODEL = "gemini-3.5-flash"
 
-# Local / Ollama default — Sprint 6a primary model.
-OLLAMA_DEFAULT_MODEL = "gemma4:12b"
+# Local / Ollama models. e4b is the lightweight tier (already installed);
+# 12b is the DataLogicEngine primary. The gateway default uses e4b as the
+# fallback so the app works while 12b is still pulling. Once 12b is confirmed
+# installed this can be swapped to OLLAMA_PRIMARY_MODEL.
+OLLAMA_LIGHT_MODEL = "gemma4:e4b"
+OLLAMA_PRIMARY_MODEL = "gemma4:12b"
+OLLAMA_DEFAULT_MODEL = OLLAMA_PRIMARY_MODEL
 
 # Standardized on a single OpenAI model: gpt-5.5 is the only OpenAI model used.
 OPENAI_PRO_MODEL = "gpt-5.5"

@@ -56,8 +56,9 @@ const PROVIDER_MODELS: Record<string, string[]> = {
   anthropic: ['claude-opus-4-7', 'claude-sonnet-4-6', 'claude-haiku-4-5'],
   google: ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3-flash-preview'],
   azure: ['gpt-5.5', 'gpt-5.4'],
-  // Local Ollama models — Sprint 6a primary is gemma4:12b.
-  ollama: ['gemma4:12b', 'gemma3:12b', 'llama3.3', 'phi4', 'mistral'],
+  // Local Ollama models. gemma4:e4b is the lightweight tier (installed first);
+  // gemma4:12b is the DataLogicEngine primary.
+  ollama: ['gemma4:e4b', 'gemma4:12b', 'gemma3:12b', 'llama3.3', 'phi4', 'mistral'],
 };
 
 /** Provider types that run locally and require no API key. */
