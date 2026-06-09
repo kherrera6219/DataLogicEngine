@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.6.0 |
-| Last updated | 2026-05-30 |
+| Document version | v2.7.0 |
+| Last updated | 2026-06-08 |
 | Status | Active |
 | Owner | Platform Engineering |
 | Review cadence | Every 30 days |
@@ -175,6 +175,16 @@ The active documentation set has been normalized around:
 5. 17-axis routing and DSQP persona construction;
 6. trace, evidence, privacy, export, and release governance;
 7. evidence-based security and compliance claims.
+
+## Change notes for v2.7.0
+
+1. Updated `docs/ARCHITECTURE.md` (v2.8.0) with a new "6-tier local-to-cloud model escalation" subsection covering T0–T5 tier chain, cloud escalation gate, OllamaProvider, and thinking-model constraint.
+2. Updated `docs/REPO_AUDIT_LOG.md` (v3.2.0) with Sprint 6a–6c session block.
+3. Updated `docs/COMPONENT_MAP.md` (v2.7.0) LLM Gateway description to reference the 6-tier escalation chain.
+4. Updated `docs/API.md` with `escalation_tier`/`escalation_reason`/`escalation_label` fields in the `/chat` 200 response.
+5. Added Ollama local-provider guidance to `docs/USER_GUIDE.md`, `docs/DEVELOPER_GUIDE.md`, and `docs/ENGINEER_ONBOARDING.md`.
+6. Updated `sdk/UKG_Python_SDK/README.md` with OllamaProvider in the provider list and a quick-start code example.
+7. Updated `.github/README.md` with the local Ollama/6-tier chain in the capability table, architecture diagram, and completed items.
 
 ## Change notes for v2.6.0
 

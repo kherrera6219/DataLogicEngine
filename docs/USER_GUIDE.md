@@ -86,6 +86,8 @@ The current local-first build intentionally disables self-service registration. 
 6. Select `Test Connection` or `Test Model`.
 7. If the test fails, inspect the returned reason such as `invalid_api_key`, `rate_limited`, `invalid_model`, or `network_error`.
 
+**Local Ollama (no API key required):** Select `ollama` as the provider type. The gateway auto-routes queries across T0–T3 local models (`gemma4:latest`, `gemma4:12b`, `qwen3:14b`, `devstral-small-2:latest`) based on query complexity. Cloud tiers T4 (Gemini Flash 3.5) and T5 (GPT-5.5) activate automatically once a Google or OpenAI key is saved — no separate flag needed.
+
 ### 2. Start governed AI chat
 
 1. Open `/chat`.

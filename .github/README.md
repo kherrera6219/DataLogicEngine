@@ -110,7 +110,7 @@ Roadmap
 
 **Platform Evolution:**
 
-- Local SLM optimization for lower reasoning tiers
+- ~~Local SLM optimization for lower reasoning tiers~~ — Delivered: 6-tier Ollama chain (T0 `gemma4:latest` → T3 `devstral-small-2:latest`)
 - Expanded GraphRAG retrieval capabilities
 - Enterprise deployment automation
 - Additional knowledge ingestion connectors
@@ -131,6 +131,9 @@ Roadmap
 - ✅ Enterprise audit traceability framework
 - ✅ Knowledge Algorithm expansion and validation
 - ✅ Truth Engine release readiness improvements
+- ✅ 6-tier local-to-cloud LLM escalation chain (Ollama T0–T3, Gemini Flash T4, GPT-5.5 T5)
+- ✅ OllamaProvider SDK with health check, streaming, and JSON generation
+- ✅ Cloud escalation auto-unlock when Google/OpenAI API key is saved in Settings
 
 See [`TODO.md`](TODO.md) for the canonical backlog and release-readiness work items.
 
@@ -194,7 +197,7 @@ DataLogicEngine is designed for teams that need AI workflows to be explainable, 
 
 | Capability | What it provides |
 | --- | --- |
-| LLM gateway | Multi-provider routing for OpenAI, Anthropic, Azure OpenAI, Google, and Gemini-style providers with retries, circuit-breaker behavior, cost tracking, and audit metadata. |
+| LLM gateway | Multi-provider routing with a 6-tier auto-escalation chain: local Ollama models (T0–T3, no API key required) through cloud providers (T4 Gemini Flash 3.5, T5 GPT-5.5). Includes retries, circuit-breaker behavior, cost tracking, and audit metadata. |
 | Knowledge graph | Structured graph model with sectors, domains, pillars, knowledge nodes, edges, and 17-axis reasoning support. |
 | Traceable reasoning | Runs, traces, stage timing, persona context, and evidence references for audit reconstruction. |
 | Governance | RBAC, MFA support, CSRF controls, CORS policy enforcement, prompt-injection checks, request limits, and immutable audit patterns. |
@@ -211,7 +214,7 @@ flowchart LR
   API --> Gateway["LLM Gateway"]
   API --> Graph["Knowledge Graph APIs"]
   API --> Truth["Truth Engine and tracing"]
-  Gateway --> Providers["OpenAI / Anthropic / Azure / Google"]
+  Gateway --> Providers["OpenAI / Anthropic / Azure / Google / Ollama (local)"]
   Graph --> Postgres["PostgreSQL"]
   Graph --> Neo4j["Neo4j"]
   API --> Redis["Redis cache and rate limit storage"]
@@ -226,7 +229,7 @@ flowchart LR
 | Frontend | Next.js 16, React 18, Electron 40 | Web console, desktop shell, graph visualization, admin surfaces. |
 | Backend | Flask 3.1, SQLAlchemy, Socket.IO | API routing, auth, gateway orchestration, audit, tracing. |
 | Data | PostgreSQL 15+, Neo4j 5+, Redis 7+, MinIO | Relational state, graph state, cache/rate limits, object storage. |
-| AI | OpenAI, Anthropic, Azure OpenAI, Google/Gemini clients | Provider keys are resolved at runtime from environment or configured provider records. |
+| AI | OpenAI, Anthropic, Azure OpenAI, Google/Gemini, Ollama (local) | 6-tier auto-escalation: T0–T3 route to local Ollama models (no key needed); T4–T5 route to cloud when a key is saved. Provider keys resolved at runtime from environment or configured provider records. |
 | Quality | Pytest, Ruff, Vitest, Playwright, GitHub Actions | CI includes backend, frontend, governance, security, deploy, and Windows packaging checks. |
 
 ## Installation
@@ -335,7 +338,8 @@ Copy `.env.template` to `.env` and set values for your deployment target.
 | `ANTHROPIC_API_KEY` | Anthropic provider key. |
 | `AZURE_OPENAI_ENDPOINT` | Azure OpenAI endpoint URL. |
 | `AZURE_OPENAI_API_KEY` | Azure OpenAI provider key. |
-| `GOOGLE_API_KEY` / `GEMINI_API_KEY` | Google/Gemini provider key. |
+| `GOOGLE_API_KEY` / `GEMINI_API_KEY` | Google/Gemini provider key. Enables T4 (Gemini Flash 3.5) cloud escalation. |
+| `OLLAMA_BASE_URL` | Optional. Ollama endpoint (default: `http://localhost:11434`). Required when Ollama is on a non-default host/port. T0–T3 local inference requires no API key. |
 | `SENTRY_DSN` | Enables crash reporting when configured. |
 | `SENTRY_TRACES_SAMPLE_RATE` | Distributed trace sampling rate. Default: `0.1`. |
 | `SENTRY_PROFILES_SAMPLE_RATE` | Profiling sample rate. Default: `0.1`. |

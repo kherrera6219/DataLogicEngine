@@ -56,7 +56,8 @@ DataLogicEngine/
 | DMRF | `backend/dmrf/` |
 | Truth Engine | `backend/truth_engine/` |
 | DSQP | `backend/dsqp/` |
-| LLM Gateway | `backend/llm_gateway/` |
+| LLM Gateway | `backend/llm_gateway/` — `gateway.py`, `api.py`, `model_defaults.py`, `complexity_classifier.py`, `escalation_config.py`, `governance.py` |
+| Local provider SDK | `sdk/UKG_Python_SDK/ukg_sdk/providers/ollama.py` — `OllamaProvider` |
 | MCP/connectors | `backend/mcp_server/` |
 | Data and memory | `backend/storage/`, `backend/memory/`, `models.py` |
 | Tests | `tests/` |

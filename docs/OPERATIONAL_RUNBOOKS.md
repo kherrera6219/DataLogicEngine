@@ -188,17 +188,21 @@ Relevant files:
 **Default severity:** `SEV-2`; upgrade for broad outage.
 
 1. Confirm provider status and gateway route behavior.
-2. Validate failover to configured fallback provider.
+2. Validate failover to configured fallback provider. For cloud provider (T4/T5) outages, queries will cap at T3 (local `devstral-small-2:latest`) until cloud is restored — no manual intervention required if Ollama is running.
 3. Check `/metrics` for AI latency/error signals.
 4. Confirm DMRF/TruthCore does not silently return synthetic success.
-5. Post internal status update.
-6. Re-enable primary provider only after sustained health.
-7. Capture incident metrics for reliability review.
+5. For local Ollama outages: confirm Ollama service is running on `http://localhost:11434`. Check `GET /api/tags` directly to verify model availability. The gateway logs `cloud_allowed=True/False` and `Escalation → tier=N model=X` at INFO level — inspect these lines to confirm which tier is actually serving requests.
+6. Post internal status update.
+7. Re-enable primary provider only after sustained health.
+8. Capture incident metrics for reliability review.
 
 Relevant files:
 
-- `backend/llm_gateway/`
-- `routes/api_routes.py`
+- `backend/llm_gateway/gateway.py` — `LLMGateway`, `_has_active_cloud_providers`, circuit breaker
+- `backend/llm_gateway/complexity_classifier.py` — tier selection logic
+- `backend/llm_gateway/escalation_config.py` — `TIER_CHAIN` (T0–T5)
+- `sdk/UKG_Python_SDK/ukg_sdk/providers/ollama.py` — `OllamaProvider.health_check()`
+- `backend/llm_gateway/api.py`
 - `backend/dmrf/orchestrator.py`
 
 ---
