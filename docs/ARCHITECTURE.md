@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.7.0 |
+| Document version | v2.8.0 |
 | Last updated | 2026-06-08 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -374,12 +374,41 @@ The stored `LLMProvider.model_id` (set by the user in Settings → API Configura
 | OpenAI / Azure | `gpt-5.5` |
 | Anthropic | `claude-opus-4-7` |
 | Google / Gemini | `gemini-3.5-flash` |
+| Ollama (local) | `gemma4:12b` (T1 primary) |
+
+### 6-tier local-to-cloud model escalation (Sprints 6a–6c)
+
+When a request reaches `LLMGateway.process()` without a pinned provider or model (and no user preference override), the `ComplexityClassifier` scores the query heuristically and selects the optimal tier from the six-tier chain:
+
+| Tier | Provider type | Model | Label | Approx. latency | Cloud? |
+|---|---|---|---|---|---|
+| T0 | `ollama` | `gemma4:latest` | ultra-light | ~1 s | ✗ |
+| T1 | `ollama` | `gemma4:12b` | primary / default | ~30 s | ✗ |
+| T2 | `ollama` | `qwen3:14b` | medium / coding | ~40 s | ✗ |
+| T3 | `ollama` | `devstral-small-2:latest` | heavy agentic | ~30 s | ✗ |
+| T4 | `google` | `gemini-3.5-flash` | cloud-fast | ~3 s | ✓ |
+| T5 | `openai` | `gpt-5.5` | cloud-full | ~8 s | ✓ |
+
+**Local routing (T0–T3):** All four local tiers route through a single Ollama `LLMProvider` DB record. The escalation engine writes the selected model into `request.meta["ollama_model_override"]`; `_resolve_model()` reads this when the provider type is `ollama`.
+
+**Cloud escalation gate (T4–T5):** Cloud tiers are locked by default (classifier caps at T3). `LLMGateway._has_active_cloud_providers()` checks the DB for any `google`/`gemini`/`openai` record with `is_active=True` AND `api_key_encrypted` set. When found, `allow_cloud_escalation=True` is passed to the classifier. Saving a Google or OpenAI API key in Settings is the activation gate — no separate feature flag is needed.
+
+**Thinking model constraint:** `gemma4:12b` (T1) and `qwen3:14b` (T2) emit a `"reasoning"` chain-of-thought field before visible `"content"`. Callers must request `max_tokens ≥ 512`; with a smaller budget the reasoning phase exhausts the token count and `content` is empty.
+
+**OllamaProvider SDK class** (`sdk/UKG_Python_SDK/ukg_sdk/providers/ollama.py`) provides the full interface for local Ollama endpoints: `health_check()` (GET `/api/tags`), `list_models()`, `chat_async()`, `chat_stream_async()` (SSE), `generate_json_async()` (with retry and schema validation), and the `complete()` ABC bridge used by the gateway. Errors signal via `raw["ok"]=False`; the provider never raises, maintaining circuit-breaker compatibility.
+
+Key files for escalation:
+
+- `backend/llm_gateway/complexity_classifier.py` — pure-Python heuristic scorer; `classify(query, allow_cloud_escalation=False)`
+- `backend/llm_gateway/escalation_config.py` — `TIER_CHAIN` frozen dataclass tuple; `get_tier_config(tier)`
+- `backend/llm_gateway/model_defaults.py` — `OLLAMA_TIER*_MODEL` and `CLOUD_TIER*_MODEL` constants
+- `sdk/UKG_Python_SDK/ukg_sdk/providers/ollama.py` — `OllamaProvider` full implementation
 
 ### Key files
 
-- `backend/llm_gateway/gateway.py` — `LLMGateway`, `_is_rate_limit_error`, `_is_retryable_error`, circuit breaker
+- `backend/llm_gateway/gateway.py` — `LLMGateway`, `_has_active_cloud_providers`, `_is_rate_limit_error`, `_is_retryable_error`, circuit breaker
 - `backend/llm_gateway/api.py` — Flask routes, `gateway_chat()` with 429 early-return
-- `backend/llm_gateway/model_defaults.py` — default model IDs per provider
+- `backend/llm_gateway/model_defaults.py` — default model IDs per provider, all tier constants
 - `models.py` — `LLMProvider.get_api_key()` / `set_api_key()` Fernet encryption
 
 ---

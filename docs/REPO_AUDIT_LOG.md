@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v3.1.0 |
+| Document version | v3.2.0 |
 | Last updated | 2026-06-08 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -23,7 +23,64 @@ when found.
 
 ---
 
-## Session — 2026-06-08
+## Session — 2026-06-08 (Sprint 6a–6c: Ollama + 6-tier escalation)
+
+### Scope
+
+Local LLM provider integration and 6-tier auto-escalation chain: OllamaProvider SDK class, ComplexityClassifier, TIER_CHAIN config, and cloud escalation unlock.
+
+### Changes landed
+
+#### 1. Sprint 6a — Wire Ollama as primary local LLM provider (commit `f5496183`)
+
+- New `backend/llm_gateway/model_defaults.py` constants: `OLLAMA_TIER*_MODEL`, `CLOUD_TIER*_MODEL`.
+- `LLMGateway._create_sdk_provider()` split: `ollama` → `OllamaProvider`; `local_slm`/`vllm` → `LocalSLMProvider` (backward compat).
+- Frontend `ApiOverlayConfig.tsx` and `AiModelSettings.tsx` updated to list all 6 tiers.
+
+#### 2. Sprint 6b — Heuristic complexity classifier + escalation engine (commit `11c3b13c`)
+
+- **`backend/llm_gateway/complexity_classifier.py`** — pure-Python heuristic scorer, < 1 ms. Returns `ClassificationResult(tier, reason, score)`. Caps at T3 by default (`allow_cloud_escalation=False`).
+- **`backend/llm_gateway/escalation_config.py`** — `TierConfig` frozen dataclass; `TIER_CHAIN` tuple with all 6 tiers (T0–T5); `get_tier_config(tier)` helper.
+- **`LLMGateway.process()`** — escalation block: when no provider/model is pinned, runs classifier and routes local tiers via `ollama_model_override` meta key; cloud tiers set `request.provider` / `request.model` directly.
+- `GatewayResponse` gains 3 fields: `escalation_tier`, `escalation_reason`, `escalation_label`.
+- 32 unit tests, all passing.
+
+#### 3. OllamaProvider SDK class (commit `858ab69b`)
+
+- **`sdk/UKG_Python_SDK/ukg_sdk/providers/ollama.py`** — full-featured 350-line provider: `health_check()` (GET `/api/tags`), `list_models()`, `chat_async()`, `chat_stream_async()` (SSE), `generate_json_async()` (retry + schema validation), `complete()` ABC bridge. Errors → `raw["ok"]=False`; never raises.
+- `/v1` suffix stripped from base URL automatically so the same URL works with or without the suffix.
+- 24 unit tests + 14 live integration tests (auto-skipped when Ollama offline).
+- Model name corrections: `gemma4:e4b` → `gemma4:latest` (T0), `devstral-small-2` → `devstral-small-2:latest` (T3) — commit `8977d728`.
+
+#### 4. Sprint 6c — T4/T5 cloud escalation unlock (commit `26c94603`)
+
+- **`LLMGateway._has_active_cloud_providers()`** (new static method) — queries DB for any active `google`/`gemini`/`openai` record with `api_key_encrypted` set. Requires both `is_active=True` AND a stored key; stub records don't count.
+- Escalation block now calls `_has_active_cloud_providers()` and passes `allow_cloud_escalation=True` to `ComplexityClassifier.classify()` when cloud is available. Log line includes `cloud_allowed=True/False`.
+- `ApiOverlayConfig.tsx` Ollama model names fixed: `gemma4:e4b` → `gemma4:latest`, `devstral-small-2` → `devstral-small-2:latest`.
+- 8 new unit tests for `_has_active_cloud_providers()` (google ✓, openai ✓, gemini alias ✓, no-key → False, ollama-only → False, DB exception → False).
+- Exit gate: 542 unit tests passed, 17 skipped, 0 failed.
+
+### The 6-tier chain
+
+| Tier | Provider | Model | Cloud? |
+|---|---|---|---|
+| T0 | `ollama` | `gemma4:latest` | ✗ |
+| T1 | `ollama` | `gemma4:12b` | ✗ |
+| T2 | `ollama` | `qwen3:14b` | ✗ |
+| T3 | `ollama` | `devstral-small-2:latest` | ✗ |
+| T4 | `google` | `gemini-3.5-flash` | ✓ |
+| T5 | `openai` | `gpt-5.5` | ✓ |
+
+Cloud tiers unlock automatically when the user saves a Google or OpenAI API key in Settings — no manual flag required.
+
+### Open items (as of Sprint 6c)
+
+- **E2E verify cloud escalation:** Save a Google API key, send a complex query with `allow_cloud_escalation` log line confirming `cloud_allowed=True`, verify T4 route fires.
+- **E2E verify chat on installed build (carried from Sprint 5f):** Install latest build, login, send a chat — should return a real response.
+
+---
+
+## Session — 2026-06-08 (Sprint 5b–5f)
 
 ### Scope
 
