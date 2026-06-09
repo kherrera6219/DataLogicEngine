@@ -1,7 +1,7 @@
 {
-  "version": "2026.05.30.2",
-  "updated_at": "2026-05-30",
-  "document_version": "v2.6.0",
+  "version": "2026.06.08.3",
+  "updated_at": "2026-06-08",
+  "document_version": "v2.7.0",
   "owner": "Platform Engineering",
   "policy": "docs/DOCUMENTATION_VERSIONING.md",
   "coverage_matrix": "docs/DOCUMENTATION_COVERAGE_MATRIX.md",

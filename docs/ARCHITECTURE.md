@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.8.0 |
+| Document version | v2.9.0 |
 | Last updated | 2026-06-08 |
 | Status | Active |
 | Owner | Platform Architecture |
@@ -168,6 +168,7 @@ flowchart TD
 | Persona engine | `backend/dsqp/` | Deterministic/offline seven-component personas for axes 8-11. |
 | Knowledge axes | `core/axes/`, `backend/dmrf/router.py` | 17-axis coordinate routing and FROST mode selection. |
 | Model access | `backend/llm_gateway/`, MCP server modules | Provider routing, model/tool execution, connector integration. |
+| Local acceleration | `backend/local_model_acceleration/` | Keep-alive daemon + SQLite exact-cache for Ollama T0–T3; fail-open wrapper in gateway. |
 | Relational store | SQLAlchemy with SQLite/PostgreSQL paths | Users, sessions, traces, artifacts, graph rows, audit records. |
 | Graph store | Neo4j + USKD NetworkX memory graph | Durable and RAM-resident graph reasoning context. |
 | Vector store | ChromaDB PersistentClient | Local embeddings and semantic search. |
@@ -175,7 +176,7 @@ flowchart TD
 | Cache/queue | Redis where available | Session/cache/rate-limit/streams/queue behavior. |
 | Governance | GitHub Actions, pytest, Vitest, Playwright, packaging smoke, release checks | Validation and release safety. |
 
-## 2026-05-30 architecture baseline
+## 2026-06-08 architecture baseline
 
 The current architecture baseline is defined by these code-backed subsystems:
 
@@ -188,6 +189,8 @@ The current architecture baseline is defined by these code-backed subsystems:
 7. **Local-first runtime** — desktop/local/hybrid behavior uses loopback auth, per-install secret, nonce/HMAC signatures, DPAPI helper, and app-owned storage services.
 8. **Frontend review surface** — `/chat`, `/runs`, `/graph`, `/knowledge`, `/truth-engine`, `/mcp`, `/admin`, and disclosure pages expose system operation to users and reviewers.
 9. **Testing/release governance** — CI validates backend, frontend, contract, parity, security, packaging, environment, lockfile, Docker, and release governance gates.
+10. **6-tier LLM escalation chain** — `backend/llm_gateway/escalation_config.py`, `complexity_classifier.py`, `tier_availability.py`: T0–T3 local Ollama + T4 Gemini + T5 GPT-5.5; `ComplexityClassifier` selects tier heuristically in <1 ms; cascade-down when a local model is not pulled; cloud gated by `_has_active_cloud_providers()`.
+11. **Local Model Acceleration** — `backend/local_model_acceleration/`: keep-alive daemon prevents VRAM eviction; SQLite exact-cache returns previous identical responses in <1 ms; safety filter excludes credentials and dynamic task types; fail-open architecture (any internal failure falls through to normal gateway call). See `docs/LOCAL_MODEL_ACCELERATION.md`.
 
 ## DMRF control plane
 
