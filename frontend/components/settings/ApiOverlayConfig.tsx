@@ -56,9 +56,13 @@ const PROVIDER_MODELS: Record<string, string[]> = {
   anthropic: ['claude-opus-4-7', 'claude-sonnet-4-6', 'claude-haiku-4-5'],
   google: ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3-flash-preview'],
   azure: ['gpt-5.5', 'gpt-5.4'],
-  // Local Ollama models. gemma4:e4b is the lightweight tier (installed first);
-  // gemma4:12b is the DataLogicEngine primary.
-  ollama: ['gemma4:e4b', 'gemma4:12b', 'gemma3:12b', 'llama3.3', 'phi4', 'mistral'],
+  // Local Ollama model tier ladder (all served by one Ollama endpoint):
+  //   Tier 0 — gemma4:e4b        ultra-light / trivial queries
+  //   Tier 1 — gemma4:12b        DataLogicEngine primary
+  //   Tier 2 — qwen3:14b         medium coding / complex analysis
+  //   Tier 3 — devstral-small-2  heavy agentic coding
+  // Cloud tiers (4–5) are configured under their own provider tabs.
+  ollama: ['gemma4:e4b', 'gemma4:12b', 'qwen3:14b', 'devstral-small-2'],
 };
 
 /** Provider types that run locally and require no API key. */
