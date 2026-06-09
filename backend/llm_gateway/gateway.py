@@ -1034,11 +1034,12 @@ class LLMGateway:
         import os
         try:
             from ukg_sdk.providers import (
-                OpenAIProvider, 
-                AzureOpenAIProvider, 
-                AnthropicProvider, 
+                OpenAIProvider,
+                AzureOpenAIProvider,
+                AnthropicProvider,
                 LocalSLMProvider,
-                GoogleGeminiProvider
+                GoogleGeminiProvider,
+                OllamaProvider,
             )
         except ImportError:
             logger.warning("UKG SDK providers not available, using fallback")
@@ -1096,8 +1097,18 @@ class LLMGateway:
             return AnthropicProvider(api_key=api_key)
         elif provider_type in ["google", "gemini"]:
              return GoogleGeminiProvider(api_key=api_key, model=provider_record.model_id or GOOGLE_PRIMARY_MODEL)
-        elif provider_type in ["local_slm", "ollama", "vllm"]:
-            return LocalSLMProvider(base_url=provider_record.endpoint or "http://localhost:11434/v1")
+        elif provider_type == "ollama":
+            # OllamaProvider: strips /v1 suffix if stored URL includes it, so the
+            # same base URL works whether the user typed the bare host or the /v1 path.
+            return OllamaProvider(
+                base_url=provider_record.endpoint or "http://localhost:11434"
+            )
+        elif provider_type in ["local_slm", "vllm"]:
+            # LocalSLMProvider: generic OpenAI-compat backend (vLLM, LM Studio, etc.)
+            # that does not expose /api/tags — keep it separate for backward compat.
+            return LocalSLMProvider(
+                base_url=provider_record.endpoint or "http://localhost:11434/v1"
+            )
         else:
             # Default to OpenAI-compatible
             return OpenAIProvider(api_key=api_key, base_url=provider_record.endpoint)
