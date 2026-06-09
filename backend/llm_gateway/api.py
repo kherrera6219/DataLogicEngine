@@ -548,23 +548,36 @@ def list_active_providers():
     })
 
 
+# Provider types that run locally and have no API key requirement.
+_LOCAL_PROVIDER_TYPES: frozenset[str] = frozenset({"ollama", "local_slm", "vllm"})
+
+
 @gateway_bp.route('/keys', methods=['POST'])
 @api_session_login_required
 def save_provider_key():
-    """Create or update an LLM provider API key (basic UI helper)."""
+    """Create or update an LLM provider API key (basic UI helper).
+
+    For local providers (ollama, local_slm, vllm) no API key is required.
+    Instead, the caller may supply an ``endpoint`` field (defaults to
+    ``http://localhost:11434`` for Ollama).  Local providers are always
+    assigned priority=1 so they are attempted before cloud providers.
+    """
     data = request.get_json() or {}
     provider_type = data.get('provider')
     api_key = data.get('key')
     model_id = data.get('model')
+    endpoint = data.get('endpoint')
     auth_user = getattr(g, 'auth_user', None) or current_user
-    
-    if not provider_type or not api_key:
+
+    is_local = str(provider_type or "").strip().lower() in _LOCAL_PROVIDER_TYPES
+
+    if not provider_type or (not api_key and not is_local):
         return jsonify({'error': 'provider and key required'}), 400
-    
+
     provider = LLMProvider.query.filter_by(provider_type=provider_type).order_by(
         LLMProvider.created_at.desc()
     ).first()
-    
+
     if provider is None:
         provider = LLMProvider(
             name=str(provider_type).title(),
@@ -575,18 +588,29 @@ def save_provider_key():
         db.session.add(provider)
 
     provider.model_id = str(model_id or provider.model_id or default_model_for_provider(provider_type))
-
     provider.is_active = True
     provider.is_default = True
-    provider.priority = 1
+
+    if is_local:
+        # Store the base URL (no /v1 suffix — LocalSLMProvider appends it).
+        default_endpoint = "http://localhost:11434"
+        provider.endpoint = (endpoint or provider.endpoint or default_endpoint).rstrip("/")
+        # Local providers are first in the routing chain (priority=1).
+        provider.priority = 1
+    else:
+        # Cloud providers sit behind local ones (priority=2).
+        provider.priority = 2
+        if api_key:
+            provider.set_api_key(api_key)
+
+    # Only one provider holds is_default=True.
     LLMProvider.query.filter(
         LLMProvider.id != provider.id,
         LLMProvider.is_default.is_(True),
     ).update({'is_default': False}, synchronize_session=False)
 
-    provider.set_api_key(api_key)
     db.session.commit()
-    
+
     return jsonify({
         'success': True,
         'provider': provider.to_dict()

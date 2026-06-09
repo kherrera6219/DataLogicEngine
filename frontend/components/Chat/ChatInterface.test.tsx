@@ -21,6 +21,15 @@ vi.mock('@/lib/api', () => ({
     },
   },
   request: vi.fn(),
+  // ApiError must be exported so ChatInterface.tsx can use `instanceof ApiError`
+  // in its 429 rate-limit handler. Without this the right-hand side of instanceof
+  // is undefined at test runtime, causing a Vitest mocker error.
+  ApiError: class ApiError extends Error {
+    constructor(message: string, public readonly status: number) {
+      super(message);
+      this.name = 'ApiError';
+    }
+  },
 }));
 
 vi.mock('@/lib/socket', () => {

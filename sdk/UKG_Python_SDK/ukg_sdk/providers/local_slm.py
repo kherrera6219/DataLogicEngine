@@ -40,18 +40,33 @@ class LocalSLMProvider(LLMProvider):
                     if resp.status != 200:
                         error_text = await resp.text()
                         logger.error(f"Local SLM failed: {resp.status} - {error_text}")
-                        return LLMResponse(text="", raw={"error": error_text, "ok": False})
-                    
+                        # Non-200 from Ollama (e.g. 404 model not loaded, 500 internal).
+                        # Not retryable — retrying the same provider won't help.
+                        return LLMResponse(text="", raw={
+                            "error": f"Ollama returned HTTP {resp.status}: {error_text}",
+                            "ok": False,
+                            "retryable": False,
+                        })
+
                     data = await resp.json()
                     content = data["choices"][0]["message"]["content"]
                     usage = data.get("usage", {})
-                    
+
                     return LLMResponse(
                         text=content,
                         model=model,
                         usage=usage,
                         raw=data
                     )
+        except aiohttp.ClientConnectorError as e:
+            # Ollama is not running or the endpoint is wrong — retryable only if
+            # another provider is available in the fallback chain.
+            logger.error(f"Local SLM connection refused (is Ollama running?): {e}")
+            return LLMResponse(text="", raw={
+                "error": f"Cannot connect to local model at {self.base_url} — is Ollama running?",
+                "ok": False,
+                "retryable": True,
+            })
         except Exception as e:
             logger.error(f"Local SLM exception: {e}")
-            return LLMResponse(text="", raw={"error": str(e), "ok": False})
+            return LLMResponse(text="", raw={"error": str(e), "ok": False, "retryable": False})

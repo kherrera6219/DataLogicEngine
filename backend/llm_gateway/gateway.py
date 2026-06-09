@@ -1263,7 +1263,7 @@ class LLMGateway:
                     endpoint = os.environ.get("LOCAL_SLM_BASE_URL", "http://localhost:11434/v1")
                     deployment_name = None
                     api_version = None
-                    model_id = os.environ.get("LOCAL_SLM_MODEL", "local-slm")
+                    model_id = os.environ.get("LOCAL_SLM_MODEL", default_model_for_provider("ollama"))
                     priority = 999
                     timeout_seconds = LLMGateway._positive_int(
                         os.environ.get("LOCAL_SLM_TIMEOUT_SECONDS"),
@@ -1656,10 +1656,21 @@ class LLMGateway:
                 temperature=temperature,
                 max_tokens=max_tokens,
             )
+            # LocalSLMProvider signals errors via response.raw["ok"] == False rather
+            # than raising — cloud SDK providers raise exceptions instead. Check the
+            # sentinel so local model failures propagate correctly.
+            raw = response.raw if isinstance(response.raw, dict) else {}
+            if raw.get("ok") is False:
+                return {
+                    "ok": False,
+                    "error": raw.get("error", "Local model returned empty response"),
+                    "retryable": raw.get("retryable", False),
+                    "usage": {},
+                }
             return {
                 "ok": True,
                 "answer": response.text,
-                "usage": response.usage,
+                "usage": response.usage or {},
             }
         except Exception as e:
             return {"ok": False, "error": str(e)}

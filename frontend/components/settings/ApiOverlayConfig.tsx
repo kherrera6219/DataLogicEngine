@@ -56,7 +56,12 @@ const PROVIDER_MODELS: Record<string, string[]> = {
   anthropic: ['claude-opus-4-7', 'claude-sonnet-4-6', 'claude-haiku-4-5'],
   google: ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3-flash-preview'],
   azure: ['gpt-5.5', 'gpt-5.4'],
+  // Local Ollama models — Sprint 6a primary is gemma4:12b.
+  ollama: ['gemma4:12b', 'gemma3:12b', 'llama3.3', 'phi4', 'mistral'],
 };
+
+/** Provider types that run locally and require no API key. */
+const LOCAL_PROVIDER_TYPES = new Set(['ollama']);
 
 function formatDayLabel(date: Date): string {
   return date.toLocaleDateString(undefined, { weekday: 'short' });
@@ -125,6 +130,7 @@ export function ApiOverlayConfig() {
   const [showKey, setShowKey] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
+  const [ollamaEndpoint, setOllamaEndpoint] = useState("http://localhost:11434");
 
   const [tier, setTier] = useState("moderate");
   const [confidence, setConfidence] = useState(99.5);
@@ -237,8 +243,11 @@ export function ApiOverlayConfig() {
   const totalQueries = activityData.reduce((sum, point) => sum + point.queries, 0);
   const gatewayChatEndpoint = useMemo(() => buildApiUrl('/gateway/chat'), []);
 
+  /** True when the selected provider runs locally (no API key needed). */
+  const isLocalProvider = LOCAL_PROVIDER_TYPES.has(provider);
+
   const handleSaveKey = async (): Promise<string | null> => {
-    if (!apiKey.trim()) {
+    if (!isLocalProvider && !apiKey.trim()) {
       toast("Enter an API key before saving.", "warning");
       return null;
     }
@@ -249,8 +258,9 @@ export function ApiOverlayConfig() {
         method: 'POST',
         body: JSON.stringify({
           provider,
-          key: apiKey.trim(),
+          key: isLocalProvider ? undefined : apiKey.trim(),
           model,
+          endpoint: isLocalProvider ? ollamaEndpoint : undefined,
         }),
       });
 
@@ -411,6 +421,7 @@ export function ApiOverlayConfig() {
                   <Select value={provider} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProvider(e.target.value)} className="bg-white/5 border-white/10">
                     {Array.from(new Set([
                       ...providers.map((entry) => (entry.type || entry.name || '').toLowerCase()),
+                      'ollama',
                       'openai',
                       'anthropic',
                       'google',
@@ -431,44 +442,80 @@ export function ApiOverlayConfig() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase text-gray-500">API Key</label>
-                <div className="flex gap-2 flex-wrap">
-                  <div className="relative flex-1">
+              {isLocalProvider ? (
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase text-gray-500">Ollama Endpoint</label>
+                  <div className="flex gap-2 flex-wrap">
                     <Input
-                      type={showKey ? "text" : "password"}
-                      value={apiKey}
-                      onChange={(e) => setApiKey(e.target.value)}
-                      placeholder="sk-..."
-                      className="bg-white/5 border-white/10 pr-10 font-mono"
+                      type="text"
+                      value={ollamaEndpoint}
+                      onChange={(e) => setOllamaEndpoint(e.target.value)}
+                      placeholder="http://localhost:11434"
+                      className="bg-white/5 border-white/10 font-mono flex-1"
                     />
-                    <button
-                      onClick={() => setShowKey(!showKey)}
-                      className="absolute right-3 top-2.5 text-gray-400 hover:text-white"
-                      type="button"
-                      aria-label={showKey ? "Hide API key" : "Show API key"}
+                    <Button
+                      variant={saveStatus === 'saved' ? 'secondary' : 'default'}
+                      onClick={handleSaveKey}
+                      disabled={saveStatus === 'saving'}
+                      className="w-32"
                     >
-                      <Eye className="h-4 w-4" />
-                    </button>
+                      {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save'}
+                    </Button>
+                    <Button
+                      variant={connectionStatus === 'success' ? 'secondary' : 'outline'}
+                      onClick={handleTestConnection}
+                      disabled={connectionStatus === 'testing'}
+                      className="w-40"
+                    >
+                      {connectionStatus === 'testing' ? 'Testing...' : connectionStatus === 'success' ? 'Connected' : 'Test Connection'}
+                    </Button>
                   </div>
-                  <Button
-                    variant={saveStatus === 'saved' ? 'secondary' : 'default'}
-                    onClick={handleSaveKey}
-                    disabled={saveStatus === 'saving' || !apiKey.trim()}
-                    className="w-32"
-                  >
-                    {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save Key'}
-                  </Button>
-                  <Button
-                    variant={connectionStatus === 'success' ? 'secondary' : 'outline'}
-                    onClick={handleTestConnection}
-                    disabled={connectionStatus === 'testing' || !apiKey.trim()}
-                    className="w-40"
-                  >
-                    {connectionStatus === 'testing' ? 'Testing...' : connectionStatus === 'success' ? 'Connected' : 'Test Connection'}
-                  </Button>
+                  <p className="text-xs text-gray-500">
+                    No API key needed — Ollama runs locally. Ensure{' '}
+                    <code className="font-mono bg-white/10 px-1 rounded">ollama run gemma4:12b</code>{' '}
+                    is active before testing.
+                  </p>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase text-gray-500">API Key</label>
+                  <div className="flex gap-2 flex-wrap">
+                    <div className="relative flex-1">
+                      <Input
+                        type={showKey ? "text" : "password"}
+                        value={apiKey}
+                        onChange={(e) => setApiKey(e.target.value)}
+                        placeholder="sk-..."
+                        className="bg-white/5 border-white/10 pr-10 font-mono"
+                      />
+                      <button
+                        onClick={() => setShowKey(!showKey)}
+                        className="absolute right-3 top-2.5 text-gray-400 hover:text-white"
+                        type="button"
+                        aria-label={showKey ? "Hide API key" : "Show API key"}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <Button
+                      variant={saveStatus === 'saved' ? 'secondary' : 'default'}
+                      onClick={handleSaveKey}
+                      disabled={saveStatus === 'saving' || !apiKey.trim()}
+                      className="w-32"
+                    >
+                      {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save Key'}
+                    </Button>
+                    <Button
+                      variant={connectionStatus === 'success' ? 'secondary' : 'outline'}
+                      onClick={handleTestConnection}
+                      disabled={connectionStatus === 'testing' || !apiKey.trim()}
+                      className="w-40"
+                    >
+                      {connectionStatus === 'testing' ? 'Testing...' : connectionStatus === 'success' ? 'Connected' : 'Test Connection'}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
