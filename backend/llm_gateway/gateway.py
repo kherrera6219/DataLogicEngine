@@ -82,6 +82,10 @@ class GatewayResponse:
     explainability: Optional[dict] = None
     warnings: list[str] = field(default_factory=list)
     error: Optional[str] = None
+    # Escalation tier metadata (Sprint 6b) — set by ComplexityClassifier.
+    escalation_tier: Optional[int] = None
+    escalation_reason: Optional[str] = None
+    escalation_label: Optional[str] = None
 
 
 class CircuitBreaker:
@@ -293,10 +297,16 @@ class LLMGateway:
     def _resolve_model(request: GatewayRequest, provider_record: Optional[LLMProvider]) -> str:
         if request.model:
             return str(request.model)
+        # For local providers the escalation engine may have selected a model
+        # that differs from the DB-stored default (e.g. Tier 0 vs Tier 1).
+        provider_type = str(getattr(provider_record, "provider_type", "") or "").lower()
+        if provider_type in {"ollama", "local_slm", "vllm"}:
+            override = request.meta.get("ollama_model_override")
+            if override:
+                return str(override)
         if provider_record and getattr(provider_record, "model_id", None):
             return str(provider_record.model_id)
-        provider_type = getattr(provider_record, "provider_type", None) if provider_record else "openai"
-        return default_model_for_provider(provider_type)
+        return default_model_for_provider(provider_type or None)
 
     @staticmethod
     def _positive_int(value: Any, default: int, minimum: int = 1, maximum: int = 60) -> int:
@@ -554,6 +564,37 @@ class LLMGateway:
             except Exception:
                 pass  # Preferences are optional — never block a request on DB failure
 
+        # ── Escalation tier classification (Sprint 6b) ────────────────────
+        # Select the optimal model tier for this query via heuristic scoring.
+        # Runs only when the caller has not pinned a specific provider or model,
+        # AND user preferences have not set one.  Cloud escalation is disabled
+        # by default (cap=T3); enable via policy in Sprint 6c.
+        if not request.provider and not request.model:
+            try:
+                from backend.llm_gateway.complexity_classifier import ComplexityClassifier
+                from backend.llm_gateway.escalation_config import get_tier_config
+                clf_result = ComplexityClassifier().classify(query)
+                tier_cfg = get_tier_config(clf_result.tier)
+                if tier_cfg:
+                    request.meta["escalation_tier"] = clf_result.tier
+                    request.meta["escalation_reason"] = clf_result.reason
+                    request.meta["escalation_label"] = tier_cfg.label
+                    if tier_cfg.is_cloud:
+                        # Redirect routing to the cloud provider for this tier.
+                        request.provider = tier_cfg.provider_type
+                        request.model = tier_cfg.model
+                    else:
+                        # Local tier — keep Ollama routing, override the model string.
+                        request.meta["ollama_model_override"] = tier_cfg.model
+                    logger.info(
+                        "Escalation → tier=%s model=%s reason=%s",
+                        clf_result.tier,
+                        tier_cfg.model,
+                        clf_result.reason,
+                    )
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Escalation classifier failed open: %s", exc)
+
         # 1. Get eligible providers
         providers = await self._get_eligible_providers(
             request.provider,
@@ -761,7 +802,10 @@ class LLMGateway:
                         if request.session_id and _store_history:
                             await self._save_chat_message(request.session_id, request.user_id, "assistant", result.get("answer", ""), run_id)
                                               
-                        return self._build_response(result, run_id, provider_record, model, latency_ms)
+                        return self._build_response(
+                            result, run_id, provider_record, model, latency_ms,
+                            escalation_meta=request.meta,
+                        )
                     
                     # If provider returned !ok but might be retryable (e.g., 503)
                     last_error = result.get("error", "Unknown provider error")
@@ -1307,7 +1351,16 @@ class LLMGateway:
 
         return providers
 
-    def _build_response(self, result: dict, run_id: str, provider: LLMProvider, model: str, latency_ms: int) -> GatewayResponse:
+    def _build_response(
+        self,
+        result: dict,
+        run_id: str,
+        provider: LLMProvider,
+        model: str,
+        latency_ms: int,
+        *,
+        escalation_meta: dict | None = None,
+    ) -> GatewayResponse:
         usage_data = result.get("usage", {})
         usage_payload = {
             "tokens_in": usage_data.get("prompt_tokens", 0),
@@ -1322,6 +1375,7 @@ class LLMGateway:
         if tier and str(tier) not in ("", "1", "t1", "trivial", "moderate"):
             content = content + "\n\n" + self._audit_footer(result, tier, latency_ms)
 
+        _esc = escalation_meta or {}
         return GatewayResponse(
             content=content,
             run_id=run_id,
@@ -1336,6 +1390,9 @@ class LLMGateway:
             explainability=result.get("explainability"),
             warnings=list(result.get("warnings", [])),
             error=result.get("error"),
+            escalation_tier=_esc.get("escalation_tier"),
+            escalation_reason=_esc.get("escalation_reason"),
+            escalation_label=_esc.get("escalation_label"),
         )
 
     @staticmethod

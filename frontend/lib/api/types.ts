@@ -28,6 +28,12 @@ export interface ChatResponse {
   queue_item?: unknown;
   provider_used?: string;
   model_used?: string;
+  /** Sprint 6b escalation tier (0=ultra-light … 5=cloud-full). */
+  escalation_tier?: number;
+  /** Classifier reason string (diagnostic). */
+  escalation_reason?: string;
+  /** Short label shown in the chat UI badge, e.g. "T1·local-primary". */
+  escalation_label?: string;
 }
 
 export interface AuditTrail {

@@ -106,10 +106,13 @@ def test_api_key_auth_header(app_client):
     mock_resp.usage = {}
     mock_resp.coordinate = None
     mock_resp.warnings = []
-    
+    mock_resp.escalation_tier = None
+    mock_resp.escalation_reason = None
+    mock_resp.escalation_label = None
+
     mock_gw_instance = mock_gateway_cls.return_value
     mock_gw_instance.process = AsyncMock(return_value=mock_resp)
-    
+
     # We must patch ExternalAPIKey.verify_key inside the module logic if imported
     # Note: verify_key is called on the class imported in api.py
     
@@ -156,11 +159,14 @@ def test_gateway_chat_endpoint(app_client):
     mock_resp.coordinate = None
     mock_resp.warnings = []
     mock_resp.ok = True
-    
+    mock_resp.escalation_tier = None
+    mock_resp.escalation_reason = None
+    mock_resp.escalation_label = None
+
     mock_gw_instance = mock_gateway_cls.return_value
     mock_gw_instance.process = AsyncMock(return_value=mock_resp)
-    
-    resp = app_client.post('/api/v1/gateway/chat', 
+
+    resp = app_client.post('/api/v1/gateway/chat',
                            headers={'X-API-Key': 'ukg_valid'},
                            json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]})
     

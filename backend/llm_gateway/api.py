@@ -359,11 +359,15 @@ async def gateway_chat():
         'trace_summary': None, # Adjust if response object has this
         'coordinates': response.coordinate,
         'confidence_score': 0.85, # Default or from response logic
-        'claims': [], 
+        'claims': [],
         'evidence_count': 0,
         'output_classification': output_classification,
         'local_slm_audit': local_slm_audit,
         'warnings': response.warnings,
+        # Escalation tier metadata (Sprint 6b) — shows which model tier handled the query.
+        'escalation_tier': response.escalation_tier,
+        'escalation_reason': response.escalation_reason,
+        'escalation_label': response.escalation_label,
     })
 
 

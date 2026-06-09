@@ -82,6 +82,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           isEnhanced: true,
           providerUsed: (data as { provider_used?: string }).provider_used,
           modelUsed: (data as { model_used?: string }).model_used,
+          escalationTier: (data as { escalation_tier?: number }).escalation_tier,
+          escalationLabel: (data as { escalation_label?: string }).escalation_label,
           auditTrail: (data as { audit_trail?: ChatMessage['auditTrail'] }).audit_trail,
         };
         setMessages(prev => [...prev, assistantMsg]);
@@ -184,6 +186,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           traces: data.trace_summary as TracePipeline | undefined,
           providerUsed: data.provider_used,
           modelUsed: data.model_used,
+          escalationTier: data.escalation_tier,
+          escalationLabel: data.escalation_label,
           auditTrail: data.audit_trail,
         };
         setMessages(prev => [...prev, assistantMsg]);
@@ -446,6 +450,18 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                       {msg.role === 'assistant' && msg.isEnhanced && (
                          <div className="flex items-center gap-2 text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded-md w-fit mb-2 border border-blue-500/20">
                             <Zap className="h-3 w-3" /> Enhanced Mode Active
+                         </div>
+                      )}
+
+                      {msg.role === 'assistant' && msg.escalationLabel && (
+                         <div className="flex items-center gap-1.5 text-xs text-violet-400 bg-violet-500/10 px-2 py-1 rounded-md w-fit mb-2 border border-violet-500/20 font-mono">
+                            <Target className="h-3 w-3 shrink-0" />
+                            <span>{msg.escalationLabel}</span>
+                            {msg.modelUsed && (
+                               <span className="text-gray-500 pl-1 border-l border-violet-500/30">
+                                  {msg.modelUsed}
+                               </span>
+                            )}
                          </div>
                       )}
 
