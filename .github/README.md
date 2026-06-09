@@ -31,6 +31,7 @@ Major Systems Completed:
 - MCP Integration Framework
 - Local Database Lifecycle Management
 - Enterprise Audit & Governance Framework
+- 6-Tier Local LLM Chain (Ollama T0–T3, no API key required)
 
 Current Focus:
 
@@ -81,9 +82,11 @@ Every response can be traced through:
 - Governance policies
 - Audit records
 
-**Local-First Architecture**
+**Local-First Architecture with Built-In Local LLMs**
 
 Supports disconnected, air-gapped, enterprise, government, and workstation deployments without requiring external cloud infrastructure.
+
+A built-in 6-tier LLM escalation chain runs entirely on-device via [Ollama](https://ollama.com) — no API key required. Local models (T0 `gemma4:latest` → T1 `gemma4:12b` → T2 `qwen3:14b` → T3 `devstral-small-2:latest`) handle the full reasoning workload by default. Cloud providers (T4 Gemini Flash 3.5, T5 GPT-5.5) auto-unlock only when a key is saved in Settings.
 
 **Model Context Protocol (MCP)**
 
