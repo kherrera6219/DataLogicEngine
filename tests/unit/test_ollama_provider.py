@@ -482,13 +482,22 @@ class TestOllamaProviderUnit:
 # Integration tests (live Ollama required)
 # ===========================================================================
 
+# All four local tier model names (must match exactly what `ollama list` reports).
+_TIER_MODELS = [
+    ("T0", "gemma4:latest"),          # ultra-light, ~1-2 s
+    ("T1", "gemma4:12b"),             # primary, thinking model ~30 s
+    ("T2", "qwen3:14b"),              # medium/coding, thinking model ~40 s
+    ("T3", "devstral-small-2:latest"),# heavy agentic coding ~30 s
+]
+
+
 @_skip_if_no_ollama
 class TestOllamaProviderIntegration:
     """
     Live integration suite — only runs when Ollama is up on localhost:11434.
 
-    Both gemma4:12b (default) and gemma4:latest (fast) are exercised so the
-    full tier-0 / tier-1 model pair is validated end-to-end.
+    All four installed local tiers are exercised:
+      T0 gemma4:latest  · T1 gemma4:12b  · T2 qwen3:14b  · T3 devstral-small-2:latest
     """
 
     provider = OllamaProvider()
@@ -499,16 +508,18 @@ class TestOllamaProviderIntegration:
     async def test_health_check_is_ok(self):
         result = await self.provider.health_check()
         assert result["ok"] is True, f"health_check failed: {result.get('error')}"
-        assert len(result["models"]) >= 1, "No models installed"
+        assert len(result["models"]) >= 4, (
+            f"Expected all 4 tier models installed, found: {result['models']}"
+        )
 
     @pytest.mark.asyncio
-    async def test_list_models_contains_installed_models(self):
+    async def test_list_models_contains_all_four_tiers(self):
         models = await self.provider.list_models()
         assert isinstance(models, list)
-        assert len(models) >= 1
-        # Must have at least one gemma4 variant
-        assert any("gemma4" in m for m in models), (
-            f"Expected a gemma4 model in {models}"
+        expected = {m for _, m in _TIER_MODELS}
+        missing = expected - set(models)
+        assert not missing, (
+            f"Missing tier models: {missing}\nInstalled: {models}"
         )
 
     # ── chat_async with default model (gemma4:12b) ───────────────────────────
@@ -571,37 +582,28 @@ class TestOllamaProviderIntegration:
         full_text = "".join(chunks)
         assert len(full_text) > 0, "Streaming returned no content"
 
-    # ── generate_json_async — validates BOTH models ───────────────────────────
+    # ── generate_json_async — all four tier models ───────────────────────────
 
     @pytest.mark.asyncio
-    async def test_generate_json_default_model(self):
-        """gemma4:12b must return valid JSON for a simple prompt."""
+    @pytest.mark.parametrize("tier_label,model", _TIER_MODELS)
+    async def test_generate_json_all_tiers(self, tier_label: str, model: str):
+        """Every local tier model must return valid JSON for a simple prompt."""
         result = await self.provider.generate_json_async(
             prompt='Return a JSON object with key "status" set to "ok".',
-            model=OLLAMA_DEFAULT_MODEL,
+            model=model,
+            retries=2,
         )
         assert result["ok"] is True, (
-            f"generate_json failed with {OLLAMA_DEFAULT_MODEL}: "
+            f"generate_json failed for {tier_label} ({model}): "
             f"{result.get('error')} | raw: {result.get('raw_text')}"
         )
         assert isinstance(result["data"], dict)
+        assert "status" in result["data"]
 
     @pytest.mark.asyncio
-    async def test_generate_json_fast_model(self):
-        """gemma4:latest must return valid JSON for a simple prompt."""
-        result = await self.provider.generate_json_async(
-            prompt='Return a JSON object with key "status" set to "ok".',
-            model=OLLAMA_FAST_MODEL,
-        )
-        assert result["ok"] is True, (
-            f"generate_json failed with {OLLAMA_FAST_MODEL}: "
-            f"{result.get('error')} | raw: {result.get('raw_text')}"
-        )
-        assert isinstance(result["data"], dict)
-
-    @pytest.mark.asyncio
-    async def test_generate_json_schema_validation(self):
-        """Both models respect a simple required-keys schema."""
+    @pytest.mark.parametrize("tier_label,model", _TIER_MODELS)
+    async def test_generate_json_schema_all_tiers(self, tier_label: str, model: str):
+        """Every tier model respects a required-keys schema."""
         schema = {
             "type": "object",
             "required": ["answer", "confidence"],
@@ -610,17 +612,18 @@ class TestOllamaProviderIntegration:
                 "confidence": {"type": "number"},
             },
         }
-        prompt = (
-            'Return a JSON object with "answer" (a short string) '
-            'and "confidence" (a float between 0 and 1).'
+        result = await self.provider.generate_json_async(
+            prompt=(
+                'Return a JSON object with "answer" (a short string) '
+                'and "confidence" (a float between 0 and 1).'
+            ),
+            model=model,
+            schema=schema,
+            retries=2,
         )
-        for mdl in (OLLAMA_DEFAULT_MODEL, OLLAMA_FAST_MODEL):
-            result = await self.provider.generate_json_async(
-                prompt=prompt, model=mdl, schema=schema, retries=2
-            )
-            assert result["ok"] is True, (
-                f"Schema JSON failed for {mdl}: {result.get('error')} | "
-                f"raw: {result.get('raw_text')}"
-            )
-            assert "answer" in result["data"]
-            assert "confidence" in result["data"]
+        assert result["ok"] is True, (
+            f"Schema JSON failed for {tier_label} ({model}): "
+            f"{result.get('error')} | raw: {result.get('raw_text')}"
+        )
+        assert "answer" in result["data"]
+        assert "confidence" in result["data"]

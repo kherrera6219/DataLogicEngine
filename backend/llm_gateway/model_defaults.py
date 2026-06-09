@@ -10,13 +10,15 @@ GOOGLE_LATEST_MODEL = "gemini-3.5-flash"
 # on demand. Cloud tiers (4–5) use separate LLMProvider records with credentials.
 #
 # Tier 0 — ultra-light, fast turnaround (trivial queries / quick lookups)
-OLLAMA_TIER0_MODEL = "gemma4:e4b"
+# gemma4:latest is the installed fast alias; gemma4:e4b is not pulled.
+OLLAMA_TIER0_MODEL = "gemma4:latest"
 # Tier 1 — DataLogicEngine primary (structured reasoning, data queries)
 OLLAMA_TIER1_MODEL = "gemma4:12b"
 # Tier 2 — medium coding / complex analysis
 OLLAMA_TIER2_MODEL = "qwen3:14b"
 # Tier 3 — heavy agentic coding tasks
-OLLAMA_TIER3_MODEL = "devstral-small-2"
+# Ollama tags this model as devstral-small-2:latest (`:latest` is required).
+OLLAMA_TIER3_MODEL = "devstral-small-2:latest"
 # Tier 4 — cloud fast (internet required)
 CLOUD_TIER4_MODEL = "gemini-3.5-flash"
 # Tier 5 — cloud full / hardest questions (internet required)
